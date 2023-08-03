@@ -10,6 +10,7 @@ export const isTest = process.env.NODE_ENV === 'test';
 export const gitBranch = process.env.REACT_APP_GIT_BRANCH || 'unknown';
 export const gitSha = process.env.REACT_APP_GIT_COMMIT || 'unknown';
 export const isTelemetryEnabled = process.env.REACT_APP_TELEMETRY_ENABLED === 'true';
+export const isXrayEnabled = process.env.REACT_APP_XRAY_ENABLED === 'true';
 
 export const NULL_UUID = '00000000-0000-0000-0000-000000000000';
 export const ppmInfoPacket = '/downloads/ppm_info_sheet.pdf';
