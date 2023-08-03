@@ -578,13 +578,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 	suite.Run("Given a non-existent move task order id, the create should fail", func() {
 		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
-		// move := factory.BuildMove(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
 		estimatedWeight := unit.Pound(2048)
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			// {
-			// 	Model:    move,
-			// 	LinkOnly: true,
-			// },
 			{
 				Model: models.ReService{
 					Code: models.ReServiceCodeDLH,
@@ -986,7 +981,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	}
 
 	suite.Run("Given a non-existent service item id, the create should fail", func() {
-		// badID := uuid.Nil
 		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
 		mtoServiceItem1.MoveTaskOrderID = moveTaskOrder.ID
 		invalidPaymentRequest := models.PaymentRequest{
@@ -996,7 +990,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				{
 					MTOServiceItemID: badID,
 					MTOServiceItem:   mtoServiceItem1,
-					Status:           models.PaymentServiceItemStatusApproved,
 				},
 			},
 		}
@@ -1185,6 +1178,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 							Value:       "2019-12-16",
 						},
 					},
+					Status: models.PaymentServiceItemStatusApproved,
 				},
 				{
 					MTOServiceItemID: mtoServiceItem2.ID,
@@ -1195,8 +1189,10 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 							Value:       "7722",
 						},
 					},
+					Status: models.PaymentServiceItemStatusApproved,
 				},
 			},
+			Status: models.PaymentRequestStatusReviewed,
 		}
 
 		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest1)
@@ -1218,7 +1214,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 							Value:       "2019-12-16",
 						},
 					},
-					Status: models.PaymentServiceItemStatusApproved,
+					// Status: models.PaymentServiceItemStatusApproved,
 				},
 				{
 					MTOServiceItemID: mtoServiceItem2.ID,
@@ -1229,10 +1225,10 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 							Value:       "7722",
 						},
 					},
-					Status: models.PaymentServiceItemStatusApproved,
+					// Status: models.PaymentServiceItemStatusApproved,
 				},
 			},
-			Status: models.PaymentRequestStatusReviewed,
+			// Status: models.PaymentRequestStatusReviewed,
 		}
 
 		_, err = creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest2)
@@ -1282,12 +1278,12 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 		paymentRequest1.Status = models.PaymentRequestStatusReviewedAllRejected
 		paymentRequest1.PaymentServiceItems[0].Status = models.PaymentServiceItemStatusDenied
-		// paymentRequest1.PaymentServiceItems[1].Status = models.PaymentServiceItemStatusDenied
-		suite.MustSave(&paymentRequest1)
+		paymentRequest1.PaymentServiceItems[1].Status = models.PaymentServiceItemStatusDenied
+		// suite.MustSave(&paymentRequest1)
 
-		// var paymentRequests models.PaymentRequests
-		// paymentRequests = append(paymentRequests, paymentRequest1)
-		// moveTaskOrder.PaymentRequests = paymentRequests
+		var paymentRequests models.PaymentRequests
+		paymentRequests = append(paymentRequests, paymentRequest1)
+		moveTaskOrder.PaymentRequests = paymentRequests
 
 		paymentRequest2 := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
