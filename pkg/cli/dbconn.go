@@ -2,6 +2,7 @@ package cli
 
 import (
 	"database/sql"
+	"database/sql/driver"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -13,10 +14,11 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/rds"
 	pop "github.com/gobuffalo/pop/v6"
-	"github.com/luna-duclos/instrumentedsql"
+	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
 	"go.uber.org/zap"
 
 	iampg "github.com/transcom/mymove/pkg/iampostgres"
@@ -363,47 +365,34 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Lo
 	}
 
 	if dbUseInstrumentedDriver {
-		// to fake pop out, we need to register the otelsql instrumented
-		// driver under the driverName that pop would use. To do that,
-		// we need to get the otelsql driver.Driver, which is easiest
-		// to get from sql.DB.Driver()
-		db, err := sql.Open(dbConnectionDetails.Driver, "")
-		if err != nil {
-			logger.Error("Failed opening uninstrumented connection", zap.Error(err))
-			return nil, err
-		}
-		currentDriver := db.Driver()
-		err = db.Close()
-		if err != nil {
-			logger.Error("Failed closing uninstrumented connection", zap.Error(err))
-			return nil, err
-		}
-
-		// This is the name from pop's instrumented connection code
-		// https://github.com/gobuffalo/pop/blob/master/connection_instrumented.go#L44
-		popInstrumentedDriverName := "instrumented-sql-driver-postgres"
-		// and we're going to fake out pop with the Driver so that the
-		// driver name matches what pop is looking for, but it will
-		// wind up using the desired driver under a wrapped otelsql connection
-		dbConnectionDetails.Driver = "postgres"
+		// pop has a way to enable an instrumented driver, but it's
+		// not compatible with the way we set up our custom database
+		// driver. It's simpler to just wrap our custom driver with
+		// the otelsql one manually here
+		instrumentedDriverName := "instrumented-" + dbConnectionDetails.Driver
 		spanOptions := otelsql.SpanOptions{
 			Ping:     true,
 			RowsNext: v.GetBool(DbDebugFlag),
+			// These provide very little information and can make it
+			// hard to see through the noise
+			OmitConnResetSession: true,
+			OmitConnectorConnect: true,
+			OmitRows:             true,
 		}
-		sql.Register(popInstrumentedDriverName,
-			otelsql.WrapDriver(currentDriver,
-				otelsql.WithSpanOptions(spanOptions)))
+		otelDriver := otelsql.WrapDriver(&iampg.RDSPostgresDriver{},
+			otelsql.WithAttributes(semconv.DBSystemPostgreSQL),
+			otelsql.WithSpanOptions(spanOptions))
 
-		// now we can update the connection details to indicate we
-		// want an instrumented connection
-		dbConnectionDetails.UseInstrumentedDriver = true
-		// pop expects at least one option when using instrumented
-		// sql, but the options will be ignored since we are faking
-		// things out
-		dbConnectionDetails.InstrumentedDriverOptions = []instrumentedsql.Opt{
-			instrumentedsql.WithOmitArgs(),
+		// Make sure the otelsql driver implements the DriverContext interface
+		_, ok := otelDriver.(driver.DriverContext)
+		if ok {
+			sql.Register(instrumentedDriverName, otelDriver)
+			sqlx.BindDriver(instrumentedDriverName, sqlx.DOLLAR)
+			dbConnectionDetails.Driver = instrumentedDriverName
+			logger.Info("Using otelsql instrumented sql driver")
+		} else {
+			logger.Error("Could not wrap otelsql instrumented sql driver")
 		}
-		logger.Info("Using otelsql instrumented sql driver")
 	}
 
 	err := dbConnectionDetails.Finalize()
