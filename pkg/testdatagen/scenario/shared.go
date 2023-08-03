@@ -10062,40 +10062,6 @@ func CreateNeedsServicesCounselingWithAmendedOrders(appCtx appcontext.AppContext
 			Type:     &factory.Addresses.DeliveryAddress,
 		},
 	}, nil)
-
-	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
-	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
-	factory.BuildMTOShipment(db, []factory.Customization{
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-		{
-			Model: models.MTOShipment{
-				ShipmentType:          shipmentType,
-				Status:                models.MTOShipmentStatusSubmitted,
-				RequestedPickupDate:   &requestedPickupDate,
-				RequestedDeliveryDate: &requestedDeliveryDate,
-			},
-		},
-	}, nil)
-	officeUser := factory.BuildOfficeUserWithRoles(db, nil, []roles.RoleType{roles.RoleTypeTOO})
-	factory.BuildCustomerSupportRemark(db, []factory.Customization{
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-		{
-			Model:    officeUser,
-			LinkOnly: true,
-		},
-		{
-			Model: models.CustomerSupportRemark{
-				Content: "The customer mentioned that they need to provide some more complex instructions for pickup and drop off.",
-			},
-		},
-	}, nil)
-
 	return move
 }
 
