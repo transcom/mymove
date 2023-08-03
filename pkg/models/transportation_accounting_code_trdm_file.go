@@ -4,13 +4,15 @@ package models
 // Transportation_Accounting_Code (TAC) .txt file
 
 // This struct only applies to the received .txt file.
+// 24 values pulled from TRDM
+// Every TAC is a typ of LOA BUT not every LOA is a TAC
 type TransportationAccountingCodeTrdmFileRecord struct {
 	TAC_SYS_ID              string
-	LOA_SYS_ID              string
-	TRNSPRTN_ACNT_CD        string
+	LOA_SYS_ID              string // Shared with LOA. This is the key
+	TRNSPRTN_ACNT_CD        string // Could be null? If null, use LOA
 	TAC_FY_TXT              string
 	TAC_FN_BL_MOD_CD        string
-	ORG_GRP_DFAS_CD         string
+	ORG_GRP_DFAS_CD         string // Shared with LOA
 	TAC_MVT_DSG_ID          string
 	TAC_TY_CD               string
 	TAC_USE_CD              string
