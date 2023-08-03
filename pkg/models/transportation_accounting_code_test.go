@@ -10,7 +10,7 @@ import (
 
 // This test will check if any field names are not being mapped properly. This test is not finalized.
 func TestTransportationAccountingCodeMapForUnusedFields(t *testing.T) {
-	t.Skip("Skipping this test until the fields and usecase has been finalized.")
+	t.Skip("Skipping TestTransportationAccountingCodeMapForUnusedFields until the fields and usecase has been finalized.")
 
 	// Example of TransportationAccountingCodeTrdmFileRecord
 	tacFileRecord := models.TransportationAccountingCodeTrdmFileRecord{

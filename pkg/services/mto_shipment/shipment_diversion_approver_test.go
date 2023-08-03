@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
@@ -28,8 +29,12 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 		}, nil)
 		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		divertedShipment, err := approver.ApproveShipmentDiversion(suite.AppContextForTest(), shipment.ID, shipmentEtag)
+		divertedShipment, err := approver.ApproveShipmentDiversion(session, shipment.ID, shipmentEtag)
 
 		suite.NoError(err)
 		suite.Equal(shipment.MoveTaskOrderID, divertedShipment.MoveTaskOrderID)
@@ -54,8 +59,12 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 			},
 		}, nil)
 		eTag := etag.GenerateEtag(rejectedShipment.UpdatedAt)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		_, err := approver.ApproveShipmentDiversion(suite.AppContextForTest(), rejectedShipment.ID, eTag)
+		_, err := approver.ApproveShipmentDiversion(session, rejectedShipment.ID, eTag)
 
 		suite.Error(err)
 		suite.IsType(ConflictStatusError{}, err)
@@ -71,8 +80,12 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 				},
 			},
 		}, nil)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		_, err := approver.ApproveShipmentDiversion(suite.AppContextForTest(), staleShipment.ID, staleETag)
+		_, err := approver.ApproveShipmentDiversion(session, staleShipment.ID, staleETag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
@@ -81,8 +94,12 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 	suite.Run("Passing in a bad shipment id returns a Not Found error", func() {
 		eTag := etag.GenerateEtag(time.Now())
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		_, err := approver.ApproveShipmentDiversion(suite.AppContextForTest(), badShipmentID, eTag)
+		_, err := approver.ApproveShipmentDiversion(session, badShipmentID, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -100,14 +117,17 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 			},
 		}, nil)
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
-
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 		createdShipment := models.MTOShipment{}
 		err := suite.DB().Find(&createdShipment, shipment.ID)
 		suite.FatalNoError(err)
 
 		shipmentRouter.On("ApproveDiversion", mock.AnythingOfType("*appcontext.appContext"), &createdShipment).Return(nil)
 
-		_, err = approver.ApproveShipmentDiversion(suite.AppContextForTest(), shipment.ID, eTag)
+		_, err = approver.ApproveShipmentDiversion(session, shipment.ID, eTag)
 
 		suite.NoError(err)
 		shipmentRouter.AssertNumberOfCalls(suite.T(), "ApproveDiversion", 1)
