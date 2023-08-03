@@ -78,6 +78,13 @@ const ShipmentForm = (props) => {
   const navigate = useNavigate();
 
   const [errorMessage, setErrorMessage] = useState(null);
+
+  // TODO: Existing error alert has a heading, new designs do not.
+  //  Check with design to confirm we want to use something else
+  //  If we use a different error, similar state can be managed here e.g.:
+  //  const [showShipmentAddressUpdateReviewSuccess, setShowShipmentAddressUpdateReviewSuccess] = useState(null);
+  //  const [showShipmentAddressUpdateReviewFailure, setShowShipmentAddressUpdateReviewFailure] = useState(null);
+
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
 
   const shipments = mtoShipments;
@@ -108,6 +115,16 @@ const ShipmentForm = (props) => {
     },
   });
 
+  // TODO: import reviewShipmentAddressUpdateRequest from 'services/ghcApi'
+  // const { mutate: mutateShipmentAddressUpdateReview } = useMutation(reviewShipmentAddressUpdateRequest, {
+  //   onSuccess: () => {
+  //     // TODO: Show the success alert
+  //   },
+  //   onError: () => {
+  //     // TODO: Show the error alert
+  //   },
+  // });
+
   const getShipmentNumber = () => {
     // TODO - this is not supported by IE11, shipment number should be calculable from Redux anyways
     // we should fix this also b/c it doesn't display correctly in storybook
@@ -122,6 +139,10 @@ const ShipmentForm = (props) => {
       shipmentID,
     });
   };
+
+  // const handleSubmitShipmentAddressUpdateReview = () => {
+  //   // TODO: call a mutation query
+  // };
 
   const handleShowCancellationModal = () => {
     setIsCancelModalVisible(true);
@@ -465,6 +486,7 @@ const ShipmentForm = (props) => {
               onClose={() => setIsAddressChangeModalOpen(false)}
               deliveryAddressUpdate={mtoShipment?.deliveryAddressUpdate}
               shipmentType={mtoShipment?.shipmentType}
+              // TODO: onSubmit
             />
             <NotificationScrollToTop dependency={errorMessage} />
             {errorMessage && (

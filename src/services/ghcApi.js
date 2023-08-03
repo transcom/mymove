@@ -637,3 +637,7 @@ export async function searchTransportationOffices(search) {
   const operationPath = 'transportationOffice.getTransportationOffices';
   return makeGHCRequest(operationPath, { search }, { normalize: false });
 }
+
+export const reviewShipmentAddressUpdateRequest = () => {
+  // TODO: makeGHCRequest to '/shipments/{shipmentID}/review-shipment-address-update'
+};
