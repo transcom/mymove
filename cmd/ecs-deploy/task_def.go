@@ -679,7 +679,12 @@ processors:
     send_batch_size: 50
   batch/metrics:
     timeout: 60s
-  filter:
+  filter/traces:
+    error_mode: ignore
+    traces:
+      span:
+        - 'attributes["http.route"] == "/health"'
+  filter/metrics:
     metrics:
       include:
         match_type: strict
@@ -867,7 +872,7 @@ service:
   pipelines:
     traces:
       receivers: [otlp,awsxray]
-      processors: [batch/traces]
+      processors: [filter/traces, batch/traces]
       exporters: [awsxray]
     metrics/application:
       receivers: [otlp, statsd]
@@ -875,7 +880,7 @@ service:
       exporters: [awsemf/application]
     metrics/performance:
       receivers: [awsecscontainermetrics ]
-      processors: [filter, metricstransform, resource]
+      processors: [filter/metrics, metricstransform, resource]
       exporters: [ awsemf/performance ]
 
   extensions: [health_check]
