@@ -300,6 +300,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySITSameZ
 
 func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySIT50PlusMilesDiffZip3s() {
 	dlhZipDest := "30907"
+	dlhSameZip3Dest := "30901"     // same zip3
 	dlhZipSITDest := "36106"       // different zip3
 	dlhDistance := unit.Miles(305) // > 50 miles
 	dlhContractName := "dhlTestYear"
@@ -307,6 +308,25 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySIT50Plu
 	suite.Run("destination golden path for > 50 miles with different zip3s", func() {
 		suite.setupDomesticLinehaulPrice(dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestWeightLower, dddsitTestWeightUpper, dddsitTestMilesLower, dddsitTestMilesUpper, dddsitTestDomesticLinehaulBasePriceMillicents, dlhContractName, dddsitTestEscalationCompounded)
 		priceCents, displayParams, err := priceDomesticPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, dlhZipDest, dlhZipSITDest, dlhDistance)
+		suite.NoError(err)
+		expectedPriceMillicents := unit.Millicents(45944438) // dddsitTestDomesticLinehaulBasePriceMillicents * (dddsitTestWeight / 100) * distance * dddsitTestEscalationCompounded
+		expectedPrice := expectedPriceMillicents.ToCents()
+
+		suite.Equal(expectedPrice, priceCents)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: dlhContractName},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dddsitTestEscalationCompounded)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(dddsitTestIsPeakPeriod)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatFloat(dddsitTestDomesticLinehaulBasePriceMillicents.ToDollarFloatNoRound(), 3)},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
+	})
+
+	// Added this case in to make sure that the greater than 50 miles logic is taking precedence over the same zip3 logic
+	suite.Run("greater than 50 miles with same zip3s", func() {
+		suite.setupDomesticLinehaulPrice(dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestWeightLower, dddsitTestWeightUpper, dddsitTestMilesLower, dddsitTestMilesUpper, dddsitTestDomesticLinehaulBasePriceMillicents, dlhContractName, dddsitTestEscalationCompounded)
+		priceCents, displayParams, err := priceDomesticPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, dlhZipDest, dlhSameZip3Dest, dlhDistance)
 		suite.NoError(err)
 		expectedPriceMillicents := unit.Millicents(45944438) // dddsitTestDomesticLinehaulBasePriceMillicents * (dddsitTestWeight / 100) * distance * dddsitTestEscalationCompounded
 		expectedPrice := expectedPriceMillicents.ToCents()

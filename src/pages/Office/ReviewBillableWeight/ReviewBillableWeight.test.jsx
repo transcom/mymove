@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import ReviewBillableWeight from './ReviewBillableWeight';
 
 import { formatWeight, formatDateFromIso } from 'utils/formatters';
-import { useOrdersDocumentQueries, useMovePaymentRequestsQueries } from 'hooks/queries';
+import { useMovePaymentRequestsQueries } from 'hooks/queries';
 import { shipmentStatuses } from 'constants/shipments';
 import { tioRoutes } from 'constants/routes';
 import { MockProviders, ReactQueryWrapper } from 'testUtils';
@@ -18,7 +18,6 @@ jest.mock('components/DocumentViewer/DocumentViewer', () => {
 });
 
 jest.mock('hooks/queries', () => ({
-  useOrdersDocumentQueries: jest.fn(),
   useMovePaymentRequestsQueries: jest.fn(),
 }));
 
@@ -200,17 +199,22 @@ const mockNoPrimeEstimatedWeightShipment = {
   actualPickupDate: '2021-08-31',
 };
 
-const useOrdersDocumentQueriesReturnValue = {
-  orders: mockOrders,
-  upload: {
-    z: {
-      id: 'z',
-      filename: 'test.pdf',
-      contentType: 'application/pdf',
-      url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-    },
+const mockPaymentRequest = [
+  {
+    proofOfServiceDocs: [
+      {
+        uploads: [
+          {
+            id: 'z',
+            filename: 'test.pdf',
+            contentType: 'application/pdf',
+            url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+          },
+        ],
+      },
+    ],
   },
-};
+];
 
 const move = {
   tioRemarks: 'the prime has already unloaded this move',
@@ -220,36 +224,42 @@ const useMovePaymentRequestsReturnValue = {
   order: mockOrders['1'],
   mtoShipments: mockMtoShipments,
   move,
+  paymentRequests: mockPaymentRequest,
 };
 
 const useMovePaymentRequestsNTSReleaseReturnValue = {
   order: mockOrders['1'],
   mtoShipments: mockMtoNTSReleaseShipments,
   move,
+  paymentRequests: mockPaymentRequest,
 };
 
 const useNonMaxBillableWeightExceededReturnValue = {
   order: mockOrders['1'],
   mtoShipments: [mockMtoShipments[0]],
   move,
+  paymentRequests: mockPaymentRequest,
 };
 
 const useMissingShipmentWeightNoReweighReturnValue = {
   order: mockOrders['1'],
   mtoShipments: [mockNoReweighWeightShipment, mockHasAllInformationShipment],
   move,
+  paymentRequests: mockPaymentRequest,
 };
 
 const useMissingShipmentWeightNoPrimeEstimatedWeightReturnValue = {
   order: mockOrders['1'],
   mtoShipments: [mockNoPrimeEstimatedWeightShipment, mockHasAllInformationShipment],
   move,
+  paymentRequests: mockPaymentRequest,
 };
 
 const noAlertsReturnValue = {
   order: mockOrders['1'],
   mtoShipments: [mockHasAllInformationShipment],
   move,
+  paymentRequests: mockPaymentRequest,
 };
 
 const loadingReturnValue = {
@@ -277,8 +287,7 @@ const renderWithProviders = (component) => {
 describe('ReviewBillableWeight', () => {
   describe('check loading and error component states', () => {
     it('renders the loading placeholder when the query is still loading', async () => {
-      useOrdersDocumentQueries.mockReturnValue(loadingReturnValue);
-      useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
+      useMovePaymentRequestsQueries.mockReturnValue(loadingReturnValue);
 
       renderWithProviders(<ReviewBillableWeight />);
 
@@ -287,8 +296,7 @@ describe('ReviewBillableWeight', () => {
     });
 
     it('renders the Something Went Wrong component when the query errors', async () => {
-      useOrdersDocumentQueries.mockReturnValue(errorReturnValue);
-      useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
+      useMovePaymentRequestsQueries.mockReturnValue(errorReturnValue);
 
       renderWithProviders(<ReviewBillableWeight />);
 
@@ -299,7 +307,6 @@ describe('ReviewBillableWeight', () => {
 
   describe('check that all the components render', () => {
     it('renders the component', () => {
-      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
       useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
       renderWithProviders(<ReviewBillableWeight />);
@@ -309,7 +316,6 @@ describe('ReviewBillableWeight', () => {
     });
 
     it('renders weight summary', () => {
-      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
       useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
       renderWithProviders(<ReviewBillableWeight />);
       expect(screen.getByTestId('maxBillableWeight').textContent).toBe(
@@ -323,7 +329,6 @@ describe('ReviewBillableWeight', () => {
     });
 
     it('renders max billable weight and edit view', async () => {
-      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
       useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
       const weightAllowance = formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.totalWeight);
 
@@ -339,8 +344,6 @@ describe('ReviewBillableWeight', () => {
 
   describe('check the nagivation', () => {
     it('takes the user back to the payment requests page when x is clicked', async () => {
-      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
-
       renderWithProviders(<ReviewBillableWeight />);
 
       const xButton = screen.getByTestId('closeSidebar');
@@ -357,7 +360,6 @@ describe('ReviewBillableWeight', () => {
     });
 
     it('takes the user to review the shipment weights when the review weights button is clicked', async () => {
-      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
       useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
       renderWithProviders(<ReviewBillableWeight />);
@@ -392,7 +394,6 @@ describe('ReviewBillableWeight', () => {
     });
 
     it('takes the user to the next shipment when the Next Shipment button is clicked', async () => {
-      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
       useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
       renderWithProviders(<ReviewBillableWeight />);
@@ -449,7 +450,6 @@ describe('ReviewBillableWeight', () => {
     });
 
     it('takes the user to the previous shipment when the Back button is clicked', async () => {
-      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
       useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
       renderWithProviders(<ReviewBillableWeight />);
@@ -522,7 +522,6 @@ describe('ReviewBillableWeight', () => {
   describe('check that the various alerts show up when expected', () => {
     describe('max billable weight alert', () => {
       it('renders in shipment view when billable weight is exceeded', async () => {
-        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
         renderWithProviders(<ReviewBillableWeight />);
@@ -533,7 +532,6 @@ describe('ReviewBillableWeight', () => {
       });
 
       it('renders in edit view when billable weight is exceeded', async () => {
-        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
         renderWithProviders(<ReviewBillableWeight />);
@@ -543,7 +541,6 @@ describe('ReviewBillableWeight', () => {
       });
 
       it('does not render in edit view when billable weight is not exceeded', async () => {
-        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useNonMaxBillableWeightExceededReturnValue);
 
         renderWithProviders(<ReviewBillableWeight />);
@@ -555,7 +552,6 @@ describe('ReviewBillableWeight', () => {
       });
 
       it('does not render in shipment view when billable weight is not exceeded', async () => {
-        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useNonMaxBillableWeightExceededReturnValue);
 
         renderWithProviders(<ReviewBillableWeight />);
@@ -568,7 +564,6 @@ describe('ReviewBillableWeight', () => {
 
     describe('missing shipment weights may impact max billable weight', () => {
       it('renders when a shipment is missing a reweigh weight', () => {
-        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useMissingShipmentWeightNoReweighReturnValue);
 
         renderWithProviders(<ReviewBillableWeight />);
@@ -577,7 +572,6 @@ describe('ReviewBillableWeight', () => {
       });
 
       it('renders when a shipment is missing a prime estimated weight', () => {
-        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useMissingShipmentWeightNoPrimeEstimatedWeightReturnValue);
 
         renderWithProviders(<ReviewBillableWeight />);
@@ -586,7 +580,6 @@ describe('ReviewBillableWeight', () => {
       });
 
       it('does not render when none of the shipments are missing reweigh or prime estimated weight information', () => {
-        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(noAlertsReturnValue);
 
         renderWithProviders(<ReviewBillableWeight />);
@@ -597,7 +590,6 @@ describe('ReviewBillableWeight', () => {
 
     describe('shipment missing information', () => {
       it('renders the alert when the shipment is missing a reweigh weight', async () => {
-        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useMissingShipmentWeightNoReweighReturnValue);
 
         renderWithProviders(<ReviewBillableWeight />);
@@ -609,7 +601,6 @@ describe('ReviewBillableWeight', () => {
       });
 
       it('renders the alert when the shipment is missing a prime estimated weight', async () => {
-        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useMissingShipmentWeightNoPrimeEstimatedWeightReturnValue);
 
         renderWithProviders(<ReviewBillableWeight />);
@@ -621,7 +612,6 @@ describe('ReviewBillableWeight', () => {
       });
 
       it('does not render when the shipment is not missing a reweigh or a prime estimated ewight', async () => {
-        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(noAlertsReturnValue);
 
         renderWithProviders(<ReviewBillableWeight />);
@@ -635,7 +625,6 @@ describe('ReviewBillableWeight', () => {
 
     describe('shipment exceeds 110% of estimated weight', () => {
       it('renders the alert when the shipment is overweight - the billable weight is greater than the estimated weight * 110%', async () => {
-        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
 
         renderWithProviders(<ReviewBillableWeight />);
@@ -647,7 +636,6 @@ describe('ReviewBillableWeight', () => {
       });
 
       it('does not render the alert when the shipment is not overweight - the billable weight is less than the estimated weight * 110%', async () => {
-        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(noAlertsReturnValue);
 
         renderWithProviders(<ReviewBillableWeight />);
@@ -659,7 +647,6 @@ describe('ReviewBillableWeight', () => {
       });
 
       it('does not render the alert when the shipment an NTS-release', async () => {
-        useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
         useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsNTSReleaseReturnValue);
 
         renderWithProviders(<ReviewBillableWeight />);
