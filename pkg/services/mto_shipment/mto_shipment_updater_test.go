@@ -119,6 +119,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		mtoShipment = models.MTOShipment{
 			ID:                         oldMTOShipment.ID,
 			MoveTaskOrderID:            oldMTOShipment.MoveTaskOrderID,
+			MoveTaskOrder:              oldMTOShipment.MoveTaskOrder,
 			DestinationAddress:         oldMTOShipment.DestinationAddress,
 			DestinationAddressID:       oldMTOShipment.DestinationAddressID,
 			PickupAddress:              oldMTOShipment.PickupAddress,
@@ -148,6 +149,29 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 		// Verify that shipment recalculate was handled correctly
 		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"))
+	})
+
+	suite.Run("404 Not Found Error - shipment can only be created for service member associated with the current session", func() {
+		setupTestData()
+
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: mtoShipment.MoveTaskOrder.Orders.ServiceMemberID,
+		})
+
+		eTag := etag.GenerateEtag(oldMTOShipment.UpdatedAt)
+		move := factory.BuildMove(suite.DB(), nil, nil)
+
+		shipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		updatedShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(session, &shipment, eTag)
+		suite.Error(err)
+		suite.Nil(updatedShipment)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.Run("If-Unmodified-Since is equal to the updated_at date", func() {
