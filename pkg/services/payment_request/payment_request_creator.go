@@ -50,8 +50,10 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 
 		err = validatePaymentRequest(appCtx, *paymentRequestArg, nil, checks...)
 		if err != nil {
+			appCtx.Logger().Error("failing at validation")
 			return err
 		}
+		// appCtx.Logger().Error("failing at validation 2")
 		// Gather information for logging
 		mtoMessageString := " MTO ID <" + paymentRequestArg.MoveTaskOrderID.String() + ">"
 		prMessageString := " paymentRequestID <" + paymentRequestArg.ID.String() + ">"
