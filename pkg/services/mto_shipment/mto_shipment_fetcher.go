@@ -21,13 +21,17 @@ func NewMTOShipmentFetcher() services.MTOShipmentFetcher {
 }
 
 func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveID uuid.UUID) ([]models.MTOShipment, error) {
-	serviceMemberID := appCtx.Session().ServiceMemberID
-
 	var move models.Move
-	err := appCtx.DB().Q().
-		LeftJoin("orders", "orders.id = moves.orders_id").
-		Where("orders.service_member_id = ?", serviceMemberID).
-		Find(&move, moveID)
+	moveQuery := appCtx.DB().Q()
+
+	if appCtx.Session().IsMilApp() {
+		serviceMemberID := appCtx.Session().ServiceMemberID
+		moveQuery = moveQuery.
+			LeftJoin("orders", "orders.id = moves.orders_id").
+			Where("orders.service_member_id = ?", serviceMemberID)
+	}
+
+	err := moveQuery.Find(&move, moveID)
 
 	if err != nil {
 		switch err {

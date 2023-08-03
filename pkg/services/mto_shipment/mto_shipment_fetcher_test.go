@@ -20,6 +20,7 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		expectedError := apperror.NewNotFoundError(moveID, "move not found")
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
 			ServiceMemberID: uuid.Must(uuid.NewV4()),
 		})
 
@@ -33,6 +34,7 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
 			ServiceMemberID: move.Orders.ServiceMemberID,
 		})
 
@@ -46,13 +48,15 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		move := factory.BuildMove(suite.DB(), nil, nil)
 		expectedError := apperror.NewNotFoundError(move.ID, "move not found")
 
+		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
-			ServiceMemberID: uuid.Must(uuid.NewV4()),
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: serviceMember.ID,
 		})
 
 		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(appCtx, move.ID)
 
-		suite.Equalf(err, expectedError, "Expected not found error for non-existent move id")
+		suite.Equalf(err, expectedError, "Expected not found error for unauthorized user")
 		suite.Nil(mtoShipments, "Expected shipment slice to be nil")
 	})
 
@@ -84,6 +88,7 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		}, nil)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
 			ServiceMemberID: move.Orders.ServiceMemberID,
 		})
 
@@ -115,6 +120,7 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		}, nil)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
 			ServiceMemberID: move.Orders.ServiceMemberID,
 		})
 
@@ -150,6 +156,7 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		}, nil)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
 			ServiceMemberID: move.Orders.ServiceMemberID,
 		})
 
@@ -222,6 +229,7 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		})
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
 			ServiceMemberID: move.Orders.ServiceMemberID,
 		})
 
@@ -293,6 +301,7 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		suite.NoError(err)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
 			ServiceMemberID: move.Orders.ServiceMemberID,
 		})
 
