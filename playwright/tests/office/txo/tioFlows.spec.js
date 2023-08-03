@@ -187,6 +187,13 @@ test.describe('TIO user', () => {
       await tioFlowPage.waitForLoading();
 
       const form = page.locator('form');
+      // Viewing allowances and then orders still navigates back to the payment request details page
+      await form.getByRole('link', { name: 'View Allowances' }).click();
+      await tioFlowPage.waitForLoading();
+
+      await form.getByRole('link', { name: 'View orders' }).click();
+      await tioFlowPage.waitForLoading();
+      // Edit orders page | Make edits
       await form.locator('input[name="tac"]').clear();
       await form.locator('input[name="tac"]').type('E15A');
       await form.locator('input[name="sac"]').clear();
