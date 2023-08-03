@@ -1677,6 +1677,7 @@ jobs:
           command: |
             export REACT_APP_ERROR_LOGGING=otel
             export REACT_APP_TELEMETRY_ENABLED=true
+            export REACT_APP_XRAY_ENABLED=true
             make client_build
       # only save the cache on default branch builds so that PRs don't pollute
       # the cache
