@@ -182,6 +182,12 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveWithAddressChangeRequest": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithAddressChangeRequest(appCtx)
 	},
+	"MakeHHGMoveWithAddressChangeRequestAndUnknownDeliveryAddress": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithAddressChangeRequestAndUnknownDeliveryAddress(appCtx)
+	},
+	"MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx)
+	},
 }
 
 func Actions() []string {

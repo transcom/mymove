@@ -4629,6 +4629,18 @@ func MakeHHGMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.Sh
 		},
 	}, nil)
 
+	originalDeliveryAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "7 Q st",
+				StreetAddress2: models.StringPointer("Apt 1"),
+				City:           "Fort Gordon",
+				State:          "GA",
+				PostalCode:     "30813",
+			},
+		},
+	}, nil)
+
 	shipmentAddressUpdate := factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{
 		{
 			Model:    orders,
@@ -4650,8 +4662,190 @@ func MakeHHGMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.Sh
 				Status: models.MTOShipmentStatusApproved,
 			},
 		},
+		{
+			Model:    originalDeliveryAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
 	}, nil)
 
 	return shipmentAddressUpdate
+}
 
+func MakeHHGMoveWithAddressChangeRequestAndUnknownDeliveryAddress(appCtx appcontext.AppContext) models.ShipmentAddressUpdate {
+	userUploader := newUserUploader(appCtx)
+	userInfo := newUserInfo("customer")
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				LoginGovEmail: userInfo.email,
+				Active:        true,
+			},
+		},
+	}, nil)
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+
+	destinationAddress := factory.BuildMinimalAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				City:       customer.DutyLocation.Address.City,
+				State:      customer.DutyLocation.Address.State,
+				PostalCode: customer.DutyLocation.Address.PostalCode,
+				Country:    customer.DutyLocation.Address.Country,
+			},
+		},
+	}, nil)
+
+	shipmentAddressUpdate := factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ShipmentAddressUpdate{
+				Status: models.ShipmentAddressUpdateStatusRequested,
+			},
+		},
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+			},
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
+		},
+		{
+			Model:    destinationAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
+	}, nil)
+
+	return shipmentAddressUpdate
+}
+
+func MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx appcontext.AppContext) models.ShipmentAddressUpdate {
+	userUploader := newUserUploader(appCtx)
+	userInfo := newUserInfo("customer")
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				LoginGovEmail: userInfo.email,
+				Active:        true,
+			},
+		},
+	}, nil)
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+
+	secondaryDeliveryAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "123 2nd Address",
+			},
+		},
+	}, nil)
+
+	originalDeliveryAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "7 Q st",
+				StreetAddress2: models.StringPointer("Apt 1"),
+				City:           "Fort Gordon",
+				State:          "GA",
+				PostalCode:     "30813",
+			},
+		},
+	}, nil)
+
+	shipmentAddressUpdate := factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ShipmentAddressUpdate{
+				Status: models.ShipmentAddressUpdateStatusRequested,
+			},
+		},
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+			},
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
+		},
+		{
+			Model:    secondaryDeliveryAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.SecondaryDeliveryAddress,
+		},
+		{
+			Model:    originalDeliveryAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
+	}, nil)
+
+	return shipmentAddressUpdate
 }
