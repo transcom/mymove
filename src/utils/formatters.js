@@ -351,6 +351,13 @@ export const formatDaysRemaining = (days) => {
   return '0 days';
 };
 
+export const formatEndTense = (days) => {
+  if (days && days < 0) {
+    return 'ended';
+  }
+  return 'ends';
+};
+
 export const formatAddressForPrimeAPI = (address) => {
   return {
     streetAddress1: address.streetAddress1,

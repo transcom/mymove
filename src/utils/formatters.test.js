@@ -145,6 +145,24 @@ describe('formatters', () => {
     });
   });
 
+  describe('formatEndTense', () => {
+    it('returns ends when value is null', () => {
+      expect(formatters.formatEndTense(null)).toEqual('ends');
+    });
+
+    it('returns ends when value is zero', () => {
+      expect(formatters.formatEndTense(0)).toEqual('ends');
+    });
+
+    it('returns ends when greater than 0', () => {
+      expect(formatters.formatEndTense(2)).toEqual('ends');
+    });
+
+    it('returns ended when less than 0', () => {
+      expect(formatters.formatEndTense(-5)).toEqual('ended');
+    });
+  });
+
   describe('formatDelimitedNumber', () => {
     it('works for simple string numbers', () => {
       expect(formatters.formatDelimitedNumber('500')).toEqual(500);
