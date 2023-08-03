@@ -538,6 +538,7 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 	doasitPaymentServiceItem := models.PaymentServiceItem{
 		MTOServiceItemID: mtoServiceItemDOASIT.ID,
 		MTOServiceItem:   mtoServiceItemDOASIT,
+		Status:           models.PaymentServiceItemStatusApproved,
 	}
 	doasitPaymentServiceItem.PaymentServiceItemParams = models.PaymentServiceItemParams{
 		{

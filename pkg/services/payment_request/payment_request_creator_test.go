@@ -1282,15 +1282,17 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 		paymentRequest1.Status = models.PaymentRequestStatusReviewedAllRejected
 		paymentRequest1.PaymentServiceItems[0].Status = models.PaymentServiceItemStatusDenied
-		paymentRequest1.PaymentServiceItems[1].Status = models.PaymentServiceItemStatusDenied
+		// paymentRequest1.PaymentServiceItems[1].Status = models.PaymentServiceItemStatusDenied
 		suite.MustSave(&paymentRequest1)
+
 		// var paymentRequests models.PaymentRequests
 		// paymentRequests = append(paymentRequests, paymentRequest1)
+		// moveTaskOrder.PaymentRequests = paymentRequests
 
 		paymentRequest2 := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         true,
-			PaymentServiceItems: models.PaymentServiceItems{
+			PaymentServiceItems: []models.PaymentServiceItem{
 				{
 					MTOServiceItemID: mtoServiceItem1.ID,
 					MTOServiceItem:   mtoServiceItem1,
@@ -1304,6 +1306,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 							Value:       "2019-12-16",
 						},
 					},
+					Status: models.PaymentServiceItemStatusRequested,
 				},
 				{
 					MTOServiceItemID: mtoServiceItem2.ID,
@@ -1314,6 +1317,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 							Value:       "7722",
 						},
 					},
+					Status: models.PaymentServiceItemStatusRequested,
 				},
 			},
 		}
@@ -1325,6 +1329,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.MustSave(&paymentRequest1)
 		paymentRequest2.IsFinal = false
 		suite.MustSave(&paymentRequest2)
+		// paymentRequests = append(paymentRequests, paymentRequest1, paymentRequest2)
+		// moveTaskOrder.PaymentRequests = paymentRequests
 	})
 	suite.Run("Payment request number fails due to nil MTO ReferenceID", func() {
 
