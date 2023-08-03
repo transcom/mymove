@@ -1,0 +1,33 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
+
+.modalTitle {
+  color: $base-darkest;
+  padding-top: 1rem;
+}
+
+.modalbody {
+  @include u-border('base-lighter');
+  @include u-border('1px');
+  @include u-radius('05');
+  @include u-padding(3);
+
+  .formGroup {
+    margin-top: 32px;
+  }
+
+  h4 {
+    color: $base-darkest;
+    @include u-font-weight(bold);
+  }
+
+  .approveLabel {
+    @include u-margin-top(1.5);
+  }
+  .subLabel {
+    font-size: small;
+  }
+  .officeRemarks {
+    height: 116px;
+  }
+}

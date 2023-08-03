@@ -13,15 +13,15 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
-// CreateMovingExpenseOKCode is the HTTP code returned for type CreateMovingExpenseOK
-const CreateMovingExpenseOKCode int = 200
+// CreateMovingExpenseCreatedCode is the HTTP code returned for type CreateMovingExpenseCreated
+const CreateMovingExpenseCreatedCode int = 201
 
 /*
-CreateMovingExpenseOK returns new moving expense object
+CreateMovingExpenseCreated returns new moving expense object
 
-swagger:response createMovingExpenseOK
+swagger:response createMovingExpenseCreated
 */
-type CreateMovingExpenseOK struct {
+type CreateMovingExpenseCreated struct {
 
 	/*
 	  In: Body
@@ -29,27 +29,27 @@ type CreateMovingExpenseOK struct {
 	Payload *internalmessages.MovingExpense `json:"body,omitempty"`
 }
 
-// NewCreateMovingExpenseOK creates CreateMovingExpenseOK with default headers values
-func NewCreateMovingExpenseOK() *CreateMovingExpenseOK {
+// NewCreateMovingExpenseCreated creates CreateMovingExpenseCreated with default headers values
+func NewCreateMovingExpenseCreated() *CreateMovingExpenseCreated {
 
-	return &CreateMovingExpenseOK{}
+	return &CreateMovingExpenseCreated{}
 }
 
-// WithPayload adds the payload to the create moving expense o k response
-func (o *CreateMovingExpenseOK) WithPayload(payload *internalmessages.MovingExpense) *CreateMovingExpenseOK {
+// WithPayload adds the payload to the create moving expense created response
+func (o *CreateMovingExpenseCreated) WithPayload(payload *internalmessages.MovingExpense) *CreateMovingExpenseCreated {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the create moving expense o k response
-func (o *CreateMovingExpenseOK) SetPayload(payload *internalmessages.MovingExpense) {
+// SetPayload sets the payload to the create moving expense created response
+func (o *CreateMovingExpenseCreated) SetPayload(payload *internalmessages.MovingExpense) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *CreateMovingExpenseOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *CreateMovingExpenseCreated) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(200)
+	rw.WriteHeader(201)
 	if o.Payload != nil {
 		payload := o.Payload
 		if err := producer.Produce(rw, payload); err != nil {
