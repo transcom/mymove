@@ -638,6 +638,17 @@ export async function searchTransportationOffices(search) {
   return makeGHCRequest(operationPath, { search }, { normalize: false });
 }
 
-export const reviewShipmentAddressUpdateRequest = () => {
-  // TODO: makeGHCRequest to '/shipments/{shipmentID}/review-shipment-address-update'
+export const reviewShipmentAddressUpdate = ({ shipmentID, body }) => {
+  const operationPath = 'shipment.reviewShipmentAddressUpdate';
+  const schemaKey = 'ShipmentAddressUpdate';
+  const normalize = false;
+
+  return makeGHCRequest(
+    operationPath,
+    {
+      shipmentID,
+      body,
+    },
+    { schemaKey, normalize },
+  );
 };

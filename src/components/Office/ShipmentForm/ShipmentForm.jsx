@@ -36,7 +36,7 @@ import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
 import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
 import { ADDRESS_UPDATE_STATUS, shipmentDestinationTypes } from 'constants/shipments';
 import { officeRoles, roleTypes } from 'constants/userRoles';
-import { deleteShipment, updateMoveCloseoutOffice } from 'services/ghcApi';
+import { deleteShipment, reviewShipmentAddressUpdate, updateMoveCloseoutOffice } from 'services/ghcApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import formStyles from 'styles/form.module.scss';
 import { AccountingCodesShape } from 'types/accountingCodes';
@@ -115,15 +115,14 @@ const ShipmentForm = (props) => {
     },
   });
 
-  // TODO: import reviewShipmentAddressUpdateRequest from 'services/ghcApi'
-  // const { mutate: mutateShipmentAddressUpdateReview } = useMutation(reviewShipmentAddressUpdateRequest, {
-  //   onSuccess: () => {
-  //     // TODO: Show the success alert
-  //   },
-  //   onError: () => {
-  //     // TODO: Show the error alert
-  //   },
-  // });
+  const { mutate: mutateShipmentAddressUpdateReview } = useMutation(reviewShipmentAddressUpdate, {
+    onSuccess: () => {
+      // TODO: Show the success alert
+    },
+    onError: () => {
+      // TODO: Show the error alert
+    },
+  });
 
   const getShipmentNumber = () => {
     // TODO - this is not supported by IE11, shipment number should be calculable from Redux anyways
@@ -140,9 +139,17 @@ const ShipmentForm = (props) => {
     });
   };
 
-  // const handleSubmitShipmentAddressUpdateReview = () => {
-  //   // TODO: call a mutation query
-  // };
+  const handleSubmitShipmentAddressUpdateReview = (shipmentID, values) => {
+    const { addressUpdateReviewStatus, officeRemarks } = values;
+
+    mutateShipmentAddressUpdateReview({
+      shipmentID,
+      body: {
+        status: addressUpdateReviewStatus,
+        officeRemarks,
+      },
+    });
+  };
 
   const handleShowCancellationModal = () => {
     setIsCancelModalVisible(true);
@@ -486,7 +493,7 @@ const ShipmentForm = (props) => {
               onClose={() => setIsAddressChangeModalOpen(false)}
               deliveryAddressUpdate={mtoShipment?.deliveryAddressUpdate}
               shipmentType={mtoShipment?.shipmentType}
-              // TODO: onSubmit
+              onSubmit={handleSubmitShipmentAddressUpdateReview}
             />
             <NotificationScrollToTop dependency={errorMessage} />
             {errorMessage && (

@@ -14,6 +14,7 @@ import AddressUpdatePreview from 'components/Office/AddressUpdatePreview/Address
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { ShipmentAddressUpdateShape } from 'types';
 import Fieldset from 'shared/Fieldset';
+import { ADDRESS_UPDATE_STATUS } from 'constants/shipments';
 
 const formSchema = Yup.object().shape({
   addressUpdate: Yup.string().required('Required'),
@@ -30,7 +31,7 @@ export const ShipmentAddressUpdateReviewRequestModal = ({ deliveryAddressUpdate,
         <h2 className={styles.modalTitle}>Review request</h2>
       </ModalTitle>
       <Formik
-        initialValues={{ addressUpdate: '', officeRemarks: '' }}
+        initialValues={{ addressUpdateReviewStatus: '', officeRemarks: '' }}
         onSubmit={() => {}} // TODO: onSubmit={onSubmit}
         validateOnMount
         validationSchema={formSchema}
@@ -48,16 +49,16 @@ export const ShipmentAddressUpdateReviewRequestModal = ({ deliveryAddressUpdate,
                       as={Radio}
                       label="Yes"
                       id="acceptAddressUpdate"
-                      name="addressUpdate"
-                      value="YES"
+                      name="addressUpdateReviewStatus"
+                      value={ADDRESS_UPDATE_STATUS.APPROVED}
                       type="radio"
                     />
                     <Field
                       as={Radio}
                       label="No"
                       id="rejectAddressUpdate"
-                      name="addressUpdate"
-                      value="NO"
+                      name="addressUpdateReviewStatus"
+                      value={ADDRESS_UPDATE_STATUS.REJECTED}
                       type="radio"
                     />
                   </Fieldset>
