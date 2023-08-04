@@ -18,7 +18,7 @@ import { ADDRESS_UPDATE_STATUS } from 'constants/shipments';
 import Alert from 'shared/Alert';
 
 const formSchema = Yup.object().shape({
-  addressUpdate: Yup.string().required('Required'),
+  addressUpdateReviewStatus: Yup.string().required('Required'),
   officeRemarks: Yup.string().required('Required'),
 });
 
@@ -35,7 +35,7 @@ export const ShipmentAddressUpdateReviewRequestModal = ({
       <ModalTitle>
         <ShipmentTag shipmentType={shipmentType} />
         <h2 className={styles.modalTitle}>Review request</h2>
-        {errorMessage && <Alert>{errorMessage}</Alert>}
+        {errorMessage && <Alert type="error">{errorMessage}</Alert>}
       </ModalTitle>
       <Formik
         initialValues={{ addressUpdateReviewStatus: '', officeRemarks: '' }}
