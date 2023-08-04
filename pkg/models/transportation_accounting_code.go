@@ -54,9 +54,3 @@ func (t *TransportationAccountingCode) Validate(_ *pop.Connection) (*validate.Er
 func (t TransportationAccountingCode) TableName() string {
 	return "transportation_accounting_codes"
 }
-
-func MapTransportationAccountingCodeFileRecordToInternalStruct(tacFileRecord TransportationAccountingCodeTrdmFileRecord) TransportationAccountingCode {
-	return TransportationAccountingCode{
-		TAC: tacFileRecord.TRNSPRTN_ACNT_CD,
-	}
-}
