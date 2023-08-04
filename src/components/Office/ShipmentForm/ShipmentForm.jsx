@@ -502,7 +502,7 @@ const ShipmentForm = (props) => {
                 {errorMessage}
               </Alert>
             )}
-            <NotificationScrollToTop dependency={errorMessage} />
+            <NotificationScrollToTop dependency={successMessage} />
             {successMessage && <Alert type="success">{successMessage}</Alert>}
             {isTOO && mtoShipment.usesExternalVendor && (
               <Alert headingLevel="h4" type="warning">
