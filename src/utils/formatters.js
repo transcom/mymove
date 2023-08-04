@@ -341,21 +341,14 @@ export const formatDaysInTransit = (days) => {
 export const formatDaysRemaining = (days) => {
   if (days) {
     if (days === 1) {
-      return '1 day';
+      return '1 day, ends';
     }
     if (days < 0) {
-      return 'Expired';
+      return 'Expired, ended';
     }
-    return `${days} days`;
+    return `${days} days, ends`;
   }
-  return '0 days';
-};
-
-export const formatEndTense = (days) => {
-  if (days && days < 0) {
-    return 'ended';
-  }
-  return 'ends';
+  return '0 days, ends';
 };
 
 export const formatAddressForPrimeAPI = (address) => {

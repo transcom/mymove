@@ -125,41 +125,23 @@ describe('formatters', () => {
 
   describe('formatDaysRemaining', () => {
     it('returns 0 days when value is null', () => {
-      expect(formatters.formatDaysRemaining()).toEqual('0 days');
+      expect(formatters.formatDaysRemaining()).toEqual('0 days, ends');
     });
 
     it('returns 0 days when value is zero', () => {
-      expect(formatters.formatDaysRemaining(0)).toEqual('0 days');
+      expect(formatters.formatDaysRemaining(0)).toEqual('0 days, ends');
     });
 
     it('returns 1 day when value is one', () => {
-      expect(formatters.formatDaysRemaining(1)).toEqual('1 day');
+      expect(formatters.formatDaysRemaining(1)).toEqual('1 day, ends');
     });
 
     it('returns plural when greater than 1', () => {
-      expect(formatters.formatDaysRemaining(2)).toEqual('2 days');
+      expect(formatters.formatDaysRemaining(2)).toEqual('2 days, ends');
     });
 
     it('returns Expired when less than 0', () => {
-      expect(formatters.formatDaysRemaining(-5)).toEqual('Expired');
-    });
-  });
-
-  describe('formatEndTense', () => {
-    it('returns ends when value is null', () => {
-      expect(formatters.formatEndTense(null)).toEqual('ends');
-    });
-
-    it('returns ends when value is zero', () => {
-      expect(formatters.formatEndTense(0)).toEqual('ends');
-    });
-
-    it('returns ends when greater than 0', () => {
-      expect(formatters.formatEndTense(2)).toEqual('ends');
-    });
-
-    it('returns ended when less than 0', () => {
-      expect(formatters.formatEndTense(-5)).toEqual('ended');
+      expect(formatters.formatDaysRemaining(-5)).toEqual('Expired, ended');
     });
   });
 
