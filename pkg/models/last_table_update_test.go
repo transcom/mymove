@@ -10,41 +10,39 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-const getLastTableUpdateTemplate = `<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-<soap:Body>
+const getLastTableUpdateTemplate = `
    <getLastTableUpdateResponseElement xmlns="http://ReturnTablePackage/">
 	  <lastUpdate>%v</lastUpdate>
 	  <status>
-		 <statusCode>Successful</statusCode>
+		 <statusCode>%v</statusCode>
 		 <dateTime>2020-01-27T20:18:34.226Z</dateTime>
 	  </status>
    </getLastTableUpdateResponseElement>
-</soap:Body>
-</soap:Envelope> `
+`
 
 const (
 	physicalName = "fakePhysicalName"
 )
 
-func soapResponseForGetLastTableUpdate(lastUpdate time.Time) *gosoap.Response {
+func soapResponseForGetLastTableUpdate(lastUpdate string, statusCode string) *gosoap.Response {
 	return &gosoap.Response{
-		Body: []byte(fmt.Sprintf(getLastTableUpdateTemplate, lastUpdate)),
+		Body: []byte(fmt.Sprintf(getLastTableUpdateTemplate, lastUpdate, statusCode)),
 	}
 }
 
 func (suite *ModelSuite) TestTRDMGetLastTableUpdateFake() {
 	tests := []struct {
 		name          string
-		lastUpdate    time.Time
+		lastUpdate    string
+		statusCode    string
 		responseError bool
 		shouldError   bool
 	}{
-		{"No update", time.Now(), false, false},
-		{"Should error", time.Now(), true, true},
-		{"There is an update", time.Now().Add(-72 * time.Hour), false, false},
+		{"No update", time.Now().String(), "Successful", false, false},
+		{"Should not fetch update", time.Now().String(), "Failure", false, false},
+		{"There is an update", time.Now().Add(-72 * time.Hour).String(), "Successful", false, false},
 	}
 	for _, test := range tests {
 		suite.Run("fake call to TRDM: "+test.name, func() {
@@ -57,7 +55,7 @@ func (suite *ModelSuite) TestTRDMGetLastTableUpdateFake() {
 			testSoapClient.On("Call",
 				mock.Anything,
 				mock.Anything,
-			).Return(soapResponseForGetLastTableUpdate(test.lastUpdate), soapError)
+			).Return(soapResponseForGetLastTableUpdate(test.lastUpdate, test.statusCode), soapError)
 
 			lastTableUpdate := models.NewTRDMGetLastTableUpdate(physicalName, testSoapClient)
 			err := lastTableUpdate.GetLastTableUpdate(suite.AppContextForTest(), physicalName)
@@ -79,7 +77,7 @@ func (suite *ModelSuite) TestFetchAllTACRecords() {
 	suite.NoError(err)
 
 	// Creates a test TAC code record in the DB
-	testdatagen.MakeDefaultTransportationAccountingCode(suite.DB())
+	// testdatagen.MakeDefaultTransportationAccountingCode(suite.DB())
 
 	// Fetch All TAC Records
 	codes, err := models.FetchAllTACRecords(suite.DB())

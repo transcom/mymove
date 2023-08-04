@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/xml"
 	"fmt"
 	"time"
 
@@ -44,6 +45,9 @@ SOAP Response:
    </soap:Body>
 </soap:Envelope>
  *******************************************/
+
+const successfulStatusCode = "Successful"
+
 // Date/time value is used in conjunction with the contentUpdatedSinceDateTime column in the getTable method.
 type TRDMGetLastTableUpdater interface {
 	GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string) error
@@ -53,18 +57,15 @@ type getLastTableUpdateReq struct {
 	soapClient   SoapCaller
 }
 
-type getTableResponse struct {
-	GetTableResponseElement getTableResponseElement `xml:"getTableResponseElement"`
+type GetLastTableUpdateResponseElement struct {
+	XMLName    xml.Name `xml:"getLastTableUpdateResponseElement"`
+	LastUpdate string   `xml:"lastUpdate"`
+	Status     struct {
+		StatusCode string `xml:"statusCode"`
+		DateTime   string `xml:"dateTime"`
+	} `xml:"status"`
 }
 
-// Response XML Struct
-type getTableResponseElement struct {
-	LastUpdate time.Time `xml:"lastUpdate"`
-	RowCount   int       `xml:"rowCount"`
-	StatusCode string    `xml:"statusCode"`
-	Message    string    `xml:"message"`
-	DateTime   time.Time `xml:"dateTime"`
-}
 type TACCodes struct {
 	ID        uuid.UUID `json:"id" db:"id"`
 	Tac       string    `json:"tac" db:"tac"`
@@ -111,20 +112,20 @@ func (d *getLastTableUpdateReq) GetLastTableUpdate(appCtx appcontext.AppContext,
 		return fmt.Errorf("call error: %s", err.Error())
 	}
 
-	var r getTableResponse
+	var r GetLastTableUpdateResponseElement
 	err = res.Unmarshal(&r)
 
 	if err != nil {
 		return fmt.Errorf("unmarshal error: %s", err.Error())
 	}
 
-	if r.GetTableResponseElement.RowCount != 0 {
+	if r.Status.StatusCode == successfulStatusCode {
 		tacCodes, dbError := FetchAllTACRecords(appCtx.DB())
 		if dbError != nil {
 			return fmt.Errorf(err.Error())
 		}
 		for _, tacCode := range tacCodes {
-			if tacCode.UpdatedAt != r.GetTableResponseElement.LastUpdate {
+			if tacCode.UpdatedAt.String() != r.LastUpdate {
 				return nil
 			}
 		}
