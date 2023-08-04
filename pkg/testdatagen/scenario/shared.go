@@ -5272,7 +5272,7 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 	}, nil)
 
 	// setup service item
-	testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
+	serviceItem := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID:     uuid.Must(uuid.NewV4()),
 			Status: models.MTOServiceItemStatusApproved,
@@ -5301,6 +5301,23 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 	paymentRequest := &models.PaymentRequest{
 		IsFinal:         false,
 		MoveTaskOrderID: mto.ID,
+		PaymentServiceItems: []models.PaymentServiceItem{
+			{
+				MTOServiceItemID: serviceItem.ID,
+				MTOServiceItem:   serviceItem,
+				PaymentServiceItemParams: models.PaymentServiceItemParams{
+					{
+						IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+						Value:       "3254",
+					},
+					{
+						IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
+						Value:       "2022-03-16",
+					},
+				},
+				Status: models.PaymentServiceItemStatusRequested,
+			},
+		},
 	}
 
 	paymentRequest, err := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, paymentRequest)
