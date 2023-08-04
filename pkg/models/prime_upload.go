@@ -33,6 +33,21 @@ func (u PrimeUpload) TableName() string {
 
 type PrimeUploads []PrimeUpload
 
+func (u PrimeUploads) FilterDeleted() PrimeUploads {
+	if len(u) == 0 {
+		return u
+	}
+
+	nonDeletedUploads := PrimeUploads{}
+	for _, upload := range u {
+		if upload.DeletedAt == nil {
+			nonDeletedUploads = append(nonDeletedUploads, upload)
+		}
+	}
+
+	return nonDeletedUploads
+}
+
 // UploadsFromPrimeUploads return a slice of uploads given a slice of prime uploads
 func UploadsFromPrimeUploads(db *pop.Connection, primeUploads PrimeUploads) (Uploads, error) {
 	var uploads Uploads

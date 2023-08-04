@@ -57,9 +57,9 @@ func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 
 		response := subtestData.handler.Handle(subtestData.params)
 
-		suite.IsType(&movingexpenseops.CreateMovingExpenseOK{}, response)
+		suite.IsType(&movingexpenseops.CreateMovingExpenseCreated{}, response)
 
-		createdMovingExpense := response.(*movingexpenseops.CreateMovingExpenseOK).Payload
+		createdMovingExpense := response.(*movingexpenseops.CreateMovingExpenseCreated).Payload
 
 		suite.NotEmpty(createdMovingExpense.ID.String())
 		suite.Equal(createdMovingExpense.PpmShipmentID.String(), subtestData.ppmShipment.ID.String())
@@ -87,19 +87,18 @@ func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 		suite.IsType(&movingexpenseops.CreateMovingExpenseUnauthorized{}, response)
 	})
 
-	suite.Run("POST failure - 403- permission denied - can't create moving expense due to wrong applicant", func() {
+	suite.Run("POST failure - 404 - Not Found - Wrong Service Member", func() {
 		subtestData := makeCreateSubtestData(false)
-		// Create non-service member user
-		serviceCounselorOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
+		unauthorizedUser := factory.BuildServiceMember(suite.DB(), nil, nil)
 		req := subtestData.params.HTTPRequest
-		unauthorizedReq := suite.AuthenticateOfficeRequest(req, serviceCounselorOfficeUser)
+		unauthorizedRequest := suite.AuthenticateRequest(req, unauthorizedUser)
 		unauthorizedParams := subtestData.params
-		unauthorizedParams.HTTPRequest = unauthorizedReq
+		unauthorizedParams.HTTPRequest = unauthorizedRequest
 
 		response := subtestData.handler.Handle(unauthorizedParams)
 
-		suite.IsType(&movingexpenseops.CreateMovingExpenseForbidden{}, response)
+		suite.IsType(&movingexpenseops.CreateMovingExpenseNotFound{}, response)
 	})
 
 	suite.Run("Post failure - 500 - Server Error", func() {

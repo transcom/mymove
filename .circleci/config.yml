@@ -15,7 +15,7 @@ version: 2.1
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-3e1a3c25b7a176f7d6994a9d542b522f3c08cf26
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-726bfe44bd27d3b41da41acbe3eb231811a993f7
 
   # the playwright image to use
   playwright: &playwright cimg/node:18.13.0-browsers
@@ -31,7 +31,7 @@ references:
   # base image that spins up quickly
   cimg_base: &cimg_base cimg/base:2022.12-22.04
 
-  aws-otel-collector: &aws-otel-collector public.ecr.aws/aws-observability/aws-otel-collector:v0.29.0
+  aws-otel-collector: &aws-otel-collector public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0
 
   # To deploy to loadtest, demo or exp:
   # set dp3-branch to the branch you want to deploy to the env specifed
@@ -259,6 +259,36 @@ executors:
           password: $DOCKERHUB_PASSWORD
 
 commands:
+  create_dot_go_version:
+    description: "Creates a .go-version file (if needed) which can be used for cache keys specific to golang"
+    steps:
+      - run:
+          name: Create a .go-version file
+          command: |
+            if [ -f ".go-version" ]; then
+              echo ".go-version already exists, no need to re-create"
+            else
+              GO_VERSION=$(awk '/golang/ { print $2 }' .tool-versions)
+              echo "Creating .go-version using version ${GO_VERSION}"
+              echo $GO_VERSION > .go-version
+            fi
+
+  restore_cache_for_go:
+    steps:
+      - create_dot_go_version
+      - restore_cache:
+          keys:
+            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+
+  save_cache_for_go:
+    steps:
+      - create_dot_go_version
+      - save_cache:
+          key: go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+          paths:
+            - '~/go'
+            - '~/transcom/mymove/bin/swagger'
+
   aws_vars_stg:
     steps:
       - run:
@@ -490,9 +520,7 @@ commands:
           name: Compare against deployed commit
           command: |
             [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1
-      - restore_cache:
-          keys:
-            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+      - restore_cache_for_go
       - run:
           name: Get Digest from filesystem
           command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
@@ -1053,9 +1081,7 @@ jobs:
     executor: mymove_compiler
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+      - restore_cache_for_go
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: Install dependencies
@@ -1064,11 +1090,7 @@ jobs:
       - run:
           name: Install go-swagger
           command: make bin/swagger
-      - save_cache:
-          key: go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
-          paths:
-            - '~/go'
-            - '~/transcom/mymove/bin/swagger'
+      - save_cache_for_go
       - announce_failure
 
   # `pre_deps_yarn` is used to cache yarn sources
@@ -1095,9 +1117,7 @@ jobs:
     executor: mymove_compiler
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+      - restore_cache_for_go
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: make server_generate mocks_generate
       - run: scripts/check-generated-code pkg/gen/ $(find . -type d -name "*mocks" -exec echo -n '{} ' \;)
@@ -1162,9 +1182,7 @@ jobs:
     executor: mymove_compiler
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+      - restore_cache_for_go
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
@@ -1285,9 +1303,7 @@ jobs:
     executor: mymove_tester
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+      - restore_cache_for_go
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: db_dev_fresh
@@ -1348,9 +1364,7 @@ jobs:
     executor: mymove_tester
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+      - restore_cache_for_go
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           # https://support.circleci.com/hc/en-us/articles/10816400480411-How-to-pass-environment-variables-between-jobs
@@ -1612,9 +1626,7 @@ jobs:
     executor: mymove_compiler
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - go-mod-sources-v5-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+      - restore_cache_for_go
       # make -j 4 tells make to run 4 simultaneous builds
       - run: make -j 4 server_build build_tools
       - persist_to_workspace:
@@ -2122,6 +2134,8 @@ jobs:
     executor: mymove_pusher
     environment:
       APP_ENVIRONMENT: 'prd'
+      OPEN_TELEMETRY_SIDECAR: 'true'
+      HEALTH_CHECK: 'true'
     steps:
       - checkout
       - aws_vars_prd
@@ -2135,6 +2149,8 @@ jobs:
     executor: mymove_pusher
     environment:
       APP_ENVIRONMENT: 'prd'
+      OPEN_TELEMETRY_SIDECAR: 'true'
+      HEALTH_CHECK: 'true'
     steps:
       - checkout
       - aws_vars_prd
