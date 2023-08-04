@@ -9,7 +9,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 	"time"
 
@@ -1142,47 +1141,16 @@ func fetchToken(code string, clientID string, loginGovProvider LoginGovProvider)
 	return &session, err
 }
 
-// InitAuth initializes the Okta and Logingov provider
+// InitAuth initializes the Okta provider
 func InitAuth(v *viper.Viper, logger *zap.Logger, appnames auth.ApplicationServername) (*OktaProvider, error) {
 
 	// Create a new Okta Provider. This will be used in the creation of the additional providers for each subdomain
 	oktaProvider := NewOktaProvider(logger)
-	/*
-		err := oktaProvider.RegisterProviders(
-			v.GetString(cli.OktaCustomerHostnameFlag),
-			v.GetString(cli.OktaTenantIssuerURLFlag),
-			v.GetString(cli.OktaCustomerClientIDFlag),
-			v.GetString(cli.OktaCustomerSecretKeyFlag),
-			v.GetString(cli.OktaCustomerHostnameFlag),
-			v.GetString(cli.OktaTenantIssuerURLFlag),
-			v.GetString(cli.OktaOfficeClientIDFlag),
-			v.GetString(cli.OktaOfficeSecretKeyFlag),
-			v.GetString(cli.OktaOfficeHostnameFlag),
-			v.GetString(cli.OktaTenantIssuerURLFlag),
-			v.GetString(cli.OktaAdminClientIDFlag),
-			v.GetString(cli.OktaAdminSecretKeyFlag),
-			v.GetString(cli.LoginGovOfficeClientIDFlag),
-			v.GetInt(cli.OktaTenantCallbackPortFlag),
-			v.GetString(cli.OktaTenantIssuerURLFlag))
-	*/
+	err := oktaProvider.RegisterProviders()
+	if err != nil {
+		logger.Error("Initializing auth", zap.Error(err))
+		return nil, err
+	}
 
-	// TODO: Repace temporary envrc values once we get chamber access
-	err := oktaProvider.RegisterProviders(
-		os.Getenv("OKTA_CUSTOMER_HOSTNAME"),
-		"http://milmovelocal:3000/",
-		os.Getenv("OKTA_CUSTOMER_CLIENT_ID"),
-		os.Getenv("OKTA_CUSTOMER_SECRET_KEY"),
-		os.Getenv("OKTA_OFFICE_HOSTNAME"),
-		"http://officelocal:3000/",
-		os.Getenv("OKTA_OFFICE_CLIENT_ID"),
-		os.Getenv("OKTA_OFFICE_SECRET_KEY"),
-		os.Getenv("OKTA_ADMIN_HOSTNAME"),
-		"http://adminlocal:3000/",
-		os.Getenv("OKTA_ADMIN_CLIENT_ID"),
-		os.Getenv("OKTA_ADMIN_SECRET_KEY"),
-		"https",
-		443,
-		os.Getenv("OKTA_TENANT_ISSUER_URL"),
-	)
-	return oktaProvider, err
+	return oktaProvider, nil
 }

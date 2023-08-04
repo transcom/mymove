@@ -83,16 +83,8 @@ func (op *OktaProvider) AuthorizationURL(r *http.Request) (*OktaData, error) {
 	return &OktaData{authURL.String(), state}, nil
 }
 
-// TODO: Clean up when working on callback
 func NewOktaProvider(logger *zap.Logger) *OktaProvider {
 	return &OktaProvider{
-		Provider: *okta.New(
-			os.Getenv("OKTA_OAUTH2_CLIENT_ID"),
-			os.Getenv("OKTA_OAUTH2_CLIENT_SECRET"),
-			os.Getenv("OKTA_OAUTH2_ISSUER"),
-			"http://milmovelocal:3000/",
-			"openid", "profile", "email",
-		),
 		Logger: logger,
 	}
 }
@@ -106,19 +98,49 @@ func wrapOktaProvider(provider *okta.Provider, logger *zap.Logger) *OktaProvider
 }
 
 // Function to register all three providers at once.
-// TODO: Split this function up
-func (op *OktaProvider) RegisterProviders(customerHostname string, customerCallbackUrl string, customerClientID string, customerSecret string, officeHostname string, officeCallbackUrl string, officeClientID string, officeSecret string, adminHostname string, adminCallbackUrl string, adminClientID string, adminSecret string, callbackProtocol string, callbackPort int, oktaIssuer string) error {
-	customerProvider := okta.New(customerClientID, customerSecret, oktaIssuer, customerCallbackUrl, "openid", "profile", "email")
-	officeProvider := okta.New(officeClientID, officeSecret, oktaIssuer, officeCallbackUrl, "openid", "profile", "email")
-	adminProvider := okta.New(adminClientID, adminSecret, oktaIssuer, adminCallbackUrl, "openid", "profile", "email")
-	customerProvider.SetName(customerProviderName)
-	officeProvider.SetName(officeProviderName)
-	adminProvider.SetName(adminProviderName)
-	goth.UseProviders(
-		wrapOktaProvider(customerProvider, op.Logger),
-		wrapOktaProvider(officeProvider, op.Logger),
-		wrapOktaProvider(adminProvider, op.Logger),
-	)
+// TODO: Use viper instead of os environment variables
+func (op *OktaProvider) RegisterProviders() error {
+	// Declare OIDC scopes to be used within the providers
+	scope := []string{"openid", "email"}
+	// Register customer provider
+	err := op.RegisterOktaProvider(customerProviderName, os.Getenv("OKTA_CUSTOMER_HOSTNAME"), os.Getenv("OKTA_CUSTOMER_CALLBACK_URL"), os.Getenv("OKTA_CUSTOMER_CLIENT_ID"), os.Getenv("OKTA_CUSTOMER_SECRET_KEY"), scope)
+	if err != nil {
+		return err
+	}
+	// Register office provider
+	err = op.RegisterOktaProvider(officeProviderName, os.Getenv("OKTA_OFFICE_HOSTNAME"), os.Getenv("OKTA_OFFICE_CALLBACK_URL"), os.Getenv("OKTA_OFFICE_CLIENT_ID"), os.Getenv("OKTA_OFFICE_SECRET_KEY"), scope)
+	if err != nil {
+		return err
+	}
+	// Register admin provider
+	err = op.RegisterOktaProvider(adminProviderName, os.Getenv("OKTA_ADMIN_HOSTNAME"), os.Getenv("OKTA_ADMIN_CALLBACK_URL"), os.Getenv("OKTA_ADMIN_CLIENT_ID"), os.Getenv("OKTA_ADMIN_SECRET_KEY"), scope)
+	if err != nil {
+		return err
+	}
 
+	return nil
+}
+
+// Create a new Okta provider and register it under the Goth providers
+func (op *OktaProvider) RegisterOktaProvider(name string, hostname string, callbackUrl string, clientID string, secret string, scope []string) error {
+	provider := okta.New(clientID, secret, hostname, callbackUrl, scope...)
+	provider.SetName(name)
+	goth.UseProviders(wrapOktaProvider(provider, op.Logger))
+
+	// Check that the provider exists now
+	err := verifyProvider(name)
+	if err != nil {
+		op.Logger.Error("Could not verify goth provider", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
+// Check if the provided provider name exists
+func verifyProvider(name string) error {
+	_, err := goth.GetProvider(name)
+	if err != nil {
+		return err
+	}
 	return nil
 }
