@@ -129,6 +129,9 @@ func registerTableLiveDeadCallback(appCtx appcontext.AppContext, meter metric.Me
 		tableAllInstruments = append(tableAllInstruments, deadTuples)
 	}
 
+	tp := otel.GetTracerProvider()
+	tracer := tp.Tracer("milmove_data")
+
 	lastStats := time.Now()
 	_, err = meter.RegisterCallback(
 		func(ctx context.Context, observer metric.Observer) error {
@@ -140,12 +143,17 @@ func registerTableLiveDeadCallback(appCtx appcontext.AppContext, meter metric.Me
 			// minDuration is less than a second, all is well
 			diff := now.Sub(lastStats).Round(time.Second)
 			if diff < minDuration {
-				appCtx.Logger().Warn("Skipping data telemetry update")
+				appCtx.Logger().Debug("Skipping data telemetry update")
 				return nil
 			}
 
+			ctx, span := tracer.Start(ctx, "milmove_data_metrics_callback")
+			defer span.End()
+
+			db := appCtx.DB().WithContext(ctx)
+
 			var isMinClient bool
-			aerr := appCtx.DB().RawQuery(isMinClientAddrQuery,
+			aerr := db.RawQuery(isMinClientAddrQuery,
 				currentIP).First(&isMinClient)
 
 			if aerr != nil {
@@ -160,7 +168,7 @@ func registerTableLiveDeadCallback(appCtx appcontext.AppContext, meter metric.Me
 			}
 
 			allStats := []pgStatLiveDead{}
-			aerr = appCtx.DB().RawQuery(liveDeadQuery).All(&allStats)
+			aerr = db.RawQuery(liveDeadQuery).All(&allStats)
 			if aerr != nil {
 				appCtx.Logger().Fatal("Cannot get live/dead stats", zap.Error(aerr))
 				return aerr
