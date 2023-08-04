@@ -78,14 +78,11 @@ const ShipmentForm = (props) => {
   const navigate = useNavigate();
 
   const [errorMessage, setErrorMessage] = useState(null);
-
-  // TODO: Existing error alert has a heading, new designs do not.
-  //  Check with design to confirm we want to use something else
-  //  If we use a different error, similar state can be managed here e.g.:
-  //  const [showShipmentAddressUpdateReviewSuccess, setShowShipmentAddressUpdateReviewSuccess] = useState(null);
-  //  const [showShipmentAddressUpdateReviewFailure, setShowShipmentAddressUpdateReviewFailure] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [shipmentAddressUpdateReviewErrorMessage, setShipmentAddressUpdateReviewErrorMessage] = useState(null);
 
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
+  const [isAddressChangeModalOpen, setIsAddressChangeModalOpen] = useState(false);
 
   const shipments = mtoShipments;
 
@@ -117,10 +114,15 @@ const ShipmentForm = (props) => {
 
   const { mutate: mutateShipmentAddressUpdateReview } = useMutation(reviewShipmentAddressUpdate, {
     onSuccess: () => {
-      // TODO: Show the success alert
+      setSuccessMessage('Changes sent to contractor.');
+      setShipmentAddressUpdateReviewErrorMessage(null);
+      setIsAddressChangeModalOpen(false);
     },
     onError: () => {
-      // TODO: Show the error alert
+      setSuccessMessage(null);
+      setShipmentAddressUpdateReviewErrorMessage(
+        'Something went wrong, and your changes were not saved. Please refresh the page and try again.',
+      );
     },
   });
 
@@ -156,8 +158,6 @@ const ShipmentForm = (props) => {
   };
 
   const deliveryAddressUpdateRequested = mtoShipment?.deliveryAddressUpdate?.status === ADDRESS_UPDATE_STATUS.REQUESTED;
-
-  const [isAddressChangeModalOpen, setIsAddressChangeModalOpen] = useState(false);
 
   const isHHG = shipmentType === SHIPMENT_OPTIONS.HHG;
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
@@ -494,6 +494,7 @@ const ShipmentForm = (props) => {
               deliveryAddressUpdate={mtoShipment?.deliveryAddressUpdate}
               shipmentType={mtoShipment?.shipmentType}
               onSubmit={handleSubmitShipmentAddressUpdateReview}
+              errorMessage={shipmentAddressUpdateReviewErrorMessage}
             />
             <NotificationScrollToTop dependency={errorMessage} />
             {errorMessage && (
@@ -501,6 +502,8 @@ const ShipmentForm = (props) => {
                 {errorMessage}
               </Alert>
             )}
+            <NotificationScrollToTop dependency={errorMessage} />
+            {successMessage && <Alert type="success">{successMessage}</Alert>}
             {isTOO && mtoShipment.usesExternalVendor && (
               <Alert headingLevel="h4" type="warning">
                 The GHC prime contractor is not handling the shipment. Information will not be automatically shared with

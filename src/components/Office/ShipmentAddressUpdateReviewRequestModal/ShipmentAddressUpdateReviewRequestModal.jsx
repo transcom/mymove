@@ -29,6 +29,9 @@ export const ShipmentAddressUpdateReviewRequestModal = ({ deliveryAddressUpdate,
       <ModalTitle>
         <ShipmentTag shipmentType={shipmentType} />
         <h2 className={styles.modalTitle}>Review request</h2>
+        {/* TODO: Error alert  <Alert>
+          { errorMessage}
+        </Alert> */}
       </ModalTitle>
       <Formik
         initialValues={{ addressUpdateReviewStatus: '', officeRemarks: '' }}
