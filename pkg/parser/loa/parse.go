@@ -13,6 +13,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+var expectedColumnNames = []string{"LOA_SYS_ID", "LOA_DPT_ID", "LOA_TNSFR_DPT_NM", "LOA_BAF_ID", "LOA_TRSY_SFX_TX", "LOA_MAJ_CLM_NM", "LOA_OP_AGNCY_ID", "LOA_ALLT_SN_ID", "LOA_PGM_ELMNT_ID", "LOA_TSK_BDGT_SBLN_TX", "LOA_DF_AGNCY_ALCTN_RCPNT_ID", "LOA_JB_ORD_NM", "LOA_SBALTMT_RCPNT_ID", "LOA_WK_CNTR_RCPNT_NM", "LOA_MAJ_RMBSMT_SRC_ID", "LOA_DTL_RMBSMT_SRC_ID", "LOA_CUST_NM", "LOA_OBJ_CLS_ID", "LOA_SRV_SRC_ID", "LOA_SPCL_INTR_ID", "LOA_BDGT_ACNT_CLS_NM", "LOA_DOC_ID", "LOA_CLS_REF_ID", "LOA_INSTL_ACNTG_ACT_ID", "LOA_LCL_INSTL_ID", "LOA_FMS_TRNSACTN_ID", "LOA_DSC_TX", "LOA_BGN_DT", "LOA_END_DT", "LOA_FNCT_PRS_NM", "LOA_STAT_CD", "LOA_HIST_STAT_CD", "LOA_HS_GDS_CD", "ORG_GRP_DFAS_CD", "LOA_UIC", "LOA_TRNSN_ID", "LOA_SUB_ACNT_ID", "LOA_BET_CD", "LOA_FND_TY_FG_CD", "LOA_BGT_LN_ITM_ID", "LOA_SCRTY_COOP_IMPL_AGNC_CD", "LOA_SCRTY_COOP_DSGNTR_CD", "LOA_SCRTY_COOP_LN_ITM_ID", "LOA_AGNC_DSBR_CD", "LOA_AGNC_ACNTNG_CD", "LOA_FND_CNTR_ID", "LOA_CST_CNTR_ID", "LOA_PRJ_ID", "LOA_ACTVTY_ID", "LOA_CST_CD", "LOA_WRK_ORD_ID", "LOA_FNCL_AR_ID", "LOA_SCRTY_COOP_CUST_CD", "LOA_END_FY_TX", "LOA_BG_FY_TX", "LOA_BGT_RSTR_CD", "LOA_BGT_SUB_ACT_CD"}
+
 const timeConversionMethod = "2006-01-02 15:04:05"
 
 // Parse the pipe delimited .txt file with the following assumptions:
@@ -61,25 +63,11 @@ func ensureFileStructMatchesColumnNames(columnNames []string) error {
 	if len(columnNames) == 0 {
 		return errors.New("column names were not parsed properly from the second line of the loa file")
 	}
-	expectedColumnNames := getFieldNames(models.LineOfAccountingTrdmFileRecord{})
+
 	if !reflect.DeepEqual(columnNames, expectedColumnNames) {
 		return errors.New("column names parsed do not match the expected format of loa file records")
 	}
 	return nil
-}
-
-// This function gathers the struct field names for comparison to
-// line 2 of the .txt file - The columns
-func getFieldNames(obj interface{}) []string {
-	var fieldNames []string
-
-	t := reflect.TypeOf(obj)
-	for i := 0; i < t.NumField(); i++ {
-		field := t.Field(i)
-		fieldNames = append(fieldNames, field.Name)
-	}
-
-	return fieldNames
 }
 
 // Removes all LOAs with an empty HHG code
@@ -122,7 +110,7 @@ func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models
 			return nil, errors.New("malformed line in the provided loa file: " + line)
 		}
 
-		loaSysId, err := strconv.Atoi(values[0])
+		loaSysID, err := strconv.Atoi(values[0])
 		if err != nil {
 			return nil, errors.New("malformed line in the provided loa file: " + line)
 		}
@@ -130,16 +118,16 @@ func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models
 		// Check if beginning date and expired date are not blank. If not blank, run time conversion, if not, leave empty.
 		if values[27] != "" && values[28] != "" {
 			// Parse values[27], this is the beginning date
-			parsedDate, err := time.Parse(timeConversionMethod, values[27])
-			if err != nil {
-				return nil, fmt.Errorf("malformed effective date in the provided loa file: %s", err)
+			parsedDate, parseError := time.Parse(timeConversionMethod, values[27])
+			if parseError != nil {
+				return nil, fmt.Errorf("malformed effective date in the provided loa file: %s", parseError)
 			}
 			beginningDate = parsedDate
 
 			// Parse values[28], this is the ending date
-			parsedDate, err = time.Parse(timeConversionMethod, values[28])
-			if err != nil {
-				return nil, fmt.Errorf("malformed effective date in the provided loa file: %s", err)
+			parsedDate, parseError = time.Parse(timeConversionMethod, values[28])
+			if parseError != nil {
+				return nil, fmt.Errorf("malformed effective date in the provided loa file: %s", parseError)
 			}
 			endingDate = parsedDate
 		}
@@ -158,7 +146,7 @@ func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models
 		}
 
 		code := models.LineOfAccounting{
-			LoaSysID:               &loaSysId,
+			LoaSysID:               &loaSysID,
 			LoaDptID:               &values[1],
 			LoaTnsfrDptNm:          &values[2],
 			LoaBafID:               &values[3],
