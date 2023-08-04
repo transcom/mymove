@@ -105,16 +105,19 @@ func (op *OktaProvider) RegisterProviders() error {
 	// Register customer provider
 	err := op.RegisterOktaProvider(customerProviderName, os.Getenv("OKTA_CUSTOMER_HOSTNAME"), os.Getenv("OKTA_CUSTOMER_CALLBACK_URL"), os.Getenv("OKTA_CUSTOMER_CLIENT_ID"), os.Getenv("OKTA_CUSTOMER_SECRET_KEY"), scope)
 	if err != nil {
+		op.Logger.Error("Could not register customer okta provider", zap.Error(err))
 		return err
 	}
 	// Register office provider
 	err = op.RegisterOktaProvider(officeProviderName, os.Getenv("OKTA_OFFICE_HOSTNAME"), os.Getenv("OKTA_OFFICE_CALLBACK_URL"), os.Getenv("OKTA_OFFICE_CLIENT_ID"), os.Getenv("OKTA_OFFICE_SECRET_KEY"), scope)
 	if err != nil {
+		op.Logger.Error("Could not register office okta provider", zap.Error(err))
 		return err
 	}
 	// Register admin provider
 	err = op.RegisterOktaProvider(adminProviderName, os.Getenv("OKTA_ADMIN_HOSTNAME"), os.Getenv("OKTA_ADMIN_CALLBACK_URL"), os.Getenv("OKTA_ADMIN_CLIENT_ID"), os.Getenv("OKTA_ADMIN_SECRET_KEY"), scope)
 	if err != nil {
+		op.Logger.Error("Could not register admin okta provider", zap.Error(err))
 		return err
 	}
 
