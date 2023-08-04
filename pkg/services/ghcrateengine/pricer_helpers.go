@@ -228,21 +228,7 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 
 	// Three different pricing scenarios below.
 
-	// 1) Zip3 to same zip3
-	if zip3Original == zip3Actual {
-		// Do a normal shorthaul calculation
-		shorthaulPricer := NewDomesticShorthaulPricer()
-		totalPriceCents, displayParams, err := shorthaulPricer.Price(appCtx, contractCode, referenceDate, distance, weight, serviceArea)
-		if err != nil {
-			return unit.Cents(0), nil, fmt.Errorf("could not price shorthaul: %w", err)
-		}
-
-		return totalPriceCents, displayParams, nil
-	}
-
-	// Zip3s must be different at this point.  Now examine distance.
-
-	// 2) Zip3 to different zip3 and > 50 miles
+	// 1) distance > 50 miles
 	if distance > 50 {
 		// Do a normal linehaul calculation
 		linehaulPricer := NewDomesticLinehaulPricer()
@@ -256,7 +242,17 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 		return totalPriceCents, displayParams, nil
 	}
 
-	// Zip3s must be different at this point and distance is <= 50.
+	// 2) Zip3 to same zip3
+	if zip3Original == zip3Actual {
+		// Do a normal shorthaul calculation
+		shorthaulPricer := NewDomesticShorthaulPricer()
+		totalPriceCents, displayParams, err := shorthaulPricer.Price(appCtx, contractCode, referenceDate, distance, weight, serviceArea)
+		if err != nil {
+			return unit.Cents(0), nil, fmt.Errorf("could not price shorthaul: %w", err)
+		}
+
+		return totalPriceCents, displayParams, nil
+	}
 
 	// 3) Zip3 to different zip3 and <= 50 miles
 

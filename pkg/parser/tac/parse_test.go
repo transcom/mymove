@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
-	"github.com/stretchr/testify/suite"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/parser/tac"
