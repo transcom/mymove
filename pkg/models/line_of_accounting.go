@@ -8,7 +8,7 @@ import (
 
 type LineOfAccounting struct {
 	ID                     uuid.UUID  `json:"id" db:"id"`
-	LoaSysID               *int       `json:"loa_sys_id" db:"loa_sys_id"`
+	LoaSysID               *int       `json:"loa_sys_id" db:"loa_sys_id"` // Using an int here deviates from the TRDM matrix; however, no direct conflicts found as of yet
 	LoaDptID               *string    `json:"loa_dpt_id" db:"loa_dpt_id"`
 	LoaTnsfrDptNm          *string    `json:"loa_tnsfr_dpt_nm" db:"loa_tnsfr_dpt_nm"`
 	LoaBafID               *string    `json:"loa_baf_id" db:"loa_baf_id"`
