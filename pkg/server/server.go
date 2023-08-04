@@ -7,13 +7,10 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"github.com/spf13/viper"
 	"github.com/transcom/mymove/pkg/storage"
 	"golang.org/x/crypto/ocsp"
 	"io"
 	"net/http"
-	"os"
-	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -135,75 +132,83 @@ func NewFetcher(fetch storage.FileStorer) (*Fetcher, error) {
 	}, nil
 }
 
-func containsIssuerName(content []byte) bool {
-	re := regexp.MustCompile(`"issuer name":\s*".*?"`)
-	return re.Match(content)
-}
+func transformCommonName(input string) string {
+	//Remove spaces from common name
+	noSpaces := strings.ReplaceAll(input, " ", "")
 
-func cleanupIssuerName(content string) string {
-	// Regex that finds and replaces the issuer name value
-	re := regexp.MustCompile(`"issuer name":\s*".*?"`)
-	cleanedContent := re.ReplaceAllString(content, `"issuer name": "issuerName"`)
-	return cleanedContent
+	//Convert dashes to underscores
+	noDashes := strings.ReplaceAll(noSpaces, "-", "_")
+
+	//Capitalize all letters
+	capitalize := strings.ToUpper(noDashes)
+
+	return capitalize
+}
+func fetchCRL(url string) (*x509.RevocationList, error) {
+	httpResponse, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer httpResponse.Body.Close()
+
+	if httpResponse.StatusCode >= 300 {
+		return nil, errors.New("failed to retrieve CRL")
+	}
+
+	body, err := io.ReadAll(httpResponse.Body)
+	if err != nil {
+		return nil, err
+	}
+	return x509.ParseRevocationList(body)
 }
 
 // Request CRL response from server.
 // Returns error if the server can't get the certificate
-func getCRLResponse(fetch storage.FileStorer, v *viper.Viper, crlFile string, clientCert *x509.Certificate, issuerCert *x509.Certificate) error {
-	// NOTE: You will get file from S3 bucket
-	// Access S3 through Go SDK for AWS
-	// Call s3.Fetch get the ReadCloser
-	// ReadCloser is a path to the document that I need to Download
-	// Download that document
-	// helper to fetch value of keyname, in this case the bucket name
+// func getCRLResponse(fetch storage.FileStorer, v *viper.Viper, crlFile string, clientCert *x509.Certificate, issuerCert *x509.Certificate) error {
+func getCRLResponse(clientCert *x509.Certificate, issuerCert *x509.Certificate) error {
+	//Get the name of the Issuer (common name) from the client cert.
+	//getIsserName := clientCert.Issuer.CommonName
+	//
+	//transformedIssuerName := transformCommonName(getIsserName)
 
-	bucketName := "random_name" // This is the bucket name I am getting from Infra
-	bucketPath := v.GetString(bucketName)
-	crlFileName := NewFetcher(bucketPath) // returns value of the bucket, which is the crlFileName
+	// NEW WORK:
+	// Grab the common name, take out spaces, convert dashes to underscores, and capitalize
+	// Once you get the filename you can pass in the path to the CRL and open that file
 
-	crlRead, err := io.ReadAll(crlFileName)
-	if err != nil {
-		fmt.Printf("Error reading CRL file: %s\n", err)
-		return err
-	}
+	//bucketName := "bucket_name" // This is the bucket name I am getting from Infra
+	//folderPath := "path/to/folder"
+	//fileStorer := storage.InitStorage(v, awsSession, appCtx.Logger())
+	//actualNameOfS3Bucket := v.GetString(bucketName) // TODO: Is this something I actually need?
+	//
+	//// Build_URL
+	//crlFilePath := path.Join(folderPath, transformedIssuerName) + ".crl"
 
-	//x509.ParseRevocationList is not a direct ASN.1 representation, so leaves the option to add more detailed information
-	parseCRL, err := x509.ParseRevocationList(crlRead)
-	if err != nil {
-		return err
-	}
-	// Check if a file contains Issuer Name
-	if containsIssuerName(parseCRL) {
-		// Clean up the issuer name value
-		cleanedContent := cleanupIssuerName(string(parseCRL))
-		// Write the cleane
-		//d content back to the file
-		err = os.WriteFile(crlFileName, []byte(cleanedContent), 0644)
+	for _, url := range clientCert.CRLDistributionPoints {
+		// TODO: Skip LDAP
+
+		//x509.ParseRevocationList is not a direct ASN.1 representation, so leaves the option to add more detailed information
+		parseCRL, err := fetchCRL(url)
 		if err != nil {
-			fmt.Printf("Error Writing to file: %s\n", err)
 			return err
 		}
-		fmt.Println("Issuer name clean up completed successfully")
-	} else {
-		fmt.Println("File is missing 'issuer name' keyword.")
-	}
 
-	// Parsed CRL against the issuer certificate
-	//err = parseCRL.CheckSignatureFrom(issuerCert)
-	//if err != nil {
-	//	return err
-	//}
+		//Parsed CRL against the issuer certificate
+		err = parseCRL.CheckSignatureFrom(issuerCert)
+		if err != nil {
+			return err
+		}
 
-	// Check that the revocation list can be trusted
-	if parseCRL.NextUpdate.Before(time.Now()) {
-		return fmt.Errorf("CRL expired")
-	}
+		// Check that the revocation list can be trusted
+		if parseCRL.NextUpdate.Before(time.Now()) {
+			return fmt.Errorf("CRL expired")
+		}
 
-	// Check id cert shows up in Revoked List
-	for _, revokedCertificate := range parseCRL.RevokedCertificates {
-		fmt.Printf("Revoked certificate serial number: %s\n", revokedCertificate.SerialNumber.String())
-		if revokedCertificate.SerialNumber.Cmp(clientCert.SerialNumber) == 0 {
-			return fmt.Errorf("The certificate is revoked!")
+		// Check id cert shows up in Revoked List
+		for _, revokedCertificate := range parseCRL.RevokedCertificates {
+			fmt.Printf("Revoked certificate serial number: %s\n", revokedCertificate.SerialNumber.String())
+			if revokedCertificate.SerialNumber.Cmp(clientCert.SerialNumber) == 0 {
+				return fmt.Errorf("The certificate is revoked!")
+			}
 		}
 	}
 
@@ -249,17 +254,20 @@ func getOCSPResponse(ocspServer string, request *http.Request, issuerCert *x509.
 	return ocspResponse, err
 }
 
-// If this callback retunrs nil, then the handshake continues and will not be aborted
+// If this callback returns nil, then the handshake continues and will not be aborted
 // rawCerts contain chains of certificates in raw ASN.1 format
 // each raw certs starts with the leafCert and ends with a root self-signed CA certificate
 // verifiedChains have a certificate chain that verifies the signature validity and ends with a trusted certificate in the chain
 func certRevokedCheck(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 	var req *http.Request
+	//var v *viper.Viper
 	cert := verifiedChains[0][0]       // first argument verifies the client cert, second index 0 is the client cert
 	issuerCert := verifiedChains[0][1] // second index of 1 is the issuer of the cert
 	ocspResponse, err := getOCSPResponse(cert.OCSPServer[0], req, issuerCert)
+
 	if err != nil {
-		return err // the revocation list was note checked and an error was encountered.
+		//return err // the revocation list was not checked and an error was encountered.
+		return getCRLResponse(cert, issuerCert)
 	}
 	switch ocspResponse.Status {
 	case ocsp.Good:
