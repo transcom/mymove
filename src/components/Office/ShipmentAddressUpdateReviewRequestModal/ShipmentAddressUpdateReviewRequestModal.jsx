@@ -15,22 +15,27 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { ShipmentAddressUpdateShape } from 'types';
 import Fieldset from 'shared/Fieldset';
 import { ADDRESS_UPDATE_STATUS } from 'constants/shipments';
+import Alert from 'shared/Alert';
 
 const formSchema = Yup.object().shape({
   addressUpdate: Yup.string().required('Required'),
   officeRemarks: Yup.string().required('Required'),
 });
 
-export const ShipmentAddressUpdateReviewRequestModal = ({ onSubmit, deliveryAddressUpdate, shipmentType, onClose }) => {
+export const ShipmentAddressUpdateReviewRequestModal = ({
+  onSubmit,
+  errorMessage,
+  deliveryAddressUpdate,
+  shipmentType,
+  onClose,
+}) => {
   return (
     <Modal>
       <ModalClose handleClick={() => onClose()} />
       <ModalTitle>
         <ShipmentTag shipmentType={shipmentType} />
         <h2 className={styles.modalTitle}>Review request</h2>
-        {/* TODO: Error alert  <Alert>
-          { errorMessage}
-        </Alert> */}
+        {errorMessage && <Alert>{errorMessage}</Alert>}
       </ModalTitle>
       <Formik
         initialValues={{ addressUpdateReviewStatus: '', officeRemarks: '' }}
