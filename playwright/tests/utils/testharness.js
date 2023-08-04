@@ -450,6 +450,14 @@ export class TestHarness {
   async buildWebhookSubscription() {
     return this.buildDefault('WebhookSubscription');
   }
-}
 
+  /**
+   *
+   * @returns {Promise<Move>}
+   */
+
+  async bulidHHGMoveWithAddressChangeRequest() {
+    return this.buildDefault('MakeHHGMoveWithAddressChangeRequest');
+  }
+}
 export default TestHarness;
