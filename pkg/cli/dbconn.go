@@ -371,7 +371,8 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger *zap.Lo
 		// the otelsql one manually here
 		instrumentedDriverName := "instrumented-" + dbConnectionDetails.Driver
 		spanOptions := otelsql.SpanOptions{
-			Ping:     true,
+			// ignore ping so health checks don't overwhelm with noise
+			Ping:     v.GetBool(DbDebugFlag),
 			RowsNext: v.GetBool(DbDebugFlag),
 			// These provide very little information and can make it
 			// hard to see through the noise

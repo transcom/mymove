@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 
@@ -53,19 +54,25 @@ func NewHealthHandler(appCtx appcontext.AppContext, redisPool *redis.Pool, gitBr
 		showDB, ok := r.URL.Query()["database"]
 
 		var dbID string
-		var dbURL string
 		// Always show DB unless key set to "false"
 		if !ok || (ok && showDB[0] != "false") {
-			appCtx.Logger().Info("Health check connecting to the DB")
-			// include the request context for helpful tracing
-			db := appCtx.DB().WithContext(r.Context())
-			dbID = db.ID
-			dbURL = db.Dialect.Details().URL
-			dbErr := db.RawQuery("SELECT 1;").Exec()
+			appCtx.Logger().Info("Health check pinging the DB")
+			dbID = appCtx.DB().ID
+			type dbPinger interface {
+				PingContext(ctx context.Context) error
+			}
+			pinger, ok := appCtx.DB().Store.(dbPinger)
+			var dbErr error
+			if ok {
+				// use ping so intrumented sql driver can ignore it
+				// see cli.InitDatabase for more details
+				dbErr = pinger.PingContext(r.Context())
+			} else {
+				appCtx.Logger().Warn("Cannot convert pop.Store to dbPinger")
+				dbErr = appCtx.DB().RawQuery("SELECT 1").Exec()
+			}
 			if dbErr != nil {
 				appCtx.Logger().Error("Failed database health check",
-					zap.String("dbID", dbID),
-					zap.String("dbURL", dbURL),
 					zap.Error(dbErr))
 				data["database"] = false
 				healthCheckError(appCtx, w, data)
@@ -91,6 +98,6 @@ func NewHealthHandler(appCtx appcontext.AppContext, redisPool *redis.Pool, gitBr
 
 		appCtx.Logger().Info("Request health ok",
 			zap.String("dbID", dbID),
-			zap.String("dbURL", dbURL))
+		)
 	}
 }
