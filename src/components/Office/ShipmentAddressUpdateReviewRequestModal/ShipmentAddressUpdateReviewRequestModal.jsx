@@ -21,8 +21,7 @@ const formSchema = Yup.object().shape({
   officeRemarks: Yup.string().required('Required'),
 });
 
-// TODO pass in onSubmit from ShipmentForm as a prop
-export const ShipmentAddressUpdateReviewRequestModal = ({ deliveryAddressUpdate, shipmentType, onClose }) => {
+export const ShipmentAddressUpdateReviewRequestModal = ({ onSubmit, deliveryAddressUpdate, shipmentType, onClose }) => {
   return (
     <Modal>
       <ModalClose handleClick={() => onClose()} />
@@ -35,7 +34,7 @@ export const ShipmentAddressUpdateReviewRequestModal = ({ deliveryAddressUpdate,
       </ModalTitle>
       <Formik
         initialValues={{ addressUpdateReviewStatus: '', officeRemarks: '' }}
-        onSubmit={() => {}} // TODO: onSubmit={onSubmit}
+        onSubmit={onSubmit}
         validateOnMount
         validationSchema={formSchema}
       >
