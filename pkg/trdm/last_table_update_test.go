@@ -1,4 +1,4 @@
-package models_test
+package trdm_test
 
 import (
 	"fmt"
@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/tiaguinho/gosoap"
 
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/mocks"
+	"github.com/transcom/mymove/pkg/trdm"
 )
 
 const getLastTableUpdateTemplate = `
@@ -32,7 +32,7 @@ func soapResponseForGetLastTableUpdate(lastUpdate string, statusCode string) *go
 	}
 }
 
-func (suite *ModelSuite) TestTRDMGetLastTableUpdateFake() {
+func (suite *TRDMSuite) TestTRDMGetLastTableUpdateFake() {
 	tests := []struct {
 		name          string
 		lastUpdate    string
@@ -57,7 +57,7 @@ func (suite *ModelSuite) TestTRDMGetLastTableUpdateFake() {
 				mock.Anything,
 			).Return(soapResponseForGetLastTableUpdate(test.lastUpdate, test.statusCode), soapError)
 
-			lastTableUpdate := models.NewTRDMGetLastTableUpdate(physicalName, testSoapClient)
+			lastTableUpdate := trdm.NewTRDMGetLastTableUpdate(physicalName, testSoapClient)
 			err := lastTableUpdate.GetLastTableUpdate(suite.AppContextForTest(), physicalName)
 
 			if err != nil {
@@ -69,18 +69,18 @@ func (suite *ModelSuite) TestTRDMGetLastTableUpdateFake() {
 	}
 }
 
-func (suite *ModelSuite) TestFetchAllTACRecords() {
+func (suite *TRDMSuite) TestFetchAllTACRecords() {
 
 	// Get initial TAC codes count
-	initialCodes, err := models.FetchAllTACRecords(suite.DB())
+	initialCodes, err := trdm.FetchAllTACRecords(suite.AppContextForTest())
 	initialTacCodeLength := len(initialCodes)
 	suite.NoError(err)
 
 	// Creates a test TAC code record in the DB
-	// testdatagen.MakeDefaultTransportationAccountingCode(suite.DB())
+	//testdatagen.MakeDefaultTransportationAccountingCode(suite.DB())
 
 	// Fetch All TAC Records
-	codes, err := models.FetchAllTACRecords(suite.DB())
+	codes, err := trdm.FetchAllTACRecords(suite.AppContextForTest())
 
 	// Compare new TAC Code count to initial count
 	finalCodesLength := len(codes)

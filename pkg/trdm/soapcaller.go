@@ -1,4 +1,4 @@
-package models
+package trdm
 
 import "github.com/tiaguinho/gosoap"
 

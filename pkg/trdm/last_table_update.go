@@ -1,11 +1,10 @@
-package models
+package trdm
 
 import (
 	"encoding/xml"
 	"fmt"
 	"time"
 
-	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/tiaguinho/gosoap"
@@ -49,7 +48,7 @@ SOAP Response:
 const successfulStatusCode = "Successful"
 
 // Date/time value is used in conjunction with the contentUpdatedSinceDateTime column in the getTable method.
-type TRDMGetLastTableUpdater interface {
+type GetLastTableUpdater interface {
 	GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string) error
 }
 type getLastTableUpdateReq struct {
@@ -73,7 +72,7 @@ type TACCodes struct {
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
 
-func NewTRDMGetLastTableUpdate(physicalName string, soapClient SoapCaller) TRDMGetLastTableUpdater {
+func NewTRDMGetLastTableUpdate(physicalName string, soapClient SoapCaller) GetLastTableUpdater {
 	return &getLastTableUpdateReq{
 		physicalName: physicalName,
 		soapClient:   soapClient,
@@ -82,11 +81,11 @@ func NewTRDMGetLastTableUpdate(physicalName string, soapClient SoapCaller) TRDMG
 }
 
 // FetchAllTACRecords queries and fetches all transportation_accounting_codes
-func FetchAllTACRecords(dbConnection *pop.Connection) ([]TACCodes, error) {
+func FetchAllTACRecords(appcontext appcontext.AppContext) ([]TACCodes, error) {
 	var tacCodes []TACCodes
 	query := `SELECT * FROM transportation_accounting_codes`
 
-	err := dbConnection.RawQuery(query).All(&tacCodes)
+	err := appcontext.DB().RawQuery(query).All(&tacCodes)
 	if err != nil {
 		return tacCodes, errors.Wrap(err, "Fetch line items query failed")
 	}
@@ -120,7 +119,7 @@ func (d *getLastTableUpdateReq) GetLastTableUpdate(appCtx appcontext.AppContext,
 	}
 
 	if r.Status.StatusCode == successfulStatusCode {
-		tacCodes, dbError := FetchAllTACRecords(appCtx.DB())
+		tacCodes, dbError := FetchAllTACRecords(appCtx)
 		if dbError != nil {
 			return fmt.Errorf(err.Error())
 		}
