@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/benbjohnson/clock"
 	"github.com/gofrs/uuid"
@@ -683,6 +684,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 		detailCode string
 		infoCode   *string
 	}{
+		// If order of these changes, tests will also need to be adjusted. Using alpha order by detailCode.
 		{"A1", loa.LoaDptID},
 		{"A2", loa.LoaTnsfrDptNm},
 		{"A3", concatDate},
@@ -714,7 +716,10 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 	}
 
 	for _, input := range segmentInputs {
-		fa2 := createLongLoaSegment(input.detailCode, input.infoCode)
+		fa2, loaErr := createLongLoaSegment(input.detailCode, input.infoCode)
+		if loaErr != nil {
+			return nil, loaErr
+		}
 		if fa2 != nil {
 			fa2LongLoaSegments = append(fa2LongLoaSegments, *fa2)
 		}
@@ -723,23 +728,28 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 	return fa2LongLoaSegments, nil
 }
 
-func createLongLoaSegment(detailCode string, infoCode *string) *edisegment.FA2 {
-	if infoCode == nil || *infoCode == "" {
-		return nil
+func createLongLoaSegment(detailCode string, infoCode *string) (*edisegment.FA2, error) {
+	// If we don't have an infoCode value, then just ignore this segment
+	if infoCode == nil || strings.TrimSpace(*infoCode) == "" {
+		return nil, nil
 	}
-
 	value := *infoCode
 
-	// Trim if it exceeds the 80 character limit of the FinancialInformationCode field
-	// TODO: Is it OK to trim or should we error?
+	// Make sure we have a detailCode
+	if len(detailCode) != 2 {
+		return nil, apperror.NewImplementationError("Detail code should have length 2")
+	}
+
+	// The FinancialInformationCode field is limited to 80 characters, so make sure the value doesn't exceed
+	// that (given our LOA field schema types, it shouldn't unless we've made a mistake somewhere).
 	if len(value) > 80 {
-		value = value[:80]
+		return nil, apperror.NewImplementationError(fmt.Sprintf("Value for FA2 code %s exceeds 80 character limit", detailCode))
 	}
 
 	return &edisegment.FA2{
 		BreakdownStructureDetailCode: detailCode,
 		FinancialInformationCode:     value,
-	}
+	}, nil
 }
 
 func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(appCtx appcontext.AppContext, serviceItemID uuid.UUID, key models.ServiceItemParamName) (models.PaymentServiceItemParam, error) {

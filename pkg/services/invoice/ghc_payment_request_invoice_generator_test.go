@@ -1396,9 +1396,11 @@ func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
 	})
 }
 
-func (suite *GHCInvoiceSuite) TestTACs() {
+func (suite *GHCInvoiceSuite) TestFA2s() {
 	mockClock := clock.NewMock()
 	currentTime := mockClock.Now()
+	sixMonthsBefore := currentTime.AddDate(0, -6, 0)
+	sixMonthsAfter := currentTime.AddDate(0, 6, 0)
 	basicPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -1428,15 +1430,17 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 	ntsTAC := "2222"
 	hhgSAC := "3333"
 
+	var move models.Move
 	var mtoShipment models.MTOShipment
 	var paymentRequest models.PaymentRequest
 
 	setupTestData := func() {
-		move := factory.BuildMove(suite.DB(), []factory.Customization{
+		move = factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Order{
-					TAC:    &hhgTAC,
-					NtsTAC: &ntsTAC,
+					TAC:       &hhgTAC,
+					NtsTAC:    &ntsTAC,
+					IssueDate: currentTime,
 				},
 			},
 		}, nil)
@@ -1492,6 +1496,8 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 		mtoShipment.TACType = nil
 		suite.MustSave(&mtoShipment)
 
+		// No long lines of accounting added, so there should be no extra FA2 segments
+
 		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.NoError(err)
 		suite.Len(result.ServiceItems[0].FA2s, 1)
@@ -1504,6 +1510,8 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 		mtoShipment.TACType = &tacType
 		suite.MustSave(&mtoShipment)
 
+		// No long lines of accounting added, so there should be no extra FA2 segments
+
 		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.NoError(err)
 		suite.Len(result.ServiceItems[0].FA2s, 1)
@@ -1515,6 +1523,8 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 		tacType := models.LOATypeNTS
 		mtoShipment.TACType = &tacType
 		suite.MustSave(&mtoShipment)
+
+		// No long lines of accounting added, so there should be no extra FA2 segments
 
 		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.NoError(err)
@@ -1530,6 +1540,8 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 		paymentRequest.MoveTaskOrder.Orders.TAC = nil
 		suite.MustSave(&paymentRequest.MoveTaskOrder.Orders)
 
+		// No long lines of accounting added, so there should be no extra FA2 segments
+
 		_, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Must have an HHG TAC value")
@@ -1543,6 +1555,8 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 		paymentRequest.MoveTaskOrder.Orders.NtsTAC = nil
 		suite.MustSave(&paymentRequest.MoveTaskOrder.Orders)
 
+		// No long lines of accounting added, so there should be no extra FA2 segments
+
 		_, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Must have an NTS TAC value")
@@ -1554,6 +1568,8 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 		suite.MustSave(&mtoShipment)
 		paymentRequest.MoveTaskOrder.Orders.SAC = &hhgSAC
 		suite.MustSave(&paymentRequest.MoveTaskOrder.Orders)
+
+		// No long lines of accounting added, so there should be no extra FA2 segments
 
 		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.NoError(err)
@@ -1570,12 +1586,13 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 		paymentRequest.MoveTaskOrder.Orders.SAC = &hhgSAC
 		suite.MustSave(&paymentRequest.MoveTaskOrder.Orders)
 
+		// No long lines of accounting added, so there should be no extra FA2 segments
+
 		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.NoError(err)
 		suite.Len(result.ServiceItems[0].FA2s, 2)
 		suite.Equal(hhgTAC, result.ServiceItems[0].FA2s[0].FinancialInformationCode)
 		suite.Equal(hhgSAC, result.ServiceItems[0].FA2s[1].FinancialInformationCode)
-
 	})
 
 	suite.Run("shipment with NTS SAC/SDN type set", func() {
@@ -1583,6 +1600,8 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 		tacType := models.LOATypeNTS
 		mtoShipment.TACType = &tacType
 		suite.MustSave(&mtoShipment)
+
+		// No long lines of accounting added, so there should be no extra FA2 segments
 
 		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.NoError(err)
@@ -1598,11 +1617,12 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 		paymentRequest.MoveTaskOrder.Orders.SAC = nil
 		suite.MustSave(&paymentRequest.MoveTaskOrder.Orders)
 
+		// No long lines of accounting added, so there should be no extra FA2 segments
+
 		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.NoError(err)
 		suite.Len(result.ServiceItems[0].FA2s, 1)
 		suite.Equal(ntsTAC, result.ServiceItems[0].FA2s[0].FinancialInformationCode)
-
 	})
 
 	suite.Run("shipment with HHG TAC set up and TAC, but no SAC/SDN; It will display TAC only", func() {
@@ -1613,13 +1633,188 @@ func (suite *GHCInvoiceSuite) TestTACs() {
 		paymentRequest.MoveTaskOrder.Orders.SAC = nil
 		suite.MustSave(&paymentRequest.MoveTaskOrder.Orders)
 
+		// No long lines of accounting added, so there should be no extra FA2 segments
+
 		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.NoError(err)
 		suite.Len(result.ServiceItems[0].FA2s, 1)
 		suite.Equal(hhgTAC, result.ServiceItems[0].FA2s[0].FinancialInformationCode)
-
 	})
 
+	suite.Run("shipment with complete long line of accounting", func() {
+		setupTestData()
+
+		// Add TAC/LOA records with fully filled out LOA fields
+		loa := factory.BuildFullLineOfAccounting(nil)
+		loa.LoaBgnDt = &sixMonthsBefore
+		loa.LoaEndDt = &sixMonthsAfter
+		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationAccountingCode{
+					TAC: *move.Orders.TAC,
+				},
+			},
+			{
+				Model: loa,
+			},
+		}, nil)
+
+		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+
+		concatDate := fmt.Sprintf("%d%d", loa.LoaBgnDt.Year(), loa.LoaEndDt.Year())
+		fa2Assertions := []struct {
+			expectedDetailCode string
+			expectedInfoCode   *string
+		}{
+			{"TA", move.Orders.TAC},
+			{"A1", loa.LoaDptID},
+			{"A2", loa.LoaTnsfrDptNm},
+			{"A3", &concatDate},
+			{"A4", loa.LoaBafID},
+			{"A5", loa.LoaTrsySfxTx},
+			{"A6", loa.LoaMajClmNm},
+			{"B1", loa.LoaOpAgncyID},
+			{"B2", loa.LoaAlltSnID},
+			{"B3", loa.LoaUic},
+			{"C1", loa.LoaPgmElmntID},
+			{"C2", loa.LoaTskBdgtSblnTx},
+			{"D1", loa.LoaDfAgncyAlctnRcpntID},
+			{"D4", loa.LoaJbOrdNm},
+			{"D6", loa.LoaSbaltmtRcpntID},
+			{"D7", loa.LoaWkCntrRcpntNm},
+			{"E1", loa.LoaMajRmbsmtSrcID},
+			{"E2", loa.LoaDtlRmbsmtSrcID},
+			{"E3", loa.LoaCustNm},
+			{"F1", loa.LoaObjClsID},
+			{"F3", loa.LoaSrvSrcID},
+			{"G2", loa.LoaSpclIntrID},
+			{"I1", loa.LoaBdgtAcntClsNm},
+			{"J1", loa.LoaDocID},
+			{"K6", loa.LoaClsRefID},
+			{"L1", loa.LoaInstlAcntgActID},
+			{"M1", loa.LoaLclInstlID},
+			{"N1", loa.LoaFmsTrnsactnID},
+			{"P5", loa.LoaDscTx},
+		}
+
+		suite.Len(result.ServiceItems[0].FA2s, len(fa2Assertions))
+		for i, fa2Assertion := range fa2Assertions {
+			fa2Segment := result.ServiceItems[0].FA2s[i]
+			suite.Equal(fa2Assertion.expectedDetailCode, fa2Segment.BreakdownStructureDetailCode)
+			suite.Equal(*fa2Assertion.expectedInfoCode, fa2Segment.FinancialInformationCode)
+		}
+	})
+
+	suite.Run("shipment with nil/blank long line of accounting (except fiscal year)", func() {
+		setupTestData()
+
+		// Add TAC/LOA records, with an LOA containing empty strings and nils
+		emptyString := ""
+		tac := factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationAccountingCode{
+					TAC: *move.Orders.TAC, // TA
+				},
+			},
+			{
+				Model: models.LineOfAccounting{
+					LoaDptID:      &emptyString,     // A1
+					LoaTnsfrDptNm: &emptyString,     // A2
+					LoaBgnDt:      &sixMonthsBefore, // A3 (first part)
+					LoaEndDt:      &sixMonthsAfter,  // A3 (second part)
+					// rest of fields will be nil
+				},
+			},
+		}, nil)
+
+		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+
+		concatDate := fmt.Sprintf("%d%d", tac.LineOfAccounting.LoaBgnDt.Year(), tac.LineOfAccounting.LoaEndDt.Year())
+		fa2Assertions := []struct {
+			expectedDetailCode string
+			expectedInfoCode   *string
+		}{
+			{"TA", move.Orders.TAC},
+			{"A3", &concatDate},
+		}
+
+		suite.Len(result.ServiceItems[0].FA2s, len(fa2Assertions))
+		for i, fa2Assertion := range fa2Assertions {
+			fa2Segment := result.ServiceItems[0].FA2s[i]
+			suite.Equal(fa2Assertion.expectedDetailCode, fa2Segment.BreakdownStructureDetailCode)
+			suite.Equal(*fa2Assertion.expectedInfoCode, fa2Segment.FinancialInformationCode)
+		}
+	})
+
+	suite.Run("shipment with partial long line of accounting (except fiscal year)", func() {
+		setupTestData()
+
+		// Add TAC/LOA records, with the LOA containing only some of the values
+		tac := factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationAccountingCode{
+					TAC: *move.Orders.TAC, // TA
+				},
+			},
+			{
+				Model: models.LineOfAccounting{
+					LoaSysID:               models.IntPointer(123456),
+					LoaDptID:               models.StringPointer("12"),           // A1
+					LoaTnsfrDptNm:          models.StringPointer("1234"),         // A2
+					LoaBafID:               models.StringPointer("1234"),         // A4
+					LoaTrsySfxTx:           models.StringPointer("1234"),         // A5
+					LoaMajClmNm:            models.StringPointer("1234"),         // A6
+					LoaOpAgncyID:           models.StringPointer("1234"),         // B1
+					LoaAlltSnID:            models.StringPointer("12345"),        // B2
+					LoaPgmElmntID:          models.StringPointer("123456789012"), // C1
+					LoaTskBdgtSblnTx:       models.StringPointer("88888888"),     // C2
+					LoaDfAgncyAlctnRcpntID: models.StringPointer("1234"),         // D1
+					LoaJbOrdNm:             models.StringPointer("1234567890"),   // D4
+					LoaSbaltmtRcpntID:      models.StringPointer("1"),            // D6
+					LoaWkCntrRcpntNm:       models.StringPointer("123456"),       // D7
+					LoaBgnDt:               &sixMonthsBefore,                     // A3 (first part)
+					LoaEndDt:               &sixMonthsAfter,                      // A3 (second part)
+					// rest of fields will be nil
+				},
+			},
+		}, nil)
+
+		loa := tac.LineOfAccounting
+
+		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+
+		concatDate := fmt.Sprintf("%d%d", tac.LineOfAccounting.LoaBgnDt.Year(), tac.LineOfAccounting.LoaEndDt.Year())
+		fa2Assertions := []struct {
+			expectedDetailCode string
+			expectedInfoCode   *string
+		}{
+			{"TA", move.Orders.TAC},
+			{"A1", loa.LoaDptID},
+			{"A2", loa.LoaTnsfrDptNm},
+			{"A3", &concatDate},
+			{"A4", loa.LoaBafID},
+			{"A5", loa.LoaTrsySfxTx},
+			{"A6", loa.LoaMajClmNm},
+			{"B1", loa.LoaOpAgncyID},
+			{"B2", loa.LoaAlltSnID},
+			{"C1", loa.LoaPgmElmntID},
+			{"C2", loa.LoaTskBdgtSblnTx},
+			{"D1", loa.LoaDfAgncyAlctnRcpntID},
+			{"D4", loa.LoaJbOrdNm},
+			{"D6", loa.LoaSbaltmtRcpntID},
+			{"D7", loa.LoaWkCntrRcpntNm},
+		}
+
+		suite.Len(result.ServiceItems[0].FA2s, len(fa2Assertions))
+		for i, fa2Assertion := range fa2Assertions {
+			fa2Segment := result.ServiceItems[0].FA2s[i]
+			suite.Equal(fa2Assertion.expectedDetailCode, fa2Segment.BreakdownStructureDetailCode)
+			suite.Equal(*fa2Assertion.expectedInfoCode, fa2Segment.FinancialInformationCode)
+		}
+	})
 }
 
 func (suite *GHCInvoiceSuite) TestDetermineDutyLocationPhoneLinesFunc() {
