@@ -30,6 +30,7 @@ bin/
 #debugging
 /cmd/milmove/debug
 /cmd/webserver/debug
+__debug_bin*
 
 # misc
 .DS_Store

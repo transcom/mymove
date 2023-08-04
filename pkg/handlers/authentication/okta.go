@@ -26,16 +26,37 @@ type OktaData struct {
 	Nonce       string
 }
 
+// This function will select the correct provider to use based on its set name.
+func getOktaProviderForRequest(r *http.Request, oktaProvider OktaProvider) (goth.Provider, error) {
+	session := auth.SessionFromRequestContext(r)
+	providerName := customerProviderName
+	if session.IsOfficeApp() {
+		providerName = officeProviderName
+	} else if session.IsAdminApp() {
+		providerName = adminProviderName
+	}
+	gothProvider, err := goth.GetProvider(providerName)
+	if err != nil {
+		return nil, err
+	}
+
+	return gothProvider, nil
+}
+
+// This function will use the OktaProvider to return the correct authorization URL to use
 func (op *OktaProvider) AuthorizationURL(r *http.Request) (*OktaData, error) {
-	// if os.Getenv("OKTA_OAUTH2_ISSUER") == "" {
-	// 	err := errors.New("Issuer not set")
-	// 	op.logger.Error("Issuer not set", zap.Error(err))
-	// 	return nil, err
-	// }
+
+	// Retrieve the correct Okta Provider to use to get the correct authorization URL. This will choose from customer,
+	// office, or admin domains.
+	provider, err := getOktaProviderForRequest(r, *op)
+	if err != nil {
+		op.Logger.Error("Get Goth provider", zap.Error(err))
+		return nil, err
+	}
 
 	state := generateNonce()
 
-	sess, err := op.BeginAuth(state)
+	sess, err := provider.BeginAuth(state)
 	if err != nil {
 		op.Logger.Error("Goth begin auth", zap.Error(err))
 		return nil, err
@@ -53,16 +74,7 @@ func (op *OktaProvider) AuthorizationURL(r *http.Request) (*OktaData, error) {
 		return nil, err
 	}
 
-	// TODO: Verify CAC authenticator
 	params := authURL.Query()
-	session := auth.SessionFromRequestContext(r)
-	// TODO: Switch away from idmanagement - This is login.gov
-	if session.IsAdminApp() {
-		// This specifies that a user has been authenticated with an HSPD12 credential, via their CAC. Both acr_values must be specified.
-		params.Add("acr_values", "http://idmanagement.gov/ns/assurance/ial/1 http://idmanagement.gov/ns/assurance/aal/3?hspd12=true")
-	} else {
-		params.Add("acr_values", "http://idmanagement.gov/ns/assurance/loa/1")
-	}
 	params.Add("nonce", state)
 	params.Set("scope", "openid email")
 
@@ -71,6 +83,7 @@ func (op *OktaProvider) AuthorizationURL(r *http.Request) (*OktaData, error) {
 	return &OktaData{authURL.String(), state}, nil
 }
 
+// TODO: Clean up when working on callback
 func NewOktaProvider(logger *zap.Logger) *OktaProvider {
 	return &OktaProvider{
 		Provider: *okta.New(
@@ -92,27 +105,15 @@ func wrapOktaProvider(provider *okta.Provider, logger *zap.Logger) *OktaProvider
 	}
 }
 
-// This function allows us to register a new Okta provider with Goth. This is primarily used
-// for the three different Okta applications we're supporting: Customer, Office, and Admin
-func (op *OktaProvider) RegisterProvider(providerName string, clientID string, clientSecret string, issuerURL string, callbackURL string) error {
-
-	oktaProvider := okta.NewCustomisedURL(clientID, clientSecret, callbackURL, issuerURL+"/v1/authorize", issuerURL+"/v1/token", issuerURL, issuerURL+"/v1/userinfo", "openid", "profile", "email")
-
-	// set provider name for the Okta provider
-	oktaProvider.SetName(providerName)
-
-	goth.UseProviders(
-		wrapOktaProvider(oktaProvider, op.Logger),
-	)
-
-	return nil
-}
-
+// Function to register all three providers at once.
+// TODO: Split this function up
 func (op *OktaProvider) RegisterProviders(customerHostname string, customerCallbackUrl string, customerClientID string, customerSecret string, officeHostname string, officeCallbackUrl string, officeClientID string, officeSecret string, adminHostname string, adminCallbackUrl string, adminClientID string, adminSecret string, callbackProtocol string, callbackPort int, oktaIssuer string) error {
 	customerProvider := okta.New(customerClientID, customerSecret, oktaIssuer, customerCallbackUrl, "openid", "profile", "email")
 	officeProvider := okta.New(officeClientID, officeSecret, oktaIssuer, officeCallbackUrl, "openid", "profile", "email")
 	adminProvider := okta.New(adminClientID, adminSecret, oktaIssuer, adminCallbackUrl, "openid", "profile", "email")
-
+	customerProvider.SetName(customerProviderName)
+	officeProvider.SetName(officeProviderName)
+	adminProvider.SetName(adminProviderName)
 	goth.UseProviders(
 		wrapOktaProvider(customerProvider, op.Logger),
 		wrapOktaProvider(officeProvider, op.Logger),
