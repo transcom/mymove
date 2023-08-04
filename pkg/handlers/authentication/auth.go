@@ -687,7 +687,7 @@ func invalidPermissionsResponse(appCtx appcontext.AppContext, handlerConfig hand
 	http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
 }
 
-// AuthorizationCallbackHandler handles the callback from the Login.gov authorization flow
+// AuthorizationCallbackHandler handles the callback from the Okta.mil authorization flow
 func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	appCtx := h.AppContextFromRequest(r)
 	if appCtx.Session() == nil {
@@ -710,17 +710,17 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		switch err {
 		case "access_denied":
 			// The user has either cancelled or declined to authorize the client
-			appCtx.Logger().Error("ACCESS_DENIED error from login.gov")
+			appCtx.Logger().Error("ACCESS_DENIED error from okta.mil")
 		case "invalid_request":
-			appCtx.Logger().Error("INVALID_REQUEST error from login.gov")
+			appCtx.Logger().Error("INVALID_REQUEST error from okta.mil")
 			landingQuery.Add("error", "INVALID_REQUEST")
 		default:
-			appCtx.Logger().Error("unknown error from login.gov")
+			appCtx.Logger().Error("unknown error from okta.mil")
 			landingQuery.Add("error", "UNKNOWN_ERROR")
 		}
 		landingURL.RawQuery = landingQuery.Encode()
 		http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
-		appCtx.Logger().Info("User redirected from login.gov", zap.String("landingURL", landingURL.String()))
+		appCtx.Logger().Info("User redirected from okta.mil", zap.String("landingURL", landingURL.String()))
 
 		return
 	}

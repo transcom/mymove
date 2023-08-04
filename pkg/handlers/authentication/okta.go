@@ -11,11 +11,6 @@ import (
 	"go.uber.org/zap"
 )
 
-const customerProviderName = "customerProvider"
-
-// const officeProviderName = "officeProvider" //used in the login_gov.go
-// const adminProviderName = "adminProvider" // used in login_gov.go
-
 type OktaProvider struct {
 	okta.Provider
 	Logger *zap.Logger
@@ -29,7 +24,7 @@ type OktaData struct {
 // This function will select the correct provider to use based on its set name.
 func getOktaProviderForRequest(r *http.Request, oktaProvider OktaProvider) (goth.Provider, error) {
 	session := auth.SessionFromRequestContext(r)
-	providerName := customerProviderName
+	providerName := milProviderName
 	if session.IsOfficeApp() {
 		providerName = officeProviderName
 	} else if session.IsAdminApp() {
@@ -103,7 +98,7 @@ func (op *OktaProvider) RegisterProviders() error {
 	// Declare OIDC scopes to be used within the providers
 	scope := []string{"openid", "email"}
 	// Register customer provider
-	err := op.RegisterOktaProvider(customerProviderName, os.Getenv("OKTA_CUSTOMER_HOSTNAME"), os.Getenv("OKTA_CUSTOMER_CALLBACK_URL"), os.Getenv("OKTA_CUSTOMER_CLIENT_ID"), os.Getenv("OKTA_CUSTOMER_SECRET_KEY"), scope)
+	err := op.RegisterOktaProvider(milProviderName, os.Getenv("OKTA_CUSTOMER_HOSTNAME"), os.Getenv("OKTA_CUSTOMER_CALLBACK_URL"), os.Getenv("OKTA_CUSTOMER_CLIENT_ID"), os.Getenv("OKTA_CUSTOMER_SECRET_KEY"), scope)
 	if err != nil {
 		op.Logger.Error("Could not register customer okta provider", zap.Error(err))
 		return err
