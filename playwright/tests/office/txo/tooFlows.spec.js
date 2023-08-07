@@ -427,4 +427,11 @@ test.describe('TOO user', () => {
       await tooFlowPage.waitForPage.moveDetails();
     });
   });
+
+  test('approves a delivery address change request for an HHG shipment', async ({ officePage }) => {
+    const shipmentAddressUpdate = await officePage.testHarness.bulidHHGMoveWithAddressChangeRequest();
+    await officePage.signInAsNewTOOUser();
+    tooFlowPage = new TooFlowPage(officePage, shipmentAddressUpdate.Shipment.MoveTaskOrder);
+    await officePage.tooNavigateToMove(shipmentAddressUpdate.Shipment.MoveTaskOrder.locator);
+  });
 });

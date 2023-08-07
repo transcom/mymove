@@ -453,11 +453,11 @@ export class TestHarness {
 
   /**
    *
-   * @returns {Promise<Move>}
+   * @returns {Promise<Object>}
    */
 
   async bulidHHGMoveWithAddressChangeRequest() {
-    return this.buildDefault('MakeHHGMoveWithAddressChangeRequest');
+    return this.buildDefault('HHGMoveWithAddressChangeRequest');
   }
 }
 export default TestHarness;
