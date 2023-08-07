@@ -26,7 +26,6 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext
 	var moveTaskOrders models.Moves
 	var err error
 	query := appCtx.DB().EagerPreload(
-		"PaymentRequests",
 		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
@@ -101,7 +100,9 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"Contractor",
 		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"PaymentRequests.ProofOfServiceDocs.PrimeUploads.Upload",
+		"PaymentRequests.PaymentServiceItems.MTOServiceItem.ReService.Code",
 		"MTOServiceItems.ReService",
+		"MTOServiceItems.ReService.Code",
 		"MTOServiceItems.Dimensions",
 		"MTOServiceItems.SITAddressUpdates",
 		"MTOServiceItems.SITDestinationFinalAddress",

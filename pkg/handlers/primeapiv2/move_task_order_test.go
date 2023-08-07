@@ -698,7 +698,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 				},
 			},
 		}, nil)
-
 		recalcPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
 				Model: models.PaymentRequest{

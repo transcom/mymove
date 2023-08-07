@@ -1,7 +1,8 @@
 package paymentrequest
 
 import (
-	// "fmt"
+	"fmt"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -53,7 +54,7 @@ func checkStatusOfExistingPaymentRequest() paymentRequestValidator {
 		moveID := paymentRequest.MoveTaskOrderID
 
 		//create a new list for the filter
-		var moveLevelItems []models.PaymentServiceItem
+		// var moveLevelItems []models.PaymentServiceItem
 
 		searchParams := services.MoveTaskOrderFetcherParams{
 			MoveTaskOrderID: moveID,
@@ -62,55 +63,66 @@ func checkStatusOfExistingPaymentRequest() paymentRequestValidator {
 		//fetching a move to then grab all payment requests for that move
 		move, err := mtoFetcher.NewMoveTaskOrderFetcher().FetchMoveTaskOrder(appCtx, &searchParams)
 		if err != nil {
+			// appCtx.Logger().Error("error is here")
 			return err
 		}
 
+		// appCtx.Logger().Error("did not do for loop")
 		allMovePaymentRequests := move.PaymentRequests
 
 		//checking to see if new payment service items are MS or CS, then adding it to a filtered list
 		//loop through all Payment service items to look for MS or CS
 		for _, newPaymentServiceItem := range newPaymentServiceItems {
 			if newPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeMS || newPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeCS {
-				moveLevelItems = append(moveLevelItems, newPaymentServiceItem)
+				// appCtx.Logger().Error("failed at new service item reservice code")
+				// moveLevelItems = append(moveLevelItems, newPaymentServiceItem)
+				// appCtx.Logger().Error(fmt.Sprintf("len: %d", len(allMovePaymentRequests)))
 				for _, movePR := range allMovePaymentRequests {
-					for _, movePaymentServiceItem := range movePR.PaymentServiceItems {
-						if (movePaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeMS || movePaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeCS) &&
-							(movePaymentServiceItem.MTOServiceItem.ReService.Code == newPaymentServiceItem.MTOServiceItem.ReService.Code) &&
-							(movePaymentServiceItem.Status == models.PaymentServiceItemStatusRequested || movePaymentServiceItem.Status == models.PaymentServiceItemStatusPaid) {
-							return apperror.NewConflictError(movePR.ID, "Conflict Error: Payment Request for Service Item is already paid or requested")
-						}
+					if movePR.Status == models.PaymentRequestStatusReviewedAllRejected || movePR.Status == models.PaymentRequestStatusDeprecated {
+						continue
 					}
+					for _, movePaymentServiceItem := range movePR.PaymentServiceItems {
+						// appCtx.Logger().Error(fmt.Sprintf("len: %d", len(movePR.PaymentServiceItems)))
+						// appCtx.Logger().Error(fmt.Sprintf("code: %v", movePaymentServiceItem.ID))
+						if movePaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeMS || movePaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeCS {
+							// appCtx.Logger().Error("failed at reservice code ms or cs")
+							if movePaymentServiceItem.MTOServiceItem.ReService.Code == newPaymentServiceItem.MTOServiceItem.ReService.Code {
+								// appCtx.Logger().Error("failed at matching reservice code")
+								if movePaymentServiceItem.Status == models.PaymentServiceItemStatusRequested || movePaymentServiceItem.Status == models.PaymentServiceItemStatusPaid {
+									// appCtx.Logger().Error("failed at status")
+									return apperror.NewConflictError(movePR.ID, "Conflict Error: Payment Request for Service Item is already paid or requested")
+								}
+							}
+						}
+
+					}
+					// for _, movePaymentServiceItem := range movePR.PaymentServiceItems {
+					// 	if (movePaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeMS || movePaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeCS) &&
+					// 		(movePaymentServiceItem.MTOServiceItem.ReService.Code == newPaymentServiceItem.MTOServiceItem.ReService.Code) &&
+					// 		(movePaymentServiceItem.Status == models.PaymentServiceItemStatusRequested || movePaymentServiceItem.Status == models.PaymentServiceItemStatusPaid) {
+					// 		return apperror.NewConflictError(movePR.ID, "Conflict Error: Payment Request for Service Item is already paid or requested")
+					// 	}
+					// }
 				}
 			}
 		}
-		// }
-
-		// if len(moveLevelItems) > 0 {
-		// 	for _, movePR := range allMovePaymentRequests {
-		// 		for _, movePaymentServiceItem := range movePR.PaymentServiceItems {
-		// 			if movePaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeMS || movePaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeCS {
-		// 				if (movePaymentServiceItem.Status == models.PaymentServiceItemStatusRequested || movePaymentServiceItem.Status == models.PaymentServiceItemStatusPaid){
-		// 					return apperror.NewConflictError(movePR.ID, "Conflict Error: Payment Request for Service Item is already paid or requested")
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-
-		// }
 
 		// if there are 0 move level items, then run the original function searching by shipmentID
-		if len(moveLevelItems) == 0 {
+		// if len(moveLevelItems) == 0 {
+		if len(move.MTOShipments) > 0 {
 
 			shipmentID := paymentRequest.PaymentServiceItems[0].MTOServiceItem.MTOShipmentID
 
 			shipment, err := mtoshipment.FindShipment(appCtx, *shipmentID,
-				"MoveTaskOrder",
+				// shipment, err := mtoshipment.NewMTOShipmentFetcher().GetShipment(appCtx, *shipmentID,
 				"MoveTaskOrder.PaymentRequests",
 				"MoveTaskOrder.PaymentRequests.PaymentServiceItems",
 				"MoveTaskOrder.PaymentRequests.PaymentServiceItems.MTOServiceItem",
 				"MoveTaskOrder.PaymentRequests.PaymentServiceItems.MTOServiceItem.ReService.Code",
 			)
 			if err != nil {
+				// appCtx.Logger().Error("shipment error")
+				appCtx.Logger().Error(fmt.Sprintf("code: %v", err.Error()))
 				return err
 			}
 

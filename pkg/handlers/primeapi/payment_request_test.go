@@ -588,6 +588,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 
 		session := auth.Session{}
 		appCtx := suite.AppContextWithSessionForTest(&session)
+		// appCtx := suite.AppContextForTest()
 
 		// Capture creation attempt in audit log
 		zapFields, err := audit.Capture(appCtx, &params.Body, nil, params.HTTPRequest)
@@ -897,6 +898,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 	suite.Run("fail to create payment request with real PaymentRequestCreator and empty MTO Reference ID", func() {
 
 		move, mtoServiceItems := suite.setupDomesticLinehaulData()
+		// subTestData := makeCreatePaymentRequestHandlerSubtestData()
 		moveTaskOrderID := move.ID
 
 		requestUser := factory.BuildUser(nil, nil, nil)

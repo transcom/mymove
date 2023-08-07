@@ -622,7 +622,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Equal(fmt.Sprintf("ID: %s not found for Move", badID), err.Error())
+		suite.Contains(err.Error(), fmt.Sprintf("ID: %s not found", badID))
 	})
 
 	suite.Run("Given an already paid or requested payment service item, the create should fail", func() {

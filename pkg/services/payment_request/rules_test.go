@@ -491,6 +491,7 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 		//movel level items
 		suite.Run("failure to create a payment request for move level service item if status is paid or requested", func() {
 			move := factory.BuildMove(suite.DB(), []factory.Customization{}, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
+			reServiceCode := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 
 			serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 				{
@@ -498,9 +499,8 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 					LinkOnly: true,
 				},
 				{
-					Model: models.ReService{
-						Code: models.ReServiceCodeMS,
-					},
+					Model:    reServiceCode,
+					LinkOnly: true,
 				},
 				{
 					Model: models.MTOServiceItem{
@@ -547,16 +547,16 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 					{
 						MTOServiceItemID: serviceItem.ID,
 						MTOServiceItem:   serviceItem,
-						PaymentServiceItemParams: models.PaymentServiceItemParams{
-							{
-								IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
-								Value:       "3254",
-							},
-							{
-								IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
-								Value:       "2022-03-16",
-							},
-						},
+						// PaymentServiceItemParams: models.PaymentServiceItemParams{
+						// 	{
+						// 		IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+						// 		Value:       "3254",
+						// 	},
+						// 	{
+						// 		IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
+						// 		Value:       "2022-03-16",
+						// 	},
+						// },
 						Status: models.PaymentServiceItemStatusRequested,
 					},
 				},
