@@ -839,4 +839,6 @@
 20230623204052_delete_ServiceAreaDest_param_for_DDDSIT_service_item.up.sql
 20230628220338_add_sit_fsc_reservice_and_service_params.up.sql
 20230721155723_add_lines_of_accounting_table_and_update_tac_table.up.sql
-20230804161700_import_trdm.up.sql
+20230804161700_import_trdm_part_1.up.sql
+20230807175944_import_trdm_part_2.up.sql
+20230807180000_import_trdm_part_3.up.sql
