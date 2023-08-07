@@ -101,5 +101,7 @@ describe('ShipmentAddressUpdateReviewRequestModal', () => {
     expect(officeRemarks).toHaveValue('Here are my remarks from the office');
 
     await user.click(save);
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 });
