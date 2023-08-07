@@ -26,7 +26,7 @@ func (suite *NotificationSuite) TestMoveSubmitted() {
 	suite.NotEmpty(email.textBody)
 }
 
-func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRender() {
+func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithGovCounseling() {
 	approver := factory.BuildUser(nil, nil, nil)
 	move := factory.BuildMove(suite.DB(), nil, nil)
 	notification := NewMoveSubmitted(move.ID)
@@ -35,107 +35,87 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRender() {
 	originDutyLocationPhoneLine := "555-555-5555"
 
 	s := moveSubmittedEmailData{
-		Link:                        "https://my.move.mil/",
-		PpmLink:                     "https://office.move.mil/downloads/ppm_info_sheet.pdf",
-		OriginDutyLocation:          &originDutyLocation,
-		DestinationDutyLocation:     "destDutyLocation",
-		OriginDutyLocationPhoneLine: &originDutyLocationPhoneLine,
-		Locator:                     "abc123",
-		WeightAllowance:             "7,999",
+		OriginDutyLocation:           &originDutyLocation,
+		DestinationDutyLocation:      "destDutyLocation",
+		OriginDutyLocationPhoneLine:  &originDutyLocationPhoneLine,
+		Locator:                      "abc123",
+		WeightAllowance:              "7,999",
+		ProvidesGovernmentCounseling: true,
 	}
 	expectedHTMLContent := `<p>
-  This is a confirmation that you’ve submitted the details for your move from origDutyLocation to destDutyLocation.
+  *** DO NOT REPLY directly to this email ***
 </p>
 
 <p>
-  <strong>We’ve assigned you a move code: abc123.</strong> You can use this code when talking to any
-  representative about your move.
+  This is a confirmation that you have submitted the details for your move from origDutyLocation to destDutyLocation.
 </p>
 
 <p>
-  To change any other information about your move, or to add or cancel shipments, you should tell your movers (if you’re
-  using them) or your move counselor.
+  <strong>We have assigned you a move code: abc123.</strong> You can use this code when talking to any representative about your move.
 </p>
 
 <p>
-  <strong>Your weight allowance: 7,999 pounds</strong>
-  That’s how much the government will pay to ship for you on this move. You won’t owe anything if all your shipments
-  combined weigh less than that.
+  To change any information about your move, or to add or cancel shipments, you should contact your nearest transportation office.
+  555-555-5555
 </p>
 
 <p>
-  If you move more than 7,999 pounds, you will owe the government the difference between that and the
-  total amount you move.
+  <strong>Your weight allowance: 7,999 pounds.</strong>
+  That is how much combined weight the government will pay for all movements between authorized locations under your orders.
 </p>
 
 <p>
-  Your movers will estimate the total weight of your belongings, and you will be notified if it looks like you might
-  exceed your weight allowance. But you’re ultimately responsible for the weight you move.
+  If you move more than 7,999 pounds or ship to/from an other than authorized location, you may owe the government the difference in cost between what you are authorized and what you decide to move.
 </p>
 
 <p>
-  <strong>For PPM (DITY, or do-it-yourself) shipments</strong>
-  If you chose to do a full or partial PPM (DITY) move,
-  <a href="https://office.move.mil/downloads/ppm_info_sheet.pdf"> review the Personally Procured Move (PPM) info sheet</a>
-  for detailed instructions.
+  If you are doing a Household Goods (HHG) shipment: The company responsible for managing your shipment, HomeSafe Alliance, will estimate the total weight of your personal property during a pre-move survey, and you will be notified if it looks like you might exceed your weight allowance. But you are responsible for excess costs associated with the weight moved, up to HomeSafe’s weight estimate plus 10%.
 </p>
+
+<h4>
+  Next Steps for your Government-arranged Shipment(s):
+</h4>
+
 <ul>
-  <li>Start your PPM shipment whenever you are ready</li>
-  <li>You can wait until after you talk to your move counselor</li>
-  <li>Getting your PPM shipment moved to your new home is entirely in your hands</li>
-  <li>You can move everything yourself, hire help, or even hire your own movers</li>
-  <li>You are responsible for any damage to your belongings</li>
-  <li>
-    <strong>Get certified weight tickets</strong> that show the empty and full weight for each vehicle used in each PPM
-    shipment
-  </li>
-  <li>If you’re missing weight tickets, you may not get paid for your PPM</li>
-  <li>
-    <strong>Save receipts</strong> for PPM expenses to request reimbursement or to reduce taxes on your incentive
-    payment
-  </li>
+  <li>Your move request will be reviewed and a counselor will be assigned to brief you on your move entitlements.</li>
+  <li>Your move counselor will get in touch with you soon.</li>
 </ul>
-
 <p>
-  If you have any questions about the PPM part of your move, call the origDutyLocation PPPO at
-  555-555-5555 and reference move code abc123.
+  Your move counselor will, among other things:
 </p>
-
-<p>
-  Once you’ve completed your PPM shipment, you can request payment by
-  <a href="https://my.move.mil/">logging in to MilMove</a>.
-</p>
-
-<p>
-  <strong>For HHG and other government-funded shipments</strong>
-</p>
-
-<p>Next steps:</p>
 <ul>
-  <li>Talk to a move counselor</li>
-  <li>Talk to your movers</li>
-</ul>
-
-<p>
-  You can ask questions of your move counselor or your point of contact with the movers. They will both get in touch
-  with you soon.
-</p>
-
-<p>Your counselor will:</p>
-<ul>
-  <li>Verify the information you entered</li>
+  <li>Verify the information you entered and your entitlements</li>
   <li>Give you moving-related advice</li>
-  <li>Give you tips to avoid going over your weight allowance</li>
-  <li>Identify things like pro-gear that won’t count against your weight allowance</li>
+  <li>Give you tips to avoid excess costs (i.e., going over your weight allowance) or advise you if you are in an excess cost scenario</li>
 </ul>
+<p>
+  Once your counseling is complete, your request will be reviewed by the responsible personal property shipping office, and a move task order will be placed with HomeSafe Alliance. Once this order is placed, you will receive an invitation to create an account in HomeSafe Connect. This is the system you will use to schedule your pre-move survey.
+</p>
 
-<p>When the movers contact you, they’ll schedule a pre-move survey to estimate the total weight of your belongings.</p>
+<p>
+  HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes.
+</p>
 
-<p>They’ll also finalize dates to pack and pick up your things, on or near the date you requested in MilMove.</p>
+<h4>
+  IMPORTANT: Take the Customer Satisfaction Survey
+</h4>
 
-<p>If any information about your move changes at any point during the move, let your movers know.</p>
+<p>
+  You will receive an invitation to take a quick customer satisfaction survey (CSS) at key stages of your move process. The first invitation will be sent shortly after counseling is complete.
+</p>
+<p>
+  Taking the survey at each stage provides transparency and increases accountability of those assisting you with your relocation.
+</p>
 
-<p>Good luck on your move to destDutyLocation!</p>
+<p>
+  Thank you,
+</p>
+<p>
+  Defense Personal Property Program’s MilMove Team
+</p>
+<p>
+  The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
+</p>
 `
 
 	htmlContent, err := notification.RenderHTML(suite.AppContextWithSessionForTest(&auth.Session{
@@ -145,7 +125,98 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRender() {
 
 	suite.NoError(err)
 	suite.Equal(expectedHTMLContent, htmlContent)
+}
 
+func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithoutGovCounseling() {
+	approver := factory.BuildUser(nil, nil, nil)
+	move := factory.BuildMove(suite.DB(), nil, nil)
+	notification := NewMoveSubmitted(move.ID)
+
+	originDutyLocation := "origDutyLocation"
+	originDutyLocationPhoneLine := "555-555-5555"
+
+	s := moveSubmittedEmailData{
+		OriginDutyLocation:           &originDutyLocation,
+		DestinationDutyLocation:      "destDutyLocation",
+		OriginDutyLocationPhoneLine:  &originDutyLocationPhoneLine,
+		Locator:                      "abc123",
+		WeightAllowance:              "7,999",
+		ProvidesGovernmentCounseling: false,
+	}
+	expectedHTMLContent := `<p>
+  *** DO NOT REPLY directly to this email ***
+</p>
+
+<p>
+  This is a confirmation that you have submitted the details for your move from origDutyLocation to destDutyLocation.
+</p>
+
+<p>
+  <strong>We have assigned you a move code: abc123.</strong> You can use this code when talking to any representative about your move.
+</p>
+
+<p>
+  To change any information about your move, or to add or cancel shipments, you should contact your nearest transportation office.
+  555-555-5555
+</p>
+
+<p>
+  <strong>Your weight allowance: 7,999 pounds.</strong>
+  That is how much combined weight the government will pay for all movements between authorized locations under your orders.
+</p>
+
+<p>
+  If you move more than 7,999 pounds or ship to/from an other than authorized location, you may owe the government the difference in cost between what you are authorized and what you decide to move.
+</p>
+
+<p>
+  If you are doing a Household Goods (HHG) shipment: The company responsible for managing your shipment, HomeSafe Alliance, will estimate the total weight of your personal property during a pre-move survey, and you will be notified if it looks like you might exceed your weight allowance. But you are responsible for excess costs associated with the weight moved, up to HomeSafe’s weight estimate plus 10%.
+</p>
+
+<h4>
+  Next Steps for your Government-arranged Shipment(s):
+</h4>
+
+<p>
+  Your move request will be reviewed by the responsible personal property shipping office and an move task order for services will be placed with HomeSafe Alliance.
+</p>
+<p>
+  Once this order is placed, you will receive an invitation to create an account in HomeSafe Connect. This is the system you will use for your counseling session. You will also schedule your pre-move survey during this session.
+</p>
+
+<p>
+  HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes.
+</p>
+
+<h4>
+  IMPORTANT: Take the Customer Satisfaction Survey
+</h4>
+
+<p>
+  You will receive an invitation to take a quick customer satisfaction survey (CSS) at key stages of your move process. The first invitation will be sent shortly after counseling is complete.
+</p>
+<p>
+  Taking the survey at each stage provides transparency and increases accountability of those assisting you with your relocation.
+</p>
+
+<p>
+  Thank you,
+</p>
+<p>
+  Defense Personal Property Program’s MilMove Team
+</p>
+<p>
+  The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
+</p>
+`
+
+	htmlContent, err := notification.RenderHTML(suite.AppContextWithSessionForTest(&auth.Session{
+		UserID:          approver.ID,
+		ApplicationName: auth.OfficeApp,
+	}), s)
+
+	suite.NoError(err)
+	suite.Equal(expectedHTMLContent, htmlContent)
 }
 
 func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyLocation() {
@@ -154,104 +225,78 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyLocatio
 	notification := NewMoveSubmitted(move.ID)
 
 	s := moveSubmittedEmailData{
-		Link:                        "https://my.move.mil/",
-		PpmLink:                     "https://office.move.mil/downloads/ppm_info_sheet.pdf",
-		OriginDutyLocation:          nil,
-		DestinationDutyLocation:     "destDutyLocation",
-		OriginDutyLocationPhoneLine: nil,
-		Locator:                     "abc123",
-		WeightAllowance:             "7,999",
+		OriginDutyLocation:           nil,
+		DestinationDutyLocation:      "destDutyLocation",
+		OriginDutyLocationPhoneLine:  nil,
+		Locator:                      "abc123",
+		WeightAllowance:              "7,999",
+		ProvidesGovernmentCounseling: false,
 	}
 	expectedHTMLContent := `<p>
-  This is a confirmation that you’ve submitted the details for your move to destDutyLocation.
+  *** DO NOT REPLY directly to this email ***
 </p>
 
 <p>
-  <strong>We’ve assigned you a move code: abc123.</strong> You can use this code when talking to any
-  representative about your move.
+  This is a confirmation that you have submitted the details for your move to destDutyLocation.
 </p>
 
 <p>
-  To change any other information about your move, or to add or cancel shipments, you should tell your movers (if you’re
-  using them) or your move counselor.
+  <strong>We have assigned you a move code: abc123.</strong> You can use this code when talking to any representative about your move.
 </p>
 
 <p>
-  <strong>Your weight allowance: 7,999 pounds</strong>
-  That’s how much the government will pay to ship for you on this move. You won’t owe anything if all your shipments
-  combined weigh less than that.
+  To change any information about your move, or to add or cancel shipments, you should contact your nearest transportation office.
+  <a href="https://www.militaryonesource.mil/moving-housing/moving/planning-your-move/customer-service-contacts-for-military-pcs/">directory of PCS-related contacts</a>
 </p>
 
 <p>
-  If you move more than 7,999 pounds, you will owe the government the difference between that and the
-  total amount you move.
+  <strong>Your weight allowance: 7,999 pounds.</strong>
+  That is how much combined weight the government will pay for all movements between authorized locations under your orders.
 </p>
 
 <p>
-  Your movers will estimate the total weight of your belongings, and you will be notified if it looks like you might
-  exceed your weight allowance. But you’re ultimately responsible for the weight you move.
+  If you move more than 7,999 pounds or ship to/from an other than authorized location, you may owe the government the difference in cost between what you are authorized and what you decide to move.
 </p>
 
 <p>
-  <strong>For PPM (DITY, or do-it-yourself) shipments</strong>
-  If you chose to do a full or partial PPM (DITY) move,
-  <a href="https://office.move.mil/downloads/ppm_info_sheet.pdf"> review the Personally Procured Move (PPM) info sheet</a>
-  for detailed instructions.
+  If you are doing a Household Goods (HHG) shipment: The company responsible for managing your shipment, HomeSafe Alliance, will estimate the total weight of your personal property during a pre-move survey, and you will be notified if it looks like you might exceed your weight allowance. But you are responsible for excess costs associated with the weight moved, up to HomeSafe’s weight estimate plus 10%.
 </p>
-<ul>
-  <li>Start your PPM shipment whenever you are ready</li>
-  <li>You can wait until after you talk to your move counselor</li>
-  <li>Getting your PPM shipment moved to your new home is entirely in your hands</li>
-  <li>You can move everything yourself, hire help, or even hire your own movers</li>
-  <li>You are responsible for any damage to your belongings</li>
-  <li>
-    <strong>Get certified weight tickets</strong> that show the empty and full weight for each vehicle used in each PPM
-    shipment
-  </li>
-  <li>If you’re missing weight tickets, you may not get paid for your PPM</li>
-  <li>
-    <strong>Save receipts</strong> for PPM expenses to request reimbursement or to reduce taxes on your incentive
-    payment
-  </li>
-</ul>
 
-<p>If you have any questions about the PPM part of your move, consult Military OneSource's <a href="https://www.militaryonesource.mil/moving-housing/moving/planning-your-move/customer-service-contacts-for-military-pcs/">directory of PCS-related contacts</a> to best contact and reference move code abc123.</p>
+<h4>
+  Next Steps for your Government-arranged Shipment(s):
+</h4>
 
 <p>
-  Once you’ve completed your PPM shipment, you can request payment by
-  <a href="https://my.move.mil/">logging in to MilMove</a>.
+  Your move request will be reviewed by the responsible personal property shipping office and an move task order for services will be placed with HomeSafe Alliance.
+</p>
+<p>
+  Once this order is placed, you will receive an invitation to create an account in HomeSafe Connect. This is the system you will use for your counseling session. You will also schedule your pre-move survey during this session.
 </p>
 
 <p>
-  <strong>For HHG and other government-funded shipments</strong>
+  HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes.
 </p>
 
-<p>Next steps:</p>
-<ul>
-  <li>Talk to a move counselor</li>
-  <li>Talk to your movers</li>
-</ul>
+<h4>
+  IMPORTANT: Take the Customer Satisfaction Survey
+</h4>
 
 <p>
-  You can ask questions of your move counselor or your point of contact with the movers. They will both get in touch
-  with you soon.
+  You will receive an invitation to take a quick customer satisfaction survey (CSS) at key stages of your move process. The first invitation will be sent shortly after counseling is complete.
+</p>
+<p>
+  Taking the survey at each stage provides transparency and increases accountability of those assisting you with your relocation.
 </p>
 
-<p>Your counselor will:</p>
-<ul>
-  <li>Verify the information you entered</li>
-  <li>Give you moving-related advice</li>
-  <li>Give you tips to avoid going over your weight allowance</li>
-  <li>Identify things like pro-gear that won’t count against your weight allowance</li>
-</ul>
-
-<p>When the movers contact you, they’ll schedule a pre-move survey to estimate the total weight of your belongings.</p>
-
-<p>They’ll also finalize dates to pack and pick up your things, on or near the date you requested in MilMove.</p>
-
-<p>If any information about your move changes at any point during the move, let your movers know.</p>
-
-<p>Good luck on your move to destDutyLocation!</p>
+<p>
+  Thank you,
+</p>
+<p>
+  Defense Personal Property Program’s MilMove Team
+</p>
+<p>
+  The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
+</p>
 `
 
 	htmlContent, err := notification.RenderHTML(suite.AppContextWithSessionForTest(&auth.Session{
@@ -274,64 +319,57 @@ func (suite *NotificationSuite) TestMoveSubmittedTextTemplateRender() {
 	originDutyLocationPhoneLine := "555-555-5555"
 
 	s := moveSubmittedEmailData{
-		Link:                        "https://my.move.mil/",
-		PpmLink:                     "https://office.move.mil/downloads/ppm_info_sheet.pdf",
-		OriginDutyLocation:          &originDutyLocation,
-		DestinationDutyLocation:     "destDutyLocation",
-		OriginDutyLocationPhoneLine: &originDutyLocationPhoneLine,
-		Locator:                     "abc123",
-		WeightAllowance:             "7,999",
+		OriginDutyLocation:           &originDutyLocation,
+		DestinationDutyLocation:      "destDutyLocation",
+		OriginDutyLocationPhoneLine:  &originDutyLocationPhoneLine,
+		Locator:                      "abc123",
+		WeightAllowance:              "7,999",
+		ProvidesGovernmentCounseling: true,
 	}
 
-	expectedTextContent := `This is a confirmation that you’ve submitted the details for your move from origDutyLocation to destDutyLocation.
+	expectedTextContent := `*** DO NOT REPLY directly to this email ***
 
-We’ve assigned you a move code: abc123. You can use this code when talking to any representative about your move.
+This is a confirmation that you have submitted the details for your move from origDutyLocation to destDutyLocation.
 
-To change any other information about your move, or to add or cancel shipments, you should tell your movers (if you’re using them) or your move counselor.
+We have assigned you a move code: abc123. You can use this code when talking to any representative about your move.
 
-Your weight allowance: 7,999 pounds
-That’s how much the government will pay to ship for you on this move. You won’t owe anything if all your shipments combined weigh less than that.
+To change any information about your move, or to add or cancel shipments, you should contact your nearest transportation office. 555-555-5555
 
-If you move more than 7,999 pounds, you will owe the government the difference between that and the total amount you move.
+Your weight allowance: 7,999 pounds. That is how much combined weight the government will pay for all movements between authorized locations under your orders.
 
-Your movers will estimate the total weight of your belongings, and you will be notified if it looks like you might exceed your weight allowance. But you’re ultimately responsible for the weight you move.
+If you move more than 7,999 pounds or ship to/from an other than authorized location, you may owe the government the difference in cost between what you are authorized and what you decide to move.
 
-For PPM (DITY, or do-it-yourself) shipments
-If you chose to do a full or partial PPM (DITY) move, <a href="https://office.move.mil/downloads/ppm_info_sheet.pdf"> review the Personally Procured Move (PPM) info sheet</a> for detailed instructions.
-* Start your PPM shipment whenever you are ready
-* You can wait until after you talk to your move counselor
-* Getting your PPM shipment moved to your new home is entirely in your hands
-* You can move everything yourself, hire help, or even hire your own movers
-* You are responsible for any damage to your belongings
-* Get certified weight tickets that show the empty and full weight for each vehicle used in each PPM shipment
-* If you’re missing weight tickets, you may not get paid for your PPM
-* Save receipts for PPM expenses to request reimbursement or to reduce taxes on your incentive payment
+If you are doing a Household Goods (HHG) shipment: The company responsible for managing your shipment, HomeSafe Alliance, will estimate the total weight of your personal property during a pre-move survey, and you will be notified if it looks like you might exceed your weight allowance. But you are responsible for excess costs associated with the weight moved, up to HomeSafe’s weight estimate plus 10%.
 
-If you have any questions about the PPM part of your move, call the origDutyLocation PPPO at 555-555-5555 and reference move code abc123.
 
-Once you’ve completed your PPM shipment, you can request payment by <a href="https://my.move.mil/">logging in to MilMove</a>.
+** Next Steps for your Government-arranged Shipment(s):
+------------------------------------------------------------
 
-For HHG and other government-funded shipments
+* Your move request will be reviewed and a counselor will be assigned to brief you on your move entitlements.
+* Your move counselor will get in touch with you soon.
 
-Next steps:
-* Talk to a move counselor
-* Talk to your movers
-
-You can ask questions of your move counselor or your point of contact with the movers. They will both get in touch with you soon.
-
-Your counselor will:
-* Verify the information you entered
+Your move counselor will, among other things:
+* Verify the information you entered and your entitlements
 * Give you moving-related advice
-* Give you tips to avoid going over your weight allowance
-* Identify things like pro-gear that won’t count against your weight allowance
+* Give you tips to avoid excess costs (i.e., going over your weight allowance) or advise you if you are in an excess cost scenario
 
-When the movers contact you, they’ll schedule a pre-move survey to estimate the total weight of your belongings.
+Once your counseling is complete, your request will be reviewed by the responsible personal property shipping office, and a move task order will be placed with HomeSafe Alliance. Once this order is placed, you will receive an invitation to create an account in HomeSafe Connect. This is the system you will use to schedule your pre-move survey.
 
-They’ll also finalize dates to pack and pick up your things, on or near the date you requested in MilMove.
+HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes.
 
-If any information about your move changes at any point during the move, let your movers know.
 
-Good luck on your move to destDutyLocation!
+** IMPORTANT: Take the Customer Satisfaction Survey
+------------------------------------------------------------
+
+You will receive an invitation to take a quick customer satisfaction survey (CSS) at key stages of your move process. The first invitation will be sent shortly after counseling is complete.
+
+Taking the survey at each stage provides transparency and increases accountability of those assisting you with your relocation.
+
+Thank you,
+
+Defense Personal Property Program’s MilMove Team
+
+The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
 `
 
 	textContent, err := notification.RenderText(suite.AppContextWithSessionForTest(&auth.Session{
