@@ -49,6 +49,18 @@ been edited. Are you sure you don’t want to also relocate them to the new [fil
 View the [frontend file org ADR](https://github.com/transcom/mymove/blob/main/docs/adr/0048-frontend-file-org.md) for more information`);
   }
 
+  const deprecatedDevSeedFiles = danger.git.fileMatch(
+    'pkg/testdatagen/scenario/devseed.go',
+    'pkg/testdatagen/scenario/subscenarios.go',
+  );
+
+  if (deprecatedDevSeedFiles.modified) {
+    fail(`One of these two files (${'`'}devseed.go${'`'} or ${'`'}subscenarios.go${'`'}) have
+    been edited. Please undo changes to these files as we are planning to deprecate ${'`'}devseed${'`'} data functions from MilMove entirely.
+
+    View the [ADR](https://transcom.github.io/mymove-docs/docs/adrs/deprecating-devseed-scenarios) for more information`);
+  }
+
   // Request changes to app code to also include changes to tests.
   const hasAppChanges = allFiles.some((path) => !!path.match(/src\/.*\.jsx?/));
   const hasTestChanges = allFiles.some((path) => !!path.match(/src\/.*\.test\.jsx?/));
