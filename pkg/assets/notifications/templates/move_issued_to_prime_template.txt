@@ -12,7 +12,7 @@ the DoD contractor under the Global Household Goods Contract (GHC).
 ------------------------------------------------------------
 
 HomeSafe will send you an e-mail invitation (check your spam or junk folder) to log in to their system, HomeSafe Connect.
-{{ if .GovernmentCounseling }}
+{{ if .ProvidesGovernmentCounseling }}
 * Log in to HomeSafe Connect as soon as possible to schedule your pre-move survey. You can request either a virtual,
 or in-person pre-move survey.
 
@@ -23,8 +23,8 @@ This spread window must contain your requested pickup date. (What this means:
 your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
 
 If you are requesting to move in 5 days or less, HomeSafe should assist you with scheduling within one day of your receipt of this email.
-{{- end }}
-{{- if not .GovernmentCounseling }}
+{{- end -}}
+{{ if not .ProvidesGovernmentCounseling }}
 * Log in to HomeSafe Connect as soon as possible to complete counseling and schedule your pre-move survey.
 You can request either a virtual, or in-person pre-move survey.
 
@@ -50,4 +50,5 @@ Thank you,
 
 Defense Personal Property Program’s MilMove Team
 
-The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
+The information contained in this email may contain Privacy Act information and is therefore protected
+under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.

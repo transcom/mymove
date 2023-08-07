@@ -66,9 +66,9 @@ func (m MoveIssuedToPrime) emails(appCtx appcontext.AppContext) ([]emailContent,
 		originDutyLocation = &originDSTransportInfo.Name
 	}
 
-	var governmentCounseling bool
+	var providesGovernmentCounseling bool
 	if orders.OriginDutyLocation != nil {
-		governmentCounseling = orders.OriginDutyLocation.ProvidesServicesCounseling
+		providesGovernmentCounseling = orders.OriginDutyLocation.ProvidesServicesCounseling
 	}
 
 	if serviceMember.PersonalEmail == nil {
@@ -79,7 +79,7 @@ func (m MoveIssuedToPrime) emails(appCtx appcontext.AppContext) ([]emailContent,
 		MilitaryOneSourceLink:        "https://www.militaryonesource.mil/benefits/militaryinstallations-local-transportation-office/",
 		OriginDutyLocation:           originDutyLocation,
 		DestinationDutyLocation:      orders.NewDutyLocation.Name,
-		ProvidesGovernmentCounseling: governmentCounseling,
+		ProvidesGovernmentCounseling: providesGovernmentCounseling,
 		Locator:                      move.Locator,
 	})
 
@@ -119,7 +119,6 @@ type moveIssuedToPrimeEmailData struct {
 	DestinationDutyLocation      string
 	ProvidesGovernmentCounseling bool
 	Locator                      string
-	WeightAllowance              string
 }
 
 // RenderHTML renders the html for the email

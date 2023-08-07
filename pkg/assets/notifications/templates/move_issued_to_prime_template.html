@@ -11,7 +11,7 @@
 
 <p>
   Your government-arranged shipment(s) will be managed by HomeSafe Alliance, the DoD contractor under the
-  Global Household Goods Contract (GHC):
+  Global Household Goods Contract (GHC).
 </p>
 
 <h4>Next steps for your government-arranged shipment(s): </h4>
@@ -19,8 +19,7 @@
 <p>
   HomeSafe will send you an e-mail invitation (check your spam or junk folder) to log in to their system, HomeSafe Connect.
 </p>
-
-{{ if .GovernmentCounseling }}
+{{ if .ProvidesGovernmentCounseling }}
 <ul>
   <li>
     Log in to HomeSafe Connect as soon as possible to schedule your pre-move survey.
@@ -46,7 +45,7 @@
   receipt of this email.
 </p>
 {{- end }}
-{{- if not .GovernmentCounseling }}
+{{- if not .ProvidesGovernmentCounseling }}
 <ul>
   <li>
     Log in to HomeSafe Connect as soon as possible to complete counseling and schedule your pre-move survey.
