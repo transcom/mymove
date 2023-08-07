@@ -25,7 +25,6 @@ If you are requesting to move in 5 days or less, HomeSafe should assist you with
 receipt of this email.
 {{- end }}
 {{- if not .GovernmentCounseling }}
-
 * Log in to HomeSafe Connect as soon as possible to complete counseling and schedule your pre-move survey.
   You can request either a virtual, or in-person pre-move survey.
 
@@ -46,7 +45,7 @@ Utilize your HomeSafe Customer Care Representative:
 
 If you are unsatisfied at any time, contact a government transportation office.
 You can see a listing of transportation offices on Military One Source here:
-https://www.militaryonesource.mil/benefits/militaryinstallations-local-transportation-office/
+{{.MilitaryOneSourceLink}}
 
 Thank you,
 

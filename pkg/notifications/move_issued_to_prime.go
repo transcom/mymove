@@ -6,7 +6,6 @@ import (
 	html "html/template"
 	text "text/template"
 
-	"github.com/dustin/go-humanize"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -16,9 +15,9 @@ import (
 )
 
 var (
-	moveIssuedToPrimeRawTextTemplate = string(assets.MustAsset("notifications/templates/move_submitted_template.txt"))
+	moveIssuedToPrimeRawTextTemplate = string(assets.MustAsset("notifications/templates/move_issued_to_prime_template.txt"))
 	moveIssuedToPrimeTextTemplate    = text.Must(text.New("text_template").Parse(moveIssuedToPrimeRawTextTemplate))
-	moveIssuedToPrimeRawHTMLTemplate = string(assets.MustAsset("notifications/templates/move_submitted_template.html"))
+	moveIssuedToPrimeRawHTMLTemplate = string(assets.MustAsset("notifications/templates/move_issued_to_prime_template.html"))
 	moveIssuedToPrimeHTMLTemplate    = html.Must(html.New("text_template").Parse(moveIssuedToPrimeRawHTMLTemplate))
 )
 
@@ -62,16 +61,14 @@ func (m MoveIssuedToPrime) emails(appCtx appcontext.AppContext) ([]emailContent,
 		return emails, err
 	}
 
-	var originDutyLocation, originDutyLocationPhoneLine *string
+	var originDutyLocation *string
 	if originDSTransportInfo != nil {
 		originDutyLocation = &originDSTransportInfo.Name
-		originDutyLocationPhoneLine = &originDSTransportInfo.PhoneLine
-
 	}
 
-	totalEntitlement, err := models.GetEntitlement(*serviceMember.Rank, orders.HasDependents)
-	if err != nil {
-		return emails, err
+	var governmentCounseling bool
+	if orders.OriginDutyLocation != nil {
+		governmentCounseling = orders.OriginDutyLocation.ProvidesServicesCounseling
 	}
 
 	if serviceMember.PersonalEmail == nil {
@@ -79,13 +76,11 @@ func (m MoveIssuedToPrime) emails(appCtx appcontext.AppContext) ([]emailContent,
 	}
 
 	htmlBody, textBody, err := m.renderTemplates(appCtx, moveIssuedToPrimeEmailData{
-		Link:                        "https://my.move.mil/",
-		PpmLink:                     "https://office.move.mil/downloads/ppm_info_sheet.pdf",
-		OriginDutyLocation:          originDutyLocation,
-		DestinationDutyLocation:     orders.NewDutyLocation.Name,
-		OriginDutyLocationPhoneLine: originDutyLocationPhoneLine,
-		Locator:                     move.Locator,
-		WeightAllowance:             humanize.Comma(int64(totalEntitlement)),
+		MilitaryOneSourceLink:   "https://www.militaryonesource.mil/benefits/militaryinstallations-local-transportation-office/",
+		OriginDutyLocation:      originDutyLocation,
+		DestinationDutyLocation: orders.NewDutyLocation.Name,
+		GovernmentCounseling:    governmentCounseling,
+		Locator:                 move.Locator,
 	})
 
 	if err != nil {
@@ -119,13 +114,12 @@ func (m MoveIssuedToPrime) renderTemplates(appCtx appcontext.AppContext, data mo
 }
 
 type moveIssuedToPrimeEmailData struct {
-	Link                        string
-	PpmLink                     string
-	OriginDutyLocation          *string
-	DestinationDutyLocation     string
-	OriginDutyLocationPhoneLine *string
-	Locator                     string
-	WeightAllowance             string
+	MilitaryOneSourceLink   string
+	OriginDutyLocation      *string
+	DestinationDutyLocation string
+	GovernmentCounseling    bool
+	Locator                 string
+	WeightAllowance         string
 }
 
 // RenderHTML renders the html for the email
