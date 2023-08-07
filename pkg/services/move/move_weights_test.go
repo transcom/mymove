@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -385,7 +386,11 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 
 		actualWeight := unit.Pound(7200)
 		approvedShipment.PrimeActualWeight = &actualWeight
-		autoReweighShipments, err := moveWeights.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &approvedShipment)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+		autoReweighShipments, err := moveWeights.CheckAutoReweigh(session, approvedMove.ID, &approvedShipment)
 
 		suite.NoError(err)
 
@@ -464,7 +469,11 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 		}, nil)
 
 		approvedShipment.PrimeActualWeight = &actualWeight
-		autoReweighShipments, err := moveWeights.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &approvedShipment)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+		autoReweighShipments, err := moveWeights.CheckAutoReweigh(session, approvedMove.ID, &approvedShipment)
 
 		suite.NoError(err)
 

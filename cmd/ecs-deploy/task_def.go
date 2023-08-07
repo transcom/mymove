@@ -835,6 +835,7 @@ processors:
 
 exporters:
   awsxray:
+    index_all_attributes: true
   awsemf/application:
     namespace: ECS/AWSOTel/Application
     log_group_name: '/aws/ecs/application/metrics'

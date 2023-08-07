@@ -13,7 +13,6 @@ import (
 	internalmessages "github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	progear "github.com/transcom/mymove/pkg/services/progear_weight_ticket"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -75,19 +74,18 @@ func (suite *HandlerSuite) TestCreateProGearWeightTicketHandler() {
 		suite.IsType(&progearops.CreateProGearWeightTicketBadRequest{}, response)
 	})
 
-	suite.Run("POST failure - 403- permission denied - wrong application", func() {
+	suite.Run("POST failure - 404 - not found - wrong service member", func() {
 		subtestData := makeCreateSubtestData(false)
 
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-
+		unauthorizedUser := factory.BuildServiceMember(suite.DB(), nil, nil)
 		req := subtestData.params.HTTPRequest
-		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)
+		unauthorizedReq := suite.AuthenticateRequest(req, unauthorizedUser)
 		unauthorizedParams := subtestData.params
 		unauthorizedParams.HTTPRequest = unauthorizedReq
 
 		response := subtestData.handler.Handle(unauthorizedParams)
 
-		suite.IsType(&progearops.CreateProGearWeightTicketForbidden{}, response)
+		suite.IsType(&progearops.CreateProGearWeightTicketNotFound{}, response)
 	})
 
 	suite.Run("Post failure - 500 - Server Error", func() {

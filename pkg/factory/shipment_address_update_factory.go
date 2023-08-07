@@ -49,7 +49,7 @@ func BuildShipmentAddressUpdate(db *pop.Connection, customs []Customization, tra
 
 	shipmentAddressUpdate := models.ShipmentAddressUpdate{
 		ID:                uuid.Must(uuid.NewV4()),
-		ContractorRemarks: "Test Contractor Remark",
+		ContractorRemarks: "Customer reached out to me this week & let me know they want to move closer to a sick dependent who needs care.",
 		OfficeRemarks:     nil,
 		Status:            models.ShipmentAddressUpdateStatusRequested,
 		NewAddress:        newAddress,
