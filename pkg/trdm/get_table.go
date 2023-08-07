@@ -47,7 +47,6 @@ type GetTableResponseElement struct {
 	Output struct {
 		TRDM struct {
 			Status struct {
-				Text       string `xml:",chardata"`
 				RowCount   string `xml:"rowCount"`
 				StatusCode string `xml:"statusCode"`
 				DateTime   string `xml:"dateTime"`
