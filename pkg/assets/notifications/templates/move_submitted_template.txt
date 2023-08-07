@@ -4,7 +4,7 @@ This is a confirmation that you have submitted the details for your move {{if .O
 
 We have assigned you a move code: {{.Locator}}. You can use this code when talking to any representative about your move.
 
-To change any information about your move, or to add or cancel shipments, you should contact your nearest transportation office. {{- if .OriginDutyLocationPhoneLine }} {{.OriginDutyLocationPhoneLine}} {{- end }} {{- if not .OriginDutyLocationPhoneLine }} directory of PCS-related contacts (https://www.militaryonesource.mil/moving-housing/moving/planning-your-move/customer-service-contacts-for-military-pcs/) {{- end }}
+{{ if .OriginDutyLocationPhoneLine -}} To change any information about your move, or to add or cancel shipments, you should contact your nearest transportation office at {{.OriginDutyLocationPhoneLine}} or visit your local transportation office (https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL) . {{- end }} {{- if not .OriginDutyLocationPhoneLine }} To change any information about your move, or to add or cancel shipments, you should contact your nearest transportation office. You can find the contact information using the directory of PCS-related contacts (https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL) . {{- end }}
 
 Your weight allowance: {{.WeightAllowance}} pounds. That is how much combined weight the government will pay for all movements between authorized locations under your orders.
 
