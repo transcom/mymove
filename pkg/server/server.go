@@ -7,7 +7,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"github.com/transcom/mymove/pkg/storage"
 	"golang.org/x/crypto/ocsp"
 	"io"
 	"net/http"
@@ -122,28 +121,6 @@ func getClientCert(request *http.Request) *x509.Certificate {
 	return clientCert
 }
 
-type Fetcher struct {
-	Fetch storage.FileStorer
-}
-
-func NewFetcher(fetch storage.FileStorer) (*Fetcher, error) {
-	return &Fetcher{
-		Fetch: fetch,
-	}, nil
-}
-
-func transformCommonName(input string) string {
-	//Remove spaces from common name
-	noSpaces := strings.ReplaceAll(input, " ", "")
-
-	//Convert dashes to underscores
-	noDashes := strings.ReplaceAll(noSpaces, "-", "_")
-
-	//Capitalize all letters
-	capitalize := strings.ToUpper(noDashes)
-
-	return capitalize
-}
 func fetchCRL(url string) (*x509.RevocationList, error) {
 	httpResponse, err := http.Get(url)
 	if err != nil {
