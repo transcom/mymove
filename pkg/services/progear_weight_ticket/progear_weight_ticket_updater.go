@@ -2,6 +2,7 @@ package progearweightticket
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/gofrs/uuid"
 
@@ -41,11 +42,6 @@ func (f *progearWeightTicketUpdater) UpdateProgearWeightTicket(appCtx appcontext
 	// verify ETag
 	if etag.GenerateEtag(originalProgearWeightTicket.UpdatedAt) != eTag {
 		return nil, apperror.NewPreconditionFailedError(originalProgearWeightTicket.ID, nil)
-	}
-
-	//auth check to verify progear ticket belongs to the correct service member
-	if progearWeightTicket.Document.ServiceMemberID != appCtx.Session().ServiceMemberID {
-		return nil, apperror.NewNotFoundError(progearWeightTicket.ID, "Progear weight ticket not found for this service member")
 	}
 
 	mergedProgearWeightTicket := mergeProgearWeightTicket(progearWeightTicket, *originalProgearWeightTicket)
@@ -96,19 +92,23 @@ func mergeProgearWeightTicket(progearWeightTicket models.ProgearWeightTicket, or
 
 func FetchProgearWeightTicketByIDExcludeDeletedUploads(appContext appcontext.AppContext, progearWeightTicketID uuid.UUID) (*models.ProgearWeightTicket, error) {
 	var progearWeightTicket models.ProgearWeightTicket
-
-	err := appContext.DB().Scope(utilities.ExcludeDeletedScope()).
-		EagerPreload(
-			"Document.UserUploads.Upload",
-		).
-		Find(&progearWeightTicket, progearWeightTicketID)
+	findProgearWeightTicketQuery := appContext.DB().Q().Scope(utilities.ExcludeDeletedScope(models.ProgearWeightTicket{})).EagerPreload(
+		"Document",
+		"Document.UserUploads.Upload",
+	)
+	if appContext.Session() != nil && appContext.Session().IsMilApp() {
+		findProgearWeightTicketQuery.
+			Join("documents", "documents.id = progear_weight_tickets.document_id").
+			Where("documents.service_member_id = ?", appContext.Session().ServiceMemberID)
+	}
+	err := findProgearWeightTicketQuery.Find(&progearWeightTicket, progearWeightTicketID)
 
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			return nil, apperror.NewNotFoundError(progearWeightTicketID, "while looking for ProgearWeightTicket")
 		default:
-			return nil, apperror.NewQueryError("ProgearWeightTicket fetch original", err, "")
+			return nil, apperror.NewQueryError(fmt.Sprintf("ProgearWeightTicket fetch original: %s", err.Error()), err, "")
 		}
 	}
 
