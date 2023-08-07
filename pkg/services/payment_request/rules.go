@@ -1,6 +1,7 @@
 package paymentrequest
 
 import (
+	// "fmt"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -73,18 +74,15 @@ func checkStatusOfExistingPaymentRequest() paymentRequestValidator {
 				moveLevelItems = append(moveLevelItems, newPaymentServiceItem)
 				for _, movePR := range allMovePaymentRequests {
 					for _, movePaymentServiceItem := range movePR.PaymentServiceItems {
-						if movePaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeMS || movePaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeCS {
-							if movePaymentServiceItem.Status == models.PaymentServiceItemStatusRequested || movePaymentServiceItem.Status == models.PaymentServiceItemStatusPaid {
-								return apperror.NewConflictError(movePR.ID, "Conflict Error: Payment Request for Service Item is already paid or requested")
-							}
+						if (movePaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeMS || movePaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeCS) &&
+							(movePaymentServiceItem.MTOServiceItem.ReService.Code == newPaymentServiceItem.MTOServiceItem.ReService.Code) &&
+							(movePaymentServiceItem.Status == models.PaymentServiceItemStatusRequested || movePaymentServiceItem.Status == models.PaymentServiceItemStatusPaid) {
+							return apperror.NewConflictError(movePR.ID, "Conflict Error: Payment Request for Service Item is already paid or requested")
 						}
 					}
 				}
 			}
 		}
-
-		// if len(moveLevelItems) > 0 {
-
 		// }
 
 		// if len(moveLevelItems) > 0 {

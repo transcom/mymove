@@ -487,6 +487,85 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 			err := checkStatusOfExistingPaymentRequest().Validate(suite.AppContextForTest(), paymentRequest, nil)
 			suite.NoError(err)
 		})
+
+		//movel level items
+		suite.Run("failure to create a payment request for move level service item if status is paid or requested", func() {
+			move := factory.BuildMove(suite.DB(), []factory.Customization{}, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
+
+			serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model: models.ReService{
+						Code: models.ReServiceCodeMS,
+					},
+				},
+				{
+					Model: models.MTOServiceItem{
+						Status: models.MTOServiceItemStatusApproved,
+					},
+				},
+			}, nil)
+			paymentRequest1 := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model: models.PaymentRequest{
+						Status: models.PaymentRequestStatusPaid,
+					},
+				},
+			}, nil)
+
+			factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+				{
+					Model: models.PaymentServiceItem{
+						Status: models.PaymentServiceItemStatusPaid,
+					},
+				},
+				{
+					Model:    paymentRequest1,
+					LinkOnly: true,
+				},
+				{
+					Model:    serviceItem,
+					LinkOnly: true,
+				},
+			}, nil)
+
+			var paymentRequests models.PaymentRequests
+			paymentRequests = append(paymentRequests, paymentRequest1)
+			move.PaymentRequests = paymentRequests
+			suite.Equal(len(paymentRequests), 1)
+
+			paymentRequest2 := models.PaymentRequest{
+				MoveTaskOrderID: move.ID,
+				PaymentServiceItems: []models.PaymentServiceItem{
+					{
+						MTOServiceItemID: serviceItem.ID,
+						MTOServiceItem:   serviceItem,
+						PaymentServiceItemParams: models.PaymentServiceItemParams{
+							{
+								IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+								Value:       "3254",
+							},
+							{
+								IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
+								Value:       "2022-03-16",
+							},
+						},
+						Status: models.PaymentServiceItemStatusRequested,
+					},
+				},
+			}
+			err := checkStatusOfExistingPaymentRequest().Validate(suite.AppContextForTest(), paymentRequest2, nil)
+
+			suite.Error(err)
+			suite.Contains(err.Error(), "Conflict Error: Payment Request for Service Item is already paid or requested")
+		})
 	})
 
 }
