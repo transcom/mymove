@@ -12,7 +12,7 @@ import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import AddressUpdatePreview from 'components/Office/AddressUpdatePreview/AddressUpdatePreview';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
-import { ShipmentAddressUpdateShape } from 'types';
+import { ShipmentShape } from 'types';
 import Fieldset from 'shared/Fieldset';
 import { ADDRESS_UPDATE_STATUS } from 'constants/shipments';
 import Alert from 'shared/Alert';
@@ -22,24 +22,26 @@ const formSchema = Yup.object().shape({
   officeRemarks: Yup.string().required('Required'),
 });
 
-export const ShipmentAddressUpdateReviewRequestModal = ({
-  onSubmit,
-  errorMessage,
-  deliveryAddressUpdate,
-  shipmentType,
-  onClose,
-}) => {
+export const ShipmentAddressUpdateReviewRequestModal = ({ onSubmit, shipment, errorMessage, onClose }) => {
+  const handleSubmit = (values, { setSubmitting }) => {
+    const { addressUpdateReviewStatus, officeRemarks } = values;
+
+    onSubmit(shipment.id, shipment.eTag, addressUpdateReviewStatus, officeRemarks);
+
+    setSubmitting(false);
+  };
+
   return (
     <Modal>
       <ModalClose handleClick={() => onClose()} />
       <ModalTitle>
-        <ShipmentTag shipmentType={shipmentType} />
+        <ShipmentTag shipmentType={shipment.shipmentType} />
         <h2 className={styles.modalTitle}>Review request</h2>
         {errorMessage && <Alert type="error">{errorMessage}</Alert>}
       </ModalTitle>
       <Formik
         initialValues={{ addressUpdateReviewStatus: '', officeRemarks: '' }}
-        onSubmit={onSubmit}
+        onSubmit={handleSubmit}
         validateOnMount
         validationSchema={formSchema}
       >
@@ -47,7 +49,10 @@ export const ShipmentAddressUpdateReviewRequestModal = ({
           return (
             <Form className={formStyles.form}>
               <div className={styles.modalbody}>
-                <AddressUpdatePreview deliveryAddressUpdate={deliveryAddressUpdate} shipmentType={shipmentType} />
+                <AddressUpdatePreview
+                  deliveryAddressUpdate={shipment.deliveryAddressUpdate}
+                  shipmentType={shipment.shipmentType}
+                />
                 <FormGroup className={styles.formGroup}>
                   <h4>Review Request</h4>
                   <Fieldset>
@@ -98,9 +103,14 @@ export const ShipmentAddressUpdateReviewRequestModal = ({
 };
 
 ShipmentAddressUpdateReviewRequestModal.propTypes = {
-  deliveryAddressUpdate: ShipmentAddressUpdateShape.isRequired,
-  shipmentType: PropTypes.string.isRequired,
+  shipment: ShipmentShape.isRequired,
+  onSubmit: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
+  errorMessage: PropTypes.node,
+};
+
+ShipmentAddressUpdateReviewRequestModal.defaultProps = {
+  errorMessage: null,
 };
 
 ShipmentAddressUpdateReviewRequestModal.displayName = 'ShipmentAddressUpdateReviewRequestModal';

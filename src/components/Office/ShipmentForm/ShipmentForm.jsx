@@ -141,13 +141,12 @@ const ShipmentForm = (props) => {
     });
   };
 
-  const handleSubmitShipmentAddressUpdateReview = (shipmentID, values) => {
-    const { addressUpdateReviewStatus, officeRemarks } = values;
-
+  const handleSubmitShipmentAddressUpdateReview = (shipmentID, shipmentETag, status, officeRemarks) => {
     mutateShipmentAddressUpdateReview({
       shipmentID,
+      ifMatchETag: shipmentETag,
       body: {
-        status: addressUpdateReviewStatus,
+        status,
         officeRemarks,
       },
     });
@@ -491,8 +490,7 @@ const ShipmentForm = (props) => {
             <ConnectedShipmentAddressUpdateReviewRequestModal
               isOpen={isAddressChangeModalOpen}
               onClose={() => setIsAddressChangeModalOpen(false)}
-              deliveryAddressUpdate={mtoShipment?.deliveryAddressUpdate}
-              shipmentType={mtoShipment?.shipmentType}
+              shipment={mtoShipment}
               onSubmit={handleSubmitShipmentAddressUpdateReview}
               errorMessage={shipmentAddressUpdateReviewErrorMessage}
             />

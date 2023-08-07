@@ -58,6 +58,15 @@ export const ShipmentDestinationTypeOneOf = oneOf(
   Object.keys(shipmentDestinationTypes).concat(Object.values(shipmentDestinationTypes)),
 );
 
+export const ShipmentAddressUpdateShape = shape({
+  contractorRemarks: string,
+  id: string,
+  newAddress: AddressShape,
+  originalAddress: AddressShape,
+  shipmentID: string,
+  status: string,
+});
+
 export const ShipmentShape = shape({
   moveTaskOrderID: string,
   id: string,
@@ -110,15 +119,7 @@ export const ShipmentShape = shape({
     email: string,
   }),
   ppmShipment: PPMShipmentShape,
-});
-
-export const ShipmentAddressUpdateShape = shape({
-  contractorRemarks: string,
-  id: string,
-  newAddress: AddressShape,
-  originalAddress: AddressShape,
-  shipmentID: string,
-  status: string,
+  deliveryAddressUpdate: ShipmentAddressUpdateShape,
 });
 
 const DocumentShape = shape({
