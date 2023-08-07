@@ -107,7 +107,7 @@ func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physical
 
 	params := gosoap.Params{
 		"getTableRequestElement": map[string]interface{}{
-			"Input": map[string]interface{}{
+			"input": map[string]interface{}{
 				"TRDM": map[string]interface{}{
 					"physicalName":  physicalName,
 					"returnContent": returnContent,
