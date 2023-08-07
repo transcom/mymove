@@ -428,3 +428,41 @@ func (suite *serverSuite) TestTLSConfigWithInvalidAuth() {
 	suite.Nil(conn)
 	suite.Error(err)
 }
+
+//func (suite *serverSuite) TestGetClientCert() {
+//	clientCert := &x509.Certificate{Raw: []byte{1,2,3}}
+//	req := &http.Request{
+//		TLS: &tls.ConnectionState{
+//			PeerCertificates: []*x509.Certificate{clientCert},
+//		},
+//	}
+//
+//	retrievedCert := getClientCert(req)
+//
+//	if retrievedCert != clientCert {
+//		suite.NotEqual(clientCert, retrievedCert)
+//	}
+//	suite.Equal(clientCert, retrievedCert)
+//}
+
+func (suite *serverSuite) TestFetchCRL() {
+	url := "https://crl.gds.disa.mil/"
+
+	crl, err := fetchCRL(url)
+	if err != nil {
+		suite.Error(err, "fetchCRL() returned an unexpexted error: %s", err)
+	}
+
+	if crl == nil {
+		suite.Error(nil, "fetchCRL() returned a nil CRL")
+	}
+}
+
+func (suite *serverSuite) TestFetchCRLInvalidURL() {
+	url := "https://invalid-example-url.com"
+	_, err := fetchCRL(url)
+
+	if err == nil {
+		suite.Error(err, "fetchCRL() should have returned an error because the URL is invalid")
+	}
+}
