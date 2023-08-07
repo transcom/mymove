@@ -162,7 +162,7 @@ export class WaitForCustomerPage extends WaitForPage {
     await this.runAccessibilityAudit();
     await base
       .expect(this.page.getByRole('heading', { level: 1 }))
-      .toHaveText('Where and when should the movers deliver your things from storage?');
+      .toHaveText('Where and when should the movers deliver your personal property from storage?');
     await this.runAccessibilityAudit();
   }
 
