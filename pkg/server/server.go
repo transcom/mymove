@@ -166,23 +166,6 @@ func fetchCRL(url string) (*x509.RevocationList, error) {
 // Returns error if the server can't get the certificate
 // func getCRLResponse(fetch storage.FileStorer, v *viper.Viper, crlFile string, clientCert *x509.Certificate, issuerCert *x509.Certificate) error {
 func getCRLResponse(clientCert *x509.Certificate, issuerCert *x509.Certificate) error {
-	//Get the name of the Issuer (common name) from the client cert.
-	//getIsserName := clientCert.Issuer.CommonName
-	//
-	//transformedIssuerName := transformCommonName(getIsserName)
-
-	// NEW WORK:
-	// Grab the common name, take out spaces, convert dashes to underscores, and capitalize
-	// Once you get the filename you can pass in the path to the CRL and open that file
-
-	//bucketName := "bucket_name" // This is the bucket name I am getting from Infra
-	//folderPath := "path/to/folder"
-	//fileStorer := storage.InitStorage(v, awsSession, appCtx.Logger())
-	//actualNameOfS3Bucket := v.GetString(bucketName) // TODO: Is this something I actually need?
-	//
-	//// Build_URL
-	//crlFilePath := path.Join(folderPath, transformedIssuerName) + ".crl"
-
 	for _, url := range clientCert.CRLDistributionPoints {
 		// TODO: Skip LDAP
 
@@ -260,13 +243,12 @@ func getOCSPResponse(ocspServer string, request *http.Request, issuerCert *x509.
 // verifiedChains have a certificate chain that verifies the signature validity and ends with a trusted certificate in the chain
 func certRevokedCheck(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 	var req *http.Request
-	//var v *viper.Viper
 	cert := verifiedChains[0][0]       // first argument verifies the client cert, second index 0 is the client cert
 	issuerCert := verifiedChains[0][1] // second index of 1 is the issuer of the cert
 	ocspResponse, err := getOCSPResponse(cert.OCSPServer[0], req, issuerCert)
 
 	if err != nil {
-		//return err // the revocation list was not checked and an error was encountered.
+		//return err, the revocation list was not checked and an error was encountered.
 		return getCRLResponse(cert, issuerCert)
 	}
 	switch ocspResponse.Status {
