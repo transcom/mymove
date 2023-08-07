@@ -1,97 +1,98 @@
-move_submitted_template.txt<p>
-  This is a confirmation that you’ve submitted the details for your move {{if .OriginDutyLocation}}from {{.OriginDutyLocation}} {{ end }}to {{.DestinationDutyLocation}}.
+<p>*** DO NOT REPLY directly to this email ***</p>
+
+<p>
+  This is a confirmation that a move task order has been placed for your move (Move Code {{.Locator}})
+  {{if .OriginDutyLocation}}from {{.OriginDutyLocation}} {{ end }}to {{.DestinationDutyLocation}}.
 </p>
 
 <p>
-  <strong>We’ve assigned you a move code: {{.Locator}}.</strong> You can use this code when talking to any
-  representative about your move.
+  What this means to you:
 </p>
 
 <p>
-  To change any other information about your move, or to add or cancel shipments, you should tell your movers (if you’re
-  using them) or your move counselor.
+  Your government-arranged shipment(s) will be managed by HomeSafe Alliance, the DoD contractor under the
+  Global Household Goods Contract (GHC):
 </p>
 
-<p>
-  <strong>Your weight allowance: {{.WeightAllowance}} pounds</strong>
-  That’s how much the government will pay to ship for you on this move. You won’t owe anything if all your shipments
-  combined weigh less than that.
-</p>
+<h1>Next steps for your government-arranged shipment(s): </h1>
 
 <p>
-  If you move more than {{.WeightAllowance}} pounds, you will owe the government the difference between that and the
-  total amount you move.
+  HomeSafe will send you an e-mail invitation (check your spam or junk folder) to log in to their system, HomeSafe Connect.
 </p>
 
-<p>
-  Your movers will estimate the total weight of your belongings, and you will be notified if it looks like you might
-  exceed your weight allowance. But you’re ultimately responsible for the weight you move.
-</p>
-
-<p>
-  <strong>For PPM (DITY, or do-it-yourself) shipments</strong>
-  If you chose to do a full or partial PPM (DITY) move,
-  <a href="{{.PpmLink}}"> review the Personally Procured Move (PPM) info sheet</a>
-  for detailed instructions.
-</p>
+{{ if .GovernmentCounseling }}
 <ul>
-  <li>Start your PPM shipment whenever you are ready</li>
-  <li>You can wait until after you talk to your move counselor</li>
-  <li>Getting your PPM shipment moved to your new home is entirely in your hands</li>
-  <li>You can move everything yourself, hire help, or even hire your own movers</li>
-  <li>You are responsible for any damage to your belongings</li>
   <li>
-    <strong>Get certified weight tickets</strong> that show the empty and full weight for each vehicle used in each PPM
-    shipment
-  </li>
-  <li>If you’re missing weight tickets, you may not get paid for your PPM</li>
-  <li>
-    <strong>Save receipts</strong> for PPM expenses to request reimbursement or to reduce taxes on your incentive
-    payment
+    Log in to HomeSafe Connect as soon as possible to schedule your pre-move survey.
+    You can request either a virtual, or in-person pre-move survey.
   </li>
 </ul>
-{{ if .OriginDutyLocation }}
-<p>
-  If you have any questions about the PPM part of your move, call the {{.OriginDutyLocation}} PPPO at
-  {{.OriginDutyLocationPhoneLine}} and reference move code {{.Locator}}.
-</p>
-{{- end }}
-{{- if not .OriginDutyLocation }}
-<p>If you have any questions about the PPM part of your move, consult Military OneSource's <a href="https://www.militaryonesource.mil/moving-housing/moving/planning-your-move/customer-service-contacts-for-military-pcs/">directory of PCS-related contacts</a> to best contact and reference move code {{.Locator}}.</p>
-{{- end }}
 
-<p>
-  Once you’ve completed your PPM shipment, you can request payment by
-  <a href="{{.Link}}">logging in to MilMove</a>.
-</p>
+<p>HomeSafe Customer Care is Required to:</p>
 
-<p>
-  <strong>For HHG and other government-funded shipments</strong>
-</p>
-
-<p>Next steps:</p>
 <ul>
-  <li>Talk to a move counselor</li>
-  <li>Talk to your movers</li>
+  <li>
+    Reach out to you within one Government Business Day.
+  </li>
+  <li>
+    Within 3-7 days of your receipt of this e-mail, contact you to provide a 7-day pickup date spread window.
+    This spread window must contain your requested pickup date. (What this means: your requested pickup date may
+    fall on the spread start date, the spread end date, or anywhere in between.)
+  </li>
 </ul>
 
 <p>
-  You can ask questions of your move counselor or your point of contact with the movers. They will both get in touch
-  with you soon.
+  If you are requesting to move in 5 days or less, HomeSafe should assist you with scheduling within one day of your
+  receipt of this email.
 </p>
-
-<p>Your counselor will:</p>
+{{- end }}
+{{- if not .GovernmentCounseling }}
 <ul>
-  <li>Verify the information you entered</li>
-  <li>Give you moving-related advice</li>
-  <li>Give you tips to avoid going over your weight allowance</li>
-  <li>Identify things like pro-gear that won’t count against your weight allowance</li>
+  <li>
+    Log in to HomeSafe Connect as soon as possible to complete counseling and schedule your pre-move survey.
+    You can request either a virtual, or in-person pre-move survey.
+  </li>
 </ul>
 
-<p>When the movers contact you, they’ll schedule a pre-move survey to estimate the total weight of your belongings.</p>
+<p>HomeSafe Customer Care is Required to:</p>
 
-<p>They’ll also finalize dates to pack and pick up your things, on or near the date you requested in MilMove.</p>
+<ul>
+  <li>
+    Reach out to you within one Government Business Day.
+  </li>
+  <li>
+    Within 3-7 days of your receipt of this e-mail, contact you to provide a 7-day pickup date spread window.
+    This spread window must contain your requested pickup date. (What this means: your requested pickup date may
+    fall on the spread start date, the spread end date, or anywhere in between.)
+  </li>
+</ul>
 
-<p>If any information about your move changes at any point during the move, let your movers know.</p>
+<p>
+  If you are requesting to move in 5 days or less, HomeSafe should assist you with scheduling within one day of your
+  receipt of this email.
+</p>
+{{- /* There is reference to PPM specific instructions in the example that I believe gets omitted for now. */ -}}
+{{- end }}
 
-<p>Good luck on your move to {{.DestinationDutyLocation}}!</p>
+<p>Utilize your HomeSafe Customer Care Representative:</p>
+<ul>
+  <li>As your first contact if you have any questions during your move.</li>
+  <li>To provide any updates on your shipment or status.</li>
+</ul>
+
+<p>
+  If you are unsatisfied at any time, contact a government transportation office.
+  You can see a listing of transportation offices on Military One Source here:
+  <a href="https://www.militaryonesource.mil/benefits/militaryinstallations-local-transportation-office/">
+    https://www.militaryonesource.mil/benefits/militaryinstallations-local-transportation-office/
+  </a>.
+</p>
+
+<p>Thank you,</p>
+
+<p>Defense Personal Property Program’s MilMove Team</p>
+
+<p>
+  The information contained in this email may contain Privacy Act information and is therefore protected under the
+  Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
+</p>
