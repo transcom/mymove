@@ -125,7 +125,11 @@ func (d *getLastTableUpdateReq) GetLastTableUpdate(appCtx appcontext.AppContext,
 		}
 		for _, tacCode := range tacCodes {
 			if tacCode.UpdatedAt.String() != r.LastUpdate {
-				return nil
+				getTable := NewGetTable(physicalName, d.soapClient)
+				getTableErr := getTable.GetTable(appCtx, physicalName)
+				if getTableErr != nil {
+					return fmt.Errorf("getTable error: %s", getTableErr.Error())
+				}
 			}
 		}
 	}

@@ -75,10 +75,10 @@ type GetTableResponseElement struct {
 }
 
 type GetTableUpdater interface {
-	GetTable(appCtx appcontext.AppContext, physicalName string, returnContent bool) error
+	GetTable(appCtx appcontext.AppContext, physicalName string) error
 }
 
-func NewGetTable(physicalName string, returnContent bool, soapClient SoapCaller) GetTableUpdater {
+func NewGetTable(physicalName string, soapClient SoapCaller) GetTableUpdater {
 	return &GetTableRequestElement{
 		soapClient: soapClient,
 		Input: struct {
@@ -92,13 +92,13 @@ func NewGetTable(physicalName string, returnContent bool, soapClient SoapCaller)
 				ReturnContent string "xml:\"returnContent\""
 			}{
 				PhysicalName:  physicalName,
-				ReturnContent: fmt.Sprintf("%t", returnContent),
+				ReturnContent: fmt.Sprintf("%t", true),
 			},
 		},
 	}
 }
 
-func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physicalName string, returnContent bool) error {
+func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physicalName string) error {
 
 	gosoap.SetCustomEnvelope("soapenv", map[string]string{
 		"xmlns:soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
@@ -110,7 +110,7 @@ func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physical
 			"input": map[string]interface{}{
 				"TRDM": map[string]interface{}{
 					"physicalName":  physicalName,
-					"returnContent": returnContent,
+					"returnContent": true,
 				},
 			},
 		},
