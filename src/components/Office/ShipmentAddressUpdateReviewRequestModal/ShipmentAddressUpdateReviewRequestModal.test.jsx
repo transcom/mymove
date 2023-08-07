@@ -79,6 +79,22 @@ describe('ShipmentAddressUpdateReviewRequestModal', () => {
     });
   });
 
+  it('Runs an onClose callback on close', async () => {
+    const user = userEvent.setup();
+
+    const onClose = jest.fn();
+
+    render(<ShipmentAddressUpdateReviewRequestModal shipment={mockShipment} onSubmit={jest.fn()} onClose={onClose} />);
+
+    const cancel = screen.getByRole('button', { name: 'Cancel' });
+
+    expect(cancel).toBeInTheDocument();
+
+    await user.click(cancel);
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
   it('Runs an onSubmit callback on save', async () => {
     const user = userEvent.setup();
 
