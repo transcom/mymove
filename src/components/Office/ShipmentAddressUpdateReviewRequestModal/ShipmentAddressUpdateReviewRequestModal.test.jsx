@@ -99,6 +99,7 @@ describe('ShipmentAddressUpdateReviewRequestModal', () => {
     const user = userEvent.setup();
 
     const onSubmit = jest.fn();
+    const officeRemarksAnswer = 'Here are my remarks from the office';
 
     render(<ShipmentAddressUpdateReviewRequestModal shipment={mockShipment} onSubmit={onSubmit} onClose={jest.fn()} />);
 
@@ -111,13 +112,14 @@ describe('ShipmentAddressUpdateReviewRequestModal', () => {
     expect(heading).toBeInTheDocument();
 
     await user.click(approvalYes);
-    await user.type(officeRemarks, 'Here are my remarks from the office');
+    await user.type(officeRemarks, officeRemarksAnswer);
 
     expect(approvalYes).toBeChecked();
-    expect(officeRemarks).toHaveValue('Here are my remarks from the office');
+    expect(officeRemarks).toHaveValue(officeRemarksAnswer);
 
     await user.click(save);
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit).toHaveBeenCalledWith(mockShipment.id, mockShipment.eTag, 'APPROVED', officeRemarksAnswer);
   });
 });
