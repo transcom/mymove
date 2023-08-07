@@ -61,11 +61,6 @@ export const HelperSubmittedMove = () => (
       <p>
         <strong>For PPM (do it yourself) shipments</strong>
       </p>
-      <ul className={styles['top-gap']}>
-        <li>
-          You can start packing, but do not move any of your personal property until you hear that your move is approved
-        </li>
-      </ul>
     </div>
     <div>
       <p>
