@@ -1,5 +1,7 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { v4 as uuidv4 } from 'uuid';
 
 import { ShipmentAddressUpdateReviewRequestModal } from './ShipmentAddressUpdateReviewRequestModal';
 
@@ -29,7 +31,12 @@ const mockDeliveryAddressUpdate = {
   status: 'REQUESTED',
 };
 
-const mockOnClose = jest.fn();
+const mockShipment = {
+  id: uuidv4(),
+  shipmentType: shipmentTypes.HHG,
+  deliveryAddressUpdate: mockDeliveryAddressUpdate,
+  eTag: 'eTag',
+};
 
 afterEach(() => {
   jest.resetAllMocks();
@@ -38,14 +45,9 @@ afterEach(() => {
 describe('ShipmentAddressUpdateReviewRequestModal', () => {
   it('renders the modal', async () => {
     render(
-      <ShipmentAddressUpdateReviewRequestModal
-        shipmentType={shipmentTypes.HHG}
-        deliveryAddressUpdate={mockDeliveryAddressUpdate}
-        onClose={mockOnClose}
-      />,
+      <ShipmentAddressUpdateReviewRequestModal shipment={mockShipment} onSubmit={jest.fn()} onClose={jest.fn()} />,
     );
 
-    // console.log(screen.debug());
     await waitFor(() => {
       // Shipment type flag
       expect(screen.getByTestId('tag')).toHaveTextContent('HHG');
@@ -60,9 +62,12 @@ describe('ShipmentAddressUpdateReviewRequestModal', () => {
       expect(screen.getByRole('heading', { level: 4, name: 'Review Request' })).toBeInTheDocument();
 
       // Form fields
-      expect(screen.getByText('Approve address change?')).toBeInTheDocument();
-      expect(screen.getByRole('radio', { name: 'Yes' })).toBeInTheDocument();
-      expect(screen.getByRole('radio', { name: 'No' })).toBeInTheDocument();
+      const approvalQuestion = screen.getByRole('group', { name: 'Approve address change?' });
+      expect(approvalQuestion).toBeInTheDocument();
+      const approvalYes = within(approvalQuestion).getByRole('radio', { name: 'Yes' });
+      const approvalNo = within(approvalQuestion).getByRole('radio', { name: 'No' });
+      expect(approvalYes).toBeInTheDocument();
+      expect(approvalNo).toBeInTheDocument();
 
       expect(screen.getByLabelText('Office remarks')).toBeInTheDocument();
       expect(screen.getByText('Office remarks will be sent to the contractor.')).toBeInTheDocument();
@@ -72,5 +77,29 @@ describe('ShipmentAddressUpdateReviewRequestModal', () => {
       expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     });
+  });
+
+  it('Runs an onSubmit callback on save', async () => {
+    const user = userEvent.setup();
+
+    const onSubmit = jest.fn();
+
+    render(<ShipmentAddressUpdateReviewRequestModal shipment={mockShipment} onSubmit={onSubmit} onClose={jest.fn()} />);
+
+    const heading = screen.getByRole('heading', { level: 2, name: 'Review request' });
+    const approvalQuestion = screen.getByRole('group', { name: 'Approve address change?' });
+    const approvalYes = within(approvalQuestion).getByRole('radio', { name: 'Yes' });
+    const officeRemarks = screen.getByLabelText('Office remarks');
+    const save = screen.getByRole('button', { name: 'Save' });
+
+    expect(heading).toBeInTheDocument();
+
+    await user.click(approvalYes);
+    await user.type(officeRemarks, 'Here are my remarks from the office');
+
+    expect(approvalYes).toBeChecked();
+    expect(officeRemarks).toHaveValue('Here are my remarks from the office');
+
+    await user.click(save);
   });
 });
