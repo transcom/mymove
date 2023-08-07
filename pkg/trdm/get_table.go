@@ -102,7 +102,7 @@ func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physical
 
 	gosoap.SetCustomEnvelope("soapenv", map[string]string{
 		"xmlns:soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
-		"xmlns:ser":     "https://dtod.sddc.army.mil/service/", //! Replace
+		"xmlns:ret":     "http://ReturnTablePackage/",
 	})
 
 	params := gosoap.Params{
