@@ -76,11 +76,11 @@ func (m MoveIssuedToPrime) emails(appCtx appcontext.AppContext) ([]emailContent,
 	}
 
 	htmlBody, textBody, err := m.renderTemplates(appCtx, moveIssuedToPrimeEmailData{
-		MilitaryOneSourceLink:   "https://www.militaryonesource.mil/benefits/militaryinstallations-local-transportation-office/",
-		OriginDutyLocation:      originDutyLocation,
-		DestinationDutyLocation: orders.NewDutyLocation.Name,
-		GovernmentCounseling:    governmentCounseling,
-		Locator:                 move.Locator,
+		MilitaryOneSourceLink:        "https://www.militaryonesource.mil/benefits/militaryinstallations-local-transportation-office/",
+		OriginDutyLocation:           originDutyLocation,
+		DestinationDutyLocation:      orders.NewDutyLocation.Name,
+		ProvidesGovernmentCounseling: governmentCounseling,
+		Locator:                      move.Locator,
 	})
 
 	if err != nil {
@@ -114,12 +114,12 @@ func (m MoveIssuedToPrime) renderTemplates(appCtx appcontext.AppContext, data mo
 }
 
 type moveIssuedToPrimeEmailData struct {
-	MilitaryOneSourceLink   string
-	OriginDutyLocation      *string
-	DestinationDutyLocation string
-	GovernmentCounseling    bool
-	Locator                 string
-	WeightAllowance         string
+	MilitaryOneSourceLink        string
+	OriginDutyLocation           *string
+	DestinationDutyLocation      string
+	ProvidesGovernmentCounseling bool
+	Locator                      string
+	WeightAllowance              string
 }
 
 // RenderHTML renders the html for the email

@@ -5,37 +5,36 @@ This is a confirmation that a move task order has been placed for your move (Mov
 
 What this means to you:
 
-Your government-arranged shipment(s) will be managed by HomeSafe Alliance, the DoD contractor under the
-Global Household Goods Contract (GHC):
+Your government-arranged shipment(s) will be managed by HomeSafe Alliance,
+the DoD contractor under the Global Household Goods Contract (GHC).
 
-***Next steps for your government-arranged shipment(s):***
+** Next steps for your government-arranged shipment(s):
+------------------------------------------------------------
 
 HomeSafe will send you an e-mail invitation (check your spam or junk folder) to log in to their system, HomeSafe Connect.
-
 {{ if .GovernmentCounseling }}
- * Log in to HomeSafe Connect as soon as possible to schedule your pre-move survey. You can request either a virtual, or in-person pre-move survey.
+* Log in to HomeSafe Connect as soon as possible to schedule your pre-move survey. You can request either a virtual,
+or in-person pre-move survey.
 
 HomeSafe Customer Care is Required to:
 * Reach out to you within one Government Business Day.
 * Within 3-7 days of your receipt of this e-mail, contact you to provide a 7-day pickup date spread window.
-  This spread window must contain your requested pickup date. (What this means: your requested pickup date may
-  fall on the spread start date, the spread end date, or anywhere in between.)
+This spread window must contain your requested pickup date. (What this means:
+your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
 
-If you are requesting to move in 5 days or less, HomeSafe should assist you with scheduling within one day of your
-receipt of this email.
+If you are requesting to move in 5 days or less, HomeSafe should assist you with scheduling within one day of your receipt of this email.
 {{- end }}
 {{- if not .GovernmentCounseling }}
 * Log in to HomeSafe Connect as soon as possible to complete counseling and schedule your pre-move survey.
-  You can request either a virtual, or in-person pre-move survey.
+You can request either a virtual, or in-person pre-move survey.
 
 HomeSafe Customer Care is Required to:
 * Reach out to you within one Government Business Day.
 * Within 3-7 days of your receipt of this e-mail, contact you to provide a 7-day pickup date spread window.
-  This spread window must contain your requested pickup date. (What this means: your requested pickup date may
-  fall on the spread start date, the spread end date, or anywhere in between.)
+This spread window must contain your requested pickup date. (What this means:
+your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
 
-If you are requesting to move in 5 days or less, HomeSafe should assist you with scheduling within one day of your
-receipt of this email.
+If you are requesting to move in 5 days or less, HomeSafe should assist you with scheduling within one day of your receipt of this email.
 {{- /* There is reference to PPM specific instructions in the example that I believe gets omitted for now. */ -}}
 {{- end }}
 
@@ -45,11 +44,10 @@ Utilize your HomeSafe Customer Care Representative:
 
 If you are unsatisfied at any time, contact a government transportation office.
 You can see a listing of transportation offices on Military One Source here:
-{{.MilitaryOneSourceLink}}
+{{.MilitaryOneSourceLink}}.
 
 Thank you,
 
 Defense Personal Property Program’s MilMove Team
 
-The information contained in this email may contain Privacy Act information and is therefore protected under the
-Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
+The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
