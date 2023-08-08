@@ -427,6 +427,32 @@ describe('ShipmentForm component', () => {
     });
   });
 
+  it('opens a modal when Review Request is clicked', async () => {
+    const user = userEvent.setup();
+
+    const shipmentType = SHIPMENT_OPTIONS.HHG;
+
+    renderWithRouter(
+      <ShipmentForm
+        {...defaultPropsRetirement}
+        isCreatePage={false}
+        shipmentType={shipmentType}
+        mtoShipment={{ ...mockShipmentWithDestinationType, ...mockDeliveryAddressUpdate, shipmentType }}
+        displayDestinationType
+      />,
+    );
+
+    const queryForModalHeader = () => screen.queryByRole('heading', { name: 'Review request' });
+
+    const reviewRequestLink = await screen.findByRole('button', { name: 'Review request' });
+
+    expect(queryForModalHeader()).not.toBeInTheDocument();
+
+    await user.click(reviewRequestLink);
+
+    await waitFor(() => expect(queryForModalHeader()).toBeInTheDocument());
+  });
+
   describe('creating a new NTS shipment', () => {
     it('renders the NTS shipment form', async () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} />);

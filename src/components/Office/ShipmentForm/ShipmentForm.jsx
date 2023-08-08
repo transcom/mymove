@@ -3,7 +3,7 @@ import { arrayOf, bool, func, number, shape, string, oneOf } from 'prop-types';
 import { Field, Formik } from 'formik';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { Alert, Button, Checkbox, Fieldset, FormGroup, Link, Radio } from '@trussworks/react-uswds';
+import { Alert, Button, Checkbox, Fieldset, FormGroup, Radio } from '@trussworks/react-uswds';
 
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
 import { CloseoutOfficeInput } from '../../form/fields/CloseoutOfficeInput';
@@ -664,23 +664,31 @@ const ShipmentForm = (props) => {
                         )}
                       </Fieldset>
                     ) : (
-                      <Fieldset legend="Delivery location" disabled={deliveryAddressUpdateRequested}>
-                        {deliveryAddressUpdateRequested && (
-                          <Alert type="error" slim>
-                            <span className={styles.deliveryAddressUpdateAlert}>
-                              Pending delivery location change request needs review.{' '}
-                              <Link
-                                className={styles.reviewRequestLink}
-                                onClick={() => {
-                                  setIsAddressChangeModalOpen(true);
-                                }}
-                              >
-                                Review request
-                              </Link>{' '}
-                              to proceed.
-                            </span>
-                          </Alert>
-                        )}
+                      <Fieldset
+                        legend={
+                          <>
+                            Delivery location
+                            {deliveryAddressUpdateRequested && (
+                              <Alert type="error" slim className={styles.deliveryAddressUpdateAlert}>
+                                <span className={styles.deliveryAddressUpdateAlertContent}>
+                                  Pending delivery location change request needs review.{' '}
+                                  <Button
+                                    className={styles.reviewRequestLink}
+                                    type="button"
+                                    unstyled
+                                    onClick={() => setIsAddressChangeModalOpen(true)}
+                                    disabled={false}
+                                  >
+                                    Review request
+                                  </Button>{' '}
+                                  to proceed.
+                                </span>
+                              </Alert>
+                            )}
+                          </>
+                        }
+                        disabled={deliveryAddressUpdateRequested}
+                      >
                         <FormGroup>
                           <p>Does the customer know their delivery address yet?</p>
                           <div className={formStyles.radioGroup}>

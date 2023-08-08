@@ -72,10 +72,17 @@
   }
 
   .deliveryAddressUpdateAlert {
+    margin-top: 24px;
+  }
+
+  .deliveryAddressUpdateAlertContent {
     font-size: 13px;
+    font-weight: normal;
 
     .reviewRequestLink {
-      font-weight: 400;
+      font-size: 13px;
+      padding: 0;
+      display: inline;
       cursor: pointer;
     }
   }
