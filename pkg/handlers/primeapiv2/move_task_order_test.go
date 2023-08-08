@@ -694,7 +694,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeCS,
+					Code: models.ReServiceCodeDLH,
 				},
 			},
 		}, nil)
@@ -802,6 +802,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		suite.Len(movePayload.PaymentRequests, 2)
 		paymentRequestPayload := movePayload.PaymentRequests[0]
+		// suite.Equal(fmt.Sprintf("%v", paymentRequestPayload.PaymentServiceItems), "Conflict")
 		suite.Equal(paymentRequest.ID.String(), paymentRequestPayload.ID.String())
 		suite.Equal(successMove.ID.String(), paymentRequestPayload.MoveTaskOrderID.String())
 		suite.Equal(paymentRequest.IsFinal, *paymentRequestPayload.IsFinal)
@@ -811,7 +812,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(paymentRequest.RecalculationOfPaymentRequestID.String(), paymentRequestPayload.RecalculationOfPaymentRequestID.String())
 
 		// verify paymentServiceItems
-		suite.Len(paymentRequestPayload.PaymentServiceItems, 2)
+		suite.Len(paymentRequestPayload.PaymentServiceItems, 4)
 		PSI1 := paymentRequest.PaymentServiceItems[0]
 		PSI1Payload := paymentRequestPayload.PaymentServiceItems[0]
 		suite.Equal(PSI1.ID.String(), PSI1Payload.ID.String())

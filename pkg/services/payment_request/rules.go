@@ -113,8 +113,8 @@ func checkStatusOfExistingPaymentRequest() paymentRequestValidator {
 
 			shipmentID := paymentRequest.PaymentServiceItems[0].MTOServiceItem.MTOShipmentID
 
-			shipment, err := mtoshipment.FindShipment(appCtx, *shipmentID,
-				// shipment, err := mtoshipment.NewMTOShipmentFetcher().GetShipment(appCtx, *shipmentID,
+			// shipment, err := mtoshipment.FindShipment(appCtx, *shipmentID,
+			shipment, err := mtoshipment.NewMTOShipmentFetcher().GetShipment(appCtx, *shipmentID,
 				"MoveTaskOrder.PaymentRequests",
 				"MoveTaskOrder.PaymentRequests.PaymentServiceItems",
 				"MoveTaskOrder.PaymentRequests.PaymentServiceItems.MTOServiceItem",
