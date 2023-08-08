@@ -427,4 +427,21 @@ test.describe('TOO user', () => {
       await tooFlowPage.waitForPage.moveDetails();
     });
   });
+
+  test('approves a delivery address change request for an HHG shipment', async ({ officePage, page }) => {
+    const shipmentAddressUpdate = await officePage.testHarness.bulidHHGMoveWithAddressChangeRequest();
+    await officePage.signInAsNewTOOUser();
+    tooFlowPage = new TooFlowPage(officePage, shipmentAddressUpdate.Shipment.MoveTaskOrder);
+    await officePage.tooNavigateToMove(shipmentAddressUpdate.Shipment.MoveTaskOrder.locator);
+
+    await expect(page.getByText('Review required')).toBeEnabled();
+
+    // Edit the shipment
+    await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
+
+    await expect(page.getByText('Request needs review. See delivery location to proceed.')).toBeEnabled();
+    await expect(
+      page.getByText('Pending delivery location change request needs review. Review request to proceed.'),
+    ).toBeEnabled();
+  });
 });
