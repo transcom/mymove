@@ -1268,6 +1268,21 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentNotFound{}, response)
 	})
 
+	suite.Run("POST failure - 404 - not found - wrong SM does not match move", func() {
+		subtestData := getDefaultMTOShipmentAndParams(nil)
+
+		sm := factory.BuildServiceMember(suite.DB(), nil, nil)
+
+		req := subtestData.params.HTTPRequest
+		unauthorizedReq := suite.AuthenticateUserRequest(req, sm.User)
+		unauthorizedParams := subtestData.params
+		unauthorizedParams.HTTPRequest = unauthorizedReq
+
+		response := subtestData.handler.Handle(unauthorizedParams)
+
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentNotFound{}, response)
+	})
+
 	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
 		subtestData := getDefaultMTOShipmentAndParams(nil)
 
@@ -1412,10 +1427,9 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 	}, nil)
 
 	subtestData.shipments = models.MTOShipments{mtoShipment, mtoShipment2, ppmShipment.Shipment, ppmShipment2.Shipment, ppmShipment3.Shipment}
-	requestUser := factory.BuildUser(nil, nil, nil)
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/mto_shipments", mto.ID.String()), nil)
-	req = suite.AuthenticateUserRequest(req, requestUser)
+	req = suite.AuthenticateRequest(req, mto.Orders.ServiceMember)
 
 	subtestData.params = mtoshipmentops.ListMTOShipmentsParams{
 		HTTPRequest:     req,
@@ -1551,6 +1565,25 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		response := handler.Handle(unauthorizedParams)
 
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsUnauthorized{}, response)
+	})
+
+	suite.Run("Failure list fetch - 404 Not Found - service member user not authorized", func() {
+		subtestData := suite.makeListSubtestData()
+		unauthorizedUser := factory.BuildServiceMember(suite.DB(), nil, nil)
+		unauthorizedReq := suite.AuthenticateRequest(subtestData.params.HTTPRequest, unauthorizedUser)
+		unauthorizedParams := mtoshipmentops.ListMTOShipmentsParams{
+			HTTPRequest:     unauthorizedReq,
+			MoveTaskOrderID: *handlers.FmtUUID(subtestData.shipments[0].MoveTaskOrderID),
+		}
+
+		handler := ListMTOShipmentsHandler{
+			suite.HandlerConfig(),
+			mtoshipment.NewMTOShipmentFetcher(),
+		}
+
+		response := handler.Handle(unauthorizedParams)
+
+		suite.IsType(&mtoshipmentops.ListMTOShipmentsNotFound{}, response)
 	})
 
 	suite.Run("Failure list fetch - 500 Internal Server Error", func() {

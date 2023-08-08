@@ -95,7 +95,7 @@ describe('SelectShipmentType', () => {
       const wrapper = getWrapper();
       expect(wrapper.find('h1').text()).toContain('How should this shipment move?');
       expect(wrapper.find('.usa-checkbox__label-description').at(1).text()).toContain(
-        'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a Personally Procured Move (PPM), sometimes called a DITY.',
+        'You pack and move your personal property or make other arrangements, The government pays you for the weight you move. This is a Personally Procured Move (PPM).',
       );
       expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 1');
       expect(wrapper.find('[data-testid="helper-footer"]').text()).toContain('Your move counselor will go');

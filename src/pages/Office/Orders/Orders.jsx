@@ -1,5 +1,5 @@
-import React, { useEffect, useReducer } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import React, { useEffect, useReducer, useCallback } from 'react';
+import { Link, useNavigate, useParams, useLocation, generatePath } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
@@ -11,6 +11,7 @@ import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import { getTacValid, updateOrder } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import { tooRoutes, tioRoutes } from 'constants/routes';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
 import { formatSwaggerDate, dropdownInputOptions } from 'utils/formatters';
@@ -33,11 +34,18 @@ const Orders = () => {
   const [tacValidationState, tacValidationDispatch] = useReducer(reducer, null, initialState);
 
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
+  const { state } = useLocation();
   const orderId = move?.ordersId;
-
-  const handleClose = React.useCallback(() => {
-    navigate(`/moves/${moveCode}/details`);
-  }, [navigate, moveCode]);
+  const from = state?.from;
+  const handleClose = useCallback(() => {
+    let redirectPath;
+    if (from === 'paymentRequestDetails') {
+      redirectPath = generatePath(tioRoutes.BASE_PAYMENT_REQUESTS_PATH, { moveCode });
+    } else {
+      redirectPath = generatePath(tooRoutes.BASE_MOVE_VIEW_PATH, { moveCode });
+    }
+    navigate(redirectPath);
+  }, [navigate, moveCode, from]);
   const queryClient = useQueryClient();
   const { mutate: mutateOrders } = useMutation(updateOrder, {
     onSuccess: (data, variables) => {
@@ -187,7 +195,17 @@ const Orders = () => {
                   </Button>
                   <h2 className={styles.header}>View Orders</h2>
                   <div>
-                    <Link className={styles.viewAllowances} data-testid="view-allowances" to="../allowances">
+                    {/* the prop "from" represents the page the Link navigates away from.
+                        Passing it via state allows the new page to have access to what the previous page was
+                        for purposes of redirecting back to the previous page on cancel
+                        For documentation please see https://reactrouter.com/en/main/components/link#state
+                     */}
+                    <Link
+                      className={styles.viewAllowances}
+                      data-testid="view-allowances"
+                      to="../allowances"
+                      state={{ from }}
+                    >
                       View Allowances
                     </Link>
                   </div>

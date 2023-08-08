@@ -2537,9 +2537,9 @@ definitions:
       secondaryPickupAddress:
         $ref: 'definitions/Address.yaml'
       hasSecondaryPickupAddress:
-          type: boolean
-          x-nullable: true
-          x-omitempty: false
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       destinationAddress:
         $ref: 'definitions/Address.yaml'
       secondaryDeliveryAddress:
@@ -4454,7 +4454,7 @@ paths:
       parameters:
         - $ref: 'parameters/ppmShipmentId.yaml'
       responses:
-        '200':
+        '201':
           description: returns new moving expense object
           schema:
             $ref: 'definitions/MovingExpense.yaml'
@@ -4885,11 +4885,10 @@ paths:
         Required fields include:
         * MTO Shipment ID required in path
         * If-Match required in headers
-        * No fields required in body
+        * Shipment type is required in body
 
         Optional fields include:
         * New shipment status type
-        * Shipment Type
         * Customer requested pick-up date
         * Pick-up Address
         * Delivery Address
@@ -4995,6 +4994,8 @@ paths:
           $ref: '#/responses/InvalidRequest'
         '401':
           $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
 responses:
