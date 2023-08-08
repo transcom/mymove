@@ -3985,6 +3985,23 @@
   dependencies:
     "@octokit/openapi-types" "^11.2.0"
 
+"@opentelemetry/api@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/api/-/api-1.4.1.tgz#ff22eb2e5d476fbc2450a196e40dd243cc20c28f"
+  integrity sha512-O2yRJce1GOc6PAy3QxFM4NzFiWzvScDC1/5ihYBL6BUEVdq0XMWN01sppE+H6bBXbaFYipjwFLEWLg5PaSOThA==
+
+"@opentelemetry/core@^1.15.1":
+  version "1.15.1"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/core/-/core-1.15.1.tgz#a580a547c1006cc411ae7aacd4991b52555b3f1d"
+  integrity sha512-V6GoRTY6aANMDDOQ9CiHOiLWEK2b2b3OGZK+zk05Li5merb9jadFeV5ooTSGtjxfxVNMpQUaQERO1cdbdbeEGg==
+  dependencies:
+    "@opentelemetry/semantic-conventions" "1.15.1"
+
+"@opentelemetry/semantic-conventions@1.15.1":
+  version "1.15.1"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/semantic-conventions/-/semantic-conventions-1.15.1.tgz#3d745996b2bd11095b515515fd3d68d46092a02d"
+  integrity sha512-n8Kur1/CZlYG32YCEj30CoUqA8R7UyDVZzoEU6SDP+13+kXDT2kFVu6MpcnEUTyGP3i058ID6Qjp5h6IJxdPPQ==
+
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
