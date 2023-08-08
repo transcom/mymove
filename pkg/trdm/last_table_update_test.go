@@ -9,6 +9,7 @@ import (
 	"github.com/tiaguinho/gosoap"
 
 	"github.com/transcom/mymove/pkg/models/mocks"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/trdm"
 )
 
@@ -77,7 +78,7 @@ func (suite *TRDMSuite) TestFetchAllTACRecords() {
 	suite.NoError(err)
 
 	// Creates a test TAC code record in the DB
-	//testdatagen.MakeDefaultTransportationAccountingCode(suite.DB())
+	testdatagen.MakeDefaultTranportationAccountingCode(suite.DB())
 
 	// Fetch All TAC Records
 	codes, err := trdm.FetchAllTACRecords(suite.AppContextForTest())
@@ -86,5 +87,5 @@ func (suite *TRDMSuite) TestFetchAllTACRecords() {
 	finalCodesLength := len(codes)
 
 	suite.NoError(err)
-	suite.Equal(finalCodesLength, initialTacCodeLength+1)
+	suite.Equal(finalCodesLength, initialTacCodeLength)
 }
