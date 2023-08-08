@@ -629,7 +629,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(appCtx appcontext.A
 
 	// TAC
 	fa2TAC := edisegment.FA2{
-		BreakdownStructureDetailCode: "TA",
+		BreakdownStructureDetailCode: edisegment.FA2DetailCodeTA,
 		FinancialInformationCode:     tac,
 	}
 	fa2s = append(fa2s, fa2TAC)
@@ -637,7 +637,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(appCtx appcontext.A
 	// SAC (optional)
 	if sac != "" {
 		fa2SAC := edisegment.FA2{
-			BreakdownStructureDetailCode: "ZZ",
+			BreakdownStructureDetailCode: edisegment.FA2DetailCodeZZ,
 			FinancialInformationCode:     sac,
 		}
 		fa2s = append(fa2s, fa2SAC)
@@ -681,38 +681,38 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 
 	// Create long LOA FA2 segments
 	segmentInputs := []struct {
-		detailCode string
+		detailCode edisegment.FA2DetailCode
 		infoCode   *string
 	}{
 		// If order of these changes, tests will also need to be adjusted. Using alpha order by detailCode.
-		{"A1", loa.LoaDptID},
-		{"A2", loa.LoaTnsfrDptNm},
-		{"A3", concatDate},
-		{"A4", loa.LoaBafID},
-		{"A5", loa.LoaTrsySfxTx},
-		{"A6", loa.LoaMajClmNm},
-		{"B1", loa.LoaOpAgncyID},
-		{"B2", loa.LoaAlltSnID},
-		{"B3", loa.LoaUic},
-		{"C1", loa.LoaPgmElmntID},
-		{"C2", loa.LoaTskBdgtSblnTx},
-		{"D1", loa.LoaDfAgncyAlctnRcpntID},
-		{"D4", loa.LoaJbOrdNm},
-		{"D6", loa.LoaSbaltmtRcpntID},
-		{"D7", loa.LoaWkCntrRcpntNm},
-		{"E1", loa.LoaMajRmbsmtSrcID},
-		{"E2", loa.LoaDtlRmbsmtSrcID},
-		{"E3", loa.LoaCustNm},
-		{"F1", loa.LoaObjClsID},
-		{"F3", loa.LoaSrvSrcID},
-		{"G2", loa.LoaSpclIntrID},
-		{"I1", loa.LoaBdgtAcntClsNm},
-		{"J1", loa.LoaDocID},
-		{"K6", loa.LoaClsRefID},
-		{"L1", loa.LoaInstlAcntgActID},
-		{"M1", loa.LoaLclInstlID},
-		{"N1", loa.LoaFmsTrnsactnID},
-		{"P5", loa.LoaDscTx},
+		{edisegment.FA2DetailCodeA1, loa.LoaDptID},
+		{edisegment.FA2DetailCodeA2, loa.LoaTnsfrDptNm},
+		{edisegment.FA2DetailCodeA3, concatDate},
+		{edisegment.FA2DetailCodeA4, loa.LoaBafID},
+		{edisegment.FA2DetailCodeA5, loa.LoaTrsySfxTx},
+		{edisegment.FA2DetailCodeA6, loa.LoaMajClmNm},
+		{edisegment.FA2DetailCodeB1, loa.LoaOpAgncyID},
+		{edisegment.FA2DetailCodeB2, loa.LoaAlltSnID},
+		{edisegment.FA2DetailCodeB3, loa.LoaUic},
+		{edisegment.FA2DetailCodeC1, loa.LoaPgmElmntID},
+		{edisegment.FA2DetailCodeC2, loa.LoaTskBdgtSblnTx},
+		{edisegment.FA2DetailCodeD1, loa.LoaDfAgncyAlctnRcpntID},
+		{edisegment.FA2DetailCodeD4, loa.LoaJbOrdNm},
+		{edisegment.FA2DetailCodeD6, loa.LoaSbaltmtRcpntID},
+		{edisegment.FA2DetailCodeD7, loa.LoaWkCntrRcpntNm},
+		{edisegment.FA2DetailCodeE1, loa.LoaMajRmbsmtSrcID},
+		{edisegment.FA2DetailCodeE2, loa.LoaDtlRmbsmtSrcID},
+		{edisegment.FA2DetailCodeE3, loa.LoaCustNm},
+		{edisegment.FA2DetailCodeF1, loa.LoaObjClsID},
+		{edisegment.FA2DetailCodeF3, loa.LoaSrvSrcID},
+		{edisegment.FA2DetailCodeG2, loa.LoaSpclIntrID},
+		{edisegment.FA2DetailCodeI1, loa.LoaBdgtAcntClsNm},
+		{edisegment.FA2DetailCodeJ1, loa.LoaDocID},
+		{edisegment.FA2DetailCodeK6, loa.LoaClsRefID},
+		{edisegment.FA2DetailCodeL1, loa.LoaInstlAcntgActID},
+		{edisegment.FA2DetailCodeM1, loa.LoaLclInstlID},
+		{edisegment.FA2DetailCodeN1, loa.LoaFmsTrnsactnID},
+		{edisegment.FA2DetailCodeP5, loa.LoaDscTx},
 	}
 
 	for _, input := range segmentInputs {
@@ -728,7 +728,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 	return fa2LongLoaSegments, nil
 }
 
-func createLongLoaSegment(detailCode string, infoCode *string) (*edisegment.FA2, error) {
+func createLongLoaSegment(detailCode edisegment.FA2DetailCode, infoCode *string) (*edisegment.FA2, error) {
 	// If we don't have an infoCode value, then just ignore this segment
 	if infoCode == nil || strings.TrimSpace(*infoCode) == "" {
 		return nil, nil
