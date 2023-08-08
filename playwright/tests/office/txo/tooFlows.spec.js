@@ -438,5 +438,10 @@ test.describe('TOO user', () => {
 
     // Edit the shipment
     await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
+
+    await expect(page.getByText('Request needs review. See delivery location to proceed.')).toBeEnabled();
+    await expect(
+      page.getByText('Pending delivery location change request needs review. Review request to proceed.'),
+    ).toBeEnabled();
   });
 });
