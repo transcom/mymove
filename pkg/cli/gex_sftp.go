@@ -32,6 +32,9 @@ const (
 	// #nosec G101
 	// GEXSFTPPasswordFlag is the ENV var for the GEX SFTP password
 	GEXSFTPPasswordFlag string = "gex-sftp-password"
+	// GEXXPrivateKeyFlag is the ENV var for the private key which is used in establishing an
+	// ssh connection to the GEX server. The GEX server has the public key.
+	GEXPrivateKeyFlag string = "gex-private-key"
 	// GEXSFTPHostKeyFlag is the ENV var for the GEX SFTP host key
 	GEXSFTPHostKeyFlag string = "gex-sftp-host-key"
 	// GEXSFTP997PickupDirectory is the ENV var for the directory where GEX delivers responses
@@ -46,6 +49,7 @@ func InitGEXSFTPFlags(flag *pflag.FlagSet) {
 	flag.String(GEXSFTPUserIDFlag, "", "GEX SFTP User ID")
 	flag.String(GEXSFTPIPAddressFlag, "localhost", "GEX SFTP IP Address")
 	flag.String(GEXSFTPPasswordFlag, "", "GEX SFTP Password")
+	flag.String(GEXPrivateKeyFlag, "", "GEX Private Key")
 	flag.String(GEXSFTPHostKeyFlag, "", "GEX SFTP Host Key")
 	flag.String(GEXSFTP997PickupDirectory, "", "GEX 997 SFTP Pickup Directory")
 	flag.String(GEXSFTP824PickupDirectory, "", "GEX 834 SFTP Pickup Directory")
@@ -87,6 +91,11 @@ func CheckGEXSFTP(v *viper.Viper) error {
 		return fmt.Errorf("Invalid credentials SFTP missing GEX_SFTP_PASSWORD")
 	}
 
+	privateKey := v.GetString(GEXPrivateKeyFlag)
+	if privateKey == "" {
+		return fmt.Errorf("Invalid credentials SFTP missing GEX_SFTP_PRIVATE_KEY")
+	}
+
 	return ValidateHost(v, GEXSFTPIPAddressFlag)
 }
 
@@ -97,6 +106,7 @@ func InitGEXSSH(appCtx appcontext.AppContext, v *viper.Viper) (*ssh.Client, erro
 	hostKeyString := v.GetString(GEXSFTPHostKeyFlag)
 	remote := v.GetString(GEXSFTPIPAddressFlag)
 	port := v.GetString(GEXSFTPPortFlag)
+	privateKeyString := v.GetString(GEXPrivateKeyFlag)
 
 	CheckOutboundIP(appCtx)
 
@@ -108,9 +118,21 @@ func InitGEXSSH(appCtx appcontext.AppContext, v *viper.Viper) (*ssh.Client, erro
 	}
 	appCtx.Logger().Info("...Parsing GEX SFTP host key successful")
 
+	appCtx.Logger().Info("Parsing GEX SFTP private key...")
+
+	privateKey, err := ssh.ParsePrivateKey([]byte(privateKeyString))
+	if err != nil {
+		appCtx.Logger().Error("Failed to parse GEX SFTP private key", zap.Error(err))
+		return nil, fmt.Errorf("failed to parse private key %w", err)
+	}
+
+	appCtx.Logger().Info("...Parsing GEX SFTP private key successful")
+
 	config := &ssh.ClientConfig{
 		User: userID,
 		Auth: []ssh.AuthMethod{
+			ssh.PublicKeys(privateKey),
+			// Fall back to the password if the private key doesn't work.
 			ssh.Password(password),
 		},
 		HostKeyCallback: ssh.FixedHostKey(hostKey),
