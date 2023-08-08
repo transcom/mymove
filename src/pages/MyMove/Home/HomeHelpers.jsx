@@ -27,8 +27,8 @@ export const HelperNeedsShipment = () => (
       office will remain your primary DOD contact to ensure quality performance.
     </p>
     <p>
-      Note: This move manager does not manage personally procured moves or replace the existing programs for
-      non-temporary storage or the movement of privately owned vehicles.
+      (Note: This move manager does not manage personally procured moves or replace the existing programs for
+      non-temporary storage or the movement of privately owned vehicles.)
     </p>
   </Helper>
 );
