@@ -39,7 +39,12 @@ export default function BillableWeightCard({
           )}
         </div>
         <Restricted to={permissionTypes.updateMaxBillableWeight}>
-          <Button onClick={onReviewWeights} secondary={secondaryReviewWeightsBtn} style={{ maxWidth: '160px' }}>
+          <Button
+            onClick={onReviewWeights}
+            secondary={secondaryReviewWeightsBtn}
+            style={{ maxWidth: '160px' }}
+            disabled={!shipments.length > 0}
+          >
             Review weights
           </Button>
         </Restricted>
