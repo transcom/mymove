@@ -428,10 +428,15 @@ test.describe('TOO user', () => {
     });
   });
 
-  test('approves a delivery address change request for an HHG shipment', async ({ officePage }) => {
+  test('approves a delivery address change request for an HHG shipment', async ({ officePage, page }) => {
     const shipmentAddressUpdate = await officePage.testHarness.bulidHHGMoveWithAddressChangeRequest();
     await officePage.signInAsNewTOOUser();
     tooFlowPage = new TooFlowPage(officePage, shipmentAddressUpdate.Shipment.MoveTaskOrder);
     await officePage.tooNavigateToMove(shipmentAddressUpdate.Shipment.MoveTaskOrder.locator);
+
+    await expect(page.getByText('Review required')).toBeEnabled();
+
+    // Edit the shipment
+    await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
   });
 });
