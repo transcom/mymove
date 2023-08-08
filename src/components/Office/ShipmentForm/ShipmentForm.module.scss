@@ -71,6 +71,13 @@
     }
   }
 
+  .mockLegend {
+    width: 100%;
+    max-width: none;
+    @include u-text('bold');
+    @include typeset('body', 9, 2);
+  }
+
   .deliveryAddressUpdateAlert {
     margin-top: 24px;
   }

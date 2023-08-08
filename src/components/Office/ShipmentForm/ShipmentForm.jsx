@@ -4,6 +4,7 @@ import { Field, Formik } from 'formik';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { Alert, Button, Checkbox, Fieldset, FormGroup, Radio } from '@trussworks/react-uswds';
+import classNames from 'classnames';
 
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
 import { CloseoutOfficeInput } from '../../form/fields/CloseoutOfficeInput';
@@ -664,120 +665,120 @@ const ShipmentForm = (props) => {
                         )}
                       </Fieldset>
                     ) : (
-                      <Fieldset
-                        legend={
-                          <>
-                            Delivery location
-                            {deliveryAddressUpdateRequested && (
-                              <Alert type="error" slim className={styles.deliveryAddressUpdateAlert}>
-                                <span className={styles.deliveryAddressUpdateAlertContent}>
-                                  Pending delivery location change request needs review.{' '}
-                                  <Button
-                                    className={styles.reviewRequestLink}
-                                    type="button"
-                                    unstyled
-                                    onClick={() => setIsAddressChangeModalOpen(true)}
-                                    disabled={false}
-                                  >
-                                    Review request
-                                  </Button>{' '}
-                                  to proceed.
-                                </span>
-                              </Alert>
-                            )}
-                          </>
-                        }
-                        disabled={deliveryAddressUpdateRequested}
-                      >
-                        <FormGroup>
-                          <p>Does the customer know their delivery address yet?</p>
-                          <div className={formStyles.radioGroup}>
-                            <Field
-                              as={Radio}
-                              id="has-delivery-address"
-                              label="Yes"
-                              name="hasDeliveryAddress"
-                              value="yes"
-                              title="Yes, I know my delivery address"
-                              checked={hasDeliveryAddress === 'yes'}
-                            />
-                            <Field
-                              as={Radio}
-                              id="no-delivery-address"
-                              label="No"
-                              name="hasDeliveryAddress"
-                              value="no"
-                              title="No, I do not know my delivery address"
-                              checked={hasDeliveryAddress === 'no'}
-                            />
-                          </div>
-                        </FormGroup>
-                        {hasDeliveryAddress === 'yes' ? (
-                          <AddressFields
-                            name="delivery.address"
-                            render={(fields) => (
-                              <>
-                                {fields}
-                                {displayDestinationType && (
-                                  <DropdownInput
-                                    label="Destination type"
-                                    name="destinationType"
-                                    options={shipmentDestinationAddressOptions}
-                                    id="destinationType"
-                                  />
-                                )}
-                                <h4>Second delivery location</h4>
-                                <FormGroup>
-                                  <p>Do you want the movers to deliver any belongings to a second address?</p>
-                                  <div className={formStyles.radioGroup}>
-                                    <Field
-                                      as={Radio}
-                                      data-testid="has-secondary-delivery"
-                                      id="has-secondary-delivery"
-                                      label="Yes"
-                                      name="hasSecondaryDelivery"
-                                      value="yes"
-                                      title="Yes, I have a second destination location"
-                                      checked={hasSecondaryDelivery === 'yes'}
-                                    />
-                                    <Field
-                                      as={Radio}
-                                      data-testid="no-secondary-delivery"
-                                      id="no-secondary-delivery"
-                                      label="No"
-                                      name="hasSecondaryDelivery"
-                                      value="no"
-                                      title="No, I do not have a second destination location"
-                                      checked={hasSecondaryDelivery !== 'yes'}
-                                    />
-                                  </div>
-                                </FormGroup>
-                                {hasSecondaryDelivery === 'yes' && <AddressFields name="secondaryDelivery.address" />}
-                              </>
-                            )}
-                          />
-                        ) : (
-                          <div>
-                            <p>
-                              We can use the zip of their{' '}
-                              {displayDestinationType ? 'HOR, HOS or PLEAD:' : 'new duty location:'}
-                              <br />
-                              <strong>
-                                {newDutyLocationAddress.city}, {newDutyLocationAddress.state}{' '}
-                                {newDutyLocationAddress.postalCode}{' '}
-                              </strong>
-                            </p>
-                            {displayDestinationType && (
-                              <DropdownInput
-                                label="Destination type"
-                                name="destinationType"
-                                options={shipmentDestinationAddressOptions}
-                                id="destinationType"
-                              />
-                            )}
-                          </div>
+                      <>
+                        <p className={classNames('usa-legend', styles.mockLegend)}>Delivery Location</p>
+                        {deliveryAddressUpdateRequested && (
+                          <Alert type="error" slim className={styles.deliveryAddressUpdateAlert}>
+                            <span className={styles.deliveryAddressUpdateAlertContent}>
+                              Pending delivery location change request needs review.{' '}
+                              <Button
+                                className={styles.reviewRequestLink}
+                                type="button"
+                                unstyled
+                                onClick={() => setIsAddressChangeModalOpen(true)}
+                                disabled={false}
+                              >
+                                Review request
+                              </Button>{' '}
+                              to proceed.
+                            </span>
+                          </Alert>
                         )}
-                      </Fieldset>
+                        <Fieldset
+                          legendStyle="srOnly"
+                          legend="Delivery location"
+                          disabled={deliveryAddressUpdateRequested}
+                        >
+                          <FormGroup>
+                            <p>Does the customer know their delivery address yet?</p>
+                            <div className={formStyles.radioGroup}>
+                              <Field
+                                as={Radio}
+                                id="has-delivery-address"
+                                label="Yes"
+                                name="hasDeliveryAddress"
+                                value="yes"
+                                title="Yes, I know my delivery address"
+                                checked={hasDeliveryAddress === 'yes'}
+                              />
+                              <Field
+                                as={Radio}
+                                id="no-delivery-address"
+                                label="No"
+                                name="hasDeliveryAddress"
+                                value="no"
+                                title="No, I do not know my delivery address"
+                                checked={hasDeliveryAddress === 'no'}
+                              />
+                            </div>
+                          </FormGroup>
+                          {hasDeliveryAddress === 'yes' ? (
+                            <AddressFields
+                              name="delivery.address"
+                              render={(fields) => (
+                                <>
+                                  {fields}
+                                  {displayDestinationType && (
+                                    <DropdownInput
+                                      label="Destination type"
+                                      name="destinationType"
+                                      options={shipmentDestinationAddressOptions}
+                                      id="destinationType"
+                                    />
+                                  )}
+                                  <h4>Second delivery location</h4>
+                                  <FormGroup>
+                                    <p>Do you want the movers to deliver any belongings to a second address?</p>
+                                    <div className={formStyles.radioGroup}>
+                                      <Field
+                                        as={Radio}
+                                        data-testid="has-secondary-delivery"
+                                        id="has-secondary-delivery"
+                                        label="Yes"
+                                        name="hasSecondaryDelivery"
+                                        value="yes"
+                                        title="Yes, I have a second destination location"
+                                        checked={hasSecondaryDelivery === 'yes'}
+                                      />
+                                      <Field
+                                        as={Radio}
+                                        data-testid="no-secondary-delivery"
+                                        id="no-secondary-delivery"
+                                        label="No"
+                                        name="hasSecondaryDelivery"
+                                        value="no"
+                                        title="No, I do not have a second destination location"
+                                        checked={hasSecondaryDelivery !== 'yes'}
+                                      />
+                                    </div>
+                                  </FormGroup>
+                                  {hasSecondaryDelivery === 'yes' && <AddressFields name="secondaryDelivery.address" />}
+                                </>
+                              )}
+                            />
+                          ) : (
+                            <div>
+                              <p>
+                                We can use the zip of their{' '}
+                                {displayDestinationType ? 'HOR, HOS or PLEAD:' : 'new duty location:'}
+                                <br />
+                                <strong>
+                                  {newDutyLocationAddress.city}, {newDutyLocationAddress.state}{' '}
+                                  {newDutyLocationAddress.postalCode}{' '}
+                                </strong>
+                              </p>
+                              {displayDestinationType && (
+                                <DropdownInput
+                                  label="Destination type"
+                                  name="destinationType"
+                                  options={shipmentDestinationAddressOptions}
+                                  id="destinationType"
+                                />
+                              )}
+                            </div>
+                          )}
+                        </Fieldset>
+                      </>
                     )}
 
                     <ContactInfoFields
