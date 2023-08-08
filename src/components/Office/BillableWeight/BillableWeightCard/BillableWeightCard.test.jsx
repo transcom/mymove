@@ -96,6 +96,16 @@ describe('BillableWeightCard', () => {
     });
   });
 
+  it('should disable review weights button if no shipments are present', async () => {
+    const shipments = [];
+    renderWithPermission({ shipments });
+
+    const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+
+    expect(reviewWeights).toHaveAttribute('disabled');
+    expect(reviewWeights).toBeDisabled();
+  });
+
   it('displays secondary styling button when flag is set', async () => {
     const shipments = [
       {
