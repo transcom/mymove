@@ -163,7 +163,7 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 		}
 
 		// Look for blocks of code such as "DO"
-		if isAfterSpace(in, i) {
+		if isAfterSpace(in, i) && !inCopyStatement {
 			str, err := in.Range(i, i+3)
 			if err != nil {
 				if err == ErrWait {
