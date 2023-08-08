@@ -5,6 +5,8 @@ import Home from './Home';
 
 import { GetLoggedInUser } from 'utils/api';
 import CUIHeader from 'components/CUIHeader/CUIHeader';
+// Logger
+import { milmoveLogger } from 'utils/milmoveLog';
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
@@ -21,6 +23,11 @@ class AdminWrapper extends Component {
     GetLoggedInUser()
       .then(() => this.setState({ isLoggedIn: true }))
       .catch(() => this.setState({ isLoggedIn: false }));
+  }
+
+  componentDidCatch(error, info) {
+    const { message } = error;
+    milmoveLogger.error({ message, info });
   }
 
   render() {

@@ -16,7 +16,7 @@ import ShipmentCard from 'components/Office/BillableWeight/ShipmentCard/Shipment
 import WeightSummary from 'components/Office/WeightSummary/WeightSummary';
 import EditBillableWeight from 'components/Office/BillableWeight/EditBillableWeight/EditBillableWeight';
 import { useMovePaymentRequestsQueries } from 'hooks/queries';
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { milmoveLogger } from 'utils/milmoveLog';
 import {
   includedStatusesForCalculatingWeights,
   useCalculatedTotalBillableWeight,
@@ -100,7 +100,7 @@ export default function ReviewBillableWeight() {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 
@@ -117,7 +117,7 @@ export default function ReviewBillableWeight() {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 
@@ -133,7 +133,7 @@ export default function ReviewBillableWeight() {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 

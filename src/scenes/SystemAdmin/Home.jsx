@@ -17,7 +17,7 @@ import styles from './Home.module.scss';
 import NotificationList from './Notifications/NotificationList';
 import UploadSearch from './Uploads/UploadSearch';
 
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { milmoveLogger } from 'utils/milmoveLog';
 import CUIHeader from 'components/CUIHeader/CUIHeader';
 import OfficeUserList from 'pages/Admin/OfficeUsers/OfficeUserList';
 import OfficeUserShow from 'pages/Admin/OfficeUsers/OfficeUserShow';
@@ -44,7 +44,7 @@ const httpClient = (url, options = {}) => {
   }
   const token = Cookies.get('masked_gorilla_csrf');
   if (!token) {
-    milmoveLog(MILMOVE_LOG_LEVEL.WARN, 'Unable to retrieve CSRF Token from cookie');
+    milmoveLogger.warn('Unable to retrieve CSRF Token from cookie');
   }
   options.headers.set('X-CSRF-TOKEN', token);
   // send cookies in the request

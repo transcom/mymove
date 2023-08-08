@@ -412,6 +412,8 @@ func initializeTLSConfig(appCtx appcontext.AppContext, v *viper.Viper) *tls.Conf
 
 func initializeRouteOptions(v *viper.Viper, routingConfig *routing.Config) {
 	routingConfig.MaxBodySize = v.GetInt64(cli.MaxBodySizeFlag)
+	routingConfig.ServeClientCollector = v.GetBool(cli.ServeClientCollectorFlag)
+
 	routingConfig.ServeSwaggerUI = v.GetBool(cli.ServeSwaggerUIFlag)
 	routingConfig.ServeOrders = v.GetBool(cli.ServeOrdersFlag)
 	if routingConfig.ServeOrders {

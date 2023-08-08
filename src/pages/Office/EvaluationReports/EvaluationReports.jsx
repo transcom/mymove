@@ -17,7 +17,7 @@ import Alert from 'shared/Alert';
 import { CustomerShape } from 'types';
 import { createCounselingEvaluationReport, deleteEvaluationReport } from 'services/ghcApi';
 import { COUNSELING_EVALUATION_REPORTS, SHIPMENT_EVALUATION_REPORTS } from 'constants/queryKeys';
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { milmoveLogger } from 'utils/milmoveLog';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 
@@ -49,7 +49,7 @@ const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalC
     deleteEvaluationReportMutation(reportID, {
       onError: (error) => {
         const errorMsg = error?.response?.body;
-        milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+        milmoveLogger.error(errorMsg);
       },
       onSuccess: () => {
         // Reroute back to eval report page, include flag to show success alert
@@ -64,7 +64,7 @@ const EvaluationReports = ({ customerInfo, grade, destinationDutyLocationPostalC
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 

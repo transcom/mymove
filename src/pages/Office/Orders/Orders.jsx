@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ordersFormValidationSchema from './ordersFormValidationSchema';
 
 import styles from 'styles/documentViewerWithSidebar.module.scss';
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { milmoveLogger } from 'utils/milmoveLog';
 import { getTacValid, updateOrder } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { tooRoutes, tioRoutes } from 'constants/routes';
@@ -60,7 +60,7 @@ const Orders = () => {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 

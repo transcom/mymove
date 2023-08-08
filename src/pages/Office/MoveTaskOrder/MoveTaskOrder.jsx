@@ -14,7 +14,7 @@ import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
 import ConnectedEditMaxBillableWeightModal from 'components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
 import ConnectedServiceItemUpdateModal from 'components/Office/ServiceItemUpdateModal/ServiceItemUpdateModal';
-import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
+import { milmoveLogger } from 'utils/milmoveLog';
 import { formatAddressForAPI, formatStorageFacilityForAPI, removeEtag } from 'utils/formatMtoShipment';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { findSITAddressUpdate } from 'utils/serviceItems';
@@ -194,7 +194,7 @@ export const MoveTaskOrder = (props) => {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 
@@ -219,7 +219,7 @@ export const MoveTaskOrder = (props) => {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 
@@ -235,7 +235,7 @@ export const MoveTaskOrder = (props) => {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 
@@ -253,7 +253,7 @@ export const MoveTaskOrder = (props) => {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 
@@ -288,7 +288,7 @@ export const MoveTaskOrder = (props) => {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 
@@ -302,7 +302,7 @@ export const MoveTaskOrder = (props) => {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 
@@ -316,7 +316,7 @@ export const MoveTaskOrder = (props) => {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 
@@ -338,7 +338,7 @@ export const MoveTaskOrder = (props) => {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 
@@ -352,7 +352,7 @@ export const MoveTaskOrder = (props) => {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 
@@ -366,15 +366,15 @@ export const MoveTaskOrder = (props) => {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
   /*
-  *
-  -------------------------  Toggle Modals  -------------------------
-                Functions to show and hide modals
-  *
-  */
+    *
+    -------------------------  Toggle Modals  -------------------------
+                  Functions to show and hide modals
+    *
+    */
 
   const handleCancelFinancialReviewModal = () => {
     setIsFinancialModalVisible(false);

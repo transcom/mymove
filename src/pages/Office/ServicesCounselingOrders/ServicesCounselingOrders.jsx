@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ordersFormValidationSchema from '../Orders/ordersFormValidationSchema';
 
 import styles from 'styles/documentViewerWithSidebar.module.scss';
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { milmoveLogger } from 'utils/milmoveLog';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS } from 'constants/orders';
@@ -52,7 +52,7 @@ const ServicesCounselingOrders = () => {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 

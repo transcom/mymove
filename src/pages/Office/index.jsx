@@ -10,6 +10,8 @@ import styles from './Office.module.scss';
 import 'styles/full_uswds.scss';
 import 'scenes/Office/office.scss';
 
+// Logger
+import { milmoveLogger } from 'utils/milmoveLog';
 // API / Redux actions
 import { selectGetCurrentUserIsLoading, selectIsLoggedIn } from 'store/auth/selectors';
 import { loadUser as loadUserAction } from 'store/auth/actions';
@@ -96,6 +98,8 @@ export class OfficeApp extends Component {
   }
 
   componentDidCatch(error, info) {
+    const { message } = error;
+    milmoveLogger.error({ message, info });
     this.setState({
       hasError: true,
       error,

@@ -1,4 +1,4 @@
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { milmoveLogger } from 'utils/milmoveLog';
 
 // In production, we register a service worker to serve assets from local cache.
 
@@ -40,16 +40,16 @@ function registerValidSW(swUrl) {
         installingWorker.onstatechange = () => {
           if (installingWorker.state === 'installed') {
             if (navigator.serviceWorker.controller) {
-              milmoveLog(MILMOVE_LOG_LEVEL.LOG, 'New content is available; please refresh.');
+              milmoveLogger.verbose('New content is available; please refresh.');
             } else {
-              milmoveLog(MILMOVE_LOG_LEVEL.LOG, 'Content is cached for offline use.');
+              milmoveLogger.verbose('Content is cached for offline use.');
             }
           }
         };
       };
     })
     .catch((error) => {
-      milmoveLog(MILMOVE_LOG_LEVEL.ERROR, 'Error during service worker registration:', error);
+      milmoveLogger.error('Error during service worker registration:', error);
     });
 }
 
@@ -71,7 +71,7 @@ function checkValidServiceWorker(swUrl) {
       }
     })
     .catch(() => {
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, 'No internet connection found. App is running in offline mode.');
+      milmoveLogger.warn('No internet connection found. App is running in offline mode.');
     });
 }
 
