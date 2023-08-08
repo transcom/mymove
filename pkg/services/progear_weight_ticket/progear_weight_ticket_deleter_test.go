@@ -8,6 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -64,10 +65,14 @@ func (suite *ProgearWeightTicketSuite) TestDeleteProgearWeightTicket() {
 		return &originalProgearWeightTicket
 	}
 	suite.Run("Returns an error if the original doesn't exist", func() {
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 		notFoundProgearWeightTicketID := uuid.Must(uuid.NewV4())
 		deleter := NewProgearWeightTicketDeleter()
 
-		err := deleter.DeleteProgearWeightTicket(suite.AppContextForTest(), notFoundProgearWeightTicketID)
+		err := deleter.DeleteProgearWeightTicket(session, notFoundProgearWeightTicketID)
 
 		if suite.Error(err) {
 			suite.IsType(apperror.NotFoundError{}, err)
@@ -80,14 +85,17 @@ func (suite *ProgearWeightTicketSuite) TestDeleteProgearWeightTicket() {
 	})
 
 	suite.Run("Successfully deletes as a customer's progear weight ticket", func() {
-		appCtx := suite.AppContextForTest()
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		originalProgearWeightTicket := setupForTest(appCtx, nil, true)
+		originalProgearWeightTicket := setupForTest(session, nil, true)
 
 		deleter := NewProgearWeightTicketDeleter()
 
 		suite.Nil(originalProgearWeightTicket.DeletedAt)
-		err := deleter.DeleteProgearWeightTicket(appCtx, originalProgearWeightTicket.ID)
+		err := deleter.DeleteProgearWeightTicket(session, originalProgearWeightTicket.ID)
 		suite.NoError(err)
 
 		var progearWeightTicketInDB models.ProgearWeightTicket
