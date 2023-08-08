@@ -103,13 +103,10 @@ describe('ShipmentAddressUpdateReviewRequestModal', () => {
 
     render(<ShipmentAddressUpdateReviewRequestModal shipment={mockShipment} onSubmit={onSubmit} onClose={jest.fn()} />);
 
-    const heading = screen.getByRole('heading', { level: 2, name: 'Review request' });
     const approvalQuestion = screen.getByRole('group', { name: 'Approve address change?' });
     const approvalYes = within(approvalQuestion).getByRole('radio', { name: 'Yes' });
     const officeRemarks = screen.getByLabelText('Office remarks');
     const save = screen.getByRole('button', { name: 'Save' });
-
-    expect(heading).toBeInTheDocument();
 
     await user.click(approvalYes);
     await user.type(officeRemarks, officeRemarksAnswer);

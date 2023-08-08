@@ -23,10 +23,10 @@ const formSchema = Yup.object().shape({
 });
 
 export const ShipmentAddressUpdateReviewRequestModal = ({ onSubmit, shipment, errorMessage, onClose }) => {
-  const handleSubmit = (values, { setSubmitting }) => {
+  const handleSubmit = async (values, { setSubmitting }) => {
     const { addressUpdateReviewStatus, officeRemarks } = values;
 
-    onSubmit(shipment.id, shipment.eTag, addressUpdateReviewStatus, officeRemarks);
+    await onSubmit(shipment.id, shipment.eTag, addressUpdateReviewStatus, officeRemarks);
 
     setSubmitting(false);
   };

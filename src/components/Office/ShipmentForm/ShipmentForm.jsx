@@ -38,6 +38,7 @@ import { ADDRESS_UPDATE_STATUS, shipmentDestinationTypes } from 'constants/shipm
 import { officeRoles, roleTypes } from 'constants/userRoles';
 import { deleteShipment, reviewShipmentAddressUpdate, updateMoveCloseoutOffice } from 'services/ghcApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import MilMoveAlert from 'shared/Alert';
 import formStyles from 'styles/form.module.scss';
 import { AccountingCodesShape } from 'types/accountingCodes';
 import { AddressShape, SimpleAddressShape } from 'types/address';
@@ -117,6 +118,10 @@ const ShipmentForm = (props) => {
       setSuccessMessage('Changes sent to contractor.');
       setShipmentAddressUpdateReviewErrorMessage(null);
       setIsAddressChangeModalOpen(false);
+      // After successfully updating, re-fetch MTO Shipments to get the shipment's updated address change request status
+      queryClient
+        .invalidateQueries([MTO_SHIPMENTS, moveTaskOrderID])
+        .then(() => queryClient.refetchQueries([MTO_SHIPMENTS, moveTaskOrderID]));
     },
     onError: () => {
       setSuccessMessage(null);
@@ -141,7 +146,7 @@ const ShipmentForm = (props) => {
     });
   };
 
-  const handleSubmitShipmentAddressUpdateReview = (shipmentID, shipmentETag, status, officeRemarks) => {
+  const handleSubmitShipmentAddressUpdateReview = async (shipmentID, shipmentETag, status, officeRemarks) => {
     mutateShipmentAddressUpdateReview({
       shipmentID,
       ifMatchETag: shipmentETag,
@@ -501,7 +506,11 @@ const ShipmentForm = (props) => {
               </Alert>
             )}
             <NotificationScrollToTop dependency={successMessage} />
-            {successMessage && <Alert type="success">{successMessage}</Alert>}
+            {successMessage && (
+              <MilMoveAlert type="success" onRemove={() => setSuccessMessage(null)}>
+                {successMessage}
+              </MilMoveAlert>
+            )}
             {isTOO && mtoShipment.usesExternalVendor && (
               <Alert headingLevel="h4" type="warning">
                 The GHC prime contractor is not handling the shipment. Information will not be automatically shared with
