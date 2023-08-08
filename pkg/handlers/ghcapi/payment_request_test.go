@@ -582,7 +582,39 @@ func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 	suite.Run("successful response of the shipments SIT Balance handler", func() {
 		officeUserTIO := setupTestData()
 
-		now := time.Now()
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		thirtyDaySITExtensionRequest := 30
+		factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.SITDurationUpdate{
+					Status:        models.SITExtensionStatusApproved,
+					RequestedDays: thirtyDaySITExtensionRequest,
+					ApprovedDays:  &thirtyDaySITExtensionRequest,
+				},
+			},
+		}, nil)
 
 		reviewedPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -591,14 +623,10 @@ func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 				},
 			},
 			{
-				Model: models.Move{
-					Status:             models.MoveStatusAPPROVED,
-					AvailableToPrimeAt: &now,
-				},
+				Model:    move,
+				LinkOnly: true,
 			},
 		}, nil)
-
-		move := reviewedPaymentRequest.MoveTaskOrder
 
 		pendingPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
@@ -614,7 +642,6 @@ func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 
 		year, month, day := time.Now().Date()
 		originEntryDate := time.Date(year, month, day-120, 0, 0, 0, 0, time.UTC)
-		sitDaysAllowance := 120
 
 		doasit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -629,18 +656,14 @@ func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 				},
 			},
 			{
-				Model: models.MTOShipment{
-					Status:           models.MTOShipmentStatusApproved,
-					SITDaysAllowance: &sitDaysAllowance,
-				},
+				Model:    shipment,
+				LinkOnly: true,
 			},
 			{
 				Model:    move,
 				LinkOnly: true,
 			},
 		}, nil)
-
-		shipment := doasit.MTOShipment
 		// Creates the payment service item for DOASIT w/ SIT start date param
 		doasitParam := factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
 			{
@@ -664,6 +687,33 @@ func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 			},
 			{
 				Model:    doasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+		}, nil)
+		originDepartureDate := originEntryDate.AddDate(0, 0, 90)
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:           models.MTOServiceItemStatusApproved,
+					SITEntryDate:     &originEntryDate,
+					SITDepartureDate: &originDepartureDate,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOPSIT,
+				},
+			},
+			{
+				Model:    shipment,
 				LinkOnly: true,
 			},
 			{
