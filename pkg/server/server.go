@@ -222,21 +222,26 @@ func certRevokedCheck(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) e
 	var req *http.Request
 	cert := verifiedChains[0][0]       // first argument verifies the client cert, second index 0 is the client cert
 	issuerCert := verifiedChains[0][1] // second index of 1 is the issuer of the cert
-	ocspResponse, err := getOCSPResponse(cert.OCSPServer[0], req, issuerCert)
 
-	if err != nil {
-		//return err, the revocation list was not checked and an error was encountered.
-		return getCRLResponse(cert, issuerCert)
-	}
-	switch ocspResponse.Status {
-	case ocsp.Good:
-		fmt.Printf("[+] Certificate status: Good. It is still valid\n")
-	case ocsp.Revoked:
-		fmt.Printf("[!] Certificate status: Revoked.\n")
-		return fmt.Errorf("The certificate was revoked!  The application can not trust the certificate.")
-	case ocsp.Unknown:
-		fmt.Printf("[?] Certificate status: Unknown\n")
-		return fmt.Errorf("The certificate is unknown to OCSP server! The server does not know about the existence of the certificate serial number.")
+	// set server, if the OCSP server is not nil, check that there is something in it.
+	if len(cert.OCSPServer) > 0 {
+		ocspResponse, err := getOCSPResponse(cert.OCSPServer[0], req, issuerCert)
+		if err != nil {
+			//return err, the revocation list was not checked and an error was encountered.
+			return getCRLResponse(cert, issuerCert)
+		}
+
+		switch ocspResponse.Status {
+		case ocsp.Good:
+			fmt.Printf("[+] Certificate status: Good. It is still valid\n")
+		case ocsp.Revoked:
+			fmt.Printf("[!] Certificate status: Revoked.\n")
+			return fmt.Errorf("The certificate was revoked!  The application can not trust the certificate.")
+		case ocsp.Unknown:
+			fmt.Printf("[?] Certificate status: Unknown\n")
+			getCRLResponse(cert, issuerCert)
+			return fmt.Errorf("The certificate is unknown to OCSP server! The server does not know about the existence of the certificate serial number. Checking the CRL instead")
+		}
 	}
 
 	fmt.Printf("Server certificate was allowed\n")
@@ -280,8 +285,14 @@ func CreateNamedServer(input *CreateNamedServerInput) (*NamedServer, error) {
 			MinVersion:               tls.VersionTLS12,
 			NextProtos:               []string{"h2"},
 			PreferServerCipherSuites: true,
-			VerifyPeerCertificate:    certRevokedCheck,
+			//VerifyPeerCertificate:    certRevokedCheck,
 		}
+		//option 1: if devLocal flag to switch between APIs that use mtls connection and those that do not
+		//if auth.ApplicationServername == "AdminServername" || "PrimeServername" || "OrdersServername" {
+		tlsConfig.VerifyPeerCertificate = certRevokedCheck
+		//}
+
+		//Option 2: set flag when server starts up that can turn off or on to test locally.
 	}
 
 	// wrappedHandler includes the name of the server in the context
