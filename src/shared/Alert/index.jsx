@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 // this is taken from https://designsystem.digital.gov/components/alerts/
 const Alert = (props) => (
-  <div className={`usa-alert usa-alert--${props.type}`}>
+  <div className={`usa-alert usa-alert--${props.type}`} role={props.role}>
     <div className="usa-alert__body">
       <div className="body--heading">
         {props.type === 'loading' ? (

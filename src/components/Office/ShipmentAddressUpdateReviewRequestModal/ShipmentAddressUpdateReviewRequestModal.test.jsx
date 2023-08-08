@@ -78,6 +78,24 @@ describe('ShipmentAddressUpdateReviewRequestModal', () => {
     });
   });
 
+  it('displays an errorMessage', () => {
+    const errorText = 'An error!!';
+
+    render(
+      <ShipmentAddressUpdateReviewRequestModal
+        shipment={mockShipment}
+        errorMessage={errorText}
+        onSubmit={jest.fn()}
+        onClose={jest.fn()}
+      />,
+    );
+
+    const errorMessage = screen.getByRole('alert');
+
+    expect(errorMessage).toBeInTheDocument();
+    expect(errorMessage).toHaveTextContent(errorText);
+  });
+
   it('Runs an onClose callback on close', async () => {
     const user = userEvent.setup();
 
