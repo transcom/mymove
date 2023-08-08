@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { v4 as uuidv4 } from 'uuid';
 
 import { ShipmentAddressUpdateReviewRequestModal } from './ShipmentAddressUpdateReviewRequestModal';
 
@@ -32,7 +31,7 @@ const mockDeliveryAddressUpdate = {
 };
 
 const mockShipment = {
-  id: uuidv4(),
+  id: '5c84bcf3-92f7-448f-b0e1-e5378b6806df',
   shipmentType: shipmentTypes.HHG,
   deliveryAddressUpdate: mockDeliveryAddressUpdate,
   eTag: 'eTag',
