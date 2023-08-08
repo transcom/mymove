@@ -27,6 +27,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -91,8 +92,8 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 		}, nil)
 
 		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveID}/status", nil)
-		requestUser := factory.BuildUser(nil, nil, nil)
-		request = suite.AuthenticateUserRequest(request, requestUser)
+		requestUser := factory.BuildOfficeUser(nil, nil, nil)
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 		traceID, err := uuid.NewV4()
 		suite.FatalNoError(err, "Error creating a new trace ID.")
@@ -109,6 +110,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 			ServiceItemCodes: &serviceItemCodes,
 		}
 		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
