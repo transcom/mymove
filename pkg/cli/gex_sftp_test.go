@@ -19,7 +19,7 @@ func (suite *cliTestSuite) TestConfigGEXSFTP() {
 	err = os.Setenv("GEX_SFTP_PASSWORD", "FAKE PASSWORD")
 	suite.FatalNoError(err)
 
-	err = os.Setenv("GEX_SFTP_PRIVATE_KEY", "FAKEKEY")
+	err = os.Setenv("GEX_PRIVATE_KEY", "FAKEKEY")
 	suite.FatalNoError(err)
 
 	// generated fake host key to pass parser used following command and only saved the pub key

@@ -93,7 +93,7 @@ func CheckGEXSFTP(v *viper.Viper) error {
 
 	privateKey := v.GetString(GEXPrivateKeyFlag)
 	if privateKey == "" {
-		return fmt.Errorf("Invalid credentials SFTP missing GEX_SFTP_PRIVATE_KEY")
+		return fmt.Errorf("Invalid credentials SFTP missing GEX_PRIVATE_KEY")
 	}
 
 	return ValidateHost(v, GEXSFTPIPAddressFlag)
