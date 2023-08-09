@@ -666,7 +666,7 @@ const ShipmentForm = (props) => {
                       </Fieldset>
                     ) : (
                       <>
-                        <p className={classNames('usa-legend', styles.mockLegend)}>Delivery Location</p>
+                        <p className={classNames('usa-legend', styles.mockLegend)}>Delivery location</p>
                         {deliveryAddressUpdateRequested && (
                           <Alert type="error" slim className={styles.deliveryAddressUpdateAlert}>
                             <span className={styles.deliveryAddressUpdateAlertContent}>
