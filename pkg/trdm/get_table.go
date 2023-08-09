@@ -115,22 +115,18 @@ func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physical
 			},
 		},
 	}
-	response, err := d.soapClient.Call("ProcessRequest", params)
-	if err != nil {
+	if response, err := d.soapClient.Call("ProcessRequest", params); err == nil {
+		var r GetTableResponseElement
+		if unmarshalErr := response.Unmarshal(&r); unmarshalErr != nil {
+			return fmt.Errorf("unmarshall error: %s", unmarshalErr.Error())
+		}
+		if r.Output.TRDM.Status.StatusCode == successResponseString {
+			println("Hi")
+		}
+		appCtx.Logger().Debug("getTable result", zap.Any("processRequestResponse", response))
+
+	} else {
 		return fmt.Errorf("call error: %s", err.Error())
 	}
-
-	var r GetTableResponseElement
-	unmarshalErr := response.Unmarshal(&r)
-	if unmarshalErr != nil {
-		return fmt.Errorf("unmarshall error: %s", unmarshalErr.Error())
-	}
-
-	if r.Output.TRDM.Status.StatusCode == successResponseString {
-		println("Hi")
-	}
-
-	appCtx.Logger().Debug("getTable result", zap.Any("processRequestResponse", response))
-
 	return nil
 }
