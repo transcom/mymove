@@ -71,12 +71,28 @@
     }
   }
 
+  .mockLegend {
+    width: 100%;
+    max-width: none;
+    @include u-text('bold');
+    @include typeset('body', 9, 2);
+    margin-bottom: 0;
+  }
+
   .deliveryAddressUpdateAlert {
+    margin-top: 24px;
+  }
+
+  .deliveryAddressUpdateAlertContent {
     font-size: 13px;
+    font-weight: normal;
 
     .reviewRequestLink {
-      font-weight: 400;
+      font-size: 13px;
+      padding: 0;
+      display: inline;
       cursor: pointer;
+      text-decoration: underline;
     }
   }
 

@@ -96,7 +96,7 @@ describe('ShipmentAddressUpdateReviewRequestModal', () => {
     expect(errorMessage).toHaveTextContent(errorText);
   });
 
-  it('Runs an onClose callback on close', async () => {
+  it('Runs an onClose callback on cancel', async () => {
     const user = userEvent.setup();
 
     const onClose = jest.fn();
@@ -108,6 +108,22 @@ describe('ShipmentAddressUpdateReviewRequestModal', () => {
     expect(cancel).toBeInTheDocument();
 
     await user.click(cancel);
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('Runs an onClose callback on close', async () => {
+    const user = userEvent.setup();
+
+    const onClose = jest.fn();
+
+    render(<ShipmentAddressUpdateReviewRequestModal shipment={mockShipment} onSubmit={jest.fn()} onClose={onClose} />);
+
+    const close = screen.getByTestId('modalCloseButton');
+
+    expect(close).toBeInTheDocument();
+
+    await user.click(close);
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });

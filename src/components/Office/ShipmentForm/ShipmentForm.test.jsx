@@ -216,7 +216,11 @@ describe('ShipmentForm component', () => {
 
       expect(screen.getByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText('Delivery location')).toBeInstanceOf(HTMLLegendElement);
+      const deliveryLocationSectionHeadings = screen.getAllByText('Delivery location');
+      expect(deliveryLocationSectionHeadings).toHaveLength(2);
+      expect(deliveryLocationSectionHeadings[0]).toBeInstanceOf(HTMLParagraphElement);
+      expect(deliveryLocationSectionHeadings[1]).toBeInstanceOf(HTMLLegendElement);
+      expect(deliveryLocationSectionHeadings[1]).toHaveClass('usa-sr-only');
       expect(screen.getAllByLabelText('Yes')[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('Yes')[1]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('No')[0]).toBeInstanceOf(HTMLInputElement);
@@ -425,6 +429,32 @@ describe('ShipmentForm component', () => {
         'Pending delivery location change request needs review. Review request to proceed.',
       );
     });
+  });
+
+  it('opens a modal when Review Request is clicked', async () => {
+    const user = userEvent.setup();
+
+    const shipmentType = SHIPMENT_OPTIONS.HHG;
+
+    renderWithRouter(
+      <ShipmentForm
+        {...defaultPropsRetirement}
+        isCreatePage={false}
+        shipmentType={shipmentType}
+        mtoShipment={{ ...mockShipmentWithDestinationType, ...mockDeliveryAddressUpdate, shipmentType }}
+        displayDestinationType
+      />,
+    );
+
+    const queryForModalHeader = () => screen.queryByRole('heading', { name: 'Review request' });
+
+    const reviewRequestLink = await screen.findByRole('button', { name: 'Review request' });
+
+    expect(queryForModalHeader()).not.toBeInTheDocument();
+
+    await user.click(reviewRequestLink);
+
+    await waitFor(() => expect(queryForModalHeader()).toBeInTheDocument());
   });
 
   describe('creating a new NTS shipment', () => {
