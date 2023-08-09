@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ShipmentForm from './ShipmentForm';
@@ -431,7 +431,7 @@ describe('ShipmentForm component', () => {
     });
   });
 
-  it('opens a modal when Review Request is clicked', async () => {
+  it('opens a closeable modal when Review Request is clicked', async () => {
     const user = userEvent.setup();
 
     const shipmentType = SHIPMENT_OPTIONS.HHG;
@@ -446,15 +446,27 @@ describe('ShipmentForm component', () => {
       />,
     );
 
-    const queryForModalHeader = () => screen.queryByRole('heading', { name: 'Review request' });
+    const queryForModal = () => screen.queryByTestId('modal');
 
     const reviewRequestLink = await screen.findByRole('button', { name: 'Review request' });
 
-    expect(queryForModalHeader()).not.toBeInTheDocument();
+    // confirm the modal is not already present
+    expect(queryForModal()).not.toBeInTheDocument();
 
+    // Open the modal
     await user.click(reviewRequestLink);
 
-    await waitFor(() => expect(queryForModalHeader()).toBeInTheDocument());
+    await waitFor(() => expect(queryForModal()).toBeInTheDocument());
+
+    // Close the modal
+    const modalCancel = within(queryForModal()).queryByText('Cancel');
+
+    expect(modalCancel).toBeInTheDocument();
+
+    await user.click(modalCancel);
+
+    // Confirm the modal has been closed
+    expect(queryForModal()).not.toBeInTheDocument();
   });
 
   describe('creating a new NTS shipment', () => {
