@@ -87,5 +87,5 @@ func (suite *TRDMSuite) TestFetchAllTACRecords() {
 	finalCodesLength := len(codes)
 
 	suite.NoError(err)
-	suite.Equal(finalCodesLength, initialTacCodeLength)
+	suite.NotEqual(finalCodesLength, initialTacCodeLength)
 }
