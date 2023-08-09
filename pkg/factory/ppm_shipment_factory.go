@@ -426,9 +426,8 @@ func buildPPMShipmentReadyForFinalCustomerCloseOutWithCustoms(db *pop.Connection
 //
 // This function does not accept customizations to reduce the
 // complexity of supporting different variations for tests
-func BuildPPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
-	return buildPPMShipmentReadyForFinalCustomerCloseOutWithCustoms(db, userUploader,
-		nil)
+func BuildPPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, userUploader *uploader.UserUploader, customs []Customization) models.PPMShipment {
+	return buildPPMShipmentReadyForFinalCustomerCloseOutWithCustoms(db, userUploader, customs)
 }
 
 // BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes
@@ -442,7 +441,7 @@ func BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(db *pop.Connec
 	// It's easier to use some of the data from other downstream
 	// functions if we have them go first and then make our changes on
 	// top of those changes.
-	ppmShipment := BuildPPMShipmentReadyForFinalCustomerCloseOut(db, userUploader)
+	ppmShipment := BuildPPMShipmentReadyForFinalCustomerCloseOut(db, userUploader, nil)
 
 	AddProgearWeightTicketToPPMShipment(db, &ppmShipment, userUploader, nil)
 	AddMovingExpenseToPPMShipment(db, &ppmShipment, userUploader, nil)

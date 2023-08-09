@@ -85,7 +85,7 @@ func (suite *PPMShipmentSuite) TestSubmitNewCustomerCloseOut() {
 	})
 
 	suite.Run("Returns an error if creating a new signed certification fails", func() {
-		existingPPMShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil)
+		existingPPMShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			UserID: existingPPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID,
@@ -114,7 +114,7 @@ func (suite *PPMShipmentSuite) TestSubmitNewCustomerCloseOut() {
 	})
 
 	suite.Run("Returns an error if submitting the close out documentation fails", func() {
-		existingPPMShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil)
+		existingPPMShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			UserID: existingPPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID,
@@ -146,7 +146,7 @@ func (suite *PPMShipmentSuite) TestSubmitNewCustomerCloseOut() {
 	})
 
 	suite.Run("Can create a signed certification and route the PPMShipment properly", func() {
-		existingPPMShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil)
+		existingPPMShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			UserID: existingPPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID,
