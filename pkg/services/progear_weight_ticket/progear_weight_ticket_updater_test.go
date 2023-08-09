@@ -388,3 +388,75 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 		})
 	})
 }
+
+func (suite *ProgearWeightTicketSuite) TestFetchProgearWeightTicketByIDExcludeDeletedUploads() {
+	// setupForFetchTest := func(overrides *models.ProgearWeightTicket, hasdocFiles bool) *models.ProgearWeightTicket {
+	// serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+	var progearWeightTicket models.ProgearWeightTicket
+	var serviceMember models.ServiceMember
+	suite.PreloadData(func() {
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+		serviceMember = ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+
+		document := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
+
+		progearWeightTicket = factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+			{
+				Model:    document,
+				LinkOnly: true,
+			},
+			{
+				Model:    serviceMember,
+				LinkOnly: true,
+			},
+			{
+				Model:    ppmShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ProgearWeightTicket{
+					DocumentID:    document.ID,
+					PPMShipmentID: ppmShipment.ID,
+				},
+			},
+		}, nil)
+	})
+
+	// Test successful fetch
+	suite.Run("Returns a progear weight ticket successfully with correct ID", func() {
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: serviceMember.ID,
+		})
+		fetchedProgearWeightTicket, err := FetchProgearWeightTicketByIDExcludeDeletedUploads(session, progearWeightTicket.ID)
+		suite.NoError(err)
+		suite.Equal(progearWeightTicket.ID, fetchedProgearWeightTicket.ID)
+	})
+
+	// Test 404 fetch
+	suite.Run("Returns not found error when progear weight ticket id doesn't exist", func() {
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: serviceMember.ID,
+		})
+		progearID := uuid.Must(uuid.NewV4())
+		expectedError := apperror.NewNotFoundError(progearID, "while looking for ProgearWeightTicket")
+
+		progear, err := FetchProgearWeightTicketByIDExcludeDeletedUploads(session, progearID)
+
+		suite.Nil(progear)
+		suite.Equalf(err, expectedError, "while looking for ProgearWeightTicket")
+	})
+
+	suite.Run("404 Not Found Error - progear can only be fetched for service member associated with the current session", func() {
+		maliciousSession := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: uuid.Must(uuid.NewV4()),
+		})
+
+		progear, err := FetchProgearWeightTicketByIDExcludeDeletedUploads(maliciousSession, progearWeightTicket.ID)
+		suite.Error(err)
+		suite.Nil(progear)
+		suite.IsType(apperror.NotFoundError{}, err)
+	})
+}
