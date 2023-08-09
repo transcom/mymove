@@ -232,6 +232,8 @@ type Session struct {
 	AdminUserRole   string
 	Roles           roles.Roles
 	Permissions     []string
+	AccessToken     string
+	ClientID        string
 }
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data

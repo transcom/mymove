@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/authentication"
+	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
@@ -60,7 +61,7 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig.SetFileStorer(fakeS3)
 
-	fakeOktaProvider := authentication.NewOktaProvider(suite.Logger())
+	fakeOktaProvider := okta.NewOktaProvider(suite.Logger())
 	authContext := authentication.NewAuthContext(suite.Logger(), *fakeOktaProvider, "http", 80)
 
 	fakeFs := afero.NewMemMapFs()

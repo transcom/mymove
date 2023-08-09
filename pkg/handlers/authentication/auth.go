@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
@@ -23,6 +24,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -456,10 +458,8 @@ func (context *Context) GetFeatureFlag(flag string) bool {
 }
 
 // Context is the common handler type for auth handlers
-// TODO: Remove loginGov
 type Context struct {
-	loginGovProvider LoginGovProvider
-	oktaProvider     OktaProvider
+	oktaProvider     okta.OktaProvider
 	callbackTemplate string
 	featureFlags     map[string]bool
 }
@@ -471,7 +471,7 @@ type FeatureFlag struct {
 }
 
 // NewAuthContext creates an Context
-func NewAuthContext(_ *zap.Logger, oktaProvider OktaProvider, callbackProtocol string, callbackPort int) Context {
+func NewAuthContext(_ *zap.Logger, oktaProvider okta.OktaProvider, callbackProtocol string, callbackPort int) Context {
 	context := Context{
 		oktaProvider:     oktaProvider,
 		callbackTemplate: fmt.Sprintf("%s://%%s:%d/", callbackProtocol, callbackPort),
@@ -479,7 +479,7 @@ func NewAuthContext(_ *zap.Logger, oktaProvider OktaProvider, callbackProtocol s
 	return context
 }
 
-// LogoutHandler handles logging the user out of login.gov
+// LogoutHandler handles logging the user out of okta.mil
 type LogoutHandler struct {
 	Context
 	handlers.HandlerConfig
@@ -494,6 +494,7 @@ func NewLogoutHandler(ac Context, hc handlers.HandlerConfig) LogoutHandler {
 	return logoutHandler
 }
 
+// !Needs to be finalized after sessions.
 func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	appCtx := h.AppContextFromRequest(r)
 	if appCtx.Session() != nil {
@@ -507,18 +508,13 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if appCtx.Session().IDToken != "" {
 			var logoutURL string
 			// All users logged in via devlocal-auth will have this IDToken. We
-			// don't want to make a call to login.gov for a logout URL as it will
+			// don't want to make a call to okta.mil for a logout URL as it will
 			// fail for devlocal-auth'ed users.
 			if appCtx.Session().IDToken == "devlocal" {
 				logoutURL = redirectURL
 			} else {
-				provider, err := getLoginGovProviderForRequest(r, h.loginGovProvider)
-				if err != nil {
-					appCtx.Logger().Error("Failed to get provider from request", zap.Error(err))
-					http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-					return
-				}
-				logoutURL = h.loginGovProvider.LogoutURL(redirectURL, provider.ClientKey())
+				//TODO: Error handling
+				logoutURL, _ = h.oktaProvider.LogoutURL(appCtx.Session().Hostname, redirectURL, appCtx.Session().ClientID)
 			}
 			if !appCtx.Session().UserID.IsNil() {
 				err := resetUserCurrentSessionID(appCtx)
@@ -534,7 +530,7 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			appCtx.Logger().Info("user logged out")
 			fmt.Fprint(w, logoutURL)
 		} else {
-			// Can't log out of login.gov without a token, redirect and let them re-auth
+			// Can't log out of okta.mil without a token, redirect and let them re-auth
 			appCtx.Logger().Info("session exists but has an empty IDToken")
 
 			if appCtx.Session().UserID != uuid.Nil {
@@ -555,9 +551,9 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// loginStateCookieName is the name given to the cookie storing the encrypted Login.gov state nonce.
-const loginStateCookieName = "lg_state"
-const loginStateCookieTTLInSecs = 1800 // 30 mins to transit through login.gov.
+// loginStateCookieName is the name given to the cookie storing the encrypted okta.mil state nonce.
+const loginStateCookieName = "okta_state"
+const loginStateCookieTTLInSecs = 1800 // 30 mins to transit through okta.mil.
 
 // RedirectHandler handles redirection
 type RedirectHandler struct {
@@ -579,13 +575,13 @@ func shaAsString(nonce string) string {
 	return hex.EncodeToString(s[:])
 }
 
-// StateCookieName returns the login.gov state cookie name
+// StateCookieName returns the okta.mil state cookie name
 func StateCookieName(session *auth.Session) string {
 	return fmt.Sprintf("%s_%s", string(session.ApplicationName), loginStateCookieName)
 }
 
-// RedirectHandler constructs the Login.gov authentication URL and redirects to it
-// TODO: More login.gov to Okta
+// RedirectHandler constructs the okta.mil authentication URL and redirects to it
+// This will be called when logging in
 func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	appCtx := h.AppContextFromRequest(r)
 
@@ -601,8 +597,8 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Hash the state/Nonce value sent to login.gov and set the result as an HttpOnly cookie
-	// Check this when we return from login.gov
+	// Hash the state/Nonce value sent to okta.mil and set the result as an HttpOnly cookie
+	// Check this when we return from okta.mil
 	if appCtx.Session() == nil {
 		appCtx.Logger().Error("Session is nil, so cannot get hostname for state Cookie")
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -626,7 +622,7 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	appCtx.Logger().Info("User has been redirected", zap.Any("redirectURL", loginData.RedirectURL))
 }
 
-// CallbackHandler processes a callback from login.gov
+// CallbackHandler processes a callback from okta.mil
 type CallbackHandler struct {
 	Context
 	handlers.HandlerConfig
@@ -646,7 +642,7 @@ func NewCallbackHandler(ac Context, hc handlers.HandlerConfig, sender notificati
 // invalidPermissionsResponse generates an http response when invalid
 // permissions are encountered. It *also* saves the session
 // information. This is needed so we have the necessary info to create
-// a redirect to logout of login.gov
+// a redirect to logout of okta.mil
 func invalidPermissionsResponse(appCtx appcontext.AppContext, handlerConfig handlers.HandlerConfig, authContext Context, w http.ResponseWriter, r *http.Request) {
 
 	sessionManager := handlerConfig.SessionManagers().SessionManagerForApplication(appCtx.Session().ApplicationName)
@@ -678,7 +674,7 @@ func invalidPermissionsResponse(appCtx appcontext.AppContext, handlerConfig hand
 	}
 
 	// We need to redirect here because we got to this handler after a
-	// redirect from login.gov. Our client application did not make
+	// redirect from okta.mil. Our client application did not make
 	// this request, so we need to redirect to the client app so that
 	// we can present a "pretty" error page to the user
 	appCtx.Logger().Info("Redirect invalid permissions",
@@ -731,12 +727,12 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check the state value sent back from login.gov with the value saved in the cookie
+	// Check the state value sent back from okta.mil with the value saved in the cookie
 	returnedState := r.URL.Query().Get("state")
 	stateCookieName := StateCookieName(appCtx.Session())
 	stateCookie, err := r.Cookie(stateCookieName)
 	if err != nil {
-		appCtx.Logger().Error("Getting login.gov state cookie",
+		appCtx.Logger().Error("Getting okta.mil state cookie",
 			zap.String("stateCookieName", stateCookieName),
 			zap.String("sessionUserId", appCtx.Session().UserID.String()),
 			zap.Error(err))
@@ -744,26 +740,26 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		landingQuery.Add("error", "STATE_COOKIE_MISSING")
 		landingURL.RawQuery = landingQuery.Encode()
 		http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
-		appCtx.Logger().Info("User redirected from login.gov", zap.String("landingURL", landingURL.String()))
+		appCtx.Logger().Info("User redirected from okta.mil", zap.String("landingURL", landingURL.String()))
 		return
 	}
 
 	hash := stateCookie.Value
 	// case where user has 2 tabs open with different cookies
 	if hash != shaAsString(returnedState) {
-		appCtx.Logger().Error("State returned from Login.gov does not match state value stored in cookie",
+		appCtx.Logger().Error("State returned from okta.mil does not match state value stored in cookie",
 			zap.String("state", returnedState),
 			zap.String("cookie", hash),
 			zap.String("hash", shaAsString(returnedState)))
 
-		// Delete lg_state cookie
+		// Delete okta_state cookie
 		auth.DeleteCookie(w, StateCookieName(appCtx.Session()))
-		appCtx.Logger().Info("lg_state cookie deleted")
+		appCtx.Logger().Info("okta_state cookie deleted")
 
 		// This operation will delete all cookies from the session
 		err = sessionManager.Destroy(r.Context())
 		if err != nil {
-			appCtx.Logger().Error("Deleting login.gov state cookie", zap.Error(err))
+			appCtx.Logger().Error("Deleting okta.mil state cookie", zap.Error(err))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
@@ -777,26 +773,49 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	provider, err := getLoginGovProviderForRequest(r, h.loginGovProvider)
-	if err != nil {
-		appCtx.Logger().Error("Get Goth provider", zap.Error(err))
+	// Exchange code received from login for access token. This is used during the grant_type auth flow
+	exchange := exchangeCode(r.URL.Query().Get("code"), r, appCtx, hash)
+	if exchange.Error != "" {
+		fmt.Println(exchange.Error)
+		fmt.Println(exchange.ErrorDescription)
+		return
+	}
+	// Gather Okta org url
+	orgURL := os.Getenv("OKTA_CUSTOMER_HOSTNAME")
+	if appCtx.Session().IsOfficeApp() {
+		orgURL = os.Getenv("OKTA_OFFICE_HOSTNAME")
+	} else if appCtx.Session().IsAdminApp() {
+		orgURL = os.Getenv("OKTA_ADMIN_HOSTNAME")
+	}
+
+	// Verify access token
+	_, verificationError := verifyToken(exchange.IdToken, returnedState, appCtx.Session(), orgURL)
+
+	if verificationError != nil {
+		appCtx.Logger().Error("token exchange verification", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 
-	openIDUser, idToken, err := provider.FetchUserAndIDTokenByCode(r.URL.Query().Get("code"))
-	if err != nil {
-		appCtx.Logger().Error("Login.gov user info request", zap.Error(err))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return
-	}
+	// Assign token values to session
+	appCtx.Session().IDToken = exchange.IdToken
+	appCtx.Session().AccessToken = exchange.AccessToken
 
-	appCtx.Session().IDToken = idToken
-	appCtx.Session().Email = openIDUser.Email
+	// Retrieve user info
+	profileData := getProfileData(r, appCtx, orgURL)
 
-	appCtx.Logger().Info("New Login", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email), zap.String("Host", appCtx.Session().Hostname))
+	// ! Continuing with sessions
+	// TODO: convert profiledata into struct. Previous implementation used goth.User
 
-	result := authorizeUser(r.Context(), appCtx, openIDUser, sessionManager, h.sender)
+	appCtx.Session().IDToken = exchange.IdToken
+	appCtx.Session().Email = profileData["email"]
+	appCtx.Session().ClientID = profileData["aud"]
+
+	appCtx.Logger().Info("New Login", zap.String("Okta user", profileData["preferred_username"]), zap.String("Okta email", profileData["email"]), zap.String("Host", appCtx.Session().Hostname))
+	// ! Hard coded error auth result. This is because sessions are TODO
+	// TODO: Implement sessions and remove hard coded auth result error
+	result := AuthorizationResult(2)
+	//result := authorizeUser(r.Context(), appCtx, profileData["sub"], sessionManager, h.sender)
 	switch result {
 	case authorizationResultError:
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -812,9 +831,9 @@ func authorizeUser(ctx context.Context, appCtx appcontext.AppContext, openIDUser
 
 	if err == nil {
 		// In this case, we found an existing user associated with the
-		// unique login.gov UUID (aka OID_User, aka openIDUser.UserID,
+		// unique okta.mil UUID (aka OID_User, aka openIDUser.UserID,
 		// aka models.User.login_gov_uuid)
-		appCtx.Logger().Info("Known user: found by login.gov OID_User, checking authorization", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email), zap.String("user.id", userIdentity.ID.String()), zap.String("user.login_gov_email", userIdentity.Email))
+		appCtx.Logger().Info("Known user: found by okta.mil OID_User, checking authorization", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email), zap.String("user.id", userIdentity.ID.String()), zap.String("user.login_gov_email", userIdentity.Email))
 		result := AuthorizeKnownUser(ctx, appCtx, userIdentity, sessionManager)
 		appCtx.Logger().Info("Known user authorization",
 			zap.Any("authorizedResult", result),
@@ -823,11 +842,11 @@ func authorizeUser(ctx context.Context, appCtx appcontext.AppContext, openIDUser
 		return result
 	} else if err == models.ErrFetchNotFound { // Never heard of them
 		// so far In this case, we can't find an existing user
-		// associated with the unique login.gov UUID (aka OID_User,
+		// associated with the unique okta.mil UUID (aka OID_User,
 		// aka openIDUser.UserID, aka models.User.login_gov_uuid).
 		// The authorizeUnknownUser method tries to find a user record
 		// with a matching email address
-		appCtx.Logger().Info("Unknown user: not found by login.gov OID_User, associating email and checking authorization", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email))
+		appCtx.Logger().Info("Unknown user: not found by okta.mil OID_User, associating email and checking authorization", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email))
 		result := authorizeUnknownUser(ctx, appCtx, openIDUser, sessionManager, notificationSender)
 		appCtx.Logger().Info("Unknown user authorization",
 			zap.Any("authorizedResult", result),
@@ -1024,7 +1043,7 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, ope
 		if err == nil {
 			sysAdminEmail := notifications.GetSysAdminEmail(notificationSender)
 			appCtx.Logger().Info(
-				"New user account created through Login.gov",
+				"New user account created through Okta.mil",
 				zap.String("newUserID", user.ID.String()),
 			)
 			email, emailErr := notifications.NewUserAccountCreated(appCtx, sysAdminEmail, user.ID, user.UpdatedAt)
@@ -1057,7 +1076,7 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, ope
 		appCtx.Session().ServiceMemberID = newServiceMember.ID
 	} else {
 		// If in Office App or Admin App with valid user - update user's LoginGovUUID
-		appCtx.Logger().Error("Authorization associating login.gov UUID with user",
+		appCtx.Logger().Error("Authorization associating okta.mil UUID with user",
 			zap.String("OID_User", openIDUser.UserID),
 			zap.String("OID_Email", openIDUser.Email),
 			zap.String("user.id", user.ID.String()),
@@ -1094,6 +1113,8 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, ope
 	return authorizationResultAuthorized
 }
 
+// !This func is currently a leftover from login_gov.
+// TODO: Remove once Okta sessions are in place
 func fetchToken(code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
 	logger := loginGovProvider.logger
 	expiry := auth.GetExpiryTimeFromMinutes(auth.SessionExpiryInMinutes)
@@ -1142,10 +1163,10 @@ func fetchToken(code string, clientID string, loginGovProvider LoginGovProvider)
 }
 
 // InitAuth initializes the Okta provider
-func InitAuth(v *viper.Viper, logger *zap.Logger, appnames auth.ApplicationServername) (*OktaProvider, error) {
+func InitAuth(v *viper.Viper, logger *zap.Logger, appnames auth.ApplicationServername) (*okta.OktaProvider, error) {
 
 	// Create a new Okta Provider. This will be used in the creation of the additional providers for each subdomain
-	oktaProvider := NewOktaProvider(logger)
+	oktaProvider := okta.NewOktaProvider(logger)
 	err := oktaProvider.RegisterProviders()
 	if err != nil {
 		logger.Error("Initializing auth", zap.Error(err))
