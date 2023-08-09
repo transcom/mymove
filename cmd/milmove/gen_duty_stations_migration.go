@@ -146,7 +146,7 @@ func genDutyStationsMigration(cmd *cobra.Command, args []string) error {
 	dutyStationsFilename := v.GetString(DutyStationsFilenameFlag)
 
 	// Create a connection to the DB
-	dbConnection, err := cli.InitDatabase(v, nil, logger)
+	dbConnection, err := cli.InitDatabase(v, logger)
 	if err != nil {
 		logger.Fatal("Invalid DB Configuration", zap.Error(err))
 	}
