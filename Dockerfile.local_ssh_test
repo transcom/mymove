@@ -55,17 +55,21 @@
 
 # syntax=docker/dockerfile:1
 
-FROM ubuntu:latest
+FROM ubuntu:23.04
 WORKDIR /
 RUN apt-get update
 
 # Get the openssh-server package and install it.
+# hadolint ignore=DL3008
 RUN apt-get install -y openssh-server
 
 # Create a group and add testu to that group
 RUN groupadd sftp_users
-RUN useradd -rm -d /home/ubuntu -s /bin/bash -g sftp_users -G sudo -u 1000 testu
-RUN  echo 'testu:testp' | chpasswd
+RUN useradd -rm -d /home/testssh -s /bin/bash -g sftp_users -G sudo -u 1001 testu
+RUN touch tmpfile
+RUN printf "testu:testp" > tmpfile
+RUN chpasswd < tmpfile
+RUN rm tmpfile
 
 # Change the sshd_config so that the created user can login via ssh and sftp
 
@@ -74,9 +78,9 @@ RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/
 # Use sed with ! as the delimiter so there isn't any slash nonsense going on.
 # Keep the spaces in here so that it does the line replacement properly.
 RUN sed -i 's!Subsystem       sftp    /usr/lib/openssh/sftp-server!Subsystem sftp internal-sftp!' /etc/ssh/sshd_config
-# Point the authorized keys to /home/ubuntu/.ssh/authorized since that's where
+# Point the authorized keys to /home/testssh/.ssh/authorized since that's where
 # we'll be copying them.
-RUN sed -i '#AuthorizedKeysFile      .ssh/authorized_keys .ssh/authorized_keys2!#AuthorizedKeysFile /home/ubuntu/.ssh/authorized_keys .ssh/authorized_keys2!' /etc/ssh/sshd_config
+RUN sed -i '#AuthorizedKeysFile      .ssh/authorized_keys .ssh/authorized_keys2!#AuthorizedKeysFile /home/testssh/.ssh/authorized_keys .ssh/authorized_keys2!' /etc/ssh/sshd_config
 
 
 # If the user is not part of the sftp_users group, then force sftp.
@@ -91,21 +95,21 @@ RUN echo 'ForceCommand internal-sftp' >> /etc/ssh/sshd_config
 
 # Test file so that you can tell when you sshed in that it's really the
 # Docker container
-RUN touch /home/ubuntu/test_file_you_are_logged_into_docker
+RUN touch /home/testssh/test_file_you_are_logged_into_docker
 
 # Configure ssh for key based auth and add our public key. Add it to this
 # directory rather than ~/.ssh because this setup more closely matched up
 # with GEX's setup.
-RUN mkdir /home/ubuntu/.ssh
-COPY test_key_pair.pub /home/ubuntu/.ssh/authorized_keys
-RUN chmod 400 /home/ubuntu/.ssh/authorized_keys
-RUN chmod 500 /home/ubuntu/.ssh
+RUN mkdir /home/testssh/.ssh
+COPY test_key_pair.pub /home/testssh/.ssh/authorized_keys
+RUN chmod 400 /home/testssh/.ssh/authorized_keys
+RUN chmod 500 /home/testssh/.ssh
 # We have to change the ownershp to testu for these files for public key
 # authentication to work.
 # -R is to recursively change ownership of files under that folder.
 # Root having ownership of these files will cause public key authentication
 # to fail in weird, quiet ways.
-RUN chown -R testu /home/ubuntu/.ssh
+RUN chown -R testu /home/testssh/.ssh
 
 # Make directories for sftp
 RUN mkdir -p /data/testu/upload
@@ -114,7 +118,8 @@ RUN chown -R testu:sftp_users /data/testu/upload
 
 # Install vim because it's useful if you need to go into the container and edit
 # or view files. Install your editor of choice if you don't like using vim.
-RUN apt-get -y install vim
+# hadolint ignore=DL3008
+RUN apt-get install -y vim
 
 # Start the ssh serve
 RUN service ssh start
