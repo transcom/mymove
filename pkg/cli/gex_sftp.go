@@ -120,7 +120,7 @@ func InitGEXSSH(appCtx appcontext.AppContext, v *viper.Viper) (*ssh.Client, erro
 
 	appCtx.Logger().Info("Parsing GEX SFTP private key...")
 
-	privateKey, err := ssh.ParsePrivateKey([]byte(privateKeyString))
+	signer, err := ssh.ParsePrivateKey([]byte(privateKeyString))
 	if err != nil {
 		appCtx.Logger().Error("Failed to parse GEX SFTP private key", zap.Error(err))
 		return nil, fmt.Errorf("failed to parse private key %w", err)
@@ -131,7 +131,7 @@ func InitGEXSSH(appCtx appcontext.AppContext, v *viper.Viper) (*ssh.Client, erro
 	config := &ssh.ClientConfig{
 		User: userID,
 		Auth: []ssh.AuthMethod{
-			ssh.PublicKeys(privateKey),
+			ssh.PublicKeys(signer),
 			// Fall back to the password if the private key doesn't work.
 			ssh.Password(password),
 		},
