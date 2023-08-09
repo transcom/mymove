@@ -13,6 +13,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+var expectedColumnNames = []string{"TAC_SYS_ID", "LOA_SYS_ID", "TRNSPRTN_ACNT_CD", "TAC_FY_TXT", "TAC_FN_BL_MOD_CD", "ORG_GRP_DFAS_CD", "TAC_MVT_DSG_ID", "TAC_TY_CD", "TAC_USE_CD", "TAC_MAJ_CLMT_ID", "TAC_BILL_ACT_TXT", "TAC_COST_CTR_NM", "BUIC", "TAC_HIST_CD", "TAC_STAT_CD", "TRNSPRTN_ACNT_TX", "TRNSPRTN_ACNT_BGN_DT", "TRNSPRTN_ACNT_END_DT", "DD_ACTVTY_ADRS_ID", "TAC_BLLD_ADD_FRST_LN_TX", "TAC_BLLD_ADD_SCND_LN_TX", "TAC_BLLD_ADD_THRD_LN_TX", "TAC_BLLD_ADD_FRTH_LN_TX", "TAC_FNCT_POC_NM"}
+
 // Parse the pipe delimited .txt file with the following assumptions:
 // 1. The first and last lines are the security classification.
 // 2. The second line of the file are the columns that will be a 1:1 match to the TransportationAccountingCodeTrdmFileRecord struct in pipe delimited format.
@@ -41,7 +43,7 @@ func Parse(file io.Reader) ([]models.TransportationAccountingCode, error) {
 		columnHeaders = strings.Split(scanner.Text(), "|")
 		err := ensureFileStructMatchesColumnNames(columnHeaders)
 		if err != nil {
-			fmt.Println("error parsing")
+			return nil, err
 		}
 	}
 
@@ -59,25 +61,11 @@ func ensureFileStructMatchesColumnNames(columnNames []string) error {
 	if len(columnNames) == 0 {
 		return errors.New("column names were not parsed properly from the second line of the tac file")
 	}
-	expectedColumnNames := getFieldNames(models.TransportationAccountingCodeTrdmFileRecord{})
-	if !reflect.DeepEqual(columnNames, expectedColumnNames) {
+
+	if !reflect.DeepEqual(expectedColumnNames, expectedColumnNames) {
 		return errors.New("column names parsed do not match the expected format of tac file records")
 	}
 	return nil
-}
-
-// This function gathers the struct field names for comparison to
-// line 2 of the .txt file - The columns
-func getFieldNames(obj interface{}) []string {
-	var fieldNames []string
-
-	t := reflect.TypeOf(obj)
-	for i := 0; i < t.NumField(); i++ {
-		field := t.Field(i)
-		fieldNames = append(fieldNames, field.Name)
-	}
-
-	return fieldNames
 }
 
 // Removes all TACs with an expiration date in the past

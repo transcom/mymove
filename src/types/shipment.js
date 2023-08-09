@@ -112,6 +112,15 @@ export const ShipmentShape = shape({
   ppmShipment: PPMShipmentShape,
 });
 
+export const ShipmentAddressUpdateShape = shape({
+  contractorRemarks: string,
+  id: string,
+  newAddress: AddressShape,
+  originalAddress: AddressShape,
+  shipmentID: string,
+  status: string,
+});
+
 const DocumentShape = shape({
   id: string,
   serviceMemberId: string,

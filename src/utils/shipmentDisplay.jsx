@@ -17,6 +17,19 @@ export function formatAddress(address) {
   );
 }
 
+export function formatTwoLineAddress(address) {
+  const { streetAddress1, streetAddress2, city, state, postalCode } = address;
+
+  return (
+    <address data-testid="two-line-address">
+      {streetAddress1 && `${streetAddress1},`}
+      {streetAddress2 && ` ${streetAddress2}`}
+      <br />
+      {city ? `${city}, ${state} ${postalCode}` : postalCode}
+    </address>
+  );
+}
+
 /**
  * @description This function is used to format the address in the
  * EditSitAddressChangeForm component. It specifically uses the `<span>`
@@ -130,7 +143,12 @@ export function formatPaymentRequestAddressString(pickupAddress, destinationAddr
   return ``;
 }
 
-export function formatPaymentRequestReviewAddressString(address) {
+/**
+ * @description This function is used to format the address in the
+ * ShipmentAddresses and PaymentRequestReview components.
+ * It displays only the city, state and postal code.
+ * */
+export function formatCityStateAndPostalCode(address) {
   if (address) {
     return `${address.city}, ${address.state} ${address.postalCode}`;
   }

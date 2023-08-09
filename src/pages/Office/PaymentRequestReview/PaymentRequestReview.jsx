@@ -5,7 +5,7 @@ import { useQueryClient, useMutation } from '@tanstack/react-query';
 import styles from './PaymentRequestReview.module.scss';
 
 import { sortServiceItemsByGroup } from 'utils/serviceItems';
-import { formatPaymentRequestReviewAddressString, getShipmentModificationType } from 'utils/shipmentDisplay';
+import { formatCityStateAndPostalCode, getShipmentModificationType } from 'utils/shipmentDisplay';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
@@ -67,10 +67,10 @@ export const PaymentRequestReview = ({ order }) => {
         mtoShipmentType: item.mtoShipmentType,
         mtoShipmentDepartureDate: selectedShipment?.actualPickupDate,
         mtoShipmentPickupAddress: selectedShipment
-          ? formatPaymentRequestReviewAddressString(selectedShipment.pickupAddress)
+          ? formatCityStateAndPostalCode(selectedShipment.pickupAddress)
           : undefined,
         mtoShipmentDestinationAddress: selectedShipment
-          ? formatPaymentRequestReviewAddressString(selectedShipment.destinationAddress)
+          ? formatCityStateAndPostalCode(selectedShipment.destinationAddress)
           : undefined,
         mtoShipmentTacType: item.mtoShipmentType === LOA_TYPE.HHG ? LOA_TYPE.HHG : selectedShipment?.tacType,
         mtoShipmentSacType: item.mtoShipmentType === LOA_TYPE.HHG ? LOA_TYPE.HHG : selectedShipment?.sacType,
