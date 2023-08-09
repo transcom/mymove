@@ -3,14 +3,13 @@ package trdm
 import (
 	"encoding/xml"
 	"fmt"
-	"time"
 
-	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/tiaguinho/gosoap"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 /*******************************************
@@ -20,9 +19,9 @@ The struct/method getLastTableUpdate:GetLastTableUpdate implements the service T
 This method GetLastTableUpdate sends a SOAP request to TRDM to get the last table update.
 This code is using the gosoap lib https://github.com/tiaguinho/gosoap
 
-The Request to GetTable
 SOAP Request:
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ret="http://ReturnTablePackage/">
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+xmlns:ret="http://ReturnTablePackage/">
    <soapenv:Header/>
    <soapenv:Body>
       <ret:getLastTableUpdateRequestElement>
@@ -51,11 +50,10 @@ const successfulStatusCode = "Successful"
 type GetLastTableUpdater interface {
 	GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string) error
 }
-type getLastTableUpdateReq struct {
-	physicalName string
+type GetLastTableUpdateRequestElement struct {
+	PhysicalName string `xml:"physicalName"`
 	soapClient   SoapCaller
 }
-
 type GetLastTableUpdateResponseElement struct {
 	XMLName    xml.Name `xml:"getLastTableUpdateResponseElement"`
 	LastUpdate string   `xml:"lastUpdate"`
@@ -65,24 +63,17 @@ type GetLastTableUpdateResponseElement struct {
 	} `xml:"status"`
 }
 
-type TACCodes struct {
-	ID        uuid.UUID `json:"id" db:"id"`
-	Tac       string    `json:"tac" db:"tac"`
-	CreatedAt time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
-}
-
 func NewTRDMGetLastTableUpdate(physicalName string, soapClient SoapCaller) GetLastTableUpdater {
-	return &getLastTableUpdateReq{
-		physicalName: physicalName,
+	return &GetLastTableUpdateRequestElement{
+		PhysicalName: physicalName,
 		soapClient:   soapClient,
 	}
 
 }
 
 // FetchAllTACRecords queries and fetches all transportation_accounting_codes
-func FetchAllTACRecords(appcontext appcontext.AppContext) ([]TACCodes, error) {
-	var tacCodes []TACCodes
+func FetchAllTACRecords(appcontext appcontext.AppContext) ([]models.TransportationAccountingCode, error) {
+	var tacCodes []models.TransportationAccountingCode
 	query := `SELECT * FROM transportation_accounting_codes`
 
 	err := appcontext.DB().RawQuery(query).All(&tacCodes)
@@ -94,11 +85,11 @@ func FetchAllTACRecords(appcontext appcontext.AppContext) ([]TACCodes, error) {
 
 }
 
-func (d *getLastTableUpdateReq) GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string) error {
+func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string) error {
 
 	gosoap.SetCustomEnvelope("soapenv", map[string]string{
 		"xmlns:soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
-		"xmlns:ser":     "https://dtod.sddc.army.mil/service/", //! Replace
+		"xmlns:ret":     "http://ReturnTablePackage/",
 	})
 
 	params := gosoap.Params{
@@ -123,12 +114,14 @@ func (d *getLastTableUpdateReq) GetLastTableUpdate(appCtx appcontext.AppContext,
 		if dbError != nil {
 			return fmt.Errorf(err.Error())
 		}
-		for _, tacCode := range tacCodes {
-			if tacCode.UpdatedAt.String() != r.LastUpdate {
-				getTable := NewGetTable(physicalName, d.soapClient)
-				getTableErr := getTable.GetTable(appCtx, physicalName)
-				if getTableErr != nil {
-					return fmt.Errorf("getTable error: %s", getTableErr.Error())
+		if len(tacCodes) > 0 {
+			for _, tacCode := range tacCodes {
+				if tacCode.UpdatedAt.String() != r.LastUpdate {
+					getTable := NewGetTable(physicalName, d.soapClient)
+					getTableErr := getTable.GetTable(appCtx, physicalName)
+					if getTableErr != nil {
+						return fmt.Errorf("getTable error: %s", getTableErr.Error())
+					}
 				}
 			}
 		}
