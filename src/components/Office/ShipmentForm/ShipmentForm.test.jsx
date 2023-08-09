@@ -216,7 +216,11 @@ describe('ShipmentForm component', () => {
 
       expect(screen.getByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText('Delivery location')).toBeInstanceOf(HTMLLegendElement);
+      const deliveryLocationSectionHeadings = screen.getAllByText('Delivery location');
+      expect(deliveryLocationSectionHeadings).toHaveLength(2);
+      expect(deliveryLocationSectionHeadings[0]).toBeInstanceOf(HTMLParagraphElement);
+      expect(deliveryLocationSectionHeadings[1]).toBeInstanceOf(HTMLLegendElement);
+      expect(deliveryLocationSectionHeadings[1]).toHaveClass('usa-sr-only');
       expect(screen.getAllByLabelText('Yes')[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('Yes')[1]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('No')[0]).toBeInstanceOf(HTMLInputElement);
