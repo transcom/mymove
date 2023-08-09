@@ -6,19 +6,22 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
-	setupForTest := func(appCtx appcontext.AppContext, overrides *models.ProgearWeightTicket, hasdocFiles bool) *models.ProgearWeightTicket {
+	setupForTest := func(overrides *models.ProgearWeightTicket, hasdocFiles bool) *models.ProgearWeightTicket {
 		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
-		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceMember,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		document := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
 
@@ -43,19 +46,26 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 			}
 		}
 
-		originalProgearWeightTicket := models.ProgearWeightTicket{
-			DocumentID:    document.ID,
-			PPMShipmentID: ppmShipment.ID,
-		}
-
-		if overrides != nil {
-			testdatagen.MergeModels(&originalProgearWeightTicket, overrides)
-		}
-
-		verrs, err := appCtx.DB().ValidateAndCreate(&originalProgearWeightTicket)
-
-		suite.NoVerrs(verrs)
-		suite.Nil(err)
+		originalProgearWeightTicket := factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceMember,
+				LinkOnly: true,
+			},
+			{
+				Model:    ppmShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    document,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ProgearWeightTicket{
+					DocumentID:    document.ID,
+					PPMShipmentID: ppmShipment.ID,
+				},
+			},
+		}, nil)
 		suite.NotNil(originalProgearWeightTicket.ID)
 
 		return &originalProgearWeightTicket
@@ -65,10 +75,16 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 		badProgearWeightTicket := models.ProgearWeightTicket{
 			ID: uuid.Must(uuid.NewV4()),
 		}
+		originalProgearWeightTicket := setupForTest(nil, false)
+
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: originalProgearWeightTicket.Document.ServiceMemberID,
+		})
 
 		updater := NewCustomerProgearWeightTicketUpdater()
 
-		updatedProgearWeightTicket, err := updater.UpdateProgearWeightTicket(suite.AppContextForTest(), badProgearWeightTicket, "")
+		updatedProgearWeightTicket, err := updater.UpdateProgearWeightTicket(session, badProgearWeightTicket, "")
 
 		suite.Nil(updatedProgearWeightTicket)
 
@@ -83,13 +99,15 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 	})
 
 	suite.Run("Returns a PreconditionFailedError if the input eTag is stale/incorrect", func() {
-		appCtx := suite.AppContextForTest()
-
-		originalProgearWeightTicket := setupForTest(appCtx, nil, false)
-
+		originalProgearWeightTicket := setupForTest(nil, false)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: originalProgearWeightTicket.Document.ServiceMemberID,
+		})
+		suite.Equal(originalProgearWeightTicket.Document.ServiceMemberID, session.Session().ServiceMemberID)
 		updater := NewCustomerProgearWeightTicketUpdater()
 
-		updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(appCtx, *originalProgearWeightTicket, "")
+		updatedProgearWeightTicket, updateErr := updater.UpdateProgearWeightTicket(session, *originalProgearWeightTicket, "")
 
 		suite.Nil(updatedProgearWeightTicket)
 
@@ -104,9 +122,11 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 	})
 
 	suite.Run("Successfully updates", func() {
-		appCtx := suite.AppContextForTest()
-
-		originalProgearWeightTicket := setupForTest(appCtx, nil, true)
+		originalProgearWeightTicket := setupForTest(nil, true)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: originalProgearWeightTicket.Document.ServiceMemberID,
+		})
 
 		updater := NewCustomerProgearWeightTicketUpdater()
 
@@ -130,9 +150,11 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 	})
 
 	suite.Run("Succesfully updates when files are required", func() {
-		appCtx := suite.AppContextForTest()
-
-		originalProgearWeightTicket := setupForTest(appCtx, nil, true)
+		originalProgearWeightTicket := setupForTest(nil, true)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: originalProgearWeightTicket.Document.ServiceMemberID,
+		})
 
 		updater := NewCustomerProgearWeightTicketUpdater()
 
@@ -157,9 +179,11 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 	})
 
 	suite.Run("Fails to update when files are missing", func() {
-		appCtx := suite.AppContextForTest()
-
-		originalProgearWeightTicket := setupForTest(appCtx, nil, false)
+		originalProgearWeightTicket := setupForTest(nil, false)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: originalProgearWeightTicket.Document.ServiceMemberID,
+		})
 
 		updater := NewCustomerProgearWeightTicketUpdater()
 
@@ -183,10 +207,11 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 		suite.Run("successfully", func() {
 
 			suite.Run("changes status and reason", func() {
-				appCtx := suite.AppContextForTest()
-
 				originalProgearWeightTicket := factory.BuildProgearWeightTicket(suite.DB(), nil, nil)
-
+				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+					ApplicationName: auth.OfficeApp,
+					OfficeUserID:    uuid.Must(uuid.NewV4()),
+				})
 				updater := NewOfficeProgearWeightTicketUpdater()
 
 				status := models.PPMDocumentStatusExcluded
@@ -206,7 +231,11 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 			})
 
 			suite.Run("changes reason", func() {
-				appCtx := suite.AppContextForTest()
+				// originalProgearWeightTicket := setupForTest(nil, false)
+				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+					ApplicationName: auth.OfficeApp,
+					OfficeUserID:    uuid.Must(uuid.NewV4()),
+				})
 
 				status := models.PPMDocumentStatusExcluded
 				originalProgearWeightTicket := factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
@@ -234,7 +263,10 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 			})
 
 			suite.Run("changes reason from rejected to approved", func() {
-				appCtx := suite.AppContextForTest()
+				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+					ApplicationName: auth.OfficeApp,
+					OfficeUserID:    uuid.Must(uuid.NewV4()),
+				})
 
 				status := models.PPMDocumentStatusExcluded
 				originalProgearWeightTicket := factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
@@ -266,9 +298,12 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 
 		suite.Run("fails", func() {
 			suite.Run("to update when status or reason are changed", func() {
-				appCtx := suite.AppContextForTest()
+				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+					ApplicationName: auth.OfficeApp,
+					OfficeUserID:    uuid.Must(uuid.NewV4()),
+				})
 
-				originalProgearWeightTicket := setupForTest(appCtx, nil, true)
+				originalProgearWeightTicket := setupForTest(nil, true)
 
 				updater := NewCustomerProgearWeightTicketUpdater()
 
@@ -293,7 +328,10 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 			})
 
 			suite.Run("to update status", func() {
-				appCtx := suite.AppContextForTest()
+				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+					ApplicationName: auth.OfficeApp,
+					OfficeUserID:    uuid.Must(uuid.NewV4()),
+				})
 
 				status := models.PPMDocumentStatusExcluded
 				originalProgearWeightTicket := factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{

@@ -36,13 +36,11 @@ func (f *progearWeightTicketUpdater) UpdateProgearWeightTicket(appCtx appcontext
 	// get existing ProgearWeightTicket
 	originalProgearWeightTicket, err := FetchProgearWeightTicketByIDExcludeDeletedUploads(appCtx, progearWeightTicket.ID)
 	if err != nil {
-		appCtx.Logger().Error("err fetching progear")
 		return nil, err
 	}
 
 	// verify ETag
 	if etag.GenerateEtag(originalProgearWeightTicket.UpdatedAt) != eTag {
-		appCtx.Logger().Error("err generating etag")
 
 		return nil, apperror.NewPreconditionFailedError(originalProgearWeightTicket.ID, nil)
 	}
@@ -51,7 +49,7 @@ func (f *progearWeightTicketUpdater) UpdateProgearWeightTicket(appCtx appcontext
 
 	// validate updated model
 	if err := validateProgearWeightTicket(appCtx, &mergedProgearWeightTicket, originalProgearWeightTicket, f.checks...); err != nil {
-		appCtx.Logger().Error("err validating progear")
+		appCtx.Logger().Error(fmt.Sprintf("err validating progear: %v", err.Error()))
 
 		return nil, err
 	}
@@ -61,9 +59,9 @@ func (f *progearWeightTicketUpdater) UpdateProgearWeightTicket(appCtx appcontext
 		verrs, err := txnCtx.DB().ValidateAndUpdate(&mergedProgearWeightTicket)
 
 		if verrs != nil && verrs.HasAny() {
-			appCtx.Logger().Error(fmt.Sprintf("has verrs: %s", verrs.Error()))
+			appCtx.Logger().Error(fmt.Sprintf("ddddd %v", verrs.Errors))
 
-			return apperror.NewInvalidInputError(originalProgearWeightTicket.ID, err, verrs, fmt.Sprintf("invalid input found while updating the ProgearWeightTicket %s", err.Error()))
+			return apperror.NewInvalidInputError(originalProgearWeightTicket.ID, err, verrs, "invalid input found while updating the ProgearWeightTicket")
 		} else if err != nil {
 			return apperror.NewQueryError("ProgearWeightTicket update", err, "")
 		}
@@ -72,8 +70,6 @@ func (f *progearWeightTicketUpdater) UpdateProgearWeightTicket(appCtx appcontext
 	})
 
 	if txnErr != nil {
-		appCtx.Logger().Error("txn err fetching progear")
-
 		return nil, txnErr
 	}
 
@@ -104,12 +100,11 @@ func FetchProgearWeightTicketByIDExcludeDeletedUploads(appContext appcontext.App
 	findProgearWeightTicketQuery := appContext.DB().Q().Scope(utilities.ExcludeDeletedScope(models.ProgearWeightTicket{})).EagerPreload(
 		"Document.UserUploads.Upload",
 	)
-	// if appContext.Session().IsMilApp() {
-	// 	appContext.Logger().Error("is milmove app")
-	// findProgearWeightTicketQuery.
-	// Join("documents", "documents.id = progear_weight_tickets.document_id").
-	// Where("documents.service_member_id = ?", appContext.Session().ServiceMemberID)
-	// }
+	if appContext.Session().IsMilApp() {
+		findProgearWeightTicketQuery.
+			LeftJoin("documents", "documents.id = progear_weight_tickets.document_id").
+			Where("documents.service_member_id = ?", appContext.Session().ServiceMemberID)
+	}
 	err := findProgearWeightTicketQuery.Find(&progearWeightTicket, progearWeightTicketID)
 
 	if err != nil {
