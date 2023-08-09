@@ -83,7 +83,7 @@ test.describe('TOO user', () => {
       await page.getByText('Edit', { exact: true }).click();
 
       // Enter information in modal and submit
-      await page.locator('label').getByText('No', { exact: true }).click();
+      await page.locator('usa-radio__label').locator('label').getByText('No', { exact: true }).click();
 
       // Click save on the modal
       await page.getByRole('button', { name: 'Save' }).click();
@@ -443,5 +443,22 @@ test.describe('TOO user', () => {
     await expect(
       page.getByText('Pending delivery location change request needs review. Review request to proceed.'),
     ).toBeEnabled();
+
+    // click to trigger review modal
+    await page.getByText('Review request').click();
+
+    // Enter information in modal and submit
+    await page.locator('label[for="acceptAddressUpdate"]').click();
+    await page.locator('textarea').type('The delivery address change looks good. ');
+
+    // Click save on the modal
+    await page.getByTestId('modal').getByRole('button', { name: 'Save' }).click();
+
+    await expect(page.getByText('Changes sent to contractor.')).toBeVisible();
+
+    // Click save on the page
+    await page.getByRole('button', { name: 'Save' }).click();
+
+    await expect(page.getByText('Review required')).toBeEnabled();
   });
 });
