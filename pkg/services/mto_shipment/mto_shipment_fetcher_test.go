@@ -19,19 +19,45 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		moveID := uuid.Must(uuid.NewV4())
 		expectedError := apperror.NewNotFoundError(moveID, "move not found")
 
-		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(suite.AppContextForTest(), moveID)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: uuid.Must(uuid.NewV4()),
+		})
 
-		suite.Equalf(err, expectedError, "Expected not found error for non-existent move id")
+		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(appCtx, moveID)
+
+		suite.Equalf(expectedError, err, "Expected not found error for non-existent move id")
 		suite.Nil(mtoShipments, "Expected shipment slice to be nil")
 	})
 
 	suite.Run("Returns an empty shipment list when no shipments exist", func() {
 		move := factory.BuildMove(suite.DB(), nil, nil)
 
-		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(suite.AppContextForTest(), move.ID)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: move.Orders.ServiceMemberID,
+		})
+
+		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(appCtx, move.ID)
 
 		suite.NoError(err, "Expected no error for a move without shipments")
 		suite.Len(mtoShipments, 0, "Expected a zero length shipment list")
+	})
+
+	suite.Run("Returns not found error for an unauthorized user", func() {
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		expectedError := apperror.NewNotFoundError(move.ID, "move not found")
+
+		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: serviceMember.ID,
+		})
+
+		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(appCtx, move.ID)
+
+		suite.Equalf(err, expectedError, "Expected not found error for unauthorized user")
+		suite.Nil(mtoShipments, "Expected shipment slice to be nil")
 	})
 
 	suite.Run("Returns external vendor shipments last", func() {
@@ -61,7 +87,12 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 			},
 		}, nil)
 
-		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(suite.AppContextForTest(), move.ID)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: move.Orders.ServiceMemberID,
+		})
+
+		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(appCtx, move.ID)
 
 		suite.NoError(err, "Expected no error for a move with 3 shipments")
 		suite.Len(mtoShipments, 3, "Expected a shipment list of length 3")
@@ -88,7 +119,12 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 			},
 		}, nil)
 
-		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(suite.AppContextForTest(), move.ID)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: move.Orders.ServiceMemberID,
+		})
+
+		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(appCtx, move.ID)
 
 		suite.NoError(err, "Expected no error for a move with two shipments")
 		suite.Len(mtoShipments, 2, "Expected a shipment list of length 2")
@@ -119,7 +155,12 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 			},
 		}, nil)
 
-		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(suite.AppContextForTest(), move.ID)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: move.Orders.ServiceMemberID,
+		})
+
+		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(appCtx, move.ID)
 
 		suite.NoError(err, "Expected no error for a move with one deleted and one not deleted shipment")
 		suite.Len(mtoShipments, 1, "Expected a shipment list of length 1")
@@ -187,7 +228,12 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 			MTOShipment: shipment,
 		})
 
-		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(suite.AppContextForTest(), move.ID)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: move.Orders.ServiceMemberID,
+		})
+
+		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(appCtx, move.ID)
 
 		suite.NoError(err, "Expected no error for a move with shipment associations")
 		suite.Len(mtoShipments, 1, "Expected a single shipment with associations")
@@ -254,7 +300,12 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		err = suite.DB().Create(proGear)
 		suite.NoError(err)
 
-		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(suite.AppContextForTest(), move.ID)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: move.Orders.ServiceMemberID,
+		})
+
+		mtoShipments, err := mtoShipmentFetcher.ListMTOShipments(appCtx, move.ID)
 		suite.NoError(err)
 
 		actualPPMShipment := mtoShipments[0].PPMShipment
