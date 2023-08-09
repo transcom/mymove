@@ -17,11 +17,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
-	awssession "github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gomodule/redigo/redis"
@@ -321,49 +316,14 @@ func initializeLogger(v *viper.Viper) (*zap.Logger, func()) {
 	return logger, loggerSync
 }
 
-func initializeAwsSession(v *viper.Viper, logger *zap.Logger) *awssession.Session {
-	if v.GetBool(cli.DbIamFlag) || (v.GetString(cli.EmailBackendFlag) == "ses") || (v.GetString(cli.StorageBackendFlag) == "s3") {
-		c := &aws.Config{
-			Region: aws.String(v.GetString(cli.AWSRegionFlag)),
-		}
-		s, errorSession := awssession.NewSession(c)
-		if errorSession != nil {
-			logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
-		}
-		return s
-	}
-	return nil
-}
-
-func initializeDB(v *viper.Viper, logger *zap.Logger,
-	awsSession *awssession.Session) *pop.Connection {
+func initializeDB(v *viper.Viper, logger *zap.Logger) *pop.Connection {
 
 	if v.GetBool(cli.DbDebugFlag) {
 		pop.Debug = true
 	}
 
-	var dbCreds *credentials.Credentials
-	if v.GetBool(cli.DbIamFlag) {
-		if awsSession != nil {
-			// We want to get the credentials from the logged in AWS session rather than create directly,
-			// because the session conflates the environment, shared, and container metdata config
-			// within NewSession.  With stscreds, we use the Secure Token Service,
-			// to assume the given role (that has rds db connect permissions).
-			dbIamRole := v.GetString(cli.DbIamRoleFlag)
-			logger.Info(fmt.Sprintf("assuming AWS role %q for db connection", dbIamRole))
-			dbCreds = stscreds.NewCredentials(awsSession, dbIamRole)
-			stsService := sts.New(awsSession)
-			callerIdentity, callerIdentityErr := stsService.GetCallerIdentity(&sts.GetCallerIdentityInput{})
-			if callerIdentityErr != nil {
-				logger.Error(errors.Wrap(callerIdentityErr, "error getting aws sts caller identity").Error())
-			} else {
-				logger.Info(fmt.Sprintf("STS Caller Identity - Account: %s, ARN: %s, UserId: %s", *callerIdentity.Account, *callerIdentity.Arn, *callerIdentity.UserId))
-			}
-		}
-	}
-
 	// Create a connection to the DB
-	dbConnection, err := cli.InitDatabase(v, dbCreds, logger)
+	dbConnection, err := cli.InitDatabase(v, logger)
 	if err != nil {
 		logger.Fatal("Invalid DB Configuration", zap.Error(err))
 	}
@@ -452,7 +412,7 @@ func initializeRouteOptions(v *viper.Viper, routingConfig *routing.Config) {
 	}
 }
 
-func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool *redis.Pool, awsSession *awssession.Session, isDevOrTest bool, tlsConfig *tls.Config) *routing.Config {
+func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool *redis.Pool, isDevOrTest bool, tlsConfig *tls.Config) *routing.Config {
 	routingConfig := &routing.Config{}
 
 	// always use the OS Filesystem when serving for real
@@ -495,7 +455,7 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 	routingConfig.AuthContext = authentication.NewAuthContext(appCtx.Logger(), loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
 
 	// Email
-	notificationSender, err := notifications.InitEmail(v, awsSession, appCtx.Logger())
+	notificationSender, err := notifications.InitEmail(v, appCtx.Logger())
 	if err != nil {
 		appCtx.Logger().Fatal("notification sender sending not enabled", zap.Error(err))
 	}
@@ -504,7 +464,7 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 	sendProductionInvoice := v.GetBool(cli.GEXSendProdInvoiceFlag)
 
 	// Storage
-	fileStorer := storage.InitStorage(v, awsSession, appCtx.Logger())
+	fileStorer := storage.InitStorage(v, appCtx.Logger())
 
 	// Create a secondary planner specifically for HHG.
 	hhgRoutePlanner, err := route.InitHHGRoutePlanner(appCtx, v, tlsConfig)
@@ -675,11 +635,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		logger.Info(fmt.Sprintf("Starting in %s mode, which enables additional features", dbEnv))
 	}
 
-	// set up AWS (as needed)
-	session := initializeAwsSession(v, logger)
-
 	// connect to the db
-	dbConnection = initializeDB(v, logger, session)
+	dbConnection = initializeDB(v, logger)
 
 	// set up appcontext
 	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
@@ -708,8 +665,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	tlsConfig := initializeTLSConfig(appCtx, v)
 
 	// build the routing configuration
-	routingConfig := buildRoutingConfig(appCtx, v, redisPool, session,
-		isDevOrTest, tlsConfig)
+	routingConfig := buildRoutingConfig(appCtx, v, redisPool, isDevOrTest, tlsConfig)
 
 	listenInterface := v.GetString(cli.InterfaceFlag)
 
