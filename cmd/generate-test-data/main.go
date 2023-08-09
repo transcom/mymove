@@ -6,8 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws"
-	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -160,7 +158,7 @@ func main() {
 	}
 
 	// Create a connection to the DB
-	dbConnection, err := cli.InitDatabase(v, nil, logger)
+	dbConnection, err := cli.InitDatabase(v, logger)
 	if err != nil {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
@@ -174,22 +172,7 @@ func main() {
 
 			if namedScenario != "" {
 
-				// Initialize storage and uploader
-				var session *awssession.Session
-				storageBackend := v.GetString(cli.StorageBackendFlag)
-				if storageBackend == "s3" {
-					c := &aws.Config{
-						Region: aws.String(v.GetString(cli.AWSRegionFlag)),
-					}
-					s, errorSession := awssession.NewSession(c)
-
-					if errorSession != nil {
-						logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
-					}
-
-					session = s
-				}
-				storer := storage.InitStorage(v, session, logger)
+				storer := storage.InitStorage(v, logger)
 
 				userUploader, uploaderErr := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 				if uploaderErr != nil {
