@@ -459,6 +459,12 @@ test.describe('TOO user', () => {
     // Click save on the page
     await page.getByRole('button', { name: 'Save' }).click();
 
-    await expect(page.getByText('Review required')).toBeEnabled();
+    await expect(page.getByText('7 Q st, Apt 1, Fort Gordon, GA 30813')).toBeVisible();
+
+    await page.getByText('KKFA moves').click();
+
+    await page.locator('input[name="locator"]').type(shipmentAddressUpdate.Shipment.MoveTaskOrder.locator);
+    await page.locator('input[name="locator"]').blur();
+    await expect(page.getByText('Move approved')).toBeVisible();
   });
 });
