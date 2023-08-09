@@ -8,10 +8,16 @@ import ShipmentForm from './ShipmentForm';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ORDERS_TYPE } from 'constants/orders';
 import { roleTypes } from 'constants/userRoles';
-import { ppmShipmentStatuses } from 'constants/shipments';
+import { ADDRESS_UPDATE_STATUS, ppmShipmentStatuses } from 'constants/shipments';
 import { tooRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { validatePostalCode } from 'utils/validation';
+
+const mockMutateFunction = jest.fn();
+jest.mock('@tanstack/react-query', () => ({
+  ...jest.requireActual('@tanstack/react-query'),
+  useMutation: () => ({ mutate: mockMutateFunction }),
+}));
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -411,62 +417,116 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('Destination type')).toBeVisible();
     });
 
-    it('displays appropriate alerting when an address change is requested', async () => {
-      renderWithRouter(
-        <ShipmentForm
-          {...defaultPropsRetirement}
-          isCreatePage={false}
-          shipmentType={SHIPMENT_OPTIONS.HHG}
-          mtoShipment={{ ...mockShipmentWithDestinationType, ...mockDeliveryAddressUpdate }}
-          displayDestinationType
-        />,
-      );
+    describe('shipment address change request', () => {
+      it('displays appropriate alerting when an address change is requested', async () => {
+        renderWithRouter(
+          <ShipmentForm
+            {...defaultPropsRetirement}
+            isCreatePage={false}
+            shipmentType={SHIPMENT_OPTIONS.HHG}
+            mtoShipment={{ ...mockShipmentWithDestinationType, ...mockDeliveryAddressUpdate }}
+            displayDestinationType
+          />,
+        );
 
-      const alerts = await screen.findAllByTestId('alert');
-      expect(alerts).toHaveLength(2); // Should have 2 alerts shown due to the address update request
-      expect(await alerts[0]).toHaveTextContent('Request needs review. See delivery location to proceed.');
-      expect(await alerts[1]).toHaveTextContent(
-        'Pending delivery location change request needs review. Review request to proceed.',
-      );
+        const alerts = await screen.findAllByTestId('alert');
+        expect(alerts).toHaveLength(2); // Should have 2 alerts shown due to the address update request
+        expect(await alerts[0]).toHaveTextContent('Request needs review. See delivery location to proceed.');
+        expect(await alerts[1]).toHaveTextContent(
+          'Pending delivery location change request needs review. Review request to proceed.',
+        );
+      });
+
+      it('opens a closeable modal when Review Request is clicked', async () => {
+        const user = userEvent.setup();
+
+        const shipmentType = SHIPMENT_OPTIONS.HHG;
+
+        renderWithRouter(
+          <ShipmentForm
+            {...defaultPropsRetirement}
+            isCreatePage={false}
+            shipmentType={shipmentType}
+            mtoShipment={{ ...mockShipmentWithDestinationType, ...mockDeliveryAddressUpdate, shipmentType }}
+            displayDestinationType
+          />,
+        );
+
+        const queryForModal = () => screen.queryByTestId('modal');
+
+        const reviewRequestLink = await screen.findByRole('button', { name: 'Review request' });
+
+        // confirm the modal is not already present
+        expect(queryForModal()).not.toBeInTheDocument();
+
+        // Open the modal
+        await user.click(reviewRequestLink);
+
+        await waitFor(() => expect(queryForModal()).toBeInTheDocument());
+
+        // Close the modal
+        const modalCancel = within(queryForModal()).queryByText('Cancel');
+
+        expect(modalCancel).toBeInTheDocument();
+
+        await user.click(modalCancel);
+
+        // Confirm the modal has been closed
+        expect(queryForModal()).not.toBeInTheDocument();
+      });
+
+      it('allows a shipment address update review to be submitted via the modal', async () => {
+        const user = userEvent.setup();
+
+        const shipmentType = SHIPMENT_OPTIONS.HHG;
+        const eTag = '8c32882e7793d9da88e0fdfd68672e2ead2f';
+
+        renderWithRouter(
+          <ShipmentForm
+            {...defaultPropsRetirement}
+            isCreatePage={false}
+            shipmentType={shipmentType}
+            mtoShipment={{ ...mockShipmentWithDestinationType, ...mockDeliveryAddressUpdate, eTag }}
+            displayDestinationType
+          />,
+        );
+
+        const queryForModal = () => screen.queryByTestId('modal');
+        const findAlerts = async () => screen.findAllByTestId('alert');
+
+        const reviewRequestLink = await screen.findByRole('button', { name: 'Review request' });
+
+        expect(await findAlerts()).toHaveLength(2);
+
+        // Open the modal
+        await user.click(reviewRequestLink);
+        const modal = queryForModal();
+
+        expect(modal).toBeInTheDocument();
+
+        // Fill and submit
+        const approvalQuestion = within(modal).getByRole('group', { name: 'Approve address change?' });
+        const approvalYes = within(approvalQuestion).getByRole('radio', { name: 'Yes' });
+        const officeRemarks = within(modal).getByLabelText('Office remarks');
+        const save = within(modal).getByRole('button', { name: 'Save' });
+
+        const officeRemarksAnswer = 'Here are my remarks from the office';
+        await user.click(approvalYes);
+        await user.type(officeRemarks, officeRemarksAnswer);
+        await user.click(save);
+
+        // Confirm that the request was triggered
+        expect(mockMutateFunction).toHaveBeenCalledTimes(1);
+        expect(mockMutateFunction).toHaveBeenCalledWith({
+          shipmentID: mockShipmentWithDestinationType.id,
+          ifMatchETag: eTag,
+          body: {
+            status: ADDRESS_UPDATE_STATUS.APPROVED,
+            officeRemarks: officeRemarksAnswer,
+          },
+        });
+      });
     });
-  });
-
-  it('opens a closeable modal when Review Request is clicked', async () => {
-    const user = userEvent.setup();
-
-    const shipmentType = SHIPMENT_OPTIONS.HHG;
-
-    renderWithRouter(
-      <ShipmentForm
-        {...defaultPropsRetirement}
-        isCreatePage={false}
-        shipmentType={shipmentType}
-        mtoShipment={{ ...mockShipmentWithDestinationType, ...mockDeliveryAddressUpdate, shipmentType }}
-        displayDestinationType
-      />,
-    );
-
-    const queryForModal = () => screen.queryByTestId('modal');
-
-    const reviewRequestLink = await screen.findByRole('button', { name: 'Review request' });
-
-    // confirm the modal is not already present
-    expect(queryForModal()).not.toBeInTheDocument();
-
-    // Open the modal
-    await user.click(reviewRequestLink);
-
-    await waitFor(() => expect(queryForModal()).toBeInTheDocument());
-
-    // Close the modal
-    const modalCancel = within(queryForModal()).queryByText('Cancel');
-
-    expect(modalCancel).toBeInTheDocument();
-
-    await user.click(modalCancel);
-
-    // Confirm the modal has been closed
-    expect(queryForModal()).not.toBeInTheDocument();
   });
 
   describe('creating a new NTS shipment', () => {
