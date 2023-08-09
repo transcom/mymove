@@ -2,7 +2,6 @@ package progearweightticket
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/gofrs/uuid"
 
@@ -49,8 +48,6 @@ func (f *progearWeightTicketUpdater) UpdateProgearWeightTicket(appCtx appcontext
 
 	// validate updated model
 	if err := validateProgearWeightTicket(appCtx, &mergedProgearWeightTicket, originalProgearWeightTicket, f.checks...); err != nil {
-		appCtx.Logger().Error(fmt.Sprintf("err validating progear: %v", err.Error()))
-
 		return nil, err
 	}
 
@@ -59,8 +56,6 @@ func (f *progearWeightTicketUpdater) UpdateProgearWeightTicket(appCtx appcontext
 		verrs, err := txnCtx.DB().ValidateAndUpdate(&mergedProgearWeightTicket)
 
 		if verrs != nil && verrs.HasAny() {
-			appCtx.Logger().Error(fmt.Sprintf("ddddd %v", verrs.Errors))
-
 			return apperror.NewInvalidInputError(originalProgearWeightTicket.ID, err, verrs, "invalid input found while updating the ProgearWeightTicket")
 		} else if err != nil {
 			return apperror.NewQueryError("ProgearWeightTicket update", err, "")

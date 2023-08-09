@@ -231,7 +231,6 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 			})
 
 			suite.Run("changes reason", func() {
-				// originalProgearWeightTicket := setupForTest(nil, false)
 				appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 					ApplicationName: auth.OfficeApp,
 					OfficeUserID:    uuid.Must(uuid.NewV4()),
@@ -390,8 +389,6 @@ func (suite *ProgearWeightTicketSuite) TestUpdateProgearWeightTicket() {
 }
 
 func (suite *ProgearWeightTicketSuite) TestFetchProgearWeightTicketByIDExcludeDeletedUploads() {
-	// setupForFetchTest := func(overrides *models.ProgearWeightTicket, hasdocFiles bool) *models.ProgearWeightTicket {
-	// serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 	var progearWeightTicket models.ProgearWeightTicket
 	var serviceMember models.ServiceMember
 	suite.PreloadData(func() {
