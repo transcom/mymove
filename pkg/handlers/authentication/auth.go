@@ -204,6 +204,7 @@ func CustomerAPIAuthMiddleware(_ appcontext.AppContext, api APIWithContext) func
 var allowedRoutes = map[string]bool{
 	"addresses.showAddress":                       true,
 	"duty_locations.searchDutyLocations":          true,
+	"featureFlags.featureFlagForUser":             true,
 	"move_docs.createGenericMoveDocument":         true,
 	"move_docs.deleteMoveDocument":                true,
 	"move_docs.indexMoveDocuments":                true,
