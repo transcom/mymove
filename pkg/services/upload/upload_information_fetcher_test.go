@@ -13,8 +13,8 @@ func (suite *UploadServiceSuite) TestFetchUploadInformation() {
 		ou := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
 			{
 				Model: models.User{
-					ID:            uuid.Must(uuid.FromString("9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b")),
-					LoginGovEmail: email,
+					ID:        uuid.Must(uuid.FromString("9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b")),
+					OktaEmail: email,
 				},
 			},
 			{

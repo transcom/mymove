@@ -201,9 +201,9 @@ func createUser(appCtx appcontext.AppContext, userEmail *string) (*models.User, 
 	}
 	id := uuid.Must(uuid.NewV4())
 	user := models.User{
-		LoginGovUUID:  &id,
-		LoginGovEmail: *userEmail,
-		Active:        true,
+		OktaUUID:  &id,
+		OktaEmail: *userEmail,
+		Active:    true,
 	}
 	verrs, err := appCtx.DB().ValidateAndCreate(&user)
 	if verrs.Count() > 0 {

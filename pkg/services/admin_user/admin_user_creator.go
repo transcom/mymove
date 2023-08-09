@@ -34,13 +34,13 @@ func (o *adminUserCreator) CreateAdminUser(
 
 	// A user may already exist with that email from a previous user (office, service member, ...)
 	var user models.User
-	userEmailFilter := query.NewQueryFilter("login_gov_email", "=", admin.Email)
+	userEmailFilter := query.NewQueryFilter("okta_email", "=", admin.Email)
 	fetchErr = o.builder.FetchOne(appCtx, &user, []services.QueryFilter{userEmailFilter})
 
 	if fetchErr != nil {
 		user = models.User{
-			LoginGovEmail: strings.ToLower(admin.Email),
-			Active:        true,
+			OktaEmail: strings.ToLower(admin.Email),
+			Active:    true,
 		}
 	}
 

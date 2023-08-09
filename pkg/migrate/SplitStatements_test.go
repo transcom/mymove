@@ -189,7 +189,7 @@ func (suite *MigrateSuite) TestSplitStatementsCopyFromStdinTrailingEmptyColumns(
 	// We're using a string for this test case instead of a file so the trailing whitespace doesn't accidentally get trimmed off by
 	// an aggressive text editor.
 	originalStatements := []string{
-		"COPY public.users (id, login_gov_uuid, login_gov_email, created_at, updated_at, active, current_mil_session_id, current_admin_session_id, current_office_session_id) FROM stdin;",
+		"COPY public.users (id, okta_uuid, okta_email, created_at, updated_at, active, current_mil_session_id, current_admin_session_id, current_office_session_id) FROM stdin;",
 		"00000000-0000-0000-0000-000000000000\t\\N\texample@example.com\t2021-05-12\t20:09:04.701587\t2021-05-12\t20:09:04.701587\tt\t\t\t",
 		"11111111-1111-1111-1111-111111111111\t\\N\texample@example.com\t2021-05-12\t20:09:04.701587\t2021-05-12\t20:09:04.701587\tt\t\t\t",
 		"\\.",

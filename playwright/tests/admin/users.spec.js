@@ -26,7 +26,7 @@ test.describe('Users Page', () => {
 test.describe('Users Details Show Page', () => {
   test('pulls up details page for a user', async ({ page, adminPage }) => {
     const officeUser = await adminPage.testHarness.buildOfficeUserWithTOOAndTIO();
-    const email = officeUser.login_gov_email;
+    const email = officeUser.okta_email;
     await adminPage.signInAsNewAdminUser();
 
     await page.getByRole('menuitem', { name: 'Users', exact: true }).click();
@@ -53,7 +53,7 @@ test.describe('Users Details Show Page', () => {
 test.describe('Users Details Edit Page', () => {
   test('pulls up edit page for a user', async ({ page, adminPage }) => {
     const officeUser = await adminPage.testHarness.buildOfficeUserWithTOOAndTIO();
-    const email = officeUser.login_gov_email;
+    const email = officeUser.okta_email;
     await adminPage.signInAsNewAdminUser();
 
     await page.getByRole('menuitem', { name: 'Users', exact: true }).click();

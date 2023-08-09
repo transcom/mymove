@@ -17,15 +17,15 @@ func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser
 	email := fmt.Sprintf("leo_spaceman_office_%s@example.com", MakeRandomString(5))
 
 	if assertions.OfficeUser.UserID == nil || isZeroUUID(*assertions.OfficeUser.UserID) {
-		if assertions.User.LoginGovEmail == "" {
-			assertions.User.LoginGovEmail = email
+		if assertions.User.OktaEmail == "" {
+			assertions.User.OktaEmail = email
 		}
 
 		user = MakeUser(db, assertions)
 	}
 
-	if assertions.User.LoginGovEmail != "" {
-		email = assertions.User.LoginGovEmail
+	if assertions.User.OktaEmail != "" {
+		email = assertions.User.OktaEmail
 	}
 	if user.Roles == nil {
 		officeRole := roles.Role{

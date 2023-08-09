@@ -14,9 +14,9 @@ func MakeUser(db *pop.Connection, assertions Assertions) models.User {
 
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	user := models.User{
-		LoginGovUUID:  &loginGovUUID,
-		LoginGovEmail: "first.last@login.gov.test",
-		Active:        false,
+		OktaUUID:  &loginGovUUID,
+		OktaEmail: "first.last@login.gov.test",
+		Active:    false,
 	}
 
 	// Overwrite values with those from assertions
@@ -32,8 +32,8 @@ func MakeDefaultUser(db *pop.Connection) models.User {
 	lgu := uuid.Must(uuid.NewV4())
 	return MakeUser(db, Assertions{
 		User: models.User{
-			LoginGovUUID: &lgu,
-			Active:       true,
+			OktaUUID: &lgu,
+			Active:   true,
 		},
 	})
 }

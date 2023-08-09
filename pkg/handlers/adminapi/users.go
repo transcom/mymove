@@ -21,7 +21,7 @@ import (
 func payloadForUserModel(o models.User) *adminmessages.User {
 	return &adminmessages.User{
 		ID:                     *handlers.FmtUUID(o.ID),
-		LoginGovEmail:          handlers.FmtString(o.LoginGovEmail),
+		OktaEmail:              handlers.FmtString(o.OktaEmail),
 		Active:                 handlers.FmtBool(o.Active),
 		CreatedAt:              *handlers.FmtDateTime(o.CreatedAt),
 		UpdatedAt:              *handlers.FmtDateTime(o.UpdatedAt),
@@ -65,7 +65,7 @@ type IndexUsersHandler struct {
 var usersFilterConverters = map[string]func(string) []services.QueryFilter{
 	"search": func(content string) []services.QueryFilter {
 		if _, err := uuid.FromString(content); err != nil {
-			return []services.QueryFilter{query.NewQueryFilter("login_gov_email", "=", content)}
+			return []services.QueryFilter{query.NewQueryFilter("okta_email", "=", content)}
 		}
 		return []services.QueryFilter{query.NewQueryFilter("id", "=", content)}
 	},

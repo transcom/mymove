@@ -37,9 +37,9 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 		existingUser := factory.BuildUser(suite.DB(), []factory.Customization{
 			{
 				Model: models.User{
-					LoginGovUUID:  &loginGovUUID,
-					LoginGovEmail: "spaceman+existing@leo.org",
-					Active:        true,
+					OktaUUID:  &loginGovUUID,
+					OktaEmail: "spaceman+existing@leo.org",
+					Active:    true,
 				},
 			}}, nil)
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
@@ -95,7 +95,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 		suite.Nil(verrs)
 		suite.NotNil(officeUser.User)
 		suite.Equal(officeUser.User.ID, *officeUser.UserID)
-		suite.Equal(userInfo.Email, officeUser.User.LoginGovEmail)
+		suite.Equal(userInfo.Email, officeUser.User.OktaEmail)
 		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(suite.T(), "SendNotification", 1)
 	})
 
@@ -109,7 +109,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 		existingUserInfo := models.OfficeUser{
 			LastName:               "Spaceman",
 			FirstName:              "Leo",
-			Email:                  existingUser.LoginGovEmail,
+			Email:                  existingUser.OktaEmail,
 			TransportationOfficeID: transportationOffice.ID,
 			Telephone:              "312-111-1111",
 			TransportationOffice:   transportationOffice,
@@ -121,8 +121,8 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(transportationOffice.ID))
 			case *models.User:
 				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(existingUser.ID))
-				reflect.ValueOf(model).Elem().FieldByName("LoginGovUUID").Set(reflect.ValueOf(existingUser.LoginGovUUID))
-				reflect.ValueOf(model).Elem().FieldByName("LoginGovEmail").Set(reflect.ValueOf(existingUserInfo.User.LoginGovEmail))
+				reflect.ValueOf(model).Elem().FieldByName("OktaUUID").Set(reflect.ValueOf(existingUser.OktaUUID))
+				reflect.ValueOf(model).Elem().FieldByName("OktaEmail").Set(reflect.ValueOf(existingUserInfo.User.OktaEmail))
 			}
 			return nil
 		}

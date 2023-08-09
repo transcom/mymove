@@ -21,7 +21,7 @@ const (
 	// template for adding office users
 	disableUser string = `UPDATE users
 SET active=false
-WHERE login_gov_email='{{.EmailPrefix}}@{{.EmailDomain}}';
+WHERE okta_email='{{.EmailPrefix}}@{{.EmailDomain}}';
 `
 )
 

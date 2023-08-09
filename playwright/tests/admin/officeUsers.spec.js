@@ -131,7 +131,7 @@ test.describe('Office Users Show Page', () => {
 test.describe('Office Users Edit Page', () => {
   test('pulls up edit page for an office user', async ({ page, adminPage }) => {
     const officeUser = await adminPage.testHarness.buildOfficeUserWithTOOAndTIO();
-    const email = officeUser.login_gov_email;
+    const email = officeUser.okta_email;
 
     await adminPage.signInAsNewAdminUser();
 

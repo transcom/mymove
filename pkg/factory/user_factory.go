@@ -30,11 +30,11 @@ func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) mode
 	}
 
 	// create user
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 	user := models.User{
-		LoginGovUUID:  &loginGovUUID,
-		LoginGovEmail: "first.last@login.gov.test",
-		Active:        false,
+		OktaUUID:  &oktaUUID,
+		OktaEmail: "first.last@login.gov.test",
+		Active:    false,
 	}
 
 	// Overwrite values with those from assertions

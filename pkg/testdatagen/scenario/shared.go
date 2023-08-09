@@ -169,14 +169,14 @@ func createServiceMemberWithOrdersButNoMoveType(appCtx appcontext.AppContext) {
 	 */
 	email := "sm_no_move_type@example.com"
 	uuidStr := "9ceb8321-6a82-4f6d-8bb3-a1d85922a202"
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 
 	factory.BuildMove(db, []factory.Customization{
 		{
 			Model: models.User{
-				ID:            uuid.Must(uuid.FromString(uuidStr)),
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
+				ID:        uuid.Must(uuid.FromString(uuidStr)),
+				OktaUUID:  &oktaUUID,
+				OktaEmail: email,
 			},
 		},
 		{
@@ -204,14 +204,14 @@ func createServiceMemberWithNoUploadedOrders(appCtx appcontext.AppContext) {
 	 */
 	email := "needs@orde.rs"
 	uuidStr := "feac0e92-66ec-4cab-ad29-538129bf918e"
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 	user := factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
-				ID:            uuid.Must(uuid.FromString(uuidStr)),
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
-				Active:        true,
+				ID:        uuid.Must(uuid.FromString(uuidStr)),
+				OktaUUID:  &oktaUUID,
+				OktaEmail: email,
+				Active:    true,
 			},
 		},
 	}, nil)
@@ -239,15 +239,15 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 	 */
 	email := "combo@ppm.hhg"
 	uuidStr := "6016e423-f8d5-44ca-98a8-af03c8445c94"
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 
 	user := factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
-				ID:            uuid.Must(uuid.FromString(uuidStr)),
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
-				Active:        true,
+				ID:        uuid.Must(uuid.FromString(uuidStr)),
+				OktaUUID:  &oktaUUID,
+				OktaEmail: email,
+				Active:    true,
 			},
 		},
 	}, nil)
@@ -381,10 +381,10 @@ func createGenericPPMRelatedMove(appCtx appcontext.AppContext, moveInfo MoveCrea
 	}
 
 	userModel := models.User{
-		ID:            moveInfo.UserID,
-		LoginGovUUID:  models.UUIDPointer(uuid.Must(uuid.NewV4())),
-		LoginGovEmail: moveInfo.Email,
-		Active:        true,
+		ID:        moveInfo.UserID,
+		OktaUUID:  models.UUIDPointer(uuid.Must(uuid.NewV4())),
+		OktaEmail: moveInfo.Email,
+		Active:    true,
 	}
 
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
@@ -2379,16 +2379,16 @@ func createSubmittedMoveWithPPMShipment(appCtx appcontext.AppContext, userUpload
 }
 
 func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveInfo MoveCreatorInfo, branch models.ServiceMemberAffiliation) models.Move {
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:            moveInfo.UserID,
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: moveInfo.Email,
-				Active:        true,
+				ID:        moveInfo.UserID,
+				OktaUUID:  &oktaUUID,
+				OktaEmail: moveInfo.Email,
+				Active:    true,
 			}},
 	}, nil)
 
@@ -2523,16 +2523,16 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, locator string, branch models.ServiceMemberAffiliation) {
 	userID := uuid.Must(uuid.NewV4())
 	email := "1needscloseout@ppm.closeout"
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:            userID,
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
-				Active:        true,
+				ID:        userID,
+				OktaUUID:  &oktaUUID,
+				OktaEmail: email,
+				Active:    true,
 			}},
 	}, nil)
 	smWithPPM := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
@@ -2644,16 +2644,16 @@ func createMoveWithCloseOutandNonCloseOut(appCtx appcontext.AppContext, userUplo
 func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, locator string, branch models.ServiceMemberAffiliation) {
 	userID := uuid.Must(uuid.NewV4())
 	email := "2needcloseout@ppm.closeout"
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:            userID,
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
-				Active:        true,
+				ID:        userID,
+				OktaUUID:  &oktaUUID,
+				OktaEmail: email,
+				Active:    true,
 			}},
 	}, nil)
 
@@ -2767,16 +2767,16 @@ func createMoveWith2CloseOuts(appCtx appcontext.AppContext, userUploader *upload
 func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, locator string, branch models.ServiceMemberAffiliation) {
 	userID := uuid.Must(uuid.NewV4())
 	email := "needscloseout@ppmHHG.closeout"
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:            userID,
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
-				Active:        true,
+				ID:        userID,
+				OktaUUID:  &oktaUUID,
+				OktaEmail: email,
+				Active:    true,
 			}},
 	}, nil)
 
@@ -2872,16 +2872,16 @@ func createMoveWithCloseOutandHHG(appCtx appcontext.AppContext, userUploader *up
 }
 
 func CreateMoveWithCloseoutOffice(appCtx appcontext.AppContext, moveInfo MoveCreatorInfo, userUploader *uploader.UserUploader) models.Move {
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Date(2020, time.December, 11, 12, 0, 0, 0, time.UTC)
 
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:            moveInfo.UserID,
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: moveInfo.Email,
-				Active:        true,
+				ID:        moveInfo.UserID,
+				OktaUUID:  &oktaUUID,
+				OktaEmail: moveInfo.Email,
+				Active:    true,
 			}},
 	}, nil)
 
@@ -2992,16 +2992,16 @@ func createMovesForEachBranch(appCtx appcontext.AppContext, userUploader *upload
 }
 
 func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, _ services.MoveRouter, moveInfo MoveCreatorInfo) models.Move {
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:            moveInfo.UserID,
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: moveInfo.Email,
-				Active:        true,
+				ID:        moveInfo.UserID,
+				OktaUUID:  &oktaUUID,
+				OktaEmail: moveInfo.Email,
+				Active:    true,
 			}},
 	}, nil)
 
@@ -3088,17 +3088,17 @@ func CreateSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext, userU
 func createSubmittedMoveWithPPMShipmentForSCWithSIT(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, _ services.MoveRouter, locator string) {
 	userID := uuid.Must(uuid.NewV4())
 	email := "completeWithSIT@ppm.submitted"
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 	submittedAt := time.Now()
 	sitLocationType := models.SITLocationTypeOrigin
 
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:            userID,
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
-				Active:        true,
+				ID:        userID,
+				OktaUUID:  &oktaUUID,
+				OktaEmail: email,
+				Active:    true,
 			}},
 	}, nil)
 
@@ -3258,15 +3258,15 @@ func createSubmittedMoveWithFullPPMShipmentComplete(appCtx appcontext.AppContext
 
 	userID := uuid.Must(uuid.FromString("04f2a1c6-eb40-463d-8544-1909141fdedf"))
 	email := "complete@ppm.submitted"
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:            userID,
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
-				Active:        true,
+				ID:        userID,
+				OktaUUID:  &oktaUUID,
+				OktaEmail: email,
+				Active:    true,
 			}},
 	}, nil)
 
@@ -3432,15 +3432,15 @@ func createUnsubmittedHHGMove(appCtx appcontext.AppContext) {
 	 */
 	email := "hhg@only.unsubmitted"
 	uuidStr := "f08146cf-4d6b-43d5-9ca5-c8d239d37b3e"
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 
 	user := factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
-				ID:            uuid.Must(uuid.FromString(uuidStr)),
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
-				Active:        true,
+				ID:        uuid.Must(uuid.FromString(uuidStr)),
+				OktaUUID:  &oktaUUID,
+				OktaEmail: email,
+				Active:    true,
 			}},
 	}, nil)
 
@@ -3501,15 +3501,15 @@ func createUnsubmittedHHGMoveMultipleDestinations(appCtx appcontext.AppContext) 
 	*/
 	email := "multple-destinations@unsubmitted.hhg"
 	userID := "81fe79a1-faaa-4735-8426-fd159e641002"
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 
 	user := factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
-				ID:            uuid.Must(uuid.FromString(userID)),
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
-				Active:        true,
+				ID:        uuid.Must(uuid.FromString(userID)),
+				OktaUUID:  &oktaUUID,
+				OktaEmail: email,
+				Active:    true,
 			}},
 	}, nil)
 
@@ -3597,15 +3597,15 @@ func createUnsubmittedHHGMoveMultiplePickup(appCtx appcontext.AppContext) {
 	 */
 	email := "hhg@multiple.pickup"
 	uuidStr := "47fb0e80-6675-4ceb-b4eb-4f8e164c0f6e"
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 
 	user := factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
-				ID:            uuid.Must(uuid.FromString(uuidStr)),
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
-				Active:        true,
+				ID:        uuid.Must(uuid.FromString(uuidStr)),
+				OktaUUID:  &oktaUUID,
+				OktaEmail: email,
+				Active:    true,
 			}},
 	}, nil)
 
@@ -3702,17 +3702,17 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 	 */
 	email := "hhg@multiple.pickup.amendedOrders.submitted"
 	uuidStr := "c5f202b3-90d3-46aa-8e3b-83e937fcca99"
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 
 	smWithHHGID := "cfb9024b-39f3-47ca-b14b-a4e78a41e9db"
 
 	orders := factory.BuildOrder(db, []factory.Customization{
 		{
 			Model: models.User{
-				ID:            uuid.Must(uuid.FromString(uuidStr)),
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
-				Active:        true,
+				ID:        uuid.Must(uuid.FromString(uuidStr)),
+				OktaUUID:  &oktaUUID,
+				OktaEmail: email,
+				Active:    true,
 			}},
 		{
 			Model: models.ServiceMember{
@@ -3811,8 +3811,8 @@ func createMoveWithNTSAndNTSR(appCtx appcontext.AppContext, userUploader *upload
 	user := factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: email,
-				Active:        true,
+				OktaEmail: email,
+				Active:    true,
 			}},
 	}, nil)
 	smWithNTS := factory.BuildExtendedServiceMember(db, []factory.Customization{
@@ -8266,15 +8266,15 @@ func createTOO(appCtx appcontext.AppContext) {
 	}
 
 	tooUUID := uuid.Must(uuid.FromString("dcf86235-53d3-43dd-8ee8-54212ae3078f"))
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 	factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
-				ID:            tooUUID,
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
-				Active:        true,
-				Roles:         []roles.Role{tooRole},
+				ID:        tooUUID,
+				OktaUUID:  &oktaUUID,
+				OktaEmail: email,
+				Active:    true,
+				Roles:     []roles.Role{tooRole},
 			}},
 	}, nil)
 	factory.BuildOfficeUser(db, []factory.Customization{
@@ -8310,15 +8310,15 @@ func createTIO(appCtx appcontext.AppContext) {
 	}
 
 	tioUUID := uuid.Must(uuid.FromString("3b2cc1b0-31a2-4d1b-874f-0591f9127374"))
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 	factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
-				ID:            tioUUID,
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
-				Active:        true,
-				Roles:         []roles.Role{tioRole},
+				ID:        tioUUID,
+				OktaUUID:  &oktaUUID,
+				OktaEmail: email,
+				Active:    true,
+				Roles:     []roles.Role{tioRole},
 			}},
 	}, nil)
 	factory.BuildOfficeUser(db, []factory.Customization{
@@ -8354,15 +8354,15 @@ func createServicesCounselor(appCtx appcontext.AppContext) {
 	}
 
 	servicesCounselorUUID := uuid.Must(uuid.FromString("a6c8663f-998f-4626-a978-ad60da2476ec"))
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 	factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
-				ID:            servicesCounselorUUID,
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
-				Active:        true,
-				Roles:         []roles.Role{servicesCounselorRole},
+				ID:        servicesCounselorUUID,
+				OktaUUID:  &oktaUUID,
+				OktaEmail: email,
+				Active:    true,
+				Roles:     []roles.Role{servicesCounselorRole},
 			}},
 	}, nil)
 	factory.BuildOfficeUser(db, []factory.Customization{
@@ -8398,15 +8398,15 @@ func createQaeCsr(appCtx appcontext.AppContext) {
 	}
 
 	qaeCsrUUID := uuid.Must(uuid.FromString("8dbf1648-7527-4a92-b4eb-524edb703982"))
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 	factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
-				ID:            qaeCsrUUID,
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
-				Active:        true,
-				Roles:         []roles.Role{qaeCsrRole},
+				ID:        qaeCsrUUID,
+				OktaUUID:  &oktaUUID,
+				OktaEmail: email,
+				Active:    true,
+				Roles:     []roles.Role{qaeCsrRole},
 			}},
 	}, nil)
 	factory.BuildOfficeUser(db, []factory.Customization{
@@ -8448,15 +8448,15 @@ func createTXO(appCtx appcontext.AppContext) {
 	}
 
 	tooTioUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"))
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 	user := factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
-				ID:            tooTioUUID,
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
-				Active:        true,
-				Roles:         []roles.Role{tooRole, tioRole},
+				ID:        tooTioUUID,
+				OktaUUID:  &oktaUUID,
+				OktaEmail: email,
+				Active:    true,
+				Roles:     []roles.Role{tooRole, tioRole},
 			}},
 	}, nil)
 	factory.BuildOfficeUser(db, []factory.Customization{
@@ -8516,11 +8516,11 @@ func createTXOUSMC(appCtx appcontext.AppContext) {
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:            tooTioWithUsmcUUID,
-				LoginGovUUID:  &loginGovWithUsmcUUID,
-				LoginGovEmail: emailUSMC,
-				Active:        true,
-				Roles:         []roles.Role{tooRole, tioRole},
+				ID:        tooTioWithUsmcUUID,
+				OktaUUID:  &loginGovWithUsmcUUID,
+				OktaEmail: emailUSMC,
+				Active:    true,
+				Roles:     []roles.Role{tooRole, tioRole},
 			}},
 	}, nil)
 	factory.BuildOfficeUser(db, []factory.Customization{
@@ -8561,17 +8561,17 @@ func createTXOServicesCounselor(appCtx appcontext.AppContext) {
 	}
 
 	tooTioServicesUUID := uuid.Must(uuid.FromString("8d78c849-0853-4eb8-a7a7-73055db7a6a8"))
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 
 	// Make a user
 	factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
-				ID:            tooTioServicesUUID,
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
-				Active:        true,
-				Roles:         userRoles,
+				ID:        tooTioServicesUUID,
+				OktaUUID:  &oktaUUID,
+				OktaEmail: email,
+				Active:    true,
+				Roles:     userRoles,
 			}},
 	}, nil)
 
@@ -8622,11 +8622,11 @@ func createTXOServicesUSMCCounselor(appCtx appcontext.AppContext) {
 	factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
-				ID:            tooTioServicesWithUsmcUUID,
-				LoginGovUUID:  &loginGovWithUsmcUUID,
-				LoginGovEmail: emailUSMC,
-				Active:        true,
-				Roles:         userRoles,
+				ID:        tooTioServicesWithUsmcUUID,
+				OktaUUID:  &loginGovWithUsmcUUID,
+				OktaEmail: emailUSMC,
+				Active:    true,
+				Roles:     userRoles,
 			}},
 	}, nil)
 
@@ -8676,10 +8676,10 @@ func createServicesCounselorForCloseoutWithGbloc(appCtx appcontext.AppContext, u
 		},
 		{
 			Model: models.User{
-				ID:            userID,
-				LoginGovUUID:  &loginGovID,
-				LoginGovEmail: email,
-				Active:        true,
+				ID:        userID,
+				OktaUUID:  &loginGovID,
+				OktaEmail: email,
+				Active:    true,
 			},
 		},
 		{
@@ -8701,16 +8701,16 @@ func createPrimeUser(appCtx appcontext.AppContext) models.User {
 	}
 
 	userUUID := uuid.Must(uuid.FromString("3ce06fa9-590a-48e5-9e30-6ad1e82b528c"))
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 	email := "prime_role@office.mil"
 
 	// Make a user
 	primeUser := factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
-				ID:            userUUID,
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
+				ID:        userUUID,
+				OktaUUID:  &oktaUUID,
+				OktaEmail: email,
 			},
 		},
 	}, []factory.Trait{factory.GetTraitPrimeUser})
@@ -9195,14 +9195,14 @@ func createReweighWithShipmentDeprecatedPaymentRequest(appCtx appcontext.AppCont
 	db := appCtx.DB()
 	email := "deprecatedPaymentRequest@hhg.hhg"
 	uuidStr := "6995a480-2e90-4d9b-90df-0f9b42277653"
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 	user := factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
-				ID:            uuid.Must(uuid.FromString(uuidStr)),
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
-				Active:        true,
+				ID:        uuid.Must(uuid.FromString(uuidStr)),
+				OktaUUID:  &oktaUUID,
+				OktaEmail: email,
+				Active:    true,
 			}},
 	}, nil)
 
@@ -9293,14 +9293,14 @@ func createReweighWithShipmentEDIErrorPaymentRequest(appCtx appcontext.AppContex
 	db := appCtx.DB()
 	email := "errrorPaymentRequest@hhg.hhg"
 	uuidStr := "91252539-e8d0-4b9c-9722-d57c3b30bfb9"
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	oktaUUID := uuid.Must(uuid.NewV4())
 	user := factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
-				ID:            uuid.Must(uuid.FromString(uuidStr)),
-				LoginGovUUID:  &loginGovUUID,
-				LoginGovEmail: email,
-				Active:        true,
+				ID:        uuid.Must(uuid.FromString(uuidStr)),
+				OktaUUID:  &oktaUUID,
+				OktaEmail: email,
+				Active:    true,
 			}},
 	}, nil)
 

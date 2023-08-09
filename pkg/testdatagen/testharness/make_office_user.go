@@ -31,9 +31,9 @@ func MakeOfficeUserWithTOOAndTIO(appCtx appcontext.AppContext) models.User {
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: email,
-				Active:        true,
-				Roles:         []roles.Role{tooRole, tioRole},
+				OktaEmail: email,
+				Active:    true,
+				Roles:     []roles.Role{tooRole, tioRole},
 			},
 		},
 	}, nil)

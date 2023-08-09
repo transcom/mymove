@@ -434,9 +434,9 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 
 	// Create the User (which is the basis of all Service Members)
 	user := models.User{
-		LoginGovUUID:  &id,
-		LoginGovEmail: email,
-		Active:        true,
+		OktaUUID:  &id,
+		OktaEmail: email,
+		Active:    true,
 	}
 
 	verrs, err := appCtx.DB().ValidateAndCreate(&user)
@@ -901,7 +901,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 
 		adminUser := models.AdminUser{
 			UserID:    &user.ID,
-			Email:     user.LoginGovEmail,
+			Email:     user.OktaEmail,
 			FirstName: "Leo",
 			LastName:  "Spaceman",
 			Role:      models.SystemAdminRole,
@@ -928,11 +928,11 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, _ 
 		session = &auth.Session{}
 	}
 
-	lgUUID := user.LoginGovUUID.String()
+	lgUUID := user.OktaUUID.String()
 	userIdentity, err := models.FetchUserIdentity(appCtx.DB(), lgUUID)
 
 	if err != nil {
-		return nil, errors.Wrapf(err, "Unable to fetch user identity from LoginGovUUID %s", lgUUID)
+		return nil, errors.Wrapf(err, "Unable to fetch user identity from OktaUUID %s", lgUUID)
 	}
 
 	session.Roles = append(session.Roles, userIdentity.Roles...)

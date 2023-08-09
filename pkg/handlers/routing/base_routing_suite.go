@@ -154,9 +154,9 @@ func (suite *BaseRoutingSuite) setupRequestSession(req *http.Request, user model
 		Hostname:        hostname,
 	}
 
-	suite.FatalNotNil(user.LoginGovUUID)
-	suite.FatalFalse(user.LoginGovUUID.IsNil())
-	userIdentity, err := models.FetchUserIdentity(suite.DB(), user.LoginGovUUID.String())
+	suite.FatalNotNil(user.OktaUUID)
+	suite.FatalFalse(user.OktaUUID.IsNil())
+	userIdentity, err := models.FetchUserIdentity(suite.DB(), user.OktaUUID.String())
 	suite.FatalNoError(err)
 
 	// use AuthorizeKnownUser which also sets up various things in the

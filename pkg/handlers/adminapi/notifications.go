@@ -21,7 +21,7 @@ func payloadForNotificationModel(n models.Notification) *adminmessages.Notificat
 		SesMessageID:     handlers.FmtString(n.SESMessageID),
 		NotificationType: handlers.FmtString(string(n.NotificationType)),
 		CreatedAt:        *handlers.FmtDateTime(n.CreatedAt),
-		Email:            handlers.FmtString(n.ServiceMember.User.LoginGovEmail),
+		Email:            handlers.FmtString(n.ServiceMember.User.OktaEmail),
 	}
 }
 

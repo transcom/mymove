@@ -11,10 +11,10 @@ import (
 func (suite *ModelSuite) Test_FetchClientCert() {
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	userForClientCert := models.User{
-		ID:            uuid.Must(uuid.NewV4()),
-		LoginGovUUID:  &loginGovUUID,
-		LoginGovEmail: "prime_user_with_client_cert@login.gov.test",
-		Active:        true,
+		ID:        uuid.Must(uuid.NewV4()),
+		OktaUUID:  &loginGovUUID,
+		OktaEmail: "prime_user_with_client_cert@login.gov.test",
+		Active:    true,
 	}
 	suite.MustCreate(&userForClientCert)
 

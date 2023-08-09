@@ -14,7 +14,7 @@ export class TestHarness {
   /**
    * @typedef {Object} User
    * @property {string} id
-   * @property {string} login_gov_email
+   * @property {string} okta_email
    */
 
   /**

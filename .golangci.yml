@@ -1,3 +1,4 @@
+---
 linters-settings:
   gci:
     sections:
@@ -5,8 +6,6 @@ linters-settings:
       - default
       - prefix(github.com/transcom/mymove)
   goimports:
-    # put imports beginning with prefix after 3rd-party packages;
-    # it's a comma-separated list of prefixes
     local-prefixes: github.com/transcom/mymove
   gomodguard:
     blocked:
@@ -14,23 +13,25 @@ linters-settings:
         - github.com/gobuffalo/uuid:
             recommendations:
               - github.com/gofrs/uuid
-            reason: "uuid from GoBuffalo is deprecated in favor of the gofrs uuid package. See https://github.com/gobuffalo/uuid"
+            reason: uuid from GoBuffalo is deprecated in favor of the gofrs uuid package.
+              See https://github.com/gobuffalo/uuid
         - github.com/gobuffalo/validate:
             recommendations:
               - github.com/gobuffalo/validate/v3
-            reason: "MilMove is now on Pop v6, do not use older versions of this module"
+            reason: MilMove is now on Pop v6, do not use older versions of this module
         - github.com/gobuffalo/pop:
             recommendations:
               - github.com/gobuffalo/pop/v6
-            reason: "MilMove is now on Pop v6, do not use older versions of this module"
+            reason: MilMove is now on Pop v6, do not use older versions of this module
         - github.com/gobuffalo/pop/soda:
             recommendations:
               - github.com/gobuffalo/pop/v6/soda
-            reason: "MilMove is now on Pop v6, do not use older versions of this module"
+            reason: MilMove is now on Pop v6, do not use older versions of this module
         - github.com/facebookgo/clock:
             recommendations:
               - github.com/benbjohnson/clock
-            reason: "facebookgo/clock is archived and inactive, recommend using original fork repo"
+            reason: facebookgo/clock is archived and inactive, recommend using original fork
+              repo
   govet:
     check-shadowing: true
 linters:
@@ -52,12 +53,11 @@ linters:
 issues:
   fix: true
 run:
-  # timeout for analysis, e.g. 30s, 5m, default is 1m
   timeout: 8m
   concurrency: 1
   issues-exit-code: 1
   tests: true
   skip-dirs:
     - pkg/gen
-    - .*mocks # also cover custom mocks directories like "ghcmocks"
+    - .*mocks
   skip-dirs-use-default: true

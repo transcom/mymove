@@ -39,7 +39,10 @@ func Parse(file io.Reader) ([]models.TransportationAccountingCode, error) {
 	// and then proceed with parsing the rest of the file.
 	if scanner.Scan() {
 		columnHeaders = strings.Split(scanner.Text(), "|")
-		ensureFileStructMatchesColumnNames(columnHeaders)
+		err := ensureFileStructMatchesColumnNames(columnHeaders)
+		if err != nil {
+			fmt.Println("error parsing")
+		}
 	}
 
 	// Process the lines of the .txt file into modeled codes
@@ -146,7 +149,7 @@ func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models
 	for scanner.Scan() {
 		line := scanner.Text()
 		var tacFyTxt int
-		var tacSysId int
+		var tacSysID int
 		var loaSysID int
 		var err error
 
@@ -168,7 +171,7 @@ func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models
 
 		// If TacSysID is not empty, convert to int
 		if values[0] != "" {
-			tacSysId, err = strconv.Atoi(values[0])
+			tacSysID, err = strconv.Atoi(values[0])
 			if err != nil {
 				return nil, errors.New("malformed tac_sys_id in the provided tac file: " + line)
 			}
@@ -201,7 +204,7 @@ func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models
 		}
 
 		code := models.TransportationAccountingCode{
-			TacSysID:           &tacSysId,
+			TacSysID:           &tacSysID,
 			LoaSysID:           &loaSysID,
 			TAC:                values[2],
 			TacFyTxt:           &tacFyTxt,

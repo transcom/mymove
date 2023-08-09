@@ -84,7 +84,7 @@ export class OfficePage extends BaseTestPage {
    */
   async signInAsNewTIOAndTOOUser() {
     const user = await this.testHarness.buildOfficeUserWithTOOAndTIO();
-    await this.signInAsExistingOfficeUser(user.login_gov_email);
+    await this.signInAsExistingOfficeUser(user.okta_email);
     await this.page.getByRole('heading', { name: 'All moves' }).waitFor();
   }
 

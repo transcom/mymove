@@ -118,7 +118,7 @@ func GetTraitOfficeUserEmail() []Customization {
 	return []Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: email,
+				OktaEmail: email,
 			},
 			Type: &User,
 		},

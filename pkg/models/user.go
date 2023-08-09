@@ -19,8 +19,8 @@ type User struct {
 	ID                     uuid.UUID   `json:"id" db:"id"`
 	CreatedAt              time.Time   `json:"created_at" db:"created_at"`
 	UpdatedAt              time.Time   `json:"updated_at" db:"updated_at"`
-	LoginGovUUID           *uuid.UUID  `json:"login_gov_uuid" db:"login_gov_uuid"`
-	LoginGovEmail          string      `json:"login_gov_email" db:"login_gov_email"`
+	OktaUUID               *uuid.UUID  `json:"okta_uuid" db:"okta_uuid"`
+	OktaEmail              string      `json:"okta_email" db:"okta_email"`
 	Active                 bool        `json:"active" db:"active"`
 	Roles                  roles.Roles `many_to_many:"users_roles"`
 	CurrentAdminSessionID  string      `json:"current_admin_session_id" db:"current_admin_session_id"`
@@ -38,7 +38,7 @@ type Users []User
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (u *User) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.StringIsPresent{Field: u.LoginGovEmail, Name: "LoginGovEmail"},
+		&validators.StringIsPresent{Field: u.OktaEmail, Name: "OktaEmail"},
 	), nil
 }
 
@@ -56,7 +56,7 @@ func GetUser(db *pop.Connection, userID uuid.UUID) (*User, error) {
 func GetUserFromEmail(db *pop.Connection, email string) (*User, error) {
 	users := []User{}
 	downcasedEmail := strings.ToLower(email)
-	err := db.Where("login_gov_email = $1", downcasedEmail).All(&users)
+	err := db.Where("okta_email = $1", downcasedEmail).All(&users)
 	if len(users) == 0 {
 		if err != nil {
 			return nil, errors.Wrapf(err, "Unable to find user by email %s", downcasedEmail)
@@ -73,9 +73,9 @@ func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, err
 		return nil, err
 	}
 	newUser := User{
-		LoginGovUUID:  &lgu,
-		LoginGovEmail: strings.ToLower(email),
-		Active:        true,
+		OktaUUID:  &lgu,
+		OktaEmail: strings.ToLower(email),
+		Active:    true,
 	}
 	verrs, err := db.ValidateAndCreate(&newUser)
 	if verrs.HasAny() {
@@ -87,14 +87,14 @@ func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, err
 	return &newUser, nil
 }
 
-// UpdateUserLoginGovUUID is called upon the first successful login.gov verification of a new user
-func UpdateUserLoginGovUUID(db *pop.Connection, user *User, loginGovID string) error {
+// UpdateUserOktaUUID is called upon the first successful login.gov verification of a new user
+func UpdateUserOktaUUID(db *pop.Connection, user *User, loginGovID string) error {
 	lgu, err := uuid.FromString(loginGovID)
 	if err != nil {
 		return err
 	}
 
-	user.LoginGovUUID = &lgu
+	user.OktaUUID = &lgu
 
 	verrs, err := db.ValidateAndUpdate(user)
 	if verrs.HasAny() {
@@ -133,7 +133,7 @@ type UserIdentity struct {
 func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, error) {
 	var identities []UserIdentity
 	query := `SELECT users.id,
-				users.login_gov_email AS email,
+				users.okta_email AS email,
 				users.active AS active,
 				sm.id AS sm_id,
 				sm.first_name AS sm_fname,
@@ -153,7 +153,7 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 			LEFT OUTER JOIN service_members AS sm on sm.user_id = users.id
 			LEFT OUTER JOIN office_users AS ou on ou.user_id = users.id
 			LEFT OUTER JOIN admin_users AS au on au.user_id = users.id
-			WHERE users.login_gov_uuid  = $1`
+			WHERE users.okta_uuid  = $1`
 	err := db.RawQuery(query, loginGovID).All(&identities)
 	if err != nil {
 		return nil, err
@@ -179,7 +179,7 @@ func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit 
 	case auth.OfficeApp:
 		query = `SELECT
 		        users.id,
-				users.login_gov_email AS email,
+				users.okta_email AS email,
 				users.active AS active,
 				ou.id AS ou_id,
 				ou.first_name AS ou_fname,
@@ -190,7 +190,7 @@ func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit 
 			ORDER BY users.created_at DESC LIMIT $1`
 	case auth.AdminApp:
 		query = `SELECT users.id,
-				users.login_gov_email AS email,
+				users.okta_email AS email,
 				users.active AS active,
 				au.id AS au_id,
 				au.role AS au_role,
@@ -201,7 +201,7 @@ func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit 
 			ORDER BY users.created_at DESC LIMIT $1`
 	default:
 		query = `SELECT users.id,
-				users.login_gov_email AS email,
+				users.okta_email AS email,
 				users.active AS active,
 				sm.id AS sm_id,
 				sm.first_name AS sm_fname,
@@ -209,7 +209,7 @@ func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit 
 				sm.middle_name AS sm_middle
 			FROM service_members as sm
 			JOIN users on sm.user_id = users.id
-			WHERE users.login_gov_email != 'first.last@login.gov.test'
+			WHERE users.okta_email != 'first.last@login.gov.test'
 			ORDER BY users.created_at DESC LIMIT $1`
 	}
 
