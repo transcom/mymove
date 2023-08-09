@@ -1128,6 +1128,10 @@ reviewapp_docker_destroy:
 .PHONY: telemetry_docker
 telemetry_docker:
 	docker-compose -f docker-compose.telemetry.yml up
+
+.PHONY: feature_flag_docker
+feature_flag_docker:
+	docker-compose -f docker-compose.feature_flag.yml up
 #
 # ----- END RANDOM TARGETS -----
 #
