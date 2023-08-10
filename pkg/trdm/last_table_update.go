@@ -97,6 +97,14 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 			"physicalName": physicalName,
 		},
 	}
+	err := lastTableUpdateSoapCall(d, params, appCtx, physicalName)
+	if err != nil {
+		return fmt.Errorf("Request error: %s", err.Error())
+	}
+	return nil
+}
+
+func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.Params, appCtx appcontext.AppContext, physicalName string) error {
 	res, err := d.soapClient.Call("ProcessRequest", params)
 	if err != nil {
 		return fmt.Errorf("call error: %s", err.Error())
@@ -114,20 +122,27 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 		if dbError != nil {
 			return fmt.Errorf(err.Error())
 		}
-		if len(tacCodes) > 0 {
-			for _, tacCode := range tacCodes {
-				if tacCode.UpdatedAt.String() != r.LastUpdate {
-					getTable := NewGetTable(physicalName, d.soapClient)
-					getTableErr := getTable.GetTable(appCtx, physicalName)
-					if getTableErr != nil {
-						return fmt.Errorf("getTable error: %s", getTableErr.Error())
-					}
-				}
-			}
+		err := processTacCodes(d, physicalName, appCtx, tacCodes, r)
+		if err != nil {
+			return fmt.Errorf(err.Error())
 		}
 	}
 
 	appCtx.Logger().Debug("getLastTableUpdate result", zap.Any("processRequestResponse", r))
+	return nil
+}
 
+func processTacCodes(d *GetLastTableUpdateRequestElement, physicalName string, appCtx appcontext.AppContext, tacCodes []models.TransportationAccountingCode, r GetLastTableUpdateResponseElement) error {
+	if len(tacCodes) > 0 {
+		for _, tacCode := range tacCodes {
+			if tacCode.UpdatedAt.String() != r.LastUpdate {
+				getTable := NewGetTable(physicalName, d.soapClient)
+				getTableErr := getTable.GetTable(appCtx, physicalName)
+				if getTableErr != nil {
+					return fmt.Errorf("getTable error: %s", getTableErr.Error())
+				}
+			}
+		}
+	}
 	return nil
 }
