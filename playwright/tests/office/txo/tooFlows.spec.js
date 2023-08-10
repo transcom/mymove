@@ -83,7 +83,7 @@ test.describe('TOO user', () => {
       await page.getByText('Edit', { exact: true }).click();
 
       // Enter information in modal and submit
-      await page.locator('usa-radio__label').locator('label').getByText('No', { exact: true }).click();
+      await page.locator('label').getByText('No', { exact: true }).click();
 
       // Click save on the modal
       await page.getByRole('button', { name: 'Save' }).click();
