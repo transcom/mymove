@@ -2,7 +2,9 @@ package trdm
 
 import (
 	"fmt"
+	"time"
 
+	"github.com/cenkalti/backoff/v4"
 	"github.com/tiaguinho/gosoap"
 	"go.uber.org/zap"
 
@@ -104,7 +106,6 @@ func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physical
 		"xmlns:soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
 		"xmlns:ret":     "http://ReturnTablePackage/",
 	})
-
 	params := gosoap.Params{
 		"getTableRequestElement": map[string]interface{}{
 			"input": map[string]interface{}{
@@ -115,18 +116,36 @@ func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physical
 			},
 		},
 	}
-	if response, err := d.soapClient.Call("ProcessRequest", params); err == nil {
-		var r GetTableResponseElement
-		if unmarshalErr := response.Unmarshal(&r); unmarshalErr != nil {
-			return fmt.Errorf("unmarshall error: %s", unmarshalErr.Error())
-		}
-		if r.Output.TRDM.Status.StatusCode == successResponseString {
-			println("Hi")
-		}
-		appCtx.Logger().Debug("getTable result", zap.Any("processRequestResponse", response))
-
-	} else {
-		return fmt.Errorf("call error: %s", err.Error())
+	operation := func() error {
+		return soapCall(d, params, appCtx)
 	}
+	b := backoff.NewExponentialBackOff()
+
+	// Set the max retries to 5
+	b.MaxElapsedTime = 5 * time.Hour
+
+	// Only re-call after 1 hour
+	b.InitialInterval = 1 * time.Hour
+	err := backoff.Retry(operation, b)
+	if err != nil {
+		return fmt.Errorf("Failed after retries: %s", err)
+	}
+	return nil
+}
+
+func soapCall(d *GetTableRequestElement, params gosoap.Params, appCtx appcontext.AppContext) error {
+	response, err := d.soapClient.Call("ProcessRequest", params)
+	if err != nil {
+		return err
+	}
+	var r GetTableResponseElement
+	unmarshalErr := response.Unmarshal(&r)
+	if unmarshalErr != nil {
+		return fmt.Errorf("unmarshall error: %s", unmarshalErr.Error())
+	}
+	if r.Output.TRDM.Status.StatusCode == successResponseString {
+		println("Hi")
+	}
+	appCtx.Logger().Debug("getTable result", zap.Any("processRequestResponse", response))
 	return nil
 }
