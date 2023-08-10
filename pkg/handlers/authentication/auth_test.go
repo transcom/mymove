@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/models"
@@ -52,7 +53,7 @@ func (suite *AuthSuite) SetupTest() {
 
 // AuthContext returns a testing auth context
 func (suite *AuthSuite) AuthContext() Context {
-	return NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()),
+	return NewAuthContext(suite.Logger(), *fakeOktaProvider(suite.Logger()),
 		"http", suite.callbackPort)
 }
 
@@ -72,8 +73,8 @@ func TestAuthSuite(t *testing.T) {
 	hs.PopTestSuite.TearDown()
 }
 
-func fakeLoginGovProvider(logger *zap.Logger) LoginGovProvider {
-	return NewLoginGovProvider("fakeHostname", "secret_key", logger)
+func fakeOktaProvider(logger *zap.Logger) *okta.OktaProvider {
+	return okta.NewOktaProvider(logger)
 }
 
 func (suite *AuthSuite) SetupSessionContext(ctx context.Context, session *auth.Session, sessionManager auth.SessionManager) context.Context {
