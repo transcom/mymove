@@ -40,7 +40,7 @@ func getProfileData(appCtx appcontext.AppContext, hostname string) (map[string]s
 	err := json.Unmarshal(body, &m)
 	if err != nil {
 		appCtx.Logger().Error("could not unmarshal body", zap.Error(err))
-		return nil, err
+		// No return is intentional
 	}
 
 	return m, nil

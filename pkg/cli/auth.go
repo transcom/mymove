@@ -2,7 +2,6 @@ package cli
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 	"strings"
 
@@ -40,39 +39,33 @@ const (
 	// LoginGovHostnameFlag is the Login.gov Hostname Flag
 	LoginGovHostnameFlag string = "login-gov-hostname"
 
+	// ! Verify wording after changes
 	// Okta tenant flags
-	OktaTenantIssuerURLFlag    string = "okta-tenant-issuer-url"
-	OktaTenantCallbackPortFlag string = "okta-tenant-callback-port"
+	/*
+		OktaTenantIssuerURLFlag    string = "okta-tenant-issuer-url"
+		OktaTenantCallbackPortFlag string = "okta-tenant-callback-port"
+	*/
 	// Okta Customer client id and secret flags
-	// Summary: gosec - G101 - Password Management: Hardcoded Password
-	// This line was flagged because of use of the word "secret"
-	// This line is used to identify the name of the flag. See ClientAuthSecretKeyFlag handled above.  OktaCustomerSecretKeyFlag points to the flag.
-	// This value of this variable does not store an application secret.
-	// #nosec G101
-	OktaCustomerSecretKeyFlag        string = "okta-customer-secret-key"
-	OktaCustomerClientIDFlag         string = "okta-customr-client-id"
-	OktaCustomerHostnameFlag         string = "okta-customer-hostname"
-	OktaCustomerCallbackProtocolFlag string = "okta-customer-callback-protocol"
+	/*
+		OktaCustomerSecretKeyFlag        string = "okta-customer-secret-key"
+		OktaCustomerClientIDFlag         string = "okta-customr-client-id"
+		OktaCustomerHostnameFlag         string = "okta-customer-hostname"
+		OktaCustomerCallbackProtocolFlag string = "okta-customer-callback-protocol"
+	*/
 	// Okta Office client id and secret flags
-	// Summary: gosec - G101 - Password Management: Hardcoded Password
-	// This line was flagged because of use of the word "secret"
-	// This line is used to identify the name of the flag. See ClientAuthSecretKeyFlag handled above. OktaOfficeSecretKeyFlag points to the flag.
-	// This value of this variable does not store an application secret.
-	// #nosec G101
-	OktaOfficeSecretKeyFlag        string = "okta-office-secret-key"
-	OktaOfficeClientIDFlag         string = "okta-office-client-id"
-	OktaOfficeHostnameFlag         string = "okta-office-hostname"
-	OktaOfficeCallbackProtocolFlag string = "okta-office-callback-protocol"
+	/*
+		OktaOfficeSecretKeyFlag        string = "okta-office-secret-key"
+		OktaOfficeClientIDFlag         string = "okta-office-client-id"
+		OktaOfficeHostnameFlag         string = "okta-office-hostname"
+		OktaOfficeCallbackProtocolFlag string = "okta-office-callback-protocol"
+	*/
 	// Okta Admin client id and secret flags
-	// Summary: gosec - G101 - Password Management: Hardcoded Password
-	// This line was flagged because of use of the word "secret"
-	// This line is used to identify the name of the flag. See ClientAuthSecretKeyFlag handled above. OktaAdminSecretKeyFlag points  to the flag.
-	// This value of this variable does not store an application secret.
-	// #nosec G101
-	OktaAdminSecretKeyFlag        string = "okta-admin-secret-key"
-	OktaAdminClientIDFlag         string = "okta-admin-client-id"
-	OktaAdminHostnameFlag         string = "okta-admin-hostname"
-	OktaAdminCallbackProtocolFlag string = "okta-admin-callback-protocol"
+	/*
+		OktaAdminSecretKeyFlag        string = "okta-admin-secret-key"
+		OktaAdminClientIDFlag         string = "okta-admin-client-id"
+		OktaAdminHostnameFlag         string = "okta-admin-hostname"
+		OktaAdminCallbackProtocolFlag string = "okta-admin-callback-protocol"
+	*/
 )
 
 type errInvalidClientID struct {
@@ -97,27 +90,27 @@ func InitAuthFlags(flag *pflag.FlagSet) {
 
 	// TODO: Replace Okta os.Getenv
 
-	// Okta flags
-	flag.String(OktaTenantIssuerURLFlag, os.Getenv("OKTA_TENANT_ISSUER_URL"), "Okta tenant issuer URL.")
-	flag.Int(OktaTenantCallbackPortFlag, 443, "Okta tenant callback port.")
+	// // Okta flags
+	// flag.String(OktaTenantIssuerURLFlag, os.Getenv("OKTA_TENANT_ISSUER_URL"), "Okta tenant issuer URL.")
+	// flag.Int(OktaTenantCallbackPortFlag, 443, "Okta tenant callback port.")
 
-	// Customer flags
-	flag.String(OktaCustomerSecretKeyFlag, os.Getenv("OKTA_CUSTOMER_SECRET_KEY"), "Okta customer secret key.")
-	flag.String(OktaCustomerClientIDFlag, os.Getenv("OKTA_CUSTOMER_CLIENT_ID"), "Okta customer client ID.")
-	flag.String(OktaCustomerHostnameFlag, os.Getenv("OKTA_CUSTOMER_HOSTNAME"), "Okta customer hostname.")
-	flag.String(OktaCustomerCallbackProtocolFlag, os.Getenv("OKTA_CUSTOMER_CALLBACK_PROTOCOL"), "Okta customer callback protocol.")
+	// // Customer flags
+	// flag.String(OktaCustomerSecretKeyFlag, os.Getenv("OKTA_CUSTOMER_SECRET_KEY"), "Okta customer secret key.")
+	// flag.String(OktaCustomerClientIDFlag, os.Getenv("OKTA_CUSTOMER_CLIENT_ID"), "Okta customer client ID.")
+	// flag.String(OktaCustomerHostnameFlag, os.Getenv("OKTA_CUSTOMER_HOSTNAME"), "Okta customer hostname.")
+	// flag.String(OktaCustomerCallbackProtocolFlag, os.Getenv("OKTA_CUSTOMER_CALLBACK_PROTOCOL"), "Okta customer callback protocol.")
 
-	// Office flags
-	flag.String(OktaOfficeSecretKeyFlag, os.Getenv("OKTA_OFFICE_SECRET_KEY"), "Okta office secret key.")
-	flag.String(OktaOfficeClientIDFlag, os.Getenv("OKTA_OFFICE_CLIENT_ID"), "Okta office client ID.")
-	flag.String(OktaOfficeHostnameFlag, os.Getenv("OKTA_OFFICE_HOSTNAME"), "Okta office hostname.")
-	flag.String(OktaOfficeCallbackProtocolFlag, os.Getenv("OKTA_OFFICE_CALLBACK_PROTOCOL"), "Okta office callback protocol.")
+	// // Office flags
+	// flag.String(OktaOfficeSecretKeyFlag, os.Getenv("OKTA_OFFICE_SECRET_KEY"), "Okta office secret key.")
+	// flag.String(OktaOfficeClientIDFlag, os.Getenv("OKTA_OFFICE_CLIENT_ID"), "Okta office client ID.")
+	// flag.String(OktaOfficeHostnameFlag, os.Getenv("OKTA_OFFICE_HOSTNAME"), "Okta office hostname.")
+	// flag.String(OktaOfficeCallbackProtocolFlag, os.Getenv("OKTA_OFFICE_CALLBACK_PROTOCOL"), "Okta office callback protocol.")
 
-	// Admin flags
-	flag.String(OktaAdminSecretKeyFlag, os.Getenv("OKTA_ADMIN_SECRET_KEY"), "Okta admin secret key.")
-	flag.String(OktaAdminClientIDFlag, os.Getenv("OKTA_ADMIN_CLIENT_ID"), "Okta admin client ID.")
-	flag.String(OktaAdminHostnameFlag, os.Getenv("OKTA_ADMIN_HOSTNAME"), "Okta admin hostname.")
-	flag.String(OktaAdminCallbackProtocolFlag, os.Getenv("OKTA_ADMIN_CALLBACK_PROTOCOL"), "Okta admin callback protocol.")
+	// // Admin flags
+	// flag.String(OktaAdminSecretKeyFlag, os.Getenv("OKTA_ADMIN_SECRET_KEY"), "Okta admin secret key.")
+	// flag.String(OktaAdminClientIDFlag, os.Getenv("OKTA_ADMIN_CLIENT_ID"), "Okta admin client ID.")
+	// flag.String(OktaAdminHostnameFlag, os.Getenv("OKTA_ADMIN_HOSTNAME"), "Okta admin hostname.")
+	// flag.String(OktaAdminCallbackProtocolFlag, os.Getenv("OKTA_ADMIN_CALLBACK_PROTOCOL"), "Okta admin callback protocol.")
 }
 
 // CheckAuth validates Auth command line flags

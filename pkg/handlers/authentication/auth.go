@@ -823,6 +823,8 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	appCtx.Logger().Info("New Login", zap.String("Okta user", profileData["preferred_username"]), zap.String("Okta email", profileData["email"]), zap.String("Host", appCtx.Session().Hostname))
 	// ! Hard coded error auth result. This is because sessions are TODO
 	// TODO: Implement sessions and remove hard coded auth result error
+
+	// ! This will fail for now
 	result := AuthorizationResult(2)
 	dump := authorizeUser(r.Context(), appCtx, goth.User{}, sessionManager, h.sender)
 	appCtx.Logger().Info("Dumping var", zap.Any("dump", dump))
