@@ -14,7 +14,7 @@ c24d9e93-49f9-43cc-bd52-32b537ac47c4	10007	1	\N	1234	0000	\N	1A	123A	00000000	\N
 48d4955f-aa1e-410b-839a-9fbc78293b5a	10008	1	\N	1234	0000	\N	1A	123A	00000000	\N	\N	\N	\N	\N	\N	\N	\N	22NL	\N	\N	000000	HHG12345678900	\N	12345	\N	\N	PERSONAL PROPERTY - PARANORMAL ACTIVITY DIVISION (HS)	2005-10-01	2015-10-01	\N	U	\N	HS	ZZ	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	2023-08-03 19:17:10.05037	2023-08-03 19:17:38.776652
 \.
 
-DELETE FROM transportation_accounting_codes;
+TRUNCATE transportation_accounting_codes;
 ALTER table public.transportation_accounting_codes DROP constraint transportation_accounting_codes_tac_key;
 
 
