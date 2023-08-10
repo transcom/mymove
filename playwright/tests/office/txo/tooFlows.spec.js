@@ -437,28 +437,34 @@ test.describe('TOO user', () => {
     await expect(page.getByText('Review required')).toBeEnabled();
 
     // Edit the shipment
-    await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
+    await page.getByRole('button', { name: 'Edit shipment' }).click();
 
-    await expect(page.getByText('Request needs review. See delivery location to proceed.')).toBeEnabled();
     await expect(
-      page.getByText('Pending delivery location change request needs review. Review request to proceed.'),
-    ).toBeEnabled();
+      page.getByTestId('alert').getByText('Request needs review. See delivery location to proceed.'),
+    ).toBeVisible();
+    await expect(
+      page
+        .getByTestId('alert')
+        .getByText('Pending delivery location change request needs review. Review request to proceed.'),
+    ).toBeVisible();
 
     // click to trigger review modal
     await page.getByText('Review request').click();
 
     // Enter information in modal and submit
-    await page.locator('label[for="acceptAddressUpdate"]').click();
-    await page.locator('textarea').type('The delivery address change looks good. ');
+    await page.getByTestId('modal').getByTestId('radio').getByText('Yes').click();
+    await page.getByTestId('modal').locator('textarea').type('The delivery address change looks good. ');
 
     // Click save on the modal
     await page.getByTestId('modal').getByRole('button', { name: 'Save' }).click();
+    await expect(page.getByTestId('modal')).not.toBeVisible();
 
     await expect(page.getByText('Changes sent to contractor.')).toBeVisible();
 
     // Click save on the page
     await page.getByRole('button', { name: 'Save' }).click();
 
+    await expect(page.getByText('Update request details')).not.toBeVisible();
     await expect(page.getByText('7 Q st, Apt 1, Fort Gordon, GA 30813')).toBeVisible();
 
     await page.getByText('KKFA moves').click();
@@ -466,5 +472,6 @@ test.describe('TOO user', () => {
     await page.locator('input[name="locator"]').type(shipmentAddressUpdate.Shipment.MoveTaskOrder.locator);
     await page.locator('input[name="locator"]').blur();
     await expect(page.getByText('Move approved')).toBeVisible();
+    await expect(page.getByText('Approvals requested')).not.toBeVisible();
   });
 });
