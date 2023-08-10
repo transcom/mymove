@@ -21,7 +21,7 @@
 
     button {
       padding: 0;
-      font-size: 13px;
+      @include u-font-size('body', '3xs');
     }
   }
 
@@ -84,11 +84,11 @@
   }
 
   .deliveryAddressUpdateAlertContent {
-    font-size: 13px;
+    @include u-font-size('body', '3xs');
     font-weight: normal;
 
     .reviewRequestLink {
-      font-size: 13px;
+      @include u-font-size('body', '3xs');
       padding: 0;
       display: inline;
       cursor: pointer;
