@@ -45,7 +45,7 @@ func Parse(file io.Reader) ([]models.LineOfAccounting, error) {
 		columnHeaders = strings.Split(scanner.Text(), "|")
 		err := ensureFileStructMatchesColumnNames(columnHeaders)
 		if err != nil {
-			return nil, errors.New("file column headers do not match")
+			return nil, err
 		}
 	}
 
