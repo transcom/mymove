@@ -58,7 +58,7 @@ type CreateNamedServerInput struct {
 	ClientAuth            tls.ClientAuthType
 	Certificates          []tls.Certificate
 	ClientCAs             *x509.CertPool // CaCertPool
-	VerifyPeerCertificate func()
+	VerifyPeerCertificate func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error
 }
 
 // NamedServer wraps *http.Server to override the definition of ListenAndServeTLS, but bypasses some restrictions.
@@ -218,7 +218,7 @@ func getOCSPResponse(ocspServer string, request *http.Request, issuerCert *x509.
 // rawCerts contain chains of certificates in raw ASN.1 format
 // each raw certs starts with the leafCert and ends with a root self-signed CA certificate
 // verifiedChains have a certificate chain that verifies the signature validity and ends with a trusted certificate in the chain
-func certRevokedCheck(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
+func CertRevokedCheck(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 	var req *http.Request
 	cert := verifiedChains[0][0]       // first argument verifies the client cert, second index 0 is the client cert
 	issuerCert := verifiedChains[0][1] // second index of 1 is the issuer of the cert
@@ -285,11 +285,14 @@ func CreateNamedServer(input *CreateNamedServerInput) (*NamedServer, error) {
 			MinVersion:               tls.VersionTLS12,
 			NextProtos:               []string{"h2"},
 			PreferServerCipherSuites: true,
-			//VerifyPeerCertificate:    certRevokedCheck,
+			VerifyPeerCertificate:    CertRevokedCheck,
 		}
 		//option 1: if devLocal flag to switch between APIs that use mtls connection and those that do not
 		//if auth.ApplicationServername == "AdminServername" || "PrimeServername" || "OrdersServername" {
-		tlsConfig.VerifyPeerCertificate = certRevokedCheck
+		//if input.VerifyPeerCertificate {
+		//	tlsConfig.VerifyPeerCertificate = certRevokedCheck
+		//}
+
 		//}
 
 		//Option 2: set flag when server starts up that can turn off or on to test locally.
