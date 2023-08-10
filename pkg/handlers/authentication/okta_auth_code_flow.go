@@ -10,19 +10,20 @@ import (
 	"os"
 
 	verifier "github.com/okta/okta-jwt-verifier-golang"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
-	"go.uber.org/zap"
 )
 
 // ! See flow here:
 // ! https://developer.okta.com/docs/guides/implement-grant-type/authcode/main/
 
-func getProfileData(r *http.Request, appCtx appcontext.AppContext, hostname string) map[string]string {
+func getProfileData(r *http.Request, appCtx appcontext.AppContext, hostname string) (map[string]string, error) {
 	m := make(map[string]string)
 
 	if appCtx.Session().AccessToken == "" {
-		return m
+		return m, nil
 	}
 
 	reqUrl := hostname + "/oauth2/default/v1/userinfo"
@@ -36,9 +37,13 @@ func getProfileData(r *http.Request, appCtx appcontext.AppContext, hostname stri
 	resp, _ := client.Do(req)
 	body, _ := io.ReadAll(resp.Body)
 	defer resp.Body.Close()
-	json.Unmarshal(body, &m)
+	err := json.Unmarshal(body, &m)
+	if err != nil {
+		appCtx.Logger().Error("get profile data", zap.Error(err))
+		return nil, err
+	}
 
-	return m
+	return m, nil
 }
 
 // ! Refactor after chamber is modified
@@ -75,7 +80,7 @@ func verifyToken(t string, nonce string, session *auth.Session, orgURL string) (
 }
 
 // ! Refactor once chamber is holding new secrets
-func exchangeCode(code string, r *http.Request, appCtx appcontext.AppContext, hash string) Exchange {
+func exchangeCode(code string, r *http.Request, appCtx appcontext.AppContext, hash string) (Exchange, error) {
 	session := auth.SessionFromRequestContext(r)
 
 	appType := "CUSTOMER"
@@ -117,9 +122,13 @@ func exchangeCode(code string, r *http.Request, appCtx appcontext.AppContext, ha
 	}
 	defer resp.Body.Close()
 	var exchange Exchange
-	json.Unmarshal(body, &exchange)
+	err = json.Unmarshal(body, &exchange)
+	if err != nil {
+		appCtx.Logger().Error("get profile data", zap.Error(err))
+		return Exchange{}, err
+	}
 
-	return exchange
+	return exchange, nil
 }
 
 type Exchange struct {

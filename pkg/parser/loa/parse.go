@@ -41,7 +41,10 @@ func Parse(file io.Reader) ([]models.LineOfAccounting, error) {
 	// and then proceed with parsing the rest of the file.
 	if scanner.Scan() {
 		columnHeaders = strings.Split(scanner.Text(), "|")
-		ensureFileStructMatchesColumnNames(columnHeaders)
+		err := ensureFileStructMatchesColumnNames(columnHeaders)
+		if err != nil {
+			return nil, errors.New("file column headers do not match")
+		}
 	}
 
 	// Process the lines of the .txt file into modeled codes
