@@ -80,7 +80,7 @@ func InitEmail(v *viper.Viper, sess *awssession.Session, logger *zap.Logger) (No
 		sesService := ses.New(sess)
 		input := &ses.GetAccountSendingEnabledInput{}
 		result, err := sesService.GetAccountSendingEnabled(input)
-		if err != nil || result == nil || !*result.Enabled {
+		if err != nil || result == nil || result.Enabled == nil || !*result.Enabled {
 			logger.Error("email sending not enabled", zap.Error(err))
 			return NewNotificationSender(sesService, awsSESDomain, sysAdminEmail), err
 		}
