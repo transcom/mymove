@@ -66,12 +66,12 @@
 
 FROM ubuntu:23.04
 WORKDIR /
-RUN apt-get update
-RUN apt-get clean
 
 # Get the openssh-server package and install it.
 # hadolint ignore=DL3008
-RUN apt-get install -y --no-install-recommends openssh-server
+RUN apt-get update && apt-get install -y --no-install-recommends openssh-server \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
 # Create a group and add testu to that group
 RUN groupadd sftp_users
@@ -129,7 +129,9 @@ RUN chown -R testu:sftp_users /data/testu/upload
 # Install vim because it's useful if you need to go into the container and edit
 # or view files. Install your editor of choice if you don't like using vim.
 # hadolint ignore=DL3008
-RUN apt-get install -y --no-install-recommends vim
+RUN apt-get update && apt-get install -y --no-install-recommends vim \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
 # Be sure to expose the 22 port since that's used for ssh and sftp
 EXPOSE 22
