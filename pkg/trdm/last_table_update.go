@@ -97,14 +97,14 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 			"physicalName": physicalName,
 		},
 	}
-	err := soapCall(d, params, appCtx)
+	err := lastTableUpdateSoapCall(d, params, appCtx)
 	if err != nil {
 		return fmt.Errorf("Request error: %s", err.Error())
 	}
 	return nil
 }
 
-func soapCall(d *GetLastTableUpdateRequestElement, params gosoap.Params, appCtx appcontext.AppContext) error {
+func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.Params, appCtx appcontext.AppContext) error {
 	res, err := d.soapClient.Call("ProcessRequest", params)
 	if err != nil {
 		return fmt.Errorf("call error: %s", err.Error())
