@@ -117,7 +117,7 @@ func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physical
 		},
 	}
 	operation := func() error {
-		return soapCall(d, params, appCtx)
+		return getTableSoapCall(d, params, appCtx)
 	}
 	b := backoff.NewExponentialBackOff()
 
@@ -133,7 +133,7 @@ func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physical
 	return nil
 }
 
-func soapCall(d *GetTableRequestElement, params gosoap.Params, appCtx appcontext.AppContext) error {
+func getTableSoapCall(d *GetTableRequestElement, params gosoap.Params, appCtx appcontext.AppContext) error {
 	response, err := d.soapClient.Call("ProcessRequest", params)
 	if err != nil {
 		return err
