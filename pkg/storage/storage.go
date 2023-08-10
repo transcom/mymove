@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"context"
 	//RA Summary: gosec - G501 - Weak cryptographic hash
 	//RA: This line was flagged because of the use of MD5 hashing
 	//RA: This line of code hashes the AWS object to be able to verify data integrity
@@ -16,7 +17,7 @@ import (
 	"io"
 	"path"
 
-	awssession "github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -89,7 +90,7 @@ func DetectContentType(data io.ReadSeeker) (string, error) {
 }
 
 // InitStorage initializes the storage backend
-func InitStorage(v *viper.Viper, sess *awssession.Session, logger *zap.Logger) FileStorer {
+func InitStorage(v *viper.Viper, logger *zap.Logger) FileStorer {
 	storageBackend := v.GetString(cli.StorageBackendFlag)
 	localStorageRoot := v.GetString(cli.LocalStorageRootFlag)
 	localStorageWebRoot := v.GetString(cli.LocalStorageWebRootFlag)
@@ -114,8 +115,14 @@ func InitStorage(v *viper.Viper, sess *awssession.Session, logger *zap.Logger) F
 		if len(awsS3KeyNamespace) == 0 {
 			logger.Fatal("Must provide aws_s3_key_namespace parameter, exiting")
 		}
+		cfg, err := config.LoadDefaultConfig(context.Background(),
+			config.WithRegion(awsS3Region),
+		)
+		if err != nil {
+			logger.Fatal("error loading S3 aws config", zap.Error(err))
+		}
 
-		storer = NewS3(awsS3Bucket, awsS3KeyNamespace, sess)
+		storer = NewS3(awsS3Bucket, awsS3KeyNamespace, cfg)
 	} else if storageBackend == "memory" {
 		logger.Info("Using memory storage backend",
 			zap.String(cli.LocalStorageRootFlag, path.Join(localStorageRoot, localStorageWebRoot)),
