@@ -547,17 +547,7 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 					{
 						MTOServiceItemID: serviceItem.ID,
 						MTOServiceItem:   serviceItem,
-						// PaymentServiceItemParams: models.PaymentServiceItemParams{
-						// 	{
-						// 		IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
-						// 		Value:       "3254",
-						// 	},
-						// 	{
-						// 		IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
-						// 		Value:       "2022-03-16",
-						// 	},
-						// },
-						Status: models.PaymentServiceItemStatusRequested,
+						Status:           models.PaymentServiceItemStatusRequested,
 					},
 				},
 			}

@@ -802,7 +802,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		suite.Len(movePayload.PaymentRequests, 2)
 		paymentRequestPayload := movePayload.PaymentRequests[0]
-		// suite.Equal(fmt.Sprintf("%v", paymentRequestPayload.PaymentServiceItems), "Conflict")
 		suite.Equal(paymentRequest.ID.String(), paymentRequestPayload.ID.String())
 		suite.Equal(successMove.ID.String(), paymentRequestPayload.MoveTaskOrderID.String())
 		suite.Equal(paymentRequest.IsFinal, *paymentRequestPayload.IsFinal)

@@ -981,7 +981,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	}
 
 	suite.Run("Given a non-existent service item id, the create should fail", func() {
-		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
+		badID := uuid.Must(uuid.NewV4())
 		mtoServiceItem1.MoveTaskOrderID = moveTaskOrder.ID
 		invalidPaymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
