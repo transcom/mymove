@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ShipmentForm from './ShipmentForm';
@@ -8,51 +8,22 @@ import ShipmentForm from './ShipmentForm';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ORDERS_TYPE } from 'constants/orders';
 import { roleTypes } from 'constants/userRoles';
-import { ppmShipmentStatuses } from 'constants/shipments';
+import { ADDRESS_UPDATE_STATUS, ppmShipmentStatuses } from 'constants/shipments';
 import { tooRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { validatePostalCode } from 'utils/validation';
+
+const mockMutateFunction = jest.fn();
+jest.mock('@tanstack/react-query', () => ({
+  ...jest.requireActual('@tanstack/react-query'),
+  useMutation: () => ({ mutate: mockMutateFunction }),
+}));
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
 }));
-
-const defaultProps = {
-  isCreatePage: true,
-  submitHandler: jest.fn(),
-  newDutyLocationAddress: {
-    city: 'Fort Benning',
-    state: 'GA',
-    postalCode: '31905',
-  },
-  currentResidence: {
-    city: 'Fort Benning',
-    state: 'GA',
-    postalCode: '31905',
-    streetAddress1: '123 Main',
-    streetAddress2: '',
-  },
-  originDutyLocationAddress: {
-    city: 'Fort Benning',
-    state: 'GA',
-    postalCode: '31905',
-    streetAddress1: '123 Main',
-    streetAddress2: '',
-  },
-  serviceMember: {
-    weightAllotment: {
-      totalWeightSelf: 5000,
-    },
-    agency: '',
-  },
-  moveTaskOrderID: 'mock move id',
-  mtoShipments: [],
-  userRole: roleTypes.SERVICES_COUNSELOR,
-  orderType: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
-  isForServivcesCounseling: false,
-};
 
 const mockMtoShipment = {
   id: 'shipment123',
@@ -91,6 +62,42 @@ const mockMtoShipment = {
       phone: '863-555-9664',
     },
   ],
+};
+
+const defaultProps = {
+  isCreatePage: true,
+  submitHandler: jest.fn(),
+  newDutyLocationAddress: {
+    city: 'Fort Benning',
+    state: 'GA',
+    postalCode: '31905',
+  },
+  currentResidence: {
+    city: 'Fort Benning',
+    state: 'GA',
+    postalCode: '31905',
+    streetAddress1: '123 Main',
+    streetAddress2: '',
+  },
+  originDutyLocationAddress: {
+    city: 'Fort Benning',
+    state: 'GA',
+    postalCode: '31905',
+    streetAddress1: '123 Main',
+    streetAddress2: '',
+  },
+  serviceMember: {
+    weightAllotment: {
+      totalWeightSelf: 5000,
+    },
+    agency: '',
+  },
+  moveTaskOrderID: 'mock move id',
+  mtoShipments: [],
+  mtoShipment: mockMtoShipment,
+  userRole: roleTypes.SERVICES_COUNSELOR,
+  orderType: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+  isForServivcesCounseling: false,
 };
 
 const mockShipmentWithDestinationType = {
@@ -216,7 +223,10 @@ describe('ShipmentForm component', () => {
 
       expect(screen.getByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText('Delivery location')).toBeInstanceOf(HTMLLegendElement);
+      const deliveryLocationSectionHeadings = screen.getAllByText('Delivery location');
+      expect(deliveryLocationSectionHeadings).toHaveLength(2);
+      expect(deliveryLocationSectionHeadings[0]).toBeInstanceOf(HTMLParagraphElement);
+      expect(deliveryLocationSectionHeadings[1]).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getAllByLabelText('Yes')[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('Yes')[1]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('No')[0]).toBeInstanceOf(HTMLInputElement);
@@ -322,7 +332,6 @@ describe('ShipmentForm component', () => {
           {...defaultProps}
           isCreatePage={false}
           shipmentType={SHIPMENT_OPTIONS.HHG}
-          mtoShipment={mockMtoShipment}
           displayDestinationType={false}
         />,
       );
@@ -407,23 +416,115 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('Destination type')).toBeVisible();
     });
 
-    it('displays appropriate alerting when an address change is requested', async () => {
-      renderWithRouter(
-        <ShipmentForm
-          {...defaultPropsRetirement}
-          isCreatePage={false}
-          shipmentType={SHIPMENT_OPTIONS.HHG}
-          mtoShipment={{ ...mockShipmentWithDestinationType, ...mockDeliveryAddressUpdate }}
-          displayDestinationType
-        />,
-      );
+    describe('shipment address change request', () => {
+      it('displays appropriate alerting when an address change is requested', async () => {
+        renderWithRouter(
+          <ShipmentForm
+            {...defaultPropsRetirement}
+            isCreatePage={false}
+            shipmentType={SHIPMENT_OPTIONS.HHG}
+            mtoShipment={{ ...mockShipmentWithDestinationType, ...mockDeliveryAddressUpdate }}
+            displayDestinationType
+          />,
+        );
 
-      const alerts = await screen.findAllByTestId('alert');
-      expect(alerts).toHaveLength(2); // Should have 2 alerts shown due to the address update request
-      expect(await alerts[0]).toHaveTextContent('Request needs review. See delivery location to proceed.');
-      expect(await alerts[1]).toHaveTextContent(
-        'Pending delivery location change request needs review. Review request to proceed.',
-      );
+        const alerts = await screen.findAllByTestId('alert');
+        expect(alerts).toHaveLength(2); // Should have 2 alerts shown due to the address update request
+        expect(await alerts[0]).toHaveTextContent('Request needs review. See delivery location to proceed.');
+        expect(await alerts[1]).toHaveTextContent(
+          'Pending delivery location change request needs review. Review request to proceed.',
+        );
+      });
+
+      it('opens a closeable modal when Review Request is clicked', async () => {
+        const user = userEvent.setup();
+
+        const shipmentType = SHIPMENT_OPTIONS.HHG;
+
+        renderWithRouter(
+          <ShipmentForm
+            {...defaultPropsRetirement}
+            isCreatePage={false}
+            shipmentType={shipmentType}
+            mtoShipment={{ ...mockShipmentWithDestinationType, ...mockDeliveryAddressUpdate, shipmentType }}
+            displayDestinationType
+          />,
+        );
+
+        const queryForModal = () => screen.queryByTestId('modal');
+
+        const reviewRequestLink = await screen.findByRole('button', { name: 'Review request' });
+
+        // confirm the modal is not already present
+        expect(queryForModal()).not.toBeInTheDocument();
+
+        // Open the modal
+        await user.click(reviewRequestLink);
+
+        await waitFor(() => expect(queryForModal()).toBeInTheDocument());
+
+        // Close the modal
+        const modalCancel = within(queryForModal()).queryByText('Cancel');
+
+        expect(modalCancel).toBeInTheDocument();
+
+        await user.click(modalCancel);
+
+        // Confirm the modal has been closed
+        expect(queryForModal()).not.toBeInTheDocument();
+      });
+
+      it('allows a shipment address update review to be submitted via the modal', async () => {
+        const user = userEvent.setup();
+
+        const shipmentType = SHIPMENT_OPTIONS.HHG;
+        const eTag = '8c32882e7793d9da88e0fdfd68672e2ead2f';
+
+        renderWithRouter(
+          <ShipmentForm
+            {...defaultPropsRetirement}
+            isCreatePage={false}
+            shipmentType={shipmentType}
+            mtoShipment={{ ...mockShipmentWithDestinationType, ...mockDeliveryAddressUpdate, eTag, shipmentType }}
+            displayDestinationType
+          />,
+        );
+
+        const queryForModal = () => screen.queryByTestId('modal');
+        const findAlerts = async () => screen.findAllByTestId('alert');
+
+        const reviewRequestLink = await screen.findByRole('button', { name: 'Review request' });
+
+        expect(await findAlerts()).toHaveLength(2);
+
+        // Open the modal
+        await user.click(reviewRequestLink);
+        const modal = queryForModal();
+
+        expect(modal).toBeInTheDocument();
+
+        // Fill and submit
+        const approvalQuestion = within(modal).getByRole('group', { name: 'Approve address change?' });
+        const approvalYes = within(approvalQuestion).getByRole('radio', { name: 'Yes' });
+        const officeRemarks = within(modal).getByLabelText('Office remarks');
+        const save = within(modal).getByRole('button', { name: 'Save' });
+
+        const officeRemarksAnswer = 'Here are my remarks from the office';
+        await user.click(approvalYes);
+        await user.type(officeRemarks, officeRemarksAnswer);
+        await user.click(save);
+
+        // Confirm that the request was triggered
+        expect(mockMutateFunction).toHaveBeenCalledTimes(1);
+        expect(mockMutateFunction).toHaveBeenCalledWith({
+          shipmentID: mockShipmentWithDestinationType.id,
+          ifMatchETag: eTag,
+          body: {
+            status: ADDRESS_UPDATE_STATUS.APPROVED,
+            officeRemarks: officeRemarksAnswer,
+          },
+        });
+      });
     });
   });
 
@@ -461,12 +562,7 @@ describe('ShipmentForm component', () => {
 
     it('renders an Accounting Codes section', async () => {
       renderWithRouter(
-        <ShipmentForm
-          {...defaultProps}
-          TACs={{ HHG: '1234', NTS: '5678' }}
-          shipmentType={SHIPMENT_OPTIONS.NTS}
-          mtoShipment={mockMtoShipment}
-        />,
+        <ShipmentForm {...defaultProps} TACs={{ HHG: '1234', NTS: '5678' }} shipmentType={SHIPMENT_OPTIONS.NTS} />,
       );
 
       expect(await screen.findByText(/Accounting codes/)).toBeInTheDocument();
@@ -668,7 +764,6 @@ describe('ShipmentForm component', () => {
         <ShipmentForm
           {...defaultProps}
           shipmentType={SHIPMENT_OPTIONS.HHG}
-          mtoShipment={mockMtoShipment}
           submitHandler={mockSubmitHandler}
           isCreatePage={false}
         />,
@@ -817,7 +912,6 @@ describe('ShipmentForm component', () => {
         <ShipmentForm
           {...defaultProps}
           shipmentType={SHIPMENT_OPTIONS.HHG}
-          mtoShipment={mockMtoShipment}
           submitHandler={mockSubmitHandler}
           isCreatePage={false}
         />,
@@ -890,7 +984,6 @@ describe('ShipmentForm component', () => {
           shipmentType={SHIPMENT_OPTIONS.PPM}
           isCreatePage
           userRole={roleTypes.SERVICES_COUNSELOR}
-          mtoShipment={mockMtoShipment}
         />,
       );
 
@@ -1138,7 +1231,6 @@ describe('ShipmentForm component', () => {
           shipmentType={SHIPMENT_OPTIONS.PPM}
           isCreatePage
           userRole={roleTypes.SERVICES_COUNSELOR}
-          mtoShipment={mockMtoShipment}
         />,
       );
 

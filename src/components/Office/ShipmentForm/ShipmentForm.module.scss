@@ -21,7 +21,7 @@
 
     button {
       padding: 0;
-      font-size: 13px;
+      @include u-font-size('body', '3xs');
     }
   }
 
@@ -71,12 +71,28 @@
     }
   }
 
+  .mockLegend {
+    width: 100%;
+    max-width: none;
+    @include u-text('bold');
+    @include typeset('body', 9, 2);
+    margin-bottom: 0;
+  }
+
   .deliveryAddressUpdateAlert {
-    font-size: 13px;
+    @include u-margin-top(3);
+  }
+
+  .deliveryAddressUpdateAlertContent {
+    @include u-font-size('body', '3xs');
+    font-weight: normal;
 
     .reviewRequestLink {
-      font-weight: 400;
+      @include u-font-size('body', '3xs');
+      padding: 0;
+      display: inline;
       cursor: pointer;
+      text-decoration: underline;
     }
   }
 
@@ -125,6 +141,6 @@
   width: 100%;
 
   & + .RemarksTable {
-    margin-top: 16px;
+    @include u-margin-top(2);
   }
 }

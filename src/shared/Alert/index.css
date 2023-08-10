@@ -37,13 +37,10 @@
 
 .remove-icon {
   position: absolute;
-  right: 2em;
+  right: 1em;
+  top: 1em;
 }
 
 .usa-alert-loading::before {
   background-color: #02bfe7;
-}
-
-.actionable.actionable-secondary {
-  color: #999999;
 }
