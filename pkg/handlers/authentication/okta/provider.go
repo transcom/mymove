@@ -144,26 +144,25 @@ func wrapOktaProvider(provider *gothOkta.Provider, logger *zap.Logger) *Provider
 }
 
 // Function to register all three providers at once.
-// TODO: Use viper instead of os environment variables
 func (op *Provider) RegisterProviders() error {
 
 	// Declare OIDC scopes to be used within the providers
 	scope := []string{"openid", "email", "profile"}
 
-	// Register customer provider
-	err := op.RegisterOktaProvider(MilProviderName, os.Getenv("OKTA_CUSTOMER_HOSTNAME"), os.Getenv("OKTA_CUSTOMER_CALLBACK_URL"), os.Getenv("OKTA_CUSTOMER_CLIENT_ID"), os.Getenv("OKTA_CUSTOMER_SECRET_KEY"), scope)
+	// Register customer provider and pull values from env variables
+	err := op.RegisterOktaProvider(MilProviderName, os.Getenv("OKTA_TENANT_ORG_URL"), os.Getenv("OKTA_CUSTOMER_CALLBACK_URL"), os.Getenv("OKTA_CUSTOMER_CLIENT_ID"), os.Getenv("OKTA_CUSTOMER_SECRET_KEY"), scope)
 	if err != nil {
 		op.logger.Error("Could not register customer okta provider", zap.Error(err))
 		return err
 	}
 	// Register office provider
-	err = op.RegisterOktaProvider(OfficeProviderName, os.Getenv("OKTA_OFFICE_HOSTNAME"), os.Getenv("OKTA_OFFICE_CALLBACK_URL"), os.Getenv("OKTA_OFFICE_CLIENT_ID"), os.Getenv("OKTA_OFFICE_SECRET_KEY"), scope)
+	err = op.RegisterOktaProvider(OfficeProviderName, os.Getenv("OKTA_TENANT_ORG_URL"), os.Getenv("OKTA_OFFICE_CALLBACK_URL"), os.Getenv("OKTA_OFFICE_CLIENT_ID"), os.Getenv("OKTA_OFFICE_SECRET_KEY"), scope)
 	if err != nil {
 		op.logger.Error("Could not register office okta provider", zap.Error(err))
 		return err
 	}
 	// Register admin provider
-	err = op.RegisterOktaProvider(AdminProviderName, os.Getenv("OKTA_ADMIN_HOSTNAME"), os.Getenv("OKTA_ADMIN_CALLBACK_URL"), os.Getenv("OKTA_ADMIN_CLIENT_ID"), os.Getenv("OKTA_ADMIN_SECRET_KEY"), scope)
+	err = op.RegisterOktaProvider(AdminProviderName, os.Getenv("OKTA_TENANT_ORG_URL"), os.Getenv("OKTA_ADMIN_CALLBACK_URL"), os.Getenv("OKTA_ADMIN_CLIENT_ID"), os.Getenv("OKTA_ADMIN_SECRET_KEY"), scope)
 	if err != nil {
 		op.logger.Error("Could not register admin okta provider", zap.Error(err))
 		return err
