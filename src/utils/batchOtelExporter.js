@@ -2,49 +2,85 @@
 // Inspired by https://github.com/open-telemetry/opentelemetry-js/blob/main/packages/opentelemetry-sdk-trace-base/src/export/BatchSpanProcessorBase.ts
 
 import { context } from '@opentelemetry/api';
-import { BindOnceFuture, suppressTracing, unrefTimer } from '@opentelemetry/core';
+import { BindOnceFuture, suppressTracing } from '@opentelemetry/core';
 
 /**
  * @typedef {object} OtelLogEntry - log entry
  * @property {string} level - log level
- * @property {string} message - the message
+ * @property {Array.<Object>} args - the arguments
  */
 
 export class BatchOtelExporter {
-  /** @type {string} */
+  /**
+     @private
+     @type {string}
+  */
   app;
 
-  /** @type {string} */
+  /**
+     @private
+     @type {string}
+  */
   endpoint;
 
-  /** @type {number} */
+  /**
+     @private
+     @type {number}
+  */
   maxQueueSize;
 
-  /** @type {number} */
+  /**
+     @private
+     @type {number}
+  */
   maxExportBatchSize;
 
-  /** @type {number} */
+  /**
+     @private
+     @type {number}
+  */
   scheduledDelayMillis;
 
-  /** @type {number} */
+  /**
+     @private
+     @type {number}
+  */
   exportTimeoutMillis;
 
-  /** @type {Array.<OtelLogEntry>} */
+  /**
+     @private
+     @type {Array.<OtelLogEntry>}
+  */
   logBuffer = [];
 
-  /** @type {NodeJS.Timeout | undefined } */
+  /**
+     @private
+     @type {NodeJS.Timeout | undefined }
+  */
   timer;
 
-  /** @type {BindOnceFuture<void>} */
+  /**
+     @private
+     @type {BindOnceFuture<void>}
+  */
   shutdownOnce;
 
-  /** @type {number} */
+  /**
+     @private
+     @type {number}
+  */
   droppedLogsCount = 0;
 
-  /** @type {number} */
+  /**
+     @private
+     @type {number}
+  */
   failedSendCount = 0;
 
-  /** @type {number} */
+  /**
+     @private
+     @type {number}
+  */
   failedTimerCount = 0;
 
   /**
@@ -63,7 +99,6 @@ export class BatchOtelExporter {
    *   between two consecutive imports
    * @param {number} [options.exportTimeoutMillis=10000] How log the
    *   export can run before it is cancelled
-   * @returns {import{'@opentelemetry/api').DiagLogger}
    */
   constructor(app, options = {}) {
     const {
@@ -112,6 +147,7 @@ export class BatchOtelExporter {
   /**
    * private method for shutting down
    *
+   * @private
    * @returns <Promise<void>}
    */
   async privateShutdown() {
@@ -126,6 +162,9 @@ export class BatchOtelExporter {
    * @param {Array} args - args
    */
   addToBuffer(level, args) {
+    if (this.shutdownOnce.isCalled) {
+      return;
+    }
     if (this.logBuffer.length >= this.maxQueueSize) {
       // limit reached, drop log
       this.droppedLogsCount += 1;
@@ -143,6 +182,7 @@ export class BatchOtelExporter {
    * This function is used only on forceFlush or shutdown,
    * for all other cases flush should be used
    *
+   * @private
    * @returns {Promise<void>}
    */
   flushAll() {
@@ -164,6 +204,7 @@ export class BatchOtelExporter {
   /**
    * send batch of logs to the server
    *
+   * @private
    * @param {Array.<OtelLogEntry>} batch
    */
   async sendBatchToServer(batch) {
@@ -210,6 +251,7 @@ export class BatchOtelExporter {
 
   /**
    *
+   * @private
    * @returns {Promise<void>}
    */
   flushOneBatch() {
@@ -244,6 +286,8 @@ export class BatchOtelExporter {
 
   /**
    * start a timer if one has not already been created
+   *
+   * @private
    */
   maybeStartTimer() {
     if (this.timer !== undefined) return;
@@ -260,9 +304,13 @@ export class BatchOtelExporter {
           this.failedTimerCount += 1;
         });
     }, this.scheduledDelayMillis);
-    unrefTimer(this.timer);
   }
 
+  /**
+   * clear a timer if present
+   *
+   * @private
+   */
   clearTimer() {
     if (this.timer !== undefined) {
       clearTimeout(this.timer);
