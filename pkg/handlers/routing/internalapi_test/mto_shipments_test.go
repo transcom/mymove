@@ -11,6 +11,33 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+func (suite *InternalAPISuite) TestListMTOShipments() {
+	suite.Run("Unauthorized request returns a 404", func() {
+		move := factory.BuildMoveWithShipment(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
+		unauthorizedUser := factory.BuildServiceMember(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
+		endpointPath := fmt.Sprintf("/internal/moves/%s/mto_shipments", move.ID)
+
+		req := suite.NewAuthenticatedMilRequest("GET", endpointPath, nil, unauthorizedUser)
+
+		rr := httptest.NewRecorder()
+		suite.SetupSiteHandler().ServeHTTP(rr, req)
+
+		suite.Equal(http.StatusNotFound, rr.Code)
+	})
+
+	suite.Run("Authorized request returns a 200", func() {
+		move := factory.BuildMoveWithShipment(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
+		endpointPath := fmt.Sprintf("/internal/moves/%s/mto_shipments", move.ID)
+
+		req := suite.NewAuthenticatedMilRequest("GET", endpointPath, nil, move.Orders.ServiceMember)
+
+		rr := httptest.NewRecorder()
+		suite.SetupSiteHandler().ServeHTTP(rr, req)
+
+		suite.Equal(http.StatusOK, rr.Code)
+	})
+}
+
 func (suite *InternalAPISuite) TestUpdateMTOShipment() {
 	setUpRequestBody := func(shipment models.MTOShipment) *bytes.Buffer {
 		jsonBody := []byte(fmt.Sprintf(`{"customerRemarks": "hello, server!", "shipmentType": "%s"}`, shipment.ShipmentType))

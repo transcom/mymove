@@ -9,7 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap/zaptest"
 )
@@ -18,7 +19,7 @@ type RDSUTest struct {
 	passes []string
 }
 
-func (r *RDSUTest) GetToken(_ string, _ string, _ string, _ *credentials.Credentials) (string, error) {
+func (r *RDSUTest) GetToken(_ context.Context, _ string, _ string, _ string, _ aws.CredentialsProvider) (string, error) {
 	if len(r.passes) == 0 {
 		return "", errors.New("no passwords to rotate")
 	}
@@ -74,7 +75,7 @@ func TestGetCurrentPassword(t *testing.T) {
 	shouldQuitChan := make(chan bool)
 
 	err := EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
-		credentials.NewStaticCredentials("id", "pass", "token"),
+		credentials.NewStaticCredentialsProvider("id", "pass", "token"),
 		&rdsu,
 		tickerDuration,
 		logger,
@@ -147,7 +148,7 @@ func TestGetCurrentPasswordFail(t *testing.T) {
 	shouldQuitChan := make(chan bool)
 
 	err := EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
-		credentials.NewStaticCredentials("id", "pass", "token"),
+		credentials.NewStaticCredentialsProvider("id", "pass", "token"),
 		&rdsu,
 		tickerDuration,
 		logger,
@@ -214,7 +215,7 @@ func TestEnableIAMNormal(t *testing.T) {
 
 	// Start cycling through the list of passwords.
 	err := EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
-		credentials.NewStaticCredentials("id", "pass", "token"),
+		credentials.NewStaticCredentialsProvider("id", "pass", "token"),
 		&rdsu,
 		tickerDuration,
 		logger,
