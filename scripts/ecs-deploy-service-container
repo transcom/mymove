@@ -24,8 +24,9 @@ readonly image=$2
 readonly environment=$3
 readonly entrypoint=$4
 
-readonly RESERVATION_CPU=1024
-readonly RESERVATION_MEM=2048
+# assign the default values, but allow them to be overridden
+: "${SERVICE_RESERVATION_CPU:=1024}"
+: "${SERVICE_RESERVATION_MEM:=2048}"
 
 # The cluster name is always `app-ENV`
 # Needs to support `app` and `app-client-tls` on the same cluster.
@@ -115,8 +116,8 @@ green_task_def_date_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --image "${image}" \
   --variables-file "${DIR}/../config/env/${environment}.${name}.env" \
   --entrypoint "${entrypoint}" \
-  --cpu "${RESERVATION_CPU}" \
-  --memory "${RESERVATION_MEM}" \
+  --cpu "${SERVICE_RESERVATION_CPU}" \
+  --memory "${SERVICE_RESERVATION_MEM}" \
   --register)
 # shellcheck disable=SC2181
 if [ "$?" != "0" ]; then echo "$green_task_def_date_arn"; exit 1; fi
