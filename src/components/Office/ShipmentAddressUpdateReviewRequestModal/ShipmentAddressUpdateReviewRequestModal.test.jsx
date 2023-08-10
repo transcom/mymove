@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import { ShipmentAddressUpdateReviewRequestModal } from './ShipmentAddressUpdateReviewRequestModal';
 
-import { shipmentTypes } from 'constants/shipments';
+import { ADDRESS_UPDATE_STATUS, shipmentTypes } from 'constants/shipments';
 
 const mockDeliveryAddressUpdate = {
   contractorRemarks: 'Test Contractor Remark',
@@ -150,6 +150,11 @@ describe('ShipmentAddressUpdateReviewRequestModal', () => {
     await user.click(save);
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
-    expect(onSubmit).toHaveBeenCalledWith(mockShipment.id, mockShipment.eTag, 'APPROVED', officeRemarksAnswer);
+    expect(onSubmit).toHaveBeenCalledWith(
+      mockShipment.id,
+      mockShipment.eTag,
+      ADDRESS_UPDATE_STATUS.APPROVED,
+      officeRemarksAnswer,
+    );
   });
 });
