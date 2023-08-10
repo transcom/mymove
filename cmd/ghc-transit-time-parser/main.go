@@ -94,7 +94,7 @@ func main() {
 	}
 
 	// Create a connection to the DB
-	db, err := cli.InitDatabase(v, nil, logger)
+	db, err := cli.InitDatabase(v, logger)
 	if err != nil {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}

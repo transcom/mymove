@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
@@ -44,9 +43,8 @@ func CheckStorage(v *viper.Viper) error {
 
 	if storageBackend == "s3" {
 		r := v.GetString(AWSS3RegionFlag)
-		if err := CheckAWSRegionForService(r, s3.ServiceName); err != nil {
-			//return errors.Wrap(err, fmt.Sprintf("%s is invalid, value for region: %s", AWSS3RegionFlag, r))
-			return nil
+		if r == "" {
+			return fmt.Errorf("invalid value for %s: %s", AWSS3RegionFlag, r)
 		}
 	} else if storageBackend == "local" {
 		localStorageRoot := v.GetString(LocalStorageRootFlag)
