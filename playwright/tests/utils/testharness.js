@@ -144,40 +144,40 @@ export class TestHarness {
    * Use testharness to build a move with an hhg shipment in SIT
    * @returns {Promise<Move>}
    */
-  async buildHHGMoveIn200DaysSIT() {
-    return this.buildDefault('HHGMoveIn200DaysSIT');
+  async buildHHGMoveInSIT() {
+    return this.buildDefault('HHGMoveInSIT');
   }
 
   /**
    * Use testharness to build a move with an hhg shipment in SIT and a pending SIT extension
    * @returns {Promise<Move>}
    */
-  async buildHHGMoveIn200DaysSITWithPendingExtension() {
-    return this.buildDefault('HHGMoveIn200DaysSITWithPendingExtension');
+  async buildHHGMoveInSITWithPendingExtension() {
+    return this.buildDefault('HHGMoveInSITWithPendingExtension');
   }
 
   /**
    * Use testharness to build a move with an hhg shipment in SIT with an allowance that ends today
    * @returns {Promise<Move>}
    */
-  async buildHHGMoveIn200DaysSITEndsToday() {
-    return this.buildDefault('HHGMoveIn200DaysSITEndsToday');
+  async buildHHGMoveInSITEndsToday() {
+    return this.buildDefault('HHGMoveInSITEndsToday');
   }
 
   /**
    * Use testharness to build a move with an hhg shipment in SIT with an allowance that ends tomorrow
    * @returns {Promise<Move>}
    */
-  async buildHHGMoveIn200DaysSITEndsTomorrow() {
-    return this.buildDefault('HHGMoveIn200DaysSITEndsTomorrow');
+  async buildHHGMoveInSITEndsTomorrow() {
+    return this.buildDefault('HHGMoveInSITEndsTomorrow');
   }
 
   /**
    * Use testharness to build a move with an hhg shipment in SIT with an allowance that ended yesterday
    * @returns {Promise<Move>}
    */
-  async buildHHGMoveIn200DaysSITEndsYesterday() {
-    return this.buildDefault('HHGMoveIn200DaysSITEndsYesterday');
+  async buildHHGMoveInSITEndsYesterday() {
+    return this.buildDefault('HHGMoveInSITEndsYesterday');
   }
 
   /**
@@ -185,24 +185,24 @@ export class TestHarness {
    * was exhausted
    * @returns {Promise<Move>}
    */
-  async buildHHGMoveIn200DaysSITDeparted() {
-    return this.buildDefault('HHGMoveIn200DaysSITDeparted');
+  async buildHHGMoveInSITDeparted() {
+    return this.buildDefault('HHGMoveInSITDeparted');
   }
 
   /**
    * Use testharness to build a move with an hhg shipment that hasn't yet entered SIT
    * @returns {Promise<Move>}
    */
-  async buildHHGMoveIn200DaysSITStartsInFuture() {
-    return this.buildDefault('HHGMoveIn200DaysSITStartsInFuture');
+  async buildHHGMoveInSITStartsInFuture() {
+    return this.buildDefault('HHGMoveInSITStartsInFuture');
   }
 
   /**
    * Use testharness to build a move with an hhg shipment with SIT that hasn't yet been approved
    * @returns {Promise<Move>}
    */
-  async buildHHGMoveIn200DaysSITNotApproved() {
-    return this.buildDefault('HHGMoveIn200DaysSITNotApproved');
+  async buildHHGMoveInSITNotApproved() {
+    return this.buildDefault('HHGMoveInSITNotApproved');
   }
 
   /**
@@ -291,6 +291,14 @@ export class TestHarness {
    */
   async buildHHGMoveNeedsSC() {
     return this.buildDefault('HHGMoveNeedsSC');
+  }
+
+  /**
+   * Use testharness to build hhg move with amended orders
+   * @returns {Promise<Move>}
+   */
+  async buildHHGWithAmendedOrders() {
+    return this.buildDefault('HHGMoveWithAmendedOrders');
   }
 
   /**

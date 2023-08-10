@@ -17,11 +17,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
-	awssession "github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gomodule/redigo/redis"
@@ -321,49 +316,14 @@ func initializeLogger(v *viper.Viper) (*zap.Logger, func()) {
 	return logger, loggerSync
 }
 
-func initializeAwsSession(v *viper.Viper, logger *zap.Logger) *awssession.Session {
-	if v.GetBool(cli.DbIamFlag) || (v.GetString(cli.EmailBackendFlag) == "ses") || (v.GetString(cli.StorageBackendFlag) == "s3") {
-		c := &aws.Config{
-			Region: aws.String(v.GetString(cli.AWSRegionFlag)),
-		}
-		s, errorSession := awssession.NewSession(c)
-		if errorSession != nil {
-			logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
-		}
-		return s
-	}
-	return nil
-}
-
-func initializeDB(v *viper.Viper, logger *zap.Logger,
-	awsSession *awssession.Session) *pop.Connection {
+func initializeDB(v *viper.Viper, logger *zap.Logger) *pop.Connection {
 
 	if v.GetBool(cli.DbDebugFlag) {
 		pop.Debug = true
 	}
 
-	var dbCreds *credentials.Credentials
-	if v.GetBool(cli.DbIamFlag) {
-		if awsSession != nil {
-			// We want to get the credentials from the logged in AWS session rather than create directly,
-			// because the session conflates the environment, shared, and container metdata config
-			// within NewSession.  With stscreds, we use the Secure Token Service,
-			// to assume the given role (that has rds db connect permissions).
-			dbIamRole := v.GetString(cli.DbIamRoleFlag)
-			logger.Info(fmt.Sprintf("assuming AWS role %q for db connection", dbIamRole))
-			dbCreds = stscreds.NewCredentials(awsSession, dbIamRole)
-			stsService := sts.New(awsSession)
-			callerIdentity, callerIdentityErr := stsService.GetCallerIdentity(&sts.GetCallerIdentityInput{})
-			if callerIdentityErr != nil {
-				logger.Error(errors.Wrap(callerIdentityErr, "error getting aws sts caller identity").Error())
-			} else {
-				logger.Info(fmt.Sprintf("STS Caller Identity - Account: %s, ARN: %s, UserId: %s", *callerIdentity.Account, *callerIdentity.Arn, *callerIdentity.UserId))
-			}
-		}
-	}
-
 	// Create a connection to the DB
-	dbConnection, err := cli.InitDatabase(v, dbCreds, logger)
+	dbConnection, err := cli.InitDatabase(v, logger)
 	if err != nil {
 		logger.Fatal("Invalid DB Configuration", zap.Error(err))
 	}
@@ -385,9 +345,9 @@ func initializeTLSConfig(appCtx appcontext.AppContext, v *viper.Viper) *tls.Conf
 	}
 
 	useDevlocalAuthCA := stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment, cli.EnvironmentReview, cli.EnvironmentLoadtest}, v.GetString(cli.EnvironmentFlag))
-	if useDevlocalAuthCA {
+	devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
+	if useDevlocalAuthCA && devlocalCAPath != "" {
 		appCtx.Logger().Info("Adding devlocal CA to root CAs")
-		devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
 		devlocalCa, readFileErr := os.ReadFile(filepath.Clean(devlocalCAPath))
 		if readFileErr != nil {
 			appCtx.Logger().Error(fmt.Sprintf("Unable to read devlocal CA from path %s", devlocalCAPath), zap.Error(readFileErr))
@@ -421,6 +381,7 @@ func initializeRouteOptions(v *viper.Viper, routingConfig *routing.Config) {
 	routingConfig.ServePrimeSimulator = v.GetBool(cli.ServePrimeSimulatorFlag)
 	if routingConfig.ServePrime || routingConfig.ServePrimeSimulator {
 		routingConfig.PrimeSwaggerPath = v.GetString(cli.PrimeSwaggerFlag)
+		routingConfig.PrimeV2SwaggerPath = v.GetString(cli.PrimeV2SwaggerFlag)
 	}
 
 	routingConfig.ServeSupport = v.GetBool(cli.ServeSupportFlag)
@@ -451,7 +412,7 @@ func initializeRouteOptions(v *viper.Viper, routingConfig *routing.Config) {
 	}
 }
 
-func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool *redis.Pool, awsSession *awssession.Session, isDevOrTest bool, tlsConfig *tls.Config) *routing.Config {
+func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool *redis.Pool, isDevOrTest bool, tlsConfig *tls.Config) *routing.Config {
 	routingConfig := &routing.Config{}
 
 	// always use the OS Filesystem when serving for real
@@ -495,7 +456,7 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 	routingConfig.AuthContext = authentication.NewAuthContext(appCtx.Logger(), *oktaProvider, loginGovCallbackProtocol, loginGovCallbackPort)
 
 	// Email
-	notificationSender, err := notifications.InitEmail(v, awsSession, appCtx.Logger())
+	notificationSender, err := notifications.InitEmail(v, appCtx.Logger())
 	if err != nil {
 		appCtx.Logger().Fatal("notification sender sending not enabled", zap.Error(err))
 	}
@@ -504,7 +465,7 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 	sendProductionInvoice := v.GetBool(cli.GEXSendProdInvoiceFlag)
 
 	// Storage
-	fileStorer := storage.InitStorage(v, awsSession, appCtx.Logger())
+	fileStorer := storage.InitStorage(v, appCtx.Logger())
 
 	// Create a secondary planner specifically for HHG.
 	hhgRoutePlanner, err := route.InitHHGRoutePlanner(appCtx, v, tlsConfig)
@@ -666,7 +627,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	// initialize the telemetry system and ensure it is shut down when
 	// the server finishes
-	telemetryShutdownFn := telemetry.Init(logger, telemetryConfig)
+	telemetryShutdownFn, _, _ := telemetry.Init(logger, telemetryConfig)
 	defer telemetryShutdownFn()
 
 	dbEnv := v.GetString(cli.DbEnvFlag)
@@ -675,11 +636,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		logger.Info(fmt.Sprintf("Starting in %s mode, which enables additional features", dbEnv))
 	}
 
-	// set up AWS (as needed)
-	session := initializeAwsSession(v, logger)
-
 	// connect to the db
-	dbConnection = initializeDB(v, logger, session)
+	dbConnection = initializeDB(v, logger)
 
 	// set up appcontext
 	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
@@ -708,25 +666,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	tlsConfig := initializeTLSConfig(appCtx, v)
 
 	// build the routing configuration
-	routingConfig := buildRoutingConfig(appCtx, v, redisPool, session,
-		isDevOrTest, tlsConfig)
+	routingConfig := buildRoutingConfig(appCtx, v, redisPool, isDevOrTest, tlsConfig)
 
-	// initialize the router
-	site, err := routing.InitRouting(appCtx, redisPool, routingConfig, telemetryConfig)
-	if err != nil {
-		return err
-	}
-
-	// disable otelhttp for now, as it causes a server memory leak
-	// ahobson - 2023-05-17
-	// set up telemetry options for the server
-	// otelHTTPOptions := []otelhttp.Option{}
-	// if telemetryConfig.ReadEvents {
-	// 	otelHTTPOptions = append(otelHTTPOptions, otelhttp.WithMessageEvents(otelhttp.ReadEvents))
-	// }
-	// if telemetryConfig.WriteEvents {
-	// 	otelHTTPOptions = append(otelHTTPOptions, otelhttp.WithMessageEvents(otelhttp.WriteEvents))
-	// }
 	listenInterface := v.GetString(cli.InterfaceFlag)
 
 	// start each server:
@@ -751,19 +692,19 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	healthEnabled := v.GetBool(cli.HealthListenerFlag)
 	var healthServer *server.NamedServer
 	if healthEnabled {
-		healthSite, herr := routing.InitHealthRouting(appCtx, redisPool, routingConfig)
-		if herr != nil {
-			return herr
+		serverName := "health"
+		healthPort := v.GetInt(cli.HealthPortFlag)
+		healthSite, err := routing.InitHealthRouting(serverName, appCtx, redisPool,
+			routingConfig, telemetryConfig)
+		if err != nil {
+			return err
 		}
+
 		healthServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
-			Name:   "health",
-			Host:   "127.0.0.1", // health server is always localhost only
-			Port:   v.GetInt(cli.HealthPortFlag),
-			Logger: logger,
-			// disable otelhttp for now, as it causes a server memory leak
-			// ahobson - 2023-05-17
-			// HTTPHandler: otelhttp.NewHandler(healthSite, "health",
-			// otelHTTPOptions...),
+			Name:        "health",
+			Host:        "127.0.0.1", // health server is always localhost only
+			Port:        healthPort,
+			Logger:      logger,
 			HTTPHandler: healthSite,
 		})
 		if err != nil {
@@ -775,15 +716,20 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	noTLSEnabled := v.GetBool(cli.NoTLSListenerFlag)
 	var noTLSServer *server.NamedServer
 	if noTLSEnabled {
+		serverName := "no-tls"
+		noTLSPort := v.GetInt(cli.NoTLSPortFlag)
+		// initialize the router
+		site, err := routing.InitRouting(serverName, appCtx, redisPool,
+			routingConfig, telemetryConfig)
+		if err != nil {
+			return err
+		}
+
 		noTLSServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
-			Name:   "no-tls",
-			Host:   listenInterface,
-			Port:   v.GetInt(cli.NoTLSPortFlag),
-			Logger: logger,
-			// disable otelhttp for now, as it causes a server memory leak
-			// ahobson - 2023-05-17
-			// HTTPHandler: otelhttp.NewHandler(site, "server-no-tls",
-			// otelHTTPOptions...),
+			Name:        serverName,
+			Host:        listenInterface,
+			Port:        noTLSPort,
+			Logger:      logger,
 			HTTPHandler: site,
 		})
 		if err != nil {
@@ -795,15 +741,19 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	tlsEnabled := v.GetBool(cli.TLSListenerFlag)
 	var tlsServer *server.NamedServer
 	if tlsEnabled {
+		serverName := "tls"
+		tlsPort := v.GetInt(cli.TLSPortFlag)
+		// initialize the router
+		site, err := routing.InitRouting(serverName, appCtx, redisPool,
+			routingConfig, telemetryConfig)
+		if err != nil {
+			return err
+		}
 		tlsServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
-			Name:   "tls",
-			Host:   listenInterface,
-			Port:   v.GetInt(cli.TLSPortFlag),
-			Logger: logger,
-			// disable otelhttp for now, as it causes a server memory leak
-			// ahobson - 2023-05-17
-			// HTTPHandler:  otelhttp.NewHandler(site, "server-tls",
-			// otelHTTPOptions...),
+			Name:         serverName,
+			Host:         listenInterface,
+			Port:         tlsPort,
+			Logger:       logger,
 			HTTPHandler:  site,
 			ClientAuth:   tls.NoClientCert,
 			Certificates: tlsConfig.Certificates,
@@ -817,15 +767,20 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	mutualTLSEnabled := v.GetBool(cli.MutualTLSListenerFlag)
 	var mutualTLSServer *server.NamedServer
 	if mutualTLSEnabled {
+		serverName := "mutual-tls"
+		mtlsPort := v.GetInt(cli.MutualTLSPortFlag)
+		// initialize the router
+		site, err := routing.InitRouting(serverName, appCtx, redisPool,
+			routingConfig, telemetryConfig)
+		if err != nil {
+			return err
+		}
+
 		mutualTLSServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
-			Name:   "mutual-tls",
-			Host:   listenInterface,
-			Port:   v.GetInt(cli.MutualTLSPortFlag),
-			Logger: logger,
-			// disable otelhttp for now, as it causes a server memory leak
-			// ahobson - 2023-05-17
-			// HTTPHandler:  otelhttp.NewHandler(site, "server-mtls",
-			// otelHTTPOptions...),
+			Name:         serverName,
+			Host:         listenInterface,
+			Port:         mtlsPort,
+			Logger:       logger,
 			HTTPHandler:  site,
 			ClientAuth:   tls.RequireAndVerifyClientCert,
 			Certificates: tlsConfig.Certificates,

@@ -2,12 +2,13 @@ package notifications
 
 import (
 	"bytes"
+	"context"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	awssession "github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/ses"
-	"github.com/aws/aws-sdk-go/service/ses/sesiface"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/ses"
+	"github.com/aws/aws-sdk-go-v2/service/ses/types"
 	"github.com/go-gomail/gomail"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
@@ -21,6 +22,10 @@ import (
 // Notification is an interface for creating emails
 type Notification interface {
 	emails(appCtx appcontext.AppContext) ([]emailContent, error)
+}
+
+type RawEmailSender interface {
+	SendRawEmail(ctx context.Context, params *ses.SendRawEmailInput, optFns ...func(*ses.Options)) (*ses.SendRawEmailOutput, error)
 }
 
 type emailContent struct {
@@ -41,13 +46,13 @@ type NotificationSender interface {
 
 // NotificationSendingContext provides context to a notification sender
 type NotificationSendingContext struct {
-	svc           sesiface.SESAPI
+	svc           RawEmailSender
 	domain        string
 	sysAdminEmail string
 }
 
 // NewNotificationSender returns a new NotificationSendingContext
-func NewNotificationSender(svc sesiface.SESAPI, domain string, sysAdminEmail string) NotificationSendingContext {
+func NewNotificationSender(svc RawEmailSender, domain string, sysAdminEmail string) NotificationSendingContext {
 	return NotificationSendingContext{
 		svc:           svc,
 		domain:        domain,
@@ -66,23 +71,31 @@ func (n NotificationSendingContext) SendNotification(appCtx appcontext.AppContex
 }
 
 // InitEmail initializes the email backend
-func InitEmail(v *viper.Viper, sess *awssession.Session, logger *zap.Logger) (NotificationSender, error) {
+func InitEmail(v *viper.Viper, logger *zap.Logger) (NotificationSender, error) {
 	if v.GetString(cli.EmailBackendFlag) == "ses" {
-		// Setup Amazon SES (email) service
-		// TODO: This might be able to be combined with the AWS Session that we're using for S3 down
-		// below.
+		// Setup Amazon SES (email) service TODO: This might be able
+		// to be combined with the AWS Session that we're using for S3
+		// down below.
+
 		awsSESRegion := v.GetString(cli.AWSSESRegionFlag)
 		awsSESDomain := v.GetString(cli.AWSSESDomainFlag)
 		sysAdminEmail := v.GetString(cli.SysAdminEmail)
 		logger.Info("Using ses email backend",
 			zap.String("region", awsSESRegion),
 			zap.String("domain", awsSESDomain))
-		sesService := ses.New(sess)
+		cfg, err := config.LoadDefaultConfig(context.Background(),
+			config.WithRegion(awsSESRegion),
+		)
+		if err != nil {
+			logger.Fatal("error loading ses aws config", zap.Error(err))
+		}
+
+		sesService := ses.NewFromConfig(cfg)
 		input := &ses.GetAccountSendingEnabledInput{}
-		result, err := sesService.GetAccountSendingEnabled(input)
-		if err != nil || result == nil || *result.Enabled {
+		result, err := sesService.GetAccountSendingEnabled(context.Background(), input)
+		if err != nil || result == nil || !result.Enabled {
 			logger.Error("email sending not enabled", zap.Error(err))
-			return NewNotificationSender(sesService, awsSESDomain, sysAdminEmail), err
+			return NewNotificationSender(nil, awsSESDomain, sysAdminEmail), err
 		}
 		return NewNotificationSender(sesService, awsSESDomain, sysAdminEmail), nil
 	}
@@ -100,7 +113,7 @@ func GetSysAdminEmail(sender NotificationSender) (email string) {
 	return email
 }
 
-func sendEmails(appCtx appcontext.AppContext, emails []emailContent, svc sesiface.SESAPI, domain string) error {
+func sendEmails(appCtx appcontext.AppContext, emails []emailContent, svc RawEmailSender, domain string) error {
 	for i, email := range emails {
 		rawMessage, err := formatRawEmailMessage(email, domain)
 		if err != nil {
@@ -108,13 +121,13 @@ func sendEmails(appCtx appcontext.AppContext, emails []emailContent, svc sesifac
 		}
 
 		input := ses.SendRawEmailInput{
-			Destinations: []*string{aws.String(email.recipientEmail)},
-			RawMessage:   &ses.RawMessage{Data: rawMessage},
+			Destinations: []string{email.recipientEmail},
+			RawMessage:   &types.RawMessage{Data: rawMessage},
 			Source:       aws.String(senderEmail(domain)),
 		}
 
 		// Returns the message ID. Should we store that somewhere?
-		sendRawEmailOutput, err := svc.SendRawEmail(&input)
+		sendRawEmailOutput, err := svc.SendRawEmail(context.Background(), &input)
 		if err != nil {
 			return errors.Wrap(err, "Failed to send email using SES")
 		}

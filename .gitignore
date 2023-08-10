@@ -59,6 +59,8 @@ public/swagger-ui/*
 !public/swagger-ui/api.html
 !public/swagger-ui/internal.html
 !public/swagger-ui/admin.html
+!public/swagger-ui/prime.html
+!public/swagger-ui/prime_v2.html
 !public/swagger-ui/ghc.html
 
 # Playwright integration tests

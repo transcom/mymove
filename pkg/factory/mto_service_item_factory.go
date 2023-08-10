@@ -2,6 +2,7 @@ package factory
 
 import (
 	"log"
+	"time"
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
@@ -221,9 +222,15 @@ var (
 		Type:        models.ServiceItemParamTypeDate,
 		Origin:      models.ServiceItemParamOriginPrime,
 	}
+	paramServiceAreaDest = models.ServiceItemParamKey{
+		Key:         models.ServiceItemParamNameServiceAreaDest,
+		Description: "Destination service area",
+		Type:        models.ServiceItemParamTypeString,
+		Origin:      models.ServiceItemParamOriginSystem,
+	}
 	paramServiceAreaOrigin = models.ServiceItemParamKey{
 		Key:         models.ServiceItemParamNameServiceAreaOrigin,
-		Description: "service area origin",
+		Description: "Origin service area",
 		Type:        models.ServiceItemParamTypeString,
 		Origin:      models.ServiceItemParamOriginSystem,
 	}
@@ -244,6 +251,18 @@ var (
 		Description: "SIT payment request start",
 		Type:        models.ServiceItemParamTypeDate,
 		Origin:      models.ServiceItemParamOriginPaymentRequest,
+	}
+	paramSITScheduleDest = models.ServiceItemParamKey{
+		Key:         models.ServiceItemParamNameSITScheduleDest,
+		Description: "Origin SIT schedule",
+		Type:        models.ServiceItemParamTypeInteger,
+		Origin:      models.ServiceItemParamOriginSystem,
+	}
+	paramSITScheduleOrigin = models.ServiceItemParamKey{
+		Key:         models.ServiceItemParamNameSITScheduleOrigin,
+		Description: "Dest SIT schedule",
+		Type:        models.ServiceItemParamTypeInteger,
+		Origin:      models.ServiceItemParamOriginSystem,
 	}
 	paramWeightAdjusted = models.ServiceItemParamKey{
 		Key:         models.ServiceItemParamNameWeightAdjusted,
@@ -412,6 +431,43 @@ var (
 			paramWeightReweigh,
 			paramZipPickupAddress,
 		},
+		models.ReServiceCodeDOFSIT: {
+			paramActualPickupDate,
+			paramContractCode,
+			paramContractYearName,
+			paramEscalationCompounded,
+			paramIsPeak,
+			paramPriceRateOrFactor,
+			paramReferenceDate,
+			paramRequestedPickupDate,
+			paramServiceAreaOrigin,
+			paramWeightAdjusted,
+			paramWeightBilled,
+			paramWeightEstimated,
+			paramWeightOriginal,
+			paramWeightReweigh,
+			paramZipPickupAddress,
+		},
+		models.ReServiceCodeDOPSIT: {
+			paramActualPickupDate,
+			paramContractCode,
+			paramContractYearName,
+			paramDistanceZipSITOrigin,
+			paramEscalationCompounded,
+			paramIsPeak,
+			paramPriceRateOrFactor,
+			paramReferenceDate,
+			paramRequestedPickupDate,
+			paramServiceAreaOrigin,
+			paramSITScheduleOrigin,
+			paramWeightAdjusted,
+			paramWeightBilled,
+			paramWeightEstimated,
+			paramWeightOriginal,
+			paramWeightReweigh,
+			paramZipSITOriginHHGActualAddress,
+			paramZipSITOriginHHGOriginalAddress,
+		},
 		models.ReServiceCodeDOSFSC: {
 			paramActualPickupDate,
 			paramDistanceZipSITOrigin,
@@ -426,6 +482,63 @@ var (
 			paramFSCPriceDifferenceInCents,
 			paramContractCode,
 			paramFSCMultiplier,
+		},
+		models.ReServiceCodeDDASIT: {
+			paramActualPickupDate,
+			paramContractCode,
+			paramContractYearName,
+			paramEscalationCompounded,
+			paramIsPeak,
+			paramNumberDaysSIT,
+			paramPriceRateOrFactor,
+			paramReferenceDate,
+			paramRequestedPickupDate,
+			paramServiceAreaDest,
+			paramSITPaymentRequestEnd,
+			paramSITPaymentRequestStart,
+			paramWeightAdjusted,
+			paramWeightBilled,
+			paramWeightEstimated,
+			paramWeightOriginal,
+			paramWeightReweigh,
+			paramZipDestAddress,
+		},
+		models.ReServiceCodeDDFSIT: {
+			paramActualPickupDate,
+			paramContractCode,
+			paramContractYearName,
+			paramEscalationCompounded,
+			paramIsPeak,
+			paramPriceRateOrFactor,
+			paramReferenceDate,
+			paramRequestedPickupDate,
+			paramServiceAreaDest,
+			paramWeightAdjusted,
+			paramWeightBilled,
+			paramWeightEstimated,
+			paramWeightOriginal,
+			paramWeightReweigh,
+			paramZipDestAddress,
+		},
+		models.ReServiceCodeDDDSIT: {
+			paramActualPickupDate,
+			paramContractCode,
+			paramContractYearName,
+			paramDistanceZipSITDest,
+			paramEscalationCompounded,
+			paramIsPeak,
+			paramPriceRateOrFactor,
+			paramReferenceDate,
+			paramRequestedPickupDate,
+			paramSITScheduleDest,
+			paramServiceAreaDest,
+			paramWeightAdjusted,
+			paramWeightBilled,
+			paramWeightEstimated,
+			paramWeightOriginal,
+			paramWeightReweigh,
+			paramZipSITDestHHGFinalAddress,
+			paramZipSITDestHHGOriginalAddress,
 		},
 		models.ReServiceCodeDDSFSC: {
 			paramActualPickupDate,
@@ -445,7 +558,9 @@ var (
 	}
 )
 
-func BuildRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.ReServiceCode, mto models.Move, mtoShipment models.MTOShipment) models.MTOServiceItem {
+// BuildRealMTOServiceItemWithAllDeps builds an MTOServiceItem along with its service params if they don't already exist
+// Customizations that link the MTOServiceItem to the move, shipment, and service are created by default
+func BuildRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.ReServiceCode, mto models.Move, mtoShipment models.MTOShipment, customs []Customization, traits []Trait) models.MTOServiceItem {
 	// look up the service item param keys we need
 	if serviceItemParamKeys, ok := fixtureServiceItemParamsMap[serviceCode]; ok {
 		// get or create the ReService
@@ -458,7 +573,7 @@ func BuildRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.R
 					Model: serviceParamKeyToCreate,
 				},
 			}, nil)
-			BuildServiceParam(db, []Customization{
+			FetchOrBuildServiceParam(db, []Customization{
 				{
 					Model:    reService,
 					LinkOnly: true,
@@ -470,8 +585,7 @@ func BuildRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.R
 			}, nil)
 		}
 
-		// create a service item and return it
-		mtoServiceItem := BuildMTOServiceItem(db, []Customization{
+		allCustoms := []Customization{
 			{
 				Model:    mto,
 				LinkOnly: true,
@@ -484,13 +598,18 @@ func BuildRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.R
 				Model:    reService,
 				LinkOnly: true,
 			},
-			{
-				Model: models.MTOServiceItem{
-					Status: models.MTOServiceItemStatusApproved,
-				},
-			},
-		}, nil)
+		}
+		if len(customs) > 0 {
+			allCustoms = append(allCustoms, customs...)
+		}
 
+		allTraits := []Trait{GetTraitServiceItemStatusApproved}
+		if len(traits) > 0 {
+			allTraits = append(allTraits, traits...)
+		}
+
+		// create a service item and return it
+		mtoServiceItem := BuildMTOServiceItem(db, allCustoms, allTraits)
 		return mtoServiceItem
 	}
 
@@ -516,19 +635,19 @@ func BuildFullDLHMTOServiceItems(db *pop.Connection, customs []Customization, tr
 	var mtoServiceItems models.MTOServiceItems
 	// Service Item MS
 	mtoServiceItemMS := BuildRealMTOServiceItemWithAllDeps(db,
-		models.ReServiceCodeMS, move, mtoShipment)
+		models.ReServiceCodeMS, move, mtoShipment, nil, nil)
 	mtoServiceItems = append(mtoServiceItems, mtoServiceItemMS)
 	// Service Item CS
 	mtoServiceItemCS := BuildRealMTOServiceItemWithAllDeps(db,
-		models.ReServiceCodeCS, move, mtoShipment)
+		models.ReServiceCodeCS, move, mtoShipment, nil, nil)
 	mtoServiceItems = append(mtoServiceItems, mtoServiceItemCS)
 	// Service Item DLH
 	mtoServiceItemDLH := BuildRealMTOServiceItemWithAllDeps(db,
-		models.ReServiceCodeDLH, move, mtoShipment)
+		models.ReServiceCodeDLH, move, mtoShipment, nil, nil)
 	mtoServiceItems = append(mtoServiceItems, mtoServiceItemDLH)
 	// Service Item FSC
 	mtoServiceItemFSC := BuildRealMTOServiceItemWithAllDeps(db,
-		models.ReServiceCodeFSC, move, mtoShipment)
+		models.ReServiceCodeFSC, move, mtoShipment, nil, nil)
 	mtoServiceItems = append(mtoServiceItems, mtoServiceItemFSC)
 
 	return move, mtoServiceItems
@@ -551,12 +670,178 @@ func BuildFullOriginMTOServiceItems(db *pop.Connection, customs []Customization,
 	var mtoServiceItems models.MTOServiceItems
 	// Service Item DPK
 	mtoServiceItemDPK := BuildRealMTOServiceItemWithAllDeps(db,
-		models.ReServiceCodeDPK, move, mtoShipment)
+		models.ReServiceCodeDPK, move, mtoShipment, nil, nil)
 	mtoServiceItems = append(mtoServiceItems, mtoServiceItemDPK)
 	// Service Item DOP
 	mtoServiceItemDOP := BuildRealMTOServiceItemWithAllDeps(db,
-		models.ReServiceCodeDOP, move, mtoShipment)
+		models.ReServiceCodeDOP, move, mtoShipment, nil, nil)
 	mtoServiceItems = append(mtoServiceItems, mtoServiceItemDOP)
 
 	return move, mtoServiceItems
+}
+
+// BuildOriginSITServiceItems makes all of the service items that are
+// associated with Origin SIT. A move and shipment that exist in the db
+// are required params, and entryDate and departureDate can be specificed
+// optionally.
+func BuildOriginSITServiceItems(db *pop.Connection, move models.Move, shipment models.MTOShipment, entryDate *time.Time, departureDate *time.Time) models.MTOServiceItems {
+	postalCode := "90210"
+	reason := "peak season all trucks in use"
+	defaultEntryDate := time.Now().AddDate(0, 0, -45)
+	if entryDate != nil {
+		defaultEntryDate = *entryDate
+	}
+	var defaultDepartureDate *time.Time
+	if departureDate != nil {
+		defaultDepartureDate = departureDate
+	}
+
+	dofsit := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDOFSIT, move, shipment, []Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITOriginHHGActualAddress,
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITOriginHHGOriginalAddress,
+		},
+	}, nil)
+
+	doasit := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDOASIT, move, shipment, []Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+	}, nil)
+
+	dopsit := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDOPSIT, move, shipment, []Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:           models.MTOServiceItemStatusApproved,
+				SITEntryDate:     &defaultEntryDate,
+				SITDepartureDate: defaultDepartureDate,
+				SITPostalCode:    &postalCode,
+				Reason:           &reason,
+			},
+		},
+	}, nil)
+
+	dosfsc := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDOSFSC, move, shipment, []Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITOriginHHGActualAddress,
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITOriginHHGOriginalAddress,
+		},
+	}, nil)
+	return []models.MTOServiceItem{dofsit, doasit, dopsit, dosfsc}
+}
+
+// BuildDestSITServiceItems makes all of the service items that are
+// associated with Destination SIT. A move and shipment that exist in the db
+// are required params, and entryDate and departureDate can be specificed
+// optionally.
+func BuildDestSITServiceItems(db *pop.Connection, move models.Move, shipment models.MTOShipment, entryDate *time.Time, departureDate *time.Time) models.MTOServiceItems {
+	postalCode := "90210"
+	reason := "peak season all trucks in use"
+	defaultEntryDate := time.Now().AddDate(0, 0, -45)
+	if entryDate != nil {
+		defaultEntryDate = *entryDate
+	}
+	var defaultDepartureDate *time.Time
+	if departureDate != nil {
+		defaultDepartureDate = departureDate
+	}
+
+	ddfsit := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDDFSIT, move, shipment, []Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+	}, nil)
+
+	ddasit := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDDASIT, move, shipment, []Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+	}, nil)
+
+	dddsit := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDDDSIT, move, shipment, []Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:           models.MTOServiceItemStatusApproved,
+				SITEntryDate:     &defaultEntryDate,
+				SITDepartureDate: defaultDepartureDate,
+				SITPostalCode:    &postalCode,
+				Reason:           &reason,
+			},
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITDestinationFinalAddress,
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITDestinationOriginalAddress,
+		},
+	}, nil)
+
+	ddsfsc := BuildRealMTOServiceItemWithAllDeps(db, models.ReServiceCodeDDSFSC, move, shipment, []Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:        models.MTOServiceItemStatusApproved,
+				SITPostalCode: &postalCode,
+				Reason:        &reason,
+			},
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITDestinationFinalAddress,
+		},
+		{
+			Model: models.Address{},
+			Type:  &Addresses.SITDestinationOriginalAddress,
+		},
+	}, nil)
+	return []models.MTOServiceItem{ddfsit, ddasit, dddsit, ddsfsc}
+}
+
+// ------------------------
+//        TRAITS
+// ------------------------
+
+func GetTraitServiceItemStatusApproved() []Customization {
+	return []Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
+		},
+	}
 }

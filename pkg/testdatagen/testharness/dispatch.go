@@ -41,35 +41,38 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveNeedsSC(appCtx)
 	},
+	"HHGMoveWithAmendedOrders": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithAmendedOrders(appCtx)
+	},
 	"HHGMoveForSeparationNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveForSeparationNeedsSC(appCtx)
 	},
 	"HHGMoveForRetireeNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveForRetireeNeedsSC(appCtx)
 	},
-	"HHGMoveIn200DaysSIT": func(appCtx appcontext.AppContext) testHarnessResponse {
-		return MakeHHGMoveIn200DaysSIT(appCtx)
+	"HHGMoveInSIT": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveInSIT(appCtx)
 	},
-	"HHGMoveIn200DaysSITWithPendingExtension": func(appCtx appcontext.AppContext) testHarnessResponse {
-		return MakeHHGMoveIn200DaysSITWithPendingExtension(appCtx)
+	"HHGMoveInSITWithPendingExtension": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveInSITWithPendingExtension(appCtx)
 	},
-	"HHGMoveIn200DaysSITEndsToday": func(appCtx appcontext.AppContext) testHarnessResponse {
-		return MakeHHGMoveIn200DaysSITEndsToday(appCtx)
+	"HHGMoveInSITEndsToday": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveInSITEndsToday(appCtx)
 	},
-	"HHGMoveIn200DaysSITEndsTomorrow": func(appCtx appcontext.AppContext) testHarnessResponse {
-		return MakeHHGMoveIn200DaysSITEndsTomorrow(appCtx)
+	"HHGMoveInSITEndsTomorrow": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveInSITEndsTomorrow(appCtx)
 	},
-	"HHGMoveIn200DaysSITEndsYesterday": func(appCtx appcontext.AppContext) testHarnessResponse {
-		return MakeHHGMoveIn200DaysSITEndsYesterday(appCtx)
+	"HHGMoveInSITEndsYesterday": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveInSITEndsYesterday(appCtx)
 	},
-	"HHGMoveIn200DaysSITDeparted": func(appCtx appcontext.AppContext) testHarnessResponse {
-		return MakeHHGMoveIn200DaysSITDeparted(appCtx)
+	"HHGMoveInSITDeparted": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveInSITDeparted(appCtx)
 	},
-	"HHGMoveIn200DaysSITStartsInFuture": func(appCtx appcontext.AppContext) testHarnessResponse {
-		return MakeHHGMoveIn200DaysSITStartsInFuture(appCtx)
+	"HHGMoveInSITStartsInFuture": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveInSITStartsInFuture(appCtx)
 	},
-	"HHGMoveIn200DaysSITNotApproved": func(appCtx appcontext.AppContext) testHarnessResponse {
-		return MakeHHGMoveIn200DaysSITNotApproved(appCtx)
+	"HHGMoveInSITNotApproved": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveInSITNotApproved(appCtx)
 	},
 	"HHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx)
@@ -175,6 +178,15 @@ var actionDispatcher = map[string]actionFunc{
 	},
 	"ApprovedMoveWithPPMShipmentAndExcessWeight": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeApprovedMoveWithPPMShipmentAndExcessWeight(appCtx)
+	},
+	"HHGMoveWithAddressChangeRequest": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithAddressChangeRequest(appCtx)
+	},
+	"MakeHHGMoveWithAddressChangeRequestAndUnknownDeliveryAddress": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithAddressChangeRequestAndUnknownDeliveryAddress(appCtx)
+	},
+	"MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx)
 	},
 }
 

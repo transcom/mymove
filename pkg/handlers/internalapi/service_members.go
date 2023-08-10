@@ -7,7 +7,6 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -189,12 +188,12 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 
 			serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 
-			appCtx.Logger().Info("Patching service member", zap.String("serviceMemberID", serviceMemberID.String()), zap.Any("payload", params.PatchServiceMemberPayload))
 			var err error
 			var serviceMember models.ServiceMember
 			var verrs *validate.Errors
 
 			serviceMember, err = models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
+
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
@@ -248,7 +247,6 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 			}
 
 			serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember)
-			appCtx.Logger().Info("Finished patchServiceMemberHandler.")
 			return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload), nil
 		})
 }

@@ -22,7 +22,17 @@ func NewMTOShipmentFetcher() services.MTOShipmentFetcher {
 
 func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveID uuid.UUID) ([]models.MTOShipment, error) {
 	var move models.Move
-	err := appCtx.DB().Find(&move, moveID)
+	moveQuery := appCtx.DB().Q()
+
+	if appCtx.Session().IsMilApp() {
+		serviceMemberID := appCtx.Session().ServiceMemberID
+		moveQuery = moveQuery.
+			LeftJoin("orders", "orders.id = moves.orders_id").
+			Where("orders.service_member_id = ?", serviceMemberID)
+	}
+
+	err := moveQuery.Find(&move, moveID)
+
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -45,6 +55,8 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 			"PPMShipment.WeightTickets",
 			"PPMShipment.MovingExpenses",
 			"PPMShipment.ProgearWeightTickets",
+			"DeliveryAddressUpdate",
+			"DeliveryAddressUpdate.OriginalAddress",
 			"Reweigh",
 			"SITDurationUpdates",
 			"StorageFacility.Address",
@@ -108,6 +120,16 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 				progearWeightTicket.Document.UserUploads = progearWeightTicket.Document.UserUploads.FilterDeleted()
 			}
 		}
+
+		if shipments[i].DeliveryAddressUpdate != nil {
+			// Cannot EagerPreload the address update `NewAddress` due to POP bug
+			// See: https://transcom.github.io/mymove-docs/docs/backend/setup/using-eagerpreload-in-pop#eager-vs-eagerpreload-inconsistency
+			loadErr := appCtx.DB().Load(shipments[i].DeliveryAddressUpdate, "NewAddress")
+			if loadErr != nil {
+				return nil, apperror.NewQueryError("DeliveryAddressUpdate", loadErr, "")
+			}
+		}
+
 		var agents []models.MTOAgent
 		err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Where("mto_shipment_id = ?", shipments[i].ID).All(&agents)
 		if err != nil {
@@ -122,13 +144,18 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 func FindShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eagerAssociations ...string) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
 	findShipmentQuery := appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope())
-
 	if len(eagerAssociations) > 0 {
 		findShipmentQuery.Eager(eagerAssociations...)
 	}
 
-	err := findShipmentQuery.Find(&shipment, shipmentID)
+	if appCtx.Session() != nil && appCtx.Session().IsMilApp() {
+		findShipmentQuery.
+			LeftJoin("moves", "moves.id = mto_shipments.move_id").
+			LeftJoin("orders", "orders.id = moves.orders_id").
+			Where("orders.service_member_id = ?", appCtx.Session().ServiceMemberID)
+	}
 
+	err := findShipmentQuery.Find(&shipment, shipmentID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:

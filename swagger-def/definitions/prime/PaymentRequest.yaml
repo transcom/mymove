@@ -1,0 +1,37 @@
+type: object
+properties:
+  id:
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    format: uuid
+    readOnly: true
+    type: string
+  isFinal:
+    default: false
+    type: boolean
+  moveTaskOrderID:
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    format: uuid
+    type: string
+  rejectionReason:
+    example: documentation was incomplete
+    type: string
+    x-nullable: true
+  status:
+    $ref: '../PaymentRequestStatus.yaml'
+  paymentRequestNumber:
+    example: '1234-5678-1'
+    readOnly: true
+    type: string
+  recalculationOfPaymentRequestID:
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    format: uuid
+    type: string
+    readOnly: true
+    x-nullable: true
+  proofOfServiceDocs:
+    $ref: 'ProofOfServiceDocs.yaml'
+  paymentServiceItems:
+    $ref: 'PaymentServiceItems.yaml'
+  eTag:
+    type: string
+    readOnly: true

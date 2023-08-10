@@ -3,6 +3,8 @@
 import os.path
 import sys
 
+HELP_URL = "https://transcom.github.io/mymove-docs/docs/about/development/test-coverage-reports"
+
 if len(sys.argv) != 3:
   print(f"Usage: {sys.argv[0]} baseline_coverage.txt new_coverage.txt")
   sys.exit(1)
@@ -45,5 +47,7 @@ if new_percent < baseline_percent:
 
   print(f"\nBaseline test coverage: {baseline_percent}")
   print(f"New test coverage: {new_percent}")
-  print("Test Coverage has decreased\n")
+  print("Test Coverage has decreased")
+  print("Refer to the following to learn how resolve this:")
+  print(f"{HELP_URL}\n")
   sys.exit(1)

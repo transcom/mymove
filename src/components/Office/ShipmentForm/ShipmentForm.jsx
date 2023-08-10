@@ -3,7 +3,7 @@ import { arrayOf, bool, func, number, shape, string, oneOf } from 'prop-types';
 import { Field, Formik } from 'formik';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { Alert, Button, Checkbox, Fieldset, FormGroup, Radio } from '@trussworks/react-uswds';
+import { Alert, Button, Checkbox, Fieldset, FormGroup, Link, Radio } from '@trussworks/react-uswds';
 
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
 import { CloseoutOfficeInput } from '../../form/fields/CloseoutOfficeInput';
@@ -13,6 +13,7 @@ import ppmShipmentSchema from './ppmShipmentSchema';
 
 import SITCostDetails from 'components/Office/SITCostDetails/SITCostDetails';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
+import ConnectedShipmentAddressUpdateReviewRequestModal from 'components/Office/ShipmentAddressUpdateReviewRequestModal/ShipmentAddressUpdateReviewRequestModal';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
@@ -33,7 +34,7 @@ import StorageFacilityInfo from 'components/Office/StorageFacilityInfo/StorageFa
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
 import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
-import { shipmentDestinationTypes } from 'constants/shipments';
+import { ADDRESS_UPDATE_STATUS, shipmentDestinationTypes } from 'constants/shipments';
 import { officeRoles, roleTypes } from 'constants/userRoles';
 import { deleteShipment, updateMoveCloseoutOffice } from 'services/ghcApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -125,6 +126,10 @@ const ShipmentForm = (props) => {
   const handleShowCancellationModal = () => {
     setIsCancelModalVisible(true);
   };
+
+  const deliveryAddressUpdateRequested = mtoShipment?.deliveryAddressUpdate?.status === ADDRESS_UPDATE_STATUS.REQUESTED;
+
+  const [isAddressChangeModalOpen, setIsAddressChangeModalOpen] = useState(false);
 
   const isHHG = shipmentType === SHIPMENT_OPTIONS.HHG;
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
@@ -455,6 +460,12 @@ const ShipmentForm = (props) => {
               onClose={setIsCancelModalVisible}
               onSubmit={handleDeleteShipment}
             />
+            <ConnectedShipmentAddressUpdateReviewRequestModal
+              isOpen={isAddressChangeModalOpen}
+              onClose={() => setIsAddressChangeModalOpen(false)}
+              deliveryAddressUpdate={mtoShipment?.deliveryAddressUpdate}
+              shipmentType={mtoShipment?.shipmentType}
+            />
             <NotificationScrollToTop dependency={errorMessage} />
             {errorMessage && (
               <Alert type="error" headingLevel="h4" heading="An error occurred">
@@ -466,6 +477,9 @@ const ShipmentForm = (props) => {
                 The GHC prime contractor is not handling the shipment. Information will not be automatically shared with
                 the movers handling it.
               </Alert>
+            )}
+            {deliveryAddressUpdateRequested && (
+              <Alert type="error">Request needs review. See delivery location to proceed.</Alert>
             )}
 
             <div className={styles.ShipmentForm}>
@@ -611,7 +625,23 @@ const ShipmentForm = (props) => {
                         )}
                       </Fieldset>
                     ) : (
-                      <Fieldset legend="Delivery location">
+                      <Fieldset legend="Delivery location" disabled={deliveryAddressUpdateRequested}>
+                        {deliveryAddressUpdateRequested && (
+                          <Alert type="error" slim>
+                            <span className={styles.deliveryAddressUpdateAlert}>
+                              Pending delivery location change request needs review.{' '}
+                              <Link
+                                className={styles.reviewRequestLink}
+                                onClick={() => {
+                                  setIsAddressChangeModalOpen(true);
+                                }}
+                              >
+                                Review request
+                              </Link>{' '}
+                              to proceed.
+                            </span>
+                          </Alert>
+                        )}
                         <FormGroup>
                           <p>Does the customer know their delivery address yet?</p>
                           <div className={formStyles.radioGroup}>
@@ -680,15 +710,25 @@ const ShipmentForm = (props) => {
                             )}
                           />
                         ) : (
-                          <p>
-                            We can use the zip of their{' '}
-                            {displayDestinationType ? 'HOR, HOS or PLEAD:' : 'new duty location:'}
-                            <br />
-                            <strong>
-                              {newDutyLocationAddress.city}, {newDutyLocationAddress.state}{' '}
-                              {newDutyLocationAddress.postalCode}{' '}
-                            </strong>
-                          </p>
+                          <div>
+                            <p>
+                              We can use the zip of their{' '}
+                              {displayDestinationType ? 'HOR, HOS or PLEAD:' : 'new duty location:'}
+                              <br />
+                              <strong>
+                                {newDutyLocationAddress.city}, {newDutyLocationAddress.state}{' '}
+                                {newDutyLocationAddress.postalCode}{' '}
+                              </strong>
+                            </p>
+                            {displayDestinationType && (
+                              <DropdownInput
+                                label="Destination type"
+                                name="destinationType"
+                                options={shipmentDestinationAddressOptions}
+                                id="destinationType"
+                              />
+                            )}
+                          </div>
                         )}
                       </Fieldset>
                     )}
