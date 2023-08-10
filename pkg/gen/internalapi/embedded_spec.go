@@ -2555,8 +2555,8 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "returns an updated pro-gear weight ticket object",
+          "200": {
+            "description": "returns a updated pro-gear weight ticket object",
             "schema": {
               "$ref": "#/definitions/ProGearWeightTicket"
             }
@@ -10980,8 +10980,8 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "returns an updated pro-gear weight ticket object",
+          "200": {
+            "description": "returns a updated pro-gear weight ticket object",
             "schema": {
               "$ref": "#/definitions/ProGearWeightTicket"
             }
