@@ -258,6 +258,7 @@ bin/generate-shipment-summary: cmd/generate-shipment-summary
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate-shipment-summary
 
 bin/generate-test-data: cmd/generate-test-data
+	@echo "WARNING: devseed data is being deprecated on 11/08/2023. This function will be deleted after this date."
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate-test-data
 
 bin/ghc-pricing-parser: cmd/ghc-pricing-parser
@@ -543,6 +544,7 @@ db_dev_psql: ## Open PostgreSQL shell for Dev DB
 
 .PHONY: db_dev_fresh
 db_dev_fresh: check_app db_dev_reset db_dev_migrate ## Recreate dev db from scratch and populate with devseed data
+	@echo "WARNING: Devseed data is being deprecated on 11/08/2023. This function will be deleted after that date."
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development" --named-sub-scenario="${DEVSEED_SUBSCENARIO}"
 
@@ -553,6 +555,7 @@ db_dev_truncate: ## Truncate dev db
 
 .PHONY: db_dev_e2e_populate
 db_dev_e2e_populate: check_app db_dev_migrate db_dev_truncate ## Migrate dev db and populate with devseed data
+	@echo "WARNING: Devseed data is being deprecated on 11/08/2023. This function will be deleted after that date."
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development" --named-sub-scenario="${DEVSEED_SUBSCENARIO}"
 
@@ -565,6 +568,7 @@ db_bandwidth_up: db_dev_bandwidth_up
 
 .PHONY: db_dev_bandwidth_up
 db_dev_bandwidth_up: check_app bin/generate-test-data db_dev_truncate ## Truncate Dev DB and Generate data for bandwidth tests
+	@echo "WARNING: devseed data is being deprecated on 11/08/2023. This function will be deleted after this date."
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	DB_PORT=$(DB_PORT_DEV) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="bandwidth" --db-env="development"
 #

@@ -65,6 +65,7 @@ export const ShipmentAddressUpdateShape = shape({
   originalAddress: AddressShape,
   shipmentID: string,
   status: string,
+  officeRemarks: string,
 });
 
 export const ShipmentShape = shape({
