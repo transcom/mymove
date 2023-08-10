@@ -1,20 +1,23 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/arn"
-	awssession "github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/private/protocol/json/jsonutil"
-	"github.com/aws/aws-sdk-go/service/cloudwatchevents"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/aws/arn"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatchevents"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatchevents/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/cli"
 )
@@ -81,13 +84,9 @@ func checkPutTargetsConfig(v *viper.Viper) error {
 		return fmt.Errorf("%q is invalid: %w", awsAccountIDFlag, &errInvalidAccountID{AwsAccountID: awsAccountID})
 	}
 
-	region, err := cli.CheckAWSRegion(v)
+	_, err := cli.CheckAWSRegion(v)
 	if err != nil {
 		return fmt.Errorf("'%q' is invalid: %w", cli.AWSRegionFlag, err)
-	}
-
-	if err := cli.CheckAWSRegionForService(region, cloudwatchevents.ServiceName); err != nil {
-		return fmt.Errorf("'%q' is invalid for service %s: %w", cli.AWSRegionFlag, cloudwatchevents.ServiceName, err)
 	}
 
 	environmentName := v.GetString(environmentFlag)
@@ -166,24 +165,25 @@ func putTargetFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Get the AWS configuration so we can build a session
-	awsConfig := &aws.Config{
-		Region: aws.String(v.GetString(cli.AWSRegionFlag)),
-	}
-	sess, err := awssession.NewSession(awsConfig)
+	cfg, err := config.LoadDefaultConfig(context.Background(),
+		config.WithRegion(v.GetString(cli.AWSRegionFlag)),
+	)
 	if err != nil {
-		quit(logger, nil, fmt.Errorf("failed to create AWS session: %w", err))
+		logger.Fatal("error loading default aws config", zap.Error(err))
 	}
 
 	// Create the Services
-	serviceCloudWatchEvents := cloudwatchevents.New(sess)
+	serviceCloudWatchEvents := cloudwatchevents.NewFromConfig(cfg)
 
 	// Get the current task definition (for rollback)
 	taskDefARN := v.GetString(taskDefARNFlag)
 	name := v.GetString(nameFlag)
 	ruleName := fmt.Sprintf("%s-%s", name, v.GetString(environmentFlag))
-	targetsOutput, err := serviceCloudWatchEvents.ListTargetsByRule(&cloudwatchevents.ListTargetsByRuleInput{
-		Rule: aws.String(ruleName),
-	})
+	targetsOutput, err := serviceCloudWatchEvents.ListTargetsByRule(
+		context.Background(),
+		&cloudwatchevents.ListTargetsByRuleInput{
+			Rule: aws.String(ruleName),
+		})
 	if err != nil {
 		quit(logger, nil, fmt.Errorf("error retrieving targets for rule: %w", err))
 	}
@@ -193,17 +193,17 @@ func putTargetFunction(cmd *cobra.Command, args []string) error {
 	// Update the task event target with the new task ECS parameters
 	putTargetsInput := cloudwatchevents.PutTargetsInput{
 		Rule: aws.String(ruleName),
-		Targets: []*cloudwatchevents.Target{
+		Targets: []types.Target{
 			{
 				Id:      currentTarget.Id,
 				Arn:     currentTarget.Arn,
 				RoleArn: currentTarget.RoleArn,
-				EcsParameters: &cloudwatchevents.EcsParameters{
-					LaunchType:           aws.String("FARGATE"),
+				EcsParameters: &types.EcsParameters{
+					LaunchType:           types.LaunchTypeFargate,
 					NetworkConfiguration: currentTarget.EcsParameters.NetworkConfiguration,
-					TaskCount:            aws.Int64(1),
+					TaskCount:            aws.Int32(1),
 					TaskDefinitionArn:    aws.String(taskDefARN),
-					PropagateTags:        aws.String("TASK_DEFINITION"),
+					PropagateTags:        types.PropagateTagsTaskDefinition,
 				},
 			},
 		},
@@ -211,14 +211,14 @@ func putTargetFunction(cmd *cobra.Command, args []string) error {
 
 	if v.GetBool(dryRunFlag) {
 		// Format the new task def as JSON for viewing
-		putTargetsJSON, jsonErr := jsonutil.BuildJSON(putTargetsInput)
+		jsonErr := json.NewEncoder(logger.Writer()).Encode(putTargetsInput)
 		if jsonErr != nil {
 			quit(logger, nil, err)
 		}
-
-		logger.Println(string(putTargetsJSON))
 	} else if v.GetBool(putTargetFlag) {
-		putTargetsOutput, err := serviceCloudWatchEvents.PutTargets(&putTargetsInput)
+		putTargetsOutput, err := serviceCloudWatchEvents.PutTargets(
+			context.Background(),
+			&putTargetsInput)
 		if err != nil {
 			quit(logger, nil, fmt.Errorf("error unable to put new target: %w", err))
 		}
