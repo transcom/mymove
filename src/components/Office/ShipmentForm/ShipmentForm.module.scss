@@ -80,7 +80,7 @@
   }
 
   .deliveryAddressUpdateAlert {
-    margin-top: 24px;
+    @include u-margin-top(3);
   }
 
   .deliveryAddressUpdateAlertContent {
@@ -141,6 +141,6 @@
   width: 100%;
 
   & + .RemarksTable {
-    margin-top: 16px;
+    @include u-margin-top(2);
   }
 }
