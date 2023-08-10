@@ -39,7 +39,7 @@ func getProfileData(r *http.Request, appCtx appcontext.AppContext, hostname stri
 	defer resp.Body.Close()
 	err := json.Unmarshal(body, &m)
 	if err != nil {
-		appCtx.Logger().Error("get profile data", zap.Error(err))
+		appCtx.Logger().Error("could not unmarshal body", zap.Error(err))
 		return nil, err
 	}
 

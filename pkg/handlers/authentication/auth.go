@@ -774,10 +774,14 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Exchange code received from login for access token. This is used during the grant_type auth flow
-	exchange := exchangeCode(r.URL.Query().Get("code"), r, appCtx, hash)
+	exchange, err := exchangeCode(r.URL.Query().Get("code"), r, appCtx, hash)
 	if exchange.Error != "" {
 		fmt.Println(exchange.Error)
 		fmt.Println(exchange.ErrorDescription)
+		return
+	} else if err != nil {
+		appCtx.Logger().Error("exchange code for access token", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 	// Gather Okta org url
@@ -802,7 +806,12 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	appCtx.Session().AccessToken = exchange.AccessToken
 
 	// Retrieve user info
-	profileData := getProfileData(r, appCtx, orgURL)
+	profileData, err := getProfileData(r, appCtx, orgURL)
+	if err != nil {
+		appCtx.Logger().Error("get profile data", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
 
 	// ! Continuing with sessions
 	// TODO: convert profiledata into struct. Previous implementation used goth.User
