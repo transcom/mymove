@@ -76,7 +76,7 @@ func (m MoveIssuedToPrime) emails(appCtx appcontext.AppContext) ([]emailContent,
 	}
 
 	htmlBody, textBody, err := m.renderTemplates(appCtx, moveIssuedToPrimeEmailData{
-		MilitaryOneSourceLink:        "https://www.militaryonesource.mil/benefits/militaryinstallations-local-transportation-office/",
+		MilitaryOneSourceLink:        "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL",
 		OriginDutyLocation:           originDutyLocation,
 		DestinationDutyLocation:      orders.NewDutyLocation.Name,
 		ProvidesGovernmentCounseling: providesGovernmentCounseling,
