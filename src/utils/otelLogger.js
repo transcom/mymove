@@ -6,6 +6,12 @@ import { BatchOtelExporter } from './batchOtelExporter';
 // Implement a logger that will upload
 export class OtelLogger {
   /**
+     @private
+     @type {import('./batchOtelExporter').BatchOtelExporter}
+   */
+  exporter;
+
+  /**
    * create a logger that sends information to the server periodically
    * and is compatibile with the @opentelemetry/api DiagLogger
    *
