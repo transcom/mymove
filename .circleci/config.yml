@@ -1500,7 +1500,9 @@ jobs:
       - run:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
-      - run: make client_test_coverage
+      - run:
+          name: client test coverage
+          command: JEST_JUNIT_OUTPUT_DIR=jest-junit-reports make client_test_coverage
       - run:
           # https://support.circleci.com/hc/en-us/articles/10816400480411-How-to-pass-environment-variables-between-jobs
           name: Copy Workflow Job ID to file
@@ -1515,7 +1517,7 @@ jobs:
           path: ~/transcom/mymove/coverage
           destination: coverage
       - store_test_results:
-          path: ~/transcom/mymove
+          path: ~/transcom/mymove/jest-junit-reports
       - persist_to_workspace:
           root: .
           paths:
