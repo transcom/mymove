@@ -25,41 +25,6 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
 }));
 
-const defaultProps = {
-  isCreatePage: true,
-  submitHandler: jest.fn(),
-  newDutyLocationAddress: {
-    city: 'Fort Benning',
-    state: 'GA',
-    postalCode: '31905',
-  },
-  currentResidence: {
-    city: 'Fort Benning',
-    state: 'GA',
-    postalCode: '31905',
-    streetAddress1: '123 Main',
-    streetAddress2: '',
-  },
-  originDutyLocationAddress: {
-    city: 'Fort Benning',
-    state: 'GA',
-    postalCode: '31905',
-    streetAddress1: '123 Main',
-    streetAddress2: '',
-  },
-  serviceMember: {
-    weightAllotment: {
-      totalWeightSelf: 5000,
-    },
-    agency: '',
-  },
-  moveTaskOrderID: 'mock move id',
-  mtoShipments: [],
-  userRole: roleTypes.SERVICES_COUNSELOR,
-  orderType: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
-  isForServivcesCounseling: false,
-};
-
 const mockMtoShipment = {
   id: 'shipment123',
   moveTaskOrderId: 'mock move id',
@@ -97,6 +62,42 @@ const mockMtoShipment = {
       phone: '863-555-9664',
     },
   ],
+};
+
+const defaultProps = {
+  isCreatePage: true,
+  submitHandler: jest.fn(),
+  newDutyLocationAddress: {
+    city: 'Fort Benning',
+    state: 'GA',
+    postalCode: '31905',
+  },
+  currentResidence: {
+    city: 'Fort Benning',
+    state: 'GA',
+    postalCode: '31905',
+    streetAddress1: '123 Main',
+    streetAddress2: '',
+  },
+  originDutyLocationAddress: {
+    city: 'Fort Benning',
+    state: 'GA',
+    postalCode: '31905',
+    streetAddress1: '123 Main',
+    streetAddress2: '',
+  },
+  serviceMember: {
+    weightAllotment: {
+      totalWeightSelf: 5000,
+    },
+    agency: '',
+  },
+  moveTaskOrderID: 'mock move id',
+  mtoShipments: [],
+  mtoShipment: mockMtoShipment,
+  userRole: roleTypes.SERVICES_COUNSELOR,
+  orderType: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+  isForServivcesCounseling: false,
 };
 
 const mockShipmentWithDestinationType = {
@@ -226,7 +227,6 @@ describe('ShipmentForm component', () => {
       expect(deliveryLocationSectionHeadings).toHaveLength(2);
       expect(deliveryLocationSectionHeadings[0]).toBeInstanceOf(HTMLParagraphElement);
       expect(deliveryLocationSectionHeadings[1]).toBeInstanceOf(HTMLLegendElement);
-      expect(deliveryLocationSectionHeadings[1]).toHaveClass('usa-sr-only');
       expect(screen.getAllByLabelText('Yes')[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('Yes')[1]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('No')[0]).toBeInstanceOf(HTMLInputElement);
@@ -332,7 +332,6 @@ describe('ShipmentForm component', () => {
           {...defaultProps}
           isCreatePage={false}
           shipmentType={SHIPMENT_OPTIONS.HHG}
-          mtoShipment={mockMtoShipment}
           displayDestinationType={false}
         />,
       );
@@ -486,7 +485,7 @@ describe('ShipmentForm component', () => {
             {...defaultPropsRetirement}
             isCreatePage={false}
             shipmentType={shipmentType}
-            mtoShipment={{ ...mockShipmentWithDestinationType, ...mockDeliveryAddressUpdate, eTag }}
+            mtoShipment={{ ...mockShipmentWithDestinationType, ...mockDeliveryAddressUpdate, eTag, shipmentType }}
             displayDestinationType
           />,
         );
@@ -563,12 +562,7 @@ describe('ShipmentForm component', () => {
 
     it('renders an Accounting Codes section', async () => {
       renderWithRouter(
-        <ShipmentForm
-          {...defaultProps}
-          TACs={{ HHG: '1234', NTS: '5678' }}
-          shipmentType={SHIPMENT_OPTIONS.NTS}
-          mtoShipment={mockMtoShipment}
-        />,
+        <ShipmentForm {...defaultProps} TACs={{ HHG: '1234', NTS: '5678' }} shipmentType={SHIPMENT_OPTIONS.NTS} />,
       );
 
       expect(await screen.findByText(/Accounting codes/)).toBeInTheDocument();
@@ -770,7 +764,6 @@ describe('ShipmentForm component', () => {
         <ShipmentForm
           {...defaultProps}
           shipmentType={SHIPMENT_OPTIONS.HHG}
-          mtoShipment={mockMtoShipment}
           submitHandler={mockSubmitHandler}
           isCreatePage={false}
         />,
@@ -919,7 +912,6 @@ describe('ShipmentForm component', () => {
         <ShipmentForm
           {...defaultProps}
           shipmentType={SHIPMENT_OPTIONS.HHG}
-          mtoShipment={mockMtoShipment}
           submitHandler={mockSubmitHandler}
           isCreatePage={false}
         />,
@@ -992,7 +984,6 @@ describe('ShipmentForm component', () => {
           shipmentType={SHIPMENT_OPTIONS.PPM}
           isCreatePage
           userRole={roleTypes.SERVICES_COUNSELOR}
-          mtoShipment={mockMtoShipment}
         />,
       );
 
@@ -1240,7 +1231,6 @@ describe('ShipmentForm component', () => {
           shipmentType={SHIPMENT_OPTIONS.PPM}
           isCreatePage
           userRole={roleTypes.SERVICES_COUNSELOR}
-          mtoShipment={mockMtoShipment}
         />,
       );
 

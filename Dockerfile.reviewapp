@@ -73,6 +73,8 @@ WORKDIR /
 
 USER nobody
 
+# WARNING: devseed data is being deprecated on 11/08/2023. This function below will be deleted after this date.
+
 ENTRYPOINT ["/bin/sh", "-c", \
   "/bin/milmove migrate && /bin/generate-test-data --named-scenario='dev_seed' --db-env='development'" \
   ]
