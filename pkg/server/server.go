@@ -142,38 +142,38 @@ func fetchCRL(url string) (*x509.RevocationList, error) {
 // Request CRL response from server.
 // Returns error if the server can't get the certificate
 // func getCRLResponse(fetch storage.FileStorer, v *viper.Viper, crlFile string, clientCert *x509.Certificate, issuerCert *x509.Certificate) error {
-func getCRLResponse(clientCert *x509.Certificate, issuerCert *x509.Certificate) error {
-	for _, url := range clientCert.CRLDistributionPoints {
-		// TODO: Skip LDAP
-
-		//x509.ParseRevocationList is not a direct ASN.1 representation, so leaves the option to add more detailed information
-		parseCRL, err := fetchCRL(url)
-		if err != nil {
-			return err
-		}
-
-		//Parsed CRL against the issuer certificate
-		err = parseCRL.CheckSignatureFrom(issuerCert)
-		if err != nil {
-			return err
-		}
-
-		// Check that the revocation list can be trusted
-		if parseCRL.NextUpdate.Before(time.Now()) {
-			return fmt.Errorf("CRL expired")
-		}
-
-		// Check id cert shows up in Revoked List
-		for _, revokedCertificate := range parseCRL.RevokedCertificates {
-			fmt.Printf("Revoked certificate serial number: %s\n", revokedCertificate.SerialNumber.String())
-			if revokedCertificate.SerialNumber.Cmp(clientCert.SerialNumber) == 0 {
-				return fmt.Errorf("The certificate is revoked!")
-			}
-		}
-	}
-
-	return nil
-}
+//func getCRLResponse(clientCert *x509.Certificate, issuerCert *x509.Certificate) error {
+//	for _, url := range clientCert.CRLDistributionPoints {
+//		// TODO: Skip LDAP
+//
+//		//x509.ParseRevocationList is not a direct ASN.1 representation, so leaves the option to add more detailed information
+//		parseCRL, err := fetchCRL(url)
+//		if err != nil {
+//			return err
+//		}
+//
+//		//Parsed CRL against the issuer certificate
+//		err = parseCRL.CheckSignatureFrom(issuerCert)
+//		if err != nil {
+//			return err
+//		}
+//
+//		// Check that the revocation list can be trusted
+//		if parseCRL.NextUpdate.Before(time.Now()) {
+//			return fmt.Errorf("CRL expired")
+//		}
+//
+//		// Check id cert shows up in Revoked List
+//		for _, revokedCertificate := range parseCRL.RevokedCertificates {
+//			fmt.Printf("Revoked certificate serial number: %s\n", revokedCertificate.SerialNumber.String())
+//			if revokedCertificate.SerialNumber.Cmp(clientCert.SerialNumber) == 0 {
+//				return fmt.Errorf("The certificate is revoked!")
+//			}
+//		}
+//	}
+//
+//	return nil
+//}
 
 // Request OCSP response from server.
 // Returns error if the server can't get the certificate
@@ -218,7 +218,7 @@ func getOCSPResponse(ocspServer string, request *http.Request, issuerCert *x509.
 // rawCerts contain chains of certificates in raw ASN.1 format
 // each raw certs starts with the leafCert and ends with a root self-signed CA certificate
 // verifiedChains have a certificate chain that verifies the signature validity and ends with a trusted certificate in the chain
-func CertRevokedCheck(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
+func CertRevokedCheck(_ [][]byte, verifiedChains [][]*x509.Certificate) error {
 	var req *http.Request
 	cert := verifiedChains[0][0]       // first argument verifies the client cert, second index 0 is the client cert
 	issuerCert := verifiedChains[0][1] // second index of 1 is the issuer of the cert
@@ -227,8 +227,8 @@ func CertRevokedCheck(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) e
 	if len(cert.OCSPServer) > 0 {
 		ocspResponse, err := getOCSPResponse(cert.OCSPServer[0], req, issuerCert)
 		if err != nil {
-			//return err, the revocation list was not checked and an error was encountered.
-			return getCRLResponse(cert, issuerCert)
+			return err
+			//return getCRLResponse(cert, issuerCert)
 		}
 
 		switch ocspResponse.Status {
@@ -236,11 +236,11 @@ func CertRevokedCheck(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) e
 			fmt.Printf("[+] Certificate status: Good. It is still valid\n")
 		case ocsp.Revoked:
 			fmt.Printf("[!] Certificate status: Revoked.\n")
-			return fmt.Errorf("The certificate was revoked!  The application can not trust the certificate.")
+			return fmt.Errorf("the certificate was revoked!  The application can not trust the certificate")
 		case ocsp.Unknown:
 			fmt.Printf("[?] Certificate status: Unknown\n")
-			getCRLResponse(cert, issuerCert)
-			return fmt.Errorf("The certificate is unknown to OCSP server! The server does not know about the existence of the certificate serial number. Checking the CRL instead")
+			//getCRLResponse(cert, issuerCert)
+			return fmt.Errorf("the certificate is unknown to OCSP server! The server does not know about the existence of the certificate serial number. Checking the CRL instead")
 		}
 	}
 
