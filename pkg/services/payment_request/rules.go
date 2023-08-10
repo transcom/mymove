@@ -76,19 +76,7 @@ func checkStatusOfExistingPaymentRequest() paymentRequestValidator {
 			}
 		}
 
-		if len(move.MTOShipments) > 0 {
-
-			var paymentServiceItemsShipmentLevel []models.PaymentServiceItem
-
-			for _, incomingPaymentServiceItem := range paymentRequest.PaymentServiceItems {
-				if incomingPaymentServiceItem.MTOServiceItem.ReService.Code != models.ReServiceCodeMS && incomingPaymentServiceItem.MTOServiceItem.ReService.Code != models.ReServiceCodeCS {
-					paymentServiceItemsShipmentLevel = append(paymentServiceItemsShipmentLevel, incomingPaymentServiceItem)
-				}
-			}
-
-			if len(paymentServiceItemsShipmentLevel) > 0 {
-				shipmentID = paymentServiceItemsShipmentLevel[0].MTOServiceItem.MTOShipmentID
-			}
+		if len(move.MTOShipments) > 0 && shipmentID != nil {
 
 			shipment, err := mtoshipment.NewMTOShipmentFetcher().GetShipment(appCtx, *shipmentID,
 				"MoveTaskOrder.PaymentRequests",
