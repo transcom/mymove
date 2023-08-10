@@ -97,6 +97,14 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 			"physicalName": physicalName,
 		},
 	}
+	err := soapCall(d, params, appCtx)
+	if err != nil {
+		return fmt.Errorf("Request error: %s", err.Error())
+	}
+	return nil
+}
+
+func soapCall(d *GetLastTableUpdateRequestElement, params gosoap.Params, appCtx appcontext.AppContext) error {
 	res, err := d.soapClient.Call("ProcessRequest", params)
 	if err != nil {
 		return fmt.Errorf("call error: %s", err.Error())
@@ -114,16 +122,23 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 		if dbError != nil {
 			return fmt.Errorf(err.Error())
 		}
-		if len(tacCodes) > 0 {
-			for _, tacCode := range tacCodes {
-				if tacCode.UpdatedAt.String() != r.LastUpdate {
-					return nil
-				}
-			}
+		err := processTacCodes(tacCodes, r)
+		if err != nil {
+			return fmt.Errorf(err.Error())
 		}
 	}
 
 	appCtx.Logger().Debug("getLastTableUpdate result", zap.Any("processRequestResponse", r))
+	return nil
+}
 
+func processTacCodes(tacCodes []models.TransportationAccountingCode, r GetLastTableUpdateResponseElement) error {
+	if len(tacCodes) > 0 {
+		for _, tacCode := range tacCodes {
+			if tacCode.UpdatedAt.String() != r.LastUpdate {
+				print("GetTable")
+			}
+		}
+	}
 	return nil
 }
