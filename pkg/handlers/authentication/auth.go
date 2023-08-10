@@ -459,7 +459,7 @@ func (context *Context) GetFeatureFlag(flag string) bool {
 
 // Context is the common handler type for auth handlers
 type Context struct {
-	oktaProvider     okta.OktaProvider
+	oktaProvider     okta.Provider
 	callbackTemplate string
 	featureFlags     map[string]bool
 }
@@ -471,7 +471,7 @@ type FeatureFlag struct {
 }
 
 // NewAuthContext creates an Context
-func NewAuthContext(_ *zap.Logger, oktaProvider okta.OktaProvider, callbackProtocol string, callbackPort int) Context {
+func NewAuthContext(_ *zap.Logger, oktaProvider okta.Provider, callbackProtocol string, callbackPort int) Context {
 	context := Context{
 		oktaProvider:     oktaProvider,
 		callbackTemplate: fmt.Sprintf("%s://%%s:%d/", callbackProtocol, callbackPort),
@@ -774,7 +774,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Exchange code received from login for access token. This is used during the grant_type auth flow
-	exchange, err := exchangeCode(r.URL.Query().Get("code"), r, appCtx, hash)
+	exchange, err := exchangeCode(r.URL.Query().Get("code"), r, appCtx)
 	if exchange.Error != "" {
 		fmt.Println(exchange.Error)
 		fmt.Println(exchange.ErrorDescription)
@@ -793,7 +793,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Verify access token
-	_, verificationError := verifyToken(exchange.IdToken, returnedState, appCtx.Session(), orgURL)
+	_, verificationError := verifyToken(exchange.IDToken, returnedState, appCtx.Session(), orgURL)
 
 	if verificationError != nil {
 		appCtx.Logger().Error("token exchange verification", zap.Error(err))
@@ -802,11 +802,11 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Assign token values to session
-	appCtx.Session().IDToken = exchange.IdToken
+	appCtx.Session().IDToken = exchange.IDToken
 	appCtx.Session().AccessToken = exchange.AccessToken
 
 	// Retrieve user info
-	profileData, err := getProfileData(r, appCtx, orgURL)
+	profileData, err := getProfileData(appCtx, orgURL)
 	if err != nil {
 		appCtx.Logger().Error("get profile data", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -816,7 +816,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// ! Continuing with sessions
 	// TODO: convert profiledata into struct. Previous implementation used goth.User
 
-	appCtx.Session().IDToken = exchange.IdToken
+	appCtx.Session().IDToken = exchange.IDToken
 	appCtx.Session().Email = profileData["email"]
 	appCtx.Session().ClientID = profileData["aud"]
 
@@ -824,7 +824,8 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// ! Hard coded error auth result. This is because sessions are TODO
 	// TODO: Implement sessions and remove hard coded auth result error
 	result := AuthorizationResult(2)
-	//result := authorizeUser(r.Context(), appCtx, profileData["sub"], sessionManager, h.sender)
+	dump := authorizeUser(r.Context(), appCtx, goth.User{}, sessionManager, h.sender)
+	appCtx.Logger().Info("Dumping var", zap.Any("dump", dump))
 	switch result {
 	case authorizationResultError:
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -1172,7 +1173,9 @@ func fetchToken(code string, clientID string, loginGovProvider LoginGovProvider)
 }
 
 // InitAuth initializes the Okta provider
-func InitAuth(v *viper.Viper, logger *zap.Logger, appnames auth.ApplicationServername) (*okta.OktaProvider, error) {
+func InitAuth(_ *viper.Viper, logger *zap.Logger, _ auth.ApplicationServername) (*okta.Provider, error) {
+
+	// ! Viper and appnames can be used here to feed into all of the os.Getenv uses for future refactor
 
 	// Create a new Okta Provider. This will be used in the creation of the additional providers for each subdomain
 	oktaProvider := okta.NewOktaProvider(logger)

@@ -22,9 +22,6 @@ const (
 	//RA Validator: jneuner@mitre.org
 	//RA Modified Severity: CAT III
 	// #nosec G101
-	//
-	// Additional notes for Okta flags - these variable names with "secret" are to identify the name of the flag as well
-	// These variables do not store the secret
 
 	// ClientAuthSecretKeyFlag is the Client Auth Secret Key Flag
 	ClientAuthSecretKeyFlag string = "client-auth-secret-key"
@@ -47,16 +44,31 @@ const (
 	OktaTenantIssuerURLFlag    string = "okta-tenant-issuer-url"
 	OktaTenantCallbackPortFlag string = "okta-tenant-callback-port"
 	// Okta Customer client id and secret flags
+	// Summary: gosec - G101 - Password Management: Hardcoded Password
+	// This line was flagged because of use of the word "secret"
+	// This line is used to identify the name of the flag. See ClientAuthSecretKeyFlag handled above.  OktaCustomerSecretKeyFlag points to the flag.
+	// This value of this variable does not store an application secret.
+	// #nosec G101
 	OktaCustomerSecretKeyFlag        string = "okta-customer-secret-key"
 	OktaCustomerClientIDFlag         string = "okta-customr-client-id"
 	OktaCustomerHostnameFlag         string = "okta-customer-hostname"
 	OktaCustomerCallbackProtocolFlag string = "okta-customer-callback-protocol"
 	// Okta Office client id and secret flags
+	// Summary: gosec - G101 - Password Management: Hardcoded Password
+	// This line was flagged because of use of the word "secret"
+	// This line is used to identify the name of the flag. See ClientAuthSecretKeyFlag handled above. OktaOfficeSecretKeyFlag points to the flag.
+	// This value of this variable does not store an application secret.
+	// #nosec G101
 	OktaOfficeSecretKeyFlag        string = "okta-office-secret-key"
 	OktaOfficeClientIDFlag         string = "okta-office-client-id"
 	OktaOfficeHostnameFlag         string = "okta-office-hostname"
 	OktaOfficeCallbackProtocolFlag string = "okta-office-callback-protocol"
 	// Okta Admin client id and secret flags
+	// Summary: gosec - G101 - Password Management: Hardcoded Password
+	// This line was flagged because of use of the word "secret"
+	// This line is used to identify the name of the flag. See ClientAuthSecretKeyFlag handled above. OktaAdminSecretKeyFlag points  to the flag.
+	// This value of this variable does not store an application secret.
+	// #nosec G101
 	OktaAdminSecretKeyFlag        string = "okta-admin-secret-key"
 	OktaAdminClientIDFlag         string = "okta-admin-client-id"
 	OktaAdminHostnameFlag         string = "okta-admin-hostname"

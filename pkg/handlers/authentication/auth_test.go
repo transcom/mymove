@@ -73,7 +73,7 @@ func TestAuthSuite(t *testing.T) {
 	hs.PopTestSuite.TearDown()
 }
 
-func fakeOktaProvider(logger *zap.Logger) *okta.OktaProvider {
+func fakeOktaProvider(logger *zap.Logger) *okta.Provider {
 	return okta.NewOktaProvider(logger)
 }
 

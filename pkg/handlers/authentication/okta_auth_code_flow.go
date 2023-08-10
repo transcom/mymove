@@ -19,16 +19,16 @@ import (
 // ! See flow here:
 // ! https://developer.okta.com/docs/guides/implement-grant-type/authcode/main/
 
-func getProfileData(r *http.Request, appCtx appcontext.AppContext, hostname string) (map[string]string, error) {
+func getProfileData(appCtx appcontext.AppContext, hostname string) (map[string]string, error) {
 	m := make(map[string]string)
 
 	if appCtx.Session().AccessToken == "" {
 		return m, nil
 	}
 
-	reqUrl := hostname + "/oauth2/default/v1/userinfo"
+	reqURL := hostname + "/oauth2/default/v1/userinfo"
 
-	req, _ := http.NewRequest("GET", reqUrl, bytes.NewReader([]byte("")))
+	req, _ := http.NewRequest("GET", reqURL, bytes.NewReader([]byte("")))
 	h := req.Header
 	h.Add("Authorization", "Bearer "+appCtx.Session().AccessToken)
 	h.Add("Accept", "application/json")
@@ -80,7 +80,7 @@ func verifyToken(t string, nonce string, session *auth.Session, orgURL string) (
 }
 
 // ! Refactor once chamber is holding new secrets
-func exchangeCode(code string, r *http.Request, appCtx appcontext.AppContext, hash string) (Exchange, error) {
+func exchangeCode(code string, r *http.Request, appCtx appcontext.AppContext) (Exchange, error) {
 	session := auth.SessionFromRequestContext(r)
 
 	appType := "CUSTOMER"
@@ -138,5 +138,5 @@ type Exchange struct {
 	TokenType        string `json:"token_type,omitempty"`
 	ExpiresIn        int    `json:"expires_in,omitempty"`
 	Scope            string `json:"scope,omitempty"`
-	IdToken          string `json:"id_token,omitempty"`
+	IDToken          string `json:"id_token,omitempty"`
 }

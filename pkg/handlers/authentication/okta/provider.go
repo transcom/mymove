@@ -19,20 +19,20 @@ const MilProviderName = "milProvider"
 const OfficeProviderName = "officeProvider"
 const AdminProviderName = "adminProvider"
 
-type OktaProvider struct {
+type Provider struct {
 	gothOkta.Provider
 	hostname string
 	logger   *zap.Logger
 }
 
-type OktaData struct {
+type Data struct {
 	RedirectURL string
 	Nonce       string
 	GothSession goth.Session
 }
 
 // This function will select the correct provider to use based on its set name.
-func getOktaProviderForRequest(r *http.Request, oktaProvider OktaProvider) (goth.Provider, error) {
+func getOktaProviderForRequest(r *http.Request) (goth.Provider, error) {
 	session := auth.SessionFromRequestContext(r)
 
 	// Default the provider name to the "MilProviderName" which is the customer application
@@ -55,17 +55,17 @@ func getOktaProviderForRequest(r *http.Request, oktaProvider OktaProvider) (goth
 	return gothProvider, nil
 }
 
-func getProviderName(r *http.Request) string {
-	session := auth.SessionFromRequestContext(r)
+// func getProviderName(r *http.Request) string {
+// 	session := auth.SessionFromRequestContext(r)
 
-	// Set the provider name based on of it is an office or admin app. Remember, the provider is slected by its name
-	if session.IsOfficeApp() {
-		return OfficeProviderName
-	} else if session.IsAdminApp() {
-		return AdminProviderName
-	}
-	return MilProviderName
-}
+// 	// Set the provider name based on of it is an office or admin app. Remember, the provider is slected by its name
+// 	if session.IsOfficeApp() {
+// 		return OfficeProviderName
+// 	} else if session.IsAdminApp() {
+// 		return AdminProviderName
+// 	}
+// 	return MilProviderName
+// }
 
 // ! This func will likely come back during continuation of the sessions story
 // // This function will return the ClientID of the current provider
@@ -83,11 +83,11 @@ func getProviderName(r *http.Request) string {
 // }
 
 // This function will use the OktaProvider to return the correct authorization URL to use
-func (op *OktaProvider) AuthorizationURL(r *http.Request) (*OktaData, error) {
+func (op *Provider) AuthorizationURL(r *http.Request) (*Data, error) {
 
 	// Retrieve the correct Okta Provider to use to get the correct authorization URL. This will choose from customer,
 	// office, or admin domains and use their information to create the URL.
-	provider, err := getOktaProviderForRequest(r, *op)
+	provider, err := getOktaProviderForRequest(r)
 	if err != nil {
 		op.logger.Error("Get Goth provider", zap.Error(err))
 		return nil, err
@@ -125,19 +125,19 @@ func (op *OktaProvider) AuthorizationURL(r *http.Request) (*OktaData, error) {
 
 	authURL.RawQuery = params.Encode()
 
-	return &OktaData{authURL.String(), state, sess}, nil
+	return &Data{authURL.String(), state, sess}, nil
 }
 
-func NewOktaProvider(logger *zap.Logger) *OktaProvider {
-	return &OktaProvider{
+func NewOktaProvider(logger *zap.Logger) *Provider {
+	return &Provider{
 		logger: logger,
 	}
 }
 
 // This function allows us to wrap new registered providers with the zap logger. The initial Okta provider is already wrapped
 // This will wrap the gothOkta provider with our own version of OktaProvider (With added methods)
-func wrapOktaProvider(provider *gothOkta.Provider, logger *zap.Logger) *OktaProvider {
-	return &OktaProvider{
+func wrapOktaProvider(provider *gothOkta.Provider, logger *zap.Logger) *Provider {
+	return &Provider{
 		Provider: *provider,
 		logger:   logger,
 	}
@@ -145,7 +145,7 @@ func wrapOktaProvider(provider *gothOkta.Provider, logger *zap.Logger) *OktaProv
 
 // Function to register all three providers at once.
 // TODO: Use viper instead of os environment variables
-func (op *OktaProvider) RegisterProviders() error {
+func (op *Provider) RegisterProviders() error {
 
 	// Declare OIDC scopes to be used within the providers
 	scope := []string{"openid", "email", "profile"}
@@ -173,9 +173,9 @@ func (op *OktaProvider) RegisterProviders() error {
 }
 
 // Create a new Okta provider and register it under the Goth providers
-func (op *OktaProvider) RegisterOktaProvider(name string, hostname string, callbackUrl string, clientID string, secret string, scope []string) error {
+func (op *Provider) RegisterOktaProvider(name string, hostname string, callbackURL string, clientID string, secret string, scope []string) error {
 	// Use goth to create a new provider
-	provider := gothOkta.New(clientID, secret, hostname, callbackUrl, scope...)
+	provider := gothOkta.New(clientID, secret, hostname, callbackURL, scope...)
 	// Set the name manualy
 	provider.SetName(name)
 	// Wrap
@@ -203,16 +203,16 @@ func verifyProvider(name string) error {
 	return nil
 }
 
-func (op OktaProvider) SetHostname(hostname string) {
+func (op *Provider) SetHostname(hostname string) {
 	op.hostname = hostname
 }
 
-func (op OktaProvider) GetHostname() string {
+func (op *Provider) GetHostname() string {
 	return op.hostname
 }
 
 // TokenURL returns a full URL to retrieve a user token from okta.mil
-func (op OktaProvider) TokenURL(r *http.Request) string {
+func (op Provider) TokenURL(r *http.Request) string {
 	session := auth.SessionFromRequestContext(r)
 
 	tokenURL := session.Hostname + "/oauth2/default/v1/token"
@@ -224,11 +224,11 @@ func (op OktaProvider) TokenURL(r *http.Request) string {
 // LogoutURL returns a full URL to log out of login.gov with required params
 // !Ensure proper testing after sessions have been handled
 // TODO: Ensure works as intended
-func (op OktaProvider) LogoutURL(hostname string, redirectURL string, clientId string) (string, error) {
+func (op Provider) LogoutURL(hostname string, redirectURL string, clientID string) (string, error) {
 	logoutPath, _ := url.Parse(hostname + "/oauth2/v1/logout")
 	// Parameters taken from https://developers.login.gov/oidc/#logout
 	params := url.Values{
-		"client_id":                {clientId},
+		"client_id":                {clientID},
 		"post_logout_redirect_uri": {redirectURL},
 		"state":                    {generateNonce()},
 	}
