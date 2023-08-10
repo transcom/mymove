@@ -637,3 +637,19 @@ export async function searchTransportationOffices(search) {
   const operationPath = 'transportationOffice.getTransportationOffices';
   return makeGHCRequest(operationPath, { search }, { normalize: false });
 }
+
+export const reviewShipmentAddressUpdate = async ({ shipmentID, ifMatchETag, body }) => {
+  const operationPath = 'shipment.reviewShipmentAddressUpdate';
+  const schemaKey = 'ShipmentAddressUpdate';
+  const normalize = false;
+
+  return makeGHCRequest(
+    operationPath,
+    {
+      shipmentID,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+};

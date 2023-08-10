@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 // this is taken from https://designsystem.digital.gov/components/alerts/
 const Alert = (props) => (
-  <div className={`usa-alert usa-alert--${props.type}`}>
+  <div className={`usa-alert usa-alert--${props.type}`} role={props.role}>
     <div className="usa-alert__body">
       <div className="body--heading">
         {props.type === 'loading' ? (
@@ -13,15 +13,11 @@ const Alert = (props) => (
             <FontAwesomeIcon icon="spinner" spin pulse size="2x" />
           </div>
         ) : null}
+        {props.onRemove && (
+          <FontAwesomeIcon className="icon remove-icon actionable" onClick={props.onRemove} icon="times" />
+        )}
         <div>
           {props.heading && <h3 className="usa-alert__heading">{props.heading}</h3>}
-          {props.onRemove && (
-            <FontAwesomeIcon
-              className="icon remove-icon actionable actionable-secondary"
-              onClick={props.onRemove}
-              icon="times"
-            />
-          )}
           <div className="usa-alert__text">{props.children}</div>
         </div>
       </div>

@@ -1,9 +1,10 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { ShipmentAddressUpdateReviewRequestModal } from './ShipmentAddressUpdateReviewRequestModal';
 
-import { shipmentTypes } from 'constants/shipments';
+import { ADDRESS_UPDATE_STATUS, shipmentTypes } from 'constants/shipments';
 
 const mockDeliveryAddressUpdate = {
   contractorRemarks: 'Test Contractor Remark',
@@ -29,7 +30,12 @@ const mockDeliveryAddressUpdate = {
   status: 'REQUESTED',
 };
 
-const mockOnClose = jest.fn();
+const mockShipment = {
+  id: '5c84bcf3-92f7-448f-b0e1-e5378b6806df',
+  shipmentType: shipmentTypes.HHG,
+  deliveryAddressUpdate: mockDeliveryAddressUpdate,
+  eTag: 'eTag',
+};
 
 afterEach(() => {
   jest.resetAllMocks();
@@ -38,14 +44,9 @@ afterEach(() => {
 describe('ShipmentAddressUpdateReviewRequestModal', () => {
   it('renders the modal', async () => {
     render(
-      <ShipmentAddressUpdateReviewRequestModal
-        shipmentType={shipmentTypes.HHG}
-        deliveryAddressUpdate={mockDeliveryAddressUpdate}
-        onClose={mockOnClose}
-      />,
+      <ShipmentAddressUpdateReviewRequestModal shipment={mockShipment} onSubmit={jest.fn()} onClose={jest.fn()} />,
     );
 
-    // console.log(screen.debug());
     await waitFor(() => {
       // Shipment type flag
       expect(screen.getByTestId('tag')).toHaveTextContent('HHG');
@@ -60,9 +61,12 @@ describe('ShipmentAddressUpdateReviewRequestModal', () => {
       expect(screen.getByRole('heading', { level: 4, name: 'Review Request' })).toBeInTheDocument();
 
       // Form fields
-      expect(screen.getByText('Approve address change?')).toBeInTheDocument();
-      expect(screen.getByRole('radio', { name: 'Yes' })).toBeInTheDocument();
-      expect(screen.getByRole('radio', { name: 'No' })).toBeInTheDocument();
+      const approvalQuestion = screen.getByRole('group', { name: 'Approve address change?' });
+      expect(approvalQuestion).toBeInTheDocument();
+      const approvalYes = within(approvalQuestion).getByRole('radio', { name: 'Yes' });
+      const approvalNo = within(approvalQuestion).getByRole('radio', { name: 'No' });
+      expect(approvalYes).toBeInTheDocument();
+      expect(approvalNo).toBeInTheDocument();
 
       expect(screen.getByLabelText('Office remarks')).toBeInTheDocument();
       expect(screen.getByText('Office remarks will be sent to the contractor.')).toBeInTheDocument();
@@ -72,5 +76,85 @@ describe('ShipmentAddressUpdateReviewRequestModal', () => {
       expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     });
+  });
+
+  it('displays an errorMessage', () => {
+    const errorText = 'An error!!';
+
+    render(
+      <ShipmentAddressUpdateReviewRequestModal
+        shipment={mockShipment}
+        errorMessage={errorText}
+        onSubmit={jest.fn()}
+        onClose={jest.fn()}
+      />,
+    );
+
+    const errorMessage = screen.getByRole('alert');
+
+    expect(errorMessage).toBeInTheDocument();
+    expect(errorMessage).toHaveTextContent(errorText);
+  });
+
+  it('Runs an onClose callback on cancel', async () => {
+    const user = userEvent.setup();
+
+    const onClose = jest.fn();
+
+    render(<ShipmentAddressUpdateReviewRequestModal shipment={mockShipment} onSubmit={jest.fn()} onClose={onClose} />);
+
+    const cancel = screen.getByRole('button', { name: 'Cancel' });
+
+    expect(cancel).toBeInTheDocument();
+
+    await user.click(cancel);
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('Runs an onClose callback on close', async () => {
+    const user = userEvent.setup();
+
+    const onClose = jest.fn();
+
+    render(<ShipmentAddressUpdateReviewRequestModal shipment={mockShipment} onSubmit={jest.fn()} onClose={onClose} />);
+
+    const close = screen.getByTestId('modalCloseButton');
+
+    expect(close).toBeInTheDocument();
+
+    await user.click(close);
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('Runs an onSubmit callback on save', async () => {
+    const user = userEvent.setup();
+
+    const onSubmit = jest.fn();
+    const officeRemarksAnswer = 'Here are my remarks from the office';
+
+    render(<ShipmentAddressUpdateReviewRequestModal shipment={mockShipment} onSubmit={onSubmit} onClose={jest.fn()} />);
+
+    const approvalQuestion = screen.getByRole('group', { name: 'Approve address change?' });
+    const approvalYes = within(approvalQuestion).getByRole('radio', { name: 'Yes' });
+    const officeRemarks = screen.getByLabelText('Office remarks');
+    const save = screen.getByRole('button', { name: 'Save' });
+
+    await user.click(approvalYes);
+    await user.type(officeRemarks, officeRemarksAnswer);
+
+    expect(approvalYes).toBeChecked();
+    expect(officeRemarks).toHaveValue(officeRemarksAnswer);
+
+    await user.click(save);
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit).toHaveBeenCalledWith(
+      mockShipment.id,
+      mockShipment.eTag,
+      ADDRESS_UPDATE_STATUS.APPROVED,
+      officeRemarksAnswer,
+    );
   });
 });
