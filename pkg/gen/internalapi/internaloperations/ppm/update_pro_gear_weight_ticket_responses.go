@@ -17,7 +17,7 @@ import (
 const UpdateProGearWeightTicketOKCode int = 200
 
 /*
-UpdateProGearWeightTicketOK returns a updated pro-gear weight ticket object
+UpdateProGearWeightTicketOK returns an updated pro-gear weight ticket object
 
 swagger:response updateProGearWeightTicketOK
 */
