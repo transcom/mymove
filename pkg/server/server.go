@@ -214,7 +214,7 @@ func getClientCert(request *http.Request) *x509.Certificate {
 // rawCerts contain chains of certificates in raw ASN.1 format
 // each raw certs starts with the leafCert and ends with a root self-signed CA certificate
 // verifiedChains have a certificate chain that verifies the signature validity and ends with a trusted certificate in the chain
-func CertRevokedCheck(_ [][]byte, verifiedChains [][]*x509.Certificate) error {
+func CertRevokedCheck(_ [][]byte, _ [][]*x509.Certificate) error {
 	//var req *http.Request
 	//cert := verifiedChains[0][0]       // first argument verifies the client cert, second index 0 is the client cert
 	//issuerCert := verifiedChains[0][1] // second index of 1 is the issuer of the cert
