@@ -26,7 +26,7 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	// Given: a user and a service member
 	lgu := uuid.Must(uuid.NewV4())
 	user1 := User{
-		OktaUUID:  &lgu,
+		OktaID:    lgu.String(),
 		OktaEmail: "whoever@example.com",
 	}
 	verrs, err := user1.Validate(nil)

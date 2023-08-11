@@ -94,13 +94,13 @@ func (suite *FactorySuite) TestMergeCustomization() {
 		// Under test:       mergeCustomization, which merges traits and customizations
 		// Set up:           Create a customization with a user email and a trait with a user email
 		// Expected outcome: Customization should override the trait email
-		uuidval := uuid.Must(uuid.NewV4())
+		uuidvalString := uuid.Must(uuid.NewV4()).String()
 		// RUN FUNCTION UNDER TEST
 		result := mergeCustomization(
 			[]Customization{
 				{
 					Model: models.User{
-						OktaUUID:  &uuidval,
+						OktaID:    uuidvalString,
 						OktaEmail: "custom@army.mil",
 					},
 					Type: &User, // ← User customization
@@ -187,10 +187,10 @@ func (suite *FactorySuite) TestMergeInterfaces() {
 			OktaEmail: "user1@example.com",
 			Active:    true,
 		}
-		uuidNew := uuid.Must(uuid.NewV4())
+		uuidNew := uuid.Must(uuid.NewV4()).String()
 		user2 := models.User{
 			OktaEmail: "user2@example.com",
-			OktaUUID:  &uuidNew,
+			OktaID:    uuidNew,
 		}
 
 		result := mergeInterfaces(user2, user1)
@@ -199,7 +199,7 @@ func (suite *FactorySuite) TestMergeInterfaces() {
 		suite.Equal(user1.OktaEmail, user.OktaEmail)
 		// All other fields set in interfaces should persist
 		suite.Equal(user1.Active, user.Active)
-		suite.Equal(user2.OktaUUID, user.OktaUUID)
+		suite.Equal(user2.OktaID, user.OktaID)
 	})
 
 	suite.Run("Check that mergeInterfaces doesn't change input models", func() {
@@ -208,7 +208,7 @@ func (suite *FactorySuite) TestMergeInterfaces() {
 		// Expected outcome: Caller models should not be affected
 		user1email := "user1@example.com"
 		user2email := "user2@example.com"
-		uuidNew := uuid.Must(uuid.NewV4())
+		uuidNew := uuid.Must(uuid.NewV4()).String()
 
 		user1 := models.User{
 			OktaEmail: user1email,
@@ -216,7 +216,7 @@ func (suite *FactorySuite) TestMergeInterfaces() {
 		}
 		user2 := models.User{
 			OktaEmail: user2email,
-			OktaUUID:  &uuidNew,
+			OktaID:    uuidNew,
 		}
 
 		mergeInterfaces(user2, user1)
@@ -228,7 +228,7 @@ func (suite *FactorySuite) TestMergeInterfaces() {
 		// user2 should be untouched
 		suite.Equal(user2email, user2.OktaEmail)
 		suite.False(user2.Active)
-		suite.Equal(uuidNew, *user2.OktaUUID)
+		suite.Equal(uuidNew, user2.OktaID)
 	})
 }
 
@@ -455,12 +455,12 @@ func (suite *FactorySuite) TestSetupCustomizations() {
 		// Set up:           Create a customization with a user email and a trait with a user email
 		// Expected outcome: Customization should override the trait email
 		//                   If an object exists and no customization, it should become a customization
-		uuidval := uuid.Must(uuid.NewV4())
+		uuidval := uuid.Must(uuid.NewV4()).String()
 		result := setupCustomizations(
 			[]Customization{
 				{
 					Model: models.User{
-						OktaUUID:  &uuidval,
+						OktaID:    uuidval,
 						OktaEmail: "custom@army.mil",
 					},
 				},

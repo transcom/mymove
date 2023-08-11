@@ -18,7 +18,7 @@ func (suite *ModelSuite) TestUserValidation() {
 	userEmail := "sally@government.gov"
 
 	newUser := User{
-		OktaUUID:  &fakeUUID,
+		OktaID:    fakeUUID.String(),
 		OktaEmail: userEmail,
 	}
 
@@ -27,7 +27,7 @@ func (suite *ModelSuite) TestUserValidation() {
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "Error validating model")
 	suite.Equal(userEmail, newUser.OktaEmail)
-	suite.Equal(fakeUUID, *newUser.OktaUUID)
+	suite.Equal(fakeUUID, newUser.OktaID)
 }
 
 func (suite *ModelSuite) TestUserCreationWithoutValues() {
@@ -45,12 +45,12 @@ func (suite *ModelSuite) TestUserCreationDuplicateUUID() {
 	userEmail := "sally@government.gov"
 
 	newUser := User{
-		OktaUUID:  &fakeUUID,
+		OktaID:    fakeUUID.String(),
 		OktaEmail: userEmail,
 	}
 
 	sameUser := User{
-		OktaUUID:  &fakeUUID,
+		OktaID:    fakeUUID.String(),
 		OktaEmail: userEmail,
 	}
 
@@ -93,7 +93,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Nil(identity)
 
 	alice := factory.BuildDefaultUser(suite.DB())
-	identity, err = FetchUserIdentity(suite.DB(), alice.OktaUUID.String())
+	identity, err = FetchUserIdentity(suite.DB(), alice.OktaID)
 	suite.Nil(err, "loading alice's identity")
 	suite.NotNil(identity)
 	suite.Equal(alice.ID, identity.ID)
@@ -102,7 +102,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Nil(identity.OfficeUserID)
 
 	bob := factory.BuildServiceMember(suite.DB(), nil, nil)
-	identity, err = FetchUserIdentity(suite.DB(), bob.User.OktaUUID.String())
+	identity, err = FetchUserIdentity(suite.DB(), bob.User.OktaID)
 	suite.Nil(err, "loading bob's identity")
 	suite.NotNil(identity)
 	suite.Equal(bob.UserID, identity.ID)
@@ -123,7 +123,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 			LinkOnly: true,
 		},
 	}, nil)
-	identity, err = FetchUserIdentity(suite.DB(), carol.User.OktaUUID.String())
+	identity, err = FetchUserIdentity(suite.DB(), carol.User.OktaID)
 	suite.Nil(err, "loading carol's identity")
 	suite.NotNil(identity)
 	suite.Equal(*carol.UserID, identity.ID)
@@ -132,7 +132,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(carol.ID, *identity.OfficeUserID)
 
 	systemAdmin := factory.BuildDefaultAdminUser(suite.DB())
-	identity, err = FetchUserIdentity(suite.DB(), systemAdmin.User.OktaUUID.String())
+	identity, err = FetchUserIdentity(suite.DB(), systemAdmin.User.OktaID)
 	suite.Nil(err, "loading systemAdmin's identity")
 	suite.NotNil(identity)
 	suite.Equal(*systemAdmin.UserID, identity.ID)
@@ -154,14 +154,14 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	pat := factory.BuildUser(suite.DB(), []factory.Customization{
 		{
 			Model: User{
-				OktaUUID: &patUUID,
-				Active:   true,
-				Roles:    []roles.Role{customerRole},
+				OktaID: patUUID.String(),
+				Active: true,
+				Roles:  []roles.Role{customerRole},
 			},
 		},
 	}, nil)
 
-	identity, err = FetchUserIdentity(suite.DB(), pat.OktaUUID.String())
+	identity, err = FetchUserIdentity(suite.DB(), pat.OktaID)
 	suite.Nil(err, "loading pat's identity")
 	suite.NotNil(identity)
 	suite.Equal(len(identity.Roles), 1)
@@ -171,15 +171,15 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	billy := factory.BuildUser(suite.DB(), []factory.Customization{
 		{
 			Model: User{
-				OktaUUID: &billyUUID,
-				Active:   true,
-				Roles:    []roles.Role{tooRole},
+				OktaID: billyUUID.String(),
+				Active: true,
+				Roles:  []roles.Role{tooRole},
 			},
 		},
 	}, nil)
 
 	suite.DB().MigrationURL()
-	identity, err = FetchUserIdentity(suite.DB(), billy.OktaUUID.String())
+	identity, err = FetchUserIdentity(suite.DB(), billy.OktaID)
 	suite.Nil(err, "loading billy's identity")
 	suite.NotNil(identity)
 	suite.Equal(len(identity.Roles), 1)
@@ -220,7 +220,7 @@ func (suite *ModelSuite) TestFetchUserIdentityDeletedRoles() {
 	*/
 	// this creates a user with TOO, TIO, and Services Counselor roles
 	multiRoleUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor})
-	identity, err := FetchUserIdentity(suite.DB(), multiRoleUser.User.OktaUUID.String())
+	identity, err := FetchUserIdentity(suite.DB(), multiRoleUser.User.OktaID)
 	suite.Nil(err, "failed to fetch user identity")
 	suite.Equal(*multiRoleUser.UserID, identity.ID)
 	suite.Condition(compareRoleTypeLists(multiRoleUser.User.Roles, identity.Roles))
@@ -239,7 +239,7 @@ func (suite *ModelSuite) TestFetchUserIdentityDeletedRoles() {
 	suite.NoError(err)
 
 	// re-fetch user identity and check roles
-	identity, err = FetchUserIdentity(suite.DB(), multiRoleUser.User.OktaUUID.String())
+	identity, err = FetchUserIdentity(suite.DB(), multiRoleUser.User.OktaID)
 	suite.Nil(err, "failed to fetch user identity")
 	suite.Equal(*multiRoleUser.UserID, identity.ID)
 

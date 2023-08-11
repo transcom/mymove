@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
 	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
@@ -65,9 +64,9 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() {
 	t := suite.T()
 
-	userUUID2, _ := uuid.FromString("3511d4d6-019d-4031-9c27-8a553e055543")
+	userUUID2 := "3511d4d6-019d-4031-9c27-8a553e055543"
 	user2 := models.User{
-		OktaUUID:  &userUUID2,
+		OktaID:    userUUID2,
 		OktaEmail: "email2@example.com",
 	}
 	suite.MustSave(&user2)
@@ -194,9 +193,9 @@ func (suite *HandlerSuite) TestIndexSignedCertificationHandlerMismatchedUser() {
 			},
 		},
 	}, nil)
-	userUUID2, _ := uuid.FromString("3511d4d6-019d-4031-9c27-8a553e055543")
+	userUUID2 := "3511d4d6-019d-4031-9c27-8a553e055543"
 	unauthorizedUser := models.User{
-		OktaUUID:  &userUUID2,
+		OktaID:    userUUID2,
 		OktaEmail: "email2@example.com",
 	}
 	params := certop.IndexSignedCertificationParams{

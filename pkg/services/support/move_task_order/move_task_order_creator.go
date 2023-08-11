@@ -201,7 +201,7 @@ func createUser(appCtx appcontext.AppContext, userEmail *string) (*models.User, 
 	}
 	id := uuid.Must(uuid.NewV4())
 	user := models.User{
-		OktaUUID:  &id,
+		OktaID:    id.String(),
 		OktaEmail: *userEmail,
 		Active:    true,
 	}

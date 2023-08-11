@@ -33,11 +33,11 @@ func setUpMockNotificationSender() notifications.NotificationSender {
 func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 
 	setupTestData := func() (models.User, models.OfficeUser) {
-		loginGovUUID := uuid.Must(uuid.NewV4())
+		oID := uuid.Must(uuid.NewV4())
 		existingUser := factory.BuildUser(suite.DB(), []factory.Customization{
 			{
 				Model: models.User{
-					OktaUUID:  &loginGovUUID,
+					OktaID:    oID.String(),
 					OktaEmail: "spaceman+existing@leo.org",
 					Active:    true,
 				},
@@ -121,7 +121,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(transportationOffice.ID))
 			case *models.User:
 				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(existingUser.ID))
-				reflect.ValueOf(model).Elem().FieldByName("OktaUUID").Set(reflect.ValueOf(existingUser.OktaUUID))
+				reflect.ValueOf(model).Elem().FieldByName("OktaID").Set(reflect.ValueOf(existingUser.OktaID))
 				reflect.ValueOf(model).Elem().FieldByName("OktaEmail").Set(reflect.ValueOf(existingUserInfo.User.OktaEmail))
 			}
 			return nil

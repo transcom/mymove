@@ -19,7 +19,7 @@ type User struct {
 	ID                     uuid.UUID   `json:"id" db:"id"`
 	CreatedAt              time.Time   `json:"created_at" db:"created_at"`
 	UpdatedAt              time.Time   `json:"updated_at" db:"updated_at"`
-	OktaUUID               *uuid.UUID  `json:"okta_uuid" db:"okta_uuid"`
+	OktaID                 string      `json:"okta_id" db:"okta_id"`
 	OktaEmail              string      `json:"okta_email" db:"okta_email"`
 	Active                 bool        `json:"active" db:"active"`
 	Roles                  roles.Roles `many_to_many:"users_roles"`
@@ -67,13 +67,13 @@ func GetUserFromEmail(db *pop.Connection, email string) (*User, error) {
 }
 
 // CreateUser is called upon successful login.gov verification of a new user
-func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, error) {
-	lgu, err := uuid.FromString(loginGovID)
+func CreateUser(db *pop.Connection, oktaID string, email string) (*User, error) {
+	oID, err := uuid.FromString(oktaID)
 	if err != nil {
 		return nil, err
 	}
 	newUser := User{
-		OktaUUID:  &lgu,
+		OktaID:    oID.String(),
 		OktaEmail: strings.ToLower(email),
 		Active:    true,
 	}
@@ -87,14 +87,14 @@ func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, err
 	return &newUser, nil
 }
 
-// UpdateUserOktaUUID is called upon the first successful login.gov verification of a new user
-func UpdateUserOktaUUID(db *pop.Connection, user *User, loginGovID string) error {
+// UpdateUserOktaID is called upon the first successful login.gov verification of a new user
+func UpdateUserOktaID(db *pop.Connection, user *User, loginGovID string) error {
 	lgu, err := uuid.FromString(loginGovID)
 	if err != nil {
 		return err
 	}
 
-	user.OktaUUID = &lgu
+	user.OktaID = lgu.String()
 
 	verrs, err := db.ValidateAndUpdate(user)
 	if verrs.HasAny() {
@@ -153,7 +153,7 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 			LEFT OUTER JOIN service_members AS sm on sm.user_id = users.id
 			LEFT OUTER JOIN office_users AS ou on ou.user_id = users.id
 			LEFT OUTER JOIN admin_users AS au on au.user_id = users.id
-			WHERE users.okta_uuid  = $1`
+			WHERE users.okta_id  = $1`
 	err := db.RawQuery(query, loginGovID).All(&identities)
 	if err != nil {
 		return nil, err

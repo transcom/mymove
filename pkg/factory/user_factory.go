@@ -30,9 +30,9 @@ func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) mode
 	}
 
 	// create user
-	oktaUUID := uuid.Must(uuid.NewV4())
+	OktaID := uuid.Must(uuid.NewV4()).String()
 	user := models.User{
-		OktaUUID:  &oktaUUID,
+		OktaID:    OktaID,
 		OktaEmail: "first.last@login.gov.test",
 		Active:    false,
 	}

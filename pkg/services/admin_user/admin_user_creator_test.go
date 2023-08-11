@@ -35,11 +35,11 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 
 	setupTestData := func() (models.User, models.AdminUser) {
 
-		loginGovUUID := uuid.Must(uuid.NewV4())
+		oktaID := uuid.Must(uuid.NewV4())
 		existingUser := factory.BuildUser(suite.DB(), []factory.Customization{
 			{
 				Model: models.User{
-					OktaUUID:  &loginGovUUID,
+					OktaID:    oktaID.String(),
 					OktaEmail: "spaceman+existing@leo.org",
 					Active:    true,
 				},
@@ -108,7 +108,7 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(userInfo.Organization.ID))
 			case *models.User:
 				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(existingUser.ID))
-				reflect.ValueOf(model).Elem().FieldByName("OktaUUID").Set(reflect.ValueOf(existingUser.OktaUUID))
+				reflect.ValueOf(model).Elem().FieldByName("OktaID").Set(reflect.ValueOf(existingUser.OktaID))
 				reflect.ValueOf(model).Elem().FieldByName("OktaEmail").Set(reflect.ValueOf(existingUserInfo.User.OktaEmail))
 			}
 			return nil
