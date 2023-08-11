@@ -49,6 +49,8 @@ const (
 
 	// Okta Customer client id and secret flags
 	OktaCustomerClientIDFlag string = "okta-customer-client-id"
+	OktaCustomerCallbackURL  string = "okta-customer-callback-url"
+
 	// RA Summary: gosec - G101 - Password Management: Hardcoded Password
 	// RA: This line was flagged because of use of the word "secret"
 	// RA: This line is used to identify the name of the flag. OktaCustomerSecretKeyFlag is the Okta Customer Application Secret Key Flag.
@@ -62,6 +64,8 @@ const (
 
 	// Okta Office client id and secret flags
 	OktaOfficeClientIDFlag string = "okta-office-client-id"
+	OktaOfficeCallbackURL  string = "okta-office-callback-url"
+
 	// RA Summary: gosec - G101 - Password Management: Hardcoded Password
 	// RA: This line was flagged because of use of the word "secret"
 	// RA: This line is used to identify the name of the flag. OktaOfficeSecretKeyFlag is the Okta Office Application Secret Key Flag.
@@ -75,6 +79,8 @@ const (
 
 	// Okta Admin client id and secret flags
 	OktaAdminClientIDFlag string = "okta-admin-client-id"
+	OktaAdminCallbackURL  string = "okta-admin-callback-url"
+
 	// RA Summary: gosec - G101 - Password Management: Hardcoded Password
 	// RA: This line was flagged because of use of the word "secret"
 	// RA: This line is used to identify the name of the flag. OktaAdminSecretKeyFlag is the Okta Admin Application Secret Key Flag.
