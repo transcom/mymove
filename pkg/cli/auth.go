@@ -39,33 +39,52 @@ const (
 	// LoginGovHostnameFlag is the Login.gov Hostname Flag
 	LoginGovHostnameFlag string = "login-gov-hostname"
 
-	// ! Verify wording after changes
+	// Okta flags for local development environment that serves test-milmove.okta.mil
 	// Okta tenant flags
-	/*
-		OktaTenantIssuerURLFlag    string = "okta-tenant-issuer-url"
-		OktaTenantCallbackPortFlag string = "okta-tenant-callback-port"
-	*/
+	OktaTenantOrgURLFlag string = "okta-tenant-org-url"
+	// OktaTenantCallbackPortFlag is the test-milmove Callback Port Flag
+	OktaTenantCallbackPortFlag string = "okta-tenant-callback-port"
+	// OktaTenantCallbackPortFlag is the test-milmove Callback Protocol Flag
+	OktaTenantCallbackProtocolFlag string = "okta-tenant-callback-protocol"
+
 	// Okta Customer client id and secret flags
-	/*
-		OktaCustomerSecretKeyFlag        string = "okta-customer-secret-key"
-		OktaCustomerClientIDFlag         string = "okta-customr-client-id"
-		OktaCustomerHostnameFlag         string = "okta-customer-hostname"
-		OktaCustomerCallbackProtocolFlag string = "okta-customer-callback-protocol"
-	*/
+	OktaCustomerClientIDFlag string = "okta-customer-client-id"
+	// RA Summary: gosec - G101 - Password Management: Hardcoded Password
+	// RA: This line was flagged because of use of the word "secret"
+	// RA: This line is used to identify the name of the flag. OktaCustomerSecretKeyFlag is the Okta Customer Application Secret Key Flag.
+	// RA: This value of this variable does not store an application secret.
+	// RA Developer Status: RA Request
+	// RA Validator Status:
+	// RA Validator:
+	// RA Modified Severity:
+	// #nosec G101
+	OktaCustomerSecretKeyFlag string = "okta-customer-secret-key"
+
 	// Okta Office client id and secret flags
-	/*
-		OktaOfficeSecretKeyFlag        string = "okta-office-secret-key"
-		OktaOfficeClientIDFlag         string = "okta-office-client-id"
-		OktaOfficeHostnameFlag         string = "okta-office-hostname"
-		OktaOfficeCallbackProtocolFlag string = "okta-office-callback-protocol"
-	*/
+	OktaOfficeClientIDFlag string = "okta-office-client-id"
+	// RA Summary: gosec - G101 - Password Management: Hardcoded Password
+	// RA: This line was flagged because of use of the word "secret"
+	// RA: This line is used to identify the name of the flag. OktaOfficeSecretKeyFlag is the Okta Office Application Secret Key Flag.
+	// RA: This value of this variable does not store an application secret.
+	// RA Developer Status: RA Request
+	// RA Validator Status:
+	// RA Validator:
+	// RA Modified Severity:
+	// #nosec G101
+	OktaOfficeSecretKeyFlag string = "okta-office-secret-key"
+
 	// Okta Admin client id and secret flags
-	/*
-		OktaAdminSecretKeyFlag        string = "okta-admin-secret-key"
-		OktaAdminClientIDFlag         string = "okta-admin-client-id"
-		OktaAdminHostnameFlag         string = "okta-admin-hostname"
-		OktaAdminCallbackProtocolFlag string = "okta-admin-callback-protocol"
-	*/
+	OktaAdminClientIDFlag string = "okta-admin-client-id"
+	// RA Summary: gosec - G101 - Password Management: Hardcoded Password
+	// RA: This line was flagged because of use of the word "secret"
+	// RA: This line is used to identify the name of the flag. OktaAdminSecretKeyFlag is the Okta Admin Application Secret Key Flag.
+	// RA: This value of this variable does not store an application secret.
+	// RA Developer Status: RA Request
+	// RA Validator Status:
+	// RA Validator:
+	// RA Modified Severity:
+	// #nosec G101
+	OktaAdminSecretKeyFlag string = "okta-admin-secret-key"
 )
 
 type errInvalidClientID struct {
@@ -91,7 +110,7 @@ func InitAuthFlags(flag *pflag.FlagSet) {
 	// TODO: Replace Okta os.Getenv
 
 	// // Okta flags
-	// flag.String(OktaTenantIssuerURLFlag, os.Getenv("OKTA_TENANT_ISSUER_URL"), "Okta tenant issuer URL.")
+	// flag.String(OktaTenantIssuerURLFlag, os.Getenv("OKTA_TENANT_ORG_URL"), "Okta tenant issuer URL.")
 	// flag.Int(OktaTenantCallbackPortFlag, 443, "Okta tenant callback port.")
 
 	// // Customer flags
