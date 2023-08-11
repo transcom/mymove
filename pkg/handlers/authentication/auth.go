@@ -15,7 +15,6 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
-	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
@@ -773,7 +772,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Exchange code received from login for access token. This is used during the grant_type auth flow
+	// Exchange the received code from login for access token. This is used during the grant_type auth flow to pull user information
 	exchange, err := exchangeCode(r.URL.Query().Get("code"), r, appCtx)
 	if exchange.Error != "" {
 		fmt.Println(exchange.Error)
@@ -792,7 +791,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		orgURL = os.Getenv("OKTA_ADMIN_HOSTNAME")
 	}
 
-	// Verify access token
+	// Verify access token for added layer of security
 	_, verificationError := verifyToken(exchange.IDToken, returnedState, appCtx.Session(), orgURL)
 
 	if verificationError != nil {
@@ -817,17 +816,15 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// TODO: convert profiledata into struct. Previous implementation used goth.User
 
 	appCtx.Session().IDToken = exchange.IDToken
-	appCtx.Session().Email = profileData["email"]
-	appCtx.Session().ClientID = profileData["aud"]
+	appCtx.Session().Email = profileData.Email
+	//appCtx.Session().ClientID = profileData.Aud
 
-	appCtx.Logger().Info("New Login", zap.String("Okta user", profileData["preferred_username"]), zap.String("Okta email", profileData["email"]), zap.String("Host", appCtx.Session().Hostname))
+	appCtx.Logger().Info("New Login", zap.String("Okta user", profileData.PreferredUsername), zap.String("Okta email", profileData.Email), zap.String("Host", appCtx.Session().Hostname))
 	// ! Hard coded error auth result. This is because sessions are TODO
 	// TODO: Implement sessions and remove hard coded auth result error
 
 	// ! This will fail for now
-	result := AuthorizationResult(2)
-	dump := authorizeUser(r.Context(), appCtx, goth.User{}, sessionManager, h.sender)
-	appCtx.Logger().Info("Dumping var", zap.Any("dump", dump))
+	result := authorizeUser(r.Context(), appCtx, profileData, sessionManager, h.sender)
 	switch result {
 	case authorizationResultError:
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -838,19 +835,19 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func authorizeUser(ctx context.Context, appCtx appcontext.AppContext, openIDUser goth.User, sessionManager auth.SessionManager, notificationSender notifications.NotificationSender) AuthorizationResult {
-	userIdentity, err := models.FetchUserIdentity(appCtx.DB(), openIDUser.UserID)
+func authorizeUser(ctx context.Context, appCtx appcontext.AppContext, oktaUser models.OktaUser, sessionManager auth.SessionManager, notificationSender notifications.NotificationSender) AuthorizationResult {
+	userIdentity, err := models.FetchUserIdentity(appCtx.DB(), oktaUser.Sub)
 
 	if err == nil {
 		// In this case, we found an existing user associated with the
 		// unique okta.mil UUID (aka OID_User, aka openIDUser.UserID,
 		// aka models.User.login_gov_uuid)
-		appCtx.Logger().Info("Known user: found by okta.mil OID_User, checking authorization", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email), zap.String("user.id", userIdentity.ID.String()), zap.String("user.login_gov_email", userIdentity.Email))
+		appCtx.Logger().Info("Known user: found by okta.mil OID_User, checking authorization", zap.String("OID_User", oktaUser.Sub), zap.String("OID_Email", oktaUser.Email), zap.String("user.id", userIdentity.ID.String()), zap.String("user.login_gov_email", userIdentity.Email))
 		result := AuthorizeKnownUser(ctx, appCtx, userIdentity, sessionManager)
 		appCtx.Logger().Info("Known user authorization",
 			zap.Any("authorizedResult", result),
-			zap.String("OID_User", openIDUser.UserID),
-			zap.String("OID_Email", openIDUser.Email))
+			zap.String("OID_User", oktaUser.Sub),
+			zap.String("OID_Email", oktaUser.Email))
 		return result
 	} else if err == models.ErrFetchNotFound { // Never heard of them
 		// so far In this case, we can't find an existing user
@@ -858,12 +855,12 @@ func authorizeUser(ctx context.Context, appCtx appcontext.AppContext, openIDUser
 		// aka openIDUser.UserID, aka models.User.login_gov_uuid).
 		// The authorizeUnknownUser method tries to find a user record
 		// with a matching email address
-		appCtx.Logger().Info("Unknown user: not found by okta.mil OID_User, associating email and checking authorization", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email))
-		result := authorizeUnknownUser(ctx, appCtx, openIDUser, sessionManager, notificationSender)
+		appCtx.Logger().Info("Unknown user: not found by okta.mil OID_User, associating email and checking authorization", zap.String("OID_User", oktaUser.Sub), zap.String("OID_Email", oktaUser.Email))
+		result := authorizeUnknownUser(ctx, appCtx, oktaUser, sessionManager, notificationSender)
 		appCtx.Logger().Info("Unknown user authorization",
 			zap.Any("authorizedResult", result),
-			zap.String("OID_User", openIDUser.UserID),
-			zap.String("OID_Email", openIDUser.Email))
+			zap.String("OID_User", oktaUser.Sub),
+			zap.String("OID_Email", oktaUser.Email))
 		return result
 	}
 
@@ -986,7 +983,7 @@ func AuthorizeKnownUser(ctx context.Context, appCtx appcontext.AppContext, userI
 	return authorizationResultAuthorized
 }
 
-func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, openIDUser goth.User, sessionManager auth.SessionManager, notificationSender notifications.NotificationSender) AuthorizationResult {
+func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, oktaUser models.OktaUser, sessionManager auth.SessionManager, notificationSender notifications.NotificationSender) AuthorizationResult {
 	var officeUser *models.OfficeUser
 	var user *models.User
 	var err error
@@ -999,20 +996,20 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, ope
 		officeUser, err = models.FetchOfficeUserByEmail(conn, appCtx.Session().Email)
 		if err == models.ErrFetchNotFound {
 			appCtx.Logger().Error("Unauthorized: No Office user found",
-				zap.String("OID_User", openIDUser.UserID),
-				zap.String("OID_Email", openIDUser.Email))
+				zap.String("OID_User", oktaUser.Sub),
+				zap.String("OID_Email", oktaUser.Email))
 			return authorizationResultUnauthorized
 		} else if err != nil {
 			appCtx.Logger().Error("Authorization checking for office user",
-				zap.String("OID_User", openIDUser.UserID),
-				zap.String("OID_Email", openIDUser.Email),
+				zap.String("OID_User", oktaUser.Sub),
+				zap.String("OID_Email", oktaUser.Email),
 				zap.Error(err))
 			return authorizationResultError
 		}
 		if !officeUser.Active {
 			appCtx.Logger().Error("Unauthorized: Office user deactivated",
-				zap.String("OID_User", openIDUser.UserID),
-				zap.String("OID_Email", openIDUser.Email))
+				zap.String("OID_User", oktaUser.Sub),
+				zap.String("OID_Email", oktaUser.Email))
 			return authorizationResultUnauthorized
 		}
 		user = &officeUser.User
@@ -1030,28 +1027,28 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, ope
 		// Log error and return if no AdminUser found with this email
 		if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 			appCtx.Logger().Error("Unauthorized: No admin user found",
-				zap.String("OID_User", openIDUser.UserID),
-				zap.String("OID_Email", openIDUser.Email))
+				zap.String("OID_User", oktaUser.Sub),
+				zap.String("OID_Email", oktaUser.Email))
 			return authorizationResultUnauthorized
 		} else if err != nil {
 			appCtx.Logger().Error("Authorization checking for admin user",
-				zap.String("OID_User", openIDUser.UserID),
-				zap.String("OID_Email", openIDUser.Email),
+				zap.String("OID_User", oktaUser.Sub),
+				zap.String("OID_Email", oktaUser.Email),
 				zap.Error(err))
 			return authorizationResultError
 		}
 		// Log error and return if adminUser was found but deactivated
 		if !adminUser.Active {
 			appCtx.Logger().Error("Unauthorized: Admin user deactivated",
-				zap.String("OID_User", openIDUser.UserID),
-				zap.String("OID_Email", openIDUser.Email))
+				zap.String("OID_User", oktaUser.Sub),
+				zap.String("OID_Email", oktaUser.Email))
 			return authorizationResultUnauthorized
 		}
 		user = &adminUser.User
 	}
 
 	if appCtx.Session().IsMilApp() {
-		user, err = models.CreateUser(appCtx.DB(), openIDUser.UserID, openIDUser.Email)
+		user, err = models.CreateUser(appCtx.DB(), oktaUser.Sub, oktaUser.Email)
 		if err == nil {
 			sysAdminEmail := notifications.GetSysAdminEmail(notificationSender)
 			appCtx.Logger().Info(
@@ -1089,11 +1086,11 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, ope
 	} else {
 		// If in Office App or Admin App with valid user - update user's LoginGovUUID
 		appCtx.Logger().Error("Authorization associating okta.mil UUID with user",
-			zap.String("OID_User", openIDUser.UserID),
-			zap.String("OID_Email", openIDUser.Email),
+			zap.String("OID_User", oktaUser.Sub),
+			zap.String("OID_Email", oktaUser.Email),
 			zap.String("user.id", user.ID.String()),
 		)
-		err = models.UpdateUserLoginGovUUID(appCtx.DB(), user, openIDUser.UserID)
+		err = models.UpdateUserLoginGovUUID(appCtx.DB(), user, oktaUser.Sub)
 	}
 
 	if err != nil {

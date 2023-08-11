@@ -14,16 +14,17 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 // ! See flow here:
 // ! https://developer.okta.com/docs/guides/implement-grant-type/authcode/main/
 
-func getProfileData(appCtx appcontext.AppContext, hostname string) (map[string]string, error) {
-	m := make(map[string]string)
+func getProfileData(appCtx appcontext.AppContext, hostname string) (models.OktaUser, error) {
+	var user = models.OktaUser{}
 
 	if appCtx.Session().AccessToken == "" {
-		return m, nil
+		return user, nil
 	}
 
 	reqURL := hostname + "/oauth2/default/v1/userinfo"
@@ -37,17 +38,17 @@ func getProfileData(appCtx appcontext.AppContext, hostname string) (map[string]s
 	resp, _ := client.Do(req)
 	body, _ := io.ReadAll(resp.Body)
 	defer resp.Body.Close()
-	err := json.Unmarshal(body, &m)
+	err := json.Unmarshal(body, &user)
 	if err != nil {
 		appCtx.Logger().Error("could not unmarshal body", zap.Error(err))
 		// No return is intentional
 	}
 
-	return m, nil
+	return user, nil
 }
 
 // ! Refactor after chamber is modified
-func verifyToken(t string, nonce string, session *auth.Session, orgURL string) (*verifier.Jwt, error) {
+func verifyToken(token string, nonce string, session *auth.Session, orgURL string) (*verifier.Jwt, error) {
 
 	// Gather Okta information
 	clientID := os.Getenv("OKTA_CUSTOMER_CLIENT_ID")
@@ -67,7 +68,7 @@ func verifyToken(t string, nonce string, session *auth.Session, orgURL string) (
 		ClaimsToValidate: tv,
 	}
 
-	result, err := jv.New().VerifyIdToken(t)
+	result, err := jv.New().VerifyIdToken(token)
 	if err != nil {
 		return nil, fmt.Errorf("%s", err)
 	}
