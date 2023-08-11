@@ -7,7 +7,7 @@ func (suite *cliTestSuite) TestConfigDatabase() {
 
 func (suite *cliTestSuite) TestInitDatabase() {
 	suite.Setup(InitDatabaseFlags, []string{})
-	conn, err := InitDatabase(suite.viper, nil, suite.logger)
+	conn, err := InitDatabase(suite.viper, suite.logger)
 	suite.NoError(err)
 	suite.NotNil(conn)
 	defer conn.Close()
@@ -20,7 +20,7 @@ func (suite *cliTestSuite) TestConfigDatabaseRetry() {
 
 func (suite *cliTestSuite) TestPingPopConnectionOk() {
 	suite.Setup(InitDatabaseFlags, []string{})
-	conn, err := InitDatabase(suite.viper, nil, suite.logger)
+	conn, err := InitDatabase(suite.viper, suite.logger)
 	suite.NoError(err)
 	suite.NotNil(conn)
 	defer conn.Close()
@@ -30,7 +30,7 @@ func (suite *cliTestSuite) TestPingPopConnectionOk() {
 func (suite *cliTestSuite) TestPingPopConnectionFail() {
 	// intentionally misconfigure the db so the ping will fail
 	suite.Setup(InitDatabaseFlags, []string{"--" + DbNameFlag, "missingdb"})
-	conn, err := InitDatabase(suite.viper, nil, suite.logger)
+	conn, err := InitDatabase(suite.viper, suite.logger)
 	suite.NoError(err)
 	suite.NotNil(conn)
 	defer conn.Close()
