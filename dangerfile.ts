@@ -58,15 +58,15 @@ View the [frontend file org ADR](https://github.com/transcom/mymove/blob/main/do
   if (deprecatedDevSeedFiles.modified) {
     fail(`One of these files have been edited:
 
-        * ${'`'}pkg/testdatagen/scenario/devseed.go${'`'}
-        * ${'`'}pkg/testdatagen/scenario/subscenarios.go${'`'}
-        * ${'`'}cmd/generate-test-data/main.go${'`'}
+* ${'`'}pkg/testdatagen/scenario/devseed.go${'`'}
+* ${'`'}pkg/testdatagen/scenario/subscenarios.go${'`'}
+* ${'`'}cmd/generate-test-data/main.go${'`'}
 
-    Please undo changes to these files as we have deprecated
-    ${'`'}devseed${'`'} data functions from MilMove entirely and will be
-    deleting this code on the 8th of November 2023.
+Please undo changes to these files as we have deprecated
+${'`'}devseed${'`'} data functions from MilMove entirely and will be
+deleting this code on the 8th of November 2023.
 
-    View the [ADR 0083](https://transcom.github.io/mymove-docs/docs/adrs/deprecating-devseed-scenarios) for more information`);
+View the [ADR 0083](https://transcom.github.io/mymove-docs/docs/adrs/deprecating-devseed-scenarios) for more information`);
   }
 
   // Request changes to app code to also include changes to tests.
