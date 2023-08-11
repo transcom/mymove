@@ -21,9 +21,7 @@ func (suite *cliTestSuite) TestConfigGEXSFTP() {
 	// Generate a key for testing
 	bitSize := 4096
 	key, err := rsa.GenerateKey(rand.Reader, bitSize)
-	if err != nil {
-		panic(err)
-	}
+	suite.Require().Nil(err)
 
 	keyPEM := pem.EncodeToMemory(
 		&pem.Block{
@@ -33,12 +31,10 @@ func (suite *cliTestSuite) TestConfigGEXSFTP() {
 	)
 
 	suite.T().Setenv("GEX_PRIVATE_KEY", string(keyPEM))
-	suite.Require().Nil(err)
 
 	// generated fake host key to pass parser used following command and only saved the pub key
 	//   ssh-keygen -q -N "" -t ecdsa -f /tmp/ssh_host_ecdsa_key
 	suite.T().Setenv("GEX_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
-	suite.Require().Nil(err)
 
 	suite.Run("pass without errors if the environment is set up with valid values", func() {
 		suite.NoError(CheckGEXSFTP(suite.viper))
