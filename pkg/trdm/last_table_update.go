@@ -3,12 +3,18 @@ package trdm
 import (
 	"encoding/xml"
 	"fmt"
+	"log"
+	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/spf13/viper"
 	"github.com/tiaguinho/gosoap"
 	"go.uber.org/zap"
+	"gopkg.in/robfig/cron.v2"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -141,4 +147,53 @@ func processTacCodes(tacCodes []models.TransportationAccountingCode, r GetLastTa
 		}
 	}
 	return nil
+}
+
+// Start the cron job to execute every 24 hours
+func StartLastTableUpdateCron(appCtx appcontext.AppContext, physicalName string) {
+	cron := cron.New()
+
+	cronTask := func() {
+		err := NewTRDMGetLastTableUpdate("", nil).GetLastTableUpdate(appCtx, physicalName)
+		if err != nil {
+			fmt.Println("Error in lastTableUpdate cron task: ", err)
+		}
+	}
+
+	res, err := cron.AddFunc("@every 24h00m00s", cronTask)
+	if err != nil {
+		fmt.Println("Error adding cron task: ", err, res)
+	}
+	cron.Start()
+}
+
+func LastTableUpdate() {
+
+	tableName := ""
+
+	v := viper.New()
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+
+	dbEnv := v.GetString(cli.DbEnvFlag)
+	logger, _, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
+	if err != nil {
+		log.Fatalf("failed to initialize Zap logging due to %v", err)
+	}
+	zap.ReplaceGlobals(logger)
+
+	// DB connection
+	dbConnection, err := cli.InitDatabase(v, logger)
+	if err != nil {
+		fmt.Println("Error getting DB connection: ", err)
+	}
+
+	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
+
+	err2 := NewTRDMGetLastTableUpdate("", nil).GetLastTableUpdate(appCtx, tableName)
+	if err2 != nil {
+		fmt.Println("Error executing GetLastTableUpdate: ", err)
+	}
+
+	StartLastTableUpdateCron(appCtx, tableName)
 }
