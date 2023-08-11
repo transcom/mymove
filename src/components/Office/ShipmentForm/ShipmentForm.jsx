@@ -452,7 +452,6 @@ const ShipmentForm = (props) => {
       validateOnMount
       validateOnBlur
       validationSchema={schema}
-      enableReinitialize
       onSubmit={submitMTOShipment}
     >
       {({ values, isValid, isSubmitting, setValues, handleSubmit, errors }) => {
@@ -498,7 +497,18 @@ const ShipmentForm = (props) => {
               isOpen={isAddressChangeModalOpen}
               onClose={() => setIsAddressChangeModalOpen(false)}
               shipment={mtoShipment}
-              onSubmit={handleSubmitShipmentAddressUpdateReview}
+              onSubmit={async (shipmentID, shipmentETag, status, officeRemarks) => {
+                await handleSubmitShipmentAddressUpdateReview(shipmentID, shipmentETag, status, officeRemarks);
+                if (status === ADDRESS_UPDATE_STATUS.APPROVED) {
+                  setValues({
+                    ...values,
+                    delivery: {
+                      ...values.delivery,
+                      address: mtoShipment.deliveryAddressUpdate.newAddress,
+                    },
+                  });
+                }
+              }}
               errorMessage={shipmentAddressUpdateReviewErrorMessage}
             />
             <NotificationScrollToTop dependency={errorMessage} />

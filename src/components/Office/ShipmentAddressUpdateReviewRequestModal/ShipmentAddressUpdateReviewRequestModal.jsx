@@ -22,6 +22,8 @@ const formSchema = Yup.object().shape({
   officeRemarks: Yup.string().required('Required'),
 });
 
+// TODO: There's a console error about the shared alert used in this component
+
 export const ShipmentAddressUpdateReviewRequestModal = ({ onSubmit, shipment, errorMessage, onClose }) => {
   const handleSubmit = async (values, { setSubmitting }) => {
     const { addressUpdateReviewStatus, officeRemarks } = values;
