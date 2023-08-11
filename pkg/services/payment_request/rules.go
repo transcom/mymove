@@ -31,3 +31,21 @@ func checkMTOIDMatchesServiceItemMTOID() paymentRequestValidator {
 		return nil
 	})
 }
+
+// prevent creating new payment requests for service items that already been paid or requested
+func checkStatusOfExistingPaymentRequest() paymentRequestValidator {
+	return paymentRequestValidatorFunc(func(appCtx appcontext.AppContext, paymentRequest models.PaymentRequest, oldPaymentRequest *models.PaymentRequest) error {
+		var paymentRequestServiceItems = paymentRequest.PaymentServiceItems
+
+		for _, paymentRequestServiceItem := range paymentRequestServiceItems {
+
+			status := paymentRequestServiceItem.Status
+			reserviceCode := paymentRequestServiceItem.MTOServiceItem.ReService.Code
+
+			if (reserviceCode != models.ReServiceCodeDDASIT && reserviceCode != models.ReServiceCodeDOASIT) && (status == models.PaymentServiceItemStatusRequested || status == models.PaymentServiceItemStatusPaid) {
+				return apperror.NewConflictError(paymentRequestServiceItem.MTOServiceItemID, "Conflict Error: Payment Request for Service Item is already paid or requested")
+			}
+		}
+		return nil
+	})
+}

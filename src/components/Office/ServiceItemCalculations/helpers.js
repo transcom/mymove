@@ -177,17 +177,50 @@ const mileageZip = (params) => {
   return calculation(value, label, formatDetail(detail));
 };
 
-const mileageZipSITOrigin = (params) => {
-  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin, params);
+const mileageZipSIT = (params, itemCode) => {
+  let label;
+  let distanceZip;
+  let detail;
 
-  const label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
-  const detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
-    SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGOriginalAddress,
-    params,
-  )} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
-    SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGActualAddress,
-    params,
-  )}`;
+  switch (itemCode) {
+    case SERVICE_ITEM_CODES.DOSFSC:
+      label = SERVICE_ITEM_CALCULATION_LABELS.MileageIntoSIT;
+      distanceZip = SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin;
+      detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
+        SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGOriginalAddress,
+        params,
+      )} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
+        SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGActualAddress,
+        params,
+      )}`;
+      break;
+
+    case SERVICE_ITEM_CODES.DDSFSC:
+      label = SERVICE_ITEM_CALCULATION_LABELS.MileageOutOfSIT;
+      distanceZip = SERVICE_ITEM_PARAM_KEYS.DistanceZipSITDest;
+      detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
+        SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGOriginalAddress,
+        params,
+      )} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
+        SERVICE_ITEM_PARAM_KEYS.ZipSITDestHHGFinalAddress,
+        params,
+      )}`;
+      break;
+
+    default:
+      label = SERVICE_ITEM_CALCULATION_LABELS.Mileage;
+      distanceZip = SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin;
+      detail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipPickupAddress]} ${getParamValue(
+        SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGOriginalAddress,
+        params,
+      )} to ${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ZipDestAddress]} ${getParamValue(
+        SERVICE_ITEM_PARAM_KEYS.ZipSITOriginHHGActualAddress,
+        params,
+      )}`;
+  }
+
+  const value = getParamValue(distanceZip, params);
+
   return calculation(value, label, formatDetail(detail));
 };
 
@@ -326,20 +359,38 @@ const priceEscalationFactorWithoutContractYear = (params) => {
   return calculation(value, label);
 };
 
-const fuelSurchargePrice = (params) => {
-  // to get the Fuel surcharge price (per mi), multiply FSCWeightBasedDistanceMultiplier by DistanceZip
+const fuelSurchargePrice = (params, itemCode) => {
+  // to get the Fuel surcharge price (per mi), multiply FSCWeightBasedDistanceMultiplier by distanceZip
   // which gets the dollar value
+  let distanceZip;
+  switch (itemCode) {
+    case SERVICE_ITEM_CODES.DDSFSC:
+      distanceZip = SERVICE_ITEM_PARAM_KEYS.DistanceZipSITDest;
+      break;
+    case SERVICE_ITEM_CODES.DOSFSC:
+      distanceZip = SERVICE_ITEM_PARAM_KEYS.DistanceZipSITOrigin;
+      break;
+    default:
+      distanceZip = SERVICE_ITEM_PARAM_KEYS.DistanceZip;
+  }
   const value = parseFloat(
     String(
       getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params) *
-        getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip, params),
+        getParamValue(distanceZip, params),
     ),
   ).toFixed(2);
-  const label = SERVICE_ITEM_CALCULATION_LABELS.FuelSurchargePrice;
+  const label =
+    itemCode === SERVICE_ITEM_CODES.DOSFSC || itemCode === SERVICE_ITEM_CODES.DDSFSC
+      ? SERVICE_ITEM_CALCULATION_LABELS.SITFuelSurchargePrice
+      : SERVICE_ITEM_CALCULATION_LABELS.FuelSurchargePrice;
 
   const eiaFuelPrice = `${
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice]
   }: ${formatDollarFromMillicents(getParamValue(SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice, params))}`;
+
+  const fuelRateAdjustment = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents]
+  }: ${toDollarString(formatCents(getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents, params)))}`;
 
   const fscWeightBasedDistanceMultiplier = `${
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]
@@ -354,6 +405,7 @@ const fuelSurchargePrice = (params) => {
     value,
     label,
     formatDetail(eiaFuelPrice),
+    formatDetail(fuelRateAdjustment),
     formatDetail(fscWeightBasedDistanceMultiplier),
     formatDetail(actualPickupDate),
   );
@@ -544,7 +596,6 @@ const totalAmountRequested = (totalAmount) => {
 
 export default function makeCalculations(itemCode, totalAmount, params, mtoParams, shipmentType) {
   let result = [];
-
   switch (itemCode) {
     case SERVICE_ITEM_CODES.DDDSIT: {
       const mileage = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZipSITDest, params);
@@ -585,7 +636,25 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
       result = [
         billableWeight(params),
         mileageZip(params),
-        fuelSurchargePrice(params),
+        fuelSurchargePrice(params, itemCode),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // Domestic origin SIT fuel surcharge
+    case SERVICE_ITEM_CODES.DOSFSC:
+      result = [
+        billableWeight(params),
+        mileageZipSIT(params, itemCode),
+        fuelSurchargePrice(params, itemCode),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // Domestic destination SIT fuel surcharge
+    case SERVICE_ITEM_CODES.DDSFSC:
+      result = [
+        billableWeight(params),
+        mileageZipSIT(params, itemCode),
+        fuelSurchargePrice(params, itemCode),
         totalAmountRequested(totalAmount),
       ];
       break;
@@ -664,10 +733,11 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         totalAmountRequested(totalAmount),
       ];
       break;
+    // Domestic Origin SIT Pickup
     case SERVICE_ITEM_CODES.DOPSIT:
       result = [
         billableWeight(params),
-        mileageZipSITOrigin(params),
+        mileageZipSIT(params, itemCode),
         pickupSITPrice(params, shipmentType),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
@@ -682,6 +752,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
         totalAmountRequested(totalAmount),
       ];
       break;
+    // Domestic Destination Additional Days SIT
     case SERVICE_ITEM_CODES.DDASIT:
       result = [
         billableWeight(params),

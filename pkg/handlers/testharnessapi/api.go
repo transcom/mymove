@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -28,8 +28,7 @@ type BaseTestHarnessHandler struct {
 func NewDefaultBuilder(handlerConfig handlers.HandlerConfig) http.Handler {
 	return handlerConfig.AuditableAppContextFromRequestBasicHandler(
 		func(appCtx appcontext.AppContext, w http.ResponseWriter, r *http.Request) error {
-			params := mux.Vars(r)
-			action := params["action"]
+			action := chi.URLParam(r, "action")
 
 			response, err := testharness.Dispatch(appCtx, action)
 			if err != nil {

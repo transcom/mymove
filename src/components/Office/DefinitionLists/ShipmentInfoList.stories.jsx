@@ -3,6 +3,8 @@ import { object, text } from '@storybook/addon-knobs';
 
 import ShipmentInfoList from './ShipmentInfoList';
 
+import { ADDRESS_UPDATE_STATUS } from 'constants/shipments';
+
 export default {
   title: 'Office Components/HHG Shipment Info List',
   component: ShipmentInfoList,
@@ -27,6 +29,9 @@ const info = {
     city: 'Austin',
     state: 'TX',
     postalCode: '78722',
+  },
+  deliveryAddressUpdate: {
+    status: 'REQUESTED',
   },
   secondaryDeliveryAddress: {
     streetAddress1: '17 8th St',
@@ -113,5 +118,23 @@ export const WithAllInfo = () => (
       counselorRemarks: text('counselorRemarks', info.counselorRemarks),
       customerRemarks: text('customerRemarks', info.customerRemarks),
     }}
+  />
+);
+
+export const WithDeliveryAddressUpdateRequested = () => (
+  <ShipmentInfoList
+    shipment={{
+      requestedPickupDate: text('requestedPickupDate', info.requestedPickupDate),
+      pickupAddress: object('pickupAddress', info.pickupAddress),
+      deliveryAddressUpdate: object('deliveryAddressUpdate', info.deliveryAddressUpdate),
+      destinationAddress: object('destinationAddress', info.destinationAddress),
+    }}
+    errorIfMissing={[
+      {
+        fieldName: 'destinationAddress',
+        condition: (shipment) => shipment.deliveryAddressUpdate?.status === ADDRESS_UPDATE_STATUS.REQUESTED,
+        optional: true,
+      },
+    ]}
   />
 );

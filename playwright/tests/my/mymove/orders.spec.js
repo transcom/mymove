@@ -1,7 +1,7 @@
 // @ts-check
 import { test, expect } from '../../utils/my/customerTest';
 
-test('Users can upload orders', async ({ page, customerPage }) => {
+test('Users can upload orders, and delete if the move is in draft status', async ({ page, customerPage }) => {
   // Generate a new onboarded user and log in
   const user = await customerPage.testHarness.buildNeedsOrdersUser();
   const userId = user.id;
@@ -42,4 +42,11 @@ test('Users can upload orders', async ({ page, customerPage }) => {
   // Verify that we're on the home page and that orders have been uploaded
   await customerPage.waitForPage.home();
   await expect(page.getByText('Orders uploaded')).toBeVisible();
+
+  // Delete orders in draft status
+  await page.getByTestId('stepContainer2').getByRole('button', { name: 'Edit' }).click();
+  await customerPage.waitForPage.editOrders();
+  await expect(page.getByText('AF Orders Sample.pdf')).toBeVisible();
+  await page.getByRole('button', { name: 'Delete' }).click();
+  await expect(page.getByText('AF Orders Sample.pdf')).not.toBeVisible();
 });

@@ -1,6 +1,8 @@
 package movingexpense
 
 import (
+	"fmt"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -10,12 +12,13 @@ import (
 
 func (suite *MovingExpenseSuite) TestMovingExpenseCreator() {
 	suite.Run("Successfully creates a MovingExpense", func() {
-		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+		serviceMemberID := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID
+
 		session := &auth.Session{
-			ServiceMemberID: serviceMember.ID,
+			ServiceMemberID: serviceMemberID,
 		}
 
-		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 		movingExpenseCreator := NewMovingExpenseCreator()
 		movingExpense, err := movingExpenseCreator.CreateMovingExpense(suite.AppContextWithSessionForTest(session), ppmShipment.ID)
 
@@ -23,7 +26,7 @@ func (suite *MovingExpenseSuite) TestMovingExpenseCreator() {
 		suite.NotNil(movingExpense)
 		suite.Equal(ppmShipment.ID, movingExpense.PPMShipmentID)
 		suite.NotNil(movingExpense.DocumentID)
-		suite.Equal(serviceMember.ID, movingExpense.Document.ServiceMemberID)
+		suite.Equal(serviceMemberID, movingExpense.Document.ServiceMemberID)
 	})
 
 	suite.Run("Fails when an invalid ppmShipmentID is used", func() {
@@ -36,7 +39,7 @@ func (suite *MovingExpenseSuite) TestMovingExpenseCreator() {
 		movingExpense, err := movingExpenseCreator.CreateMovingExpense(suite.AppContextWithSessionForTest(session), uuid.Nil)
 
 		suite.Nil(movingExpense)
-		suite.ErrorContains(err, "PPMShipmentID must exist")
+		suite.ErrorContains(err, fmt.Sprintf("Error fetching PPM with ID %s", uuid.Nil))
 	})
 
 	suite.Run("Fails when session has invalid serviceMemberID", func() {
@@ -50,7 +53,8 @@ func (suite *MovingExpenseSuite) TestMovingExpenseCreator() {
 
 		suite.Nil(movingExpense)
 		suite.NotNil(err)
-		suite.IsType(apperror.InvalidInputError{}, err)
-		suite.Equal("Invalid input received. Document ServiceMemberID must exist", err.Error())
+		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Contains(err.Error(), "No such shipment found for this service member")
 	})
+
 }

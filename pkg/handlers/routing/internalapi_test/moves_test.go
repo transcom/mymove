@@ -14,7 +14,8 @@ func (suite *InternalAPISuite) TestMoves() {
 		rr := httptest.NewRecorder()
 		suite.SetupSiteHandler().ServeHTTP(rr, req)
 
-		suite.Equal(http.StatusUnauthorized, rr.Code)
+		// the GHC API is not available to the Mil app
+		suite.EqualDefaultIndex(rr)
 	})
 
 	suite.Run("Authorized milmove /moves/:id", func() {
@@ -25,6 +26,7 @@ func (suite *InternalAPISuite) TestMoves() {
 		suite.SetupSiteHandler().ServeHTTP(rr, req)
 
 		suite.Equal(http.StatusOK, rr.Code)
+		suite.Equal("application/json", rr.Header().Get("content-type"))
 	})
 
 	suite.Run("Authorized milmove missing /moves/:id", func() {
@@ -36,6 +38,7 @@ func (suite *InternalAPISuite) TestMoves() {
 		suite.SetupSiteHandler().ServeHTTP(rr, req)
 
 		suite.Equal(http.StatusNotFound, rr.Code)
+		suite.Equal("application/json", rr.Header().Get("content-type"))
 	})
 
 	suite.Run("Unauthorized milmove different customer /moves/:id", func() {
@@ -50,5 +53,6 @@ func (suite *InternalAPISuite) TestMoves() {
 		// This should be a 404
 		// 🚨🚨🚨
 		suite.Equal(http.StatusForbidden, rr.Code)
+		suite.Equal("application/json", rr.Header().Get("content-type"))
 	})
 }

@@ -22,7 +22,7 @@ const BackupContactForm = ({ initialValues, onSubmit, onBack }) => {
           <Form className={formStyles.form}>
             <h1>Backup contact</h1>
             <p>
-              If we can‘t reach you, who can we contact (such as spouse or parent)? Any person you assign as a backup
+              If we cannot reach you, who can we contact (such as spouse or parent)? Any person you assign as a backup
               contact must be 18 years of age or older.
             </p>
             <SectionWrapper className={formStyles.formSection}>

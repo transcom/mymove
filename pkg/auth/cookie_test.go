@@ -67,7 +67,7 @@ func (suite *authSuite) TestMaskedCSRFMiddleware() {
 	req, _ := http.NewRequest("GET", "/", nil)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := MaskedCSRFMiddleware(suite.logger, false)(handler)
+	middleware := MaskedCSRFMiddleware(false)(handler)
 	middleware.ServeHTTP(rr, req)
 
 	// We should get a 200 OK
@@ -94,7 +94,7 @@ func (suite *authSuite) TestMaskedCSRFMiddlewareCreatesNewToken() {
 	req.AddCookie(&cookie)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := MaskedCSRFMiddleware(suite.logger, false)(handler)
+	middleware := MaskedCSRFMiddleware(false)(handler)
 
 	middleware.ServeHTTP(rr, req)
 

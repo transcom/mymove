@@ -29,7 +29,7 @@ const SubmitMoveForm = (props) => {
           <Form className={`${formStyles.form} ${styles.SubmitMoveForm}`}>
             <h1>Now for the official part&hellip;</h1>
             <p>
-              Please read this agreement, type your name in the <strong>Signature</strong> field to sign it, then tap
+              Please read this agreement, type your name in the <strong>SIGNATURE</strong> field to sign it, then click
               the <strong>Complete</strong> button.
             </p>
             <p>This agreement covers the shipment of your personal property.</p>
@@ -42,7 +42,7 @@ const SubmitMoveForm = (props) => {
               <CertificationText certificationText={certificationText} />
 
               <div className={styles.signatureBox}>
-                <h3>Signature</h3>
+                <h3>SIGNATURE</h3>
                 <p>
                   In consideration of said household goods or mobile homes being shipped at Government expense, I hereby
                   agree to the certifications stated above.
@@ -51,7 +51,7 @@ const SubmitMoveForm = (props) => {
                   <Grid row gap>
                     <Grid tablet={{ col: 'fill' }}>
                       <FormGroup error={showSignatureError}>
-                        <Label htmlFor="signature">Signature</Label>
+                        <Label htmlFor="signature">SIGNATURE</Label>
                         {showSignatureError && (
                           <ErrorMessage id="signature-error-message">{errors.signature}</ErrorMessage>
                         )}

@@ -11,7 +11,7 @@ import styles from './UploadsTable.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ExistingUploadsShape } from 'types/uploads';
 
-const UploadsTable = ({ className, uploads, onDelete }) => {
+const UploadsTable = ({ className, uploads, onDelete, showDeleteButton }) => {
   const getIcon = (fileType) => {
     switch (fileType) {
       case 'application/pdf':
@@ -44,9 +44,11 @@ const UploadsTable = ({ className, uploads, onDelete }) => {
                   </p>
                 </div>
               </div>
-              <Button type="button" unstyled onClick={() => onDelete(upload.id)}>
-                Delete
-              </Button>
+              {showDeleteButton && (
+                <Button type="button" unstyled onClick={() => onDelete(upload.id)}>
+                  Delete
+                </Button>
+              )}
             </li>
           ))}
         </ul>
@@ -59,10 +61,12 @@ UploadsTable.propTypes = {
   className: PropTypes.string,
   uploads: ExistingUploadsShape.isRequired,
   onDelete: PropTypes.func.isRequired,
+  showDeleteButton: PropTypes.bool,
 };
 
 UploadsTable.defaultProps = {
   className: '',
+  showDeleteButton: true,
 };
 
 export default UploadsTable;

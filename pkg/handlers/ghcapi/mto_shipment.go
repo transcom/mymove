@@ -877,6 +877,56 @@ func (h RequestShipmentReweighHandler) triggerRequestShipmentReweighEvent(appCtx
 	}
 }
 
+// ReviewShipmentAddressUpdateHandler Reviews a shipment address change
+type ReviewShipmentAddressUpdateHandler struct {
+	handlers.HandlerConfig
+	services.ShipmentAddressUpdateRequester
+}
+
+// Handle ... reviews address update request
+func (h ReviewShipmentAddressUpdateHandler) Handle(params shipmentops.ReviewShipmentAddressUpdateParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
+			addressApprovalStatus := params.Body.Status
+			remarks := params.Body.OfficeRemarks
+
+			response, err := h.ShipmentAddressUpdateRequester.ReviewShipmentAddressChange(appCtx, shipmentID, models.ShipmentAddressUpdateStatus(*addressApprovalStatus), *remarks)
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("ghcapi.ReviewShipmentAddressUpdateHandler", zap.Error(err))
+				payload := ghcmessages.Error{
+					Message: handlers.FmtString(err.Error()),
+				}
+
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return shipmentops.NewReviewShipmentAddressUpdateNotFound().WithPayload(&payload), err
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError(
+						"Validation errors",
+						"ReviewShipmentAddressUpdate",
+						h.GetTraceIDFromRequest(params.HTTPRequest),
+						e.ValidationErrors)
+					return shipmentops.NewReviewShipmentAddressUpdateUnprocessableEntity().WithPayload(payload), err
+				case apperror.PreconditionFailedError:
+					return shipmentops.NewReviewShipmentAddressUpdatePreconditionFailed().
+						WithPayload(&payload), err
+				case apperror.ConflictError:
+					return shipmentops.NewReviewShipmentAddressUpdateConflict().
+						WithPayload(&payload), err
+				default:
+					return shipmentops.NewReviewShipmentAddressUpdateInternalServerError(), err
+				}
+			}
+			if err != nil {
+				return handleError(err)
+			}
+			payload := payloads.ShipmentAddressUpdate(response)
+			return shipmentops.NewReviewShipmentAddressUpdateOK().WithPayload(payload), nil
+		})
+}
+
 // ApproveSITExtensionHandler approves a SIT extension
 type ApproveSITExtensionHandler struct {
 	handlers.HandlerConfig

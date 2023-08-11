@@ -99,65 +99,98 @@ test.describe('TOO user', () => {
       await tooFlowPage.waitForLoading();
       expect(page.url()).toContain(`/moves/${tooFlowPage.moveLocator}/mto`);
 
+      // Wait for page to load to deal with flakiness resulting from Service Item tables loading
+      await tooFlowPage.page.waitForLoadState();
+
       // Move Task Order page
       await expect(page.getByTestId('ShipmentContainer')).toHaveCount(1);
 
-      await expect(page.getByText('Approved service items (14 items)')).toBeVisible();
-      await expect(page.getByText('Rejected service items')).not.toBeVisible();
+      /**
+       * @function
+       * @description This test approves and rejects service items, which moves them from one table to another
+       * and expects the counts of each table to increment/decrement by one item each time
+       * This function gets the service items for a given table to help count them
+       * @param {import("playwright-core").Locator} table
+       * @returns {import("playwright-core").Locator}
+       */
+      const getServiceItemsInTable = (table) => {
+        return table.getByRole('rowgroup').nth(1).getByRole('row');
+      };
+
+      const requestedServiceItemsTable = page.getByTestId('RequestedServiceItemsTable');
+      let requestedServiceItemCount = await getServiceItemsInTable(requestedServiceItemsTable).count();
+      const approvedServiceItemsTable = page.getByTestId('ApprovedServiceItemsTable');
+      let approvedServiceItemCount = await getServiceItemsInTable(approvedServiceItemsTable).count();
+      const rejectedServiceItemsTable = page.getByTestId('RejectedServiceItemsTable');
+      let rejectedServiceItemCount = await getServiceItemsInTable(rejectedServiceItemsTable).count();
+
+      // This test requires at least two requested service items
+      await expect(page.getByText('Requested service items', { exact: false })).toBeVisible();
+      await expect(getServiceItemsInTable(requestedServiceItemsTable).nth(1)).toBeVisible();
 
       await expect(page.getByTestId('modal')).not.toBeVisible();
 
       // Approve a requested service item
-      let serviceItemsTable = page.getByTestId('RequestedServiceItemsTable');
-      await expect(serviceItemsTable.locator('tbody tr')).toHaveCount(2);
-      await serviceItemsTable.locator('.acceptButton').first().click();
+      expect((await getServiceItemsInTable(requestedServiceItemsTable).count()) > 0);
+      await requestedServiceItemsTable.getByRole('button', { name: 'Accept' }).first().click();
       await tooFlowPage.waitForLoading();
 
-      await expect(page.getByText('Approved service items (15 items)')).toBeVisible();
-      await expect(page.locator('[data-testid="ApprovedServiceItemsTable"] tbody tr')).toHaveCount(16);
+      await expect(page.getByText('Approved service items', { exact: false })).toBeVisible();
+      await expect(getServiceItemsInTable(approvedServiceItemsTable)).toHaveCount(approvedServiceItemCount + 1);
+      approvedServiceItemCount = await getServiceItemsInTable(approvedServiceItemsTable).count();
+
+      await expect(getServiceItemsInTable(requestedServiceItemsTable)).toHaveCount(requestedServiceItemCount - 1);
+      requestedServiceItemCount = await getServiceItemsInTable(requestedServiceItemsTable).count();
 
       // Reject a requested service item
-      await expect(page.getByText('Requested service items (1 item)')).toBeVisible();
-      serviceItemsTable = page.getByTestId('RequestedServiceItemsTable');
-      await expect(serviceItemsTable.locator('tbody tr')).toHaveCount(1);
-      await serviceItemsTable.locator('.rejectButton').first().click();
+      await expect(page.getByText('Requested service items', { exact: false })).toBeVisible();
+      expect((await getServiceItemsInTable(requestedServiceItemsTable).count()) > 0);
+      await requestedServiceItemsTable.getByRole('button', { name: 'Reject' }).first().click();
 
       await expect(page.getByTestId('modal')).toBeVisible();
       let modal = page.getByTestId('modal');
 
-      await expect(modal.locator('button[type="submit"]')).toBeDisabled();
-      await modal.locator('[data-testid="textInput"]').type('my very valid reason');
-      await modal.locator('button[type="submit"]').click();
+      await expect(modal.getByRole('button', { name: 'Submit' })).toBeDisabled();
+      await modal.getByRole('textbox').type('my very valid reason');
+      await modal.getByRole('button', { name: 'Submit' }).click();
 
       await expect(page.getByTestId('modal')).not.toBeVisible();
 
-      await expect(page.getByText('Rejected service items (1 item)')).toBeVisible();
-      await expect(page.locator('[data-testid="RejectedServiceItemsTable"] tbody tr')).toHaveCount(1);
+      await expect(page.getByText('Rejected service items', { exact: false })).toBeVisible();
+      await expect(getServiceItemsInTable(rejectedServiceItemsTable)).toHaveCount(rejectedServiceItemCount + 1);
+      rejectedServiceItemCount = await getServiceItemsInTable(rejectedServiceItemsTable).count();
+
+      await expect(getServiceItemsInTable(requestedServiceItemsTable)).toHaveCount(requestedServiceItemCount - 1);
+      requestedServiceItemCount = await getServiceItemsInTable(requestedServiceItemsTable).count();
 
       // Accept a previously rejected service item
-      await page.locator('[data-testid="RejectedServiceItemsTable"] button').click();
+      await rejectedServiceItemsTable.getByRole('button').first().click();
 
-      await expect(page.getByText('Approved service items (16 items)')).toBeVisible();
-      await expect(page.locator('[data-testid="ApprovedServiceItemsTable"] tbody tr')).toHaveCount(17);
-      await expect(page.getByText('Rejected service items (1 item)')).not.toBeVisible();
+      await expect(page.getByText('Approved service items', { exact: false })).toBeVisible();
+      await expect(getServiceItemsInTable(approvedServiceItemsTable)).toHaveCount(approvedServiceItemCount + 1);
+      approvedServiceItemCount = await getServiceItemsInTable(approvedServiceItemsTable).count();
 
-      // Reject a previously accpeted service item
-      await page.locator('[data-testid="ApprovedServiceItemsTable"] button').first().click();
+      await expect(getServiceItemsInTable(rejectedServiceItemsTable)).toHaveCount(rejectedServiceItemCount - 1);
+      rejectedServiceItemCount = await getServiceItemsInTable(rejectedServiceItemsTable).count();
+
+      // Reject a previously accepted service item
+      await approvedServiceItemsTable.getByRole('button').first().click();
 
       await expect(page.getByTestId('modal')).toBeVisible();
       modal = page.getByTestId('modal');
-      await expect(modal.locator('button[type="submit"]')).toBeDisabled();
+      await expect(modal.getByRole('button', { name: 'Submit' })).toBeDisabled();
       await modal.getByTestId('textInput').type('changed my mind about this one');
-      await modal.locator('button[type="submit"]').click();
+      await modal.getByRole('button', { name: 'Submit' }).click();
 
       await expect(page.getByTestId('modal')).not.toBeVisible();
 
-      await expect(page.getByText('Rejected service items (1 item)')).toBeVisible();
-      await expect(page.locator('[data-testid="RejectedServiceItemsTable"] tbody tr')).toHaveCount(1);
+      await expect(page.getByText('Rejected service items', { exact: false })).toBeVisible();
+      await expect(getServiceItemsInTable(rejectedServiceItemsTable)).toHaveCount(rejectedServiceItemCount + 1);
+      rejectedServiceItemCount = await getServiceItemsInTable(rejectedServiceItemsTable).count();
 
-      await expect(page.getByText('Requested service items')).not.toBeVisible();
-      await expect(page.getByText('Approved service items (15 items)')).toBeVisible();
-      await expect(page.locator('[data-testid="ApprovedServiceItemsTable"] tbody tr')).toHaveCount(16);
+      await expect(page.getByText('Approved service items', { exact: false })).toBeVisible();
+      await expect(getServiceItemsInTable(approvedServiceItemsTable)).toHaveCount(approvedServiceItemCount - 1);
+      approvedServiceItemCount = await getServiceItemsInTable(approvedServiceItemsTable).count();
     });
 
     test('is able to edit orders', async ({ page }) => {

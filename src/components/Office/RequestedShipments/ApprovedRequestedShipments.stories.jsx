@@ -30,7 +30,7 @@ export default {
   ],
 };
 
-export const withOneApprovedShipment = () => (
+export const WithOneApprovedShipment = () => (
   <div className="officeApp">
     <ApprovedRequestedShipments
       mtoShipments={[shipments[0]]}
@@ -42,7 +42,7 @@ export const withOneApprovedShipment = () => (
   </div>
 );
 
-export const withMultipleApprovedShipments = () => (
+export const WithMultipleApprovedShipments = () => (
   <div className="officeApp">
     <ApprovedRequestedShipments
       mtoShipments={shipments}
@@ -54,7 +54,7 @@ export const withMultipleApprovedShipments = () => (
   </div>
 );
 
-export const withOneApprovedShipmentReadOnly = () => (
+export const WithOneApprovedShipmentReadOnly = () => (
   <div className="officeApp">
     <ApprovedRequestedShipments
       mtoShipments={[shipments[0]]}
@@ -66,7 +66,7 @@ export const withOneApprovedShipmentReadOnly = () => (
   </div>
 );
 
-export const withMultipleApprovedShipmentsReadOnly = () => (
+export const WithMultipleApprovedShipmentsReadOnly = () => (
   <div className="officeApp">
     <ApprovedRequestedShipments
       mtoShipments={shipments}

@@ -1,0 +1,108 @@
+#! /usr/bin/env bash
+
+#
+# CRUD a comment to a GitHub pull request
+#
+
+# This leans on the following orb for code suggestions
+# https://circleci.com/developer/orbs/orb/interstellar/github
+
+set -eu -o pipefail
+
+CIRCLE_BRANCH="$1"
+ARTIFACT_URL="$2"
+APP="$3"
+STATUS="$4"
+
+COMMENT_TITLE="Test coverage on $APP failed."
+OWNER="transcom"
+REPO="mymove"
+DOCUMENTATION_URL="https://transcom.github.io/mymove-docs/docs/about/development/test-coverage-reports"
+
+echo "Branch: $CIRCLE_BRANCH"
+
+echo "Artifact URL: $ARTIFACT_URL"
+
+echo "Comment title: $COMMENT_TITLE"
+
+# Get PR issue number
+
+PR_NUMBER=$(
+  curl -L \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer $DANGER_GITHUB_API_TOKEN"\
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  "https://api.github.com/repos/$OWNER/$REPO/pulls?head=$OWNER:$CIRCLE_BRANCH" | \
+  jq '.[] | .number'
+)
+
+# Exit if it's not a PR
+
+if [[ -z ${PR_NUMBER} ]]; then
+    echo "Not a PR, nothing to do"
+    exit
+else
+  echo "Found Pull request number: ${PR_NUMBER}"
+fi
+
+
+# Get comment ID
+COMMENT_ID=$(curl -L \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer $DANGER_GITHUB_API_TOKEN"\
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  https://api.github.com/repos/$OWNER/$REPO/issues/"$PR_NUMBER"/comments |
+  jq --arg COMMENT_TITLE "$COMMENT_TITLE" -r \
+  '.[] | select(.body | contains($COMMENT_TITLE)) | .id'
+)
+
+if [[ "$STATUS" == "failure" ]]; then
+
+  # Structure comment
+
+  COMMENT="# $COMMENT_TITLE\n\
+  **Last run: $(date)**\n\
+  Refer to [this report]($ARTIFACT_URL) to see coverage details for the $APP app.\n\
+  Documentation for test coverage can be found [at this link]($DOCUMENTATION_URL)."
+
+  # Check if comment already exists
+
+  # In no comment exists POST
+
+  # If comment already exists PATCH
+
+  if [[ -z ${COMMENT_ID} ]]; then
+      echo "This is first run, posting new comment"
+
+      curl -L \
+      -H "Accept: application/vnd.github+json" \
+      -H "Authorization: Bearer $DANGER_GITHUB_API_TOKEN" \
+      -H "X-GitHub-Api-Version: 2022-11-28" \
+      https://api.github.com/repos/$OWNER/$REPO/issues/"$PR_NUMBER"/comments \
+      -d "{\"body\":\"$COMMENT\"}"
+
+  else
+      echo "Found existing comment, updating comment ID ${COMMENT_ID}"
+
+      curl \
+      -X PATCH \
+      -H "Accept: application/vnd.github+json" \
+      -H "Authorization: Bearer $DANGER_GITHUB_API_TOKEN" \
+      -H "X-GitHub-Api-Version: 2022-11-28" \
+      "https://api.github.com/repos/$OWNER/$REPO/issues/comments/$COMMENT_ID" \
+      -d "{\"body\":\"$COMMENT\"}"
+  fi
+fi
+
+# If the check succeeded and a comment already exists, delete it
+
+if [[ "$STATUS" == "success" && (-n ${COMMENT_ID})]]; then
+  echo "Found existing comment, deleting comment ID ${COMMENT_ID}"
+
+      curl \
+      -X DELETE \
+      -H "Accept: application/vnd.github+json" \
+      -H "Authorization: Bearer $DANGER_GITHUB_API_TOKEN" \
+      -H "X-GitHub-Api-Version: 2022-11-28" \
+      "https://api.github.com/repos/$OWNER/$REPO/issues/comments/$COMMENT_ID"
+fi

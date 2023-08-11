@@ -1,0 +1,82 @@
+swagger: '2.0'
+info:
+  title: MilMove Prime V2 API
+  version: 0.0.1
+  license:
+    name: MIT
+    url: 'https://opensource.org/licenses/MIT'
+  contact:
+    email: dp3@truss.works
+  description:
+    $ref: 'info/prime_v2_description.md'
+basePath: /prime/v2
+schemes:
+  - http
+tags:
+  - $ref: 'tags/moveTaskOrder.yaml'
+x-tagGroups:
+  - name: Endpoints
+    tags:
+      - moveTaskOrder
+paths:
+  /move-task-orders/{moveID}:
+    get:
+      summary: getMoveTaskOrder
+      description: |
+        ### Functionality
+        This endpoint gets an individual MoveTaskOrder by ID.
+
+        It will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
+      operationId: getMoveTaskOrder
+      tags:
+        - moveTaskOrder
+      produces:
+        - application/json
+      parameters:
+        - description: UUID or MoveCode of move task order to use.
+          in: path
+          name: moveID
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successfully retrieve an individual move task order.
+          schema:
+            $ref: 'definitions/prime/v2/MoveTaskOrder.yaml'
+        '401':
+          $ref: 'responses/PermissionDenied.yaml'
+        '403':
+          $ref: 'responses/PermissionDenied.yaml'
+        '404':
+          $ref: 'responses/NotFound.yaml'
+        '500':
+          $ref: '#/responses/ServerError'
+definitions:
+  MTOServiceItemBasic:  # spectral oas2-unused-definition is OK here due to polymorphism
+    $ref: 'definitions/prime/MTOServiceItemBasic.yaml'
+  MTOServiceItemDestSIT: # spectral oas2-unused-definition is OK here due to polymorphism
+    $ref: 'definitions/prime/MTOServiceItemDestSIT.yaml'
+  MTOServiceItemDomesticCrating: # spectral oas2-unused-definition is OK here due to polymorphism
+    $ref: 'definitions/prime/MTOServiceItemDomesticCrating.yaml'
+  MTOServiceItemOriginSIT: # spectral oas2-unused-definition is OK here due to polymorphism
+    $ref: 'definitions/prime/MTOServiceItemOriginSIT.yaml'
+  MTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
+    $ref: 'definitions/prime/MTOServiceItemShuttle.yaml'
+  Error:
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
+    required:
+      - title
+      - detail
+    type: object
+responses:
+  ServerError:
+    description: A server error occurred.
+    schema:
+      $ref: '#/definitions/Error'

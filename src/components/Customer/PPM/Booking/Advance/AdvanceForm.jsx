@@ -57,7 +57,7 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
             <Form className={(formStyles.form, ppmStyles.form)}>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>{`You can ask for up to $${formattedMaxAdvance} as an advance`}</h2>
-                <p>{`That's ${getFormattedMaxAdvancePercentage()} of $${formattedIncentive}, the estimated incentive for your PPM.`}</p>
+                <p>{`That is ${getFormattedMaxAdvancePercentage()} of $${formattedIncentive}, the estimated incentive for your PPM.`}</p>
                 <p>
                   You can request an Advance Operating Allowance (AOA, or “Advance”) to help cover some of your up-front
                   moving expenses.
@@ -72,9 +72,9 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
                   service might not authorize any advances for moves associated with retirement or separation.
                 </p>
                 <p>
-                  If your service authorizes an advance, the amount you receive will be deducted from your PPM incentive
-                  payment. If your incentive ends up being less than your advance, you will be required to pay back the
-                  difference.
+                  If your service authorizes an advance, the amount you receive will be deducted from your final PPM
+                  incentive payment. If your incentive ends up being less than your advance, you will be required to pay
+                  back the difference.
                 </p>
                 <Fieldset>
                   <legend className="usa-label">Would you like to request an advance on your incentive?</legend>

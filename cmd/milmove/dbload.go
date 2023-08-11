@@ -62,7 +62,7 @@ func dbloadFunction(cmd *cobra.Command, args []string) error {
 	retryInterval := v.GetDuration(cli.DbRetryIntervalFlag)
 
 	for retryCount < retryMax {
-		dbConnection, errDbConn = cli.InitDatabase(v, nil, logger)
+		dbConnection, errDbConn = cli.InitDatabase(v, logger)
 		if errDbConn != nil {
 			if dbConnection == nil {
 				// No connection object means that the configuraton failed to validate and we should kill server startup

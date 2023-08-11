@@ -45,6 +45,38 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 	return address
 }
 
+func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []Trait) models.Address {
+	customs = setupCustomizations(customs, traits)
+
+	// Find address customization and extract the custom address
+	var cAddress models.Address
+	if result := findValidCustomization(customs, Address); result != nil {
+		cAddress = result.Model.(models.Address)
+		if result.LinkOnly {
+			return cAddress
+		}
+	}
+
+	// Create default Address
+	address := models.Address{
+		StreetAddress1: "N/A",
+		City:           "Fort Gorden",
+		State:          "GA",
+		PostalCode:     "30813",
+		Country:        models.StringPointer("US"),
+	}
+
+	// Overwrite values with those from customizations
+	testdatagen.MergeModels(&address, cAddress)
+
+	// If db is false, it's a stub. No need to create in database.
+	if db != nil {
+		mustCreate(db, &address)
+	}
+
+	return address
+}
+
 // BuildDefaultAddress makes an Address with default values
 func BuildDefaultAddress(db *pop.Connection) models.Address {
 	return BuildAddress(db, nil, nil)

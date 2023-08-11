@@ -30,6 +30,7 @@ import (
 	pwsviolation "github.com/transcom/mymove/pkg/services/pws_violation"
 	"github.com/transcom/mymove/pkg/services/query"
 	reportviolation "github.com/transcom/mymove/pkg/services/report_violation"
+	shipmentaddressupdate "github.com/transcom/mymove/pkg/services/shipment_address_update"
 	sitaddressupdate "github.com/transcom/mymove/pkg/services/sit_address_update"
 	sitextension "github.com/transcom/mymove/pkg/services/sit_extension"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
@@ -354,6 +355,13 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		shipmentUpdater,
 		shipmentSITStatus,
+	}
+
+	shipmentAddressUpdater := shipmentaddressupdate.NewShipmentAddressUpdateRequester(handlerConfig.HHGPlanner(), addressCreator, moveRouter)
+
+	ghcAPI.ShipmentReviewShipmentAddressUpdateHandler = ReviewShipmentAddressUpdateHandler{
+		handlerConfig,
+		shipmentAddressUpdater,
 	}
 
 	ghcAPI.MtoAgentFetchMTOAgentListHandler = ListMTOAgentsHandler{

@@ -28,3 +28,13 @@ export const Basic = () => (
     </LeftNav>
   </div>
 );
+
+export const WithAlert = () => (
+  <div id="l-nav" style={{ padding: '20px', background: '#f0f0f0' }}>
+    <LeftNav sections={['approved-shipments', 'orders', 'allowances', 'customer-info']}>
+      <LeftNavTag associatedSectionName="approved-shipments" showTag className="usa-tag usa-tag--alert">
+        <FontAwesomeIcon icon="exclamation" />
+      </LeftNavTag>
+    </LeftNav>
+  </div>
+);

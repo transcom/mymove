@@ -20,8 +20,8 @@ export const MultipleParagraphs = () => (
   </Hint>
 );
 
-export const DarkerText = () => (
-  <Hint darkerText>
+export const DarkText = () => (
+  <Hint darkText>
     <p>Here is some hint text.</p>
   </Hint>
 );

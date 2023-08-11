@@ -249,7 +249,13 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 			shipments, err := h.MTOShipmentFetcher.ListMTOShipments(appCtx, moveID)
 			if err != nil {
 				appCtx.Logger().Error("internalapi.ListMTOShipmentsHandler", zap.Error(err))
-				return mtoshipmentops.NewListMTOShipmentsInternalServerError(), err
+
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return mtoshipmentops.NewListMTOShipmentsNotFound(), err
+				default:
+					return mtoshipmentops.NewListMTOShipmentsInternalServerError(), err
+				}
 			}
 
 			payload := payloads.MTOShipments(h.FileStorer(), (*models.MTOShipments)(&shipments))

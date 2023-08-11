@@ -130,14 +130,24 @@ func (fs *Filesystem) TempFileSystem() *afero.Afero {
 
 // NewFilesystemHandler returns an Handler that adds a Content-Type header so that
 // files are handled properly by the browser.
-func NewFilesystemHandler(root string) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func NewFilesystemHandler(fs afero.Fs, root string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		input := filepath.Join(root, filepath.FromSlash(path.Clean("/"+r.URL.Path)))
+		info, err := fs.Stat(input)
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		f, err := fs.Open(input)
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		defer f.Close()
 		contentType := r.URL.Query().Get("contentType")
 		if contentType != "" {
 			w.Header().Add("Content-Type", contentType)
 		}
-
-		input := filepath.Join(root, filepath.FromSlash(path.Clean("/"+r.URL.Path)))
-		http.ServeFile(w, r, input)
-	})
+		http.ServeContent(w, r, input, info.ModTime(), f)
+	}
 }

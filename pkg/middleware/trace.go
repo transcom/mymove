@@ -12,6 +12,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/telemetry"
 	"github.com/transcom/mymove/pkg/trace"
 )
 
@@ -31,7 +32,7 @@ func awsXrayIDFromBytes(data []byte) (string, error) {
 const traceHeader = "X-MILMOVE-TRACE-ID"
 
 // Trace returns a trace middleware that injects a unique trace id into every request.
-func Trace(_ *zap.Logger) func(next http.Handler) http.Handler {
+func Trace(telemetryConfig *telemetry.Config) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			logger := logging.FromContext(r.Context())
@@ -39,37 +40,30 @@ func Trace(_ *zap.Logger) func(next http.Handler) http.Handler {
 			var id uuid.UUID
 			var xrayID string
 			ctx := r.Context()
-			if span.SpanContext().HasTraceID() {
-				traceID := span.SpanContext().TraceID().String()
-				// Now try to reformat the span's traceId for the
-				// milmove_trace_id and AWS Xray
-				bytes, err := hex.DecodeString(traceID)
+			if span.SpanContext().HasTraceID() && telemetryConfig.UseXrayID {
+				bytes := span.SpanContext().TraceID()
+				var err error
+				id, err = uuid.FromBytes(bytes[:])
 				if err != nil {
-					logger.Warn("Cannot hex decode span traceid", zap.Error(err))
+					logger.Warn("Cannot create uuid from span traceid", zap.Error(err))
 				} else {
-					id, err = uuid.FromBytes(bytes)
-					if err != nil {
-						logger.Warn("Cannot create uuid from span traceid", zap.Error(err))
+					// If we have a span and a traceid that can be
+					// converted to an AWS X-Ray ID, include that
+					// in the request context so that when we
+					// create the logger in the ContextLogger
+					// middleware, it can include the AWS X-Ray ID
+					// in all logs
+					xrayID, err = awsXrayIDFromBytes(id.Bytes())
+					if err == nil {
+						// add the xray as an attribute for easier correlation
+						span.SetAttributes(attribute.String("transcom.milmove.xray.id",
+							xrayID))
+						ctx = trace.AwsXrayNewContext(ctx, xrayID)
 					} else {
-						// If we have a span and a traceid that can be
-						// converted to an AWS X-Ray ID, include that
-						// in the request context so that when we
-						// create the logger in the ContextLogger
-						// middleware, it can include the AWS X-Ray ID
-						// in all logs
-						xrayID, err = awsXrayIDFromBytes(id.Bytes())
-						if err == nil {
-							// add the xray as an attribute for easier correlation
-							span.SetAttributes(attribute.String("transcom.milmove.xray.id",
-								xrayID))
-							ctx = trace.AwsXrayNewContext(ctx, xrayID)
-						} else {
-							logger.Warn("Cannot create AWS XRay ID from span traceid",
-								zap.Error(err))
-						}
+						logger.Warn("Cannot create AWS XRay ID from span traceid",
+							zap.Error(err))
 					}
 				}
-
 			}
 
 			// if we don't have an id, maybe tracing isn't enabled or

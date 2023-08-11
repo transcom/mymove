@@ -1587,6 +1587,9 @@ func init() {
           "401": {
             "$ref": "#/responses/PermissionDenied"
           },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
           "500": {
             "$ref": "#/responses/ServerError"
           }
@@ -1639,7 +1642,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\n\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n",
+        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* Shipment type is required in body\n\nOptional fields include:\n* New shipment status type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
           "application/json"
         ],
@@ -2283,7 +2286,7 @@ func init() {
           }
         ],
         "responses": {
-          "200": {
+          "201": {
             "description": "returns new moving expense object",
             "schema": {
               "$ref": "#/definitions/MovingExpense"
@@ -9796,6 +9799,12 @@ func init() {
               "$ref": "#/definitions/ClientError"
             }
           },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
           "500": {
             "description": "A server error occurred.",
             "schema": {
@@ -9869,7 +9878,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\n\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n",
+        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* Shipment type is required in body\n\nOptional fields include:\n* New shipment status type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
           "application/json"
         ],
@@ -10557,7 +10566,7 @@ func init() {
           }
         ],
         "responses": {
-          "200": {
+          "201": {
             "description": "returns new moving expense object",
             "schema": {
               "$ref": "#/definitions/MovingExpense"

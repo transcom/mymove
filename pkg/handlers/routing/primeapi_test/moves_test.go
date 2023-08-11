@@ -8,7 +8,7 @@ import (
 )
 
 func (suite *PrimeAPISuite) TestMoves() {
-	suite.Run("Unauthorized prime /moves", func() {
+	suite.Run("Unauthorized prime v1/moves", func() {
 		// when running in test with SetupSiteHandler, devlocal auth
 		// is enabled. That means the
 		// handlers.DevlocalClientCertMiddleware is enabled which
@@ -25,7 +25,7 @@ func (suite *PrimeAPISuite) TestMoves() {
 		suite.Equal(http.StatusUnauthorized, rr.Code)
 	})
 
-	suite.Run("Authorized prime /moves", func() {
+	suite.Run("Authorized prime v1/moves", func() {
 		// The NewAuthenticatedPrimeRequest method adds a header that,
 		// if provided, is used by handlers.DevlocalClientCertMiddleware
 		clientCert := factory.BuildClientCert(suite.DB(), nil, nil)

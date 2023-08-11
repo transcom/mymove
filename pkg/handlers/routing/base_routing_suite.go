@@ -2,19 +2,27 @@ package routing
 
 import (
 	"context"
+	"crypto/sha256"
+	"crypto/tls"
+	"crypto/x509"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"path"
+	"path/filepath"
+	"runtime"
 	"time"
 
 	"github.com/gorilla/csrf"
 	"github.com/spf13/afero"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/authentication"
+	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
@@ -24,7 +32,9 @@ import (
 
 type BaseRoutingSuite struct {
 	handlers.BaseHandlerTestSuite
+	port          int
 	indexContent  string
+	serverName    string
 	routingConfig *Config
 }
 
@@ -34,7 +44,9 @@ func NewBaseRoutingSuite() BaseRoutingSuite {
 			notifications.NewStubNotificationSender("milmovelocal"),
 			testingsuite.CurrentPackage(),
 			testingsuite.WithPerTestTransaction()),
+		port:         80,
 		indexContent: "<html></html>",
+		serverName:   "test-server",
 	}
 }
 
@@ -42,6 +54,17 @@ func NewBaseRoutingSuite() BaseRoutingSuite {
 // so the same session manager(s) are used
 func (suite *BaseRoutingSuite) HandlerConfig() handlers.HandlerConfig {
 	return suite.RoutingConfig().HandlerConfig
+}
+
+// EqualDefaultIndex compares the response and ensures it has been
+// served by the default index handler
+func (suite *BaseRoutingSuite) EqualDefaultIndex(rr *httptest.ResponseRecorder) {
+	suite.Equal(http.StatusOK, rr.Code)
+	suite.Equal(suite.indexContent, rr.Body.String())
+}
+
+func (suite *BaseRoutingSuite) EqualServerName(actualServerName string) {
+	suite.Equal(suite.serverName, actualServerName)
 }
 
 func (suite *BaseRoutingSuite) RoutingConfig() *Config {
@@ -62,7 +85,7 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 
 	fakeLoginGovProvider := authentication.NewLoginGovProvider("fakeHostname", "secret_key", suite.Logger())
 
-	authContext := authentication.NewAuthContext(suite.Logger(), fakeLoginGovProvider, "http", 80)
+	authContext := authentication.NewAuthContext(suite.Logger(), fakeLoginGovProvider, "http", suite.port)
 
 	fakeFs := afero.NewMemMapFs()
 	fakeBase := "fakebase"
@@ -70,6 +93,7 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 	suite.FatalNoError(err)
 	_, err = f.Write([]byte(suite.indexContent))
 	suite.FatalNoError(err)
+	suite.FatalNoError(f.Close())
 
 	// make a fake csrf auth key that would be completely insecure for
 	// real world usage
@@ -108,7 +132,11 @@ func (suite *BaseRoutingSuite) SetupSiteHandler() http.Handler {
 }
 
 func (suite *BaseRoutingSuite) SetupCustomSiteHandler(routingConfig *Config) http.Handler {
-	siteHandler, err := InitRouting(suite.AppContextForTest(), nil, routingConfig, &telemetry.Config{})
+	return suite.SetupCustomSiteHandlerWithTelemetry(routingConfig, &telemetry.Config{})
+}
+
+func (suite *BaseRoutingSuite) SetupCustomSiteHandlerWithTelemetry(routingConfig *Config, telemetryConfig *telemetry.Config) http.Handler {
+	siteHandler, err := InitRouting(suite.serverName, suite.AppContextForTest(), nil, routingConfig, telemetryConfig)
 	suite.FatalNoError(err)
 	return siteHandler
 }
@@ -182,9 +210,18 @@ func (suite *BaseRoutingSuite) SetupOfficeRequestSession(req *http.Request, offi
 	suite.setupRequestSession(req, officeUser.User, suite.HandlerConfig().AppNames().OfficeServername)
 }
 
+func (suite *BaseRoutingSuite) NewRequest(method string, hostname string, relativePath string, body io.Reader) *http.Request {
+	req := httptest.NewRequest(method,
+		fmt.Sprintf("http://%s%s", hostname, relativePath),
+		body)
+	// ensure the request has the suite logger
+	return req.WithContext(logging.NewContext(req.Context(), suite.Logger()))
+}
+
 func (suite *BaseRoutingSuite) NewAdminRequest(method string, relativePath string, body io.Reader) *http.Request {
-	return httptest.NewRequest(method,
-		fmt.Sprintf("http://%s%s", suite.HandlerConfig().AppNames().AdminServername, relativePath),
+	return suite.NewRequest(method,
+		suite.HandlerConfig().AppNames().AdminServername,
+		relativePath,
 		body)
 }
 
@@ -195,8 +232,9 @@ func (suite *BaseRoutingSuite) NewAuthenticatedAdminRequest(method string, relat
 }
 
 func (suite *BaseRoutingSuite) NewMilRequest(method string, relativePath string, body io.Reader) *http.Request {
-	return httptest.NewRequest(method,
-		fmt.Sprintf("http://%s%s", suite.HandlerConfig().AppNames().MilServername, relativePath),
+	return suite.NewRequest(method,
+		suite.HandlerConfig().AppNames().MilServername,
+		relativePath,
 		body)
 }
 
@@ -207,8 +245,9 @@ func (suite *BaseRoutingSuite) NewAuthenticatedMilRequest(method string, relativ
 }
 
 func (suite *BaseRoutingSuite) NewOfficeRequest(method string, relativePath string, body io.Reader) *http.Request {
-	return httptest.NewRequest(method,
-		fmt.Sprintf("http://%s%s", suite.HandlerConfig().AppNames().OfficeServername, relativePath),
+	return suite.NewRequest(method,
+		suite.HandlerConfig().AppNames().OfficeServername,
+		relativePath,
 		body)
 }
 
@@ -219,8 +258,9 @@ func (suite *BaseRoutingSuite) NewAuthenticatedOfficeRequest(method string, rela
 }
 
 func (suite *BaseRoutingSuite) NewPrimeRequest(method string, relativePath string, body io.Reader) *http.Request {
-	return httptest.NewRequest(method,
-		fmt.Sprintf("http://%s%s", suite.HandlerConfig().AppNames().PrimeServername, relativePath),
+	return suite.NewRequest(method,
+		suite.HandlerConfig().AppNames().PrimeServername,
+		relativePath,
 		body)
 }
 
@@ -228,7 +268,51 @@ func (suite *BaseRoutingSuite) NewPrimeRequest(method string, relativePath strin
 // of a particular hash, so ensure that hash exists in the db and is
 // associated with a user
 func (suite *BaseRoutingSuite) NewAuthenticatedPrimeRequest(method string, relativePath string, body io.Reader, clientCert models.ClientCert) *http.Request {
-	req := suite.NewMilRequest(method, relativePath, body)
+	req := suite.NewPrimeRequest(method, relativePath, body)
 	req.Header.Add("X-Devlocal-Cert-Hash", clientCert.Sha256Digest)
 	return req
+}
+
+// The ClientCertMiddleware looks at the TLS certificate on the
+// request to make sure it matches something in the database. Fake the TLS
+// info on the request
+func (suite *BaseRoutingSuite) NewTLSAuthenticatedPrimeRequest(method string, relativePath string, body io.Reader) *http.Request {
+
+	req := suite.NewPrimeRequest(method, relativePath, body)
+	// runtime.Caller gets the path to the current file
+	_, filename, _, ok := runtime.Caller(0)
+	suite.FatalTrue(ok)
+	dirname := filepath.Dir(filename)
+
+	// Now load
+	tlsDir, err := filepath.Abs(filepath.Join(dirname, "../../../config/tls"))
+	suite.FatalNoError(err)
+	certFile := filepath.Join(tlsDir, "devlocal-mtls.cer")
+	keyFile := filepath.Join(tlsDir, "devlocal-mtls.key")
+
+	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+	suite.FatalNoError(err)
+	x509Cert, err := x509.ParseCertificate(cert.Certificate[0])
+	suite.FatalNoError(err)
+	req.TLS = &tls.ConnectionState{
+		PeerCertificates: []*x509.Certificate{x509Cert},
+	}
+
+	// make sure the this matches the devlocal hash in the db
+	hash := sha256.Sum256(x509Cert.Raw)
+	hashString := hex.EncodeToString(hash[:])
+	devlocalCert := factory.FetchOrBuildDevlocalClientCert(suite.DB())
+	suite.Equal(devlocalCert.Sha256Digest, hashString)
+	return req
+}
+
+func (suite *BaseRoutingSuite) CreateFileWithContent(fpath string, fcontent string) {
+	routingConfig := suite.RoutingConfig()
+	dir := filepath.Dir(fpath)
+	suite.NoError(routingConfig.FileSystem.MkdirAll(dir, 0777))
+	f, err := routingConfig.FileSystem.Create(fpath)
+	suite.NoError(err)
+	_, err = f.WriteString(fcontent)
+	suite.NoError(err)
+	suite.NoError(f.Close())
 }

@@ -4,12 +4,16 @@ import (
 	"net/http"
 	"path/filepath"
 
+	"github.com/spf13/afero"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/logging"
 )
 
-// This is straight from github.com/gorilla/mux
+// The SpaHandler code was inspired by code from the README for
+// github.com/gorilla/mux
+//
+// https://github.com/gorilla/mux#serving-single-page-applications
 
 // SpaHandler implements the http.Handler interface, so we can use it
 // to respond to HTTP requests. The path to the static directory and
@@ -95,9 +99,21 @@ func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.FileServer(h.cfs).ServeHTTP(w, r)
 }
 
-// NewFileHandler serves up a single file
-func NewFileHandler(entrypoint string) http.HandlerFunc {
+// NewFileHandler serves up a single file from a custom filesystem.
+// Use the custom filesystem for ease of testing
+func NewFileHandler(fs afero.Fs, entrypoint string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, entrypoint)
+		info, err := fs.Stat(entrypoint)
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		f, err := fs.Open(entrypoint)
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		defer f.Close()
+		http.ServeContent(w, r, entrypoint, info.ModTime(), f)
 	}
 }

@@ -6,7 +6,7 @@ import (
 )
 
 func (suite *testSuite) TestNoCache() {
-	mw := NoCache(suite.logger)
+	mw := NoCache()
 	rr := httptest.NewRecorder()
 	suite.do(mw, suite.ok, rr, httptest.NewRequest("GET", testURL, nil))
 	suite.Equal(http.StatusOK, rr.Code, errStatusCode) // check status code

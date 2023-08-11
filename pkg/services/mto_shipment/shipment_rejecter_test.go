@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
@@ -22,8 +23,12 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		rejectedShipment, err := approver.RejectShipment(suite.AppContextForTest(), shipment.ID, shipmentEtag, &reason)
+		rejectedShipment, err := approver.RejectShipment(session, shipment.ID, shipmentEtag, &reason)
 
 		suite.NoError(err)
 		suite.Equal(shipment.MoveTaskOrderID, rejectedShipment.MoveTaskOrderID)
@@ -48,8 +53,12 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 			},
 		}, nil)
 		eTag := etag.GenerateEtag(rejectedShipment.UpdatedAt)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		_, err := approver.RejectShipment(suite.AppContextForTest(), rejectedShipment.ID, eTag, &reason)
+		_, err := approver.RejectShipment(session, rejectedShipment.ID, eTag, &reason)
 
 		suite.Error(err)
 		suite.IsType(ConflictStatusError{}, err)
@@ -58,8 +67,12 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 	suite.Run("Passing in a stale identifier returns a PreconditionFailedError", func() {
 		staleETag := etag.GenerateEtag(time.Now())
 		staleShipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		_, err := approver.RejectShipment(suite.AppContextForTest(), staleShipment.ID, staleETag, &reason)
+		_, err := approver.RejectShipment(session, staleShipment.ID, staleETag, &reason)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
@@ -68,8 +81,12 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 	suite.Run("Passing in a bad shipment id returns a Not Found error", func() {
 		eTag := etag.GenerateEtag(time.Now())
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		_, err := approver.RejectShipment(suite.AppContextForTest(), badShipmentID, eTag, &reason)
+		_, err := approver.RejectShipment(session, badShipmentID, eTag, &reason)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -79,8 +96,12 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		emptyReason := ""
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		_, err := approver.RejectShipment(suite.AppContextForTest(), shipment.ID, eTag, &emptyReason)
+		_, err := approver.RejectShipment(session, shipment.ID, eTag, &emptyReason)
 
 		suite.Error(err)
 		suite.IsType(apperror.InvalidInputError{}, err)
@@ -91,14 +112,17 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 		rejecter := NewShipmentRejecter(shipmentRouter)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
-
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 		createdShipment := models.MTOShipment{}
 		err := suite.DB().Find(&createdShipment, shipment.ID)
 		suite.FatalNoError(err)
 
 		shipmentRouter.On("Reject", mock.AnythingOfType("*appcontext.appContext"), &createdShipment, &reason).Return(nil)
 
-		_, err = rejecter.RejectShipment(suite.AppContextForTest(), shipment.ID, eTag, &reason)
+		_, err = rejecter.RejectShipment(session, shipment.ID, eTag, &reason)
 
 		suite.NoError(err)
 		shipmentRouter.AssertNumberOfCalls(suite.T(), "Reject", 1)

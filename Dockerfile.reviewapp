@@ -3,7 +3,7 @@
 ###########
 
 # Base builder so the ci build image hash is referenced once
-FROM milmove/circleci-docker:milmove-app-1bc181b471922951dc9089329cd37809aaedab7f as builder
+FROM milmove/circleci-docker:milmove-app-726bfe44bd27d3b41da41acbe3eb231811a993f7 as builder
 
 ENV CIRCLECI=docker
 ENV REACT_APP_NODE_ENV=development
@@ -37,9 +37,9 @@ COPY pkg /build/pkg
 # fake src dir to silence make
 RUN mkdir /build/src
 
-# fake the .go-version
+# fake the go-version via .tool-versions
 RUN set -x \
-  && touch .go-version \
+  && touch .tool-versions \
   && make bin/rds-ca-2019-root.pem \
   && rm -f bin/milmove && make bin/milmove \
   && make bin/generate-test-data
@@ -72,6 +72,8 @@ RUN apk update && apk add ca-certificates --no-cache
 WORKDIR /
 
 USER nobody
+
+# WARNING: devseed data is being deprecated on 11/08/2023. This function below will be deleted after this date.
 
 ENTRYPOINT ["/bin/sh", "-c", \
   "/bin/milmove migrate && /bin/generate-test-data --named-scenario='dev_seed' --db-env='development'" \

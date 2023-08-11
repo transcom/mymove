@@ -415,6 +415,9 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 							Value:                 "foobar",
 						},
 					},
+					PaymentRequest: models.PaymentRequest{
+						ReviewedAt: models.TimePointer(time.Now()),
+					},
 				},
 				{
 					MTOServiceItemID: mtoServiceItem2.ID,

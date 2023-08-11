@@ -764,6 +764,112 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.Equal(shipment.DestinationAddress.PostalCode, updatedServiceItem.SITDestinationFinalAddress.PostalCode)
 	})
 
+	suite.Run("When TOO approves a DDSFSC service item with an existing SITDestinationFinalAddress", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+		sitDestinationFinalAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDSFSC,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+			{
+				Model:    sitDestinationFinalAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITDestinationFinalAddress,
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
+			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+		suite.NoError(err)
+
+		// ApproveOrRejectServiceItem doesn't return the service item with the updated move
+		// get move from the db to check the updated status
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+
+		suite.Equal(models.MTOServiceItemStatusApproved, updatedServiceItem.Status)
+		suite.NotNil(updatedServiceItem.ApprovedAt)
+		suite.Nil(updatedServiceItem.RejectionReason)
+		suite.Nil(updatedServiceItem.RejectedAt)
+		suite.NotNil(updatedServiceItem)
+		suite.Equal(sitDestinationFinalAddress.ID, *updatedServiceItem.SITDestinationOriginalAddressID)
+		suite.Equal(sitDestinationFinalAddress.ID, updatedServiceItem.SITDestinationOriginalAddress.ID)
+		suite.Equal(sitDestinationFinalAddress.StreetAddress1, updatedServiceItem.SITDestinationOriginalAddress.StreetAddress1)
+		suite.Equal(sitDestinationFinalAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
+		suite.Equal(sitDestinationFinalAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
+		suite.Equal(sitDestinationFinalAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
+	})
+
+	suite.Run("When TOO approves a DDSFSC service item without a SITDestinationFinalAddress", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDSFSC,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
+			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+		suite.NoError(err)
+
+		// ApproveOrRejectServiceItem doesn't return the service item with the updated move
+		// get move from the db to check the updated status
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+
+		suite.Equal(models.MTOServiceItemStatusApproved, updatedServiceItem.Status)
+		suite.NotNil(updatedServiceItem.ApprovedAt)
+		suite.Nil(updatedServiceItem.RejectionReason)
+		suite.Nil(updatedServiceItem.RejectedAt)
+		suite.NotNil(updatedServiceItem)
+		suite.NotEqual(shipment.DestinationAddressID, *updatedServiceItem.SITDestinationOriginalAddressID)
+		suite.NotEqual(shipment.DestinationAddress.ID, *updatedServiceItem.SITDestinationOriginalAddressID)
+		suite.Equal(shipment.DestinationAddress.StreetAddress1, updatedServiceItem.SITDestinationOriginalAddress.StreetAddress1)
+		suite.Equal(shipment.DestinationAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
+		suite.Equal(shipment.DestinationAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
+		suite.Equal(shipment.DestinationAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
+		suite.NotEqual(shipment.DestinationAddressID, *updatedServiceItem.SITDestinationFinalAddressID)
+		suite.NotEqual(shipment.DestinationAddress.ID, *updatedServiceItem.SITDestinationFinalAddressID)
+		suite.Equal(shipment.DestinationAddress.StreetAddress1, updatedServiceItem.SITDestinationFinalAddress.StreetAddress1)
+		suite.Equal(shipment.DestinationAddress.City, updatedServiceItem.SITDestinationFinalAddress.City)
+		suite.Equal(shipment.DestinationAddress.State, updatedServiceItem.SITDestinationFinalAddress.State)
+		suite.Equal(shipment.DestinationAddress.PostalCode, updatedServiceItem.SITDestinationFinalAddress.PostalCode)
+	})
+
 	// Test that the move's status changes to Approvals Requested if any of its service
 	// items' status is SUBMITTED
 	suite.Run("When move is approved and service item is submitted", func() {

@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
@@ -27,8 +28,12 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 		}, nil)
 		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		shipmentToBeCanceled, err := requester.RequestShipmentCancellation(suite.AppContextForTest(), shipment.ID, shipmentEtag)
+		shipmentToBeCanceled, err := requester.RequestShipmentCancellation(session, shipment.ID, shipmentEtag)
 
 		suite.NoError(err)
 		suite.Equal(shipment.MoveTaskOrderID, shipmentToBeCanceled.MoveTaskOrderID)
@@ -52,8 +57,12 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 			},
 		}, nil)
 		eTag := etag.GenerateEtag(rejectedShipment.UpdatedAt)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		_, err := requester.RequestShipmentCancellation(suite.AppContextForTest(), rejectedShipment.ID, eTag)
+		_, err := requester.RequestShipmentCancellation(session, rejectedShipment.ID, eTag)
 
 		suite.Error(err)
 		suite.IsType(ConflictStatusError{}, err)
@@ -68,8 +77,12 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 				},
 			},
 		}, nil)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 
-		_, err := requester.RequestShipmentCancellation(suite.AppContextForTest(), staleShipment.ID, staleETag)
+		_, err := requester.RequestShipmentCancellation(session, staleShipment.ID, staleETag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
@@ -78,8 +91,11 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 	suite.Run("Passing in a bad shipment id returns a Not Found error", func() {
 		eTag := etag.GenerateEtag(time.Now())
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
-
-		_, err := requester.RequestShipmentCancellation(suite.AppContextForTest(), badShipmentID, eTag)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+		_, err := requester.RequestShipmentCancellation(session, badShipmentID, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -96,14 +112,17 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 			},
 		}, nil)
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
-
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
 		createdShipment := models.MTOShipment{}
 		err := suite.DB().Find(&createdShipment, shipment.ID)
 		suite.FatalNoError(err)
 
 		shipmentRouter.On("RequestCancellation", mock.AnythingOfType("*appcontext.appContext"), &createdShipment).Return(nil)
 
-		_, err = requester.RequestShipmentCancellation(suite.AppContextForTest(), shipment.ID, eTag)
+		_, err = requester.RequestShipmentCancellation(session, shipment.ID, eTag)
 
 		suite.NoError(err)
 		shipmentRouter.AssertNumberOfCalls(suite.T(), "RequestCancellation", 1)

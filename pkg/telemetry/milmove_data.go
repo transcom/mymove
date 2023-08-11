@@ -64,6 +64,8 @@ FROM pg_stat_user_tables
 ORDER BY relname
 `
 
+const metricPrefix = "mymove.data."
+
 func registerTableLiveDeadCallback(appCtx appcontext.AppContext, meter metric.Meter, config *Config) error {
 	minDuration := time.Duration(config.CollectSeconds * int(time.Second))
 
@@ -98,10 +100,10 @@ func registerTableLiveDeadCallback(appCtx appcontext.AppContext, meter metric.Me
 
 	for i := range allStats {
 		tableName := allStats[i].TableName
-		liveMetricName := tableName + ".live"
+		liveMetricName := metricPrefix + tableName + ".live"
 		liveMetricDesc := "The total number of live tuples in the " + tableName + " table"
 
-		deadMetricName := tableName + ".dead"
+		deadMetricName := metricPrefix + tableName + ".dead"
 		deadMetricDesc := "The total number of dead tuples in the " + tableName + " table"
 		liveTuples, lerr := meter.Int64ObservableGauge(
 			liveMetricName,

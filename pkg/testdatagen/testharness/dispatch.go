@@ -41,6 +41,9 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveNeedsSC(appCtx)
 	},
+	"HHGMoveWithAmendedOrders": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithAmendedOrders(appCtx)
+	},
 	"HHGMoveForSeparationNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveForSeparationNeedsSC(appCtx)
 	},
@@ -175,6 +178,15 @@ var actionDispatcher = map[string]actionFunc{
 	},
 	"ApprovedMoveWithPPMShipmentAndExcessWeight": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeApprovedMoveWithPPMShipmentAndExcessWeight(appCtx)
+	},
+	"HHGMoveWithAddressChangeRequest": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithAddressChangeRequest(appCtx)
+	},
+	"MakeHHGMoveWithAddressChangeRequestAndUnknownDeliveryAddress": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithAddressChangeRequestAndUnknownDeliveryAddress(appCtx)
+	},
+	"MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx)
 	},
 }
 

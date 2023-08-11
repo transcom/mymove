@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 12.13
--- Dumped by pg_dump version 12.13
+-- Dumped from database version 12.11
+-- Dumped by pg_dump version 12.7
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -3384,6 +3384,482 @@ COMMENT ON COLUMN public.jppso_regions.created_at IS 'Date & time the jppso_regi
 --
 
 COMMENT ON COLUMN public.jppso_regions.updated_at IS 'Date & time the jppso_region was updated.';
+
+
+--
+-- Name: lines_of_accounting; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.lines_of_accounting (
+    id uuid NOT NULL,
+    loa_sys_id integer,
+    loa_dpt_id character(2),
+    loa_tnsfr_dpt_nm character varying(4),
+    loa_baf_id character varying(4),
+    loa_trsy_sfx_tx character varying(4),
+    loa_maj_clm_nm character varying(4),
+    loa_op_agncy_id character varying(4),
+    loa_allt_sn_id character varying(5),
+    loa_pgm_elmnt_id character varying(12),
+    loa_tsk_bdgt_sbln_tx character varying(8),
+    loa_df_agncy_alctn_rcpnt_id character varying(4),
+    loa_jb_ord_nm character varying(10),
+    loa_sbaltmt_rcpnt_id character(1),
+    loa_wk_cntr_rcpnt_nm character varying(6),
+    loa_maj_rmbsmt_src_id character(1),
+    loa_dtl_rmbsmt_src_id character varying(3),
+    loa_cust_nm character varying(6),
+    loa_obj_cls_id character varying(6),
+    loa_srv_src_id character(1),
+    loa_spcl_intr_id character(2),
+    loa_bdgt_acnt_cls_nm character varying(8),
+    loa_doc_id character varying(15),
+    loa_cls_ref_id character(2),
+    loa_instl_acntg_act_id character varying(6),
+    loa_lcl_instl_id character varying(18),
+    loa_fms_trnsactn_id character varying(12),
+    loa_dsc_tx text,
+    loa_bgn_dt date,
+    loa_end_dt date,
+    loa_fnct_prs_nm character varying(255),
+    loa_stat_cd character(1),
+    loa_hist_stat_cd character(1),
+    loa_hs_gds_cd character(2),
+    org_grp_dfas_cd character(2),
+    loa_uic character(6),
+    loa_trnsn_id character varying(255),
+    loa_sub_acnt_id character(3),
+    loa_bet_cd character(4),
+    loa_fnd_ty_fg_cd character(1),
+    loa_bgt_ln_itm_id character varying(8),
+    loa_scrty_coop_impl_agnc_cd character(1),
+    loa_scrty_coop_dsgntr_cd character varying(4),
+    loa_scrty_coop_ln_itm_id character varying(3),
+    loa_agnc_dsbr_cd character(6),
+    loa_agnc_acntng_cd character(6),
+    loa_fnd_cntr_id character varying(12),
+    loa_cst_cntr_id character varying(16),
+    loa_prj_id character varying(12),
+    loa_actvty_id character varying(11),
+    loa_cst_cd character varying(16),
+    loa_wrk_ord_id character varying(16),
+    loa_fncl_ar_id character varying(6),
+    loa_scrty_coop_cust_cd character(2),
+    loa_end_fy_tx integer,
+    loa_bg_fy_tx integer,
+    loa_bgt_rstr_cd character(1),
+    loa_bgt_sub_act_cd character(4),
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.lines_of_accounting OWNER TO postgres;
+
+--
+-- Name: TABLE lines_of_accounting; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TABLE public.lines_of_accounting IS 'A Line of Accounting (LOA) is the funding associated with a federal organization’s budget';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_sys_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_sys_id IS 'Unique primary id that is referenced from rows in the Transportation Accounting spreadsheet';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_dpt_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_dpt_id IS 'Department Indicator';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_tnsfr_dpt_nm; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_tnsfr_dpt_nm IS 'Transfer From Department';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_baf_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_baf_id IS 'Basic Symbol Number';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_trsy_sfx_tx; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_trsy_sfx_tx IS 'Subhead/Limit';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_maj_clm_nm; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_maj_clm_nm IS 'Fund Code/Major Claimant';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_op_agncy_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_op_agncy_id IS 'Operation Agency Code/Fund Admin';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_allt_sn_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_allt_sn_id IS 'Allotment Serial Number';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_pgm_elmnt_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_pgm_elmnt_id IS 'Program Element Code';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_tsk_bdgt_sbln_tx; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_tsk_bdgt_sbln_tx IS 'Project Task/Budget Subline';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_df_agncy_alctn_rcpnt_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_df_agncy_alctn_rcpnt_id IS 'Defense Agency Allocation Recipient';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_jb_ord_nm; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_jb_ord_nm IS 'Job Order/Work Order Code';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_sbaltmt_rcpnt_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_sbaltmt_rcpnt_id IS 'Sub-Allotment Recipient';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_wk_cntr_rcpnt_nm; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_wk_cntr_rcpnt_nm IS 'Work Center Recipient';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_maj_rmbsmt_src_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_maj_rmbsmt_src_id IS 'Major Reimbursement Source Code';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_dtl_rmbsmt_src_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_dtl_rmbsmt_src_id IS 'Detail Reimbursement Source Code';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_cust_nm; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_cust_nm IS 'Customer Indicator/MPC';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_obj_cls_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_obj_cls_id IS 'Object Class';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_srv_src_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_srv_src_id IS 'Government/Public Sector Identifier';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_spcl_intr_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_spcl_intr_id IS 'Special Interest Code/Special Program Cost Code';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_bdgt_acnt_cls_nm; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_bdgt_acnt_cls_nm IS 'DoD Budget & Accounting Class. Code';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_doc_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_doc_id IS 'Document/Record Reference Number';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_cls_ref_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_cls_ref_id IS 'Accounting Classification Reference Number';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_instl_acntg_act_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_instl_acntg_act_id IS 'Accounting Installation Number';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_lcl_instl_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_lcl_instl_id IS 'Local Installation Data/IFS Number';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_fms_trnsactn_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_fms_trnsactn_id IS 'Transaction Type';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_dsc_tx; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_dsc_tx IS 'FMS Country Code, Implementing Agency, Case Number & Line Item Number';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_bgn_dt; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_bgn_dt IS 'Begin Date (Fiscal Year)';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_end_dt; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_end_dt IS 'End Date (Fiscal Year)';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_fnct_prs_nm; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_fnct_prs_nm IS 'Financial POC';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_stat_cd; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_stat_cd IS 'Status Code';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_hist_stat_cd; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_hist_stat_cd IS 'History Status Code';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_hs_gds_cd; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_hs_gds_cd IS 'Household Goods Program Code';
+
+
+--
+-- Name: COLUMN lines_of_accounting.org_grp_dfas_cd; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.org_grp_dfas_cd IS 'Transportation Service Code';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_uic; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_uic IS 'Unit Identification Code';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_trnsn_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_trnsn_id IS 'Transaction ID';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_sub_acnt_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_sub_acnt_id IS 'Sub Account';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_bet_cd; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_bet_cd IS 'Business Event Type Code';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_fnd_ty_fg_cd; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_fnd_ty_fg_cd IS 'Reimbursable Flag';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_bgt_ln_itm_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_bgt_ln_itm_id IS 'Budget Line Item';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_scrty_coop_impl_agnc_cd; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_scrty_coop_impl_agnc_cd IS 'Security Cooperation Implementing Agency Code';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_scrty_coop_dsgntr_cd; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_scrty_coop_dsgntr_cd IS 'Security Cooperation Case Designator';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_scrty_coop_ln_itm_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_scrty_coop_ln_itm_id IS 'Security Cooperation Case Line Item Identifier';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_agnc_dsbr_cd; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_agnc_dsbr_cd IS 'Agency Disbursing Identifier Code';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_agnc_acntng_cd; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_agnc_acntng_cd IS 'Agency Accounting Identifier';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_fnd_cntr_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_fnd_cntr_id IS 'Funding Center';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_cst_cntr_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_cst_cntr_id IS 'Cost Center';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_prj_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_prj_id IS 'Project Identifier';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_actvty_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_actvty_id IS 'Activity Identifier';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_cst_cd; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_cst_cd IS 'Cost Element Code';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_wrk_ord_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_wrk_ord_id IS 'Work Order Number';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_fncl_ar_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_fncl_ar_id IS 'Functional Area';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_scrty_coop_cust_cd; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_scrty_coop_cust_cd IS 'Security Cooperation Customer Code';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_end_fy_tx; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_end_fy_tx IS 'End Fiscal Year';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_bg_fy_tx; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_bg_fy_tx IS 'Begin Fiscal Year';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_bgt_rstr_cd; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_bgt_rstr_cd IS 'Availability Type';
+
+
+--
+-- Name: COLUMN lines_of_accounting.loa_bgt_sub_act_cd; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.lines_of_accounting.loa_bgt_sub_act_cd IS 'Sub-Allocation';
 
 
 --
@@ -6910,7 +7386,7 @@ CREATE TABLE public.re_intl_accessorial_prices (
     per_unit_cents integer NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    CONSTRAINT re_intl_accessorial_prices_market_check CHECK (((market)::text = ANY (ARRAY[('C'::character varying)::text, ('O'::character varying)::text])))
+    CONSTRAINT re_intl_accessorial_prices_market_check CHECK (((market)::text = ANY ((ARRAY['C'::character varying, 'O'::character varying])::text[])))
 );
 
 
@@ -7292,7 +7768,7 @@ CREATE TABLE public.re_shipment_type_prices (
     factor numeric(4,2) NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    CONSTRAINT re_shipment_type_prices_market_check CHECK (((market)::text = ANY (ARRAY[('C'::character varying)::text, ('O'::character varying)::text])))
+    CONSTRAINT re_shipment_type_prices_market_check CHECK (((market)::text = ANY ((ARRAY['C'::character varying, 'O'::character varying])::text[])))
 );
 
 
@@ -8577,7 +9053,31 @@ CREATE TABLE public.transportation_accounting_codes (
     id uuid NOT NULL,
     tac character varying(4) NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
-    updated_at timestamp without time zone DEFAULT now() NOT NULL
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    loa_id uuid,
+    tac_sys_id integer,
+    loa_sys_id integer,
+    tac_fy_txt integer,
+    tac_fn_bl_mod_cd character(1),
+    org_grp_dfas_cd character(2),
+    tac_mvt_dsg_id character varying(255),
+    tac_ty_cd character(1),
+    tac_use_cd character varying(2),
+    tac_maj_clmt_id character varying(6),
+    tac_bill_act_txt character varying(6),
+    tac_cost_ctr_nm character varying(6),
+    buic character(6),
+    tac_hist_cd character(1),
+    tac_stat_cd character(1),
+    trnsprtn_acnt_tx text,
+    trnsprtn_acnt_bgn_dt date,
+    trnsprtn_acnt_end_dt date,
+    dd_actvty_adrs_id character(6),
+    tac_blld_add_frst_ln_tx character varying(255),
+    tac_blld_add_scnd_ln_tx character varying(255),
+    tac_blld_add_thrd_ln_tx character varying(255),
+    tac_blld_add_frth_ln_tx character varying(255),
+    tac_fnct_poc_nm character varying(255)
 );
 
 
@@ -8588,6 +9088,174 @@ ALTER TABLE public.transportation_accounting_codes OWNER TO postgres;
 --
 
 COMMENT ON COLUMN public.transportation_accounting_codes.tac IS 'A 4-digit alphanumeric transportation accounting code used to look up long lines of accounting.  These values are sourced from TGET.';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.loa_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.loa_id IS 'Associates the TAC to a Line of Accounting';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.tac_sys_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.tac_sys_id IS 'TAC System Identifier';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.loa_sys_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.loa_sys_id IS 'LOA System Identifier';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.tac_fy_txt; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.tac_fy_txt IS 'Fiscal year';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.tac_fn_bl_mod_cd; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.tac_fn_bl_mod_cd IS 'Financial Bill Mode Code';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.org_grp_dfas_cd; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.org_grp_dfas_cd IS 'Transportation Service Code';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.tac_mvt_dsg_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.tac_mvt_dsg_id IS 'Movement Designator Code';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.tac_ty_cd; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.tac_ty_cd IS 'Type Code';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.tac_use_cd; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.tac_use_cd IS 'Usage Code';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.tac_maj_clmt_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.tac_maj_clmt_id IS 'Major Claimant';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.tac_bill_act_txt; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.tac_bill_act_txt IS 'Bill Account Code';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.tac_cost_ctr_nm; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.tac_cost_ctr_nm IS 'Cost Center';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.buic; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.buic IS 'BUIC';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.tac_hist_cd; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.tac_hist_cd IS 'History Status Code';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.tac_stat_cd; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.tac_stat_cd IS 'TAC Status Code';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.trnsprtn_acnt_tx; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.trnsprtn_acnt_tx IS 'Description';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.trnsprtn_acnt_bgn_dt; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.trnsprtn_acnt_bgn_dt IS 'Effective Begin Date';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.trnsprtn_acnt_end_dt; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.trnsprtn_acnt_end_dt IS 'Effective End Date';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.dd_actvty_adrs_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.dd_actvty_adrs_id IS 'DODAAC';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.tac_blld_add_frst_ln_tx; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.tac_blld_add_frst_ln_tx IS 'Billed Address Line 1';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.tac_blld_add_scnd_ln_tx; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.tac_blld_add_scnd_ln_tx IS 'Billed Address Line 2';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.tac_blld_add_thrd_ln_tx; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.tac_blld_add_thrd_ln_tx IS 'Billed Address Line 3';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.tac_blld_add_frth_ln_tx; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.tac_blld_add_frth_ln_tx IS 'Billed Address Line 4';
+
+
+--
+-- Name: COLUMN transportation_accounting_codes.tac_fnct_poc_nm; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.transportation_accounting_codes.tac_fnct_poc_nm IS 'TAC Functional POC';
 
 
 --
@@ -9672,6 +10340,14 @@ ALTER TABLE ONLY public.jppso_regions
 
 ALTER TABLE ONLY public.jppso_regions
     ADD CONSTRAINT jppso_regions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: lines_of_accounting lines_of_accounting_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.lines_of_accounting
+    ADD CONSTRAINT lines_of_accounting_pkey PRIMARY KEY (id);
 
 
 --
@@ -11327,6 +12003,13 @@ CREATE INDEX storage_facilities_address_id_idx ON public.storage_facilities USIN
 
 
 --
+-- Name: transportation_accounting_codes_loa_id_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX transportation_accounting_codes_loa_id_idx ON public.transportation_accounting_codes USING btree (loa_id);
+
+
+--
 -- Name: transportation_offices_address_id_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -12791,6 +13474,14 @@ ALTER TABLE ONLY public.sit_extensions
 
 ALTER TABLE ONLY public.storage_facilities
     ADD CONSTRAINT storage_facilities_address_id_fkey FOREIGN KEY (address_id) REFERENCES public.addresses(id);
+
+
+--
+-- Name: transportation_accounting_codes transportation_accounting_codes_loa_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.transportation_accounting_codes
+    ADD CONSTRAINT transportation_accounting_codes_loa_id_fkey FOREIGN KEY (loa_id) REFERENCES public.lines_of_accounting(id);
 
 
 --
@@ -15024,6 +15715,15 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.jppso_region_state_assignments
 GRANT ALL ON TABLE public.jppso_regions TO master;
 GRANT ALL ON TABLE public.jppso_regions TO ecs_user;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.jppso_regions TO crud;
+
+
+--
+-- Name: TABLE lines_of_accounting; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.lines_of_accounting TO master;
+GRANT ALL ON TABLE public.lines_of_accounting TO ecs_user;
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.lines_of_accounting TO crud;
 
 
 --

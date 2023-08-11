@@ -13,6 +13,7 @@ import { useEditShipmentQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { updateMTOShipment } from 'services/ghcApi';
+import { ORDERS_TYPE } from 'constants/orders';
 import { roleTypes } from 'constants/userRoles';
 
 const ServicesCounselingEditShipmentDetails = ({ onUpdate, isAdvancePage }) => {
@@ -45,6 +46,9 @@ const ServicesCounselingEditShipmentDetails = ({ onUpdate, isAdvancePage }) => {
     NTS: order.ntsSac,
   };
 
+  const isRetirementOrSeparation =
+    order?.order_type === ORDERS_TYPE.RETIREMENT || order?.order_type === ORDERS_TYPE.SEPARATION;
+
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
@@ -67,7 +71,7 @@ const ServicesCounselingEditShipmentDetails = ({ onUpdate, isAdvancePage }) => {
                 TACs={TACs}
                 SACs={SACs}
                 userRole={roleTypes.SERVICES_COUNSELOR}
-                displayDestinationType
+                displayDestinationType={isRetirementOrSeparation}
                 isAdvancePage={isAdvancePage}
                 move={move}
               />

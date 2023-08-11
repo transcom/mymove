@@ -93,7 +93,6 @@ test.describe('TOO user', () => {
       await page.locator('select[name="delivery.address.state"]').selectOption({ label: 'GA' });
       await page.locator('input[name="delivery.address.postalCode"]').clear();
       await page.locator('input[name="delivery.address.postalCode"]').type('30301');
-      await page.locator('#destinationType').selectOption({ label: 'Home of record (HOR)' });
 
       // TAC and SAC
       await page.locator('[data-testid="radio"] [for="tacType-NTS"]').click();

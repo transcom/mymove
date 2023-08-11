@@ -68,8 +68,15 @@ help:  ## Print the help documentation
 # This target ensures that the pre-commit hook is installed and kept up to date
 # if pre-commit updates.
 .PHONY: ensure_pre_commit
-ensure_pre_commit: .git/hooks/pre-commit install_pre_commit ## Ensure pre-commit is installed
-.git/hooks/pre-commit: /usr/local/bin/pre-commit
+ensure_pre_commit: .git/hooks/pre-commit install_pre_commit ## Ensure pre-commit hooks are installed
+.git/hooks/pre-commit: .check_pre-commit_installed.stamp
+.check_pre-commit_installed.stamp: ## Ensure pre-commit is installed
+ifeq (, $(shell which pre-commit))
+	$(error pre-commit is not installed. Install with `brew install pre-commit`.)
+else
+	@echo "pre-commit is installed"
+	touch .check_pre-commit_installed.stamp
+endif
 
 .PHONY: install_pre_commit
 install_pre_commit:  ## Installs pre-commit hooks
@@ -92,7 +99,7 @@ endif
 
 .PHONY: check_go_version
 check_go_version: .check_go_version.stamp ## Check that the correct Golang version is installed
-.check_go_version.stamp: scripts/check-go-version .go-version
+.check_go_version.stamp: scripts/check-go-version .tool-versions
 	scripts/check-go-version
 	touch .check_go_version.stamp
 
@@ -108,7 +115,7 @@ endif
 
 .PHONY: check_node_version
 check_node_version: .check_node_version.stamp ## Check that the correct Node version is installed
-.check_node_version.stamp: scripts/check-node-version .node-version
+.check_node_version.stamp: scripts/check-node-version .tool-versions
 	scripts/check-node-version
 	touch .check_node_version.stamp
 
@@ -254,6 +261,7 @@ bin/generate-shipment-summary: cmd/generate-shipment-summary
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate-shipment-summary
 
 bin/generate-test-data: cmd/generate-test-data
+	@echo "WARNING: devseed data is being deprecated on 11/08/2023. This function will be deleted after this date."
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate-test-data
 
 bin/ghc-pricing-parser: cmd/ghc-pricing-parser
@@ -552,6 +560,7 @@ db_dev_psql: ## Open PostgreSQL shell for Dev DB
 
 .PHONY: db_dev_fresh
 db_dev_fresh: check_app db_dev_reset db_dev_load_from_schema ## Recreate dev db from scratch and populate with devseed data
+	@echo "WARNING: Devseed data is being deprecated on 11/08/2023. This function will be deleted after that date."
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development" --named-sub-scenario="${DEVSEED_SUBSCENARIO}"
 
@@ -562,6 +571,7 @@ db_dev_truncate: ## Truncate dev db
 
 .PHONY: db_dev_e2e_populate
 db_dev_e2e_populate: check_app db_dev_migrate db_dev_truncate ## Migrate dev db and populate with devseed data
+	@echo "WARNING: Devseed data is being deprecated on 11/08/2023. This function will be deleted after that date."
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development" --named-sub-scenario="${DEVSEED_SUBSCENARIO}"
 
@@ -574,6 +584,7 @@ db_bandwidth_up: db_dev_bandwidth_up
 
 .PHONY: db_dev_bandwidth_up
 db_dev_bandwidth_up: check_app bin/generate-test-data db_dev_truncate ## Truncate Dev DB and Generate data for bandwidth tests
+	@echo "WARNING: devseed data is being deprecated on 11/08/2023. This function will be deleted after this date."
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	DB_PORT=$(DB_PORT_DEV) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="bandwidth" --db-env="development"
 #
@@ -1104,7 +1115,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-1bc181b471922951dc9089329cd37809aaedab7f bash
+	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-726bfe44bd27d3b41da41acbe3eb231811a993f7 bash
 
 .PHONY: prune_images
 prune_images:  ## Prune docker images

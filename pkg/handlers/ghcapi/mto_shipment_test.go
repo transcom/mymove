@@ -2409,6 +2409,236 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 	})
 }
 
+func (suite *HandlerSuite) TestReviewShipmentAddressUpdateHandler() {
+	officeRemarks := "This is a TOO remark"
+	status := "APPROVED"
+
+	suite.Run("PATCH Success - 200 OK", func() {
+
+		addressChange := factory.BuildShipmentAddressUpdate(suite.DB(), nil, nil)
+
+		newAddress := models.ShipmentAddressUpdate{
+			OfficeRemarks: &officeRemarks,
+			Status:        models.ShipmentAddressUpdateStatusApproved,
+			ID:            addressChange.ID,
+		}
+
+		body := shipmentops.ReviewShipmentAddressUpdateBody{
+			OfficeRemarks: &officeRemarks,
+			Status:        &status,
+		}
+
+		req := httptest.NewRequest("PATCH", "/shipments/{mtoShipmentID}/review-shipment-address-update", nil)
+
+		params := shipmentops.ReviewShipmentAddressUpdateParams{
+			HTTPRequest: req,
+			Body:        body,
+			IfMatch:     etag.GenerateEtag(addressChange.Shipment.UpdatedAt),
+			ShipmentID:  *handlers.FmtUUID(addressChange.ShipmentID),
+		}
+
+		handlerConfig := suite.HandlerConfig()
+
+		mockCreator := mocks.ShipmentAddressUpdateRequester{}
+
+		mockCreator.On("ReviewShipmentAddressChange",
+			mock.AnythingOfType("*appcontext.appContext"),
+			addressChange.ShipmentID,
+			models.ShipmentAddressUpdateStatusApproved,
+			"This is a TOO remark",
+		).Return(&newAddress, nil)
+
+		handler := ReviewShipmentAddressUpdateHandler{
+			handlerConfig,
+			&mockCreator,
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		okResponse := response.(*shipmentops.ReviewShipmentAddressUpdateOK)
+		payload := okResponse.Payload
+
+		suite.IsNotErrResponse(response)
+		suite.NotNil(payload)
+		suite.Equal(ghcmessages.ShipmentAddressUpdateStatus("APPROVED"), payload.Status)
+		suite.Equal("This is a TOO remark", *payload.OfficeRemarks)
+	})
+
+	suite.Run("PATCH Failure - 422 Unprocessable Entity error", func() {
+		addressChange := factory.BuildShipmentAddressUpdate(suite.DB(), nil, nil)
+
+		mockCreator := mocks.ShipmentAddressUpdateRequester{}
+
+		handlerConfig := suite.HandlerConfig()
+
+		handler := ReviewShipmentAddressUpdateHandler{
+			handlerConfig,
+			&mockCreator,
+		}
+		body := shipmentops.ReviewShipmentAddressUpdateBody{
+			OfficeRemarks: &officeRemarks,
+			Status:        &status,
+		}
+
+		req := httptest.NewRequest("PATCH", "/shipments/{mtoShipmentID}/review-shipment-address-update", nil)
+
+		params := shipmentops.ReviewShipmentAddressUpdateParams{
+			HTTPRequest: req,
+			Body:        body,
+			IfMatch:     etag.GenerateEtag(addressChange.Shipment.UpdatedAt),
+			ShipmentID:  *handlers.FmtUUID(addressChange.ShipmentID),
+		}
+
+		verrs := validate.NewErrors()
+		verrs.Add("some key", "some value")
+		err := apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "unable to create ShipmentAddressUpdate")
+
+		mockCreator.On("ReviewShipmentAddressChange",
+			mock.AnythingOfType("*appcontext.appContext"),
+			addressChange.ShipmentID,
+			models.ShipmentAddressUpdateStatusApproved,
+			"This is a TOO remark",
+		).Return(nil, err)
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&shipmentops.ReviewShipmentAddressUpdateUnprocessableEntity{}, response)
+
+		errResponse := response.(*shipmentops.ReviewShipmentAddressUpdateUnprocessableEntity)
+		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("PATCH Failure - 409 Request conflict response error", func() {
+		addressChange := factory.BuildShipmentAddressUpdate(suite.DB(), nil, nil)
+
+		mockCreator := mocks.ShipmentAddressUpdateRequester{}
+
+		handlerConfig := suite.HandlerConfig()
+
+		handler := ReviewShipmentAddressUpdateHandler{
+			handlerConfig,
+			&mockCreator,
+		}
+
+		body := shipmentops.ReviewShipmentAddressUpdateBody{
+			OfficeRemarks: &officeRemarks,
+			Status:        &status,
+		}
+
+		req := httptest.NewRequest("PATCH", "/shipments/{mtoShipmentID}/review-shipment-address-update", nil)
+
+		params := shipmentops.ReviewShipmentAddressUpdateParams{
+			HTTPRequest: req,
+			Body:        body,
+			IfMatch:     etag.GenerateEtag(addressChange.Shipment.UpdatedAt),
+			ShipmentID:  *handlers.FmtUUID(addressChange.ShipmentID),
+		}
+
+		err := apperror.NewConflictError(uuid.Nil, "unable to create ReviewShipmentAddressChange")
+
+		mockCreator.On("ReviewShipmentAddressChange",
+			mock.AnythingOfType("*appcontext.appContext"),
+			addressChange.ShipmentID,
+			models.ShipmentAddressUpdateStatusApproved,
+			"This is a TOO remark",
+		).Return(nil, err)
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.NotNil(response)
+		suite.IsType(&shipmentops.ReviewShipmentAddressUpdateConflict{}, response)
+		errResponse := response.(*shipmentops.ReviewShipmentAddressUpdateConflict)
+
+		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("PATCH Failure - 404 Not Found response error", func() {
+		addressChange := factory.BuildShipmentAddressUpdate(suite.DB(), nil, nil)
+
+		mockCreator := mocks.ShipmentAddressUpdateRequester{}
+
+		handlerConfig := suite.HandlerConfig()
+
+		handler := ReviewShipmentAddressUpdateHandler{
+			handlerConfig,
+			&mockCreator,
+		}
+
+		body := shipmentops.ReviewShipmentAddressUpdateBody{
+			OfficeRemarks: &officeRemarks,
+			Status:        &status,
+		}
+
+		req := httptest.NewRequest("PATCH", "/shipments/{mtoShipmentID}/review-shipment-address-update", nil)
+
+		params := shipmentops.ReviewShipmentAddressUpdateParams{
+			HTTPRequest: req,
+			Body:        body,
+			IfMatch:     etag.GenerateEtag(addressChange.Shipment.UpdatedAt),
+			ShipmentID:  *handlers.FmtUUID(addressChange.ShipmentID),
+		}
+
+		err := apperror.NewNotFoundError(uuid.Nil, "unable to create ReviewShipmentAddressChange")
+
+		mockCreator.On("ReviewShipmentAddressChange",
+			mock.AnythingOfType("*appcontext.appContext"),
+			addressChange.ShipmentID,
+			models.ShipmentAddressUpdateStatusApproved,
+			"This is a TOO remark",
+		).Return(nil, err)
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&shipmentops.ReviewShipmentAddressUpdateNotFound{}, response)
+		errResponse := response.(*shipmentops.ReviewShipmentAddressUpdateNotFound)
+		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("500 server error", func() {
+		addressChange := factory.BuildShipmentAddressUpdate(suite.DB(), nil, nil)
+
+		mockCreator := mocks.ShipmentAddressUpdateRequester{}
+
+		handlerConfig := suite.HandlerConfig()
+
+		handler := ReviewShipmentAddressUpdateHandler{
+			handlerConfig,
+			&mockCreator,
+		}
+
+		body := shipmentops.ReviewShipmentAddressUpdateBody{
+			OfficeRemarks: &officeRemarks,
+			Status:        &status,
+		}
+
+		req := httptest.NewRequest("PATCH", "/shipments/{mtoShipmentID}/review-shipment-address-update", nil)
+
+		params := shipmentops.ReviewShipmentAddressUpdateParams{
+			HTTPRequest: req,
+			Body:        body,
+			IfMatch:     etag.GenerateEtag(addressChange.Shipment.UpdatedAt),
+			ShipmentID:  *handlers.FmtUUID(addressChange.ShipmentID),
+		}
+
+		err := apperror.NewQueryError("", nil, "unable to reach database")
+
+		mockCreator.On("ReviewShipmentAddressChange",
+			mock.AnythingOfType("*appcontext.appContext"),
+			addressChange.ShipmentID,
+			models.ShipmentAddressUpdateStatusApproved,
+			"This is a TOO remark",
+		).Return(nil, err)
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&shipmentops.ReviewShipmentAddressUpdateInternalServerError{}, response)
+	})
+}
+
 func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 	suite.Run("Returns 200 and updates SIT days allowance when validations pass", func() {
 		sitDaysAllowance := 20

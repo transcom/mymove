@@ -17,9 +17,9 @@ const SomethingWentWrong = ({ error, info }) => (
       <br />
       <br />
       <br />
-      <p>
-        If you continue to receive this error, call (302) 4MY-MOVE or{' '}
-        <a href="mailto:transcom.scott.tcj5j4.mbx.ppcf@mail.mil" className="usa-link">
+      <p data-testid="contactMsg">
+        If you continue to receive this error, call (800) 462-2176, Option 2 or{' '}
+        <a href="mailto:usarmy.scott.sddc.mbx.g6-src-dps-hd@mail.mil" className="usa-link">
           email us
         </a>
         .
