@@ -781,6 +781,7 @@ tasks_connect_to_gex_via_sftp: tasks_build_linux_docker ## Run connect-to-gex-vi
 		-e GEX_SFTP_HOST_KEY \
 		-e GEX_SFTP_IP_ADDRESS \
 		-e GEX_SFTP_PASSWORD \
+		-e GEX_PRIVATE_KEY \
 		-e GEX_SFTP_PORT \
 		-e GEX_SFTP_USER_ID \
 		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
