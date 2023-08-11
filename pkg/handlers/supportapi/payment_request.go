@@ -397,7 +397,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 				path997 := v.GetString(cli.GEXSFTP997PickupDirectory)
 				path824 := v.GetString(cli.GEXSFTP824PickupDirectory)
 
-				sshClient, err := cli.InitGEXSSH(appCtx, v)
+				sshClient, err := cli.InitGEXSSH(appCtx.Logger(), v)
 				if err != nil {
 					appCtx.Logger().Fatal("couldn't initialize SSH client", zap.Error(err))
 				}
@@ -407,7 +407,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 					}
 				}()
 
-				sftpClient, err := cli.InitGEXSFTP(appCtx, sshClient)
+				sftpClient, err := cli.InitGEXSFTP(appCtx.Logger(), sshClient)
 				if err != nil {
 					appCtx.Logger().Fatal("couldn't initialize SFTP client", zap.Error(err))
 				}

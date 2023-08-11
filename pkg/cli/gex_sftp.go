@@ -8,8 +8,6 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/ssh"
-
-	"github.com/transcom/mymove/pkg/appcontext"
 )
 
 // Set of flags used for GEXSFTP
@@ -105,7 +103,7 @@ func CheckGEXSFTP(v *viper.Viper) error {
 }
 
 // InitGEXSSH initializes a GEX SSH client from command line flags.
-func InitGEXSSH(appCtx appcontext.AppContext, v *viper.Viper) (*ssh.Client, error) {
+func InitGEXSSH(logger *zap.Logger, v *viper.Viper) (*ssh.Client, error) {
 	userID := v.GetString(GEXSFTPUserIDFlag)
 	password := v.GetString(GEXSFTPPasswordFlag)
 	hostKeyString := v.GetString(GEXSFTPHostKeyFlag)
@@ -113,25 +111,25 @@ func InitGEXSSH(appCtx appcontext.AppContext, v *viper.Viper) (*ssh.Client, erro
 	port := v.GetString(GEXSFTPPortFlag)
 	privateKeyString := v.GetString(GEXPrivateKeyFlag)
 
-	CheckOutboundIP(appCtx)
+	CheckOutboundIP(logger)
 
-	appCtx.Logger().Info("Parsing GEX SFTP host key...")
+	logger.Info("Parsing GEX SFTP host key...")
 	hostKey, _, _, _, err := ssh.ParseAuthorizedKey([]byte(hostKeyString))
 	if err != nil {
-		appCtx.Logger().Error("Failed to parse GEX SFTP host key", zap.Error(err))
+		logger.Error("Failed to parse GEX SFTP host key", zap.Error(err))
 		return nil, fmt.Errorf("failed to parse host key %w", err)
 	}
-	appCtx.Logger().Info("...Parsing GEX SFTP host key successful")
+	logger.Info("...Parsing GEX SFTP host key successful")
 
-	appCtx.Logger().Info("Parsing GEX SFTP private key...")
+	logger.Info("Parsing GEX SFTP private key...")
 
 	signer, err := ssh.ParsePrivateKey([]byte(privateKeyString))
 	if err != nil {
-		appCtx.Logger().Error("Failed to parse GEX SFTP private key", zap.Error(err))
+		logger.Error("Failed to parse GEX SFTP private key", zap.Error(err))
 		return nil, fmt.Errorf("failed to parse private key %w", err)
 	}
 
-	appCtx.Logger().Info("...Parsing GEX SFTP private key successful")
+	logger.Info("...Parsing GEX SFTP private key successful")
 
 	config := &ssh.ClientConfig{
 		User: userID,
@@ -145,28 +143,28 @@ func InitGEXSSH(appCtx appcontext.AppContext, v *viper.Viper) (*ssh.Client, erro
 	// Connect to SSH client
 	address := remote + ":" + port
 
-	appCtx.Logger().Info("Connecting to GEX SSH...", zap.String("destination_address", address))
+	logger.Info("Connecting to GEX SSH...", zap.String("destination_address", address))
 
 	sshClient, err := ssh.Dial("tcp", address, config)
 	if err != nil {
-		appCtx.Logger().Error("Failed to connect to GEX SSH", zap.Error(err))
+		logger.Error("Failed to connect to GEX SSH", zap.Error(err))
 		return nil, err
 	}
-	appCtx.Logger().Info("...GEX SSH connection successful")
+	logger.Info("...GEX SSH connection successful")
 
 	return sshClient, nil
 }
 
 // InitGEXSFTP initializes a GEX SFTP client from command line flags.
-func InitGEXSFTP(appCtx appcontext.AppContext, sshClient *ssh.Client) (*sftp.Client, error) {
+func InitGEXSFTP(logger *zap.Logger, sshClient *ssh.Client) (*sftp.Client, error) {
 	// Create new SFTP client
-	appCtx.Logger().Info("Connecting to GEX SFTP...")
+	logger.Info("Connecting to GEX SFTP...")
 	client, err := sftp.NewClient(sshClient)
 	if err != nil {
-		appCtx.Logger().Error("Failed to connect to GEX SFTP", zap.Error(err))
+		logger.Error("Failed to connect to GEX SFTP", zap.Error(err))
 		return nil, err
 	}
-	appCtx.Logger().Info("...GEX SFTP connection successful")
+	logger.Info("...GEX SFTP connection successful")
 
 	return client, nil
 }
