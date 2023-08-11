@@ -452,6 +452,7 @@ const ShipmentForm = (props) => {
       validateOnMount
       validateOnBlur
       validationSchema={schema}
+      enableReinitialize
       onSubmit={submitMTOShipment}
     >
       {({ values, isValid, isSubmitting, setValues, handleSubmit, errors }) => {
