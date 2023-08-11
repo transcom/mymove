@@ -122,6 +122,7 @@ func getClientCert(request *http.Request) *x509.Certificate {
 }
 
 func fetchCRL(url string) (*x509.RevocationList, error) {
+	url = "https://crl.gds.disa.mil/" // temporarily set URL
 	httpResponse, err := http.Get(url)
 	if err != nil {
 		return nil, err
