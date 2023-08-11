@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+# this script is testing running on macOS
+
+import argparse
+import os
+import resource
+import subprocess
+
+parser = argparse.ArgumentParser(
+    prog='server-run',
+    description='Runs the milmove app server')
+
+parser.add_argument('--no-dtod-mock', dest='dtod_mock', action='store_false',
+                    default=True,
+                    help='Disable DTOD_MOCK. Defaults to true')
+parser.add_argument('--flipt', dest='flipt', action='store_true',
+                    help='Start the flipt container, set FEATURE_FLAG_URL')
+parser.add_argument('--telemetry', dest='telemetry', action='store_true',
+                    help='Start the telemetry containers, enable telemetry')
+
+args = parser.parse_args()
+
+os.environ["DTOD_MOCK"] = str.lower(str(args.dtod_mock))
+
+if args.flipt:
+    os.environ["FEATURE_FLAG_SERVER_URL"] = "http://localhost:9080"
+
+if args.telemetry:
+    os.environ["TELEMETRY_ENABLED"] = "true"
+    os.environ["TELEMETRY_ENDPOINT"] = "localhost:4317"
+    os.environ["DB_INSTRUMENTED"] = "true"
+    os.environ["SERVE_CLIENT_COLLECTOR"] = "true"
+
+# Ensure we have air installed to recompile the server on changes. Air
+# uses *much* less CPU than entr
+# See .air.conf for more
+subprocess.run(["go", "install", "github.com/cosmtrek/air@latest"],
+               check=True)
+
+# make sure all the server dependencies have been set up
+print("Ensuring postgresql and redis have started")
+subprocess.run(["make", "db_dev_run", "redis_run"],
+               check=True)
+
+print("Ensuring migrations have been run")
+subprocess.run(["make", "db_dev_migrate"],
+               check=True)
+
+docker_flipt = None
+docker_telemetry = None
+if args.flipt:
+    print("Starting docker feature flag")
+    docker_flipt = subprocess.Popen(["docker-compose",
+                                     "-f", "docker-compose.feature_flag.yml",
+                                     "up", "-d"],
+                                    stdin=None, stdout=None, stderr=None)
+    n = docker_flipt.wait(5)
+    if n != 0:
+        print("Cannot start docker feature flag")
+        exit(1)
+if args.telemetry:
+    print("Starting docker telemetry")
+    docker_telemetry = subprocess.Popen(["docker-compose",
+                                         "-f", "docker-compose.telemetry.yml",
+                                         "up", "-d"],
+                                        stdin=None, stdout=None, stderr=None)
+    n = docker_telemetry.wait(5)
+    if n != 0:
+        print("Cannot start docker telemetry")
+        exit(1)
+
+# # bump up number of open files for air
+resource.setrlimit(resource.RLIMIT_NOFILE, (4096, 4096))
+air = subprocess.Popen(["air"], stdin=None, stdout=None, stderr=None)
+try:
+    air.wait()
+except KeyboardInterrupt:
+    print("Stopping server")
+
+air.kill()
+
+if docker_flipt:
+    print("Stopping docker feature flag")
+    subprocess.run(["docker-compose",
+                    "-f", "docker-compose.feature_flag.yml",
+                    "down"], check=True)
+
+if docker_telemetry:
+    print("Stopping docker telemetry")
+    subprocess.run(["docker-compose",
+                    "-f", "docker-compose.telemetry.yml",
+                    "down"], check=True)
