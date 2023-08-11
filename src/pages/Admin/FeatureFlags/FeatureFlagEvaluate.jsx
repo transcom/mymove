@@ -1,35 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { getFeatureFlagForUser } from 'services/internalApi';
 import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 export const FeatureFlagEvaluate = () => {
-  const [flagKey, setFlagKey] = React.useState(null);
-  const [flagResult, setFlagResult] = React.useState(null);
-  const [shouldEvaluate, setShouldEvaluate] = React.useState(false);
+  const [flagKey, setFlagKey] = useState(null);
+  const [flagResult, setFlagResult] = useState(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setShouldEvaluate(true);
+    getFeatureFlagForUser(flagKey, {})
+      .then((result) => {
+        setFlagResult(result);
+      })
+      .catch((error) => {
+        milmoveLog(MILMOVE_LOG_LEVEL.ERROR, error);
+        setFlagResult(null);
+      });
   };
 
   const handleChange = (e) => {
     setFlagKey(e.target.value);
   };
-
-  React.useEffect(() => {
-    if (shouldEvaluate) {
-      getFeatureFlagForUser(flagKey, {})
-        .then((result) => {
-          setFlagResult(result);
-        })
-        .catch((error) => {
-          milmoveLog(MILMOVE_LOG_LEVEL.ERROR, error);
-          setFlagResult(null);
-        });
-      setShouldEvaluate(false);
-    }
-  }, [shouldEvaluate, flagKey]);
 
   return (
     <>
