@@ -15,6 +15,8 @@ parser.add_argument('--no-dtod-mock', dest='dtod_mock', action='store_false',
                     help='Disable DTOD_MOCK. Defaults to true')
 parser.add_argument('--flipt', dest='flipt', action='store_true',
                     help='Start the flipt container, set FEATURE_FLAG_URL')
+parser.add_argument('--standalone', dest='standalone', action='store_true',
+                    help='Build and serve the client app directly')
 parser.add_argument('--telemetry', dest='telemetry', action='store_true',
                     help='Start the telemetry containers, enable telemetry')
 
@@ -30,6 +32,14 @@ if args.telemetry:
     os.environ["TELEMETRY_ENDPOINT"] = "localhost:4317"
     os.environ["DB_INSTRUMENTED"] = "true"
     os.environ["SERVE_CLIENT_COLLECTOR"] = "true"
+
+# process standalone last as client build may need env variables set above
+if args.standalone:
+    os.environ["REACT_APP_NODE_ENV"] = "development"
+    os.environ["LOGIN_GOV_CALLBACK_PORT"] = "8080"
+    # Now build the client
+    # This can be faster than waiting for 'yarn start'
+    subprocess.run(["make", "client_build"], check=True)
 
 # Ensure we have air installed to recompile the server on changes. Air
 # uses *much* less CPU than entr
