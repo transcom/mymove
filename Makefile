@@ -1058,13 +1058,24 @@ pretty: gofmt ## Run code through JS and Golang formatters
 docker_circleci: ## Run CircleCI container locally with project mounted
 	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-726bfe44bd27d3b41da41acbe3eb231811a993f7 bash
 
-.PHONY: docker_local_ssh_server
-docker_local_ssh_server:
+.PHONY: docker_local_ssh_server_with_password
+docker_local_ssh_server_with_password:
 	docker run --rm \
   --name sshd \
   -e USER_NAME=testu \
   -e USER_PASSWORD=testp \
   -e PASSWORD_ACCESS=true \
+  -p 2222:2222 \
+  -v some_local_upload_dir:/config/uploads \
+ linuxserver/openssh-server
+
+
+.PHONY: docker_local_ssh_server_with_key
+docker_local_ssh_server_with_key:
+	docker run --rm \
+  --name sshd \
+	-e PUBLIC_KEY="${TEST_GEX_PUBLIC_KEY}" \
+	-e USER_NAME=testu \
   -p 2222:2222 \
   -v some_local_upload_dir:/config/uploads \
  linuxserver/openssh-server
