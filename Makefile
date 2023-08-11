@@ -342,6 +342,9 @@ server_build: bin/milmove ## Build the server
 server_run_standalone: check_log_dir server_build client_build db_dev_run redis_run
 	./bin/milmove serve 2>&1 | tee -a log/dev.log
 
+server_run_with_flags:
+	$(MAKE) FEATURE_FLAG_SERVER_URL=http://localhost:9080 server_run
+
 # This command will rebuild the swagger go code and rerun server on any changes
 server_run:
 	find ./swagger-def -type f | entr -c -r make server_run_default
