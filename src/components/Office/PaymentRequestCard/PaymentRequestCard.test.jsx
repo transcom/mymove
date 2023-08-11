@@ -168,7 +168,7 @@ describe('PaymentRequestCard', () => {
       const viewLink = wrapper.find('.footer a');
 
       expect(viewLink.contains('View orders')).toBe(true);
-      expect(viewLink.prop('href')).toBe('orders');
+      expect(viewLink.prop('href')).toBe('/orders');
     });
 
     it('renders request details toggle drawer by default and hides button', () => {

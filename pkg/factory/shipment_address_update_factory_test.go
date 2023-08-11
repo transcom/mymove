@@ -12,7 +12,7 @@ func (suite *FactorySuite) TestBuildShipmentAddressUpdate() {
 
 		// Validate results, default status is requested
 		suite.Equal(models.ShipmentAddressUpdateStatusRequested, addressUpdate.Status)
-		suite.Equal(addressUpdate.ContractorRemarks, "Test Contractor Remark")
+		suite.Equal(addressUpdate.ContractorRemarks, "Customer reached out to me this week & let me know they want to move closer to a sick dependent who needs care.")
 		suite.Nil(addressUpdate.OfficeRemarks)
 		suite.NotNil(addressUpdate.NewAddress)
 		suite.NotNil(addressUpdate.NewAddressID)

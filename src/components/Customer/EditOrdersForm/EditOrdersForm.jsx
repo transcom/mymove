@@ -56,6 +56,11 @@ const EditOrdersForm = ({
       .min(1),
   });
 
+  const enableDelete = () => {
+    const isValuePresent = initialValues.move_status === 'DRAFT';
+    return isValuePresent;
+  };
+
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
       {({ isValid, isSubmitting, handleSubmit, values }) => {
@@ -149,7 +154,11 @@ const EditOrdersForm = ({
                 <DutyLocationInput name="new_duty_location" label="New duty location" displayAddress={false} />
               )}
               <p>Uploads:</p>
-              <UploadsTable uploads={initialValues.uploaded_orders} onDelete={onDelete} />
+              <UploadsTable
+                uploads={initialValues.uploaded_orders}
+                onDelete={onDelete}
+                showDeleteButton={enableDelete(initialValues)}
+              />
               <div>
                 <p>{documentSizeLimitMsg}</p>
                 <FileUpload

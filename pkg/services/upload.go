@@ -17,17 +17,18 @@ type UploadInformation struct {
 	CreatedAt              time.Time `db:"created_at"`
 	Filename               string
 	Bytes                  int64
-	MoveLocator            *string    `db:"locator"`
-	ServiceMemberID        *uuid.UUID `db:"service_member_id"`
-	ServiceMemberFirstName *string    `db:"service_member_first_name"`
-	ServiceMemberLastName  *string    `db:"service_member_last_name"`
-	ServiceMemberPhone     *string    `db:"service_member_telephone"`
-	ServiceMemberEmail     *string    `db:"service_member_email"`
-	OfficeUserID           *uuid.UUID `db:"office_user_id"`
-	OfficeUserFirstName    *string    `db:"office_user_first_name"`
-	OfficeUserLastName     *string    `db:"office_user_last_name"`
-	OfficeUserPhone        *string    `db:"office_user_telephone"`
-	OfficeUserEmail        *string    `db:"office_user_email"`
+	MoveLocator            *string            `db:"locator"`
+	MoveStatus             *models.MoveStatus `db:"status"`
+	ServiceMemberID        *uuid.UUID         `db:"service_member_id"`
+	ServiceMemberFirstName *string            `db:"service_member_first_name"`
+	ServiceMemberLastName  *string            `db:"service_member_last_name"`
+	ServiceMemberPhone     *string            `db:"service_member_telephone"`
+	ServiceMemberEmail     *string            `db:"service_member_email"`
+	OfficeUserID           *uuid.UUID         `db:"office_user_id"`
+	OfficeUserFirstName    *string            `db:"office_user_first_name"`
+	OfficeUserLastName     *string            `db:"office_user_last_name"`
+	OfficeUserPhone        *string            `db:"office_user_telephone"`
+	OfficeUserEmail        *string            `db:"office_user_email"`
 }
 
 // UploadInformationFetcher is the service object interface for FetchUploadInformation

@@ -20,7 +20,7 @@ const EstimatedIncentiveDetails = ({ shipment }) => {
       <div className="container">
         <h2>${formatCentsTruncateWhole(estimatedIncentive)} is your estimated incentive</h2>
         <div className={styles.shipmentDetails}>
-          <p>That&apos;s about how much you could earn for moving your PPM, based on what you&apos;ve entered:</p>
+          <p>This is an estimate of how much you could earn by moving your PPM, based on what you have entered:</p>
           <ul>
             <li>{formatWeight(estimatedWeight)} estimated weight</li>
             <li>Starting from {pickupPostalCode}</li>

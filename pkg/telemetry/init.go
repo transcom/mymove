@@ -21,9 +21,12 @@ import (
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
+	"go.opentelemetry.io/otel/sdk/trace/tracetest"
+	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/telemetry/metrictest"
 )
 
 // Config defines the config necessary to enable telemetry gathering
@@ -42,12 +45,13 @@ const (
 	defaultCollectSeconds = 30
 )
 
-// Init currently the target for distributed tracing / opentelemetry is
-// local development environments, but this may change in the future
-// to include hosted/deployed environments
-func Init(logger *zap.Logger, config *Config) (shutdown func()) {
+// Init sets up open telemetry as specified by config. It returns a
+// shutdown function, and also the span and metric exporters. The
+// latter two are useful in testing, but would almost certainly be
+// ignored in production
+func Init(logger *zap.Logger, config *Config) (func(), sdktrace.SpanExporter, sdkmetric.Exporter) {
 	ctx := context.Background()
-	shutdown = func() {}
+	var shutdown = func() {}
 
 	logger.Info("Configuring tracing", zap.Any("TelemetryConfig", config))
 	if !config.Enabled {
@@ -55,7 +59,7 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 		otel.SetTracerProvider(tp)
 		otel.SetMeterProvider(noop.NewMeterProvider())
 		logger.Info("opentelemetry not enabled")
-		return shutdown
+		return shutdown, nil, nil
 	}
 
 	// convert our zap logger to the go-logr interface expected by
@@ -73,6 +77,9 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 	var err error
 
 	switch config.Endpoint {
+	case "memory":
+		spanExporter = tracetest.NewInMemoryExporter()
+		metricExporter = metrictest.NewInMemoryExporter()
 	case "stdout":
 		// explictly call WithWriter so we can override os.Stdout in tests
 		spanExporter, err = stdouttrace.New(stdouttrace.WithPrettyPrint(),
@@ -131,6 +138,7 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 		idGenerator = xray.NewIDGenerator()
 	}
 	if ecsResource.Attributes() != nil {
+		logger.Info("ECS resource for telemetry", zap.Any("attributes", ecsResource.Attributes()))
 		resourceAttrs = append(resourceAttrs, ecsResource.Attributes()...)
 	}
 
@@ -210,5 +218,5 @@ func Init(logger *zap.Logger, config *Config) (shutdown func()) {
 		)
 	}
 
-	return shutdown
+	return shutdown, spanExporter, metricExporter
 }

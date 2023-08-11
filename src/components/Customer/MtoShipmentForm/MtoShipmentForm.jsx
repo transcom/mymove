@@ -40,6 +40,7 @@ import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/form
 import { formatWeight } from 'utils/formatters';
 import { validateDate } from 'utils/validation';
 import withRouter from 'utils/routing';
+import { ORDERS_TYPE } from 'constants/orders';
 
 const blankAddress = {
   address: {
@@ -159,7 +160,8 @@ class MtoShipmentForm extends Component {
     const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
     const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
     const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? this.getShipmentNumber() : null;
-    const isRetireeSeparatee = orders.orders_type !== 'PERMANENT_CHANGE_OF_STATION';
+    const isRetireeSeparatee =
+      orders.orders_type === ORDERS_TYPE.RETIREMENT || orders.orders_type === ORDERS_TYPE.SEPARATION;
 
     const initialValues = formatMtoShipmentForDisplay(isCreatePage ? {} : mtoShipment);
 
@@ -239,8 +241,8 @@ class MtoShipmentForm extends Component {
                           <Fieldset legend="Date">
                             <Hint id="pickupDateHint">
                               This is the day movers would put this shipment on their truck. Packing starts earlier.
-                              Dates will be finalized when you talk to your movers. Your actual pickup date will fall
-                              within 7 days of your preferred date.
+                              Dates will be finalized when you talk to your Customer Care Representative. Your actual
+                              pickup date will fall within 7 days of your preferred date.
                             </Hint>
                             <DatePickerInput
                               name="pickup.requestedDate"
@@ -303,7 +305,7 @@ class MtoShipmentForm extends Component {
                             legend={<div className={formStyles.legendContent}>Releasing agent {optionalLabel}</div>}
                             render={(fields) => (
                               <>
-                                <p>Who can let the movers pick up your things if you’re not there?</p>
+                                <p>Who can let the movers pick up your personal property if you are not there?</p>
                                 {fields}
                               </>
                             )}
@@ -316,8 +318,8 @@ class MtoShipmentForm extends Component {
                           {showPickupFields && <h2>Destination info</h2>}
                           <Fieldset legend="Date">
                             <Hint>
-                              You’ll finalize an actual delivery date later by talking with your movers once the
-                              shipment is underway.
+                              You will finalize an actual delivery date later by talking with your Customer Care
+                              Representative once the shipment is underway.
                             </Hint>
                             <DatePickerInput
                               name="delivery.requestedDate"
@@ -425,7 +427,7 @@ class MtoShipmentForm extends Component {
                             legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
                             render={(fields) => (
                               <>
-                                <p>Who can take delivery for you if the movers arrive and you’re not there?</p>
+                                <p>Who can take delivery for you if the movers arrive and you are not there?</p>
                                 {fields}
                               </>
                             )}
@@ -441,7 +443,7 @@ class MtoShipmentForm extends Component {
                               your belongings there.
                             </p>
                             <p>
-                              You’ll need to schedule an NTS release shipment to get your items back, most likely as
+                              You will need to schedule an NTS release shipment to get your items back, most likely as
                               part of a future move.
                             </p>
                           </Fieldset>
@@ -474,7 +476,7 @@ class MtoShipmentForm extends Component {
                             data-testid="remarks"
                             name="customerRemarks"
                             className={`${formStyles.remarks}`}
-                            placeholder="Don’t itemize your belongings here. Your movers will help do that when they talk to you."
+                            placeholder="Do not itemize your personal property here. Your movers will help do that when they talk to you."
                             id="customerRemarks"
                             maxLength={250}
                           />

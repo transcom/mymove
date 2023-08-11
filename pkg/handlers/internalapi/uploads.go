@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
@@ -97,17 +98,28 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 // DeleteUploadHandler deletes an upload
 type DeleteUploadHandler struct {
 	handlers.HandlerConfig
+	services.UploadInformationFetcher
 }
 
 // Handle deletes an upload
 func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
 			uploadID, _ := uuid.FromString(params.UploadID.String())
 			userUpload, err := models.FetchUserUploadFromUploadID(appCtx.DB(), appCtx.Session(), uploadID)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			//Fetch upload information so we can retrieve the move status
+			uploadInformation, err := h.FetchUploadInformation(appCtx, uploadID)
+			if err != nil {
+				appCtx.Logger().Error("error retrieving move associated with this upload", zap.Error(err))
+			}
+
+			//If move status is not DRAFT, upload cannot be deleted
+			if *uploadInformation.MoveStatus != models.MoveStatusDRAFT {
+				return uploadop.NewDeleteUploadForbidden(), fmt.Errorf("deletion not permitted Move is not in 'DRAFT' status")
 			}
 
 			userUploader, err := uploaderpkg.NewUserUploader(

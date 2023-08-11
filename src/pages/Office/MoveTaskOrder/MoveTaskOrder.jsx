@@ -874,7 +874,7 @@ export const MoveTaskOrder = (props) => {
    * @returns {AddressShape}
    */
   const getSitAddressInitialValues = () => {
-    const address = selectedServiceItem.sitDestinationFinalAddress || selectedServiceItem.destinationAddress;
+    const address = selectedServiceItem.sitDestinationOriginalAddress || selectedServiceItem.destinationAddress;
     const blankAddress = {
       city: '',
       state: '',

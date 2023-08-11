@@ -4,6 +4,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
@@ -21,7 +22,12 @@ func (suite *SitExtensionServiceSuite) TestApproveSITExtension() {
 		officeRemarks := "office remarks"
 		eTag := ""
 
-		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), nonexistentUUID, nonexistentUUID, approvedDays, requestReason, &officeRemarks, eTag)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+
+		_, err := sitExtensionApprover.ApproveSITExtension(session, nonexistentUUID, nonexistentUUID, approvedDays, requestReason, &officeRemarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -34,8 +40,11 @@ func (suite *SitExtensionServiceSuite) TestApproveSITExtension() {
 		requestReason := models.SITExtensionRequestReasonAwaitingCompletionOfResidence
 		officeRemarks := "office remarks"
 		eTag := ""
-
-		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), mtoShipment.ID, nonexistentUUID, approvedDays, requestReason, &officeRemarks, eTag)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+		_, err := sitExtensionApprover.ApproveSITExtension(session, mtoShipment.ID, nonexistentUUID, approvedDays, requestReason, &officeRemarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -48,8 +57,11 @@ func (suite *SitExtensionServiceSuite) TestApproveSITExtension() {
 		requestReason := models.SITExtensionRequestReasonAwaitingCompletionOfResidence
 		officeRemarks := "office remarks"
 		eTag := ""
-
-		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtension.ID, approvedDays, requestReason, &officeRemarks, eTag)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+		_, err := sitExtensionApprover.ApproveSITExtension(session, mtoShipment.ID, sitExtension.ID, approvedDays, requestReason, &officeRemarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
@@ -69,8 +81,11 @@ func (suite *SitExtensionServiceSuite) TestApproveSITExtension() {
 		requestReason := models.SITExtensionRequestReasonAwaitingCompletionOfResidence
 		officeRemarks := "office remarks"
 		eTag := ""
-
-		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), otherMtoShipment.ID, sitExtension.ID, approvedDays, requestReason, &officeRemarks, eTag)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+		_, err := sitExtensionApprover.ApproveSITExtension(session, otherMtoShipment.ID, sitExtension.ID, approvedDays, requestReason, &officeRemarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -95,8 +110,11 @@ func (suite *SitExtensionServiceSuite) TestApproveSITExtension() {
 		requestReason := models.SITExtensionRequestReasonAwaitingCompletionOfResidence
 		officeRemarks := "office remarks"
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
-
-		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtension.ID, approvedDays, requestReason, &officeRemarks, eTag)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+		_, err := sitExtensionApprover.ApproveSITExtension(session, mtoShipment.ID, sitExtension.ID, approvedDays, requestReason, &officeRemarks, eTag)
 
 		suite.NotNil(err)
 		suite.IsType(apperror.InvalidInputError{}, err)
@@ -128,8 +146,11 @@ func (suite *SitExtensionServiceSuite) TestApproveSITExtension() {
 		requestReason := models.SITExtensionRequestReasonAwaitingCompletionOfResidence
 		officeRemarks := "office remarks"
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
-
-		updatedShipment, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtension.ID, approvedDays, requestReason, &officeRemarks, eTag)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+		updatedShipment, err := sitExtensionApprover.ApproveSITExtension(session, mtoShipment.ID, sitExtension.ID, approvedDays, requestReason, &officeRemarks, eTag)
 		suite.NoError(err)
 
 		var shipmentInDB models.MTOShipment
@@ -178,8 +199,11 @@ func (suite *SitExtensionServiceSuite) TestApproveSITExtension() {
 		requestReason := models.SITExtensionRequestReasonAwaitingCompletionOfResidence
 		officeRemarks := "office remarks"
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
-
-		_, err := sitExtensionApprover.ApproveSITExtension(suite.AppContextForTest(), mtoShipment.ID, sitExtensionToBeApproved.ID, approvedDays, requestReason, &officeRemarks, eTag)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+		_, err := sitExtensionApprover.ApproveSITExtension(session, mtoShipment.ID, sitExtensionToBeApproved.ID, approvedDays, requestReason, &officeRemarks, eTag)
 		suite.NoError(err)
 
 		var shipmentInDB models.MTOShipment

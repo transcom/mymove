@@ -2,48 +2,30 @@ package telemetry
 
 import (
 	"context"
-	"encoding/json"
-	"io"
-	"os"
 	"strings"
 
 	"go.opentelemetry.io/otel"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
-	"go.opentelemetry.io/otel/sdk/metric/metricdata"
+
+	"github.com/transcom/mymove/pkg/telemetry/metrictest"
 )
 
 func (suite *TelemetrySuite) TestMilmoveDataObserver() {
-	// use stdout metric to see what is reported
+	// use memory metric to see what is reported
 
 	config := &Config{
 		Enabled:          true,
-		Endpoint:         "stdout",
+		Endpoint:         "memory",
 		SamplingFraction: 1,
 		CollectSeconds:   0,
 		EnvironmentName:  "test",
 	}
-	origStdout := os.Stdout
-	defer func() {
-		os.Stdout = origStdout
-	}()
 
-	// use a tempfile because the data is larger than os.Pipe can handle
-	fakeStdout, err := os.CreateTemp("", "milmove_data_test")
-	suite.NoError(err)
-	os.Stdout = fakeStdout
-
-	defer func() {
-		suite.NoError(os.Remove(fakeStdout.Name()))
-	}()
-
-	r, err := os.Open(fakeStdout.Name())
-	suite.NoError(err)
-
-	shutdownFn := Init(suite.Logger(), config)
+	shutdownFn, _, metricExporter := Init(suite.Logger(), config)
 	defer shutdownFn()
 
-	err = RegisterMilmoveDataObserver(suite.AppContextForTest(), config)
-	suite.Assert().NoError(err)
+	err := RegisterMilmoveDataObserver(suite.AppContextForTest(), config)
+	suite.FatalNoError(err)
 	mp := otel.GetMeterProvider()
 	ctx := context.Background()
 	mmp, ok := mp.(*sdkmetric.MeterProvider)
@@ -51,17 +33,16 @@ func (suite *TelemetrySuite) TestMilmoveDataObserver() {
 		suite.FailNow("Cannot convert global metric provider to sdkmetric.MeterProvider")
 	}
 	// flush to export data
-	suite.NoError(mmp.Shutdown(ctx))
+	suite.NoError(mmp.ForceFlush(ctx))
 
-	suite.NoError(fakeStdout.Close())
-	bytes, err := io.ReadAll(r)
-	suite.NoError(err)
-	suite.NoError(r.Close())
-	var metricData metricdata.ResourceMetrics
-	err = json.Unmarshal(bytes, &metricData)
-	// this will always fail because of how otel defines private
-	// interfaces for aggregations
-	suite.NotNil(err)
+	mme, ok := metricExporter.(*metrictest.InMemoryExporter)
+	suite.FatalTrue(ok)
+	metrics := mme.GetMetrics()
+
+	// one metric export
+	suite.Equal(1, len(metrics))
+	metricData := metrics[0]
+
 	suite.Equal(1, len(metricData.ScopeMetrics))
 	allMetrics := metricData.ScopeMetrics[0].Metrics
 	suite.Greater(len(allMetrics), 100)

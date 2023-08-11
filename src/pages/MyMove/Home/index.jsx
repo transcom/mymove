@@ -465,7 +465,10 @@ export class Home extends Component {
                       <p>If you receive amended orders:</p>
                       <ul>
                         <li>Upload the new documents here</li>
-                        <li>Talk directly with your movers about changes</li>
+                        <li>
+                          Talk directly to your local transportation office and Customer Care Representative about
+                          changes
+                        </li>
                         <li>The transportation office will update your move info to reflect the new orders</li>
                       </ul>
                     </Step>
@@ -492,16 +495,16 @@ export class Home extends Component {
                         />
                         {this.hasSubmittedMove && (
                           <p className={styles.descriptionExtra}>
-                            If you need to change, add, or get rid of shipments, talk to your move counselor or to your
-                            movers.
+                            If you need to change, add, or cancel shipments, talk to your move counselor or Customer
+                            Care Representative
                           </p>
                         )}
                       </div>
                     ) : (
                       <Description>
-                        We&apos;ll collect addresses, dates, and how you want to move your things.
-                        <br />
-                        Note: You can change these details later by talking to a move counselor or your movers.
+                        We will collect addresses, dates, and how you want to move your personal property.
+                        <br /> Note: You can change these details later by talking to a move counselor or customer care
+                        representative.
                       </Description>
                     )}
                   </Step>

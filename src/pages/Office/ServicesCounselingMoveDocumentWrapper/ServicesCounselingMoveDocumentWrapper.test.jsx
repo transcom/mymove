@@ -6,6 +6,7 @@ import { useLocation } from 'react-router-dom';
 import ServicesCounselingMoveDocumentWrapper from './ServicesCounselingMoveDocumentWrapper';
 
 import { useOrdersDocumentQueries } from 'hooks/queries';
+import createUpload from 'utils/test/factories/upload';
 
 const mockOriginDutyLocation = {
   address: {
@@ -46,6 +47,12 @@ jest.mock('hooks/queries', () => ({
 }));
 
 const testMoveId = '10000';
+
+const amendedUploadDate = new Date();
+const amendedUpload = createUpload(
+  { fileName: 'amended_test.pdf', createdAtDate: amendedUploadDate },
+  { url: '/storage/user/1/uploads/2?contentType=application%2Fpdf', id: 'z', status: null, bytes: null },
+);
 
 const useOrdersDocumentQueriesReturnValue = {
   orders: {
@@ -91,6 +98,9 @@ const useOrdersDocumentQueriesReturnValue = {
       contentType: 'application/pdf',
       url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
     },
+  },
+  amendedUpload: {
+    amendedUpload,
   },
 };
 
@@ -158,6 +168,34 @@ describe('ServicesCounselingMoveDocumentWrapper', () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
       const wrapper = shallow(<ServicesCounselingMoveDocumentWrapper />);
       expect(wrapper.find('ServicesCounselingMoveAllowances').exists()).toBe(true);
+    });
+
+    it('displays amended orders with original orders', () => {
+      useLocation.mockReturnValue({ pathname: `/moves/${testMoveId}/orders` });
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      const wrapper = shallow(<ServicesCounselingMoveDocumentWrapper />);
+      expect(wrapper.find('DocumentViewer').props('files')).toEqual({
+        allowDownload: false,
+        files: [
+          {
+            contentType: 'application/pdf',
+            filename: 'test.pdf',
+            id: 'z',
+            url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+          },
+          {
+            contentType: 'application/pdf',
+            filename: 'amended_test.pdf',
+            id: 'z',
+            url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+            status: null,
+            updatedAt: amendedUploadDate.toISOString(),
+            createdAt: amendedUploadDate.toISOString(),
+            bytes: null,
+          },
+        ],
+      });
     });
   });
 });

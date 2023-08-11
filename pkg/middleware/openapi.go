@@ -4,12 +4,9 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
-	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
-	sdktrace "go.opentelemetry.io/otel/trace"
 
 	"github.com/transcom/mymove/pkg/audit"
-	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/telemetry"
 )
 
 // OpenAPIWithContext descripes an API that implements go-openapi Context method
@@ -24,13 +21,10 @@ func OpenAPITracing(api OpenAPIWithContext) func(next http.Handler) http.Handler
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			matchedRoute, _, found := api.Context().RouteInfo(r)
 			if found {
-				logger := logging.FromContext(r.Context())
-				labeler, ok := otelhttp.LabelerFromContext(r.Context())
-				if !ok {
-					logger.Warn("Cannot get labeler from context")
-				} else {
-					labeler.Add(semconv.HTTPTargetKey.String(matchedRoute.PathPattern))
-					sdktrace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRouteKey.String(matchedRoute.PathPattern))
+				// See telemetry.NewOtelHTTPMiddleware for more explanation
+				routePattern := telemetry.RoutePatternFromContext(r.Context())
+				if routePattern != nil {
+					*routePattern = matchedRoute.PathPattern
 				}
 
 				// save the swagger operationId
