@@ -121,24 +121,23 @@ func getClientCert(request *http.Request) *x509.Certificate {
 	return clientCert
 }
 
-func fetchCRL(url string) (*x509.RevocationList, error) {
-	url = "https://crl.gds.disa.mil/" // temporarily set URL
-	httpResponse, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer httpResponse.Body.Close()
-
-	if httpResponse.StatusCode >= 300 {
-		return nil, errors.New("failed to retrieve CRL")
-	}
-
-	body, err := io.ReadAll(httpResponse.Body)
-	if err != nil {
-		return nil, err
-	}
-	return x509.ParseRevocationList(body)
-}
+//func fetchCRL(url string) (*x509.RevocationList, error) {
+//	httpResponse, err := http.Get(url)
+//	if err != nil {
+//		return nil, err
+//	}
+//	defer httpResponse.Body.Close()
+//
+//	if httpResponse.StatusCode >= 300 {
+//		return nil, errors.New("failed to retrieve CRL")
+//	}
+//
+//	body, err := io.ReadAll(httpResponse.Body)
+//	if err != nil {
+//		return nil, err
+//	}
+//	return x509.ParseRevocationList(body)
+//}
 
 // Request CRL response from server.
 // Returns error if the server can't get the certificate
