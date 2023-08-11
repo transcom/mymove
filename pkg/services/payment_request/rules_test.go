@@ -493,7 +493,7 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 			move := factory.BuildMove(suite.DB(), []factory.Customization{}, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
 			reServiceCode := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 
-			serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			serviceItem := factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
 				{
 					Model:    move,
 					LinkOnly: true,
@@ -508,6 +508,7 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 					},
 				},
 			}, nil)
+
 			paymentRequest1 := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 				{
 					Model:    move,

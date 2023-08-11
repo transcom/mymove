@@ -95,10 +95,14 @@ func checkStatusOfExistingPaymentRequest() paymentRequestValidator {
 					continue
 				}
 				for _, existingPaymentServiceItem := range pr.PaymentServiceItems {
+					if (existingPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeCS) || (existingPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeMS) {
+						continue
+					}
 
 					if existingPaymentServiceItem.MTOServiceItem.MTOShipmentID.String() != shipmentID.String() {
 						continue
 					}
+					// if existingPaymentServiceItem.MTOServiceItem.MTOShipmentID.String() == shipmentID.String() {
 					for _, newPaymentServiceItem := range newPaymentServiceItems {
 						if newPaymentServiceItem.MTOServiceItemID != existingPaymentServiceItem.MTOServiceItemID {
 							continue
@@ -113,6 +117,7 @@ func checkStatusOfExistingPaymentRequest() paymentRequestValidator {
 				}
 			}
 		}
+		// }
 		return nil
 	})
 }
