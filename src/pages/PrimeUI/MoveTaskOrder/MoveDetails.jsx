@@ -153,7 +153,12 @@ const MoveDetails = ({ setFlashMessage }) => {
                     return (
                       <div key={mtoShipment.id}>
                         <Shipment shipment={mtoShipment} moveId={moveTaskOrder.id} onDelete={handleDeleteShipment} />
-                        {moveTaskOrder.mtoServiceItems?.length > 0 && <h2>Service Items</h2>}
+                        <div className={styles.serviceItemHeader}>
+                          {moveTaskOrder.mtoServiceItems?.length > 0 && <h2>Service Items</h2>}
+                          <Link to="../mto-service-items" relative="path" className="usa-button usa-button-secondary">
+                            Update Service Items
+                          </Link>
+                        </div>
                         {moveTaskOrder.mtoServiceItems?.map((serviceItem) => {
                           if (serviceItem.mtoShipmentID === mtoShipment.id) {
                             return (
