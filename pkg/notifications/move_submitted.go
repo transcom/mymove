@@ -52,6 +52,12 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		return emails, err
 	}
 
+	originDutyLocation := orders.OriginDutyLocation
+	providesGovernmentCounseling := false
+	if originDutyLocation != nil {
+		providesGovernmentCounseling = originDutyLocation.ProvidesServicesCounseling
+	}
+
 	serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), orders.ServiceMemberID)
 	if err != nil {
 		return emails, err
@@ -62,9 +68,9 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		return emails, err
 	}
 
-	var originDutyLocation, originDutyLocationPhoneLine *string
+	var originDutyLocationName, originDutyLocationPhoneLine *string
 	if originDSTransportInfo != nil {
-		originDutyLocation = &originDSTransportInfo.Name
+		originDutyLocationName = &originDSTransportInfo.Name
 		originDutyLocationPhoneLine = &originDSTransportInfo.PhoneLine
 
 	}
@@ -79,13 +85,12 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 	}
 
 	htmlBody, textBody, err := m.renderTemplates(appCtx, moveSubmittedEmailData{
-		Link:                        "https://my.move.mil/",
-		PpmLink:                     "https://office.move.mil/downloads/ppm_info_sheet.pdf",
-		OriginDutyLocation:          originDutyLocation,
-		DestinationDutyLocation:     orders.NewDutyLocation.Name,
-		OriginDutyLocationPhoneLine: originDutyLocationPhoneLine,
-		Locator:                     move.Locator,
-		WeightAllowance:             humanize.Comma(int64(totalEntitlement)),
+		OriginDutyLocation:           originDutyLocationName,
+		DestinationDutyLocation:      orders.NewDutyLocation.Name,
+		OriginDutyLocationPhoneLine:  originDutyLocationPhoneLine,
+		Locator:                      move.Locator,
+		WeightAllowance:              humanize.Comma(int64(totalEntitlement)),
+		ProvidesGovernmentCounseling: providesGovernmentCounseling,
 	})
 
 	if err != nil {
@@ -119,13 +124,12 @@ func (m MoveSubmitted) renderTemplates(appCtx appcontext.AppContext, data moveSu
 }
 
 type moveSubmittedEmailData struct {
-	Link                        string
-	PpmLink                     string
-	OriginDutyLocation          *string
-	DestinationDutyLocation     string
-	OriginDutyLocationPhoneLine *string
-	Locator                     string
-	WeightAllowance             string
+	OriginDutyLocation           *string
+	DestinationDutyLocation      string
+	OriginDutyLocationPhoneLine  *string
+	Locator                      string
+	WeightAllowance              string
+	ProvidesGovernmentCounseling bool
 }
 
 // RenderHTML renders the html for the email
