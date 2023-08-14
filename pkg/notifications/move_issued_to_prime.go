@@ -6,7 +6,6 @@ import (
 	html "html/template"
 	text "text/template"
 
-	"github.com/dustin/go-humanize"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -16,30 +15,30 @@ import (
 )
 
 var (
-	moveSubmittedRawTextTemplate = string(assets.MustAsset("notifications/templates/move_submitted_template.txt"))
-	moveSubmittedTextTemplate    = text.Must(text.New("text_template").Parse(moveSubmittedRawTextTemplate))
-	moveSubmittedRawHTMLTemplate = string(assets.MustAsset("notifications/templates/move_submitted_template.html"))
-	moveSubmittedHTMLTemplate    = html.Must(html.New("text_template").Parse(moveSubmittedRawHTMLTemplate))
+	moveIssuedToPrimeRawTextTemplate = string(assets.MustAsset("notifications/templates/move_issued_to_prime_template.txt"))
+	moveIssuedToPrimeTextTemplate    = text.Must(text.New("text_template").Parse(moveIssuedToPrimeRawTextTemplate))
+	moveIssuedToPrimeRawHTMLTemplate = string(assets.MustAsset("notifications/templates/move_issued_to_prime_template.html"))
+	moveIssuedToPrimeHTMLTemplate    = html.Must(html.New("text_template").Parse(moveIssuedToPrimeRawHTMLTemplate))
 )
 
-// MoveSubmitted has notification content for submitted moves
-type MoveSubmitted struct {
+// MoveIssuedToPrime has notification content for submitted moves
+type MoveIssuedToPrime struct {
 	moveID       uuid.UUID
 	htmlTemplate *html.Template
 	textTemplate *text.Template
 }
 
-// NewMoveSubmitted returns a new move submitted notification
-func NewMoveSubmitted(moveID uuid.UUID) *MoveSubmitted {
+// NewMoveIssuedToPrime returns a new move submitted notification
+func NewMoveIssuedToPrime(moveID uuid.UUID) *MoveIssuedToPrime {
 
-	return &MoveSubmitted{
+	return &MoveIssuedToPrime{
 		moveID:       moveID,
-		htmlTemplate: moveSubmittedHTMLTemplate,
-		textTemplate: moveSubmittedTextTemplate,
+		htmlTemplate: moveIssuedToPrimeHTMLTemplate,
+		textTemplate: moveIssuedToPrimeTextTemplate,
 	}
 }
 
-func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, error) {
+func (m MoveIssuedToPrime) emails(appCtx appcontext.AppContext) ([]emailContent, error) {
 	var emails []emailContent
 
 	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), m.moveID)
@@ -52,12 +51,6 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		return emails, err
 	}
 
-	originDutyLocation := orders.OriginDutyLocation
-	providesGovernmentCounseling := false
-	if originDutyLocation != nil {
-		providesGovernmentCounseling = originDutyLocation.ProvidesServicesCounseling
-	}
-
 	serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), orders.ServiceMemberID)
 	if err != nil {
 		return emails, err
@@ -68,29 +61,26 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		return emails, err
 	}
 
-	var originDutyLocationName, originDutyLocationPhoneLine *string
+	var originDutyLocation *string
 	if originDSTransportInfo != nil {
-		originDutyLocationName = &originDSTransportInfo.Name
-		originDutyLocationPhoneLine = &originDSTransportInfo.PhoneLine
-
+		originDutyLocation = &originDSTransportInfo.Name
 	}
 
-	totalEntitlement, err := models.GetEntitlement(*serviceMember.Rank, orders.HasDependents)
-	if err != nil {
-		return emails, err
+	var providesGovernmentCounseling bool
+	if orders.OriginDutyLocation != nil {
+		providesGovernmentCounseling = orders.OriginDutyLocation.ProvidesServicesCounseling
 	}
 
 	if serviceMember.PersonalEmail == nil {
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
-	htmlBody, textBody, err := m.renderTemplates(appCtx, moveSubmittedEmailData{
-		OriginDutyLocation:           originDutyLocationName,
+	htmlBody, textBody, err := m.renderTemplates(appCtx, moveIssuedToPrimeEmailData{
+		MilitaryOneSourceLink:        "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL",
+		OriginDutyLocation:           originDutyLocation,
 		DestinationDutyLocation:      orders.NewDutyLocation.Name,
-		OriginDutyLocationPhoneLine:  originDutyLocationPhoneLine,
-		Locator:                      move.Locator,
-		WeightAllowance:              humanize.Comma(int64(totalEntitlement)),
 		ProvidesGovernmentCounseling: providesGovernmentCounseling,
+		Locator:                      move.Locator,
 	})
 
 	if err != nil {
@@ -99,19 +89,19 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
-		subject:        "Thank you for submitting your move details",
+		subject:        "Your personal property move has been ordered.",
 		htmlBody:       htmlBody,
 		textBody:       textBody,
 	}
 
-	appCtx.Logger().Info("Generated move submitted email",
+	appCtx.Logger().Info("Generated move issued to prime email",
 		zap.String("moveLocator", move.Locator))
 
 	// TODO: Send email to trusted contacts when that's supported
 	return append(emails, smEmail), nil
 }
 
-func (m MoveSubmitted) renderTemplates(appCtx appcontext.AppContext, data moveSubmittedEmailData) (string, string, error) {
+func (m MoveIssuedToPrime) renderTemplates(appCtx appcontext.AppContext, data moveIssuedToPrimeEmailData) (string, string, error) {
 	htmlBody, err := m.RenderHTML(appCtx, data)
 	if err != nil {
 		return "", "", fmt.Errorf("error rendering html template using %#v", data)
@@ -123,17 +113,16 @@ func (m MoveSubmitted) renderTemplates(appCtx appcontext.AppContext, data moveSu
 	return htmlBody, textBody, nil
 }
 
-type moveSubmittedEmailData struct {
+type moveIssuedToPrimeEmailData struct {
+	MilitaryOneSourceLink        string
 	OriginDutyLocation           *string
 	DestinationDutyLocation      string
-	OriginDutyLocationPhoneLine  *string
-	Locator                      string
-	WeightAllowance              string
 	ProvidesGovernmentCounseling bool
+	Locator                      string
 }
 
 // RenderHTML renders the html for the email
-func (m MoveSubmitted) RenderHTML(appCtx appcontext.AppContext, data moveSubmittedEmailData) (string, error) {
+func (m MoveIssuedToPrime) RenderHTML(appCtx appcontext.AppContext, data moveIssuedToPrimeEmailData) (string, error) {
 	var htmlBuffer bytes.Buffer
 	if err := m.htmlTemplate.Execute(&htmlBuffer, data); err != nil {
 		appCtx.Logger().Error("cant render html template ", zap.Error(err))
@@ -142,7 +131,7 @@ func (m MoveSubmitted) RenderHTML(appCtx appcontext.AppContext, data moveSubmitt
 }
 
 // RenderText renders the text for the email
-func (m MoveSubmitted) RenderText(appCtx appcontext.AppContext, data moveSubmittedEmailData) (string, error) {
+func (m MoveIssuedToPrime) RenderText(appCtx appcontext.AppContext, data moveIssuedToPrimeEmailData) (string, error) {
 	var textBuffer bytes.Buffer
 	if err := m.textTemplate.Execute(&textBuffer, data); err != nil {
 		appCtx.Logger().Error("cant render text template ", zap.Error(err))

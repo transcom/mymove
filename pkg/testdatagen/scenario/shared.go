@@ -5272,7 +5272,7 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 	}, nil)
 
 	// setup service item
-	testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
+	serviceItem := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID:     uuid.Must(uuid.NewV4()),
 			Status: models.MTOServiceItemStatusApproved,
@@ -5301,6 +5301,23 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 	paymentRequest := &models.PaymentRequest{
 		IsFinal:         false,
 		MoveTaskOrderID: mto.ID,
+		PaymentServiceItems: []models.PaymentServiceItem{
+			{
+				MTOServiceItemID: serviceItem.ID,
+				MTOServiceItem:   serviceItem,
+				PaymentServiceItemParams: models.PaymentServiceItemParams{
+					{
+						IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+						Value:       "3254",
+					},
+					{
+						IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
+						Value:       "2022-03-16",
+					},
+				},
+				Status: models.PaymentServiceItemStatusRequested,
+			},
+		},
 	}
 
 	paymentRequest, err := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, paymentRequest)
@@ -9648,7 +9665,7 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 		{
 			Model: models.Move{
 				ID:     uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae7"),
-				Status: models.MoveStatusSUBMITTED,
+				Status: models.MoveStatusAPPROVED,
 			},
 		},
 	}, nil)
@@ -9660,7 +9677,7 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 				PrimeActualWeight:    &actualWeight,
 				ShipmentType:         models.MTOShipmentTypeHHG,
 				ApprovedDate:         models.TimePointer(time.Now()),
-				Status:               models.MTOShipmentStatusSubmitted,
+				Status:               models.MTOShipmentStatusApproved,
 			},
 		},
 		{
