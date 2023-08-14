@@ -14,7 +14,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
 	"github.com/markbates/goth"
-	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -139,12 +138,10 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	sessionManagers := handlerConfig.SessionManagers()
 	officeSession := sessionManagers.Office
 	authContext := suite.AuthContext()
-	fakeProvider := openidConnect.Provider{
-		ClientKey: "some_token",
-	}
-	fakeProvider.SetName("officeProvider")
-	goth.UseProviders(&fakeProvider)
 
+	oktaProvider := okta.NewOktaProvider(suite.Logger())
+	err := oktaProvider.RegisterOktaProvider("officeProvider", "OrgURL", "CallbackURL", fakeToken, "secret", []string{"openid", "profile", "email"})
+	suite.NoError(err)
 	handler := officeSession.LoadAndSave(NewLogoutHandler(authContext, handlerConfig))
 
 	rr := httptest.NewRecorder()

@@ -284,6 +284,10 @@ func (op *Provider) GetIssuerURL() string {
 	return op.orgURL + "/oauth2/default"
 }
 
+func (op *Provider) GetLogoutURL() string {
+	return op.orgURL + "/oauth2/v1/logout"
+}
+
 // TokenURL returns a full URL to retrieve a user token from okta.mil
 func (op Provider) TokenURL(r *http.Request) string {
 	session := auth.SessionFromRequestContext(r)
@@ -297,11 +301,14 @@ func (op Provider) TokenURL(r *http.Request) string {
 // LogoutURL returns a full URL to log out of login.gov with required params
 // !Ensure proper testing after sessions have been handled
 // TODO: Ensure works as intended
-func (op Provider) LogoutURL(hostname string, redirectURL string, clientID string) (string, error) {
-	logoutPath, _ := url.Parse(hostname + "/oauth2/v1/logout")
+func (op Provider) LogoutURL(provider Provider, redirectURL string) (string, error) {
+	logoutPath, err := url.Parse(provider.GetLogoutURL())
+	if err != nil {
+		return "", err
+	}
 	// Parameters taken from https://developers.login.gov/oidc/#logout
 	params := url.Values{
-		"client_id":                {clientID},
+		"client_id":                {provider.clientID},
 		"post_logout_redirect_uri": {redirectURL},
 		"state":                    {generateNonce()},
 	}

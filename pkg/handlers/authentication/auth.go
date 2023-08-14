@@ -512,8 +512,17 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			if appCtx.Session().IDToken == "devlocal" {
 				logoutURL = redirectURL
 			} else {
-				//TODO: Error handling
-				logoutURL, _ = h.oktaProvider.LogoutURL(appCtx.Session().Hostname, redirectURL, appCtx.Session().ClientID)
+				provider, err := okta.GetOktaProviderForRequest(r)
+				if err != nil {
+					appCtx.Logger().Error("get provider", zap.Error(err))
+					http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+					return
+				}
+
+				logoutURL, err = h.oktaProvider.LogoutURL(*provider, redirectURL)
+				if err != nil {
+					appCtx.Logger().Error("failed to retrieve logout url from provider")
+				}
 			}
 			if !appCtx.Session().UserID.IsNil() {
 				err := resetUserCurrentSessionID(appCtx)
@@ -793,7 +802,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Verify access token
-	_, verificationError := verifyToken(exchange.IDToken, returnedState, appCtx.Session(), *provider)
+	_, verificationError := verifyToken(exchange.IDToken, returnedState, *provider)
 
 	if verificationError != nil {
 		appCtx.Logger().Error("token exchange verification", zap.Error(err))

@@ -12,7 +12,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
 )
 
@@ -46,8 +45,7 @@ func getProfileData(appCtx appcontext.AppContext, provider okta.Provider) (map[s
 	return m, nil
 }
 
-// ! Refactor after chamber is modified
-func verifyToken(t string, nonce string, session *auth.Session, provider okta.Provider) (*verifier.Jwt, error) {
+func verifyToken(t string, nonce string, provider okta.Provider) (*verifier.Jwt, error) {
 	tv := map[string]string{}
 	tv["nonce"] = nonce
 	tv["aud"] = provider.GetClientID()
