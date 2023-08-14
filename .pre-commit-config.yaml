@@ -46,6 +46,7 @@ repos:
             config/tls/devlocal-https.key$|
             config/tls/devlocal-mtls.key$|
             config/tls/devlocal-mtls-expired.key$|
+            config/tls/primelocal-https.key$|
             pkg/server/testdata/localhost.key$|
             pkg/server/testdata/localhost-invalid.key$|
             pkg/server/testdata/officelocal.key$|

@@ -69,8 +69,20 @@ fi
 
 set -u
 
-openssl req -nodes -new -keyout "$OUTDIR/$PREFIX.key" -out "$OUTDIR/$PREFIX.csr" -subj "/C=$C/ST=$ST/L=$L/O=$O/OU=$OU/CN=$CN"
-openssl x509 -req -in "$OUTDIR/$PREFIX.csr" -CA "$DEVLOCAL_CA_PEM" -CAkey "$DEVLOCAL_CA_KEY" -CAcreateserial -out "$OUTDIR/$PREFIX.cer" -days 3652 -sha256
+openssl req -nodes -new \
+        -keyout "$OUTDIR/$PREFIX.key" \
+        -out "$OUTDIR/$PREFIX.csr" \
+        -subj "/C=$C/ST=$ST/L=$L/O=$O/OU=$OU/CN=$CN"
+openssl x509 -req \
+        -in "$OUTDIR/$PREFIX.csr" \
+        -CA "$DEVLOCAL_CA_PEM" \
+        -CAkey "$DEVLOCAL_CA_KEY" \
+        -CAcreateserial \
+        -extensions SAN \
+        -extfile <(printf "\n[SAN]\nsubjectAltName=DNS.1:%s" "${CN}") \
+        -out "$OUTDIR/$PREFIX.cer" \
+        -days 3652 \
+        -sha256
 rm "$OUTDIR/$PREFIX.csr"
 echo -n "SHA256 digest: "
 openssl x509 -outform der -in "$OUTDIR/$PREFIX.cer" | openssl dgst -sha256
