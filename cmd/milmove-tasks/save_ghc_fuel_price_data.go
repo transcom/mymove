@@ -5,11 +5,6 @@ import (
 	"log"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
-	awssession "github.com/aws/aws-sdk-go/aws/session"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -86,33 +81,8 @@ func saveGHCFuelPriceData(cmd *cobra.Command, args []string) error {
 		logger.Fatal("invalid configuration", zap.Error(err))
 	}
 
-	var session *awssession.Session
-	if v.GetBool(cli.DbIamFlag) {
-		c := &aws.Config{
-			Region: aws.String(v.GetString(cli.AWSRegionFlag)),
-		}
-		s, errorSession := awssession.NewSession(c)
-		if errorSession != nil {
-			logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
-		}
-		session = s
-	}
-
-	var dbCreds *credentials.Credentials
-	if v.GetBool(cli.DbIamFlag) {
-		if session != nil {
-			// We want to get the credentials from the logged in AWS session rather than create directly,
-			// because the session conflates the environment, shared, and container metadata config
-			// within NewSession.  With stscreds, we use the Secure Token Service,
-			// to assume the given role (that has rds db connect permissions).
-			dbIamRole := v.GetString(cli.DbIamRoleFlag)
-			logger.Info(fmt.Sprintf("assuming AWS role %q for db connection", dbIamRole))
-			dbCreds = stscreds.NewCredentials(session, dbIamRole)
-		}
-	}
-
 	// Create a connection to the DB
-	dbConnection, err := cli.InitDatabase(v, dbCreds, logger)
+	dbConnection, err := cli.InitDatabase(v, logger)
 	if err != nil {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
