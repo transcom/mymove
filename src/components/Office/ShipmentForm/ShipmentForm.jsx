@@ -115,7 +115,7 @@ const ShipmentForm = (props) => {
   });
 
   const { mutate: mutateShipmentAddressUpdateReview } = useMutation(reviewShipmentAddressUpdate, {
-    onSuccess: () => {
+    onSuccess: (_, { successCallback }) => {
       setSuccessMessage('Changes sent to contractor.');
       setShipmentAddressUpdateReviewErrorMessage(null);
       setIsAddressChangeModalOpen(false);
@@ -123,6 +123,7 @@ const ShipmentForm = (props) => {
       queryClient
         .invalidateQueries([MTO_SHIPMENTS, moveTaskOrderID])
         .then(() => queryClient.refetchQueries([MTO_SHIPMENTS, moveTaskOrderID]));
+      successCallback();
     },
     onError: () => {
       setSuccessMessage(null);
@@ -147,7 +148,13 @@ const ShipmentForm = (props) => {
     });
   };
 
-  const handleSubmitShipmentAddressUpdateReview = async (shipmentID, shipmentETag, status, officeRemarks) => {
+  const handleSubmitShipmentAddressUpdateReview = async (
+    shipmentID,
+    shipmentETag,
+    status,
+    officeRemarks,
+    successCallback,
+  ) => {
     mutateShipmentAddressUpdateReview({
       shipmentID,
       ifMatchETag: shipmentETag,
@@ -155,6 +162,7 @@ const ShipmentForm = (props) => {
         status,
         officeRemarks,
       },
+      successCallback,
     });
   };
 
@@ -498,16 +506,24 @@ const ShipmentForm = (props) => {
               onClose={() => setIsAddressChangeModalOpen(false)}
               shipment={mtoShipment}
               onSubmit={async (shipmentID, shipmentETag, status, officeRemarks) => {
-                await handleSubmitShipmentAddressUpdateReview(shipmentID, shipmentETag, status, officeRemarks);
-                if (status === ADDRESS_UPDATE_STATUS.APPROVED) {
-                  setValues({
-                    ...values,
-                    delivery: {
-                      ...values.delivery,
-                      address: mtoShipment.deliveryAddressUpdate.newAddress,
-                    },
-                  });
-                }
+                const successCallback = () => {
+                  if (status === ADDRESS_UPDATE_STATUS.APPROVED) {
+                    setValues({
+                      ...values,
+                      delivery: {
+                        ...values.delivery,
+                        address: mtoShipment.deliveryAddressUpdate.newAddress,
+                      },
+                    });
+                  }
+                };
+                await handleSubmitShipmentAddressUpdateReview(
+                  shipmentID,
+                  shipmentETag,
+                  status,
+                  officeRemarks,
+                  successCallback,
+                );
               }}
               errorMessage={shipmentAddressUpdateReviewErrorMessage}
             />
