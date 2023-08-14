@@ -434,22 +434,22 @@ test.describe('TOO user', () => {
     tooFlowPage = new TooFlowPage(officePage, shipmentAddressUpdate.Shipment.MoveTaskOrder);
     await officePage.tooNavigateToMove(shipmentAddressUpdate.Shipment.MoveTaskOrder.locator);
 
-    await expect(page.getByText('Review required')).toBeEnabled();
+    await expect(page.getByText('Review required')).toBeVisible();
 
     // Edit the shipment
     await page.getByRole('button', { name: 'Edit shipment' }).click();
 
     await expect(
-      page.getByTestId('alert').getByText('Request needs review. See delivery location to proceed.'),
+      page.getByRole('alert').getByText('Request needs review. See delivery location to proceed.'),
     ).toBeVisible();
     await expect(
       page
-        .getByTestId('alert')
+        .getByRole('alert')
         .getByText('Pending delivery location change request needs review. Review request to proceed.'),
     ).toBeVisible();
 
     // click to trigger review modal
-    await page.getByText('Review request').click();
+    await page.getByRole('button', { name: 'Review request' }).click();
 
     // Enter information in modal and submit
     await page.getByTestId('modal').getByTestId('radio').getByText('Yes').click();
@@ -465,7 +465,10 @@ test.describe('TOO user', () => {
     await page.getByRole('button', { name: 'Save' }).click();
 
     await expect(page.getByText('Update request details')).not.toBeVisible();
-    await expect(page.getByText('7 Q st, Apt 1, Fort Gordon, GA 30813')).toBeVisible();
+    await expect(page.getByText('Review required')).not.toBeVisible();
+    await expect(page.getByTestId('destinationAddress')).toHaveText(
+      '123 Any Street, P.O. Box 12345 Beverly Hills, CA 90210',
+    );
 
     await page.getByText('KKFA moves').click();
 
