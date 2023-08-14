@@ -434,7 +434,7 @@ test.describe('TOO user', () => {
     tooFlowPage = new TooFlowPage(officePage, shipmentAddressUpdate.Shipment.MoveTaskOrder);
     await officePage.tooNavigateToMove(shipmentAddressUpdate.Shipment.MoveTaskOrder.locator);
 
-    await expect(page.getByText('Review required')).toBeEnabled();
+    await expect(page.getByText('Review required')).toBeVisible();
 
     // Edit the shipment
     await page.getByRole('button', { name: 'Edit shipment' }).click();
@@ -449,7 +449,7 @@ test.describe('TOO user', () => {
     ).toBeVisible();
 
     // click to trigger review modal
-    await page.getByText('Review request').click();
+    await page.getByRole('button', { name: 'Review request' }).click();
 
     // Enter information in modal and submit
     await page.getByTestId('modal').getByTestId('radio').getByText('Yes').click();
@@ -461,11 +461,21 @@ test.describe('TOO user', () => {
 
     await expect(page.getByText('Changes sent to contractor.')).toBeVisible();
 
+    const destinationAddress = page.getByRole('group', { name: 'Delivery location' });
+    await expect(destinationAddress.getByLabel('Address 1')).toHaveValue('123 Any Street');
+    await expect(destinationAddress.getByLabel('Address 2')).toHaveValue('P.O. Box 12345');
+    await expect(destinationAddress.getByLabel('City')).toHaveValue('Beverly Hills');
+    await expect(destinationAddress.getByLabel('State')).toHaveValue('CA');
+    await expect(destinationAddress.getByLabel('ZIP')).toHaveValue('90210');
+
     // Click save on the page
     await page.getByRole('button', { name: 'Save' }).click();
 
     await expect(page.getByText('Update request details')).not.toBeVisible();
-    await expect(page.getByText('7 Q st, Apt 1, Fort Gordon, GA 30813')).toBeVisible();
+    await expect(page.getByText('Review required')).not.toBeVisible();
+    await expect(page.getByTestId('destinationAddress')).toHaveText(
+      '123 Any Street, P.O. Box 12345, Beverly Hills, CA 90210',
+    );
 
     await page.getByText('KKFA moves').click();
 
