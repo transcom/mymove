@@ -461,6 +461,13 @@ test.describe('TOO user', () => {
 
     await expect(page.getByText('Changes sent to contractor.')).toBeVisible();
 
+    const destinationAddress = page.getByRole('group', { name: 'Delivery location' });
+    await expect(destinationAddress.getByLabel('Address 1')).toHaveValue('123 Any Street');
+    await expect(destinationAddress.getByLabel('Address 2')).toHaveValue('P.O. Box 12345');
+    await expect(destinationAddress.getByLabel('City')).toHaveValue('Beverly Hills');
+    await expect(destinationAddress.getByLabel('State')).toHaveValue('CA');
+    await expect(destinationAddress.getByLabel('ZIP')).toHaveValue('90210');
+
     // Click save on the page
     await page.getByRole('button', { name: 'Save' }).click();
 
