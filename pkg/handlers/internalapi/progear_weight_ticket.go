@@ -131,7 +131,7 @@ func (h UpdateProGearWeightTicketHandler) Handle(params progearops.UpdateProGear
 
 			}
 			returnPayload := payloads.ProGearWeightTicket(h.FileStorer(), updateProgear)
-			return progearops.NewUpdateProGearWeightTicketCreated().WithPayload(returnPayload), nil
+			return progearops.NewUpdateProGearWeightTicketOK().WithPayload(returnPayload), nil
 		})
 }
 

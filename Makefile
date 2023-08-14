@@ -1057,6 +1057,17 @@ pretty: gofmt ## Run code through JS and Golang formatters
 docker_circleci: ## Run CircleCI container locally with project mounted
 	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-726bfe44bd27d3b41da41acbe3eb231811a993f7 bash
 
+.PHONY: docker_local_ssh_server
+docker_local_ssh_server:
+	docker run --rm \
+  --name sshd \
+  -e USER_NAME=testu \
+  -e USER_PASSWORD=testp \
+  -e PASSWORD_ACCESS=true \
+  -p 2222:2222 \
+  -v some_local_upload_dir:/config/uploads \
+ linuxserver/openssh-server
+
 .PHONY: prune_images
 prune_images:  ## Prune docker images
 	@echo '****************'
