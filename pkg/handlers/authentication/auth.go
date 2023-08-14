@@ -850,8 +850,8 @@ func authorizeUser(ctx context.Context, appCtx appcontext.AppContext, oktaUser m
 	if err == nil {
 		// In this case, we found an existing user associated with the
 		// unique okta.mil UUID (aka OID_User, aka openIDUser.UserID,
-		// aka models.User.login_gov_uuid)
-		appCtx.Logger().Info("Known user: found by okta.mil OID_User, checking authorization", zap.String("OID_User", oktaUser.Sub), zap.String("OID_Email", oktaUser.Email), zap.String("user.id", userIdentity.ID.String()), zap.String("user.login_gov_email", userIdentity.Email))
+		// aka models.User.okta_id)
+		appCtx.Logger().Info("Known user: found by okta.mil OID_User, checking authorization", zap.String("OID_User", oktaUser.Sub), zap.String("OID_Email", oktaUser.Email), zap.String("user.id", userIdentity.ID.String()), zap.String("user.okta_email", userIdentity.Email))
 		result := AuthorizeKnownUser(ctx, appCtx, userIdentity, sessionManager)
 		appCtx.Logger().Info("Known user authorization",
 			zap.Any("authorizedResult", result),
@@ -861,7 +861,7 @@ func authorizeUser(ctx context.Context, appCtx appcontext.AppContext, oktaUser m
 	} else if err == models.ErrFetchNotFound { // Never heard of them
 		// so far In this case, we can't find an existing user
 		// associated with the unique okta.mil UUID (aka OID_User,
-		// aka openIDUser.UserID, aka models.User.login_gov_uuid).
+		// aka openIDUser.UserID, models.User.okta_id).
 		// The authorizeUnknownUser method tries to find a user record
 		// with a matching email address
 		appCtx.Logger().Info("Unknown user: not found by okta.mil OID_User, associating email and checking authorization", zap.String("OID_User", oktaUser.Sub), zap.String("OID_Email", oktaUser.Email))
@@ -1093,13 +1093,13 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, okt
 		}
 		appCtx.Session().ServiceMemberID = newServiceMember.ID
 	} else {
-		// If in Office App or Admin App with valid user - update user's LoginGovUUID
-		appCtx.Logger().Error("Authorization associating okta.mil UUID with user",
+		// If in Office App or Admin App with valid user - update user's OktaID
+		appCtx.Logger().Error("Authorization associating login.gov UUID with user",
 			zap.String("OID_User", oktaUser.Sub),
 			zap.String("OID_Email", oktaUser.Email),
 			zap.String("user.id", user.ID.String()),
 		)
-		err = models.UpdateUserLoginGovUUID(appCtx.DB(), user, oktaUser.Sub)
+		err = models.UpdateUserOktaID(appCtx.DB(), user, oktaUser.Sub)
 	}
 
 	if err != nil {

@@ -22,7 +22,7 @@ func (suite *FactorySuite) TestBuildAdminUser() {
 		}
 
 		adminUser := BuildAdminUser(suite.DB(), nil, nil)
-		suite.Equal(defaultEmail, adminUser.User.LoginGovEmail)
+		suite.Equal(defaultEmail, adminUser.User.OktaEmail)
 		suite.False(adminUser.User.Active)
 		suite.Equal(defaultAdmin.FirstName, adminUser.FirstName)
 		suite.Equal(defaultAdmin.LastName, adminUser.LastName)
@@ -42,7 +42,7 @@ func (suite *FactorySuite) TestBuildAdminUser() {
 		adminUser := BuildAdminUser(suite.DB(), nil, []Trait{
 			GetTraitAdminUserEmail,
 		})
-		suite.Equal(adminUser.Email, adminUser.User.LoginGovEmail)
+		suite.Equal(adminUser.Email, adminUser.User.OktaEmail)
 		suite.False(adminUser.User.Active)
 	})
 
@@ -60,12 +60,12 @@ func (suite *FactorySuite) TestBuildAdminUser() {
 		adminUser := BuildAdminUser(suite.DB(), []Customization{
 			{
 				Model: models.User{
-					LoginGovEmail: customEmail,
+					OktaEmail: customEmail,
 				},
 			},
 			{Model: customAdmin},
 		}, nil)
-		suite.Equal(customEmail, adminUser.User.LoginGovEmail)
+		suite.Equal(customEmail, adminUser.User.OktaEmail)
 		suite.Equal(customAdmin.Email, adminUser.Email)
 		suite.Equal(customAdmin.FirstName, adminUser.FirstName)
 		suite.Equal(customAdmin.LastName, adminUser.LastName)
@@ -105,7 +105,7 @@ func (suite *FactorySuite) TestBuildAdminUserExtra() {
 
 		// VALIDATE RESULT
 		// Check that the email trait worked
-		suite.Equal(adminUser.Email, adminUser.User.LoginGovEmail)
+		suite.Equal(adminUser.Email, adminUser.User.OktaEmail)
 		suite.False(adminUser.User.Active)
 		// Check that the user has the admin user role
 		_, hasRole := adminUser.User.Roles.GetRole(roles.RoleTypeTIO)
@@ -159,7 +159,7 @@ func (suite *FactorySuite) TestBuildAdminUserExtra() {
 		// Expected outcome: adminUser and User should be created
 		//                   User should have specified ID
 
-		defaultLoginGovEmail := "first.last@login.gov.test"
+		defaultOktaEmail := "first.last@login.gov.test"
 		uuid := uuid.FromStringOrNil("6f97d298-1502-4d8c-9472-f8b5b2a63a10")
 		adminUser := BuildAdminUser(suite.DB(), []Customization{
 			{
@@ -180,8 +180,8 @@ func (suite *FactorySuite) TestBuildAdminUserExtra() {
 		suite.NoError(err)
 
 		// Check that email was applied to user
-		suite.NotContains(defaultLoginGovEmail, adminUser.User.LoginGovEmail)
-		suite.Equal(adminUser.Email, adminUser.User.LoginGovEmail)
+		suite.NotContains(defaultOktaEmail, adminUser.User.OktaEmail)
+		suite.Equal(adminUser.Email, adminUser.User.OktaEmail)
 	})
 
 	suite.Run("Successful creation of stubbed AdminUser with forced id User", func() {
@@ -208,6 +208,6 @@ func (suite *FactorySuite) TestBuildAdminUserExtra() {
 		suite.Error(err)
 
 		// Check that email was applied to user
-		suite.Equal(adminUser.Email, adminUser.User.LoginGovEmail)
+		suite.Equal(adminUser.Email, adminUser.User.OktaEmail)
 	})
 }
