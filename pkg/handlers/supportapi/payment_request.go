@@ -400,6 +400,8 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 				sshClient, err := cli.InitGEXSSH(appCtx, v)
 				if err != nil {
 					appCtx.Logger().Error("couldn't initialize SSH client", zap.Error(err))
+					return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(
+						payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
 				defer func() {
 					if closeErr := sshClient.Close(); closeErr != nil {
@@ -410,6 +412,8 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 				sftpClient, err := cli.InitGEXSFTP(appCtx, sshClient)
 				if err != nil {
 					appCtx.Logger().Error("couldn't initialize SFTP client", zap.Error(err))
+					return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(
+						payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
 				defer func() {
 					if closeErr := sftpClient.Close(); closeErr != nil {
@@ -423,15 +427,18 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 				_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, path997, time.Time{}, invoice.NewEDI997Processor())
 				if err != nil {
 					appCtx.Logger().Error("Error reading 997 responses", zap.Error(err))
-				} else {
-					appCtx.Logger().Info("Successfully processed 997 responses")
+					return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(
+						payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
+				appCtx.Logger().Info("Successfully processed 997 responses")
+
 				_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, path824, time.Time{}, invoice.NewEDI824Processor())
 				if err != nil {
 					appCtx.Logger().Error("Error reading 824 responses", zap.Error(err))
-				} else {
-					appCtx.Logger().Info("Successfully processed 824 responses")
+					return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(
+						payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
+				appCtx.Logger().Info("Successfully processed 824 responses")
 			} else {
 				appCtx.Logger().Info("Skipping reading from Syncada")
 			}
