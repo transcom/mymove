@@ -5591,7 +5591,7 @@ paths:
           schema:
             $ref: '#/definitions/UpdateProGearWeightTicket'
       responses:
-        '201':
+        '200':
           description: returns an updated pro-gear weight ticket object
           schema:
             $ref: '#/definitions/ProGearWeightTicket'
