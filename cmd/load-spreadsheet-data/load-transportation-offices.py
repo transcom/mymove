@@ -2,7 +2,7 @@ import os, sys, uuid, pandas as pd
 
 current_dir = os.getcwd()
 
-filename = f"{current_dir}/migrations/app/schema/20230810180036_update_transportation_offices.up.sql"
+filename = f"{current_dir}/migrations/app/schema/20230809180036_update_transportation_offices.up.sql"
 
 f = open(filename, "w")
 
