@@ -9,6 +9,7 @@
 package server
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"crypto/x509"
@@ -24,6 +25,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest"
 
+	"github.com/jarcoal/httpmock"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -429,40 +431,73 @@ func (suite *serverSuite) TestTLSConfigWithInvalidAuth() {
 	suite.Error(err)
 }
 
-//func (suite *serverSuite) TestGetClientCert() {
-//	clientCert := &x509.Certificate{Raw: []byte{1,2,3}}
-//	req := &http.Request{
-//		TLS: &tls.ConnectionState{
-//			PeerCertificates: []*x509.Certificate{clientCert},
-//		},
-//	}
-//
-//	retrievedCert := getClientCert(req)
-//
-//	if retrievedCert != clientCert {
-//		suite.NotEqual(clientCert, retrievedCert)
-//	}
-//	suite.Equal(clientCert, retrievedCert)
-//}
+func (suite *serverSuite) TestGetClientCert() {
+	clientCert := &x509.Certificate{Raw: []byte{1, 2, 3}}
+	req := &http.Request{
+		TLS: &tls.ConnectionState{
+			PeerCertificates: []*x509.Certificate{clientCert},
+		},
+	}
 
-//func (suite *serverSuite) TestFetchCRL() {
-//	url := "https://crl.gds.disa.mil/"
-//
-//	crl, err := fetchCRL(url)
-//	if err != nil {
-//		suite.Error(err, "fetchCRL() returned an unexpexted error: %s", err)
-//	}
-//
-//	if crl == nil {
-//		suite.Error(nil, "fetchCRL() returned a nil CRL")
-//	}
-//}
-//
-//func (suite *serverSuite) TestFetchCRLInvalidURL() {
-//	url := "https://invalid-example-url.com"
-//	_, err := fetchCRL(url)
-//
-//	if err == nil {
-//		suite.Error(err, "fetchCRL() should have returned an error because the URL is invalid")
-//	}
-//}
+	retrievedCert := getClientCert(req)
+
+	if retrievedCert != clientCert {
+		suite.NotEqual(clientCert, retrievedCert)
+	}
+	suite.Equal(clientCert, retrievedCert)
+}
+
+func (suite *serverSuite) TestFetchCRL() {
+	url := "https://crl.gds.disa.mil/"
+
+	crl, err := fetchCRL(url)
+	if err != nil {
+		suite.Error(err, "fetchCRL() returned an unexpexted error: %s", err)
+	}
+
+	if crl == nil {
+		suite.Error(nil, "fetchCRL() returned a nil CRL")
+	}
+}
+
+func (suite *serverSuite) TestFetchCRLInvalidURL() {
+	url := "https://invalid-example-url.com"
+	_, err := fetchCRL(url)
+
+	if err == nil {
+		suite.Error(err, "fetchCRL() should have returned an error because the URL is invalid")
+	}
+}
+
+func (suite *serverSuite) TestGetOCSPResponse() {
+	//HTTP mock
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	//mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	//	w.WriteHeader(http.StatusOK)
+	//}))
+	//mockHTTP := httptest.NewRequest(http.Request{TLS: httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request))), http.Response{}})
+
+	//Mock OCSP server response
+	ocspServerURL := "http://ocsp.test.server"
+	httpmock.RegisterResponder(http.MethodPost, ocspServerURL, httpmock.NewBytesResponder(200, []byte("mock ocsp server response")))
+
+	//Create sample request
+	clientCert, issuerCert := &x509.Certificate{}, &x509.Certificate{} // TODO: Need to replace with real certs
+	request, err := http.NewRequest(http.MethodPost, ocspServerURL, bytes.NewBuffer([]byte{}))
+
+	if err != nil {
+		suite.Error(err, "Failed to create request")
+	}
+
+	//Call getOCSPResponse
+	ocspResponse, err := getOCSPResponse(ocspServerURL, request, issuerCert)
+	if err != nil {
+		suite.Error(err, "Undefined error from getOCSPResponse")
+	}
+
+	//Check response
+	if ocspResponse == nil {
+		suite.Error(ocspResponse, "got nil")
+	}
+}
