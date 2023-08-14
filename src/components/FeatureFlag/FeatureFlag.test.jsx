@@ -13,24 +13,26 @@ jest.mock('services/internalApi', () => ({
 describe('FeatureFlag', () => {
   const featureFlagRender = (flagValue) => {
     if (featureIsEnabled(flagValue)) {
-      return <div data-testid="enabled">Yes</div>;
+      return <div>Yes</div>;
     }
-    return <h1 data-testid="disabled">Nope</h1>;
+    return <div>Nope</div>;
   };
+
   it('should render enabled if enabled', async () => {
     getFeatureFlagForUser.mockResolvedValue({ match: true, value: ENABLED_VALUE });
 
     render(<FeatureFlag flagKey="key" render={featureFlagRender} />);
     await waitFor(() => {
-      expect(screen.getByTestId('enabled')).toBeInTheDocument();
+      expect(screen.getByText('Yes')).toBeInTheDocument();
     });
   });
+
   it('should render disabled if disabled', async () => {
     getFeatureFlagForUser.mockResolvedValue({ match: true, value: DISABLED_VALUE });
 
     render(<FeatureFlag flagKey="key" render={featureFlagRender} />);
     await waitFor(() => {
-      expect(screen.getByTestId('disabled')).toBeInTheDocument();
+      expect(screen.getByText('Nope')).toBeInTheDocument();
     });
   });
   it('should render disabled if no match', async () => {
@@ -38,7 +40,7 @@ describe('FeatureFlag', () => {
 
     render(<FeatureFlag flagKey="key" render={featureFlagRender} />);
     await waitFor(() => {
-      expect(screen.getByTestId('disabled')).toBeInTheDocument();
+      expect(screen.getByText('Nope')).toBeInTheDocument();
     });
   });
 });

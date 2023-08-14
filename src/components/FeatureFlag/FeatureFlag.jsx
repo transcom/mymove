@@ -18,10 +18,10 @@ export const FeatureFlag = ({ flagKey, flagContext, render }) => {
   React.useEffect(() => {
     getFeatureFlagForUser(flagKey, flagContext)
       .then((result) => {
-        if (!result.match) {
-          setFlagValue(DISABLED_VALUE);
-        } else {
+        if (result.match) {
           setFlagValue(result.value);
+        } else {
+          setFlagValue(DISABLED_VALUE);
         }
       })
       .catch((error) => {
@@ -40,7 +40,6 @@ FeatureFlag.propTypes = {
 };
 
 FeatureFlag.defaultProps = {
-  flagKey: '',
   flagContext: {},
   render: null,
 };
