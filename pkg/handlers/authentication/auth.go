@@ -9,7 +9,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 	"time"
 
@@ -772,8 +771,16 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Exchange the received code from login for access token. This is used during the grant_type auth flow to pull user information
-	exchange, err := exchangeCode(r.URL.Query().Get("code"), r, appCtx)
+	provider, err := okta.GetOktaProviderForRequest(r)
+	if err != nil {
+		appCtx.Logger().Error("get provider", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
+	// Exchange code received from login for access token. This is used during the grant_type auth flow
+	exchange, err := exchangeCode(r.URL.Query().Get("code"), r, appCtx, *provider)
+	// Double error check
 	if exchange.Error != "" {
 		fmt.Println(exchange.Error)
 		fmt.Println(exchange.ErrorDescription)
@@ -783,16 +790,9 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
-	// Gather Okta org url
-	orgURL := os.Getenv("OKTA_CUSTOMER_HOSTNAME")
-	if appCtx.Session().IsOfficeApp() {
-		orgURL = os.Getenv("OKTA_OFFICE_HOSTNAME")
-	} else if appCtx.Session().IsAdminApp() {
-		orgURL = os.Getenv("OKTA_ADMIN_HOSTNAME")
-	}
 
-	// Verify access token for added layer of security
-	_, verificationError := verifyToken(exchange.IDToken, returnedState, appCtx.Session(), orgURL)
+	// Verify access token
+	_, verificationError := verifyToken(exchange.IDToken, returnedState, appCtx.Session(), *provider)
 
 	if verificationError != nil {
 		appCtx.Logger().Error("token exchange verification", zap.Error(err))
@@ -805,7 +805,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	appCtx.Session().AccessToken = exchange.AccessToken
 
 	// Retrieve user info
-	profileData, err := getProfileData(appCtx, orgURL)
+	profileData, err := getProfileData(appCtx, *provider)
 	if err != nil {
 		appCtx.Logger().Error("get profile data", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -1172,13 +1172,11 @@ func fetchToken(code string, clientID string, loginGovProvider LoginGovProvider)
 }
 
 // InitAuth initializes the Okta provider
-func InitAuth(_ *viper.Viper, logger *zap.Logger, _ auth.ApplicationServername) (*okta.Provider, error) {
-
-	// ! Viper and appnames can be used here to feed into all of the os.Getenv uses for future refactor
+func InitAuth(v *viper.Viper, logger *zap.Logger, _ auth.ApplicationServername) (*okta.Provider, error) {
 
 	// Create a new Okta Provider. This will be used in the creation of the additional providers for each subdomain
 	oktaProvider := okta.NewOktaProvider(logger)
-	err := oktaProvider.RegisterProviders()
+	err := oktaProvider.RegisterProviders(v)
 	if err != nil {
 		logger.Error("Initializing auth", zap.Error(err))
 		return nil, err

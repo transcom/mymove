@@ -2,16 +2,18 @@ package okta
 
 import (
 	"encoding/base64"
+	"fmt"
 	"math/rand"
 	"net/http"
 	"net/url"
-	"os"
 
 	"github.com/markbates/goth"
 	gothOkta "github.com/markbates/goth/providers/okta"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/random"
 )
 
@@ -19,10 +21,14 @@ const MilProviderName = "milProvider"
 const OfficeProviderName = "officeProvider"
 const AdminProviderName = "adminProvider"
 
+// This provider struct will be unique to mil, office, and admin. When you run goth.getProvider() you'll now have the orgURL, clientID, and secret on hand
 type Provider struct {
 	gothOkta.Provider
-	hostname string
-	logger   *zap.Logger
+	orgURL      string
+	callbackURL string
+	clientID    string
+	secret      string
+	logger      *zap.Logger
 }
 
 type Data struct {
@@ -32,7 +38,7 @@ type Data struct {
 }
 
 // This function will select the correct provider to use based on its set name.
-func getOktaProviderForRequest(r *http.Request) (goth.Provider, error) {
+func GetOktaProviderForRequest(r *http.Request) (*Provider, error) {
 	session := auth.SessionFromRequestContext(r)
 
 	// Default the provider name to the "MilProviderName" which is the customer application
@@ -52,7 +58,23 @@ func getOktaProviderForRequest(r *http.Request) (goth.Provider, error) {
 		return nil, err
 	}
 
-	return gothProvider, nil
+	provider, err := ConvertGothProviderToOktaProvider(gothProvider)
+	if err != nil {
+		return nil, fmt.Errorf("okta provider was likely not wrapped properly when initially created and registered")
+	}
+
+	return provider, nil
+}
+
+func ConvertGothProviderToOktaProvider(gothProvider goth.Provider) (*Provider, error) {
+	// Conduct type assertion to retrieve the Okta.Provider values from goth.Provider
+	provider, ok := gothProvider.(*Provider)
+	if !ok {
+		// Received provider was not wrapped during its registration, it is of type goth.Provider but not of
+		// the Okta Provider type that it should be
+		return nil, fmt.Errorf("provided provider is not of the expected okta type")
+	}
+	return provider, nil
 }
 
 // func getProviderName(r *http.Request) string {
@@ -87,7 +109,7 @@ func (op *Provider) AuthorizationURL(r *http.Request) (*Data, error) {
 
 	// Retrieve the correct Okta Provider to use to get the correct authorization URL. This will choose from customer,
 	// office, or admin domains and use their information to create the URL.
-	provider, err := getOktaProviderForRequest(r)
+	provider, err := GetOktaProviderForRequest(r)
 	if err != nil {
 		op.logger.Error("Get Goth provider", zap.Error(err))
 		return nil, err
@@ -144,25 +166,37 @@ func wrapOktaProvider(provider *gothOkta.Provider, logger *zap.Logger) *Provider
 }
 
 // Function to register all three providers at once.
-func (op *Provider) RegisterProviders() error {
+func (op *Provider) RegisterProviders(v *viper.Viper) error {
+	oktaTenantOrgURL := v.GetString(cli.OktaTenantOrgURLFlag)
+	oktaCustomerCallbackURL := v.GetString(cli.OktaCustomerCallbackURL)
+	oktaCustomerClientID := v.GetString(cli.OktaCustomerClientIDFlag)
+	oktaCustomerSecretKey := v.GetString(cli.OktaCustomerSecretKeyFlag)
+	oktaOfficeCallbackURL := v.GetString(cli.OktaOfficeCallbackURL)
+	oktaOfficeClientID := v.GetString(cli.OktaOfficeClientIDFlag)
+	oktaOfficeSecretKey := v.GetString(cli.OktaOfficeSecretKeyFlag)
+	oktaAdminCallbackURL := v.GetString(cli.OktaAdminCallbackURL)
+	oktaAdminClientID := v.GetString(cli.OktaAdminClientIDFlag)
+	oktaAdminSecretKey := v.GetString(cli.OktaAdminSecretKeyFlag)
 
 	// Declare OIDC scopes to be used within the providers
 	scope := []string{"openid", "email", "profile"}
 
 	// Register customer provider and pull values from env variables
-	err := op.RegisterOktaProvider(MilProviderName, os.Getenv("OKTA_TENANT_ORG_URL"), os.Getenv("OKTA_CUSTOMER_CALLBACK_URL"), os.Getenv("OKTA_CUSTOMER_CLIENT_ID"), os.Getenv("OKTA_CUSTOMER_SECRET_KEY"), scope)
+	err := op.RegisterOktaProvider(MilProviderName, oktaTenantOrgURL, oktaCustomerCallbackURL, oktaCustomerClientID, oktaCustomerSecretKey, scope)
 	if err != nil {
 		op.logger.Error("Could not register customer okta provider", zap.Error(err))
 		return err
 	}
+
 	// Register office provider
-	err = op.RegisterOktaProvider(OfficeProviderName, os.Getenv("OKTA_TENANT_ORG_URL"), os.Getenv("OKTA_OFFICE_CALLBACK_URL"), os.Getenv("OKTA_OFFICE_CLIENT_ID"), os.Getenv("OKTA_OFFICE_SECRET_KEY"), scope)
+	err = op.RegisterOktaProvider(OfficeProviderName, oktaTenantOrgURL, oktaOfficeCallbackURL, oktaOfficeClientID, oktaOfficeSecretKey, scope)
 	if err != nil {
 		op.logger.Error("Could not register office okta provider", zap.Error(err))
 		return err
 	}
+
 	// Register admin provider
-	err = op.RegisterOktaProvider(AdminProviderName, os.Getenv("OKTA_TENANT_ORG_URL"), os.Getenv("OKTA_ADMIN_CALLBACK_URL"), os.Getenv("OKTA_ADMIN_CLIENT_ID"), os.Getenv("OKTA_ADMIN_SECRET_KEY"), scope)
+	err = op.RegisterOktaProvider(AdminProviderName, oktaTenantOrgURL, oktaAdminCallbackURL, oktaAdminClientID, oktaAdminSecretKey, scope)
 	if err != nil {
 		op.logger.Error("Could not register admin okta provider", zap.Error(err))
 		return err
@@ -172,15 +206,18 @@ func (op *Provider) RegisterProviders() error {
 }
 
 // Create a new Okta provider and register it under the Goth providers
-func (op *Provider) RegisterOktaProvider(name string, hostname string, callbackURL string, clientID string, secret string, scope []string) error {
+func (op *Provider) RegisterOktaProvider(name string, orgURL string, callbackURL string, clientID string, secret string, scope []string) error {
 	// Use goth to create a new provider
-	provider := gothOkta.New(clientID, secret, hostname, callbackURL, scope...)
+	provider := gothOkta.New(clientID, secret, orgURL, callbackURL, scope...)
 	// Set the name manualy
 	provider.SetName(name)
 	// Wrap
 	wrap := wrapOktaProvider(provider, op.logger)
 	// Set hostname
-	wrap.SetHostname(hostname)
+	wrap.SetOrgURL(orgURL)
+	wrap.SetClientID(clientID)
+	wrap.SetSecret(secret)
+	wrap.SetCallbackURL(callbackURL)
 	// Assign to the active goth providers
 	goth.UseProviders(wrap)
 
@@ -195,19 +232,56 @@ func (op *Provider) RegisterOktaProvider(name string, hostname string, callbackU
 
 // Check if the provided provider name exists
 func verifyProvider(name string) error {
-	_, err := goth.GetProvider(name)
+	provider, err := goth.GetProvider(name)
+	fmt.Println(provider)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (op *Provider) SetHostname(hostname string) {
-	op.hostname = hostname
+func (op *Provider) SetSecret(secret string) {
+	op.secret = secret
 }
 
-func (op *Provider) GetHostname() string {
-	return op.hostname
+func (op *Provider) GetSecret() string {
+	return op.secret
+}
+
+func (op *Provider) SetClientID(ID string) {
+	op.clientID = ID
+}
+
+func (op *Provider) GetClientID() string {
+	return op.clientID
+}
+
+func (op *Provider) SetOrgURL(orgURL string) {
+	op.orgURL = orgURL
+}
+
+func (op *Provider) GetOrgURL() string {
+	return op.orgURL
+}
+
+func (op *Provider) GetTokenURL() string {
+	return op.orgURL + "/oauth2/default/v1/token"
+}
+
+func (op *Provider) GetUserInfoURL() string {
+	return op.orgURL + "/oauth2/default/v1/userinfo"
+}
+
+func (op *Provider) SetCallbackURL(URL string) {
+	op.callbackURL = URL
+}
+
+func (op *Provider) GetCallbackURL() string {
+	return op.callbackURL
+}
+
+func (op *Provider) GetIssuerURL() string {
+	return op.orgURL + "/oauth2/default"
 }
 
 // TokenURL returns a full URL to retrieve a user token from okta.mil

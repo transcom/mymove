@@ -7,27 +7,27 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 
 	verifier "github.com/okta/okta-jwt-verifier-golang"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // ! See flow here:
 // ! https://developer.okta.com/docs/guides/implement-grant-type/authcode/main/
 
-func getProfileData(appCtx appcontext.AppContext, hostname string) (models.OktaUser, error) {
-	var user = models.OktaUser{}
+func getProfileData(appCtx appcontext.AppContext, provider okta.Provider) (models.OktaUser, error) {
+	user := models.OktaUser{}
 
 	if appCtx.Session().AccessToken == "" {
 		return user, nil
 	}
 
-	reqURL := hostname + "/oauth2/default/v1/userinfo"
+	reqURL := provider.GetUserInfoURL()
 
 	req, _ := http.NewRequest("GET", reqURL, bytes.NewReader([]byte("")))
 	h := req.Header
@@ -47,28 +47,18 @@ func getProfileData(appCtx appcontext.AppContext, hostname string) (models.OktaU
 	return user, nil
 }
 
-// ! Refactor after chamber is modified
-func verifyToken(token string, nonce string, session *auth.Session, orgURL string) (*verifier.Jwt, error) {
-
-	// Gather Okta information
-	clientID := os.Getenv("OKTA_CUSTOMER_CLIENT_ID")
-	if session.IsOfficeApp() {
-		clientID = os.Getenv("OKTA_OFFICE_CLIENT_ID")
-	} else if session.IsAdminApp() {
-		clientID = os.Getenv("OKTA_ADMIN_CLIENT_ID")
-	}
-
+func verifyToken(t string, nonce string, session *auth.Session, provider okta.Provider) (*verifier.Jwt, error) {
 	tv := map[string]string{}
 	tv["nonce"] = nonce
-	tv["aud"] = clientID
+	tv["aud"] = provider.GetClientID()
 
-	issuer := orgURL + "/oauth2/default"
+	issuer := provider.GetIssuerURL()
 	jv := verifier.JwtVerifier{
 		Issuer:           issuer,
 		ClaimsToValidate: tv,
 	}
 
-	result, err := jv.New().VerifyIdToken(token)
+	result, err := jv.New().VerifyIdToken(t)
 	if err != nil {
 		return nil, fmt.Errorf("%s", err)
 	}
@@ -81,27 +71,17 @@ func verifyToken(token string, nonce string, session *auth.Session, orgURL strin
 }
 
 // ! Refactor once chamber is holding new secrets
-func exchangeCode(code string, r *http.Request, appCtx appcontext.AppContext) (Exchange, error) {
-	session := auth.SessionFromRequestContext(r)
-
-	appType := "CUSTOMER"
-	if session.IsOfficeApp() {
-		appType = "OFFICE"
-	} else if session.IsAdminApp() {
-		appType = "ADMIN"
-	}
+func exchangeCode(code string, r *http.Request, appCtx appcontext.AppContext, provider okta.Provider) (Exchange, error) {
 
 	authHeader := base64.StdEncoding.EncodeToString(
-		[]byte(os.Getenv("OKTA_"+appType+"_CLIENT_ID") + ":" + os.Getenv("OKTA_"+appType+"_SECRET_KEY")))
+		[]byte(provider.GetClientID() + ":" + provider.GetSecret()))
 
 	q := r.URL.Query()
 	q.Add("grant_type", "authorization_code")
 	q.Set("code", code)
-	// TODO: Replace os.Getenv
-	q.Add("redirect_uri", os.Getenv("OKTA_"+appType+"_CALLBACK_URL"))
+	q.Add("redirect_uri", provider.GetCallbackURL())
 
-	// TODO: Replace os.Getenv
-	url := os.Getenv("OKTA_"+appType+"_HOSTNAME") + "/oauth2/default/v1/token?" + q.Encode()
+	url := provider.GetTokenURL() + "?" + q.Encode()
 
 	req, _ := http.NewRequest("POST", url, bytes.NewReader([]byte("")))
 	h := req.Header
