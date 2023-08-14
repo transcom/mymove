@@ -440,11 +440,11 @@ test.describe('TOO user', () => {
     await page.getByRole('button', { name: 'Edit shipment' }).click();
 
     await expect(
-      page.getByRole('alert').getByText('Request needs review. See delivery location to proceed.'),
+      page.getByTestId('alert').getByText('Request needs review. See delivery location to proceed.'),
     ).toBeVisible();
     await expect(
       page
-        .getByRole('alert')
+        .getByTestId('alert')
         .getByText('Pending delivery location change request needs review. Review request to proceed.'),
     ).toBeVisible();
 
