@@ -13,9 +13,11 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
 	"github.com/transcom/mymove/pkg/services/event"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 )
 
 // GetMoveTaskOrderHandler fetches a Move Task Order
@@ -72,6 +74,12 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 				serviceItemCodes = *params.ServiceItemCodes
 			}
 
+			checker := movetaskorder.NewMoveTaskOrderChecker()
+			availableBefore, err := checker.MTOAvailableToPrime(appCtx, moveTaskOrderID)
+			if err != nil {
+				return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError(), err
+			}
+
 			mto, err := h.moveTaskOrderStatusUpdater.MakeAvailableToPrime(appCtx, moveTaskOrderID, eTag,
 				serviceItemCodes.ServiceCodeMS, serviceItemCodes.ServiceCodeCS)
 
@@ -95,6 +103,21 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
 				default:
 					return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError(), err
+				}
+			}
+
+			if !availableBefore {
+				availableAfter, checkErr := checker.MTOAvailableToPrime(appCtx, moveTaskOrderID)
+				if checkErr != nil {
+					return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError(), err
+				}
+				if availableAfter {
+					emailErr := h.NotificationSender().SendNotification(appCtx,
+						notifications.NewMoveIssuedToPrime(moveTaskOrderID),
+					)
+					if emailErr != nil {
+						return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError(), err
+					}
 				}
 			}
 
