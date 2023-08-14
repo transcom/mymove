@@ -11,7 +11,6 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 )
@@ -56,16 +55,8 @@ func connectToGEXViaSFTP(_ *cobra.Command, _ []string) error {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	// Create a connection to the DB
-	dbConnection, err := cli.InitDatabase(v, logger)
-	if err != nil {
-		logger.Fatal("Connecting to DB", zap.Error(err))
-	}
-
-	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
-
 	// SSH and SFTP Connection Setup
-	sshClient, err := cli.InitGEXSSH(appCtx, v)
+	sshClient, err := cli.InitGEXSSH(logger, v)
 	if err != nil {
 		logger.Error("couldn't initialize SSH client", zap.Error(err))
 		return err
@@ -76,7 +67,7 @@ func connectToGEXViaSFTP(_ *cobra.Command, _ []string) error {
 		}
 	}()
 
-	sftpClient, err := cli.InitGEXSFTP(appCtx, sshClient)
+	sftpClient, err := cli.InitGEXSFTP(logger, sshClient)
 	if err != nil {
 		logger.Error("couldn't initialize SFTP client", zap.Error(err))
 		return err
