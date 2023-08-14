@@ -54,23 +54,21 @@ func checkStatusOfExistingPaymentRequest() paymentRequestValidator {
 
 		allMovePaymentRequests := move.PaymentRequests
 
-		if shipmentID == nil {
-			for _, newPaymentServiceItem := range newPaymentServiceItems {
-				if newPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeMS || newPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeCS {
-					for _, movePR := range allMovePaymentRequests {
-						if movePR.Status == models.PaymentRequestStatusReviewedAllRejected || movePR.Status == models.PaymentRequestStatusDeprecated {
-							continue
-						}
-						for _, movePaymentServiceItem := range movePR.PaymentServiceItems {
-							if movePaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeMS || movePaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeCS {
-								if movePaymentServiceItem.MTOServiceItem.ReService.Code == newPaymentServiceItem.MTOServiceItem.ReService.Code {
-									if movePaymentServiceItem.Status == models.PaymentServiceItemStatusRequested || movePaymentServiceItem.Status == models.PaymentServiceItemStatusPaid {
-										return apperror.NewConflictError(movePR.ID, "Conflict Error: Payment Request for Service Item is already paid or requested")
-									}
+		for _, newPaymentServiceItem := range newPaymentServiceItems {
+			if newPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeMS || newPaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeCS {
+				for _, movePR := range allMovePaymentRequests {
+					if movePR.Status == models.PaymentRequestStatusReviewedAllRejected || movePR.Status == models.PaymentRequestStatusDeprecated {
+						continue
+					}
+					for _, movePaymentServiceItem := range movePR.PaymentServiceItems {
+						if movePaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeMS || movePaymentServiceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeCS {
+							if movePaymentServiceItem.MTOServiceItem.ReService.Code == newPaymentServiceItem.MTOServiceItem.ReService.Code {
+								if movePaymentServiceItem.Status == models.PaymentServiceItemStatusRequested || movePaymentServiceItem.Status == models.PaymentServiceItemStatusPaid {
+									return apperror.NewConflictError(movePR.ID, "Conflict Error: Payment Request for Service Item is already paid or requested")
 								}
 							}
-
 						}
+
 					}
 				}
 			}
