@@ -85,13 +85,13 @@ func NewGetTable(physicalName string, soapClient SoapCaller) GetTableUpdater {
 		soapClient: soapClient,
 		Input: struct {
 			TRDM struct {
-				PhysicalName  string "xml:\"physicalName\""
-				ReturnContent string "xml:\"returnContent\""
+				PhysicalName  string `xml:"physicalName"`
+				ReturnContent string `xml:"returnContent"`
 			}
 		}{
 			TRDM: struct {
-				PhysicalName  string "xml:\"physicalName\""
-				ReturnContent string "xml:\"returnContent\""
+				PhysicalName  string `xml:"physicalName"`
+				ReturnContent string `xml:"returnContent"`
 			}{
 				PhysicalName:  physicalName,
 				ReturnContent: fmt.Sprintf("%t", true),
