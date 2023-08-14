@@ -16,7 +16,7 @@ import (
 
 // User is an entity with a registered uuid and email at login.gov
 type User struct {
-	ID                     uuid.UUID   `json:"id" db:"id"`
+	ID                     string      `json:"id" db:"id"`
 	CreatedAt              time.Time   `json:"created_at" db:"created_at"`
 	UpdatedAt              time.Time   `json:"updated_at" db:"updated_at"`
 	OktaID                 string      `json:"okta_id" db:"okta_id"`
@@ -43,11 +43,11 @@ func (u *User) Validate(_ *pop.Connection) (*validate.Errors, error) {
 }
 
 // GetUser loads the associated User from the DB using the user ID
-func GetUser(db *pop.Connection, userID uuid.UUID) (*User, error) {
+func GetUser(db *pop.Connection, userID string) (*User, error) {
 	var user User
-	err := db.Find(&user, userID.String())
+	err := db.Find(&user, userID)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Unable to find user by id %s", userID.String())
+		return nil, errors.Wrapf(err, "Unable to find user by id %s", userID)
 	}
 	return &user, nil
 }
@@ -109,7 +109,7 @@ func UpdateUserOktaID(db *pop.Connection, user *User, loginGovID string) error {
 
 // UserIdentity is summary of the information about a user from the database
 type UserIdentity struct {
-	ID                     uuid.UUID   `db:"id"`
+	ID                     string      `db:"id"`
 	Active                 bool        `db:"active"`
 	Email                  string      `db:"email"`
 	ServiceMemberID        *uuid.UUID  `db:"sm_id"`

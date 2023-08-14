@@ -13,7 +13,7 @@ import (
 // OfficeUser is someone who works in one of the TransportationOffices
 type OfficeUser struct {
 	ID                     uuid.UUID            `json:"id" db:"id"`
-	UserID                 *uuid.UUID           `json:"user_id" db:"user_id"`
+	UserID                 *string              `json:"user_id" db:"user_id"`
 	User                   User                 `belongs_to:"user" fk_id:"user_id"`
 	LastName               string               `json:"last_name" db:"last_name"`
 	FirstName              string               `json:"first_name" db:"first_name"`

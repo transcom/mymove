@@ -117,7 +117,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	OktaID := "2400c3c5-019d-4031-9c27-8a553e022297"
 
 	user := models.User{
-		OktaID:    OktaID,
+		ID:        OktaID,
 		OktaEmail: "email@example.com",
 		Active:    true,
 	}

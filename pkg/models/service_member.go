@@ -42,7 +42,7 @@ type ServiceMember struct {
 	ID                     uuid.UUID                 `json:"id" db:"id"`
 	CreatedAt              time.Time                 `json:"created_at" db:"created_at"`
 	UpdatedAt              time.Time                 `json:"updated_at" db:"updated_at"`
-	UserID                 uuid.UUID                 `json:"user_id" db:"user_id"`
+	UserID                 string                    `json:"user_id" db:"user_id"`
 	User                   User                      `belongs_to:"user" fk_id:"user_id"`
 	Edipi                  *string                   `json:"edipi" db:"edipi"`
 	Affiliation            *ServiceMemberAffiliation `json:"affiliation" db:"affiliation"`
@@ -76,7 +76,7 @@ type ServiceMembers []ServiceMember
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (s *ServiceMember) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.UUIDIsPresent{Field: s.UserID, Name: "UserID"},
+		&validators.StringIsPresent{Field: s.UserID, Name: "UserID"},
 	), nil
 }
 

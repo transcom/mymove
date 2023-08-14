@@ -106,7 +106,7 @@ func CaptureAccountStatus(appCtx appcontext.AppContext, model interface{}, activ
 func extractResponsibleUser(session *auth.Session) []zap.Field {
 	var logItems []zap.Field
 	logItems = append(logItems,
-		zap.String("responsible_user_id", session.UserID.String()),
+		zap.String("responsible_user_id", session.UserID),
 		zap.String("responsible_user_email", session.Email),
 	)
 

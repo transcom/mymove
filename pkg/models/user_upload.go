@@ -18,7 +18,7 @@ type UserUpload struct {
 	ID         uuid.UUID  `db:"id"`
 	DocumentID *uuid.UUID `db:"document_id"`
 	Document   Document   `belongs_to:"documents" fk_id:"document_id"`
-	UploaderID uuid.UUID  `db:"uploader_id"`
+	UploaderID string     `db:"uploader_id"`
 	UploadID   uuid.UUID  `db:"upload_id"`
 	Upload     Upload     `belongs_to:"uploads" fk_id:"upload_id"`
 	CreatedAt  time.Time  `db:"created_at"`
@@ -82,7 +82,7 @@ func UploadsFromUserUploadsNoDatabase(userUploads UserUploads) (Uploads, error) 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (u *UserUpload) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.UUIDIsPresent{Field: u.UploaderID, Name: "UploaderID"},
+		&validators.StringIsPresent{Field: u.UploaderID, Name: "UploaderID"},
 	), nil
 }
 

@@ -14,7 +14,7 @@ import (
 
 // CreateUserUploadForDocumentWrapper wrapper/helper function to create a user upload
 func CreateUserUploadForDocumentWrapper(
-	appCtx appcontext.AppContext, userID uuid.UUID,
+	appCtx appcontext.AppContext, userID string,
 	storer storage.FileStorer, file io.ReadCloser,
 	filename string,
 	fileSizeLimit ByteSize,
