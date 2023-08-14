@@ -5591,7 +5591,7 @@ paths:
           schema:
             $ref: '#/definitions/UpdateProGearWeightTicket'
       responses:
-        '201':
+        '200':
           description: returns an updated pro-gear weight ticket object
           schema:
             $ref: '#/definitions/ProGearWeightTicket'
@@ -6218,6 +6218,8 @@ paths:
           $ref: '#/responses/InvalidRequest'
         '401':
           $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
 responses:

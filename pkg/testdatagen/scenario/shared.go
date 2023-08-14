@@ -5272,7 +5272,7 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 	}, nil)
 
 	// setup service item
-	testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
+	serviceItem := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID:     uuid.Must(uuid.NewV4()),
 			Status: models.MTOServiceItemStatusApproved,
@@ -5301,6 +5301,23 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 	paymentRequest := &models.PaymentRequest{
 		IsFinal:         false,
 		MoveTaskOrderID: mto.ID,
+		PaymentServiceItems: []models.PaymentServiceItem{
+			{
+				MTOServiceItemID: serviceItem.ID,
+				MTOServiceItem:   serviceItem,
+				PaymentServiceItemParams: models.PaymentServiceItemParams{
+					{
+						IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
+						Value:       "3254",
+					},
+					{
+						IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
+						Value:       "2022-03-16",
+					},
+				},
+				Status: models.PaymentServiceItemStatusRequested,
+			},
+		},
 	}
 
 	paymentRequest, err := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, paymentRequest)
@@ -5712,7 +5729,7 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 	dateOfContact := models.TimePointer(time.Now())
 	customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID:                         uuid.FromStringOrNil("8f048005-f090-45e9-936b-7fd22801f4ee"),
+			ID:                         uuid.Must(uuid.NewV4()),
 			Type:                       models.CustomerContactTypeFirst,
 			DateOfContact:              dateOfContact.Add(time.Hour * 24),
 			TimeMilitary:               "0400Z",
@@ -5722,7 +5739,7 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 
 	customerContact2 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID:                         uuid.FromStringOrNil("32cfbc8a-2222-4014-b203-fbe059b6cb8d"),
+			ID:                         uuid.Must(uuid.NewV4()),
 			Type:                       models.CustomerContactTypeSecond,
 			DateOfContact:              dateOfContact.Add(time.Hour * 48),
 			TimeMilitary:               "1200Z",
@@ -9648,7 +9665,7 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 		{
 			Model: models.Move{
 				ID:     uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae7"),
-				Status: models.MoveStatusSUBMITTED,
+				Status: models.MoveStatusAPPROVED,
 			},
 		},
 	}, nil)
@@ -9660,7 +9677,7 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 				PrimeActualWeight:    &actualWeight,
 				ShipmentType:         models.MTOShipmentTypeHHG,
 				ApprovedDate:         models.TimePointer(time.Now()),
-				Status:               models.MTOShipmentStatusSubmitted,
+				Status:               models.MTOShipmentStatusApproved,
 			},
 		},
 		{
@@ -9998,6 +10015,70 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 		},
 	}, nil)
 
+	return move
+}
+
+func CreateNeedsServicesCounselingWithAmendedOrders(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType, locator string) models.Move {
+	db := appCtx.DB()
+	submittedAt := time.Now()
+	hhgPermitted := internalmessages.OrdersTypeDetailHHGPERMITTED
+	ordersNumber := "8675309"
+	departmentIndicator := "ARMY"
+	tac := "E19A"
+	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Order{
+				OrdersType:          ordersType,
+				OrdersTypeDetail:    &hhgPermitted,
+				OrdersNumber:        &ordersNumber,
+				DepartmentIndicator: &departmentIndicator,
+				TAC:                 &tac,
+			},
+		},
+	}, nil)
+	orders = makeAmendedOrders(appCtx, orders, userUploader, &[]string{"medium.jpg", "small.pdf"})
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Locator:     locator,
+				Status:      models.MoveStatusNeedsServiceCounseling,
+				SubmittedAt: &submittedAt,
+			},
+		},
+	}, nil)
+	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+	destinationAddress := factory.BuildAddress(db, nil, nil)
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          shipmentType,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+				DestinationType:       destinationType,
+			},
+		},
+		{
+			Model:    destinationAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
+	}, nil)
 	return move
 }
 

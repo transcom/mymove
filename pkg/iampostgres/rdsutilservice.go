@@ -1,23 +1,24 @@
 package iampostgres
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/service/rds/rdsutils"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/feature/rds/auth"
 )
 
 // RDSUtilService Lightweight Interface for AWS RDS Utils
 type RDSUtilService interface {
-	GetToken(string, string, string, *credentials.Credentials) (string, error)
+	GetToken(context.Context, string, string, string, aws.CredentialsProvider) (string, error)
 }
 
 // RDSU type
 type RDSU struct{}
 
 // GetToken is implementation around AWS RDS Utils BuildAuthToken
-func (r RDSU) GetToken(endpoint string, region string, user string, iamcreds *credentials.Credentials) (string, error) {
-	authToken, err := rdsutils.BuildAuthToken(endpoint, region, user, iamcreds)
+func (r RDSU) GetToken(ctx context.Context, endpoint string, region string, user string, iamcreds aws.CredentialsProvider) (string, error) {
+	authToken, err := auth.BuildAuthToken(ctx, endpoint, region, user, iamcreds)
 	if err != nil {
 		return "", fmt.Errorf("Failed to create RDSIAM token: %w", err)
 	}

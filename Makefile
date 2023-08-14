@@ -269,6 +269,7 @@ bin/generate-shipment-summary: cmd/generate-shipment-summary
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate-shipment-summary
 
 bin/generate-test-data: cmd/generate-test-data
+	@echo "WARNING: devseed data is being deprecated on 11/08/2023. This function will be deleted after this date."
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate-test-data
 
 bin/ghc-pricing-parser: cmd/ghc-pricing-parser
@@ -554,6 +555,7 @@ db_dev_psql: ## Open PostgreSQL shell for Dev DB
 
 .PHONY: db_dev_fresh
 db_dev_fresh: check_app db_dev_reset db_dev_migrate ## Recreate dev db from scratch and populate with devseed data
+	@echo "WARNING: Devseed data is being deprecated on 11/08/2023. This function will be deleted after that date."
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development" --named-sub-scenario="${DEVSEED_SUBSCENARIO}"
 
@@ -564,6 +566,7 @@ db_dev_truncate: ## Truncate dev db
 
 .PHONY: db_dev_e2e_populate
 db_dev_e2e_populate: check_app db_dev_migrate db_dev_truncate ## Migrate dev db and populate with devseed data
+	@echo "WARNING: Devseed data is being deprecated on 11/08/2023. This function will be deleted after that date."
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development" --named-sub-scenario="${DEVSEED_SUBSCENARIO}"
 
@@ -576,6 +579,7 @@ db_bandwidth_up: db_dev_bandwidth_up
 
 .PHONY: db_dev_bandwidth_up
 db_dev_bandwidth_up: check_app bin/generate-test-data db_dev_truncate ## Truncate Dev DB and Generate data for bandwidth tests
+	@echo "WARNING: devseed data is being deprecated on 11/08/2023. This function will be deleted after this date."
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	DB_PORT=$(DB_PORT_DEV) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="bandwidth" --db-env="development"
 #
@@ -788,6 +792,7 @@ tasks_connect_to_gex_via_sftp: tasks_build_linux_docker ## Run connect-to-gex-vi
 		-e GEX_SFTP_HOST_KEY \
 		-e GEX_SFTP_IP_ADDRESS \
 		-e GEX_SFTP_PASSWORD \
+		-e GEX_PRIVATE_KEY \
 		-e GEX_SFTP_PORT \
 		-e GEX_SFTP_USER_ID \
 		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
@@ -1063,6 +1068,28 @@ pretty: gofmt ## Run code through JS and Golang formatters
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
 	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-726bfe44bd27d3b41da41acbe3eb231811a993f7 bash
+
+.PHONY: docker_local_ssh_server_with_password
+docker_local_ssh_server_with_password:
+	docker run --rm \
+  --name sshd \
+  -e USER_NAME=testu \
+  -e USER_PASSWORD=testp \
+  -e PASSWORD_ACCESS=true \
+  -p 2222:2222 \
+  -v some_local_upload_dir:/config/uploads \
+ linuxserver/openssh-server
+
+
+.PHONY: docker_local_ssh_server_with_key
+docker_local_ssh_server_with_key:
+	docker run --rm \
+  --name sshd \
+	-e PUBLIC_KEY="${TEST_GEX_PUBLIC_KEY}" \
+	-e USER_NAME=testu \
+  -p 2222:2222 \
+  -v some_local_upload_dir:/config/uploads \
+ linuxserver/openssh-server
 
 .PHONY: prune_images
 prune_images:  ## Prune docker images

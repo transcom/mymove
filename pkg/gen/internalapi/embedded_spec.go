@@ -1587,6 +1587,9 @@ func init() {
           "401": {
             "$ref": "#/responses/PermissionDenied"
           },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
           "500": {
             "$ref": "#/responses/ServerError"
           }
@@ -2552,7 +2555,7 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
+          "200": {
             "description": "returns an updated pro-gear weight ticket object",
             "schema": {
               "$ref": "#/definitions/ProGearWeightTicket"
@@ -9796,6 +9799,12 @@ func init() {
               "$ref": "#/definitions/ClientError"
             }
           },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
           "500": {
             "description": "A server error occurred.",
             "schema": {
@@ -10971,7 +10980,7 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
+          "200": {
             "description": "returns an updated pro-gear weight ticket object",
             "schema": {
               "$ref": "#/definitions/ProGearWeightTicket"

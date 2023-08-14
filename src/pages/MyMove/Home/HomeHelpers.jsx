@@ -27,8 +27,8 @@ export const HelperNeedsShipment = () => (
       office will remain your primary DOD contact to ensure quality performance.
     </p>
     <p>
-      Note: This move manager does not manage personally procured moves or replace the existing programs for
-      non-temporary storage or the movement of privately owned vehicles.
+      (Note: This move manager does not manage personally procured moves or replace the existing programs for
+      non-temporary storage or the movement of privately owned vehicles.)
     </p>
   </Helper>
 );
@@ -61,11 +61,9 @@ export const HelperSubmittedMove = () => (
       <p>
         <strong>For PPM (do it yourself) shipments</strong>
       </p>
-      <ul className={styles['top-gap']}>
-        <li>
-          You can start packing, but do not move any of your personal property until you hear that your move is approved
-        </li>
-      </ul>
+      <p>
+        You can start packing, but do not move any of your personal property until you hear that your move is approved
+      </p>
     </div>
     <div>
       <p>
