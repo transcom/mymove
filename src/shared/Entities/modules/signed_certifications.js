@@ -7,6 +7,10 @@ import { SIGNED_CERT_OPTIONS } from 'shared/constants';
 export const createSignedCertificationLabel = 'SignedCertifications.createSignedCertification';
 export const getSignedCertificationsLabel = 'SignedCertifications.indexSignedCertifications';
 
+// move to services/internalAPI.js unless
+// the react-admin refactor requires us to
+// pass this request in a different way
+// since this is a connected router class component.
 export function createSignedCertification(
   moveId,
   payload /* shape: {personally_procured_move_id, certification_text, signature, date, certification_type} */,
