@@ -84,7 +84,8 @@ export function unregister() {
 }
 
 export default function register() {
-  if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
+  const isServiceWorkerEnv = process.env.NODE_ENV === 'production' || process.env.REACT_APP_SERVICE_WORKER === 'true';
+  if (isServiceWorkerEnv && 'serviceWorker' in navigator) {
     // The URL constructor is available in all browsers that support SW.
     const publicUrl = new URL(process.env.PUBLIC_URL, window.location);
     if (publicUrl.origin !== window.location.origin) {

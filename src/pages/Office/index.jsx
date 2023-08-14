@@ -12,6 +12,7 @@ import 'scenes/Office/office.scss';
 
 // Logger
 import { milmoveLogger } from 'utils/milmoveLog';
+import { retryPageLoading } from 'utils/retryPageLoading';
 // API / Redux actions
 import { selectGetCurrentUserIsLoading, selectIsLoggedIn } from 'store/auth/selectors';
 import { loadUser as loadUserAction } from 'store/auth/actions';
@@ -105,6 +106,7 @@ export class OfficeApp extends Component {
       error,
       info,
     });
+    retryPageLoading(error);
   }
 
   render() {
