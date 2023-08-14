@@ -154,18 +154,26 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	} else {
 		certPath := v.GetString(certPathFlag)
 		keyPath := v.GetString(keyPathFlag)
+		logger.Info("Using paths",
+			zap.Any("certPath", certPath),
+			zap.Any("keyPath", keyPath),
+		)
 		cert, err := tls.LoadX509KeyPair(certPath, keyPath)
+
 		caCertPath := v.GetString(caCertPathFlag)
 		caKeyPath := v.GetString(caKeyPathFlag)
 		cacert, err := tls.LoadX509KeyPair(caCertPath, caKeyPath)
 		if err != nil {
 			return err
 		}
-		cacert.Leaf, err = x509.ParseCertificate(cacert.Certificate[0])
+
+		x509CaCert, err := x509.ParseCertificate(cacert.Certificate[0])
 		if err != nil {
 			return err
 		}
 		certpool := x509.NewCertPool()
+		certpool.AddCert(x509CaCert)
+
 		tlsConfig := tls.Config{
 			Certificates:       []tls.Certificate{cert},
 			InsecureSkipVerify: insecure,
@@ -192,6 +200,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		req.URL.Scheme = primeUrl.Scheme
 		req.URL.Host = primeUrl.Host
 		req.URL.Path, req.URL.RawPath = joinURLPath(primeUrl, req.URL)
+		req.Host = primeUrl.Host
 		if targetQuery == "" || req.URL.RawQuery == "" {
 			req.URL.RawQuery = targetQuery + req.URL.RawQuery
 		} else {
