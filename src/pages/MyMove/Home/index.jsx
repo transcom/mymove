@@ -464,12 +464,12 @@ export class Home extends Component {
                     >
                       <p>If you receive amended orders:</p>
                       <ul>
-                        <li>Upload the new documents here</li>
+                        <li>Upload the new document(s) here</li>
+                        <li>If you have not had a counseling session talk to your local transportation office</li>
                         <li>
-                          Talk directly to your local transportation office and Customer Care Representative about
-                          changes
+                          If you have been assigned a Customer Care Representative, you can speak directly to them
                         </li>
-                        <li>The transportation office will update your move info to reflect the new orders</li>
+                        <li>They will update your move info to reflect the new orders</li>
                       </ul>
                     </Step>
                   )}
