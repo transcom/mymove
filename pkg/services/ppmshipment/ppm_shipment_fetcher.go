@@ -116,7 +116,7 @@ func (f ppmShipmentFetcher) GetPPMShipment(
 		q.
 			InnerJoin("mto_shipments", "mto_shipments.id = ppm_shipments.shipment_id").
 			InnerJoin("moves", "moves.id = mto_shipments.move_id").
-			LeftJoin("orders", "orders.id = moves.orders_id").
+			InnerJoin("orders", "orders.id = moves.orders_id").
 			Where("orders.service_member_id = ?", appCtx.Session().ServiceMemberID)
 	}
 
