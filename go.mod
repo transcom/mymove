@@ -51,7 +51,6 @@ require (
 	github.com/gorilla/csrf v1.7.1
 	github.com/imdario/mergo v0.3.16
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
-	github.com/jackc/pgx/v4 v4.18.1
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/jinzhu/copier v0.3.5
 	github.com/jmoiron/sqlx v1.3.5
@@ -72,7 +71,7 @@ require (
 	github.com/tcnksm/go-input v0.0.0-20180404061846-548a7d7a8ee8
 	github.com/tealeg/xlsx/v3 v3.3.0
 	github.com/tiaguinho/gosoap v1.4.4
-	github.com/vektra/mockery/v2 v2.32.0
+	github.com/vektra/mockery/v2 v2.32.4
 	go.flipt.io/flipt/rpc/flipt v1.22.0
 	go.flipt.io/flipt/sdk/go v0.3.0
 	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352
@@ -180,6 +179,7 @@ require (
 	github.com/jackc/pgproto3/v2 v2.3.2 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgtype v1.14.0 // indirect
+	github.com/jackc/pgx/v4 v4.18.1 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
