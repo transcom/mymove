@@ -123,7 +123,6 @@ export class ServiceCounselorPage extends OfficePage {
     await deliveryLocation.getByLabel('City').fill('Another City');
     await deliveryLocation.getByLabel('State').selectOption({ label: 'AL' });
     await deliveryLocation.getByLabel('ZIP').fill('36101');
-    await deliveryLocation.getByLabel('Destination type').selectOption({ label: 'Home of record (HOR)' });
 
     // Remarks
     await this.page.getByLabel('Counselor remarks').fill('NTS-release counselor remarks');
