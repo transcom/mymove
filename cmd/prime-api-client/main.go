@@ -20,6 +20,8 @@ func initRootFlags(flag *pflag.FlagSet) {
 
 	flag.String(utils.CertPathFlag, "./config/tls/devlocal-mtls.cer", "Path to the public cert")
 	flag.String(utils.KeyPathFlag, "./config/tls/devlocal-mtls.key", "Path to the private key")
+	flag.String(utils.CaCertPathFlag, "./config/tls/devlocal-ca.pem", "Path to the CA cert")
+	flag.String(utils.CaKeyPathFlag, "./config/tls/devlocal-ca.key", "Path to the CA key")
 	flag.String(utils.HostnameFlag, cli.HTTPPrimeServerNameLocal, "The hostname to connect to")
 	flag.Int(utils.PortFlag, cli.MutualTLSPort, "The port to connect to")
 	flag.Bool(utils.InsecureFlag, false, "Skip TLS verification and validation")

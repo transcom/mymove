@@ -2,6 +2,7 @@ package utils
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"log"
 	"net/http"
@@ -70,13 +71,47 @@ func CreatePrimeClientWithCACStoreParam(v *viper.Viper, store *pksigner.Store) (
 		certPath := v.GetString(CertPathFlag)
 		keyPath := v.GetString(KeyPathFlag)
 
-		var errRuntimeClientTLS error
-		httpClient, errRuntimeClientTLS = runtimeClient.TLSClient(runtimeClient.TLSClientOptions{
-			Key:                keyPath,
-			Certificate:        certPath,
-			InsecureSkipVerify: insecure})
-		if errRuntimeClientTLS != nil {
-			log.Fatal(errRuntimeClientTLS)
+		cert, err := tls.LoadX509KeyPair(certPath, keyPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		caCertPath := v.GetString(CaCertPathFlag)
+		caKeyPath := v.GetString(CaKeyPathFlag)
+		cacert, err := tls.LoadX509KeyPair(caCertPath, caKeyPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		x509CaCert, err := x509.ParseCertificate(cacert.Certificate[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+		certpool := x509.NewCertPool()
+		certpool.AddCert(x509CaCert)
+
+		//RA Summary: gosec - G402 - Look for bad TLS connection settings
+		//RA: The linter is flagging this line of code because we are passing in a boolean value which can set InsecureSkipVerify to true.
+		//RA: In production, the value of this flag is always false. We are, however, using
+		//RA: this flag during local development to test the Prime API as further specified in the following docs:
+		//RA: * https://github.com/transcom/prime_api_deliverable/wiki/Getting-Started#run-prime-api-client
+		//RA: * https://transcom.github.io/mymove-docs/docs/dev/getting-started/How-to-Test-the-Prime-API
+		//RA Developer Status: Mitigated
+		//RA Validator Status: Mitigated
+		//RA Modified Severity: CAT III
+		// #nosec G402
+		tlsConfig := &tls.Config{
+			Certificates:       []tls.Certificate{cert},
+			InsecureSkipVerify: insecure,
+			MinVersion:         tls.VersionTLS12,
+			MaxVersion:         tls.VersionTLS12,
+			RootCAs:            certpool,
+		}
+		transport := &http.Transport{
+			TLSClientConfig: tlsConfig,
+		}
+		httpClient = &http.Client{
+			Transport: transport,
 		}
 	}
 
@@ -143,13 +178,47 @@ func CreatePrimeClient(v *viper.Viper) (*primeClient.Mymove, *pksigner.Store, er
 		certPath := v.GetString(CertPathFlag)
 		keyPath := v.GetString(KeyPathFlag)
 
-		var errRuntimeClientTLS error
-		httpClient, errRuntimeClientTLS = runtimeClient.TLSClient(runtimeClient.TLSClientOptions{
-			Key:                keyPath,
-			Certificate:        certPath,
-			InsecureSkipVerify: insecure})
-		if errRuntimeClientTLS != nil {
-			log.Fatal(errRuntimeClientTLS)
+		cert, err := tls.LoadX509KeyPair(certPath, keyPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		caCertPath := v.GetString(CaCertPathFlag)
+		caKeyPath := v.GetString(CaKeyPathFlag)
+		cacert, err := tls.LoadX509KeyPair(caCertPath, caKeyPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		x509CaCert, err := x509.ParseCertificate(cacert.Certificate[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+		certpool := x509.NewCertPool()
+		certpool.AddCert(x509CaCert)
+
+		//RA Summary: gosec - G402 - Look for bad TLS connection settings
+		//RA: The linter is flagging this line of code because we are passing in a boolean value which can set InsecureSkipVerify to true.
+		//RA: In production, the value of this flag is always false. We are, however, using
+		//RA: this flag during local development to test the Prime API as further specified in the following docs:
+		//RA: * https://github.com/transcom/prime_api_deliverable/wiki/Getting-Started#run-prime-api-client
+		//RA: * https://transcom.github.io/mymove-docs/docs/dev/getting-started/How-to-Test-the-Prime-API
+		//RA Developer Status: Mitigated
+		//RA Validator Status: Mitigated
+		//RA Modified Severity: CAT III
+		// #nosec G402
+		tlsConfig := &tls.Config{
+			Certificates:       []tls.Certificate{cert},
+			InsecureSkipVerify: insecure,
+			MinVersion:         tls.VersionTLS12,
+			MaxVersion:         tls.VersionTLS12,
+			RootCAs:            certpool,
+		}
+		transport := &http.Transport{
+			TLSClientConfig: tlsConfig,
+		}
+		httpClient = &http.Client{
+			Transport: transport,
 		}
 	}
 

@@ -33,6 +33,10 @@ const (
 	CertPathFlag string = "certpath"
 	// KeyPathFlag is the path to the key to use for TLS
 	KeyPathFlag string = "keypath"
+	// CertPathFlag is the path to the certificate to use for the CA
+	CaCertPathFlag string = "cacertpath"
+	// KeyPathFlag is the path to the key to use for the CA
+	CaKeyPathFlag string = "cakeypath"
 	// HostnameFlag is the hostname to connect to
 	HostnameFlag string = "hostname"
 	// PortFlag is the port to connect to
