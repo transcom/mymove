@@ -38,7 +38,7 @@ func (s *SyncadaSenderSFTPSession) SendToSyncadaViaSFTP(appCtx appcontext.AppCon
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	sshClient, err := cli.InitGEXSSH(appCtx, v)
+	sshClient, err := cli.InitGEXSSH(appCtx.Logger(), v)
 	if err != nil {
 		appCtx.Logger().Error("couldn't initialize SSH client", zap.Error(err))
 		return 0, err
@@ -49,7 +49,7 @@ func (s *SyncadaSenderSFTPSession) SendToSyncadaViaSFTP(appCtx appcontext.AppCon
 		}
 	}()
 
-	sftpClient, err := cli.InitGEXSFTP(appCtx, sshClient)
+	sftpClient, err := cli.InitGEXSFTP(appCtx.Logger(), sshClient)
 	if err != nil {
 		appCtx.Logger().Error("couldn't initialize SFTP client", zap.Error(err))
 		return 0, err
