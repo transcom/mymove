@@ -523,6 +523,7 @@ describe('ShipmentForm component', () => {
             status: ADDRESS_UPDATE_STATUS.APPROVED,
             officeRemarks: officeRemarksAnswer,
           },
+          successCallback: expect.any(Function),
         });
       });
     });
