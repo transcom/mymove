@@ -13,6 +13,7 @@ import ClientCertShow from 'pages/Admin/ClientCerts/ClientCertShow';
 import ClientCertCreate from 'pages/Admin/ClientCerts/ClientCertCreate';
 import ClientCertEdit from 'pages/Admin/ClientCerts/ClientCertEdit';
 import ElectronicOrderList from './ElectronicOrders/ElectronicOrderList';
+import FeatureFlagEvaluate from 'pages/Admin/FeatureFlags/FeatureFlagEvaluate';
 import styles from './Home.module.scss';
 import NotificationList from './Notifications/NotificationList';
 import UploadSearch from './Uploads/UploadSearch';
@@ -96,6 +97,7 @@ const Home = () => (
         edit={ClientCertEdit}
       />
       <Resource name="notifications" options={{ label: 'Notifications' }} list={NotificationList} />
+      <Resource name="feature-flags" options={{ label: 'Evaluate Feature Flag' }} list={FeatureFlagEvaluate} />
       <Resource
         name="webhook-subscriptions"
         options={{ label: 'Webhook Subscriptions' }}
@@ -107,6 +109,7 @@ const Home = () => (
       <CustomRoutes>
         {/* Custom route for search by id for uploads */}
         <Route end path="/uploads" element={<UploadSearch />} />
+        <Route end path="/feature-flags" element={<FeatureFlagEvaluate />} />
       </CustomRoutes>
     </Admin>
   </div>
