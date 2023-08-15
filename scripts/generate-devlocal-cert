@@ -4,7 +4,7 @@
 set -eo pipefail
 
 function usage() {
-  echo "Usage: $0 -f <filename prefix> [-d <output dir>] [-c <country>] [-s <state>] [-l <city>] -o <organization> -u <organizational unit> [-n <common name>]"
+  echo "Usage: $0 -f <filename prefix> [-d <output dir>] [-c <country>] [-s <state>] [-l <city> -O <oscp_url> -R <crl_url>] -o <organization> -u <organizational unit> [-n <common name>]"
   echo "If omitted, the optional parameters are set as follows:"
   echo "  -d (the current working directory)"
   echo "  -c US"
@@ -28,7 +28,7 @@ ST="DC"
 L="Washington"
 CN="localhost"
 
-while getopts "?c:d:f:l:n:o:s:u:" opt; do
+while getopts "?c:d:f:l:n:o:s:u:O:R:" opt; do
   case ${opt} in
     c ) # C (country) field in certificate subject
       C=$OPTARG
@@ -54,6 +54,12 @@ while getopts "?c:d:f:l:n:o:s:u:" opt; do
     u ) # OU (organizational unit) field in certificate subject
       OU=$OPTARG
       ;;
+    O ) # OSCP url in extensions
+      OSCP_URL=$OPTARG
+      ;;
+    R ) # CRL url in extensions
+      CRL_URL=$OPTARG
+      ;;
     \? )
       usage
       ;;
@@ -69,6 +75,24 @@ fi
 
 set -u
 
+extfile="${OUTDIR}/${PREFIX}.ext"
+
+{
+  printf "\n[custom]\n";
+  printf "subjectAltName = DNS:%s" "${CN}";
+  printf "basicConstraints = CA:FALSE\n";
+  printf "subjectKeyIdentifier = hash\n";
+  printf "authorityKeyIdentifier = keyid,issuer:always\n";
+} > "${extfile}"
+
+if [[ -n "${OSCP_URL}" ]]; then
+  printf "authorityInfoAccess = OCSP;URI:%s\n" "${OSCP_URL}" >> "${extfile}"
+fi
+
+if [[ -n "${CRL_URL}" ]]; then
+  printf "nsCaRevocationUrl = %s\n" "${CRL_URL}" >> "${extfile}"
+fi
+
 openssl req -nodes -new \
         -keyout "$OUTDIR/$PREFIX.key" \
         -out "$OUTDIR/$PREFIX.csr" \
@@ -78,11 +102,11 @@ openssl x509 -req \
         -CA "$DEVLOCAL_CA_PEM" \
         -CAkey "$DEVLOCAL_CA_KEY" \
         -CAcreateserial \
-        -extensions SAN \
-        -extfile <(printf "\n[SAN]\nsubjectAltName=DNS.1:%s" "${CN}") \
+        -extensions custom \
+        -extfile "${extfile}" \
         -out "$OUTDIR/$PREFIX.cer" \
         -days 3652 \
         -sha256
-rm "$OUTDIR/$PREFIX.csr"
+rm "$OUTDIR/$PREFIX.csr" "${extfile}"
 echo -n "SHA256 digest: "
 openssl x509 -outform der -in "$OUTDIR/$PREFIX.cer" | openssl dgst -sha256
