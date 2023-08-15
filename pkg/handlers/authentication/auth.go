@@ -57,7 +57,7 @@ func IsLoggedInMiddleware(_ *zap.Logger) http.HandlerFunc {
 		}
 
 		session := auth.SessionFromRequestContext(r)
-		if session != nil && session.UserID != "" {
+		if session != nil && session.UserID != uuid.Nil {
 			data["isLoggedIn"] = true
 			logger.Info("Valid session, user logged in")
 		}
@@ -139,7 +139,7 @@ func UserAuthMiddleware(_ *zap.Logger) func(next http.Handler) http.Handler {
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
-			if session.UserID == "" {
+			if session.UserID == uuid.Nil {
 				logger.Error("unauthorized access, no userid")
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
@@ -148,11 +148,11 @@ func UserAuthMiddleware(_ *zap.Logger) func(next http.Handler) http.Handler {
 			// DO NOT CHECK MILMOVE SESSION BECAUSE WE'LL BE CHECKING THAT IN ANOTHER MIDDLEWARE
 			// This must be the right type of user for the application
 			if session.IsOfficeApp() && !session.IsOfficeUser() {
-				logger.Error("unauthorized user for office.move.mil", zap.String("user_id", session.UserID))
+				logger.Error("unauthorized user for office.move.mil", zap.String("user_id", session.UserID.String()))
 				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
 			} else if session.IsAdminApp() && !session.IsAdminUser() {
-				logger.Error("unauthorized user for admin.move.mil", zap.String("user_id", session.UserID))
+				logger.Error("unauthorized user for admin.move.mil", zap.String("user_id", session.UserID.String()))
 				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
 			}
@@ -186,7 +186,7 @@ func CustomerAPIAuthMiddleware(_ appcontext.AppContext, api APIWithContext) func
 			routeIsOnAllowList := checkIfRouteIsAllowed(route)
 
 			if !routeIsOnAllowList && !session.IsServiceMember() {
-				logger.Error("unauthorized user for my.move.mil", zap.String("user_id", session.UserID))
+				logger.Error("unauthorized user for my.move.mil", zap.String("user_id", session.UserID.String()))
 				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
 			}
@@ -241,7 +241,7 @@ func updateUserCurrentSessionID(appCtx appcontext.AppContext, sessionID string) 
 
 	user, err := models.GetUser(appCtx.DB(), userID)
 	if err != nil {
-		appCtx.Logger().Error("Fetching user", zap.String("user_id", userID), zap.Error(err))
+		appCtx.Logger().Error("Fetching user", zap.String("user_id", userID.String()), zap.Error(err))
 	}
 
 	if appCtx.Session().IsAdminUser() {
@@ -257,7 +257,7 @@ func updateUserCurrentSessionID(appCtx appcontext.AppContext, sessionID string) 
 
 	err = appCtx.DB().Save(user)
 	if err != nil {
-		appCtx.Logger().Error("Updating user's current_x_session_id", zap.String("user_id", appCtx.Session().UserID), zap.Error(err))
+		appCtx.Logger().Error("Updating user's current_x_session_id", zap.String("user_id", appCtx.Session().UserID.String()), zap.Error(err))
 		return err
 	}
 
@@ -268,7 +268,7 @@ func resetUserCurrentSessionID(appCtx appcontext.AppContext) error {
 	userID := appCtx.Session().UserID
 	user, err := models.GetUser(appCtx.DB(), userID)
 	if err != nil {
-		appCtx.Logger().Error("Fetching user", zap.String("user_id", userID), zap.Error(err))
+		appCtx.Logger().Error("Fetching user", zap.String("user_id", userID.String()), zap.Error(err))
 	}
 
 	if appCtx.Session().IsAdminUser() {
@@ -280,7 +280,7 @@ func resetUserCurrentSessionID(appCtx appcontext.AppContext) error {
 	}
 	err = appCtx.DB().Save(user)
 	if err != nil {
-		appCtx.Logger().Error("Updating user's current_x_session_id", zap.String("user_id", appCtx.Session().UserID), zap.Error(err))
+		appCtx.Logger().Error("Updating user's current_x_session_id", zap.String("user_id", appCtx.Session().UserID.String()), zap.Error(err))
 		return err
 	}
 
@@ -289,12 +289,12 @@ func resetUserCurrentSessionID(appCtx appcontext.AppContext) error {
 
 func currentUser(appCtx appcontext.AppContext) (*models.User, error) {
 	userID := appCtx.Session().UserID
-	if userID == "" {
+	if userID == uuid.Nil {
 		return nil, errors.New("No current user")
 	}
 	user, err := models.GetUser(appCtx.DB(), userID)
 	if err != nil {
-		appCtx.Logger().Error("Getting the user", zap.String("user_id", appCtx.Session().UserID), zap.Error(err))
+		appCtx.Logger().Error("Getting the user", zap.String("user_id", appCtx.Session().UserID.String()), zap.Error(err))
 		return nil, err
 	}
 
@@ -331,13 +331,13 @@ func authenticateUser(ctx context.Context, appCtx appcontext.AppContext, session
 
 	user, err := currentUser(appCtx)
 	if err != nil {
-		appCtx.Logger().Error("Fetching user", zap.String("user_id", appCtx.Session().UserID), zap.Error(err))
+		appCtx.Logger().Error("Fetching user", zap.String("user_id", appCtx.Session().UserID.String()), zap.Error(err))
 		return err
 	}
 	// Check to see if sessionID is set on the user, presently
 	existingSessionID := currentSessionID(appCtx.Session(), user)
 	if existingSessionID != "" {
-		appCtx.Logger().Info("SessionID is not set on the current user", zap.String("user_id", appCtx.Session().UserID))
+		appCtx.Logger().Info("SessionID is not set on the current user", zap.String("user_id", appCtx.Session().UserID.String()))
 
 		// Lookup the old session that wasn't logged out
 		_, exists, err := sessionManager.Store().Find(existingSessionID)
@@ -347,9 +347,9 @@ func authenticateUser(ctx context.Context, appCtx appcontext.AppContext, session
 		}
 
 		if !exists {
-			appCtx.Logger().Info("Session expired", zap.String("user_id", appCtx.Session().UserID))
+			appCtx.Logger().Info("Session expired", zap.String("user_id", appCtx.Session().UserID.String()))
 		} else {
-			appCtx.Logger().Info("Concurrent session detected. Will delete previous session.", zap.String("user_id", appCtx.Session().UserID))
+			appCtx.Logger().Info("Concurrent session detected. Will delete previous session.", zap.String("user_id", appCtx.Session().UserID.String()))
 
 			// We need to delete the concurrent session.
 			err := sessionManager.Store().Delete(existingSessionID)
@@ -523,7 +523,7 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					appCtx.Logger().Error("failed to retrieve logout url from provider")
 				}
 			}
-			if appCtx.Session().UserID != "" {
+			if appCtx.Session().UserID != uuid.Nil {
 				err := resetUserCurrentSessionID(appCtx)
 				if err != nil {
 					appCtx.Logger().Error("failed to reset user's current_x_session_id")
@@ -540,7 +540,7 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			// Can't log out of okta.mil without a token, redirect and let them re-auth
 			appCtx.Logger().Info("session exists but has an empty IDToken")
 
-			if appCtx.Session().UserID != "" {
+			if appCtx.Session().UserID != uuid.Nil {
 				err := resetUserCurrentSessionID(appCtx)
 				if err != nil {
 					appCtx.Logger().Error("failed to reset user's current_x_session_id")
@@ -592,7 +592,7 @@ func StateCookieName(session *auth.Session) string {
 func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	appCtx := h.AppContextFromRequest(r)
 
-	if appCtx.Session() != nil && appCtx.Session().UserID != "" {
+	if appCtx.Session() != nil && appCtx.Session().UserID != uuid.Nil {
 		// User is already authenticated, redirect to landing page
 		http.Redirect(w, r, h.landingURL(appCtx.Session()), http.StatusTemporaryRedirect)
 		return
@@ -741,7 +741,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		appCtx.Logger().Error("Getting okta.mil state cookie",
 			zap.String("stateCookieName", stateCookieName),
-			zap.String("sessionUserId", appCtx.Session().UserID),
+			zap.String("sessionUserId", appCtx.Session().UserID.String()),
 			zap.Error(err))
 		landingQuery := landingURL.Query()
 		landingQuery.Add("error", "STATE_COOKIE_MISSING")
@@ -845,7 +845,7 @@ func authorizeUser(ctx context.Context, appCtx appcontext.AppContext, oktaUser m
 		// In this case, we found an existing user associated with the
 		// unique okta.mil UUID (aka OID_User, aka openIDUser.UserID,
 		// aka models.User.okta_id)
-		appCtx.Logger().Info("Known user: found by okta.mil OID_User, checking authorization", zap.String("OID_User", oktaUser.Sub), zap.String("OID_Email", oktaUser.Email), zap.String("user.id", userIdentity.ID), zap.String("user.okta_email", userIdentity.Email))
+		appCtx.Logger().Info("Known user: found by okta.mil OID_User, checking authorization", zap.String("OID_User", oktaUser.Sub), zap.String("OID_Email", oktaUser.Email), zap.String("user.id", userIdentity.ID.String()), zap.String("user.okta_email", userIdentity.Email))
 		result := AuthorizeKnownUser(ctx, appCtx, userIdentity, sessionManager)
 		appCtx.Logger().Info("Known user authorization",
 			zap.Any("authorizedResult", result),
@@ -876,7 +876,7 @@ func AuthorizeKnownUser(ctx context.Context, appCtx appcontext.AppContext, userI
 		appCtx.Logger().Error("Inactive user requesting authentication",
 			zap.String("application_name", string(appCtx.Session().ApplicationName)),
 			zap.String("hostname", appCtx.Session().Hostname),
-			zap.String("user_id", appCtx.Session().UserID))
+			zap.String("user_id", appCtx.Session().UserID.String()))
 		return authorizationResultUnauthorized
 	}
 	appCtx.Session().Roles = append(appCtx.Session().Roles, userIdentity.Roles...)
@@ -892,7 +892,7 @@ func AuthorizeKnownUser(ctx context.Context, appCtx appcontext.AppContext, userI
 			appCtx.Logger().Error("Inactive office user requesting authorization",
 				zap.String("application_name", string(appCtx.Session().ApplicationName)),
 				zap.String("hostname", appCtx.Session().Hostname),
-				zap.String("user_id", appCtx.Session().UserID))
+				zap.String("user_id", appCtx.Session().UserID.String()))
 			return authorizationResultUnauthorized
 		}
 		if userIdentity.OfficeUserID != nil {
@@ -904,11 +904,11 @@ func AuthorizeKnownUser(ctx context.Context, appCtx appcontext.AppContext, userI
 				appCtx.Logger().Error("Non-office user authenticated at office site",
 					zap.String("application_name", string(appCtx.Session().ApplicationName)),
 					zap.String("hostname", appCtx.Session().Hostname),
-					zap.String("user_id", appCtx.Session().UserID))
+					zap.String("user_id", appCtx.Session().UserID.String()))
 				return authorizationResultUnauthorized
 			} else if err != nil {
 				appCtx.Logger().Error("Checking for office user during authorization",
-					zap.String("user_id", appCtx.Session().UserID),
+					zap.String("user_id", appCtx.Session().UserID.String()),
 					zap.Error(err))
 				return authorizationResultError
 			}
@@ -917,7 +917,7 @@ func AuthorizeKnownUser(ctx context.Context, appCtx appcontext.AppContext, userI
 			err = appCtx.DB().Save(officeUser)
 			if err != nil {
 				appCtx.Logger().Error("Updating office user during authorization",
-					zap.String("user_id", appCtx.Session().UserID),
+					zap.String("user_id", appCtx.Session().UserID.String()),
 					zap.Error(err))
 				return authorizationResultError
 			}
@@ -929,7 +929,7 @@ func AuthorizeKnownUser(ctx context.Context, appCtx appcontext.AppContext, userI
 			appCtx.Logger().Error("Inactive admin user requesting authorization",
 				zap.String("application_name", string(appCtx.Session().ApplicationName)),
 				zap.String("hostname", appCtx.Session().Hostname),
-				zap.String("user_id", appCtx.Session().UserID))
+				zap.String("user_id", appCtx.Session().UserID.String()))
 			return authorizationResultUnauthorized
 		}
 		if userIdentity.AdminUserID != nil {
@@ -946,10 +946,10 @@ func AuthorizeKnownUser(ctx context.Context, appCtx appcontext.AppContext, userI
 
 			if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 				appCtx.Logger().Error("No admin user found during authorization",
-					zap.String("user_id", appCtx.Session().UserID))
+					zap.String("user_id", appCtx.Session().UserID.String()))
 				return authorizationResultUnauthorized
 			} else if err != nil {
-				appCtx.Logger().Error("Checking for admin user", zap.String("userID", appCtx.Session().UserID), zap.Error(err))
+				appCtx.Logger().Error("Checking for admin user", zap.String("userID", appCtx.Session().UserID.String()), zap.Error(err))
 				return authorizationResultError
 			}
 
@@ -958,12 +958,12 @@ func AuthorizeKnownUser(ctx context.Context, appCtx appcontext.AppContext, userI
 			adminUser.UserID = &userIdentity.ID
 			verrs, err := appCtx.DB().ValidateAndSave(&adminUser)
 			if err != nil {
-				appCtx.Logger().Error("Updating admin user", zap.String("userID", appCtx.Session().UserID), zap.Error(err))
+				appCtx.Logger().Error("Updating admin user", zap.String("userID", appCtx.Session().UserID.String()), zap.Error(err))
 				return authorizationResultError
 			}
 
 			if verrs != nil {
-				appCtx.Logger().Error("Admin user validation errors", zap.String("userID", appCtx.Session().UserID), zap.Error(verrs))
+				appCtx.Logger().Error("Admin user validation errors", zap.String("userID", appCtx.Session().UserID.String()), zap.Error(verrs))
 				return authorizationResultError
 			}
 		}
@@ -1056,7 +1056,7 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, okt
 			sysAdminEmail := notifications.GetSysAdminEmail(notificationSender)
 			appCtx.Logger().Info(
 				"New user account created through Okta.mil",
-				zap.String("newUserID", user.ID),
+				zap.String("newUserID", user.ID.String()),
 			)
 			email, emailErr := notifications.NewUserAccountCreated(appCtx, sysAdminEmail, user.ID, user.UpdatedAt)
 			if emailErr == nil {
@@ -1091,7 +1091,7 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, okt
 		appCtx.Logger().Error("Authorization associating login.gov UUID with user",
 			zap.String("OID_User", oktaUser.Sub),
 			zap.String("OID_Email", oktaUser.Email),
-			zap.String("user.id", user.ID),
+			zap.String("user.id", user.ID.String()),
 		)
 		err = models.UpdateUserOktaID(appCtx.DB(), user, oktaUser.Sub)
 	}

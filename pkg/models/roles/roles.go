@@ -80,7 +80,7 @@ func (r *Role) Validate(_ *pop.Connection) (*validate.Errors, error) {
 }
 
 // FetchRolesForUser gets the active RoleTypes for the user
-func FetchRolesForUser(db *pop.Connection, userID string) (Roles, error) {
+func FetchRolesForUser(db *pop.Connection, userID uuid.UUID) (Roles, error) {
 	var roles Roles
 
 	err := db.Q().Join("users_roles", "users_roles.role_id = roles.id").

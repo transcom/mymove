@@ -8,6 +8,7 @@ import (
 	text "text/template"
 	"time"
 
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -27,8 +28,8 @@ type UserAccountModified struct {
 	sysAdminEmail     string
 	host              string
 	action            string
-	modifiedUserID    string
-	responsibleUserID string
+	modifiedUserID    uuid.UUID
+	responsibleUserID uuid.UUID
 	modifiedAt        time.Time
 	htmlTemplate      *html.Template
 	textTemplate      *text.Template
@@ -38,7 +39,7 @@ type UserAccountModified struct {
 func NewUserAccountCreated(
 	appCtx appcontext.AppContext,
 	sysAdminEmail string,
-	modifiedUserID string,
+	modifiedUserID uuid.UUID,
 	modifiedAt time.Time,
 ) (*UserAccountModified, error) {
 	return newUserAccountModified(appCtx, sysAdminEmail, "created", modifiedUserID, modifiedAt)
@@ -48,7 +49,7 @@ func NewUserAccountCreated(
 func NewUserAccountActivated(
 	appCtx appcontext.AppContext,
 	sysAdminEmail string,
-	modifiedUserID string,
+	modifiedUserID uuid.UUID,
 	modifiedAt time.Time,
 ) (*UserAccountModified, error) {
 	return newUserAccountModified(appCtx, sysAdminEmail, "activated", modifiedUserID, modifiedAt)
@@ -58,7 +59,7 @@ func NewUserAccountActivated(
 func NewUserAccountDeactivated(
 	appCtx appcontext.AppContext,
 	sysAdminEmail string,
-	modifiedUserID string,
+	modifiedUserID uuid.UUID,
 	modifiedAt time.Time,
 ) (*UserAccountModified, error) {
 	return newUserAccountModified(appCtx, sysAdminEmail, "deactivated", modifiedUserID, modifiedAt)
@@ -68,7 +69,7 @@ func NewUserAccountDeactivated(
 func NewUserAccountRemoved(
 	appCtx appcontext.AppContext,
 	sysAdminEmail string,
-	modifiedUserID string,
+	modifiedUserID uuid.UUID,
 	modifiedAt time.Time,
 ) (*UserAccountModified, error) {
 	return newUserAccountModified(appCtx, sysAdminEmail, "removed", modifiedUserID, modifiedAt)
@@ -79,7 +80,7 @@ func newUserAccountModified(
 	appCtx appcontext.AppContext,
 	sysAdminEmail string,
 	action string,
-	modifiedUserID string,
+	modifiedUserID uuid.UUID,
 	modifiedAt time.Time,
 ) (*UserAccountModified, error) {
 	session := appCtx.Session()
@@ -119,15 +120,15 @@ func (m UserAccountModified) emails(appCtx appcontext.AppContext) ([]emailConten
 	}
 
 	responsibleUserID := m.responsibleUserID
-	if responsibleUserID == "" {
+	if responsibleUserID == uuid.Nil {
 		responsibleUserID = m.modifiedUserID
 	}
 
 	htmlBody, textBody, err := m.renderTemplates(appCtx, userAccountModifiedEmailData{
 		Action:            m.action,
 		ActionSource:      actionSource.String(),
-		ModifiedUserID:    m.modifiedUserID,
-		ResponsibleUserID: responsibleUserID,
+		ModifiedUserID:    m.modifiedUserID.String(),
+		ResponsibleUserID: responsibleUserID.String(),
 		Timestamp:         m.modifiedAt.String(),
 	})
 
@@ -143,8 +144,8 @@ func (m UserAccountModified) emails(appCtx appcontext.AppContext) ([]emailConten
 	}
 
 	appCtx.Logger().Info("generated user activity alert email to system admin",
-		zap.String("responsibleUserID", responsibleUserID),
-		zap.String("modifiedUserID", m.modifiedUserID),
+		zap.String("responsibleUserID", responsibleUserID.String()),
+		zap.String("modifiedUserID", m.modifiedUserID.String()),
 	)
 
 	return append(emails, adminEmail), nil

@@ -221,7 +221,7 @@ type Session struct {
 	ApplicationName Application
 	Hostname        string
 	IDToken         string
-	UserID          string
+	UserID          uuid.UUID
 	Email           string
 	FirstName       string
 	Middle          string

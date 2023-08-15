@@ -39,7 +39,7 @@ type AdminUser struct {
 	ID             uuid.UUID    `json:"id" db:"id"`
 	CreatedAt      time.Time    `json:"created_at" db:"created_at"`
 	UpdatedAt      time.Time    `json:"updated_at" db:"updated_at"`
-	UserID         *string      `json:"user_id" db:"user_id"`
+	UserID         *uuid.UUID   `json:"user_id" db:"user_id"`
 	User           User         `belongs_to:"user" fk_id:"user_id"`
 	Role           AdminRole    `json:"role" db:"role"`
 	Email          string       `json:"email" db:"email"`

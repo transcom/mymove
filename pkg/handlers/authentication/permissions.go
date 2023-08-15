@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -102,7 +103,7 @@ func checkUserPermission(appCtx appcontext.AppContext, session *auth.Session, pe
 }
 
 // for a given user return the permissions associated with their roles
-func getPermissionsForUser(appCtx appcontext.AppContext, userID string) []string {
+func getPermissionsForUser(appCtx appcontext.AppContext, userID uuid.UUID) []string {
 	var userPermissions []string
 
 	// check the users roles
@@ -126,7 +127,7 @@ func getPermissionsForUser(appCtx appcontext.AppContext, userID string) []string
 
 // load the [user.role] given a valid user ID
 // what we care about here is the string, so we can look it up for permissions --> roles.role_type
-func getRolesForUser(appCtx appcontext.AppContext, userID string) ([]roles.RoleType, error) {
+func getRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) ([]roles.RoleType, error) {
 	logger := appCtx.Logger()
 	userRoles, err := roles.FetchRolesForUser(appCtx.DB(), userID)
 

@@ -39,10 +39,10 @@ func (u *UserUploader) PrepareFileForUpload(appCtx appcontext.AppContext, file i
 	return u.uploader.PrepareFileForUpload(appCtx, file, filename)
 }
 
-func (u *UserUploader) createAndStore(appCtx appcontext.AppContext, documentID *uuid.UUID, userID string, file File, allowedTypes AllowedFileTypes) (*models.UserUpload, *validate.Errors, error) {
+func (u *UserUploader) createAndStore(appCtx appcontext.AppContext, documentID *uuid.UUID, userID uuid.UUID, file File, allowedTypes AllowedFileTypes) (*models.UserUpload, *validate.Errors, error) {
 	// If storage key is not set assign a default
 	if u.GetUploadStorageKey() == "" {
-		u.uploader.DefaultStorageKey = path.Join("user", userID)
+		u.uploader.DefaultStorageKey = path.Join("user", userID.String())
 	}
 
 	newUpload, verrs, err := u.uploader.CreateUpload(appCtx, File{File: file}, allowedTypes)
@@ -73,7 +73,7 @@ func (u *UserUploader) createAndStore(appCtx appcontext.AppContext, documentID *
 // CreateUserUploadForDocument creates a new UserUpload by performing validations, storing the specified
 // file using the supplied storer, and saving an UserUpload object to the database containing
 // the file's metadata.
-func (u *UserUploader) CreateUserUploadForDocument(appCtx appcontext.AppContext, documentID *uuid.UUID, userID string, file File, allowedTypes AllowedFileTypes) (*models.UserUpload, *validate.Errors, error) {
+func (u *UserUploader) CreateUserUploadForDocument(appCtx appcontext.AppContext, documentID *uuid.UUID, userID uuid.UUID, file File, allowedTypes AllowedFileTypes) (*models.UserUpload, *validate.Errors, error) {
 
 	if u.uploader == nil {
 		return nil, &validate.Errors{}, errors.New("Did not call NewUserUploader before calling this function")
@@ -94,7 +94,7 @@ func (u *UserUploader) CreateUserUploadForDocument(appCtx appcontext.AppContext,
 }
 
 // CreateUserUpload stores UserUpload but does not assign a Document
-func (u *UserUploader) CreateUserUpload(appCtx appcontext.AppContext, userID string, file File, allowedTypes AllowedFileTypes) (*models.UserUpload, *validate.Errors, error) {
+func (u *UserUploader) CreateUserUpload(appCtx appcontext.AppContext, userID uuid.UUID, file File, allowedTypes AllowedFileTypes) (*models.UserUpload, *validate.Errors, error) {
 	if u.uploader == nil {
 		return nil, &validate.Errors{}, errors.New("Did not call NewUserUploader before calling this function")
 	}

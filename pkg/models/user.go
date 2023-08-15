@@ -14,9 +14,9 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 )
 
-// User is an entity with a registered uuid and email at login.gov
+// User is an entity with a registered profile ID and email in Okta
 type User struct {
-	ID                     string      `json:"id" db:"id"`
+	ID                     uuid.UUID   `json:"id" db:"id"`
 	CreatedAt              time.Time   `json:"created_at" db:"created_at"`
 	UpdatedAt              time.Time   `json:"updated_at" db:"updated_at"`
 	OktaID                 string      `json:"okta_id" db:"okta_id"`
@@ -43,7 +43,7 @@ func (u *User) Validate(_ *pop.Connection) (*validate.Errors, error) {
 }
 
 // GetUser loads the associated User from the DB using the user ID
-func GetUser(db *pop.Connection, userID string) (*User, error) {
+func GetUser(db *pop.Connection, userID uuid.UUID) (*User, error) {
 	var user User
 	err := db.Find(&user, userID)
 	if err != nil {
@@ -109,7 +109,7 @@ func UpdateUserOktaID(db *pop.Connection, user *User, loginGovID string) error {
 
 // UserIdentity is summary of the information about a user from the database
 type UserIdentity struct {
-	ID                     string      `db:"id"`
+	ID                     uuid.UUID   `db:"id"`
 	Active                 bool        `db:"active"`
 	Email                  string      `db:"email"`
 	ServiceMemberID        *uuid.UUID  `db:"sm_id"`

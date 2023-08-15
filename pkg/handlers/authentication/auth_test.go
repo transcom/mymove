@@ -117,7 +117,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	OktaID := "2400c3c5-019d-4031-9c27-8a553e022297"
 
 	user := models.User{
-		ID:        OktaID,
+		OktaID:    OktaID,
 		OktaEmail: "email@example.com",
 		Active:    true,
 	}
@@ -989,9 +989,9 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 	// Prepare the goth.User to simulate the UUID and email that login.gov would
 	// provide
 	fakeUUID, _ := uuid.NewV4()
-	user := goth.User{
-		UserID: fakeUUID.String(),
-		Email:  "new_service_member@example.com",
+	user := models.OktaUser{
+		Sub:   fakeUUID.String(),
+		Email: "new_service_member@example.com",
 	}
 	ctx := suite.SetupSessionContext(context.Background(), &session, sessionManager)
 
@@ -1017,7 +1017,7 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 
 	// Verify user's OktaEmail and OktaID match the values passed in
 	suite.Equal(user.Email, foundUser.OktaEmail)
-	suite.Equal(user.UserID, foundUser.OktaID)
+	suite.Equal(user.Sub, foundUser.OktaID)
 
 	// Verify that the user's CurrentMilSessionID is not empty. The value is
 	// generated randomly, so we can't test for a specific string. Any string
@@ -1085,9 +1085,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeDeactivated() {
 	}
 
 	fakeUUID2, _ := uuid.NewV4()
-	user := goth.User{
-		UserID: fakeUUID2.String(),
-		Email:  officeUser.Email,
+	user := models.OktaUser{
+		Sub:   fakeUUID2.String(),
+		Email: officeUser.Email,
 	}
 
 	mockSender := setUpMockNotificationSender()
@@ -1116,9 +1116,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
 	}
 
 	id, _ := uuid.NewV4()
-	user := goth.User{
-		UserID: id.String(),
-		Email:  "sample@email.com",
+	user := models.OktaUser{
+		Sub:   id.String(),
+		Email: "sample@email.com",
 	}
 
 	mockSender := setUpMockNotificationSender()
@@ -1161,9 +1161,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 		Email:           officeUser.Email,
 	}
 
-	gothUser := goth.User{
-		UserID: user.ID.String(),
-		Email:  officeUser.Email,
+	gothUser := models.OktaUser{
+		Sub:   user.ID.String(),
+		Email: officeUser.Email,
 	}
 
 	mockSender := setUpMockNotificationSender()
@@ -1215,9 +1215,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
 		Hostname:        appnames.OfficeServername,
 		Email:           officeUser.Email,
 	}
-	gothUser := goth.User{
-		UserID: user.ID.String(),
-		Email:  officeUser.Email,
+	gothUser := models.OktaUser{
+		Sub:   user.ID.String(),
+		Email: officeUser.Email,
 	}
 
 	mockSender := setUpMockNotificationSender()
@@ -1267,9 +1267,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDeactivated() {
 	}
 
 	fakeUUID2, _ := uuid.NewV4()
-	user := goth.User{
-		UserID: fakeUUID2.String(),
-		Email:  adminUser.Email,
+	user := models.OktaUser{
+		Sub:   fakeUUID2.String(),
+		Email: adminUser.Email,
 	}
 
 	mockSender := setUpMockNotificationSender()
@@ -1297,9 +1297,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminNotFound() {
 	}
 
 	id, _ := uuid.NewV4()
-	user := goth.User{
-		UserID: id.String(),
-		Email:  "sample@email.com",
+	user := models.OktaUser{
+		Sub:   id.String(),
+		Email: "sample@email.com",
 	}
 
 	mockSender := setUpMockNotificationSender()
@@ -1376,9 +1376,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 		Email:           adminUser.Email,
 	}
 
-	gothUser := goth.User{
-		UserID: user.ID.String(),
-		Email:  adminUser.Email,
+	gothUser := models.OktaUser{
+		Sub:   user.ID.String(),
+		Email: adminUser.Email,
 	}
 
 	mockSender := setUpMockNotificationSender()
