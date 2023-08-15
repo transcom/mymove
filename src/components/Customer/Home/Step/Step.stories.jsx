@@ -70,7 +70,7 @@ OrdersAmended.args = {
   completedHeaderText: 'Orders',
   children: (
     <>
-      <p>If you receive amended orders:</p>
+      <p>If you receive amended orders</p>
       <ul>
         <li>Upload the new document(s) here</li>
         <li>If you have not had a counseling session talk to your local transportation office</li>
