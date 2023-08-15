@@ -117,6 +117,25 @@ export function updatePrimeMTOShipmentAddress({
   );
 }
 
+export function updatePrimeMTOShipmentDestinationAddress({
+  mtoShipmentID,
+  ifMatchETag,
+  normalize = false,
+  schemaKey = 'mtoShipment',
+  body,
+}) {
+  const operationPath = 'mtoShipment.createNonSITAddressUpdateRequest';
+  return makePrimeSimulatorRequest(
+    operationPath,
+    {
+      mtoShipmentID,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
+
 export function updatePrimeMTOShipmentReweigh({
   mtoShipmentID,
   reweighID,

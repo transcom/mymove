@@ -54,4 +54,41 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 		suite.NoError(err)
 		suite.Equal(updatedAddress.StreetAddress1, returnAddress.StreetAddress1)
 	})
+	suite.Run("Destination address update for HHG should fail", func() {
+		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		address := factory.BuildAddress(suite.DB(), nil, nil)
+		externalShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    availableToPrimeMove,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHG,
+				},
+			},
+			{
+				Model:    address,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+		eTag := etag.GenerateEtag(address.UpdatedAt)
+
+		updatedAddress := address
+		updatedAddress.StreetAddress1 = "123 Somewhere Ln"
+
+		//  With mustBeAvailableToPrime = true, we should receive an error
+		_, err := mtoShipmentAddressUpdater.UpdateMTOShipmentAddress(suite.AppContextForTest(), &updatedAddress, externalShipment.ID, eTag, true)
+		if suite.Error(err) {
+			suite.IsType(apperror.ConflictError{}, err)
+			suite.Contains(err.Error(), "This endpoint cannot be used to update HHG shipment destination addresses")
+		}
+		// With mustBeAvailableToPrime = false, we should get the same error
+		_, err = mtoShipmentAddressUpdater.UpdateMTOShipmentAddress(suite.AppContextForTest(), &updatedAddress, externalShipment.ID, eTag, false)
+		if suite.Error(err) {
+			suite.IsType(apperror.ConflictError{}, err)
+			suite.Contains(err.Error(), "This endpoint cannot be used to update HHG shipment destination addresses")
+		}
+	})
 }

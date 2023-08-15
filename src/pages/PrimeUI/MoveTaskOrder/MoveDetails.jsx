@@ -21,6 +21,7 @@ import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { completeCounseling, deleteShipment } from 'services/primeApi';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import scrollToTop from 'shared/scrollToTop';
+import { formatPrimeAPIShipmentAddress } from 'utils/shipmentDisplay';
 
 const MoveDetails = ({ setFlashMessage }) => {
   const { moveCodeOrID } = useParams();
@@ -153,6 +154,31 @@ const MoveDetails = ({ setFlashMessage }) => {
                     return (
                       <div key={mtoShipment.id}>
                         <Shipment shipment={mtoShipment} moveId={moveTaskOrder.id} onDelete={handleDeleteShipment} />
+                        {mtoShipment.deliveryAddressUpdate && (
+                          <div>
+                            <h2>Destination Address Update Request</h2>
+                            <dl>
+                              <div className={descriptionListStyles.row}>
+                                <dt>Contractor remarks</dt>
+                                <dd>{mtoShipment.deliveryAddressUpdate.contractorRemarks}</dd>
+                              </div>
+                              <div className={descriptionListStyles.row}>
+                                <dt>Status</dt>
+                                <dd>{mtoShipment.deliveryAddressUpdate.status}</dd>
+                              </div>
+                              <div className={descriptionListStyles.row}>
+                                <dt>New Destination Address:</dt>
+                                <dd>{formatPrimeAPIShipmentAddress(mtoShipment.deliveryAddressUpdate.newAddress)}</dd>
+                              </div>
+                              <div className={descriptionListStyles.row}>
+                                <dt>Original Destination Address:</dt>
+                                <dd>
+                                  {formatPrimeAPIShipmentAddress(mtoShipment.deliveryAddressUpdate.originalAddress)}
+                                </dd>
+                              </div>
+                            </dl>
+                          </div>
+                        )}
                         {moveTaskOrder.mtoServiceItems?.length > 0 && <h2>Service Items</h2>}
                         {moveTaskOrder.mtoServiceItems?.map((serviceItem) => {
                           if (serviceItem.mtoShipmentID === mtoShipment.id) {
