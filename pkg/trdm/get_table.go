@@ -1,6 +1,7 @@
 package trdm
 
 import (
+	"bytes"
 	"fmt"
 	"time"
 
@@ -9,6 +10,8 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/parser/tac"
 )
 
 // <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ret="http://ReturnTablePackage/">
@@ -144,8 +147,33 @@ func getTableSoapCall(d *GetTableRequestElement, params gosoap.Params, appCtx ap
 		return fmt.Errorf("unmarshall error: %s", unmarshalErr.Error())
 	}
 	if r.Output.TRDM.Status.StatusCode == successResponseString {
-		println("Hi")
+		parseError := parseGetTableResponse(appCtx, response)
+		if parseError != nil {
+			return parseError
+		}
 	}
 	appCtx.Logger().Debug("getTable result", zap.Any("processRequestResponse", response))
+	return nil
+}
+
+func parseGetTableResponse(appcontext appcontext.AppContext, response *gosoap.Response) error {
+	reader := bytes.NewReader(response.Payload)
+	tacCodes, err := tac.Parse(reader)
+
+	if err != nil {
+		return err
+	}
+	saveErr := saveTacCodes(appcontext, tacCodes)
+	if saveErr != nil {
+		return saveErr
+	}
+	return nil
+}
+
+func saveTacCodes(appcontext appcontext.AppContext, tacCodes []models.TransportationAccountingCode) error {
+	saveErr := appcontext.DB().RawQuery("").All(tacCodes)
+	if saveErr != nil {
+		return saveErr
+	}
 	return nil
 }
