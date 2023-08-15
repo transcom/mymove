@@ -11,9 +11,18 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *InternalAPISuite) TestSubmitPPMShipmentDocumentation() {
+	setUpDataAndEndpointPath := func() (*models.PPMShipment, string) {
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, factory.GetTraitActiveServiceMemberUser())
+
+		endpointPath := fmt.Sprintf("/internal/ppm-shipments/%s/submit-ppm-shipment-documentation", ppmShipment.ID.String())
+
+		return &ppmShipment, endpointPath
+	}
+
 	// setUpRequestBody sets up the request body for the ppm document submission request.
 	setUpRequestBody := func() *bytes.Buffer {
 		body := &internalmessages.SavePPMShipmentSignedCertification{
@@ -32,11 +41,9 @@ func (suite *InternalAPISuite) TestSubmitPPMShipmentDocumentation() {
 	}
 
 	suite.Run("Unauthorized call to /ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation by another service member", func() {
-		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, factory.GetTraitActiveServiceMemberUser())
+		_, endpointPath := setUpDataAndEndpointPath()
 
 		maliciousUser := factory.BuildServiceMember(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
-
-		endpointPath := fmt.Sprintf("/internal/ppm-shipments/%s/submit-ppm-shipment-documentation", ppmShipment.ID.String())
 
 		body := setUpRequestBody()
 
@@ -52,9 +59,7 @@ func (suite *InternalAPISuite) TestSubmitPPMShipmentDocumentation() {
 	})
 
 	suite.Run("Unauthorized call to /ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation by user that isn't logged in", func() {
-		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, factory.GetTraitActiveServiceMemberUser())
-
-		endpointPath := fmt.Sprintf("/internal/ppm-shipments/%s/submit-ppm-shipment-documentation", ppmShipment.ID.String())
+		_, endpointPath := setUpDataAndEndpointPath()
 
 		body := setUpRequestBody()
 
@@ -71,9 +76,7 @@ func (suite *InternalAPISuite) TestSubmitPPMShipmentDocumentation() {
 	})
 
 	suite.Run("Authorized call to /ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation", func() {
-		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, factory.GetTraitActiveServiceMemberUser())
-
-		endpointPath := fmt.Sprintf("/internal/ppm-shipments/%s/submit-ppm-shipment-documentation", ppmShipment.ID.String())
+		ppmShipment, endpointPath := setUpDataAndEndpointPath()
 
 		body := setUpRequestBody()
 
