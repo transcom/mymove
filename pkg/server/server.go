@@ -206,6 +206,8 @@ func getOCSPResponse(logger *zap.Logger, ocspServer string, clientCert *x509.Cer
 	httpRequest.Header.Add("host", ocspURL.Host)
 
 	httpResponse, err := httpClient.Do(httpRequest)
+	// This means if we cannot reach the OSCP server, the certificate
+	// will be invalid. Is that what we want?
 	if err != nil {
 		return err
 	}
@@ -214,7 +216,7 @@ func getOCSPResponse(logger *zap.Logger, ocspServer string, clientCert *x509.Cer
 	if err != nil {
 		return err
 	}
-	logger.Info("DREW DEBUG cert response", zap.String("body", string(body)))
+	logger.Info("OSCP cert response", zap.String("body", string(body)))
 	ocspResponse, err := ocsp.ParseResponseForCert(body, clientCert, issuerCert)
 	if err != nil {
 		return err
@@ -243,31 +245,21 @@ func getOCSPResponse(logger *zap.Logger, ocspServer string, clientCert *x509.Cer
 
 func ocspRevokedCertCheck(logger *zap.Logger, clientCertificate *x509.Certificate, verifiedChains [][]*x509.Certificate) error {
 
+	if len(clientCertificate.OCSPServer) == 0 {
+		return nil
+	}
+
 	ocspURL := clientCertificate.OCSPServer[0]
 
 	issuer := clientCertificate.Issuer.String()
-	for i, vchains := range verifiedChains {
-		logger.Info("DREW DEBUG check", zap.Int("i", i))
-		for j, vchain := range vchains {
+	for _, vchains := range verifiedChains {
+		for _, vchain := range vchains {
 			if issuer == vchain.Subject.String() {
-				logger.Info("DREW DEBUG issuer match",
-					zap.Int("i", i),
-					zap.Int("j", j),
-					zap.String("subject", vchain.Subject.String()),
-					zap.String("name", vchain.Issuer.CommonName),
-				)
 				err := getOCSPResponse(logger, ocspURL, clientCertificate, vchain)
 				if err != nil {
-					logger.Error("DREW DEBUG ocsp response error", zap.Error(err))
+					logger.Error("ocsp response error", zap.Error(err))
 					return err
 				}
-			} else {
-				logger.Info("DREW DEBUG issuer NOMATCH",
-					zap.Int("i", i),
-					zap.Int("j", j),
-					zap.String("subject", vchain.Subject.String()),
-					zap.String("name", vchain.Issuer.CommonName),
-				)
 			}
 		}
 	}
