@@ -149,6 +149,9 @@ const MovePaymentRequests = ({
   const shipmentsInfo = [];
 
   if (paymentRequests.length) {
+    // WARN: MB-15562 captured this as a potential bug. There was an error
+    // being mentioned where `mtoShipments` does not have a `forEach` method
+    // because `mtoShipments` was returned as `null`.
     mtoShipments.forEach((shipment) => {
       const tacType = shipment.shipmentType === SHIPMENT_OPTIONS.HHG ? LOA_TYPE.HHG : shipment.tacType;
       const sacType = shipment.shipmentType === SHIPMENT_OPTIONS.HHG ? LOA_TYPE.HHG : shipment.sacType;
