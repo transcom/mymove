@@ -40,6 +40,7 @@ func (f *progearWeightTicketUpdater) UpdateProgearWeightTicket(appCtx appcontext
 
 	// verify ETag
 	if etag.GenerateEtag(originalProgearWeightTicket.UpdatedAt) != eTag {
+
 		return nil, apperror.NewPreconditionFailedError(originalProgearWeightTicket.ID, nil)
 	}
 
@@ -91,12 +92,15 @@ func mergeProgearWeightTicket(progearWeightTicket models.ProgearWeightTicket, or
 
 func FetchProgearWeightTicketByIDExcludeDeletedUploads(appContext appcontext.AppContext, progearWeightTicketID uuid.UUID) (*models.ProgearWeightTicket, error) {
 	var progearWeightTicket models.ProgearWeightTicket
-
-	err := appContext.DB().Scope(utilities.ExcludeDeletedScope()).
-		EagerPreload(
-			"Document.UserUploads.Upload",
-		).
-		Find(&progearWeightTicket, progearWeightTicketID)
+	findProgearWeightTicketQuery := appContext.DB().Q().Scope(utilities.ExcludeDeletedScope(models.ProgearWeightTicket{})).EagerPreload(
+		"Document.UserUploads.Upload",
+	)
+	if appContext.Session().IsMilApp() {
+		findProgearWeightTicketQuery.
+			LeftJoin("documents", "documents.id = progear_weight_tickets.document_id").
+			Where("documents.service_member_id = ?", appContext.Session().ServiceMemberID)
+	}
+	err := findProgearWeightTicketQuery.Find(&progearWeightTicket, progearWeightTicketID)
 
 	if err != nil {
 		switch err {
