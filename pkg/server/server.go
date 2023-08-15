@@ -7,9 +7,9 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"golang.org/x/crypto/ocsp"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"sync"
@@ -17,6 +17,7 @@ import (
 
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
+	"golang.org/x/crypto/ocsp"
 )
 
 const (
@@ -115,137 +116,196 @@ func (s *NamedServer) WaitUntilReady() {
 	}
 }
 
-// Create client cert using TLS
-func getClientCert(request *http.Request) *x509.Certificate {
-	clientCert := request.TLS.PeerCertificates[0]
-	return clientCert
-}
+// func fetchCRL(url string) (*x509.RevocationList, error) {
+// 	httpResponse, err := http.Get(url)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	defer httpResponse.Body.Close()
 
-func fetchCRL(url string) (*x509.RevocationList, error) {
-	httpResponse, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer httpResponse.Body.Close()
+// 	if httpResponse.StatusCode >= 300 {
+// 		return nil, errors.New("failed to retrieve CRL")
+// 	}
 
-	if httpResponse.StatusCode >= 300 {
-		return nil, errors.New("failed to retrieve CRL")
-	}
+// 	body, err := io.ReadAll(httpResponse.Body)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return x509.ParseRevocationList(body)
+// }
 
-	body, err := io.ReadAll(httpResponse.Body)
-	if err != nil {
-		return nil, err
-	}
-	return x509.ParseRevocationList(body)
-}
+// // Request CRL response from server.
+// // Returns error if the server can't get the certificate
+// // func getCRLResponse(fetch storage.FileStorer, v *viper.Viper, crlFile string, clientCert *x509.Certificate, issuerCert *x509.Certificate) error {
+// func getCRLResponse(clientCert *x509.Certificate, issuerCert *x509.Certificate) error {
+// 	for _, url := range clientCert.CRLDistributionPoints {
+// 		// TODO: Skip LDAP
 
-// Request CRL response from server.
-// Returns error if the server can't get the certificate
-// func getCRLResponse(fetch storage.FileStorer, v *viper.Viper, crlFile string, clientCert *x509.Certificate, issuerCert *x509.Certificate) error {
-func getCRLResponse(clientCert *x509.Certificate, issuerCert *x509.Certificate) error {
-	for _, url := range clientCert.CRLDistributionPoints {
-		// TODO: Skip LDAP
+// 		//x509.ParseRevocationList is not a direct ASN.1 representation, so leaves the option to add more detailed information
+// 		parseCRL, err := fetchCRL(url)
+// 		if err != nil {
+// 			return err
+// 		}
 
-		//x509.ParseRevocationList is not a direct ASN.1 representation, so leaves the option to add more detailed information
-		parseCRL, err := fetchCRL(url)
-		if err != nil {
-			return err
-		}
+// 		//Parsed CRL against the issuer certificate
+// 		err = parseCRL.CheckSignatureFrom(issuerCert)
+// 		if err != nil {
+// 			return err
+// 		}
 
-		//Parsed CRL against the issuer certificate
-		err = parseCRL.CheckSignatureFrom(issuerCert)
-		if err != nil {
-			return err
-		}
+// 		// Check that the revocation list can be trusted
+// 		if parseCRL.NextUpdate.Before(time.Now()) {
+// 			return fmt.Errorf("CRL expired")
+// 		}
 
-		// Check that the revocation list can be trusted
-		if parseCRL.NextUpdate.Before(time.Now()) {
-			return fmt.Errorf("CRL expired")
-		}
+// 		// Check id cert shows up in Revoked List
+// 		for _, revokedCertificate := range parseCRL.RevokedCertificates {
+// 			fmt.Printf("Revoked certificate serial number: %s\n", revokedCertificate.SerialNumber.String())
+// 			if revokedCertificate.SerialNumber.Cmp(clientCert.SerialNumber) == 0 {
+// 				return fmt.Errorf("revoked certificate")
+// 			}
+// 		}
+// 	}
 
-		// Check id cert shows up in Revoked List
-		for _, revokedCertificate := range parseCRL.RevokedCertificates {
-			fmt.Printf("Revoked certificate serial number: %s\n", revokedCertificate.SerialNumber.String())
-			if revokedCertificate.SerialNumber.Cmp(clientCert.SerialNumber) == 0 {
-				return fmt.Errorf("The certificate is revoked!")
-			}
-		}
-	}
-
-	return nil
-}
+// 	return nil
+// }
 
 // Request OCSP response from server.
 // Returns error if the server can't get the certificate
-func getOCSPResponse(ocspServer string, request *http.Request, issuerCert *x509.Certificate) (*ocsp.Response, error) {
-	var ocspRead = io.ReadAll
+func getOCSPResponse(logger *zap.Logger, ocspServer string, clientCert *x509.Certificate, issuerCert *x509.Certificate) error {
+
+	logger.Info("Checking OCSP",
+		zap.String("server", ocspServer),
+		zap.String("clientCert", clientCert.Subject.CommonName),
+		zap.String("issuerCert", issuerCert.Subject.CommonName),
+	)
 
 	var httpClient = &http.Client{
 		Timeout: time.Duration(5 * time.Second),
 	}
 
-	clientCert := getClientCert(request)
-
-	// ocspRequestOpts is the hash function used in the request. We are using SHA256 instead of the default.
-	ocspRequestOpts := &ocsp.RequestOptions{Hash: crypto.SHA256}
+	ocspRequestOpts := &ocsp.RequestOptions{Hash: crypto.SHA1}
 
 	// buffer contains the serialized request that will be sent to the server.
 	buffer, err := ocsp.CreateRequest(clientCert, issuerCert, ocspRequestOpts)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	// HTTP requests must be made with TLS, and since client certs uses TLS this satisfies that requirement
+
 	httpRequest, err := http.NewRequest(http.MethodPost, ocspServer, bytes.NewBuffer(buffer))
 	if err != nil {
-		return nil, err
+		return err
 	}
+
+	ocspURL, err := url.Parse(ocspServer)
+	if err != nil {
+		return err
+	}
+	httpRequest.Header.Add("Content-Type", "application/ocsp-request")
+	httpRequest.Header.Add("Accept", "application/ocsp-response")
+	httpRequest.Header.Add("host", ocspURL.Host)
 
 	httpResponse, err := httpClient.Do(httpRequest)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer httpResponse.Body.Close()
-	body, err := ocspRead(httpResponse.Body)
+	body, err := io.ReadAll(httpResponse.Body)
 	if err != nil {
-		return nil, err
+		return err
 	}
+	logger.Info("DREW DEBUG cert response", zap.String("body", string(body)))
 	ocspResponse, err := ocsp.ParseResponseForCert(body, clientCert, issuerCert)
-	//return ocsp.ParseResponseForCert(body, leafCertificate, issuerCert)
-	return ocspResponse, err
+	if err != nil {
+		return err
+	}
+
+	switch ocspResponse.Status {
+	case ocsp.Good:
+		logger.Info("Certificate status: Good. It is still valid",
+			zap.String("subject", clientCert.Subject.CommonName),
+		)
+	case ocsp.Revoked:
+		logger.Info("Certificate status: Revoked.",
+			zap.String("subject", clientCert.Subject.CommonName),
+		)
+		return fmt.Errorf("Revoked Certificate")
+	default:
+		logger.Info("Certificate status: Unknown",
+			zap.Any("status", ocspResponse.Status),
+			zap.String("subject", clientCert.Subject.CommonName),
+		)
+		return nil
+	}
+
+	return nil
 }
 
-// If this callback returns nil, then the handshake continues and will not be aborted
-// rawCerts contain chains of certificates in raw ASN.1 format
-// each raw certs starts with the leafCert and ends with a root self-signed CA certificate
-// verifiedChains have a certificate chain that verifies the signature validity and ends with a trusted certificate in the chain
-func CertRevokedCheck(_ [][]byte, verifiedChains [][]*x509.Certificate) error {
-	var req *http.Request
-	cert := verifiedChains[0][0]       // first argument verifies the client cert, second index 0 is the client cert
-	issuerCert := verifiedChains[0][1] // second index of 1 is the issuer of the cert
+func ocspRevokedCertCheck(logger *zap.Logger, clientCertificate *x509.Certificate, verifiedChains [][]*x509.Certificate) error {
 
-	// set server, if the OCSP server is not nil, check that there is something in it.
-	if len(cert.OCSPServer) > 0 {
-		ocspResponse, err := getOCSPResponse(cert.OCSPServer[0], req, issuerCert)
-		if err != nil {
-			return err
-			//return getCRLResponse(cert, issuerCert)
-		}
+	ocspURL := clientCertificate.OCSPServer[0]
 
-		switch ocspResponse.Status {
-		case ocsp.Good:
-			fmt.Printf("[+] Certificate status: Good. It is still valid\n")
-		case ocsp.Revoked:
-			fmt.Printf("[!] Certificate status: Revoked.\n")
-			return fmt.Errorf("the certificate was revoked!  The application can not trust the certificate")
-		case ocsp.Unknown:
-			fmt.Printf("[?] Certificate status: Unknown\n")
-			//getCRLResponse(cert, issuerCert)
-			return fmt.Errorf("the certificate is unknown to OCSP server! The server does not know about the existence of the certificate serial number. Checking the CRL instead")
+	issuer := clientCertificate.Issuer.String()
+	for i, vchains := range verifiedChains {
+		logger.Info("DREW DEBUG check", zap.Int("i", i))
+		for j, vchain := range vchains {
+			if issuer == vchain.Subject.String() {
+				logger.Info("DREW DEBUG issuer match",
+					zap.Int("i", i),
+					zap.Int("j", j),
+					zap.String("subject", vchain.Subject.String()),
+					zap.String("name", vchain.Issuer.CommonName),
+				)
+				err := getOCSPResponse(logger, ocspURL, clientCertificate, vchain)
+				if err != nil {
+					logger.Error("DREW DEBUG ocsp response error", zap.Error(err))
+					return err
+				}
+			} else {
+				logger.Info("DREW DEBUG issuer NOMATCH",
+					zap.Int("i", i),
+					zap.Int("j", j),
+					zap.String("subject", vchain.Subject.String()),
+					zap.String("name", vchain.Issuer.CommonName),
+				)
+			}
 		}
 	}
-
-	fmt.Printf("Server certificate was allowed\n")
 	return nil
+}
+
+// NewRevokedCertCheck creates a callback function to validate
+// certificates, using the provided logger
+func NewRevokedCertCheck(logger *zap.Logger) func(_ [][]byte, verifiedChains [][]*x509.Certificate) error {
+
+	// If this callback returns nil, then the handshake continues and
+	// will not be aborted
+	//
+	// rawCerts contain chains of certificates in raw ASN.1 format
+	// each raw certs starts with the leafCert and ends with a root
+	// self-signed CA certificate
+	//
+	// verifiedChains have a certificate chain that verifies the
+	// signature validity and ends with a trusted certificate in the
+	// chain
+	return func(_ [][]byte, verifiedChains [][]*x509.Certificate) error {
+		if len(verifiedChains) == 0 || len(verifiedChains[0]) == 0 {
+			return nil
+		}
+		clientCertificate := verifiedChains[0][0]
+
+		err := ocspRevokedCertCheck(logger, clientCertificate, verifiedChains)
+		if err != nil {
+			return err
+		}
+
+		// err := ocspRevokedCertCheck(logger, clientCertificate, verifiedChains)
+		// if err != nil {
+		// 	return err
+		// }
+
+		return nil
+	}
 }
 
 // CreateNamedServer returns a no-tls, tls, or mutual-tls Server based on the input given and an error, if any.
@@ -285,7 +345,7 @@ func CreateNamedServer(input *CreateNamedServerInput) (*NamedServer, error) {
 			MinVersion:               tls.VersionTLS12,
 			NextProtos:               []string{"h2"},
 			PreferServerCipherSuites: true,
-			VerifyPeerCertificate:    CertRevokedCheck,
+			VerifyPeerCertificate:    input.VerifyPeerCertificate,
 		}
 		//option 1: if devLocal flag to switch between APIs that use mtls connection and those that do not
 		//if auth.ApplicationServername == "AdminServername" || "PrimeServername" || "OrdersServername" {

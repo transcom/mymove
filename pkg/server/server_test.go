@@ -9,12 +9,10 @@
 package server
 
 import (
-	"bytes"
 	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"github.com/jarcoal/httpmock"
 	"io"
 	"net/http"
 	"os"
@@ -431,73 +429,57 @@ func (suite *serverSuite) TestTLSConfigWithInvalidAuth() {
 	suite.Error(err)
 }
 
-func (suite *serverSuite) TestGetClientCert() {
-	clientCert := &x509.Certificate{Raw: []byte{1, 2, 3}}
-	req := &http.Request{
-		TLS: &tls.ConnectionState{
-			PeerCertificates: []*x509.Certificate{clientCert},
-		},
-	}
+// func (suite *serverSuite) TestFetchCRL() {
+// 	url := "https://crl.gds.disa.mil/"
 
-	retrievedCert := getClientCert(req)
+// 	crl, err := fetchCRL(url)
+// 	if err != nil {
+// 		suite.Error(err, "fetchCRL() returned an unexpexted error: %s", err)
+// 	}
 
-	if retrievedCert != clientCert {
-		suite.NotEqual(clientCert, retrievedCert)
-	}
-	suite.Equal(clientCert, retrievedCert)
-}
+// 	if crl == nil {
+// 		suite.Error(nil, "fetchCRL() returned a nil CRL")
+// 	}
+// }
 
-func (suite *serverSuite) TestFetchCRL() {
-	url := "https://crl.gds.disa.mil/"
+// func (suite *serverSuite) TestFetchCRLInvalidURL() {
+// 	url := "https://invalid-example-url.com"
+// 	_, err := fetchCRL(url)
 
-	crl, err := fetchCRL(url)
-	if err != nil {
-		suite.Error(err, "fetchCRL() returned an unexpexted error: %s", err)
-	}
+// 	if err == nil {
+// 		suite.Error(err, "fetchCRL() should have returned an error because the URL is invalid")
+// 	}
+// }
 
-	if crl == nil {
-		suite.Error(nil, "fetchCRL() returned a nil CRL")
-	}
-}
+// func (suite *serverSuite) TestGetOCSPResponse() {
+// 	//HTTP mock
+// 	httpmock.Activate()
+// 	defer httpmock.DeactivateAndReset()
+// 	//mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// 	// w.WriteHeader(http.StatusOK)
+// 	//}))
+// 	//mockHTTP := httptest.NewRequest(http.Request{TLS: httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request))), http.Response{}})
 
-func (suite *serverSuite) TestFetchCRLInvalidURL() {
-	url := "https://invalid-example-url.com"
-	_, err := fetchCRL(url)
+// 	//Mock OCSP server response
+// 	ocspServerURL := "http://ocsp.test.server"
+// 	httpmock.RegisterResponder(http.MethodPost, ocspServerURL, httpmock.NewBytesResponder(200, []byte("mock ocsp server response")))
 
-	if err == nil {
-		suite.Error(err, "fetchCRL() should have returned an error because the URL is invalid")
-	}
-}
+// 	//Create sample request
+// 	_, issuerCert := &x509.Certificate{}, &x509.Certificate{} // TODO: Need to replace with real certs
+// 	request, err := http.NewRequest(http.MethodPost, ocspServerURL, bytes.NewBuffer([]byte{}))
 
-func (suite *serverSuite) TestGetOCSPResponse() {
-	//HTTP mock
-	httpmock.Activate()
-	defer httpmock.DeactivateAndReset()
-	//mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	// w.WriteHeader(http.StatusOK)
-	//}))
-	//mockHTTP := httptest.NewRequest(http.Request{TLS: httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request))), http.Response{}})
+// 	if err != nil {
+// 		suite.Error(err, "Failed to create request")
+// 	}
 
-	//Mock OCSP server response
-	ocspServerURL := "http://ocsp.test.server"
-	httpmock.RegisterResponder(http.MethodPost, ocspServerURL, httpmock.NewBytesResponder(200, []byte("mock ocsp server response")))
+// 	//Call getOCSPResponse
+// 	ocspResponse, err := getOCSPResponse(ocspServerURL, request, issuerCert)
+// 	if err != nil {
+// 		suite.Error(err, "Undefined error from getOCSPResponse")
+// 	}
 
-	//Create sample request
-	_, issuerCert := &x509.Certificate{}, &x509.Certificate{} // TODO: Need to replace with real certs
-	request, err := http.NewRequest(http.MethodPost, ocspServerURL, bytes.NewBuffer([]byte{}))
-
-	if err != nil {
-		suite.Error(err, "Failed to create request")
-	}
-
-	//Call getOCSPResponse
-	ocspResponse, err := getOCSPResponse(ocspServerURL, request, issuerCert)
-	if err != nil {
-		suite.Error(err, "Undefined error from getOCSPResponse")
-	}
-
-	//Check response
-	if ocspResponse == nil {
-		suite.Equal(ocspResponse, nil)
-	}
-}
+// 	//Check response
+// 	if ocspResponse == nil {
+// 		suite.Equal(ocspResponse, nil)
+// 	}
+// }

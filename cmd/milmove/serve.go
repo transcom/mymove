@@ -819,6 +819,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
+		revokedCertCheck := server.NewRevokedCertCheck(appCtx.Logger())
+
 		mutualTLSServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
 			Name:                  serverName,
 			Host:                  listenInterface,
@@ -828,7 +830,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			ClientAuth:            tls.RequireAndVerifyClientCert,
 			Certificates:          tlsConfig.Certificates,
 			ClientCAs:             tlsConfig.RootCAs,
-			VerifyPeerCertificate: server.CertRevokedCheck,
+			VerifyPeerCertificate: revokedCertCheck,
 		})
 		if err != nil {
 			logger.Fatal("error creating mutual-tls server", zap.Error(err))
