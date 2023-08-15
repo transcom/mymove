@@ -18,6 +18,35 @@ import (
 )
 
 func (suite *PPMShipmentSuite) TestSubmitNewCustomerCloseOut() {
+	refectchPPMShipment := func(ppmShipmentID uuid.UUID) *models.PPMShipment {
+		// The submitter uses a copier which runs into an issue because of all of the extra references our test data
+		// will have filled out because of how our factories work, including some circular references. In practice,
+		// we wouldn't have all of those relationships loaded at once, so the copier works fine during regular usage.
+		// Here we'll only retrieve the bare minimum.
+
+		var ppmShipment models.PPMShipment
+
+		err := suite.DB().EagerPreload(EagerPreloadAssociationShipment).Find(&ppmShipment, ppmShipmentID)
+
+		suite.FatalNoError(err)
+
+		return &ppmShipment
+	}
+
+	setUpPPMShipmentFetcherMock := func(returnValue ...interface{}) services.PPMShipmentFetcher {
+		mockFetcher := &mocks.PPMShipmentFetcher{}
+
+		mockFetcher.On(
+			"GetPPMShipment",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("[]string"),
+			mock.AnythingOfType("[]string"),
+		).Return(returnValue...)
+
+		return mockFetcher
+	}
+
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
 		mockCreator := &mocks.SignedCertificationCreator{}
 
@@ -44,6 +73,7 @@ func (suite *PPMShipmentSuite) TestSubmitNewCustomerCloseOut() {
 
 	suite.Run("Returns an error if PPM ID is invalid", func() {
 		submitter := NewPPMShipmentNewSubmitter(
+			setUpPPMShipmentFetcherMock(nil, nil),
 			setUpSignedCertificationCreatorMock(nil, nil),
 			setUpPPMShipperRouterMock(nil),
 		)
@@ -62,10 +92,13 @@ func (suite *PPMShipmentSuite) TestSubmitNewCustomerCloseOut() {
 		}
 	})
 
-	suite.Run("Returns an error if PPM shipment does not exist", func() {
+	suite.Run("Returns an error if there is a failure fetching the PPM shipment", func() {
 		nonexistentPPMShipmentID := uuid.Must(uuid.NewV4())
 
+		fakeErr := apperror.NewNotFoundError(nonexistentPPMShipmentID, "while looking for PPMShipment")
+
 		submitter := NewPPMShipmentNewSubmitter(
+			setUpPPMShipmentFetcherMock(nil, fakeErr),
 			setUpSignedCertificationCreatorMock(nil, nil),
 			setUpPPMShipperRouterMock(nil),
 		)
@@ -76,12 +109,8 @@ func (suite *PPMShipmentSuite) TestSubmitNewCustomerCloseOut() {
 			models.SignedCertification{},
 		)
 
-		if suite.Error(err) {
-			suite.Nil(updatedPPMShipment)
-
-			suite.IsType(apperror.NotFoundError{}, err)
-			suite.Contains(err.Error(), "not found while looking for PPMShipment")
-		}
+		suite.ErrorIs(err, fakeErr)
+		suite.Nil(updatedPPMShipment)
 	})
 
 	suite.Run("Returns an error if creating a new signed certification fails", func() {
@@ -94,7 +123,11 @@ func (suite *PPMShipmentSuite) TestSubmitNewCustomerCloseOut() {
 		fakeErr := apperror.NewQueryError("SignedCertification", nil, "Unable to create signed certification")
 		creator := setUpSignedCertificationCreatorMock(nil, fakeErr)
 
+		expectedShipment := refectchPPMShipment(existingPPMShipment.ID)
+		mockFetcher := setUpPPMShipmentFetcherMock(expectedShipment, nil)
+
 		submitter := NewPPMShipmentNewSubmitter(
+			mockFetcher,
 			creator,
 			setUpPPMShipperRouterMock(nil),
 		)
@@ -126,7 +159,11 @@ func (suite *PPMShipmentSuite) TestSubmitNewCustomerCloseOut() {
 		)
 		router := setUpPPMShipperRouterMock(fakeErr)
 
+		expectedShipment := refectchPPMShipment(existingPPMShipment.ID)
+		mockFetcher := setUpPPMShipmentFetcherMock(expectedShipment, nil)
+
 		submitter := NewPPMShipmentNewSubmitter(
+			mockFetcher,
 			setUpSignedCertificationCreatorMock(nil, nil),
 			router,
 		)
@@ -183,7 +220,11 @@ func (suite *PPMShipmentSuite) TestSubmitNewCustomerCloseOut() {
 				return nil
 			})
 
+		expectedShipment := refectchPPMShipment(existingPPMShipment.ID)
+		mockFetcher := setUpPPMShipmentFetcherMock(expectedShipment, nil)
+
 		submitter := NewPPMShipmentNewSubmitter(
+			mockFetcher,
 			creator,
 			router,
 		)

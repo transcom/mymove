@@ -39,18 +39,20 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
 		return ppmShipment
 	}
 
-	setUpRequestAndParams := func(ppmShipment models.PPMShipment, authUser bool, setUpPayload bool) (*http.Request, ppmops.SubmitPPMShipmentDocumentationParams) {
-		endpoint := fmt.Sprintf("/ppm-shipments/%s/submit-ppm-shipment-documentation", ppmShipment.ID.String())
+	setUpRequestAndParams := func(
+		ppmShipmentID uuid.UUID,
+		serviceMemberToAuth models.ServiceMember,
+		setUpPayload bool,
+	) (*http.Request, ppmops.SubmitPPMShipmentDocumentationParams) {
+		endpoint := fmt.Sprintf("/ppm-shipments/%s/submit-ppm-shipment-documentation", ppmShipmentID.String())
 
 		request := httptest.NewRequest("POST", endpoint, nil)
 
-		if authUser {
-			request = suite.AuthenticateRequest(request, ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
-		}
+		request = suite.AuthenticateRequest(request, serviceMemberToAuth)
 
 		params := ppmops.SubmitPPMShipmentDocumentationParams{
 			HTTPRequest:   request,
-			PpmShipmentID: handlers.FmtUUIDValue(ppmShipment.ID),
+			PpmShipmentID: handlers.FmtUUIDValue(ppmShipmentID),
 			SavePPMShipmentSignedCertificationPayload: nil,
 		}
 
@@ -88,52 +90,10 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
 		}
 	}
 
-	suite.Run("Returns an error if there is no session information", func() {
-		ppmShipment := setUpPPMShipment()
-
-		_, params := setUpRequestAndParams(ppmShipment, false, false)
-
-		handler := setUpHandler(setUpPPMShipmentNewSubmitter(nil, nil))
-
-		response := handler.Handle(params)
-
-		suite.IsType(&ppmops.SubmitPPMShipmentDocumentationUnauthorized{}, response)
-	})
-
-	suite.Run("Returns an error if the request isn't coming from the correct app", func() {
-		ppmShipment := setUpPPMShipment()
-
-		request, params := setUpRequestAndParams(ppmShipment, false, false)
-
-		officeUser := factory.BuildOfficeUser(nil, nil, nil)
-		request = suite.AuthenticateOfficeRequest(request, officeUser)
-		params.HTTPRequest = request
-
-		handler := setUpHandler(setUpPPMShipmentNewSubmitter(nil, nil))
-
-		response := handler.Handle(params)
-
-		suite.IsType(&ppmops.SubmitPPMShipmentDocumentationForbidden{}, response)
-	})
-
-	suite.Run("Returns an error if the user ID is missing from the session", func() {
-		ppmShipment := setUpPPMShipment()
-		ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID = uuid.Nil
-
-		_, params := setUpRequestAndParams(ppmShipment, true, false)
-
-		handler := setUpHandler(setUpPPMShipmentNewSubmitter(nil, nil))
-
-		response := handler.Handle(params)
-
-		suite.IsType(&ppmops.SubmitPPMShipmentDocumentationForbidden{}, response)
-	})
-
 	suite.Run("Returns an error if the PPMShipment ID in the url is invalid", func() {
 		ppmShipment := setUpPPMShipment()
-		ppmShipment.ID = uuid.Nil
 
-		_, params := setUpRequestAndParams(ppmShipment, true, false)
+		_, params := setUpRequestAndParams(uuid.Nil, ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember, false)
 
 		handler := setUpHandler(setUpPPMShipmentNewSubmitter(nil, nil))
 
@@ -149,7 +109,7 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
 	suite.Run("Returns an error if there is no request body", func() {
 		ppmShipment := setUpPPMShipment()
 
-		_, params := setUpRequestAndParams(ppmShipment, true, false)
+		_, params := setUpRequestAndParams(ppmShipment.ID, ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember, false)
 
 		handler := setUpHandler(setUpPPMShipmentNewSubmitter(nil, nil))
 
@@ -165,11 +125,13 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
 	suite.Run("Returns an error if the submitter service returns a BadDataError", func() {
 		ppmShipment := setUpPPMShipment()
 
-		_, params := setUpRequestAndParams(ppmShipment, true, true)
+		_, params := setUpRequestAndParams(ppmShipment.ID, ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember, true)
 
 		err := apperror.NewBadDataError("Bad data")
 
 		handler := setUpHandler(setUpPPMShipmentNewSubmitter(nil, err))
+
+		suite.NoError(params.SavePPMShipmentSignedCertificationPayload.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 
@@ -183,11 +145,13 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
 	suite.Run("Returns an error if the submitter service returns a NotFoundError", func() {
 		ppmShipment := setUpPPMShipment()
 
-		_, params := setUpRequestAndParams(ppmShipment, true, true)
+		_, params := setUpRequestAndParams(ppmShipment.ID, ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember, true)
 
 		err := apperror.NewNotFoundError(ppmShipment.ID, "Can't find PPM shipment")
 
 		handler := setUpHandler(setUpPPMShipmentNewSubmitter(nil, err))
+
+		suite.NoError(params.SavePPMShipmentSignedCertificationPayload.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 
@@ -201,11 +165,13 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
 	suite.Run("Returns an error if the submitter service returns a QueryError", func() {
 		ppmShipment := setUpPPMShipment()
 
-		_, params := setUpRequestAndParams(ppmShipment, true, true)
+		_, params := setUpRequestAndParams(ppmShipment.ID, ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember, true)
 
 		err := apperror.NewQueryError("PPMShipment", nil, "Error getting PPM shipment")
 
 		handler := setUpHandler(setUpPPMShipmentNewSubmitter(nil, err))
+
+		suite.NoError(params.SavePPMShipmentSignedCertificationPayload.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 
@@ -215,16 +181,18 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
 	suite.Run("Returns an error if the submitter service returns a InvalidInputError", func() {
 		ppmShipment := setUpPPMShipment()
 
-		_, params := setUpRequestAndParams(ppmShipment, true, true)
+		_, params := setUpRequestAndParams(ppmShipment.ID, ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember, true)
 
 		verrs := validate.NewErrors()
 		fieldWithErr := "field"
 		fieldErrorMsg := "Field error"
 		verrs.Add(fieldWithErr, fieldErrorMsg)
 
-		err := apperror.NewInvalidInputError(ppmShipment.ID, nil, verrs, "Invalid input")
+		fakeErr := apperror.NewInvalidInputError(ppmShipment.ID, nil, verrs, "Invalid input")
 
-		handler := setUpHandler(setUpPPMShipmentNewSubmitter(nil, err))
+		handler := setUpHandler(setUpPPMShipmentNewSubmitter(nil, fakeErr))
+
+		suite.NoError(params.SavePPMShipmentSignedCertificationPayload.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 
@@ -242,11 +210,13 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
 	suite.Run("Returns an error if the submitter service returns a ConflictError", func() {
 		ppmShipment := setUpPPMShipment()
 
-		_, params := setUpRequestAndParams(ppmShipment, true, true)
+		_, params := setUpRequestAndParams(ppmShipment.ID, ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember, true)
 
 		err := apperror.NewConflictError(ppmShipment.ID, "Can't route PPM shipment")
 
 		handler := setUpHandler(setUpPPMShipmentNewSubmitter(nil, err))
+
+		suite.NoError(params.SavePPMShipmentSignedCertificationPayload.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 
@@ -260,11 +230,13 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
 	suite.Run("Returns an error if the submitter service returns an unexpected error", func() {
 		ppmShipment := setUpPPMShipment()
 
-		_, params := setUpRequestAndParams(ppmShipment, true, true)
+		_, params := setUpRequestAndParams(ppmShipment.ID, ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember, true)
 
 		err := apperror.NewNotImplementedError("Not implemented")
 
 		handler := setUpHandler(setUpPPMShipmentNewSubmitter(nil, err))
+
+		suite.NoError(params.SavePPMShipmentSignedCertificationPayload.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 
@@ -274,7 +246,7 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
 	suite.Run("Returns the PPM shipment if all goes well", func() {
 		ppmShipment := setUpPPMShipment()
 
-		_, params := setUpRequestAndParams(ppmShipment, true, true)
+		_, params := setUpRequestAndParams(ppmShipment.ID, ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember, true)
 
 		expectedPPMShipment := ppmShipment
 		expectedPPMShipment.Status = models.PPMShipmentStatusNeedsPaymentApproval
@@ -300,6 +272,8 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
 
 		handler := setUpHandler(setUpPPMShipmentNewSubmitter(&expectedPPMShipment, nil))
 
+		suite.NoError(params.SavePPMShipmentSignedCertificationPayload.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		if suite.IsType(&ppmops.SubmitPPMShipmentDocumentationOK{}, response) {
@@ -315,22 +289,27 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerUnit() {
 }
 
 func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerIntegration() {
+	ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	mtoShipmentRouter := mtoshipment.NewShipmentRouter()
 	ppmShipmentRouter := ppmshipment.NewPPMShipmentRouter(mtoShipmentRouter)
 
-	submitter := ppmshipment.NewPPMShipmentNewSubmitter(signedCertificationCreator, ppmShipmentRouter)
+	submitter := ppmshipment.NewPPMShipmentNewSubmitter(ppmShipmentFetcher, signedCertificationCreator, ppmShipmentRouter)
 
-	setUpParamsAndHandler := func(ppmShipment models.PPMShipment, payload *internalmessages.SavePPMShipmentSignedCertification) (ppmops.SubmitPPMShipmentDocumentationParams, SubmitPPMShipmentDocumentationHandler) {
-		endpoint := fmt.Sprintf("/ppm-shipments/%s/submit-ppm-shipment-documentation", ppmShipment.ID.String())
+	setUpParamsAndHandler := func(
+		ppmShipmentID uuid.UUID,
+		serviceMemberToAuth models.ServiceMember,
+		payload *internalmessages.SavePPMShipmentSignedCertification,
+	) (ppmops.SubmitPPMShipmentDocumentationParams, SubmitPPMShipmentDocumentationHandler) {
+		endpoint := fmt.Sprintf("/ppm-shipments/%s/submit-ppm-shipment-documentation", ppmShipmentID.String())
 
 		request := httptest.NewRequest("POST", endpoint, nil)
 
-		request = suite.AuthenticateRequest(request, ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember)
+		request = suite.AuthenticateRequest(request, serviceMemberToAuth)
 
 		params := ppmops.SubmitPPMShipmentDocumentationParams{
 			HTTPRequest:   request,
-			PpmShipmentID: handlers.FmtUUIDValue(ppmShipment.ID),
+			PpmShipmentID: handlers.FmtUUIDValue(ppmShipmentID),
 			SavePPMShipmentSignedCertificationPayload: payload,
 		}
 
@@ -345,16 +324,41 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerIntegration(
 	suite.Run("Returns an error if the PPM shipment is not found", func() {
 		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
 
-		ppmShipment.ID = uuid.Must(uuid.NewV4())
+		params, handler := setUpParamsAndHandler(
+			uuid.Must(uuid.NewV4()),
+			ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+			&internalmessages.SavePPMShipmentSignedCertification{
+				CertificationText: handlers.FmtString("certification text"),
+				Date:              handlers.FmtDate(time.Now()),
+				Signature:         handlers.FmtString("signature"),
+			})
 
-		params, handler := setUpParamsAndHandler(ppmShipment, &internalmessages.SavePPMShipmentSignedCertification{
-			CertificationText: handlers.FmtString("certification text"),
-			Date:              handlers.FmtDate(time.Now()),
-			Signature:         handlers.FmtString("signature"),
-		})
+		suite.NoError(params.SavePPMShipmentSignedCertificationPayload.Validate(strfmt.Default))
 
-		err := params.SavePPMShipmentSignedCertificationPayload.Validate(strfmt.Default)
-		suite.NoError(err)
+		response := handler.Handle(params)
+
+		if suite.IsType(&ppmops.SubmitPPMShipmentDocumentationNotFound{}, response) {
+			errResponse := response.(*ppmops.SubmitPPMShipmentDocumentationNotFound)
+
+			suite.Contains(*errResponse.Payload.Detail, "not found while looking for PPMShipment")
+		}
+	})
+
+	suite.Run("Returns an error if the PPM shipment belongs to a different service member", func() {
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
+
+		otherServiceMember := factory.BuildExtendedServiceMember(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
+
+		params, handler := setUpParamsAndHandler(
+			ppmShipment.ID,
+			otherServiceMember,
+			&internalmessages.SavePPMShipmentSignedCertification{
+				CertificationText: handlers.FmtString("certification text"),
+				Date:              handlers.FmtDate(time.Now()),
+				Signature:         handlers.FmtString("signature"),
+			})
+
+		suite.NoError(params.SavePPMShipmentSignedCertificationPayload.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 
@@ -368,10 +372,13 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerIntegration(
 	suite.Run("Returns an error if the SignedCertification has any errors", func() {
 		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
 
-		params, handler := setUpParamsAndHandler(ppmShipment, &internalmessages.SavePPMShipmentSignedCertification{
-			CertificationText: handlers.FmtString("certification text"),
-			Signature:         handlers.FmtString("signature"),
-		})
+		params, handler := setUpParamsAndHandler(
+			ppmShipment.ID,
+			ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+			&internalmessages.SavePPMShipmentSignedCertification{
+				CertificationText: handlers.FmtString("certification text"),
+				Signature:         handlers.FmtString("signature"),
+			})
 
 		err := params.SavePPMShipmentSignedCertificationPayload.Validate(strfmt.Default)
 		suite.Error(err)
@@ -393,11 +400,16 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerIntegration(
 	suite.Run("Returns an error if the PPM shipment is not in the right status", func() {
 		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, nil)
 
-		params, handler := setUpParamsAndHandler(ppmShipment, &internalmessages.SavePPMShipmentSignedCertification{
-			CertificationText: handlers.FmtString("certification text"),
-			Signature:         handlers.FmtString("signature"),
-			Date:              handlers.FmtDate(time.Now()),
-		})
+		params, handler := setUpParamsAndHandler(
+			ppmShipment.ID,
+			ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+			&internalmessages.SavePPMShipmentSignedCertification{
+				CertificationText: handlers.FmtString("certification text"),
+				Signature:         handlers.FmtString("signature"),
+				Date:              handlers.FmtDate(time.Now()),
+			})
+
+		suite.NoError(params.SavePPMShipmentSignedCertificationPayload.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 
@@ -422,11 +434,16 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerIntegration(
 		signature := "signature"
 		signDate := time.Now()
 
-		params, handler := setUpParamsAndHandler(ppmShipment, &internalmessages.SavePPMShipmentSignedCertification{
-			CertificationText: handlers.FmtString(certText),
-			Signature:         handlers.FmtString(signature),
-			Date:              handlers.FmtDate(signDate),
-		})
+		params, handler := setUpParamsAndHandler(
+			ppmShipment.ID,
+			ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember,
+			&internalmessages.SavePPMShipmentSignedCertification{
+				CertificationText: handlers.FmtString(certText),
+				Signature:         handlers.FmtString(signature),
+				Date:              handlers.FmtDate(signDate),
+			})
+
+		suite.NoError(params.SavePPMShipmentSignedCertificationPayload.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 
