@@ -69,6 +69,10 @@ const ServicesCounselingMoveInfo = () => {
   }, [infoSavedAlert, location]);
 
   const { moveCode } = useParams();
+  // WARN: MB-15562 captured this as a potential bug. An error was reported
+  // that `order` was without an `id` field. Therefore this broke the
+  // `CustomerInfo` component because it is expecting an `ordersId` to come
+  // from the `order.id` property returned by `useTXOMoveInfoQueries`.
   const { order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
 
   const { pathname } = useLocation();

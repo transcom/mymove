@@ -40,6 +40,11 @@ const TXOMoveInfo = () => {
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const { moveCode, reportId } = useParams();
   const { pathname } = useLocation();
+  // WARN: MB-15562 captured this as a potential bug. An error was reported
+  // that `order` was returned from `useTXOMoveInfoQueries` as a null value and
+  // therefore broke the `EvaluationReport`, `EvaluationReports` and
+  // `EvaluationViolations` components which expect to receive a `grade`
+  // property from the `order.grade` lookup.
   const { order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
 
   const hideNav =
