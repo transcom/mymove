@@ -16,22 +16,6 @@ import (
 func (suite *InternalAPISuite) TestSubmitPPMShipmentDocumentation() {
 	// setUpRequestBody sets up the request body for the ppm document submission request.
 	setUpRequestBody := func() *bytes.Buffer {
-		// Not sure if I like or dislike the use of internalmessages here. On the one hand, it makes it easier for
-		//  people that are used to the way we set up request bodies in the existing integration tests. On the other,
-		//  it ties us to the go-swagger types and imports. Alternatively, we could do something like:
-		//
-		//	body := map[string]string{
-		//		"certification_text": "I accept all the liability!",
-		//		"signature":          "Best Customer",
-		//		"date":               "2023-08-08",
-		//	}
-		//
-		//  and use json.Marshal(body) the same way. I think either option is better ergonomically than the way we did
-		//  the first ones with byte slices like:
-		//
-		//  jsonBody := []byte(`{"certification_text": "I accept all the liability!", "signature": "Best Customer", "date": "2023-08-08"}`)
-		//
-		//  but at the time I hadn't known we could do it either of these other two ways.
 		body := &internalmessages.SavePPMShipmentSignedCertification{
 			CertificationText: handlers.FmtString("I accept all the liability!"),
 			Signature:         handlers.FmtString("Best Customer"),
