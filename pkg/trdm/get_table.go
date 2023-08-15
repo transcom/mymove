@@ -11,6 +11,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/parser/loa"
 	"github.com/transcom/mymove/pkg/parser/tac"
 )
 
@@ -49,6 +50,7 @@ import (
 // </soap:Envelope>
 
 const successResponseString = "Successful"
+const lineOfAccounting = "LN_OF_ACCT"
 
 type GetTableRequestElement struct {
 	soapClient SoapCaller
@@ -120,7 +122,7 @@ func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physical
 		},
 	}
 	operation := func() error {
-		return getTableSoapCall(d, params, appCtx)
+		return getTableSoapCall(d, params, appCtx, physicalName)
 	}
 	b := backoff.NewExponentialBackOff()
 
@@ -136,7 +138,7 @@ func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physical
 	return nil
 }
 
-func getTableSoapCall(d *GetTableRequestElement, params gosoap.Params, appCtx appcontext.AppContext) error {
+func getTableSoapCall(d *GetTableRequestElement, params gosoap.Params, appCtx appcontext.AppContext, physicalName string) error {
 	response, err := d.soapClient.Call("ProcessRequest", params)
 	if err != nil {
 		return err
@@ -147,7 +149,7 @@ func getTableSoapCall(d *GetTableRequestElement, params gosoap.Params, appCtx ap
 		return fmt.Errorf("unmarshall error: %s", unmarshalErr.Error())
 	}
 	if r.Output.TRDM.Status.StatusCode == successResponseString {
-		parseError := parseGetTableResponse(appCtx, response)
+		parseError := parseGetTableResponse(appCtx, response, physicalName)
 		if parseError != nil {
 			return parseError
 		}
@@ -156,22 +158,42 @@ func getTableSoapCall(d *GetTableRequestElement, params gosoap.Params, appCtx ap
 	return nil
 }
 
-func parseGetTableResponse(appcontext appcontext.AppContext, response *gosoap.Response) error {
+func parseGetTableResponse(appcontext appcontext.AppContext, response *gosoap.Response, physicalName string) error {
 	reader := bytes.NewReader(response.Payload)
-	tacCodes, err := tac.Parse(reader)
+	if physicalName == lineOfAccounting {
+		loaCodes, err := loa.Parse(reader)
+		if err != nil {
+			return err
+		}
+		saveErr := saveLoaCodes(appcontext, loaCodes)
+		if saveErr != nil {
+			return saveErr
+		}
 
-	if err != nil {
-		return err
+	} else {
+		tacCodes, err := tac.Parse(reader)
+		consolidatedTacs := tac.ConsolidateDuplicateTACsDesiredFromTRDM(tacCodes)
+		if err != nil {
+			return err
+		}
+		if saveErr := saveTacCodes(appcontext, consolidatedTacs); saveErr != nil {
+			return saveErr
+		}
 	}
-	saveErr := saveTacCodes(appcontext, tacCodes)
+
+	return nil
+}
+
+func saveTacCodes(appcontext appcontext.AppContext, tacCodes []models.TransportationAccountingCode) error {
+	saveErr := appcontext.DB().Update(tacCodes)
 	if saveErr != nil {
 		return saveErr
 	}
 	return nil
 }
 
-func saveTacCodes(appcontext appcontext.AppContext, tacCodes []models.TransportationAccountingCode) error {
-	saveErr := appcontext.DB().RawQuery("").All(tacCodes)
+func saveLoaCodes(appcontext appcontext.AppContext, loa []models.LineOfAccounting) error {
+	saveErr := appcontext.DB().Update(loa)
 	if saveErr != nil {
 		return saveErr
 	}
