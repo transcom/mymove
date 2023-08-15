@@ -77,33 +77,6 @@ func ConvertGothProviderToOktaProvider(gothProvider goth.Provider) (*Provider, e
 	return provider, nil
 }
 
-// func getProviderName(r *http.Request) string {
-// 	session := auth.SessionFromRequestContext(r)
-
-// 	// Set the provider name based on of it is an office or admin app. Remember, the provider is slected by its name
-// 	if session.IsOfficeApp() {
-// 		return OfficeProviderName
-// 	} else if session.IsAdminApp() {
-// 		return AdminProviderName
-// 	}
-// 	return MilProviderName
-// }
-
-// ! This func will likely come back during continuation of the sessions story
-// // This function will return the ClientID of the current provider
-// func (op *OktaProvider) ClientID(r *http.Request) (string, error) {
-// 	// Default the provider name to the "MilProviderName" which is the customer application
-// 	providerName := getProviderName(r)
-
-// 	// Retrieve the provider based on its name
-// 	gothProvider, err := goth.GetProvider(providerName)
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	return gothProvider.ClientKey, nil
-// }
-
 // This function will use the OktaProvider to return the correct authorization URL to use
 func (op *Provider) AuthorizationURL(r *http.Request) (*Data, error) {
 
@@ -158,10 +131,14 @@ func NewOktaProvider(logger *zap.Logger) *Provider {
 
 // This function allows us to wrap new registered providers with the zap logger. The initial Okta provider is already wrapped
 // This will wrap the gothOkta provider with our own version of OktaProvider (With added methods)
-func wrapOktaProvider(provider *gothOkta.Provider, logger *zap.Logger) *Provider {
+func WrapOktaProvider(provider *gothOkta.Provider, orgURL string, clientID string, secret string, callbackURL string, logger *zap.Logger) *Provider {
 	return &Provider{
-		Provider: *provider,
-		logger:   logger,
+		Provider:    *provider,
+		orgURL:      orgURL,
+		clientID:    clientID,
+		secret:      secret,
+		callbackURL: callbackURL,
+		logger:      logger,
 	}
 }
 
@@ -211,18 +188,11 @@ func (op *Provider) RegisterOktaProvider(name string, orgURL string, callbackURL
 	provider := gothOkta.New(clientID, secret, orgURL, callbackURL, scope...)
 	// Set the name manualy
 	provider.SetName(name)
-	// Wrap
-	wrap := wrapOktaProvider(provider, op.logger)
-	// Set hostname
-	wrap.SetOrgURL(orgURL)
-	wrap.SetClientID(clientID)
-	wrap.SetSecret(secret)
-	wrap.SetCallbackURL(callbackURL)
-	// Assign to the active goth providers
-	goth.UseProviders(wrap)
+	// Assign to the active goth providers in a type asserted format based on our Provider struct
+	goth.UseProviders(WrapOktaProvider(provider, orgURL, clientID, secret, callbackURL, op.logger))
 
 	// Check that the provider exists now. The previous functions do not have error handling
-	err := verifyProvider(name)
+	err := VerifyProvider(name)
 	if err != nil {
 		op.logger.Error("Could not verify goth provider", zap.Error(err))
 		return err
@@ -231,7 +201,7 @@ func (op *Provider) RegisterOktaProvider(name string, orgURL string, callbackURL
 }
 
 // Check if the provided provider name exists
-func verifyProvider(name string) error {
+func VerifyProvider(name string) error {
 	provider, err := goth.GetProvider(name)
 	fmt.Println(provider)
 	if err != nil {

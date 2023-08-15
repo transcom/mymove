@@ -33,13 +33,18 @@ func getProfileData(appCtx appcontext.AppContext, provider okta.Provider) (map[s
 	h.Add("Accept", "application/json")
 
 	client := &http.Client{}
-	resp, _ := client.Do(req)
-	body, _ := io.ReadAll(resp.Body)
+	resp, err := client.Do(req)
+	if err != nil {
+		appCtx.Logger().Error("could not execute request", zap.Error(err))
+	}
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		appCtx.Logger().Error("could not read response body", zap.Error(err))
+	}
 	defer resp.Body.Close()
-	err := json.Unmarshal(body, &m)
+	err = json.Unmarshal(body, &m)
 	if err != nil {
 		appCtx.Logger().Error("could not unmarshal body", zap.Error(err))
-		// No return is intentional
 	}
 
 	return m, nil
@@ -68,9 +73,7 @@ func verifyToken(t string, nonce string, provider okta.Provider) (*verifier.Jwt,
 	return nil, fmt.Errorf("token could not be verified: %s", "")
 }
 
-// ! Refactor once chamber is holding new secrets
-func exchangeCode(code string, r *http.Request, appCtx appcontext.AppContext, provider okta.Provider) (Exchange, error) {
-
+func exchangeCode(code string, r *http.Request, appCtx appcontext.AppContext, provider okta.Provider, client HTTPClient) (Exchange, error) {
 	authHeader := base64.StdEncoding.EncodeToString(
 		[]byte(provider.GetClientID() + ":" + provider.GetSecret()))
 
@@ -89,7 +92,6 @@ func exchangeCode(code string, r *http.Request, appCtx appcontext.AppContext, pr
 	h.Add("Connection", "close")
 	h.Add("Content-Length", "0")
 
-	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
 		appCtx.Logger().Error("Code exchange", zap.Error(err))

@@ -1,23 +1,27 @@
 package authentication
 
 import (
+	"bytes"
 	"context"
 	"encoding/gob"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
+	"github.com/golang-jwt/jwt/v4"
+	"github.com/jarcoal/httpmock"
 	"github.com/markbates/goth"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
-	"golang.org/x/oauth2"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
@@ -34,6 +38,32 @@ import (
 
 // UserSessionCookieName is the key suffix at which we're storing our token cookie
 const UserSessionCookieName = "session_token"
+
+// This is a dumy private key that has no use and is not reflective of any real keys utilized. This key was generated
+// specifically for the purpose of testing.
+const DummyRSAPrivateKey = `-----BEGIN RSA PRIVATE KEY-----
+MIICXQIBAAKBgQDQ62hDHRRAduSuUQDxixn61bbRLj9iBBmRG03rW3PNnkSzrcof
+9ytnKY2LX2DAPaSr/1Em7fvqiovzVg43ElfFHJBrCskJqWLphifv6qoGX1pwsPA/
+Rb+MBqftMU1Zq7UC9Eis/Sje2QGx7k02JoQy+R/EP/kQq1B0p4/qCtR73QIDAQAB
+AoGBALVzP+LKZsR2frdHc2JWRgIti9KyMCqZFPuKk2pOy41SYKkNz/djXTcESAM8
+m3NcFqGr5nfBSoKyQkrd+wqpy7+8X15MpClVErfUeowoOpaFQBr0E5Yf8WuzWXV2
+Daex1aeA+69OAPmYEiVJD4qY6m8vxHZZT0ISNEIW4ObhyQmhAkEA9SvhOADfQLp8
+7vZXTWW/fhapi8NiKW8cWT4wDQhwnW2glGxyVJBWwj+VtcJ8j5mEfm6vInh7QAYl
+2dV/sMaNNwJBANolofvurHjd56WcdHENctAJTxiWtTqA9RIrtIIzJW7cqR4ujQKL
+ndD5v2nG+b2JdlcOBzNs0LVF+ItwYMTYKYsCQQC1LqhR6tMR0r9hGUuLNxY86CKD
+1vBEDoi0qvB3sTUIImv5Q+t58vEqvDK3D/Nda+YuST3EC6WJuwFd6hljWlghAkBL
+s9mVywrxWtijoTrLbMZWKZTYTJyRs+TYLHCU6ljoMw1BWxg2NOtMdQ8XDyTlwIlf
+xo97Khz3e1O4WARM61LnAkAzTxo/AOHVKawAR45eq4rjz0rxyCgtcTGa1qaEt9Ap
+WjqcmKEkxqxz6lX/Pj2GbyikMkDThcp1bd1DRSUDOxHP
+-----END RSA PRIVATE KEY-----
+`
+const DummyRSAPublicKey = `-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDQ62hDHRRAduSuUQDxixn61bbR
+Lj9iBBmRG03rW3PNnkSzrcof9ytnKY2LX2DAPaSr/1Em7fvqiovzVg43ElfFHJBr
+CskJqWLphifv6qoGX1pwsPA/Rb+MBqftMU1Zq7UC9Eis/Sje2QGx7k02JoQy+R/E
+P/kQq1B0p4/qCtR73QIDAQAB
+-----END PUBLIC KEY-----
+`
 
 // SessionCookieName returns the session cookie name
 func SessionCookieName(session *auth.Session) string {
@@ -665,10 +695,18 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 
 	suite.Equal(authorizationResultAuthorized, result)
 
+	// Set up mock callback handler for testing
 	h := CallbackHandler{
 		authContext,
 		handlerConfig,
 		setUpMockNotificationSender(),
+		&MockHTTPClient{
+			Response: &http.Response{
+				StatusCode: 200,
+				Body:       io.NopCloser(bytes.NewReader([]byte(`{"access_token": "mockToken", "id_token": "mockIDToken"}`))),
+			},
+			Err: nil,
+		},
 	}
 
 	rr2 := httptest.NewRecorder()
@@ -693,64 +731,15 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 	suite.Equal(u.String(), rr2.Result().Header.Get("Location"))
 }
 
-type stubLoginGovProvider struct {
-	StubName      string
-	StubUser      goth.User
-	StubSession   goth.Session
-	StubToken     string
-	StubClientKey string
-	StubState     string
-	StubDebug     bool
-}
-
-func (s *stubLoginGovProvider) Name() string {
-	return s.StubName
-}
-
-func (s *stubLoginGovProvider) SetName(name string) {
-	s.StubName = name
-}
-
-func (s *stubLoginGovProvider) BeginAuth(state string) (goth.Session, error) {
-	s.StubState = state
-	return s.StubSession, nil
-}
-
-func (s *stubLoginGovProvider) FetchUser(goth.Session) (goth.User, error) {
-	return s.StubUser, nil
-}
-
-func (s *stubLoginGovProvider) FetchUserAndIDTokenByCode(_ string) (goth.User, string, error) {
-	return s.StubUser, s.StubToken, nil
-}
-
-func (s *stubLoginGovProvider) ClientKey() string {
-	return s.StubClientKey
-}
-
-func (s *stubLoginGovProvider) UnmarshalSession(_ string) (goth.Session, error) {
-	return nil, http.ErrHijacked
-}
-func (s *stubLoginGovProvider) Debug(setting bool) {
-	s.StubDebug = setting
-}
-
-// Get new access token based on the refresh token
-func (s *stubLoginGovProvider) RefreshToken(_ string) (*oauth2.Token, error) {
-	return nil, http.ErrHijacked
-}
-
-// Refresh token is provided by auth provider or not
-func (s *stubLoginGovProvider) RefreshTokenAvailable() bool {
-	return false
-}
-
-// test to make sure the full auth flow works, although we are using
-// the stubLoginGovProvider from above
+// Test to make sure the full auth flow works, although we are using mock Okta endpoints
 func (suite *AuthSuite) TestRedirectFromLoginGovForValidUser() {
+
 	// build a real office user
 	tioOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(),
 		[]roles.RoleType{roles.RoleTypeTIO})
+
+	// Mock the necessary Okta endpoints
+	mockAndActivateOktaEndpoints(tioOfficeUser)
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
@@ -762,7 +751,7 @@ func (suite *AuthSuite) TestRedirectFromLoginGovForValidUser() {
 		Hostname:        appnames.OfficeServername,
 	}
 
-	// login.gov state cookie
+	// okta.mil state cookie
 	stateValue := "someStateValue"
 	cookieName := StateCookieName(&session)
 	cookie := http.Cookie{
@@ -780,20 +769,26 @@ func (suite *AuthSuite) TestRedirectFromLoginGovForValidUser() {
 	sessionManager := handlerConfig.SessionManagers().Office
 	req = suite.SetupSessionRequest(req, &session, sessionManager)
 
-	stubOfficeProvider := stubLoginGovProvider{
-		StubName:  officeProviderName,
-		StubToken: "stubToken",
-		StubUser: goth.User{
-			UserID: tioOfficeUser.User.LoginGovUUID.String(),
-			Email:  tioOfficeUser.Email,
-		},
-	}
 	defer goth.ClearProviders()
-	goth.UseProviders(&stubOfficeProvider)
+	factoryProvider, err := factory.DummyProviderFactory(officeProviderName)
+	suite.NoError(err)
+	goth.UseProviders(factoryProvider)
+	// TODO: Consts
+	mockIDToken, err := generateJWTToken("dummyClientID", "https://dummy.okta.com/oauth2/default", stateValue)
+	suite.NoError(err)
+	responseBody := fmt.Sprintf(`{"access_token": "mockToken", "id_token": "%s"}`, mockIDToken)
+	// Create the callbackhandler with mock http client for testing
 	h := CallbackHandler{
 		authContext,
 		handlerConfig,
 		setUpMockNotificationSender(),
+		&MockHTTPClient{
+			Response: &http.Response{
+				StatusCode: 200,
+				Body:       io.NopCloser(bytes.NewReader([]byte(responseBody))),
+			},
+			Err: nil,
+		},
 	}
 
 	rr := httptest.NewRecorder()
@@ -805,12 +800,79 @@ func (suite *AuthSuite) TestRedirectFromLoginGovForValidUser() {
 		rr.Result().Header.Get("Location"))
 }
 
-// test to make sure the full auth flow works, although we are using
-// the stubLoginGovProvider from above
+func generateJWTToken(aud, iss, nonce string) (string, error) {
+
+	claims := jwt.MapClaims{
+		"aud":   aud,
+		"iss":   iss,
+		"exp":   time.Now().Add(time.Hour * 72).Unix(),
+		"iat":   time.Now().Unix(),
+		"nonce": nonce,
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+	// TODO: replace with const, it must match the okta mocks for successful auth.
+	token.Header["kid"] = "keyID"
+
+	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(DummyRSAPrivateKey))
+	if err != nil {
+		return "", err
+	}
+
+	signedToken, err := token.SignedString(privateKey)
+	if err != nil {
+		return "", err
+	}
+
+	return signedToken, nil
+}
+
+// Generate and activate Okta endpoints that will be using during the auth handlers.
+func mockAndActivateOktaEndpoints(tioOfficeUser models.OfficeUser) {
+	// Mock the OIDC .well-known openid-configuration endpoint
+	// TODO: replace urls with consts and use within provider factory as well
+	httpmock.RegisterResponder("GET", "https://dummy.okta.com/oauth2/default/.well-known/openid-configuration",
+		httpmock.NewStringResponder(200, `{
+            "jwks_uri": "https://dummy.okta.com/oauth2/default/.well-known/jwks.json"
+        }`))
+
+	// Mock the JWKS endpoint to receive keys for JWT verification
+	// TODO: replace keys with consts
+	httpmock.RegisterResponder("GET", "https://dummy.okta.com/oauth2/default/.well-known/jwks.json",
+		httpmock.NewStringResponder(200, `{
+            "keys": [
+                {
+                    "alg": "RS256",
+                    "kty": "RSA",
+                    "use": "sig",
+                    "n": "0OtoQx0UQHbkrlEA8YsZ-tW20S4_YgQZkRtN61tzzZ5Es63KH_crZymNi19gwD2kq_9RJu376oqL81YONxJXxRyQawrJCali6YYn7-qqBl9acLDwP0W_jAan7TFNWau1AvRIrP0o3tkBse5NNiaEMvkfxD_5EKtQdKeP6grUe90",
+                    "e": "AQAB",
+                    "kid": "keyID"
+                }
+            ]
+        }`))
+
+	// Mock the userinfo endpoint
+	// TODO: Replace with factory user information
+	// Sub is the Okta user ID, it is not a UUID.
+	tioOfficeOktaUserID := tioOfficeUser.User.LoginGovUUID.String()
+	httpmock.RegisterResponder("GET", "https://dummy.okta.com/oauth2/default/v1/userinfo",
+		httpmock.NewStringResponder(200, fmt.Sprintf(`{
+		"sub": "%s",
+		"name": "name",
+		"email": "name@okta.com"
+	}`, tioOfficeOktaUserID)))
+
+	httpmock.Activate()
+}
+
+// Test to make sure the full auth flow works, although we are using mock Okta endpoints
 func (suite *AuthSuite) TestRedirectFromLoginGovForInvalidUser() {
-	// build a real office user
 	tioOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 	suite.False(tioOfficeUser.Active)
+
+	// Mock the necessary Okta endpoints
+	mockAndActivateOktaEndpoints(tioOfficeUser)
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
@@ -822,8 +884,12 @@ func (suite *AuthSuite) TestRedirectFromLoginGovForInvalidUser() {
 		Hostname:        appnames.OfficeServername,
 	}
 
-	// login.gov state cookie
+	// okta.mil state cookie
 	stateValue := "someStateValue"
+	// The code value is what is used to retrieve the exchange token frin the code passed through the URL. As long as the code value exists,
+	// then the exchangeCode function will not fail. HOWEVER, we still need to provide a mock exchange token in the body so that it
+	// can be verified and a user can be pulled from it.
+	codeValue := "someCodeValue"
 	cookieName := StateCookieName(&session)
 	cookie := http.Cookie{
 		Name:    cookieName,
@@ -831,8 +897,8 @@ func (suite *AuthSuite) TestRedirectFromLoginGovForInvalidUser() {
 		Path:    "/",
 		Expires: auth.GetExpiryTimeFromMinutes(auth.SessionExpiryInMinutes),
 	}
-	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback?state=%s",
-		appnames.OfficeServername, stateValue), nil)
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback?state=%s&code=%s",
+		appnames.OfficeServername, stateValue, codeValue), nil)
 	req.AddCookie(&cookie)
 
 	authContext := suite.AuthContext()
@@ -840,20 +906,26 @@ func (suite *AuthSuite) TestRedirectFromLoginGovForInvalidUser() {
 	sessionManager := handlerConfig.SessionManagers().Office
 	req = suite.SetupSessionRequest(req, &session, sessionManager)
 
-	stubOfficeProvider := stubLoginGovProvider{
-		StubName:  officeProviderName,
-		StubToken: "stubToken",
-		StubUser: goth.User{
-			UserID: tioOfficeUser.User.LoginGovUUID.String(),
-			Email:  tioOfficeUser.Email,
-		},
-	}
 	defer goth.ClearProviders()
-	goth.UseProviders(&stubOfficeProvider)
+	factoryProvider, err := factory.DummyProviderFactory(officeProviderName)
+	suite.NoError(err)
+	goth.UseProviders(factoryProvider)
+	// TODO: Replace with consts
+	mockIDToken, err := generateJWTToken("dummyClientID", "https://dummy.okta.com/oauth2/default", stateValue)
+	suite.NoError(err)
+	responseBody := fmt.Sprintf(`{"access_token": "mockToken", "id_token": "%s"}`, mockIDToken)
+	// Create the callbackhandler with mock http client for testing
 	h := CallbackHandler{
 		authContext,
 		handlerConfig,
 		setUpMockNotificationSender(),
+		&MockHTTPClient{
+			Response: &http.Response{
+				StatusCode: 200,
+				Body:       io.NopCloser(bytes.NewReader([]byte(responseBody))),
+			},
+			Err: nil,
+		},
 	}
 
 	rr := httptest.NewRecorder()

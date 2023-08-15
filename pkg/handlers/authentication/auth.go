@@ -630,11 +630,16 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	appCtx.Logger().Info("User has been redirected", zap.Any("redirectURL", loginData.RedirectURL))
 }
 
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 // CallbackHandler processes a callback from okta.mil
 type CallbackHandler struct {
 	Context
 	handlers.HandlerConfig
-	sender notifications.NotificationSender
+	sender     notifications.NotificationSender
+	HTTPClient HTTPClient
 }
 
 // NewCallbackHandler creates a new CallbackHandler
@@ -689,6 +694,15 @@ func invalidPermissionsResponse(appCtx appcontext.AppContext, handlerConfig hand
 		zap.String("request_path", r.URL.Path),
 		zap.String("redirect_url", landingURL.String()))
 	http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
+}
+
+type MockHTTPClient struct {
+	Response *http.Response
+	Err      error
+}
+
+func (m *MockHTTPClient) Do(_ *http.Request) (*http.Response, error) {
+	return m.Response, m.Err
 }
 
 // AuthorizationCallbackHandler handles the callback from the Okta.mil authorization flow
@@ -789,7 +803,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Exchange code received from login for access token. This is used during the grant_type auth flow
-	exchange, err := exchangeCode(r.URL.Query().Get("code"), r, appCtx, *provider)
+	exchange, err := exchangeCode(r.URL.Query().Get("code"), r, appCtx, *provider, h.HTTPClient)
 	// Double error check
 	if exchange.Error != "" {
 		fmt.Println(exchange.Error)
@@ -809,7 +823,6 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
-
 	// Assign token values to session
 	appCtx.Session().IDToken = exchange.IDToken
 	appCtx.Session().AccessToken = exchange.AccessToken
@@ -822,21 +835,16 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// ! Continuing with sessions
-	// TODO: convert profiledata into struct. Previous implementation used goth.User
-
 	appCtx.Session().IDToken = exchange.IDToken
 	appCtx.Session().Email = profileData["email"]
 	appCtx.Session().ClientID = profileData["aud"]
 
 	appCtx.Logger().Info("New Login", zap.String("Okta user", profileData["preferred_username"]), zap.String("Okta email", profileData["email"]), zap.String("Host", appCtx.Session().Hostname))
-	// ! Hard coded error auth result. This is because sessions are TODO
-	// TODO: Implement sessions and remove hard coded auth result error
 
-	// ! This will fail for now
-	result := AuthorizationResult(2)
-	dump := authorizeUser(r.Context(), appCtx, goth.User{}, sessionManager, h.sender)
-	appCtx.Logger().Info("Dumping var", zap.Any("dump", dump))
+	// TODO: Replace with sessions' OktaUserData. Remember to update the test mock endpoints!
+	result := authorizeUser(r.Context(), appCtx, goth.User{
+		UserID: profileData["sub"],
+	}, sessionManager, h.sender)
 	switch result {
 	case authorizationResultError:
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
