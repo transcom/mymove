@@ -8,6 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
@@ -74,7 +75,8 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 
 		updater := NewCustomerMovingExpenseUpdater()
 
-		updatedMovingExpense, err := updater.UpdateMovingExpense(suite.AppContextForTest(), notFoundMovingExpense, "")
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+		updatedMovingExpense, err := updater.UpdateMovingExpense(appCtx, notFoundMovingExpense, "")
 
 		suite.Nil(updatedMovingExpense)
 
@@ -89,7 +91,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 	})
 
 	suite.Run("Returns a PreconditionFailedError if the input eTag is stale/incorrect", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		originalMovingExpense := setupForTest(appCtx, nil, false)
 
@@ -108,10 +110,78 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 		)
 	})
 
-	suite.Run("Successfully updates as a customer", func() {
-		appCtx := suite.AppContextForTest()
+	suite.Run("Returns not found if user is unauthorized", func() {
+		setupAppCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+		originalMovingExpense := setupForTest(setupAppCtx, nil, false)
 
-		originalMovingExpense := setupForTest(appCtx, nil, true)
+		unauthorizedUser := factory.BuildServiceMember(suite.DB(), nil, nil)
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: unauthorizedUser.ID,
+		})
+
+		updater := NewCustomerMovingExpenseUpdater()
+
+		updatedMovingExpense, updateErr := updater.UpdateMovingExpense(appCtx, *originalMovingExpense, etag.GenerateEtag(originalMovingExpense.UpdatedAt))
+
+		suite.Nil(updatedMovingExpense)
+
+		suite.Error(updateErr)
+		suite.IsType(apperror.NotFoundError{}, updateErr)
+	})
+
+	suite.Run("Successfully updates as a MilMove customer", func() {
+		// It's obnoxious, but: we can't use the setupForTest function here,
+		// since we need to get the service member ID for the AppContext.
+		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: serviceMember.ID,
+		})
+
+		// Code ported from `setupForTest`
+
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    serviceMember,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		expenseDocument := factory.BuildDocumentLinkServiceMember(suite.DB(), serviceMember)
+
+		for i := 0; i < 2; i++ {
+			var deletedAt *time.Time
+			if i == 1 {
+				deletedAt = models.TimePointer(time.Now())
+			}
+			factory.BuildUserUpload(suite.DB(), []factory.Customization{
+				{
+					Model:    expenseDocument,
+					LinkOnly: true,
+				},
+				{
+					Model: models.UserUpload{
+						DeletedAt: deletedAt,
+					},
+				},
+			}, nil)
+		}
+
+		originalMovingExpense := models.MovingExpense{
+			PPMShipmentID: ppmShipment.ID,
+			Document:      expenseDocument,
+			DocumentID:    expenseDocument.ID,
+		}
+
+		verrs, err := appCtx.DB().ValidateAndCreate(&originalMovingExpense)
+
+		suite.NoVerrs(verrs)
+		suite.Nil(err)
+		suite.NotNil(originalMovingExpense.ID)
+
+		// Actual test starts here
 
 		updater := NewCustomerMovingExpenseUpdater()
 		contractedExpenseType := models.MovingExpenseReceiptTypeContractedExpense
@@ -146,7 +216,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 	})
 
 	suite.Run("Successfully updates as an office user", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		originalMovingExpense := setupForTest(appCtx, nil, true)
 
@@ -187,7 +257,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 	})
 
 	suite.Run("Successfully updates storage receipt type", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		originalMovingExpense := setupForTest(appCtx, nil, true)
 
@@ -224,7 +294,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 	})
 
 	suite.Run("Successfully clears storage dates if receipt type changes", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		storageReceiptType := models.MovingExpenseReceiptTypeStorage
 		originalMovingExpense := setupForTest(appCtx, &models.MovingExpense{
@@ -262,7 +332,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 	})
 
 	suite.Run("Successfully clears the reason when status is approved", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		rejectedStatus := models.PPMDocumentStatusRejected
 		originalMovingExpense := setupForTest(appCtx, &models.MovingExpense{
@@ -301,7 +371,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 	})
 
 	suite.Run("Fails to update when files are missing", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		originalMovingExpense := setupForTest(appCtx, nil, false)
 
@@ -328,7 +398,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 	})
 
 	suite.Run("Fails to update when a reason isn't provided for non-approved status", func() {
-		appCtx := suite.AppContextForTest()
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 
 		originalMovingExpense := setupForTest(appCtx, nil, true)
 

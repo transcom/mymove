@@ -25,7 +25,7 @@ const validationSchema = Yup.object().shape({
   emptyWeight: Yup.number().required('Enter the empty weight'),
   fullWeight: Yup.number()
     .required('Required')
-    .when('emptyWeight', (emptyWeight, schema) => {
+    .when('emptyWeight', ([emptyWeight], schema) => {
       return emptyWeight != null
         ? schema.min(emptyWeight + 1, 'The full weight must be greater than the empty weight')
         : schema;
