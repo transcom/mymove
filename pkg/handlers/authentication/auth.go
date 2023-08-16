@@ -629,11 +629,16 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	appCtx.Logger().Info("User has been redirected", zap.Any("redirectURL", loginData.RedirectURL))
 }
 
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 // CallbackHandler processes a callback from okta.mil
 type CallbackHandler struct {
 	Context
 	handlers.HandlerConfig
-	sender notifications.NotificationSender
+	sender     notifications.NotificationSender
+	HTTPClient HTTPClient
 }
 
 // NewCallbackHandler creates a new CallbackHandler
@@ -642,6 +647,7 @@ func NewCallbackHandler(ac Context, hc handlers.HandlerConfig, sender notificati
 		Context:       ac,
 		HandlerConfig: hc,
 		sender:        sender,
+		HTTPClient:    &http.Client{},
 	}
 	return handler
 }
@@ -688,6 +694,15 @@ func invalidPermissionsResponse(appCtx appcontext.AppContext, handlerConfig hand
 		zap.String("request_path", r.URL.Path),
 		zap.String("redirect_url", landingURL.String()))
 	http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
+}
+
+type MockHTTPClient struct {
+	Response *http.Response
+	Err      error
+}
+
+func (m *MockHTTPClient) Do(_ *http.Request) (*http.Response, error) {
+	return m.Response, m.Err
 }
 
 // AuthorizationCallbackHandler handles the callback from the Okta.mil authorization flow
@@ -788,7 +803,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Exchange code received from login for access token. This is used during the grant_type auth flow
-	exchange, err := exchangeCode(r.URL.Query().Get("code"), r, appCtx, *provider)
+	exchange, err := exchangeCode(r.URL.Query().Get("code"), r, appCtx, *provider, h.HTTPClient)
 	// Double error check
 	if exchange.Error != "" {
 		fmt.Println(exchange.Error)
@@ -808,7 +823,6 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
-
 	// Assign token values to session
 	appCtx.Session().IDToken = exchange.IDToken
 	appCtx.Session().AccessToken = exchange.AccessToken
