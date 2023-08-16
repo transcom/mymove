@@ -1,0 +1,1 @@
+UPDATE duty_locations SET provides_services_counseling = FALSE WHERE name = 'Portsmouth Naval Shipyard'
