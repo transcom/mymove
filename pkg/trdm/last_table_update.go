@@ -75,7 +75,6 @@ func NewTRDMGetLastTableUpdate(physicalName string, soapClient SoapCaller) GetLa
 func FetchAllTACRecords(appcontext appcontext.AppContext) ([]models.TransportationAccountingCode, error) {
 	var tacCodes []models.TransportationAccountingCode
 	query := `SELECT * FROM transportation_accounting_codes`
-
 	err := appcontext.DB().RawQuery(query).All(&tacCodes)
 	if err != nil {
 		return tacCodes, errors.Wrap(err, "Fetch line items query failed")
@@ -83,6 +82,17 @@ func FetchAllTACRecords(appcontext appcontext.AppContext) ([]models.Transportati
 
 	return tacCodes, nil
 
+}
+
+func FethTACRecordsByTime(appcontext appcontext.AppContext, time string) ([]models.TransportationAccountingCode, error) {
+	var tacCodes []models.TransportationAccountingCode
+	err := appcontext.DB().Select("*").Where("updated_at < $1", time).All(&tacCodes)
+
+	if err != nil {
+		return tacCodes, errors.Wrap(err, "Fetch line items query failed")
+	}
+
+	return tacCodes, nil
 }
 
 func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string) error {
@@ -118,11 +128,11 @@ func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.
 	}
 
 	if r.Status.StatusCode == successfulStatusCode {
-		tacCodes, dbError := FetchAllTACRecords(appCtx)
+		tacCodes, dbError := FethTACRecordsByTime(appCtx, r.LastUpdate)
 		if dbError != nil {
 			return fmt.Errorf(err.Error())
 		}
-		err := processTacCodes(tacCodes, r)
+		err := processTacCodes(tacCodes)
 		if err != nil {
 			return fmt.Errorf(err.Error())
 		}
@@ -132,13 +142,9 @@ func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.
 	return nil
 }
 
-func processTacCodes(tacCodes []models.TransportationAccountingCode, r GetLastTableUpdateResponseElement) error {
+func processTacCodes(tacCodes []models.TransportationAccountingCode) error {
 	if len(tacCodes) > 0 {
-		for _, tacCode := range tacCodes {
-			if tacCode.UpdatedAt.String() != r.LastUpdate {
-				print("GetTable")
-			}
-		}
+		print("GetTable")
 	}
 	return nil
 }
