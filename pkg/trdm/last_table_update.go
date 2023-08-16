@@ -130,7 +130,7 @@ func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.
 	if r.Status.StatusCode == successfulStatusCode {
 		tacCodes, dbError := FethTACRecordsByTime(appCtx, r.LastUpdate)
 		if dbError != nil {
-			return fmt.Errorf(err.Error())
+			return fmt.Errorf(dbError.Error())
 		}
 		err := processTacCodes(d, physicalName, appCtx, tacCodes)
 		if err != nil {

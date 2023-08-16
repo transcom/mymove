@@ -29,9 +29,14 @@ const getTableTemplate = `
       </getTableResponseElement>
 `
 
-func soapResponseForGetTable(statusCode string) *gosoap.Response {
+const getTablePayloadLoa = `test`
+
+const getTablePayloadTac = `test`
+
+func soapResponseForGetTable(statusCode string, payload string) *gosoap.Response {
 	return &gosoap.Response{
-		Body: []byte(fmt.Sprintf(getTableTemplate, statusCode)),
+		Body:    []byte(fmt.Sprintf(getTableTemplate, statusCode)),
+		Payload: []byte(payload),
 	}
 }
 
@@ -39,12 +44,13 @@ func (suite *TRDMSuite) TestTRDMGetTableFake() {
 	tests := []struct {
 		name          string
 		statusCode    string
+		payload       string
 		responseError bool
 		shouldError   bool
 	}{
-		{"No update", "Successful", false, false},
-		{"Should not fetch update", "Failure", false, false},
-		{"There is an update", "Successful", false, false},
+		{"No update", "Successful", getTablePayloadLoa, false, false},
+		{"Should not fetch update", "Failure", "", false, false},
+		{"There is an update", "Successful", getTablePayloadTac, false, false},
 	}
 	for _, test := range tests {
 		suite.Run("fake call to TRDM: "+test.name, func() {
@@ -57,7 +63,7 @@ func (suite *TRDMSuite) TestTRDMGetTableFake() {
 			testSoapClient.On("Call",
 				mock.Anything,
 				mock.Anything,
-			).Return(soapResponseForGetTable(test.statusCode), soapError)
+			).Return(soapResponseForGetTable(test.statusCode, test.payload), soapError)
 
 			getTable := trdm.NewGetTable(physicalName, testSoapClient)
 			err := getTable.GetTable(suite.AppContextForTest(), physicalName)

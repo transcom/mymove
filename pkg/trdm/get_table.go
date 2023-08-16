@@ -2,6 +2,7 @@ package trdm
 
 import (
 	"bytes"
+	"encoding/xml"
 	"fmt"
 	"time"
 
@@ -51,6 +52,7 @@ import (
 
 const successResponseString = "Successful"
 const lineOfAccounting = "LN_OF_ACCT"
+const TransportationAccountingCode = "TRNSPRTN_ACNT"
 
 type GetTableRequestElement struct {
 	soapClient SoapCaller
@@ -63,15 +65,16 @@ type GetTableRequestElement struct {
 }
 
 type GetTableResponseElement struct {
-	Output struct {
+	XMLName xml.Name `xml:"getTableResponseElement"`
+	Output  struct {
 		TRDM struct {
 			Status struct {
 				RowCount   string `xml:"rowCount"`
 				StatusCode string `xml:"statusCode"`
 				DateTime   string `xml:"dateTime"`
-			}
-		}
-	}
+			} `xml:"status"`
+		} `xml:"TRDM"`
+	} `xml:"output"`
 	Attachment struct {
 		Include struct {
 			Text string `xml:",chardata"`
@@ -160,7 +163,8 @@ func getTableSoapCall(d *GetTableRequestElement, params gosoap.Params, appCtx ap
 
 func parseGetTableResponse(appcontext appcontext.AppContext, response *gosoap.Response, physicalName string) error {
 	reader := bytes.NewReader(response.Payload)
-	if physicalName == lineOfAccounting {
+	switch physicalName {
+	case lineOfAccounting:
 		loaCodes, err := loa.Parse(reader)
 		if err != nil {
 			return err
@@ -169,8 +173,7 @@ func parseGetTableResponse(appcontext appcontext.AppContext, response *gosoap.Re
 		if saveErr != nil {
 			return saveErr
 		}
-
-	} else {
+	case TransportationAccountingCode:
 		tacCodes, err := tac.Parse(reader)
 		consolidatedTacs := tac.ConsolidateDuplicateTACsDesiredFromTRDM(tacCodes)
 		if err != nil {
@@ -179,8 +182,9 @@ func parseGetTableResponse(appcontext appcontext.AppContext, response *gosoap.Re
 		if saveErr := saveTacCodes(appcontext, consolidatedTacs); saveErr != nil {
 			return saveErr
 		}
+	default:
+		return nil
 	}
-
 	return nil
 }
 
