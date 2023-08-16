@@ -31,8 +31,8 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		}
 
 		defaultUser := models.User{
-			LoginGovEmail: "first.last@login.gov.test",
-			Active:        false,
+			OktaEmail: "first.last@login.gov.test",
+			Active:    false,
 		}
 
 		// CALL FUNCTION UNDER TEST
@@ -50,7 +50,7 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		suite.Equal(defaultAddress.StreetAddress1, serviceMember.ResidentialAddress.StreetAddress1)
 
 		// Check that user was hooked in
-		suite.Equal(defaultUser.LoginGovEmail, serviceMember.User.LoginGovEmail)
+		suite.Equal(defaultUser.OktaEmail, serviceMember.User.OktaEmail)
 		suite.Equal(defaultUser.Active, serviceMember.User.Active)
 	})
 
@@ -81,7 +81,7 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		}
 
 		customUser := models.User{
-			LoginGovEmail: "test_email@email.com",
+			OktaEmail: "test_email@email.com",
 		}
 
 		// CALL FUNCTION UNDER TEST
@@ -108,7 +108,7 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		suite.Equal(customAddress.StreetAddress1, serviceMember.ResidentialAddress.StreetAddress1)
 
 		// Check that user was customized
-		suite.Equal(customUser.LoginGovEmail, serviceMember.User.LoginGovEmail)
+		suite.Equal(customUser.OktaEmail, serviceMember.User.OktaEmail)
 	})
 
 	suite.Run("Successful creation of service member with customized residential and backup mailing address", func() {
@@ -257,8 +257,8 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		}
 
 		customUser := models.User{
-			LoginGovEmail: "custom.email@example.com",
-			Active:        true,
+			OktaEmail: "custom.email@example.com",
+			Active:    true,
 		}
 		customResidentialAddress := GetTraitAddress2()[0].Model.(models.Address)
 		customBackupAddress := GetTraitAddress3()[0].Model.(models.Address)
@@ -297,7 +297,7 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 
 		// custom user
 		suite.Equal(customUser.Active, serviceMember.User.Active)
-		suite.Equal(customUser.LoginGovEmail, serviceMember.User.LoginGovEmail)
+		suite.Equal(customUser.OktaEmail, serviceMember.User.OktaEmail)
 
 		// custom residential address
 		suite.Equal(customResidentialAddress.StreetAddress1,

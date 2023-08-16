@@ -1,28 +1,32 @@
 package authentication
 
 import (
+	"bytes"
 	"context"
 	"encoding/gob"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
+	"github.com/golang-jwt/jwt/v4"
+	"github.com/jarcoal/httpmock"
 	"github.com/markbates/goth"
-	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
-	"golang.org/x/oauth2"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/models"
@@ -34,6 +38,35 @@ import (
 
 // UserSessionCookieName is the key suffix at which we're storing our token cookie
 const UserSessionCookieName = "session_token"
+
+// This is a dumy private key that has no use and is not reflective of any real keys utilized. This key was generated
+// specifically for the purpose of testing.
+const DummyRSAPrivateKey = `-----BEGIN RSA PRIVATE KEY-----
+MIICXQIBAAKBgQDQ62hDHRRAduSuUQDxixn61bbRLj9iBBmRG03rW3PNnkSzrcof
+9ytnKY2LX2DAPaSr/1Em7fvqiovzVg43ElfFHJBrCskJqWLphifv6qoGX1pwsPA/
+Rb+MBqftMU1Zq7UC9Eis/Sje2QGx7k02JoQy+R/EP/kQq1B0p4/qCtR73QIDAQAB
+AoGBALVzP+LKZsR2frdHc2JWRgIti9KyMCqZFPuKk2pOy41SYKkNz/djXTcESAM8
+m3NcFqGr5nfBSoKyQkrd+wqpy7+8X15MpClVErfUeowoOpaFQBr0E5Yf8WuzWXV2
+Daex1aeA+69OAPmYEiVJD4qY6m8vxHZZT0ISNEIW4ObhyQmhAkEA9SvhOADfQLp8
+7vZXTWW/fhapi8NiKW8cWT4wDQhwnW2glGxyVJBWwj+VtcJ8j5mEfm6vInh7QAYl
+2dV/sMaNNwJBANolofvurHjd56WcdHENctAJTxiWtTqA9RIrtIIzJW7cqR4ujQKL
+ndD5v2nG+b2JdlcOBzNs0LVF+ItwYMTYKYsCQQC1LqhR6tMR0r9hGUuLNxY86CKD
+1vBEDoi0qvB3sTUIImv5Q+t58vEqvDK3D/Nda+YuST3EC6WJuwFd6hljWlghAkBL
+s9mVywrxWtijoTrLbMZWKZTYTJyRs+TYLHCU6ljoMw1BWxg2NOtMdQ8XDyTlwIlf
+xo97Khz3e1O4WARM61LnAkAzTxo/AOHVKawAR45eq4rjz0rxyCgtcTGa1qaEt9Ap
+WjqcmKEkxqxz6lX/Pj2GbyikMkDThcp1bd1DRSUDOxHP
+-----END RSA PRIVATE KEY-----
+`
+const DummyRSAPublicKey = `-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDQ62hDHRRAduSuUQDxixn61bbR
+Lj9iBBmRG03rW3PNnkSzrcof9ytnKY2LX2DAPaSr/1Em7fvqiovzVg43ElfFHJBr
+CskJqWLphifv6qoGX1pwsPA/Rb+MBqftMU1Zq7UC9Eis/Sje2QGx7k02JoQy+R/E
+P/kQq1B0p4/qCtR73QIDAQAB
+-----END PUBLIC KEY-----
+`
+
+const DummyRSAModulus = "0OtoQx0UQHbkrlEA8YsZ-tW20S4_YgQZkRtN61tzzZ5Es63KH_crZymNi19gwD2kq_9RJu376oqL81YONxJXxRyQawrJCali6YYn7-qqBl9acLDwP0W_jAan7TFNWau1AvRIrP0o3tkBse5NNiaEMvkfxD_5EKtQdKeP6grUe90"
+const jwtKeyID = "keyID"
 
 // SessionCookieName returns the session cookie name
 func SessionCookieName(session *auth.Session) string {
@@ -52,7 +85,7 @@ func (suite *AuthSuite) SetupTest() {
 
 // AuthContext returns a testing auth context
 func (suite *AuthSuite) AuthContext() Context {
-	return NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()),
+	return NewAuthContext(suite.Logger(), *fakeOktaProvider(suite.Logger()),
 		"http", suite.callbackPort)
 }
 
@@ -72,8 +105,8 @@ func TestAuthSuite(t *testing.T) {
 	hs.PopTestSuite.TearDown()
 }
 
-func fakeLoginGovProvider(logger *zap.Logger) LoginGovProvider {
-	return NewLoginGovProvider("fakeHostname", "secret_key", logger)
+func fakeOktaProvider(logger *zap.Logger) *okta.Provider {
+	return okta.NewOktaProvider(logger)
 }
 
 func (suite *AuthSuite) SetupSessionContext(ctx context.Context, session *auth.Session, sessionManager auth.SessionManager) context.Context {
@@ -114,12 +147,12 @@ func (suite *AuthSuite) TestGenerateNonce() {
 }
 
 func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
-	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	OktaID := "2400c3c5-019d-4031-9c27-8a553e022297"
 
 	user := models.User{
-		LoginGovUUID:  &loginGovUUID,
-		LoginGovEmail: "email@example.com",
-		Active:        true,
+		OktaID:    OktaID,
+		OktaEmail: "email@example.com",
+		Active:    true,
 	}
 	suite.MustSave(&user)
 
@@ -138,12 +171,10 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	sessionManagers := handlerConfig.SessionManagers()
 	officeSession := sessionManagers.Office
 	authContext := suite.AuthContext()
-	fakeProvider := openidConnect.Provider{
-		ClientKey: "some_token",
-	}
-	fakeProvider.SetName("officeProvider")
-	goth.UseProviders(&fakeProvider)
 
+	oktaProvider := okta.NewOktaProvider(suite.Logger())
+	err := oktaProvider.RegisterOktaProvider("officeProvider", "OrgURL", "CallbackURL", fakeToken, "secret", []string{"openid", "profile", "email"})
+	suite.NoError(err)
 	handler := officeSession.LoadAndSave(NewLogoutHandler(authContext, handlerConfig))
 
 	rr := httptest.NewRecorder()
@@ -183,11 +214,11 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 
 func (suite *AuthSuite) TestRequireAuthMiddleware() {
 	// Given: a logged in user
-	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	OktaID := ("2400c3c5-019d-4031-9c27-8a553e022297")
 	user := models.User{
-		LoginGovUUID:  &loginGovUUID,
-		LoginGovEmail: "email@example.com",
-		Active:        true,
+		OktaID:    OktaID,
+		OktaEmail: "email@example.com",
+		Active:    true,
 	}
 	suite.MustSave(&user)
 
@@ -341,7 +372,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 	// TOO users have the proper permissions for our test - update.shipment
 	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
-	identity, err := models.FetchUserIdentity(suite.DB(), tooOfficeUser.User.LoginGovUUID.String())
+	identity, err := models.FetchUserIdentity(suite.DB(), tooOfficeUser.User.OktaID)
 
 	suite.NoError(err)
 
@@ -383,7 +414,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareUnauthorized() {
 	// QAECSR users will be denied access as they lack the proper permissions for our test - update.shipment
 	qaeCsrOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
 
-	identity, err := models.FetchUserIdentity(suite.DB(), qaeCsrOfficeUser.User.LoginGovUUID.String())
+	identity, err := models.FetchUserIdentity(suite.DB(), qaeCsrOfficeUser.User.OktaID)
 
 	suite.NoError(err)
 
@@ -437,11 +468,11 @@ func (suite *AuthSuite) TestIsLoggedInWhenNoUserLoggedIn() {
 }
 
 func (suite *AuthSuite) TestIsLoggedInWhenUserLoggedIn() {
-	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	OktaID := "2400c3c5-019d-4031-9c27-8a553e022297"
 	user := models.User{
-		LoginGovUUID:  &loginGovUUID,
-		LoginGovEmail: "email@example.com",
-		Active:        true,
+		OktaID:    OktaID,
+		OktaEmail: "email@example.com",
+		Active:    true,
 	}
 	suite.MustSave(&user)
 
@@ -487,11 +518,11 @@ func (suite *AuthSuite) TestRequireAuthMiddlewareUnauthorized() {
 
 func (suite *AuthSuite) TestRequireAdminAuthMiddleware() {
 	// Given: a logged in user
-	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	OktaID := "2400c3c5-019d-4031-9c27-8a553e022297"
 	user := models.User{
-		LoginGovUUID:  &loginGovUUID,
-		LoginGovEmail: "email@example.com",
-		Active:        true,
+		OktaID:    OktaID,
+		OktaEmail: "email@example.com",
+		Active:    true,
 	}
 	suite.MustSave(&user)
 
@@ -563,7 +594,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(),
 		[]roles.RoleType{roles.RoleTypeTIO})
 
-	userIdentity, err := models.FetchUserIdentity(suite.DB(), officeUser.User.LoginGovUUID.String())
+	userIdentity, err := models.FetchUserIdentity(suite.DB(), officeUser.User.OktaID)
 	suite.Assert().NoError(err)
 
 	handlerConfig := suite.HandlerConfig()
@@ -621,14 +652,14 @@ func (suite *AuthSuite) TestAuthorizeDeactivateOfficeUser() {
 	suite.Equal(authorizationResultUnauthorized, result, "authorizer did not recognize deactivated office user")
 }
 
-func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
+func (suite *AuthSuite) TestRedirectOktaErrorMsg() {
 	officeUserID := uuid.Must(uuid.NewV4())
-	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	OktaID := ("2400c3c5-019d-4031-9c27-8a553e022297")
 
 	user := models.User{
-		LoginGovUUID:  &loginGovUUID,
-		LoginGovEmail: "email@example.com",
-		Active:        true,
+		OktaID:    OktaID,
+		OktaEmail: "email@example.com",
+		Active:    true,
 	}
 	suite.MustSave(&user)
 
@@ -640,7 +671,7 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
-	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback", appnames.OfficeServername), nil)
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/okta/callback", appnames.OfficeServername), nil)
 
 	fakeToken := "some_token"
 	session := auth.Session{
@@ -648,7 +679,7 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 		IDToken:         fakeToken,
 		Hostname:        appnames.OfficeServername,
 	}
-	// login.gov state cookie
+	// okta.mil state cookie
 	cookieName := StateCookieName(&session)
 	cookie := http.Cookie{
 		Name:    cookieName,
@@ -666,11 +697,18 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 		&userIdentity, sessionManager)
 
 	suite.Equal(authorizationResultAuthorized, result)
-
+	// Set up mock callback handler for testing
 	h := CallbackHandler{
 		authContext,
 		handlerConfig,
 		setUpMockNotificationSender(),
+		&MockHTTPClient{
+			Response: &http.Response{
+				StatusCode: 200,
+				Body:       io.NopCloser(bytes.NewReader([]byte(`{"access_token": "mockToken", "id_token": "broken_id_token"}`))),
+			},
+			Err: nil,
+		},
 	}
 
 	rr2 := httptest.NewRecorder()
@@ -695,64 +733,18 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 	suite.Equal(u.String(), rr2.Result().Header.Get("Location"))
 }
 
-type stubLoginGovProvider struct {
-	StubName      string
-	StubUser      goth.User
-	StubSession   goth.Session
-	StubToken     string
-	StubClientKey string
-	StubState     string
-	StubDebug     bool
-}
-
-func (s *stubLoginGovProvider) Name() string {
-	return s.StubName
-}
-
-func (s *stubLoginGovProvider) SetName(name string) {
-	s.StubName = name
-}
-
-func (s *stubLoginGovProvider) BeginAuth(state string) (goth.Session, error) {
-	s.StubState = state
-	return s.StubSession, nil
-}
-
-func (s *stubLoginGovProvider) FetchUser(goth.Session) (goth.User, error) {
-	return s.StubUser, nil
-}
-
-func (s *stubLoginGovProvider) FetchUserAndIDTokenByCode(_ string) (goth.User, string, error) {
-	return s.StubUser, s.StubToken, nil
-}
-
-func (s *stubLoginGovProvider) ClientKey() string {
-	return s.StubClientKey
-}
-
-func (s *stubLoginGovProvider) UnmarshalSession(_ string) (goth.Session, error) {
-	return nil, http.ErrHijacked
-}
-func (s *stubLoginGovProvider) Debug(setting bool) {
-	s.StubDebug = setting
-}
-
-// Get new access token based on the refresh token
-func (s *stubLoginGovProvider) RefreshToken(_ string) (*oauth2.Token, error) {
-	return nil, http.ErrHijacked
-}
-
-// Refresh token is provided by auth provider or not
-func (s *stubLoginGovProvider) RefreshTokenAvailable() bool {
-	return false
-}
-
-// test to make sure the full auth flow works, although we are using
-// the stubLoginGovProvider from above
-func (suite *AuthSuite) TestRedirectFromLoginGovForValidUser() {
+// Test to make sure the full auth flow works, although we are using mock Okta endpoints
+func (suite *AuthSuite) TestRedirectFromOktaForValidUser() {
 	// build a real office user
 	tioOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(),
 		[]roles.RoleType{roles.RoleTypeTIO})
+
+	// Build provider
+	provider, err := factory.BuildOktaProvider(officeProviderName)
+	suite.NoError(err)
+
+	// Mock the necessary Okta endpoints
+	mockAndActivateOktaEndpoints(tioOfficeUser, provider)
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
@@ -764,7 +756,7 @@ func (suite *AuthSuite) TestRedirectFromLoginGovForValidUser() {
 		Hostname:        appnames.OfficeServername,
 	}
 
-	// login.gov state cookie
+	// okta.mil state cookie
 	stateValue := "someStateValue"
 	cookieName := StateCookieName(&session)
 	cookie := http.Cookie{
@@ -773,7 +765,7 @@ func (suite *AuthSuite) TestRedirectFromLoginGovForValidUser() {
 		Path:    "/",
 		Expires: auth.GetExpiryTimeFromMinutes(auth.SessionExpiryInMinutes),
 	}
-	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback?state=%s",
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/okta/callback?state=%s",
 		appnames.OfficeServername, stateValue), nil)
 	req.AddCookie(&cookie)
 
@@ -782,20 +774,23 @@ func (suite *AuthSuite) TestRedirectFromLoginGovForValidUser() {
 	sessionManager := handlerConfig.SessionManagers().Office
 	req = suite.SetupSessionRequest(req, &session, sessionManager)
 
-	stubOfficeProvider := stubLoginGovProvider{
-		StubName:  officeProviderName,
-		StubToken: "stubToken",
-		StubUser: goth.User{
-			UserID: tioOfficeUser.User.LoginGovUUID.String(),
-			Email:  tioOfficeUser.Email,
-		},
-	}
 	defer goth.ClearProviders()
-	goth.UseProviders(&stubOfficeProvider)
+	goth.UseProviders(provider)
+	mockIDToken, err := generateJWTToken(provider.GetClientID(), provider.GetIssuerURL(), stateValue)
+	suite.NoError(err)
+	responseBody := fmt.Sprintf(`{"access_token": "mockToken", "id_token": "%s"}`, mockIDToken)
+	// Create the callbackhandler with mock http client for testing
 	h := CallbackHandler{
 		authContext,
 		handlerConfig,
 		setUpMockNotificationSender(),
+		&MockHTTPClient{
+			Response: &http.Response{
+				StatusCode: 200,
+				Body:       io.NopCloser(bytes.NewReader([]byte(responseBody))),
+			},
+			Err: nil,
+		},
 	}
 
 	rr := httptest.NewRecorder()
@@ -807,12 +802,84 @@ func (suite *AuthSuite) TestRedirectFromLoginGovForValidUser() {
 		rr.Result().Header.Get("Location"))
 }
 
-// test to make sure the full auth flow works, although we are using
-// the stubLoginGovProvider from above
-func (suite *AuthSuite) TestRedirectFromLoginGovForInvalidUser() {
-	// build a real office user
+func generateJWTToken(aud, iss, nonce string) (string, error) {
+
+	claims := jwt.MapClaims{
+		"aud":   aud,
+		"iss":   iss,
+		"exp":   time.Now().Add(time.Hour * 72).Unix(),
+		"iat":   time.Now().Unix(),
+		"nonce": nonce,
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+	token.Header["kid"] = jwtKeyID
+
+	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(DummyRSAPrivateKey))
+	if err != nil {
+		return "", err
+	}
+
+	signedToken, err := token.SignedString(privateKey)
+	if err != nil {
+		return "", err
+	}
+
+	return signedToken, nil
+}
+
+// Generate and activate Okta endpoints that will be using during the auth handlers.
+func mockAndActivateOktaEndpoints(tioOfficeUser models.OfficeUser, provider *okta.Provider) {
+	// Mock the OIDC .well-known openid-configuration endpoint
+	jwksURL := provider.GetJWKSURL()
+	openIDConfigURL := provider.GetOpenIDConfigURL()
+	userInfoURL := provider.GetUserInfoURL()
+
+	httpmock.RegisterResponder("GET", openIDConfigURL,
+		httpmock.NewStringResponder(200, fmt.Sprintf(`{
+            "jwks_uri": "%s"
+        }`, jwksURL)))
+
+	// Mock the JWKS endpoint to receive keys for JWT verification
+	httpmock.RegisterResponder("GET", jwksURL,
+		httpmock.NewStringResponder(200, fmt.Sprintf(`{
+        "keys": [
+            {
+                "alg": "RS256",
+                "kty": "RSA",
+                "use": "sig",
+                "n": "%s",
+                "e": "AQAB",
+                "kid": "%s"
+            }
+        ]
+    }`, DummyRSAModulus, jwtKeyID)))
+
+	// Mock the userinfo endpoint
+	// Sub is the Okta user ID, it is not a UUID.
+	tioOfficeOktaUserID := tioOfficeUser.User.OktaID
+
+	httpmock.RegisterResponder("GET", userInfoURL,
+		httpmock.NewStringResponder(200, fmt.Sprintf(`{
+		"sub": "%s",
+		"name": "name",
+		"email": "name@okta.com"
+	}`, tioOfficeOktaUserID)))
+
+	httpmock.Activate()
+}
+
+// Test to make sure the full auth flow works, although we are using mock Okta endpoints
+func (suite *AuthSuite) TestRedirectFromOktaForInvalidUser() {
 	tioOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 	suite.False(tioOfficeUser.Active)
+
+	// Build provider
+	provider, err := factory.BuildOktaProvider(officeProviderName)
+	suite.NoError(err)
+
+	// Mock the necessary Okta endpoints
+	mockAndActivateOktaEndpoints(tioOfficeUser, provider)
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
@@ -824,8 +891,12 @@ func (suite *AuthSuite) TestRedirectFromLoginGovForInvalidUser() {
 		Hostname:        appnames.OfficeServername,
 	}
 
-	// login.gov state cookie
+	// okta.mil state cookie
 	stateValue := "someStateValue"
+	// The code value is what is used to retrieve the exchange token frin the code passed through the URL. As long as the code value exists,
+	// then the exchangeCode function will not fail. HOWEVER, we still need to provide a mock exchange token in the body so that it
+	// can be verified and a user can be pulled from it.
+	codeValue := "someCodeValue"
 	cookieName := StateCookieName(&session)
 	cookie := http.Cookie{
 		Name:    cookieName,
@@ -833,8 +904,8 @@ func (suite *AuthSuite) TestRedirectFromLoginGovForInvalidUser() {
 		Path:    "/",
 		Expires: auth.GetExpiryTimeFromMinutes(auth.SessionExpiryInMinutes),
 	}
-	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback?state=%s",
-		appnames.OfficeServername, stateValue), nil)
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/okta/callback?state=%s&code=%s",
+		appnames.OfficeServername, stateValue, codeValue), nil)
 	req.AddCookie(&cookie)
 
 	authContext := suite.AuthContext()
@@ -842,20 +913,23 @@ func (suite *AuthSuite) TestRedirectFromLoginGovForInvalidUser() {
 	sessionManager := handlerConfig.SessionManagers().Office
 	req = suite.SetupSessionRequest(req, &session, sessionManager)
 
-	stubOfficeProvider := stubLoginGovProvider{
-		StubName:  officeProviderName,
-		StubToken: "stubToken",
-		StubUser: goth.User{
-			UserID: tioOfficeUser.User.LoginGovUUID.String(),
-			Email:  tioOfficeUser.Email,
-		},
-	}
 	defer goth.ClearProviders()
-	goth.UseProviders(&stubOfficeProvider)
+	goth.UseProviders(provider)
+	mockIDToken, err := generateJWTToken(provider.GetClientID(), provider.GetIssuerURL(), stateValue)
+	suite.NoError(err)
+	responseBody := fmt.Sprintf(`{"access_token": "mockToken", "id_token": "%s"}`, mockIDToken)
+	// Create the callbackhandler with mock http client for testing
 	h := CallbackHandler{
 		authContext,
 		handlerConfig,
 		setUpMockNotificationSender(),
+		&MockHTTPClient{
+			Response: &http.Response{
+				StatusCode: 200,
+				Body:       io.NopCloser(bytes.NewReader([]byte(responseBody))),
+			},
+			Err: nil,
+		},
 	}
 
 	rr := httptest.NewRecorder()
@@ -872,12 +946,12 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 	adminUserID := uuid.Must(uuid.NewV4())
 	officeUserID := uuid.Must(uuid.NewV4())
 	var adminUserRole models.AdminRole = "SYSTEM_ADMIN"
-	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	OktaID := ("2400c3c5-019d-4031-9c27-8a553e022297")
 
 	user := models.User{
-		LoginGovUUID:  &loginGovUUID,
-		LoginGovEmail: "email@example.com",
-		Active:        true,
+		OktaID:    OktaID,
+		OktaEmail: "email@example.com",
+		Active:    true,
 	}
 	suite.MustSave(&user)
 
@@ -963,7 +1037,7 @@ func (suite *AuthSuite) TestAuthKnownServiceMember() {
 
 // TESTCASE SCENARIO
 // What is being tested: authorizeUnknownUser function
-// Mocked: LoginGovProvider, auth.Session, goth.User, scs.SessionManager
+// Mocked: oktaProvider, auth.Session, goth.User, scs.SessionManager
 // Behaviour: The function gets passed in the following arguments:
 // - an instance of goth.User: a struct with the login.gov UUID and email
 // - the callback handler
@@ -991,9 +1065,9 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 	// Prepare the goth.User to simulate the UUID and email that login.gov would
 	// provide
 	fakeUUID, _ := uuid.NewV4()
-	user := goth.User{
-		UserID: fakeUUID.String(),
-		Email:  "new_service_member@example.com",
+	user := models.OktaUser{
+		Sub:   fakeUUID.String(),
+		Email: "new_service_member@example.com",
 	}
 	ctx := suite.SetupSessionContext(context.Background(), &session, sessionManager)
 
@@ -1017,9 +1091,9 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 	// Verify session contains UserID that points to the newly-created user
 	suite.Equal(foundUser.ID, session.UserID)
 
-	// Verify user's LoginGovEmail and LoginGovUUID match the values passed in
-	suite.Equal(user.Email, foundUser.LoginGovEmail)
-	suite.Equal(user.UserID, foundUser.LoginGovUUID.String())
+	// Verify user's OktaEmail and OktaID match the values passed in
+	suite.Equal(user.Email, foundUser.OktaEmail)
+	suite.Equal(user.Sub, foundUser.OktaID)
 
 	// Verify that the user's CurrentMilSessionID is not empty. The value is
 	// generated randomly, so we can't test for a specific string. Any string
@@ -1087,9 +1161,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeDeactivated() {
 	}
 
 	fakeUUID2, _ := uuid.NewV4()
-	user := goth.User{
-		UserID: fakeUUID2.String(),
-		Email:  officeUser.Email,
+	user := models.OktaUser{
+		Sub:   fakeUUID2.String(),
+		Email: officeUser.Email,
 	}
 
 	mockSender := setUpMockNotificationSender()
@@ -1118,9 +1192,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
 	}
 
 	id, _ := uuid.NewV4()
-	user := goth.User{
-		UserID: id.String(),
-		Email:  "sample@email.com",
+	user := models.OktaUser{
+		Sub:   id.String(),
+		Email: "sample@email.com",
 	}
 
 	mockSender := setUpMockNotificationSender()
@@ -1142,7 +1216,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 			Model: models.OfficeUser{
 				Active: true,
 				UserID: &user.ID,
-				Email:  user.LoginGovEmail,
+				Email:  user.OktaEmail,
 			},
 		},
 		{
@@ -1163,9 +1237,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 		Email:           officeUser.Email,
 	}
 
-	gothUser := goth.User{
-		UserID: user.ID.String(),
-		Email:  officeUser.Email,
+	gothUser := models.OktaUser{
+		Sub:   user.ID.String(),
+		Email: officeUser.Email,
 	}
 
 	mockSender := setUpMockNotificationSender()
@@ -1196,7 +1270,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
 			Model: models.OfficeUser{
 				Active: true,
 				UserID: &user.ID,
-				Email:  user.LoginGovEmail,
+				Email:  user.OktaEmail,
 			},
 		},
 		{
@@ -1217,9 +1291,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
 		Hostname:        appnames.OfficeServername,
 		Email:           officeUser.Email,
 	}
-	gothUser := goth.User{
-		UserID: user.ID.String(),
-		Email:  officeUser.Email,
+	gothUser := models.OktaUser{
+		Sub:   user.ID.String(),
+		Email: officeUser.Email,
 	}
 
 	mockSender := setUpMockNotificationSender()
@@ -1269,9 +1343,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDeactivated() {
 	}
 
 	fakeUUID2, _ := uuid.NewV4()
-	user := goth.User{
-		UserID: fakeUUID2.String(),
-		Email:  adminUser.Email,
+	user := models.OktaUser{
+		Sub:   fakeUUID2.String(),
+		Email: adminUser.Email,
 	}
 
 	mockSender := setUpMockNotificationSender()
@@ -1299,9 +1373,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminNotFound() {
 	}
 
 	id, _ := uuid.NewV4()
-	user := goth.User{
-		UserID: id.String(),
-		Email:  "sample@email.com",
+	user := models.OktaUser{
+		Sub:   id.String(),
+		Email: "sample@email.com",
 	}
 
 	mockSender := setUpMockNotificationSender()
@@ -1319,22 +1393,22 @@ func (suite *AuthSuite) TestAuthorizeKnownUserAdminNotFound() {
 	appnames := handlerConfig.AppNames()
 	// user exists in the DB, but not as an admin user
 	fakeToken := "some_token"
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	OktaID := "000"
 	userID := uuid.Must(uuid.NewV4())
 	serviceMemberID := uuid.Must(uuid.NewV4())
 
 	user := models.User{
-		LoginGovUUID:  &loginGovUUID,
-		LoginGovEmail: "email@example.com",
-		Active:        true,
-		ID:            userID,
+		OktaID:    OktaID,
+		OktaEmail: "email@example.com",
+		Active:    true,
+		ID:        userID,
 	}
 	session := auth.Session{
 		ApplicationName: auth.AdminApp,
 		UserID:          user.ID,
 		IDToken:         fakeToken,
 		Hostname:        appnames.AdminServername,
-		Email:           user.LoginGovEmail,
+		Email:           user.OktaEmail,
 	}
 
 	userIdentity := models.UserIdentity{
@@ -1378,9 +1452,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 		Email:           adminUser.Email,
 	}
 
-	gothUser := goth.User{
-		UserID: user.ID.String(),
-		Email:  adminUser.Email,
+	gothUser := models.OktaUser{
+		Sub:   user.ID.String(),
+		Email: adminUser.Email,
 	}
 
 	mockSender := setUpMockNotificationSender()
@@ -1400,7 +1474,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 	suite.NotEqual("", foundUser.CurrentAdminSessionID)
 }
 
-func (suite *AuthSuite) TestLoginGovAuthenticatedRedirect() {
+func (suite *AuthSuite) TestoktaAuthenticatedRedirect() {
 	user := factory.BuildDefaultUser(suite.DB())
 	// user is in office_users but has never logged into the app
 	officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
@@ -1427,7 +1501,7 @@ func (suite *AuthSuite) TestLoginGovAuthenticatedRedirect() {
 		Hostname:        appnames.OfficeServername,
 		Email:           officeUser.Email,
 	}
-	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov", appnames.OfficeServername), nil)
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/okta", appnames.OfficeServername), nil)
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	authContext := suite.AuthContext()
 	h := RedirectHandler{
