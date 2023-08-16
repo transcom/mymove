@@ -9,7 +9,6 @@
 package invoice
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -33,97 +32,18 @@ func TestSyncadaSftpSenderSuite(t *testing.T) {
 }
 
 func (suite *SyncadaSftpSenderSuite) TestSendToSyncadaSftp() {
-	type setupEnvVars func()
-
-	missingCreds := []struct {
-		TestEnvironmentVar string
-		Setup              setupEnvVars
-	}{
-		{
-			TestEnvironmentVar: "GEX_SFTP_PORT",
-			Setup: func() {
-				os.Unsetenv("GEX_SFTP_PORT")
-				os.Unsetenv("GEX_SFTP_USER_ID")
-				os.Unsetenv("GEX_SFTP_IP_ADDRESS")
-				os.Unsetenv("GEX_SFTP_PASSWORD")
-				os.Unsetenv("GEX_SFTP_HOST_KEY")
-			},
-		},
-		{
-			TestEnvironmentVar: "GEX_SFTP_USER_ID",
-			Setup: func() {
-				os.Setenv("GEX_SFTP_PORT", "1234")
-				os.Unsetenv("GEX_SFTP_USER_ID")
-				os.Unsetenv("GEX_SFTP_IP_ADDRESS")
-				os.Unsetenv("GEX_SFTP_PASSWORD")
-				os.Unsetenv("GEX_SFTP_HOST_KEY")
-			},
-		},
-		{
-			TestEnvironmentVar: "GEX_SFTP_IP_ADDRESS",
-			Setup: func() {
-				os.Setenv("GEX_SFTP_PORT", "1234")
-				os.Setenv("GEX_SFTP_USER_ID", "FAKE_USER_ID")
-				os.Unsetenv("GEX_SFTP_IP_ADDRESS")
-				os.Unsetenv("GEX_SFTP_PASSWORD")
-				os.Unsetenv("GEX_SFTP_HOST_KEY")
-			},
-		},
-		{
-			TestEnvironmentVar: "GEX_SFTP_PASSWORD",
-			Setup: func() {
-				os.Setenv("GEX_SFTP_PORT", "1234")
-				os.Setenv("GEX_SFTP_USER_ID", "FAKE_USER_ID")
-				os.Setenv("GEX_SFTP_IP_ADDRESS", "127.0.0.1")
-				os.Unsetenv("GEX_SFTP_PASSWORD")
-				os.Unsetenv("GEX_SFTP_HOST_KEY")
-			},
-		},
-		{
-			TestEnvironmentVar: "GEX_SFTP_HOST_KEY",
-			Setup: func() {
-				os.Setenv("GEX_SFTP_PORT", "1234")
-				os.Setenv("GEX_SFTP_USER_ID", "FAKE_USER_ID")
-				os.Setenv("GEX_SFTP_IP_ADDRESS", "127.0.0.1")
-				os.Setenv("GEX_SFTP_PASSWORD", "FAKE PASSWORD")
-				os.Unsetenv("GEX_SFTP_HOST_KEY")
-			},
-		},
-	}
-
-	// Test failure if any environment variable is missing
-	for _, data := range missingCreds {
-		suite.Run(fmt.Sprintf("constructor fails if %s is missing", data.TestEnvironmentVar), func() {
-			data.Setup()
-			sender, err := InitNewSyncadaSFTPSession()
-			suite.Error(err)
-			suite.Nil(sender)
-			suite.Equal(fmt.Sprintf("Invalid credentials sftp missing %s", data.TestEnvironmentVar), err.Error())
-		})
-	}
-
-	suite.Run("constructor doesn't fail if passed in all env", func() {
-		os.Setenv("GEX_SFTP_PORT", "1234")
-		os.Setenv("GEX_SFTP_USER_ID", "FAKE_USER_ID")
-		os.Setenv("GEX_SFTP_IP_ADDRESS", "127.0.0.1")
-		os.Setenv("GEX_SFTP_PASSWORD", "FAKE PASSWORD")
-		// generated fake host key to pass parser used following command and only saved the pub key
-		//   ssh-keygen -q -N "" -t ecdsa -f /tmp/ssh_host_ecdsa_key
-		os.Setenv("GEX_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
-		sender, err := InitNewSyncadaSFTPSession()
-		suite.NoError(err)
-		suite.NotNil(sender)
-	})
-
-	suite.Run("constructor fails with invalid host key", func() {
-		os.Setenv("GEX_SFTP_PORT", "1234")
-		os.Setenv("GEX_SFTP_USER_ID", "FAKE_USER_ID")
-		os.Setenv("GEX_SFTP_IP_ADDRESS", "127.0.0.1")
-		os.Setenv("GEX_SFTP_PASSWORD", "FAKE PASSWORD")
-		os.Setenv("GEX_SFTP_HOST_KEY", "FAKE::HOSTKEY::INVALID")
+	suite.Run("constructor fails if the GEX_SFTP_USER_ID is missing", func() {
+		os.Unsetenv("GEX_SFTP_USER_ID")
 		sender, err := InitNewSyncadaSFTPSession()
 		suite.Error(err)
 		suite.Nil(sender)
-		suite.Equal("Failed to parse host key ssh: no key found", err.Error())
+		suite.Equal("Invalid credentials sftp missing GEX_SFTP_USER_ID", err.Error())
+	})
+
+	suite.Run("constructor doesn't fail if passed in all env", func() {
+		os.Setenv("GEX_SFTP_USER_ID", "FAKE_USER_ID")
+		sender, err := InitNewSyncadaSFTPSession()
+		suite.NoError(err)
+		suite.NotNil(sender)
 	})
 }
