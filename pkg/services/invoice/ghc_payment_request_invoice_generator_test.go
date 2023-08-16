@@ -307,6 +307,21 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		paymentServiceItems = models.PaymentServiceItems{}
 		paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dnpk, dupk, ddfsit, ddasit, dofsit, doasit, doshut, ddshut, dcrt, ducrt, dddsit, dopsit)
 
+		//// Add TAC/LOA records with fully filled out LOA fields
+		//loa := factory.BuildFullLineOfAccounting(nil)
+		//loa.LoaBgnDt = &mto.Orders.IssueDate
+		//endDate := mto.Orders.IssueDate.AddDate(5, 0, 0)
+		//loa.LoaEndDt = &endDate
+		//factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
+		//	{
+		//		Model: models.TransportationAccountingCode{
+		//			TAC: *mto.Orders.TAC,
+		//		},
+		//	},
+		//	{
+		//		Model: loa,
+		//	},
+		//}, nil)
 		// setup known next value
 		icnErr := suite.icnSequencer.SetVal(suite.AppContextForTest(), 122)
 		suite.NoError(icnErr)
@@ -533,6 +548,22 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		paymentServiceItems = models.PaymentServiceItems{}
 		paymentServiceItems = append(paymentServiceItems, dopsit)
 
+		//// Add TAC/LOA records with fully filled out LOA fields
+		//loa := factory.BuildFullLineOfAccounting(nil)
+		//loa.LoaBgnDt = &mto.Orders.IssueDate
+		//endDate := mto.Orders.IssueDate.AddDate(5, 0, 0)
+		//loa.LoaEndDt = &endDate
+		//factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
+		//	{
+		//		Model: models.TransportationAccountingCode{
+		//			TAC: *mto.Orders.TAC,
+		//		},
+		//	},
+		//	{
+		//		Model: loa,
+		//	},
+		//}, nil)
+		//
 		// setup known next value
 		icnErr := suite.icnSequencer.SetVal(suite.AppContextForTest(), 122)
 		suite.NoError(icnErr)
@@ -1080,6 +1111,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		}
 	})
 
+	// shouldnt this be in the thing above?
 	suite.Run("adds l3 service item segment", func() {
 		l3 := result.L3
 		// Will need to be updated as more service items are supported
@@ -1815,6 +1847,194 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 			suite.Equal(*fa2Assertion.expectedInfoCode, fa2Segment.FinancialInformationCode)
 		}
 	})
+
+}
+
+func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
+	mockClock := clock.NewMock()
+	currentTime := mockClock.Now()
+	sixMonthsBefore := currentTime.AddDate(0, -6, 0)
+	sixMonthsAfter := currentTime.AddDate(0, 6, 0)
+	basicPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format(testDateFormat),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "4242",
+		},
+		{
+			Key:     models.ServiceItemParamNameDistanceZip,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "24246",
+		},
+	}
+
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, mockClock)
+
+	hhgTAC := "1111"
+	ntsTAC := "2222"
+
+	var move models.Move
+	var mtoShipment models.MTOShipment
+	var paymentRequest models.PaymentRequest
+	setupLoaTestData := func() {
+		allLoaHsGdsCds := []string{models.LineOfAccountingHouseholdGoodsCodeCivilian, models.LineOfAccountingHouseholdGoodsCodeEnlisted, models.LineOfAccountingHouseholdGoodsCodeDual, models.LineOfAccountingHouseholdGoodsCodeOfficer, models.LineOfAccountingHouseholdGoodsCodeNTS, models.LineOfAccountingHouseholdGoodsCodeOther}
+		for i := range allLoaHsGdsCds {
+			loa := factory.BuildFullLineOfAccounting(nil)
+			loa.LoaBgnDt = &sixMonthsBefore
+			loa.LoaEndDt = &sixMonthsAfter
+			loa.LoaHsGdsCd = &allLoaHsGdsCds[i]
+			// The LoaDocID is not used in our LOA selection logic, and it appears in the final EDI.
+			// Most of the fields that we use internally to identify or pick the LOA are carried through to the final
+			// EDI. So we can use this LoaDocID field to identify which LOA was used to generate an EDI.
+			// This is a hack. Hopefully there's a better way.
+			loa.LoaDocID = &allLoaHsGdsCds[i]
+
+			factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
+				{
+					Model: models.TransportationAccountingCode{
+						TAC: *move.Orders.TAC,
+					},
+				},
+				{
+					Model: loa,
+				},
+			}, nil)
+
+		}
+	}
+
+	setupTestData := func() {
+		move = factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Order{
+					TAC:       &hhgTAC,
+					NtsTAC:    &ntsTAC,
+					IssueDate: currentTime,
+				},
+			},
+		}, nil)
+
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PaymentRequest{
+					IsFinal: false,
+					Status:  models.PaymentRequestStatusReviewed,
+				},
+			},
+		}, nil)
+
+		mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		factory.BuildPaymentServiceItemWithParams(
+			suite.DB(),
+			models.ReServiceCodeDNPK,
+			basicPaymentServiceItemParams,
+			[]factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model:    mtoShipment,
+					LinkOnly: true,
+				},
+				{
+					Model:    paymentRequest,
+					LinkOnly: true,
+				},
+				{
+					Model: models.PaymentServiceItem{
+						Status: models.PaymentServiceItemStatusApproved,
+					},
+				},
+			}, nil,
+		)
+	}
+	suite.Run("when there are multiple LOAs for a given TAC, the one matching the customer's rank should be used", func() {
+		setupTestData()
+		setupLoaTestData()
+
+		rankTestCases := []struct {
+			rank            models.ServiceMemberRank
+			expectedLoaCode string
+		}{
+			{models.ServiceMemberRankE1, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberRankE2, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberRankE3, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberRankE4, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberRankE5, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberRankE6, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberRankE7, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberRankE8, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberRankE9, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberRankE9SPECIALSENIORENLISTED, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberRankO1ACADEMYGRADUATE, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankO2, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankO3, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankO4, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankO5, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankO6, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankO7, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankO8, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankO9, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankO10, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankW1, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankW2, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankW3, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankW4, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankW5, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankAVIATIONCADET, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankCIVILIANEMPLOYEE, models.LineOfAccountingHouseholdGoodsCodeCivilian},
+			{models.ServiceMemberRankACADEMYCADET, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankMIDSHIPMAN, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+		}
+
+		for _, testCase := range rankTestCases {
+			// Update service member rank
+			move.Orders.ServiceMember.Rank = &testCase.rank
+			paymentRequest.MoveTaskOrder.Orders.ServiceMember.Rank = &testCase.rank
+			err := suite.DB().Save(&move.Orders.ServiceMember)
+			suite.NoError(err)
+
+			// Create invoice
+			result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+			suite.NoError(err)
+
+			// Check if invoice used the LOA we expected.
+			// The doc ID field would not work like this in real data, i'm just using it
+			// to get what the test needs into the EDI.
+			var actualDocID string
+			for _, fa2 := range result.ServiceItems[0].FA2s {
+				if fa2.BreakdownStructureDetailCode == edisegment.FA2DetailCodeJ1 {
+					actualDocID = fa2.FinancialInformationCode
+					break
+				}
+			}
+			suite.NotNil(actualDocID)
+			suite.Equal(testCase.expectedLoaCode, actualDocID)
+		}
+	})
+	// test that we still get an LOA if none match the service member's rank
+	// test that the lowest tac_fn_bl_mod_cd is used as a tiebreaker
 }
 
 func (suite *GHCInvoiceSuite) TestDetermineDutyLocationPhoneLinesFunc() {

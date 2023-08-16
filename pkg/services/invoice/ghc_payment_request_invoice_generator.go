@@ -653,13 +653,20 @@ func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(appCtx appcontext.A
 }
 
 func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appcontext.AppContext, orders models.Order, tac string) ([]edisegment.FA2, error) {
+	var loas []models.LineOfAccounting
 	var loa models.LineOfAccounting
 
+	// seems like we're missing year strings and dates, but maybe that just works bc sql
+	// coerces strings that are years into dates?
+	// also should we be using the end date?
+	// tac_fn_bl_mod_cd is a char(1) field. It has a mix of letters and numbers. We want to get lowest numbers first, and
+	// numbers before letters. This is the behavior we get from order by.
 	err := appCtx.DB().Q().
 		Join("transportation_accounting_codes t", "t.loa_id = lines_of_accounting.id").
 		Where("t.tac = ?", tac).
 		Where("? between loa_bgn_dt and loa_end_dt", orders.IssueDate).
-		First(&loa)
+		Order("t.tac_fn_bl_mod_cd asc").
+		All(&loas)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -668,6 +675,56 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 		default:
 			return nil, apperror.NewQueryError("lineOfAccounting", err, "Unexpected error")
 		}
+	}
+
+	fmt.Println("orders.issueDate", orders.IssueDate.String(), *orders.TAC)
+	fmt.Println("-----------------------------", len(loas))
+	if len(loas) == 0 {
+		fmt.Print("no TAC or LOA found")
+		return nil, nil
+	}
+	//"HE" - E-1 through E-9 and Special Enlisted
+	//"HO" - O-1 Academy graduate through O-10, W1 - W5, Aviation Cadet, Academy Cadet, and Midshipman
+	//"HC" - Civilian employee
+
+	// find a better way
+	if orders.ServiceMember.Rank == nil {
+		return nil, apperror.NewQueryError("SM not loaded!!!!", nil, "")
+	}
+	rank := *orders.ServiceMember.Rank
+	fmt.Println("rank", rank)
+	hhgCode := ""
+
+	// we should probably just use a map instead of doing string shenanigans
+	if rank[:2] == "E_" {
+		hhgCode = "HE"
+	} else if rank[:2] == "O_" || rank[:2] == "W_" || rank == models.ServiceMemberRankACADEMYCADET || rank == models.ServiceMemberRankAVIATIONCADET || rank == models.ServiceMemberRankMIDSHIPMAN {
+		hhgCode = "HO"
+	} else if rank == models.ServiceMemberRankCIVILIANEMPLOYEE {
+		hhgCode = "HC"
+	} else {
+		return nil, apperror.NotImplementedError{}
+	}
+	// if just one, pick it
+	// if multiple,lowest FBMC
+	var loaWithMatchingCode []models.LineOfAccounting
+
+	for _, line := range loas {
+		fmt.Println("checking", *line.LoaHsGdsCd, "against", hhgCode)
+		if line.LoaHsGdsCd != nil && *line.LoaHsGdsCd == hhgCode {
+			fmt.Println("found matching code", *line.LoaHsGdsCd, hhgCode)
+			loaWithMatchingCode = append(loaWithMatchingCode, line)
+		}
+	}
+	if len(loaWithMatchingCode) == 0 {
+		fmt.Println("no loa with matching code")
+		// fall back to the whole set and then sort by fbmc
+		// take first thing from whole set
+		loa = loas[0]
+	}
+	if len(loaWithMatchingCode) >= 1 {
+		// take first of loaWithMatchingCode
+		loa = loaWithMatchingCode[0]
 	}
 
 	var fa2LongLoaSegments []edisegment.FA2
