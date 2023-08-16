@@ -53,7 +53,7 @@ import (
 
 const successResponseString = "Successful"
 const lineOfAccounting = "LN_OF_ACCT"
-const TransportationAccountingCode = "TRNSPRTN_ACNT"
+const transportationAccountingCode = "TRNSPRTN_ACNT"
 
 type GetTableRequestElement struct {
 	soapClient SoapCaller
@@ -118,18 +118,47 @@ func FetchTACRecordsByTime(appcontext appcontext.AppContext, time string) ([]mod
 
 	return tacCodes, nil
 }
+
+func FetchLOARecordsByTime(appcontext appcontext.AppContext, time string) ([]models.LOAType, error) {
+	var loa []models.LOAType
+	err := appcontext.DB().Select("*").Where("updated_at < $1", time).All(&loa)
+
+	if err != nil {
+		return loa, errors.Wrap(err, "Fetch line items query failed")
+	}
+
+	return loa, nil
+}
 func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physicalName string, lastUpdate string) error {
+	switch physicalName {
+	case lineOfAccounting:
+		loaRecords, loaFetchErr := FetchLOARecordsByTime(appCtx, lastUpdate)
 
-	records, fetchErr := FetchTACRecordsByTime(appCtx, lastUpdate)
+		if loaFetchErr != nil {
+			return loaFetchErr
+		}
 
-	if fetchErr != nil {
-		return fetchErr
+		if len(loaRecords) >= 0 {
+			if err := setupSoapCall(d, appCtx, physicalName); err != nil {
+				return err
+			}
+		}
+	case transportationAccountingCode:
+		tacRecords, fetchErr := FetchTACRecordsByTime(appCtx, lastUpdate)
+		if fetchErr != nil {
+			return fetchErr
+		}
+		if len(tacRecords) >= 0 {
+			if err := setupSoapCall(d, appCtx, physicalName); err != nil {
+				return err
+			}
+		}
 	}
 
-	if len(records) <= 0 {
-		return nil
-	}
+	return nil
+}
 
+func setupSoapCall(d *GetTableRequestElement, appCtx appcontext.AppContext, physicalName string) error {
 	gosoap.SetCustomEnvelope("soapenv", map[string]string{
 		"xmlns:soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
 		"xmlns:ret":     "http://ReturnTablePackage/",
@@ -196,7 +225,7 @@ func parseGetTableResponse(appcontext appcontext.AppContext, response *gosoap.Re
 		if saveErr != nil {
 			return saveErr
 		}
-	case TransportationAccountingCode:
+	case transportationAccountingCode:
 		tacCodes, err := tac.Parse(reader)
 		consolidatedTacs := tac.ConsolidateDuplicateTACsDesiredFromTRDM(tacCodes)
 		if err != nil {
