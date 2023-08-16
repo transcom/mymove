@@ -833,20 +833,22 @@ func generateJWTToken(aud, iss, nonce string) (string, error) {
 func mockAndActivateOktaEndpoints(tioOfficeUser models.OfficeUser, provider *okta.Provider) {
 	// Mock the OIDC .well-known openid-configuration endpoint
 	jwksURL := provider.GetJWKSURL()
-	httpmock.RegisterResponder("GET", provider.GetOpenIDConfigURL(),
+	openIDConfigURL := provider.GetOpenIDConfigURL()
+	userInfoURL := provider.GetUserInfoURL()
+	httpmock.RegisterResponder("GET", openIDConfigURL,
 		httpmock.NewStringResponder(200, fmt.Sprintf(`{
-            "jwks_uri": %s
+            "jwks_uri": "%s"
         }`, jwksURL)))
 
 	// Mock the JWKS endpoint to receive keys for JWT verification
-	httpmock.RegisterResponder("GET", provider.GetJWKSURL(),
+	httpmock.RegisterResponder("GET", jwksURL,
 		httpmock.NewStringResponder(200, fmt.Sprintf(`{
         "keys": [
             {
                 "alg": "RS256",
                 "kty": "RSA",
                 "use": "sig",
-                "n": %s,
+                "n": "%s",
                 "e": "AQAB",
                 "kid": "%s"
             }
@@ -856,7 +858,7 @@ func mockAndActivateOktaEndpoints(tioOfficeUser models.OfficeUser, provider *okt
 	// Mock the userinfo endpoint
 	// Sub is the Okta user ID, it is not a UUID.
 	tioOfficeOktaUserID := tioOfficeUser.User.LoginGovUUID.String()
-	httpmock.RegisterResponder("GET", provider.GetUserInfoURL(),
+	httpmock.RegisterResponder("GET", userInfoURL,
 		httpmock.NewStringResponder(200, fmt.Sprintf(`{
 		"sub": "%s",
 		"name": "name",
