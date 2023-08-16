@@ -64,6 +64,82 @@ IEA*1*000000022
 		suite.NoError(err)
 	})
 
+	suite.Run("successfully processes a valid EDI997 with minimum AK4 values", func() {
+		sample997EDIString := `
+ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000999*0*T*|
+GS*SI*MILMOVE*8004171844*20190903*1617*9999*X*004010
+ST*997*0001
+AK1*SI*100001251
+AK2*858*0001
+AK3*ab*123
+AK4*3**1
+AK5*A
+AK9*A*1*1*1
+SE*6*0001
+GE*1*220001
+IEA*1*000000022
+`
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusSentToGex,
+				},
+			},
+		}, nil)
+		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequestToInterchangeControlNumber{
+					InterchangeControlNumber: 100001251,
+					EDIType:                  models.EDIType858,
+				},
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil)
+		err := edi997Processor.ProcessFile(suite.AppContextForTest(), "", sample997EDIString)
+		suite.NoError(err)
+	})
+
+	suite.Run("successfully processes a valid EDI997 with 4 AK4 values", func() {
+		sample997EDIString := `
+ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000999*0*T*|
+GS*SI*MILMOVE*8004171844*20190903*1617*9999*X*004010
+ST*997*0001
+AK1*SI*100001251
+AK2*858*0001
+AK3*ab*123
+AK4*1**7*YE
+AK5*A
+AK9*A*1*1*1
+SE*6*0001
+GE*1*220001
+IEA*1*000000022
+`
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusSentToGex,
+				},
+			},
+		}, nil)
+		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequestToInterchangeControlNumber{
+					InterchangeControlNumber: 100001251,
+					EDIType:                  models.EDIType858,
+				},
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil)
+		err := edi997Processor.ProcessFile(suite.AppContextForTest(), "", sample997EDIString)
+		suite.NoError(err)
+	})
+
 	suite.Run("throw error when parsing an EDI997 when an EDI997 is expected", func() {
 		sample997EDIString := `
 		ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
