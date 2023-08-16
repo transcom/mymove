@@ -138,7 +138,6 @@ const ServicesCounselingMoveInfo = () => {
         <Routes>
           {/* TODO - Routes not finalized, revisit */}
           <Route path={servicesCounselingRoutes.SHIPMENT_REVIEW_PATH} end element={<ReviewDocuments />} />
-
           <Route
             path={servicesCounselingRoutes.MOVE_VIEW_PATH}
             end
@@ -149,22 +148,18 @@ const ServicesCounselingMoveInfo = () => {
               />
             }
           />
-
           <Route
             key="servicesCounselingAddShipment"
             end
             path={servicesCounselingRoutes.SHIPMENT_ADD_PATH}
             element={<ServicesCounselingAddShipment />}
           />
-
           <Route
             path={servicesCounselingRoutes.CUSTOMER_SUPPORT_REMARKS_PATH}
             end
             element={<CustomerSupportRemarks />}
           />
-
           <Route path={servicesCounselingRoutes.MOVE_HISTORY_PATH} end element={<MoveHistory moveCode={moveCode} />} />
-
           <Route
             path={servicesCounselingRoutes.ALLOWANCES_EDIT_PATH}
             end
@@ -195,25 +190,21 @@ const ServicesCounselingMoveInfo = () => {
             end
             element={<ServicesCounselingEditShipmentDetails onUpdate={onInfoSavedUpdate} />}
           />
-
           <Route
             path={servicesCounselingRoutes.SHIPMENT_ADVANCE_PATH}
             end
             element={<ServicesCounselingEditShipmentDetails onUpdate={onInfoSavedUpdate} isAdvancePage />}
           />
-
           <Route
             path={servicesCounselingRoutes.SHIPMENT_REVIEW_PATH}
             exact
             element={<ReviewDocuments onUpdate={onInfoSavedUpdate} />}
           />
-
           <Route
             path={servicesCounselingRoutes.REVIEW_SHIPMENT_WEIGHTS_PATH}
             exact
             element={<ServicesCounselingReviewShipmentWeights moveCode={moveCode} />}
           />
-
           {/* TODO - clarify role/tab access */}
           <Route path="/" element={<Navigate to={servicesCounselingRoutes.MOVE_VIEW_PATH} replace />} />
         </Routes>
