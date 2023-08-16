@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { milmoveLogger } from 'utils/milmoveLog';
 import { getFeatureFlagForUser } from 'services/internalApi';
 
 export const ENABLED_VALUE = 'enabled';
@@ -25,7 +25,7 @@ export const FeatureFlag = ({ flagKey, flagContext, render }) => {
         }
       })
       .catch((error) => {
-        milmoveLog(MILMOVE_LOG_LEVEL.ERROR, error);
+        milmoveLogger.error(error);
         setFlagValue(DISABLED_VALUE);
       });
   });
