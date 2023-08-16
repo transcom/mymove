@@ -648,6 +648,7 @@ func NewCallbackHandler(ac Context, hc handlers.HandlerConfig, sender notificati
 		Context:       ac,
 		HandlerConfig: hc,
 		sender:        sender,
+		HTTPClient:    &http.Client{},
 	}
 	return handler
 }

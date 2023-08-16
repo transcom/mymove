@@ -21,23 +21,8 @@ const (
 	//RA Validator: jneuner@mitre.org
 	//RA Modified Severity: CAT III
 	// #nosec G101
-
 	// ClientAuthSecretKeyFlag is the Client Auth Secret Key Flag
 	ClientAuthSecretKeyFlag string = "client-auth-secret-key"
-	// LoginGovCallbackProtocolFlag is the Login.gov Callback Protocol Flag
-	LoginGovCallbackProtocolFlag string = "login-gov-callback-protocol"
-	// LoginGovCallbackPortFlag is the Login.gov Callback Port Flag
-	LoginGovCallbackPortFlag string = "login-gov-callback-port"
-	// LoginGovSecretKeyFlag is the Login.gov Secret Key Flag
-	LoginGovSecretKeyFlag string = "login-gov-secret-key"
-	// LoginGovMyClientIDFlag is the Login.gov My Client ID Flag
-	LoginGovMyClientIDFlag string = "login-gov-my-client-id"
-	// LoginGovOfficeClientIDFlag is the Login.gov Office Client ID Flag
-	LoginGovOfficeClientIDFlag string = "login-gov-office-client-id"
-	// LoginGovAdminClientIDFlag is the Login.gov Admin Client ID Flag
-	LoginGovAdminClientIDFlag string = "login-gov-admin-client-id"
-	// LoginGovHostnameFlag is the Login.gov Hostname Flag
-	LoginGovHostnameFlag string = "login-gov-hostname"
 
 	// Okta flags for local development environment that serves test-milmove.okta.mil
 	// Okta tenant flags
@@ -105,81 +90,57 @@ func (e *errInvalidClientID) Error() string {
 func InitAuthFlags(flag *pflag.FlagSet) {
 	flag.String(ClientAuthSecretKeyFlag, "", "Client auth secret JWT key.")
 
-	flag.String(LoginGovCallbackProtocolFlag, "https", "Protocol for non local environments.")
-	flag.Int(LoginGovCallbackPortFlag, 443, "The port for callback urls.")
-	flag.String(LoginGovSecretKeyFlag, "", "Login.gov auth secret JWT key.")
-	flag.String(LoginGovMyClientIDFlag, "", "Client ID registered with login gov.")
-	flag.String(LoginGovOfficeClientIDFlag, "", "Client ID registered with login gov.")
-	flag.String(LoginGovAdminClientIDFlag, "", "Client ID registered with login gov.")
-	flag.String(LoginGovHostnameFlag, "secure.login.gov", "Hostname for communicating with login gov.")
-
-	// TODO: Replace Okta os.Getenv
-
-	// // Okta flags
-	// flag.String(OktaTenantIssuerURLFlag, os.Getenv("OKTA_TENANT_ORG_URL"), "Okta tenant issuer URL.")
-	// flag.Int(OktaTenantCallbackPortFlag, 443, "Okta tenant callback port.")
-
-	// // Customer flags
-	// flag.String(OktaCustomerSecretKeyFlag, os.Getenv("OKTA_CUSTOMER_SECRET_KEY"), "Okta customer secret key.")
-	// flag.String(OktaCustomerClientIDFlag, os.Getenv("OKTA_CUSTOMER_CLIENT_ID"), "Okta customer client ID.")
-	// flag.String(OktaCustomerHostnameFlag, os.Getenv("OKTA_CUSTOMER_HOSTNAME"), "Okta customer hostname.")
-	// flag.String(OktaCustomerCallbackProtocolFlag, os.Getenv("OKTA_CUSTOMER_CALLBACK_PROTOCOL"), "Okta customer callback protocol.")
-
-	// // Office flags
-	// flag.String(OktaOfficeSecretKeyFlag, os.Getenv("OKTA_OFFICE_SECRET_KEY"), "Okta office secret key.")
-	// flag.String(OktaOfficeClientIDFlag, os.Getenv("OKTA_OFFICE_CLIENT_ID"), "Okta office client ID.")
-	// flag.String(OktaOfficeHostnameFlag, os.Getenv("OKTA_OFFICE_HOSTNAME"), "Okta office hostname.")
-	// flag.String(OktaOfficeCallbackProtocolFlag, os.Getenv("OKTA_OFFICE_CALLBACK_PROTOCOL"), "Okta office callback protocol.")
-
-	// // Admin flags
-	// flag.String(OktaAdminSecretKeyFlag, os.Getenv("OKTA_ADMIN_SECRET_KEY"), "Okta admin secret key.")
-	// flag.String(OktaAdminClientIDFlag, os.Getenv("OKTA_ADMIN_CLIENT_ID"), "Okta admin client ID.")
-	// flag.String(OktaAdminHostnameFlag, os.Getenv("OKTA_ADMIN_HOSTNAME"), "Okta admin hostname.")
-	// flag.String(OktaAdminCallbackProtocolFlag, os.Getenv("OKTA_ADMIN_CALLBACK_PROTOCOL"), "Okta admin callback protocol.")
+	flag.String(OktaTenantOrgURLFlag, "", "Okta tenant org URL.")
+	flag.Int(OktaTenantCallbackPortFlag, 443, "The port for callback URLs.")
+	flag.String(OktaTenantCallbackProtocolFlag, "https", "Protocol for non local environments.")
+	flag.String(OktaCustomerClientIDFlag, "", "The client ID for the military customer app, aka 'my'.")
+	flag.String(OktaCustomerCallbackURL, "", "The callback URL from logging in to the customer Okta app back to MilMove.")
+	flag.String(OktaCustomerSecretKeyFlag, "", "The secret key for the miltiary customer app, aka 'my'.")
+	flag.String(OktaOfficeClientIDFlag, "", "The client ID for the military Office app, aka 'my'.")
+	flag.String(OktaOfficeCallbackURL, "", "The callback URL from logging in to the office Okta app back to MilMove.")
+	flag.String(OktaOfficeSecretKeyFlag, "", "The secret key for the miltiary Office app, aka 'my'.")
+	flag.String(OktaAdminClientIDFlag, "", "The client ID for the military Admin app, aka 'my'.")
+	flag.String(OktaAdminCallbackURL, "", "The callback URL from logging in to the admin Okta app back to MilMove.")
+	flag.String(OktaAdminSecretKeyFlag, "", "The secret key for the miltiary Admin app, aka 'my'.")
 }
 
 // CheckAuth validates Auth command line flags
 func CheckAuth(v *viper.Viper) error {
 
-	if err := ValidateProtocol(v, LoginGovCallbackProtocolFlag); err != nil {
+	if err := ValidateProtocol(v, OktaTenantCallbackProtocolFlag); err != nil {
 		return err
 	}
 
-	if err := ValidateHost(v, LoginGovHostnameFlag); err != nil {
-		return err
-	}
-
-	secureLoginGov := "secure.login.gov"
-	sandboxLoginGov := "idp.int.identitysandbox.gov"
-	if loginGovHostname := v.GetString(LoginGovHostnameFlag); loginGovHostname != secureLoginGov && loginGovHostname != sandboxLoginGov {
-		return errors.Wrap(&errInvalidHost{Host: loginGovHostname}, fmt.Sprintf("%s is invalid, expected %s or %s", LoginGovHostnameFlag, secureLoginGov, sandboxLoginGov))
-	}
-
-	if err := ValidatePort(v, LoginGovCallbackPortFlag); err != nil {
+	if err := ValidatePort(v, OktaTenantCallbackPortFlag); err != nil {
 		return err
 	}
 
 	clientIDVars := []string{
-		LoginGovMyClientIDFlag,
-		LoginGovOfficeClientIDFlag,
-		LoginGovAdminClientIDFlag,
+		OktaCustomerClientIDFlag,
+		OktaOfficeClientIDFlag,
+		OktaAdminClientIDFlag,
+	}
+
+	secretKeyVars := []string{
+		OktaCustomerSecretKeyFlag,
+		OktaOfficeSecretKeyFlag,
+		OktaAdminSecretKeyFlag,
 	}
 
 	for _, c := range clientIDVars {
-		err := ValidateClientID(v, c)
-		if err != nil {
-			return err
+		clientID := v.GetString(c)
+		{
+			if len(clientID) == 0 {
+				return errors.Errorf("%s is missing", c)
+			}
 		}
 	}
 
-	privateKey := v.GetString(LoginGovSecretKeyFlag)
-	if len(privateKey) == 0 {
-		return errors.Errorf("%s is missing", LoginGovSecretKeyFlag)
-	}
-
-	keys := ParsePrivateKey(privateKey)
-	if len(keys) == 0 {
-		return errors.Errorf("%s is missing key block", LoginGovSecretKeyFlag)
+	for _, s := range secretKeyVars {
+		privateKey := v.GetString(s)
+		if len(privateKey) == 0 {
+			return errors.Errorf("%s is missing", s)
+		}
 	}
 
 	return nil

@@ -668,7 +668,7 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
-	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback", appnames.OfficeServername), nil)
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/okta/callback", appnames.OfficeServername), nil)
 
 	fakeToken := "some_token"
 	session := auth.Session{
@@ -760,7 +760,7 @@ func (suite *AuthSuite) TestRedirectFromLoginGovForValidUser() {
 		Path:    "/",
 		Expires: auth.GetExpiryTimeFromMinutes(auth.SessionExpiryInMinutes),
 	}
-	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback?state=%s",
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/okta/callback?state=%s",
 		appnames.OfficeServername, stateValue), nil)
 	req.AddCookie(&cookie)
 
@@ -897,7 +897,7 @@ func (suite *AuthSuite) TestRedirectFromLoginGovForInvalidUser() {
 		Path:    "/",
 		Expires: auth.GetExpiryTimeFromMinutes(auth.SessionExpiryInMinutes),
 	}
-	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback?state=%s&code=%s",
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/okta/callback?state=%s&code=%s",
 		appnames.OfficeServername, stateValue, codeValue), nil)
 	req.AddCookie(&cookie)
 
@@ -1497,7 +1497,7 @@ func (suite *AuthSuite) TestLoginGovAuthenticatedRedirect() {
 		Hostname:        appnames.OfficeServername,
 		Email:           officeUser.Email,
 	}
-	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov", appnames.OfficeServername), nil)
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/okta", appnames.OfficeServername), nil)
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	authContext := suite.AuthContext()
 	h := RedirectHandler{
