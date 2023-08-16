@@ -19,11 +19,10 @@ readonly name=app-migrations
 readonly image=$1
 readonly environment=$2
 
-#readonly RESERVATION_CPU=256
-readonly RESERVATION_CPU=512
-#readonly RESERVATION_MEM=512
+readonly RESERVATION_CPU=256
+readonly RESERVATION_MEM=512
 # comment out above and uncomment below to fix out of memory errors.
-readonly RESERVATION_MEM=4096
+#readonly RESERVATION_MEM=2048
 
 readonly log_prefix="${name}"
 readonly container_name="${name}-${environment}"
