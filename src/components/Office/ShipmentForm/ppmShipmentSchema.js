@@ -70,9 +70,10 @@ const ppmShipmentSchema = ({
               `Enter weight in at least one pro-gear field. If the customer will not move pro-gear in this PPM, select No above.`,
             )
             .max(proGearWeightLimit, `Enter a weight ${proGearWeightLimit.toLocaleString()} lbs or less`),
-        otherwise: Yup.number()
-          .min(0, 'Enter a weight 0 lbs or greater')
-          .max(proGearWeightLimit, `Enter a weight ${proGearWeightLimit.toLocaleString()} lbs or less`),
+        otherwise: (schema) =>
+          schema
+            .min(0, 'Enter a weight 0 lbs or greater')
+            .max(proGearWeightLimit, `Enter a weight ${proGearWeightLimit.toLocaleString()} lbs or less`),
       }),
     spouseProGearWeight: Yup.number()
       .min(0, 'Enter a weight 0 lbs or greater')

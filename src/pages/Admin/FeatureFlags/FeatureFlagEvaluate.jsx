@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 import { getFeatureFlagForUser } from 'services/internalApi';
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { milmoveLogger } from 'utils/milmoveLog';
 
 export const FeatureFlagEvaluate = () => {
   const [flagKey, setFlagKey] = useState(null);
@@ -14,7 +14,7 @@ export const FeatureFlagEvaluate = () => {
         setFlagResult(result);
       })
       .catch((error) => {
-        milmoveLog(MILMOVE_LOG_LEVEL.ERROR, error);
+        milmoveLogger.error(error);
         setFlagResult(null);
       });
   };

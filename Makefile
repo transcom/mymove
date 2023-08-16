@@ -167,6 +167,8 @@ client_deps: .check_hosts.stamp .client_deps.stamp ## Install client dependencie
 	touch .client_deps.stamp
 
 .client_build.stamp: .client_deps.stamp $(shell find src -type f)
+	REACT_APP_GIT_COMMIT=$(GIT_COMMIT) \
+	REACT_APP_GIT_BRANCH=$(GIT_BRANCH) \
 	yarn build
 	touch .client_build.stamp
 
@@ -184,7 +186,10 @@ build/downloads: public/downloads
 
 .PHONY: client_run
 client_run: .client_deps.stamp ## Run MilMove Service Member client
-	HOST=milmovelocal yarn start
+	REACT_APP_GIT_COMMIT=$(GIT_COMMIT) \
+	REACT_APP_GIT_BRANCH=$(GIT_BRANCH) \
+	HOST=milmovelocal \
+	yarn start
 
 .PHONY: client_test
 client_test: .client_deps.stamp ## Run client unit tests
@@ -196,11 +201,17 @@ client_test_coverage : .client_deps.stamp ## Run client unit test coverage
 
 .PHONY: office_client_run
 office_client_run: .client_deps.stamp ## Run MilMove Office client
-	HOST=officelocal yarn start
+	REACT_APP_GIT_COMMIT=$(GIT_COMMIT) \
+	REACT_APP_GIT_BRANCH=$(GIT_BRANCH) \
+	HOST=officelocal \
+	yarn start
 
 .PHONY: admin_client_run
 admin_client_run: .client_deps.stamp ## Run MilMove Admin client
-	HOST=adminlocal yarn start
+	REACT_APP_GIT_COMMIT=$(GIT_COMMIT) \
+	REACT_APP_GIT_BRANCH=$(GIT_BRANCH) \
+	HOST=adminlocal \
+	yarn start
 
 #
 # ----- END CLIENT TARGETS -----

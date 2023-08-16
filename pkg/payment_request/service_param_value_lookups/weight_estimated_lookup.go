@@ -23,8 +23,7 @@ func (r WeightEstimatedLookup) lookup(_ appcontext.AppContext, keyData *ServiceI
 		models.ReServiceCodeIDSHUT:
 		estimatedWeight = keyData.MTOServiceItem.EstimatedWeight
 		if estimatedWeight == nil {
-			// TODO: Do we need a different error -- is this a "normal" scenario?
-			return "", fmt.Errorf("could not find estimated weight for MTOServiceItemID [%s]", keyData.MTOServiceItem.ID)
+			return "", nil
 		}
 	default:
 		// Make sure there's an estimated weight since that's nullable
