@@ -6,7 +6,6 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	mtoFetcher "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
@@ -43,11 +42,18 @@ func checkStatusOfExistingPaymentRequest() paymentRequestValidator {
 		moveID := paymentRequest.MoveTaskOrderID
 		shipmentID := paymentRequest.PaymentServiceItems[0].MTOServiceItem.MTOShipmentID
 
-		searchParams := services.MoveTaskOrderFetcherParams{
-			MoveTaskOrderID: moveID,
-		}
+		// searchParams := services.MoveTaskOrderFetcherParams{
+		// 	MoveTaskOrderID: moveID,
+		// }
 
-		move, err := mtoFetcher.NewMoveTaskOrderFetcher().FetchMoveTaskOrder(appCtx, &searchParams)
+		// move, err := mtoFetcher.NewMoveTaskOrderFetcher().FetchMoveTaskOrder(appCtx, &searchParams)
+		// if err != nil {
+		// 	return err
+		// }
+
+		move, err := mtoFetcher.NewMoveTaskOrderFetcher().GetMoveForPaymentRequests(appCtx, moveID,
+			"PaymentRequests.PaymentServiceItems.MTOServiceItem.ReService.Code",
+		)
 		if err != nil {
 			return err
 		}

@@ -9,6 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -100,7 +101,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"Contractor",
 		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"PaymentRequests.ProofOfServiceDocs.PrimeUploads.Upload",
-		"PaymentRequests.PaymentServiceItems.MTOServiceItem.ReService.Code",
+		// "PaymentRequests.PaymentServiceItems.MTOServiceItem.ReService.Code",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.ReService.Code",
 		"MTOServiceItems.Dimensions",
@@ -228,6 +229,28 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	mto.MTOServiceItems = loadedServiceItems
 
 	return mto, nil
+}
+
+func (f moveTaskOrderFetcher) GetMoveForPaymentRequests(appCtx appcontext.AppContext, moveID uuid.UUID, eagerAssociations ...string) (*models.Move, error) {
+	var move models.Move
+	findMoveQuery := appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope())
+
+	if len(eagerAssociations) > 0 {
+		findMoveQuery.Eager(eagerAssociations...)
+	}
+
+	err := findMoveQuery.Find(&move, moveID)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(moveID, "while looking for move")
+		default:
+			return nil, apperror.NewQueryError("Move", err, "")
+		}
+	}
+
+	return &move, nil
 }
 
 // ListPrimeMoveTaskOrders performs an optimized fetch for moves specifically targeting the Prime API.
