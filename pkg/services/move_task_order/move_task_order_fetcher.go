@@ -9,7 +9,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -101,7 +100,6 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"Contractor",
 		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"PaymentRequests.ProofOfServiceDocs.PrimeUploads.Upload",
-		// "PaymentRequests.PaymentServiceItems.MTOServiceItem.ReService.Code",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.ReService.Code",
 		"MTOServiceItems.Dimensions",
@@ -233,7 +231,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 
 func (f moveTaskOrderFetcher) GetMoveForPaymentRequests(appCtx appcontext.AppContext, moveID uuid.UUID, eagerAssociations ...string) (*models.Move, error) {
 	var move models.Move
-	findMoveQuery := appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope())
+	findMoveQuery := appCtx.DB().Q()
 
 	if len(eagerAssociations) > 0 {
 		findMoveQuery.Eager(eagerAssociations...)
