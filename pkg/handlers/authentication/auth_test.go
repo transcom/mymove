@@ -834,6 +834,7 @@ func mockAndActivateOktaEndpoints(tioOfficeUser models.OfficeUser, provider *okt
 	jwksURL := provider.GetJWKSURL()
 	openIDConfigURL := provider.GetOpenIDConfigURL()
 	userInfoURL := provider.GetUserInfoURL()
+
 	httpmock.RegisterResponder("GET", openIDConfigURL,
 		httpmock.NewStringResponder(200, fmt.Sprintf(`{
             "jwks_uri": "%s"
@@ -857,6 +858,7 @@ func mockAndActivateOktaEndpoints(tioOfficeUser models.OfficeUser, provider *okt
 	// Mock the userinfo endpoint
 	// Sub is the Okta user ID, it is not a UUID.
 	tioOfficeOktaUserID := tioOfficeUser.User.OktaID
+
 	httpmock.RegisterResponder("GET", userInfoURL,
 		httpmock.NewStringResponder(200, fmt.Sprintf(`{
 		"sub": "%s",

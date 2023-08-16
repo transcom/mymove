@@ -68,12 +68,9 @@ func GetUserFromEmail(db *pop.Connection, email string) (*User, error) {
 
 // CreateUser is called upon successful login.gov verification of a new user
 func CreateUser(db *pop.Connection, oktaID string, email string) (*User, error) {
-	oID, err := uuid.FromString(oktaID)
-	if err != nil {
-		return nil, err
-	}
+
 	newUser := User{
-		OktaID:    oID.String(),
+		OktaID:    oktaID,
 		OktaEmail: strings.ToLower(email),
 		Active:    true,
 	}
