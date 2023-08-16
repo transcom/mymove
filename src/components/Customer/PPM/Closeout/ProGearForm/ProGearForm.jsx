@@ -34,7 +34,7 @@ const ProGearForm = ({ proGear, setNumber, onSubmit, onBack, onCreateUpload, onU
     weight: Yup.number()
       .required('Required')
       .min(1, 'Enter a weight greater than 0 lbs.')
-      .when('belongsToSelf', (belongsToSelfField, schema) => {
+      .when('belongsToSelf', ([belongsToSelfField], schema) => {
         let maximum;
         if (belongsToSelfField) {
           maximum = proGearEntitlements.proGear;

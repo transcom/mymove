@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -66,7 +67,7 @@ func (suite *MovingExpenseSuite) TestDeleteMovingExpense() {
 		notFoundMovingExpenseID := uuid.Must(uuid.NewV4())
 		deleter := NewMovingExpenseDeleter()
 
-		err := deleter.DeleteMovingExpense(suite.AppContextForTest(), notFoundMovingExpenseID)
+		err := deleter.DeleteMovingExpense(suite.AppContextWithSessionForTest(&auth.Session{}), notFoundMovingExpenseID)
 
 		if suite.Error(err) {
 			suite.IsType(apperror.NotFoundError{}, err)
@@ -84,7 +85,7 @@ func (suite *MovingExpenseSuite) TestDeleteMovingExpense() {
 		deleter := NewMovingExpenseDeleter()
 
 		suite.Nil(originalMovingExpense.DeletedAt)
-		err := deleter.DeleteMovingExpense(suite.AppContextForTest(), originalMovingExpense.ID)
+		err := deleter.DeleteMovingExpense(suite.AppContextWithSessionForTest(&auth.Session{}), originalMovingExpense.ID)
 		suite.NoError(err)
 
 		var movingExpenseInDB models.MovingExpense

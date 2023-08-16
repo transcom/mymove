@@ -13,15 +13,15 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
-// UpdateProGearWeightTicketCreatedCode is the HTTP code returned for type UpdateProGearWeightTicketCreated
-const UpdateProGearWeightTicketCreatedCode int = 201
+// UpdateProGearWeightTicketOKCode is the HTTP code returned for type UpdateProGearWeightTicketOK
+const UpdateProGearWeightTicketOKCode int = 200
 
 /*
-UpdateProGearWeightTicketCreated returns an updated pro-gear weight ticket object
+UpdateProGearWeightTicketOK returns an updated pro-gear weight ticket object
 
-swagger:response updateProGearWeightTicketCreated
+swagger:response updateProGearWeightTicketOK
 */
-type UpdateProGearWeightTicketCreated struct {
+type UpdateProGearWeightTicketOK struct {
 
 	/*
 	  In: Body
@@ -29,27 +29,27 @@ type UpdateProGearWeightTicketCreated struct {
 	Payload *internalmessages.ProGearWeightTicket `json:"body,omitempty"`
 }
 
-// NewUpdateProGearWeightTicketCreated creates UpdateProGearWeightTicketCreated with default headers values
-func NewUpdateProGearWeightTicketCreated() *UpdateProGearWeightTicketCreated {
+// NewUpdateProGearWeightTicketOK creates UpdateProGearWeightTicketOK with default headers values
+func NewUpdateProGearWeightTicketOK() *UpdateProGearWeightTicketOK {
 
-	return &UpdateProGearWeightTicketCreated{}
+	return &UpdateProGearWeightTicketOK{}
 }
 
-// WithPayload adds the payload to the update pro gear weight ticket created response
-func (o *UpdateProGearWeightTicketCreated) WithPayload(payload *internalmessages.ProGearWeightTicket) *UpdateProGearWeightTicketCreated {
+// WithPayload adds the payload to the update pro gear weight ticket o k response
+func (o *UpdateProGearWeightTicketOK) WithPayload(payload *internalmessages.ProGearWeightTicket) *UpdateProGearWeightTicketOK {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the update pro gear weight ticket created response
-func (o *UpdateProGearWeightTicketCreated) SetPayload(payload *internalmessages.ProGearWeightTicket) {
+// SetPayload sets the payload to the update pro gear weight ticket o k response
+func (o *UpdateProGearWeightTicketOK) SetPayload(payload *internalmessages.ProGearWeightTicket) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *UpdateProGearWeightTicketCreated) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *UpdateProGearWeightTicketOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(201)
+	rw.WriteHeader(200)
 	if o.Payload != nil {
 		payload := o.Payload
 		if err := producer.Produce(rw, payload); err != nil {

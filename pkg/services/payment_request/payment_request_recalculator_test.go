@@ -516,6 +516,7 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 		newPaymentServiceItem := models.PaymentServiceItem{
 			MTOServiceItemID: mtoServiceItem.ID,
 			MTOServiceItem:   mtoServiceItem,
+			Status:           models.PaymentServiceItemStatusApproved,
 		}
 		paymentRequestArg.PaymentServiceItems = append(paymentRequestArg.PaymentServiceItems, newPaymentServiceItem)
 	}
@@ -537,6 +538,7 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 	doasitPaymentServiceItem := models.PaymentServiceItem{
 		MTOServiceItemID: mtoServiceItemDOASIT.ID,
 		MTOServiceItem:   mtoServiceItemDOASIT,
+		Status:           models.PaymentServiceItemStatusApproved,
 	}
 	doasitPaymentServiceItem.PaymentServiceItemParams = models.PaymentServiceItemParams{
 		{

@@ -6,10 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
-	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -119,33 +115,8 @@ func InitRootConfig(v *viper.Viper) (*pop.Connection, *zap.Logger, error) {
 		logger.Info("A certificate is configured to be loaded from both the filesystem and environment; defaulting to the filesystem certificate")
 	}
 
-	var session *awssession.Session
-	if v.GetBool(cli.DbIamFlag) {
-		c := &aws.Config{
-			Region: aws.String(v.GetString(cli.AWSRegionFlag)),
-		}
-		s, errorSession := awssession.NewSession(c)
-		if errorSession != nil {
-			logger.Fatal("error creating aws session", zap.Error(errorSession))
-		}
-		session = s
-	}
-
-	var dbCreds *credentials.Credentials
-	if v.GetBool(cli.DbIamFlag) {
-		if session != nil {
-			// We want to get the credentials from the logged in AWS session rather than create directly,
-			// because the session conflates the environment, shared, and container metadata config
-			// within NewSession.  With stscreds, we use the Secure Token Service,
-			// to assume the given role (that has rds db connect permissions).
-			dbIamRole := v.GetString(cli.DbIamRoleFlag)
-			logger.Info(fmt.Sprintf("assuming AWS role %q for db connection", dbIamRole))
-			dbCreds = stscreds.NewCredentials(session, dbIamRole)
-		}
-	}
-
 	// DB CONNECTION CHECK
-	dbConnection, err := cli.InitDatabase(v, dbCreds, logger)
+	dbConnection, err := cli.InitDatabase(v, logger)
 	if err != nil {
 		logger.Fatal("Invalid DB Configuration", zap.Error(err))
 	}
