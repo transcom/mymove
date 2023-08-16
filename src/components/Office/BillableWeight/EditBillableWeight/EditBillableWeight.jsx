@@ -116,7 +116,7 @@ export default function EditBillableWeight({
 
   const initialValues = {
     // Check for billable weight first since a maxBillableWeight will always exist, this avoids
-    // a bug caused by short circuting where the value defaults to the maxBillableWeight
+    // a bug caused by short-circuiting where the value defaults to the maxBillableWeight
     billableWeight: (billableWeight && String(billableWeight)) || (maxBillableWeight && String(maxBillableWeight)), // Formik is expecting these weights as a string
     billableWeightJustification,
   };

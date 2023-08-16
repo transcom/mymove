@@ -26,6 +26,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/feature_flags"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
@@ -141,6 +142,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		PpmDeleteWeightTicketHandler: ppm.DeleteWeightTicketHandlerFunc(func(params ppm.DeleteWeightTicketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.DeleteWeightTicket has not yet been implemented")
+		}),
+		FeatureFlagsFeatureFlagForUserHandler: feature_flags.FeatureFlagForUserHandlerFunc(func(params feature_flags.FeatureFlagForUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation feature_flags.FeatureFlagForUser has not yet been implemented")
 		}),
 		TransportationOfficesGetTransportationOfficesHandler: transportation_offices.GetTransportationOfficesHandlerFunc(func(params transportation_offices.GetTransportationOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_offices.GetTransportationOffices has not yet been implemented")
@@ -382,6 +386,8 @@ type MymoveAPI struct {
 	UploadsDeleteUploadsHandler uploads.DeleteUploadsHandler
 	// PpmDeleteWeightTicketHandler sets the operation handler for the delete weight ticket operation
 	PpmDeleteWeightTicketHandler ppm.DeleteWeightTicketHandler
+	// FeatureFlagsFeatureFlagForUserHandler sets the operation handler for the feature flag for user operation
+	FeatureFlagsFeatureFlagForUserHandler feature_flags.FeatureFlagForUserHandler
 	// TransportationOfficesGetTransportationOfficesHandler sets the operation handler for the get transportation offices operation
 	TransportationOfficesGetTransportationOfficesHandler transportation_offices.GetTransportationOfficesHandler
 	// EntitlementsIndexEntitlementsHandler sets the operation handler for the index entitlements operation
@@ -636,6 +642,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PpmDeleteWeightTicketHandler == nil {
 		unregistered = append(unregistered, "ppm.DeleteWeightTicketHandler")
+	}
+	if o.FeatureFlagsFeatureFlagForUserHandler == nil {
+		unregistered = append(unregistered, "feature_flags.FeatureFlagForUserHandler")
 	}
 	if o.TransportationOfficesGetTransportationOfficesHandler == nil {
 		unregistered = append(unregistered, "transportation_offices.GetTransportationOfficesHandler")
@@ -974,6 +983,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}"] = ppm.NewDeleteWeightTicket(o.context, o.PpmDeleteWeightTicketHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/feature-flags/user/{key}"] = feature_flags.NewFeatureFlagForUser(o.context, o.FeatureFlagsFeatureFlagForUserHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

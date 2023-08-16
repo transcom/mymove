@@ -229,6 +229,17 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 		suite.IsType(&movingexpenseops.UpdateMovingExpenseNotFound{}, response)
 	})
 
+	suite.Run("PATCH failure - 404- wrong service member", func() {
+		subtestData := makeUpdateSubtestData(false)
+		params := subtestData.params
+		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{}
+		params.HTTPRequest = suite.AuthenticateRequest(params.HTTPRequest, factory.BuildServiceMember(suite.DB(), nil, nil))
+
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&movingexpenseops.UpdateMovingExpenseNotFound{}, response)
+	})
+
 	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
 		subtestData := makeUpdateSubtestData(true)
 		params := subtestData.params

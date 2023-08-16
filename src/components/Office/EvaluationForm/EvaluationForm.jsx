@@ -18,7 +18,7 @@ import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import { deleteEvaluationReport, saveEvaluationReport, submitEvaluationReport } from 'services/ghcApi';
 import { DatePickerInput, DropdownInput } from 'components/form/fields';
-import { MILMOVE_LOG_LEVEL, milmoveLog } from 'utils/milmoveLog';
+import { milmoveLogger } from 'utils/milmoveLog';
 import { formatDateForSwagger } from 'shared/dates';
 import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
 import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
@@ -39,7 +39,7 @@ const EvaluationForm = ({
   const { mutate: submitEvaluationReportMutation } = useMutation(submitEvaluationReport, {
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
     onSuccess: async () => {
       await queryClient.refetchQueries([EVALUATION_REPORT, reportId]);
@@ -49,7 +49,7 @@ const EvaluationForm = ({
   const { mutate: mutateEvaluationReport } = useMutation(saveEvaluationReport, {
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
     onSuccess: () => {
       queryClient.invalidateQueries([EVALUATION_REPORT, reportId]);
@@ -265,7 +265,7 @@ const EvaluationForm = ({
 
   const EvalDurationSchema = Yup.string().when(['evaluationType'], {
     is: (evaluationType) => evaluationType === 'physical',
-    then: Yup.string().required(),
+    then: (schema) => schema.required(),
   });
 
   const validationSchema = Yup.object().shape(
@@ -283,7 +283,7 @@ const EvaluationForm = ({
       remarks: Yup.string().required(),
       otherEvaluationLocation: Yup.string().when('evaluationLocation', {
         is: 'other',
-        then: Yup.string().required(),
+        then: (schema) => schema.required(),
       }),
     },
     [
