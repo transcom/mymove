@@ -2,6 +2,8 @@ package trdm_test
 
 import (
 	"fmt"
+	"os"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
@@ -29,11 +31,15 @@ const getTableTemplate = `
       </getTableResponseElement>
 `
 
-const getTablePayloadLoa = `test`
+func getTextFile(filePath string) []byte {
+	text, err := os.ReadFile(filePath)
+	if err != nil {
+		print(err)
+	}
+	return text
+}
 
-const getTablePayloadTac = `test`
-
-func soapResponseForGetTable(statusCode string, payload string) *gosoap.Response {
+func soapResponseForGetTable(statusCode string, payload []byte) *gosoap.Response {
 	return &gosoap.Response{
 		Body:    []byte(fmt.Sprintf(getTableTemplate, statusCode)),
 		Payload: []byte(payload),
@@ -45,13 +51,13 @@ func (suite *TRDMSuite) TestTRDMGetTableFake() {
 		name          string
 		physicalName  string
 		statusCode    string
-		payload       string
+		payload       []byte
 		responseError bool
 		shouldError   bool
 	}{
-		{"Update Line of Accounting", "LN_OF_ACCT", "Successful", getTablePayloadLoa, false, false},
-		{"Should not fetch update", "fakeName", "Failure", "", false, false},
-		{"Update Transportation Accounting Codes", "TRNSPRTN_ACNT", "Successful", getTablePayloadTac, false, false},
+		{"Update Line of Accounting", "LN_OF_ACCT", "Successful", getTextFile("mymove/pkg/parser/loa/fixtures/Line Of Accounting.txt"), false, false},
+		{"Should not fetch update", "fakeName", "Failure", getTextFile(""), false, false},
+		{"Update Transportation Accounting Codes", "TRNSPRTN_ACNT", "Successful", getTextFile("mymove/pkg/parser/tac/fixtures/Transportation Account.txt"), false, false},
 	}
 	for _, test := range tests {
 		suite.Run("fake call to TRDM: "+test.name, func() {
@@ -67,7 +73,7 @@ func (suite *TRDMSuite) TestTRDMGetTableFake() {
 			).Return(soapResponseForGetTable(test.statusCode, test.payload), soapError)
 
 			getTable := trdm.NewGetTable(test.physicalName, testSoapClient)
-			err := getTable.GetTable(suite.AppContextForTest(), test.physicalName)
+			err := getTable.GetTable(suite.AppContextForTest(), test.physicalName, time.Now().Format(time.RFC3339))
 
 			if err != nil {
 				suite.Error(err)

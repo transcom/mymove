@@ -3,11 +3,11 @@ package trdm
 import (
 	"bytes"
 	"encoding/xml"
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/cenkalti/backoff/v4"
+	"github.com/pkg/errors"
 	"github.com/tiaguinho/gosoap"
 	"go.uber.org/zap"
 
@@ -86,7 +86,7 @@ type GetTableResponseElement struct {
 }
 
 type GetTableUpdater interface {
-	GetTable(appCtx appcontext.AppContext, physicalName string) error
+	GetTable(appCtx appcontext.AppContext, physicalName string, lastUpdate string) error
 }
 
 func NewGetTable(physicalName string, soapClient SoapCaller) GetTableUpdater {
@@ -108,8 +108,27 @@ func NewGetTable(physicalName string, soapClient SoapCaller) GetTableUpdater {
 		},
 	}
 }
+func FetchTACRecordsByTime(appcontext appcontext.AppContext, time string) ([]models.TransportationAccountingCode, error) {
+	var tacCodes []models.TransportationAccountingCode
+	err := appcontext.DB().Select("*").Where("updated_at < $1", time).All(&tacCodes)
 
-func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physicalName string) error {
+	if err != nil {
+		return tacCodes, errors.Wrap(err, "Fetch line items query failed")
+	}
+
+	return tacCodes, nil
+}
+func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physicalName string, lastUpdate string) error {
+
+	records, fetchErr := FetchTACRecordsByTime(appCtx, lastUpdate)
+
+	if fetchErr != nil {
+		return fetchErr
+	}
+
+	if len(records) <= 0 {
+		return nil
+	}
 
 	gosoap.SetCustomEnvelope("soapenv", map[string]string{
 		"xmlns:soapenv": "http://schemas.xmlsoap.org/soap/envelope/",

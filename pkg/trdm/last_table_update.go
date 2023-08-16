@@ -4,12 +4,10 @@ import (
 	"encoding/xml"
 	"fmt"
 
-	"github.com/pkg/errors"
 	"github.com/tiaguinho/gosoap"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/models"
 )
 
 /*******************************************
@@ -71,30 +69,6 @@ func NewTRDMGetLastTableUpdate(physicalName string, soapClient SoapCaller) GetLa
 
 }
 
-// FetchAllTACRecords queries and fetches all transportation_accounting_codes
-func FetchAllTACRecords(appcontext appcontext.AppContext) ([]models.TransportationAccountingCode, error) {
-	var tacCodes []models.TransportationAccountingCode
-	query := `SELECT * FROM transportation_accounting_codes`
-	err := appcontext.DB().RawQuery(query).All(&tacCodes)
-	if err != nil {
-		return tacCodes, errors.Wrap(err, "Fetch line items query failed")
-	}
-
-	return tacCodes, nil
-
-}
-
-func FethTACRecordsByTime(appcontext appcontext.AppContext, time string) ([]models.TransportationAccountingCode, error) {
-	var tacCodes []models.TransportationAccountingCode
-	err := appcontext.DB().Select("*").Where("updated_at < $1", time).All(&tacCodes)
-
-	if err != nil {
-		return tacCodes, errors.Wrap(err, "Fetch line items query failed")
-	}
-
-	return tacCodes, nil
-}
-
 func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string) error {
 
 	gosoap.SetCustomEnvelope("soapenv", map[string]string{
@@ -128,27 +102,13 @@ func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.
 	}
 
 	if r.Status.StatusCode == successfulStatusCode {
-		tacCodes, dbError := FethTACRecordsByTime(appCtx, r.LastUpdate)
-		if dbError != nil {
-			return fmt.Errorf(dbError.Error())
-		}
-		err := processTacCodes(d, physicalName, appCtx, tacCodes)
-		if err != nil {
-			return fmt.Errorf(err.Error())
-		}
-	}
-
-	appCtx.Logger().Debug("getLastTableUpdate result", zap.Any("processRequestResponse", r))
-	return nil
-}
-
-func processTacCodes(d *GetLastTableUpdateRequestElement, physicalName string, appCtx appcontext.AppContext, tacCodes []models.TransportationAccountingCode) error {
-	if len(tacCodes) > 0 {
 		getTable := NewGetTable(physicalName, d.soapClient)
-		getTableErr := getTable.GetTable(appCtx, physicalName)
+		getTableErr := getTable.GetTable(appCtx, physicalName, r.LastUpdate)
 		if getTableErr != nil {
 			return fmt.Errorf("getTable error: %s", getTableErr.Error())
 		}
 	}
+
+	appCtx.Logger().Debug("getLastTableUpdate result", zap.Any("processRequestResponse", r))
 	return nil
 }
