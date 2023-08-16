@@ -24,7 +24,7 @@ func (suite *FactorySuite) TestBuildOfficeUser() {
 		}
 
 		officeUser := BuildOfficeUser(suite.DB(), nil, nil)
-		suite.Equal(defaultUserEmail, officeUser.User.LoginGovEmail)
+		suite.Equal(defaultUserEmail, officeUser.User.OktaEmail)
 		suite.False(officeUser.User.Active)
 		suite.Equal(defaultOffice.FirstName, officeUser.FirstName)
 		suite.Nil(officeUser.MiddleInitials)
@@ -47,7 +47,7 @@ func (suite *FactorySuite) TestBuildOfficeUser() {
 		officeUser := BuildOfficeUser(suite.DB(), nil, []Trait{
 			GetTraitOfficeUserEmail,
 		})
-		suite.Equal(officeUser.Email, officeUser.User.LoginGovEmail)
+		suite.Equal(officeUser.Email, officeUser.User.OktaEmail)
 		suite.False(officeUser.User.Active)
 	})
 
@@ -71,13 +71,13 @@ func (suite *FactorySuite) TestBuildOfficeUser() {
 		officeUser := BuildOfficeUser(suite.DB(), []Customization{
 			{
 				Model: models.User{
-					LoginGovEmail: customEmail,
+					OktaEmail: customEmail,
 				},
 			},
 			{Model: customOffice},
 			{Model: transportationOffice},
 		}, nil)
-		suite.Equal(customEmail, officeUser.User.LoginGovEmail)
+		suite.Equal(customEmail, officeUser.User.OktaEmail)
 		suite.Equal(customOffice.Email, officeUser.Email)
 		suite.Equal(customOffice.Telephone, officeUser.Telephone)
 		suite.Equal(customOffice.Active, officeUser.Active)
@@ -138,7 +138,7 @@ func (suite *FactorySuite) TestBuildOfficeUserExtra() {
 		// Expected outcome: officeUser and User should be created
 		//                   User should have specified ID
 
-		defaultLoginGovEmail := "first.last@login.gov.test"
+		defaultOktaEmail := "first.last@login.gov.test"
 		uuid := uuid.FromStringOrNil("6f97d298-1502-4d8c-9472-f8b5b2a63a10")
 		officeUser := BuildOfficeUser(suite.DB(), []Customization{
 			{
@@ -159,8 +159,8 @@ func (suite *FactorySuite) TestBuildOfficeUserExtra() {
 		suite.NoError(err)
 
 		// Check that email was applied to user
-		suite.NotContains(defaultLoginGovEmail, officeUser.User.LoginGovEmail)
-		suite.Equal(officeUser.Email, officeUser.User.LoginGovEmail)
+		suite.NotContains(defaultOktaEmail, officeUser.User.OktaEmail)
+		suite.Equal(officeUser.Email, officeUser.User.OktaEmail)
 	})
 
 	suite.Run("Successful creation of stubbed OfficeUser with forced id User", func() {
@@ -187,7 +187,7 @@ func (suite *FactorySuite) TestBuildOfficeUserExtra() {
 		suite.Error(err)
 
 		// Check that email was applied to user
-		suite.Equal(officeUser.Email, officeUser.User.LoginGovEmail)
+		suite.Equal(officeUser.Email, officeUser.User.OktaEmail)
 	})
 
 	suite.Run("Successful creation of OfficeUser using BuildOfficeUserWithRoles without customizations", func() {
@@ -211,7 +211,7 @@ func (suite *FactorySuite) TestBuildOfficeUserExtra() {
 		officeUser := BuildOfficeUserWithRoles(suite.DB(), []Customization{
 			{
 				Model: models.User{
-					LoginGovEmail: email,
+					OktaEmail: email,
 				},
 			},
 			{
@@ -226,7 +226,7 @@ func (suite *FactorySuite) TestBuildOfficeUserExtra() {
 		_, hasRole := officeUser.User.Roles.GetRole(roles.RoleTypeTOO)
 		suite.True(hasRole)
 		// Check customizations
-		suite.Equal(email, officeUser.User.LoginGovEmail)
+		suite.Equal(email, officeUser.User.OktaEmail)
 		suite.Equal(email, officeUser.Email)
 		suite.Equal("Riley", officeUser.FirstName)
 	})

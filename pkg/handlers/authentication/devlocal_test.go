@@ -158,7 +158,7 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 		err = json.Unmarshal(rr.Body.Bytes(), &user)
 		suite.FatalNoError(err, "Could not unmarshal json data into User model.")
 
-		officeUser, err := models.FetchOfficeUserByEmail(suite.DB(), user.LoginGovEmail)
+		officeUser, err := models.FetchOfficeUserByEmail(suite.DB(), user.OktaEmail)
 		suite.FatalNoError(err, "Could not find office user for this user.")
 
 		err = suite.DB().Load(officeUser, "TransportationOffice", "User.Roles")
@@ -219,7 +219,7 @@ func (suite *AuthSuite) TestCreateUserHandlerAdmin() {
 	var adminUser models.AdminUser
 	queryBuilder := query.NewQueryBuilder()
 	filters := []services.QueryFilter{
-		query.NewQueryFilter("email", "=", user.LoginGovEmail),
+		query.NewQueryFilter("email", "=", user.OktaEmail),
 	}
 
 	if err := queryBuilder.FetchOne(suite.AppContextForTest(), &adminUser, filters); err != nil {

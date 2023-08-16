@@ -862,7 +862,7 @@ func authorizeUser(ctx context.Context, appCtx appcontext.AppContext, openIDUser
 	if err == nil {
 		// In this case, we found an existing user associated with the
 		// unique okta.mil UUID (aka OID_User, aka openIDUser.UserID,
-		// aka models.User.login_gov_uuid)
+		// aka models.User.okta_id)
 		appCtx.Logger().Info("Known user: found by okta.mil OID_User, checking authorization", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email), zap.String("user.id", userIdentity.ID.String()), zap.String("user.login_gov_email", userIdentity.Email))
 		result := AuthorizeKnownUser(ctx, appCtx, userIdentity, sessionManager)
 		appCtx.Logger().Info("Known user authorization",
@@ -873,7 +873,7 @@ func authorizeUser(ctx context.Context, appCtx appcontext.AppContext, openIDUser
 	} else if err == models.ErrFetchNotFound { // Never heard of them
 		// so far In this case, we can't find an existing user
 		// associated with the unique okta.mil UUID (aka OID_User,
-		// aka openIDUser.UserID, aka models.User.login_gov_uuid).
+		// aka openIDUser.UserID, aka models.User.okta_id).
 		// The authorizeUnknownUser method tries to find a user record
 		// with a matching email address
 		appCtx.Logger().Info("Unknown user: not found by okta.mil OID_User, associating email and checking authorization", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email))
@@ -1111,7 +1111,7 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, ope
 			zap.String("OID_Email", openIDUser.Email),
 			zap.String("user.id", user.ID.String()),
 		)
-		err = models.UpdateUserLoginGovUUID(appCtx.DB(), user, openIDUser.UserID)
+		err = models.UpdateUserOktaID(appCtx.DB(), user, openIDUser.UserID)
 	}
 
 	if err != nil {

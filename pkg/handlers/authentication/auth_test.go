@@ -147,12 +147,12 @@ func (suite *AuthSuite) TestGenerateNonce() {
 }
 
 func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
-	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	OktaID := "2400c3c5-019d-4031-9c27-8a553e022297"
 
 	user := models.User{
-		LoginGovUUID:  &loginGovUUID,
-		LoginGovEmail: "email@example.com",
-		Active:        true,
+		OktaID:    OktaID,
+		OktaEmail: "email@example.com",
+		Active:    true,
 	}
 	suite.MustSave(&user)
 
@@ -214,11 +214,11 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 
 func (suite *AuthSuite) TestRequireAuthMiddleware() {
 	// Given: a logged in user
-	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	OktaID := ("2400c3c5-019d-4031-9c27-8a553e022297")
 	user := models.User{
-		LoginGovUUID:  &loginGovUUID,
-		LoginGovEmail: "email@example.com",
-		Active:        true,
+		OktaID:    OktaID,
+		OktaEmail: "email@example.com",
+		Active:    true,
 	}
 	suite.MustSave(&user)
 
@@ -372,7 +372,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 	// TOO users have the proper permissions for our test - update.shipment
 	tooOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
-	identity, err := models.FetchUserIdentity(suite.DB(), tooOfficeUser.User.LoginGovUUID.String())
+	identity, err := models.FetchUserIdentity(suite.DB(), tooOfficeUser.User.OktaID)
 
 	suite.NoError(err)
 
@@ -414,7 +414,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareUnauthorized() {
 	// QAECSR users will be denied access as they lack the proper permissions for our test - update.shipment
 	qaeCsrOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
 
-	identity, err := models.FetchUserIdentity(suite.DB(), qaeCsrOfficeUser.User.LoginGovUUID.String())
+	identity, err := models.FetchUserIdentity(suite.DB(), qaeCsrOfficeUser.User.OktaID)
 
 	suite.NoError(err)
 
@@ -468,11 +468,11 @@ func (suite *AuthSuite) TestIsLoggedInWhenNoUserLoggedIn() {
 }
 
 func (suite *AuthSuite) TestIsLoggedInWhenUserLoggedIn() {
-	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	OktaID := "2400c3c5-019d-4031-9c27-8a553e022297"
 	user := models.User{
-		LoginGovUUID:  &loginGovUUID,
-		LoginGovEmail: "email@example.com",
-		Active:        true,
+		OktaID:    OktaID,
+		OktaEmail: "email@example.com",
+		Active:    true,
 	}
 	suite.MustSave(&user)
 
@@ -518,11 +518,11 @@ func (suite *AuthSuite) TestRequireAuthMiddlewareUnauthorized() {
 
 func (suite *AuthSuite) TestRequireAdminAuthMiddleware() {
 	// Given: a logged in user
-	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	OktaID := "2400c3c5-019d-4031-9c27-8a553e022297"
 	user := models.User{
-		LoginGovUUID:  &loginGovUUID,
-		LoginGovEmail: "email@example.com",
-		Active:        true,
+		OktaID:    OktaID,
+		OktaEmail: "email@example.com",
+		Active:    true,
 	}
 	suite.MustSave(&user)
 
@@ -594,7 +594,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(),
 		[]roles.RoleType{roles.RoleTypeTIO})
 
-	userIdentity, err := models.FetchUserIdentity(suite.DB(), officeUser.User.LoginGovUUID.String())
+	userIdentity, err := models.FetchUserIdentity(suite.DB(), officeUser.User.OktaID)
 	suite.Assert().NoError(err)
 
 	handlerConfig := suite.HandlerConfig()
@@ -654,12 +654,12 @@ func (suite *AuthSuite) TestAuthorizeDeactivateOfficeUser() {
 
 func (suite *AuthSuite) TestRedirectOktaErrorMsg() {
 	officeUserID := uuid.Must(uuid.NewV4())
-	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	OktaID := ("2400c3c5-019d-4031-9c27-8a553e022297")
 
 	user := models.User{
-		LoginGovUUID:  &loginGovUUID,
-		LoginGovEmail: "email@example.com",
-		Active:        true,
+		OktaID:    OktaID,
+		OktaEmail: "email@example.com",
+		Active:    true,
 	}
 	suite.MustSave(&user)
 
@@ -857,7 +857,7 @@ func mockAndActivateOktaEndpoints(tioOfficeUser models.OfficeUser, provider *okt
 
 	// Mock the userinfo endpoint
 	// Sub is the Okta user ID, it is not a UUID.
-	tioOfficeOktaUserID := tioOfficeUser.User.LoginGovUUID.String()
+	tioOfficeOktaUserID := tioOfficeUser.User.OktaID
 	httpmock.RegisterResponder("GET", userInfoURL,
 		httpmock.NewStringResponder(200, fmt.Sprintf(`{
 		"sub": "%s",
@@ -945,12 +945,12 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 	adminUserID := uuid.Must(uuid.NewV4())
 	officeUserID := uuid.Must(uuid.NewV4())
 	var adminUserRole models.AdminRole = "SYSTEM_ADMIN"
-	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	OktaID := ("2400c3c5-019d-4031-9c27-8a553e022297")
 
 	user := models.User{
-		LoginGovUUID:  &loginGovUUID,
-		LoginGovEmail: "email@example.com",
-		Active:        true,
+		OktaID:    OktaID,
+		OktaEmail: "email@example.com",
+		Active:    true,
 	}
 	suite.MustSave(&user)
 
@@ -1036,7 +1036,7 @@ func (suite *AuthSuite) TestAuthKnownServiceMember() {
 
 // TESTCASE SCENARIO
 // What is being tested: authorizeUnknownUser function
-// Mocked: LoginGovProvider, auth.Session, goth.User, scs.SessionManager
+// Mocked: oktaProvider, auth.Session, goth.User, scs.SessionManager
 // Behaviour: The function gets passed in the following arguments:
 // - an instance of goth.User: a struct with the login.gov UUID and email
 // - the callback handler
@@ -1090,9 +1090,9 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 	// Verify session contains UserID that points to the newly-created user
 	suite.Equal(foundUser.ID, session.UserID)
 
-	// Verify user's LoginGovEmail and LoginGovUUID match the values passed in
-	suite.Equal(user.Email, foundUser.LoginGovEmail)
-	suite.Equal(user.UserID, foundUser.LoginGovUUID.String())
+	// Verify user's OktaEmail and OktaID match the values passed in
+	suite.Equal(user.Email, foundUser.OktaEmail)
+	suite.Equal(user.UserID, foundUser.OktaID)
 
 	// Verify that the user's CurrentMilSessionID is not empty. The value is
 	// generated randomly, so we can't test for a specific string. Any string
@@ -1215,7 +1215,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 			Model: models.OfficeUser{
 				Active: true,
 				UserID: &user.ID,
-				Email:  user.LoginGovEmail,
+				Email:  user.OktaEmail,
 			},
 		},
 		{
@@ -1269,7 +1269,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
 			Model: models.OfficeUser{
 				Active: true,
 				UserID: &user.ID,
-				Email:  user.LoginGovEmail,
+				Email:  user.OktaEmail,
 			},
 		},
 		{
@@ -1392,22 +1392,22 @@ func (suite *AuthSuite) TestAuthorizeKnownUserAdminNotFound() {
 	appnames := handlerConfig.AppNames()
 	// user exists in the DB, but not as an admin user
 	fakeToken := "some_token"
-	loginGovUUID := uuid.Must(uuid.NewV4())
+	OktaID := "000"
 	userID := uuid.Must(uuid.NewV4())
 	serviceMemberID := uuid.Must(uuid.NewV4())
 
 	user := models.User{
-		LoginGovUUID:  &loginGovUUID,
-		LoginGovEmail: "email@example.com",
-		Active:        true,
-		ID:            userID,
+		OktaID:    OktaID,
+		OktaEmail: "email@example.com",
+		Active:    true,
+		ID:        userID,
 	}
 	session := auth.Session{
 		ApplicationName: auth.AdminApp,
 		UserID:          user.ID,
 		IDToken:         fakeToken,
 		Hostname:        appnames.AdminServername,
-		Email:           user.LoginGovEmail,
+		Email:           user.OktaEmail,
 	}
 
 	userIdentity := models.UserIdentity{
@@ -1473,7 +1473,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 	suite.NotEqual("", foundUser.CurrentAdminSessionID)
 }
 
-func (suite *AuthSuite) TestLoginGovAuthenticatedRedirect() {
+func (suite *AuthSuite) TestoktaAuthenticatedRedirect() {
 	user := factory.BuildDefaultUser(suite.DB())
 	// user is in office_users but has never logged into the app
 	officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{

@@ -133,3 +133,4 @@ pour.sh
 Brewfile.local.lock.json
 Brewfile.lock.json
 /junit.xml
+.envrc.okta
