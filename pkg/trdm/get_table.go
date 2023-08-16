@@ -3,6 +3,7 @@ package trdm
 import (
 	"bytes"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"time"
 
@@ -156,6 +157,9 @@ func getTableSoapCall(d *GetTableRequestElement, params gosoap.Params, appCtx ap
 		if parseError != nil {
 			return parseError
 		}
+	} else {
+		err := errors.New("GetTable response was not `Successful`")
+		return fmt.Errorf(r.Output.TRDM.Status.StatusCode, err)
 	}
 	appCtx.Logger().Debug("getTable result", zap.Any("processRequestResponse", response))
 	return nil
