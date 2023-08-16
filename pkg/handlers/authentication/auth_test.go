@@ -65,6 +65,9 @@ P/kQq1B0p4/qCtR73QIDAQAB
 -----END PUBLIC KEY-----
 `
 
+const DummyRSAModulus = "0OtoQx0UQHbkrlEA8YsZ-tW20S4_YgQZkRtN61tzzZ5Es63KH_crZymNi19gwD2kq_9RJu376oqL81YONxJXxRyQawrJCali6YYn7-qqBl9acLDwP0W_jAan7TFNWau1AvRIrP0o3tkBse5NNiaEMvkfxD_5EKtQdKeP6grUe90"
+const jwtKeyID = "keyID"
+
 // SessionCookieName returns the session cookie name
 func SessionCookieName(session *auth.Session) string {
 	return fmt.Sprintf("%s_%s", string(session.ApplicationName), UserSessionCookieName)
@@ -676,7 +679,7 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 		IDToken:         fakeToken,
 		Hostname:        appnames.OfficeServername,
 	}
-	// login.gov state cookie
+	// okta.mil state cookie
 	cookieName := StateCookieName(&session)
 	cookie := http.Cookie{
 		Name:    cookieName,
@@ -694,7 +697,6 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 		&userIdentity, sessionManager)
 
 	suite.Equal(authorizationResultAuthorized, result)
-
 	// Set up mock callback handler for testing
 	h := CallbackHandler{
 		authContext,
@@ -703,7 +705,7 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 		&MockHTTPClient{
 			Response: &http.Response{
 				StatusCode: 200,
-				Body:       io.NopCloser(bytes.NewReader([]byte(`{"access_token": "mockToken", "id_token": "mockIDToken"}`))),
+				Body:       io.NopCloser(bytes.NewReader([]byte(`{"access_token": "mockToken", "id_token": "broken_id_token"}`))),
 			},
 			Err: nil,
 		},
@@ -738,8 +740,12 @@ func (suite *AuthSuite) TestRedirectFromLoginGovForValidUser() {
 	tioOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(),
 		[]roles.RoleType{roles.RoleTypeTIO})
 
+	// Build provider
+	provider, err := factory.BuildOktaProvider(officeProviderName)
+	suite.NoError(err)
+
 	// Mock the necessary Okta endpoints
-	mockAndActivateOktaEndpoints(tioOfficeUser)
+	mockAndActivateOktaEndpoints(tioOfficeUser, provider)
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
@@ -770,11 +776,8 @@ func (suite *AuthSuite) TestRedirectFromLoginGovForValidUser() {
 	req = suite.SetupSessionRequest(req, &session, sessionManager)
 
 	defer goth.ClearProviders()
-	factoryProvider, err := factory.DummyProviderFactory(officeProviderName)
-	suite.NoError(err)
-	goth.UseProviders(factoryProvider)
-	// TODO: Consts
-	mockIDToken, err := generateJWTToken("dummyClientID", "https://dummy.okta.com/oauth2/default", stateValue)
+	goth.UseProviders(provider)
+	mockIDToken, err := generateJWTToken(provider.GetClientID(), provider.GetIssuerURL(), stateValue)
 	suite.NoError(err)
 	responseBody := fmt.Sprintf(`{"access_token": "mockToken", "id_token": "%s"}`, mockIDToken)
 	// Create the callbackhandler with mock http client for testing
@@ -811,8 +814,7 @@ func generateJWTToken(aud, iss, nonce string) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
-	// TODO: replace with const, it must match the okta mocks for successful auth.
-	token.Header["kid"] = "keyID"
+	token.Header["kid"] = jwtKeyID
 
 	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(DummyRSAPrivateKey))
 	if err != nil {
@@ -828,35 +830,33 @@ func generateJWTToken(aud, iss, nonce string) (string, error) {
 }
 
 // Generate and activate Okta endpoints that will be using during the auth handlers.
-func mockAndActivateOktaEndpoints(tioOfficeUser models.OfficeUser) {
+func mockAndActivateOktaEndpoints(tioOfficeUser models.OfficeUser, provider *okta.Provider) {
 	// Mock the OIDC .well-known openid-configuration endpoint
-	// TODO: replace urls with consts and use within provider factory as well
-	httpmock.RegisterResponder("GET", "https://dummy.okta.com/oauth2/default/.well-known/openid-configuration",
-		httpmock.NewStringResponder(200, `{
-            "jwks_uri": "https://dummy.okta.com/oauth2/default/.well-known/jwks.json"
-        }`))
+	jwksURL := provider.GetJWKSURL()
+	httpmock.RegisterResponder("GET", provider.GetOpenIDConfigURL(),
+		httpmock.NewStringResponder(200, fmt.Sprintf(`{
+            "jwks_uri": %s
+        }`, jwksURL)))
 
 	// Mock the JWKS endpoint to receive keys for JWT verification
-	// TODO: replace keys with consts
-	httpmock.RegisterResponder("GET", "https://dummy.okta.com/oauth2/default/.well-known/jwks.json",
-		httpmock.NewStringResponder(200, `{
-            "keys": [
-                {
-                    "alg": "RS256",
-                    "kty": "RSA",
-                    "use": "sig",
-                    "n": "0OtoQx0UQHbkrlEA8YsZ-tW20S4_YgQZkRtN61tzzZ5Es63KH_crZymNi19gwD2kq_9RJu376oqL81YONxJXxRyQawrJCali6YYn7-qqBl9acLDwP0W_jAan7TFNWau1AvRIrP0o3tkBse5NNiaEMvkfxD_5EKtQdKeP6grUe90",
-                    "e": "AQAB",
-                    "kid": "keyID"
-                }
-            ]
-        }`))
+	httpmock.RegisterResponder("GET", provider.GetJWKSURL(),
+		httpmock.NewStringResponder(200, fmt.Sprintf(`{
+        "keys": [
+            {
+                "alg": "RS256",
+                "kty": "RSA",
+                "use": "sig",
+                "n": %s,
+                "e": "AQAB",
+                "kid": "%s"
+            }
+        ]
+    }`, DummyRSAModulus, jwtKeyID)))
 
 	// Mock the userinfo endpoint
-	// TODO: Replace with factory user information
 	// Sub is the Okta user ID, it is not a UUID.
 	tioOfficeOktaUserID := tioOfficeUser.User.LoginGovUUID.String()
-	httpmock.RegisterResponder("GET", "https://dummy.okta.com/oauth2/default/v1/userinfo",
+	httpmock.RegisterResponder("GET", provider.GetUserInfoURL(),
 		httpmock.NewStringResponder(200, fmt.Sprintf(`{
 		"sub": "%s",
 		"name": "name",
@@ -871,8 +871,12 @@ func (suite *AuthSuite) TestRedirectFromLoginGovForInvalidUser() {
 	tioOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 	suite.False(tioOfficeUser.Active)
 
+	// Build provider
+	provider, err := factory.BuildOktaProvider(officeProviderName)
+	suite.NoError(err)
+
 	// Mock the necessary Okta endpoints
-	mockAndActivateOktaEndpoints(tioOfficeUser)
+	mockAndActivateOktaEndpoints(tioOfficeUser, provider)
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
@@ -907,11 +911,8 @@ func (suite *AuthSuite) TestRedirectFromLoginGovForInvalidUser() {
 	req = suite.SetupSessionRequest(req, &session, sessionManager)
 
 	defer goth.ClearProviders()
-	factoryProvider, err := factory.DummyProviderFactory(officeProviderName)
-	suite.NoError(err)
-	goth.UseProviders(factoryProvider)
-	// TODO: Replace with consts
-	mockIDToken, err := generateJWTToken("dummyClientID", "https://dummy.okta.com/oauth2/default", stateValue)
+	goth.UseProviders(provider)
+	mockIDToken, err := generateJWTToken(provider.GetClientID(), provider.GetIssuerURL(), stateValue)
 	suite.NoError(err)
 	responseBody := fmt.Sprintf(`{"access_token": "mockToken", "id_token": "%s"}`, mockIDToken)
 	// Create the callbackhandler with mock http client for testing

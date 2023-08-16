@@ -7,6 +7,13 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
 )
 
+const dummyOktaOrgURL = "https://dummy.okta.com"
+const dummyOktaCallbackURL = "https://dummy.okta.com/auth/callback"
+const dummyClientID = "dummyClientID"
+const dummySecret = "dummySecret"
+
+var dummyOIDCScope = []string{"openid", "profile", "email"}
+
 type ProviderConfig struct {
 	Name        string
 	OrgURL      string
@@ -17,7 +24,7 @@ type ProviderConfig struct {
 	Logger      *zap.Logger
 }
 
-func NewProviderFactory(config ProviderConfig) (*okta.Provider, error) {
+func CreateAndWrapProvider(config ProviderConfig) (*okta.Provider, error) {
 	// Create a new Okta provider with goth
 	provider := gothOkta.New(config.ClientID, config.Secret, config.OrgURL, config.CallbackURL, config.Scope...)
 	// Set the name in goth
@@ -27,19 +34,18 @@ func NewProviderFactory(config ProviderConfig) (*okta.Provider, error) {
 	return okta.WrapOktaProvider(provider, config.OrgURL, config.ClientID, config.Secret, config.CallbackURL, config.Logger), nil
 }
 
-func DummyProviderFactory(name string) (*okta.Provider, error) {
+func BuildOktaProvider(name string) (*okta.Provider, error) {
 	logger, _ := zap.NewDevelopment()
 
-	// TODO: replace with consts
-	dummyConfig := ProviderConfig{
+	provider := ProviderConfig{
 		Name:        name,
-		OrgURL:      "https://dummy.okta.com",
-		CallbackURL: "https://dummy-callback.com",
-		ClientID:    "dummyClientID",
-		Secret:      "dummySecret",
-		Scope:       []string{"openid", "profile", "email"},
+		OrgURL:      dummyOktaOrgURL,
+		CallbackURL: dummyOktaCallbackURL,
+		ClientID:    dummyClientID,
+		Secret:      dummySecret,
+		Scope:       dummyOIDCScope,
 		Logger:      logger,
 	}
 
-	return NewProviderFactory(dummyConfig)
+	return CreateAndWrapProvider(provider)
 }
