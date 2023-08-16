@@ -7,12 +7,12 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
 )
 
-const dummyOktaOrgURL = "https://dummy.okta.com"
-const dummyOktaCallbackURL = "https://dummy.okta.com/auth/callback"
-const dummyClientID = "dummyClientID"
-const dummySecret = "dummySecret"
+const DummyOktaOrgURL = "https://dummy.okta.com"
+const DummyOktaCallbackURL = "https://dummy.okta.com/auth/callback"
+const DummyClientID = "dummyClientID"
+const DummySecret = "dummySecret"
 
-var dummyOIDCScope = []string{"openid", "profile", "email"}
+var DummyOIDCScope = []string{"openid", "profile", "email"}
 
 type ProviderConfig struct {
 	Name        string
@@ -39,11 +39,11 @@ func BuildOktaProvider(name string) (*okta.Provider, error) {
 
 	provider := ProviderConfig{
 		Name:        name,
-		OrgURL:      dummyOktaOrgURL,
-		CallbackURL: dummyOktaCallbackURL,
-		ClientID:    dummyClientID,
-		Secret:      dummySecret,
-		Scope:       dummyOIDCScope,
+		OrgURL:      DummyOktaOrgURL,
+		CallbackURL: DummyOktaCallbackURL,
+		ClientID:    DummyClientID,
+		Secret:      DummySecret,
+		Scope:       DummyOIDCScope,
 		Logger:      logger,
 	}
 

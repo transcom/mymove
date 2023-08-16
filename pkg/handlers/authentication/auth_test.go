@@ -652,7 +652,7 @@ func (suite *AuthSuite) TestAuthorizeDeactivateOfficeUser() {
 	suite.Equal(authorizationResultUnauthorized, result, "authorizer did not recognize deactivated office user")
 }
 
-func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
+func (suite *AuthSuite) TestRedirectOktaErrorMsg() {
 	officeUserID := uuid.Must(uuid.NewV4())
 	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
 
@@ -734,7 +734,7 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 }
 
 // Test to make sure the full auth flow works, although we are using mock Okta endpoints
-func (suite *AuthSuite) TestRedirectFromLoginGovForValidUser() {
+func (suite *AuthSuite) TestRedirectFromOktaForValidUser() {
 
 	// build a real office user
 	tioOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(),
@@ -867,7 +867,7 @@ func mockAndActivateOktaEndpoints(tioOfficeUser models.OfficeUser, provider *okt
 }
 
 // Test to make sure the full auth flow works, although we are using mock Okta endpoints
-func (suite *AuthSuite) TestRedirectFromLoginGovForInvalidUser() {
+func (suite *AuthSuite) TestRedirectFromOktaForInvalidUser() {
 	tioOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 	suite.False(tioOfficeUser.Active)
 
