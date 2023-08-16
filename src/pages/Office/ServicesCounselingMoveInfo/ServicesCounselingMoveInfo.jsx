@@ -171,20 +171,25 @@ const ServicesCounselingMoveInfo = () => {
             element={<ServicesCounselingMoveDocumentWrapper />}
           />
 
-          <Route
-            path={servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH}
-            end
-            element={
-              <CustomerInfo
-                ordersId={order.id}
-                customer={customerData}
-                isLoading={isLoading}
-                isError={isError}
-                onUpdate={onInfoSavedUpdate}
-              />
-            }
-          />
-
+          {/*  WARN: MB-15562 captured this as a potential bug. An error was reported */}
+          {/* that `order` was without an `id` field. Therefore this broke the */}
+          {/* `CustomerInfo` component because it is expecting an `ordersId` to come */}
+          {/* from the `order.id` property returned by `useTXOMoveInfoQueries`. */}
+          {order.id && (
+            <Route
+              path={servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH}
+              end
+              element={
+                <CustomerInfo
+                  ordersId={order.id}
+                  customer={customerData}
+                  isLoading={isLoading}
+                  isError={isError}
+                  onUpdate={onInfoSavedUpdate}
+                />
+              }
+            />
+          )}
           <Route
             path={servicesCounselingRoutes.SHIPMENT_EDIT_PATH}
             end
