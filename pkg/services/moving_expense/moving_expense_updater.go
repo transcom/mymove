@@ -70,8 +70,20 @@ func (f *movingExpenseUpdater) UpdateMovingExpense(appCtx appcontext.AppContext,
 func FetchMovingExpenseByID(appContext appcontext.AppContext, movingExpenseID uuid.UUID) (*models.MovingExpense, error) {
 	var movingExpense models.MovingExpense
 
-	err := appContext.DB().Scope(utilities.ExcludeDeletedScope()).
-		EagerPreload("Document.UserUploads.Upload").Find(&movingExpense, movingExpenseID)
+	query := appContext.DB().Scope(utilities.ExcludeDeletedScope(models.MovingExpense{}))
+
+	if appContext.Session().IsMilApp() {
+		serviceMemberID := appContext.Session().ServiceMemberID
+
+		query = query.
+			LeftJoin("ppm_shipments", "ppm_shipments.id = moving_expenses.ppm_shipment_id").
+			LeftJoin("mto_shipments", "mto_shipments.id = ppm_shipments.shipment_id").
+			LeftJoin("moves", "moves.id = mto_shipments.move_id").
+			LeftJoin("orders", "orders.id = moves.orders_id").
+			Where("orders.service_member_id = ?", serviceMemberID)
+	}
+
+	err := query.EagerPreload("Document.UserUploads.Upload").Find(&movingExpense, movingExpenseID)
 
 	if err != nil {
 		switch err {
