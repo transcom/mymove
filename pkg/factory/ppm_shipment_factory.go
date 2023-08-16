@@ -424,7 +424,7 @@ func buildPPMShipmentReadyForFinalCustomerCloseOutWithCustoms(db *pop.Connection
 // PPMShipment that has customer documents and is ready for the
 // customer to sign and submit.
 //
-// This function does not accept customizations to reduce the
+// This function does not accept traits directly to reduce the
 // complexity of supporting different variations for tests
 func BuildPPMShipmentReadyForFinalCustomerCloseOut(db *pop.Connection, userUploader *uploader.UserUploader, customs []Customization) models.PPMShipment {
 	return buildPPMShipmentReadyForFinalCustomerCloseOutWithCustoms(db, userUploader, customs)
