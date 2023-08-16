@@ -307,21 +307,6 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		paymentServiceItems = models.PaymentServiceItems{}
 		paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dnpk, dupk, ddfsit, ddasit, dofsit, doasit, doshut, ddshut, dcrt, ducrt, dddsit, dopsit)
 
-		//// Add TAC/LOA records with fully filled out LOA fields
-		//loa := factory.BuildFullLineOfAccounting(nil)
-		//loa.LoaBgnDt = &mto.Orders.IssueDate
-		//endDate := mto.Orders.IssueDate.AddDate(5, 0, 0)
-		//loa.LoaEndDt = &endDate
-		//factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
-		//	{
-		//		Model: models.TransportationAccountingCode{
-		//			TAC: *mto.Orders.TAC,
-		//		},
-		//	},
-		//	{
-		//		Model: loa,
-		//	},
-		//}, nil)
 		// setup known next value
 		icnErr := suite.icnSequencer.SetVal(suite.AppContextForTest(), 122)
 		suite.NoError(icnErr)
@@ -548,22 +533,6 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		paymentServiceItems = models.PaymentServiceItems{}
 		paymentServiceItems = append(paymentServiceItems, dopsit)
 
-		//// Add TAC/LOA records with fully filled out LOA fields
-		//loa := factory.BuildFullLineOfAccounting(nil)
-		//loa.LoaBgnDt = &mto.Orders.IssueDate
-		//endDate := mto.Orders.IssueDate.AddDate(5, 0, 0)
-		//loa.LoaEndDt = &endDate
-		//factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
-		//	{
-		//		Model: models.TransportationAccountingCode{
-		//			TAC: *mto.Orders.TAC,
-		//		},
-		//	},
-		//	{
-		//		Model: loa,
-		//	},
-		//}, nil)
-		//
 		// setup known next value
 		icnErr := suite.icnSequencer.SetVal(suite.AppContextForTest(), 122)
 		suite.NoError(icnErr)
