@@ -41,8 +41,20 @@ func Exec(inputReader io.Reader, tx *pop.Connection, wait time.Duration, logger 
 
 	// read values out of the buffer
 	go func() {
+		insideCopy := false
 		for scanner.Scan() {
-			lines <- ReadInSQLLine(scanner.Text(), dropComments, dropSearchPath)
+			newLine := ""
+			// If we're inside of a COPY FROM stdin statement, we need to avoid cutting off comments
+			// Comments are not valid in these statements, so what we're really running into
+			// are unescaped instances of '--' in text fields.
+			newLine = ReadInSQLLine(scanner.Text(), dropComments && !insideCopy, dropSearchPath)
+			lines <- newLine
+			if !insideCopy {
+				match := copyStdinPattern.FindStringSubmatch(newLine)
+				insideCopy = match != nil
+			} else if newLine == endCopyFromStdin {
+				insideCopy = false
+			}
 		}
 		close(lines)
 	}()

@@ -18,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/feature_flags"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
@@ -193,6 +194,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.PpmDeleteWeightTicketHandler == nil {
 		api.PpmDeleteWeightTicketHandler = ppm.DeleteWeightTicketHandlerFunc(func(params ppm.DeleteWeightTicketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.DeleteWeightTicket has not yet been implemented")
+		})
+	}
+	if api.FeatureFlagsFeatureFlagForUserHandler == nil {
+		api.FeatureFlagsFeatureFlagForUserHandler = feature_flags.FeatureFlagForUserHandlerFunc(func(params feature_flags.FeatureFlagForUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation feature_flags.FeatureFlagForUser has not yet been implemented")
 		})
 	}
 	if api.TransportationOfficesGetTransportationOfficesHandler == nil {

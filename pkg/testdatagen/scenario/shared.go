@@ -5729,7 +5729,7 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 	dateOfContact := models.TimePointer(time.Now())
 	customerContact1 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID:                         uuid.FromStringOrNil("8f048005-f090-45e9-936b-7fd22801f4ee"),
+			ID:                         uuid.Must(uuid.NewV4()),
 			Type:                       models.CustomerContactTypeFirst,
 			DateOfContact:              dateOfContact.Add(time.Hour * 24),
 			TimeMilitary:               "0400Z",
@@ -5739,7 +5739,7 @@ func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader 
 
 	customerContact2 := testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
 		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
-			ID:                         uuid.FromStringOrNil("32cfbc8a-2222-4014-b203-fbe059b6cb8d"),
+			ID:                         uuid.Must(uuid.NewV4()),
 			Type:                       models.CustomerContactTypeSecond,
 			DateOfContact:              dateOfContact.Add(time.Hour * 48),
 			TimeMilitary:               "1200Z",
@@ -9665,7 +9665,7 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 		{
 			Model: models.Move{
 				ID:     uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae7"),
-				Status: models.MoveStatusSUBMITTED,
+				Status: models.MoveStatusAPPROVED,
 			},
 		},
 	}, nil)
@@ -9677,7 +9677,7 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 				PrimeActualWeight:    &actualWeight,
 				ShipmentType:         models.MTOShipmentTypeHHG,
 				ApprovedDate:         models.TimePointer(time.Now()),
-				Status:               models.MTOShipmentStatusSubmitted,
+				Status:               models.MTOShipmentStatusApproved,
 			},
 		},
 		{

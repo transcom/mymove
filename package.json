@@ -6,6 +6,8 @@
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@material-ui/core": "^4.12.4",
     "@material-ui/icons": "^4.11.3",
+    "@opentelemetry/api": "^1.4.1",
+    "@opentelemetry/core": "^1.15.1",
     "@tanstack/react-query": "^4.29.12",
     "@tanstack/react-query-devtools": "^4.29.12",
     "@trussworks/react-file-viewer": "git+https://github.com/trussworks/react-file-viewer",
@@ -77,7 +79,7 @@
     "uswds": "2.13.3",
     "uuid": "^9.0.0",
     "webpack": "5",
-    "yup": "^0.32.11"
+    "yup": "^1.2.0"
   },
   "resolutions": {
     "dns-packet": "^5.4.0",
