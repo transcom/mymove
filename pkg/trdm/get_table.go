@@ -119,8 +119,8 @@ func FetchTACRecordsByTime(appcontext appcontext.AppContext, time string) ([]mod
 	return tacCodes, nil
 }
 
-func FetchLOARecordsByTime(appcontext appcontext.AppContext, time string) ([]models.LOAType, error) {
-	var loa []models.LOAType
+func FetchLOARecordsByTime(appcontext appcontext.AppContext, time string) ([]models.LineOfAccounting, error) {
+	var loa []models.LineOfAccounting
 	err := appcontext.DB().Select("*").Where("updated_at < $1", time).All(&loa)
 
 	if err != nil {
