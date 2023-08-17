@@ -172,7 +172,7 @@ func (suite *RoutingSuite) TestBasicAuthLoginRouting() {
 	serviceMember := factory.BuildServiceMember(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
 	// an authenticted request will redirect and we just want to check
 	// that the route is set up correctly
-	req := suite.NewAuthenticatedMilRequest("GET", "/auth/login-gov", nil, serviceMember)
+	req := suite.NewAuthenticatedMilRequest("GET", "/auth/okta", nil, serviceMember)
 	rr := httptest.NewRecorder()
 	siteHandler.ServeHTTP(rr, req)
 	suite.Equal(http.StatusTemporaryRedirect, rr.Code)

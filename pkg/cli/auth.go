@@ -23,20 +23,59 @@ const (
 	// #nosec G101
 	// ClientAuthSecretKeyFlag is the Client Auth Secret Key Flag
 	ClientAuthSecretKeyFlag string = "client-auth-secret-key"
-	// LoginGovCallbackProtocolFlag is the Login.gov Callback Protocol Flag
-	LoginGovCallbackProtocolFlag string = "login-gov-callback-protocol"
-	// LoginGovCallbackPortFlag is the Login.gov Callback Port Flag
-	LoginGovCallbackPortFlag string = "login-gov-callback-port"
-	// LoginGovSecretKeyFlag is the Login.gov Secret Key Flag
-	LoginGovSecretKeyFlag string = "login-gov-secret-key"
-	// LoginGovMyClientIDFlag is the Login.gov My Client ID Flag
-	LoginGovMyClientIDFlag string = "login-gov-my-client-id"
-	// LoginGovOfficeClientIDFlag is the Login.gov Office Client ID Flag
-	LoginGovOfficeClientIDFlag string = "login-gov-office-client-id"
-	// LoginGovAdminClientIDFlag is the Login.gov Admin Client ID Flag
-	LoginGovAdminClientIDFlag string = "login-gov-admin-client-id"
-	// LoginGovHostnameFlag is the Login.gov Hostname Flag
-	LoginGovHostnameFlag string = "login-gov-hostname"
+
+	// Okta flags for local development environment that serves test-milmove.okta.mil
+	// Okta tenant flags
+	OktaTenantOrgURLFlag string = "okta-tenant-org-url"
+	// OktaTenantCallbackPortFlag is the test-milmove Callback Port Flag
+	OktaTenantCallbackPortFlag string = "okta-tenant-callback-port"
+	// OktaTenantCallbackPortFlag is the test-milmove Callback Protocol Flag
+	OktaTenantCallbackProtocolFlag string = "okta-tenant-callback-protocol"
+
+	// Okta Customer client id and secret flags
+	OktaCustomerClientIDFlag string = "okta-customer-client-id"
+	OktaCustomerCallbackURL  string = "okta-customer-callback-url"
+
+	// RA Summary: gosec - G101 - Password Management: Hardcoded Password
+	// RA: This line was flagged because of use of the word "secret"
+	// RA: This line is used to identify the name of the flag. OktaCustomerSecretKeyFlag is the Okta Customer Application Secret Key Flag.
+	// RA: This value of this variable does not store an application secret.
+	// RA Developer Status: RA Request
+	// RA Validator Status:
+	// RA Validator:
+	// RA Modified Severity:
+	// #nosec G101
+	OktaCustomerSecretKeyFlag string = "okta-customer-secret-key"
+
+	// Okta Office client id and secret flags
+	OktaOfficeClientIDFlag string = "okta-office-client-id"
+	OktaOfficeCallbackURL  string = "okta-office-callback-url"
+
+	// RA Summary: gosec - G101 - Password Management: Hardcoded Password
+	// RA: This line was flagged because of use of the word "secret"
+	// RA: This line is used to identify the name of the flag. OktaOfficeSecretKeyFlag is the Okta Office Application Secret Key Flag.
+	// RA: This value of this variable does not store an application secret.
+	// RA Developer Status: RA Request
+	// RA Validator Status:
+	// RA Validator:
+	// RA Modified Severity:
+	// #nosec G101
+	OktaOfficeSecretKeyFlag string = "okta-office-secret-key"
+
+	// Okta Admin client id and secret flags
+	OktaAdminClientIDFlag string = "okta-admin-client-id"
+	OktaAdminCallbackURL  string = "okta-admin-callback-url"
+
+	// RA Summary: gosec - G101 - Password Management: Hardcoded Password
+	// RA: This line was flagged because of use of the word "secret"
+	// RA: This line is used to identify the name of the flag. OktaAdminSecretKeyFlag is the Okta Admin Application Secret Key Flag.
+	// RA: This value of this variable does not store an application secret.
+	// RA Developer Status: RA Request
+	// RA Validator Status:
+	// RA Validator:
+	// RA Modified Severity:
+	// #nosec G101
+	OktaAdminSecretKeyFlag string = "okta-admin-secret-key"
 )
 
 type errInvalidClientID struct {
@@ -51,57 +90,57 @@ func (e *errInvalidClientID) Error() string {
 func InitAuthFlags(flag *pflag.FlagSet) {
 	flag.String(ClientAuthSecretKeyFlag, "", "Client auth secret JWT key.")
 
-	flag.String(LoginGovCallbackProtocolFlag, "https", "Protocol for non local environments.")
-	flag.Int(LoginGovCallbackPortFlag, 443, "The port for callback urls.")
-	flag.String(LoginGovSecretKeyFlag, "", "Login.gov auth secret JWT key.")
-	flag.String(LoginGovMyClientIDFlag, "", "Client ID registered with login gov.")
-	flag.String(LoginGovOfficeClientIDFlag, "", "Client ID registered with login gov.")
-	flag.String(LoginGovAdminClientIDFlag, "", "Client ID registered with login gov.")
-	flag.String(LoginGovHostnameFlag, "secure.login.gov", "Hostname for communicating with login gov.")
+	flag.String(OktaTenantOrgURLFlag, "", "Okta tenant org URL.")
+	flag.Int(OktaTenantCallbackPortFlag, 443, "The port for callback URLs.")
+	flag.String(OktaTenantCallbackProtocolFlag, "https", "Protocol for non local environments.")
+	flag.String(OktaCustomerClientIDFlag, "", "The client ID for the military customer app, aka 'my'.")
+	flag.String(OktaCustomerCallbackURL, "", "The callback URL from logging in to the customer Okta app back to MilMove.")
+	flag.String(OktaCustomerSecretKeyFlag, "", "The secret key for the miltiary customer app, aka 'my'.")
+	flag.String(OktaOfficeClientIDFlag, "", "The client ID for the military Office app, aka 'my'.")
+	flag.String(OktaOfficeCallbackURL, "", "The callback URL from logging in to the office Okta app back to MilMove.")
+	flag.String(OktaOfficeSecretKeyFlag, "", "The secret key for the miltiary Office app, aka 'my'.")
+	flag.String(OktaAdminClientIDFlag, "", "The client ID for the military Admin app, aka 'my'.")
+	flag.String(OktaAdminCallbackURL, "", "The callback URL from logging in to the admin Okta app back to MilMove.")
+	flag.String(OktaAdminSecretKeyFlag, "", "The secret key for the miltiary Admin app, aka 'my'.")
 }
 
 // CheckAuth validates Auth command line flags
 func CheckAuth(v *viper.Viper) error {
 
-	if err := ValidateProtocol(v, LoginGovCallbackProtocolFlag); err != nil {
+	if err := ValidateProtocol(v, OktaTenantCallbackProtocolFlag); err != nil {
 		return err
 	}
 
-	if err := ValidateHost(v, LoginGovHostnameFlag); err != nil {
-		return err
-	}
-
-	secureLoginGov := "secure.login.gov"
-	sandboxLoginGov := "idp.int.identitysandbox.gov"
-	if loginGovHostname := v.GetString(LoginGovHostnameFlag); loginGovHostname != secureLoginGov && loginGovHostname != sandboxLoginGov {
-		return errors.Wrap(&errInvalidHost{Host: loginGovHostname}, fmt.Sprintf("%s is invalid, expected %s or %s", LoginGovHostnameFlag, secureLoginGov, sandboxLoginGov))
-	}
-
-	if err := ValidatePort(v, LoginGovCallbackPortFlag); err != nil {
+	if err := ValidatePort(v, OktaTenantCallbackPortFlag); err != nil {
 		return err
 	}
 
 	clientIDVars := []string{
-		LoginGovMyClientIDFlag,
-		LoginGovOfficeClientIDFlag,
-		LoginGovAdminClientIDFlag,
+		OktaCustomerClientIDFlag,
+		OktaOfficeClientIDFlag,
+		OktaAdminClientIDFlag,
+	}
+
+	secretKeyVars := []string{
+		OktaCustomerSecretKeyFlag,
+		OktaOfficeSecretKeyFlag,
+		OktaAdminSecretKeyFlag,
 	}
 
 	for _, c := range clientIDVars {
-		err := ValidateClientID(v, c)
-		if err != nil {
-			return err
+		clientID := v.GetString(c)
+		{
+			if len(clientID) == 0 {
+				return errors.Errorf("%s is missing", c)
+			}
 		}
 	}
 
-	privateKey := v.GetString(LoginGovSecretKeyFlag)
-	if len(privateKey) == 0 {
-		return errors.Errorf("%s is missing", LoginGovSecretKeyFlag)
-	}
-
-	keys := ParsePrivateKey(privateKey)
-	if len(keys) == 0 {
-		return errors.Errorf("%s is missing key block", LoginGovSecretKeyFlag)
+	for _, s := range secretKeyVars {
+		privateKey := v.GetString(s)
+		if len(privateKey) == 0 {
+			return errors.Errorf("%s is missing", s)
+		}
 	}
 
 	return nil

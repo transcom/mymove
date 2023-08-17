@@ -42,7 +42,7 @@ func (suite *AuthSuite) TestCreateUserHandlerMilMove() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	suite.NoError(req.ParseForm())
 
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
+	authContext := NewAuthContext(suite.Logger(), *fakeOktaProvider(suite.Logger()), "http", callbackPort)
 	handler := NewCreateUserHandler(authContext, handlerConfig)
 
 	rr := httptest.NewRecorder()
@@ -87,7 +87,7 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 	appnames := handlerConfig.AppNames()
 	callbackPort := 1234
 
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
+	authContext := NewAuthContext(suite.Logger(), *fakeOktaProvider(suite.Logger()), "http", callbackPort)
 	handler := NewCreateUserHandler(authContext, handlerConfig)
 
 	for _, newOfficeUser := range []struct {
@@ -193,7 +193,7 @@ func (suite *AuthSuite) TestCreateUserHandlerAdmin() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	suite.NoError(req.ParseForm())
 
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
+	authContext := NewAuthContext(suite.Logger(), *fakeOktaProvider(suite.Logger()), "http", callbackPort)
 	sessionManagers := handlerConfig.SessionManagers()
 	handler := NewCreateUserHandler(authContext, handlerConfig)
 
@@ -250,7 +250,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
+	authContext := NewAuthContext(suite.Logger(), *fakeOktaProvider(suite.Logger()), "http", callbackPort)
 	sessionManagers := handlerConfig.SessionManagers()
 	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig)
 	rr := httptest.NewRecorder()
@@ -292,7 +292,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToOffice() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	suite.NoError(req.ParseForm())
 
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
+	authContext := NewAuthContext(suite.Logger(), *fakeOktaProvider(suite.Logger()), "http", callbackPort)
 	sessionManagers := handlerConfig.SessionManagers()
 	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig)
 
@@ -326,7 +326,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToAdmin() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	suite.NoError(req.ParseForm())
 
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
+	authContext := NewAuthContext(suite.Logger(), *fakeOktaProvider(suite.Logger()), "http", callbackPort)
 	sessionManagers := handlerConfig.SessionManagers()
 	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig)
 
@@ -360,7 +360,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromOfficeToMilMove() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	suite.NoError(req.ParseForm())
 
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
+	authContext := NewAuthContext(suite.Logger(), *fakeOktaProvider(suite.Logger()), "http", callbackPort)
 	sessionManagers := handlerConfig.SessionManagers()
 	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig)
 
@@ -394,7 +394,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromOfficeToAdmin() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	suite.NoError(req.ParseForm())
 
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
+	authContext := NewAuthContext(suite.Logger(), *fakeOktaProvider(suite.Logger()), "http", callbackPort)
 	sessionManagers := handlerConfig.SessionManagers()
 	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig)
 
@@ -426,7 +426,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToMilMove() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	suite.NoError(req.ParseForm())
 
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
+	authContext := NewAuthContext(suite.Logger(), *fakeOktaProvider(suite.Logger()), "http", callbackPort)
 	sessionManagers := handlerConfig.SessionManagers()
 	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig)
 
@@ -460,7 +460,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToOffice() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	suite.NoError(req.ParseForm())
 
-	authContext := NewAuthContext(suite.Logger(), fakeLoginGovProvider(suite.Logger()), "http", callbackPort)
+	authContext := NewAuthContext(suite.Logger(), *fakeOktaProvider(suite.Logger()), "http", callbackPort)
 	sessionManagers := handlerConfig.SessionManagers()
 	handler := NewCreateAndLoginUserHandler(authContext, handlerConfig)
 
