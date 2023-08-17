@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -14,7 +13,6 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
-	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -1090,7 +1088,7 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, okt
 		appCtx.Session().ServiceMemberID = newServiceMember.ID
 	} else {
 		// If in Office App or Admin App with valid user - update user's OktaID
-		appCtx.Logger().Error("Authorization associating login.gov UUID with user",
+		appCtx.Logger().Error("Authorization associating UUID with user",
 			zap.String("OID_User", oktaUser.Sub),
 			zap.String("OID_Email", oktaUser.Email),
 			zap.String("user.id", user.ID.String()),
@@ -1129,52 +1127,52 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, okt
 
 // !This func is currently a leftover from login_gov.
 // TODO: Remove once Okta sessions are in place
-func fetchToken(code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
-	logger := loginGovProvider.logger
-	expiry := auth.GetExpiryTimeFromMinutes(auth.SessionExpiryInMinutes)
-	params, err := loginGovProvider.TokenParams(code, clientID, expiry)
-	if err != nil {
-		logger.Error("Creating token endpoint params", zap.Error(err))
-		return nil, err
-	}
+// func fetchToken(code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
+// 	logger := loginGovProvider.logger
+// 	expiry := auth.GetExpiryTimeFromMinutes(auth.SessionExpiryInMinutes)
+// 	params, err := loginGovProvider.TokenParams(code, clientID, expiry)
+// 	if err != nil {
+// 		logger.Error("Creating token endpoint params", zap.Error(err))
+// 		return nil, err
+// 	}
 
-	response, err := http.PostForm(loginGovProvider.TokenURL(), params)
-	if err != nil {
-		logger.Error("Post to Login.gov token endpoint", zap.Error(err))
-		return nil, err
-	}
+// 	response, err := http.PostForm(loginGovProvider.TokenURL(), params)
+// 	if err != nil {
+// 		logger.Error("Post to Login.gov token endpoint", zap.Error(err))
+// 		return nil, err
+// 	}
 
-	defer func() {
-		if closeErr := response.Body.Close(); closeErr != nil {
-			logger.Error("Error in closing response", zap.Error(closeErr))
-		}
-	}()
+// 	defer func() {
+// 		if closeErr := response.Body.Close(); closeErr != nil {
+// 			logger.Error("Error in closing response", zap.Error(closeErr))
+// 		}
+// 	}()
 
-	responseBody, err := io.ReadAll(response.Body)
-	if err != nil {
-		logger.Error("Reading Login.gov token response", zap.Error(err))
-		return nil, err
-	}
+// 	responseBody, err := io.ReadAll(response.Body)
+// 	if err != nil {
+// 		logger.Error("Reading Login.gov token response", zap.Error(err))
+// 		return nil, err
+// 	}
 
-	var parsedResponse LoginGovTokenResponse
-	err = json.Unmarshal(responseBody, &parsedResponse)
-	if err != nil {
-		logger.Error("Parsing login.gov token", zap.Error(err))
-		return nil, errors.Wrap(err, "parsing login.gov")
-	}
-	if parsedResponse.Error != "" {
-		logger.Error("Error in Login.gov token response", zap.String("error", parsedResponse.Error))
-		return nil, errors.New(parsedResponse.Error)
-	}
+// 	var parsedResponse LoginGovTokenResponse
+// 	err = json.Unmarshal(responseBody, &parsedResponse)
+// 	if err != nil {
+// 		logger.Error("Parsing login.gov token", zap.Error(err))
+// 		return nil, errors.Wrap(err, "parsing login.gov")
+// 	}
+// 	if parsedResponse.Error != "" {
+// 		logger.Error("Error in Login.gov token response", zap.String("error", parsedResponse.Error))
+// 		return nil, errors.New(parsedResponse.Error)
+// 	}
 
-	// TODO: get goth session from storage instead of constructing a new one
-	session := openidConnect.Session{
-		AccessToken: parsedResponse.AccessToken,
-		ExpiresAt:   time.Now().Add(time.Second * time.Duration(parsedResponse.ExpiresIn)),
-		IDToken:     parsedResponse.IDToken,
-	}
-	return &session, err
-}
+// 	// TODO: get goth session from storage instead of constructing a new one
+// 	session := openidConnect.Session{
+// 		AccessToken: parsedResponse.AccessToken,
+// 		ExpiresAt:   time.Now().Add(time.Second * time.Duration(parsedResponse.ExpiresIn)),
+// 		IDToken:     parsedResponse.IDToken,
+// 	}
+// 	return &session, err
+// }
 
 // InitAuth initializes the Okta provider
 func InitAuth(v *viper.Viper, logger *zap.Logger, _ auth.ApplicationServername) (*okta.Provider, error) {

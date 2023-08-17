@@ -277,13 +277,12 @@ func (op Provider) TokenURL(r *http.Request) string {
 // Leaving this here in case it needs to be used in the future
 // When authenticating with Okta, the sample app provided clears the sessions
 // We could potentially revoke the token in the future so a user has to reauthenticate after sign out
-// !Ensure proper testing after sessions have been handled
 // func (op Provider) LogoutURL(provider Provider, redirectURL string) (string, error) {
 // 	logoutPath, err := url.Parse(provider.GetLogoutURL())
 // 	if err != nil {
 // 		return "", err
 // 	}
-// 	// Parameters taken from https://developers.login.gov/oidc/#logout
+//  Parameters taken from https://developers.login.gov/oidc/#logout
 // 	params := url.Values{
 // 		"id_token_hint":            {provider.orgURL},
 // 		"post_logout_redirect_uri": {redirectURL},
