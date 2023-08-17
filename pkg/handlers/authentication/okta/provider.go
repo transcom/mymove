@@ -284,7 +284,7 @@ func (op Provider) LogoutURL(provider Provider, redirectURL string) (string, err
 	}
 	// Parameters taken from https://developers.login.gov/oidc/#logout
 	params := url.Values{
-		"client_id":                {provider.clientID},
+		"id_token_hint":            {provider.orgURL},
 		"post_logout_redirect_uri": {redirectURL},
 		"state":                    {generateNonce()},
 	}

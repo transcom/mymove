@@ -495,6 +495,8 @@ func NewLogoutHandler(ac Context, hc handlers.HandlerConfig) LogoutHandler {
 // !Needs to be finalized after sessions.
 func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	appCtx := h.AppContextFromRequest(r)
+	fmt.Println(appCtx.Session().IDToken)
+	fmt.Println(appCtx.Session().AccessToken)
 	if appCtx.Session() != nil {
 		sessionManager := h.SessionManagers().SessionManagerForApplication(appCtx.Session().ApplicationName)
 		if sessionManager == nil {
@@ -505,23 +507,25 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		redirectURL := h.landingURL(appCtx.Session())
 		if appCtx.Session().IDToken != "" {
 			var logoutURL string
+			// clearing okta.mil sessions
+			appCtx.Session().AccessToken = ""
+			appCtx.Session().IDToken = ""
 			// All users logged in via devlocal-auth will have this IDToken. We
 			// don't want to make a call to okta.mil for a logout URL as it will
 			// fail for devlocal-auth'ed users.
 			if appCtx.Session().IDToken == "devlocal" {
 				logoutURL = redirectURL
 			} else {
-				provider, err := okta.GetOktaProviderForRequest(r)
-				if err != nil {
-					appCtx.Logger().Error("get provider", zap.Error(err))
-					http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-					return
-				}
-
-				logoutURL, err = h.oktaProvider.LogoutURL(*provider, redirectURL)
-				if err != nil {
-					appCtx.Logger().Error("failed to retrieve logout url from provider")
-				}
+				// provider, err := okta.GetOktaProviderForRequest(r)
+				// if err != nil {
+				// 	appCtx.Logger().Error("get provider", zap.Error(err))
+				// 	http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				// 	return
+				// }
+				// logoutURL, err = h.oktaProvider.LogoutURL(*provider, redirectURL)
+				// if err != nil {
+				// 	appCtx.Logger().Error("failed to retrieve logout url from provider")
+				// }
 			}
 			if appCtx.Session().UserID != uuid.Nil {
 				err := resetUserCurrentSessionID(appCtx)
@@ -848,6 +852,8 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case authorizationResultUnauthorized:
 		invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
 	case authorizationResultAuthorized:
+		//TODO: the redirect messes up here
+		// http.Redirect(w, r, "http://milmovelocal:3000/", http.StatusTemporaryRedirect)
 		http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
 	}
 }
