@@ -53,6 +53,8 @@ type GetLastTableUpdater interface {
 type GetLastTableUpdateRequestElement struct {
 	PhysicalName string `xml:"physicalName"`
 	soapClient   SoapCaller
+	username     string
+	password     string
 }
 type GetLastTableUpdateResponseElement struct {
 	XMLName    xml.Name `xml:"getLastTableUpdateResponseElement"`
@@ -63,10 +65,12 @@ type GetLastTableUpdateResponseElement struct {
 	} `xml:"status"`
 }
 
-func NewTRDMGetLastTableUpdate(physicalName string, soapClient SoapCaller) GetLastTableUpdater {
+func NewTRDMGetLastTableUpdate(usernamne string, password string, physicalName string, soapClient SoapCaller) GetLastTableUpdater {
 	return &GetLastTableUpdateRequestElement{
 		PhysicalName: physicalName,
 		soapClient:   soapClient,
+		username:     usernamne,
+		password:     password,
 	}
 
 }
@@ -103,6 +107,10 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 	})
 
 	params := gosoap.Params{
+		"AuthToken": map[string]interface{}{
+			"Username": d.username,
+			"Password": d.password,
+		},
 		"getLastTableUpdateRequestElement": map[string]interface{}{
 			"physicalName": physicalName,
 		},
