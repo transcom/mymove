@@ -846,6 +846,7 @@ func authorizeUser(ctx context.Context, appCtx appcontext.AppContext, oktaUser m
 		// unique okta.mil UUID (aka OID_User, aka openIDUser.UserID,
 		// aka models.User.okta_id)
 		appCtx.Logger().Info("Known user: found by okta.mil OID_User, checking authorization", zap.String("OID_User", oktaUser.Sub), zap.String("OID_Email", oktaUser.Email), zap.String("user.id", userIdentity.ID.String()), zap.String("user.okta_email", userIdentity.Email))
+
 		result := AuthorizeKnownUser(ctx, appCtx, userIdentity, sessionManager)
 		appCtx.Logger().Info("Known user authorization",
 			zap.Any("authorizedResult", result),
@@ -1094,6 +1095,7 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, okt
 			zap.String("user.id", user.ID.String()),
 		)
 		err = models.UpdateUserOktaID(appCtx.DB(), user, oktaUser.Sub)
+
 	}
 
 	if err != nil {

@@ -150,6 +150,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	// this sets up a user with a valid ID and Access token
 	// calls /auth/logout which should clear those tokens
 	// checks to make sure those values are not present in session
+
 	OktaID := "2400c3c5-019d-4031-9c27-8a553e022297"
 
 	user := models.User{
