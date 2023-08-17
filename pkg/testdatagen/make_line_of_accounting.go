@@ -16,7 +16,7 @@ func MakeLineOfAccounting(db *pop.Connection, assertions Assertions) models.Line
 		CreatedAt: time.Now().Add(-72 * time.Hour),
 	}
 
-	mergeModels(&loa, assertions)
+	mergeModels(&loa, assertions.LineOfAccounting)
 	mustCreate(db, &loa, assertions.Stub)
 
 	return loa

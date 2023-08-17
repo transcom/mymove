@@ -93,7 +93,7 @@ func (suite *TRDMSuite) TestFetchTACRecordsByTime() {
 func (suite *TRDMSuite) TestFetchLOARecordsByTime() {
 	// Get initial TAC codes count
 	initialCodes, err := trdm.FetchLOARecordsByTime(suite.AppContextForTest(), time.Now().Format(time.RFC3339))
-	initialTacCodeLength := len(initialCodes)
+	intialLoaCodesLength := len(initialCodes)
 	suite.NoError(err)
 
 	// Creates a test TAC code record in the DB
@@ -106,6 +106,6 @@ func (suite *TRDMSuite) TestFetchLOARecordsByTime() {
 	finalCodesLength := len(codes)
 
 	suite.NoError(err)
-	suite.NotEqual(finalCodesLength, initialTacCodeLength)
+	suite.NotEqual(finalCodesLength, intialLoaCodesLength)
 
 }

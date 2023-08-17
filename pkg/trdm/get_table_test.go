@@ -55,9 +55,9 @@ func (suite *TRDMSuite) TestTRDMGetTableFake() {
 		responseError bool
 		shouldError   bool
 	}{
-		{"Update Line of Accounting", "LN_OF_ACCT", "Successful", getTextFile("mymove/pkg/parser/loa/fixtures/Line Of Accounting.txt"), false, false},
+		{"Update Line of Accounting", "LN_OF_ACCT", "Successful", getTextFile("../parser/loa/fixtures/Line Of Accounting.txt"), false, false},
 		{"Should not fetch update", "fakeName", "Failure", getTextFile(""), false, false},
-		{"Update Transportation Accounting Codes", "TRNSPRTN_ACNT", "Successful", getTextFile("mymove/pkg/parser/tac/fixtures/Transportation Account.txt"), false, false},
+		{"Update Transportation Accounting Codes", "TRNSPRTN_ACNT", "Successful", getTextFile("../parser/tac/fixtures/Transportation Account.txt"), false, false},
 	}
 	for _, test := range tests {
 		suite.Run("fake call to TRDM: "+test.name, func() {
