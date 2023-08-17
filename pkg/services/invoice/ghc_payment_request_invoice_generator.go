@@ -677,10 +677,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 		}
 	}
 
-	fmt.Println("orders.issueDate", orders.IssueDate.String(), *orders.TAC)
-	fmt.Println("-----------------------------", len(loas))
 	if len(loas) == 0 {
-		fmt.Print("no TAC or LOA found")
 		return nil, nil
 	}
 	//"HE" - E-1 through E-9 and Special Enlisted
@@ -692,7 +689,6 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 		return nil, apperror.NewQueryError("SM not loaded!!!!", nil, "")
 	}
 	rank := *orders.ServiceMember.Rank
-	fmt.Println("rank", rank)
 	hhgCode := ""
 
 	// we should probably just use a map instead of doing string shenanigans
@@ -710,14 +706,11 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 	var loaWithMatchingCode []models.LineOfAccounting
 
 	for _, line := range loas {
-		fmt.Println("checking", *line.LoaHsGdsCd, "against", hhgCode)
 		if line.LoaHsGdsCd != nil && *line.LoaHsGdsCd == hhgCode {
-			fmt.Println("found matching code", *line.LoaHsGdsCd, hhgCode)
 			loaWithMatchingCode = append(loaWithMatchingCode, line)
 		}
 	}
 	if len(loaWithMatchingCode) == 0 {
-		fmt.Println("no loa with matching code")
 		// fall back to the whole set and then sort by fbmc
 		// take first thing from whole set
 		loa = loas[0]
