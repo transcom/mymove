@@ -215,9 +215,10 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
     officeRemarks: Yup.string().nullable(),
     daysApproved: Yup.number().when('acceptExtension', {
       is: 'yes',
-      then: Yup.number()
-        .min(minimumDaysAllowed, `Total days of SIT approved must be ${minimumDaysAllowed} or more.`)
-        .required('Required'),
+      then: () =>
+        Yup.number()
+          .min(minimumDaysAllowed, `Total days of SIT approved must be ${minimumDaysAllowed} or more.`)
+          .required('Required'),
     }),
     sitEndDate: Yup.date().min(
       formatDateForDatePicker(sitEntryDate.add(1, 'days')),
