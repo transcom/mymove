@@ -110,7 +110,7 @@ func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.
 	}
 
 	if r.Status.StatusCode == successfulStatusCode {
-		getTable := NewGetTable(physicalName, d.soapClient)
+		getTable := NewGetTable(d.username, d.password, physicalName, d.soapClient)
 		getTableErr := getTable.GetTable(appCtx, physicalName, r.LastUpdate)
 		if getTableErr != nil {
 			return fmt.Errorf("getTable error: %s", getTableErr.Error())

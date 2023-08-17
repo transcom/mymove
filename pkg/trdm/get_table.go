@@ -57,6 +57,8 @@ const transportationAccountingCode = "TRNSPRTN_ACNT"
 
 type GetTableRequestElement struct {
 	soapClient SoapCaller
+	username   string
+	password   string
 	Input      struct {
 		TRDM struct {
 			PhysicalName  string `xml:"physicalName"`
@@ -89,9 +91,11 @@ type GetTableUpdater interface {
 	GetTable(appCtx appcontext.AppContext, physicalName string, lastUpdate string) error
 }
 
-func NewGetTable(physicalName string, soapClient SoapCaller) GetTableUpdater {
+func NewGetTable(username string, password string, physicalName string, soapClient SoapCaller) GetTableUpdater {
 	return &GetTableRequestElement{
 		soapClient: soapClient,
+		username:   username,
+		password:   password,
 		Input: struct {
 			TRDM struct {
 				PhysicalName  string `xml:"physicalName"`
@@ -165,6 +169,10 @@ func setupSoapCall(d *GetTableRequestElement, appCtx appcontext.AppContext, phys
 	})
 	params := gosoap.Params{
 		"getTableRequestElement": map[string]interface{}{
+			"AuthToken": map[string]interface{}{
+				"Username": d.username,
+				"Password": d.password,
+			},
 			"input": map[string]interface{}{
 				"TRDM": map[string]interface{}{
 					"physicalName":  physicalName,
