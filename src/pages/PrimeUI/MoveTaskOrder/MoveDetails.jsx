@@ -155,7 +155,11 @@ const MoveDetails = ({ setFlashMessage }) => {
                         <Shipment shipment={mtoShipment} moveId={moveTaskOrder.id} onDelete={handleDeleteShipment} />
                         <div className={styles.serviceItemHeader}>
                           {moveTaskOrder.mtoServiceItems?.length > 0 && <h2>Service Items</h2>}
-                          <Link to="../mto-service-items" relative="path" className="usa-button usa-button-secondary">
+                          <Link
+                            to="../mto-service-items/update"
+                            relative="path"
+                            className="usa-button usa-button-secondary"
+                          >
                             Update Service Items
                           </Link>
                         </div>
