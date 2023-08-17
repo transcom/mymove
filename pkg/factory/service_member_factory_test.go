@@ -31,7 +31,8 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		}
 
 		defaultUser := models.User{
-			OktaEmail: "first.last@login.gov.test",
+			OktaEmail: "first.last@okta.mil",
+
 			Active:    false,
 		}
 

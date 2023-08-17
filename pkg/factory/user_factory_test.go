@@ -6,7 +6,7 @@ import (
 )
 
 func (suite *FactorySuite) TestBuildUser() {
-	defaultEmail := "first.last@login.gov.test"
+	defaultEmail := "first.last@okta.mil"
 	customEmail := "leospaceman123@example.com"
 	suite.Run("Successful creation of default user", func() {
 		// Under test:      BuildUser
@@ -93,7 +93,7 @@ func (suite *FactorySuite) TestBuildUser() {
 }
 
 func (suite *FactorySuite) TestBuildDefaultUser() {
-	defaultEmail := "first.last@login.gov.test"
+	defaultEmail := "first.last@okta.mil"
 	suite.Run("Successful creation of default user", func() {
 		// Under test:      BuildDefaultUser
 		// Mocked:          None

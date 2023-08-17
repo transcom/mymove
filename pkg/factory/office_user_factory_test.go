@@ -13,7 +13,7 @@ func (suite *FactorySuite) TestBuildOfficeUser() {
 		// Mocked:          None
 		// Set up:          Create a User with no customizations or traits
 		// Expected outcome:User should be created with default values
-		defaultUserEmail := "first.last@login.gov.test"
+		defaultUserEmail := "first.last@okta.mil"
 		defaultTransportationOffice := "JPPSO Testy McTest"
 
 		defaultOffice := models.OfficeUser{
@@ -138,7 +138,9 @@ func (suite *FactorySuite) TestBuildOfficeUserExtra() {
 		// Expected outcome: officeUser and User should be created
 		//                   User should have specified ID
 
-		defaultOktaEmail := "first.last@login.gov.test"
+
+		defaultOktaEmail := "first.last@okta.mil"
+
 		uuid := uuid.FromStringOrNil("6f97d298-1502-4d8c-9472-f8b5b2a63a10")
 		officeUser := BuildOfficeUser(suite.DB(), []Customization{
 			{

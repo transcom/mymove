@@ -13,16 +13,17 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 // ! See flow here:
 // ! https://developer.okta.com/docs/guides/implement-grant-type/authcode/main/
 
-func getProfileData(appCtx appcontext.AppContext, provider okta.Provider) (map[string]string, error) {
-	m := make(map[string]string)
+func getProfileData(appCtx appcontext.AppContext, provider okta.Provider) (models.OktaUser, error) {
+	user := models.OktaUser{}
 
 	if appCtx.Session().AccessToken == "" {
-		return m, nil
+		return user, nil
 	}
 
 	reqURL := provider.GetUserInfoURL()
@@ -42,12 +43,12 @@ func getProfileData(appCtx appcontext.AppContext, provider okta.Provider) (map[s
 		appCtx.Logger().Error("could not read response body", zap.Error(err))
 	}
 	defer resp.Body.Close()
-	err = json.Unmarshal(body, &m)
+	err = json.Unmarshal(body, &user)
 	if err != nil {
 		appCtx.Logger().Error("could not unmarshal body", zap.Error(err))
 	}
 
-	return m, nil
+	return user, nil
 }
 
 func verifyToken(t string, nonce string, provider okta.Provider) (*verifier.Jwt, error) {

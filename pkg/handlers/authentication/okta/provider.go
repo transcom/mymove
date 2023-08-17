@@ -274,27 +274,27 @@ func (op Provider) TokenURL(r *http.Request) string {
 	return tokenURL
 }
 
-// LogoutURL returns a full URL to log out of login.gov with required params
-// !Ensure proper testing after sessions have been handled
-// TODO: Ensure works as intended
-func (op Provider) LogoutURL(provider Provider, redirectURL string) (string, error) {
-	logoutPath, err := url.Parse(provider.GetLogoutURL())
-	if err != nil {
-		return "", err
-	}
-	// Parameters taken from https://developers.login.gov/oidc/#logout
-	params := url.Values{
-		"client_id":                {provider.clientID},
-		"post_logout_redirect_uri": {redirectURL},
-		"state":                    {generateNonce()},
-	}
+// Leaving this here in case it needs to be used in the future
+// When authenticating with Okta, the sample app provided clears the sessions
+// We could potentially revoke the token in the future so a user has to reauthenticate after sign out
+// func (op Provider) LogoutURL(provider Provider, redirectURL string) (string, error) {
+// 	logoutPath, err := url.Parse(provider.GetLogoutURL())
+// 	if err != nil {
+// 		return "", err
+// 	}
+//  Parameters taken from https://developers.login.gov/oidc/#logout
+// 	params := url.Values{
+// 		"id_token_hint":            {provider.orgURL},
+// 		"post_logout_redirect_uri": {redirectURL},
+// 		"state":                    {generateNonce()},
+// 	}
 
-	logoutPath.RawQuery = params.Encode()
-	strLogoutPath := logoutPath.String()
-	op.logger.Info("Logout path", zap.String("strLogoutPath", strLogoutPath))
+// 	logoutPath.RawQuery = params.Encode()
+// 	strLogoutPath := logoutPath.String()
+// 	op.logger.Info("Logout path", zap.String("strLogoutPath", strLogoutPath))
 
-	return strLogoutPath, nil
-}
+// 	return strLogoutPath, nil
+// }
 
 func generateNonce() string {
 	nonceBytes := make([]byte, 64)

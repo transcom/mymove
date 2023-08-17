@@ -147,6 +147,10 @@ func (suite *AuthSuite) TestGenerateNonce() {
 }
 
 func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
+	// this sets up a user with a valid ID and Access token
+	// calls /auth/logout which should clear those tokens
+	// checks to make sure those values are not present in session
+
 	OktaID := "2400c3c5-019d-4031-9c27-8a553e022297"
 
 	user := models.User{
@@ -157,6 +161,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	suite.MustSave(&user)
 
 	fakeToken := "some_token"
+	fakeAccessToken := "some_access_token"
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
@@ -166,6 +171,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 		ApplicationName: auth.OfficeApp,
 		UserID:          user.ID,
 		IDToken:         fakeToken,
+		AccessToken:     fakeAccessToken,
 		Hostname:        appnames.OfficeServername,
 	}
 	sessionManagers := handlerConfig.SessionManagers()
@@ -183,21 +189,11 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 
 	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
 
-	redirectURL, err := url.Parse(rr.Body.String())
-	suite.FatalNoError(err)
-	params := redirectURL.Query()
-
-	postRedirectURI, err := url.Parse(params["post_logout_redirect_uri"][0])
-	suite.NoError(err)
-	suite.Equal(appnames.OfficeServername, postRedirectURI.Hostname())
-	suite.Equal(strconv.Itoa(suite.callbackPort), postRedirectURI.Port())
-	token := params["client_id"][0]
-	suite.Equal(fakeToken, token, "handler id_token")
-
 	noIDTokenSession := auth.Session{
 		ApplicationName: auth.OfficeApp,
 		UserID:          user.ID,
 		IDToken:         "",
+		AccessToken:     "",
 		Hostname:        appnames.OfficeServername,
 	}
 
@@ -735,7 +731,6 @@ func (suite *AuthSuite) TestRedirectOktaErrorMsg() {
 
 // Test to make sure the full auth flow works, although we are using mock Okta endpoints
 func (suite *AuthSuite) TestRedirectFromOktaForValidUser() {
-
 	// build a real office user
 	tioOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(),
 		[]roles.RoleType{roles.RoleTypeTIO})
@@ -835,6 +830,7 @@ func mockAndActivateOktaEndpoints(tioOfficeUser models.OfficeUser, provider *okt
 	jwksURL := provider.GetJWKSURL()
 	openIDConfigURL := provider.GetOpenIDConfigURL()
 	userInfoURL := provider.GetUserInfoURL()
+
 	httpmock.RegisterResponder("GET", openIDConfigURL,
 		httpmock.NewStringResponder(200, fmt.Sprintf(`{
             "jwks_uri": "%s"
@@ -858,6 +854,7 @@ func mockAndActivateOktaEndpoints(tioOfficeUser models.OfficeUser, provider *okt
 	// Mock the userinfo endpoint
 	// Sub is the Okta user ID, it is not a UUID.
 	tioOfficeOktaUserID := tioOfficeUser.User.OktaID
+
 	httpmock.RegisterResponder("GET", userInfoURL,
 		httpmock.NewStringResponder(200, fmt.Sprintf(`{
 		"sub": "%s",
@@ -1064,9 +1061,9 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 	// Prepare the goth.User to simulate the UUID and email that login.gov would
 	// provide
 	fakeUUID, _ := uuid.NewV4()
-	user := goth.User{
-		UserID: fakeUUID.String(),
-		Email:  "new_service_member@example.com",
+	user := models.OktaUser{
+		Sub:   fakeUUID.String(),
+		Email: "new_service_member@example.com",
 	}
 	ctx := suite.SetupSessionContext(context.Background(), &session, sessionManager)
 
@@ -1092,7 +1089,7 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 
 	// Verify user's OktaEmail and OktaID match the values passed in
 	suite.Equal(user.Email, foundUser.OktaEmail)
-	suite.Equal(user.UserID, foundUser.OktaID)
+	suite.Equal(user.Sub, foundUser.OktaID)
 
 	// Verify that the user's CurrentMilSessionID is not empty. The value is
 	// generated randomly, so we can't test for a specific string. Any string
@@ -1160,9 +1157,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeDeactivated() {
 	}
 
 	fakeUUID2, _ := uuid.NewV4()
-	user := goth.User{
-		UserID: fakeUUID2.String(),
-		Email:  officeUser.Email,
+	user := models.OktaUser{
+		Sub:   fakeUUID2.String(),
+		Email: officeUser.Email,
 	}
 
 	mockSender := setUpMockNotificationSender()
@@ -1191,9 +1188,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
 	}
 
 	id, _ := uuid.NewV4()
-	user := goth.User{
-		UserID: id.String(),
-		Email:  "sample@email.com",
+	user := models.OktaUser{
+		Sub:   id.String(),
+		Email: "sample@email.com",
 	}
 
 	mockSender := setUpMockNotificationSender()
@@ -1236,9 +1233,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 		Email:           officeUser.Email,
 	}
 
-	gothUser := goth.User{
-		UserID: user.ID.String(),
-		Email:  officeUser.Email,
+	gothUser := models.OktaUser{
+		Sub:   user.ID.String(),
+		Email: officeUser.Email,
 	}
 
 	mockSender := setUpMockNotificationSender()
@@ -1290,9 +1287,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
 		Hostname:        appnames.OfficeServername,
 		Email:           officeUser.Email,
 	}
-	gothUser := goth.User{
-		UserID: user.ID.String(),
-		Email:  officeUser.Email,
+	gothUser := models.OktaUser{
+		Sub:   user.ID.String(),
+		Email: officeUser.Email,
 	}
 
 	mockSender := setUpMockNotificationSender()
@@ -1342,9 +1339,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDeactivated() {
 	}
 
 	fakeUUID2, _ := uuid.NewV4()
-	user := goth.User{
-		UserID: fakeUUID2.String(),
-		Email:  adminUser.Email,
+	user := models.OktaUser{
+		Sub:   fakeUUID2.String(),
+		Email: adminUser.Email,
 	}
 
 	mockSender := setUpMockNotificationSender()
@@ -1372,9 +1369,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminNotFound() {
 	}
 
 	id, _ := uuid.NewV4()
-	user := goth.User{
-		UserID: id.String(),
-		Email:  "sample@email.com",
+	user := models.OktaUser{
+		Sub:   id.String(),
+		Email: "sample@email.com",
 	}
 
 	mockSender := setUpMockNotificationSender()
@@ -1451,9 +1448,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 		Email:           adminUser.Email,
 	}
 
-	gothUser := goth.User{
-		UserID: user.ID.String(),
-		Email:  adminUser.Email,
+	gothUser := models.OktaUser{
+		Sub:   user.ID.String(),
+		Email: adminUser.Email,
 	}
 
 	mockSender := setUpMockNotificationSender()
