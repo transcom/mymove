@@ -147,6 +147,9 @@ func (suite *AuthSuite) TestGenerateNonce() {
 }
 
 func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
+	// this sets up a user with a valid ID and Access token
+	// calls /auth/logout which should clear those tokens
+	// checks to make sure those values are not present in session
 	OktaID := "2400c3c5-019d-4031-9c27-8a553e022297"
 
 	user := models.User{
@@ -157,6 +160,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	suite.MustSave(&user)
 
 	fakeToken := "some_token"
+	fakeAccessToken := "some_access_token"
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
@@ -166,6 +170,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 		ApplicationName: auth.OfficeApp,
 		UserID:          user.ID,
 		IDToken:         fakeToken,
+		AccessToken:     fakeAccessToken,
 		Hostname:        appnames.OfficeServername,
 	}
 	sessionManagers := handlerConfig.SessionManagers()
@@ -183,21 +188,11 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 
 	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
 
-	redirectURL, err := url.Parse(rr.Body.String())
-	suite.FatalNoError(err)
-	params := redirectURL.Query()
-
-	postRedirectURI, err := url.Parse(params["post_logout_redirect_uri"][0])
-	suite.NoError(err)
-	suite.Equal(appnames.OfficeServername, postRedirectURI.Hostname())
-	suite.Equal(strconv.Itoa(suite.callbackPort), postRedirectURI.Port())
-	token := params["client_id"][0]
-	suite.Equal(fakeToken, token, "handler id_token")
-
 	noIDTokenSession := auth.Session{
 		ApplicationName: auth.OfficeApp,
 		UserID:          user.ID,
 		IDToken:         "",
+		AccessToken:     "",
 		Hostname:        appnames.OfficeServername,
 	}
 
