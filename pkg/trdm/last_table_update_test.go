@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/tiaguinho/gosoap"
 
-	"github.com/transcom/mymove/pkg/models/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/trdm"
+	"github.com/transcom/mymove/pkg/trdm/trdmmocks"
 )
 
 const getLastTableUpdateTemplate = `
@@ -52,7 +52,7 @@ func (suite *TRDMSuite) TestTRDMGetLastTableUpdateFake() {
 				soapError = errors.New("some error")
 			}
 
-			testSoapClient := &mocks.SoapCaller{}
+			testSoapClient := &trdmmocks.SoapCaller{}
 			testSoapClient.On("Call",
 				mock.Anything,
 				mock.Anything,
