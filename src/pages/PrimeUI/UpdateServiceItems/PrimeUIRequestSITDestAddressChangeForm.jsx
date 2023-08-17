@@ -7,6 +7,7 @@ import classnames from 'classnames';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import AddressFields from 'components/form/AddressFields/AddressFields';
+import TextField from 'components/form/fields/TextField/TextField';
 import { ResidentialAddressShape } from 'types/address';
 import formStyles from 'styles/form.module.scss';
 import { Form } from 'components/form/Form';
@@ -29,6 +30,7 @@ const PrimeUIRequestSITDestAddressChangeForm = ({ name, initialValues, onSubmit,
             <SectionWrapper className={formStyles.formSection}>
               <h2>Request Destination SIT Address Change </h2>
               <AddressFields name={name} />
+              <TextField name="contractorRemarks" id="contractorRemarks" label="Contractor Remarks" />
             </SectionWrapper>
             <WizardNavigation
               editMode
@@ -48,22 +50,17 @@ const PrimeUIRequestSITDestAddressChangeForm = ({ name, initialValues, onSubmit,
 
 PrimeUIRequestSITDestAddressChangeForm.propTypes = {
   initialValues: PropTypes.shape({
-    pickupAddress: PropTypes.shape({
-      address: ResidentialAddressShape,
-    }),
-    destinationAddress: PropTypes.shape({
-      address: ResidentialAddressShape,
-    }),
-    addressID: PropTypes.string,
-    eTag: PropTypes.string,
+    address: PropTypes.shape({ ResidentialAddressShape }),
+    contractorRemarks: PropTypes.string,
+    mtoServiceItemID: PropTypes.string,
   }).isRequired,
-  // onSubmit: PropTypes.func.isRequired,
   destAddressChangeRequestSchema: PropTypes.shape({
     address: ResidentialAddressShape,
-    addressID: PropTypes.string,
-    eTag: PropTypes.string,
+    contractorRemarks: PropTypes.string,
+    mtoServiceItemID: PropTypes.string,
   }).isRequired,
   name: PropTypes.string.isRequired,
+  onSubmit: PropTypes.func.isRequired,
 };
 
 export default PrimeUIRequestSITDestAddressChangeForm;
