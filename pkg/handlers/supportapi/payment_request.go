@@ -397,23 +397,27 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 				path997 := v.GetString(cli.GEXSFTP997PickupDirectory)
 				path824 := v.GetString(cli.GEXSFTP824PickupDirectory)
 
-				sshClient, err := cli.InitGEXSSH(appCtx, v)
+				sshClient, err := cli.InitGEXSSH(appCtx.Logger(), v)
 				if err != nil {
-					appCtx.Logger().Fatal("couldn't initialize SSH client", zap.Error(err))
+					appCtx.Logger().Error("couldn't initialize SSH client", zap.Error(err))
+					return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(
+						payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
 				defer func() {
 					if closeErr := sshClient.Close(); closeErr != nil {
-						appCtx.Logger().Fatal("could not close SFTP client", zap.Error(closeErr))
+						appCtx.Logger().Error("could not close SFTP client", zap.Error(closeErr))
 					}
 				}()
 
-				sftpClient, err := cli.InitGEXSFTP(appCtx, sshClient)
+				sftpClient, err := cli.InitGEXSFTP(appCtx.Logger(), sshClient)
 				if err != nil {
-					appCtx.Logger().Fatal("couldn't initialize SFTP client", zap.Error(err))
+					appCtx.Logger().Error("couldn't initialize SFTP client", zap.Error(err))
+					return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(
+						payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
 				defer func() {
 					if closeErr := sftpClient.Close(); closeErr != nil {
-						appCtx.Logger().Fatal("could not close SFTP client", zap.Error(closeErr))
+						appCtx.Logger().Error("could not close SFTP client", zap.Error(closeErr))
 					}
 				}()
 
@@ -423,15 +427,18 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 				_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, path997, time.Time{}, invoice.NewEDI997Processor())
 				if err != nil {
 					appCtx.Logger().Error("Error reading 997 responses", zap.Error(err))
-				} else {
-					appCtx.Logger().Info("Successfully processed 997 responses")
+					return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(
+						payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
+				appCtx.Logger().Info("Successfully processed 997 responses")
+
 				_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, path824, time.Time{}, invoice.NewEDI824Processor())
 				if err != nil {
 					appCtx.Logger().Error("Error reading 824 responses", zap.Error(err))
-				} else {
-					appCtx.Logger().Info("Successfully processed 824 responses")
+					return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(
+						payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
+				appCtx.Logger().Info("Successfully processed 824 responses")
 			} else {
 				appCtx.Logger().Info("Skipping reading from Syncada")
 			}

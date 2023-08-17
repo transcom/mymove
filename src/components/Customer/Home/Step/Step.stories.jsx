@@ -70,11 +70,12 @@ OrdersAmended.args = {
   completedHeaderText: 'Orders',
   children: (
     <>
-      <p>If you receive amended orders:</p>
+      <p>If you receive amended orders</p>
       <ul>
-        <li>Upload the new documents here</li>
-        <li>Talk directly with your movers about changes</li>
-        <li>The transportation office will update your move info to reflect the new orders</li>
+        <li>Upload the new document(s) here</li>
+        <li>If you have not had a counseling session talk to your local transportation office</li>
+        <li>If you have been assigned a Customer Care Representative, you can speak directly to them</li>
+        <li>They will update your move info to reflect the new orders</li>
       </ul>
     </>
   ),

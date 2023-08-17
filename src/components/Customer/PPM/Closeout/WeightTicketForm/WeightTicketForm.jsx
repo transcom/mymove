@@ -32,7 +32,7 @@ const validationSchema = Yup.object().shape({
   fullWeight: Yup.number()
     .min(0, 'Enter a weight 0 lbs or greater')
     .required('Required')
-    .when('emptyWeight', (emptyWeight, schema) => {
+    .when('emptyWeight', ([emptyWeight], schema) => {
       return emptyWeight != null
         ? schema.min(emptyWeight + 1, 'The full weight must be greater than the empty weight')
         : schema;
@@ -43,7 +43,7 @@ const validationSchema = Yup.object().shape({
   trailerMeetsCriteria: Yup.boolean(),
   proofOfTrailerOwnershipDocument: Yup.array()
     .of(uploadShape)
-    .when(['ownsTrailer', 'trailerMeetsCriteria'], (ownsTrailer, trailerMeetsCriteria, schema) => {
+    .when(['ownsTrailer', 'trailerMeetsCriteria'], ([ownsTrailer, trailerMeetsCriteria], schema) => {
       return ownsTrailer && trailerMeetsCriteria ? schema.min(1, 'At least one upload is required') : schema;
     }),
 });
