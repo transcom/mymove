@@ -40,7 +40,7 @@ type MoveTaskOrderFetcher interface {
 	FetchMoveTaskOrder(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (*models.Move, error)
 	ListAllMoveTaskOrders(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, error)
 	ListPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, error)
-	GetMoveForPaymentRequests(appCtx appcontext.AppContext, moveID uuid.UUID, eagerAssociations ...string) (*models.Move, error)
+	GetMove(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams, eagerAssociations ...string) (*models.Move, error)
 }
 
 // MoveTaskOrderUpdater is the service object interface for updating fields of a MoveTaskOrder
