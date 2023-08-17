@@ -8,7 +8,7 @@ import (
 )
 
 func (suite *FactorySuite) TestBuildAdminUser() {
-	defaultEmail := "first.last@login.gov.test"
+	defaultEmail := "first.last@okta.mil"
 	suite.Run("Successful creation of default admin user", func() {
 		// Under test:      BuildAdminUser
 		// Mocked:          None
@@ -159,7 +159,7 @@ func (suite *FactorySuite) TestBuildAdminUserExtra() {
 		// Expected outcome: adminUser and User should be created
 		//                   User should have specified ID
 
-		defaultOktaEmail := "first.last@login.gov.test"
+		defaultOktaEmail := "first.last@okta.mil"
 		uuid := uuid.FromStringOrNil("6f97d298-1502-4d8c-9472-f8b5b2a63a10")
 		adminUser := BuildAdminUser(suite.DB(), []Customization{
 			{

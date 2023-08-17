@@ -1127,6 +1127,9 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, okt
 
 // !This func is currently a leftover from login_gov.
 // TODO: Remove once Okta sessions are in place
+// commented out until Okta is in full swing - was getting errors in login_gov.go
+// and had to comment out some functions there in order to run server
+
 // func fetchToken(code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
 // 	logger := loginGovProvider.logger
 // 	expiry := auth.GetExpiryTimeFromMinutes(auth.SessionExpiryInMinutes)

@@ -2,134 +2,128 @@ package authentication
 
 import (
 	"encoding/base64"
-	"fmt"
+	// "fmt"
 	"math/rand"
-	"net/url"
-	"time"
-
-	"github.com/golang-jwt/jwt/v4"
-	"github.com/markbates/goth"
-	"github.com/markbates/goth/providers/openidConnect"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/random"
 )
 
-const milProviderName = "milProvider"
+// const milProviderName = "milProvider"
 const officeProviderName = "officeProvider"
-const adminProviderName = "adminProvider"
 
-type MilMoveLoginGovProvider interface {
-	Name() string
-	SetName(name string)
-	BeginAuth(state string) (goth.Session, error)
-	FetchUser(goth.Session) (goth.User, error)
-	ClientKey() string
-	// this is an addition to allow for stubbing/overriding in tests
-	FetchUserAndIDTokenByCode(code string) (goth.User, string, error)
-}
+// const adminProviderName = "adminProvider"
 
-type milMoveLoginGovProviderWrapper struct {
-	*openidConnect.Provider
-	LoginGovProvider
-}
-
-func (w *milMoveLoginGovProviderWrapper) ClientKey() string {
-	return w.Provider.ClientKey
-}
-
-// func (w *milMoveLoginGovProviderWrapper) FetchUserAndIDTokenByCode(code string) (goth.User, string, error) {
-// 	// TODO: validate the state is the same (pull from session)
-// 	session, err := fetchToken(code, w.ClientKey(), w.LoginGovProvider)
-// 	if err != nil {
-// 		return goth.User{}, "", err
-// 	}
-// 	user, err := w.FetchUser(session)
-// 	return user, session.IDToken, err
+// type MilMoveLoginGovProvider interface {
+// 	Name() string
+// 	SetName(name string)
+// 	BeginAuth(state string) (goth.Session, error)
+// 	FetchUser(goth.Session) (goth.User, error)
+// 	ClientKey() string
+// 	// this is an addition to allow for stubbing/overriding in tests
+// 	FetchUserAndIDTokenByCode(code string) (goth.User, string, error)
 // }
 
-// func wrapGothProvider(provider goth.Provider, lgProvider LoginGovProvider) MilMoveLoginGovProvider {
-// 	if openidProvider, ok := provider.(*openidConnect.Provider); ok {
-// 		return &milMoveLoginGovProviderWrapper{openidProvider, lgProvider}
-// 	}
-// 	return provider.(MilMoveLoginGovProvider)
+// type milMoveLoginGovProviderWrapper struct {
+// 	*openidConnect.Provider
+// 	LoginGovProvider
 // }
 
-// func getLoginGovProviderForRequest(r *http.Request, lgProvider LoginGovProvider) (MilMoveLoginGovProvider, error) {
-// 	session := auth.SessionFromRequestContext(r)
-// 	providerName := milProviderName
-// 	if session.IsOfficeApp() {
-// 		providerName = officeProviderName
-// 	} else if session.IsAdminApp() {
-// 		providerName = adminProviderName
-// 	}
-// 	gothProvider, err := goth.GetProvider(providerName)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return wrapGothProvider(gothProvider, lgProvider), nil
+// func (w *milMoveLoginGovProviderWrapper) ClientKey() string {
+// 	return w.Provider.ClientKey
 // }
 
-func SetLoginGovProviders(milProvider MilMoveLoginGovProvider,
-	officeProvider MilMoveLoginGovProvider,
-	adminProvider MilMoveLoginGovProvider) {
-	milProvider.SetName(milProviderName)
-	officeProvider.SetName(officeProviderName)
-	adminProvider.SetName(adminProviderName)
-	goth.UseProviders(milProvider.(goth.Provider),
-		officeProvider.(goth.Provider),
-		adminProvider.(goth.Provider))
-}
+// // func (w *milMoveLoginGovProviderWrapper) FetchUserAndIDTokenByCode(code string) (goth.User, string, error) {
+// // 	// TODO: validate the state is the same (pull from session)
+// // 	session, err := fetchToken(code, w.ClientKey(), w.LoginGovProvider)
+// // 	if err != nil {
+// // 		return goth.User{}, "", err
+// // 	}
+// // 	user, err := w.FetchUser(session)
+// // 	return user, session.IDToken, err
+// // }
 
-// LoginGovProvider facilitates generating URLs and parameters for interfacing with Login.gov
-type LoginGovProvider struct {
-	hostname  string
-	secretKey string
-	logger    *zap.Logger
-}
+// // func wrapGothProvider(provider goth.Provider, lgProvider LoginGovProvider) MilMoveLoginGovProvider {
+// // 	if openidProvider, ok := provider.(*openidConnect.Provider); ok {
+// // 		return &milMoveLoginGovProviderWrapper{openidProvider, lgProvider}
+// // 	}
+// // 	return provider.(MilMoveLoginGovProvider)
+// // }
 
-// NewLoginGovProvider returns a new LoginGovProvider
-func NewLoginGovProvider(hostname string, secretKey string, logger *zap.Logger) LoginGovProvider {
-	return LoginGovProvider{
-		hostname:  hostname,
-		secretKey: secretKey,
-		logger:    logger,
-	}
-}
+// // func getLoginGovProviderForRequest(r *http.Request, lgProvider LoginGovProvider) (MilMoveLoginGovProvider, error) {
+// // 	session := auth.SessionFromRequestContext(r)
+// // 	providerName := milProviderName
+// // 	if session.IsOfficeApp() {
+// // 		providerName = officeProviderName
+// // 	} else if session.IsAdminApp() {
+// // 		providerName = adminProviderName
+// // 	}
+// // 	gothProvider, err := goth.GetProvider(providerName)
+// // 	if err != nil {
+// // 		return nil, err
+// // 	}
+// // 	return wrapGothProvider(gothProvider, lgProvider), nil
+// // }
 
-func (p LoginGovProvider) getOpenIDProvider(hostname string, clientID string, callbackProtocol string, callbackPort int) (goth.Provider, error) {
-	return openidConnect.New(
-		clientID,
-		p.secretKey,
-		fmt.Sprintf("%s://%s:%d/auth/okta/callback", callbackProtocol, hostname, callbackPort),
-		fmt.Sprintf("https://%s/.well-known/openid-configuration", p.hostname),
-	)
-}
-
-// RegisterProvider registers Login.gov with Goth, which uses
-// auto-discovery to get the OpenID configuration
-// func (p LoginGovProvider) RegisterProvider(milHostname string, milClientID string, officeHostname string, officeClientID string, adminHostname string, adminClientID string, callbackProtocol string, callbackPort int) error {
-
-// 	milProvider, err := p.getOpenIDProvider(milHostname, milClientID, callbackProtocol, callbackPort)
-// 	if err != nil {
-// 		p.logger.Error("getting open_id provider", zap.String("host", milHostname), zap.Error(err))
-// 		return err
-// 	}
-// 	officeProvider, err := p.getOpenIDProvider(officeHostname, officeClientID, callbackProtocol, callbackPort)
-// 	if err != nil {
-// 		p.logger.Error("getting open_id provider", zap.String("host", officeHostname), zap.Error(err))
-// 		return err
-// 	}
-// 	adminProvider, err := p.getOpenIDProvider(adminHostname, adminClientID, callbackProtocol, callbackPort)
-// 	if err != nil {
-// 		p.logger.Error("getting open_id provider", zap.String("host", adminHostname), zap.Error(err))
-// 		return err
-// 	}
-// 	SetLoginGovProviders(wrapGothProvider(milProvider, p),
-// 		wrapGothProvider(officeProvider, p),
-// 		wrapGothProvider(adminProvider, p))
-// 	return nil
+// func SetLoginGovProviders(milProvider MilMoveLoginGovProvider,
+// 	officeProvider MilMoveLoginGovProvider,
+// 	adminProvider MilMoveLoginGovProvider) {
+// 	milProvider.SetName(milProviderName)
+// 	officeProvider.SetName(officeProviderName)
+// 	adminProvider.SetName(adminProviderName)
+// 	goth.UseProviders(milProvider.(goth.Provider),
+// 		officeProvider.(goth.Provider),
+// 		adminProvider.(goth.Provider))
 // }
+
+// // LoginGovProvider facilitates generating URLs and parameters for interfacing with Login.gov
+// type LoginGovProvider struct {
+// 	hostname  string
+// 	secretKey string
+// 	logger    *zap.Logger
+// }
+
+// // NewLoginGovProvider returns a new LoginGovProvider
+// func NewLoginGovProvider(hostname string, secretKey string, logger *zap.Logger) LoginGovProvider {
+// 	return LoginGovProvider{
+// 		hostname:  hostname,
+// 		secretKey: secretKey,
+// 		logger:    logger,
+// 	}
+// }
+
+// func (p LoginGovProvider) getOpenIDProvider(hostname string, clientID string, callbackProtocol string, callbackPort int) (goth.Provider, error) {
+// 	return openidConnect.New(
+// 		clientID,
+// 		p.secretKey,
+// 		fmt.Sprintf("%s://%s:%d/auth/okta/callback", callbackProtocol, hostname, callbackPort),
+// 		fmt.Sprintf("https://%s/.well-known/openid-configuration", p.hostname),
+// 	)
+// }
+
+// // RegisterProvider registers Login.gov with Goth, which uses
+// // auto-discovery to get the OpenID configuration
+// // func (p LoginGovProvider) RegisterProvider(milHostname string, milClientID string, officeHostname string, officeClientID string, adminHostname string, adminClientID string, callbackProtocol string, callbackPort int) error {
+
+// // 	milProvider, err := p.getOpenIDProvider(milHostname, milClientID, callbackProtocol, callbackPort)
+// // 	if err != nil {
+// // 		p.logger.Error("getting open_id provider", zap.String("host", milHostname), zap.Error(err))
+// // 		return err
+// // 	}
+// // 	officeProvider, err := p.getOpenIDProvider(officeHostname, officeClientID, callbackProtocol, callbackPort)
+// // 	if err != nil {
+// // 		p.logger.Error("getting open_id provider", zap.String("host", officeHostname), zap.Error(err))
+// // 		return err
+// // 	}
+// // 	adminProvider, err := p.getOpenIDProvider(adminHostname, adminClientID, callbackProtocol, callbackPort)
+// // 	if err != nil {
+// // 		p.logger.Error("getting open_id provider", zap.String("host", adminHostname), zap.Error(err))
+// // 		return err
+// // 	}
+// // 	SetLoginGovProviders(wrapGothProvider(milProvider, p),
+// // 		wrapGothProvider(officeProvider, p),
+// // 		wrapGothProvider(adminProvider, p))
+// // 	return nil
+// // }
 
 func generateNonce() string {
 	nonceBytes := make([]byte, 64)
@@ -148,122 +142,122 @@ func generateNonce() string {
 	return base64.URLEncoding.EncodeToString(nonceBytes)
 }
 
-// LoginGovData contains the URL and State nonce used to redirect a user
-// login.gov for authentication
-type LoginGovData struct {
-	RedirectURL string
-	Nonce       string
-}
-
-// AuthorizationURL returns a URL for login.gov authorization with required params
-// func (p LoginGovProvider) AuthorizationURL(r *http.Request) (*LoginGovData, error) {
-// 	provider, err := getLoginGovProviderForRequest(r, p)
-// 	if err != nil {
-// 		p.logger.Error("Get Goth provider", zap.Error(err))
-// 		return nil, err
-// 	}
-// 	state := generateNonce()
-// 	sess, err := provider.BeginAuth(state)
-// 	if err != nil {
-// 		p.logger.Error("Goth begin auth", zap.Error(err))
-// 		return nil, err
-// 	}
-
-// 	baseURL, err := sess.GetAuthURL()
-// 	if err != nil {
-// 		p.logger.Error("Goth get auth URL", zap.Error(err))
-// 		return nil, err
-// 	}
-
-// 	authURL, err := url.Parse(baseURL)
-// 	if err != nil {
-// 		p.logger.Error("Parse auth URL", zap.Error(err))
-// 		return nil, err
-// 	}
-
-// 	params := authURL.Query()
-// 	// Logging into the Admin app will require a CAC.
-// 	session := auth.SessionFromRequestContext(r)
-// 	if session.IsAdminApp() {
-// 		// This specifies that a user has been authenticated with an HSPD12 credential, via their CAC. Both acr_values must be specified.
-// 		params.Add("acr_values", "http://idmanagement.gov/ns/assurance/ial/1 http://idmanagement.gov/ns/assurance/aal/3?hspd12=true")
-// 	} else {
-// 		params.Add("acr_values", "http://idmanagement.gov/ns/assurance/loa/1")
-// 	}
-// 	params.Add("nonce", state)
-// 	params.Set("scope", "openid email")
-
-// 	authURL.RawQuery = params.Encode()
-// 	return &LoginGovData{authURL.String(), state}, nil
+// // LoginGovData contains the URL and State nonce used to redirect a user
+// // login.gov for authentication
+// type LoginGovData struct {
+// 	RedirectURL string
+// 	Nonce       string
 // }
 
-// LogoutURL returns a full URL to log out of login.gov with required params
-func (p LoginGovProvider) LogoutURL(redirectURL string, idToken string) string {
-	logoutPath, _ := url.Parse(fmt.Sprintf("https://%s/openid_connect/logout", p.hostname))
-	// Parameters taken from https://developers.login.gov/oidc/#logout
-	params := url.Values{
-		"client_id":                {idToken},
-		"post_logout_redirect_uri": {redirectURL},
-		"state":                    {generateNonce()},
-	}
+// // AuthorizationURL returns a URL for login.gov authorization with required params
+// // func (p LoginGovProvider) AuthorizationURL(r *http.Request) (*LoginGovData, error) {
+// // 	provider, err := getLoginGovProviderForRequest(r, p)
+// // 	if err != nil {
+// // 		p.logger.Error("Get Goth provider", zap.Error(err))
+// // 		return nil, err
+// // 	}
+// // 	state := generateNonce()
+// // 	sess, err := provider.BeginAuth(state)
+// // 	if err != nil {
+// // 		p.logger.Error("Goth begin auth", zap.Error(err))
+// // 		return nil, err
+// // 	}
 
-	logoutPath.RawQuery = params.Encode()
-	strLogoutPath := logoutPath.String()
-	p.logger.Info("Logout path", zap.String("strLogoutPath", strLogoutPath))
+// // 	baseURL, err := sess.GetAuthURL()
+// // 	if err != nil {
+// // 		p.logger.Error("Goth get auth URL", zap.Error(err))
+// // 		return nil, err
+// // 	}
 
-	return strLogoutPath
-}
+// // 	authURL, err := url.Parse(baseURL)
+// // 	if err != nil {
+// // 		p.logger.Error("Parse auth URL", zap.Error(err))
+// // 		return nil, err
+// // 	}
 
-// TokenURL returns a full URL to retrieve a user token from login.gov
-func (p LoginGovProvider) TokenURL() string {
-	// TODO: Get the token endpoint URL from Goth instead when
-	// https://github.com/markbates/goth/pull/207 is resolved
-	tokenURL := fmt.Sprintf("https://%s/api/openid_connect/token", p.hostname)
-	p.logger.Info("LoginGovProvider", zap.String("tokenUrl", tokenURL))
+// // 	params := authURL.Query()
+// // 	// Logging into the Admin app will require a CAC.
+// // 	session := auth.SessionFromRequestContext(r)
+// // 	if session.IsAdminApp() {
+// // 		// This specifies that a user has been authenticated with an HSPD12 credential, via their CAC. Both acr_values must be specified.
+// // 		params.Add("acr_values", "http://idmanagement.gov/ns/assurance/ial/1 http://idmanagement.gov/ns/assurance/aal/3?hspd12=true")
+// // 	} else {
+// // 		params.Add("acr_values", "http://idmanagement.gov/ns/assurance/loa/1")
+// // 	}
+// // 	params.Add("nonce", state)
+// // 	params.Set("scope", "openid email")
 
-	return tokenURL
-}
+// // 	authURL.RawQuery = params.Encode()
+// // 	return &LoginGovData{authURL.String(), state}, nil
+// // }
 
-// TokenParams creates query params for use in the token endpoint
-func (p LoginGovProvider) TokenParams(code string, clientID string, expiry time.Time) (url.Values, error) {
-	clientAssertion, err := p.createClientAssertionJWT(clientID, expiry)
-	params := url.Values{
-		"client_assertion":      {clientAssertion},
-		"client_assertion_type": {"urn:ietf:params:oauth:client-assertion-type:jwt-bearer"},
-		"code":                  {code},
-		"grant_type":            {"authorization_code"},
-	}
+// // LogoutURL returns a full URL to log out of login.gov with required params
+// func (p LoginGovProvider) LogoutURL(redirectURL string, idToken string) string {
+// 	logoutPath, _ := url.Parse(fmt.Sprintf("https://%s/openid_connect/logout", p.hostname))
+// 	// Parameters taken from https://developers.login.gov/oidc/#logout
+// 	params := url.Values{
+// 		"client_id":                {idToken},
+// 		"post_logout_redirect_uri": {redirectURL},
+// 		"state":                    {generateNonce()},
+// 	}
 
-	return params, err
-}
+// 	logoutPath.RawQuery = params.Encode()
+// 	strLogoutPath := logoutPath.String()
+// 	p.logger.Info("Logout path", zap.String("strLogoutPath", strLogoutPath))
 
-func (p LoginGovProvider) createClientAssertionJWT(clientID string, expiry time.Time) (string, error) {
-	claims := &jwt.RegisteredClaims{
-		Issuer:    clientID,
-		Subject:   clientID,
-		Audience:  jwt.ClaimStrings([]string{p.TokenURL()}),
-		ID:        generateNonce(),
-		ExpiresAt: jwt.NewNumericDate(expiry),
-	}
+// 	return strLogoutPath
+// }
 
-	rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(p.secretKey))
-	if err != nil {
-		p.logger.Error("JWT parse private key from PEM", zap.Error(err))
-		return "", err
-	}
+// // TokenURL returns a full URL to retrieve a user token from login.gov
+// func (p LoginGovProvider) TokenURL() string {
+// 	// TODO: Get the token endpoint URL from Goth instead when
+// 	// https://github.com/markbates/goth/pull/207 is resolved
+// 	tokenURL := fmt.Sprintf("https://%s/api/openid_connect/token", p.hostname)
+// 	p.logger.Info("LoginGovProvider", zap.String("tokenUrl", tokenURL))
 
-	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
-	jwt, err := token.SignedString(rsaKey)
-	if err != nil {
-		p.logger.Error("Signing JWT", zap.Error(err))
-	}
-	return jwt, err
-}
+// 	return tokenURL
+// }
 
-// LoginGovTokenResponse is a struct for parsing responses from the token endpoint
-type LoginGovTokenResponse struct {
-	Error       string `json:"error"`
-	AccessToken string `json:"access_token"`
-	ExpiresIn   int    `json:"expires_in"`
-	IDToken     string `json:"id_token"`
-}
+// // TokenParams creates query params for use in the token endpoint
+// func (p LoginGovProvider) TokenParams(code string, clientID string, expiry time.Time) (url.Values, error) {
+// 	clientAssertion, err := p.createClientAssertionJWT(clientID, expiry)
+// 	params := url.Values{
+// 		"client_assertion":      {clientAssertion},
+// 		"client_assertion_type": {"urn:ietf:params:oauth:client-assertion-type:jwt-bearer"},
+// 		"code":                  {code},
+// 		"grant_type":            {"authorization_code"},
+// 	}
+
+// 	return params, err
+// }
+
+// func (p LoginGovProvider) createClientAssertionJWT(clientID string, expiry time.Time) (string, error) {
+// 	claims := &jwt.RegisteredClaims{
+// 		Issuer:    clientID,
+// 		Subject:   clientID,
+// 		Audience:  jwt.ClaimStrings([]string{p.TokenURL()}),
+// 		ID:        generateNonce(),
+// 		ExpiresAt: jwt.NewNumericDate(expiry),
+// 	}
+
+// 	rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(p.secretKey))
+// 	if err != nil {
+// 		p.logger.Error("JWT parse private key from PEM", zap.Error(err))
+// 		return "", err
+// 	}
+
+// 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+// 	jwt, err := token.SignedString(rsaKey)
+// 	if err != nil {
+// 		p.logger.Error("Signing JWT", zap.Error(err))
+// 	}
+// 	return jwt, err
+// }
+
+// // LoginGovTokenResponse is a struct for parsing responses from the token endpoint
+// type LoginGovTokenResponse struct {
+// 	Error       string `json:"error"`
+// 	AccessToken string `json:"access_token"`
+// 	ExpiresIn   int    `json:"expires_in"`
+// 	IDToken     string `json:"id_token"`
+// }
