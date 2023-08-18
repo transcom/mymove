@@ -4,19 +4,27 @@ import { useNavigate, useParams, generatePath } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { FormGroup } from '@trussworks/react-uswds';
 import classnames from 'classnames';
+import * as Yup from 'yup';
 
+import { addressSchema } from 'utils/validation';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import AddressFields from 'components/form/AddressFields/AddressFields';
 import TextField from 'components/form/fields/TextField/TextField';
-import { ResidentialAddressShape } from 'types/address';
+import { AddressShape } from 'types/address';
 import formStyles from 'styles/form.module.scss';
 import { Form } from 'components/form/Form';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { primeSimulatorRoutes } from 'constants/routes';
 
-const PrimeUIRequestSITDestAddressChangeForm = ({ name, initialValues, onSubmit, destAddressChangeRequestSchema }) => {
+const PrimeUIRequestSITDestAddressChangeForm = ({ name, initialValues, onSubmit }) => {
   const { moveCodeOrID } = useParams();
   const navigate = useNavigate();
+
+  const destAddressChangeRequestSchema = Yup.object().shape({
+    requestedAddress: addressSchema,
+    contractorRemarks: Yup.string().required(),
+    mtoServiceItemID: Yup.string(),
+  });
 
   const handleClose = () => {
     navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
@@ -30,7 +38,7 @@ const PrimeUIRequestSITDestAddressChangeForm = ({ name, initialValues, onSubmit,
             <SectionWrapper className={formStyles.formSection}>
               <h2>Request Destination SIT Address Change </h2>
               <AddressFields name={name} />
-              <TextField name="contractorRemarks" id="contractorRemarks" label="Contractor Remarks" />
+              <TextField name="contractor Remarks" id="contractorRemarks" label="Contractor Remarks" />
             </SectionWrapper>
             <WizardNavigation
               editMode
@@ -50,12 +58,7 @@ const PrimeUIRequestSITDestAddressChangeForm = ({ name, initialValues, onSubmit,
 
 PrimeUIRequestSITDestAddressChangeForm.propTypes = {
   initialValues: PropTypes.shape({
-    address: PropTypes.shape({ ResidentialAddressShape }),
-    contractorRemarks: PropTypes.string,
-    mtoServiceItemID: PropTypes.string,
-  }).isRequired,
-  destAddressChangeRequestSchema: PropTypes.shape({
-    address: ResidentialAddressShape,
+    address: AddressShape,
     contractorRemarks: PropTypes.string,
     mtoServiceItemID: PropTypes.string,
   }).isRequired,

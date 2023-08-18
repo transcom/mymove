@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { useNavigate, useParams, generatePath } from 'react-router-dom';
-import * as Yup from 'yup';
 import { useMutation } from '@tanstack/react-query';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
 
 import PrimeUIRequestSITDestAddressChangeForm from './PrimeUIRequestSITDestAddressChangeForm';
 
-import { addressSchema } from 'utils/validation';
 import { createSITAddressUpdateRequest } from 'services/primeApi';
 import { fromPrimeAPIAddressFormat } from 'utils/formatters';
 import scrollToTop from 'shared/scrollToTop';
@@ -20,7 +18,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import { primeSimulatorRoutes } from 'constants/routes';
 
-const UpdateServiceItems = ({ setFlashMessage }) => {
+const PrimeUIUpdateServiceItems = ({ setFlashMessage }) => {
   const [errorMessage, setErrorMessage] = useState();
   const navigate = useNavigate();
   const { moveCodeOrID } = useParams();
@@ -28,12 +26,6 @@ const UpdateServiceItems = ({ setFlashMessage }) => {
   const destinationServiceItem = moveTaskOrder?.mtoServiceItems.find(
     (serviceItem) => serviceItem?.reServiceCode === 'DDDSIT',
   );
-
-  const destAddressChangeRequestSchema = Yup.object().shape({
-    requestedAddress: Yup.object().shape({ addressSchema }),
-    contractorRemarks: Yup.string(),
-    mtoServiceItemID: Yup.string(),
-  });
 
   const reformatPrimeApiSITDestinationAddress = fromPrimeAPIAddressFormat(
     destinationServiceItem.sitDestinationFinalAddress,
@@ -122,7 +114,6 @@ const UpdateServiceItems = ({ setFlashMessage }) => {
               <h1 className={styles.sectionHeader}>Update Service Items</h1>
               <PrimeUIRequestSITDestAddressChangeForm
                 name="address"
-                destAddressChangeRequestSchema={destAddressChangeRequestSchema}
                 initialValues={initialValues}
                 onSubmit={onSubmit}
               />
@@ -134,7 +125,7 @@ const UpdateServiceItems = ({ setFlashMessage }) => {
   );
 };
 
-UpdateServiceItems.propTypes = {
+PrimeUIUpdateServiceItems.propTypes = {
   setFlashMessage: func.isRequired,
 };
 
@@ -142,4 +133,4 @@ const mapDispatchToProps = {
   setFlashMessage: setFlashMessageAction,
 };
 
-export default connect(() => ({}), mapDispatchToProps)(UpdateServiceItems);
+export default connect(() => ({}), mapDispatchToProps)(PrimeUIUpdateServiceItems);
