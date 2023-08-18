@@ -70,12 +70,13 @@ export class MovingInfo extends Component {
               </IconSection>
               <IconSection icon="pencil-alt" headline="You don't need to get the details perfect.">
                 <p>
-                  After you submit this information, you&apos;ll talk to a Customer Care Representative. They will
-                  verify your choices and help identify more complicated situations.
+                  After you submit this information, you will talk to a government move counselor. They will verify your
+                  choices and help identify more complicated situations.
                 </p>
                 <p>
-                  The Customer Care Representative will be your point of contact throughout your move and can also help
-                  you make changes to your shipment.
+                  When counseling is complete and a Move Task Order (MTO) is issued, you will be appointed a Customer
+                  Care Representative. They will be your point of contact for the rest of your move and can help make
+                  any changes to your shipment.
                 </p>
               </IconSection>
               <IconSection icon="truck-moving" headline="Your Move Manager will:">

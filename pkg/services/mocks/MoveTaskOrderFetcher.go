@@ -42,6 +42,39 @@ func (_m *MoveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext,
 	return r0, r1
 }
 
+// GetMove provides a mock function with given fields: appCtx, searchParams, eagerAssociations
+func (_m *MoveTaskOrderFetcher) GetMove(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams, eagerAssociations ...string) (*models.Move, error) {
+	_va := make([]interface{}, len(eagerAssociations))
+	for _i := range eagerAssociations {
+		_va[_i] = eagerAssociations[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, appCtx, searchParams)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *models.Move
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams, ...string) (*models.Move, error)); ok {
+		return rf(appCtx, searchParams, eagerAssociations...)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams, ...string) *models.Move); ok {
+		r0 = rf(appCtx, searchParams, eagerAssociations...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Move)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams, ...string) error); ok {
+		r1 = rf(appCtx, searchParams, eagerAssociations...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ListAllMoveTaskOrders provides a mock function with given fields: appCtx, searchParams
 func (_m *MoveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
 	ret := _m.Called(appCtx, searchParams)

@@ -167,6 +167,8 @@ client_deps: .check_hosts.stamp .client_deps.stamp ## Install client dependencie
 	touch .client_deps.stamp
 
 .client_build.stamp: .client_deps.stamp $(shell find src -type f)
+	REACT_APP_GIT_COMMIT=$(GIT_COMMIT) \
+	REACT_APP_GIT_BRANCH=$(GIT_BRANCH) \
 	yarn build
 	touch .client_build.stamp
 
@@ -184,7 +186,10 @@ build/downloads: public/downloads
 
 .PHONY: client_run
 client_run: .client_deps.stamp ## Run MilMove Service Member client
-	HOST=milmovelocal yarn start
+	REACT_APP_GIT_COMMIT=$(GIT_COMMIT) \
+	REACT_APP_GIT_BRANCH=$(GIT_BRANCH) \
+	HOST=milmovelocal \
+	yarn start
 
 .PHONY: client_test
 client_test: .client_deps.stamp ## Run client unit tests
@@ -196,11 +201,17 @@ client_test_coverage : .client_deps.stamp ## Run client unit test coverage
 
 .PHONY: office_client_run
 office_client_run: .client_deps.stamp ## Run MilMove Office client
-	HOST=officelocal yarn start
+	REACT_APP_GIT_COMMIT=$(GIT_COMMIT) \
+	REACT_APP_GIT_BRANCH=$(GIT_BRANCH) \
+	HOST=officelocal \
+	yarn start
 
 .PHONY: admin_client_run
 admin_client_run: .client_deps.stamp ## Run MilMove Admin client
-	HOST=adminlocal yarn start
+	REACT_APP_GIT_COMMIT=$(GIT_COMMIT) \
+	REACT_APP_GIT_BRANCH=$(GIT_BRANCH) \
+	HOST=adminlocal \
+	yarn start
 
 #
 # ----- END CLIENT TARGETS -----
@@ -781,6 +792,7 @@ tasks_connect_to_gex_via_sftp: tasks_build_linux_docker ## Run connect-to-gex-vi
 		-e GEX_SFTP_HOST_KEY \
 		-e GEX_SFTP_IP_ADDRESS \
 		-e GEX_SFTP_PASSWORD \
+		-e GEX_PRIVATE_KEY \
 		-e GEX_SFTP_PORT \
 		-e GEX_SFTP_USER_ID \
 		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
@@ -1057,6 +1069,28 @@ pretty: gofmt ## Run code through JS and Golang formatters
 docker_circleci: ## Run CircleCI container locally with project mounted
 	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-726bfe44bd27d3b41da41acbe3eb231811a993f7 bash
 
+.PHONY: docker_local_ssh_server_with_password
+docker_local_ssh_server_with_password:
+	docker run --rm \
+  --name sshd \
+  -e USER_NAME=testu \
+  -e USER_PASSWORD=testp \
+  -e PASSWORD_ACCESS=true \
+  -p 2222:2222 \
+  -v some_local_upload_dir:/config/uploads \
+ linuxserver/openssh-server
+
+
+.PHONY: docker_local_ssh_server_with_key
+docker_local_ssh_server_with_key:
+	docker run --rm \
+  --name sshd \
+	-e PUBLIC_KEY="${TEST_GEX_PUBLIC_KEY}" \
+	-e USER_NAME=testu \
+  -p 2222:2222 \
+  -v some_local_upload_dir:/config/uploads \
+ linuxserver/openssh-server
+
 .PHONY: prune_images
 prune_images:  ## Prune docker images
 	@echo '****************'
@@ -1128,6 +1162,10 @@ reviewapp_docker_destroy:
 .PHONY: telemetry_docker
 telemetry_docker:
 	docker-compose -f docker-compose.telemetry.yml up
+
+.PHONY: feature_flag_docker
+feature_flag_docker:
+	docker-compose -f docker-compose.feature_flag.yml up
 #
 # ----- END RANDOM TARGETS -----
 #
