@@ -23,20 +23,6 @@ const PrimeUIUpdateServiceItems = ({ setFlashMessage }) => {
   const navigate = useNavigate();
   const { moveCodeOrID } = useParams();
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
-  const destinationServiceItem = moveTaskOrder?.mtoServiceItems.find(
-    (serviceItem) => serviceItem?.reServiceCode === 'DDDSIT',
-  );
-
-  const reformatPrimeApiSITDestinationAddress = fromPrimeAPIAddressFormat(
-    destinationServiceItem.sitDestinationFinalAddress,
-  );
-
-  const initialValues = {
-    address: reformatPrimeApiSITDestinationAddress,
-    contractorRemarks: '',
-    mtoServiceItemID: destinationServiceItem.id,
-  };
-
   const { mutate: createAdressUpdateRequestMutation } = useMutation(createSITAddressUpdateRequest, {
     onSuccess: () => {
       setFlashMessage(
@@ -77,6 +63,20 @@ const PrimeUIUpdateServiceItems = ({ setFlashMessage }) => {
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
+
+  const destinationServiceItem = moveTaskOrder?.mtoServiceItems.find(
+    (serviceItem) => serviceItem?.reServiceCode === 'DDDSIT',
+  );
+
+  const reformatPrimeApiSITDestinationAddress = fromPrimeAPIAddressFormat(
+    destinationServiceItem.sitDestinationFinalAddress,
+  );
+
+  const initialValues = {
+    address: reformatPrimeApiSITDestinationAddress,
+    contractorRemarks: '',
+    mtoServiceItemID: destinationServiceItem.id,
+  };
 
   const onSubmit = (values) => {
     const { address, contractorRemarks, mtoServiceItemID } = values;
