@@ -302,6 +302,36 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		_, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
 		suite.Error(err)
 	})
+
+	//test GetMove()
+	suite.Run("success getting a move using GetMove", func() {
+		expectedMTO, _ := setupTestData()
+		searchParams := services.MoveTaskOrderFetcherParams{
+			MoveTaskOrderID: expectedMTO.ID,
+		}
+
+		move, err := mtoFetcher.GetMove(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+
+		suite.Equal(expectedMTO.ID, move.ID)
+	})
+
+	suite.Run("get an error if search params are not provided when using GetMove", func() {
+		_, err := mtoFetcher.GetMove(suite.AppContextForTest(), &services.MoveTaskOrderFetcherParams{})
+		suite.Error(err)
+		suite.Contains(err.Error(), "searchParams should have either a move ID or locator set")
+	})
+
+	suite.Run("get an error if bad ID is provided when using GetMove", func() {
+		badID, _ := uuid.NewV4()
+		searchParams := services.MoveTaskOrderFetcherParams{
+			MoveTaskOrderID: badID,
+		}
+
+		_, err := mtoFetcher.GetMove(suite.AppContextForTest(), &searchParams)
+		suite.Error(err)
+		suite.Contains(err.Error(), "not found")
+	})
 }
 
 // Checks that there are expectedMatchCount matches between the moves and move ID list
