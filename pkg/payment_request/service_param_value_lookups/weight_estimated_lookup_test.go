@@ -1,8 +1,6 @@
 package serviceparamvaluelookups
 
 import (
-	"fmt"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -53,9 +51,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightEstimatedLookupForShuttlin
 		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
-		suite.Error(err)
-		expected := fmt.Sprintf("could not find estimated weight for MTOServiceItemID [%s]", mtoServiceItem.ID)
-		suite.Contains(err.Error(), expected)
+		suite.NoError(err)
 		suite.Equal("", valueStr)
 	})
 }

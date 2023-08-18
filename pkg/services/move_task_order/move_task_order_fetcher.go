@@ -100,9 +100,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"Contractor",
 		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"PaymentRequests.ProofOfServiceDocs.PrimeUploads.Upload",
-		"PaymentRequests.PaymentServiceItems.MTOServiceItem.ReService.Code",
 		"MTOServiceItems.ReService",
-		"MTOServiceItems.ReService.Code",
 		"MTOServiceItems.Dimensions",
 		"MTOServiceItems.SITAddressUpdates",
 		"MTOServiceItems.SITDestinationFinalAddress",
@@ -228,6 +226,42 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	mto.MTOServiceItems = loadedServiceItems
 
 	return mto, nil
+}
+
+func (f moveTaskOrderFetcher) GetMove(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams, eagerAssociations ...string) (*models.Move, error) {
+	move := &models.Move{}
+	findMoveQuery := appCtx.DB().Q()
+
+	if searchParams == nil {
+		return &models.Move{}, errors.New("searchParams should not be nil since move ID or locator are required")
+	}
+
+	// Find the move by ID or Locator
+	if searchParams.MoveTaskOrderID != uuid.Nil {
+		findMoveQuery.Where("id = $1", searchParams.MoveTaskOrderID)
+	} else if searchParams.Locator != "" {
+		findMoveQuery.Where("locator = $1", searchParams.Locator)
+	} else {
+		return &models.Move{}, errors.New("searchParams should have either a move ID or locator set")
+	}
+
+	if len(eagerAssociations) > 0 {
+		findMoveQuery.EagerPreload(eagerAssociations...)
+	}
+
+	setMTOQueryFilters(findMoveQuery, searchParams)
+
+	err := findMoveQuery.First(move)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return &models.Move{}, apperror.NewNotFoundError(searchParams.MoveTaskOrderID, "")
+		default:
+			return &models.Move{}, apperror.NewQueryError("Move", err, "")
+		}
+	}
+
+	return move, nil
 }
 
 // ListPrimeMoveTaskOrders performs an optimized fetch for moves specifically targeting the Prime API.
