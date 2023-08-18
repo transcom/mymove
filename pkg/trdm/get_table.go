@@ -142,7 +142,7 @@ func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physical
 			return loaFetchErr
 		}
 
-		if len(loaRecords) >= 0 {
+		if len(loaRecords) > 0 {
 			if err := setupSoapCall(d, appCtx, physicalName); err != nil {
 				return err
 			}
@@ -152,7 +152,7 @@ func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physical
 		if fetchErr != nil {
 			return fetchErr
 		}
-		if len(tacRecords) >= 0 {
+		if len(tacRecords) > 0 {
 			if err := setupSoapCall(d, appCtx, physicalName); err != nil {
 				return err
 			}
