@@ -25,7 +25,7 @@ describe('retryPageLoading', () => {
     windowSpy.mockRestore();
   });
 
-  it('does not reload on non chuck errors', () => {
+  it('does not reload on non chunk errors', () => {
     setUpWindow(null);
     retryPageLoading({ name: 'SomethingError' });
     expect(windowObj.localStorage.getItem).not.toBeCalled();
@@ -33,7 +33,7 @@ describe('retryPageLoading', () => {
     expect(windowObj.location.reload).not.toBeCalled();
   });
 
-  it('reloads on first chuck error', () => {
+  it('reloads on first chunk error', () => {
     setUpWindow('false');
     retryPageLoading({ name: 'ChunkLoadError' });
     expect(windowObj.localStorage.getItem).toBeCalled();
@@ -41,7 +41,7 @@ describe('retryPageLoading', () => {
     expect(windowObj.location.reload).toBeCalled();
   });
 
-  it('does not reload on 2nd chuck error', () => {
+  it('does not reload on 2nd chunk error', () => {
     setUpWindow('true');
     retryPageLoading({ name: 'ChunkLoadError' });
     expect(windowObj.localStorage.getItem).toBeCalled();
