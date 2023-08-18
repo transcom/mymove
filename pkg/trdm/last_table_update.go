@@ -51,8 +51,6 @@ type GetLastTableUpdater interface {
 type GetLastTableUpdateRequestElement struct {
 	PhysicalName string `xml:"physicalName"`
 	soapClient   SoapCaller
-	username     string
-	password     string
 }
 type GetLastTableUpdateResponseElement struct {
 	XMLName    xml.Name `xml:"getLastTableUpdateResponseElement"`
@@ -63,12 +61,10 @@ type GetLastTableUpdateResponseElement struct {
 	} `xml:"status"`
 }
 
-func NewTRDMGetLastTableUpdate(usernamne string, password string, physicalName string, soapClient SoapCaller) GetLastTableUpdater {
+func NewTRDMGetLastTableUpdate(physicalName string, soapClient SoapCaller) GetLastTableUpdater {
 	return &GetLastTableUpdateRequestElement{
 		PhysicalName: physicalName,
 		soapClient:   soapClient,
-		username:     usernamne,
-		password:     password,
 	}
 
 }
@@ -81,10 +77,6 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 	})
 
 	params := gosoap.Params{
-		"AuthToken": map[string]interface{}{
-			"Username": d.username,
-			"Password": d.password,
-		},
 		"getLastTableUpdateRequestElement": map[string]interface{}{
 			"physicalName": physicalName,
 		},
@@ -110,7 +102,7 @@ func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.
 	}
 
 	if r.Status.StatusCode == successfulStatusCode {
-		getTable := NewGetTable(d.username, d.password, physicalName, d.soapClient)
+		getTable := NewGetTable(physicalName, d.soapClient)
 		getTableErr := getTable.GetTable(appCtx, physicalName, r.LastUpdate)
 		if getTableErr != nil {
 			return fmt.Errorf("getTable error: %s", getTableErr.Error())
