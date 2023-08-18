@@ -51,6 +51,11 @@ func NewDefaultBuilder(handlerConfig handlers.HandlerConfig) http.Handler {
 				  </head>
 				  <body class="py-4">
 					<div class="container">
+					  <a class="btn btn-primary" href="/testharness/list" role="button">Back to Testharness data scenarios list</a>
+					  <h1>Testharness data scenario created <span class="badge bg-success text-bg-success">Success</span></h1>
+					  <div class="alert alert-success">
+						<p>The Testharness scenario was created successfully. The raw JSON output below contains information on the created scenario.</p>
+					  </div>
 					  <div class="row mb-3">
 						<pre>{{.}}</pre>
 					  </div>
