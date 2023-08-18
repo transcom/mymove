@@ -47,7 +47,10 @@ func checkStatusOfExistingPaymentRequest() paymentRequestValidator {
 			MoveTaskOrderID: moveID,
 		}
 
-		move, err := mtoFetcher.NewMoveTaskOrderFetcher().FetchMoveTaskOrder(appCtx, &searchParams)
+		move, err := mtoFetcher.NewMoveTaskOrderFetcher().GetMove(appCtx, &searchParams,
+			"PaymentRequests.PaymentServiceItems.MTOServiceItem.ReService.Code",
+			"MTOShipments",
+		)
 		if err != nil {
 			return err
 		}

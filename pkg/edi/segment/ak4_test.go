@@ -108,11 +108,44 @@ func (suite *SegmentSuite) TestParseAK4() {
 	})
 
 	suite.Run("parse success only required fields", func() {
-		arrayValidOptionalAK4 := []string{"1", "1", "", "", "ABC", ""}
+		arrayValidOptionalAK4 := []string{"1", "", "3"}
 		expectedOptionalAK4 := AK4{
 			PositionInSegment:          1,
-			ElementPositionInSegment:   1,
-			DataElementSyntaxErrorCode: "ABC",
+			ElementPositionInSegment:   0,
+			DataElementSyntaxErrorCode: "3",
+		}
+
+		var validOptionalAK4 AK4
+		err := validOptionalAK4.Parse(arrayValidOptionalAK4)
+		if suite.NoError(err) {
+			suite.Equal(expectedOptionalAK4, validOptionalAK4)
+		}
+	})
+
+	suite.Run("parse success only 4 values", func() {
+		arrayValidOptionalAK4 := []string{"1", "", "7", "YE"}
+		expectedOptionalAK4 := AK4{
+			PositionInSegment:          1,
+			ElementPositionInSegment:   0,
+			DataElementReferenceNumber: 7,
+			CopyOfBadDataElement:       "YE",
+		}
+
+		var validOptionalAK4 AK4
+		err := validOptionalAK4.Parse(arrayValidOptionalAK4)
+		if suite.NoError(err) {
+			suite.Equal(expectedOptionalAK4, validOptionalAK4)
+		}
+	})
+
+	suite.Run("parse success only 5 values", func() {
+		arrayValidOptionalAK4 := []string{"2", "", "5", "YE", "Bad data element"}
+		expectedOptionalAK4 := AK4{
+			PositionInSegment:                       2,
+			ElementPositionInSegment:                0,
+			ComponentDataElementPositionInComposite: 5,
+			DataElementSyntaxErrorCode:              "YE",
+			CopyOfBadDataElement:                    "Bad data element",
 		}
 
 		var validOptionalAK4 AK4
