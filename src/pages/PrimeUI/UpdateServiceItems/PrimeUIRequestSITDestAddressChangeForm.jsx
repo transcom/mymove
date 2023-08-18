@@ -16,15 +16,15 @@ import { Form } from 'components/form/Form';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { primeSimulatorRoutes } from 'constants/routes';
 
+const destAddressChangeRequestSchema = Yup.object().shape({
+  mtoServiceItemID: Yup.string(),
+  requestedAddress: addressSchema,
+  contractorRemarks: Yup.string(),
+});
+
 const PrimeUIRequestSITDestAddressChangeForm = ({ name, initialValues, onSubmit }) => {
   const { moveCodeOrID } = useParams();
   const navigate = useNavigate();
-
-  const destAddressChangeRequestSchema = Yup.object().shape({
-    requestedAddress: addressSchema,
-    contractorRemarks: Yup.string().required(),
-    mtoServiceItemID: Yup.string(),
-  });
 
   const handleClose = () => {
     navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
@@ -38,7 +38,7 @@ const PrimeUIRequestSITDestAddressChangeForm = ({ name, initialValues, onSubmit 
             <SectionWrapper className={formStyles.formSection}>
               <h2>Request Destination SIT Address Change </h2>
               <AddressFields name={name} />
-              <TextField name="contractor Remarks" id="contractorRemarks" label="Contractor Remarks" />
+              <TextField name="contractorRemarks" id="contractorRemarks" label="Contractor Remarks" />
             </SectionWrapper>
             <WizardNavigation
               editMode
