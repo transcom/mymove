@@ -82,6 +82,10 @@ func NewBuilderList(handlerConfig handlers.HandlerConfig) http.Handler {
 	  </head>
 	  <body class="py-4">
 		<div class="container">
+			<h1>Welcome to the Testharness data scenarios <span class="badge bg-primary text-bg-primary">New</span></h1>
+		  <div class="alert alert-info">
+			<p>These scenarios were introduced in <a href="https://transcom.github.io/mymove-docs/docs/adrs/use-playwright/">ADR 0076</a> and addressed further in <a href="https://transcom.github.io/mymove-docs/docs/adrs/deprecating-devseed-scenarios">ADR 0083</a>. These scenarios can be used to create Moves in the MilMove system when working locally or with Ephemeral deployments. <mark>Click any of the buttons below to create a Move data scenario.</mark></p>
+		  </div>
 		  <div class="row mb-3">
 			<div class="col-md-8">
 			{{range .}}
