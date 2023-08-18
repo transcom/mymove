@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 /*******************************************
@@ -50,6 +51,7 @@ type GetLastTableUpdater interface {
 }
 type GetLastTableUpdateRequestElement struct {
 	PhysicalName string `xml:"physicalName"`
+	Security     models.Security
 	soapClient   SoapCaller
 }
 type GetLastTableUpdateResponseElement struct {
@@ -75,8 +77,22 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 		"xmlns:soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
 		"xmlns:ret":     "http://ReturnTablePackage/",
 	})
+	header := gosoap.HeaderParams{
+		"Security": map[string]interface{}{
+			"BinarySecurityToken": map[string]interface{}{
+				"EncodingType": d.Security.BinarySecurityToken.EncodingType,
+				"ValueType":    d.Security.BinarySecurityToken.ValueType,
+				"Id":           d.Security.BinarySecurityToken.ID,
+			},
+			"Signature": map[string]interface{}{
+				"SignedInfo":     d.Security.Signature.SignedInfo,
+				"SignatureValue": d.Security.Signature.SignatureValue,
+			},
+		},
+	}
 
 	params := gosoap.Params{
+		"header": header,
 		"getLastTableUpdateRequestElement": map[string]interface{}{
 			"physicalName": physicalName,
 		},

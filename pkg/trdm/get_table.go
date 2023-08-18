@@ -57,6 +57,7 @@ const transportationAccountingCode = "TRNSPRTN_ACNT"
 
 type GetTableRequestElement struct {
 	soapClient SoapCaller
+	Security   models.Security
 	Input      struct {
 		TRDM struct {
 			PhysicalName  string `xml:"physicalName"`
@@ -163,7 +164,21 @@ func setupSoapCall(d *GetTableRequestElement, appCtx appcontext.AppContext, phys
 		"xmlns:soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
 		"xmlns:ret":     "http://ReturnTablePackage/",
 	})
+	header := gosoap.HeaderParams{
+		"Security": map[string]interface{}{
+			"BinarySecurityToken": map[string]interface{}{
+				"EncodingType": d.Security.BinarySecurityToken.EncodingType,
+				"ValueType":    d.Security.BinarySecurityToken.ValueType,
+				"Id":           d.Security.BinarySecurityToken.ID,
+			},
+			"Signature": map[string]interface{}{
+				"SignedInfo":     d.Security.Signature.SignedInfo,
+				"SignatureValue": d.Security.Signature.SignatureValue,
+			},
+		},
+	}
 	params := gosoap.Params{
+		"header": header,
 		"getTableRequestElement": map[string]interface{}{
 			"input": map[string]interface{}{
 				"TRDM": map[string]interface{}{
