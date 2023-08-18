@@ -84,14 +84,10 @@ func CreateUser(db *pop.Connection, oktaID string, email string) (*User, error) 
 	return &newUser, nil
 }
 
-// UpdateUserOktaID is called upon the first successful login.gov verification of a new user
-func UpdateUserOktaID(db *pop.Connection, user *User, loginGovID string) error {
-	lgu, err := uuid.FromString(loginGovID)
-	if err != nil {
-		return err
-	}
+// UpdateUserOktaID is called upon the first successful Okta verification of a new user
+func UpdateUserOktaID(db *pop.Connection, user *User, oktaID string) error {
 
-	user.OktaID = lgu.String()
+	user.OktaID = oktaID
 
 	verrs, err := db.ValidateAndUpdate(user)
 	if verrs.HasAny() {

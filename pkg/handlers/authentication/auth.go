@@ -815,7 +815,6 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case authorizationResultUnauthorized:
 		invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
 	case authorizationResultAuthorized:
-		//TODO: the redirect messes up here
 		// http.Redirect(w, r, "http://milmovelocal:3000/", http.StatusTemporaryRedirect)
 		http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
 	}
