@@ -120,7 +120,7 @@ func (suite *PPMShipmentSuite) TestSubmitCustomerCloseOut() {
 	})
 
 	suite.Run("Returns an error if submitting the close out documentation fails", func() {
-		existingPPMShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil)
+		existingPPMShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
 			UserID: existingPPMShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.User.ID,
