@@ -1728,7 +1728,8 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		tac := factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC: *move.Orders.TAC, // TA
+					TAC:          *move.Orders.TAC, // TA
+					TacFnBlModCd: models.StringPointer("W"),
 				},
 			},
 			{
@@ -1769,7 +1770,8 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		tac := factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC: *move.Orders.TAC, // TA
+					TAC:          *move.Orders.TAC, // TA
+					TacFnBlModCd: models.StringPointer("W"),
 				},
 			},
 			{
@@ -1884,7 +1886,8 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 			factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 				{
 					Model: models.TransportationAccountingCode{
-						TAC: *move.Orders.TAC,
+						TAC:          *move.Orders.TAC,
+						TacFnBlModCd: models.StringPointer("W"),
 					},
 				},
 				{
@@ -2039,7 +2042,8 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC: *move.Orders.TAC,
+					TAC:          *move.Orders.TAC,
+					TacFnBlModCd: models.StringPointer("W"),
 				},
 			},
 			{
