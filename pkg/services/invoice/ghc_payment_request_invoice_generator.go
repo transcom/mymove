@@ -686,7 +686,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 	//"HC" - Civilian employee
 
 	if orders.ServiceMember.Rank == nil {
-		return nil, apperror.NewQueryError("ServiceMember", nil, "Service Member not loaded!!!!")
+		return nil, apperror.NewConflictError(orders.ServiceMember.ID, "this service member has no rank")
 	}
 	rank := *orders.ServiceMember.Rank
 
