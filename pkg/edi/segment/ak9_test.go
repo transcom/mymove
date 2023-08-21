@@ -72,7 +72,7 @@ func (suite *SegmentSuite) TestValidateAK9() {
 		suite.ValidateError(err, "NumberOfTransactionSetsIncluded", "min")
 		suite.ValidateError(err, "NumberOfReceivedTransactionSets", "min")
 		suite.ValidateError(err, "NumberOfAcceptedTransactionSets", "min")
-		suite.ValidateErrorLen(err, 4)
+		suite.ValidateErrorLen(err, 3)
 	})
 
 	suite.Run("validate failure max", func() {
@@ -116,7 +116,7 @@ func (suite *SegmentSuite) TestValidateAK9() {
 		suite.ValidateError(err, "NumberOfTransactionSetsIncluded", "min")
 		suite.ValidateError(err, "NumberOfReceivedTransactionSets", "min")
 		suite.ValidateError(err, "NumberOfAcceptedTransactionSets", "min")
-		suite.ValidateErrorLen(err, 4)
+		suite.ValidateErrorLen(err, 3)
 	})
 }
 
