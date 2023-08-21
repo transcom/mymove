@@ -656,9 +656,6 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 	var loas []models.LineOfAccounting
 	var loa models.LineOfAccounting
 
-	// seems like we're missing year strings and dates, but maybe that just works bc sql
-	// coerces strings that are years into dates?
-	// also should we be using the end date?
 	// tac_fn_bl_mod_cd is a char(1) field. It has a mix of letters and numbers. We want to get lowest numbers first, and
 	// numbers before letters. This is the behavior we get from order by.
 	err := appCtx.DB().Q().
@@ -688,14 +685,12 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 	//"HO" - O-1 Academy graduate through O-10, W1 - W5, Aviation Cadet, Academy Cadet, and Midshipman
 	//"HC" - Civilian employee
 
-	// find a better way (This checks there is a service member)
 	if orders.ServiceMember.Rank == nil {
 		return nil, apperror.NewQueryError("ServiceMember", nil, "Service Member not loaded!!!!")
 	}
 	rank := *orders.ServiceMember.Rank
-	hhgCode := ""
 
-	// we should probably just use a map instead of doing string shenanigans
+	hhgCode := ""
 	if rank[:2] == "E_" {
 		hhgCode = "HE"
 	} else if rank[:2] == "O_" || rank[:2] == "W_" || rank == models.ServiceMemberRankACADEMYCADET || rank == models.ServiceMemberRankAVIATIONCADET || rank == models.ServiceMemberRankMIDSHIPMAN {
