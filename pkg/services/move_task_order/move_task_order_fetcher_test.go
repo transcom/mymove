@@ -6,6 +6,8 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -331,6 +333,59 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		_, err := mtoFetcher.GetMove(suite.AppContextForTest(), &searchParams)
 		suite.Error(err)
 		suite.Contains(err.Error(), "not found")
+	})
+
+	suite.Run("Can fetch a move if it is a customer app request by the customer it belongs to", func() {
+		expectedMTO := factory.BuildMove(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
+
+		serviceMember := expectedMTO.Orders.ServiceMember
+		searchParams := services.MoveTaskOrderFetcherParams{
+			MoveTaskOrderID: expectedMTO.ID,
+		}
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			UserID:          serviceMember.User.ID,
+			ServiceMemberID: serviceMember.ID,
+		})
+
+		moveReturned, err := mtoFetcher.GetMove(
+			appCtx,
+			&searchParams,
+		)
+
+		// suite.NoError(err)
+		// suite.NotNil(moveReturned)
+		// suite.Equal(expectedMTO.ID, moveReturned.ID)
+		if suite.NoError(err) && suite.NotNil(moveReturned) {
+			suite.Equal(expectedMTO.ID, moveReturned.ID)
+		}
+	})
+
+	suite.Run("Returns a not found error if it is a customer app request by a customer that it doesn't belong to", func() {
+		badUser := factory.BuildExtendedServiceMember(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			UserID:          badUser.User.ID,
+			ServiceMemberID: badUser.ID,
+		})
+
+		expectedMTO := factory.BuildMove(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
+		searchParams := services.MoveTaskOrderFetcherParams{
+			MoveTaskOrderID: expectedMTO.ID,
+		}
+
+		moveReturned, err := mtoFetcher.GetMove(
+			appCtx,
+			&searchParams,
+		)
+
+		if suite.Error(err) && suite.Nil(moveReturned) {
+			suite.IsType(apperror.NotFoundError{}, err)
+
+			suite.Equal(fmt.Sprintf("ID: %s not found while looking for move", expectedMTO.ID), err.Error())
+		}
 	})
 }
 

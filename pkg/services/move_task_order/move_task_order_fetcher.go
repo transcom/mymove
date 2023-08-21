@@ -249,6 +249,12 @@ func (f moveTaskOrderFetcher) GetMove(appCtx appcontext.AppContext, searchParams
 		findMoveQuery.EagerPreload(eagerAssociations...)
 	}
 
+	if appCtx.Session() != nil && appCtx.Session().IsMilApp() {
+		findMoveQuery.
+			InnerJoin("orders", "orders.id = moves.orders_id").
+			Where("orders.service_member_id = ?", appCtx.Session().ServiceMemberID)
+	}
+
 	setMTOQueryFilters(findMoveQuery, searchParams)
 
 	err := findMoveQuery.First(move)
