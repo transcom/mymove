@@ -2131,6 +2131,61 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		suite.Equal(models.LineOfAccountingHouseholdGoodsCodeCivilian, actualDocID)
 	})
 
+	suite.Run("test the most recent loa_bgn_dt is used as a tiebreaker", func() {
+		setupTestData()
+		fiveYearsAgo := currentTime.AddDate(-5, 0, 0)
+
+		// Create LOA with old datetime (loa_bgn_dt) and civilian code
+		loahgc := models.LineOfAccountingHouseholdGoodsCodeCivilian
+		oldLoa := factory.BuildFullLineOfAccounting(nil)
+		oldLoa.LoaBgnDt = &fiveYearsAgo
+		oldLoa.LoaEndDt = &sixMonthsAfter // Still need to overlap the order issue date to be included
+		oldLoa.LoaHsGdsCd = &loahgc
+		oldLoa.LoaDocID = &loahgc
+
+		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationAccountingCode{
+					TAC:          *move.Orders.TAC,
+					TacFnBlModCd: models.StringPointer("1"),
+				},
+			},
+			{
+				Model: oldLoa,
+			},
+		}, nil)
+
+		// Create newer loa with officer code
+		newLoa := setupLOA(models.LineOfAccountingHouseholdGoodsCodeOfficer)
+		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationAccountingCode{
+					TAC:          *move.Orders.TAC,
+					TacFnBlModCd: models.StringPointer("1"),
+				},
+			},
+			{
+				Model: newLoa,
+			},
+		}, nil)
+
+		// Create invoice
+		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+
+		// Check if invoice used the LOA we expected.
+		var actualDocID string
+		for _, fa2 := range result.ServiceItems[0].FA2s {
+			if fa2.BreakdownStructureDetailCode == edisegment.FA2DetailCodeJ1 {
+				actualDocID = fa2.FinancialInformationCode
+				break
+			}
+		}
+		suite.NotNil(actualDocID)
+
+		// Should have gotten the officer LOA since that is the more recent loa_bgn_dt
+		suite.Equal(models.LineOfAccountingHouseholdGoodsCodeOfficer, actualDocID)
+	})
 }
 
 func (suite *GHCInvoiceSuite) TestDetermineDutyLocationPhoneLinesFunc() {
