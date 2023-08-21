@@ -681,13 +681,14 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 	if len(loas) == 0 {
 		return nil, nil
 	}
+
 	//"HE" - E-1 through E-9 and Special Enlisted
 	//"HO" - O-1 Academy graduate through O-10, W1 - W5, Aviation Cadet, Academy Cadet, and Midshipman
 	//"HC" - Civilian employee
 
-	// find a better way
+	// find a better way (This checks there is a service member)
 	if orders.ServiceMember.Rank == nil {
-		return nil, apperror.NewQueryError("SM not loaded!!!!", nil, "")
+		return nil, apperror.NewQueryError("ServiceMember", nil, "Service Member not loaded!!!!")
 	}
 	rank := *orders.ServiceMember.Rank
 	hhgCode := ""
