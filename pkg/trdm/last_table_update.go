@@ -49,8 +49,11 @@ type GetLastTableUpdater interface {
 	GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string) error
 }
 type GetLastTableUpdateRequestElement struct {
-	PhysicalName string `xml:"physicalName"`
-	soapClient   SoapCaller
+	PhysicalName  string `xml:"physicalName"`
+	soapClient    SoapCaller
+	securityToken string
+	createdAt     string
+	expiresAt     string
 }
 type GetLastTableUpdateResponseElement struct {
 	XMLName    xml.Name `xml:"getLastTableUpdateResponseElement"`
@@ -61,10 +64,13 @@ type GetLastTableUpdateResponseElement struct {
 	} `xml:"status"`
 }
 
-func NewTRDMGetLastTableUpdate(physicalName string, soapClient SoapCaller) GetLastTableUpdater {
+func NewTRDMGetLastTableUpdate(physicalName string, securityToken string, createdAt string, expiresAt string, soapClient SoapCaller) GetLastTableUpdater {
 	return &GetLastTableUpdateRequestElement{
-		PhysicalName: physicalName,
-		soapClient:   soapClient,
+		PhysicalName:  physicalName,
+		soapClient:    soapClient,
+		securityToken: securityToken,
+		createdAt:     createdAt,
+		expiresAt:     expiresAt,
 	}
 
 }
