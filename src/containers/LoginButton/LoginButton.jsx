@@ -17,7 +17,7 @@ import ConnectedEulaModal from 'components/EulaModal';
 import { customerRoutes } from 'constants/routes';
 import { selectIsProfileComplete } from 'store/entities/selectors';
 
-const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton, isProfileComplete }) => {
+const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton, showTestharnessList, isProfileComplete }) => {
   const [showEula, setShowEula] = useState(false);
 
   if (!isLoggedIn) {
@@ -39,6 +39,13 @@ const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton, isProfileComplete
               href="/devlocal-auth/login"
             >
               Local Sign In
+            </a>
+          </li>
+        )}
+        {showTestharnessList && (
+          <li className="usa-nav__primary-item">
+            <a className="usa-button" data-testid="devlocal-testharnesslist" href="/testharness/list">
+              View Testharness Data Scenarios
             </a>
           </li>
         )}
@@ -102,6 +109,7 @@ function mapStateToProps(state) {
     isLoggedIn: selectIsLoggedIn(state),
     isProfileComplete: selectIsProfileComplete(state),
     showDevlocalButton: get(state, 'isDevelopment', isDevelopment),
+    showTestharnessList: get(state, 'isDevelopment', isDevelopment),
   };
 }
 
