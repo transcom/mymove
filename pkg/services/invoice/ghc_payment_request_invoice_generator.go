@@ -763,8 +763,8 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 		{edisegment.FA2DetailCodeK6, loa.LoaClsRefID},
 		{edisegment.FA2DetailCodeL1, loa.LoaInstlAcntgActID},
 		{edisegment.FA2DetailCodeM1, loa.LoaLclInstlID},
-		{edisegment.FA2DetailCodeN1, loa.LoaFmsTrnsactnID},
-		{edisegment.FA2DetailCodeP5, loa.LoaDscTx},
+		{edisegment.FA2DetailCodeN1, loa.LoaTrnsnID},
+		{edisegment.FA2DetailCodeP5, loa.LoaFmsTrnsactnID},
 	}
 
 	for _, input := range segmentInputs {
