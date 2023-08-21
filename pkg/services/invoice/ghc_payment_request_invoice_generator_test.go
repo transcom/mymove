@@ -1738,6 +1738,7 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 					LoaTnsfrDptNm: &emptyString,     // A2
 					LoaBgnDt:      &sixMonthsBefore, // A3 (first part)
 					LoaEndDt:      &sixMonthsAfter,  // A3 (second part)
+					LoaHsGdsCd:    models.StringPointer("HT"),
 					// rest of fields will be nil
 				},
 			},
@@ -1792,6 +1793,7 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 					LoaWkCntrRcpntNm:       models.StringPointer("123456"),       // D7
 					LoaBgnDt:               &sixMonthsBefore,                     // A3 (first part)
 					LoaEndDt:               &sixMonthsAfter,                      // A3 (second part)
+					LoaHsGdsCd:             models.StringPointer("HT"),
 					// rest of fields will be nil
 				},
 			},
