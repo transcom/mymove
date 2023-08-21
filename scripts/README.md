@@ -20,7 +20,7 @@ environment.
 | `check-node-version`   | checks the node version required for the project                                                   |
 | `kill-process-on-port` | asks to kill a process running on the specified port                                               |
 | `prereqs`              | checks if all prerequisite programs have been installed                                            |
-| `server-dev`           | Runs the milmove app server in dev                                                                 |
+| `server-dev`           | Runs the MilMove app server in dev using `air`. Use the `--help` flag for more information. This is similar to `make server_run` but does not use `gin`. |
 | `setup`                | installs all prerequisites and sets up the shell file                                              |
 
 ## AWS Scripts
