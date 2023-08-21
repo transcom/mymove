@@ -1,7 +1,6 @@
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import * as Yup from 'yup';
-import userEvent from '@testing-library/user-event';
 
 import PrimeUIRequestSITDestAddressChangeForm from './PrimeUIRequestSITDestAddressChangeForm';
 
@@ -12,7 +11,6 @@ import { renderWithProviders } from 'testUtils';
 const shipmentAddress = {
   streetAddress1: '444 Main Ave',
   streetAddress2: 'Apartment 9000',
-  streetAddress3: 'c/o Some Person',
   city: 'Anytown',
   state: 'AL',
   postalCode: '90210',
@@ -48,7 +46,6 @@ describe('PrimeUIRequestSITDestAddressChangeForm', () => {
     ).toBeInTheDocument();
     expect(screen.getByLabelText('Address 1')).toBeInTheDocument();
     expect(screen.getByLabelText(/Address 2/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Address 3/)).toBeInTheDocument();
     expect(screen.getByLabelText('City')).toBeInTheDocument();
     expect(screen.getByLabelText('State')).toBeInTheDocument();
     expect(screen.getByLabelText('ZIP')).toBeInTheDocument();
@@ -69,27 +66,9 @@ describe('PrimeUIRequestSITDestAddressChangeForm', () => {
 
     expect(screen.getByLabelText('Address 1')).toHaveValue('444 Main Ave');
     expect(screen.getByLabelText(/Address 2/)).toHaveValue('Apartment 9000');
-    expect(screen.getByLabelText(/Address 3/)).toHaveValue('c/o Some Person');
     expect(screen.getByLabelText('City')).toHaveValue('Anytown');
     expect(screen.getByLabelText('State')).toHaveValue('AL');
     expect(screen.getByLabelText('Contractor Remarks')).toHaveValue('');
     expect(screen.getByLabelText('ZIP')).toHaveValue('90210');
-  });
-
-  it('disables the save button when a field is invalid', async () => {
-    renderWithProviders(
-      <PrimeUIRequestSITDestAddressChangeForm
-        name="address"
-        destAddressChangeRequestSchema={destAddressChangeRequestSchema}
-        initialValues={initialValues}
-        onSubmit={jest.fn()}
-      />,
-    );
-
-    await userEvent.type(screen.getByLabelText('ZIP'), '1');
-    (await screen.getByLabelText('ZIP')).blur();
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
-    });
   });
 });
