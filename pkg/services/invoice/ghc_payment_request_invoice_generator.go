@@ -665,6 +665,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 		Join("transportation_accounting_codes t", "t.loa_id = lines_of_accounting.id").
 		Where("t.tac = ?", tac).
 		Where("? between loa_bgn_dt and loa_end_dt", orders.IssueDate).
+		Where("t.tac_fn_bl_mod_cd != 'P'").
 		Order("t.tac_fn_bl_mod_cd asc").
 		All(&loas)
 	if err != nil {

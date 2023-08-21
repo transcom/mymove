@@ -1652,7 +1652,8 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
-					TAC: *move.Orders.TAC,
+					TAC:          *move.Orders.TAC,
+					TacFnBlModCd: models.StringPointer("W"),
 				},
 			},
 			{
