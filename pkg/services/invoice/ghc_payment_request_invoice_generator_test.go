@@ -283,11 +283,17 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			KeyType: models.ServiceItemParamTypeInteger,
 			Value:   "44",
 		}
-		dddsitParams := append(basicPaymentServiceItemParams, distanceZipSITDestParam)
+		destSITParams := append(basicPaymentServiceItemParams, distanceZipSITDestParam)
 		dddsit := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDDDSIT,
-			dddsitParams,
+			destSITParams,
+			customizations, nil,
+		)
+		ddsfsc := factory.BuildPaymentServiceItemWithParams(
+			suite.DB(),
+			models.ReServiceCodeDDSFSC,
+			destSITParams,
 			customizations, nil,
 		)
 
@@ -296,16 +302,22 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			KeyType: models.ServiceItemParamTypeInteger,
 			Value:   "33",
 		}
-		dopsitParams := append(basicPaymentServiceItemParams, distanceZipSITOriginParam)
+		origSITParams := append(basicPaymentServiceItemParams, distanceZipSITOriginParam)
 		dopsit := factory.BuildPaymentServiceItemWithParams(
 			suite.DB(),
 			models.ReServiceCodeDOPSIT,
-			dopsitParams,
+			origSITParams,
+			customizations, nil,
+		)
+		dosfsc := factory.BuildPaymentServiceItemWithParams(
+			suite.DB(),
+			models.ReServiceCodeDOSFSC,
+			origSITParams,
 			customizations, nil,
 		)
 
 		paymentServiceItems = models.PaymentServiceItems{}
-		paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dnpk, dupk, ddfsit, ddasit, dofsit, doasit, doshut, ddshut, dcrt, ducrt, dddsit, dopsit)
+		paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dnpk, dupk, ddfsit, ddasit, dofsit, doasit, doshut, ddshut, dcrt, ducrt, dddsit, ddsfsc, dopsit, dosfsc)
 
 		// setup known next value
 		icnErr := suite.icnSequencer.SetVal(suite.AppContextForTest(), 122)
@@ -373,7 +385,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	suite.Run("se segment has correct value", func() {
 		setupTestData()
 		// Will need to be updated as more service items are supported
-		suite.Equal(165, result.SE.NumberOfIncludedSegments)
+		suite.Equal(179, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
 
@@ -1053,9 +1065,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 					switch serviceCode {
 					case models.ReServiceCodeDSH:
 						suite.Equal(float64(24246), l0.BilledRatedAsQuantity)
-					case models.ReServiceCodeDDDSIT:
+					case models.ReServiceCodeDDDSIT, models.ReServiceCodeDDSFSC:
 						suite.Equal(float64(44), l0.BilledRatedAsQuantity)
-					case models.ReServiceCodeDOPSIT:
+					case models.ReServiceCodeDOPSIT, models.ReServiceCodeDOSFSC:
 						suite.Equal(float64(33), l0.BilledRatedAsQuantity)
 					default:
 						suite.Equal(float64(24246), l0.BilledRatedAsQuantity)
@@ -1084,7 +1096,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	suite.Run("adds l3 service item segment", func() {
 		l3 := result.L3
 		// Will need to be updated as more service items are supported
-		suite.Equal(int64(17760), l3.PriceCents)
+		suite.Equal(int64(19536), l3.PriceCents)
 	})
 }
 
