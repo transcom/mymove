@@ -38,7 +38,7 @@ const SignIn = ({ context, showLocalDevLogin }) => {
       <ConnectedEulaModal
         isOpen={showEula}
         acceptTerms={() => {
-          window.location.href = '/auth/login-gov';
+          window.location.href = '/auth/okta';
         }}
         closeModal={() => setShowEula(false)}
       />

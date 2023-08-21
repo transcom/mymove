@@ -35,13 +35,13 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 
 	setupTestData := func() (models.User, models.AdminUser) {
 
-		loginGovUUID := uuid.Must(uuid.NewV4())
+		oktaID := uuid.Must(uuid.NewV4())
 		existingUser := factory.BuildUser(suite.DB(), []factory.Customization{
 			{
 				Model: models.User{
-					LoginGovUUID:  &loginGovUUID,
-					LoginGovEmail: "spaceman+existing@leo.org",
-					Active:        true,
+					OktaID:    oktaID.String(),
+					OktaEmail: "spaceman+existing@leo.org",
+					Active:    true,
 				},
 			}}, nil)
 
@@ -85,7 +85,7 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 		suite.Nil(verrs)
 		suite.NotNil(adminUser.User)
 		suite.Equal(adminUser.User.ID, *adminUser.UserID)
-		suite.Equal(userInfo.Email, adminUser.User.LoginGovEmail)
+		suite.Equal(userInfo.Email, adminUser.User.OktaEmail)
 		mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(suite.T(), "SendNotification", 1)
 	})
 
@@ -96,7 +96,7 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 		existingUserInfo := models.AdminUser{
 			LastName:       "Spaceman",
 			FirstName:      "Leo",
-			Email:          existingUser.LoginGovEmail,
+			Email:          existingUser.OktaEmail,
 			OrganizationID: &userInfo.Organization.ID,
 			Organization:   userInfo.Organization,
 			Role:           models.SystemAdminRole,
@@ -108,8 +108,8 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(userInfo.Organization.ID))
 			case *models.User:
 				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(existingUser.ID))
-				reflect.ValueOf(model).Elem().FieldByName("LoginGovUUID").Set(reflect.ValueOf(existingUser.LoginGovUUID))
-				reflect.ValueOf(model).Elem().FieldByName("LoginGovEmail").Set(reflect.ValueOf(existingUserInfo.User.LoginGovEmail))
+				reflect.ValueOf(model).Elem().FieldByName("OktaID").Set(reflect.ValueOf(existingUser.OktaID))
+				reflect.ValueOf(model).Elem().FieldByName("OktaEmail").Set(reflect.ValueOf(existingUserInfo.User.OktaEmail))
 			}
 			return nil
 		}
