@@ -1939,6 +1939,21 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 			}, nil,
 		)
 	}
+
+	setupLOA := func(loahgc string) models.LineOfAccounting {
+		loa := factory.BuildFullLineOfAccounting(nil)
+		loa.LoaBgnDt = &sixMonthsBefore
+		loa.LoaEndDt = &sixMonthsAfter
+		loa.LoaHsGdsCd = &loahgc
+		// The LoaDocID is not used in our LOA selection logic, and it appears in the final EDI.
+		// Most of the fields that we use internally to identify or pick the LOA are carried through to the final
+		// EDI. So we can use this LoaDocID field to identify which LOA was used to generate an EDI.
+		// This is a hack. Hopefully there's a better way.
+		loa.LoaDocID = &loahgc
+
+		return loa
+	}
+
 	suite.Run("when there are multiple LOAs for a given TAC, the one matching the customer's rank should be used", func() {
 		setupTestData()
 		setupLoaTestData()
@@ -2003,8 +2018,101 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 			suite.Equal(testCase.expectedLoaCode, actualDocID)
 		}
 	})
-	// test that we still get an LOA if none match the service member's rank
-	// test that the lowest tac_fn_bl_mod_cd is used as a tiebreaker
+
+	suite.Run("test that we still get an LOA if none match the service member's rank", func() {
+		setupTestData()
+
+		// Create only civilian LOAs
+		loa := setupLOA(models.LineOfAccountingHouseholdGoodsCodeCivilian)
+		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationAccountingCode{
+					TAC: *move.Orders.TAC,
+				},
+			},
+			{
+				Model: loa,
+			},
+		}, nil)
+
+		// Update service member rank to E1 knowing there is only Civilian LOAs
+		testCaseRank := models.ServiceMemberRankE1
+		move.Orders.ServiceMember.Rank = &testCaseRank
+		paymentRequest.MoveTaskOrder.Orders.ServiceMember.Rank = &testCaseRank
+		err := suite.DB().Save(&move.Orders.ServiceMember)
+		suite.NoError(err)
+
+		// Create invoice
+		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+
+		// Check if invoice used the LOA we expected.
+		// The doc ID field would not work like this in real data, i'm just using it
+		// to get what the test needs into the EDI.
+		var actualDocID string
+		for _, fa2 := range result.ServiceItems[0].FA2s {
+			if fa2.BreakdownStructureDetailCode == edisegment.FA2DetailCodeJ1 {
+				actualDocID = fa2.FinancialInformationCode
+				break
+			}
+		}
+		suite.NotNil(actualDocID)
+
+		// Should have gotten the civilian LOA since that is all that exists
+		suite.Equal(models.LineOfAccountingHouseholdGoodsCodeCivilian, actualDocID)
+	})
+
+	suite.Run("test that the lowest tac_fn_bl_mod_cd is used as a tiebreaker", func() {
+		setupTestData()
+
+		// Create lowest FBMC LOA (value=1)
+		lowestLoa := setupLOA(models.LineOfAccountingHouseholdGoodsCodeCivilian)
+		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationAccountingCode{
+					TAC:          *move.Orders.TAC,
+					TacFnBlModCd: models.StringPointer("1"),
+				},
+			},
+			{
+				Model: lowestLoa,
+			},
+		}, nil)
+
+		// Create higher FBMC LOA (value=2)
+		higherLoa := setupLOA(models.LineOfAccountingHouseholdGoodsCodeOfficer)
+		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationAccountingCode{
+					TAC:          *move.Orders.TAC,
+					TacFnBlModCd: models.StringPointer("2"),
+				},
+			},
+			{
+				Model: higherLoa,
+			},
+		}, nil)
+
+		// Create invoice
+		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+
+		// Check if invoice used the LOA we expected.
+		// The doc ID field would not work like this in real data, i'm just using it
+		// to get what the test needs into the EDI.
+		var actualDocID string
+		for _, fa2 := range result.ServiceItems[0].FA2s {
+			if fa2.BreakdownStructureDetailCode == edisegment.FA2DetailCodeJ1 {
+				actualDocID = fa2.FinancialInformationCode
+				break
+			}
+		}
+		suite.NotNil(actualDocID)
+
+		// Should have gotten the civilian LOA since that is the lower tac_fn_bl_mod_cd
+		suite.Equal(models.LineOfAccountingHouseholdGoodsCodeCivilian, actualDocID)
+	})
+
 }
 
 func (suite *GHCInvoiceSuite) TestDetermineDutyLocationPhoneLinesFunc() {
