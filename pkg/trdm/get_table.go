@@ -165,7 +165,53 @@ func setupSoapCall(d *GetTableRequestElement, appCtx appcontext.AppContext, phys
 		"xmlns:ret":     "http://ReturnTablePackage/",
 	})
 
+	header := gosoap.HeaderParams{
+		"header": map[string]interface{}{
+			"Security": map[string]interface{}{
+				"wsse,attr": "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+				"wsu,attr":  "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
+				"BinarySecurityToken": map[string]interface{}{
+					"EncodingType,attr": "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary",
+					"ValueType,attr":    "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3",
+					"Id,attr":           "X509-79B3B596EDF5EC1B8316760431316952",
+					",chardata":         d.Header.Security.BinarySecurityToken.Text,
+				},
+				"Signature": map[string]interface{}{
+					"Id,attr":  "SIG-79B3B596EDF5EC1B8316760431317886",
+					"ds, attr": "http://www.w3.org/2000/09/xmldsig#",
+					"SignedInfo": map[string]interface{}{
+						"CanonicalizationMethod": map[string]interface{}{
+							"Algorithm,attr": "http://www.w3.org/2001/10/xml-exc-c14n#",
+						},
+						"SignatureMethod": map[string]interface{}{
+							"Algorithm,attr": "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
+						},
+						"Reference": map[string]interface{}{
+							"URI,attr": "#TS-79B3B596EDF5EC1B8316760431315711",
+							"Transforms": map[string]interface{}{
+								"Transform": map[string]interface{}{
+									"Algorithm,attr": "http://www.w3.org/2001/10/xml-exc-c14n#",
+								},
+								"DigestMethod": map[string]interface{}{
+									"Algorithm,attr": "http://www.w3.org/2001/04/xmlenc#sha256",
+								},
+								"DigestValue": map[string]interface{}{
+									",chardata": "",
+								},
+							},
+						},
+					},
+				},
+				"Timestamp": map[string]interface{}{
+					"Id,attr": "TS-79B3B596EDF5EC1B8316760431315711",
+					"Created": d.Header.Security.Timestamp.Created,
+					"Expires": d.Header.Security.Timestamp.Expires,
+				},
+			},
+		},
+	}
 	params := gosoap.Params{
+		"header": header,
 		"getTableRequestElement": map[string]interface{}{
 			"input": map[string]interface{}{
 				"TRDM": map[string]interface{}{
@@ -175,6 +221,7 @@ func setupSoapCall(d *GetTableRequestElement, appCtx appcontext.AppContext, phys
 			},
 		},
 	}
+
 	operation := func() error {
 		return getTableSoapCall(d, params, appCtx, physicalName)
 	}

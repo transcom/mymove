@@ -4,12 +4,10 @@ import "encoding/xml"
 
 type Header struct {
 	XMLName  xml.Name `xml:"Header"`
-	Text     string   `xml:"chardata"`
 	Security Security `xml:"Security"`
 }
 
 type Security struct {
-	Text                string              `xml:"chardata"`
 	Wsse                string              `xml:"wsse,attr"`
 	Wsu                 string              `xml:"wsu,attr"`
 	BinarySecurityToken BinarySecurityToken `xml:"BinarySecurityToken"`
@@ -30,22 +28,35 @@ type BinarySecurityToken struct {
 	ID           string `xml:"Id,attr"`
 }
 
+type Reference []struct {
+	URI        string `xml:"URI,attr"`
+	Transforms struct {
+		Text      string `xml:",chardata"`
+		Transform struct {
+			Text      string `xml:",chardata"`
+			Algorithm string `xml:"Algorithm,attr"`
+		} `xml:"Transform"`
+	} `xml:"Transforms"`
+	DigestMethod struct {
+		Text      string `xml:",chardata"`
+		Algorithm string `xml:"Algorithm,attr"`
+	} `xml:"DigestMethod"`
+	DigestValue string `xml:"DigestValue"`
+}
+
 type SignedInfo struct {
-	Text                   string                 `xml:",chardata"`
 	CanonicalizationMethod CanonicalizationMethod `xml:"CanonicalizationMethod"`
 	SignatureMethod        SignatureMethod        `xml:"SignatureMethod"`
+	Reference              Reference              `xml:"Reference"`
 }
 type CanonicalizationMethod struct {
-	Text      string `xml:",chardata"`
 	Algorithm string `xml:"Algorithm,attr"`
 }
 
 type SignatureMethod struct {
-	Text      string `xml:",chardata"`
 	Algorithm string `xml:"Algorithm,attr"`
 }
 type Timestamp struct {
-	Text    string `xml:",chardata"`
 	ID      string `xml:"Id,attr"`
 	Created string `xml:"Created"`
 	Expires string `xml:"Expires"`
