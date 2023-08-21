@@ -112,6 +112,7 @@ func (suite *SegmentSuite) TestValidateAK9() {
 		err := suite.validator.Struct(ak9)
 		suite.ValidateError(err, "FunctionalGroupAcknowledgeCode", "oneof")
 		suite.ValidateError(err, "NumberOfTransactionSetsIncluded", "min")
+		suite.ValidateError(err, "NumberOfReceivedTransactionSets", "min")
 		suite.ValidateErrorLen(err, 3)
 	})
 }
