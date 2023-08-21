@@ -56,9 +56,11 @@ const lineOfAccounting = "LN_OF_ACCT"
 const transportationAccountingCode = "TRNSPRTN_ACNT"
 
 type GetTableRequestElement struct {
-	soapClient SoapCaller
-	Header     models.Header
-	Input      struct {
+	soapClient    SoapCaller
+	securityToken string
+	createdAt     string
+	expiresAt     string
+	Input         struct {
 		TRDM struct {
 			PhysicalName  string `xml:"physicalName"`
 			ReturnContent string `xml:"returnContent"`
@@ -90,9 +92,12 @@ type GetTableUpdater interface {
 	GetTable(appCtx appcontext.AppContext, physicalName string, lastUpdate string) error
 }
 
-func NewGetTable(physicalName string, soapClient SoapCaller) GetTableUpdater {
+func NewGetTable(physicalName string, securityToken string, createdAt string, expiresAt string, soapClient SoapCaller) GetTableUpdater {
 	return &GetTableRequestElement{
-		soapClient: soapClient,
+		securityToken: securityToken,
+		createdAt:     createdAt,
+		expiresAt:     expiresAt,
+		soapClient:    soapClient,
 		Input: struct {
 			TRDM struct {
 				PhysicalName  string `xml:"physicalName"`
@@ -166,47 +171,45 @@ func setupSoapCall(d *GetTableRequestElement, appCtx appcontext.AppContext, phys
 	})
 
 	header := gosoap.HeaderParams{
-		"header": map[string]interface{}{
-			"Security": map[string]interface{}{
-				"wsse,attr": "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
-				"wsu,attr":  "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
-				"BinarySecurityToken": map[string]interface{}{
-					"EncodingType,attr": "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary",
-					"ValueType,attr":    "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3",
-					"Id,attr":           "X509-79B3B596EDF5EC1B8316760431316952",
-					",chardata":         d.Header.Security.BinarySecurityToken.Text,
-				},
-				"Signature": map[string]interface{}{
-					"Id,attr":  "SIG-79B3B596EDF5EC1B8316760431317886",
-					"ds, attr": "http://www.w3.org/2000/09/xmldsig#",
-					"SignedInfo": map[string]interface{}{
-						"CanonicalizationMethod": map[string]interface{}{
-							"Algorithm,attr": "http://www.w3.org/2001/10/xml-exc-c14n#",
-						},
-						"SignatureMethod": map[string]interface{}{
-							"Algorithm,attr": "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
-						},
-						"Reference": map[string]interface{}{
-							"URI,attr": "#TS-79B3B596EDF5EC1B8316760431315711",
-							"Transforms": map[string]interface{}{
-								"Transform": map[string]interface{}{
-									"Algorithm,attr": "http://www.w3.org/2001/10/xml-exc-c14n#",
-								},
-								"DigestMethod": map[string]interface{}{
-									"Algorithm,attr": "http://www.w3.org/2001/04/xmlenc#sha256",
-								},
-								"DigestValue": map[string]interface{}{
-									",chardata": "",
-								},
+		"Security": map[string]interface{}{
+			"wsse,attr": "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+			"wsu,attr":  "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
+			"BinarySecurityToken": map[string]interface{}{
+				"EncodingType,attr": "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary",
+				"ValueType,attr":    "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3",
+				"Id,attr":           "X509-79B3B596EDF5EC1B8316760431316952",
+				",chardata":         d.securityToken,
+			},
+			"Signature": map[string]interface{}{
+				"Id,attr":  "SIG-79B3B596EDF5EC1B8316760431317886",
+				"ds, attr": "http://www.w3.org/2000/09/xmldsig#",
+				"SignedInfo": map[string]interface{}{
+					"CanonicalizationMethod": map[string]interface{}{
+						"Algorithm,attr": "http://www.w3.org/2001/10/xml-exc-c14n#",
+					},
+					"SignatureMethod": map[string]interface{}{
+						"Algorithm,attr": "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
+					},
+					"Reference": map[string]interface{}{
+						"URI,attr": "#TS-79B3B596EDF5EC1B8316760431315711",
+						"Transforms": map[string]interface{}{
+							"Transform": map[string]interface{}{
+								"Algorithm,attr": "http://www.w3.org/2001/10/xml-exc-c14n#",
+							},
+							"DigestMethod": map[string]interface{}{
+								"Algorithm,attr": "http://www.w3.org/2001/04/xmlenc#sha256",
+							},
+							"DigestValue": map[string]interface{}{
+								",chardata": "",
 							},
 						},
 					},
 				},
-				"Timestamp": map[string]interface{}{
-					"Id,attr": "TS-79B3B596EDF5EC1B8316760431315711",
-					"Created": d.Header.Security.Timestamp.Created,
-					"Expires": d.Header.Security.Timestamp.Expires,
-				},
+			},
+			"Timestamp": map[string]interface{}{
+				"Id,attr": "TS-D144323CC7DDCF9E41169263838365311",
+				"Created": d.createdAt,
+				"Expires": d.expiresAt,
 			},
 		},
 	}

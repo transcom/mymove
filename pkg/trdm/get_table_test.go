@@ -72,7 +72,7 @@ func (suite *TRDMSuite) TestTRDMGetTableFake() {
 				mock.Anything,
 			).Return(soapResponseForGetTable(test.statusCode, test.payload), soapError)
 
-			getTable := trdm.NewGetTable(test.physicalName, testSoapClient)
+			getTable := trdm.NewGetTable(test.physicalName, "", "", "", testSoapClient)
 			err := getTable.GetTable(suite.AppContextForTest(), test.physicalName, time.Now().Format(time.RFC3339))
 
 			if err != nil {
