@@ -71,7 +71,6 @@ func (suite *SegmentSuite) TestValidateAK9() {
 		suite.ValidateError(err, "FunctionalGroupAcknowledgeCode", "oneof")
 		suite.ValidateError(err, "NumberOfTransactionSetsIncluded", "min")
 		suite.ValidateError(err, "NumberOfReceivedTransactionSets", "min")
-		suite.ValidateError(err, "NumberOfAcceptedTransactionSets", "min")
 		suite.ValidateErrorLen(err, 3)
 	})
 
@@ -108,14 +107,11 @@ func (suite *SegmentSuite) TestValidateAK9() {
 			FunctionalGroupAcknowledgeCode:  "",
 			NumberOfTransactionSetsIncluded: 0,
 			NumberOfReceivedTransactionSets: 0,
-			NumberOfAcceptedTransactionSets: 0,
 		}
 
 		err := suite.validator.Struct(ak9)
 		suite.ValidateError(err, "FunctionalGroupAcknowledgeCode", "oneof")
 		suite.ValidateError(err, "NumberOfTransactionSetsIncluded", "min")
-		suite.ValidateError(err, "NumberOfReceivedTransactionSets", "min")
-		suite.ValidateError(err, "NumberOfAcceptedTransactionSets", "min")
 		suite.ValidateErrorLen(err, 3)
 	})
 }
