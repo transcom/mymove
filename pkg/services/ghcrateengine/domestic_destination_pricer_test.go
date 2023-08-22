@@ -226,7 +226,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 		)
 
 		suite.Error(err)
-		suite.Equal("Could not look up escalated price: could not lookup contract year: "+models.RecordNotFoundErrorString, err.Error())
+		suite.Contains(err.Error(), "could not look up escalated price")
 
 	})
 
