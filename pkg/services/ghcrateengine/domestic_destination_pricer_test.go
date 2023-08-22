@@ -226,7 +226,8 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 		)
 
 		suite.Error(err)
-		suite.Equal("Could not lookup contract year: "+models.RecordNotFoundErrorString, err.Error())
+		suite.Equal("Could not look up escalated price: could not lookup contract year: "+models.RecordNotFoundErrorString, err.Error())
+
 	})
 
 	suite.Run("fail when is weight below minimum and shipment isn't a PPM", func() {
