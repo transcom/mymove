@@ -30,12 +30,12 @@ func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) mode
 	}
 
 	// create user
-	OktaID := makeRandomString(20)
+	lgID := uuid.Must(uuid.NewV4())
 	user := models.User{
-		OktaID:    OktaID,
-		OktaEmail: "first.last@okta.mil",
+		LoginGovUUID:  &lgID,
+		LoginGovEmail: "first.last@okta.mil",
 
-		Active:    false,
+		Active: false,
 	}
 
 	// Overwrite values with those from assertions

@@ -27,6 +27,8 @@ const sessionIDContextKey sessionIDKey = "sessionID"
 // Application describes the application name
 type Application string
 
+type AuthenticationProvider byte
+
 const (
 	// OfficeApp indicates office.move.mil
 	OfficeApp Application = "office"
@@ -34,6 +36,10 @@ const (
 	MilApp Application = "mil"
 	// AdminApp indicates admin.move.mil
 	AdminApp Application = "admin"
+
+	AuthenticationProviderDevlocal AuthenticationProvider = iota
+	AuthenticationProviderLoginGov
+	AuthenticationProviderOkta
 )
 
 // IsOfficeApp returns true if the application is the office app
@@ -234,6 +240,7 @@ type Session struct {
 	Permissions     []string
 	AccessToken     string
 	ClientID        string
+	Provider        AuthenticationProvider
 }
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data

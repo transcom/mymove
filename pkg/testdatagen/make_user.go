@@ -12,11 +12,11 @@ import (
 // It will not replace a true assertion with false.
 func MakeUser(db *pop.Connection, assertions Assertions) models.User {
 
-	oktaID := uuid.Must(uuid.NewV4())
+	oktaID := uuid.Must(uuid.NewV4()).String()
 	user := models.User{
-		OktaID:    oktaID.String(),
-		OktaEmail: "first.last@login.gov.test",
-		Active:    false,
+		OktaID:        &oktaID,
+		LoginGovEmail: "first.last@login.gov.test",
+		Active:        false,
 	}
 
 	// Overwrite values with those from assertions
@@ -29,11 +29,11 @@ func MakeUser(db *pop.Connection, assertions Assertions) models.User {
 
 // MakeDefaultUser makes a user with default values
 func MakeDefaultUser(db *pop.Connection) models.User {
-	oID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 	return MakeUser(db, Assertions{
 		User: models.User{
-			OktaID: oID.String(),
-			Active: true,
+			LoginGovUUID: &lgID,
+			Active:       true,
 		},
 	})
 }

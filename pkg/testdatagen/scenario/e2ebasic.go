@@ -52,15 +52,15 @@ func serviceMemberNoUploadedOrders(appCtx appcontext.AppContext) {
 	*/
 	email := "needs@orde.rs"
 	uuidStr := "feac0e92-66ec-4cab-ad29-538129bf918e"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -90,7 +90,7 @@ func basicUserWithOfficeAccess(appCtx appcontext.AppContext) {
 
 	email := "officeuser1@example.com"
 	userID := uuid.Must(uuid.FromString("9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b"))
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 	factory.BuildOfficeUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.OfficeUser{
@@ -101,11 +101,11 @@ func basicUserWithOfficeAccess(appCtx appcontext.AppContext) {
 		},
 		{
 			Model: models.User{
-				ID:        userID,
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
-				Roles:     []roles.Role{tooRole},
+				ID:            userID,
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
+				Roles:         []roles.Role{tooRole},
 			},
 		},
 	}, nil)
@@ -119,16 +119,16 @@ func userWithRoles(appCtx appcontext.AppContext) {
 	}
 	email := "role_tester@service.mil"
 	uuidStr := "3b9360a3-3304-4c60-90f4-83d687884079"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
-				Roles:     []roles.Role{smRole},
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
+				Roles:         []roles.Role{smRole},
 			},
 		},
 	}, nil)
@@ -143,16 +143,16 @@ func userWithTOORole(appCtx appcontext.AppContext) {
 
 	email := "too_role@office.mil"
 	tooUUID := uuid.Must(uuid.FromString("dcf86235-53d3-43dd-8ee8-54212ae3078f"))
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        tooUUID,
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
-				Roles:     []roles.Role{tooRole},
+				ID:            tooUUID,
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
+				Roles:         []roles.Role{tooRole},
 			},
 		},
 	}, nil)
@@ -183,16 +183,16 @@ func userWithTIORole(appCtx appcontext.AppContext) {
 
 	email := "tio_role@office.mil"
 	tioUUID := uuid.Must(uuid.FromString("3b2cc1b0-31a2-4d1b-874f-0591f9127374"))
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        tioUUID,
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
-				Roles:     []roles.Role{tioRole},
+				ID:            tioUUID,
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
+				Roles:         []roles.Role{tioRole},
 			},
 		},
 	}, nil)
@@ -218,16 +218,16 @@ func userWithServicesCounselorRole(appCtx appcontext.AppContext) {
 
 	email := "services_counselor_role@office.mil"
 	servicesCounselorUUID := uuid.Must(uuid.FromString("a6c8663f-998f-4626-a978-ad60da2476ec"))
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        servicesCounselorUUID,
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
-				Roles:     []roles.Role{servicesCounselorRole},
+				ID:            servicesCounselorUUID,
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
+				Roles:         []roles.Role{servicesCounselorRole},
 			},
 		},
 	}, nil)
@@ -251,16 +251,16 @@ func userWithQAECSRRole(appCtx appcontext.AppContext, userID uuid.UUID, email st
 		log.Panic(fmt.Errorf("failed to find RoleTypeQAECSR in the DB: %w", err))
 	}
 
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        userID,
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
-				Roles:     []roles.Role{qaecsrRole},
+				ID:            userID,
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
+				Roles:         []roles.Role{qaecsrRole},
 			},
 		},
 	}, nil)
@@ -296,16 +296,16 @@ func userWithTOOandTIORole(appCtx appcontext.AppContext) {
 
 	email := "too_tio_role@office.mil"
 	tooTioUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"))
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        tooTioUUID,
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
-				Roles:     []roles.Role{tooRole, tioRole},
+				ID:            tooTioUUID,
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
+				Roles:         []roles.Role{tooRole, tioRole},
 			},
 		},
 	}, nil)
@@ -349,16 +349,16 @@ func userWithTOOandTIOandQAECSRRole(appCtx appcontext.AppContext) {
 
 	email := "too_tio_qaecsr_role@office.mil"
 	tooTioQaecsrUUID := uuid.Must(uuid.FromString("b264abd6-52fc-4e42-9e0f-173f7d217bc5"))
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        tooTioQaecsrUUID,
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
-				Roles:     []roles.Role{tooRole, tioRole, qaecsrRole},
+				ID:            tooTioQaecsrUUID,
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
+				Roles:         []roles.Role{tooRole, tioRole, qaecsrRole},
 			},
 		},
 	}, nil)
@@ -401,16 +401,16 @@ func userWithTOOandTIOandServicesCounselorRole(appCtx appcontext.AppContext) {
 
 	email := "too_tio_services_counselor_role@office.mil"
 	ttooTioServicesUUID := uuid.Must(uuid.FromString("8d78c849-0853-4eb8-a7a7-73055db7a6a8"))
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        ttooTioServicesUUID,
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
-				Roles:     []roles.Role{tooRole, tioRole, servicesCounselorRole},
+				ID:            ttooTioServicesUUID,
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
+				Roles:         []roles.Role{tooRole, tioRole, servicesCounselorRole},
 			},
 		},
 	}, nil)
@@ -443,16 +443,16 @@ func userWithPrimeSimulatorRole(appCtx appcontext.AppContext) {
 
 	email := "prime_simulator_role@office.mil"
 	primeSimulatorUserID := uuid.Must(uuid.FromString("cf5609e9-b88f-4a98-9eda-9d028bc4a515"))
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        primeSimulatorUserID,
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
-				Roles:     []roles.Role{primeSimulatorRole},
+				ID:            primeSimulatorUserID,
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
+				Roles:         []roles.Role{primeSimulatorRole},
 			},
 		},
 	}, nil)
@@ -476,15 +476,15 @@ func userWithPrimeSimulatorRole(appCtx appcontext.AppContext) {
 func serviceMemberWithUploadedOrdersAndNewPPM(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	email := "ppm@incomple.te"
 	uuidStr := "e10d5964-c070-49cb-9bd1-eaf9f7348eb6"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -531,15 +531,15 @@ func serviceMemberWithUploadedOrdersAndNewPPM(appCtx appcontext.AppContext, user
 func serviceMemberWithUploadedOrdersNewPPMNoAdvance(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	email := "ppm@advance.no"
 	uuidStr := "f0ddc118-3f7e-476b-b8be-0f964a5feee2"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -583,15 +583,15 @@ func serviceMemberWithUploadedOrdersNewPPMNoAdvance(appCtx appcontext.AppContext
 func officeUserFindsMoveCompletesStoragePanel(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	email := "office.user.completes@storage.panel"
 	uuidStr := "ebac4efd-c980-48d6-9cce-99fb34644789"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -650,15 +650,15 @@ func officeUserFindsMoveCompletesStoragePanel(appCtx appcontext.AppContext, user
 func officeUserFindsMoveCancelsStoragePanel(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	email := "office.user.cancelss@storage.panel"
 	uuidStr := "cbb56f00-97f7-4d20-83cf-25a7b2f150b6"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -717,15 +717,15 @@ func officeUserFindsMoveCancelsStoragePanel(appCtx appcontext.AppContext, userUp
 func aMoveThatWillBeCancelledByAnE2ETest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	email := "ppm-to-cancel@example.com"
 	uuidStr := "e10d5964-c070-49cb-9bd1-eaf9f7348eb7"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -769,15 +769,15 @@ func aMoveThatWillBeCancelledByAnE2ETest(appCtx appcontext.AppContext, userUploa
 func serviceMemberWithPPMInProgress(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	email := "ppm.on@progre.ss"
 	uuidStr := "20199d12-5165-4980-9ca7-19b5dc9f1032"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -826,15 +826,15 @@ func serviceMemberWithPPMInProgress(appCtx appcontext.AppContext, userUploader *
 func serviceMemberWithPPMMoveWithPaymentRequested01(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	email := "ppm@paymentrequest.ed"
 	uuidStr := "1842091b-b9a0-4d4a-ba22-1e2f38f26317"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -904,15 +904,15 @@ func serviceMemberWithPPMMoveWithPaymentRequested01(appCtx appcontext.AppContext
 func serviceMemberWithPPMMoveWithPaymentRequested02(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	email := "ppmpayment@request.ed"
 	uuidStr := "beccca28-6e15-40cc-8692-261cae0d4b14"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -985,15 +985,15 @@ func serviceMemberWithPPMMoveWithPaymentRequested02(appCtx appcontext.AppContext
 func aCanceledPPMMove(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	email := "ppm-canceled@example.com"
 	uuidStr := "20102768-4d45-449c-a585-81bc386204b1"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -1045,15 +1045,15 @@ func aCanceledPPMMove(appCtx appcontext.AppContext, userUploader *uploader.UserU
 func serviceMemberWithOrdersAndAMoveNoMoveType(appCtx appcontext.AppContext) {
 	email := "sm_no_move_type@example.com"
 	uuidStr := "9ceb8321-6a82-4f6d-8bb3-a1d85922a202"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 		{
@@ -1078,15 +1078,15 @@ func serviceMemberWithOrdersAndAMoveNoMoveType(appCtx appcontext.AppContext) {
 func serviceMemberWithOrdersAndAMovePPMandHHG(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	email := "combo@ppm.hhg"
 	uuidStr := "6016e423-f8d5-44ca-98a8-af03c8445c94"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -1205,15 +1205,15 @@ func serviceMemberWithOrdersAndAMovePPMandHHG(appCtx appcontext.AppContext, user
 func serviceMemberWithUnsubmittedHHG(appCtx appcontext.AppContext) {
 	email := "hhg@only.unsubmitted"
 	uuidStr := "f08146cf-4d6b-43d5-9ca5-c8d239d37b3e"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -1271,15 +1271,15 @@ func serviceMemberWithUnsubmittedHHG(appCtx appcontext.AppContext) {
 func serviceMemberWithNTSandNTSRandUnsubmittedMove01(appCtx appcontext.AppContext) {
 	email := "nts@ntsr.unsubmitted"
 	uuidStr := "583cfbe1-cb34-4381-9e1f-54f68200da1b"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -1374,15 +1374,15 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove01(appCtx appcontext.AppContex
 func serviceMemberWithNTSandNTSRandUnsubmittedMove02(appCtx appcontext.AppContext) {
 	email := "nts2@ntsr.unsubmitted"
 	uuidStr := "80da86f3-9dac-4298-8b03-b753b443668e"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -1478,15 +1478,15 @@ func serviceMemberWithNTSandNTSRandUnsubmittedMove02(appCtx appcontext.AppContex
 func serviceMemberWithPPMReadyToRequestPayment01(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	email := "ppm@requestingpayment.newflow"
 	uuidStr := "745e0eba-4028-4c78-a262-818b00802748"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -1551,15 +1551,15 @@ func serviceMemberWithPPMReadyToRequestPayment01(appCtx appcontext.AppContext, u
 func serviceMemberWithPPMReadyToRequestPayment02(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	email := "ppm@continue.requestingpayment"
 	uuidStr := "4ebc03b7-c801-4c0d-806c-a95aed242102"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -1624,15 +1624,15 @@ func serviceMemberWithPPMReadyToRequestPayment02(appCtx appcontext.AppContext, u
 func serviceMemberWithPPMReadyToRequestPayment03(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	email := "ppm@requestingpay.ment"
 	uuidStr := "8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -1698,15 +1698,15 @@ func serviceMemberWithPPMReadyToRequestPayment03(appCtx appcontext.AppContext, u
 func serviceMemberWithPPMApprovedNotInProgress(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	email := "ppm@approv.ed"
 	uuidStr := "70665111-7bbb-4876-a53d-18bb125c943e"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -1775,9 +1775,9 @@ func serviceMemberWithOrdersAndPPMMove01(appCtx appcontext.AppContext, userUploa
 	factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString("13f3949d-0d53-4be4-b1b1-ae4314793f34")),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString("13f3949d-0d53-4be4-b1b1-ae4314793f34")),
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 		{
@@ -1817,9 +1817,9 @@ func serviceMemberWithOrdersAndPPMMove02(appCtx appcontext.AppContext, userUploa
 	factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString("99360a51-8cfa-4e25-ae57-24e66077305f")),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString("99360a51-8cfa-4e25-ae57-24e66077305f")),
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 		{
@@ -1858,9 +1858,9 @@ func serviceMemberWithOrdersAndPPMMove03(appCtx appcontext.AppContext, userUploa
 	factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString("3b9360a3-3304-4c60-90f4-83d687884070")),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString("3b9360a3-3304-4c60-90f4-83d687884070")),
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 		{
@@ -1900,9 +1900,9 @@ func serviceMemberWithOrdersAndPPMMove04(appCtx appcontext.AppContext, userUploa
 	factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString("3b9360a3-3304-4c60-90f4-83d687884077")),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString("3b9360a3-3304-4c60-90f4-83d687884077")),
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 		{
@@ -2070,15 +2070,15 @@ func serviceMemberWithOrdersAndPPMMove08(appCtx appcontext.AppContext, userUploa
 func createBasicNTSMove(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	email := "nts.test.user@example.com"
 	uuidStr := "2194daed-3589-408f-b988-e9889c9f120e"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 		{
@@ -2115,15 +2115,15 @@ func createBasicNTSMove(appCtx appcontext.AppContext, userUploader *uploader.Use
 func createBasicMovePPM01(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	email := "ppm.test.user1@example.com"
 	uuidStr := "4635b5a7-0f57-4557-8ba4-bbbb760c300a"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 		{
@@ -2159,15 +2159,15 @@ func createBasicMovePPM01(appCtx appcontext.AppContext, userUploader *uploader.U
 func createBasicMovePPM02(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	email := "ppm.test.user2@example.com"
 	uuidStr := "324dec0a-850c-41c8-976b-068e27121b84"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 		{
@@ -2204,15 +2204,15 @@ func createBasicMovePPM02(appCtx appcontext.AppContext, userUploader *uploader.U
 func createBasicMovePPM03(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	email := "ppm.test.user3@example.com"
 	uuidStr := "f154929c-5f07-41f5-b90c-d90b83d5773d"
-	oktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 
 	factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        uuid.Must(uuid.FromString(uuidStr)),
-				OktaID:    oktaID.String(),
-				OktaEmail: email,
-				Active:    true,
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 		{

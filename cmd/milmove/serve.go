@@ -435,29 +435,45 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 	}
 
 	clientAuthSecretKey := v.GetString(cli.ClientAuthSecretKeyFlag)
+	loginGovSecretKey := v.GetString(cli.LoginGovSecretKeyFlag)
+	loginGovHostname := v.GetString(cli.LoginGovHostnameFlag)
 
-	callbackProtocol := v.GetString(cli.OktaTenantCallbackProtocolFlag)
-	callbackPort := v.GetInt(cli.OktaTenantCallbackPortFlag)
-	orgURL := v.GetString(cli.OktaTenantOrgURLFlag)
+	loginGovCallbackProtocol := v.GetString(cli.LoginGovCallbackProtocolFlag)
+	loginGovCallbackPort := v.GetInt(cli.LoginGovCallbackPortFlag)
+
+	oktaCallbackProtocol := v.GetString(cli.OktaTenantCallbackProtocolFlag)
+	oktaCallbackPort := v.GetInt(cli.OktaTenantCallbackPortFlag)
+
+	oktaOrgURL := v.GetString(cli.OktaTenantOrgURLFlag)
 
 	// Assert that our secret keys can be parsed into actual private keys
 	// TODO: Store the parsed key in handlers/AppContext instead of parsing every time
+	if _, parseRSAPrivateKeyFromPEMErr := jwt.ParseRSAPrivateKeyFromPEM([]byte(loginGovSecretKey)); parseRSAPrivateKeyFromPEMErr != nil {
+		appCtx.Logger().Fatal("Login.gov private key", zap.Error(parseRSAPrivateKeyFromPEMErr))
+	}
 	if _, parseRSAPrivateKeyFromPEMErr := jwt.ParseRSAPrivateKeyFromPEM([]byte(clientAuthSecretKey)); parseRSAPrivateKeyFromPEMErr != nil {
 		appCtx.Logger().Fatal("Client auth private key", zap.Error(parseRSAPrivateKeyFromPEMErr))
 	}
-	if len(orgURL) == 0 {
+	if len(loginGovHostname) == 0 {
+		appCtx.Logger().Fatal("Must provide the Login.gov hostname parameter, exiting")
+	}
+	if len(oktaOrgURL) == 0 {
 		appCtx.Logger().Fatal("Must provide the okta.mil orgURL parameter, exiting")
 	}
 
+	// Register Login.gov authentication provider for My.(move.mil)
+	loginGovProvider, err := authentication.InitAuth(v, appCtx.Logger(),
+		appNames)
 	// Register Okta authentication provider for My.(move.mil)
-	oktaProvider, err := authentication.InitAuth(v, appCtx.Logger(),
+	oktaProvider, err := authentication.InitOktaAuth(v, appCtx.Logger(),
 		appNames)
 	if err != nil {
 		appCtx.Logger().Fatal("Registering login provider", zap.Error(err))
 	}
 
-	// TODO: Update loginGov callbacks to Okta
-	routingConfig.AuthContext = authentication.NewAuthContext(appCtx.Logger(), *oktaProvider, callbackProtocol, callbackPort)
+	routingConfig.AuthContext = authentication.NewAuthContext(appCtx.Logger(), loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
+
+	routingConfig.OktaAuthContext = authentication.NewOktaAuthContext(appCtx.Logger(), oktaProvider, oktaCallbackProtocol, oktaCallbackPort)
 
 	// Email
 	notificationSender, err := notifications.InitEmail(v, appCtx.Logger())

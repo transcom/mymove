@@ -81,8 +81,8 @@ func MakeMoveWithOrders(db *pop.Connection) models.Move {
 	move := factory.BuildMove(db, []factory.Customization{
 		{
 			Model: models.User{
-				OktaEmail: userInfo.email,
-				Active:    true,
+				LoginGovEmail: userInfo.email,
+				Active:        true,
 			},
 		},
 		{
@@ -100,8 +100,8 @@ func MakeSpouseProGearMove(db *pop.Connection) models.Move {
 	move := factory.BuildMove(db, []factory.Customization{
 		{
 			Model: models.User{
-				OktaEmail: userInfo.email,
-				Active:    true,
+				LoginGovEmail: userInfo.email,
+				Active:        true,
 			},
 		},
 		{
@@ -127,8 +127,8 @@ func MakePPMInProgressMove(appCtx appcontext.AppContext) models.Move {
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				OktaEmail: userInfo.email,
-				Active:    true,
+				LoginGovEmail: userInfo.email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -185,8 +185,8 @@ func MakeWithShipmentMove(appCtx appcontext.AppContext) models.Move {
 	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				OktaEmail: userInfo.email,
-				Active:    true,
+				LoginGovEmail: userInfo.email,
+				Active:        true,
 			},
 		},
 		{
@@ -255,8 +255,8 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				OktaEmail: userInfo.email,
-				Active:    true,
+				LoginGovEmail: userInfo.email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -3398,8 +3398,8 @@ func MakeHHGMoveInSIT(appCtx appcontext.AppContext) models.Move {
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				OktaEmail: userInfo.email,
-				Active:    true,
+				LoginGovEmail: userInfo.email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -3530,8 +3530,8 @@ func MakeHHGMoveInSITWithPendingExtension(appCtx appcontext.AppContext) models.M
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				OktaEmail: userInfo.email,
-				Active:    true,
+				LoginGovEmail: userInfo.email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -3675,8 +3675,8 @@ func MakeHHGMoveInSITWithAddressChangeRequestOver50Miles(appCtx appcontext.AppCo
 		},
 		{
 			Model: models.User{
-				OktaEmail: userInfo.email,
-				Active:    true,
+				LoginGovEmail: userInfo.email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -3775,8 +3775,8 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				OktaEmail: userInfo.email,
-				Active:    true,
+				LoginGovEmail: userInfo.email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -3912,8 +3912,8 @@ func MakeHHGMoveInSITEndsToday(appCtx appcontext.AppContext) models.Move {
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				OktaEmail: userInfo.email,
-				Active:    true,
+				LoginGovEmail: userInfo.email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -4025,8 +4025,8 @@ func MakeHHGMoveInSITEndsTomorrow(appCtx appcontext.AppContext) models.Move {
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				OktaEmail: userInfo.email,
-				Active:    true,
+				LoginGovEmail: userInfo.email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -4138,8 +4138,8 @@ func MakeHHGMoveInSITEndsYesterday(appCtx appcontext.AppContext) models.Move {
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				OktaEmail: userInfo.email,
-				Active:    true,
+				LoginGovEmail: userInfo.email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -4251,8 +4251,8 @@ func MakeHHGMoveInSITDeparted(appCtx appcontext.AppContext) models.Move {
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				OktaEmail: userInfo.email,
-				Active:    true,
+				LoginGovEmail: userInfo.email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -4365,8 +4365,8 @@ func MakeHHGMoveInSITStartsInFuture(appCtx appcontext.AppContext) models.Move {
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				OktaEmail: userInfo.email,
-				Active:    true,
+				LoginGovEmail: userInfo.email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -4476,8 +4476,8 @@ func MakeHHGMoveInSITNotApproved(appCtx appcontext.AppContext) models.Move {
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				OktaEmail: userInfo.email,
-				Active:    true,
+				LoginGovEmail: userInfo.email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -4596,8 +4596,8 @@ func MakeHHGMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.Sh
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				OktaEmail: userInfo.email,
-				Active:    true,
+				LoginGovEmail: userInfo.email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -4679,8 +4679,8 @@ func MakeHHGMoveWithAddressChangeRequestAndUnknownDeliveryAddress(appCtx appcont
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				OktaEmail: userInfo.email,
-				Active:    true,
+				LoginGovEmail: userInfo.email,
+				Active:        true,
 			},
 		},
 	}, nil)
@@ -4761,8 +4761,8 @@ func MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx appcont
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				OktaEmail: userInfo.email,
-				Active:    true,
+				LoginGovEmail: userInfo.email,
+				Active:        true,
 			},
 		},
 	}, nil)

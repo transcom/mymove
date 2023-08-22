@@ -18,15 +18,15 @@ func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser
 
 	if *assertions.OfficeUser.UserID == uuid.Nil {
 
-		if assertions.User.OktaEmail == "" {
-			assertions.User.OktaEmail = email
+		if assertions.User.LoginGovEmail == "" {
+			assertions.User.LoginGovEmail = email
 		}
 
 		user = MakeUser(db, assertions)
 	}
 
-	if assertions.User.OktaEmail != "" {
-		email = assertions.User.OktaEmail
+	if assertions.User.LoginGovEmail != "" {
+		email = assertions.User.LoginGovEmail
 	}
 	if user.Roles == nil {
 		officeRole := roles.Role{

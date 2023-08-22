@@ -39,8 +39,8 @@ func (o *officeUserCreator) CreateOfficeUser(
 
 	if fetchErr != nil {
 		user = models.User{
-			OktaEmail: strings.ToLower(officeUser.Email),
-			Active:    true,
+			LoginGovEmail: strings.ToLower(officeUser.Email),
+			Active:        true,
 		}
 	}
 

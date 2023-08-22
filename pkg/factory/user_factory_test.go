@@ -15,7 +15,7 @@ func (suite *FactorySuite) TestBuildUser() {
 		// Expected outcome:User should be created with default values
 
 		user := BuildUser(suite.DB(), nil, nil)
-		suite.Equal(defaultEmail, user.OktaEmail)
+		suite.Equal(defaultEmail, user.LoginGovEmail)
 		suite.False(user.Active)
 	})
 
@@ -26,11 +26,11 @@ func (suite *FactorySuite) TestBuildUser() {
 		user := BuildUser(suite.DB(), []Customization{
 			{
 				Model: models.User{
-					OktaEmail: customEmail,
+					LoginGovEmail: customEmail,
 				},
 			},
 		}, nil)
-		suite.Equal(customEmail, user.OktaEmail)
+		suite.Equal(customEmail, user.LoginGovEmail)
 		suite.False(user.Active)
 
 	})
@@ -44,7 +44,7 @@ func (suite *FactorySuite) TestBuildUser() {
 			[]Trait{
 				GetTraitActiveUser,
 			})
-		suite.Equal(defaultEmail, user.OktaEmail)
+		suite.Equal(defaultEmail, user.LoginGovEmail)
 		suite.True(user.Active)
 	})
 
@@ -56,12 +56,12 @@ func (suite *FactorySuite) TestBuildUser() {
 		user := BuildUser(suite.DB(), []Customization{
 			{
 				Model: models.User{
-					OktaEmail: customEmail,
+					LoginGovEmail: customEmail,
 				},
 			}}, []Trait{
 			GetTraitActiveUser,
 		})
-		suite.Equal(customEmail, user.OktaEmail)
+		suite.Equal(customEmail, user.LoginGovEmail)
 		suite.True(user.Active)
 	})
 
@@ -76,13 +76,13 @@ func (suite *FactorySuite) TestBuildUser() {
 		user := BuildUser(nil, []Customization{
 			{
 				Model: models.User{
-					OktaEmail: customEmail,
+					LoginGovEmail: customEmail,
 				},
 			}}, []Trait{
 			GetTraitActiveUser,
 		})
 
-		suite.Equal(customEmail, user.OktaEmail)
+		suite.Equal(customEmail, user.LoginGovEmail)
 		suite.True(user.Active)
 		// Count how many users are in the DB, no new users should have been created.
 		count, err := suite.DB().Count(&models.User{})
@@ -101,7 +101,7 @@ func (suite *FactorySuite) TestBuildDefaultUser() {
 		// Expected outcome:User should be created with GetTraitActiveUser
 
 		user := BuildDefaultUser(suite.DB())
-		suite.Equal(defaultEmail, user.OktaEmail)
+		suite.Equal(defaultEmail, user.LoginGovEmail)
 		suite.True(user.Active)
 	})
 
@@ -112,7 +112,7 @@ func (suite *FactorySuite) TestBuildDefaultUser() {
 		// Expected outcome:User should be created with GetTraitActiveUser
 
 		user := BuildDefaultUser(nil)
-		suite.Equal(defaultEmail, user.OktaEmail)
+		suite.Equal(defaultEmail, user.LoginGovEmail)
 		suite.True(user.Active)
 	})
 

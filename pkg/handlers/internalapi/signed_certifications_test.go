@@ -66,8 +66,8 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 
 	userUUID2 := "3511d4d6-019d-4031-9c27-8a553e055543"
 	user2 := models.User{
-		OktaID:    userUUID2,
-		OktaEmail: "email2@example.com",
+		LoginGovUUID:  userUUID2,
+		LoginGovEmail: "email2@example.com",
 	}
 	suite.MustSave(&user2)
 	move := factory.BuildMove(suite.DB(), nil, nil)
@@ -195,8 +195,8 @@ func (suite *HandlerSuite) TestIndexSignedCertificationHandlerMismatchedUser() {
 	}, nil)
 	userUUID2 := "3511d4d6-019d-4031-9c27-8a553e055543"
 	unauthorizedUser := models.User{
-		OktaID:    userUUID2,
-		OktaEmail: "email2@example.com",
+		LoginGovUUID:  userUUID2,
+		LoginGovEmail: "email2@example.com",
 	}
 	params := certop.IndexSignedCertificationParams{
 		MoveID: *handlers.FmtUUID(move.ID),

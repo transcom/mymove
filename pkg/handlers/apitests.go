@@ -211,7 +211,7 @@ func (suite *BaseHandlerTestSuite) AuthenticateRequest(req *http.Request, servic
 		UserID:          serviceMember.UserID,
 		IDToken:         "fake token",
 		ServiceMemberID: serviceMember.ID,
-		Email:           serviceMember.User.OktaEmail,
+		Email:           serviceMember.User.LoginGovEmail,
 	}
 	session.Roles = append(session.Roles, serviceMember.User.Roles...)
 	ctx := auth.SetSessionInRequestContext(req, &session)

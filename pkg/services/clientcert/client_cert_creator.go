@@ -46,8 +46,8 @@ func (o *clientCertCreator) CreateClientCert(
 		// This logic is similar to what is used when creating office users
 		if err == sql.ErrNoRows {
 			user = models.User{
-				OktaEmail: strings.ToLower(email),
-				Active:    true,
+				LoginGovEmail: strings.ToLower(email),
+				Active:        true,
 			}
 
 			verrs, err = o.builder.CreateOne(txnAppCtx, &user)

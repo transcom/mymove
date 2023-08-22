@@ -38,7 +38,7 @@ const (
 -- this CAC certificate should be removed.
 INSERT INTO users (
     id,
-    okta_email,
+    login_gov_email,
     created_at,
     updated_at)
 VALUES (

@@ -37,13 +37,13 @@ func makeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 
 	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.ServiceMember.UserID) {
-		if assertions.User.OktaEmail == "" {
-			assertions.User.OktaEmail = email
+		if assertions.User.LoginGovEmail == "" {
+			assertions.User.LoginGovEmail = email
 		}
 		user = MakeDefaultUser(db)
 	}
-	if assertions.User.OktaEmail != "" {
-		email = assertions.User.OktaEmail
+	if assertions.User.LoginGovEmail != "" {
+		email = assertions.User.LoginGovEmail
 	}
 
 	if agency == nil {

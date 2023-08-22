@@ -1,0 +1,599 @@
+package authentication
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+	"net/url"
+	"time"
+
+	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/query"
+)
+
+// used by authorizeKnownUser and authorizeUnknownUser
+type OktaAuthorizationResult byte
+
+const (
+	oktaAuthorizationResultAuthorized OktaAuthorizationResult = iota
+	oktaAuthorizationResultUnauthorized
+	oktaAuthorizationResultError
+)
+
+func (ar OktaAuthorizationResult) String() string {
+	return []string{
+		"oktaAuthorizationResultAuthorized",
+		"oktaAuthorizationResultUnauthorized",
+		"oktaAuthorizationResultError",
+	}[ar]
+}
+
+func oktaAuthenticateUser(ctx context.Context, appCtx appcontext.AppContext, sessionManager auth.SessionManager) error {
+	// The session token must be renewed during sign in to prevent
+	// session fixation attacks
+	err := sessionManager.RenewToken(ctx)
+	if err != nil {
+		appCtx.Logger().Error("Error renewing session token", zap.Error(err))
+		return err
+	}
+	sessionID, _, err := sessionManager.Commit(ctx)
+	if err != nil {
+		appCtx.Logger().Error("Failed to write new user session to store", zap.Error(err))
+		return err
+	}
+	appCtx.Logger().Info("User authenticated with new session", zap.String("new_session_id", sessionID))
+	sessionManager.Put(ctx, "session", appCtx.Session())
+
+	user, err := currentUser(appCtx)
+	if err != nil {
+		appCtx.Logger().Error("Fetching user", zap.String("user_id", appCtx.Session().UserID.String()), zap.Error(err))
+		return err
+	}
+	// Check to see if sessionID is set on the user, presently
+	existingSessionID := currentSessionID(appCtx.Session(), user)
+	if existingSessionID != "" {
+		appCtx.Logger().Info("SessionID is not set on the current user", zap.String("user_id", appCtx.Session().UserID.String()))
+
+		// Lookup the old session that wasn't logged out
+		_, exists, err := sessionManager.Store().Find(existingSessionID)
+		if err != nil {
+			appCtx.Logger().Error("Error loading previous session", zap.Error(err))
+			return err
+		}
+
+		if !exists {
+			appCtx.Logger().Info("Session expired", zap.String("user_id", appCtx.Session().UserID.String()))
+		} else {
+			appCtx.Logger().Info("Concurrent session detected. Will delete previous session.", zap.String("user_id", appCtx.Session().UserID.String()))
+
+			// We need to delete the concurrent session.
+			err := sessionManager.Store().Delete(existingSessionID)
+			if err != nil {
+				appCtx.Logger().Error("Error deleting previous session", zap.Error(err))
+				return err
+			}
+		}
+	}
+
+	updateErr := updateUserCurrentSessionID(appCtx, sessionID)
+	if updateErr != nil {
+		appCtx.Logger().Error("Updating user's current session ID", zap.Error(updateErr))
+		return updateErr
+	}
+	appCtx.Logger().Info("Logged in",
+		zap.Any("session.user_id", appCtx.Session().UserID),
+		zap.Any("session.appname", appCtx.Session().ApplicationName))
+
+	return nil
+}
+
+func (context OktaContext) oktaLandingURL(session *auth.Session) string {
+	return fmt.Sprintf(context.callbackTemplate, session.Hostname)
+}
+
+// Context is the common handler type for auth handlers
+type OktaContext struct {
+	oktaProvider     *okta.Provider
+	callbackTemplate string
+}
+
+// NewAuthContext creates an Context
+func NewOktaAuthContext(_ *zap.Logger, oktaProvider *okta.Provider, callbackProtocol string, callbackPort int) OktaContext {
+	return OktaContext{
+		oktaProvider:     oktaProvider,
+		callbackTemplate: fmt.Sprintf("%s://%%s:%d/", callbackProtocol, callbackPort),
+	}
+}
+
+// oktaLoginStateCookieName is the name given to the cookie storing the encrypted okta.mil state nonce.
+const oktaLoginStateCookieName = "okta_state"
+const oktaLoginStateCookieTTLInSecs = 1800 // 30 mins to transit through okta.mil.
+
+// RedirectHandler handles redirection
+type OktaRedirectHandler struct {
+	OktaContext
+	handlers.HandlerConfig
+	UseSecureCookie bool
+}
+
+func NewOktaRedirectHandler(oac OktaContext, hc handlers.HandlerConfig) OktaRedirectHandler {
+	return OktaRedirectHandler{
+		OktaContext:     oac,
+		HandlerConfig:   hc,
+		UseSecureCookie: hc.UseSecureCookie(),
+	}
+}
+
+// OktaStateCookieName returns the okta.mil state cookie name
+func OktaStateCookieName(session *auth.Session) string {
+	return fmt.Sprintf("%s_%s", string(session.ApplicationName), oktaLoginStateCookieName)
+}
+
+// RedirectHandler constructs the okta.mil authentication URL and redirects to it
+// This will be called when logging in
+func (h OktaRedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	appCtx := h.AppContextFromRequest(r)
+
+	if appCtx.Session() != nil && appCtx.Session().UserID != uuid.Nil {
+		// User is already authenticated, redirect to landing page
+		http.Redirect(w, r, h.oktaLandingURL(appCtx.Session()), http.StatusTemporaryRedirect)
+		return
+	}
+
+	loginData, err := h.oktaProvider.AuthorizationURL(r)
+	if err != nil {
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
+	// Hash the state/Nonce value sent to okta.mil and set the result as an HttpOnly cookie
+	// Check this when we return from okta.mil
+	if appCtx.Session() == nil {
+		appCtx.Logger().Error("Session is nil, so cannot get hostname for state Cookie")
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
+	stateCookie := http.Cookie{
+		Name:     OktaStateCookieName(appCtx.Session()),
+		Value:    shaAsString(loginData.Nonce),
+		Path:     "/",
+		Expires:  time.Now().Add(time.Duration(oktaLoginStateCookieTTLInSecs) * time.Second),
+		MaxAge:   oktaLoginStateCookieTTLInSecs,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+		Secure:   h.UseSecureCookie,
+	}
+
+	http.SetCookie(w, &stateCookie)
+	appCtx.Logger().Info("Okta cookie has been set", zap.Any("stateCookie", stateCookie))
+	http.Redirect(w, r, loginData.RedirectURL, http.StatusTemporaryRedirect)
+	appCtx.Logger().Info("User has been redirected to okta", zap.Any("redirectURL", loginData.RedirectURL))
+}
+
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
+// CallbackHandler processes a callback from okta.mil
+type OktaCallbackHandler struct {
+	OktaContext
+	handlers.HandlerConfig
+	sender     notifications.NotificationSender
+	HTTPClient HTTPClient
+}
+
+// NewOktaCallbackHandler creates a new Okta CallbackHandler
+func NewOktaCallbackHandler(oac OktaContext, hc handlers.HandlerConfig, sender notifications.NotificationSender) OktaCallbackHandler {
+	return OktaCallbackHandler{
+		OktaContext:   oac,
+		HandlerConfig: hc,
+		sender:        sender,
+		HTTPClient:    &http.Client{},
+	}
+}
+
+// oktaInvalidPermissionsResponse generates an http response when invalid
+// permissions are encountered. It *also* saves the session
+// information. This is needed so we have the necessary info to create
+// a redirect to logout of okta.mil
+func oktaInvalidPermissionsResponse(appCtx appcontext.AppContext, handlerConfig handlers.HandlerConfig, authContext OktaContext, w http.ResponseWriter, r *http.Request) {
+
+	sessionManager := handlerConfig.SessionManagers().SessionManagerForApplication(appCtx.Session().ApplicationName)
+	_, _, err := sessionManager.Commit(r.Context())
+	if err != nil {
+		appCtx.Logger().Error("Failed to write invalid permissions user session to store", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+	sessionManager.Put(r.Context(), "session", appCtx.Session())
+	if err != nil {
+		appCtx.Logger().Error("Error authenticating user with invalid permissions", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
+	rawLandingURL := authContext.oktaLandingURL(appCtx.Session()) + "invalid-permissions"
+	landingURL, err := url.Parse(rawLandingURL)
+	if err != nil {
+		appCtx.Logger().Error("Error parsing invalid permissions url", zap.Any("url", rawLandingURL))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+	traceID := handlerConfig.GetTraceIDFromRequest(r)
+	if !traceID.IsNil() {
+		landingQuery := landingURL.Query()
+		landingQuery.Add("traceId", traceID.String())
+		landingURL.RawQuery = landingQuery.Encode()
+	}
+
+	// We need to redirect here because we got to this handler after a
+	// redirect from okta.mil. Our client application did not make
+	// this request, so we need to redirect to the client app so that
+	// we can present a "pretty" error page to the user
+	appCtx.Logger().Info("Redirect invalid permissions",
+		zap.String("request_path", r.URL.Path),
+		zap.String("redirect_url", landingURL.String()))
+	http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
+}
+
+// move to test
+// type MockHTTPClient struct {
+// 	Response *http.Response
+// 	Err      error
+// }
+
+// func (m *MockHTTPClient) Do(_ *http.Request) (*http.Response, error) {
+// 	return m.Response, m.Err
+// }
+
+// OktaCallbackHandler handles the callback from the Okta.mil authorization flow
+func (h OktaCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	appCtx := h.AppContextFromRequest(r)
+	if appCtx.Session() == nil {
+		appCtx.Logger().Error("Session missing")
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
+	rawLandingURL := h.oktaLandingURL(appCtx.Session())
+
+	landingURL, err := url.Parse(rawLandingURL)
+	if err != nil {
+		appCtx.Logger().Error("Error parsing landing URL")
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
+	if err := r.URL.Query().Get("error"); len(err) > 0 {
+		landingQuery := landingURL.Query()
+		switch err {
+		case "access_denied":
+			// The user has either cancelled or declined to authorize the client
+			appCtx.Logger().Error("ACCESS_DENIED error from okta.mil")
+		case "invalid_request":
+			appCtx.Logger().Error("INVALID_REQUEST error from okta.mil")
+			landingQuery.Add("error", "INVALID_REQUEST")
+		default:
+			appCtx.Logger().Error("unknown error from okta.mil")
+			landingQuery.Add("error", "UNKNOWN_ERROR")
+		}
+		landingURL.RawQuery = landingQuery.Encode()
+		http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
+		appCtx.Logger().Info("User redirected from okta.mil", zap.String("landingURL", landingURL.String()))
+
+		return
+	}
+	sessionManager := h.SessionManagers().SessionManagerForApplication(appCtx.Session().ApplicationName)
+	if sessionManager == nil {
+		appCtx.Logger().Error("Authenticating user, cannot get session manager from request")
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
+	// Check the state value sent back from okta.mil with the value saved in the cookie
+	returnedState := r.URL.Query().Get("state")
+	stateCookieName := OktaStateCookieName(appCtx.Session())
+	stateCookie, err := r.Cookie(stateCookieName)
+	if err != nil {
+		appCtx.Logger().Error("Getting okta.mil state cookie",
+			zap.String("stateCookieName", stateCookieName),
+			zap.String("sessionUserId", appCtx.Session().UserID.String()),
+			zap.Error(err))
+		landingQuery := landingURL.Query()
+		landingQuery.Add("error", "STATE_COOKIE_MISSING")
+		landingURL.RawQuery = landingQuery.Encode()
+		http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
+		appCtx.Logger().Info("User redirected from okta.mil", zap.String("landingURL", landingURL.String()))
+		return
+	}
+
+	hash := stateCookie.Value
+	// case where user has 2 tabs open with different cookies
+	if hash != shaAsString(returnedState) {
+		appCtx.Logger().Error("State returned from okta.mil does not match state value stored in cookie",
+			zap.String("state", returnedState),
+			zap.String("cookie", hash),
+			zap.String("hash", shaAsString(returnedState)))
+
+		// Delete okta_state cookie
+		auth.DeleteCookie(w, OktaStateCookieName(appCtx.Session()))
+		appCtx.Logger().Info("okta_state cookie deleted")
+
+		// This operation will delete all cookies from the session
+		err = sessionManager.Destroy(r.Context())
+		if err != nil {
+			appCtx.Logger().Error("Deleting okta.mil state cookie", zap.Error(err))
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+		// set error query
+		landingQuery := landingURL.Query()
+		landingQuery.Add("error", "SIGNIN_ERROR")
+		landingURL.RawQuery = landingQuery.Encode()
+		http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
+		appCtx.Logger().Info("User redirected to okta", zap.String("landingURL", landingURL.String()))
+
+		return
+	}
+
+	provider, err := okta.GetOktaProviderForRequest(r)
+	if err != nil {
+		appCtx.Logger().Error("get provider", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
+	// Exchange code received from login for access token. This is used during the grant_type auth flow
+	exchange, err := exchangeCode(r.URL.Query().Get("code"), r, appCtx, *provider, h.HTTPClient)
+	// Double error check
+	if exchange.Error != "" {
+		appCtx.Logger().Error("exchange error", zap.String("exchange.Error", exchange.Error), zap.String("description", exchange.ErrorDescription))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	} else if err != nil {
+		appCtx.Logger().Error("exchange code for access token", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
+	// Verify access token
+	_, verificationError := oktaVerifyToken(exchange.IDToken, returnedState, *provider)
+
+	if verificationError != nil {
+		appCtx.Logger().Error("token exchange verification", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+	// Assign token values to session
+	appCtx.Session().IDToken = exchange.IDToken
+	appCtx.Session().AccessToken = exchange.AccessToken
+	appCtx.Session().Provider = auth.AuthenticationProviderOkta
+
+	// Retrieve user info
+	profileData, err := oktaGetProfileData(appCtx, *provider)
+	if err != nil {
+		appCtx.Logger().Error("get profile data", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
+	appCtx.Session().IDToken = exchange.IDToken
+	appCtx.Session().Email = profileData.Email
+	//appCtx.Session().ClientID = profileData.Aud
+
+	appCtx.Logger().Info("New Login", zap.String("Okta user", profileData.PreferredUsername), zap.String("Okta email", profileData.Email), zap.String("Host", appCtx.Session().Hostname))
+
+	result := oktaAuthorizeUser(r.Context(), appCtx, profileData, sessionManager, h.sender)
+	switch result {
+	case authorizationResultError:
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+	case authorizationResultUnauthorized:
+		oktaInvalidPermissionsResponse(appCtx, h.HandlerConfig, h.OktaContext, w, r)
+	case authorizationResultAuthorized:
+		http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
+	}
+}
+
+func oktaAuthorizeUser(ctx context.Context, appCtx appcontext.AppContext, oktaUser models.OktaUser, sessionManager auth.SessionManager, notificationSender notifications.NotificationSender) AuthorizationResult {
+	userIdentity, err := models.FetchOktaUserIdentity(appCtx.DB(), oktaUser.Sub)
+
+	if err == nil {
+		// In this case, we found an existing user associated with the
+		// unique okta.mil ID (aka OID_User, aka openIDUser.UserID,
+		// aka models.User.okta_id)
+		appCtx.Logger().Info("Known user: found by okta.mil OID_User, checking authorization", zap.String("OID_User", oktaUser.Sub), zap.String("OID_Email", oktaUser.Email), zap.String("user.id", userIdentity.ID.String()), zap.String("user.okta_email", userIdentity.Email))
+
+		// authorizing a known user is the same for login.gov and okta
+		result := AuthorizeKnownUser(ctx, appCtx, userIdentity, sessionManager)
+		appCtx.Logger().Info("Known user authorization",
+			zap.Any("authorizedResult", result),
+			zap.String("OID_User", oktaUser.Sub),
+			zap.String("OID_Email", oktaUser.Email))
+		return result
+	} else if err == models.ErrFetchNotFound { // Never heard of them
+		// so far In this case, we can't find an existing user
+		// associated with the unique okta.mil UUID (aka OID_User,
+		// aka openIDUser.UserID, models.User.okta_id).
+		// The authorizeUnknownUser method tries to find a user record
+		// with a matching email address
+		appCtx.Logger().Info("Unknown user: not found by okta.mil OID_User, associating email and checking authorization", zap.String("OID_User", oktaUser.Sub), zap.String("OID_Email", oktaUser.Email))
+		result := oktaAuthorizeUnknownUser(ctx, appCtx, oktaUser, sessionManager, notificationSender)
+		appCtx.Logger().Info("Unknown user authorization",
+			zap.Any("authorizedResult", result),
+			zap.String("OID_User", oktaUser.Sub),
+			zap.String("OID_Email", oktaUser.Email))
+		return result
+	}
+
+	appCtx.Logger().Error("Error loading Identity.", zap.Error(err))
+	return authorizationResultError
+}
+
+func oktaAuthorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, oktaUser models.OktaUser, sessionManager auth.SessionManager, notificationSender notifications.NotificationSender) AuthorizationResult {
+	var officeUser *models.OfficeUser
+	var user *models.User
+	var err error
+
+	// Loads the User and Roles associations of the office or admin user
+	conn := appCtx.DB().Eager("User", "User.Roles")
+
+	if appCtx.Session().IsOfficeApp() {
+		// Look to see if we have OfficeUser with this email address
+		//
+		// WARNING: Is this the right thing to do for Okta?
+		// Should we be using the okta username?
+		//
+		officeUser, err = models.FetchOfficeUserByEmail(conn, appCtx.Session().Email)
+		if err == models.ErrFetchNotFound {
+			appCtx.Logger().Error("Unauthorized: No Office user found",
+				zap.String("OID_User", oktaUser.Sub),
+				zap.String("OID_Email", oktaUser.Email))
+			return authorizationResultUnauthorized
+		} else if err != nil {
+			appCtx.Logger().Error("Authorization checking for office user",
+				zap.String("OID_User", oktaUser.Sub),
+				zap.String("OID_Email", oktaUser.Email),
+				zap.Error(err))
+			return authorizationResultError
+		}
+		if !officeUser.Active {
+			appCtx.Logger().Error("Unauthorized: Office user deactivated",
+				zap.String("OID_User", oktaUser.Sub),
+				zap.String("OID_Email", oktaUser.Email))
+			return authorizationResultUnauthorized
+		}
+		user = &officeUser.User
+	}
+
+	var adminUser models.AdminUser
+	if appCtx.Session().IsAdminApp() {
+		// Look to see if we have AdminUser with this email address
+		queryBuilder := query.NewQueryBuilder()
+		filters := []services.QueryFilter{
+			query.NewQueryFilter("email", "=", appCtx.Session().Email),
+		}
+		err = queryBuilder.FetchOne(appCtx, &adminUser, filters)
+
+		// Log error and return if no AdminUser found with this email
+		if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+			appCtx.Logger().Error("Unauthorized: No admin user found",
+				zap.String("OID_User", oktaUser.Sub),
+				zap.String("OID_Email", oktaUser.Email))
+			return authorizationResultUnauthorized
+		} else if err != nil {
+			appCtx.Logger().Error("Authorization checking for admin user",
+				zap.String("OID_User", oktaUser.Sub),
+				zap.String("OID_Email", oktaUser.Email),
+				zap.Error(err))
+			return authorizationResultError
+		}
+		// Log error and return if adminUser was found but deactivated
+		if !adminUser.Active {
+			appCtx.Logger().Error("Unauthorized: Admin user deactivated",
+				zap.String("OID_User", oktaUser.Sub),
+				zap.String("OID_Email", oktaUser.Email))
+			return authorizationResultUnauthorized
+		}
+		user = &adminUser.User
+	}
+
+	if appCtx.Session().IsMilApp() {
+		user, err = models.CreateOktaUser(appCtx.DB(), oktaUser.Sub, oktaUser.Email)
+		if err == nil {
+			sysAdminEmail := notifications.GetSysAdminEmail(notificationSender)
+			appCtx.Logger().Info(
+				"New user account created through Okta.mil",
+				zap.String("newUserID", user.ID.String()),
+			)
+			email, emailErr := notifications.NewUserAccountCreated(appCtx, sysAdminEmail, user.ID, user.UpdatedAt)
+			if emailErr == nil {
+				sendErr := notificationSender.SendNotification(appCtx, email)
+				if sendErr != nil {
+					appCtx.Logger().Error("Error sending user creation email", zap.Error(sendErr))
+				}
+			} else {
+				appCtx.Logger().Error("Error creating user creation email", zap.Error(emailErr))
+			}
+		}
+		// Create the user's service member now and add the ServiceMemberID to
+		// the session to allow the user's `CurrentMilSessionId` field to be
+		// populated. This field is only populated if `session.IsServiceMember()`
+		// returns true, and it only returns true if the user has a service
+		// member associated with it. Previously, the service member was created
+		// after the auth flow was over, when the user was redirected to the
+		// onboarding home page (via /src/sagas/onboarding.js). This meant that
+		// on the very first sign in, a user's `CurrentMilSessionId` would be
+		// empty, which was misleading and prevented us from revoking their session.
+		newServiceMember := models.ServiceMember{
+			UserID: user.ID,
+		}
+		smVerrs, smErr := models.SaveServiceMember(appCtx, &newServiceMember)
+		if smVerrs.HasAny() || smErr != nil {
+			appCtx.Logger().Error("Error creating service member for user", zap.Error(smErr))
+			return authorizationResultError
+		}
+		appCtx.Session().ServiceMemberID = newServiceMember.ID
+	} else {
+		// If in Office App or Admin App with valid user - update user's OktaID
+		appCtx.Logger().Error("Authorization associating UUID with user",
+			zap.String("OID_User", oktaUser.Sub),
+			zap.String("OID_Email", oktaUser.Email),
+			zap.String("user.id", user.ID.String()),
+		)
+		err = models.UpdateUserOktaID(appCtx.DB(), user, oktaUser.Sub)
+	}
+
+	if err != nil {
+		appCtx.Logger().Error("Authorization error updating/creating user", zap.Error(err))
+		return authorizationResultError
+	}
+
+	appCtx.Session().UserID = user.ID
+	if appCtx.Session().IsOfficeApp() && officeUser != nil {
+		appCtx.Session().OfficeUserID = officeUser.ID
+	} else if appCtx.Session().IsAdminApp() && adminUser.ID != uuid.Nil {
+		appCtx.Session().AdminUserID = adminUser.ID
+	}
+
+	appCtx.Session().Roles = append(appCtx.Session().Roles, user.Roles...)
+	appCtx.Session().Permissions = getPermissionsForUser(appCtx, user.ID)
+
+	if sessionManager == nil {
+		appCtx.Logger().Error("Authenticating user, cannot get session manager from request")
+		return authorizationResultError
+	}
+
+	authError := authenticateUser(ctx, appCtx, sessionManager)
+	if authError != nil {
+		appCtx.Logger().Error("Authenticate user", zap.Error(authError))
+		return authorizationResultError
+	}
+
+	return authorizationResultAuthorized
+}
+
+// InitAuth initializes the Okta provider
+func InitOktaAuth(v *viper.Viper, logger *zap.Logger, serverNames auth.ApplicationServername) (*okta.Provider, error) {
+
+	// Create a new Okta Provider. This will be used in the creation of the additional providers for each subdomain
+	oktaProvider := okta.NewOktaProvider(logger)
+	err := oktaProvider.RegisterProviders(v, serverNames)
+	if err != nil {
+		logger.Error("Initializing auth", zap.Error(err))
+		return nil, err
+	}
+
+	return oktaProvider, nil
+}

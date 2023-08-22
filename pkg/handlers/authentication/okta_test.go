@@ -3,144 +3,41 @@ package authentication
 import (
 	"bytes"
 	"context"
-	"encoding/gob"
 	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strconv"
-	"testing"
-	"time"
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/jarcoal/httpmock"
 	"github.com/markbates/goth"
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
-	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/notifications/mocks"
-	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-// UserSessionCookieName is the key suffix at which we're storing our token cookie
-const UserSessionCookieName = "session_token"
-
-// This is a dumy private key that has no use and is not reflective of any real keys utilized. This key was generated
-// specifically for the purpose of testing.
-const DummyRSAPrivateKey = `-----BEGIN RSA PRIVATE KEY-----
-MIICXQIBAAKBgQDQ62hDHRRAduSuUQDxixn61bbRLj9iBBmRG03rW3PNnkSzrcof
-9ytnKY2LX2DAPaSr/1Em7fvqiovzVg43ElfFHJBrCskJqWLphifv6qoGX1pwsPA/
-Rb+MBqftMU1Zq7UC9Eis/Sje2QGx7k02JoQy+R/EP/kQq1B0p4/qCtR73QIDAQAB
-AoGBALVzP+LKZsR2frdHc2JWRgIti9KyMCqZFPuKk2pOy41SYKkNz/djXTcESAM8
-m3NcFqGr5nfBSoKyQkrd+wqpy7+8X15MpClVErfUeowoOpaFQBr0E5Yf8WuzWXV2
-Daex1aeA+69OAPmYEiVJD4qY6m8vxHZZT0ISNEIW4ObhyQmhAkEA9SvhOADfQLp8
-7vZXTWW/fhapi8NiKW8cWT4wDQhwnW2glGxyVJBWwj+VtcJ8j5mEfm6vInh7QAYl
-2dV/sMaNNwJBANolofvurHjd56WcdHENctAJTxiWtTqA9RIrtIIzJW7cqR4ujQKL
-ndD5v2nG+b2JdlcOBzNs0LVF+ItwYMTYKYsCQQC1LqhR6tMR0r9hGUuLNxY86CKD
-1vBEDoi0qvB3sTUIImv5Q+t58vEqvDK3D/Nda+YuST3EC6WJuwFd6hljWlghAkBL
-s9mVywrxWtijoTrLbMZWKZTYTJyRs+TYLHCU6ljoMw1BWxg2NOtMdQ8XDyTlwIlf
-xo97Khz3e1O4WARM61LnAkAzTxo/AOHVKawAR45eq4rjz0rxyCgtcTGa1qaEt9Ap
-WjqcmKEkxqxz6lX/Pj2GbyikMkDThcp1bd1DRSUDOxHP
------END RSA PRIVATE KEY-----
-`
-const DummyRSAPublicKey = `-----BEGIN PUBLIC KEY-----
-MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDQ62hDHRRAduSuUQDxixn61bbR
-Lj9iBBmRG03rW3PNnkSzrcof9ytnKY2LX2DAPaSr/1Em7fvqiovzVg43ElfFHJBr
-CskJqWLphifv6qoGX1pwsPA/Rb+MBqftMU1Zq7UC9Eis/Sje2QGx7k02JoQy+R/E
-P/kQq1B0p4/qCtR73QIDAQAB
------END PUBLIC KEY-----
-`
-
-const DummyRSAModulus = "0OtoQx0UQHbkrlEA8YsZ-tW20S4_YgQZkRtN61tzzZ5Es63KH_crZymNi19gwD2kq_9RJu376oqL81YONxJXxRyQawrJCali6YYn7-qqBl9acLDwP0W_jAan7TFNWau1AvRIrP0o3tkBse5NNiaEMvkfxD_5EKtQdKeP6grUe90"
-const jwtKeyID = "keyID"
-
-// SessionCookieName returns the session cookie name
-func SessionCookieName(session *auth.Session) string {
-	return fmt.Sprintf("%s_%s", string(session.ApplicationName), UserSessionCookieName)
-}
-
-type AuthSuite struct {
-	handlers.BaseHandlerTestSuite
-	callbackPort int
-}
-
-func (suite *AuthSuite) SetupTest() {
-	gob.Register(auth.Session{})
-	suite.callbackPort = 1234
-}
-
 // AuthContext returns a testing auth context
-func (suite *AuthSuite) AuthContext() Context {
-	return NewAuthContext(suite.Logger(), *fakeOktaProvider(suite.Logger()),
+func (suite *AuthSuite) OktaAuthContext() OktaContext {
+	return NewOktaAuthContext(suite.Logger(), *fakeOktaProvider(suite.Logger()),
 		"http", suite.callbackPort)
 }
 
-func (suite *AuthSuite) urlForHost(host string) *url.URL {
-	var u url.URL
-	u.Scheme = "http"
-	u.Host = fmt.Sprintf("%s:%d", host, suite.callbackPort)
-	u.Path = "/"
-	return &u
+func fakeOktaProvider(logger *zap.Logger) *okta.Provider {
+	return okta.NewOktaProvider(logger)
 }
 
-func TestAuthSuite(t *testing.T) {
-	hs := &AuthSuite{
-		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(notifications.NewStubNotificationSender("milmovelocal"), testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
-	}
-	suite.Run(t, hs)
-	hs.PopTestSuite.TearDown()
-}
-
-func (suite *AuthSuite) SetupSessionContext(ctx context.Context, session *auth.Session, sessionManager auth.SessionManager) context.Context {
-	ctx, err := sessionManager.Load(ctx, session.IDToken)
-	suite.NoError(err)
-	_, _, err = sessionManager.Commit(ctx)
-	suite.NoError(err)
-	sessionManager.Put(ctx, "session", session)
-	return ctx
-}
-
-func (suite *AuthSuite) SetupSessionRequest(r *http.Request, session *auth.Session, sessionManager auth.SessionManager) *http.Request {
-	ctx := suite.SetupSessionContext(r.Context(), session, sessionManager)
-	ctx = auth.SetSessionInRequestContext(r.WithContext(ctx), session)
-	return r.WithContext(ctx)
-}
-
-func setUpMockNotificationSender() notifications.NotificationSender {
-	// We need a NotificationSender for sending user activity emails to system admins.
-	// If an unknown Service Member tries to log in, we'll create a new account for them, and that's requires an email.
-	// This function allows us to set up a fresh mock for each test so we can check the number of calls it has.
-	mockSender := mocks.NotificationSender{}
-	mockSender.On("SendNotification",
-		mock.AnythingOfType("*appcontext.appContext"),
-		mock.AnythingOfType("*notifications.UserAccountModified"),
-	).Return(nil)
-
-	return &mockSender
-}
-
-func (suite *AuthSuite) TestGenerateNonce() {
-	t := suite.T()
-	nonce := generateNonce()
-
-	if (nonce == "") || (len(nonce) < 1) {
-		t.Error("No nonce was returned.")
-	}
-}
-
-func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
+func (suite *AuthSuite) TestAuthorizationOktaLogoutHandler() {
 	// this sets up a user with a valid ID and Access token
 	// calls /auth/logout which should clear those tokens
 	// checks to make sure those values are not present in session
@@ -148,9 +45,9 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	OktaID := "2400c3c5-019d-4031-9c27-8a553e022297"
 
 	user := models.User{
-		OktaID:    OktaID,
-		OktaEmail: "email@example.com",
-		Active:    true,
+		OktaID:        OktaID,
+		LoginGovEmail: "email@example.com",
+		Active:        true,
 	}
 	suite.MustSave(&user)
 
@@ -206,9 +103,9 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 	// Given: a logged in user
 	OktaID := ("2400c3c5-019d-4031-9c27-8a553e022297")
 	user := models.User{
-		OktaID:    OktaID,
-		OktaEmail: "email@example.com",
-		Active:    true,
+		OktaID:        OktaID,
+		LoginGovEmail: "email@example.com",
+		Active:        true,
 	}
 	suite.MustSave(&user)
 
@@ -460,9 +357,9 @@ func (suite *AuthSuite) TestIsLoggedInWhenNoUserLoggedIn() {
 func (suite *AuthSuite) TestIsLoggedInWhenUserLoggedIn() {
 	OktaID := "2400c3c5-019d-4031-9c27-8a553e022297"
 	user := models.User{
-		OktaID:    OktaID,
-		OktaEmail: "email@example.com",
-		Active:    true,
+		OktaID:        OktaID,
+		LoginGovEmail: "email@example.com",
+		Active:        true,
 	}
 	suite.MustSave(&user)
 
@@ -510,9 +407,9 @@ func (suite *AuthSuite) TestRequireAdminAuthMiddleware() {
 	// Given: a logged in user
 	OktaID := "2400c3c5-019d-4031-9c27-8a553e022297"
 	user := models.User{
-		OktaID:    OktaID,
-		OktaEmail: "email@example.com",
-		Active:    true,
+		OktaID:        OktaID,
+		LoginGovEmail: "email@example.com",
+		Active:        true,
 	}
 	suite.MustSave(&user)
 
@@ -647,9 +544,9 @@ func (suite *AuthSuite) TestRedirectOktaErrorMsg() {
 	OktaID := ("2400c3c5-019d-4031-9c27-8a553e022297")
 
 	user := models.User{
-		OktaID:    OktaID,
-		OktaEmail: "email@example.com",
-		Active:    true,
+		OktaID:        OktaID,
+		LoginGovEmail: "email@example.com",
+		Active:        true,
 	}
 	suite.MustSave(&user)
 
@@ -792,30 +689,45 @@ func (suite *AuthSuite) TestRedirectFromOktaForValidUser() {
 		rr.Result().Header.Get("Location"))
 }
 
-func generateJWTToken(aud, iss, nonce string) (string, error) {
+// Generate and activate Okta endpoints that will be using during the auth handlers.
+func mockAndActivateOktaEndpoints(tioOfficeUser models.OfficeUser, provider *okta.Provider) {
+	// Mock the OIDC .well-known openid-configuration endpoint
+	jwksURL := provider.GetJWKSURL()
+	openIDConfigURL := provider.GetOpenIDConfigURL()
+	userInfoURL := provider.GetUserInfoURL()
 
-	claims := jwt.MapClaims{
-		"aud":   aud,
-		"iss":   iss,
-		"exp":   time.Now().Add(time.Hour * 72).Unix(),
-		"iat":   time.Now().Unix(),
-		"nonce": nonce,
-	}
+	httpmock.RegisterResponder("GET", openIDConfigURL,
+		httpmock.NewStringResponder(200, fmt.Sprintf(`{
+            "jwks_uri": "%s"
+        }`, jwksURL)))
 
-	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
-	token.Header["kid"] = jwtKeyID
+	// Mock the JWKS endpoint to receive keys for JWT verification
+	httpmock.RegisterResponder("GET", jwksURL,
+		httpmock.NewStringResponder(200, fmt.Sprintf(`{
+        "keys": [
+            {
+                "alg": "RS256",
+                "kty": "RSA",
+                "use": "sig",
+                "n": "%s",
+                "e": "AQAB",
+                "kid": "%s"
+            }
+        ]
+    }`, DummyRSAModulus, jwtKeyID)))
 
-	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(DummyRSAPrivateKey))
-	if err != nil {
-		return "", err
-	}
+	// Mock the userinfo endpoint
+	// Sub is the Okta user ID, it is not a UUID.
+	tioOfficeOktaUserID := tioOfficeUser.User.OktaID
 
-	signedToken, err := token.SignedString(privateKey)
-	if err != nil {
-		return "", err
-	}
+	httpmock.RegisterResponder("GET", userInfoURL,
+		httpmock.NewStringResponder(200, fmt.Sprintf(`{
+		"sub": "%s",
+		"name": "name",
+		"email": "name@okta.com"
+	}`, tioOfficeOktaUserID)))
 
-	return signedToken, nil
+	httpmock.Activate()
 }
 
 // Test to make sure the full auth flow works, although we are using mock Okta endpoints
@@ -898,9 +810,9 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 	OktaID := ("2400c3c5-019d-4031-9c27-8a553e022297")
 
 	user := models.User{
-		OktaID:    OktaID,
-		OktaEmail: "email@example.com",
-		Active:    true,
+		OktaID:        OktaID,
+		LoginGovEmail: "email@example.com",
+		Active:        true,
 	}
 	suite.MustSave(&user)
 
@@ -1040,8 +952,8 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 	// Verify session contains UserID that points to the newly-created user
 	suite.Equal(foundUser.ID, session.UserID)
 
-	// Verify user's OktaEmail and OktaID match the values passed in
-	suite.Equal(user.Email, foundUser.OktaEmail)
+	// Verify user's LoginGovEmail and OktaID match the values passed in
+	suite.Equal(user.Email, foundUser.LoginGovEmail)
 	suite.Equal(user.Sub, foundUser.OktaID)
 
 	// Verify that the user's CurrentMilSessionID is not empty. The value is
@@ -1165,7 +1077,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 			Model: models.OfficeUser{
 				Active: true,
 				UserID: &user.ID,
-				Email:  user.OktaEmail,
+				Email:  user.LoginGovEmail,
 			},
 		},
 		{
@@ -1219,7 +1131,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
 			Model: models.OfficeUser{
 				Active: true,
 				UserID: &user.ID,
-				Email:  user.OktaEmail,
+				Email:  user.LoginGovEmail,
 			},
 		},
 		{
@@ -1342,22 +1254,22 @@ func (suite *AuthSuite) TestAuthorizeKnownUserAdminNotFound() {
 	appnames := handlerConfig.AppNames()
 	// user exists in the DB, but not as an admin user
 	fakeToken := "some_token"
-	OktaID := "000"
+	oktaID := "000"
 	userID := uuid.Must(uuid.NewV4())
 	serviceMemberID := uuid.Must(uuid.NewV4())
 
 	user := models.User{
-		OktaID:    OktaID,
-		OktaEmail: "email@example.com",
-		Active:    true,
-		ID:        userID,
+		OktaID:        &oktaID,
+		LoginGovEmail: "email@example.com",
+		Active:        true,
+		ID:            userID,
 	}
 	session := auth.Session{
 		ApplicationName: auth.AdminApp,
 		UserID:          user.ID,
 		IDToken:         fakeToken,
 		Hostname:        appnames.AdminServername,
-		Email:           user.OktaEmail,
+		Email:           user.LoginGovEmail,
 	}
 
 	userIdentity := models.UserIdentity{

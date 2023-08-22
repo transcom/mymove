@@ -19,7 +19,7 @@ import (
 // ! See flow here:
 // ! https://developer.okta.com/docs/guides/implement-grant-type/authcode/main/
 
-func getProfileData(appCtx appcontext.AppContext, provider okta.Provider) (models.OktaUser, error) {
+func oktaGetProfileData(appCtx appcontext.AppContext, provider okta.Provider) (models.OktaUser, error) {
 	user := models.OktaUser{}
 
 	if appCtx.Session().AccessToken == "" {
@@ -51,7 +51,7 @@ func getProfileData(appCtx appcontext.AppContext, provider okta.Provider) (model
 	return user, nil
 }
 
-func verifyToken(t string, nonce string, provider okta.Provider) (*verifier.Jwt, error) {
+func oktaVerifyToken(t string, nonce string, provider okta.Provider) (*verifier.Jwt, error) {
 	tv := map[string]string{}
 	tv["nonce"] = nonce
 	tv["aud"] = provider.GetClientID()

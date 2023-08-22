@@ -143,17 +143,26 @@ func WrapOktaProvider(provider *gothOkta.Provider, orgURL string, clientID strin
 }
 
 // Function to register all three providers at once.
-func (op *Provider) RegisterProviders(v *viper.Viper) error {
+func (op *Provider) RegisterProviders(v *viper.Viper, serverNames auth.ApplicationServername) error {
+
+	oktaCallbackProtocol := v.GetString(cli.OktaTenantCallbackProtocolFlag)
+	oktaCallbackPort := v.GetInt(cli.OktaTenantCallbackPortFlag)
+
 	oktaTenantOrgURL := v.GetString(cli.OktaTenantOrgURLFlag)
-	oktaCustomerCallbackURL := v.GetString(cli.OktaCustomerCallbackURL)
 	oktaCustomerClientID := v.GetString(cli.OktaCustomerClientIDFlag)
 	oktaCustomerSecretKey := v.GetString(cli.OktaCustomerSecretKeyFlag)
-	oktaOfficeCallbackURL := v.GetString(cli.OktaOfficeCallbackURL)
+	oktaCustomerCallbackURL := fmt.Sprintf("%s://%s:%d/", oktaCallbackProtocol,
+		serverNames.MilServername, oktaCallbackPort)
+
 	oktaOfficeClientID := v.GetString(cli.OktaOfficeClientIDFlag)
 	oktaOfficeSecretKey := v.GetString(cli.OktaOfficeSecretKeyFlag)
-	oktaAdminCallbackURL := v.GetString(cli.OktaAdminCallbackURL)
+	oktaOfficeCallbackURL := fmt.Sprintf("%s://%s:%d/", oktaCallbackProtocol,
+		serverNames.OfficeServername, oktaCallbackPort)
+
 	oktaAdminClientID := v.GetString(cli.OktaAdminClientIDFlag)
 	oktaAdminSecretKey := v.GetString(cli.OktaAdminSecretKeyFlag)
+	oktaAdminCallbackURL := fmt.Sprintf("%s://%s:%d/", oktaCallbackProtocol,
+		serverNames.AdminServername, oktaCallbackPort)
 
 	// Declare OIDC scopes to be used within the providers
 	scope := []string{"openid", "email", "profile"}

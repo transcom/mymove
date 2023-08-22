@@ -397,7 +397,7 @@ func (h CreateAndLoginUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Requ
 // createUser creates a user
 func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (*models.User, string) {
 	appCtx := h.HandlerConfig.AppContextFromRequest(r)
-	id := uuid.Must(uuid.NewV4()).String()
+	id := uuid.Must(uuid.NewV4())
 
 	// Set up some defaults that we can pass in from a form
 	firstName := r.PostFormValue("firstName")
@@ -436,9 +436,9 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 
 	// Create the User (which is the basis of all Service Members)
 	user := models.User{
-		OktaID:    id,
-		OktaEmail: email,
-		Active:    true,
+		LoginGovUUID:  &id,
+		LoginGovEmail: email,
+		Active:        true,
 	}
 
 	verrs, err := appCtx.DB().ValidateAndCreate(&user)
@@ -903,7 +903,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 
 		adminUser := models.AdminUser{
 			UserID:    &user.ID,
-			Email:     user.OktaEmail,
+			Email:     user.LoginGovEmail,
 			FirstName: "Leo",
 			LastName:  "Spaceman",
 			Role:      models.SystemAdminRole,
@@ -930,11 +930,11 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, _ 
 		session = &auth.Session{}
 	}
 
-	lgUUID := user.OktaID
-	userIdentity, err := models.FetchUserIdentity(appCtx.DB(), lgUUID)
+	lgID := user.LoginGovUUID
+	userIdentity, err := models.FetchUserIdentity(appCtx.DB(), lgID.String())
 
 	if err != nil {
-		return nil, errors.Wrapf(err, "Unable to fetch user identity from OktaID %s", lgUUID)
+		return nil, errors.Wrapf(err, "Unable to fetch user identity from login_gov_id %s", lgID)
 	}
 
 	session.Roles = append(session.Roles, userIdentity.Roles...)
@@ -942,6 +942,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, _ 
 
 	// Assign user identity to session
 	session.IDToken = "devlocal"
+	session.Provider = auth.AuthenticationProviderDevlocal
 	session.UserID = userIdentity.ID
 	session.Email = userIdentity.Email
 

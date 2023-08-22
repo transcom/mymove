@@ -17,8 +17,8 @@ func MakeNeedsOrdersUser(db *pop.Connection) models.User {
 	user := factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
-				OktaEmail: email,
-				Active:    true,
+				LoginGovEmail: email,
+				Active:        true,
 			},
 		},
 	}, nil)

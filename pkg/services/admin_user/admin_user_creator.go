@@ -39,8 +39,8 @@ func (o *adminUserCreator) CreateAdminUser(
 
 	if fetchErr != nil {
 		user = models.User{
-			OktaEmail: strings.ToLower(admin.Email),
-			Active:    true,
+			LoginGovEmail: strings.ToLower(admin.Email),
+			Active:        true,
 		}
 	}
 

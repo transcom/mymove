@@ -291,15 +291,15 @@ func createOfficeUser(appCtx appcontext.AppContext) {
 	}
 
 	tooTioUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"))
-	OktaID := uuid.Must(uuid.NewV4())
+	lgID := uuid.Must(uuid.NewV4())
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
-				ID:        tooTioUUID,
-				OktaID:    OktaID.String(),
-				OktaEmail: email,
-				Active:    true,
-				Roles:     []roles.Role{tooRole, tioRole},
+				ID:            tooTioUUID,
+				LoginGovUUID:  &lgID,
+				LoginGovEmail: email,
+				Active:        true,
+				Roles:         []roles.Role{tooRole, tioRole},
 			},
 		},
 	}, nil)
