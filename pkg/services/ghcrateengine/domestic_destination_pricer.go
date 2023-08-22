@@ -45,18 +45,21 @@ func (p domesticDestinationPricer) Price(appCtx appcontext.AppContext, contractC
 		return 0, nil, fmt.Errorf("Could not lookup Domestic Service Area Price: %w", err)
 	}
 
-	contractYear, err := fetchContractYear(appCtx, domServiceAreaPrice.ContractID, referenceDate)
-	if err != nil {
-		return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
-	}
-
 	finalWeight := weight
 	if isPPM && weight < minDomesticWeight {
 		finalWeight = minDomesticWeight
 	}
 
 	basePrice := domServiceAreaPrice.PriceCents.Float64() * finalWeight.ToCWTFloat64()
-	escalatedPrice := basePrice * contractYear.EscalationCompounded
+	// WARN: @rogeruiz: I'm unsure if the `isPeakPeriod` is what I should be
+	// passing here. I saw a boolean, so I used it. But if `isPeakPeriod` isn't
+	// equivalent to `isLinehaul`, then we need another boolean calculation
+	// here.
+	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, domServiceAreaPrice.ContractID, referenceDate, isPeakPeriod, basePrice)
+	if err != nil {
+		return 0, nil, fmt.Errorf("Could not look up escalated price: %w", err)
+	}
+
 	totalCost := unit.Cents(math.Round(escalatedPrice))
 
 	pricingParams := services.PricingDisplayParams{
