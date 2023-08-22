@@ -666,6 +666,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 		Where("loa_hs_gds_cd != ?", models.LineOfAccountingHouseholdGoodsCodeNTS).
 		Order("t.tac_fn_bl_mod_cd asc").
 		Order("loa_bgn_dt desc").
+		Order("t.tac_fy_txt desc").
 		All(&loas)
 	if err != nil {
 		switch err {
