@@ -58,8 +58,6 @@ const transportationAccountingCode = "TRNSPRTN_ACNT"
 type GetTableRequestElement struct {
 	soapClient    SoapCaller
 	securityToken string
-	createdAt     string
-	expiresAt     string
 	Input         struct {
 		TRDM struct {
 			PhysicalName  string `xml:"physicalName"`
@@ -92,11 +90,9 @@ type GetTableUpdater interface {
 	GetTable(appCtx appcontext.AppContext, physicalName string, lastUpdate string) error
 }
 
-func NewGetTable(physicalName string, securityToken string, createdAt string, expiresAt string, soapClient SoapCaller) GetTableUpdater {
+func NewGetTable(physicalName string, securityToken string, soapClient SoapCaller) GetTableUpdater {
 	return &GetTableRequestElement{
 		securityToken: securityToken,
-		createdAt:     createdAt,
-		expiresAt:     expiresAt,
 		soapClient:    soapClient,
 		Input: struct {
 			TRDM struct {
@@ -170,6 +166,9 @@ func setupSoapCall(d *GetTableRequestElement, appCtx appcontext.AppContext, phys
 		"xmlns:ret":     "http://ReturnTablePackage/",
 	})
 
+	createdAt := time.Now()
+	expiresAt := time.Now().Add(500)
+
 	header := gosoap.HeaderParams{
 		"Security": map[string]interface{}{
 			"wsse,attr": "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
@@ -177,11 +176,11 @@ func setupSoapCall(d *GetTableRequestElement, appCtx appcontext.AppContext, phys
 			"BinarySecurityToken": map[string]interface{}{
 				"EncodingType,attr": "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary",
 				"ValueType,attr":    "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3",
-				"Id,attr":           "X509-79B3B596EDF5EC1B8316760431316952",
+				"Id,attr":           "X509-79B3B596EDF5EC1B8316760431316952", // unsure how to generate this
 				",chardata":         d.securityToken,
 			},
 			"Signature": map[string]interface{}{
-				"Id,attr":  "SIG-79B3B596EDF5EC1B8316760431317886",
+				"Id,attr":  "SIG-79B3B596EDF5EC1B8316760431317886", // unsure how to generate this
 				"ds, attr": "http://www.w3.org/2000/09/xmldsig#",
 				"SignedInfo": map[string]interface{}{
 					"CanonicalizationMethod": map[string]interface{}{
@@ -191,7 +190,7 @@ func setupSoapCall(d *GetTableRequestElement, appCtx appcontext.AppContext, phys
 						"Algorithm,attr": "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
 					},
 					"Reference": map[string]interface{}{
-						"URI,attr": "#TS-79B3B596EDF5EC1B8316760431315711",
+						"URI,attr": "#TS-79B3B596EDF5EC1B8316760431315711", //unsure how to generate this
 						"Transforms": map[string]interface{}{
 							"Transform": map[string]interface{}{
 								"Algorithm,attr": "http://www.w3.org/2001/10/xml-exc-c14n#",
@@ -208,8 +207,8 @@ func setupSoapCall(d *GetTableRequestElement, appCtx appcontext.AppContext, phys
 			},
 			"Timestamp": map[string]interface{}{
 				"Id,attr": "TS-D144323CC7DDCF9E41169263838365311",
-				"Created": d.createdAt,
-				"Expires": d.expiresAt,
+				"Created": createdAt,
+				"Expires": expiresAt,
 			},
 		},
 	}
