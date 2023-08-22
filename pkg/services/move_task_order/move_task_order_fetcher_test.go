@@ -305,9 +305,20 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		suite.Error(err)
 	})
 
-	//test GetMove()
-	suite.Run("success getting a move using GetMove", func() {
-		expectedMTO, _ := setupTestData()
+}
+
+func (suite *MoveTaskOrderServiceSuite) TestGetMoveTaskOrderFetcher() {
+	setupTestData := func() models.Move {
+
+		expectedMTO := factory.BuildMove(suite.DB(), nil, nil)
+
+		return expectedMTO
+	}
+
+	mtoFetcher := NewMoveTaskOrderFetcher()
+
+	suite.Run("success getting a move using GetMove for Prime user", func() {
+		expectedMTO := setupTestData()
 		searchParams := services.MoveTaskOrderFetcherParams{
 			MoveTaskOrderID: expectedMTO.ID,
 		}
@@ -354,15 +365,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 			&searchParams,
 		)
 
-		// suite.NoError(err)
-		// suite.NotNil(moveReturned)
-		// suite.Equal(expectedMTO.ID, moveReturned.ID)
 		if suite.NoError(err) && suite.NotNil(moveReturned) {
 			suite.Equal(expectedMTO.ID, moveReturned.ID)
 		}
 	})
 
-	suite.Run("Returns a not found error if it is a customer app request by a customer that it doesn't belong to", func() {
+	suite.Run("Returns a not found error if it is a customer app request by a customer that it does not belong to", func() {
 		badUser := factory.BuildExtendedServiceMember(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
@@ -384,7 +392,31 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		if suite.Error(err) && suite.Nil(moveReturned) {
 			suite.IsType(apperror.NotFoundError{}, err)
 
-			suite.Equal(fmt.Sprintf("ID: %s not found while looking for move", expectedMTO.ID), err.Error())
+			suite.Contains(err.Error(), fmt.Sprintf("ID: %s not found", expectedMTO.ID))
+		}
+	})
+
+	suite.Run("success getting a move for Office user", func() {
+		officeUser := factory.BuildOfficeUser(suite.DB(), factory.GetTraitActiveOfficeUser(), nil)
+		expectedMTO := factory.BuildMove(suite.DB(), nil, nil)
+
+		searchParams := services.MoveTaskOrderFetcherParams{
+			MoveTaskOrderID: expectedMTO.ID,
+		}
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          officeUser.User.ID,
+			OfficeUserID:    officeUser.ID,
+		})
+
+		moveReturned, err := mtoFetcher.GetMove(
+			appCtx,
+			&searchParams,
+		)
+
+		if suite.NoError(err) && suite.NotNil(moveReturned) {
+			suite.Equal(expectedMTO.ID, moveReturned.ID)
 		}
 	})
 }
