@@ -899,10 +899,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 		move, mtoServiceItems := suite.setupDomesticLinehaulData()
 		moveTaskOrderID := move.ID
 
-		requestUser := factory.BuildUser(nil, nil, nil)
-
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
-		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		planner := &routemocks.Planner{}
 		planner.On("Zip5TransitDistanceLineHaul",
@@ -967,10 +964,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 		move, mtoServiceItems := suite.setupDomesticLinehaulData()
 		moveTaskOrderID := move.ID
 
-		requestUser := factory.BuildUser(nil, nil, nil)
-
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
-		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		planner := &routemocks.Planner{}
 		planner.On("Zip5TransitDistanceLineHaul",
