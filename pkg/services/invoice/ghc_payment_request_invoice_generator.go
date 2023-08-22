@@ -663,7 +663,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 		Where("t.tac = ?", tac).
 		Where("? between loa_bgn_dt and loa_end_dt", orders.IssueDate).
 		Where("t.tac_fn_bl_mod_cd != 'P'").
-		Where("loa_hs_gds_cd != 'HS'").
+		Where("loa_hs_gds_cd != ?", models.LineOfAccountingHouseholdGoodsCodeNTS).
 		Order("t.tac_fn_bl_mod_cd asc").
 		Order("loa_bgn_dt desc").
 		All(&loas)
