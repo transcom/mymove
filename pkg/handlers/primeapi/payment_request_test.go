@@ -730,10 +730,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 		move, mtoServiceItems := suite.setupDomesticLinehaulData()
 		moveTaskOrderID := move.ID
 
-		requestUser := factory.BuildUser(nil, nil, nil)
-
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
-		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		planner := &routemocks.Planner{}
 		planner.On("Zip5TransitDistanceLineHaul",
@@ -802,10 +799,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 		mtoServiceItems[0].Status = models.MTOServiceItemStatusSubmitted
 		suite.MustSave(&mtoServiceItems[0])
 
-		requestUser := factory.BuildUser(nil, nil, nil)
-
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
-		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		planner := &routemocks.Planner{}
 
@@ -849,10 +843,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 		mtoServiceItems[0].Status = models.MTOServiceItemStatusRejected
 		suite.MustSave(&mtoServiceItems[0])
 
-		requestUser := factory.BuildUser(nil, nil, nil)
-
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
-		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		planner := &routemocks.Planner{}
 
