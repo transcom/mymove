@@ -2,7 +2,7 @@ package edisegment
 
 func (suite *SegmentSuite) TestValidateFA2() {
 	validFA2 := FA2{
-		BreakdownStructureDetailCode: "TA",
+		BreakdownStructureDetailCode: FA2DetailCodeTA,
 		FinancialInformationCode:     "307",
 	}
 
