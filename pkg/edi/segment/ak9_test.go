@@ -102,11 +102,12 @@ func (suite *SegmentSuite) TestValidateAK9() {
 	})
 
 	suite.Run("validate failure min", func() {
-		// length of characters are less than min
+		// length of characters are less than min, note that 0 is acceptable for Accepted Transaction Sets
 		ak9 := AK9{
 			FunctionalGroupAcknowledgeCode:  "",
 			NumberOfTransactionSetsIncluded: 0,
 			NumberOfReceivedTransactionSets: 0,
+			NumberOfAcceptedTransactionSets: 0,
 		}
 
 		err := suite.validator.Struct(ak9)
