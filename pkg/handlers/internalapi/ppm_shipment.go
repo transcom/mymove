@@ -24,14 +24,6 @@ type SubmitPPMShipmentDocumentationHandler struct {
 func (h SubmitPPMShipmentDocumentationHandler) Handle(params ppmops.SubmitPPMShipmentDocumentationParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			if appCtx.Session() == nil {
-				return ppmops.NewSubmitPPMShipmentDocumentationUnauthorized(), apperror.NewSessionError("No user session")
-			} else if !appCtx.Session().IsMilApp() {
-				return ppmops.NewSubmitPPMShipmentDocumentationForbidden(), apperror.NewSessionError("Request is not from the customer app")
-			} else if appCtx.Session().UserID.IsNil() {
-				return ppmops.NewSubmitPPMShipmentDocumentationForbidden(), apperror.NewSessionError("No user ID in session")
-			}
-
 			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
 			if err != nil || ppmShipmentID.IsNil() {
 				appCtx.Logger().Error("error with PPM Shipment ID", zap.Error(err))
