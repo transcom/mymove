@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/benbjohnson/clock"
 	"github.com/gofrs/uuid"
@@ -558,7 +559,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	return nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order, shipment models.MTOShipment) (edisegment.FA1, []edisegment.FA2, error) {
+func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(appCtx appcontext.AppContext, orders models.Order, shipment models.MTOShipment) (edisegment.FA1, []edisegment.FA2, error) {
 	// We need to determine which TAC to use. We'll default to using the HHG TAC as that's what we've been doing
 	// up to this point. But now we need to look at the service item's MTOShipment (if there is one -- some
 	// service items like MS/CS aren't associated with a shipment) and see if it prefers the NTS TAC instead.
@@ -623,24 +624,182 @@ func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order
 		AgencyQualifierCode: agencyQualifierCode,
 	}
 
-	fa2 := edisegment.FA2{
-		BreakdownStructureDetailCode: "TA",
+	// May have multiple FA2 segments: TAC, SAC (optional), and many long LOA values
+	var fa2s []edisegment.FA2
+
+	// TAC
+	fa2TAC := edisegment.FA2{
+		BreakdownStructureDetailCode: edisegment.FA2DetailCodeTA,
 		FinancialInformationCode:     tac,
 	}
+	fa2s = append(fa2s, fa2TAC)
 
-	if sac == "" {
-
-		return fa1, []edisegment.FA2{fa2}, nil
-
+	// SAC (optional)
+	if sac != "" {
+		fa2SAC := edisegment.FA2{
+			BreakdownStructureDetailCode: edisegment.FA2DetailCodeZZ,
+			FinancialInformationCode:     sac,
+		}
+		fa2s = append(fa2s, fa2SAC)
 	}
 
-	fa2sac := edisegment.FA2{
-		BreakdownStructureDetailCode: "ZZ",
-		FinancialInformationCode:     sac,
+	fa2LongLoaSegments, err := g.createLongLoaSegments(appCtx, orders, tac)
+	if err != nil {
+		return edisegment.FA1{}, nil, err
+	}
+	fa2s = append(fa2s, fa2LongLoaSegments...)
+
+	return fa1, fa2s, nil
+}
+
+func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appcontext.AppContext, orders models.Order, tac string) ([]edisegment.FA2, error) {
+	var loas []models.LineOfAccounting
+	var loa models.LineOfAccounting
+
+	// tac_fn_bl_mod_cd is a char(1) field. It has a mix of letters and numbers. We want to get lowest numbers first, and
+	// numbers before letters. This is the behavior we get from order by.
+	err := appCtx.DB().Q().
+		Join("transportation_accounting_codes t", "t.loa_id = lines_of_accounting.id").
+		Where("t.tac = ?", tac).
+		Where("? between loa_bgn_dt and loa_end_dt", orders.IssueDate).
+		Where("t.tac_fn_bl_mod_cd != 'P'").
+		Where("loa_hs_gds_cd != ?", models.LineOfAccountingHouseholdGoodsCodeNTS).
+		Order("t.tac_fn_bl_mod_cd asc").
+		Order("loa_bgn_dt desc").
+		Order("t.tac_fy_txt desc").
+		All(&loas)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			// If no matching rows, don't include any long lines of accounting.
+			return nil, nil
+		default:
+			return nil, apperror.NewQueryError("lineOfAccounting", err, "Unexpected error")
+		}
 	}
 
-	return fa1, []edisegment.FA2{fa2, fa2sac}, nil
+	if len(loas) == 0 {
+		return nil, nil
+	}
 
+	//"HE" - E-1 through E-9 and Special Enlisted
+	//"HO" - O-1 Academy graduate through O-10, W1 - W5, Aviation Cadet, Academy Cadet, and Midshipman
+	//"HC" - Civilian employee
+
+	if orders.ServiceMember.Rank == nil {
+		return nil, apperror.NewConflictError(orders.ServiceMember.ID, "this service member has no rank")
+	}
+	rank := *orders.ServiceMember.Rank
+
+	hhgCode := ""
+	if rank[:2] == "E_" {
+		hhgCode = "HE"
+	} else if rank[:2] == "O_" || rank[:2] == "W_" || rank == models.ServiceMemberRankACADEMYCADET || rank == models.ServiceMemberRankAVIATIONCADET || rank == models.ServiceMemberRankMIDSHIPMAN {
+		hhgCode = "HO"
+	} else if rank == models.ServiceMemberRankCIVILIANEMPLOYEE {
+		hhgCode = "HC"
+	} else {
+		return nil, apperror.NotImplementedError{}
+	}
+	// if just one, pick it
+	// if multiple,lowest FBMC
+	var loaWithMatchingCode []models.LineOfAccounting
+
+	for _, line := range loas {
+		if line.LoaHsGdsCd != nil && *line.LoaHsGdsCd == hhgCode {
+			loaWithMatchingCode = append(loaWithMatchingCode, line)
+		}
+	}
+	if len(loaWithMatchingCode) == 0 {
+		// fall back to the whole set and then sort by fbmc
+		// take first thing from whole set
+		loa = loas[0]
+	}
+	if len(loaWithMatchingCode) >= 1 {
+		// take first of loaWithMatchingCode
+		loa = loaWithMatchingCode[0]
+	}
+
+	var fa2LongLoaSegments []edisegment.FA2
+
+	var concatDate *string
+	if (loa.LoaBgnDt != nil && !loa.LoaBgnDt.IsZero()) &&
+		(loa.LoaEndDt != nil && !loa.LoaEndDt.IsZero()) {
+		fiscalYearStr := fmt.Sprintf("%d%d", loa.LoaBgnDt.Year(), loa.LoaEndDt.Year())
+		concatDate = &fiscalYearStr
+	}
+
+	// Create long LOA FA2 segments
+	segmentInputs := []struct {
+		detailCode edisegment.FA2DetailCode
+		infoCode   *string
+	}{
+		// If order of these changes, tests will also need to be adjusted. Using alpha order by detailCode.
+		{edisegment.FA2DetailCodeA1, loa.LoaDptID},
+		{edisegment.FA2DetailCodeA2, loa.LoaTnsfrDptNm},
+		{edisegment.FA2DetailCodeA3, concatDate},
+		{edisegment.FA2DetailCodeA4, loa.LoaBafID},
+		{edisegment.FA2DetailCodeA5, loa.LoaTrsySfxTx},
+		{edisegment.FA2DetailCodeA6, loa.LoaMajClmNm},
+		{edisegment.FA2DetailCodeB1, loa.LoaOpAgncyID},
+		{edisegment.FA2DetailCodeB2, loa.LoaAlltSnID},
+		{edisegment.FA2DetailCodeB3, loa.LoaUic},
+		{edisegment.FA2DetailCodeC1, loa.LoaPgmElmntID},
+		{edisegment.FA2DetailCodeC2, loa.LoaTskBdgtSblnTx},
+		{edisegment.FA2DetailCodeD1, loa.LoaDfAgncyAlctnRcpntID},
+		{edisegment.FA2DetailCodeD4, loa.LoaJbOrdNm},
+		{edisegment.FA2DetailCodeD6, loa.LoaSbaltmtRcpntID},
+		{edisegment.FA2DetailCodeD7, loa.LoaWkCntrRcpntNm},
+		{edisegment.FA2DetailCodeE1, loa.LoaMajRmbsmtSrcID},
+		{edisegment.FA2DetailCodeE2, loa.LoaDtlRmbsmtSrcID},
+		{edisegment.FA2DetailCodeE3, loa.LoaCustNm},
+		{edisegment.FA2DetailCodeF1, loa.LoaObjClsID},
+		{edisegment.FA2DetailCodeF3, loa.LoaSrvSrcID},
+		{edisegment.FA2DetailCodeG2, loa.LoaSpclIntrID},
+		{edisegment.FA2DetailCodeI1, loa.LoaBdgtAcntClsNm},
+		{edisegment.FA2DetailCodeJ1, loa.LoaDocID},
+		{edisegment.FA2DetailCodeK6, loa.LoaClsRefID},
+		{edisegment.FA2DetailCodeL1, loa.LoaInstlAcntgActID},
+		{edisegment.FA2DetailCodeM1, loa.LoaLclInstlID},
+		{edisegment.FA2DetailCodeN1, loa.LoaTrnsnID},
+		{edisegment.FA2DetailCodeP5, loa.LoaFmsTrnsactnID},
+	}
+
+	for _, input := range segmentInputs {
+		fa2, loaErr := createLongLoaSegment(input.detailCode, input.infoCode)
+		if loaErr != nil {
+			return nil, loaErr
+		}
+		if fa2 != nil {
+			fa2LongLoaSegments = append(fa2LongLoaSegments, *fa2)
+		}
+	}
+
+	return fa2LongLoaSegments, nil
+}
+
+func createLongLoaSegment(detailCode edisegment.FA2DetailCode, infoCode *string) (*edisegment.FA2, error) {
+	// If we don't have an infoCode value, then just ignore this segment
+	if infoCode == nil || strings.TrimSpace(*infoCode) == "" {
+		return nil, nil
+	}
+	value := *infoCode
+
+	// Make sure we have a detailCode
+	if len(detailCode) != 2 {
+		return nil, apperror.NewImplementationError("Detail code should have length 2")
+	}
+
+	// The FinancialInformationCode field is limited to 80 characters, so make sure the value doesn't exceed
+	// that (given our LOA field schema types, it shouldn't unless we've made a mistake somewhere).
+	if len(value) > 80 {
+		return nil, apperror.NewImplementationError(fmt.Sprintf("Value for FA2 code %s exceeds 80 character limit", detailCode))
+	}
+
+	return &edisegment.FA2{
+		BreakdownStructureDetailCode: detailCode,
+		FinancialInformationCode:     value,
+	}, nil
 }
 
 func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(appCtx appcontext.AppContext, serviceItemID uuid.UUID, key models.ServiceItemParamName) (models.PaymentServiceItemParam, error) {
@@ -881,7 +1040,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(ap
 
 		}
 
-		fa1, fa2s, err := g.createLoaSegments(orders, serviceItem.MTOServiceItem.MTOShipment)
+		fa1, fa2s, err := g.createLoaSegments(appCtx, orders, serviceItem.MTOServiceItem.MTOShipment)
 		if err != nil {
 			return segments, l3, err
 		}
