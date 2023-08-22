@@ -12,16 +12,19 @@ import (
 
 // ppmShipmentNewSubmitter is the concrete struct implementing the services.PPMShipmentNewSubmitter interface
 type ppmShipmentNewSubmitter struct {
+	services.PPMShipmentFetcher
 	services.SignedCertificationCreator
 	services.PPMShipmentRouter
 }
 
 // NewPPMShipmentNewSubmitter creates a new ppmShipmentNewSubmitter
 func NewPPMShipmentNewSubmitter(
+	ppmShipmentFetcher services.PPMShipmentFetcher,
 	signedCertificationCreator services.SignedCertificationCreator,
 	ppmShipmentRouter services.PPMShipmentRouter,
 ) services.PPMShipmentNewSubmitter {
 	return &ppmShipmentNewSubmitter{
+		PPMShipmentFetcher:         ppmShipmentFetcher,
 		SignedCertificationCreator: signedCertificationCreator,
 		PPMShipmentRouter:          ppmShipmentRouter,
 	}
@@ -33,7 +36,22 @@ func (p *ppmShipmentNewSubmitter) SubmitNewCustomerCloseOut(appCtx appcontext.Ap
 		return nil, apperror.NewBadDataError("PPM ID is required")
 	}
 
-	ppmShipment, err := FindPPMShipment(appCtx, ppmShipmentID)
+	ppmShipment, err := p.GetPPMShipment(
+		appCtx,
+		ppmShipmentID,
+		[]string{
+			EagerPreloadAssociationShipment,
+			EagerPreloadAssociationWeightTickets,
+			EagerPreloadAssociationProgearWeightTickets,
+			EagerPreloadAssociationMovingExpenses,
+			EagerPreloadAssociationW2Address,
+		}, []string{
+			PostLoadAssociationSignedCertification,
+			PostLoadAssociationWeightTicketUploads,
+			PostLoadAssociationProgearWeightTicketUploads,
+			PostLoadAssociationMovingExpenseUploads,
+		},
+	)
 
 	if err != nil {
 		return nil, err

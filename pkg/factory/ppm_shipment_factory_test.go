@@ -232,7 +232,7 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 		// Expected outcome: New PPMShipment should be created with
 		// Weight Ticket
 
-		ppmShipment := BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil)
+		ppmShipment := BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
 
 		suite.NotNil(ppmShipment.ActualPickupPostalCode)
 		suite.Equal(ppmShipment.PickupPostalCode, *ppmShipment.ActualPickupPostalCode)
@@ -255,7 +255,7 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 		// Expected outcome: New PPMShipment should be created with
 		// Weight Ticket
 
-		ppmShipment := BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil)
+		ppmShipment := BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil, nil)
 
 		suite.False(ppmShipment.ID.IsNil())
 		suite.NotNil(ppmShipment.ActualPickupPostalCode)
