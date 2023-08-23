@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, bool } from 'prop-types';
+import { string } from 'prop-types';
 import { Link } from 'react-router-dom';
 
 import oktaLogo from '../../../../shared/images/okta_logo.png';
@@ -10,19 +10,7 @@ import descriptionListStyles from 'styles/descriptionList.module.scss';
 
 const url = 'https://test-milmove.okta.mil/enduser/settings';
 
-const OktaInfoDisplay = ({
-  affiliation,
-  originDutyLocationName,
-  originTransportationOfficeName,
-  originTransportationOfficePhone,
-  edipi,
-  firstName,
-  isEditable,
-  showMessage,
-  lastName,
-  editURL,
-  rank,
-}) => {
+const OktaInfoDisplay = ({ editURL }) => {
   return (
     <div className={oktaInfoDisplayStyles.serviceInfoContainer}>
       <div className={oktaInfoDisplayStyles.header}>
@@ -30,6 +18,12 @@ const OktaInfoDisplay = ({
           <img className={oktaInfoDisplayStyles.oktaLogo} src={oktaLogo} alt="Okta logo" />
         </a>
         <Link to={editURL}>Edit</Link>
+      </div>
+      <div className={oktaInfoDisplayStyles.header}>
+        <p>
+          <b>Okta</b> is the identity provider you used when signing into MilMove. If you would like to edit any of this
+          information, you can do so by clicking the <b>Edit</b> link above.
+        </p>
       </div>
       <div className={oktaInfoDisplayStyles.serviceInfoSection}>
         <dl className={descriptionListStyles.descriptionList}>
@@ -64,24 +58,11 @@ const OktaInfoDisplay = ({
 };
 
 OktaInfoDisplay.propTypes = {
-  affiliation: string.isRequired,
-  originDutyLocationName: string.isRequired,
-  originTransportationOfficeName: string.isRequired,
-  originTransportationOfficePhone: string,
-  edipi: string.isRequired,
-  firstName: string.isRequired,
-  isEditable: bool,
-  showMessage: bool,
-  lastName: string.isRequired,
   editURL: string,
-  rank: string.isRequired,
 };
 
 OktaInfoDisplay.defaultProps = {
-  originTransportationOfficePhone: '',
   editURL: '',
-  isEditable: true,
-  showMessage: false,
 };
 
 export default OktaInfoDisplay;

@@ -45,8 +45,8 @@ const EditOktaInfoForm = ({ initialValues, onSubmit, onCancel }) => {
             <SectionWrapper className={sectionStyles}>
               <h2>Your Okta Profile</h2>
               <p>
-                This is the info stored in your Okta Profile used for logging into MilMove. If you wish to change any
-                information, you can do so here.
+                This is the information stored in your Okta Profile used for logging into MilMove. If you wish to change
+                any information, you can do so here by changing these fields and clicking <b>Save</b>.
               </p>
               <p>
                 If you need to update your security methods or set up additional security methods, you can update/add
