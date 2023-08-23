@@ -13,6 +13,9 @@ if len(sys.argv) < 2:
 
 f.write("-- Temporarily remove foreign key constraint\n")
 f.write("ALTER TABLE duty_locations DROP CONSTRAINT duty_locations_address_id_fkey;\n")
+f.write(
+    "ALTER TABLE transportation_offices DROP CONSTRAINT transportation_offices_address_id_fkey;\n"
+)
 f.write("DELETE from addresses where id in (select address_id from duty_locations);\n")
 f.write("-- Remove existing duty location names\n")
 f.write("DELETE FROM duty_location_names;\n\n")
@@ -80,6 +83,10 @@ f.write("-- Replace foreign key constraint on duty location addresses\n")
 f.write(
     "ALTER TABLE duty_locations ADD CONSTRAINT duty_locations_address_id_fkey FOREIGN KEY (address_id) REFERENCES addresses(id);\n"
 )
+f.write(
+    "ALTER TABLE transportation_offices ADD CONSTRAINT transportation_offices_address_id_fkey FOREIGN KEY (address_id) REFERENCES addresses(id);\n"
+)
+
 
 f.close()
 sys.exit()
