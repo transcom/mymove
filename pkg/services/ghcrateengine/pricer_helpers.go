@@ -124,15 +124,12 @@ func priceDomesticFirstDaySIT(appCtx appcontext.AppContext, firstDaySITCode mode
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic %s first day SIT rate: %w", sitType, err)
 	}
 
-	contractYear, err := fetchContractYear(appCtx, serviceAreaPrice.ContractID, referenceDate)
-	if err != nil {
-		return unit.Cents(0), nil, fmt.Errorf("could not fetch contract year: %w", err)
-	}
-
 	baseTotalPrice := serviceAreaPrice.PriceCents.Float64() * weight.ToCWTFloat64()
-	escalatedTotalPrice := baseTotalPrice * contractYear.EscalationCompounded
-
-	totalPriceCents := unit.Cents(math.Round(escalatedTotalPrice))
+	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, serviceAreaPrice.ContractID, referenceDate, false, baseTotalPrice)
+	if err != nil {
+		return 0, nil, fmt.Errorf("could not look up escalated price: %w", err)
+	}
+	totalPriceCents := unit.Cents(math.Round(escalatedPrice))
 
 	params := services.PricingDisplayParams{
 		{Key: models.ServiceItemParamNameContractYearName, Value: contractYear.Name},
