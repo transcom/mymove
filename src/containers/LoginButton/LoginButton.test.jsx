@@ -49,4 +49,11 @@ describe('LoginButton tests', () => {
     expect(wrapper.find('button[data-testid="signin"]').length).toEqual(1);
     expect(wrapper.find('a[data-testid="devlocal-signin"]').length).toEqual(1);
   });
+
+  it('renders the devlocal testharness list button when running in development', () => {
+    const store = mockStore({ ...initialState, isDevelopment: true });
+    const wrapper = mount(<LoginButton store={store} />);
+    expect(wrapper.find('button[data-testid="signin"]').length).toEqual(1);
+    expect(wrapper.find('a[data-testid="devlocal-testharnesslist"]').length).toEqual(1);
+  });
 });

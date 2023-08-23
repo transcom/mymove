@@ -34,9 +34,7 @@ func (suite *GexSuite) TestSendToGexHTTP_Call() {
 	}))
 	resp, err := NewGexSenderHTTP(mockServer.URL, false, nil, "", "").
 		SendToGex(services.GEXChannelInvoice, bodyString, "test_transaction")
-	if resp == nil || err != nil {
-		suite.T().Fatal(err, "Failed mock request")
-	}
+	suite.FatalNoError(err, "Failed mock request")
 	expectedStatus := http.StatusOK
 	suite.Equal(expectedStatus, resp.StatusCode)
 
@@ -45,9 +43,7 @@ func (suite *GexSuite) TestSendToGexHTTP_Call() {
 	}))
 	resp, err = NewGexSenderHTTP(mockServer.URL, false, nil, "", "").
 		SendToGex(services.GEXChannelInvoice, bodyString, "test_transaction")
-	if resp == nil || err != nil {
-		suite.T().Fatal(err, "Failed mock request")
-	}
+	suite.FatalNoError(err, "Failed mock request")
 
 	expectedStatus = http.StatusInternalServerError
 	suite.Equal(expectedStatus, resp.StatusCode)
@@ -60,9 +56,7 @@ func (suite *GexSuite) TestSendToGexHTTP_QueryParams() {
 	}))
 	resp, err := NewGexSenderHTTP(mockServer.URL, false, nil, "", "").
 		SendToGex(services.GEXChannelInvoice, bodyString, "test_filename")
-	if resp == nil || err != nil {
-		suite.T().Fatal(err, "Failed mock request")
-	}
+	suite.FatalNoError(err, "Failed mock request")
 	expectedStatus := http.StatusOK
 	suite.Equal(expectedStatus, resp.StatusCode)
 
