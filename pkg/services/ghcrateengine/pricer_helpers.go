@@ -263,7 +263,7 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 	baseTotalPrice := domOtherPrice.PriceCents.Float64() * weight.ToCWTFloat64()
 	escalatedTotalPrice, contractYear, err := escalatePriceForContractYear(appCtx, domOtherPrice.ContractID, referenceDate, false, baseTotalPrice)
 	if err != nil {
-		return 0, nil, fmt.Errorf("could not look up contract year: %w", err)
+		return 0, nil, fmt.Errorf("unable to calculate escalated total price: %w", err)
 	}
 	totalPriceCents := unit.Cents(math.Round(escalatedTotalPrice))
 
