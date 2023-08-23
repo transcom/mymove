@@ -2,7 +2,7 @@
 @import 'shared/styles/colors';
 
 .MoveDetails {
-  .moveHeader, .mainShipmentHeader {
+  .moveHeader, .mainShipmentHeader, .serviceItemHeader {
     @include u-display(flex);
     align-items: flex-start;
 

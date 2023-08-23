@@ -164,13 +164,12 @@ func priceDomesticAdditionalDaysSIT(appCtx appcontext.AppContext, additionalDayS
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic %s additional days SIT rate: %w", sitType, err)
 	}
 
-	contractYear, err := fetchContractYear(appCtx, serviceAreaPrice.ContractID, referenceDate)
+	baseTotalPrice := serviceAreaPrice.PriceCents.Float64() * weight.ToCWTFloat64()
+	escalatedTotalPrice, contractYear, err := escalatePriceForContractYear(appCtx, serviceAreaPrice.ContractID, referenceDate, false, baseTotalPrice)
 	if err != nil {
-		return unit.Cents(0), nil, fmt.Errorf("could not fetch contract year: %w", err)
+		return 0, nil, fmt.Errorf("could not look up escalated price: %w", err)
 	}
 
-	baseTotalPrice := serviceAreaPrice.PriceCents.Float64() * weight.ToCWTFloat64()
-	escalatedTotalPrice := baseTotalPrice * contractYear.EscalationCompounded
 	totalForNumberOfDaysPrice := escalatedTotalPrice * float64(numberOfDaysInSIT)
 
 	totalPriceCents := unit.Cents(math.Round(totalForNumberOfDaysPrice))
@@ -427,4 +426,26 @@ func createPricerGeneratedParams(appCtx appcontext.AppContext, paymentServiceIte
 		}
 	}
 	return paymentServiceItemParams, nil
+}
+
+// escalatePriceForContractYear calculates the escalated price from the base price, which is provided by the caller/pricer,
+// and the escalation factor, which is provded by the contract year. The result is rounded to the nearest cent, or to the
+// nearest tenth-cent for linehaul prices. The contract year is also returned.
+func escalatePriceForContractYear(appCtx appcontext.AppContext, contractID uuid.UUID, referenceDate time.Time, isLinehaul bool, basePrice float64) (float64, models.ReContractYear, error) {
+	contractYear, err := fetchContractYear(appCtx, contractID, referenceDate)
+	if err != nil {
+		return 0, contractYear, fmt.Errorf("could not lookup contract year: %w", err)
+	}
+
+	escalatedPrice := basePrice * contractYear.EscalationCompounded
+
+	// round escalated price to the nearest cent, or the nearest tenth-of-a-cent if linehaul
+	precision := 0
+	if isLinehaul {
+		precision = 1
+	}
+
+	ratio := math.Pow(10, float64(precision))
+	escalatedPrice = math.Round(escalatedPrice*ratio) / ratio
+	return escalatedPrice, contractYear, nil
 }

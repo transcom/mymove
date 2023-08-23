@@ -149,43 +149,56 @@ const TXOMoveInfo = () => {
           />
           <Route path="billable-weight" end element={<ReviewBillableWeight />} />
           <Route path={qaeCSRRoutes.CUSTOMER_SUPPORT_REMARKS_PATH} end element={<CustomerSupportRemarks />} />
-          <Route
-            path={qaeCSRRoutes.EVALUATION_REPORTS_PATH}
-            end
-            element={
-              <EvaluationReports
-                customerInfo={customerData}
-                grade={order.grade}
-                destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
-              />
-            }
-          />
-          <Route
-            path={qaeCSRRoutes.EVALUATION_REPORT_PATH}
-            exact
-            element={
-              <Restricted to={permissionTypes.updateEvaluationReport} fallback={<Forbidden />}>
-                <EvaluationReport
+
+          {/* WARN: MB-15562 captured this as a potential bug. An error was reported */}
+          {/* that `order` was returned from `useTXOMoveInfoQueries` as a null value and */}
+          {/* therefore broke the `EvaluationReport`, `EvaluationReports` and */}
+          {/* `EvaluationViolations` components which expect to receive a `grade` */}
+          {/* property from the `order.grade` lookup. */}
+          {order.grade && (
+            <Route
+              path={qaeCSRRoutes.EVALUATION_REPORTS_PATH}
+              end
+              element={
+                <EvaluationReports
                   customerInfo={customerData}
                   grade={order.grade}
                   destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
                 />
-              </Restricted>
-            }
-          />
-          <Route
-            path={qaeCSRRoutes.EVALUATION_VIOLATIONS_PATH}
-            end
-            element={
-              <Restricted to={permissionTypes.updateEvaluationReport} fallback={<Forbidden />}>
-                <EvaluationViolations
-                  customerInfo={customerData}
-                  grade={order.grade}
-                  destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
-                />
-              </Restricted>
-            }
-          />
+              }
+            />
+          )}
+          {order.grade && (
+            <Route
+              path={qaeCSRRoutes.EVALUATION_REPORT_PATH}
+              exact
+              element={
+                <Restricted to={permissionTypes.updateEvaluationReport} fallback={<Forbidden />}>
+                  <EvaluationReport
+                    customerInfo={customerData}
+                    grade={order.grade}
+                    destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
+                  />
+                </Restricted>
+              }
+            />
+          )}
+          {order.grade && (
+            <Route
+              path={qaeCSRRoutes.EVALUATION_VIOLATIONS_PATH}
+              end
+              element={
+                <Restricted to={permissionTypes.updateEvaluationReport} fallback={<Forbidden />}>
+                  <EvaluationViolations
+                    customerInfo={customerData}
+                    grade={order.grade}
+                    destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
+                  />
+                </Restricted>
+              }
+            />
+          )}
+
           <Route path="history" end element={<MoveHistory moveCode={moveCode} />} />
           {/* TODO - clarify role/tab access */}
           <Route path="/" element={<Navigate to={`/moves/${moveCode}/details`} replace />} />
