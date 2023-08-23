@@ -122,7 +122,7 @@ func priceDomesticFirstDaySIT(appCtx appcontext.AppContext, firstDaySITCode mode
 	baseTotalPrice := serviceAreaPrice.PriceCents.Float64() * weight.ToCWTFloat64()
 	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, serviceAreaPrice.ContractID, referenceDate, false, baseTotalPrice)
 	if err != nil {
-		return 0, nil, fmt.Errorf("could not look up escalated price: %w", err)
+		return 0, nil, fmt.Errorf("unable to calculate escalated total price: %w", err)
 	}
 	totalPriceCents := unit.Cents(math.Round(escalatedPrice))
 
