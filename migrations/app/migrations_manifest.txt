@@ -843,3 +843,4 @@
 20230807175944_import_trdm_part_2.up.sql
 20230807180000_import_trdm_part_3.up.sql
 20230807185455_alter_users_table.up.sql
+20230823194524_copy_loginGov_oktaEmail.up.sql
