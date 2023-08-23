@@ -260,13 +260,11 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic %s SIT %s rate: %w", sitType, sitModifier, err)
 	}
-	contractYear, err := fetchContractYear(appCtx, domOtherPrice.ContractID, referenceDate)
-	if err != nil {
-		return unit.Cents(0), nil, fmt.Errorf("could not fetch contract year: %w", err)
-	}
-
 	baseTotalPrice := domOtherPrice.PriceCents.Float64() * weight.ToCWTFloat64()
-	escalatedTotalPrice := baseTotalPrice * contractYear.EscalationCompounded
+	escalatedTotalPrice, contractYear, err := escalatePriceForContractYear(appCtx, domOtherPrice.ContractID, referenceDate, false, baseTotalPrice)
+	if err != nil {
+		return 0, nil, fmt.Errorf("could not look up contract year: %w", err)
+	}
 	totalPriceCents := unit.Cents(math.Round(escalatedTotalPrice))
 
 	displayParams := services.PricingDisplayParams{
