@@ -1,9 +1,10 @@
 import React from 'react';
-import { Button, Textarea, Label, FormGroup, Radio } from '@trussworks/react-uswds'; // Tag Label
+import { Alert, Button, Textarea, Label, FormGroup, Radio } from '@trussworks/react-uswds'; // Tag Label
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import * as PropTypes from 'prop-types';
 import classnames from 'classnames';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './ShipmentAddressUpdateReviewRequestModal.module.scss';
 
@@ -15,14 +16,19 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { ShipmentShape } from 'types';
 import Fieldset from 'shared/Fieldset';
 import { ADDRESS_UPDATE_STATUS } from 'constants/shipments';
-import Alert from 'shared/Alert';
 
 const formSchema = Yup.object().shape({
   addressUpdateReviewStatus: Yup.string().required('Required'),
   officeRemarks: Yup.string().required('Required'),
 });
 
-export const ShipmentAddressUpdateReviewRequestModal = ({ onSubmit, shipment, errorMessage, onClose }) => {
+export const ShipmentAddressUpdateReviewRequestModal = ({
+  onSubmit,
+  shipment,
+  errorMessage,
+  setErrorMessage,
+  onClose,
+}) => {
   const handleSubmit = async (values, { setSubmitting }) => {
     const { addressUpdateReviewStatus, officeRemarks } = values;
 
@@ -31,6 +37,12 @@ export const ShipmentAddressUpdateReviewRequestModal = ({ onSubmit, shipment, er
     setSubmitting(false);
   };
 
+  const errorMessageAlertControl = (
+    <Button type="button" onClick={() => setErrorMessage(null)} unstyled>
+      <FontAwesomeIcon icon="times" style={styles.alertClose} />
+    </Button>
+  );
+
   return (
     <Modal>
       <ModalClose handleClick={() => onClose()} />
@@ -38,7 +50,7 @@ export const ShipmentAddressUpdateReviewRequestModal = ({ onSubmit, shipment, er
         <ShipmentTag shipmentType={shipment.shipmentType} />
         <h2 className={styles.modalTitle}>Review request</h2>
         {errorMessage && (
-          <Alert type="error" role="alert">
+          <Alert type="error" role="alert" cta={errorMessageAlertControl}>
             {errorMessage}
           </Alert>
         )}
@@ -111,10 +123,12 @@ ShipmentAddressUpdateReviewRequestModal.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
   errorMessage: PropTypes.node,
+  setErrorMessage: PropTypes.func,
 };
 
 ShipmentAddressUpdateReviewRequestModal.defaultProps = {
   errorMessage: null,
+  setErrorMessage: undefined,
 };
 
 ShipmentAddressUpdateReviewRequestModal.displayName = 'ShipmentAddressUpdateReviewRequestModal';

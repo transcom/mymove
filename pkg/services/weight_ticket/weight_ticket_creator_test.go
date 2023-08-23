@@ -10,12 +10,13 @@ import (
 
 func (suite *WeightTicketSuite) TestWeightTicketCreator() {
 	suite.Run("Successfully creates a WeightTicket", func() {
-		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+		serviceMember := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+
 		session := &auth.Session{
 			ServiceMemberID: serviceMember.ID,
 		}
 
-		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 		weightTicketCreator := NewCustomerWeightTicketCreator()
 		weightTicket, err := weightTicketCreator.CreateWeightTicket(suite.AppContextWithSessionForTest(session), ppmShipment.ID)
 
@@ -54,7 +55,7 @@ func (suite *WeightTicketSuite) TestWeightTicketCreator() {
 
 		suite.Nil(weightTicket)
 		suite.NotNil(err)
-		suite.IsType(apperror.InvalidInputError{}, err)
-		suite.Equal("Invalid input found while creating the Document.", err.Error())
+		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Contains(err.Error(), "No such shipment found for this service member")
 	})
 }

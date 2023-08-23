@@ -15,7 +15,7 @@ import ConnectedEulaModal from 'components/EulaModal';
 import { isDevelopment } from 'shared/constants';
 import { useTitle } from 'hooks/custom';
 
-const SignIn = ({ context, showLocalDevLogin }) => {
+const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
   const location = useLocation();
   const [showEula, setShowEula] = useState(false);
   const navigate = useNavigate();
@@ -101,6 +101,11 @@ const SignIn = ({ context, showLocalDevLogin }) => {
                   Local Sign In
                 </a>
               )}
+              {showTestharnessList && (
+                <a className="usa-button" data-testid="devlocal-testharnesslist" href="/testharness/list">
+                  View Testharness Data Scenarios
+                </a>
+              )}
             </ButtonGroup>
           </div>
         </div>
@@ -115,10 +120,12 @@ SignIn.propTypes = {
     showLoginWarning: bool,
   }).isRequired,
   showLocalDevLogin: bool,
+  showTestharnessList: bool,
 };
 
 SignIn.defaultProps = {
   showLocalDevLogin: isDevelopment,
+  showTestharnessList: isDevelopment,
 };
 
 export default withContext(SignIn);

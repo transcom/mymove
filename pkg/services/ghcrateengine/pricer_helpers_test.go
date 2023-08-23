@@ -239,7 +239,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticAdditionalDaysSIT() {
 		twoYearsLaterPickupDate := ddasitTestRequestedPickupDate.AddDate(2, 0, 0)
 		_, _, err := priceDomesticAdditionalDaysSIT(suite.AppContextForTest(), models.ReServiceCodeDDASIT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ddasitTestWeight, ddasitTestServiceArea, ddasitTestNumberOfDaysInSIT, false)
 		suite.Error(err)
-		suite.Contains(err.Error(), "could not fetch contract year")
+		suite.Contains(err.Error(), "could not look up escalated price")
 	})
 }
 
@@ -604,6 +604,54 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticCrating() {
 
 		twoYearsLaterPickupDate := dcrtTestRequestedPickupDate.AddDate(2, 0, 0)
 		_, _, err := priceDomesticCrating(suite.AppContextForTest(), models.ReServiceCodeDCRT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "could not lookup contract year")
+	})
+}
+
+func (suite *GHCRateEngineServiceSuite) Test_escalatePriceForContractYear() {
+	suite.Run("escalated price is rounded to the nearest cent for non-linehaul pricing", func() {
+		escalationCompounded := 1.04071
+		cy := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+				},
+			})
+		isLinehaul := false
+		basePrice := 5117.0
+
+		escalatedPrice, contractYear, err := escalatePriceForContractYear(suite.AppContextForTest(), cy.ContractID, cy.StartDate.AddDate(0, 0, 1), isLinehaul, basePrice)
+
+		suite.Nil(err)
+		suite.Equal(cy.ID, contractYear.ID)
+		suite.Equal(5325.0, escalatedPrice)
+	})
+
+	suite.Run("escalated price is rounded to the nearest tenth-cent for linehaul pricing", func() {
+		escalationCompounded := 1.04071
+		cy := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+				},
+			})
+		isLinehaul := true
+		basePrice := 5117.0
+
+		escalatedPrice, contractYear, err := escalatePriceForContractYear(suite.AppContextForTest(), cy.ContractID, cy.StartDate.AddDate(0, 0, 1), isLinehaul, basePrice)
+
+		suite.Nil(err)
+		suite.Equal(cy.ID, contractYear.ID)
+		suite.Equal(5325.3, escalatedPrice)
+	})
+
+	suite.Run("not finding contract year", func() {
+		isLinehaul := true
+		basePrice := 5117.0
+
+		_, _, err := escalatePriceForContractYear(suite.AppContextForTest(), uuid.Nil, time.Time{}, isLinehaul, basePrice)
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup contract year")

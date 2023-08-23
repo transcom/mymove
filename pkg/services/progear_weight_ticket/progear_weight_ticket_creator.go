@@ -28,17 +28,18 @@ func (f *progearWeightTicketCreator) CreateProgearWeightTicket(appCtx appcontext
 		return nil, err
 	}
 
+	// TODO: Ideally this service would be passed in as a dependency to the `NewMovingExpenseCreator` function.
+	//  Our docs have an example, though instead of using the dependency in the service function, it is being used in
+	//  the check functions, but the idea is similar:
+	//  https://transcom.github.io/mymove-docs/docs/backend/guides/service-objects/implementation#creating-an-instance-of-our-service-object
 	shipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
 
-	ppmShipment, ppmShipmentErr := shipmentFetcher.GetPPMShipment(appCtx, ppmShipmentID, []string{
-		ppmshipment.EagerPreloadAssociationServiceMember,
-	}, []string{})
+	// This serves as a way of ensuring that the PPM shipment exists. It also ensures a shipment belongs to the logged
+	//  in user, for customer app requests.
+	ppmShipment, ppmShipmentErr := shipmentFetcher.GetPPMShipment(appCtx, ppmShipmentID, nil, nil)
 
 	if ppmShipmentErr != nil {
 		return nil, ppmShipmentErr
-	}
-	if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID {
-		return nil, apperror.NewNotFoundError(ppmShipmentID, "No such shipment found for this service member")
 	}
 
 	var progearWeightTicket models.ProgearWeightTicket
@@ -60,7 +61,7 @@ func (f *progearWeightTicketCreator) CreateProgearWeightTicket(appCtx appcontext
 		progearWeightTicket = models.ProgearWeightTicket{
 			Document:      *document,
 			DocumentID:    document.ID,
-			PPMShipmentID: ppmShipmentID,
+			PPMShipmentID: ppmShipment.ID,
 		}
 		verrs, err = txnCtx.DB().ValidateAndCreate(&progearWeightTicket)
 

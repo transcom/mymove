@@ -6,6 +6,15 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+const (
+	LineOfAccountingHouseholdGoodsCodeCivilian string = "HC"
+	LineOfAccountingHouseholdGoodsCodeEnlisted string = "HE"
+	LineOfAccountingHouseholdGoodsCodeOfficer  string = "HO"
+	LineOfAccountingHouseholdGoodsCodeOther    string = "HT"
+	LineOfAccountingHouseholdGoodsCodeDual     string = "HD"
+	LineOfAccountingHouseholdGoodsCodeNTS      string = "HS"
+)
+
 type LineOfAccounting struct {
 	ID                     uuid.UUID  `json:"id" db:"id"`
 	LoaSysID               *int       `json:"loa_sys_id" db:"loa_sys_id"` // Using an int here deviates from the TRDM matrix; however, no direct conflicts found as of yet
