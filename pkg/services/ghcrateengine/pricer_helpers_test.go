@@ -69,7 +69,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPackUnpack() {
 		isPPM := false
 		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM)
 		suite.Error(err)
-		suite.Contains(err.Error(), "Could not lookup contract year")
+		suite.Contains(err.Error(), "could not lookup contract year")
 	})
 
 	suite.Run("not finding shipment type price", func() {

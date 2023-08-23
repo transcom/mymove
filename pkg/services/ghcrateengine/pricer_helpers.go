@@ -46,21 +46,16 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 		return 0, nil, fmt.Errorf("Could not lookup domestic other price: %w", err)
 	}
 
-	var contractYear models.ReContractYear
-	err = appCtx.DB().Where("contract_id = $1", domOtherPrice.ContractID).
-		Where("$2 between start_date and end_date", referenceDate).
-		First(&contractYear)
-	if err != nil {
-		return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
-	}
-
 	finalWeight := weight
 	if isPPM && weight < minDomesticWeight {
 		finalWeight = minDomesticWeight
 	}
 
 	basePrice := domOtherPrice.PriceCents.Float64() * finalWeight.ToCWTFloat64()
-	escalatedPrice := basePrice * contractYear.EscalationCompounded
+	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, domOtherPrice.ContractID, referenceDate, false, basePrice)
+	if err != nil {
+		return 0, nil, fmt.Errorf("Could not lookup escalated price: %w", err)
+	}
 
 	displayParams := services.PricingDisplayParams{
 		{
