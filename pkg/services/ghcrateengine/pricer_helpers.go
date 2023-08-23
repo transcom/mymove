@@ -164,13 +164,12 @@ func priceDomesticAdditionalDaysSIT(appCtx appcontext.AppContext, additionalDayS
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic %s additional days SIT rate: %w", sitType, err)
 	}
 
-	contractYear, err := fetchContractYear(appCtx, serviceAreaPrice.ContractID, referenceDate)
+	baseTotalPrice := serviceAreaPrice.PriceCents.Float64() * weight.ToCWTFloat64()
+	escalatedTotalPrice, contractYear, err := escalatePriceForContractYear(appCtx, serviceAreaPrice.ContractID, referenceDate, false, baseTotalPrice)
 	if err != nil {
-		return unit.Cents(0), nil, fmt.Errorf("could not fetch contract year: %w", err)
+		return 0, nil, fmt.Errorf("could not look up escalated price: %w", err)
 	}
 
-	baseTotalPrice := serviceAreaPrice.PriceCents.Float64() * weight.ToCWTFloat64()
-	escalatedTotalPrice := baseTotalPrice * contractYear.EscalationCompounded
 	totalForNumberOfDaysPrice := escalatedTotalPrice * float64(numberOfDaysInSIT)
 
 	totalPriceCents := unit.Cents(math.Round(totalForNumberOfDaysPrice))
