@@ -14,6 +14,7 @@ import {
 } from 'store/entities/selectors';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import ServiceInfoDisplay from 'components/Customer/Review/ServiceInfoDisplay/ServiceInfoDisplay';
+import OktaInfoDisplay from 'components/Customer/Profile/OktaInfoDisplay/OktaInfoDisplay';
 import { customerRoutes } from 'constants/routes';
 import formStyles from 'styles/form.module.scss';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
@@ -65,6 +66,21 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               rank={ORDERS_RANK_OPTIONS[rank] || ''}
               edipi={serviceMember?.edipi || ''}
               editURL={customerRoutes.SERVICE_INFO_EDIT_PATH}
+              isEditable={moveIsInDraft}
+              showMessage={showMessages}
+            />
+          </SectionWrapper>
+          <SectionWrapper className={formStyles.formSection}>
+            <OktaInfoDisplay
+              firstName={serviceMember?.first_name || ''}
+              lastName={serviceMember?.last_name || ''}
+              originDutyLocationName={originDutyLocation?.name || ''}
+              originTransportationOfficeName={originDutyLocation?.transportation_office?.name || ''}
+              originTransportationOfficePhone={transportationOfficePhone}
+              affiliation={ORDERS_BRANCH_OPTIONS[serviceMember?.affiliation] || ''}
+              rank={ORDERS_RANK_OPTIONS[rank] || ''}
+              edipi={serviceMember?.edipi || ''}
+              editURL={customerRoutes.EDIT_OKTA_PROFILE_PATH}
               isEditable={moveIsInDraft}
               showMessage={showMessages}
             />

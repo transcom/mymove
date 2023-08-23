@@ -64,6 +64,7 @@ const MovingInfo = lazy(() => import('pages/MyMove/MovingInfo'));
 const EditServiceInfo = lazy(() => import('pages/MyMove/Profile/EditServiceInfo'));
 const Profile = lazy(() => import('pages/MyMove/Profile/Profile'));
 const EditContactInfo = lazy(() => import('pages/MyMove/Profile/EditContactInfo'));
+const EditOktaProfile = lazy(() => import('pages/MyMove/Profile/EditOktaProfile'));
 const AmendOrders = lazy(() => import('pages/MyMove/AmendOrders/AmendOrders'));
 const EditOrders = lazy(() => import('pages/MyMove/EditOrders'));
 const EstimatedWeightsProGear = lazy(() =>
@@ -201,6 +202,7 @@ export class CustomerApp extends Component {
                 />
                 <Route end path={customerRoutes.SHIPMENT_PPM_ADVANCES_PATH} element={<Advance />} />
                 <Route end path={customerRoutes.CONTACT_INFO_EDIT_PATH} element={<EditContactInfo />} />
+                <Route end path={customerRoutes.EDIT_OKTA_PROFILE_PATH} element={<EditOktaProfile />} />
                 <Route end path={customerRoutes.SHIPMENT_PPM_ABOUT_PATH} element={<About />} />
                 <Route end path={customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_PATH} element={<WeightTickets />} />
                 <Route end path={customerRoutes.SHIPMENT_PPM_WEIGHT_TICKETS_EDIT_PATH} element={<WeightTickets />} />
