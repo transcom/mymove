@@ -694,11 +694,10 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeCS,
+					Code: models.ReServiceCodeDLH,
 				},
 			},
 		}, nil)
-
 		recalcPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
 				Model: models.PaymentRequest{

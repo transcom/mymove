@@ -5,6 +5,7 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { Alert, Button, Checkbox, Fieldset, FormGroup, Radio } from '@trussworks/react-uswds';
 import classNames from 'classnames';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
 import { CloseoutOfficeInput } from '../../form/fields/CloseoutOfficeInput';
@@ -39,7 +40,6 @@ import { ADDRESS_UPDATE_STATUS, shipmentDestinationTypes } from 'constants/shipm
 import { officeRoles, roleTypes } from 'constants/userRoles';
 import { deleteShipment, reviewShipmentAddressUpdate, updateMoveCloseoutOffice } from 'services/ghcApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import MilMoveAlert from 'shared/Alert';
 import formStyles from 'styles/form.module.scss';
 import { AccountingCodesShape } from 'types/accountingCodes';
 import { AddressShape, SimpleAddressShape } from 'types/address';
@@ -115,7 +115,7 @@ const ShipmentForm = (props) => {
   });
 
   const { mutate: mutateShipmentAddressUpdateReview } = useMutation(reviewShipmentAddressUpdate, {
-    onSuccess: () => {
+    onSuccess: (_, { successCallback }) => {
       setSuccessMessage('Changes sent to contractor.');
       setShipmentAddressUpdateReviewErrorMessage(null);
       setIsAddressChangeModalOpen(false);
@@ -123,6 +123,7 @@ const ShipmentForm = (props) => {
       queryClient
         .invalidateQueries([MTO_SHIPMENTS, moveTaskOrderID])
         .then(() => queryClient.refetchQueries([MTO_SHIPMENTS, moveTaskOrderID]));
+      successCallback();
     },
     onError: () => {
       setSuccessMessage(null);
@@ -147,7 +148,13 @@ const ShipmentForm = (props) => {
     });
   };
 
-  const handleSubmitShipmentAddressUpdateReview = async (shipmentID, shipmentETag, status, officeRemarks) => {
+  const handleSubmitShipmentAddressUpdateReview = async (
+    shipmentID,
+    shipmentETag,
+    status,
+    officeRemarks,
+    successCallback,
+  ) => {
     mutateShipmentAddressUpdateReview({
       shipmentID,
       ifMatchETag: shipmentETag,
@@ -155,12 +162,19 @@ const ShipmentForm = (props) => {
         status,
         officeRemarks,
       },
+      successCallback,
     });
   };
 
   const handleShowCancellationModal = () => {
     setIsCancelModalVisible(true);
   };
+
+  const successMessageAlertControl = (
+    <Button type="button" onClick={() => setSuccessMessage(null)} unstyled>
+      <FontAwesomeIcon icon="times" className={styles.alertClose} />
+    </Button>
+  );
 
   const deliveryAddressUpdateRequested = mtoShipment?.deliveryAddressUpdate?.status === ADDRESS_UPDATE_STATUS.REQUESTED;
 
@@ -497,8 +511,28 @@ const ShipmentForm = (props) => {
               isOpen={isAddressChangeModalOpen}
               onClose={() => setIsAddressChangeModalOpen(false)}
               shipment={mtoShipment}
-              onSubmit={handleSubmitShipmentAddressUpdateReview}
+              onSubmit={async (shipmentID, shipmentETag, status, officeRemarks) => {
+                const successCallback = () => {
+                  if (status === ADDRESS_UPDATE_STATUS.APPROVED) {
+                    setValues({
+                      ...values,
+                      delivery: {
+                        ...values.delivery,
+                        address: mtoShipment.deliveryAddressUpdate.newAddress,
+                      },
+                    });
+                  }
+                };
+                await handleSubmitShipmentAddressUpdateReview(
+                  shipmentID,
+                  shipmentETag,
+                  status,
+                  officeRemarks,
+                  successCallback,
+                );
+              }}
               errorMessage={shipmentAddressUpdateReviewErrorMessage}
+              setErrorMessage={setShipmentAddressUpdateReviewErrorMessage}
             />
             <NotificationScrollToTop dependency={errorMessage} />
             {errorMessage && (
@@ -508,9 +542,9 @@ const ShipmentForm = (props) => {
             )}
             <NotificationScrollToTop dependency={successMessage} />
             {successMessage && (
-              <MilMoveAlert type="success" onRemove={() => setSuccessMessage(null)}>
+              <Alert type="success" cta={successMessageAlertControl}>
                 {successMessage}
-              </MilMoveAlert>
+              </Alert>
             )}
             {isTOO && mtoShipment.usesExternalVendor && (
               <Alert headingLevel="h4" type="warning">

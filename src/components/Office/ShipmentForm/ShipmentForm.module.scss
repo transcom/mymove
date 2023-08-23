@@ -111,6 +111,10 @@
   }
 }
 
+.alertClose {
+  color: $base-darkest;
+}
+
 .Fieldset {
   h2 {
     @include u-margin-bottom(2);

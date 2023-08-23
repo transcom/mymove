@@ -1,7 +1,6 @@
 import { get, some, uniqueId } from 'lodash';
 import { normalize } from 'normalizr';
-
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { milmoveLogger } from 'utils/milmoveLog';
 
 // Given a schema path (e.g. shipments.getShipment), return the
 // route's definition from the Swagger spec
@@ -36,10 +35,7 @@ function successfulReturnType(routeDefinition, status) {
   const response = routeDefinition.responses[status];
   const schemaKey = response.schema.$$ref.split('/').pop();
   if (!response) {
-    milmoveLog(
-      MILMOVE_LOG_LEVEL.ERROR,
-      `No response found for operation ${routeDefinition.operationId} with status ${status}`,
-    );
+    milmoveLogger.error(`No response found for operation ${routeDefinition.operationId} with status ${status}`);
     return undefined;
   }
   return toCamelCase(schemaKey);
@@ -78,7 +74,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
     try {
       request = operation(params);
     } catch (error) {
-      milmoveLog(MILMOVE_LOG_LEVEL.ERROR, `Operation ${operationPath} failed: ${error}`);
+      milmoveLogger.error(`Operation ${operationPath} failed: ${error}`);
       const updatedRequestLog = { ...requestLog, ok: false, end: new Date(), isLoading: false, error };
       dispatch({
         type: `@@swagger/${operationPath}/ERROR`,
@@ -115,8 +111,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
 
         if (schemaKey.indexOf('Payload') !== -1) {
           const newSchemaKey = schemaKey.replace('Payload', '');
-          milmoveLog(
-            MILMOVE_LOG_LEVEL.WARN,
+          milmoveLogger.warn(
             `Using 'Payload' as a response type prefix is deprecated. Please rename ${schemaKey} to ${newSchemaKey}`,
           );
           schemaKey = newSchemaKey;
@@ -136,7 +131,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
         return action;
       })
       .catch((response) => {
-        milmoveLog(MILMOVE_LOG_LEVEL.ERROR, `Operation ${operationPath} failed: ${response} (${response.status})`);
+        milmoveLogger.error(`Operation ${operationPath} failed: ${response} (${response.status})`);
         const updatedRequestLog = { ...requestLog, ok: false, end: new Date(), response, isLoading: false };
         const action = {
           type: `@@swagger/${operationPath}/FAILURE`,

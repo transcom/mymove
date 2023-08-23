@@ -192,7 +192,7 @@ func processEDIs(_ *cobra.Command, _ []string) error {
 	}
 
 	// SSH and SFTP Connection Setup
-	sshClient, err := cli.InitGEXSSH(appCtx, v)
+	sshClient, err := cli.InitGEXSSH(logger, v)
 	if err != nil {
 		logger.Fatal("couldn't initialize SSH client", zap.Error(err))
 	}
@@ -202,7 +202,7 @@ func processEDIs(_ *cobra.Command, _ []string) error {
 		}
 	}()
 
-	sftpClient, err := cli.InitGEXSFTP(appCtx, sshClient)
+	sftpClient, err := cli.InitGEXSFTP(logger, sshClient)
 	if err != nil {
 		logger.Fatal("couldn't initialize SFTP client", zap.Error(err))
 	}

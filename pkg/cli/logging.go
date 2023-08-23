@@ -10,8 +10,6 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/appcontext"
 )
 
 const (
@@ -120,17 +118,17 @@ func ValidateStacktraceLength(v *viper.Viper, flagname string) error {
 }
 
 // CheckOutboundIP checks outbound IP for logging purposes
-func CheckOutboundIP(appCtx appcontext.AppContext) {
+func CheckOutboundIP(logger *zap.Logger) {
 	resp, err := http.Get("https://checkip.amazonaws.com")
 	if err != nil {
-		appCtx.Logger().Error("Error fetching outbound IP: %w", zap.Error(err))
+		logger.Error("Error fetching outbound IP: %w", zap.Error(err))
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		appCtx.Logger().Error("Error parsing body: %w", zap.Error(err))
+		logger.Error("Error parsing body: %w", zap.Error(err))
 	}
 	parsed := string(body)
 	parsed = strings.TrimSpace(parsed)
-	appCtx.Logger().Info("Getting Source Address...", zap.String("source_address", parsed))
+	logger.Info("Getting Source Address...", zap.String("source_address", parsed))
 }

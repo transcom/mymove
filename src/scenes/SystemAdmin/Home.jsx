@@ -13,11 +13,12 @@ import ClientCertShow from 'pages/Admin/ClientCerts/ClientCertShow';
 import ClientCertCreate from 'pages/Admin/ClientCerts/ClientCertCreate';
 import ClientCertEdit from 'pages/Admin/ClientCerts/ClientCertEdit';
 import ElectronicOrderList from './ElectronicOrders/ElectronicOrderList';
+import FeatureFlagEvaluate from 'pages/Admin/FeatureFlags/FeatureFlagEvaluate';
 import styles from './Home.module.scss';
 import NotificationList from './Notifications/NotificationList';
 import UploadSearch from './Uploads/UploadSearch';
 
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { milmoveLogger } from 'utils/milmoveLog';
 import CUIHeader from 'components/CUIHeader/CUIHeader';
 import OfficeUserList from 'pages/Admin/OfficeUsers/OfficeUserList';
 import OfficeUserShow from 'pages/Admin/OfficeUsers/OfficeUserShow';
@@ -44,7 +45,7 @@ const httpClient = (url, options = {}) => {
   }
   const token = Cookies.get('masked_gorilla_csrf');
   if (!token) {
-    milmoveLog(MILMOVE_LOG_LEVEL.WARN, 'Unable to retrieve CSRF Token from cookie');
+    milmoveLogger.warn('Unable to retrieve CSRF Token from cookie');
   }
   options.headers.set('X-CSRF-TOKEN', token);
   // send cookies in the request
@@ -96,6 +97,7 @@ const Home = () => (
         edit={ClientCertEdit}
       />
       <Resource name="notifications" options={{ label: 'Notifications' }} list={NotificationList} />
+      <Resource name="feature-flags" options={{ label: 'Evaluate Feature Flag' }} list={FeatureFlagEvaluate} />
       <Resource
         name="webhook-subscriptions"
         options={{ label: 'Webhook Subscriptions' }}
@@ -107,6 +109,7 @@ const Home = () => (
       <CustomRoutes>
         {/* Custom route for search by id for uploads */}
         <Route end path="/uploads" element={<UploadSearch />} />
+        <Route end path="/feature-flags" element={<FeatureFlagEvaluate />} />
       </CustomRoutes>
     </Admin>
   </div>

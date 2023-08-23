@@ -42,6 +42,7 @@ func healthCheckError(appCtx appcontext.AppContext, w http.ResponseWriter, data 
 // If redisPool is nil, redis health will not be checked
 func NewHealthHandler(appCtx appcontext.AppContext, redisPool *redis.Pool, gitBranch string, gitCommit string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+
 		data := map[string]interface{}{
 			"gitBranch": gitBranch,
 			"gitCommit": gitCommit,
@@ -82,6 +83,7 @@ func NewHealthHandler(appCtx appcontext.AppContext, redisPool *redis.Pool, gitBr
 				data["redis"] = true
 			}
 		}
+
 		newEncoderErr := json.NewEncoder(w).Encode(data)
 		if newEncoderErr != nil {
 			appCtx.Logger().Error("Failed encoding health check response", zap.Error(newEncoderErr))
