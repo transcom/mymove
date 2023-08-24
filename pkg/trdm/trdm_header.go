@@ -1,7 +1,10 @@
 package trdm
 
 import (
+	"crypto"
+	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha256"
 	"encoding/xml"
 	"time"
 
@@ -96,12 +99,19 @@ func GenerateSignedHeader(certificate string, body []byte, privateKey *rsa.Priva
 	print(privateKey)
 	const certificateID = "X509-CertificateId"
 	encodedDigest := digest.FromBytes(body).Encoded()
-	//signedHash, err := rsa.SignPKCS1v15(nil, privateKey, crypto.SHA256, []byte(encodedDigest.Hex()))
-	//	if err != nil {
-	//		return nil, err
-	//	}
 
-	signedHash := ""
+	msgHash := sha256.New()
+	_, err := msgHash.Write(body)
+	if err != nil {
+		return nil, err
+	}
+	msgHashSum := msgHash.Sum(nil)
+
+	signedHash, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, msgHashSum)
+	if err != nil {
+		return nil, err
+	}
+
 	securityHeader := Header{
 		Security: Security{
 			Wsse: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
@@ -156,7 +166,6 @@ func GenerateSignedHeader(certificate string, body []byte, privateKey *rsa.Priva
 		},
 	}
 	marshaledHeader, err := xml.Marshal(securityHeader)
-	println(string(marshaledHeader))
 	if err != nil {
 		return nil, err
 	}
