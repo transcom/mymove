@@ -46,6 +46,7 @@ func getProfileData(appCtx appcontext.AppContext, provider okta.Provider) (model
 	err = json.Unmarshal(body, &user)
 	if err != nil {
 		appCtx.Logger().Error("could not unmarshal body", zap.Error(err))
+		return user, err
 	}
 
 	return user, nil
