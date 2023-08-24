@@ -56,7 +56,7 @@ const (
 	// RA: This line is used to identify the name of the flag. OktaOfficeSecretKeyFlag is the Okta Office Application Secret Key Flag.
 	// RA: This value of this variable does not store an application secret.
 	// RA Developer Status: RA Request
-	// RA Validator Status: Mitigated 
+	// RA Validator Status: Mitigated
 	// RA Validator: leodis.f.scott.civ@mail.mil
 	// RA Modified Severity: CAT III
 	// #nosec G101
