@@ -310,13 +310,11 @@ func priceDomesticShuttling(appCtx appcontext.AppContext, shuttlingCode models.R
 		return 0, nil, fmt.Errorf("Could not lookup Domestic Accessorial Area Price: %w", err)
 	}
 
-	contractYear, err := fetchContractYear(appCtx, domAccessorialPrice.ContractID, referenceDate)
-	if err != nil {
-		return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
-	}
-
 	basePrice := domAccessorialPrice.PerUnitCents.Float64() * weight.ToCWTFloat64()
-	escalatedPrice := basePrice * contractYear.EscalationCompounded
+	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, domAccessorialPrice.ContractID, referenceDate, false, basePrice)
+	if err != nil {
+		return 0, nil, fmt.Errorf("unable to calculate escalated total price: %w", err)
+	}
 	totalCost := unit.Cents(math.Round(escalatedPrice))
 
 	params := services.PricingDisplayParams{
