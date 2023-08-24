@@ -152,6 +152,9 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 			TimeMilitary2:               &destTime,
 			SitDestinationFinalAddress:  &sitFinalDestAddress,
 			Reason:                      &destReason,
+			SitCustomerContacted:        &destDate,
+			SitRequestedDelivery:        &destDate,
+			SitActualDelivery:           &destDate,
 		}
 
 		destSITServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
@@ -164,7 +167,9 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.Equal(models.ReServiceCodeDDFSIT, returnedModel.ReService.Code)
 		suite.Equal(destPostalCode, returnedModel.SITDestinationFinalAddress.PostalCode)
 		suite.Equal(destStreet, returnedModel.SITDestinationFinalAddress.StreetAddress1)
-
+		suite.Equal(handlers.FmtDatePtrToPop(&destDate), *returnedModel.SITCustomerContacted)
+		suite.Equal(handlers.FmtDatePtrToPop(&destDate), *returnedModel.SITRequestedDelivery)
+		suite.Equal(handlers.FmtDatePtrToPop(&destDate), *returnedModel.SITActualDelivery)
 	})
 
 	suite.Run("Success - Returns SIT destination service item model without customer contact fields", func() {
