@@ -1897,11 +1897,6 @@ definitions:
             type: string
             description: Date when the customer has requested delivery out of SIT.
             x-nullable: true
-          sitActualDelivery:
-            format: date
-            type: string
-            description: Date when the customer's goods are delivered.
-            x-nullable: true
           sitCustomerContacted:
             format: date
             type: string
@@ -2247,11 +2242,6 @@ definitions:
             format: date
             type: string
             description: Date when the customer has requested delivery out of SIT.
-            x-nullable: true
-          sitActualDelivery:
-            format: date
-            type: string
-            description: Date when the customer's goods are delivered.
             x-nullable: true
           sitCustomerContacted:
             format: date

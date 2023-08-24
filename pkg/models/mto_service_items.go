@@ -42,7 +42,6 @@ type MTOServiceItem struct {
 	SITDepartureDate                *time.Time                     `db:"sit_departure_date"`
 	SITCustomerContacted            *time.Time                     `db:"sit_customer_contacted"`
 	SITRequestedDelivery            *time.Time                     `db:"sit_requested_delivery"`
-	SITActualDelivery               *time.Time                     `db:"sit_actual_delivery"`
 	SITOriginHHGOriginalAddress     *Address                       `belongs_to:"addresses" fk_id:"sit_origin_hhg_original_address_id"`
 	SITOriginHHGOriginalAddressID   *uuid.UUID                     `db:"sit_origin_hhg_original_address_id"`
 	SITOriginHHGActualAddress       *Address                       `belongs_to:"addresses" fk_id:"sit_origin_hhg_actual_address_id"`

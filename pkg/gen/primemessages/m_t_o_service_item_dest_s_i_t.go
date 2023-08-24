@@ -62,10 +62,6 @@ type MTOServiceItemDestSIT struct {
 	// Required: true
 	Reason *string `json:"reason"`
 
-	// Date when the customer's goods are delivered.
-	// Format: date
-	SitActualDelivery *strfmt.Date `json:"sitActualDelivery,omitempty"`
-
 	// sit address updates
 	SitAddressUpdates SitAddressUpdates `json:"sitAddressUpdates,omitempty"`
 
@@ -219,10 +215,6 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 		// Required: true
 		Reason *string `json:"reason"`
 
-		// Date when the customer's goods are delivered.
-		// Format: date
-		SitActualDelivery *strfmt.Date `json:"sitActualDelivery,omitempty"`
-
 		// sit address updates
 		SitAddressUpdates SitAddressUpdates `json:"sitAddressUpdates,omitempty"`
 
@@ -321,7 +313,6 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 	result.FirstAvailableDeliveryDate2 = data.FirstAvailableDeliveryDate2
 	result.ReServiceCode = data.ReServiceCode
 	result.Reason = data.Reason
-	result.SitActualDelivery = data.SitActualDelivery
 	result.SitAddressUpdates = data.SitAddressUpdates
 	result.SitCustomerContacted = data.SitCustomerContacted
 	result.SitDepartureDate = data.SitDepartureDate
@@ -368,10 +359,6 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 		// Required: true
 		Reason *string `json:"reason"`
 
-		// Date when the customer's goods are delivered.
-		// Format: date
-		SitActualDelivery *strfmt.Date `json:"sitActualDelivery,omitempty"`
-
 		// sit address updates
 		SitAddressUpdates SitAddressUpdates `json:"sitAddressUpdates,omitempty"`
 
@@ -417,8 +404,6 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 		ReServiceCode: m.ReServiceCode,
 
 		Reason: m.Reason,
-
-		SitActualDelivery: m.SitActualDelivery,
 
 		SitAddressUpdates: m.SitAddressUpdates,
 
@@ -529,10 +514,6 @@ func (m *MTOServiceItemDestSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReason(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSitActualDelivery(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -738,19 +719,6 @@ func (m *MTOServiceItemDestSIT) validateReServiceCode(formats strfmt.Registry) e
 func (m *MTOServiceItemDestSIT) validateReason(formats strfmt.Registry) error {
 
 	if err := validate.Required("reason", "body", m.Reason); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItemDestSIT) validateSitActualDelivery(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.SitActualDelivery) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("sitActualDelivery", "body", "date", m.SitActualDelivery.String(), formats); err != nil {
 		return err
 	}
 

@@ -639,12 +639,6 @@ func init() {
               "x-nullable": true,
               "x-omitempty": false
             },
-            "sitActualDelivery": {
-              "description": "Date when the customer's goods are delivered.",
-              "type": "string",
-              "format": "date",
-              "x-nullable": true
-            },
             "sitAddressUpdates": {
               "$ref": "#/definitions/SitAddressUpdates"
             },
@@ -3020,12 +3014,6 @@ func init() {
               "type": "string",
               "x-nullable": true,
               "x-omitempty": false
-            },
-            "sitActualDelivery": {
-              "description": "Date when the customer's goods are delivered.",
-              "type": "string",
-              "format": "date",
-              "x-nullable": true
             },
             "sitAddressUpdates": {
               "$ref": "#/definitions/SitAddressUpdates"

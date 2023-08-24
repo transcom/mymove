@@ -357,8 +357,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			},
 		}
 		editServiceItem.SITCustomerContacted = &now
-		editServiceItem.SITRequestedDelivery = &now
-		editServiceItem.SITActualDelivery = &later
+		editServiceItem.SITRequestedDelivery = &later
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: editServiceItem,
 			oldServiceItem:     oldServiceItem,
@@ -373,7 +372,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.Equal(newServiceItem.Description, editServiceItem.Description)
 		suite.Equal(*newServiceItem.SITCustomerContacted, *editServiceItem.SITCustomerContacted)
 		suite.Equal(*newServiceItem.SITRequestedDelivery, *editServiceItem.SITRequestedDelivery)
-		suite.Equal(*newServiceItem.SITActualDelivery, *editServiceItem.SITActualDelivery)
 		suite.NotEqual(newServiceItem.Description, oldServiceItem.Description)
 		suite.NotEqual(newServiceItem.Description, serviceItemData.oldServiceItem.Description)
 		suite.NotEqual(newServiceItem.CustomerContacts[0].TimeMilitary, serviceItemData.oldServiceItem.CustomerContacts[0].TimeMilitary)

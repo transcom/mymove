@@ -42,10 +42,6 @@ type UpdateMTOServiceItemSIT struct {
 	// Enum: [DDDSIT DOPSIT]
 	ReServiceCode string `json:"reServiceCode,omitempty"`
 
-	// Date when the customer's goods are delivered.
-	// Format: date
-	SitActualDelivery *strfmt.Date `json:"sitActualDelivery,omitempty"`
-
 	// Date when the customer contacted the prime for a delivery out of SIT.
 	// Format: date
 	SitCustomerContacted *strfmt.Date `json:"sitCustomerContacted,omitempty"`
@@ -115,10 +111,6 @@ func (m *UpdateMTOServiceItemSIT) UnmarshalJSON(raw []byte) error {
 		// Enum: [DDDSIT DOPSIT]
 		ReServiceCode string `json:"reServiceCode,omitempty"`
 
-		// Date when the customer's goods are delivered.
-		// Format: date
-		SitActualDelivery *strfmt.Date `json:"sitActualDelivery,omitempty"`
-
 		// Date when the customer contacted the prime for a delivery out of SIT.
 		// Format: date
 		SitCustomerContacted *strfmt.Date `json:"sitCustomerContacted,omitempty"`
@@ -181,7 +173,6 @@ func (m *UpdateMTOServiceItemSIT) UnmarshalJSON(raw []byte) error {
 	result.FirstAvailableDeliveryDate1 = data.FirstAvailableDeliveryDate1
 	result.FirstAvailableDeliveryDate2 = data.FirstAvailableDeliveryDate2
 	result.ReServiceCode = data.ReServiceCode
-	result.SitActualDelivery = data.SitActualDelivery
 	result.SitCustomerContacted = data.SitCustomerContacted
 	result.SitDepartureDate = data.SitDepartureDate
 	result.SitDestinationFinalAddress = data.SitDestinationFinalAddress
@@ -220,10 +211,6 @@ func (m UpdateMTOServiceItemSIT) MarshalJSON() ([]byte, error) {
 		// Enum: [DDDSIT DOPSIT]
 		ReServiceCode string `json:"reServiceCode,omitempty"`
 
-		// Date when the customer's goods are delivered.
-		// Format: date
-		SitActualDelivery *strfmt.Date `json:"sitActualDelivery,omitempty"`
-
 		// Date when the customer contacted the prime for a delivery out of SIT.
 		// Format: date
 		SitCustomerContacted *strfmt.Date `json:"sitCustomerContacted,omitempty"`
@@ -259,8 +246,6 @@ func (m UpdateMTOServiceItemSIT) MarshalJSON() ([]byte, error) {
 		FirstAvailableDeliveryDate2: m.FirstAvailableDeliveryDate2,
 
 		ReServiceCode: m.ReServiceCode,
-
-		SitActualDelivery: m.SitActualDelivery,
 
 		SitCustomerContacted: m.SitCustomerContacted,
 
@@ -319,10 +304,6 @@ func (m *UpdateMTOServiceItemSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReServiceCode(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSitActualDelivery(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -449,19 +430,6 @@ func (m *UpdateMTOServiceItemSIT) validateReServiceCode(formats strfmt.Registry)
 
 	// value enum
 	if err := m.validateReServiceCodeEnum("reServiceCode", "body", m.ReServiceCode); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateMTOServiceItemSIT) validateSitActualDelivery(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.SitActualDelivery) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("sitActualDelivery", "body", "date", m.SitActualDelivery.String(), formats); err != nil {
 		return err
 	}
 

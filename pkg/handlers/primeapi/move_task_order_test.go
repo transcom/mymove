@@ -1139,7 +1139,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 					CustomerContacts:     models.MTOServiceItemCustomerContacts{contact1, contact2},
 					SITCustomerContacted: &nowDate,
 					SITRequestedDelivery: &nowDate,
-					SITActualDelivery:    &later,
 				},
 			},
 			{
@@ -1202,7 +1201,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(serviceItem.SITDepartureDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.SitDepartureDate).Format(time.RFC3339))
 		suite.Equal(serviceItem.SITCustomerContacted.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.SitCustomerContacted).Format(time.RFC3339))
 		suite.Equal(serviceItem.SITRequestedDelivery.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.SitRequestedDelivery).Format(time.RFC3339))
-		suite.Equal(serviceItem.SITActualDelivery.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.SitActualDelivery).Format(time.RFC3339))
 		suite.Equal(serviceItem.CustomerContacts[0].DateOfContact.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.DateOfContact1).Format(time.RFC3339))
 		suite.Equal(serviceItem.CustomerContacts[0].TimeMilitary, *payload.TimeMilitary1)
 		suite.Equal(serviceItem.CustomerContacts[0].FirstAvailableDeliveryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.FirstAvailableDeliveryDate1).Format(time.RFC3339))

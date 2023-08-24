@@ -599,7 +599,6 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 
 			model.SITCustomerContacted = handlers.FmtDatePtrToPopPtr(sit.SitCustomerContacted)
 			model.SITRequestedDelivery = handlers.FmtDatePtrToPopPtr(sit.SitRequestedDelivery)
-			model.SITActualDelivery = handlers.FmtDatePtrToPopPtr(sit.SitActualDelivery)
 		}
 
 		if verrs != nil && verrs.HasAny() {

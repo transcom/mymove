@@ -626,7 +626,6 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			SitAddressUpdates:           SITAddressUpdates(mtoServiceItem.SITAddressUpdates),
 			SitCustomerContacted:        handlers.FmtDatePtr(mtoServiceItem.SITCustomerContacted),
 			SitRequestedDelivery:        handlers.FmtDatePtr(mtoServiceItem.SITRequestedDelivery),
-			SitActualDelivery:           handlers.FmtDatePtr(mtoServiceItem.SITActualDelivery),
 		}
 
 	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:

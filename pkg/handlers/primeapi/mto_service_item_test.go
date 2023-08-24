@@ -1346,7 +1346,6 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 			FirstAvailableDeliveryDate1: handlers.FmtDate(time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC)),
 			SitCustomerContacted:        handlers.FmtDate(time.Now()),
 			SitRequestedDelivery:        handlers.FmtDate(time.Now().AddDate(0, 0, 3)),
-			SitActualDelivery:           handlers.FmtDate(time.Now().AddDate(0, 0, 4)),
 		}
 		subtestData.reqPayload.SetID(strfmt.UUID(subtestData.dddsit.ID.String()))
 
@@ -1413,7 +1412,6 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		suite.Equal(subtestData.reqPayload.FirstAvailableDeliveryDate1, respPayload.FirstAvailableDeliveryDate1)
 		suite.Equal(*subtestData.reqPayload.SitCustomerContacted, *respPayload.SitCustomerContacted)
 		suite.Equal(*subtestData.reqPayload.SitRequestedDelivery, *respPayload.SitRequestedDelivery)
-		suite.Equal(*subtestData.reqPayload.SitActualDelivery, *respPayload.SitActualDelivery)
 	})
 
 	suite.Run("Failed PATCH - No DDDSIT found", func() {
