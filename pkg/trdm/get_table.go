@@ -2,6 +2,7 @@ package trdm
 
 import (
 	"bytes"
+	"crypto/rsa"
 	"encoding/xml"
 	"fmt"
 	"time"
@@ -58,6 +59,7 @@ const transportationAccountingCode = "TRNSPRTN_ACNT"
 type GetTableRequestElement struct {
 	soapClient    SoapCaller
 	securityToken string
+	privateKey    *rsa.PrivateKey
 	Input         struct {
 		TRDM struct {
 			PhysicalName  string `xml:"physicalName"`
@@ -90,9 +92,10 @@ type GetTableUpdater interface {
 	GetTable(appCtx appcontext.AppContext, physicalName string, lastUpdate string) error
 }
 
-func NewGetTable(physicalName string, securityToken string, soapClient SoapCaller) GetTableUpdater {
+func NewGetTable(physicalName string, securityToken string, privateKey *rsa.PrivateKey, soapClient SoapCaller) GetTableUpdater {
 	return &GetTableRequestElement{
 		securityToken: securityToken,
+		privateKey:    privateKey,
 		soapClient:    soapClient,
 		Input: struct {
 			TRDM struct {
@@ -165,67 +168,25 @@ func setupSoapCall(d *GetTableRequestElement, appCtx appcontext.AppContext, phys
 		"xmlns:soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
 		"xmlns:ret":     "http://ReturnTablePackage/",
 	})
-
-	createdAt := time.Now()
-	expiresAt := time.Now().Add(500)
-
-	header := gosoap.HeaderParams{
-		"Security": map[string]interface{}{
-			"wsse,attr": "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
-			"wsu,attr":  "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
-			"BinarySecurityToken": map[string]interface{}{
-				"EncodingType,attr": "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary",
-				"ValueType,attr":    "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3",
-				"Id,attr":           "X509-79B3B596EDF5EC1B8316760431316952", // unsure how to generate this
-				",chardata":         d.securityToken,
-			},
-			"Signature": map[string]interface{}{
-				"Id,attr":  "SIG-79B3B596EDF5EC1B8316760431317886", // unsure how to generate this
-				"ds, attr": "http://www.w3.org/2000/09/xmldsig#",
-				"SignedInfo": map[string]interface{}{
-					"CanonicalizationMethod": map[string]interface{}{
-						"Algorithm,attr": "http://www.w3.org/2001/10/xml-exc-c14n#",
-					},
-					"SignatureMethod": map[string]interface{}{
-						"Algorithm,attr": "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
-					},
-					"Reference": map[string]interface{}{
-						"URI,attr": "#TS-79B3B596EDF5EC1B8316760431315711", //unsure how to generate this
-						"Transforms": map[string]interface{}{
-							"Transform": map[string]interface{}{
-								"Algorithm,attr": "http://www.w3.org/2001/10/xml-exc-c14n#",
-							},
-							"DigestMethod": map[string]interface{}{
-								"Algorithm,attr": "http://www.w3.org/2001/04/xmlenc#sha256",
-							},
-							"DigestValue": map[string]interface{}{
-								",chardata": "",
-							},
-						},
-					},
-				},
-			},
-			"Timestamp": map[string]interface{}{
-				"Id,attr": "TS-D144323CC7DDCF9E41169263838365311",
-				"Created": createdAt,
-				"Expires": expiresAt,
-			},
-		},
-	}
-	params := gosoap.Params{
-		"header": header,
-		"getTableRequestElement": map[string]interface{}{
-			"input": map[string]interface{}{
-				"TRDM": map[string]interface{}{
-					"physicalName":  physicalName,
-					"returnContent": true,
-				},
-			},
-		},
+	params := GetTableRequestElement{
+		Input: d.Input,
 	}
 
+	marshaledBody, marshalErr := xml.Marshal(params)
+	if marshalErr != nil {
+		return marshalErr
+	}
+
+	signedHeader, headerSigningError := GenerateSignedHeader(d.securityToken, marshaledBody, d.privateKey)
+	if headerSigningError != nil {
+		return headerSigningError
+	}
+	newParams := gosoap.Params{
+		"header": signedHeader,
+		"body":   marshaledBody,
+	}
 	operation := func() error {
-		return getTableSoapCall(d, params, appCtx, physicalName)
+		return getTableSoapCall(d, newParams, appCtx, physicalName)
 	}
 	b := backoff.NewExponentialBackOff()
 

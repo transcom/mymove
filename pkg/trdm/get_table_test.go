@@ -1,6 +1,7 @@
 package trdm_test
 
 import (
+	"crypto/rsa"
 	"fmt"
 	"os"
 	"time"
@@ -46,7 +47,7 @@ func soapResponseForGetTable(statusCode string, payload []byte) *gosoap.Response
 	}
 }
 
-func (suite *TRDMSuite) TestTRDMGetTableFake() {
+func (suite *TRDMSuite) TestGetTableFake() {
 	tests := []struct {
 		name          string
 		physicalName  string
@@ -72,7 +73,7 @@ func (suite *TRDMSuite) TestTRDMGetTableFake() {
 				mock.Anything,
 			).Return(soapResponseForGetTable(test.statusCode, test.payload), soapError)
 
-			getTable := trdm.NewGetTable(test.physicalName, "", testSoapClient)
+			getTable := trdm.NewGetTable(test.physicalName, "", &rsa.PrivateKey{}, testSoapClient)
 			err := getTable.GetTable(suite.AppContextForTest(), test.physicalName, time.Now().Format(time.RFC3339))
 
 			if err != nil {

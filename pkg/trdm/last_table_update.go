@@ -1,6 +1,7 @@
 package trdm
 
 import (
+	"crypto/rsa"
 	"encoding/xml"
 	"fmt"
 
@@ -49,9 +50,11 @@ type GetLastTableUpdater interface {
 	GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string) error
 }
 type GetLastTableUpdateRequestElement struct {
-	PhysicalName  string `xml:"physicalName"`
+	XMLName       string `xml:"ret:getLastTableUpdateReqElement"`
+	PhysicalName  string `xml:"ret:physicalName"`
 	soapClient    SoapCaller
 	securityToken string
+	privateKey    *rsa.PrivateKey
 }
 type GetLastTableUpdateResponseElement struct {
 	XMLName    xml.Name `xml:"getLastTableUpdateResponseElement"`
@@ -62,11 +65,12 @@ type GetLastTableUpdateResponseElement struct {
 	} `xml:"status"`
 }
 
-func NewTRDMGetLastTableUpdate(physicalName string, securityToken string, soapClient SoapCaller) GetLastTableUpdater {
+func NewTRDMGetLastTableUpdate(physicalName string, securityToken string, privateKey *rsa.PrivateKey, soapClient SoapCaller) GetLastTableUpdater {
 	return &GetLastTableUpdateRequestElement{
 		PhysicalName:  physicalName,
 		soapClient:    soapClient,
 		securityToken: securityToken,
+		privateKey:    privateKey,
 	}
 
 }
@@ -78,12 +82,22 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 		"xmlns:ret":     "http://ReturnTablePackage/",
 	})
 
-	params := gosoap.Params{
-		"getLastTableUpdateRequestElement": map[string]interface{}{
-			"physicalName": physicalName,
-		},
+	params := GetLastTableUpdateRequestElement{
+		PhysicalName: physicalName,
 	}
-	err := lastTableUpdateSoapCall(d, params, appCtx, physicalName)
+	marshaledBody, marshalEr := xml.Marshal(params)
+	if marshalEr != nil {
+		return marshalEr
+	}
+	signedHeader, headerSigningError := GenerateSignedHeader(d.securityToken, marshaledBody, d.privateKey)
+	if headerSigningError != nil {
+		return headerSigningError
+	}
+	newParams := gosoap.Params{
+		"header": signedHeader,
+		"body":   marshaledBody,
+	}
+	err := lastTableUpdateSoapCall(d, newParams, appCtx, physicalName)
 	if err != nil {
 		return fmt.Errorf("Request error: %s", err.Error())
 	}
@@ -104,7 +118,7 @@ func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.
 	}
 
 	if r.Status.StatusCode == successfulStatusCode {
-		getTable := NewGetTable(physicalName, "", d.soapClient)
+		getTable := NewGetTable(physicalName, d.securityToken, d.privateKey, d.soapClient)
 		getTableErr := getTable.GetTable(appCtx, physicalName, r.LastUpdate)
 		if getTableErr != nil {
 			return fmt.Errorf("getTable error: %s", getTableErr.Error())
