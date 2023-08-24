@@ -41,9 +41,9 @@ const (
 	// RA: This line is used to identify the name of the flag. OktaCustomerSecretKeyFlag is the Okta Customer Application Secret Key Flag.
 	// RA: This value of this variable does not store an application secret.
 	// RA Developer Status: RA Request
-	// RA Validator Status:
-	// RA Validator:
-	// RA Modified Severity:
+	// RA Validator Status: Mitigated
+	// RA Validator: leodis.f.scott.civ@mail.mil
+	// RA Modified Severity: CAT III
 	// #nosec G101
 	OktaCustomerSecretKeyFlag string = "okta_customer_secret_key"
 
@@ -56,9 +56,9 @@ const (
 	// RA: This line is used to identify the name of the flag. OktaOfficeSecretKeyFlag is the Okta Office Application Secret Key Flag.
 	// RA: This value of this variable does not store an application secret.
 	// RA Developer Status: RA Request
-	// RA Validator Status:
-	// RA Validator:
-	// RA Modified Severity:
+	// RA Validator Status: Mitigated 
+	// RA Validator: leodis.f.scott.civ@mail.mil
+	// RA Modified Severity: CAT III
 	// #nosec G101
 	OktaOfficeSecretKeyFlag string = "okta_office_secret_key"
 
@@ -71,9 +71,9 @@ const (
 	// RA: This line is used to identify the name of the flag. OktaAdminSecretKeyFlag is the Okta Admin Application Secret Key Flag.
 	// RA: This value of this variable does not store an application secret.
 	// RA Developer Status: RA Request
-	// RA Validator Status:
-	// RA Validator:
-	// RA Modified Severity:
+	// RA Validator Status: Mitigated
+	// RA Validator: leodis.f.scott.civ@mail.mil
+	// RA Modified Severity: CAT III
 	// #nosec G101
 	OktaAdminSecretKeyFlag string = "okta_admin_secret_key"
 )
