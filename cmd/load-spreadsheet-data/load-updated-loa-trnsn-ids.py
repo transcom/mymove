@@ -17,7 +17,7 @@ day = str(now.day).rjust(2, ZERO)
 hour = str(now.hour).rjust(2, ZERO)
 minute = str(now.minute).rjust(2, ZERO)
 second = str(now.second).rjust(2, ZERO)
-filename = f'{year}{month}{day}{hour}{minute}{second}00_update_loa_trnsn_ids.sql'
+filename = f'{year}{month}{day}{hour}{minute}{second}_update_loa_trnsn_ids.sql'
 secure_migration_filename = (
     f'{current_dir}/{destination_directory}/{filename}'
 )
