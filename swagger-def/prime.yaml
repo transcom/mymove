@@ -36,7 +36,6 @@ tags:
       approved service item. sitAddressUpdates with a distance less than or equal to 50 miles will be automatically
       approved while a distance greater than 50 miles will typically require office user approval.
 
-
 x-tagGroups:
   - name: Endpoints
     tags:
@@ -1489,7 +1488,7 @@ definitions:
     type: array
   MoveTaskOrder:
     $ref: 'definitions/prime/MoveTaskOrder.yaml'
-  MTOServiceItemBasic:  # spectral oas2-unused-definition is OK here due to polymorphism
+  MTOServiceItemBasic: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemBasic.yaml'
   MTOServiceItemDestSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemDestSIT.yaml'
@@ -1671,6 +1670,21 @@ definitions:
             format: date
             type: string
             description: Second available date that Prime can deliver SIT service item.
+            x-nullable: true
+          sitRequestedDelivery:
+            format: date
+            type: string
+            description: Date when the customer has requested delivery out of SIT.
+            x-nullable: true
+          sitActualDelivery:
+            format: date
+            type: string
+            description: Date when the customer's goods are delivered.
+            x-nullable: true
+          sitCustomerContacted:
+            format: date
+            type: string
+            description: Date when the customer contacted the prime for a delivery out of SIT.
             x-nullable: true
   UpdateMTOShipment:
     properties:
