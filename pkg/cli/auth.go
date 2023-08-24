@@ -22,19 +22,19 @@ const (
 	//RA Modified Severity: CAT III
 	// #nosec G101
 	// ClientAuthSecretKeyFlag is the Client Auth Secret Key Flag
-	ClientAuthSecretKeyFlag string = "client-auth-secret-key"
+	ClientAuthSecretKeyFlag string = "client_auth_secret_key"
 
 	// Okta flags for local development environment that serves test-milmove.okta.mil
 	// Okta tenant flags
-	OktaTenantOrgURLFlag string = "okta-tenant-org-url"
+	OktaTenantOrgURLFlag string = "okta_tenant_org_url"
 	// OktaTenantCallbackPortFlag is the test-milmove Callback Port Flag
-	OktaTenantCallbackPortFlag string = "okta-tenant-callback-port"
+	OktaTenantCallbackPortFlag string = "okta_tenant_callback_port"
 	// OktaTenantCallbackPortFlag is the test-milmove Callback Protocol Flag
-	OktaTenantCallbackProtocolFlag string = "okta-tenant-callback-protocol"
+	OktaTenantCallbackProtocolFlag string = "okta_tenant_callback_protocol"
 
 	// Okta Customer client id and secret flags
-	OktaCustomerClientIDFlag string = "okta-customer-client-id"
-	OktaCustomerCallbackURL  string = "okta-customer-callback-url"
+	OktaCustomerClientIDFlag string = "okta_customer_client_id"
+	OktaCustomerCallbackURL  string = "okta_customer_callback_url"
 
 	// RA Summary: gosec - G101 - Password Management: Hardcoded Password
 	// RA: This line was flagged because of use of the word "secret"
@@ -45,11 +45,11 @@ const (
 	// RA Validator:
 	// RA Modified Severity:
 	// #nosec G101
-	OktaCustomerSecretKeyFlag string = "okta-customer-secret-key"
+	OktaCustomerSecretKeyFlag string = "okta_customer_secret_key"
 
 	// Okta Office client id and secret flags
-	OktaOfficeClientIDFlag string = "okta-office-client-id"
-	OktaOfficeCallbackURL  string = "okta-office-callback-url"
+	OktaOfficeClientIDFlag string = "okta_office_client_id"
+	OktaOfficeCallbackURL  string = "okta_office-_allback_url"
 
 	// RA Summary: gosec - G101 - Password Management: Hardcoded Password
 	// RA: This line was flagged because of use of the word "secret"
@@ -60,11 +60,11 @@ const (
 	// RA Validator:
 	// RA Modified Severity:
 	// #nosec G101
-	OktaOfficeSecretKeyFlag string = "okta-office-secret-key"
+	OktaOfficeSecretKeyFlag string = "okta_office_secret_key"
 
 	// Okta Admin client id and secret flags
-	OktaAdminClientIDFlag string = "okta-admin-client-id"
-	OktaAdminCallbackURL  string = "okta-admin-callback-url"
+	OktaAdminClientIDFlag string = "okta_admin_client_id"
+	OktaAdminCallbackURL  string = "okta_admin_callback_url"
 
 	// RA Summary: gosec - G101 - Password Management: Hardcoded Password
 	// RA: This line was flagged because of use of the word "secret"
@@ -75,7 +75,7 @@ const (
 	// RA Validator:
 	// RA Modified Severity:
 	// #nosec G101
-	OktaAdminSecretKeyFlag string = "okta-admin-secret-key"
+	OktaAdminSecretKeyFlag string = "okta_admin_secret_key"
 )
 
 type errInvalidClientID struct {
