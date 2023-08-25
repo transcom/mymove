@@ -4,7 +4,7 @@
 -- DO NOT include any sensitive data.
 
 -- Update loa_trnsn_id column constraint
-ALTER TABLE lines_of_accounting ALTER COLUMN loa_trnsn_id TYPE char (3);
+ALTER TABLE lines_of_accounting ALTER COLUMN loa_trnsn_id TYPE varchar (3);
 -- Update lines_of_accounting with updated loa_trnsn_id values, mapped by loa_sys_id
 UPDATE lines_of_accounting AS loas SET
 	loa_trnsn_id = updated.loa_trnsn_id

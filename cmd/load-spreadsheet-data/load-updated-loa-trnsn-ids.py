@@ -28,7 +28,7 @@ if not os.path.exists(destination_path):
 
 with open(secure_migration_filename, "w+") as f:
     f.write('-- Update loa_trnsn_id column constraint\n')
-    f.write('ALTER TABLE lines_of_accounting ALTER COLUMN loa_trnsn_id TYPE char (3);\n')
+    f.write('ALTER TABLE lines_of_accounting ALTER COLUMN loa_trnsn_id TYPE varchar (3);\n')
 
     # Skip the first and last rows which are just "unclassified"
     input_file = pd.read_excel(sys.argv[1], skiprows=1, skipfooter=1)
