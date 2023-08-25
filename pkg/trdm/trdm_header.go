@@ -94,22 +94,25 @@ type SignatureValue struct {
 	Text []byte `xml:",chardata"`
 }
 
-func GenerateSignedHeader(certificate string, body []byte, privateKey *rsa.PrivateKey) ([]byte, error) {
+func GenerateSignedHeader(certificate string, privateKey *rsa.PrivateKey) ([]byte, error) {
 
 	const certificateID = "X509-CertificateId"
-	encodedDigest := digest.FromBytes(body).Encoded()
+	encodedDigest := digest.FromBytes([]byte(certificate)).Encoded()
+
+	canonicalized := digest.Canonical.Encode([]byte(certificate))
 
 	msgHash := sha256.New()
-	_, err := msgHash.Write(body)
+	_, err := msgHash.Write([]byte(canonicalized))
 	if err != nil {
 		return nil, err
 	}
 	msgHashSum := msgHash.Sum(nil)
 
-	signedHash, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, msgHashSum)
+	signedHash, err := privateKey.Sign(rand.Reader, msgHashSum, crypto.SHA256)
 	if err != nil {
 		return nil, err
 	}
+	// canonicalize & sign private key of x509 cert -> use this value for signaturevalue
 
 	securityHeader := Header{
 		Security: Security{

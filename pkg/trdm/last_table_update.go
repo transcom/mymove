@@ -89,7 +89,7 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 	if marshalEr != nil {
 		return marshalEr
 	}
-	signedHeader, headerSigningError := GenerateSignedHeader(d.securityToken, marshaledBody, d.privateKey)
+	signedHeader, headerSigningError := GenerateSignedHeader(d.securityToken, d.privateKey)
 	if headerSigningError != nil {
 		return headerSigningError
 	}

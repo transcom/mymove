@@ -178,7 +178,7 @@ func setupSoapCall(d *GetTableRequestElement, appCtx appcontext.AppContext, phys
 	}
 
 	operation := func() error {
-		signedHeader, headerSigningError := GenerateSignedHeader(d.securityToken, marshaledBody, d.privateKey)
+		signedHeader, headerSigningError := GenerateSignedHeader(d.securityToken, d.privateKey)
 		if headerSigningError != nil {
 			return headerSigningError
 		}
