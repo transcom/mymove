@@ -78,7 +78,7 @@ func (suite *TRDMSuite) TestGetTableFake() {
 				suite.Error(keyErr)
 			}
 
-			getTable := trdm.NewGetTable(test.physicalName, "", privatekey, testSoapClient)
+			getTable := trdm.NewGetTable(test.physicalName, "kjdhfkasjhflaksjfhklafhkadsf=", privatekey, testSoapClient)
 			err := getTable.GetTable(suite.AppContextForTest(), test.physicalName, time.Now().Format(time.RFC3339))
 
 			if err != nil {

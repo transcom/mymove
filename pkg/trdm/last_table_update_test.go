@@ -1,6 +1,7 @@
 package trdm_test
 
 import (
+	"crypto/rand"
 	"crypto/rsa"
 	"fmt"
 	"time"
@@ -58,8 +59,11 @@ func (suite *TRDMSuite) TestTRDMGetLastTableUpdateFake() {
 				mock.Anything,
 				mock.Anything,
 			).Return(soapResponseForGetLastTableUpdate(test.lastUpdate, test.statusCode), soapError)
-
-			lastTableUpdate := trdm.NewTRDMGetLastTableUpdate(physicalName, "", &rsa.PrivateKey{}, testSoapClient)
+			privatekey, keyErr := rsa.GenerateKey(rand.Reader, 2048)
+			if keyErr != nil {
+				suite.Error(keyErr)
+			}
+			lastTableUpdate := trdm.NewTRDMGetLastTableUpdate(physicalName, "kdsjfhlaksdfhasdkfhjasdlkfjhafa=", privatekey, testSoapClient)
 			err := lastTableUpdate.GetLastTableUpdate(suite.AppContextForTest(), physicalName)
 
 			if err != nil {
