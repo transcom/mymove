@@ -6,6 +6,7 @@ import (
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -226,6 +227,49 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	mto.MTOServiceItems = loadedServiceItems
 
 	return mto, nil
+}
+
+func (f moveTaskOrderFetcher) GetMove(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams, eagerAssociations ...string) (*models.Move, error) {
+	move := &models.Move{}
+	findMoveQuery := appCtx.DB().Q()
+
+	if searchParams == nil {
+		return nil, errors.New("searchParams should not be nil since move ID or locator are required")
+	}
+
+	// Find the move by ID or Locator
+	if searchParams.MoveTaskOrderID != uuid.Nil {
+		findMoveQuery.Where("moves.id = ?", searchParams.MoveTaskOrderID)
+	} else if searchParams.Locator != "" {
+		findMoveQuery.Where("locator = ?", searchParams.Locator)
+	} else {
+		return nil, errors.New("searchParams should have either a move ID or locator set")
+	}
+
+	if len(eagerAssociations) > 0 {
+		findMoveQuery.EagerPreload(eagerAssociations...)
+	}
+
+	if appCtx.Session() != nil && appCtx.Session().IsMilApp() {
+		findMoveQuery.
+			InnerJoin("orders", "orders.id = moves.orders_id").
+			Where("orders.service_member_id = ?", appCtx.Session().ServiceMemberID)
+	}
+
+	setMTOQueryFilters(findMoveQuery, searchParams)
+
+	err := findMoveQuery.First(move)
+
+	if err != nil {
+		appCtx.Logger().Error("error fetching move", zap.Error(err))
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(searchParams.MoveTaskOrderID, "")
+		default:
+			return nil, apperror.NewQueryError("Move", err, "")
+		}
+	}
+	return move, nil
 }
 
 // ListPrimeMoveTaskOrders performs an optimized fetch for moves specifically targeting the Prime API.

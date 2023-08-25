@@ -7,6 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
 )
 
 type weightTicketCreator struct {
@@ -25,6 +26,20 @@ func (f *weightTicketCreator) CreateWeightTicket(appCtx appcontext.AppContext, p
 
 	if err != nil {
 		return nil, err
+	}
+
+	shipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
+
+	ppmShipment, ppmShipmentErr := shipmentFetcher.GetPPMShipment(appCtx, ppmShipmentID, []string{
+		ppmshipment.EagerPreloadAssociationServiceMember,
+	}, []string{})
+
+	if ppmShipmentErr != nil {
+		return nil, ppmShipmentErr
+	}
+
+	if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID {
+		return nil, apperror.NewNotFoundError(ppmShipmentID, "No such shipment found for this service member")
 	}
 
 	var weightTicket models.WeightTicket

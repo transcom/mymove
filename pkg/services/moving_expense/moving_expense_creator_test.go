@@ -10,12 +10,14 @@ import (
 
 func (suite *MovingExpenseSuite) TestMovingExpenseCreator() {
 	suite.Run("Successfully creates a MovingExpense", func() {
-		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+		serviceMemberID := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID
+
 		session := &auth.Session{
-			ServiceMemberID: serviceMember.ID,
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: serviceMemberID,
 		}
 
-		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 		movingExpenseCreator := NewMovingExpenseCreator()
 		movingExpense, err := movingExpenseCreator.CreateMovingExpense(suite.AppContextWithSessionForTest(session), ppmShipment.ID)
 
@@ -23,12 +25,13 @@ func (suite *MovingExpenseSuite) TestMovingExpenseCreator() {
 		suite.NotNil(movingExpense)
 		suite.Equal(ppmShipment.ID, movingExpense.PPMShipmentID)
 		suite.NotNil(movingExpense.DocumentID)
-		suite.Equal(serviceMember.ID, movingExpense.Document.ServiceMemberID)
+		suite.Equal(serviceMemberID, movingExpense.Document.ServiceMemberID)
 	})
 
 	suite.Run("Fails when an invalid ppmShipmentID is used", func() {
 		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 		session := &auth.Session{
+			ApplicationName: auth.MilApp,
 			ServiceMemberID: serviceMember.ID,
 		}
 
@@ -36,12 +39,16 @@ func (suite *MovingExpenseSuite) TestMovingExpenseCreator() {
 		movingExpense, err := movingExpenseCreator.CreateMovingExpense(suite.AppContextWithSessionForTest(session), uuid.Nil)
 
 		suite.Nil(movingExpense)
-		suite.ErrorContains(err, "PPMShipmentID must exist")
+
+		expectedErr := apperror.NewNotFoundError(uuid.Nil, "while looking for PPMShipment")
+
+		suite.ErrorIs(err, expectedErr)
 	})
 
 	suite.Run("Fails when session has invalid serviceMemberID", func() {
 		session := &auth.Session{
-			ServiceMemberID: uuid.Nil,
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: uuid.Must(uuid.NewV4()),
 		}
 		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 
@@ -49,8 +56,9 @@ func (suite *MovingExpenseSuite) TestMovingExpenseCreator() {
 		movingExpense, err := movingExpenseCreator.CreateMovingExpense(suite.AppContextWithSessionForTest(session), ppmShipment.ID)
 
 		suite.Nil(movingExpense)
-		suite.NotNil(err)
-		suite.IsType(apperror.InvalidInputError{}, err)
-		suite.Equal("Invalid input received. Document ServiceMemberID must exist", err.Error())
+
+		expectedErr := apperror.NewNotFoundError(ppmShipment.ID, "while looking for PPMShipment")
+
+		suite.ErrorIs(err, expectedErr)
 	})
 }

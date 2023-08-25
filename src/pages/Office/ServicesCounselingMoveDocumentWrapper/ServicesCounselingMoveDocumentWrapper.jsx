@@ -14,12 +14,12 @@ const ServicesCounselingMoveDocumentWrapper = () => {
   const { moveCode } = useParams();
   const { pathname } = useLocation();
 
-  const { upload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
+  const { upload, amendedUpload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const documentsForViewer = Object.values(upload);
+  const documentsForViewer = Object.values(upload || {}).concat(Object.values(amendedUpload || {}));
 
   const showOrders = matchPath(
     {

@@ -57,9 +57,9 @@ func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 
 		response := subtestData.handler.Handle(subtestData.params)
 
-		suite.IsType(&movingexpenseops.CreateMovingExpenseOK{}, response)
+		suite.IsType(&movingexpenseops.CreateMovingExpenseCreated{}, response)
 
-		createdMovingExpense := response.(*movingexpenseops.CreateMovingExpenseOK).Payload
+		createdMovingExpense := response.(*movingexpenseops.CreateMovingExpenseCreated).Payload
 
 		suite.NotEmpty(createdMovingExpense.ID.String())
 		suite.Equal(createdMovingExpense.PpmShipmentID.String(), subtestData.ppmShipment.ID.String())
@@ -87,19 +87,18 @@ func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 		suite.IsType(&movingexpenseops.CreateMovingExpenseUnauthorized{}, response)
 	})
 
-	suite.Run("POST failure - 403- permission denied - can't create moving expense due to wrong applicant", func() {
+	suite.Run("POST failure - 404 - Not Found - Wrong Service Member", func() {
 		subtestData := makeCreateSubtestData(false)
-		// Create non-service member user
-		serviceCounselorOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
+		unauthorizedUser := factory.BuildServiceMember(suite.DB(), nil, nil)
 		req := subtestData.params.HTTPRequest
-		unauthorizedReq := suite.AuthenticateOfficeRequest(req, serviceCounselorOfficeUser)
+		unauthorizedRequest := suite.AuthenticateRequest(req, unauthorizedUser)
 		unauthorizedParams := subtestData.params
-		unauthorizedParams.HTTPRequest = unauthorizedReq
+		unauthorizedParams.HTTPRequest = unauthorizedRequest
 
 		response := subtestData.handler.Handle(unauthorizedParams)
 
-		suite.IsType(&movingexpenseops.CreateMovingExpenseForbidden{}, response)
+		suite.IsType(&movingexpenseops.CreateMovingExpenseNotFound{}, response)
 	})
 
 	suite.Run("Post failure - 500 - Server Error", func() {
@@ -224,6 +223,17 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 		// Wrong ID provided
 		uuidString := handlers.FmtUUID(testdatagen.ConvertUUIDStringToUUID("e392b01d-3b23-45a9-8f98-e4d5b03c8a93"))
 		params.MovingExpenseID = *uuidString
+
+		response := subtestData.handler.Handle(params)
+
+		suite.IsType(&movingexpenseops.UpdateMovingExpenseNotFound{}, response)
+	})
+
+	suite.Run("PATCH failure - 404- wrong service member", func() {
+		subtestData := makeUpdateSubtestData(false)
+		params := subtestData.params
+		params.UpdateMovingExpense = &internalmessages.UpdateMovingExpense{}
+		params.HTTPRequest = suite.AuthenticateRequest(params.HTTPRequest, factory.BuildServiceMember(suite.DB(), nil, nil))
 
 		response := subtestData.handler.Handle(params)
 

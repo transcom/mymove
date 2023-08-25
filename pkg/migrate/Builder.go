@@ -1,14 +1,15 @@
 package migrate
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/smithy-go"
 	"github.com/gobuffalo/fizz"
 	"github.com/gobuffalo/fizz/translators"
 	"github.com/gobuffalo/pop/v6"
@@ -22,8 +23,12 @@ type Builder struct {
 	Path string
 }
 
+type S3GetObjectAPI interface {
+	GetObject(ctx context.Context, params *s3.GetObjectInput, optFns ...func(*s3.Options)) (*s3.GetObjectOutput, error)
+}
+
 // Compile compiles the provided configration into a migration.
-func (b *Builder) Compile(s3Client *s3.S3, wait time.Duration, logger *zap.Logger) (*pop.Migration, error) {
+func (b *Builder) Compile(s3Client S3GetObjectAPI, wait time.Duration, logger *zap.Logger) (*pop.Migration, error) {
 
 	if b.Type != "sql" && b.Type != "fizz" {
 		return nil, &ErrInvalidFormat{Value: b.Type}
@@ -92,13 +97,15 @@ func (b *Builder) Compile(s3Client *s3.S3, wait time.Duration, logger *zap.Logge
 
 			key := strings.SplitN(m.Path[len("s3://"):], "/", 2)[1]
 
-			result, errGetObject := s3Client.GetObject(&s3.GetObjectInput{
-				Bucket: aws.String(bucket),
-				Key:    aws.String(key),
-			})
+			result, errGetObject := s3Client.GetObject(context.Background(),
+				&s3.GetObjectInput{
+					Bucket: aws.String(bucket),
+					Key:    aws.String(key),
+				})
 			if errGetObject != nil {
-				if aerr, ok := errGetObject.(awserr.Error); ok {
-					logger.Error("AWS Error Code", zap.String("code", aerr.Code()), zap.String("message", aerr.Message()), zap.Any("AWSErr", aerr.OrigErr()))
+				var ae smithy.APIError
+				if errors.As(errGetObject, &ae) {
+					logger.Error("AWS Error Code", zap.String("code", ae.ErrorCode()), zap.String("message", ae.ErrorMessage()), zap.Any("ErrorFault", ae.ErrorFault()))
 				}
 				return errors.Wrap(errGetObject, fmt.Sprintf("error reading migration file at %q", m.Path))
 			}

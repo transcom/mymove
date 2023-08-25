@@ -15,8 +15,8 @@ import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import ShipmentCard from 'components/Office/BillableWeight/ShipmentCard/ShipmentCard';
 import WeightSummary from 'components/Office/WeightSummary/WeightSummary';
 import EditBillableWeight from 'components/Office/BillableWeight/EditBillableWeight/EditBillableWeight';
-import { useOrdersDocumentQueries, useMovePaymentRequestsQueries } from 'hooks/queries';
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { useMovePaymentRequestsQueries } from 'hooks/queries';
+import { milmoveLogger } from 'utils/milmoveLog';
 import {
   includedStatusesForCalculatingWeights,
   useCalculatedTotalBillableWeight,
@@ -48,9 +48,23 @@ export default function ReviewBillableWeight() {
   };
 
   const navigate = useNavigate();
-  let documentsForViewer = [];
-  const { upload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
-  const { order, mtoShipments, move } = useMovePaymentRequestsQueries(moveCode);
+  const { paymentRequests, order, mtoShipments, move, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
+
+  const getAllFiles = () => {
+    const proofOfServiceDocs = paymentRequests.map((paymentRequest) => {
+      return paymentRequest.proofOfServiceDocs ?? [];
+    });
+
+    const uploadedDocs = proofOfServiceDocs.flat();
+    const uploadedFiles = uploadedDocs.flatMap((doc) => {
+      return doc.uploads;
+    });
+
+    let uploads = [];
+    uploads = uploads.concat(uploadedFiles);
+    return uploads;
+  };
+
   /* Only show shipments in statuses of approved, diversion requested, or cancellation requested */
   const filteredShipments = mtoShipments?.filter((shipment) => includedStatusesForCalculatingWeights(shipment.status));
   const isLastShipment = filteredShipments && selectedShipmentIndex === filteredShipments.length - 1;
@@ -86,7 +100,7 @@ export default function ReviewBillableWeight() {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 
@@ -103,7 +117,7 @@ export default function ReviewBillableWeight() {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 
@@ -119,7 +133,7 @@ export default function ReviewBillableWeight() {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 
@@ -157,17 +171,13 @@ export default function ReviewBillableWeight() {
     }
   };
 
-  if (upload) {
-    documentsForViewer = Object.values(upload);
-  }
-
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
   return (
     <div className={styles.DocumentWrapper}>
       <div className={styles.embed}>
-        <DocumentViewer files={documentsForViewer} />
+        <DocumentViewer files={getAllFiles()} />
       </div>
       <div className={styles.sidebar}>
         {sidebarType === 'MAX' ? (

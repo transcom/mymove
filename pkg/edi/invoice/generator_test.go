@@ -211,7 +211,7 @@ func MakeValidEdi() Invoice858C {
 		},
 		FA2s: []edisegment.FA2{
 			{
-				BreakdownStructureDetailCode: "TA",
+				BreakdownStructureDetailCode: edisegment.FA2DetailCodeTA,
 				FinancialInformationCode:     "1234",
 			},
 		},

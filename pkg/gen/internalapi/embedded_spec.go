@@ -547,6 +547,60 @@ func init() {
         }
       }
     },
+    "/feature-flags/user/{key}": {
+      "post": {
+        "description": "Determines if a user has a feature flag enabled. The flagContext contains context used to determine if this flag applies to the logged in user.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "featureFlags"
+        ],
+        "summary": "Determines if a user has a feature flag enabled",
+        "operationId": "featureFlagForUser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Feature Flag Key",
+            "name": "key",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "context for the feature flag request",
+            "name": "flagContext",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Feature Flag Status",
+            "schema": {
+              "$ref": "#/definitions/FeatureFlag"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/move_documents/{moveDocumentId}": {
       "put": {
         "description": "Update a move document with the given information",
@@ -1587,6 +1641,9 @@ func init() {
           "401": {
             "$ref": "#/responses/PermissionDenied"
           },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
           "500": {
             "$ref": "#/responses/ServerError"
           }
@@ -1639,7 +1696,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\n\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n",
+        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* Shipment type is required in body\n\nOptional fields include:\n* New shipment status type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
           "application/json"
         ],
@@ -2283,7 +2340,7 @@ func init() {
           }
         ],
         "responses": {
-          "200": {
+          "201": {
             "description": "returns new moving expense object",
             "schema": {
               "$ref": "#/definitions/MovingExpense"
@@ -2552,7 +2609,7 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
+          "200": {
             "description": "returns an updated pro-gear weight ticket object",
             "schema": {
               "$ref": "#/definitions/ProGearWeightTicket"
@@ -4585,6 +4642,39 @@ func init() {
               "type": "integer"
             }
           }
+        }
+      }
+    },
+    "FeatureFlag": {
+      "description": "A feature flag",
+      "type": "object",
+      "required": [
+        "entity",
+        "key",
+        "match",
+        "value",
+        "namespace"
+      ],
+      "properties": {
+        "entity": {
+          "type": "string",
+          "example": "user@example.com"
+        },
+        "key": {
+          "type": "string",
+          "example": "flag"
+        },
+        "match": {
+          "type": "boolean",
+          "example": true
+        },
+        "namespace": {
+          "type": "string",
+          "example": "test"
+        },
+        "value": {
+          "type": "string",
+          "example": "myval"
         }
       }
     },
@@ -8213,6 +8303,9 @@ func init() {
     },
     {
       "name": "mtoShipment"
+    },
+    {
+      "name": "featureFlags"
     }
   ]
 }`))
@@ -8739,6 +8832,60 @@ func init() {
           },
           "422": {
             "description": "the payload was unprocessable"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/feature-flags/user/{key}": {
+      "post": {
+        "description": "Determines if a user has a feature flag enabled. The flagContext contains context used to determine if this flag applies to the logged in user.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "featureFlags"
+        ],
+        "summary": "Determines if a user has a feature flag enabled",
+        "operationId": "featureFlagForUser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Feature Flag Key",
+            "name": "key",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "context for the feature flag request",
+            "name": "flagContext",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Feature Flag Status",
+            "schema": {
+              "$ref": "#/definitions/FeatureFlag"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
           },
           "500": {
             "description": "internal server error"
@@ -9796,6 +9943,12 @@ func init() {
               "$ref": "#/definitions/ClientError"
             }
           },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
           "500": {
             "description": "A server error occurred.",
             "schema": {
@@ -9869,7 +10022,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\n\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n",
+        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* Shipment type is required in body\n\nOptional fields include:\n* New shipment status type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
           "application/json"
         ],
@@ -10557,7 +10710,7 @@ func init() {
           }
         ],
         "responses": {
-          "200": {
+          "201": {
             "description": "returns new moving expense object",
             "schema": {
               "$ref": "#/definitions/MovingExpense"
@@ -10971,7 +11124,7 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
+          "200": {
             "description": "returns an updated pro-gear weight ticket object",
             "schema": {
               "$ref": "#/definitions/ProGearWeightTicket"
@@ -13210,6 +13363,39 @@ func init() {
         },
         "total": {
           "type": "integer"
+        }
+      }
+    },
+    "FeatureFlag": {
+      "description": "A feature flag",
+      "type": "object",
+      "required": [
+        "entity",
+        "key",
+        "match",
+        "value",
+        "namespace"
+      ],
+      "properties": {
+        "entity": {
+          "type": "string",
+          "example": "user@example.com"
+        },
+        "key": {
+          "type": "string",
+          "example": "flag"
+        },
+        "match": {
+          "type": "boolean",
+          "example": true
+        },
+        "namespace": {
+          "type": "string",
+          "example": "test"
+        },
+        "value": {
+          "type": "string",
+          "example": "myval"
         }
       }
     },
@@ -16858,6 +17044,9 @@ func init() {
     },
     {
       "name": "mtoShipment"
+    },
+    {
+      "name": "featureFlags"
     }
   ]
 }`))

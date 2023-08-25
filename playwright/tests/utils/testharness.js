@@ -294,6 +294,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build hhg move with amended orders
+   * @returns {Promise<Move>}
+   */
+  async buildHHGWithAmendedOrders() {
+    return this.buildDefault('HHGMoveWithAmendedOrders');
+  }
+
+  /**
    * Use testharness to build hhg move needing SC approval
    * @returns {Promise<Move>}
    */
@@ -450,6 +458,13 @@ export class TestHarness {
   async buildWebhookSubscription() {
     return this.buildDefault('WebhookSubscription');
   }
-}
+  /**
+   *
+   * @returns {Promise<Object>}
+   */
 
+  async bulidHHGMoveWithAddressChangeRequest() {
+    return this.buildDefault('HHGMoveWithAddressChangeRequest');
+  }
+}
 export default TestHarness;

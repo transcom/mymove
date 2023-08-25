@@ -1,0 +1,35 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
+
+.alert {
+  margin-top: 24px;
+  color: $base-darkest;
+}
+
+.alertContent {
+    @include u-color('base-darkest');
+}
+
+.previewHeading {
+  color: $base-darkest;
+  @include u-margin(0);
+}
+
+.listItem {
+  display: list-item;
+  margin-left: 1.5rem;
+}
+
+.reviewAddressChange {
+  @include u-padding-x(0 !important);
+  @include u-margin-top(2);
+  border: none;
+  background-color: white;
+  td {
+    vertical-align: top;
+  }
+
+  .contractorRemarks {
+    font-size: small;
+  }
+}
