@@ -96,7 +96,6 @@ type SignatureValue struct {
 
 func GenerateSignedHeader(certificate string, body []byte, privateKey *rsa.PrivateKey) ([]byte, error) {
 
-	print(privateKey)
 	const certificateID = "X509-CertificateId"
 	encodedDigest := digest.FromBytes(body).Encoded()
 
@@ -147,7 +146,7 @@ func GenerateSignedHeader(certificate string, body []byte, privateKey *rsa.Priva
 					},
 				},
 				SignatureValue: SignatureValue{
-					Text: []byte(signedHash),
+					Text: signedHash,
 				},
 				KeyInfo: KeyInfo{
 					ID: "KI-KeyInfoIdentification",

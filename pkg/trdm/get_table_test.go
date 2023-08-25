@@ -1,6 +1,7 @@
 package trdm_test
 
 import (
+	"crypto/rand"
 	"crypto/rsa"
 	"fmt"
 	"os"
@@ -72,8 +73,12 @@ func (suite *TRDMSuite) TestGetTableFake() {
 				mock.Anything,
 				mock.Anything,
 			).Return(soapResponseForGetTable(test.statusCode, test.payload), soapError)
+			privatekey, keyErr := rsa.GenerateKey(rand.Reader, 2048)
+			if keyErr != nil {
+				suite.Error(keyErr)
+			}
 
-			getTable := trdm.NewGetTable(test.physicalName, "", &rsa.PrivateKey{}, testSoapClient)
+			getTable := trdm.NewGetTable(test.physicalName, "", privatekey, testSoapClient)
 			err := getTable.GetTable(suite.AppContextForTest(), test.physicalName, time.Now().Format(time.RFC3339))
 
 			if err != nil {

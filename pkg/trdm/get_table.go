@@ -177,15 +177,15 @@ func setupSoapCall(d *GetTableRequestElement, appCtx appcontext.AppContext, phys
 		return marshalErr
 	}
 
-	signedHeader, headerSigningError := GenerateSignedHeader(d.securityToken, marshaledBody, d.privateKey)
-	if headerSigningError != nil {
-		return headerSigningError
-	}
-	newParams := gosoap.Params{
-		"header": signedHeader,
-		"body":   marshaledBody,
-	}
 	operation := func() error {
+		signedHeader, headerSigningError := GenerateSignedHeader(d.securityToken, marshaledBody, d.privateKey)
+		if headerSigningError != nil {
+			return headerSigningError
+		}
+		newParams := gosoap.Params{
+			"header": signedHeader,
+			"body":   marshaledBody,
+		}
 		return getTableSoapCall(d, newParams, appCtx, physicalName)
 	}
 	b := backoff.NewExponentialBackOff()
