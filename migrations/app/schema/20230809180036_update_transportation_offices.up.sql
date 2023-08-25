@@ -161,10 +161,10 @@ UPDATE transportation_offices SET name = 'PPPO Base Portsmouth - USCG', gbloc = 
 UPDATE addresses SET street_address_1 = '4000 Coast Guard Blvd', street_address_2 = 'nan', city = 'Portsmouth', state = 'VA', postal_code = '23707' WHERE id = (SELECT address_id FROM transportation_offices where id = '3021df82-cb36-4286-bfb6-94051d04b59b');
 
 -- Insert the address
-INSERT INTO addresses (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at) VALUES ('79c2becc-c6b9-45dd-88b0-90ab0e73b75d', '1001 S. Seaside Ave', 'Bldg 25', 'San Pedro', 'CA', '90731', now(), now());
+INSERT INTO addresses (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at) VALUES ('6ab7be64-1499-486e-b4ae-2c1a8f3f069d', '1001 S. Seaside Ave', 'Bldg 25', 'San Pedro', 'CA', '90731', now(), now());
 
 -- Insert the TO
-INSERT INTO transportation_offices (id, address_id, gbloc, name, created_at, updated_at, latitude, longitude) VALUES ('79b5a8a0-e104-46e1-ae26-676de6f24cff', '79c2becc-c6b9-45dd-88b0-90ab0e73b75d', 'KKFA', 'PPPO Base San Pedro - USCG', now(), now(), 0, 0);
+INSERT INTO transportation_offices (id, address_id, gbloc, name, created_at, updated_at, latitude, longitude) VALUES ('f0ccc12b-ec87-4767-8053-bf35409a3910', '6ab7be64-1499-486e-b4ae-2c1a8f3f069d', 'KKFA', 'PPPO Base San Pedro - USCG', now(), now(), 0, 0);
 
 -- Update the TO
 UPDATE transportation_offices SET name = 'PPPO Base Seattle - USCG', gbloc = 'JEAT' WHERE id = '183969ce-8abd-4136-b193-2041a8c4f1be';
@@ -251,10 +251,10 @@ UPDATE transportation_offices SET name = 'PPPO DMO Camp Lejeune - USMC ', gbloc 
 UPDATE addresses SET street_address_1 = 'Ash St', street_address_2 = 'Bldg 1011', city = 'Camp Lejeune', state = 'NC', postal_code = '28547' WHERE id = (SELECT address_id FROM transportation_offices where id = '22894aa1-1c29-49d8-bd1b-2ce64448cc8d');
 
 -- Insert the address
-INSERT INTO addresses (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at) VALUES ('231c5c1d-6633-4f49-9808-d1a1088f43ca', 'Vandergrift Blvd', 'Bldg 2263', 'Camp Pendleton', 'CA', '92055', now(), now());
+INSERT INTO addresses (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at) VALUES ('ed59a5f8-4ecd-40fb-9e68-af76e9fd5362', 'Vandergrift Blvd', 'Bldg 2263', 'Camp Pendleton', 'CA', '92055', now(), now());
 
 -- Insert the TO
-INSERT INTO transportation_offices (id, address_id, gbloc, name, created_at, updated_at, latitude, longitude) VALUES ('bd8cb779-f712-439c-a8cf-35da6b1d36a2', '231c5c1d-6633-4f49-9808-d1a1088f43ca', 'USMC', 'PPPO DMO Camp Pendleton - USMC', now(), now(), 0, 0);
+INSERT INTO transportation_offices (id, address_id, gbloc, name, created_at, updated_at, latitude, longitude) VALUES ('0435ccdb-5c03-496c-b09f-b4c20e456659', 'ed59a5f8-4ecd-40fb-9e68-af76e9fd5362', 'USMC', 'PPPO DMO Camp Pendleton - USMC', now(), now(), 0, 0);
 
 -- Update the TO
 UPDATE transportation_offices SET name = 'PPPO DMO Camp Pendleton - USMC', gbloc = 'LKNQ' WHERE id = 'f50eb7f5-960a-46e8-aa64-6025b44132ab';
@@ -833,10 +833,10 @@ UPDATE transportation_offices SET name = 'PPPO NSA Saratoga Springs - USN', gblo
 UPDATE addresses SET street_address_1 = '19 J. F. King Dr', street_address_2 = 'Bldg 102', city = 'Saratoga Springs', state = 'NY', postal_code = '12866' WHERE id = (SELECT address_id FROM transportation_offices where id = '559eb724-7577-4e4c-830f-e55cbb030e06');
 
 -- Insert the address
-INSERT INTO addresses (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at) VALUES ('d400514b-1cf0-4b50-a88d-90343e6836c1', '110 Vernon Ave', 'Bldg 386', 'Panama City', 'FL', '32407', now(), now());
+INSERT INTO addresses (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at) VALUES ('ec9c2d10-7934-432a-8c1b-a87cefeb1ed1', '110 Vernon Ave', 'Bldg 386', 'Panama City', 'FL', '32407', now(), now());
 
 -- Insert the TO
-INSERT INTO transportation_offices (id, address_id, gbloc, name, created_at, updated_at, latitude, longitude) VALUES ('d8ffa791-2ff7-4bad-b6b6-7f6da7f07f04', 'd400514b-1cf0-4b50-a88d-90343e6836c1', 'HAFC', 'PPPO NSWC Panama City Division - USN', now(), now(), 0, 0);
+INSERT INTO transportation_offices (id, address_id, gbloc, name, created_at, updated_at, latitude, longitude) VALUES ('57cf1e81-8113-4a52-bc50-3cb8902c2efd', 'ec9c2d10-7934-432a-8c1b-a87cefeb1ed1', 'HAFC', 'PPPO NSWC Panama City Division - USN', now(), now(), 0, 0);
 
 -- Update the TO
 UPDATE transportation_offices SET name = 'PPPO Offutt AFB - USAF', gbloc = 'KKFA' WHERE id = '78443187-1d59-4e10-82c9-ee7a0e062730';
