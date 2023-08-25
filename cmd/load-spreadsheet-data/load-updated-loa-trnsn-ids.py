@@ -41,25 +41,32 @@ with open(secure_migration_filename, "w+") as f:
     f.write('\tloa_trnsn_id = updated.loa_trnsn_id\n')
     f.write('FROM (VALUES\n')
 
+    has_written_at_least_one_value_to_file = False
     for index, row in input_file.iterrows():
         loa_sys_id = row['LOA_SYS_ID']
+        loa_hs_gds_cd = row['LOA_HS_GDS_CD']
+        loa_trnsn_id = row['LOA_TRNSN_ID']
 
         # Ignore rows where loa_sys_id is missing
         if loa_sys_id == 'NULL':
             continue
 
+        # Ignore rows where the loa_hs_gds_cd does not have a value, as we did during the original import
+        if loa_hs_gds_cd == 'NULL':
+            continue
+
         # Add single quotes around non-null values, otherwise, just use NULL
-        loa_trnsn_id = row['LOA_TRNSN_ID']
         loa_trnsn_id_write_value = loa_trnsn_id if loa_trnsn_id == 'NULL' else f"'{loa_trnsn_id}'"
+
+        if has_written_at_least_one_value_to_file:
+            # prepend next line with a comma and a newline
+            f.write(',\n')
 
         f.write(f'\t({loa_sys_id}, {loa_trnsn_id_write_value})')
 
-        # only add a comma to rows that are not the last row
-        if index == len(input_file) - 1:
-            f.write('\n')
-        else:
-            f.write(',\n')
+        # Now that at least one entry has been added to the file, we know to prepend the rest with `,\n`
+        has_written_at_least_one_value_to_file = True
 
-    f.write(') AS updated(loa_sys_id, loa_trnsn_id)\n')
+    f.write('\n) AS updated(loa_sys_id, loa_trnsn_id)\n')
     f.write('WHERE updated.loa_sys_id = loas.loa_sys_id;\n')
 sys.exit()
