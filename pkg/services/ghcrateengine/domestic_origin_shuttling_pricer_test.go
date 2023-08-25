@@ -75,7 +75,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginShuttlingPricer() {
 		twoYearsLaterPickupDate := doshutTestRequestedPickupDate.AddDate(2, 0, 0)
 		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, doshutTestWeight, doshutTestServiceSchedule)
 		suite.Error(err)
-		suite.Contains(err.Error(), "Could not lookup contract year")
+		suite.Contains(err.Error(), "unable to calculate escalated total price: could not lookup contract year")
 	})
 }
 

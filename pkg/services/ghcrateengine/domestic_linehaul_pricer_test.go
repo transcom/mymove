@@ -198,6 +198,10 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		_, _, err = linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, dlhTestWeight, "", isPPM)
 		suite.Error(err)
 		suite.Equal("ServiceArea is required", err.Error())
+
+		_, _, err = linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Date(testdatagen.TestYear+1, 1, 1, 1, 1, 1, 1, time.UTC), dlhTestDistance, dlhTestWeight, dlhTestServiceArea, isPPM)
+		suite.Error(err)
+		suite.Contains(err.Error(), "could not fetch domestic linehaul rate")
 	})
 }
 
