@@ -218,8 +218,7 @@ func getTableSoapCall(d *GetTableRequestElement, params gosoap.Params, appCtx ap
 			return parseError
 		}
 	} else {
-		err := errors.New("GetTable response was not `Successful`")
-		return fmt.Errorf(r.Output.TRDM.Status.StatusCode, err)
+		return fmt.Errorf(r.Output.TRDM.Status.StatusCode, "GetTable response was not 'Successful'")
 	}
 	appCtx.Logger().Debug("getTable result", zap.Any("processRequestResponse", response))
 	return nil
