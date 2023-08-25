@@ -42,7 +42,7 @@ TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
 SE*5*000000001
 GE*1*1
 IEA*1*000000995
-`, paymentRequest.PaymentRequestNumber, *paymentRequest.MoveTaskOrder.ReferenceID)
+`, *paymentRequest.MoveTaskOrder.ReferenceID, *paymentRequest.MoveTaskOrder.ReferenceID)
 		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
 			{
 				Model: models.PaymentRequestToInterchangeControlNumber{
@@ -108,7 +108,7 @@ IEA*1*000000995
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
 ST*824*000000001
-BGN*11*1126-9404-2*20210217
+BGN*11*1126-9404*20210217
 OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001253*0001
 TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
 SE*5*000000001
@@ -130,7 +130,7 @@ IEA*1*000000995
 		}, nil)
 		err := edi824Processor.ProcessFile(suite.AppContextForTest(), "", sample824EDIString)
 		suite.NotNil(err)
-		suite.Contains(err.Error(), fmt.Sprintf("The BGN02 Reference Identification field: 1126-9404-2 doesn't match the PaymentRequestNumber %s of the associated payment request", paymentRequest.PaymentRequestNumber))
+		suite.Contains(err.Error(), fmt.Sprintf("The BGN02 Reference Identification field: 1126-9404 doesn't match the MTO reference ID %s of the associated payment request", *paymentRequest.MoveTaskOrder.ReferenceID))
 	})
 
 	suite.Run("throw error when parsing an EDI997 when an EDI824 is expected", func() {
@@ -163,7 +163,7 @@ TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
 SE*5*000000001
 GE*1*1
 IEA*1*000000996
-`, paymentRequest.PaymentRequestNumber, *paymentRequest.MoveTaskOrder.ReferenceID)
+`, *paymentRequest.MoveTaskOrder.ReferenceID, *paymentRequest.MoveTaskOrder.ReferenceID)
 		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
 			{
 				Model: models.PaymentRequestToInterchangeControlNumber{
@@ -190,7 +190,7 @@ IEA*1*000000996
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*0000005*0*T*|
 GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
 ST*824*000000001
-BGN*11*1126-9404-1*20210217
+BGN*11*1126-9404*20210217
 OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0001
 TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
 SE*5*000000001
@@ -222,7 +222,7 @@ TED*K*MISSING DATA
 SE*5*000000001
 GE*1*1
 IEA*1*000000997
-`, paymentRequest.PaymentRequestNumber, *paymentRequest.MoveTaskOrder.ReferenceID)
+`, *paymentRequest.MoveTaskOrder.ReferenceID, *paymentRequest.MoveTaskOrder.ReferenceID)
 		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
 			{
 				Model: models.PaymentRequestToInterchangeControlNumber{
@@ -270,7 +270,7 @@ TED*007*Missing Data
 SE*5*000000001
 GE*2*1
 IEA*1*000000001
-`, paymentRequest.PaymentRequestNumber, *paymentRequest.MoveTaskOrder.ReferenceID)
+`, *paymentRequest.MoveTaskOrder.ReferenceID, *paymentRequest.MoveTaskOrder.ReferenceID)
 		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
 			{
 				Model: models.PaymentRequestToInterchangeControlNumber{

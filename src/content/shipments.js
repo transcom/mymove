@@ -11,8 +11,8 @@ export const shipmentTypeLabels = {
 export const shipmentForm = {
   header: {
     [SHIPMENT_OPTIONS.HHG]: 'Movers pack and transport this shipment',
-    [SHIPMENT_OPTIONS.NTS]: 'Where and when should the movers pick up your things going into storage?',
-    [SHIPMENT_OPTIONS.NTSR]: 'Where and when should the movers deliver your things from storage?',
+    [SHIPMENT_OPTIONS.NTS]: 'Where and when should the movers pick up your personal property going into storage?',
+    [SHIPMENT_OPTIONS.NTSR]: 'Where and when should the movers deliver your personal property from storage?',
   },
 };
 

@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-if [ ! -v NIX_PROFILE ]; then
+if [ -z "${NIX_PROFILE:-}" ]; then
   echo "NIX_PROFILE not set, not installing globally"
   echo "Try running 'direnv allow'"
   exit 1
@@ -16,10 +16,6 @@ export NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 # install packages
 nix-env -f "${DIR}" -i
-
-# install yarn using the node that was just installed
-npm install -g yarn
-
 # Store a hash of this file to the hash of the nix profile
 # This way if the config changes, we can warn about it via direnv
 # See the nix config in .envrc

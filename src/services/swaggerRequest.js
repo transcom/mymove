@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 import * as schema from 'shared/Entities/schema';
 import { interceptInjection } from 'store/interceptor/injectionMiddleware';
 import { interceptResponse } from 'store/interceptor/actions';
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { milmoveLogger } from 'utils/milmoveLog';
 import { setMarkerIOMilmoveTraceID } from 'components/ThirdParty/MarkerIO';
 
 // setting up the same config from Swagger/api.js
@@ -16,7 +16,7 @@ export const requestInterceptor = (req) => {
     if (token) {
       req.headers['X-CSRF-Token'] = token;
     } else {
-      milmoveLog(MILMOVE_LOG_LEVEL.WARN, 'Unable to retrieve CSRF Token from cookie');
+      milmoveLogger.warn('Unable to retrieve CSRF Token from cookie');
     }
   }
   return req;
@@ -77,10 +77,7 @@ function successfulReturnType(routeDefinition, status) {
   const response = routeDefinition.responses[status];
   const schemaKey = response.schema.$$ref.split('/').pop();
   if (!response) {
-    milmoveLog(
-      MILMOVE_LOG_LEVEL.ERROR,
-      `No response found for operation ${routeDefinition.operationId} with status ${status}`,
-    );
+    milmoveLogger.error(`No response found for operation ${routeDefinition.operationId} with status ${status}`);
     return null;
   }
 
@@ -106,8 +103,7 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
   try {
     request = operation(params);
   } catch (e) {
-    milmoveLog(MILMOVE_LOG_LEVEL.ERROR, `Operation ${operationPath} failed: ${e}`);
-    // TODO - log error?
+    milmoveLogger.error(`Operation ${operationPath} failed: ${e}`);
     return Promise.reject(e);
   }
 
@@ -129,8 +125,7 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
 
         if (schemaKey.indexOf('Payload') !== -1) {
           const newSchemaKey = schemaKey.replace('Payload', '');
-          milmoveLog(
-            MILMOVE_LOG_LEVEL.WARN,
+          milmoveLogger.warn(
             `Using 'Payload' as a response type prefix is deprecated. Please rename ${schemaKey} to ${newSchemaKey}`,
           );
           schemaKey = newSchemaKey;
@@ -142,8 +137,7 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
       return response.body;
     })
     .catch((response) => {
-      milmoveLog(MILMOVE_LOG_LEVEL.ERROR, `Operation ${operationPath} failed: ${response} (${response.status})`);
-      // TODO - log error?
+      milmoveLogger.error(`Operation ${operationPath} failed: ${response} (${response.status})`);
       return Promise.reject(response);
     });
 }

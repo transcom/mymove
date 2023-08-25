@@ -34,6 +34,7 @@ tags:
   - name: postal_codes
   - name: addresses
   - name: mtoShipment
+  - name: featureFlags
 definitions:
   LoggedInUserPayload:
     type: object
@@ -2699,6 +2700,42 @@ paths:
           description: the payload was unprocessable
         '500':
           description: internal server error
+  /feature-flags/user/{key}:
+    post:
+      summary: Determines if a user has a feature flag enabled
+      description: Determines if a user has a feature flag enabled. The flagContext contains context used to determine if this flag applies to the logged in user.
+      operationId: featureFlagForUser
+      tags:
+        - featureFlags
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: key
+          type: string
+          required: true
+          description: Feature Flag Key
+        - in: body
+          name: flagContext
+          required: true
+          description: context for the feature flag request
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Feature Flag Status
+          schema:
+            $ref: 'definitions/FeatureFlag.yaml'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '500':
+          description: internal server error
   /users/logged_in:
     get:
       summary: Returns the user info for the currently logged in user
@@ -4391,7 +4428,7 @@ paths:
           schema:
             $ref: '#/definitions/UpdateProGearWeightTicket'
       responses:
-        '201':
+        '200':
           description: returns an updated pro-gear weight ticket object
           schema:
             $ref: 'definitions/ProGearWeightTicket.yaml'
@@ -4994,6 +5031,8 @@ paths:
           $ref: '#/responses/InvalidRequest'
         '401':
           $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
 responses:

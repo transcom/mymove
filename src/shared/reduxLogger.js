@@ -1,4 +1,4 @@
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { milmoveLogger } from 'utils/milmoveLog';
 
 const timer =
   typeof performance !== 'undefined' && performance !== null && typeof performance.now === 'function'
@@ -19,7 +19,7 @@ export default function logger({ getState }) {
     }
     logEntry.took = timer.now() - logEntry.started;
     logEntry.nextState = getState();
-    milmoveLog(MILMOVE_LOG_LEVEL.LOG, logEntry.action.type, ' will dispatch ', logEntry);
+    milmoveLogger.debug(logEntry.action.type, ' will dispatch ', logEntry);
     return returnedValue;
   };
 }

@@ -1,18 +1,22 @@
 package migrate
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/aws/aws-sdk-go/service/s3/s3iface"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/spf13/afero"
 )
 
 // FileHelper is an afero filesystem struct
 type FileHelper struct {
 	fs afero.Fs
+}
+
+type S3ListObjectsV2API interface {
+	ListObjectsV2(ctx context.Context, params *s3.ListObjectsV2Input, optFns ...func(*s3.Options)) (*s3.ListObjectsV2Output, error)
 }
 
 // NewFileHelper creates and returns a new File Helper
@@ -29,7 +33,7 @@ func (fh *FileHelper) SetFileSystem(fs afero.Fs) {
 }
 
 // ListFiles lists the files in a given directory.
-func (fh *FileHelper) ListFiles(p string, s3Client s3iface.S3API) ([]string, error) {
+func (fh *FileHelper) ListFiles(p string, s3Client S3ListObjectsV2API) ([]string, error) {
 	if strings.HasPrefix(p, "file://") {
 		f, err := fh.fs.Open(p[len("file://"):])
 		if err != nil {
@@ -45,13 +49,15 @@ func (fh *FileHelper) ListFiles(p string, s3Client s3iface.S3API) ([]string, err
 			bucket := parts[0]
 			prefix := parts[1]
 			filenames := make([]string, 0)
-			var marker *string
+			var continuationToken *string
 			for {
-				listObjectsOutput, err := s3Client.ListObjects(&s3.ListObjectsInput{
-					Bucket: aws.String(bucket),
-					Prefix: aws.String(prefix),
-					Marker: marker,
-				})
+				listObjectsOutput, err := s3Client.ListObjectsV2(
+					context.Background(),
+					&s3.ListObjectsV2Input{
+						Bucket:            aws.String(bucket),
+						Prefix:            aws.String(prefix),
+						ContinuationToken: continuationToken,
+					})
 				if err != nil {
 					return filenames, err
 				}
@@ -59,10 +65,10 @@ func (fh *FileHelper) ListFiles(p string, s3Client s3iface.S3API) ([]string, err
 					key := *obj.Key
 					filenames = append(filenames, key[len(prefix)+1:])
 				}
-				if listObjectsOutput.IsTruncated == nil || !*listObjectsOutput.IsTruncated {
+				if !listObjectsOutput.IsTruncated {
 					break
 				}
-				marker = listObjectsOutput.Contents[len(listObjectsOutput.Contents)-1].Key
+				continuationToken = listObjectsOutput.NextContinuationToken
 			}
 			return filenames, nil
 		}

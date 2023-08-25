@@ -6,6 +6,8 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -301,6 +303,121 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 
 		_, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
 		suite.Error(err)
+	})
+
+}
+
+func (suite *MoveTaskOrderServiceSuite) TestGetMoveTaskOrderFetcher() {
+	setupTestData := func() models.Move {
+
+		expectedMTO := factory.BuildMove(suite.DB(), nil, nil)
+
+		return expectedMTO
+	}
+
+	mtoFetcher := NewMoveTaskOrderFetcher()
+
+	suite.Run("success getting a move using GetMove for Prime user", func() {
+		expectedMTO := setupTestData()
+		searchParams := services.MoveTaskOrderFetcherParams{
+			MoveTaskOrderID: expectedMTO.ID,
+		}
+
+		move, err := mtoFetcher.GetMove(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+
+		suite.Equal(expectedMTO.ID, move.ID)
+	})
+
+	suite.Run("get an error if search params are not provided when using GetMove", func() {
+		_, err := mtoFetcher.GetMove(suite.AppContextForTest(), &services.MoveTaskOrderFetcherParams{})
+		suite.Error(err)
+		suite.Contains(err.Error(), "searchParams should have either a move ID or locator set")
+	})
+
+	suite.Run("get an error if bad ID is provided when using GetMove", func() {
+		badID, _ := uuid.NewV4()
+		searchParams := services.MoveTaskOrderFetcherParams{
+			MoveTaskOrderID: badID,
+		}
+
+		_, err := mtoFetcher.GetMove(suite.AppContextForTest(), &searchParams)
+		suite.Error(err)
+		suite.Contains(err.Error(), "not found")
+	})
+
+	suite.Run("Can fetch a move if it is a customer app request by the customer it belongs to", func() {
+		expectedMTO := factory.BuildMove(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
+
+		serviceMember := expectedMTO.Orders.ServiceMember
+		searchParams := services.MoveTaskOrderFetcherParams{
+			MoveTaskOrderID: expectedMTO.ID,
+		}
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			UserID:          serviceMember.User.ID,
+			ServiceMemberID: serviceMember.ID,
+		})
+
+		moveReturned, err := mtoFetcher.GetMove(
+			appCtx,
+			&searchParams,
+		)
+
+		if suite.NoError(err) && suite.NotNil(moveReturned) {
+			suite.Equal(expectedMTO.ID, moveReturned.ID)
+		}
+	})
+
+	suite.Run("Returns a not found error if it is a customer app request by a customer that it does not belong to", func() {
+		badUser := factory.BuildExtendedServiceMember(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.MilApp,
+			UserID:          badUser.User.ID,
+			ServiceMemberID: badUser.ID,
+		})
+
+		expectedMTO := factory.BuildMove(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
+		searchParams := services.MoveTaskOrderFetcherParams{
+			MoveTaskOrderID: expectedMTO.ID,
+		}
+
+		moveReturned, err := mtoFetcher.GetMove(
+			appCtx,
+			&searchParams,
+		)
+
+		if suite.Error(err) && suite.Nil(moveReturned) {
+			suite.IsType(apperror.NotFoundError{}, err)
+
+			suite.Contains(err.Error(), fmt.Sprintf("ID: %s not found", expectedMTO.ID))
+		}
+	})
+
+	suite.Run("success getting a move for Office user", func() {
+		officeUser := factory.BuildOfficeUser(suite.DB(), factory.GetTraitActiveOfficeUser(), nil)
+		expectedMTO := factory.BuildMove(suite.DB(), nil, nil)
+
+		searchParams := services.MoveTaskOrderFetcherParams{
+			MoveTaskOrderID: expectedMTO.ID,
+		}
+
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			UserID:          officeUser.User.ID,
+			OfficeUserID:    officeUser.ID,
+		})
+
+		moveReturned, err := mtoFetcher.GetMove(
+			appCtx,
+			&searchParams,
+		)
+
+		if suite.NoError(err) && suite.NotNil(moveReturned) {
+			suite.Equal(expectedMTO.ID, moveReturned.ID)
+		}
 	})
 }
 

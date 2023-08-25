@@ -10,7 +10,7 @@ type AK9 struct {
 	FunctionalGroupAcknowledgeCode      string `validate:"oneof=A E P R"`
 	NumberOfTransactionSetsIncluded     int    `validate:"min=1,max=999999"`
 	NumberOfReceivedTransactionSets     int    `validate:"min=1,max=999999"`
-	NumberOfAcceptedTransactionSets     int    `validate:"min=1,max=999999"`
+	NumberOfAcceptedTransactionSets     int    `validate:"min=0,max=999999"`
 	FunctionalGroupSyntaxErrorCodeAK905 string `validate:"omitempty,max=3"`
 	FunctionalGroupSyntaxErrorCodeAK906 string `validate:"omitempty,max=3"`
 	FunctionalGroupSyntaxErrorCodeAK907 string `validate:"omitempty,max=3"`

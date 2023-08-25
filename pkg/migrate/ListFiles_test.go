@@ -1,11 +1,12 @@
 package migrate
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/aws/aws-sdk-go/service/s3/s3iface"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	s3types "github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -46,15 +47,15 @@ func TestListFilesForS3WithInvalidClient(t *testing.T) {
 
 // mock interface
 type mockS3Client struct {
-	s3iface.S3API
 }
 
 // mock function
-func (m *mockS3Client) ListObjects(_ *s3.ListObjectsInput) (*s3.ListObjectsOutput, error) {
+func (m *mockS3Client) ListObjectsV2(_ context.Context, _ *s3.ListObjectsV2Input, _ ...func(*s3.Options)) (*s3.ListObjectsV2Output, error) {
+
 	// mock response/functionality
-	var files []*s3.Object
-	files = append(files, &s3.Object{Key: &s3folder})
-	return &s3.ListObjectsOutput{Contents: files}, nil
+	var files []s3types.Object
+	files = append(files, s3types.Object{Key: &s3folder})
+	return &s3.ListObjectsV2Output{Contents: files}, nil
 }
 
 func TestListFilesForS3(t *testing.T) {
