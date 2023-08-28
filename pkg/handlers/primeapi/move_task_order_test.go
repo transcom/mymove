@@ -1131,12 +1131,14 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{
-					RejectionReason:  models.StringPointer("not applicable"),
-					MTOShipmentID:    &successShipment.ID,
-					Reason:           models.StringPointer("there was a delay in getting the apartment"),
-					SITEntryDate:     &nowDate,
-					SITDepartureDate: &later,
-					CustomerContacts: models.MTOServiceItemCustomerContacts{contact1, contact2},
+					RejectionReason:      models.StringPointer("not applicable"),
+					MTOShipmentID:        &successShipment.ID,
+					Reason:               models.StringPointer("there was a delay in getting the apartment"),
+					SITEntryDate:         &nowDate,
+					SITDepartureDate:     &later,
+					CustomerContacts:     models.MTOServiceItemCustomerContacts{contact1, contact2},
+					SITCustomerContacted: &nowDate,
+					SITRequestedDelivery: &nowDate,
 				},
 			},
 			{
@@ -1197,6 +1199,8 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(*serviceItem.Reason, *payload.Reason)
 		suite.Equal(serviceItem.SITEntryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.SitEntryDate).Format(time.RFC3339))
 		suite.Equal(serviceItem.SITDepartureDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.SitDepartureDate).Format(time.RFC3339))
+		suite.Equal(serviceItem.SITCustomerContacted.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.SitCustomerContacted).Format(time.RFC3339))
+		suite.Equal(serviceItem.SITRequestedDelivery.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.SitRequestedDelivery).Format(time.RFC3339))
 		suite.Equal(serviceItem.CustomerContacts[0].DateOfContact.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.DateOfContact1).Format(time.RFC3339))
 		suite.Equal(serviceItem.CustomerContacts[0].TimeMilitary, *payload.TimeMilitary1)
 		suite.Equal(serviceItem.CustomerContacts[0].FirstAvailableDeliveryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(payload.FirstAvailableDeliveryDate1).Format(time.RFC3339))

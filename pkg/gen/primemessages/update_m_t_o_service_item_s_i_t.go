@@ -42,12 +42,20 @@ type UpdateMTOServiceItemSIT struct {
 	// Enum: [DDDSIT DOPSIT]
 	ReServiceCode string `json:"reServiceCode,omitempty"`
 
+	// Date when the customer contacted the prime for a delivery out of SIT.
+	// Format: date
+	SitCustomerContacted *strfmt.Date `json:"sitCustomerContacted,omitempty"`
+
 	// Departure date for SIT. This is the end date of the SIT at either origin or destination.
 	// Format: date
 	SitDepartureDate strfmt.Date `json:"sitDepartureDate,omitempty"`
 
 	// sit destination final address
 	SitDestinationFinalAddress *Address `json:"sitDestinationFinalAddress,omitempty"`
+
+	// Date when the customer has requested delivery out of SIT.
+	// Format: date
+	SitRequestedDelivery *strfmt.Date `json:"sitRequestedDelivery,omitempty"`
 
 	// Time of attempted contact by the prime corresponding to 'dateOfContact1', in military format.
 	// Example: 1400Z
@@ -103,12 +111,20 @@ func (m *UpdateMTOServiceItemSIT) UnmarshalJSON(raw []byte) error {
 		// Enum: [DDDSIT DOPSIT]
 		ReServiceCode string `json:"reServiceCode,omitempty"`
 
+		// Date when the customer contacted the prime for a delivery out of SIT.
+		// Format: date
+		SitCustomerContacted *strfmt.Date `json:"sitCustomerContacted,omitempty"`
+
 		// Departure date for SIT. This is the end date of the SIT at either origin or destination.
 		// Format: date
 		SitDepartureDate strfmt.Date `json:"sitDepartureDate,omitempty"`
 
 		// sit destination final address
 		SitDestinationFinalAddress *Address `json:"sitDestinationFinalAddress,omitempty"`
+
+		// Date when the customer has requested delivery out of SIT.
+		// Format: date
+		SitRequestedDelivery *strfmt.Date `json:"sitRequestedDelivery,omitempty"`
 
 		// Time of attempted contact by the prime corresponding to 'dateOfContact1', in military format.
 		// Example: 1400Z
@@ -157,8 +173,10 @@ func (m *UpdateMTOServiceItemSIT) UnmarshalJSON(raw []byte) error {
 	result.FirstAvailableDeliveryDate1 = data.FirstAvailableDeliveryDate1
 	result.FirstAvailableDeliveryDate2 = data.FirstAvailableDeliveryDate2
 	result.ReServiceCode = data.ReServiceCode
+	result.SitCustomerContacted = data.SitCustomerContacted
 	result.SitDepartureDate = data.SitDepartureDate
 	result.SitDestinationFinalAddress = data.SitDestinationFinalAddress
+	result.SitRequestedDelivery = data.SitRequestedDelivery
 	result.TimeMilitary1 = data.TimeMilitary1
 	result.TimeMilitary2 = data.TimeMilitary2
 
@@ -193,12 +211,20 @@ func (m UpdateMTOServiceItemSIT) MarshalJSON() ([]byte, error) {
 		// Enum: [DDDSIT DOPSIT]
 		ReServiceCode string `json:"reServiceCode,omitempty"`
 
+		// Date when the customer contacted the prime for a delivery out of SIT.
+		// Format: date
+		SitCustomerContacted *strfmt.Date `json:"sitCustomerContacted,omitempty"`
+
 		// Departure date for SIT. This is the end date of the SIT at either origin or destination.
 		// Format: date
 		SitDepartureDate strfmt.Date `json:"sitDepartureDate,omitempty"`
 
 		// sit destination final address
 		SitDestinationFinalAddress *Address `json:"sitDestinationFinalAddress,omitempty"`
+
+		// Date when the customer has requested delivery out of SIT.
+		// Format: date
+		SitRequestedDelivery *strfmt.Date `json:"sitRequestedDelivery,omitempty"`
 
 		// Time of attempted contact by the prime corresponding to 'dateOfContact1', in military format.
 		// Example: 1400Z
@@ -221,9 +247,13 @@ func (m UpdateMTOServiceItemSIT) MarshalJSON() ([]byte, error) {
 
 		ReServiceCode: m.ReServiceCode,
 
+		SitCustomerContacted: m.SitCustomerContacted,
+
 		SitDepartureDate: m.SitDepartureDate,
 
 		SitDestinationFinalAddress: m.SitDestinationFinalAddress,
+
+		SitRequestedDelivery: m.SitRequestedDelivery,
 
 		TimeMilitary1: m.TimeMilitary1,
 
@@ -277,11 +307,19 @@ func (m *UpdateMTOServiceItemSIT) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateSitCustomerContacted(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateSitDepartureDate(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateSitDestinationFinalAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitRequestedDelivery(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -398,6 +436,19 @@ func (m *UpdateMTOServiceItemSIT) validateReServiceCode(formats strfmt.Registry)
 	return nil
 }
 
+func (m *UpdateMTOServiceItemSIT) validateSitCustomerContacted(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SitCustomerContacted) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("sitCustomerContacted", "body", "date", m.SitCustomerContacted.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *UpdateMTOServiceItemSIT) validateSitDepartureDate(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.SitDepartureDate) { // not required
@@ -426,6 +477,19 @@ func (m *UpdateMTOServiceItemSIT) validateSitDestinationFinalAddress(formats str
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *UpdateMTOServiceItemSIT) validateSitRequestedDelivery(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SitRequestedDelivery) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("sitRequestedDelivery", "body", "date", m.SitRequestedDelivery.String(), formats); err != nil {
+		return err
 	}
 
 	return nil
