@@ -8,18 +8,21 @@ import (
 
 const (
 	// TRDMApiURLFlag is the TRDM API URL Flag
-	TRDMApiURLFlag string = "TRDM-api-url"
+	TRDMApiURLFlag string = "trdm-api-url"
 	// TRDMApiWSDLFlag is the TRDM API WSDL Flag
-	TRDMApiWSDLFlag string = "TRDM-api-wsdl"
-
+	TRDMApiWSDLFlag string = "trdm-api-wsdl"
 	// TRDMUseMockFlag is the TRDM Use Mock Flag
-	TRDMUseMockFlag string = "TRDM-use-mock"
+	TRDMUseMockFlag    string = "trdm-use-mock"
+	TRDMx509Cert       string = "trdm-x509-cert"
+	TRDMx509PrivateKey string = "trdm-x509-privatekey"
 )
 
 // InitTRDMFlags initializes Route command line flags
 func InitTRDMFlags(flag *pflag.FlagSet) {
 	flag.String(TRDMApiURLFlag, "", "URL for sending a SOAP request to TRDM")
 	flag.String(TRDMApiWSDLFlag, "", "WSDL for sending a SOAP request to TRDM")
+	flag.String(TRDMx509Cert, "", "x509 certificate for TRDM web services")
+	flag.String(TRDMx509PrivateKey, "", "x509 private key for TRDM web services")
 
 	flag.Bool(TRDMUseMockFlag, false, "Whether to use a mocked version of TRDM")
 }
@@ -29,6 +32,8 @@ func CheckTRDM(v *viper.Viper) error {
 	urlVars := []string{
 		TRDMApiURLFlag,
 		TRDMApiWSDLFlag,
+		TRDMx509Cert,
+		TRDMx509PrivateKey,
 	}
 
 	for _, c := range urlVars {
