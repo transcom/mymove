@@ -86,7 +86,11 @@ func exchangeCode(code string, r *http.Request, appCtx appcontext.AppContext, pr
 
 	url := provider.GetTokenURL() + "?" + q.Encode()
 
-	req, _ := http.NewRequest("POST", url, bytes.NewReader([]byte("")))
+	req, err := http.NewRequest("POST", url, bytes.NewReader([]byte("")))
+	if err != nil {
+		appCtx.Logger().Error("Post request generate", zap.Error(err))
+		return Exchange{}, err
+	}
 	h := req.Header
 	h.Add("Authorization", "Basic "+authHeader)
 	h.Add("Accept", "application/json")
@@ -96,12 +100,13 @@ func exchangeCode(code string, r *http.Request, appCtx appcontext.AppContext, pr
 
 	resp, err := client.Do(req)
 	if err != nil {
-		appCtx.Logger().Error("Code exchange", zap.Error(err))
+		appCtx.Logger().Error("Exchange client request", zap.Error(err))
+		return Exchange{}, err
 	}
-	fmt.Println("t")
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		appCtx.Logger().Error("Code exchange", zap.Error(err))
+		appCtx.Logger().Error("Exchange response body", zap.Error(err))
+		return Exchange{}, err
 	}
 	defer resp.Body.Close()
 	var exchange Exchange
@@ -123,3 +128,42 @@ type Exchange struct {
 	Scope            string `json:"scope,omitempty"`
 	IDToken          string `json:"id_token,omitempty"`
 }
+
+// Future functionality
+/*
+func revokeCurrentOktaToken(r *http.Request, provider okta.Provider, revokeURL, accessToken string) error {
+	authHeader := base64.StdEncoding.EncodeToString(
+		[]byte(provider.GetClientID() + ":" + provider.GetSecret()))
+
+	data := url.Values{}
+	data.Set("token", accessToken)
+	data.Set("token_type_hint", "access_token")
+
+	req, err := http.NewRequest("POST", revokeURL, strings.NewReader(data.Encode()))
+	if err != nil {
+		return fmt.Errorf("error creating the request: %v", err)
+	}
+
+	h := req.Header
+	h.Add("Authorization", "Basic "+authHeader)
+	h.Add("Accept", "application/json")
+	h.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("error sending request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		bodyBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return fmt.Errorf("error reading response body: %v", err)
+		}
+		return fmt.Errorf("failed to revoke token, status: %v, body: %s", resp.Status, string(bodyBytes))
+	}
+
+	return nil
+}
+*/

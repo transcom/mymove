@@ -473,7 +473,6 @@ func NewLogoutHandler(ac Context, hc handlers.HandlerConfig) LogoutHandler {
 	return logoutHandler
 }
 
-// !Needs to be finalized after sessions.
 func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	appCtx := h.AppContextFromRequest(r)
 	if appCtx.Session() != nil {
@@ -490,6 +489,7 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			// this is shown in a sample app here: https://github.com/okta/samples-golang/blob/master/okta-hosted-login/main.go
 			appCtx.Session().AccessToken = ""
 			appCtx.Session().IDToken = ""
+			// Remember, UserID is UUID; however, the Okta ID is not.
 			if appCtx.Session().UserID != uuid.Nil {
 				err := resetUserCurrentSessionID(appCtx)
 				if err != nil {
@@ -501,7 +501,7 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				appCtx.Logger().Error("failed to destroy session")
 			}
 			auth.DeleteCSRFCookies(w)
-			appCtx.Logger().Info("user logged out")
+			appCtx.Logger().Info("user logged out of application")
 			fmt.Fprint(w, logoutURL)
 		} else {
 			// Can't log out of okta.mil without a token, redirect and let them re-auth
@@ -815,7 +815,6 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case authorizationResultUnauthorized:
 		invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
 	case authorizationResultAuthorized:
-		// http.Redirect(w, r, "http://milmovelocal:3000/", http.StatusTemporaryRedirect)
 		http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
 	}
 }
