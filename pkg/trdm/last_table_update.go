@@ -4,7 +4,9 @@ import (
 	"crypto/rsa"
 	"encoding/xml"
 	"fmt"
+	"net/http"
 	"strings"
+	"time"
 
 	"github.com/spf13/viper"
 	"github.com/tiaguinho/gosoap"
@@ -153,8 +155,6 @@ func StartLastTableUpdateCron(appCtx appcontext.AppContext, physicalName string)
 
 func LastTableUpdate() error {
 
-	tableName := ""
-
 	v := viper.New()
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
@@ -174,12 +174,23 @@ func LastTableUpdate() error {
 
 	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
 
-	getLastTableUpdateErr := NewTRDMGetLastTableUpdate(lineOfAccounting, "", nil, nil).GetLastTableUpdate(appCtx, lineOfAccounting)
+	tr := &http.Transport{TLSClientConfig: nil}
+	httpClient := &http.Client{Transport: tr, Timeout: time.Duration(30) * time.Second}
+
+	trdmWSDL := v.GetString(cli.TRDMApiWSDLFlag)
+	trdmURL := v.GetString(cli.TRDMApiURLFlag)
+	soapClient, err := gosoap.SoapClient(trdmWSDL, httpClient)
+	if err != nil {
+		return fmt.Errorf("unable to create SOAP client: %w", err)
+	}
+	soapClient.URL = trdmURL
+
+	getLastTableUpdateErr := NewTRDMGetLastTableUpdate(lineOfAccounting, "", nil, soapClient).GetLastTableUpdate(appCtx, lineOfAccounting)
 	if getLastTableUpdateErr != nil {
 		return getLastTableUpdateErr
 	}
 
-	cronErr := StartLastTableUpdateCron(appCtx, tableName)
+	cronErr := StartLastTableUpdateCron(appCtx, lineOfAccounting)
 	if cronErr != nil {
 		return cronErr
 	}

@@ -7,10 +7,6 @@ import (
 )
 
 const (
-	// TRDMApiUsernameFlag is the TRDM API Username Flag
-	TRDMApiUsernameFlag string = "TRDM-api-username"
-	// TRDMApiPssFlag is the TRDM API Password Flag
-	TRDMApiPssFlag string = "TRDM-api-pss"
 	// TRDMApiURLFlag is the TRDM API URL Flag
 	TRDMApiURLFlag string = "TRDM-api-url"
 	// TRDMApiWSDLFlag is the TRDM API WSDL Flag
@@ -22,8 +18,6 @@ const (
 
 // InitTRDMFlags initializes Route command line flags
 func InitTRDMFlags(flag *pflag.FlagSet) {
-	flag.String(TRDMApiUsernameFlag, "", "TRDM api auth username")
-	flag.String(TRDMApiPssFlag, "", "TRDM api auth password")
 	flag.String(TRDMApiURLFlag, "", "URL for sending a SOAP request to TRDM")
 	flag.String(TRDMApiWSDLFlag, "", "WSDL for sending a SOAP request to TRDM")
 
