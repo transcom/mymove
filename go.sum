@@ -107,8 +107,8 @@ github.com/aws/aws-sdk-go-v2/internal/v4a v1.1.4 h1:6lJvvkQ9HmbHZ4h/IEwclwv2mrTW
 github.com/aws/aws-sdk-go-v2/internal/v4a v1.1.4/go.mod h1:1PrKYwxTM+zjpw9Y41KFtoJCQrJ34Z47Y4VgVbfndjo=
 github.com/aws/aws-sdk-go-v2/service/cloudwatchevents v1.15.13 h1:pLQWDntUlaDO4jde6MqxOrCBKrYvlU11PJrIttEQPGA=
 github.com/aws/aws-sdk-go-v2/service/cloudwatchevents v1.15.13/go.mod h1:N0aDlGD0iO8/Hs1OAQ6cgYmIMz7EoY8BGXGLdv9n8qI=
-github.com/aws/aws-sdk-go-v2/service/ecr v1.18.13 h1:hF7MUVNjubetjggZDtn3AmqCJzD7EUi//tSdxMYPm7U=
-github.com/aws/aws-sdk-go-v2/service/ecr v1.18.13/go.mod h1:XwEFO35g0uN/SftK0asWxh8Rk6DOx37R83TmWe2tzEE=
+github.com/aws/aws-sdk-go-v2/service/ecr v1.19.5 h1:hg2/a7rE9dwYr+/DPNzHQ+IsHXLNt1NsQVUecBtA8os=
+github.com/aws/aws-sdk-go-v2/service/ecr v1.19.5/go.mod h1:pGwmNL8hN0jpBfKfTbmu+Rl0bJkDhaGl+9PQLrZ4KLo=
 github.com/aws/aws-sdk-go-v2/service/ecs v1.27.4 h1:F1N0Eh5EGRRY9QpF+tMTkx8Wb59DkQWE91Xza/9dk1c=
 github.com/aws/aws-sdk-go-v2/service/ecs v1.27.4/go.mod h1:0irnFofeEZwT7uTjSkNVcSQJbWRqZ9BRoxhKjt1BObM=
 github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.9.14 h1:m0QTSI6pZYJTk5WSKx3fm5cNW/DCicVzULBgU/6IyD0=
