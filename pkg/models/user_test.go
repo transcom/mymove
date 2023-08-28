@@ -72,17 +72,12 @@ func (suite *ModelSuite) TestUserCreationDuplicateUUID() {
 func (suite *ModelSuite) TestCreateUser() {
 	const testEmail = "Sally@GoVernment.gov"
 	const expectedEmail = "sally@government.gov"
-	const goodUUID = "39b28c92-0506-4bef-8b57-e39519f42dc2"
-	const badUUID = "39xnfc92-0506-4bef-8b57-e39519f42dc2"
+	const oktaID = "00u3ckm7yEoUJuI1i0k6"
 
-	sally, err := CreateUser(suite.DB(), goodUUID, testEmail)
+	sally, err := CreateUser(suite.DB(), oktaID, testEmail)
 	suite.Nil(err, "No error for good create")
 	suite.Equal(expectedEmail, sally.OktaEmail, "should convert email to lower case")
 	suite.NotEqual(sally.ID, uuid.Nil)
-
-	fail, err := CreateUser(suite.DB(), expectedEmail, badUUID)
-	suite.NotNil(err, "should get and error from bad uuid")
-	suite.Nil(fail, "no user with bad uuid")
 }
 
 func (suite *ModelSuite) TestFetchUserIdentity() {
@@ -261,7 +256,7 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 	suite.Run("service member", func() {
 
 		// Create a user email that won't be filtered out of the devlocal user query w/ a default value of
-		// first.last@login.gov.test
+		// first.last@okta.mil
 		user := factory.BuildUser(suite.DB(), []factory.Customization{
 			{
 				Model: User{
