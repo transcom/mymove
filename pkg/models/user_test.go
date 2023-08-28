@@ -261,7 +261,7 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 	suite.Run("service member", func() {
 
 		// Create a user email that won't be filtered out of the devlocal user query w/ a default value of
-		// first.last@login.gov.test
+		// first.last@okta.mil
 		user := factory.BuildUser(suite.DB(), []factory.Customization{
 			{
 				Model: User{

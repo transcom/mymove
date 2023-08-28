@@ -66,7 +66,7 @@ func GetUserFromEmail(db *pop.Connection, email string) (*User, error) {
 	return &users[0], err
 }
 
-// CreateUser is called upon successful login.gov verification of a new user
+// CreateUser is called upon successful Okta verification of a new user
 func CreateUser(db *pop.Connection, oktaID string, email string) (*User, error) {
 
 	newUser := User{
@@ -202,7 +202,7 @@ func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit 
 				sm.middle_name AS sm_middle
 			FROM service_members as sm
 			JOIN users on sm.user_id = users.id
-			WHERE users.okta_email != 'first.last@login.gov.test'
+			WHERE users.okta_email != 'first.last@okta.mil'
 			ORDER BY users.created_at DESC LIMIT $1`
 	}
 

@@ -15,7 +15,7 @@ func MakeUser(db *pop.Connection, assertions Assertions) models.User {
 	oktaID := uuid.Must(uuid.NewV4())
 	user := models.User{
 		OktaID:    oktaID.String(),
-		OktaEmail: "first.last@login.gov.test",
+		OktaEmail: "first.last@okta.mil",
 		Active:    false,
 	}
 
