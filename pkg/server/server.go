@@ -95,7 +95,10 @@ func (s *NamedServer) ListenAndServeTLS() error {
 
 	// Run these tasks as soon as the server is ready
 	if s.IsServerReady {
-		trdm.LastTableUpdate()
+		err := trdm.LastTableUpdate()
+		if err != nil {
+			return err
+		}
 	}
 
 	return s.Serve(listener)

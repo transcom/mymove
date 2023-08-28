@@ -4,7 +4,6 @@ import (
 	"crypto/rsa"
 	"encoding/xml"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -134,7 +133,7 @@ func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.
 	appCtx.Logger().Debug("getLastTableUpdate result", zap.Any("processRequestResponse", r))
 	return nil
 }
-func StartLastTableUpdateCron(appCtx appcontext.AppContext, physicalName string) {
+func StartLastTableUpdateCron(appCtx appcontext.AppContext, physicalName string) error {
 	cron := cron.New()
 
 	cronTask := func() {
@@ -146,12 +145,13 @@ func StartLastTableUpdateCron(appCtx appcontext.AppContext, physicalName string)
 
 	res, err := cron.AddFunc("@every 24h00m00s", cronTask)
 	if err != nil {
-		fmt.Println("Error adding cron task: ", err, res)
+		return fmt.Errorf("Error adding cron task: %s, %v", err.Error(), res)
 	}
 	cron.Start()
+	return nil
 }
 
-func LastTableUpdate() {
+func LastTableUpdate() error {
 
 	tableName := ""
 
@@ -162,22 +162,26 @@ func LastTableUpdate() {
 	dbEnv := v.GetString(cli.DbEnvFlag)
 	logger, _, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	if err != nil {
-		log.Fatalf("failed to initialize Zap logging due to %v", err)
+		return err
 	}
 	zap.ReplaceGlobals(logger)
 
 	// DB connection
 	dbConnection, err := cli.InitDatabase(v, logger)
 	if err != nil {
-		fmt.Println("Error getting DB connection: ", err)
+		return err
 	}
 
 	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
 
-	err2 := NewTRDMGetLastTableUpdate("", "", nil, nil).GetLastTableUpdate(appCtx, tableName)
-	if err2 != nil {
-		fmt.Println("Error executing GetLastTableUpdate: ", err)
+	getLastTableUpdateErr := NewTRDMGetLastTableUpdate(lineOfAccounting, "", nil, nil).GetLastTableUpdate(appCtx, lineOfAccounting)
+	if getLastTableUpdateErr != nil {
+		return getLastTableUpdateErr
 	}
 
-	StartLastTableUpdateCron(appCtx, tableName)
+	cronErr := StartLastTableUpdateCron(appCtx, tableName)
+	if cronErr != nil {
+		return cronErr
+	}
+	return nil
 }
