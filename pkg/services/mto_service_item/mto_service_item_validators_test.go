@@ -20,6 +20,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	// Set up the data needed for updateMTOServiceItemData obj
 	checker := movetaskorder.NewMoveTaskOrderChecker()
 	now := time.Now()
+	later := now.AddDate(0, 0, 3)
 	setupTestData := func() (models.MTOServiceItem, models.MTOServiceItem) {
 		// Create a service item to serve as the old object
 		oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
@@ -355,6 +356,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 				FirstAvailableDeliveryDate: time.Now().AddDate(0, 0, 5),
 			},
 		}
+		editServiceItem.SITCustomerContacted = &now
+		editServiceItem.SITRequestedDelivery = &later
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: editServiceItem,
 			oldServiceItem:     oldServiceItem,
@@ -367,6 +370,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.Nil(newServiceItem.ApprovedAt)
 		suite.Equal(newServiceItem.SITEntryDate, editServiceItem.SITEntryDate)
 		suite.Equal(newServiceItem.Description, editServiceItem.Description)
+		suite.Equal(*newServiceItem.SITCustomerContacted, *editServiceItem.SITCustomerContacted)
+		suite.Equal(*newServiceItem.SITRequestedDelivery, *editServiceItem.SITRequestedDelivery)
 		suite.NotEqual(newServiceItem.Description, oldServiceItem.Description)
 		suite.NotEqual(newServiceItem.Description, serviceItemData.oldServiceItem.Description)
 		suite.NotEqual(newServiceItem.CustomerContacts[0].TimeMilitary, serviceItemData.oldServiceItem.CustomerContacts[0].TimeMilitary)

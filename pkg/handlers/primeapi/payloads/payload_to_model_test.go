@@ -164,7 +164,6 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.Equal(models.ReServiceCodeDDFSIT, returnedModel.ReService.Code)
 		suite.Equal(destPostalCode, returnedModel.SITDestinationFinalAddress.PostalCode)
 		suite.Equal(destStreet, returnedModel.SITDestinationFinalAddress.StreetAddress1)
-
 	})
 
 	suite.Run("Success - Returns SIT destination service item model without customer contact fields", func() {

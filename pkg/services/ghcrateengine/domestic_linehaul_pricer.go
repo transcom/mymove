@@ -50,15 +50,20 @@ func (p domesticLinehaulPricer) Price(appCtx appcontext.AppContext, contractCode
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic linehaul rate: %w", err)
 	}
 
-	contractYear, err := fetchContractYear(appCtx, domesticLinehaulPrice.ContractID, referenceDate)
+	baseTotalPrice := finalWeight.ToCWTFloat64() * distance.Float64() * domesticLinehaulPrice.PriceMillicents.Float64()
+
+	escalatedPrice, contractYear, err := escalatePriceForContractYear(
+		appCtx,
+		domesticLinehaulPrice.ContractID,
+		referenceDate,
+		true,
+		baseTotalPrice)
+
 	if err != nil {
-		return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
+		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 
-	baseTotalPrice := finalWeight.ToCWTFloat64() * distance.Float64() * domesticLinehaulPrice.PriceMillicents.Float64()
-	escalatedTotalPrice := contractYear.EscalationCompounded * baseTotalPrice
-
-	totalPriceMillicents := unit.Millicents(escalatedTotalPrice)
+	totalPriceMillicents := unit.Millicents(escalatedPrice)
 	totalPriceCents := totalPriceMillicents.ToCents()
 
 	params := services.PricingDisplayParams{

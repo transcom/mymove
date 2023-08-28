@@ -553,7 +553,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticShuttling() {
 		_, _, err := priceDomesticShuttling(suite.AppContextForTest(), models.ReServiceCodeDDSHUT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ddshutTestWeight, ddshutTestServiceSchedule)
 
 		suite.Error(err)
-		suite.Contains(err.Error(), "Could not lookup contract year")
+		suite.Contains(err.Error(), "unable to calculate escalated total price: could not lookup contract year")
 	})
 }
 func (suite *GHCRateEngineServiceSuite) Test_priceDomesticCrating() {
