@@ -58,7 +58,7 @@ func (suite *TRDMSuite) TestTRDMGetLastTableUpdateFake() {
 				mock.Anything,
 			).Return(soapResponseForGetLastTableUpdate(test.lastUpdate, test.statusCode), soapError)
 
-			lastTableUpdate := trdm.NewTRDMGetLastTableUpdate(physicalName, testSoapClient)
+			lastTableUpdate := trdm.NewTRDMGetLastTableUpdate("fakeUsername", "fakePas", physicalName, testSoapClient)
 			err := lastTableUpdate.GetLastTableUpdate(suite.AppContextForTest(), physicalName)
 
 			if err != nil {
