@@ -1,12 +1,12 @@
 package trdm
 
 import (
+	"crypto/rsa"
 	"encoding/xml"
 	"fmt"
 	"log"
 	"strings"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"github.com/tiaguinho/gosoap"
 	"go.uber.org/zap"
@@ -15,7 +15,6 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
-	"github.com/transcom/mymove/pkg/models"
 )
 
 /*******************************************
@@ -57,10 +56,11 @@ type GetLastTableUpdater interface {
 	GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string) error
 }
 type GetLastTableUpdateRequestElement struct {
-	PhysicalName string `xml:"physicalName"`
-	soapClient   SoapCaller
-	username     string
-	password     string
+	XMLName       string `xml:"ret:getLastTableUpdateReqElement"`
+	PhysicalName  string `xml:"ret:physicalName"`
+	soapClient    SoapCaller
+	securityToken string
+	privateKey    *rsa.PrivateKey
 }
 type GetLastTableUpdateResponseElement struct {
 	XMLName    xml.Name `xml:"getLastTableUpdateResponseElement"`
@@ -71,27 +71,13 @@ type GetLastTableUpdateResponseElement struct {
 	} `xml:"status"`
 }
 
-func NewTRDMGetLastTableUpdate(usernamne string, password string, physicalName string, soapClient SoapCaller) GetLastTableUpdater {
+func NewTRDMGetLastTableUpdate(physicalName string, securityToken string, privateKey *rsa.PrivateKey, soapClient SoapCaller) GetLastTableUpdater {
 	return &GetLastTableUpdateRequestElement{
-		PhysicalName: physicalName,
-		soapClient:   soapClient,
-		username:     usernamne,
-		password:     password,
+		PhysicalName:  physicalName,
+		soapClient:    soapClient,
+		securityToken: securityToken,
+		privateKey:    privateKey,
 	}
-
-}
-
-// FetchAllTACRecords queries and fetches all transportation_accounting_codes
-func FetchAllTACRecords(appcontext appcontext.AppContext) ([]models.TransportationAccountingCode, error) {
-	var tacCodes []models.TransportationAccountingCode
-	query := `SELECT * FROM transportation_accounting_codes`
-
-	err := appcontext.DB().RawQuery(query).All(&tacCodes)
-	if err != nil {
-		return tacCodes, errors.Wrap(err, "Fetch line items query failed")
-	}
-
-	return tacCodes, nil
 
 }
 
@@ -102,23 +88,29 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 		"xmlns:ret":     "http://ReturnTablePackage/",
 	})
 
-	params := gosoap.Params{
-		"AuthToken": map[string]interface{}{
-			"Username": d.username,
-			"Password": d.password,
-		},
-		"getLastTableUpdateRequestElement": map[string]interface{}{
-			"physicalName": physicalName,
-		},
+	params := GetLastTableUpdateRequestElement{
+		PhysicalName: physicalName,
 	}
-	err := lastTableUpdateSoapCall(d, params, appCtx)
+	marshaledBody, marshalEr := xml.Marshal(params)
+	if marshalEr != nil {
+		return marshalEr
+	}
+	signedHeader, headerSigningError := GenerateSignedHeader(d.securityToken, d.privateKey)
+	if headerSigningError != nil {
+		return headerSigningError
+	}
+	newParams := gosoap.Params{
+		"header": signedHeader,
+		"body":   marshaledBody,
+	}
+	err := lastTableUpdateSoapCall(d, newParams, appCtx, physicalName)
 	if err != nil {
 		return fmt.Errorf("Request error: %s", err.Error())
 	}
 	return nil
 }
 
-func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.Params, appCtx appcontext.AppContext) error {
+func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.Params, appCtx appcontext.AppContext, physicalName string) error {
 	res, err := d.soapClient.Call("ProcessRequest", params)
 	if err != nil {
 		return fmt.Errorf("call error: %s", err.Error())
@@ -132,37 +124,21 @@ func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.
 	}
 
 	if r.Status.StatusCode == successfulStatusCode {
-		tacCodes, dbError := FetchAllTACRecords(appCtx)
-		if dbError != nil {
-			return fmt.Errorf(err.Error())
-		}
-		err := processTacCodes(tacCodes, r)
-		if err != nil {
-			return fmt.Errorf(err.Error())
+		getTable := NewGetTable(physicalName, d.securityToken, d.privateKey, d.soapClient)
+		getTableErr := getTable.GetTable(appCtx, physicalName, r.LastUpdate)
+		if getTableErr != nil {
+			return fmt.Errorf("getTable error: %s", getTableErr.Error())
 		}
 	}
 
 	appCtx.Logger().Debug("getLastTableUpdate result", zap.Any("processRequestResponse", r))
 	return nil
 }
-
-func processTacCodes(tacCodes []models.TransportationAccountingCode, r GetLastTableUpdateResponseElement) error {
-	if len(tacCodes) > 0 {
-		for _, tacCode := range tacCodes {
-			if tacCode.UpdatedAt.String() != r.LastUpdate {
-				print("GetTable")
-			}
-		}
-	}
-	return nil
-}
-
-// Start the cron job to execute every 24 hours
 func StartLastTableUpdateCron(appCtx appcontext.AppContext, physicalName string) {
 	cron := cron.New()
 
 	cronTask := func() {
-		err := NewTRDMGetLastTableUpdate("", nil).GetLastTableUpdate(appCtx, physicalName)
+		err := NewTRDMGetLastTableUpdate("", "", nil, nil).GetLastTableUpdate(appCtx, physicalName)
 		if err != nil {
 			fmt.Println("Error in lastTableUpdate cron task: ", err)
 		}
@@ -198,7 +174,7 @@ func LastTableUpdate() {
 
 	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
 
-	err2 := NewTRDMGetLastTableUpdate("", nil).GetLastTableUpdate(appCtx, tableName)
+	err2 := NewTRDMGetLastTableUpdate("", "", nil, nil).GetLastTableUpdate(appCtx, tableName)
 	if err2 != nil {
 		fmt.Println("Error executing GetLastTableUpdate: ", err)
 	}

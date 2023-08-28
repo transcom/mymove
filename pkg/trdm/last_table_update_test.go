@@ -1,6 +1,8 @@
 package trdm_test
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
 	"fmt"
 	"time"
 
@@ -57,8 +59,11 @@ func (suite *TRDMSuite) TestTRDMGetLastTableUpdateFake() {
 				mock.Anything,
 				mock.Anything,
 			).Return(soapResponseForGetLastTableUpdate(test.lastUpdate, test.statusCode), soapError)
-
-			lastTableUpdate := trdm.NewTRDMGetLastTableUpdate("fakeUsername", "fakePas", physicalName, testSoapClient)
+			privatekey, keyErr := rsa.GenerateKey(rand.Reader, 2048)
+			if keyErr != nil {
+				suite.Error(keyErr)
+			}
+			lastTableUpdate := trdm.NewTRDMGetLastTableUpdate(physicalName, "kdsjfhlaksdfhasdkfhjasdlkfjhafa=", privatekey, testSoapClient)
 			err := lastTableUpdate.GetLastTableUpdate(suite.AppContextForTest(), physicalName)
 
 			if err != nil {
@@ -70,22 +75,22 @@ func (suite *TRDMSuite) TestTRDMGetLastTableUpdateFake() {
 	}
 }
 
-func (suite *TRDMSuite) TestFetchAllTACRecords() {
-
+func (suite *TRDMSuite) TestFetchLOARecordsByTime() {
 	// Get initial TAC codes count
-	initialCodes, err := trdm.FetchAllTACRecords(suite.AppContextForTest())
-	initialTacCodeLength := len(initialCodes)
+	initialCodes, err := trdm.FetchLOARecordsByTime(suite.AppContextForTest(), time.Now().Format(time.RFC3339))
+	intialLoaCodesLength := len(initialCodes)
 	suite.NoError(err)
 
 	// Creates a test TAC code record in the DB
-	testdatagen.MakeDefaultTranportationAccountingCode(suite.DB())
+	testdatagen.MakeDefualtLineOfAccounting(suite.DB())
 
 	// Fetch All TAC Records
-	codes, err := trdm.FetchAllTACRecords(suite.AppContextForTest())
+	codes, err := trdm.FetchLOARecordsByTime(suite.AppContextForTest(), time.Now().Format(time.RFC3339))
 
 	// Compare new TAC Code count to initial count
 	finalCodesLength := len(codes)
 
 	suite.NoError(err)
-	suite.NotEqual(finalCodesLength, initialTacCodeLength)
+	suite.NotEqual(finalCodesLength, intialLoaCodesLength)
+
 }
