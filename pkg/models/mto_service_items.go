@@ -40,6 +40,8 @@ type MTOServiceItem struct {
 	SITPostalCode                   *string                        `db:"sit_postal_code"`
 	SITEntryDate                    *time.Time                     `db:"sit_entry_date"`
 	SITDepartureDate                *time.Time                     `db:"sit_departure_date"`
+	SITCustomerContacted            *time.Time                     `db:"sit_customer_contacted"`
+	SITRequestedDelivery            *time.Time                     `db:"sit_requested_delivery"`
 	SITOriginHHGOriginalAddress     *Address                       `belongs_to:"addresses" fk_id:"sit_origin_hhg_original_address_id"`
 	SITOriginHHGOriginalAddressID   *uuid.UUID                     `db:"sit_origin_hhg_original_address_id"`
 	SITOriginHHGActualAddress       *Address                       `belongs_to:"addresses" fk_id:"sit_origin_hhg_actual_address_id"`
