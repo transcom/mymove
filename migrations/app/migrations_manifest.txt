@@ -842,5 +842,7 @@
 20230804161700_import_trdm_part_1.up.sql
 20230807175944_import_trdm_part_2.up.sql
 20230807180000_import_trdm_part_3.up.sql
+20230808155723_add_ns_mayport.up.sql
 20230822201206_add_fields_for_sit_to_mto_service_items.up.sql
 20230824224954_ghc_domestic_transit_times_update_data_migration.up.sql
+20230828180000_update_mayport_zip.up.sql
