@@ -12,10 +12,13 @@ const (
 	// TRDMApiWSDLFlag is the TRDM API WSDL Flag
 	TRDMApiWSDLFlag string = "trdm-api-wsdl"
 	// TRDMUseMockFlag is the TRDM Use Mock Flag
-	TRDMUseMockFlag    string = "trdm-use-mock"
-	TRDMx509Cert       string = "trdm-x509-cert"
+	TRDMUseMockFlag string = "trdm-use-mock"
+	// x509 Certificate for MilMove
+	TRDMx509Cert string = "trdm-x509-cert"
+	// x509 Certificate Private Key
 	TRDMx509PrivateKey string = "trdm-x509-privatekey"
-	TRDMIsEnabled      string = "trdm-is-enabled"
+	// FF to enable or disable TRDM soap requests
+	TRDMIsEnabled string = "trdm-is-enabled"
 )
 
 // InitTRDMFlags initializes Route command line flags
