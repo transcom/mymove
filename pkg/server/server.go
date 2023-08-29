@@ -13,8 +13,6 @@ import (
 
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/trdm"
 )
 
 const (
@@ -92,14 +90,6 @@ func (s *NamedServer) ListenAndServeTLS() error {
 			fmt.Println(fmt.Errorf("Failed to close listener due to %w", closeErr))
 		}
 	}()
-
-	// Run these tasks as soon as the server is ready
-	if s.IsServerReady {
-		err := trdm.LastTableUpdate()
-		if err != nil {
-			return err
-		}
-	}
 
 	return s.Serve(listener)
 }

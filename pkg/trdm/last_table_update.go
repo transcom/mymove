@@ -5,7 +5,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/spf13/viper"
@@ -155,11 +154,7 @@ func StartLastTableUpdateCron(appCtx appcontext.AppContext, physicalName string)
 	return nil
 }
 
-func LastTableUpdate() error {
-
-	v := viper.New()
-	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-	v.AutomaticEnv()
+func LastTableUpdate(v *viper.Viper) error {
 
 	dbEnv := v.GetString(cli.DbEnvFlag)
 	logger, _, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))

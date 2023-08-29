@@ -15,6 +15,7 @@ const (
 	TRDMUseMockFlag    string = "trdm-use-mock"
 	TRDMx509Cert       string = "trdm-x509-cert"
 	TRDMx509PrivateKey string = "trdm-x509-privatekey"
+	TRDMIsEnabled      string = "trdm-is-enabled"
 )
 
 // InitTRDMFlags initializes Route command line flags
@@ -25,6 +26,7 @@ func InitTRDMFlags(flag *pflag.FlagSet) {
 	flag.String(TRDMx509PrivateKey, "", "x509 private key for TRDM web services")
 
 	flag.Bool(TRDMUseMockFlag, false, "Whether to use a mocked version of TRDM")
+	flag.Bool(TRDMIsEnabled, false, "Enable TRDM SOAP requests")
 }
 
 // CheckRoute validates Route command line flags
@@ -34,6 +36,7 @@ func CheckTRDM(v *viper.Viper) error {
 		TRDMApiWSDLFlag,
 		TRDMx509Cert,
 		TRDMx509PrivateKey,
+		TRDMIsEnabled,
 	}
 
 	for _, c := range urlVars {
