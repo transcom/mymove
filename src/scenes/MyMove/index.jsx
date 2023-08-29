@@ -11,6 +11,7 @@ import { getWorkflowRoutes } from './getWorkflowRoutes';
 
 // Logger
 import { milmoveLogger } from 'utils/milmoveLog';
+import { retryPageLoading } from 'utils/retryPageLoading';
 import BypassBlock from 'components/BypassBlock';
 import CUIHeader from 'components/CUIHeader/CUIHeader';
 import LoggedOutHeader from 'containers/Headers/LoggedOutHeader';
@@ -102,6 +103,7 @@ export class CustomerApp extends Component {
       error,
       info,
     });
+    retryPageLoading(error);
   }
 
   render() {
