@@ -149,11 +149,11 @@ func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.
 	appCtx.Logger().Debug("getLastTableUpdate result", zap.Any("processRequestResponse", r))
 	return nil
 }
-func StartLastTableUpdateCron(appCtx appcontext.AppContext, physicalName string) error {
+func StartLastTableUpdateCron(appCtx appcontext.AppContext, certificate string, privateKey *rsa.PrivateKey, physicalName string, soapCaller SoapCaller) error {
 	cron := cron.New()
 
 	cronTask := func() {
-		err := NewTRDMGetLastTableUpdate("", "", nil, nil).GetLastTableUpdate(appCtx, physicalName)
+		err := NewTRDMGetLastTableUpdate(physicalName, certificate, privateKey, soapCaller).GetLastTableUpdate(appCtx, physicalName)
 		if err != nil {
 			fmt.Println("Error in lastTableUpdate cron task: ", err)
 		}
@@ -212,8 +212,8 @@ func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config) error {
 		return getLastTableUpdateTACErr
 	}
 
-	cronErrTAC := StartLastTableUpdateCron(appCtx, transportationAccountingCode)
-	cronErrLOA := StartLastTableUpdateCron(appCtx, lineOfAccounting)
+	cronErrTAC := StartLastTableUpdateCron(appCtx, x509CertString, privateKey, transportationAccountingCode, soapClient)
+	cronErrLOA := StartLastTableUpdateCron(appCtx, x509CertString, privateKey, lineOfAccounting, soapClient)
 
 	if cronErrLOA != nil {
 		return cronErrLOA
