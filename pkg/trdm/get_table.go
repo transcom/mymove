@@ -120,6 +120,16 @@ func NewGetTable(physicalName string, securityToken string, privateKey *rsa.Priv
 		},
 	}
 }
+
+// Fetch Transportation Accounting Codes from DB and return the list of records if the updated_at field is < the returned LastTableUpdate updated time.
+// Ex:
+//
+//	LastTableUpdate : 2023-08-30 15:24:13.19931
+//	updated_at: 2023-08-29 15:24:13.19931
+//
+// Because updated_at is before LastTableUpdate the DB will return records that match this case.
+//
+//	returns []models.TransportationAccountingCode, error
 func FetchTACRecordsByTime(appcontext appcontext.AppContext, time string) ([]models.TransportationAccountingCode, error) {
 	var tacCodes []models.TransportationAccountingCode
 	err := appcontext.DB().Select("*").Where("updated_at < $1", time).All(&tacCodes)
@@ -131,17 +141,33 @@ func FetchTACRecordsByTime(appcontext appcontext.AppContext, time string) ([]mod
 	return tacCodes, nil
 }
 
+// Fetch Line Of Accounting records from DB and return the list of records if the updated_at field is < the returned LastTableUpdate updated time.
+// Ex:
+//
+//	LastTableUpdate : 2023-08-30 15:24:13.19931
+//	updated_at: 2023-08-29 15:24:13.19931
+//
+// Because updated_at is before LastTableUpdate the DB will return records that match this case.
+//
+//	returns []models.LineOfAccounting, error
 func FetchLOARecordsByTime(appcontext appcontext.AppContext, time string) ([]models.LineOfAccounting, error) {
 	var loa []models.LineOfAccounting
 	err := appcontext.DB().Select("*").Where("updated_at < $1", time).All(&loa)
-
 	if err != nil {
 		return loa, errors.Wrap(err, "Fetch line items query failed")
 	}
-
 	return loa, nil
 }
+
+// Determines if SOAP call is needed to be made
+// If the DB does not return any records we do not need make a call to GetTable and update our local mapping
+//   - appCtx: Application Context
+//   - physicalName: Table Name (Will be either TAC or LOA)
+//   - lastUpdate: Returned date time from LastTableUpdate Soap Request
+//
+// returns error
 func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physicalName string, lastUpdate string) error {
+
 	switch physicalName {
 	case lineOfAccounting:
 		loaRecords, loaFetchErr := FetchLOARecordsByTime(appCtx, lastUpdate)
@@ -170,6 +196,12 @@ func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physical
 	return nil
 }
 
+// Sets up SOAP parameters. Signed SOAP header and SOAP body
+// Calls getTableSoap call within Exponential backoff function. If soap call errors out, it will wait 1 hour before making another call and then at maximum 5 calls after the second failure.
+//
+//	appCtx - application context
+//	physicalName - table name (TAC or LOA)
+//	returns error
 func setupSoapCall(d *GetTableRequestElement, appCtx appcontext.AppContext, physicalName string) error {
 	gosoap.SetCustomEnvelope("soapenv", map[string]string{
 		"xmlns:soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
@@ -209,6 +241,9 @@ func setupSoapCall(d *GetTableRequestElement, appCtx appcontext.AppContext, phys
 	return nil
 }
 
+// Makes SOAP call to GetTable webservice and unmarshalls response.
+//
+//	returns error
 func getTableSoapCall(d *GetTableRequestElement, params gosoap.Params, appCtx appcontext.AppContext, physicalName string) error {
 	response, err := d.soapClient.Call("ProcessRequest", params)
 	if err != nil {
@@ -231,6 +266,9 @@ func getTableSoapCall(d *GetTableRequestElement, params gosoap.Params, appCtx ap
 	return nil
 }
 
+// Parses pipedelimited file attachment from GetTable webservice and saves records to database
+//
+//	returns error
 func parseGetTableResponse(appcontext appcontext.AppContext, response *gosoap.Response, physicalName string) error {
 	reader := bytes.NewReader(response.Payload)
 	switch physicalName {
@@ -258,6 +296,7 @@ func parseGetTableResponse(appcontext appcontext.AppContext, response *gosoap.Re
 	return nil
 }
 
+// Saves TAC Code slice to DB and updates records
 func saveTacCodes(appcontext appcontext.AppContext, tacCodes []models.TransportationAccountingCode) error {
 	saveErr := appcontext.DB().Update(tacCodes)
 	if saveErr != nil {
@@ -266,6 +305,7 @@ func saveTacCodes(appcontext appcontext.AppContext, tacCodes []models.Transporta
 	return nil
 }
 
+// Saves LOA Code slice to DB and updates records
 func saveLoaCodes(appcontext appcontext.AppContext, loa []models.LineOfAccounting) error {
 	saveErr := appcontext.DB().Update(loa)
 	if saveErr != nil {

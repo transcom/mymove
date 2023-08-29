@@ -49,6 +49,7 @@ const successfulStatusCode = "Successful"
 type GetLastTableUpdater interface {
 	GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string) error
 }
+
 type GetLastTableUpdateRequestElement struct {
 	XMLName       string `xml:"ret:getLastTableUpdateReqElement"`
 	PhysicalName  string `xml:"ret:physicalName"`
@@ -77,6 +78,11 @@ func NewTRDMGetLastTableUpdate(physicalName string, securityToken string, privat
 
 }
 
+// Sets up GetLastTableUpdate Soap Request
+//   - appCtx - Application Context.
+//   - physicalName - TableName
+//   - Generates custom soap envelope, soap body, soap header.
+//   - Returns Error
 func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string) error {
 
 	gosoap.SetCustomEnvelope("soapenv", map[string]string{
@@ -99,14 +105,19 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 		"header": signedHeader,
 		"body":   marshaledBody,
 	}
-	err := lastTableUpdateSoapCall(d, newParams, appCtx, physicalName)
+	err := lastTableUpdateSoapCall(d, newParams, appCtx)
 	if err != nil {
 		return fmt.Errorf("Request error: %s", err.Error())
 	}
 	return nil
 }
 
-func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.Params, appCtx appcontext.AppContext, physicalName string) error {
+// Makes Soap Request for Last Table Update. If successful call GetTable to update TRDM table.
+//   - *GetLastTableUpdateRequestElement - request elements
+//   - params - Created SOAP element (Header and Body)
+//   - appCtx - Application context
+//   - returns error
+func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.Params, appCtx appcontext.AppContext) error {
 	res, err := d.soapClient.Call("ProcessRequest", params)
 	if err != nil {
 		return fmt.Errorf("call error: %s", err.Error())
@@ -120,8 +131,8 @@ func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.
 	}
 
 	if r.Status.StatusCode == successfulStatusCode {
-		getTable := NewGetTable(physicalName, d.securityToken, d.privateKey, d.soapClient)
-		getTableErr := getTable.GetTable(appCtx, physicalName, r.LastUpdate)
+		getTable := NewGetTable(d.PhysicalName, d.securityToken, d.privateKey, d.soapClient)
+		getTableErr := getTable.GetTable(appCtx, d.PhysicalName, r.LastUpdate)
 		if getTableErr != nil {
 			return fmt.Errorf("getTable error: %s", getTableErr.Error())
 		}
