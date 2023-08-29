@@ -642,6 +642,12 @@ func init() {
             "sitAddressUpdates": {
               "$ref": "#/definitions/SitAddressUpdates"
             },
+            "sitCustomerContacted": {
+              "description": "Date when the customer contacted the prime for a delivery out of SIT.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
               "type": "string",
@@ -655,6 +661,12 @@ func init() {
               "description": "Entry date for the SIT",
               "type": "string",
               "format": "date"
+            },
+            "sitRequestedDelivery": {
+              "description": "Date when the customer has requested delivery out of SIT.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
             },
             "timeMilitary1": {
               "description": "Time of attempted contact corresponding to ` + "`" + `dateOfContact1` + "`" + `, in military format.",
@@ -3006,6 +3018,12 @@ func init() {
             "sitAddressUpdates": {
               "$ref": "#/definitions/SitAddressUpdates"
             },
+            "sitCustomerContacted": {
+              "description": "Date when the customer contacted the prime for a delivery out of SIT.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
               "type": "string",
@@ -3019,6 +3037,12 @@ func init() {
               "description": "Entry date for the SIT",
               "type": "string",
               "format": "date"
+            },
+            "sitRequestedDelivery": {
+              "description": "Date when the customer has requested delivery out of SIT.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
             },
             "timeMilitary1": {
               "description": "Time of attempted contact corresponding to ` + "`" + `dateOfContact1` + "`" + `, in military format.",
