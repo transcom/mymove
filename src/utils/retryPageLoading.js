@@ -1,7 +1,7 @@
 const MilmoveHasBeenForceRefreshed = 'milmove-has-been-force-refreshed';
 
 export const retryPageLoading = (error) => {
-  // if we see a chuck load error, try to reload the window to get
+  // if we see a chunk load error, try to reload the window to get
   // the latest version of the code
   if (!!error && error.name === 'ChunkLoadError' && !!window) {
     const pageHasAlreadyBeenForceRefreshed = window.localStorage.getItem(MilmoveHasBeenForceRefreshed) === 'true';
