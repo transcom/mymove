@@ -123,7 +123,7 @@ type UserIdentity struct {
 }
 
 // FetchUserIdentity queries the database for information about the logged in user
-func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, error) {
+func FetchUserIdentity(db *pop.Connection, oktaID string) (*UserIdentity, error) {
 	var identities []UserIdentity
 	query := `SELECT users.id,
 				users.okta_email AS email,
@@ -147,7 +147,7 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 			LEFT OUTER JOIN office_users AS ou on ou.user_id = users.id
 			LEFT OUTER JOIN admin_users AS au on au.user_id = users.id
 			WHERE users.okta_id  = $1`
-	err := db.RawQuery(query, loginGovID).All(&identities)
+	err := db.RawQuery(query, oktaID).All(&identities)
 	if err != nil {
 		return nil, err
 	} else if len(identities) == 0 {

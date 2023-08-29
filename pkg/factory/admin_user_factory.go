@@ -66,7 +66,7 @@ func BuildDefaultAdminUser(db *pop.Connection) models.AdminUser {
 // GetTraitAdminUserEmail helps comply with the uniqueness constraint on emails
 func GetTraitAdminUserEmail() []Customization {
 	// There's a uniqueness constraint on admin user emails so add some randomness
-	email := strings.ToLower(fmt.Sprintf("leo_spaceman_admin_%s@example.com", makeRandomString(5)))
+	email := strings.ToLower(fmt.Sprintf("leo_spaceman_admin_%s@example.com", MakeRandomString(5)))
 	return []Customization{
 		{
 			Model: models.User{

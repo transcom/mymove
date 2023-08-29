@@ -14,11 +14,11 @@ import (
 )
 
 func (suite *ModelSuite) TestUserValidation() {
-	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc1")
+	oktaID := "abcdefghijklmnopqrst"
 	userEmail := "sally@government.gov"
 
 	newUser := User{
-		OktaID:    fakeUUID.String(),
+		OktaID:    oktaID,
 		OktaEmail: userEmail,
 	}
 
@@ -27,7 +27,7 @@ func (suite *ModelSuite) TestUserValidation() {
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "Error validating model")
 	suite.Equal(userEmail, newUser.OktaEmail)
-	suite.Equal(fakeUUID, newUser.OktaID)
+	suite.Equal(oktaID, newUser.OktaID)
 }
 
 func (suite *ModelSuite) TestUserCreationWithoutValues() {
@@ -40,17 +40,17 @@ func (suite *ModelSuite) TestUserCreationWithoutValues() {
 	suite.verifyValidationErrors(newUser, expErrors)
 }
 
-func (suite *ModelSuite) TestUserCreationDuplicateUUID() {
-	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+func (suite *ModelSuite) TestUserCreationDuplicateOktaID() {
+	oktaID := "abcdefghijklmnopqrst"
 	userEmail := "sally@government.gov"
 
 	newUser := User{
-		OktaID:    fakeUUID.String(),
+		OktaID:    oktaID,
 		OktaEmail: userEmail,
 	}
 
 	sameUser := User{
-		OktaID:    fakeUUID.String(),
+		OktaID:    oktaID,
 		OktaEmail: userEmail,
 	}
 
@@ -65,8 +65,7 @@ func (suite *ModelSuite) TestUserCreationDuplicateUUID() {
 	// nolint:errcheck
 	suite.DB().Create(&newUser)
 	err := suite.DB().Create(&sameUser)
-
-	suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "constraint_name"), "Db should have errored on unique constraint for UUID")
+	suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "users_okta_un"), "Db should have errored on unique constraint for UUID")
 }
 
 func (suite *ModelSuite) TestCreateUser() {
@@ -81,9 +80,9 @@ func (suite *ModelSuite) TestCreateUser() {
 }
 
 func (suite *ModelSuite) TestFetchUserIdentity() {
-	const goodUUID = "39b28c92-0506-4bef-8b57-e39519f42dc2"
+	oktaID := factory.MakeRandomString(20)
 	// First check that it all works with no record
-	identity, err := FetchUserIdentity(suite.DB(), goodUUID)
+	identity, err := FetchUserIdentity(suite.DB(), oktaID)
 	suite.Equal(ErrFetchNotFound, err, "Expected not to find missing Identity")
 	suite.Nil(identity)
 
@@ -134,7 +133,6 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(systemAdmin.User.OktaEmail, identity.Email)
 	suite.Nil(identity.ServiceMemberID)
 	suite.Nil(identity.OfficeUserID)
-
 	rs := []roles.Role{{
 		ID:       uuid.FromStringOrNil("ed2d2cd7-d427-412a-98bb-a9b391d98d32"),
 		RoleType: roles.RoleTypeCustomer,
@@ -145,11 +143,11 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	}
 	suite.NoError(suite.DB().Create(&rs))
 	customerRole := rs[0]
-	patUUID := uuid.Must(uuid.NewV4())
+	patOktaID := factory.MakeRandomString(20)
 	pat := factory.BuildUser(suite.DB(), []factory.Customization{
 		{
 			Model: User{
-				OktaID: patUUID.String(),
+				OktaID: patOktaID,
 				Active: true,
 				Roles:  []roles.Role{customerRole},
 			},
