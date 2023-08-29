@@ -1344,6 +1344,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 			DateOfContact1:              handlers.FmtDate(time.Date(2020, time.December, 04, 0, 0, 0, 0, time.UTC)),
 			TimeMilitary1:               handlers.FmtStringPtrNonEmpty(&milTime),
 			FirstAvailableDeliveryDate1: handlers.FmtDate(time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC)),
+			SitCustomerContacted:        handlers.FmtDate(time.Now()),
+			SitRequestedDelivery:        handlers.FmtDate(time.Now().AddDate(0, 0, 3)),
 		}
 		subtestData.reqPayload.SetID(strfmt.UUID(subtestData.dddsit.ID.String()))
 
@@ -1369,7 +1371,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		return subtestData
 	}
 
-	suite.Run("Successful PATCH - Updated SITDepartureDate and FADD Fields on DDDSIT", func() {
+	suite.Run("Successful PATCH - Updated SITDepartureDate and FADD Fields and other date fields on DDDSIT", func() {
 		subtestData := makeSubtestData()
 		// Under test: updateMTOServiceItemHandler.Handle function
 		//             MTOServiceItemUpdater.Update service object function
@@ -1408,6 +1410,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		suite.Equal(subtestData.reqPayload.DateOfContact1, respPayload.DateOfContact1)
 		suite.Equal(subtestData.reqPayload.TimeMilitary1, respPayload.TimeMilitary1)
 		suite.Equal(subtestData.reqPayload.FirstAvailableDeliveryDate1, respPayload.FirstAvailableDeliveryDate1)
+		suite.Equal(*subtestData.reqPayload.SitCustomerContacted, *respPayload.SitCustomerContacted)
+		suite.Equal(*subtestData.reqPayload.SitRequestedDelivery, *respPayload.SitRequestedDelivery)
 	})
 
 	suite.Run("Failed PATCH - No DDDSIT found", func() {

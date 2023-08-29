@@ -96,6 +96,14 @@ export function createServiceItem({ body }) {
   return makePrimeSimulatorRequest('mtoServiceItem.createMTOServiceItem', { body: { ...body } }, { normalize: false });
 }
 
+export function createSITAddressUpdateRequest({ body }) {
+  return makePrimeSimulatorRequest(
+    'sitAddressUpdate.createSITAddressUpdateRequest',
+    { body: { ...body } },
+    { normalize: false },
+  );
+}
+
 export function updatePrimeMTOShipmentAddress({
   mtoShipmentID,
   ifMatchETag,
