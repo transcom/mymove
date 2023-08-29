@@ -8,7 +8,7 @@ require (
 	github.com/alexedwards/scs/redisstore v0.0.0-20221223131519-238b052508b6
 	github.com/alexedwards/scs/v2 v2.5.1
 	github.com/aws/aws-sdk-go-v2 v1.21.0
-	github.com/aws/aws-sdk-go-v2/config v1.18.27
+	github.com/aws/aws-sdk-go-v2/config v1.18.37
 	github.com/aws/aws-sdk-go-v2/credentials v1.13.35
 	github.com/aws/aws-sdk-go-v2/feature/rds/auth v1.2.19
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchevents v1.15.13
@@ -72,8 +72,8 @@ require (
 	github.com/tealeg/xlsx/v3 v3.3.0
 	github.com/tiaguinho/gosoap v1.4.4
 	github.com/vektra/mockery/v2 v2.33.0
-	go.flipt.io/flipt/rpc/flipt v1.22.0
-	go.flipt.io/flipt/sdk/go v0.3.0
+	go.flipt.io/flipt/rpc/flipt v1.25.0
+	go.flipt.io/flipt/sdk/go v0.5.0
 	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.17.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.42.0
@@ -114,7 +114,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.13.11 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.41 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.4.35 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/ini v1.3.35 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/ini v1.3.42 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/v4a v1.1.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.9.14 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.1.36 // indirect
