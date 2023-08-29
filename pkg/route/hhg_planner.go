@@ -63,6 +63,16 @@ func (p *hhgPlanner) ZipTransitDistance(appCtx appcontext.AppContext, source str
 		return p.dtodPlannerMileage.DTODZip5Distance(appCtx, source, destination)
 	}
 
+	// Get reZip3s for origin and destination to compair base point cities.
+	// Dont worry about errors, if we dont find them, we'll just use randMcNallyZip3Distance
+	sourceReZip3, _ := models.FetchReZip3Item(appCtx.DB(), sourceZip3)
+	destinationReZip3, _ := models.FetchReZip3Item(appCtx.DB(), destZip3)
+
+	// Different zip3, same base point city, use DTOD
+	if sourceReZip3 != nil && destinationReZip3 != nil && sourceReZip3.BasePointCity == destinationReZip3.BasePointCity {
+		return p.dtodPlannerMileage.DTODZip5Distance(appCtx, source, destination)
+	}
+
 	return randMcNallyZip3Distance(appCtx, sourceZip3, destZip3)
 }
 
