@@ -1892,6 +1892,18 @@ definitions:
             x-omitempty: false
           sitAddressUpdates:
             $ref: '#/definitions/SitAddressUpdates'
+          sitRequestedDelivery:
+            format: date
+            type: string
+            description: Date when the customer has requested delivery out of SIT.
+            x-nullable: true
+          sitCustomerContacted:
+            format: date
+            type: string
+            description: >-
+              Date when the customer contacted the prime for a delivery out of
+              SIT.
+            x-nullable: true
         required:
           - reServiceCode
           - sitEntryDate
@@ -2225,6 +2237,18 @@ definitions:
             format: date
             type: string
             description: Second available date that Prime can deliver SIT service item.
+            x-nullable: true
+          sitRequestedDelivery:
+            format: date
+            type: string
+            description: Date when the customer has requested delivery out of SIT.
+            x-nullable: true
+          sitCustomerContacted:
+            format: date
+            type: string
+            description: >-
+              Date when the customer contacted the prime for a delivery out of
+              SIT.
             x-nullable: true
   UpdateMTOShipment:
     properties:
