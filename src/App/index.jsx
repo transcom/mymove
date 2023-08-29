@@ -6,6 +6,7 @@ import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { isOfficeSite, isAdminSite, serviceName } from 'shared/constants';
 import { store, persistor } from 'shared/store';
 import { AppContext, defaultOfficeContext, defaultMyMoveContext, defaultAdminContext } from 'shared/AppContext';
@@ -15,6 +16,7 @@ import '../icons';
 import 'shared/shared.css';
 import './index.css';
 import MarkerIO from 'components/ThirdParty/MarkerIO';
+import MilMoveErrorBoundary from 'components/MilMoveErrorBoundary';
 import ScrollToTop from 'components/ScrollToTop';
 import PageTitle from 'components/PageTitle';
 
@@ -58,53 +60,64 @@ const officeQueryConfig = new QueryClient({
 const App = () => {
   configureLogger(serviceName(), { loggingType, loggingLevel });
 
+  // We need an error boundary around each of the main apps (Office,
+  // SystemAdmin, MyMove) because they are lazy loaded and it's
+  // possible we could get a ChunkLoadError when trying to load them.
+  // Each of the main apps has its own componentDidCatch which would
+  // mean the MilMoveErrorBoundary is probably unlikely to be reached
   if (isOfficeSite) {
     return (
-      <QueryClientProvider client={officeQueryConfig}>
-        <Provider store={store}>
-          <PersistGate loading={<LoadingPlaceholder />} persistor={persistor}>
-            <AppContext.Provider value={officeContext}>
-              <BrowserRouter>
-                <Suspense fallback={<LoadingPlaceholder />}>
-                  <ScrollToTop />
-                  <PageTitle />
-                  <Office />
-                  {flags.markerIO && <MarkerIO />}
-                </Suspense>
-                <ReactQueryDevtools initialIsOpen={false} />
-              </BrowserRouter>
-            </AppContext.Provider>
-          </PersistGate>
-        </Provider>
-      </QueryClientProvider>
+      <MilMoveErrorBoundary fallback={<SomethingWentWrong />}>
+        <QueryClientProvider client={officeQueryConfig}>
+          <Provider store={store}>
+            <PersistGate loading={<LoadingPlaceholder />} persistor={persistor}>
+              <AppContext.Provider value={officeContext}>
+                <BrowserRouter>
+                  <Suspense fallback={<LoadingPlaceholder />}>
+                    <ScrollToTop />
+                    <PageTitle />
+                    <Office />
+                    {flags.markerIO && <MarkerIO />}
+                  </Suspense>
+                  <ReactQueryDevtools initialIsOpen={false} />
+                </BrowserRouter>
+              </AppContext.Provider>
+            </PersistGate>
+          </Provider>
+        </QueryClientProvider>
+      </MilMoveErrorBoundary>
     );
   }
   if (isAdminSite) {
     return (
-      <AppContext.Provider value={adminContext}>
-        <BrowserRouter>
-          <Suspense fallback={<LoadingPlaceholder />}>
-            <PageTitle />
-            <SystemAdmin />
-          </Suspense>
-        </BrowserRouter>
-      </AppContext.Provider>
+      <MilMoveErrorBoundary fallback={<SomethingWentWrong />}>
+        <AppContext.Provider value={adminContext}>
+          <BrowserRouter>
+            <Suspense fallback={<LoadingPlaceholder />}>
+              <PageTitle />
+              <SystemAdmin />
+            </Suspense>
+          </BrowserRouter>
+        </AppContext.Provider>
+      </MilMoveErrorBoundary>
     );
   }
 
   return (
-    <Provider store={store}>
-      <AppContext.Provider value={myMoveContext}>
-        <BrowserRouter>
-          <Suspense fallback={<LoadingPlaceholder />}>
-            <ScrollToTop />
-            <PageTitle />
-            <MyMove />
-            {flags.markerIO && <MarkerIO />}
-          </Suspense>
-        </BrowserRouter>
-      </AppContext.Provider>
-    </Provider>
+    <MilMoveErrorBoundary fallback={<SomethingWentWrong />}>
+      <Provider store={store}>
+        <AppContext.Provider value={myMoveContext}>
+          <BrowserRouter>
+            <Suspense fallback={<LoadingPlaceholder />}>
+              <ScrollToTop />
+              <PageTitle />
+              <MyMove />
+              {flags.markerIO && <MarkerIO />}
+            </Suspense>
+          </BrowserRouter>
+        </AppContext.Provider>
+      </Provider>
+    </MilMoveErrorBoundary>
   );
 };
 
