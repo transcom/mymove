@@ -77,7 +77,7 @@ func BuildFullLineOfAccounting(db *pop.Connection) models.LineOfAccounting {
 				LoaHsGdsCd:             models.StringPointer("12"),
 				OrgGrpDfasCd:           models.StringPointer("12"),
 				LoaUic:                 models.StringPointer("123456"),
-				LoaTrnsnID:             models.StringPointer("LoaTrnsnID"),
+				LoaTrnsnID:             models.StringPointer("123"),
 				LoaSubAcntID:           models.StringPointer("123"),
 				LoaBetCd:               models.StringPointer("1234"),
 				LoaFndTyFgCd:           models.StringPointer("1"),
