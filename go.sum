@@ -797,10 +797,10 @@ github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5t
 github.com/zenazn/goji v0.9.0/go.mod h1:7S9M489iMyHBNxwZnk9/EHS098H4/F6TATF2mIxtB1Q=
 go.flipt.io/flipt/errors v1.19.3 h1:mgQrT3XdambAdu4UykYZ3gm1NG7Ilri5Gt+nLafbJHY=
 go.flipt.io/flipt/errors v1.19.3/go.mod h1:I2loVwHUoXy+yT7suRx7+pDiSyO1G7CHu6bby9DywyA=
-go.flipt.io/flipt/rpc/flipt v1.22.0 h1:SHXMNLKPEmghOV36zM6OHbwHsSdSOafvxPXnDYBZY9E=
-go.flipt.io/flipt/rpc/flipt v1.22.0/go.mod h1:H/P7nl/5lMo8uWiXyYGFX5LcOGL0ycWnlcLx3eaxJG4=
-go.flipt.io/flipt/sdk/go v0.3.0 h1:6n7HVsLw1ApOi5Kht1Q6Cr5GkOlIJH4uVrh30Qm/n6w=
-go.flipt.io/flipt/sdk/go v0.3.0/go.mod h1:4EVLw2+2SzqjqeyTx+NOz2E7a2Fs0+A+ZZKLHs6YvIY=
+go.flipt.io/flipt/rpc/flipt v1.25.0 h1:BkIYs3kro8rK1yXK3+jStRXvAzq8eO/7+JeioHNxoq0=
+go.flipt.io/flipt/rpc/flipt v1.25.0/go.mod h1:H/P7nl/5lMo8uWiXyYGFX5LcOGL0ycWnlcLx3eaxJG4=
+go.flipt.io/flipt/sdk/go v0.5.0 h1:HiFUJ403rMWchlvFjCUyZHrQTgr7x+2ArPiTczAvGk4=
+go.flipt.io/flipt/sdk/go v0.5.0/go.mod h1:XF9JWsiK41mNg5aDT3b7bzFxWUsc3Te3Gy5Ok3aijHc=
 go.mongodb.org/mongo-driver v1.7.3/go.mod h1:NqaYOwnXWr5Pm7AOpO5QFxKJ503nbMse/R79oO62zWg=
 go.mongodb.org/mongo-driver v1.7.5/go.mod h1:VXEWRZ6URJIkUq2SCAyapmhH0ZLRBP+FT4xhp5Zvxng=
 go.mongodb.org/mongo-driver v1.10.0/go.mod h1:wsihk0Kdgv8Kqu1Anit4sfK+22vSFbUrAVEYRhCXrA8=
