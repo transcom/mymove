@@ -554,6 +554,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticShuttling() {
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "unable to calculate escalated total price: could not lookup contract year")
+
 	})
 }
 func (suite *GHCRateEngineServiceSuite) Test_priceDomesticCrating() {

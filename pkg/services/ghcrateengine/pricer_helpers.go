@@ -54,7 +54,7 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 	basePrice := domOtherPrice.PriceCents.Float64() * finalWeight.ToCWTFloat64()
 	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, domOtherPrice.ContractID, referenceDate, false, basePrice)
 	if err != nil {
-		return 0, nil, fmt.Errorf("unable to calculate escalated total price: %w", err)
+		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 
 	displayParams := services.PricingDisplayParams{
@@ -122,7 +122,7 @@ func priceDomesticFirstDaySIT(appCtx appcontext.AppContext, firstDaySITCode mode
 	baseTotalPrice := serviceAreaPrice.PriceCents.Float64() * weight.ToCWTFloat64()
 	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, serviceAreaPrice.ContractID, referenceDate, false, baseTotalPrice)
 	if err != nil {
-		return 0, nil, fmt.Errorf("unable to calculate escalated total price: %w", err)
+		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 	totalPriceCents := unit.Cents(math.Round(escalatedPrice))
 
@@ -159,7 +159,7 @@ func priceDomesticAdditionalDaysSIT(appCtx appcontext.AppContext, additionalDayS
 	baseTotalPrice := serviceAreaPrice.PriceCents.Float64() * weight.ToCWTFloat64()
 	escalatedTotalPrice, contractYear, err := escalatePriceForContractYear(appCtx, serviceAreaPrice.ContractID, referenceDate, false, baseTotalPrice)
 	if err != nil {
-		return 0, nil, fmt.Errorf("unable to calculate escalated total price: %w", err)
+		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 
 	totalForNumberOfDaysPrice := escalatedTotalPrice * float64(numberOfDaysInSIT)
@@ -260,7 +260,7 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 	baseTotalPrice := domOtherPrice.PriceCents.Float64() * weight.ToCWTFloat64()
 	escalatedTotalPrice, contractYear, err := escalatePriceForContractYear(appCtx, domOtherPrice.ContractID, referenceDate, false, baseTotalPrice)
 	if err != nil {
-		return 0, nil, fmt.Errorf("unable to calculate escalated total price: %w", err)
+		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 	totalPriceCents := unit.Cents(math.Round(escalatedTotalPrice))
 
@@ -350,7 +350,7 @@ func priceDomesticCrating(appCtx appcontext.AppContext, code models.ReServiceCod
 	basePrice := domAccessorialPrice.PerUnitCents.Float64() * float64(billedCubicFeet)
 	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, domAccessorialPrice.ContractID, referenceDate, false, basePrice)
 	if err != nil {
-		return 0, nil, fmt.Errorf("unable to calculate escalated total price: %w", err)
+		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 	totalCost := unit.Cents(math.Round(escalatedPrice))
 
