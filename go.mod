@@ -17,7 +17,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/rds v1.45.2
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.38.5
 	github.com/aws/aws-sdk-go-v2/service/ses v1.16.7
-	github.com/aws/aws-sdk-go-v2/service/ssm v1.36.6
+	github.com/aws/aws-sdk-go-v2/service/ssm v1.37.5
 	github.com/aws/aws-sdk-go-v2/service/sts v1.21.5
 	github.com/aws/smithy-go v1.14.2
 	github.com/benbjohnson/clock v1.3.5
@@ -94,7 +94,7 @@ require (
 	golang.org/x/net v0.14.0
 	golang.org/x/oauth2 v0.10.0
 	golang.org/x/text v0.12.0
-	golang.org/x/tools v0.11.0
+	golang.org/x/tools v0.12.0
 	google.golang.org/grpc v1.57.0
 	gopkg.in/dnaeon/go-vcr.v3 v3.1.2
 	gotest.tools/gotestsum v1.10.1
