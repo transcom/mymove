@@ -68,24 +68,31 @@ type GetTableRequestElement struct {
 	}
 }
 
+type output struct {
+	TRDM tRDM `xml:"TRDM"`
+}
+
+type tRDM struct {
+	Status status `xml:"status"`
+}
+type status struct {
+	RowCount   string `xml:"rowCount"`
+	StatusCode string `xml:"statusCode"`
+	DateTime   string `xml:"dateTime"`
+}
+
+type attachment struct {
+	Include include `xml:"include"`
+}
+type include struct {
+	Text string `xml:",chardata"`
+	Href string `xml:"href,attr"`
+	Xop  string `xml:"xop,attr"`
+}
 type GetTableResponseElement struct {
-	XMLName xml.Name `xml:"getTableResponseElement"`
-	Output  struct {
-		TRDM struct {
-			Status struct {
-				RowCount   string `xml:"rowCount"`
-				StatusCode string `xml:"statusCode"`
-				DateTime   string `xml:"dateTime"`
-			} `xml:"status"`
-		} `xml:"TRDM"`
-	} `xml:"output"`
-	Attachment struct {
-		Include struct {
-			Text string `xml:",chardata"`
-			Href string `xml:"href,attr"`
-			Xop  string `xml:"xop,attr"`
-		}
-	}
+	XMLName    xml.Name   `xml:"getTableResponseElement"`
+	Output     output     `xml:"output"`
+	Attachment attachment `xml:"attachment"`
 }
 
 type GetTableUpdater interface {

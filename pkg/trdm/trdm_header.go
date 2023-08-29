@@ -11,86 +11,86 @@ import (
 	"github.com/opencontainers/go-digest"
 )
 
-type Header struct {
+type header struct {
 	XMLName  xml.Name `xml:"soap:header"`
-	Security Security `xml:"wsse:Security"`
+	Security security `xml:"wsse:Security"`
 }
 
-type Security struct {
+type security struct {
 	Text                string              `xml:"chardata"`
 	Wsse                string              `xml:"xmlns:wsse,attr"`
 	Wsu                 string              `xml:"xmlns:wsu,attr"`
-	BinarySecurityToken BinarySecurityToken `xml:"BinarySecurityToken"`
-	Signature           Signature           `xml:"Signature"`
-	Timestamp           Timestamp           `xml:"TimeStamp"`
+	BinarySecurityToken binarySecurityToken `xml:"BinarySecurityToken"`
+	Signature           signature           `xml:"Signature"`
+	Timestamp           timestamp           `xml:"TimeStamp"`
 }
-type Signature struct {
+type signature struct {
 	Text           string         `xml:",chardata"`
 	ID             string         `xml:"Id,attr"`
 	Ds             string         `xml:"ds,attr"`
-	SignedInfo     SignedInfo     `xml:"ds:SignedInfo"`
-	KeyInfo        KeyInfo        `xml:"ds:KeyInfo"`
-	SignatureValue SignatureValue `xml:"ds:SignatureValue"`
+	SignedInfo     signedInfo     `xml:"ds:SignedInfo"`
+	KeyInfo        keyInfo        `xml:"ds:KeyInfo"`
+	SignatureValue signatureValue `xml:"ds:SignatureValue"`
 }
-type KeyInfo struct {
+type keyInfo struct {
 	ID                     string                 `xml:"Id"`
-	SecurityTokenReference SecurityTokenReference `xml:"wsse:SecurityTokenReference"`
+	SecurityTokenReference securityTokenReference `xml:"wsse:SecurityTokenReference"`
 }
-type SecurityTokenReference struct {
-	STReference STReference `xml:"wsse:Reference"`
+type securityTokenReference struct {
+	STReference sTReference `xml:"wsse:Reference"`
 }
 
-type STReference struct {
+type sTReference struct {
 	URI       string `xml:"URI,attr"`
 	ValueType string `xml:"ValueType,attr"`
 }
 
-type BinarySecurityToken struct {
+type binarySecurityToken struct {
 	Text         string `xml:",chardata"`
 	EncodingType string `xml:"EncodingType,attr"`
 	ValueType    string `xml:"ValueType,attr"`
 	ID           string `xml:"Id,attr"`
 }
 
-type SignedInfo struct {
+type signedInfo struct {
 	Text                   string                 `xml:",chardata"`
-	CanonicalizationMethod CanonicalizationMethod `xml:"ds:CanonicalizationMethod"`
-	SignatureMethod        SignatureMethod        `xml:"ds:SignatureMethod"`
-	Reference              Reference              `xml:"ds:Reference"`
+	CanonicalizationMethod canonicalizationMethod `xml:"ds:CanonicalizationMethod"`
+	SignatureMethod        signatureMethod        `xml:"ds:SignatureMethod"`
+	Reference              reference              `xml:"ds:Reference"`
 }
-type Reference struct {
+type reference struct {
 	URI          string       `xml:"URI,attr"`
-	Transforms   Transforms   `xml:"Transforms"`
-	DigestMethod DigestMethod `xml:"DigestMethod"`
-	DigetValue   DigestValue  `xml:"DigestValue"`
+	Transforms   transforms   `xml:"Transforms"`
+	DigestMethod digestMethod `xml:"DigestMethod"`
+	DigetValue   digestValue  `xml:"DigestValue"`
 }
-type DigestMethod struct {
+type digestMethod struct {
 	Algorithm string `xml:"Algorithm,attr"`
 }
-type DigestValue struct {
+type digestValue struct {
 	Text string `xml:",chardata"`
 }
-type Transforms struct {
-	Transform Transform `xml:"Transform"`
+type transforms struct {
+	Transform transform `xml:"Transform"`
 }
-type Transform struct {
+type transform struct {
 	Algorithm string `xml:"Algorithm,attr"`
 }
-type CanonicalizationMethod struct {
+type canonicalizationMethod struct {
 	Text      string `xml:",chardata"`
 	Algorithm string `xml:"Algorithm,attr"`
 }
 
-type SignatureMethod struct {
+type signatureMethod struct {
 	Text      string `xml:",chardata"`
 	Algorithm string `xml:"Algorithm,attr"`
 }
-type Timestamp struct {
+type timestamp struct {
 	ID      string `xml:"Id,attr"`
 	Created string `xml:"Created"`
 	Expires string `xml:"Expires"`
 }
-type SignatureValue struct {
+type signatureValue struct {
 	Text []byte `xml:",chardata"`
 }
 
@@ -114,54 +114,54 @@ func GenerateSignedHeader(certificate string, privateKey *rsa.PrivateKey) ([]byt
 	}
 	// canonicalize & sign private key of x509 cert -> use this value for signaturevalue
 
-	securityHeader := Header{
-		Security: Security{
+	securityHeader := header{
+		Security: security{
 			Wsse: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
 			Wsu:  "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
-			BinarySecurityToken: BinarySecurityToken{
+			BinarySecurityToken: binarySecurityToken{
 				EncodingType: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary",
 				ValueType:    "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3",
 				Text:         certificate,
 				ID:           certificateID,
 			},
-			Signature: Signature{
+			Signature: signature{
 				Ds: "ttp://www.w3.org/2000/09/xmldsig#",
-				SignedInfo: SignedInfo{
-					CanonicalizationMethod: CanonicalizationMethod{
+				SignedInfo: signedInfo{
+					CanonicalizationMethod: canonicalizationMethod{
 						Algorithm: "http://www.w3.org/2001/10/xml-exc-c14n#",
 					},
-					SignatureMethod: SignatureMethod{
+					SignatureMethod: signatureMethod{
 						Algorithm: "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
 					},
-					Reference: Reference{
+					Reference: reference{
 						URI: certificateID,
-						Transforms: Transforms{
-							Transform: Transform{
+						Transforms: transforms{
+							Transform: transform{
 								Algorithm: "http://www.w3.org/2001/10/xml-exc-c14n#",
 							},
 						},
-						DigestMethod: DigestMethod{
+						DigestMethod: digestMethod{
 							Algorithm: "http://www.w3.org/2001/04/xmlenc#sha256",
 						},
-						DigetValue: DigestValue{
+						DigetValue: digestValue{
 							Text: encodedDigest,
 						},
 					},
 				},
-				SignatureValue: SignatureValue{
+				SignatureValue: signatureValue{
 					Text: signedHash,
 				},
-				KeyInfo: KeyInfo{
+				KeyInfo: keyInfo{
 					ID: "KI-KeyInfoIdentification",
-					SecurityTokenReference: SecurityTokenReference{
-						STReference: STReference{
+					SecurityTokenReference: securityTokenReference{
+						STReference: sTReference{
 							URI:       certificateID,
 							ValueType: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3",
 						},
 					},
 				},
 			},
-			Timestamp: Timestamp{
+			Timestamp: timestamp{
 				Created: time.Now().UTC().Format(time.RFC3339),
 				Expires: time.Now().Add(time.Millisecond * 5000).UTC().Format(time.RFC3339),
 			},

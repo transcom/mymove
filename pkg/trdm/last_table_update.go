@@ -66,10 +66,12 @@ type GetLastTableUpdateRequestElement struct {
 type GetLastTableUpdateResponseElement struct {
 	XMLName    xml.Name `xml:"getLastTableUpdateResponseElement"`
 	LastUpdate string   `xml:"lastUpdate"`
-	Status     struct {
-		StatusCode string `xml:"statusCode"`
-		DateTime   string `xml:"dateTime"`
-	} `xml:"status"`
+	Status     status   `xml:"status"`
+}
+
+type Status struct {
+	StatusCode string `xml:"statusCode"`
+	DateTime   string `xml:"dateTime"`
 }
 
 func NewTRDMGetLastTableUpdate(physicalName string, securityToken string, privateKey *rsa.PrivateKey, soapClient SoapCaller) GetLastTableUpdater {
