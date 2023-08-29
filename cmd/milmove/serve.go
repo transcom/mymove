@@ -796,7 +796,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	trdmIsEnabled := v.GetBool(cli.TRDMIsEnabled)
 	if trdmIsEnabled {
 		// Call the initial SOAP call for LastTableUpdate on server start and once per day
-		err := trdm.LastTableUpdate(v)
+		err := trdm.LastTableUpdate(v, tlsConfig)
 		if err != nil {
 			return err
 		}

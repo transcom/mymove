@@ -2,6 +2,8 @@ package trdm
 
 import (
 	"crypto/rsa"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/xml"
 	"fmt"
 	"net/http"
@@ -165,7 +167,7 @@ func StartLastTableUpdateCron(appCtx appcontext.AppContext, physicalName string)
 	return nil
 }
 
-func LastTableUpdate(v *viper.Viper) error {
+func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config) error {
 
 	dbEnv := v.GetString(cli.DbEnvFlag)
 	logger, _, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
@@ -182,7 +184,7 @@ func LastTableUpdate(v *viper.Viper) error {
 
 	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
 
-	tr := &http.Transport{TLSClientConfig: nil}
+	tr := &http.Transport{TLSClientConfig: tlsConfig}
 	httpClient := &http.Client{Transport: tr, Timeout: time.Duration(30) * time.Second}
 
 	trdmWSDL := v.GetString(cli.TRDMApiWSDLFlag)
@@ -193,8 +195,16 @@ func LastTableUpdate(v *viper.Viper) error {
 	}
 	soapClient.URL = trdmURL
 
-	getLastTableUpdateTACErr := NewTRDMGetLastTableUpdate(transportationAccountingCode, "", nil, soapClient).GetLastTableUpdate(appCtx, transportationAccountingCode)
-	getLastTableUpdateLOAErr := NewTRDMGetLastTableUpdate(lineOfAccounting, "", nil, soapClient).GetLastTableUpdate(appCtx, lineOfAccounting)
+	x509CertString := v.GetString(cli.TRDMx509Cert)
+
+	privateKeyString := v.GetString(cli.TRDMx509PrivateKey)
+	privateKey, err := x509.ParsePKCS1PrivateKey([]byte(privateKeyString))
+	if err != nil {
+		return err
+	}
+
+	getLastTableUpdateTACErr := NewTRDMGetLastTableUpdate(transportationAccountingCode, x509CertString, privateKey, soapClient).GetLastTableUpdate(appCtx, transportationAccountingCode)
+	getLastTableUpdateLOAErr := NewTRDMGetLastTableUpdate(lineOfAccounting, x509CertString, privateKey, soapClient).GetLastTableUpdate(appCtx, lineOfAccounting)
 	if getLastTableUpdateLOAErr != nil {
 		return getLastTableUpdateLOAErr
 	}

@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
+	"crypto/x509"
 	"encoding/xml"
 	"time"
 
@@ -95,11 +96,15 @@ type signatureValue struct {
 }
 
 func GenerateSignedHeader(certificate string, privateKey *rsa.PrivateKey) ([]byte, error) {
+	x509Cert, x509ParseErr := x509.ParseCertificate([]byte(certificate))
+	if x509ParseErr != nil {
+		return nil, x509ParseErr
+	}
 
 	const certificateID = "X509-CertificateId"
-	encodedDigest := digest.FromBytes([]byte(certificate)).Encoded()
+	encodedDigest := digest.FromBytes([]byte(x509Cert.Raw)).Encoded()
 
-	canonicalized := digest.Canonical.Encode([]byte(certificate))
+	canonicalized := digest.Canonical.Encode([]byte(x509Cert.Raw))
 
 	msgHash := sha256.New()
 	_, err := msgHash.Write([]byte(canonicalized))
