@@ -193,14 +193,23 @@ func LastTableUpdate(v *viper.Viper) error {
 	}
 	soapClient.URL = trdmURL
 
-	getLastTableUpdateErr := NewTRDMGetLastTableUpdate(lineOfAccounting, "", nil, soapClient).GetLastTableUpdate(appCtx, lineOfAccounting)
-	if getLastTableUpdateErr != nil {
-		return getLastTableUpdateErr
+	getLastTableUpdateTACErr := NewTRDMGetLastTableUpdate(transportationAccountingCode, "", nil, soapClient).GetLastTableUpdate(appCtx, transportationAccountingCode)
+	getLastTableUpdateLOAErr := NewTRDMGetLastTableUpdate(lineOfAccounting, "", nil, soapClient).GetLastTableUpdate(appCtx, lineOfAccounting)
+	if getLastTableUpdateLOAErr != nil {
+		return getLastTableUpdateLOAErr
+	}
+	if getLastTableUpdateTACErr != nil {
+		return getLastTableUpdateTACErr
 	}
 
-	cronErr := StartLastTableUpdateCron(appCtx, lineOfAccounting)
-	if cronErr != nil {
-		return cronErr
+	cronErrTAC := StartLastTableUpdateCron(appCtx, transportationAccountingCode)
+	cronErrLOA := StartLastTableUpdateCron(appCtx, lineOfAccounting)
+
+	if cronErrLOA != nil {
+		return cronErrLOA
+	}
+	if cronErrTAC != nil {
+		return cronErrTAC
 	}
 	return nil
 }
