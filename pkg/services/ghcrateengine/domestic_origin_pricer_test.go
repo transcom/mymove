@@ -1,6 +1,7 @@
 package ghcrateengine
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -190,8 +191,14 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 			isPPM,
 		)
 
-		suite.Error(err)
-		suite.Equal("Could not lookup contract year: "+models.RecordNotFoundErrorString, err.Error())
+		if suite.Error(err) {
+			expectedErr := fmt.Sprintf(
+				"could not calculate escalated price: could not lookup contract year: %s",
+				models.RecordNotFoundErrorString,
+			)
+
+			suite.Equal(expectedErr, err.Error())
+		}
 	})
 
 	suite.Run("weight below minimum", func() {

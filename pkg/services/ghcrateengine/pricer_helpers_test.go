@@ -239,7 +239,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticAdditionalDaysSIT() {
 		twoYearsLaterPickupDate := ddasitTestRequestedPickupDate.AddDate(2, 0, 0)
 		_, _, err := priceDomesticAdditionalDaysSIT(suite.AppContextForTest(), models.ReServiceCodeDDASIT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ddasitTestWeight, ddasitTestServiceArea, ddasitTestNumberOfDaysInSIT, false)
 		suite.Error(err)
-		suite.Contains(err.Error(), "could not look up escalated price")
+		suite.Contains(err.Error(), "could not lookup contract year")
 	})
 }
 
@@ -553,7 +553,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticShuttling() {
 		_, _, err := priceDomesticShuttling(suite.AppContextForTest(), models.ReServiceCodeDDSHUT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ddshutTestWeight, ddshutTestServiceSchedule)
 
 		suite.Error(err)
-		suite.Contains(err.Error(), "Could not lookup contract year")
+		suite.Contains(err.Error(), "could not calculate escalated price: could not lookup contract year")
 	})
 }
 func (suite *GHCRateEngineServiceSuite) Test_priceDomesticCrating() {
