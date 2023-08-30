@@ -26,7 +26,7 @@ COMMENT ON COLUMN distance_calculations.distance_miles IS 'The distance in miles
 COMMENT ON TABLE dps_users IS 'Users who have permission to access MyMove - DPS integration resources';
 COMMENT ON COLUMN dps_users.created_at IS 'Date & time the dps_user was created';
 COMMENT ON COLUMN dps_users.updated_at IS 'Date & time the dps_user was updated';
-COMMENT ON COLUMN dps_users.login_gov_email IS 'The login.gov email of the user.';
+COMMENT ON COLUMN dps_users.okta_email IS 'The okta email of the user.';
 COMMENT ON COLUMN dps_users.active IS 'A boolean that determines whether or not a DPS user is active. Users that are not active are not allowed to access the DPS resources. See https://github.com/transcom/mymove/wiki/create-or-deactivate-users.';
 
 COMMENT ON TABLE ghc_domestic_transit_times IS 'Allows calculation of the maximum transit time based on the distance and weight ranges.';
@@ -55,11 +55,11 @@ COMMENT ON COLUMN office_phone_lines.is_dsn_number IS 'A boolean that represents
 COMMENT ON TABLE office_users IS 'Holds all users who have access to the office site.';
 COMMENT ON COLUMN office_users.created_at IS 'Date & time the office user was created.';
 COMMENT ON COLUMN office_users.updated_at IS 'Date & time the office user was updated.';
-COMMENT ON COLUMN office_users.user_id IS 'The foreign key that points to the user id in the users table. This gets populated when the user first signs in via login.gov, which then creates the user in the users table, and the link is then made in this table.';
+COMMENT ON COLUMN office_users.user_id IS 'The foreign key that points to the user id in the users table. This gets populated when the user first signs in via okta, which then creates the user in the users table, and the link is then made in this table.';
 COMMENT ON COLUMN office_users.first_name IS 'The first name of the office user.';
 COMMENT ON COLUMN office_users.last_name IS 'The last name of the office user.';
 COMMENT ON COLUMN office_users.middle_initials IS 'The middle initials of the office user.';
-COMMENT ON COLUMN office_users.email IS 'The email of the office user. This will match their login_gov_email in the users table.';
+COMMENT ON COLUMN office_users.email IS 'The email of the office user. This will match their okta_email in the users table.';
 COMMENT ON COLUMN office_users.telephone IS 'The phone number of the office user.';
 COMMENT ON COLUMN office_users.transportation_office_id IS 'The id of the transportation office the office user is assigned to.';
 COMMENT ON COLUMN office_users.active IS 'A boolean that determines whether or not an office user is active. Users that are not active are not allowed to access the office site. See https://github.com/transcom/mymove/wiki/create-or-deactivate-users.';
@@ -97,11 +97,11 @@ COMMENT ON COLUMN transportation_offices.services IS 'The various services offer
 COMMENT ON COLUMN transportation_offices.note IS 'Unclear what this field is used for. It is not populated locally.';
 COMMENT ON COLUMN transportation_offices.gbloc IS 'A 4-character code representing the geographical area this transportation office is part of. This maps to the code field in the jppso_regions table.';
 
-COMMENT ON TABLE users IS 'Holds all users. Anyone who signs in to any of the mymove apps is automatically created in this table after signing in with login.gov.';
+COMMENT ON TABLE users IS 'Holds all users. Anyone who signs in to any of the mymove apps is automatically created in this table after signing in with okta.';
 COMMENT ON COLUMN users.created_at IS 'Date & time the user was created.';
 COMMENT ON COLUMN users.updated_at IS 'Date & time the user was updated.';
-COMMENT ON COLUMN users.login_gov_uuid IS 'The login.gov uuid of the user.';
-COMMENT ON COLUMN users.login_gov_email IS 'The login.gov email of the user.';
+COMMENT ON COLUMN users.okta_id IS 'The okta id of the user.';
+COMMENT ON COLUMN users.okta_email IS 'The okta email of the user.';
 COMMENT ON COLUMN users.active IS 'A boolean that determines whether or not a user is active. Users that are not active are not allowed to access the mymove apps. See https://github.com/transcom/mymove/wiki/create-or-deactivate-users.';
 COMMENT ON COLUMN users.current_mil_session_id IS 'This field gets populated when a user signs into the mil app. The string matches the session id stored in Redis. It is used to allow an admin user to revoke the session if necessary.';
 COMMENT ON COLUMN users.current_admin_session_id IS 'This field gets populated when a user signs into the admin app. The string matches the session id stored in Redis. It is used to allow an admin user to revoke the session if necessary.';

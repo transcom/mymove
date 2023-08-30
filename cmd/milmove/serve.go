@@ -76,7 +76,7 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// Enable listeners
 	cli.InitListenerFlags(flag)
 
-	// Login.Gov Auth config
+	// Okta Auth config
 	cli.InitAuthFlags(flag)
 
 	// Devlocal Auth config

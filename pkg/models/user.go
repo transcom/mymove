@@ -66,7 +66,7 @@ func GetUserFromEmail(db *pop.Connection, email string) (*User, error) {
 	return &users[0], err
 }
 
-// CreateUser is called upon successful login.gov verification of a new user
+// CreateUser is called upon successful Okta verification of a new user
 func CreateUser(db *pop.Connection, oktaID string, email string) (*User, error) {
 
 	newUser := User{

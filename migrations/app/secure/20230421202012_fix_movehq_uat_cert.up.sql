@@ -15,7 +15,7 @@
 
 -- 	UPDATE users
 -- 		SET
--- 			login_gov_email = new_movehq_sha256 || '@api.move.mil'
+-- 			okta_email = new_movehq_sha256 || '@okta.mil'
 -- 		WHERE id = movehq_user_id;
 
 -- 	UPDATE client_certs
