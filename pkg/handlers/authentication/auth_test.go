@@ -1056,10 +1056,10 @@ func (suite *AuthSuite) TestAuthKnownServiceMember() {
 // What is being tested: authorizeUnknownUser function
 // Mocked: oktaProvider, auth.Session, goth.User, scs.SessionManager
 // Behaviour: The function gets passed in the following arguments:
-// - an instance of goth.User: a struct with the login.gov UUID and email
+// - an instance of goth.User: a struct with the okta ID and email
 // - the callback handler
 // - the session (instance of auth.Session)
-// It should create the user using the login.gov UUID and email, then create a
+// It should create the user using the okta ID and email, then create a
 // service member associated with the user, and populate the session with the ID
 // of the service member in the `ServiceMemberID` key.
 func (suite *AuthSuite) TestAuthUnknownServiceMember() {
@@ -1079,7 +1079,7 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 	sessionManager := handlerConfig.SessionManagers().Mil
 	mockSender := setUpMockNotificationSender() // We should get an email for this activity
 
-	// Prepare the goth.User to simulate the UUID and email that login.gov would
+	// Prepare the goth.User to simulate the UUID and email that okta would
 	// provide
 	fakeUUID, _ := uuid.NewV4()
 	user := models.OktaUser{
