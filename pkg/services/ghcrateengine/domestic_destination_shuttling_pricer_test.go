@@ -75,7 +75,8 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationShuttlingPricer()
 		twoYearsLaterPickupDate := ddshutTestRequestedPickupDate.AddDate(2, 0, 0)
 		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ddshutTestWeight, ddshutTestServiceSchedule)
 		suite.Error(err)
-		suite.Contains(err.Error(), "unable to calculate escalated total price")
+
+		suite.Contains(err.Error(), "could not calculate escalated price")
 	})
 }
 
