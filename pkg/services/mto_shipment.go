@@ -132,11 +132,13 @@ type SITStatus struct {
 }
 
 type CurrentSIT struct {
-	Location            string
-	DaysInSIT           int
-	SITEntryDate        time.Time
-	SITDepartureDate    *time.Time
-	SITAllowanceEndDate time.Time
+	Location             string
+	DaysInSIT            int
+	SITEntryDate         time.Time
+	SITDepartureDate     *time.Time
+	SITAllowanceEndDate  time.Time
+	SITCustomerContacted *time.Time
+	SITRequestedDelivery *time.Time
 }
 
 // ShipmentSITStatus is the interface for calculating SIT service item summary balances of shipments

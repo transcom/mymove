@@ -8499,12 +8499,22 @@ func init() {
               "format": "date",
               "x-nullable": true
             },
+            "sitCustomerContacted": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "sitDepartureDate": {
               "type": "string",
               "format": "date",
               "x-nullable": true
             },
             "sitEntryDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitRequestedDelivery": {
               "type": "string",
               "format": "date",
               "x-nullable": true
@@ -19696,12 +19706,22 @@ func init() {
               "format": "date",
               "x-nullable": true
             },
+            "sitCustomerContacted": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "sitDepartureDate": {
               "type": "string",
               "format": "date",
               "x-nullable": true
             },
             "sitEntryDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitRequestedDelivery": {
               "type": "string",
               "format": "date",
               "x-nullable": true
@@ -19739,12 +19759,22 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "sitCustomerContacted": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "sitDepartureDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
         "sitEntryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitRequestedDelivery": {
           "type": "string",
           "format": "date",
           "x-nullable": true

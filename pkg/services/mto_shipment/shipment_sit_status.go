@@ -95,12 +95,18 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		sitEntryDate := *currentSIT.SITEntryDate
 		sitDepartureDate := currentSIT.SITDepartureDate
 		sitAllowanceEndDate := CalculateSITAllowanceEndDate(shipmentSITStatus.TotalDaysRemaining, sitEntryDate, today)
+		var sitCustomerContacted, sitRequestedDelivery *time.Time
+		sitCustomerContacted = currentSIT.SITCustomerContacted
+		sitRequestedDelivery = currentSIT.SITRequestedDelivery
+
 		shipmentSITStatus.CurrentSIT = &services.CurrentSIT{
-			Location:            location,
-			DaysInSIT:           daysInSIT,
-			SITEntryDate:        sitEntryDate,
-			SITDepartureDate:    sitDepartureDate,
-			SITAllowanceEndDate: sitAllowanceEndDate,
+			Location:             location,
+			DaysInSIT:            daysInSIT,
+			SITEntryDate:         sitEntryDate,
+			SITDepartureDate:     sitDepartureDate,
+			SITAllowanceEndDate:  sitAllowanceEndDate,
+			SITCustomerContacted: sitCustomerContacted,
+			SITRequestedDelivery: sitRequestedDelivery,
 		}
 	}
 
