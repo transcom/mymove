@@ -2295,18 +2295,6 @@ news = [
         "Naval Station Everett",
     ),
     (
-        "54b28870-c56e-4c74-8176-02e7c4f3c7d4",
-        "NS Mayport, FL 32233",
-        "35c042a7-90d4-4663-b01c-9f4fa303fe50",
-        "CNNQ",
-        "NAVY",
-        "n/a",
-        "Mayport",
-        "FL",
-        "32233",
-        "Naval Station Mayport",
-    ),
-    (
         "924af89b-a0cd-4556-93ce-692e6d90a914",
         "NAVSTA Newport, RI 02841",
         "2b072b0f-8ee2-439d-b512-bda9cfc088bc",

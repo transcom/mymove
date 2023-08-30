@@ -2666,10 +2666,6 @@ INSERT INTO addresses (id, street_address_1, city, state, postal_code, created_a
 INSERT INTO duty_locations (id, address_id, transportation_office_id, name, affiliation, provides_services_counseling, updated_at, created_at) VALUES ('880654b0-ac66-42d9-83a7-ce9a3f3281d5', 'a0781898-01de-4fbb-b0fa-28b96a130047', (SELECT t.id FROM transportation_offices AS t, addresses AS a WHERE t.address_id = a.id AND t.gbloc='JEAT' AND a.state='WA' LIMIT 1), 'NAVSTA Everett, WA 98207', 'NAVY', TRUE, now(), now());
 
 --NEW
-INSERT INTO addresses (id, street_address_1, city, state, postal_code, created_at, updated_at) VALUES ('35c042a7-90d4-4663-b01c-9f4fa303fe50', 'n/a', 'Mayport', 'FL', '32233', now(), now());
-INSERT INTO duty_locations (id, address_id, transportation_office_id, name, affiliation, provides_services_counseling, updated_at, created_at) VALUES ('54b28870-c56e-4c74-8176-02e7c4f3c7d4', '35c042a7-90d4-4663-b01c-9f4fa303fe50', (SELECT t.id FROM transportation_offices AS t, addresses AS a WHERE t.address_id = a.id AND t.gbloc='CNNQ' AND a.state='FL' LIMIT 1), 'NS Mayport, FL 32233', 'NAVY', TRUE, now(), now());
-
---NEW
 INSERT INTO addresses (id, street_address_1, city, state, postal_code, created_at, updated_at) VALUES ('2b072b0f-8ee2-439d-b512-bda9cfc088bc', '', 'Naval Station Newport', 'RI', '02841', now(), now());
 INSERT INTO duty_locations (id, address_id, transportation_office_id, name, affiliation, provides_services_counseling, updated_at, created_at) VALUES ('924af89b-a0cd-4556-93ce-692e6d90a914', '2b072b0f-8ee2-439d-b512-bda9cfc088bc', (SELECT t.id FROM transportation_offices AS t, addresses AS a WHERE t.address_id = a.id AND t.gbloc='AGFM' AND a.state='RI' LIMIT 1), 'NAVSTA Newport, RI 02841', 'NAVY', TRUE, now(), now());
 
@@ -3133,7 +3129,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'E CO 2ND BN 25TH MAR DET 10 (1018-1019)';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('3bdf7bfd-8b53-4852-9aec-3f577d973dfb', 'E CO 2ND BN 25TH MAR DET 10 (1018-1019)', '7b1860f5-0c11-4cd6-a2be-9844ad1ecd27', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('bda87f1d-a479-4b25-8e6a-5631d08eb86d', 'E CO 2ND BN 25TH MAR DET 10 (1018-1019)', '7b1860f5-0c11-4cd6-a2be-9844ad1ecd27', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='49b38b5a-2a38-4729-850c-0743ed2568f7' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'FEDERAL LAW ENFORCEMENT TRNG CTR');
 UPDATE orders SET new_duty_location_id='49b38b5a-2a38-4729-850c-0743ed2568f7' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'FEDERAL LAW ENFORCEMENT TRNG CTR');
@@ -3146,7 +3142,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'FEDERAL LAW ENFORCEMENT TRNG CTR';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('bca1b314-67e7-47f7-96c5-becf1121c815', 'FEDERAL LAW ENFORCEMENT TRNG CTR', '49b38b5a-2a38-4729-850c-0743ed2568f7', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('1168ebb2-73d4-457d-a41f-266018370871', 'FEDERAL LAW ENFORCEMENT TRNG CTR', '49b38b5a-2a38-4729-850c-0743ed2568f7', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='135ee34d-9cf5-4497-ad9c-1b2225b3037f' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort George G. Meade');
 UPDATE orders SET new_duty_location_id='135ee34d-9cf5-4497-ad9c-1b2225b3037f' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort George G. Meade');
@@ -3159,7 +3155,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort George G. Meade';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('26c4177c-7304-40b0-b920-6d3292cac131', 'Fort George G. Meade', '135ee34d-9cf5-4497-ad9c-1b2225b3037f', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('0f0d915e-dc80-4a78-aae7-b774dcb6eafd', 'Fort George G. Meade', '135ee34d-9cf5-4497-ad9c-1b2225b3037f', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='df907842-6c4d-43d3-8a23-93005f9d6397' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort Walker');
 UPDATE orders SET new_duty_location_id='df907842-6c4d-43d3-8a23-93005f9d6397' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort Walker');
@@ -3172,7 +3168,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort Walker';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('877c802d-388e-44cc-b120-6226c6d322b5', 'Fort Walker', 'df907842-6c4d-43d3-8a23-93005f9d6397', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('0cd9e623-4b59-4298-bb87-f9bdeacc13c6', 'Fort Walker', 'df907842-6c4d-43d3-8a23-93005f9d6397', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='31795101-1866-4d2a-8bf2-4514cccf7601' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'JB Charleston - Charleston AFB');
 UPDATE orders SET new_duty_location_id='31795101-1866-4d2a-8bf2-4514cccf7601' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'JB Charleston - Charleston AFB');
@@ -3185,7 +3181,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'JB Charleston - Charleston AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('b5927f59-88d4-4f49-887f-e1f6ca41f8f0', 'JB Charleston - Charleston AFB', '31795101-1866-4d2a-8bf2-4514cccf7601', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('ab606afc-05cb-4b8d-a327-ebd4d986bbf4', 'JB Charleston - Charleston AFB', '31795101-1866-4d2a-8bf2-4514cccf7601', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='22fba9fc-65d6-426b-9743-28ae8eb0db5a' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'JB Charleston - Naval Weapons Station');
 UPDATE orders SET new_duty_location_id='22fba9fc-65d6-426b-9743-28ae8eb0db5a' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'JB Charleston - Naval Weapons Station');
@@ -3198,7 +3194,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'JB Charleston - Naval Weapons Station';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('4cc03598-345d-49de-ab4c-2492825f82d0', 'JB Charleston - Naval Weapons Station', '22fba9fc-65d6-426b-9743-28ae8eb0db5a', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('ce839663-993f-4eb4-aedc-34392e0bc573', 'JB Charleston - Naval Weapons Station', '22fba9fc-65d6-426b-9743-28ae8eb0db5a', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='788cc724-e91b-40cf-8a68-c021c5ced84f' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'JB Langley-Eustis (Eustis)');
 UPDATE orders SET new_duty_location_id='788cc724-e91b-40cf-8a68-c021c5ced84f' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'JB Langley-Eustis (Eustis)');
@@ -3211,7 +3207,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'JB Langley-Eustis (Eustis)';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('07222d23-4e29-4349-85b6-edcab9034c72', 'JB Langley-Eustis (Eustis)', '788cc724-e91b-40cf-8a68-c021c5ced84f', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('f7d1a5cc-a2b1-487a-8fa5-591df781761a', 'JB Langley-Eustis (Eustis)', '788cc724-e91b-40cf-8a68-c021c5ced84f', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='7c469b60-fa3c-4782-a025-3ff5262cc70d' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Joint Base Anacostia-Bolling');
 UPDATE orders SET new_duty_location_id='7c469b60-fa3c-4782-a025-3ff5262cc70d' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Joint Base Anacostia-Bolling');
@@ -3224,7 +3220,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Joint Base Anacostia-Bolling';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('eb7af556-ad33-4f33-933a-30672809596f', 'Joint Base Anacostia-Bolling', '7c469b60-fa3c-4782-a025-3ff5262cc70d', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('56d9bf48-2fa4-42fe-a64d-1e9f1e794b02', 'Joint Base Anacostia-Bolling', '7c469b60-fa3c-4782-a025-3ff5262cc70d', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='ff90f2bb-4613-407c-bbbf-939204c263ec' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Joint Base Lewis-McChord (Fort Lewis)');
 UPDATE orders SET new_duty_location_id='ff90f2bb-4613-407c-bbbf-939204c263ec' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Joint Base Lewis-McChord (Fort Lewis)');
@@ -3237,7 +3233,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Joint Base Lewis-McChord (Fort Lewis)';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('0ae51c2e-21ca-4a27-878a-64d416133cf5', 'Joint Base Lewis-McChord (Fort Lewis)', 'ff90f2bb-4613-407c-bbbf-939204c263ec', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('de98a1a7-e228-478b-99a1-f4bfb697a8ae', 'Joint Base Lewis-McChord (Fort Lewis)', 'ff90f2bb-4613-407c-bbbf-939204c263ec', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='2679c00b-bbab-485d-bcb8-7d043d278850' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Joint Base Lewis-McChord (McChord AFB)');
 UPDATE orders SET new_duty_location_id='2679c00b-bbab-485d-bcb8-7d043d278850' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Joint Base Lewis-McChord (McChord AFB)');
@@ -3250,7 +3246,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Joint Base Lewis-McChord (McChord AFB)';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('5c4890f4-e9bf-4d33-b443-414145295ee0', 'Joint Base Lewis-McChord (McChord AFB)', '2679c00b-bbab-485d-bcb8-7d043d278850', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('69d86e35-26f0-45af-b937-5f2e74d2d477', 'Joint Base Lewis-McChord (McChord AFB)', '2679c00b-bbab-485d-bcb8-7d043d278850', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='a95a2884-5902-4b54-8057-7e3a35fe982d' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'MacDill AFB');
 UPDATE orders SET new_duty_location_id='a95a2884-5902-4b54-8057-7e3a35fe982d' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'MacDill AFB');
@@ -3263,7 +3259,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'MacDill AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('996ab881-4961-4073-b55d-ce4e3030c2c1', 'MacDill AFB', 'a95a2884-5902-4b54-8057-7e3a35fe982d', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('9cff0c8f-60fb-4bc7-aa7a-621c41e4f10b', 'MacDill AFB', 'a95a2884-5902-4b54-8057-7e3a35fe982d', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='e0a40c01-7e93-4b6a-9e61-2a320cf6e332' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Marine Corps Air Station Yuma');
 UPDATE orders SET new_duty_location_id='e0a40c01-7e93-4b6a-9e61-2a320cf6e332' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Marine Corps Air Station Yuma');
@@ -3276,7 +3272,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Marine Corps Air Station Yuma';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('02fd8600-6a76-42fc-ad74-cc94498523e5', 'Marine Corps Air Station Yuma', 'e0a40c01-7e93-4b6a-9e61-2a320cf6e332', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('0c17b8c2-cfb8-4147-bb3a-f08f6d18acc2', 'Marine Corps Air Station Yuma', 'e0a40c01-7e93-4b6a-9e61-2a320cf6e332', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='d5b3a0b9-0e76-49c9-be09-fd250ce4f92d' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'McConnell AFB');
 UPDATE orders SET new_duty_location_id='d5b3a0b9-0e76-49c9-be09-fd250ce4f92d' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'McConnell AFB');
@@ -3289,7 +3285,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'McConnell AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('9a57ee58-9dcc-41ad-be2e-1d452768d24a', 'McConnell AFB', 'd5b3a0b9-0e76-49c9-be09-fd250ce4f92d', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('efa87484-a42a-44d7-a720-cbe5619ba871', 'McConnell AFB', 'd5b3a0b9-0e76-49c9-be09-fd250ce4f92d', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='0ebf7e87-926d-4ddc-ba41-13b989fbfcad' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'OFFICER SELECTION TEAM SPRINGFIELD');
 UPDATE orders SET new_duty_location_id='0ebf7e87-926d-4ddc-ba41-13b989fbfcad' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'OFFICER SELECTION TEAM SPRINGFIELD');
@@ -3302,7 +3298,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'OFFICER SELECTION TEAM SPRINGFIELD';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('d5af30ca-4cbd-448a-87a7-f96c92d9d90a', 'OFFICER SELECTION TEAM SPRINGFIELD', '0ebf7e87-926d-4ddc-ba41-13b989fbfcad', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('06c7bfc1-f8ca-4968-a028-1e9d2239468f', 'OFFICER SELECTION TEAM SPRINGFIELD', '0ebf7e87-926d-4ddc-ba41-13b989fbfcad', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='835cd9a7-c3cb-4e58-ad4d-52edbda0a267' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'OIC USMC MCRC PITTSBURGH');
 UPDATE orders SET new_duty_location_id='835cd9a7-c3cb-4e58-ad4d-52edbda0a267' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'OIC USMC MCRC PITTSBURGH');
@@ -3315,7 +3311,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'OIC USMC MCRC PITTSBURGH';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('73bdeace-2b87-4ccd-8b70-2e900ff03286', 'OIC USMC MCRC PITTSBURGH', '835cd9a7-c3cb-4e58-ad4d-52edbda0a267', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('74db7eb1-f1ab-4468-be16-35417e788878', 'OIC USMC MCRC PITTSBURGH', '835cd9a7-c3cb-4e58-ad4d-52edbda0a267', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='de318fcf-a6a8-4602-88d3-395e38a99239' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Patrick AFB');
 UPDATE orders SET new_duty_location_id='de318fcf-a6a8-4602-88d3-395e38a99239' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Patrick AFB');
@@ -3328,7 +3324,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Patrick AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('409c868c-ecf0-4eb6-82d3-ae256571881e', 'Patrick AFB', 'de318fcf-a6a8-4602-88d3-395e38a99239', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('09afe95b-3d90-444f-93a7-fd71d7bb6a23', 'Patrick AFB', 'de318fcf-a6a8-4602-88d3-395e38a99239', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='6def5b0a-4afb-4c73-82fd-355278679e97' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Peterson AFB');
 UPDATE orders SET new_duty_location_id='6def5b0a-4afb-4c73-82fd-355278679e97' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Peterson AFB');
@@ -3341,7 +3337,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Peterson AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('297ac921-d06a-4d83-8595-91a4654e9945', 'Peterson AFB', '6def5b0a-4afb-4c73-82fd-355278679e97', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('5786755f-895a-43d9-9a09-5cd2f21372df', 'Peterson AFB', '6def5b0a-4afb-4c73-82fd-355278679e97', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='ee5ea675-6575-4afe-b6fc-634662b2c359' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Schriever AFB');
 UPDATE orders SET new_duty_location_id='ee5ea675-6575-4afe-b6fc-634662b2c359' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Schriever AFB');
@@ -3354,7 +3350,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Schriever AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('c62bbd56-15c3-42a0-adc2-e2b4a62db387', 'Schriever AFB', 'ee5ea675-6575-4afe-b6fc-634662b2c359', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('8b3be82d-b1f5-4306-b00c-5f6437cdec7b', 'Schriever AFB', 'ee5ea675-6575-4afe-b6fc-634662b2c359', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='73c3a46a-6cca-4338-a486-67139a3e86df' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'UNIVERSITY OF MISSOURI (NROTC)');
 UPDATE orders SET new_duty_location_id='73c3a46a-6cca-4338-a486-67139a3e86df' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'UNIVERSITY OF MISSOURI (NROTC)');
@@ -3367,7 +3363,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'UNIVERSITY OF MISSOURI (NROTC)';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('e3376bca-c4f2-4a5a-9c06-36d941a6baba', 'UNIVERSITY OF MISSOURI (NROTC)', '73c3a46a-6cca-4338-a486-67139a3e86df', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('856fddaa-9551-4956-b336-d93a8d7ba55d', 'UNIVERSITY OF MISSOURI (NROTC)', '73c3a46a-6cca-4338-a486-67139a3e86df', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='dc77746b-7295-48fb-97c5-2c9f7df8e591' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'USN SHIPS PARTS CONTROL CENTER');
 UPDATE orders SET new_duty_location_id='dc77746b-7295-48fb-97c5-2c9f7df8e591' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'USN SHIPS PARTS CONTROL CENTER');
@@ -3380,7 +3376,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'USN SHIPS PARTS CONTROL CENTER';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('9d07aef8-1949-4b9e-a5f1-1396558586a8', 'USN SHIPS PARTS CONTROL CENTER', 'dc77746b-7295-48fb-97c5-2c9f7df8e591', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('b63499ea-2a4d-41bf-bbb8-04f4a5d2512c', 'USN SHIPS PARTS CONTROL CENTER', 'dc77746b-7295-48fb-97c5-2c9f7df8e591', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='e8fa27a5-3bc5-45f3-9743-f36358ee3aac' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Vandenberg AFB');
 UPDATE orders SET new_duty_location_id='e8fa27a5-3bc5-45f3-9743-f36358ee3aac' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Vandenberg AFB');
@@ -3393,7 +3389,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Vandenberg AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('465c20e9-3c28-435b-bfba-5ec15b03bd20', 'Vandenberg AFB', 'e8fa27a5-3bc5-45f3-9743-f36358ee3aac', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('4f7159bd-e521-48d3-a179-4a51cdd92b5f', 'Vandenberg AFB', 'e8fa27a5-3bc5-45f3-9743-f36358ee3aac', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='61e092c4-575c-458a-9c3f-b93ad373c454' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Aberdeen Proving Ground');
 UPDATE orders SET new_duty_location_id='61e092c4-575c-458a-9c3f-b93ad373c454' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Aberdeen Proving Ground');
@@ -3406,7 +3402,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Aberdeen Proving Ground';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('63066be4-43f4-4d61-a9c1-8509dc16e07e', 'Aberdeen Proving Ground', '61e092c4-575c-458a-9c3f-b93ad373c454', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('418275a4-47f4-42aa-91cc-5e59638a2f17', 'Aberdeen Proving Ground', '61e092c4-575c-458a-9c3f-b93ad373c454', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='c9995f16-b173-410b-afa7-f148b0da7e7e' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Altus AFB');
 UPDATE orders SET new_duty_location_id='c9995f16-b173-410b-afa7-f148b0da7e7e' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Altus AFB');
@@ -3419,7 +3415,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Altus AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('c0b7ce80-71b1-43ab-adda-7763791d528c', 'Altus AFB', 'c9995f16-b173-410b-afa7-f148b0da7e7e', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('d4e0f652-e1c0-42b5-a6ae-0f3790004fbf', 'Altus AFB', 'c9995f16-b173-410b-afa7-f148b0da7e7e', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='bc7788fd-64de-45cc-b0f7-8a1a6817c954' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Barksdale AFB');
 UPDATE orders SET new_duty_location_id='bc7788fd-64de-45cc-b0f7-8a1a6817c954' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Barksdale AFB');
@@ -3432,7 +3428,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Barksdale AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('7bfa9bb0-0135-4d84-b2d7-89f74c75d215', 'Barksdale AFB', 'bc7788fd-64de-45cc-b0f7-8a1a6817c954', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('3e500674-52f2-4d46-93ef-1f7eb1569196', 'Barksdale AFB', 'bc7788fd-64de-45cc-b0f7-8a1a6817c954', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='929ba47a-2f7d-430e-9655-157a4c80303d' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Beale AFB');
 UPDATE orders SET new_duty_location_id='929ba47a-2f7d-430e-9655-157a4c80303d' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Beale AFB');
@@ -3445,7 +3441,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Beale AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('79a99d5b-6bb3-490e-9cdd-2fec8c6c3164', 'Beale AFB', '929ba47a-2f7d-430e-9655-157a4c80303d', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('785f1736-3b8e-468d-a348-6130bc7b3cb1', 'Beale AFB', '929ba47a-2f7d-430e-9655-157a4c80303d', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='4decb74b-f3b5-4802-a43b-a3d2348ebb66' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Blue Grass Army Depot');
 UPDATE orders SET new_duty_location_id='4decb74b-f3b5-4802-a43b-a3d2348ebb66' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Blue Grass Army Depot');
@@ -3458,7 +3454,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Blue Grass Army Depot';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('ccd73b46-cc3c-4ef7-ace3-04ae30baa40e', 'Blue Grass Army Depot', '4decb74b-f3b5-4802-a43b-a3d2348ebb66', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('4ab949c4-47ce-4b9f-92a1-289dfb5ac8fa', 'Blue Grass Army Depot', '4decb74b-f3b5-4802-a43b-a3d2348ebb66', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='6b29d8b4-913b-4059-a5ec-c02f43d5d126' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Buckley SFB');
 UPDATE orders SET new_duty_location_id='6b29d8b4-913b-4059-a5ec-c02f43d5d126' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Buckley SFB');
@@ -3471,7 +3467,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Buckley SFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('c17c9396-ea4d-489c-b7cc-ecd08423f3ba', 'Buckley SFB', '6b29d8b4-913b-4059-a5ec-c02f43d5d126', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('96a5de4b-6af2-4ef2-bcbc-04fa362c550b', 'Buckley SFB', '6b29d8b4-913b-4059-a5ec-c02f43d5d126', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='432a55b3-9a42-4568-92af-5053605f5dd2' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Camp Lejeune');
 UPDATE orders SET new_duty_location_id='432a55b3-9a42-4568-92af-5053605f5dd2' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Camp Lejeune');
@@ -3484,7 +3480,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Camp Lejeune';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('bd4db816-14a7-498a-88b1-21a7cbca23c4', 'Camp Lejeune', '432a55b3-9a42-4568-92af-5053605f5dd2', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('05a3cad9-4bec-40eb-9a12-4a9b501d8c01', 'Camp Lejeune', '432a55b3-9a42-4568-92af-5053605f5dd2', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='09c2cd86-0f4c-4e46-89a9-bcb9e636d89b' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Camp Pendleton');
 UPDATE orders SET new_duty_location_id='09c2cd86-0f4c-4e46-89a9-bcb9e636d89b' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Camp Pendleton');
@@ -3497,7 +3493,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Camp Pendleton';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('9e81432b-572e-4d1e-a48f-17055872669e', 'Camp Pendleton', '09c2cd86-0f4c-4e46-89a9-bcb9e636d89b', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('d9982c9d-da0c-4cab-b745-26780f3432e6', 'Camp Pendleton', '09c2cd86-0f4c-4e46-89a9-bcb9e636d89b', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='9528a72e-9eac-4e7a-86d0-7abc40db9a3d' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Cannon AFB');
 UPDATE orders SET new_duty_location_id='9528a72e-9eac-4e7a-86d0-7abc40db9a3d' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Cannon AFB');
@@ -3510,7 +3506,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Cannon AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('fa40276b-d581-4262-bdad-420705cf98f0', 'Cannon AFB', '9528a72e-9eac-4e7a-86d0-7abc40db9a3d', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('6672066b-a212-408c-9b16-ad4e5f724bb1', 'Cannon AFB', '9528a72e-9eac-4e7a-86d0-7abc40db9a3d', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='0d0835c8-b142-431b-9bf4-a621bf37ccd7' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Carlisle Barracks');
 UPDATE orders SET new_duty_location_id='0d0835c8-b142-431b-9bf4-a621bf37ccd7' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Carlisle Barracks');
@@ -3523,7 +3519,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Carlisle Barracks';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('85ed15a2-30df-4fb9-b5ff-1fc5dda3b25e', 'Carlisle Barracks', '0d0835c8-b142-431b-9bf4-a621bf37ccd7', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('daf1c00f-342e-47e3-9024-737973bb4be1', 'Carlisle Barracks', '0d0835c8-b142-431b-9bf4-a621bf37ccd7', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='86ef59f9-bfd9-4868-8301-20a289cb8cfb' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Columbus AFB');
 UPDATE orders SET new_duty_location_id='86ef59f9-bfd9-4868-8301-20a289cb8cfb' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Columbus AFB');
@@ -3536,7 +3532,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Columbus AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('013c6372-6864-41cb-bb72-f432cfed38f5', 'Columbus AFB', '86ef59f9-bfd9-4868-8301-20a289cb8cfb', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('fdb45923-ef8f-4577-b1fb-4f3fffe0c825', 'Columbus AFB', '86ef59f9-bfd9-4868-8301-20a289cb8cfb', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='dcdf99ac-581c-4d23-a074-a77188a1afe2' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Creech AFB');
 UPDATE orders SET new_duty_location_id='dcdf99ac-581c-4d23-a074-a77188a1afe2' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Creech AFB');
@@ -3549,7 +3545,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Creech AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('0b8a70e9-8270-4688-a2b2-b820482bfffe', 'Creech AFB', 'dcdf99ac-581c-4d23-a074-a77188a1afe2', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('17cd242e-b70c-4f20-93bb-b47fc4f9db99', 'Creech AFB', 'dcdf99ac-581c-4d23-a074-a77188a1afe2', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='2f9708b2-dab0-445e-a4b3-ae25fe9cf286' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Davis-Monthan AFB');
 UPDATE orders SET new_duty_location_id='2f9708b2-dab0-445e-a4b3-ae25fe9cf286' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Davis-Monthan AFB');
@@ -3562,7 +3558,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Davis-Monthan AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('58c41aba-dd15-4c1e-b2e8-cedd42477b47', 'Davis-Monthan AFB', '2f9708b2-dab0-445e-a4b3-ae25fe9cf286', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('1cc67e2b-cfb8-45c8-a553-df40131e7259', 'Davis-Monthan AFB', '2f9708b2-dab0-445e-a4b3-ae25fe9cf286', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='4df2711e-3df8-41cf-a61f-4098858588c9' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Detroit Arsenal');
 UPDATE orders SET new_duty_location_id='4df2711e-3df8-41cf-a61f-4098858588c9' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Detroit Arsenal');
@@ -3575,7 +3571,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Detroit Arsenal';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('d9682fdd-0cbd-4526-a493-9584c70cb0b7', 'Detroit Arsenal', '4df2711e-3df8-41cf-a61f-4098858588c9', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('f80d1653-d980-4ed8-988b-2dc6831594e0', 'Detroit Arsenal', '4df2711e-3df8-41cf-a61f-4098858588c9', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='381791b4-fec2-4ac7-b7ed-7eefd3a0cb0f' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Dover AFB');
 UPDATE orders SET new_duty_location_id='381791b4-fec2-4ac7-b7ed-7eefd3a0cb0f' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Dover AFB');
@@ -3588,7 +3584,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Dover AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('4b434d87-fc51-4a9e-b2bc-1546683564a8', 'Dover AFB', '381791b4-fec2-4ac7-b7ed-7eefd3a0cb0f', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('7aabc488-5820-4b0d-9fd3-90eaf58fda44', 'Dover AFB', '381791b4-fec2-4ac7-b7ed-7eefd3a0cb0f', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='851acd34-fa2d-4e9b-b77a-e8ceea97c169' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Dugway Proving Ground');
 UPDATE orders SET new_duty_location_id='851acd34-fa2d-4e9b-b77a-e8ceea97c169' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Dugway Proving Ground');
@@ -3601,7 +3597,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Dugway Proving Ground';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('0269ba0f-2980-49a2-aeb3-8e914252fe08', 'Dugway Proving Ground', '851acd34-fa2d-4e9b-b77a-e8ceea97c169', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('395446c6-2626-4642-9215-e235e2c17437', 'Dugway Proving Ground', '851acd34-fa2d-4e9b-b77a-e8ceea97c169', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='bdfc04d6-f5b3-4bb5-a8e6-e6c061f441af' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Dyess AFB');
 UPDATE orders SET new_duty_location_id='bdfc04d6-f5b3-4bb5-a8e6-e6c061f441af' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Dyess AFB');
@@ -3614,7 +3610,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Dyess AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('a931b048-fe4e-406c-b036-75c20a8eead3', 'Dyess AFB', 'bdfc04d6-f5b3-4bb5-a8e6-e6c061f441af', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('307cbd55-87cd-495e-b24f-258d7cb45829', 'Dyess AFB', 'bdfc04d6-f5b3-4bb5-a8e6-e6c061f441af', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='3b8472c3-1201-4b8c-821e-0065b8fcdd89' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Edwards AFB');
 UPDATE orders SET new_duty_location_id='3b8472c3-1201-4b8c-821e-0065b8fcdd89' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Edwards AFB');
@@ -3627,7 +3623,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Edwards AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('1e081113-466c-4122-a2c2-ba903b6d66c7', 'Edwards AFB', '3b8472c3-1201-4b8c-821e-0065b8fcdd89', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('0263facc-ba91-4767-9d31-a2a00e3f135f', 'Edwards AFB', '3b8472c3-1201-4b8c-821e-0065b8fcdd89', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='63e4c238-e0d3-40ac-bfc3-8440d32d0cac' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Eglin AFB');
 UPDATE orders SET new_duty_location_id='63e4c238-e0d3-40ac-bfc3-8440d32d0cac' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Eglin AFB');
@@ -3640,7 +3636,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Eglin AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('aca3c45a-09c3-45e2-83f6-b7d7095d8ac0', 'Eglin AFB', '63e4c238-e0d3-40ac-bfc3-8440d32d0cac', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('babef53d-adc6-4221-ac59-5c916ac8e82d', 'Eglin AFB', '63e4c238-e0d3-40ac-bfc3-8440d32d0cac', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='901a72e3-766b-4f87-8560-2e25b9ce413e' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Ellsworth AFB');
 UPDATE orders SET new_duty_location_id='901a72e3-766b-4f87-8560-2e25b9ce413e' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Ellsworth AFB');
@@ -3653,7 +3649,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Ellsworth AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('4c8ec021-e068-4d5a-b3be-dd20a04b2925', 'Ellsworth AFB', '901a72e3-766b-4f87-8560-2e25b9ce413e', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('a6e1334e-6484-4448-a3eb-f5136d250453', 'Ellsworth AFB', '901a72e3-766b-4f87-8560-2e25b9ce413e', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='87468748-59f1-4a79-bc0d-bbe319939dc9' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fairchild AFB');
 UPDATE orders SET new_duty_location_id='87468748-59f1-4a79-bc0d-bbe319939dc9' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fairchild AFB');
@@ -3666,7 +3662,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fairchild AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('fd972ae4-130b-4f58-9532-c12a1c92dcb5', 'Fairchild AFB', '87468748-59f1-4a79-bc0d-bbe319939dc9', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('b004a866-0b67-4a3a-9f16-90b768b04b68', 'Fairchild AFB', '87468748-59f1-4a79-bc0d-bbe319939dc9', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='520b7015-3f81-4a33-9996-032f056c684e' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'F.E. Warren AFB');
 UPDATE orders SET new_duty_location_id='520b7015-3f81-4a33-9996-032f056c684e' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'F.E. Warren AFB');
@@ -3679,7 +3675,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'F.E. Warren AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('947ea73f-8622-4a23-b162-52a0774289da', 'F.E. Warren AFB', '520b7015-3f81-4a33-9996-032f056c684e', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('04e76f34-4ccd-421a-a897-a1ba2f01d4e0', 'F.E. Warren AFB', '520b7015-3f81-4a33-9996-032f056c684e', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='e74bc2d1-1a7e-4800-b5ba-bde50996625b' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'FLC Jacksonville');
 UPDATE orders SET new_duty_location_id='e74bc2d1-1a7e-4800-b5ba-bde50996625b' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'FLC Jacksonville');
@@ -3692,7 +3688,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'FLC Jacksonville';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('ddf702c5-b283-4c49-9f8d-e6bb6fffdd16', 'FLC Jacksonville', 'e74bc2d1-1a7e-4800-b5ba-bde50996625b', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('c5c24381-0e9c-46e6-ac32-647d0da466fc', 'FLC Jacksonville', 'e74bc2d1-1a7e-4800-b5ba-bde50996625b', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='e2d6897c-4c18-43da-a693-ecc2d996d8e7' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort Belvoir');
 UPDATE orders SET new_duty_location_id='e2d6897c-4c18-43da-a693-ecc2d996d8e7' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort Belvoir');
@@ -3705,7 +3701,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort Belvoir';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('c9ee2cd0-c419-4f4e-9d7e-65651550189d', 'Fort Belvoir', 'e2d6897c-4c18-43da-a693-ecc2d996d8e7', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('b39d2cea-aa5f-435f-b744-450efe48ed17', 'Fort Belvoir', 'e2d6897c-4c18-43da-a693-ecc2d996d8e7', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='6139b78d-e3d8-4048-b70b-4d1221065d44' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort Bliss');
 UPDATE orders SET new_duty_location_id='6139b78d-e3d8-4048-b70b-4d1221065d44' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort Bliss');
@@ -3718,7 +3714,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort Bliss';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('109cbc39-a256-4b93-8dce-60124cf898ab', 'Fort Bliss', '6139b78d-e3d8-4048-b70b-4d1221065d44', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('ca737b7a-1d9e-4d5e-b00b-2aef9746415c', 'Fort Bliss', '6139b78d-e3d8-4048-b70b-4d1221065d44', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='9bd0b8a2-e425-46f0-abc1-147dfbfabd0e' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort Campbell');
 UPDATE orders SET new_duty_location_id='9bd0b8a2-e425-46f0-abc1-147dfbfabd0e' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort Campbell');
@@ -3731,7 +3727,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort Campbell';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('aa6d63a2-bf43-4292-b10c-64a5c05b77c6', 'Fort Campbell', '9bd0b8a2-e425-46f0-abc1-147dfbfabd0e', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('abd59a4d-f913-4496-ab44-e61def4db77d', 'Fort Campbell', '9bd0b8a2-e425-46f0-abc1-147dfbfabd0e', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='2e842bbc-fcc1-4e1c-bfca-c047a5bb5dcc' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort Carson');
 UPDATE orders SET new_duty_location_id='2e842bbc-fcc1-4e1c-bfca-c047a5bb5dcc' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort Carson');
@@ -3744,7 +3740,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort Carson';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('7ed72db4-b4f9-491a-a14b-46a0d6109354', 'Fort Carson', '2e842bbc-fcc1-4e1c-bfca-c047a5bb5dcc', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('c2266b04-1086-489d-9e67-e4790523d6d8', 'Fort Carson', '2e842bbc-fcc1-4e1c-bfca-c047a5bb5dcc', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='b9cbf33a-115a-41df-9dfa-b64e945d8b8b' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort Cavazos');
 UPDATE orders SET new_duty_location_id='b9cbf33a-115a-41df-9dfa-b64e945d8b8b' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort Cavazos');
@@ -3757,7 +3753,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort Cavazos';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('204d7fba-2647-4bab-b84e-5ec2e5a9fbb9', 'Fort Cavazos', 'b9cbf33a-115a-41df-9dfa-b64e945d8b8b', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('d3907e50-f7bc-4813-902c-e7a0d9f4a3cf', 'Fort Cavazos', 'b9cbf33a-115a-41df-9dfa-b64e945d8b8b', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='d928c0f7-826e-4cdc-bffe-1af43b9a6e1f' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort Detrick');
 UPDATE orders SET new_duty_location_id='d928c0f7-826e-4cdc-bffe-1af43b9a6e1f' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort Detrick');
@@ -3770,7 +3766,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort Detrick';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('781176ed-4fb5-4d4b-9d65-b240731974a5', 'Fort Detrick', 'd928c0f7-826e-4cdc-bffe-1af43b9a6e1f', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('51e96a47-2ef0-470f-8592-0727841ecb3a', 'Fort Detrick', 'd928c0f7-826e-4cdc-bffe-1af43b9a6e1f', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='21bc819e-dcc3-45f6-83f2-6678323750bf' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort Drum');
 UPDATE orders SET new_duty_location_id='21bc819e-dcc3-45f6-83f2-6678323750bf' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort Drum');
@@ -3783,7 +3779,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort Drum';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('84560cb0-dd99-47a9-ac6c-6a1e83f0a027', 'Fort Drum', '21bc819e-dcc3-45f6-83f2-6678323750bf', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('ddf3d0d5-b882-42f4-8ddf-2e0d18f5a097', 'Fort Drum', '21bc819e-dcc3-45f6-83f2-6678323750bf', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='62e795f4-61a8-4cca-b59d-028345c07b89' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort Eisenhower');
 UPDATE orders SET new_duty_location_id='62e795f4-61a8-4cca-b59d-028345c07b89' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort Eisenhower');
@@ -3796,7 +3792,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort Eisenhower';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('384605c3-e058-43a2-900a-d4f0940cd1b8', 'Fort Eisenhower', '62e795f4-61a8-4cca-b59d-028345c07b89', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('2c032550-ead8-43e6-b89f-579a8248ecff', 'Fort Eisenhower', '62e795f4-61a8-4cca-b59d-028345c07b89', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='9cf15b8d-985b-4ca3-9f27-4ba32a263908' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort Gregg-Adams');
 UPDATE orders SET new_duty_location_id='9cf15b8d-985b-4ca3-9f27-4ba32a263908' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort Gregg-Adams');
@@ -3809,7 +3805,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort Gregg-Adams';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('68ef3715-1a3f-4f5a-afa9-ea4506143680', 'Fort Gregg-Adams', '9cf15b8d-985b-4ca3-9f27-4ba32a263908', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('c51c038b-e927-4f38-b6ea-dce5985f6056', 'Fort Gregg-Adams', '9cf15b8d-985b-4ca3-9f27-4ba32a263908', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='c5860474-7688-4a79-8b3f-00d893962e0a' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort Hamilton');
 UPDATE orders SET new_duty_location_id='c5860474-7688-4a79-8b3f-00d893962e0a' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort Hamilton');
@@ -3822,7 +3818,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort Hamilton';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('446e67b5-f722-4b05-b4a9-0814d9279d9f', 'Fort Hamilton', 'c5860474-7688-4a79-8b3f-00d893962e0a', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('566c9b60-5492-44a7-88d0-97729458e421', 'Fort Hamilton', 'c5860474-7688-4a79-8b3f-00d893962e0a', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='f906fc27-82b5-48b8-893a-d2b91ee7be6e' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort Huachuca');
 UPDATE orders SET new_duty_location_id='f906fc27-82b5-48b8-893a-d2b91ee7be6e' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort Huachuca');
@@ -3835,7 +3831,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort Huachuca';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('d6c905b3-aba8-4dbc-8802-b5684fa25e2b', 'Fort Huachuca', 'f906fc27-82b5-48b8-893a-d2b91ee7be6e', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('3a87b7b9-d11c-496a-ae98-3ab89310af4f', 'Fort Huachuca', 'f906fc27-82b5-48b8-893a-d2b91ee7be6e', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='12421bcb-2ded-4165-b0ac-05f76301082a' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort Irwin');
 UPDATE orders SET new_duty_location_id='12421bcb-2ded-4165-b0ac-05f76301082a' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort Irwin');
@@ -3848,7 +3844,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort Irwin';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('b3171c18-ee8e-4e4f-8596-cc1cb4029dc2', 'Fort Irwin', '12421bcb-2ded-4165-b0ac-05f76301082a', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('e2d1624e-a6f4-43fe-a82b-21f925101197', 'Fort Irwin', '12421bcb-2ded-4165-b0ac-05f76301082a', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='bf0d30ed-0bec-4353-9d46-576a3d198c56' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort Jackson');
 UPDATE orders SET new_duty_location_id='bf0d30ed-0bec-4353-9d46-576a3d198c56' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort Jackson');
@@ -3861,7 +3857,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort Jackson';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('2ad55b19-2369-4630-9061-8db1dca39d7c', 'Fort Jackson', 'bf0d30ed-0bec-4353-9d46-576a3d198c56', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('14fc4dd3-b5de-4750-950b-1f114963f758', 'Fort Jackson', 'bf0d30ed-0bec-4353-9d46-576a3d198c56', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='436d4efc-6f0c-409a-b940-bfaae3e3cf7b' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort Johnson');
 UPDATE orders SET new_duty_location_id='436d4efc-6f0c-409a-b940-bfaae3e3cf7b' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort Johnson');
@@ -3874,7 +3870,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort Johnson';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('5c73a19b-544c-425d-8530-7a8e71b2c666', 'Fort Johnson', '436d4efc-6f0c-409a-b940-bfaae3e3cf7b', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('32ec21b7-28fa-4ec4-9c2a-fa7bbe431fb5', 'Fort Johnson', '436d4efc-6f0c-409a-b940-bfaae3e3cf7b', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='866ac8f6-94f5-4fa0-b7d1-be7fcf9d51e9' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort Knox');
 UPDATE orders SET new_duty_location_id='866ac8f6-94f5-4fa0-b7d1-be7fcf9d51e9' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort Knox');
@@ -3887,7 +3883,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort Knox';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('df832dcf-8078-46bd-9cce-d981e7a6a09e', 'Fort Knox', '866ac8f6-94f5-4fa0-b7d1-be7fcf9d51e9', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('7e9a4ce4-78a2-4429-945b-2435a22f2b1f', 'Fort Knox', '866ac8f6-94f5-4fa0-b7d1-be7fcf9d51e9', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='594460fe-c448-4b28-a113-4380ed036aa5' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort Leavenworth');
 UPDATE orders SET new_duty_location_id='594460fe-c448-4b28-a113-4380ed036aa5' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort Leavenworth');
@@ -3900,7 +3896,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort Leavenworth';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('5084e4b2-bc8c-4b30-bf95-c0d140761828', 'Fort Leavenworth', '594460fe-c448-4b28-a113-4380ed036aa5', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('a32b2f5b-863c-4bab-b9f0-c9977a3a07be', 'Fort Leavenworth', '594460fe-c448-4b28-a113-4380ed036aa5', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='93dd00c0-c6f0-474d-97bb-7b63cc18d573' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort Leonard Wood');
 UPDATE orders SET new_duty_location_id='93dd00c0-c6f0-474d-97bb-7b63cc18d573' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort Leonard Wood');
@@ -3913,7 +3909,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort Leonard Wood';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('602e8dec-cf1f-4a30-af33-3e7ddcb95447', 'Fort Leonard Wood', '93dd00c0-c6f0-474d-97bb-7b63cc18d573', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('bb4eb0fe-db97-4c54-a680-74f657538eb2', 'Fort Leonard Wood', '93dd00c0-c6f0-474d-97bb-7b63cc18d573', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='febd063e-89c6-4dd1-af3e-3a5a658de030' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort Liberty');
 UPDATE orders SET new_duty_location_id='febd063e-89c6-4dd1-af3e-3a5a658de030' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort Liberty');
@@ -3926,7 +3922,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort Liberty';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('b2db3fe0-0e74-4a2f-9fd3-522f60f16697', 'Fort Liberty', 'febd063e-89c6-4dd1-af3e-3a5a658de030', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('d9a203aa-4e08-4d82-9307-d2f2c7a232de', 'Fort Liberty', 'febd063e-89c6-4dd1-af3e-3a5a658de030', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='d34d1eb3-42cf-4909-87e6-b96bbb1af69e' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort McCoy');
 UPDATE orders SET new_duty_location_id='d34d1eb3-42cf-4909-87e6-b96bbb1af69e' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort McCoy');
@@ -3939,7 +3935,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort McCoy';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('66c593de-4a25-441a-8351-441bf61466b3', 'Fort McCoy', 'd34d1eb3-42cf-4909-87e6-b96bbb1af69e', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('a5be68f3-bc48-4e85-be1c-c8f744efda26', 'Fort McCoy', 'd34d1eb3-42cf-4909-87e6-b96bbb1af69e', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='22142c08-e65e-4dac-937d-50a21e56160f' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort Novosel');
 UPDATE orders SET new_duty_location_id='22142c08-e65e-4dac-937d-50a21e56160f' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort Novosel');
@@ -3952,7 +3948,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort Novosel';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('d8e5f753-e886-4f9d-a66b-5e2a34b112fe', 'Fort Novosel', '22142c08-e65e-4dac-937d-50a21e56160f', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('c762440f-2a7d-4c3b-9c92-ee230d45afe9', 'Fort Novosel', '22142c08-e65e-4dac-937d-50a21e56160f', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='9e5552eb-76b1-4b96-9046-603f54210cb2' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort Riley');
 UPDATE orders SET new_duty_location_id='9e5552eb-76b1-4b96-9046-603f54210cb2' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort Riley');
@@ -3965,7 +3961,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort Riley';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('33995f3a-3d2e-4e29-82fd-939bc954b10c', 'Fort Riley', '9e5552eb-76b1-4b96-9046-603f54210cb2', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('2685d3fa-a946-42d9-aa08-02a1ad7348a9', 'Fort Riley', '9e5552eb-76b1-4b96-9046-603f54210cb2', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='5c182566-0e6e-46f2-9eef-f07963783575' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort Sill');
 UPDATE orders SET new_duty_location_id='5c182566-0e6e-46f2-9eef-f07963783575' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort Sill');
@@ -3978,7 +3974,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort Sill';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('5920696b-8f00-4454-b297-45a39dea9d01', 'Fort Sill', '5c182566-0e6e-46f2-9eef-f07963783575', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('83f9b4f5-4ae0-485d-a613-104e992397a0', 'Fort Sill', '5c182566-0e6e-46f2-9eef-f07963783575', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='c5511ab1-eb60-4a2f-9b31-4290aa39e39f' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Fort Stewart');
 UPDATE orders SET new_duty_location_id='c5511ab1-eb60-4a2f-9b31-4290aa39e39f' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Fort Stewart');
@@ -3991,7 +3987,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Fort Stewart';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('a2e6c4cd-f3e3-418b-b440-da1d1e344b9c', 'Fort Stewart', 'c5511ab1-eb60-4a2f-9b31-4290aa39e39f', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('17d55a58-7aee-4052-abf3-d0d119d91038', 'Fort Stewart', 'c5511ab1-eb60-4a2f-9b31-4290aa39e39f', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='98895555-c34a-43cd-bd38-6bdfaea6f561' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Goodfellow AFB');
 UPDATE orders SET new_duty_location_id='98895555-c34a-43cd-bd38-6bdfaea6f561' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Goodfellow AFB');
@@ -4004,7 +4000,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Goodfellow AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('a1ada6d4-c58e-402b-b344-88a4e6abe1b6', 'Goodfellow AFB', '98895555-c34a-43cd-bd38-6bdfaea6f561', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('f246232d-8624-4a70-9968-a3f338023698', 'Goodfellow AFB', '98895555-c34a-43cd-bd38-6bdfaea6f561', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='29ec6578-232a-4c9a-95bc-d9f3b38794d8' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Grand Forks AFB');
 UPDATE orders SET new_duty_location_id='29ec6578-232a-4c9a-95bc-d9f3b38794d8' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Grand Forks AFB');
@@ -4017,7 +4013,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Grand Forks AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('5e09744d-b123-4d50-b898-a0e447249cdc', 'Grand Forks AFB', '29ec6578-232a-4c9a-95bc-d9f3b38794d8', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('6e6ee58c-fca0-4bb2-88f9-434e003e6231', 'Grand Forks AFB', '29ec6578-232a-4c9a-95bc-d9f3b38794d8', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='a119e2b3-3617-4c8f-85aa-55d204da100a' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Hanscom AFB');
 UPDATE orders SET new_duty_location_id='a119e2b3-3617-4c8f-85aa-55d204da100a' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Hanscom AFB');
@@ -4030,7 +4026,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Hanscom AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('a972811d-be7a-44ae-9971-44480a4a0510', 'Hanscom AFB', 'a119e2b3-3617-4c8f-85aa-55d204da100a', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('1f3de3b4-ab90-4379-88dc-93196cccc8ca', 'Hanscom AFB', 'a119e2b3-3617-4c8f-85aa-55d204da100a', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='2b3d99bc-d3f5-45dc-86a5-353b91763b38' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Hill AFB');
 UPDATE orders SET new_duty_location_id='2b3d99bc-d3f5-45dc-86a5-353b91763b38' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Hill AFB');
@@ -4043,7 +4039,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Hill AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('37a46224-d0aa-41a4-81c7-ebdfed3df010', 'Hill AFB', '2b3d99bc-d3f5-45dc-86a5-353b91763b38', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('e9eb2122-5be4-4b0d-bec6-690e96102144', 'Hill AFB', '2b3d99bc-d3f5-45dc-86a5-353b91763b38', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='c33550d7-d862-4fe1-a81c-db1b31b777df' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Holloman AFB');
 UPDATE orders SET new_duty_location_id='c33550d7-d862-4fe1-a81c-db1b31b777df' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Holloman AFB');
@@ -4056,7 +4052,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Holloman AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('22583b58-5c83-46b3-814c-a813a43e863b', 'Holloman AFB', 'c33550d7-d862-4fe1-a81c-db1b31b777df', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('04d3ef5e-78d5-40d8-bc60-124775189602', 'Holloman AFB', 'c33550d7-d862-4fe1-a81c-db1b31b777df', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='46543dc6-971d-4dde-9c88-3a425c502f29' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Hurlburt Field');
 UPDATE orders SET new_duty_location_id='46543dc6-971d-4dde-9c88-3a425c502f29' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Hurlburt Field');
@@ -4069,7 +4065,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Hurlburt Field';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('e841f7fd-f91f-42d9-97ee-9d0e41214e4c', 'Hurlburt Field', '46543dc6-971d-4dde-9c88-3a425c502f29', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('ff04e822-0e87-4b7d-a4b2-ea226e5e2a8d', 'Hurlburt Field', '46543dc6-971d-4dde-9c88-3a425c502f29', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='bd08785d-18cb-4ab1-a5b9-998c6df77e7c' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'JB Andrews');
 UPDATE orders SET new_duty_location_id='bd08785d-18cb-4ab1-a5b9-998c6df77e7c' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'JB Andrews');
@@ -4082,7 +4078,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'JB Andrews';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('b7c79256-b83d-431a-9e39-fff189ae9f05', 'JB Andrews', 'bd08785d-18cb-4ab1-a5b9-998c6df77e7c', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('b1b867fe-59df-4931-8559-8a18db01f0de', 'JB Andrews', 'bd08785d-18cb-4ab1-a5b9-998c6df77e7c', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='fb2dce13-08f9-46e0-b584-699e0a39368d' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'JBSA Fort Sam Houston');
 UPDATE orders SET new_duty_location_id='fb2dce13-08f9-46e0-b584-699e0a39368d' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'JBSA Fort Sam Houston');
@@ -4095,7 +4091,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'JBSA Fort Sam Houston';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('25828c4a-9647-4105-8322-4c47e7bcdf1e', 'JBSA Fort Sam Houston', 'fb2dce13-08f9-46e0-b584-699e0a39368d', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('d8e16ab1-0e56-4991-8d38-579a3fe204a6', 'JBSA Fort Sam Houston', 'fb2dce13-08f9-46e0-b584-699e0a39368d', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='65858be9-a697-43e2-ab37-a7e31d272de5' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'JBSA Lackland');
 UPDATE orders SET new_duty_location_id='65858be9-a697-43e2-ab37-a7e31d272de5' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'JBSA Lackland');
@@ -4108,7 +4104,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'JBSA Lackland';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('66175a6d-ac38-4763-8f8e-8039e6e0a62a', 'JBSA Lackland', '65858be9-a697-43e2-ab37-a7e31d272de5', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('f245b668-309c-4944-86b6-07b81d2f15ca', 'JBSA Lackland', '65858be9-a697-43e2-ab37-a7e31d272de5', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='b37df3e7-64af-4e85-b573-d30fa49c486f' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'JBSA Randolph');
 UPDATE orders SET new_duty_location_id='b37df3e7-64af-4e85-b573-d30fa49c486f' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'JBSA Randolph');
@@ -4121,7 +4117,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'JBSA Randolph';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('94be6cae-f966-4db1-8681-fbfde4dc0e87', 'JBSA Randolph', 'b37df3e7-64af-4e85-b573-d30fa49c486f', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('e0cd92e8-8a3d-4c88-b090-13ef6baffd9f', 'JBSA Randolph', 'b37df3e7-64af-4e85-b573-d30fa49c486f', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='c6c49c5c-db92-4e61-9af7-9fbf0a5505a8' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Keesler AFB');
 UPDATE orders SET new_duty_location_id='c6c49c5c-db92-4e61-9af7-9fbf0a5505a8' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Keesler AFB');
@@ -4134,7 +4130,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Keesler AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('7d4e5c4f-9dca-421f-981e-05fa1d9e9cec', 'Keesler AFB', 'c6c49c5c-db92-4e61-9af7-9fbf0a5505a8', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('bba7ce21-131c-4029-a752-eabdf63a477a', 'Keesler AFB', 'c6c49c5c-db92-4e61-9af7-9fbf0a5505a8', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='80f5cc2d-bda8-432c-943a-7f22edc464db' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Kirtland AFB');
 UPDATE orders SET new_duty_location_id='80f5cc2d-bda8-432c-943a-7f22edc464db' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Kirtland AFB');
@@ -4147,7 +4143,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Kirtland AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('182a3c5c-2278-460f-a712-3c0ccedb475e', 'Kirtland AFB', '80f5cc2d-bda8-432c-943a-7f22edc464db', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('d725b5c1-d5ee-4426-869a-22bffe44cd7d', 'Kirtland AFB', '80f5cc2d-bda8-432c-943a-7f22edc464db', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='b418b663-16ca-4346-8572-b9dcb7528d09' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Laughlin AFB');
 UPDATE orders SET new_duty_location_id='b418b663-16ca-4346-8572-b9dcb7528d09' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Laughlin AFB');
@@ -4160,7 +4156,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Laughlin AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('98455ab9-7f3d-4502-81b4-af1308753b88', 'Laughlin AFB', 'b418b663-16ca-4346-8572-b9dcb7528d09', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('95002f3a-c754-46fc-9794-b290c796e8aa', 'Laughlin AFB', 'b418b663-16ca-4346-8572-b9dcb7528d09', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='704d60a6-8ba6-497e-b271-ef5dffd3f7f9' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Little Rock AFB');
 UPDATE orders SET new_duty_location_id='704d60a6-8ba6-497e-b271-ef5dffd3f7f9' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Little Rock AFB');
@@ -4173,7 +4169,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Little Rock AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('edff3af2-dc60-411a-b7d5-ba433b9ab4f5', 'Little Rock AFB', '704d60a6-8ba6-497e-b271-ef5dffd3f7f9', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('ef873284-e256-4d11-bce2-239a211b9dbf', 'Little Rock AFB', '704d60a6-8ba6-497e-b271-ef5dffd3f7f9', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='450ce4e6-7ee7-4e24-aa15-d2fefa6cd7d8' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Luke AFB');
 UPDATE orders SET new_duty_location_id='450ce4e6-7ee7-4e24-aa15-d2fefa6cd7d8' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Luke AFB');
@@ -4186,7 +4182,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Luke AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('21791b9c-332f-452b-8387-2a03d5013e90', 'Luke AFB', '450ce4e6-7ee7-4e24-aa15-d2fefa6cd7d8', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('ff8c440c-2566-4a72-be7d-5d3154e13960', 'Luke AFB', '450ce4e6-7ee7-4e24-aa15-d2fefa6cd7d8', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='ce4c53a0-1ab7-4aed-8832-c7e701c1096b' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Malmstrom AFB');
 UPDATE orders SET new_duty_location_id='ce4c53a0-1ab7-4aed-8832-c7e701c1096b' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Malmstrom AFB');
@@ -4199,7 +4195,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Malmstrom AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('f2a3d327-cb2d-4adf-878b-0ff785697e65', 'Malmstrom AFB', 'ce4c53a0-1ab7-4aed-8832-c7e701c1096b', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('c214b934-3804-466d-80c5-84d909836e36', 'Malmstrom AFB', 'ce4c53a0-1ab7-4aed-8832-c7e701c1096b', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='381a7342-9c35-4f55-a613-a413049fa6d7' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Maxwell AFB');
 UPDATE orders SET new_duty_location_id='381a7342-9c35-4f55-a613-a413049fa6d7' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Maxwell AFB');
@@ -4212,7 +4208,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Maxwell AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('cad53988-0b3b-4c49-bdc0-0af729b5dcce', 'Maxwell AFB', '381a7342-9c35-4f55-a613-a413049fa6d7', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('355eb962-7e03-4cac-815c-2aa8dfb21663', 'Maxwell AFB', '381a7342-9c35-4f55-a613-a413049fa6d7', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='e017cd1a-a2b1-4e64-b887-e6e06e2d3f6c' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'McAlester Army Ammunition Plant');
 UPDATE orders SET new_duty_location_id='e017cd1a-a2b1-4e64-b887-e6e06e2d3f6c' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'McAlester Army Ammunition Plant');
@@ -4225,7 +4221,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'McAlester Army Ammunition Plant';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('a4ea5735-1d61-4803-8b82-392ee81d0d2f', 'McAlester Army Ammunition Plant', 'e017cd1a-a2b1-4e64-b887-e6e06e2d3f6c', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('47559bc5-f9ce-4fbe-ac2c-8910691e41f3', 'McAlester Army Ammunition Plant', 'e017cd1a-a2b1-4e64-b887-e6e06e2d3f6c', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='4226d1ff-3b57-4434-9b3b-33b5c026f54f' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'MCAS Beaufort');
 UPDATE orders SET new_duty_location_id='4226d1ff-3b57-4434-9b3b-33b5c026f54f' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'MCAS Beaufort');
@@ -4238,7 +4234,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'MCAS Beaufort';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('c41a1951-d29e-473b-a982-cc2a6fb42640', 'MCAS Beaufort', '4226d1ff-3b57-4434-9b3b-33b5c026f54f', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('5bf9301a-882f-4a52-b17f-766cb5b7a533', 'MCAS Beaufort', '4226d1ff-3b57-4434-9b3b-33b5c026f54f', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='8c64d965-b8c1-43f5-9394-57fe46c2d2d9' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'MCAS Cherry Point');
 UPDATE orders SET new_duty_location_id='8c64d965-b8c1-43f5-9394-57fe46c2d2d9' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'MCAS Cherry Point');
@@ -4251,7 +4247,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'MCAS Cherry Point';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('39aef400-7c1e-4dc2-bdb8-6df5e0a9f29d', 'MCAS Cherry Point', '8c64d965-b8c1-43f5-9394-57fe46c2d2d9', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('27092220-4e66-444d-87e7-f38b0d60ee0d', 'MCAS Cherry Point', '8c64d965-b8c1-43f5-9394-57fe46c2d2d9', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='0efa7d10-feb9-42a9-9b74-9fb2f2a11fb7' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'MCB Quantico');
 UPDATE orders SET new_duty_location_id='0efa7d10-feb9-42a9-9b74-9fb2f2a11fb7' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'MCB Quantico');
@@ -4264,7 +4260,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'MCB Quantico';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('d4e5da64-03eb-4966-923a-dd0627fffb11', 'MCB Quantico', '0efa7d10-feb9-42a9-9b74-9fb2f2a11fb7', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('0749cd57-8411-4762-adb4-930de391bf46', 'MCB Quantico', '0efa7d10-feb9-42a9-9b74-9fb2f2a11fb7', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='f070428c-d441-4d68-936d-93412f8129ec' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'MCLB Albany');
 UPDATE orders SET new_duty_location_id='f070428c-d441-4d68-936d-93412f8129ec' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'MCLB Albany');
@@ -4277,7 +4273,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'MCLB Albany';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('bf08c29e-be7f-4adc-8bf3-7cd0f208f1d8', 'MCLB Albany', 'f070428c-d441-4d68-936d-93412f8129ec', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('2c1cd47b-3fb8-49d5-a7e5-b5d9ad565695', 'MCLB Albany', 'f070428c-d441-4d68-936d-93412f8129ec', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='74651905-dd53-49f9-a196-6c3e9b43c734' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'MCMWTC Bridgeport');
 UPDATE orders SET new_duty_location_id='74651905-dd53-49f9-a196-6c3e9b43c734' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'MCMWTC Bridgeport');
@@ -4290,7 +4286,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'MCMWTC Bridgeport';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('822500aa-60c0-4ff1-99c5-402e51030eb8', 'MCMWTC Bridgeport', '74651905-dd53-49f9-a196-6c3e9b43c734', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('43ffd15d-ef0c-49ae-941d-4fd23b83907f', 'MCMWTC Bridgeport', '74651905-dd53-49f9-a196-6c3e9b43c734', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='3a40137a-c61d-4cf2-a5eb-ec156fce9fdc' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'MCRD San Diego');
 UPDATE orders SET new_duty_location_id='3a40137a-c61d-4cf2-a5eb-ec156fce9fdc' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'MCRD San Diego');
@@ -4303,7 +4299,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'MCRD San Diego';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('77f77b9b-a7cd-4d32-92cd-104ab6ac0bc8', 'MCRD San Diego', '3a40137a-c61d-4cf2-a5eb-ec156fce9fdc', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('dad2281c-217d-4df2-8a41-0e791d9d5a79', 'MCRD San Diego', '3a40137a-c61d-4cf2-a5eb-ec156fce9fdc', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='0099d803-2c4c-4a65-a491-8eb34fcf851f' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Minot AFB');
 UPDATE orders SET new_duty_location_id='0099d803-2c4c-4a65-a491-8eb34fcf851f' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Minot AFB');
@@ -4316,7 +4312,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Minot AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('6935b077-57c3-4e30-b281-84f5e2ff91c1', 'Minot AFB', '0099d803-2c4c-4a65-a491-8eb34fcf851f', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('a742a10d-61f5-4d78-820f-ba3c9c979332', 'Minot AFB', '0099d803-2c4c-4a65-a491-8eb34fcf851f', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='9fa52891-b51b-42f6-a8ea-9be5591146e5' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Moffett Federal Airfield');
 UPDATE orders SET new_duty_location_id='9fa52891-b51b-42f6-a8ea-9be5591146e5' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Moffett Federal Airfield');
@@ -4329,7 +4325,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Moffett Federal Airfield';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('fcc38bd1-52b4-4025-bc85-3b47c42b3183', 'Moffett Federal Airfield', '9fa52891-b51b-42f6-a8ea-9be5591146e5', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('2d252584-cb79-44ba-b9b7-cae73b48672a', 'Moffett Federal Airfield', '9fa52891-b51b-42f6-a8ea-9be5591146e5', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='f8ff1612-4ba5-4a72-947a-e732bfd08b2d' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Moody AFB');
 UPDATE orders SET new_duty_location_id='f8ff1612-4ba5-4a72-947a-e732bfd08b2d' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Moody AFB');
@@ -4342,7 +4338,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Moody AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('1025e1a3-63f0-4ae5-b13c-4808be301df3', 'Moody AFB', 'f8ff1612-4ba5-4a72-947a-e732bfd08b2d', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('3d14f020-4cc0-43a6-96a5-2b8d95c23e01', 'Moody AFB', 'f8ff1612-4ba5-4a72-947a-e732bfd08b2d', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='a80852d0-4d53-4c99-86eb-f98ce55e2326' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Mountain Home AFB');
 UPDATE orders SET new_duty_location_id='a80852d0-4d53-4c99-86eb-f98ce55e2326' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Mountain Home AFB');
@@ -4355,7 +4351,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Mountain Home AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('54238f49-758e-4fa5-8665-096b609c769e', 'Mountain Home AFB', 'a80852d0-4d53-4c99-86eb-f98ce55e2326', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('babd4d24-2205-4226-ad5b-e7d855db965e', 'Mountain Home AFB', 'a80852d0-4d53-4c99-86eb-f98ce55e2326', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='e0bd6585-c828-4533-b3d0-f6a5b278269f' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NAS Corpus Christi');
 UPDATE orders SET new_duty_location_id='e0bd6585-c828-4533-b3d0-f6a5b278269f' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NAS Corpus Christi');
@@ -4368,7 +4364,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NAS Corpus Christi';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('b8c81b24-e313-4e76-9448-492753b604cb', 'NAS Corpus Christi', 'e0bd6585-c828-4533-b3d0-f6a5b278269f', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('ea25d139-4a87-4433-8db2-8443dc50e49b', 'NAS Corpus Christi', 'e0bd6585-c828-4533-b3d0-f6a5b278269f', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='e1934d66-96b5-439c-b092-07ec27f9e67c' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NAS Fallon');
 UPDATE orders SET new_duty_location_id='e1934d66-96b5-439c-b092-07ec27f9e67c' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NAS Fallon');
@@ -4381,7 +4377,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NAS Fallon';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('a010c4fc-2daa-462b-97d5-29289758522f', 'NAS Fallon', 'e1934d66-96b5-439c-b092-07ec27f9e67c', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('98783e58-cb36-4e10-ba46-642eb47d6284', 'NAS Fallon', 'e1934d66-96b5-439c-b092-07ec27f9e67c', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='4836b832-7329-4900-a4cf-d279e8426b41' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NAS Fort Worth');
 UPDATE orders SET new_duty_location_id='4836b832-7329-4900-a4cf-d279e8426b41' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NAS Fort Worth');
@@ -4394,7 +4390,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NAS Fort Worth';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('1bd31812-ffd2-4644-9c81-0278c7b7a374', 'NAS Fort Worth', '4836b832-7329-4900-a4cf-d279e8426b41', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('a7247282-6474-4621-8030-ac0974a89dc4', 'NAS Fort Worth', '4836b832-7329-4900-a4cf-d279e8426b41', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='4a7dc605-833a-47ea-904d-f751a8be1aec' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NAS JRB New Orleans');
 UPDATE orders SET new_duty_location_id='4a7dc605-833a-47ea-904d-f751a8be1aec' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NAS JRB New Orleans');
@@ -4407,7 +4403,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NAS JRB New Orleans';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('8027076b-dddc-401b-89bf-35061fba9d4e', 'NAS JRB New Orleans', '4a7dc605-833a-47ea-904d-f751a8be1aec', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('61da56f0-8107-4663-ac55-b9b76ea33116', 'NAS JRB New Orleans', '4a7dc605-833a-47ea-904d-f751a8be1aec', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='b06c1089-ab9a-49b3-a6fc-1bd077743db4' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NAS Key West');
 UPDATE orders SET new_duty_location_id='b06c1089-ab9a-49b3-a6fc-1bd077743db4' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NAS Key West');
@@ -4420,7 +4416,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NAS Key West';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('3926343a-14e2-4a6e-bf3d-ba84a4af7ebd', 'NAS Key West', 'b06c1089-ab9a-49b3-a6fc-1bd077743db4', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('a16932f3-da83-4ddc-84f4-e7397f641e2d', 'NAS Key West', 'b06c1089-ab9a-49b3-a6fc-1bd077743db4', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='3e60ffbe-a87a-431f-a0d8-0e400a7df0a1' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NAS Lemoore');
 UPDATE orders SET new_duty_location_id='3e60ffbe-a87a-431f-a0d8-0e400a7df0a1' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NAS Lemoore');
@@ -4433,7 +4429,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NAS Lemoore';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('24a326fd-534a-4631-8758-6df0807c7c2d', 'NAS Lemoore', '3e60ffbe-a87a-431f-a0d8-0e400a7df0a1', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('418f49d0-3dad-4936-903e-25c3b5f1c2aa', 'NAS Lemoore', '3e60ffbe-a87a-431f-a0d8-0e400a7df0a1', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='334fecaf-abeb-49ce-99b5-81d69c8beae5' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NAS Meridian');
 UPDATE orders SET new_duty_location_id='334fecaf-abeb-49ce-99b5-81d69c8beae5' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NAS Meridian');
@@ -4446,7 +4442,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NAS Meridian';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('f6261e5e-8bb3-4f2c-a74b-7d07995a0d69', 'NAS Meridian', '334fecaf-abeb-49ce-99b5-81d69c8beae5', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('f8074a60-2793-43b1-976e-4771f3f9dd29', 'NAS Meridian', '334fecaf-abeb-49ce-99b5-81d69c8beae5', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='52e3db3b-7900-4620-ab89-808bb0b3de0d' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NAS Patuxent River');
 UPDATE orders SET new_duty_location_id='52e3db3b-7900-4620-ab89-808bb0b3de0d' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NAS Patuxent River');
@@ -4459,7 +4455,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NAS Patuxent River';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('a37a4f1d-30d4-4c61-a447-73fd8c481415', 'NAS Patuxent River', '52e3db3b-7900-4620-ab89-808bb0b3de0d', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('8541917a-4344-489c-8a5f-f4b88e182595', 'NAS Patuxent River', '52e3db3b-7900-4620-ab89-808bb0b3de0d', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='d2c9b1d7-6c81-466c-969e-de8036146587' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NAS Pensacola');
 UPDATE orders SET new_duty_location_id='d2c9b1d7-6c81-466c-969e-de8036146587' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NAS Pensacola');
@@ -4472,7 +4468,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NAS Pensacola';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('9321e2aa-c8de-48b2-987d-748444a33f7c', 'NAS Pensacola', 'd2c9b1d7-6c81-466c-969e-de8036146587', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('669b35a8-9b8d-4978-8507-1a8795ee6eb6', 'NAS Pensacola', 'd2c9b1d7-6c81-466c-969e-de8036146587', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='dac0aebc-87a4-475d-92f1-cddcfef7c607' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NAS Whidbey Island');
 UPDATE orders SET new_duty_location_id='dac0aebc-87a4-475d-92f1-cddcfef7c607' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NAS Whidbey Island');
@@ -4485,7 +4481,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NAS Whidbey Island';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('0087c765-47d8-4d96-af7a-232324710c3d', 'NAS Whidbey Island', 'dac0aebc-87a4-475d-92f1-cddcfef7c607', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('2dc70013-1ffc-45e3-8d33-1660ca13d983', 'NAS Whidbey Island', 'dac0aebc-87a4-475d-92f1-cddcfef7c607', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='1bb0676c-7e09-40d2-be10-74a3f0ab00b3' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Naval Surface Warfare Center - Corona');
 UPDATE orders SET new_duty_location_id='1bb0676c-7e09-40d2-be10-74a3f0ab00b3' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Naval Surface Warfare Center - Corona');
@@ -4498,7 +4494,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Naval Surface Warfare Center - Corona';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('7eaff35e-4432-4648-a5b7-327affb55fa3', 'Naval Surface Warfare Center - Corona', '1bb0676c-7e09-40d2-be10-74a3f0ab00b3', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('9318d5de-e746-4ff9-a3bb-41778cc8187d', 'Naval Surface Warfare Center - Corona', '1bb0676c-7e09-40d2-be10-74a3f0ab00b3', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='90c7f3d5-6f69-4be6-bd09-3f46703f9501' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Naval Training Center Great Lakes');
 UPDATE orders SET new_duty_location_id='90c7f3d5-6f69-4be6-bd09-3f46703f9501' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Naval Training Center Great Lakes');
@@ -4511,7 +4507,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Naval Training Center Great Lakes';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('f9ca6976-37f8-476c-9178-20f5145f1cb0', 'Naval Training Center Great Lakes', '90c7f3d5-6f69-4be6-bd09-3f46703f9501', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('14447049-bc2c-43a7-b49c-d743397c3936', 'Naval Training Center Great Lakes', '90c7f3d5-6f69-4be6-bd09-3f46703f9501', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='880654b0-ac66-42d9-83a7-ce9a3f3281d5' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NAVSTA Everett');
 UPDATE orders SET new_duty_location_id='880654b0-ac66-42d9-83a7-ce9a3f3281d5' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NAVSTA Everett');
@@ -4524,7 +4520,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NAVSTA Everett';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('5b76eef3-d106-4ef7-ac6c-3effdb2ecfa1', 'NAVSTA Everett', '880654b0-ac66-42d9-83a7-ce9a3f3281d5', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('7ea42fd8-4df7-471d-a258-46bdc25dd9de', 'NAVSTA Everett', '880654b0-ac66-42d9-83a7-ce9a3f3281d5', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='924af89b-a0cd-4556-93ce-692e6d90a914' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NAVSTA Newport');
 UPDATE orders SET new_duty_location_id='924af89b-a0cd-4556-93ce-692e6d90a914' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NAVSTA Newport');
@@ -4537,7 +4533,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NAVSTA Newport';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('6cc8adf5-9a6c-4ae5-aca9-36f2a27cac88', 'NAVSTA Newport', '924af89b-a0cd-4556-93ce-692e6d90a914', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('38343836-07e0-43ac-a5a5-19bbdd24a856', 'NAVSTA Newport', '924af89b-a0cd-4556-93ce-692e6d90a914', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='fde869af-0bb9-4b60-90c1-0a47c1d64659' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NAVSUP FLC Puget Sound');
 UPDATE orders SET new_duty_location_id='fde869af-0bb9-4b60-90c1-0a47c1d64659' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NAVSUP FLC Puget Sound');
@@ -4550,7 +4546,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NAVSUP FLC Puget Sound';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('334ccedb-7449-4b9a-bb76-b46878edb5dc', 'NAVSUP FLC Puget Sound', 'fde869af-0bb9-4b60-90c1-0a47c1d64659', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('199719c4-f0c8-4a45-8a17-af4d2864b5fe', 'NAVSUP FLC Puget Sound', 'fde869af-0bb9-4b60-90c1-0a47c1d64659', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='1909123e-5914-43d4-8cb5-d03121e45750' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NAVSUP FLC San Diego');
 UPDATE orders SET new_duty_location_id='1909123e-5914-43d4-8cb5-d03121e45750' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NAVSUP FLC San Diego');
@@ -4563,7 +4559,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NAVSUP FLC San Diego';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('8b1c6bb4-4319-4d9a-8a46-38e1409c1e13', 'NAVSUP FLC San Diego', '1909123e-5914-43d4-8cb5-d03121e45750', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('fbeb618d-c17d-4063-879f-34b288419561', 'NAVSUP FLC San Diego', '1909123e-5914-43d4-8cb5-d03121e45750', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='ebe1ffcd-8c90-416a-9a41-1f669bce8f53' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NAVSUP FLC Seal Beach');
 UPDATE orders SET new_duty_location_id='ebe1ffcd-8c90-416a-9a41-1f669bce8f53' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NAVSUP FLC Seal Beach');
@@ -4576,7 +4572,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NAVSUP FLC Seal Beach';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('63bb56af-3647-4de8-9f60-72ff789abff4', 'NAVSUP FLC Seal Beach', 'ebe1ffcd-8c90-416a-9a41-1f669bce8f53', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('60721dd9-f5ca-4ab4-b996-dd73e771cf93', 'NAVSUP FLC Seal Beach', 'ebe1ffcd-8c90-416a-9a41-1f669bce8f53', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='e68eab7b-dc78-4ad0-a248-449d7f0c955a' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NAWS China Lake');
 UPDATE orders SET new_duty_location_id='e68eab7b-dc78-4ad0-a248-449d7f0c955a' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NAWS China Lake');
@@ -4589,7 +4585,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NAWS China Lake';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('4814848f-a19b-41b7-8012-9d1756c5916f', 'NAWS China Lake', 'e68eab7b-dc78-4ad0-a248-449d7f0c955a', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('c38444fd-5135-4d2b-b0c4-0269c742e07e', 'NAWS China Lake', 'e68eab7b-dc78-4ad0-a248-449d7f0c955a', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='679f98d2-ac51-41d9-8a05-05dd74f9d1c9' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NCBC Gulfport');
 UPDATE orders SET new_duty_location_id='679f98d2-ac51-41d9-8a05-05dd74f9d1c9' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NCBC Gulfport');
@@ -4602,7 +4598,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NCBC Gulfport';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('0dd7eb28-3a1b-43e4-bec4-0b13cf0e6bdf', 'NCBC Gulfport', '679f98d2-ac51-41d9-8a05-05dd74f9d1c9', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('aabc807f-883b-4bb2-bf08-4f06ffdc2896', 'NCBC Gulfport', '679f98d2-ac51-41d9-8a05-05dd74f9d1c9', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='1f2d8b4f-5421-4b2f-824a-af5242828bb1' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Nellis AFB');
 UPDATE orders SET new_duty_location_id='1f2d8b4f-5421-4b2f-824a-af5242828bb1' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Nellis AFB');
@@ -4615,7 +4611,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Nellis AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('4ef9811f-c2d3-4553-a224-be251921d6fe', 'Nellis AFB', '1f2d8b4f-5421-4b2f-824a-af5242828bb1', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('49444968-89fc-4970-971e-c58f5eedf3b6', 'Nellis AFB', '1f2d8b4f-5421-4b2f-824a-af5242828bb1', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='2f5528e9-2cc3-4924-a376-6d02b038f234' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NSA Bethesda');
 UPDATE orders SET new_duty_location_id='2f5528e9-2cc3-4924-a376-6d02b038f234' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NSA Bethesda');
@@ -4628,7 +4624,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NSA Bethesda';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('2e48c2c0-d30e-45ea-bf42-13280cf88f23', 'NSA Bethesda', '2f5528e9-2cc3-4924-a376-6d02b038f234', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('826a42c5-6945-4150-a64e-4d9702819585', 'NSA Bethesda', '2f5528e9-2cc3-4924-a376-6d02b038f234', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='d464e3aa-4163-4a9a-93e8-ea6f5761980f' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NSA Mid-South Millington');
 UPDATE orders SET new_duty_location_id='d464e3aa-4163-4a9a-93e8-ea6f5761980f' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NSA Mid-South Millington');
@@ -4641,7 +4637,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NSA Mid-South Millington';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('00209d22-5d95-41c7-bdb3-af0767bbddcc', 'NSA Mid-South Millington', 'd464e3aa-4163-4a9a-93e8-ea6f5761980f', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('f8cffae1-be10-4a2a-a057-9455832a9e83', 'NSA Mid-South Millington', 'd464e3aa-4163-4a9a-93e8-ea6f5761980f', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='0e5cf581-d4a4-466b-91a4-0a860ad44d19' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NSA Saratoga Springs');
 UPDATE orders SET new_duty_location_id='0e5cf581-d4a4-466b-91a4-0a860ad44d19' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NSA Saratoga Springs');
@@ -4654,7 +4650,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NSA Saratoga Springs';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('d1187fde-d16a-4920-a23c-77abac1c1bd7', 'NSA Saratoga Springs', '0e5cf581-d4a4-466b-91a4-0a860ad44d19', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('8394f430-4424-440c-b4cc-93a830e7e48d', 'NSA Saratoga Springs', '0e5cf581-d4a4-466b-91a4-0a860ad44d19', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='023b1791-c436-4773-997d-5bdaab6e0c70' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NS Norfolk');
 UPDATE orders SET new_duty_location_id='023b1791-c436-4773-997d-5bdaab6e0c70' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NS Norfolk');
@@ -4667,7 +4663,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NS Norfolk';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('8a122ae1-be7b-4b81-8d4d-c6c6ac8ed5c3', 'NS Norfolk', '023b1791-c436-4773-997d-5bdaab6e0c70', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('f929ac08-fd83-46ef-84c2-f7c992acd60c', 'NS Norfolk', '023b1791-c436-4773-997d-5bdaab6e0c70', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='4c4ffadd-1ff1-421e-a3a0-8bc83d35d564' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Offutt AFB');
 UPDATE orders SET new_duty_location_id='4c4ffadd-1ff1-421e-a3a0-8bc83d35d564' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Offutt AFB');
@@ -4680,7 +4676,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Offutt AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('b00b4607-a1a0-49cf-a9bf-7a8613622ae1', 'Offutt AFB', '4c4ffadd-1ff1-421e-a3a0-8bc83d35d564', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('e0dd2cdf-6f11-4f34-ac3a-7f2bcb2a41bb', 'Offutt AFB', '4c4ffadd-1ff1-421e-a3a0-8bc83d35d564', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='9d982756-f462-4772-b941-aa8b5beb0cab' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Redstone Arsenal');
 UPDATE orders SET new_duty_location_id='9d982756-f462-4772-b941-aa8b5beb0cab' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Redstone Arsenal');
@@ -4693,7 +4689,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Redstone Arsenal';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('bb65b745-bd3a-4518-b4f7-92e05a1ef935', 'Redstone Arsenal', '9d982756-f462-4772-b941-aa8b5beb0cab', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('f72de459-726d-44a1-9f26-54c034572def', 'Redstone Arsenal', '9d982756-f462-4772-b941-aa8b5beb0cab', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='0ed8ed35-730c-4c5b-8364-518a93fc10e9' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Robins AFB');
 UPDATE orders SET new_duty_location_id='0ed8ed35-730c-4c5b-8364-518a93fc10e9' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Robins AFB');
@@ -4706,7 +4702,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Robins AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('f2fcd5d1-d4aa-4f18-baf3-2fef98999d67', 'Robins AFB', '0ed8ed35-730c-4c5b-8364-518a93fc10e9', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('9a302f9f-06af-4f21-8560-513c612ece55', 'Robins AFB', '0ed8ed35-730c-4c5b-8364-518a93fc10e9', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='3d947e08-8d29-4a8a-bce6-5e95e069d718' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Rock Island Arsenal');
 UPDATE orders SET new_duty_location_id='3d947e08-8d29-4a8a-bce6-5e95e069d718' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Rock Island Arsenal');
@@ -4719,7 +4715,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Rock Island Arsenal';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('816fac97-e17a-4acb-b93a-ff0e7a724541', 'Rock Island Arsenal', '3d947e08-8d29-4a8a-bce6-5e95e069d718', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('6af4796e-27f8-439b-828e-4adbb5efe674', 'Rock Island Arsenal', '3d947e08-8d29-4a8a-bce6-5e95e069d718', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='ee5ea675-6575-4afe-b6fc-634662b2c359' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Schriever SFB');
 UPDATE orders SET new_duty_location_id='ee5ea675-6575-4afe-b6fc-634662b2c359' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Schriever SFB');
@@ -4732,7 +4728,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Schriever SFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('9131f5f8-d04c-4da7-bcd3-ac6c2a7fce77', 'Schriever SFB', 'ee5ea675-6575-4afe-b6fc-634662b2c359', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('100ec318-0141-4247-a0e7-ca9bad3709b0', 'Schriever SFB', 'ee5ea675-6575-4afe-b6fc-634662b2c359', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='d0543628-5c5f-44c1-bf05-2ae4c098daf8' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Scott AFB');
 UPDATE orders SET new_duty_location_id='d0543628-5c5f-44c1-bf05-2ae4c098daf8' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Scott AFB');
@@ -4745,7 +4741,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Scott AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('e02e157c-cc74-49a4-ab4f-a7559d4db315', 'Scott AFB', 'd0543628-5c5f-44c1-bf05-2ae4c098daf8', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('25d1b2b5-9ec7-4405-9a46-818c6ef72a51', 'Scott AFB', 'd0543628-5c5f-44c1-bf05-2ae4c098daf8', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='59eb25a5-1246-4ecb-9fa9-b47f78583967' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Seymour Johnson AFB');
 UPDATE orders SET new_duty_location_id='59eb25a5-1246-4ecb-9fa9-b47f78583967' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Seymour Johnson AFB');
@@ -4758,7 +4754,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Seymour Johnson AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('0231df72-65c4-445a-b7f5-950b5d24f8c1', 'Seymour Johnson AFB', '59eb25a5-1246-4ecb-9fa9-b47f78583967', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('06a400c7-9a94-4f81-a98d-da4eaa262557', 'Seymour Johnson AFB', '59eb25a5-1246-4ecb-9fa9-b47f78583967', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='be1039f0-1cca-433e-8614-c59429e78133' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Shaw AFB');
 UPDATE orders SET new_duty_location_id='be1039f0-1cca-433e-8614-c59429e78133' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Shaw AFB');
@@ -4771,7 +4767,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Shaw AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('a5c900c7-7cb8-44dd-b498-5e37a2cc5be6', 'Shaw AFB', 'be1039f0-1cca-433e-8614-c59429e78133', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('a0039a8a-24b8-4e17-b741-23030be01765', 'Shaw AFB', 'be1039f0-1cca-433e-8614-c59429e78133', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='fed7f918-d1cf-402d-b1e4-10ae37666a35' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Sheppard AFB');
 UPDATE orders SET new_duty_location_id='fed7f918-d1cf-402d-b1e4-10ae37666a35' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Sheppard AFB');
@@ -4784,7 +4780,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Sheppard AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('4f6e5dcb-cfd6-4d65-9c6e-ce16b9d28b89', 'Sheppard AFB', 'fed7f918-d1cf-402d-b1e4-10ae37666a35', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('ad2e78eb-4e12-4dbe-9faf-8fc6fc17070f', 'Sheppard AFB', 'fed7f918-d1cf-402d-b1e4-10ae37666a35', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='2d6eab7d-1a21-4f29-933e-ee8fa7dbc314' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Tinker AFB');
 UPDATE orders SET new_duty_location_id='2d6eab7d-1a21-4f29-933e-ee8fa7dbc314' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Tinker AFB');
@@ -4797,7 +4793,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Tinker AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('bdbef1c0-1615-45e3-af0d-b780938796bf', 'Tinker AFB', '2d6eab7d-1a21-4f29-933e-ee8fa7dbc314', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('320a27d1-5728-4557-a5e7-3047842b0056', 'Tinker AFB', '2d6eab7d-1a21-4f29-933e-ee8fa7dbc314', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='0343163e-25d9-4725-a9d6-34e51f41fc5f' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Tobyhanna Army Depot');
 UPDATE orders SET new_duty_location_id='0343163e-25d9-4725-a9d6-34e51f41fc5f' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Tobyhanna Army Depot');
@@ -4810,7 +4806,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Tobyhanna Army Depot';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('4cb3eadc-68dd-46fd-97d7-149ee1e35ae1', 'Tobyhanna Army Depot', '0343163e-25d9-4725-a9d6-34e51f41fc5f', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('77a06d66-9dca-4835-a0da-dc3786dc2a71', 'Tobyhanna Army Depot', '0343163e-25d9-4725-a9d6-34e51f41fc5f', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='de36ae41-80fe-4247-b19b-baf73f3a2fd7' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Tooele Army Depot');
 UPDATE orders SET new_duty_location_id='de36ae41-80fe-4247-b19b-baf73f3a2fd7' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Tooele Army Depot');
@@ -4823,7 +4819,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Tooele Army Depot';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('01fab392-e3e4-4013-8374-b8873359b99e', 'Tooele Army Depot', 'de36ae41-80fe-4247-b19b-baf73f3a2fd7', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('7d61dc2e-6e73-40d4-a13d-494f18ac8d6f', 'Tooele Army Depot', 'de36ae41-80fe-4247-b19b-baf73f3a2fd7', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='a20770f5-e149-42d2-88a5-22b2976b50a0' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Travis AFB');
 UPDATE orders SET new_duty_location_id='a20770f5-e149-42d2-88a5-22b2976b50a0' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Travis AFB');
@@ -4836,7 +4832,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Travis AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('c1b15938-5c53-45a7-9c88-ebf57936abb7', 'Travis AFB', 'a20770f5-e149-42d2-88a5-22b2976b50a0', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('bcf301cd-6144-497d-a874-073c905df3e8', 'Travis AFB', 'a20770f5-e149-42d2-88a5-22b2976b50a0', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='eeef4aa1-64ae-42b1-991e-3ff51884f129' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Twentynine Palms');
 UPDATE orders SET new_duty_location_id='eeef4aa1-64ae-42b1-991e-3ff51884f129' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Twentynine Palms');
@@ -4849,7 +4845,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Twentynine Palms';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('66b3d396-d9e1-4f82-aa54-9207f44ea875', 'Twentynine Palms', 'eeef4aa1-64ae-42b1-991e-3ff51884f129', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('5fa4802e-32ce-453c-b21c-9d05f6a44832', 'Twentynine Palms', 'eeef4aa1-64ae-42b1-991e-3ff51884f129', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='15397ba5-9f54-4468-98c2-fccee3b46dd2' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Tyndall AFB');
 UPDATE orders SET new_duty_location_id='15397ba5-9f54-4468-98c2-fccee3b46dd2' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Tyndall AFB');
@@ -4862,7 +4858,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Tyndall AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('67800fc2-2ced-4d6d-a17b-9c72442dc3c7', 'Tyndall AFB', '15397ba5-9f54-4468-98c2-fccee3b46dd2', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('a57acada-cff2-450c-b689-bf1b185bcb74', 'Tyndall AFB', '15397ba5-9f54-4468-98c2-fccee3b46dd2', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='979e65e0-ef55-4fd8-8c12-256d5f8408a4' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'USAF Academy');
 UPDATE orders SET new_duty_location_id='979e65e0-ef55-4fd8-8c12-256d5f8408a4' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'USAF Academy');
@@ -4875,7 +4871,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'USAF Academy';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('e1378d05-e4fd-4d59-96a8-10353f7ec784', 'USAF Academy', '979e65e0-ef55-4fd8-8c12-256d5f8408a4', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('0255f38a-f672-486a-a048-5d4a539ec327', 'USAF Academy', '979e65e0-ef55-4fd8-8c12-256d5f8408a4', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='144b7208-c6da-46f0-ba97-a291e8164b27' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'USCG Base Alameda');
 UPDATE orders SET new_duty_location_id='144b7208-c6da-46f0-ba97-a291e8164b27' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'USCG Base Alameda');
@@ -4888,7 +4884,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'USCG Base Alameda';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('b6cca6ab-560d-46f6-93e9-0166dc527ff6', 'USCG Base Alameda', '144b7208-c6da-46f0-ba97-a291e8164b27', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('dce5b1e3-d3e8-4c9d-8f74-3f22cc53fbca', 'USCG Base Alameda', '144b7208-c6da-46f0-ba97-a291e8164b27', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='fe22d023-426a-4ecb-a36d-681545672636' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'USCG Base Boston');
 UPDATE orders SET new_duty_location_id='fe22d023-426a-4ecb-a36d-681545672636' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'USCG Base Boston');
@@ -4901,7 +4897,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'USCG Base Boston';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('f8e2aa73-36d7-4290-9109-e09d7ab6dcd1', 'USCG Base Boston', 'fe22d023-426a-4ecb-a36d-681545672636', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('891421a0-6922-4030-996d-0000d021a2b9', 'USCG Base Boston', 'fe22d023-426a-4ecb-a36d-681545672636', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='5e133fcd-ac0b-4a7d-aa06-aaee06870509' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'USCG Base Charleston');
 UPDATE orders SET new_duty_location_id='5e133fcd-ac0b-4a7d-aa06-aaee06870509' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'USCG Base Charleston');
@@ -4914,7 +4910,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'USCG Base Charleston';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('12fd1c95-7b17-4afb-8e2e-fea350209a9f', 'USCG Base Charleston', '5e133fcd-ac0b-4a7d-aa06-aaee06870509', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('94804b36-99c3-4c52-8851-cb6d44259893', 'USCG Base Charleston', '5e133fcd-ac0b-4a7d-aa06-aaee06870509', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='10e775c0-407a-4fc1-810d-ae8465a779e6' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'USCG Base Elizabeth City');
 UPDATE orders SET new_duty_location_id='10e775c0-407a-4fc1-810d-ae8465a779e6' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'USCG Base Elizabeth City');
@@ -4927,7 +4923,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'USCG Base Elizabeth City';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('129a74a4-c721-4f2d-92f0-bff3dfec854f', 'USCG Base Elizabeth City', '10e775c0-407a-4fc1-810d-ae8465a779e6', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('2d3d4d82-41f5-49fe-8a71-8e7dd82e2175', 'USCG Base Elizabeth City', '10e775c0-407a-4fc1-810d-ae8465a779e6', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='5d52de22-cdf5-4553-811f-05c38faf831f' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'USCG Base Los Angeles/Long Beach');
 UPDATE orders SET new_duty_location_id='5d52de22-cdf5-4553-811f-05c38faf831f' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'USCG Base Los Angeles/Long Beach');
@@ -4940,7 +4936,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'USCG Base Los Angeles/Long Beach';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('905c9f96-976a-4908-93d4-2f49a1c52ebc', 'USCG Base Los Angeles/Long Beach', '5d52de22-cdf5-4553-811f-05c38faf831f', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('8623d8dc-cebd-4453-8c9c-1aea96b94b5e', 'USCG Base Los Angeles/Long Beach', '5d52de22-cdf5-4553-811f-05c38faf831f', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='f27a5640-8cad-4e60-b8ba-f14407eb5c10' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'USCG Base Miami Beach');
 UPDATE orders SET new_duty_location_id='f27a5640-8cad-4e60-b8ba-f14407eb5c10' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'USCG Base Miami Beach');
@@ -4953,7 +4949,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'USCG Base Miami Beach';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('5db2f29a-4181-4d6e-ab0a-9b2a46f0caea', 'USCG Base Miami Beach', 'f27a5640-8cad-4e60-b8ba-f14407eb5c10', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('67c31740-500c-4edf-b4d6-b884e94c9da5', 'USCG Base Miami Beach', 'f27a5640-8cad-4e60-b8ba-f14407eb5c10', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='c7469fff-8c8b-45b6-8018-a816f37d3b72' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'USCG Base Portsmouth');
 UPDATE orders SET new_duty_location_id='c7469fff-8c8b-45b6-8018-a816f37d3b72' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'USCG Base Portsmouth');
@@ -4966,7 +4962,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'USCG Base Portsmouth';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('e1a248d7-a860-418d-8bb8-00ce5081618f', 'USCG Base Portsmouth', 'c7469fff-8c8b-45b6-8018-a816f37d3b72', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('42cca275-54eb-4468-9957-08061ee4fd17', 'USCG Base Portsmouth', 'c7469fff-8c8b-45b6-8018-a816f37d3b72', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='05d2e90c-6b59-4302-b314-4a8805aa7a73' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'USCG Base Saint Louis');
 UPDATE orders SET new_duty_location_id='05d2e90c-6b59-4302-b314-4a8805aa7a73' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'USCG Base Saint Louis');
@@ -4979,7 +4975,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'USCG Base Saint Louis';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('5bcffe29-5e14-4a13-8dc5-e6b5123a7559', 'USCG Base Saint Louis', '05d2e90c-6b59-4302-b314-4a8805aa7a73', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('3952bfa5-bea5-4089-9854-3af80664b8b7', 'USCG Base Saint Louis', '05d2e90c-6b59-4302-b314-4a8805aa7a73', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='1bc85d60-8ca2-4e82-9f67-bc64942532b6' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'USCG Base Seattle');
 UPDATE orders SET new_duty_location_id='1bc85d60-8ca2-4e82-9f67-bc64942532b6' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'USCG Base Seattle');
@@ -4992,7 +4988,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'USCG Base Seattle';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('dd41a9f5-23a7-45c5-840a-79bd3d148c8f', 'USCG Base Seattle', '1bc85d60-8ca2-4e82-9f67-bc64942532b6', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('44393889-c225-46a8-8391-1cc5f9ade422', 'USCG Base Seattle', '1bc85d60-8ca2-4e82-9f67-bc64942532b6', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='68aa6b57-2ea2-4ff6-a4a7-7347aa2fb5fb' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'USCG Sector Humboldt Bay');
 UPDATE orders SET new_duty_location_id='68aa6b57-2ea2-4ff6-a4a7-7347aa2fb5fb' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'USCG Sector Humboldt Bay');
@@ -5005,7 +5001,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'USCG Sector Humboldt Bay';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('3a63f7ae-b374-433d-804b-5fba33956c97', 'USCG Sector Humboldt Bay', '68aa6b57-2ea2-4ff6-a4a7-7347aa2fb5fb', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('8a392529-3ed5-45e5-afb3-24fcf3082600', 'USCG Sector Humboldt Bay', '68aa6b57-2ea2-4ff6-a4a7-7347aa2fb5fb', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='8f79f552-de45-4be0-af10-8df5e72e89a4' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'USCG Sector Mobile');
 UPDATE orders SET new_duty_location_id='8f79f552-de45-4be0-af10-8df5e72e89a4' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'USCG Sector Mobile');
@@ -5018,7 +5014,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'USCG Sector Mobile';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('7a3a67c8-188b-4172-b1ea-638b9ccd1521', 'USCG Sector Mobile', '8f79f552-de45-4be0-af10-8df5e72e89a4', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('5600ec27-c418-4a46-a3ce-28e4582f65b2', 'USCG Sector Mobile', '8f79f552-de45-4be0-af10-8df5e72e89a4', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='c4c9b539-debf-4f26-aecf-5f2c4ee509e7' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'USCG Training Center Cape May');
 UPDATE orders SET new_duty_location_id='c4c9b539-debf-4f26-aecf-5f2c4ee509e7' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'USCG Training Center Cape May');
@@ -5031,7 +5027,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'USCG Training Center Cape May';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('a572cbe2-f7b5-43d4-b4e7-73e1e73ca994', 'USCG Training Center Cape May', 'c4c9b539-debf-4f26-aecf-5f2c4ee509e7', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('035a4eb6-3a41-4849-a43f-bb9e0966bae3', 'USCG Training Center Cape May', 'c4c9b539-debf-4f26-aecf-5f2c4ee509e7', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='f55ef88f-cee3-47e0-ba3b-29115ada24d5' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'USCG Training Center Petaluma');
 UPDATE orders SET new_duty_location_id='f55ef88f-cee3-47e0-ba3b-29115ada24d5' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'USCG Training Center Petaluma');
@@ -5044,7 +5040,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'USCG Training Center Petaluma';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('441d214f-08ff-4e85-81b2-51265e011b80', 'USCG Training Center Petaluma', 'f55ef88f-cee3-47e0-ba3b-29115ada24d5', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('0a6b7dc6-0b0f-47fe-80aa-3271203fc1f0', 'USCG Training Center Petaluma', 'f55ef88f-cee3-47e0-ba3b-29115ada24d5', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='0f5442a5-e528-448f-a8e4-77cc8a5f8a0f' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'USCG Training Center Yorktown');
 UPDATE orders SET new_duty_location_id='0f5442a5-e528-448f-a8e4-77cc8a5f8a0f' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'USCG Training Center Yorktown');
@@ -5057,7 +5053,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'USCG Training Center Yorktown';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('80ed9d12-0bdf-4eeb-91ac-5993c0879a08', 'USCG Training Center Yorktown', '0f5442a5-e528-448f-a8e4-77cc8a5f8a0f', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('33378aa5-5f4b-40ed-a3e2-29174104e69f', 'USCG Training Center Yorktown', '0f5442a5-e528-448f-a8e4-77cc8a5f8a0f', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='7a39a6c0-dc6d-4215-ac87-5d534763552e' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'USMC Miramar');
 UPDATE orders SET new_duty_location_id='7a39a6c0-dc6d-4215-ac87-5d534763552e' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'USMC Miramar');
@@ -5070,7 +5066,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'USMC Miramar';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('66f4895d-3bd3-4728-8b5e-97d98902aaf4', 'USMC Miramar', '7a39a6c0-dc6d-4215-ac87-5d534763552e', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('c7d01445-639a-4890-bb55-436e5cab0433', 'USMC Miramar', '7a39a6c0-dc6d-4215-ac87-5d534763552e', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='2b896908-e329-4129-be53-48cd677aa8a0' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Vance AFB');
 UPDATE orders SET new_duty_location_id='2b896908-e329-4129-be53-48cd677aa8a0' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Vance AFB');
@@ -5083,7 +5079,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Vance AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('d17a99e9-4348-4049-b0d9-a0e0aa954609', 'Vance AFB', '2b896908-e329-4129-be53-48cd677aa8a0', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('1ea9d9e4-5cf4-4631-b102-2e37c7768a04', 'Vance AFB', '2b896908-e329-4129-be53-48cd677aa8a0', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='2fc79f95-705a-47ee-87d3-0f604e662bd7' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Washington Navy Yard');
 UPDATE orders SET new_duty_location_id='2fc79f95-705a-47ee-87d3-0f604e662bd7' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Washington Navy Yard');
@@ -5096,7 +5092,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Washington Navy Yard';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('a632875a-2450-4325-846f-3d0985e0a535', 'Washington Navy Yard', '2fc79f95-705a-47ee-87d3-0f604e662bd7', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('dd47917f-fd7f-4c46-9a28-da4c479e0f9b', 'Washington Navy Yard', '2fc79f95-705a-47ee-87d3-0f604e662bd7', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='9ae746f5-b80e-4bf5-b836-5a8b4e7276c9' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'West Point');
 UPDATE orders SET new_duty_location_id='9ae746f5-b80e-4bf5-b836-5a8b4e7276c9' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'West Point');
@@ -5109,7 +5105,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'West Point';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('947bb462-97f0-4531-81ca-60b5564252ab', 'West Point', '9ae746f5-b80e-4bf5-b836-5a8b4e7276c9', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('a390b216-d015-447b-9961-a14bf3b7c11a', 'West Point', '9ae746f5-b80e-4bf5-b836-5a8b4e7276c9', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='6d615a54-9681-4ca4-8dd0-ba94cf86ce64' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Whiteman AFB');
 UPDATE orders SET new_duty_location_id='6d615a54-9681-4ca4-8dd0-ba94cf86ce64' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Whiteman AFB');
@@ -5122,7 +5118,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Whiteman AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('2a5b9357-ee4a-41b9-b879-0fbbfd4ac195', 'Whiteman AFB', '6d615a54-9681-4ca4-8dd0-ba94cf86ce64', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('6875e823-c4b6-4ed8-bf2e-bf51965d187d', 'Whiteman AFB', '6d615a54-9681-4ca4-8dd0-ba94cf86ce64', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='6f70b48a-5a63-4f6a-a7bf-fc54ab4a0ac9' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'White Sands Missile Range');
 UPDATE orders SET new_duty_location_id='6f70b48a-5a63-4f6a-a7bf-fc54ab4a0ac9' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'White Sands Missile Range');
@@ -5135,7 +5131,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'White Sands Missile Range';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('9592ed24-9d5d-4462-9413-d0f0e7e6be8a', 'White Sands Missile Range', '6f70b48a-5a63-4f6a-a7bf-fc54ab4a0ac9', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('1b3bb197-05fe-4832-9ea4-b1fd7a312e11', 'White Sands Missile Range', '6f70b48a-5a63-4f6a-a7bf-fc54ab4a0ac9', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='9f3c96ca-0c83-4481-a4e4-a29c818ed4de' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Wright-Patterson AFB');
 UPDATE orders SET new_duty_location_id='9f3c96ca-0c83-4481-a4e4-a29c818ed4de' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Wright-Patterson AFB');
@@ -5148,7 +5144,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Wright-Patterson AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('3533ba2c-3f24-444d-8509-c9bca8d5af7c', 'Wright-Patterson AFB', '9f3c96ca-0c83-4481-a4e4-a29c818ed4de', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('9f5d66c5-576b-4314-bc10-075516989256', 'Wright-Patterson AFB', '9f3c96ca-0c83-4481-a4e4-a29c818ed4de', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='ac4756be-73bc-4fb9-b9ed-b011094e4727' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Ellington Field ANGB');
 UPDATE orders SET new_duty_location_id='ac4756be-73bc-4fb9-b9ed-b011094e4727' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Ellington Field ANGB');
@@ -5161,7 +5157,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Ellington Field ANGB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('8ea225b7-f65e-4100-8b1f-ce7b180072c7', 'Ellington Field ANGB', 'ac4756be-73bc-4fb9-b9ed-b011094e4727', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('c7e135b5-8a37-43e3-bafe-d595f1758f90', 'Ellington Field ANGB', 'ac4756be-73bc-4fb9-b9ed-b011094e4727', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='772a2408-23ef-4873-b8d1-aecff3c571eb' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'JB Langley-Eustis');
 UPDATE orders SET new_duty_location_id='772a2408-23ef-4873-b8d1-aecff3c571eb' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'JB Langley-Eustis');
@@ -5174,7 +5170,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'JB Langley-Eustis';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('2f61792e-fa96-48b6-b505-f37338ce4312', 'JB Langley-Eustis', '772a2408-23ef-4873-b8d1-aecff3c571eb', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('2e1c731c-5390-47db-83ce-751555230657', 'JB Langley-Eustis', '772a2408-23ef-4873-b8d1-aecff3c571eb', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='a702b3e5-b12b-47ce-bb79-870fff5a3699' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'JB McGuire-Dix-Lakehurst');
 UPDATE orders SET new_duty_location_id='a702b3e5-b12b-47ce-bb79-870fff5a3699' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'JB McGuire-Dix-Lakehurst');
@@ -5187,7 +5183,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'JB McGuire-Dix-Lakehurst';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('a6925509-35e9-4a40-8d30-44dcf79c2398', 'JB McGuire-Dix-Lakehurst', 'a702b3e5-b12b-47ce-bb79-870fff5a3699', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('56829052-23fd-4e13-ab26-5ca3cec462c5', 'JB McGuire-Dix-Lakehurst', 'a702b3e5-b12b-47ce-bb79-870fff5a3699', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='6d0e4437-e506-4e22-bf5b-1045ab43009f' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'JB Myer-Henderson Hall');
 UPDATE orders SET new_duty_location_id='6d0e4437-e506-4e22-bf5b-1045ab43009f' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'JB Myer-Henderson Hall');
@@ -5200,7 +5196,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'JB Myer-Henderson Hall';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('f3c367f0-fb47-4932-8e27-7f27d1416ebd', 'JB Myer-Henderson Hall', '6d0e4437-e506-4e22-bf5b-1045ab43009f', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('4424314f-c8e6-48a0-84e5-1dc99eb1b62a', 'JB Myer-Henderson Hall', '6d0e4437-e506-4e22-bf5b-1045ab43009f', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='e1f8cbd8-ed1f-49b5-978f-98944a4b2552' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Los Angeles AFB');
 UPDATE orders SET new_duty_location_id='e1f8cbd8-ed1f-49b5-978f-98944a4b2552' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Los Angeles AFB');
@@ -5213,7 +5209,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Los Angeles AFB';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('52aba875-20f9-4ace-abdd-4f5d2f0a4a77', 'Los Angeles AFB', 'e1f8cbd8-ed1f-49b5-978f-98944a4b2552', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('a9232c4e-cae2-4b42-8167-457aa3187f36', 'Los Angeles AFB', 'e1f8cbd8-ed1f-49b5-978f-98944a4b2552', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='d86d7760-9aba-41de-875a-85f577007c79' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'MEPS');
 UPDATE orders SET new_duty_location_id='d86d7760-9aba-41de-875a-85f577007c79' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'MEPS');
@@ -5226,7 +5222,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'MEPS';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('e3983793-3bec-49ed-862e-d2e39567fe67', 'MEPS', 'd86d7760-9aba-41de-875a-85f577007c79', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('c9f1ef00-c8b4-4db4-8172-aac3a8ad2a61', 'MEPS', 'd86d7760-9aba-41de-875a-85f577007c79', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='df9efc27-35bc-4262-a073-70e8910461ea' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Naval Postgraduate School');
 UPDATE orders SET new_duty_location_id='df9efc27-35bc-4262-a073-70e8910461ea' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Naval Postgraduate School');
@@ -5239,7 +5235,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Naval Postgraduate School';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('a1b26c2f-ca05-484f-8815-0f6fbd5ac76b', 'Naval Postgraduate School', 'df9efc27-35bc-4262-a073-70e8910461ea', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('1c6eccb4-f96e-46a1-b8fb-3170e6e8e314', 'Naval Postgraduate School', 'df9efc27-35bc-4262-a073-70e8910461ea', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='c92e7b3d-25fb-42ae-aa6f-857fa2662c31' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NB Ventura County');
 UPDATE orders SET new_duty_location_id='c92e7b3d-25fb-42ae-aa6f-857fa2662c31' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NB Ventura County');
@@ -5252,7 +5248,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NB Ventura County';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('c96f38e1-0447-4ff0-a862-268e8bcd5117', 'NB Ventura County', 'c92e7b3d-25fb-42ae-aa6f-857fa2662c31', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('bf18b3fc-54c9-48d3-884e-8d8e4cef7e19', 'NB Ventura County', 'c92e7b3d-25fb-42ae-aa6f-857fa2662c31', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='3c95c3e4-4b6c-40f9-8abc-213454e612b7' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NSA Panama City');
 UPDATE orders SET new_duty_location_id='3c95c3e4-4b6c-40f9-8abc-213454e612b7' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NSA Panama City');
@@ -5265,7 +5261,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NSA Panama City';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('b18d4d2f-fe36-409e-90c5-d6ae70f68670', 'NSA Panama City', '3c95c3e4-4b6c-40f9-8abc-213454e612b7', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('51d1266b-9685-4dc2-875e-0827714c9185', 'NSA Panama City', '3c95c3e4-4b6c-40f9-8abc-213454e612b7', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='e03b3503-33b2-4f59-af5e-77233950e7e5' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'NSB New London');
 UPDATE orders SET new_duty_location_id='e03b3503-33b2-4f59-af5e-77233950e7e5' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'NSB New London');
@@ -5278,7 +5274,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'NSB New London';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('37e2667c-b69a-459d-bce3-436fee6f0a9c', 'NSB New London', 'e03b3503-33b2-4f59-af5e-77233950e7e5', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('c3897be4-461f-4f0e-9b33-bd02bcda0383', 'NSB New London', 'e03b3503-33b2-4f59-af5e-77233950e7e5', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='f25a6aee-c594-48c6-9f46-68a46ad18ba5' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Pine Bluff Arsenal');
 UPDATE orders SET new_duty_location_id='f25a6aee-c594-48c6-9f46-68a46ad18ba5' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Pine Bluff Arsenal');
@@ -5291,7 +5287,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Pine Bluff Arsenal';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('98b8ac15-1896-4513-be27-e877dcce3c26', 'Pine Bluff Arsenal', 'f25a6aee-c594-48c6-9f46-68a46ad18ba5', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('e34bce44-dbf0-41af-95d1-cea75a013bd0', 'Pine Bluff Arsenal', 'f25a6aee-c594-48c6-9f46-68a46ad18ba5', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='8a41c2a0-38f5-4df8-b720-f8560314310f' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Portsmouth Naval Shipyard');
 UPDATE orders SET new_duty_location_id='8a41c2a0-38f5-4df8-b720-f8560314310f' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Portsmouth Naval Shipyard');
@@ -5304,7 +5300,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Portsmouth Naval Shipyard';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('d74d4f52-5d77-4add-b060-0563bfae6416', 'Portsmouth Naval Shipyard', '8a41c2a0-38f5-4df8-b720-f8560314310f', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('492371ca-03ba-4b86-81e7-97cd14a30f76', 'Portsmouth Naval Shipyard', '8a41c2a0-38f5-4df8-b720-f8560314310f', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='626b2f46-1092-47d7-be03-8c2168a0384a' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'The Pentagon');
 UPDATE orders SET new_duty_location_id='626b2f46-1092-47d7-be03-8c2168a0384a' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'The Pentagon');
@@ -5317,7 +5313,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'The Pentagon';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('1a281bc8-03c2-4781-8b73-21542e17e7c0', 'The Pentagon', '626b2f46-1092-47d7-be03-8c2168a0384a', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('ab5fbf99-30aa-497f-b0fb-17d4577cbb70', 'The Pentagon', '626b2f46-1092-47d7-be03-8c2168a0384a', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='9c178d28-c6a3-4102-baaa-5945cf9ab063' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'US Army Garrison-Miami Southern Command');
 UPDATE orders SET new_duty_location_id='9c178d28-c6a3-4102-baaa-5945cf9ab063' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'US Army Garrison-Miami Southern Command');
@@ -5330,7 +5326,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'US Army Garrison-Miami Southern Command';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('9742f15c-e9e5-413a-8279-ad7c2a74d658', 'US Army Garrison-Miami Southern Command', '9c178d28-c6a3-4102-baaa-5945cf9ab063', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('6b8ae735-d65a-4ab5-a670-419226e59966', 'US Army Garrison-Miami Southern Command', '9c178d28-c6a3-4102-baaa-5945cf9ab063', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='9e372e6c-86d9-444c-b3dd-67adec47d0fb' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'USCG Base Cape Cod');
 UPDATE orders SET new_duty_location_id='9e372e6c-86d9-444c-b3dd-67adec47d0fb' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'USCG Base Cape Cod');
@@ -5343,7 +5339,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'USCG Base Cape Cod';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('1961890a-0bec-4209-8ccc-b098ea91bfbe', 'USCG Base Cape Cod', '9e372e6c-86d9-444c-b3dd-67adec47d0fb', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('bb212b74-ae03-4339-bf36-4d574643a7bc', 'USCG Base Cape Cod', '9e372e6c-86d9-444c-b3dd-67adec47d0fb', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='ff41e7c2-0f8c-4c16-9fe6-3bebed9e1e1e' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'USCG Base National Capital Region');
 UPDATE orders SET new_duty_location_id='ff41e7c2-0f8c-4c16-9fe6-3bebed9e1e1e' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'USCG Base National Capital Region');
@@ -5356,7 +5352,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'USCG Base National Capital Region';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('5e215d69-c2c9-48cf-a5e8-ea031a673617', 'USCG Base National Capital Region', 'ff41e7c2-0f8c-4c16-9fe6-3bebed9e1e1e', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('bc6f7944-c134-420f-9440-0810e62ed5f4', 'USCG Base National Capital Region', 'ff41e7c2-0f8c-4c16-9fe6-3bebed9e1e1e', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='09a6084a-ff6c-42cf-9468-5dc1624e8dd0' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'USCG Sector New York');
 UPDATE orders SET new_duty_location_id='09a6084a-ff6c-42cf-9468-5dc1624e8dd0' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'USCG Sector New York');
@@ -5369,7 +5365,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'USCG Sector New York';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('b2e14b80-87d1-465a-a703-3a5c7aa1ec24', 'USCG Sector New York', '09a6084a-ff6c-42cf-9468-5dc1624e8dd0', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('0e0d80f4-adb8-4757-8598-afb4a2c53e11', 'USCG Sector New York', '09a6084a-ff6c-42cf-9468-5dc1624e8dd0', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='390ef713-8b82-4bc3-ba86-46225454cde1' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'US Naval Academy');
 UPDATE orders SET new_duty_location_id='390ef713-8b82-4bc3-ba86-46225454cde1' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'US Naval Academy');
@@ -5382,7 +5378,7 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'US Naval Academy';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('65f76aed-9162-4474-be13-bf83a5683788', 'US Naval Academy', '390ef713-8b82-4bc3-ba86-46225454cde1', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('2fc7a067-8c69-490b-a634-3d6b6ccbc0b4', 'US Naval Academy', '390ef713-8b82-4bc3-ba86-46225454cde1', now(), now());
 -- MERGE
 UPDATE orders SET origin_duty_location_id='892a8b54-2a79-4609-9c3c-5bc2c9658a7f' WHERE origin_duty_location_id=(SELECT id from duty_locations where name = 'Yuma Proving Ground');
 UPDATE orders SET new_duty_location_id='892a8b54-2a79-4609-9c3c-5bc2c9658a7f' WHERE new_duty_location_id=(SELECT id from duty_locations where name = 'Yuma Proving Ground');
@@ -5395,4 +5391,4 @@ DELETE FROM duty_locations WHERE id=(SELECT id from duty_locations where name = 
 -- Delete old duty_location_names
 DELETE FROM duty_location_names where name = 'Yuma Proving Ground';
 -- Insert new duty_location_names
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('f07da232-3c7c-4314-a141-9e5e5e864cd2', 'Yuma Proving Ground', '892a8b54-2a79-4609-9c3c-5bc2c9658a7f', now(), now());
+INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at) VALUES('7bbe8444-39bf-4588-9e6c-e4ea1ecf8814', 'Yuma Proving Ground', '892a8b54-2a79-4609-9c3c-5bc2c9658a7f', now(), now());
