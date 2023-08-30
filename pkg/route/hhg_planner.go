@@ -3,6 +3,8 @@ package route
 import (
 	"fmt"
 
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -64,9 +66,15 @@ func (p *hhgPlanner) ZipTransitDistance(appCtx appcontext.AppContext, source str
 	}
 
 	// Get reZip3s for origin and destination to compare base point cities.
-	// Dont worry about errors, if we dont find them, we'll just use randMcNallyZip3Distance
-	sourceReZip3, _ := models.FetchReZip3Item(appCtx.DB(), sourceZip3)
-	destinationReZip3, _ := models.FetchReZip3Item(appCtx.DB(), destZip3)
+	// Dont throw/return errors from this. If we dont find them, we'll just use randMcNallyZip3Distance
+	sourceReZip3, sErr := models.FetchReZip3Item(appCtx.DB(), sourceZip3)
+	if sErr != nil {
+		appCtx.Logger().Error("Failed to fetch the reZip3 item for sourceZip3", zap.Error(sErr))
+	}
+	destinationReZip3, dErr := models.FetchReZip3Item(appCtx.DB(), destZip3)
+	if dErr != nil {
+		appCtx.Logger().Error("Failed to fetch the reZip3 item for destinationZip3", zap.Error(dErr))
+	}
 
 	// Different zip3, same base point city, use DTOD
 	if sourceReZip3 != nil && destinationReZip3 != nil && sourceReZip3.BasePointCity == destinationReZip3.BasePointCity {
