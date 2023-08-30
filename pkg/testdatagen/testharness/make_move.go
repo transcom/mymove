@@ -760,6 +760,124 @@ func MakePrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext) mod
 	return *newmove
 }
 
+func MakePrimeSimulatorMoveSameBasePointCity(appCtx appcontext.AppContext) models.Move {
+	now := time.Now()
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Status:               models.MoveStatusAPPROVED,
+				AvailableToPrimeAt:   &now,
+				ApprovalsRequestedAt: &now,
+				SubmittedAt:          &now,
+			},
+		},
+	}, nil)
+	factory.BuildMTOServiceItemBasic(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeMS,
+			},
+		},
+	}, nil)
+
+	requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+	pickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				ID:             uuid.Must(uuid.NewV4()),
+				StreetAddress1: "1 First St",
+				StreetAddress2: models.StringPointer("Apt 1"),
+				City:           "Miami Gardens",
+				State:          "FL",
+				PostalCode:     "33169",
+				Country:        models.StringPointer("US"),
+			},
+		},
+	}, nil)
+	destinationAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				ID:             uuid.Must(uuid.NewV4()),
+				StreetAddress1: "2 Second St",
+				StreetAddress2: models.StringPointer("Bldg 2"),
+				City:           "Key West",
+				State:          "FL",
+				PostalCode:     "33040",
+				Country:        models.StringPointer("US"),
+			},
+		},
+	}, nil)
+
+	estimatedWeight := unit.Pound(1400)
+	actualWeight := unit.Pound(2000)
+	shipmentFields := models.MTOShipment{
+		PrimeEstimatedWeight:  &estimatedWeight,
+		PrimeActualWeight:     &actualWeight,
+		Status:                models.MTOShipmentStatusApproved,
+		RequestedPickupDate:   &requestedPickupDate,
+		RequestedDeliveryDate: &requestedDeliveryDate,
+	}
+
+	firstShipment := factory.BuildMTOShipmentMinimal(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: shipmentFields,
+		},
+		{
+			Model:    pickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
+		},
+		{
+			Model:    destinationAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDLH,
+			},
+		},
+		{
+			Model:    firstShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
 // MakeHHGMoveWithNTSAndNeedsSC is similar to old shared.createUserWithLocatorAndDODID
 func MakeHHGMoveWithNTSAndNeedsSC(appCtx appcontext.AppContext) models.Move {
 
