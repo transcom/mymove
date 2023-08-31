@@ -18,7 +18,11 @@ import { formatCustomerDate } from 'utils/formatters';
 import { MockProviders, renderWithRouterProp } from 'testUtils';
 import createUpload from 'utils/test/factories/upload';
 import { createBaseWeightTicket, createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
-import { createApprovedPPMShipment, createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShipment';
+import {
+  createApprovedPPMShipment,
+  createPPMShipmentWithFinalIncentive,
+  createSubmittedPPMShipment,
+} from 'utils/test/factories/ppmShipment';
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -328,6 +332,25 @@ describe('Home component', () => {
       await userEvent.click(editButton);
 
       expect(mockNavigate).toHaveBeenCalledWith(editNTSRShipmentPath);
+    });
+  });
+
+  describe('if user has submitted PPM with signed agreement', () => {
+    const props = {
+      mtoShipments: [createSubmittedPPMShipment()],
+      orders,
+      uploadedOrderDocuments,
+    };
+
+    const mockGetSignedCertification = jest.fn();
+
+    it('gets the data for the legal agreement', () => {
+      render(
+        <MockProviders>
+          <Home {...defaultProps} {...props} getSignedCertification={mockGetSignedCertification} />
+        </MockProviders>,
+      );
+      expect(mockGetSignedCertification).toHaveBeenCalledTimes(1);
     });
   });
 
