@@ -85,6 +85,22 @@ export async function patchServiceMember(serviceMember) {
   );
 }
 
+/** OKTA PROFILE */
+// this will call the backend and patch the Okta profile
+export async function patchOktaProfile(oktaProfile) {
+  console.log('to be added to!', oktaProfile);
+  // return makeInternalRequest(
+  //   'service_members.patchServiceMember',
+  //   {
+  //     oktaId: oktaProfile.id,
+  //     patchOktaPayload: oktaProfile,
+  //   },
+  //   {
+  //     normalize: false,
+  //   },
+  // );
+}
+
 /** BACKUP CONTACTS */
 export async function createBackupContactForServiceMember(serviceMemberId, backupContact) {
   return makeInternalRequest(

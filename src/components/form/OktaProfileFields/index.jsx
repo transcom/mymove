@@ -5,21 +5,27 @@ import { Fieldset } from '@trussworks/react-uswds';
 import TextField from 'components/form/fields/TextField/TextField';
 
 export const OktaProfileFields = ({ legend, className, render }) => {
-  const usernameFieldName = 'username';
-  const emailFieldName = 'email';
-  const fNameFieldName = 'firstName';
-  const lNameFieldName = 'lastName';
-  const dodidFieldName = 'cac_edipi';
+  const usernameFieldName = 'oktaUsername';
+  const emailFieldName = 'oktaEmail';
+  const firstNameFieldName = 'oktaFirstName';
+  const lastNameFieldName = 'oktaLastName';
+  const edipiFieldName = 'oktaEdipi';
 
   return (
     <Fieldset legend={legend} className={className}>
       {render(
         <>
-          <TextField label="Okta Username" name={usernameFieldName} required />
-          <TextField label="Okta Email" name={emailFieldName} required />
-          <TextField label="First Name" name={fNameFieldName} required />
-          <TextField label="Last Name" name={lNameFieldName} required />
-          <TextField label="DoD ID Number" name={dodidFieldName} required />
+          <TextField label="Okta Username" name={usernameFieldName} id="oktaUsername" required />
+          <TextField label="Okta Email" name={emailFieldName} id="oktaEmail" required />
+          <TextField label="First Name" name={firstNameFieldName} id="oktaFirstName" required />
+          <TextField label="Last Name" name={lastNameFieldName} id="oktaLastName" required />
+          <TextField
+            label="DoD ID number | EDIPI"
+            name={edipiFieldName}
+            id="oktaEdipi"
+            maxLength="10"
+            inputMode="numeric"
+          />
         </>,
       )}
     </Fieldset>

@@ -16,17 +16,11 @@
     justify-content: space-between;
   }
 
-  .whoToContactContainer {
-    @include u-margin-top(1);
-    @include u-margin-bottom(3);
-  }
-
-  .serviceInfoSection {
+  .oktaInfoSection {
     dl {
       dt {
         @include u-width(33%);
       }
-
       dd {
         @include u-width(67%);
       }
@@ -36,6 +30,12 @@
 
   .oktaLogo {
     height: 60px;
+    max-width: 120px;
+    margin-left: -15px;
+  }
+
+  .oktaEditLink {
+    align-self: center;
   }
 
   a {
