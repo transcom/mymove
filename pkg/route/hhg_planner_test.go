@@ -104,6 +104,44 @@ func (suite *GHCTestSuite) TestHHGZipTransitDistance() {
 		suite.Equal(1, distance)
 	})
 
+	suite.Run("Uses DTOD for distance when origin/dest zips differ but are in the same base point city", func() {
+		// Mock DTOD distance response
+		testSoapClient := &ghcmocks.SoapCaller{}
+		testSoapClient.On("Call",
+			mock.Anything,
+			mock.Anything,
+		).Return(soapResponseForDistance("166"), nil)
+
+		// Create two zip3s in the same base point city (Miami)
+		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Zip3:          "330",
+				BasePointCity: "Miami",
+				State:         "FL",
+			},
+		})
+		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Zip3:          "331",
+				BasePointCity: "Miami",
+				State:         "FL",
+			},
+			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				ServiceArea: "005",
+			},
+		})
+
+		plannerMileage := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient)
+		planner := NewHHGPlanner(plannerMileage)
+
+		// Get distance between two zips in the same base point city
+		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "33169", "33040")
+		suite.NoError(err)
+
+		// Ensure DTOD was used for distance
+		suite.Equal(166, distance)
+	})
+
 	suite.Run("fake DTOD returns an error", func() {
 		testSoapClient := &ghcmocks.SoapCaller{}
 		testSoapClient.On("Call",

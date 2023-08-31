@@ -57,7 +57,7 @@ func (p domesticShorthaulPricer) Price(appCtx appcontext.AppContext, contractCod
 	basePrice := domServiceAreaPrice.PriceCents.Float64() * distance.Float64() * weight.ToCWTFloat64()
 	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, domServiceAreaPrice.ContractID, referenceDate, false, basePrice)
 	if err != nil {
-		return 0, nil, fmt.Errorf("could not look up escalated price: %w", err)
+		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 	totalCost = unit.Cents(math.Round(escalatedPrice))
 

@@ -226,7 +226,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 		)
 
 		suite.Error(err)
-		suite.Contains(err.Error(), "unable to calculate escalated total price")
+		suite.Contains(err.Error(), "could not calculate escalated price")
 
 	})
 

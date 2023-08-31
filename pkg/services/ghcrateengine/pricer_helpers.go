@@ -54,7 +54,7 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 	basePrice := domOtherPrice.PriceCents.Float64() * finalWeight.ToCWTFloat64()
 	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, domOtherPrice.ContractID, referenceDate, false, basePrice)
 	if err != nil {
-		return 0, nil, fmt.Errorf("unable to calculate escalated total price: %w", err)
+		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 
 	displayParams := services.PricingDisplayParams{
@@ -122,7 +122,7 @@ func priceDomesticFirstDaySIT(appCtx appcontext.AppContext, firstDaySITCode mode
 	baseTotalPrice := serviceAreaPrice.PriceCents.Float64() * weight.ToCWTFloat64()
 	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, serviceAreaPrice.ContractID, referenceDate, false, baseTotalPrice)
 	if err != nil {
-		return 0, nil, fmt.Errorf("unable to calculate escalated total price: %w", err)
+		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 	totalPriceCents := unit.Cents(math.Round(escalatedPrice))
 
@@ -159,7 +159,7 @@ func priceDomesticAdditionalDaysSIT(appCtx appcontext.AppContext, additionalDayS
 	baseTotalPrice := serviceAreaPrice.PriceCents.Float64() * weight.ToCWTFloat64()
 	escalatedTotalPrice, contractYear, err := escalatePriceForContractYear(appCtx, serviceAreaPrice.ContractID, referenceDate, false, baseTotalPrice)
 	if err != nil {
-		return 0, nil, fmt.Errorf("unable to calculate escalated total price: %w", err)
+		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 
 	totalForNumberOfDaysPrice := escalatedTotalPrice * float64(numberOfDaysInSIT)
@@ -260,7 +260,7 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 	baseTotalPrice := domOtherPrice.PriceCents.Float64() * weight.ToCWTFloat64()
 	escalatedTotalPrice, contractYear, err := escalatePriceForContractYear(appCtx, domOtherPrice.ContractID, referenceDate, false, baseTotalPrice)
 	if err != nil {
-		return 0, nil, fmt.Errorf("unable to calculate escalated total price: %w", err)
+		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 	totalPriceCents := unit.Cents(math.Round(escalatedTotalPrice))
 
@@ -310,13 +310,11 @@ func priceDomesticShuttling(appCtx appcontext.AppContext, shuttlingCode models.R
 		return 0, nil, fmt.Errorf("Could not lookup Domestic Accessorial Area Price: %w", err)
 	}
 
-	contractYear, err := fetchContractYear(appCtx, domAccessorialPrice.ContractID, referenceDate)
-	if err != nil {
-		return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
-	}
-
 	basePrice := domAccessorialPrice.PerUnitCents.Float64() * weight.ToCWTFloat64()
-	escalatedPrice := basePrice * contractYear.EscalationCompounded
+	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, domAccessorialPrice.ContractID, referenceDate, false, basePrice)
+	if err != nil {
+		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
+	}
 	totalCost := unit.Cents(math.Round(escalatedPrice))
 
 	params := services.PricingDisplayParams{
@@ -352,7 +350,7 @@ func priceDomesticCrating(appCtx appcontext.AppContext, code models.ReServiceCod
 	basePrice := domAccessorialPrice.PerUnitCents.Float64() * float64(billedCubicFeet)
 	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, domAccessorialPrice.ContractID, referenceDate, false, basePrice)
 	if err != nil {
-		return 0, nil, fmt.Errorf("unable to calculate escalated total price: %w", err)
+		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 	totalCost := unit.Cents(math.Round(escalatedPrice))
 
@@ -419,22 +417,31 @@ func createPricerGeneratedParams(appCtx appcontext.AppContext, paymentServiceIte
 
 // escalatePriceForContractYear calculates the escalated price from the base price, which is provided by the caller/pricer,
 // and the escalation factor, which is provided by the contract year. The result is rounded to the nearest cent, or to the
-// nearest tenth-cent for linehaul prices. The contract year is also returned.
+// nearest tenth-cent before and after the escalation factor for linehaul prices. The contract year is also returned.
 func escalatePriceForContractYear(appCtx appcontext.AppContext, contractID uuid.UUID, referenceDate time.Time, isLinehaul bool, basePrice float64) (float64, models.ReContractYear, error) {
 	contractYear, err := fetchContractYear(appCtx, contractID, referenceDate)
 	if err != nil {
 		return 0, contractYear, fmt.Errorf("could not lookup contract year: %w", err)
 	}
 
-	escalatedPrice := basePrice * contractYear.EscalationCompounded
+	escalatedPrice := basePrice
 
 	// round escalated price to the nearest cent, or the nearest tenth-of-a-cent if linehaul
 	precision := 0
 	if isLinehaul {
 		precision = 1
+		escalatedPrice = roundToPrecision(escalatedPrice, precision)
 	}
 
-	ratio := math.Pow(10, float64(precision))
-	escalatedPrice = math.Round(escalatedPrice*ratio) / ratio
+	escalatedPrice = escalatedPrice * contractYear.EscalationCompounded
+
+	escalatedPrice = roundToPrecision(escalatedPrice, precision)
 	return escalatedPrice, contractYear, nil
+}
+
+// roundToPrecision rounds a float64 value to the number of decimal points indicated by the precision.
+// TODO: Future cleanup could involve moving this function to a math/utility package with some simple tests
+func roundToPrecision(value float64, precision int) float64 {
+	ratio := math.Pow(10, float64(precision))
+	return math.Round(value*ratio) / ratio
 }
