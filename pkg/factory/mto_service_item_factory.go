@@ -702,6 +702,7 @@ func BuildOriginSITServiceItems(db *pop.Connection, move models.Move, shipment m
 			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
 				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},
@@ -721,6 +722,7 @@ func BuildOriginSITServiceItems(db *pop.Connection, move models.Move, shipment m
 			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
 				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},
@@ -745,6 +747,7 @@ func BuildOriginSITServiceItems(db *pop.Connection, move models.Move, shipment m
 			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
 				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},
@@ -783,6 +786,7 @@ func BuildDestSITServiceItems(db *pop.Connection, move models.Move, shipment mod
 			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
 				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},
@@ -794,6 +798,7 @@ func BuildDestSITServiceItems(db *pop.Connection, move models.Move, shipment mod
 			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
 				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},
@@ -826,6 +831,7 @@ func BuildDestSITServiceItems(db *pop.Connection, move models.Move, shipment mod
 			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
 				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},
