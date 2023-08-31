@@ -1286,6 +1286,8 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		SITPostalCode:                 handlers.FmtStringPtr(s.SITPostalCode),
 		SitEntryDate:                  handlers.FmtDateTimePtr(s.SITEntryDate),
 		SitDepartureDate:              handlers.FmtDateTimePtr(s.SITDepartureDate),
+		SitCustomerContacted:          handlers.FmtDatePtr(s.SITCustomerContacted),
+		SitRequestedDelivery:          handlers.FmtDatePtr(s.SITRequestedDelivery),
 		Status:                        ghcmessages.MTOServiceItemStatus(s.Status),
 		Description:                   handlers.FmtStringPtr(s.Description),
 		Dimensions:                    MTOServiceItemDimensions(s.Dimensions),
