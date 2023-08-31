@@ -236,7 +236,7 @@ test.describe('TOO user', () => {
 
       await expect(page.locator('[data-testid="currentDutyLocation"]')).toContainText('Fort Irwin');
       await expect(page.locator('[data-testid="newDutyLocation"]')).toContainText(
-        'JB McGuire-Dix-Lakehurst (McGuire AFB), NJ 08562',
+        'JB McGuire-Dix-Lakehurst (Lakehurst), NJ 08753',
       );
       await expect(page.locator('[data-testid="issuedDate"]')).toContainText('16 Mar 2018');
       await expect(page.locator('[data-testid="reportByDate"]')).toContainText('22 Mar 2018');
