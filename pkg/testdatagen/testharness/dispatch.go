@@ -119,6 +119,9 @@ var actionDispatcher = map[string]actionFunc{
 	"PrimeSimulatorMoveNeedsShipmentUpdate": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakePrimeSimulatorMoveNeedsShipmentUpdate(appCtx)
 	},
+	"MakePrimeSimulatorMoveSameBasePointCity": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakePrimeSimulatorMoveSameBasePointCity(appCtx)
+	},
 	"NeedsOrdersUser": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeNeedsOrdersUser(appCtx.DB())
 	},
