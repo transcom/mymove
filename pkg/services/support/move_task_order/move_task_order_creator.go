@@ -192,7 +192,7 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 	return order, nil
 }
 
-// createUser creates a user but this is a fake login.gov user
+// createUser creates a user but this is a fake Okta user
 // this is support code only, do not use in a production case
 func createUser(appCtx appcontext.AppContext, userEmail *string) (*models.User, error) {
 	if userEmail == nil {

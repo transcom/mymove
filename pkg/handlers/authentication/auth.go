@@ -1109,58 +1109,6 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, okt
 	return authorizationResultAuthorized
 }
 
-// !This func is currently a leftover from login_gov.
-// TODO: Remove once Okta sessions are in place
-// commented out until Okta is in full swing - was getting errors in login_gov.go
-// and had to comment out some functions there in order to run server
-
-// func fetchToken(code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
-// 	logger := loginGovProvider.logger
-// 	expiry := auth.GetExpiryTimeFromMinutes(auth.SessionExpiryInMinutes)
-// 	params, err := loginGovProvider.TokenParams(code, clientID, expiry)
-// 	if err != nil {
-// 		logger.Error("Creating token endpoint params", zap.Error(err))
-// 		return nil, err
-// 	}
-
-// 	response, err := http.PostForm(loginGovProvider.TokenURL(), params)
-// 	if err != nil {
-// 		logger.Error("Post to Login.gov token endpoint", zap.Error(err))
-// 		return nil, err
-// 	}
-
-// 	defer func() {
-// 		if closeErr := response.Body.Close(); closeErr != nil {
-// 			logger.Error("Error in closing response", zap.Error(closeErr))
-// 		}
-// 	}()
-
-// 	responseBody, err := io.ReadAll(response.Body)
-// 	if err != nil {
-// 		logger.Error("Reading Login.gov token response", zap.Error(err))
-// 		return nil, err
-// 	}
-
-// 	var parsedResponse LoginGovTokenResponse
-// 	err = json.Unmarshal(responseBody, &parsedResponse)
-// 	if err != nil {
-// 		logger.Error("Parsing login.gov token", zap.Error(err))
-// 		return nil, errors.Wrap(err, "parsing login.gov")
-// 	}
-// 	if parsedResponse.Error != "" {
-// 		logger.Error("Error in Login.gov token response", zap.String("error", parsedResponse.Error))
-// 		return nil, errors.New(parsedResponse.Error)
-// 	}
-
-// 	// TODO: get goth session from storage instead of constructing a new one
-// 	session := openidConnect.Session{
-// 		AccessToken: parsedResponse.AccessToken,
-// 		ExpiresAt:   time.Now().Add(time.Second * time.Duration(parsedResponse.ExpiresIn)),
-// 		IDToken:     parsedResponse.IDToken,
-// 	}
-// 	return &session, err
-// }
-
 // InitAuth initializes the Okta provider
 func InitAuth(v *viper.Viper, logger *zap.Logger, _ auth.ApplicationServername) (*okta.Provider, error) {
 

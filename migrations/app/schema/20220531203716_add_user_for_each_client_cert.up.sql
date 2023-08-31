@@ -1,3 +1,4 @@
+
 DO $$
 DECLARE
 	client_cert RECORD;
@@ -15,13 +16,15 @@ BEGIN
 			new_user_id := uuid_generate_v4();
 			INSERT INTO users (
 				id,
-				login_gov_email,
+				okta_email,
+				okta_id,
 				created_at,
 				updated_at
 			)
 			VALUES (
 				new_user_id,
-				client_cert.sha256_digest || '@api.move.mil',
+				client_cert.sha256_digest || '@okta.mil',
+				client_cert.sha256_digest,
 				now(),
 				now()
 			);

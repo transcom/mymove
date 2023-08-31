@@ -3,7 +3,6 @@ package cli
 import (
 	"fmt"
 	"regexp"
-	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
@@ -143,26 +142,6 @@ func CheckAuth(v *viper.Viper) error {
 		}
 	}
 
-	return nil
-}
-
-// ValidateClientID validates a proper Login.gov ClientID was passed
-func ValidateClientID(v *viper.Viper, flagname string) error {
-	clientID := v.GetString(flagname)
-	clientIDParts := strings.Split(clientID, ":")
-	clientIDLen := 8
-	if len(clientIDParts) != clientIDLen {
-		return errors.Wrap(&errInvalidClientID{ClientID: clientID}, fmt.Sprintf("%s is invalid due to length, found %d parts, expected %d. ClientID was %s.", flagname, len(clientIDParts), clientIDLen, clientID))
-	}
-	openIDFormat := []string{"urn", "gov", "gsa", "openidconnect.profiles", "sp", "sso", "dod"}
-	for i, v := range clientIDParts {
-		if i == 7 {
-			break
-		}
-		if v != openIDFormat[i] {
-			return errors.Wrap(&errInvalidClientID{ClientID: clientID}, fmt.Sprintf("%s is not using OpenID connect", flagname))
-		}
-	}
 	return nil
 }
 

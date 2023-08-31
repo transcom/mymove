@@ -1,5 +1,5 @@
 create_table("dps_users") {
 	t.Column("id", "uuid", {"primary": true})
-	t.Column("login_gov_email", "text", {})
+	t.Column("okta_email", "text", {})
 	t.Timestamps()
 }
