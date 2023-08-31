@@ -92,7 +92,7 @@ func (suite *TRDMSuite) TestFetchAllTACRecords() {
 
 func (suite *TRDMSuite) TestFetchTACRecordsByTime() {
 	// Get initial TAC codes count
-	initialCodes, err := trdm.FethTACRecordsByTime(suite.AppContextForTest(), time.Now().Format(time.RFC3339))
+	initialCodes, err := trdm.FetchTACRecordsByTime(suite.AppContextForTest(), time.Now().Format(time.RFC3339))
 	initialTacCodeLength := len(initialCodes)
 	suite.NoError(err)
 
@@ -100,7 +100,7 @@ func (suite *TRDMSuite) TestFetchTACRecordsByTime() {
 	testdatagen.MakeDefaultTranportationAccountingCode(suite.DB())
 
 	// Fetch All TAC Records
-	codes, err := trdm.FethTACRecordsByTime(suite.AppContextForTest(), time.Now().Format(time.RFC3339))
+	codes, err := trdm.FetchTACRecordsByTime(suite.AppContextForTest(), time.Now().Format(time.RFC3339))
 
 	// Compare new TAC Code count to initial count
 	finalCodesLength := len(codes)

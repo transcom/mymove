@@ -65,11 +65,11 @@ type GetLastTableUpdateResponseElement struct {
 	} `xml:"status"`
 }
 
-func NewTRDMGetLastTableUpdate(usernamne string, password string, physicalName string, soapClient SoapCaller) GetLastTableUpdater {
+func NewTRDMGetLastTableUpdate(username string, password string, physicalName string, soapClient SoapCaller) GetLastTableUpdater {
 	return &GetLastTableUpdateRequestElement{
 		PhysicalName: physicalName,
 		soapClient:   soapClient,
-		username:     usernamne,
+		username:     username,
 		password:     password,
 	}
 
@@ -88,7 +88,7 @@ func FetchAllTACRecords(appcontext appcontext.AppContext) ([]models.Transportati
 
 }
 
-func FethTACRecordsByTime(appcontext appcontext.AppContext, time string) ([]models.TransportationAccountingCode, error) {
+func FetchTACRecordsByTime(appcontext appcontext.AppContext, time string) ([]models.TransportationAccountingCode, error) {
 	var tacCodes []models.TransportationAccountingCode
 	err := appcontext.DB().Select("*").Where("updated_at < $1", time).All(&tacCodes)
 
@@ -136,7 +136,7 @@ func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.
 	}
 
 	if r.Status.StatusCode == successfulStatusCode {
-		tacCodes, dbError := FethTACRecordsByTime(appCtx, r.LastUpdate)
+		tacCodes, dbError := FetchTACRecordsByTime(appCtx, r.LastUpdate)
 		if dbError != nil {
 			return fmt.Errorf(err.Error())
 		}
