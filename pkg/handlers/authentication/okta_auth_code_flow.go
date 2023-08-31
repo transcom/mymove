@@ -37,14 +37,12 @@ func getProfileData(appCtx appcontext.AppContext, provider okta.Provider) (model
 	resp, err := client.Do(req)
 	if err != nil {
 		appCtx.Logger().Error("could not execute request", zap.Error(err))
-		return models.OktaUser{}, err
 	}
 	body, err := io.ReadAll(resp.Body)
-	defer resp.Body.Close()
 	if err != nil {
 		appCtx.Logger().Error("could not read response body", zap.Error(err))
-		return models.OktaUser{}, err
 	}
+	defer resp.Body.Close()
 	err = json.Unmarshal(body, &user)
 	if err != nil {
 		appCtx.Logger().Error("could not unmarshal body", zap.Error(err))
