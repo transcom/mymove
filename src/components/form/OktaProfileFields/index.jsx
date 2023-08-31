@@ -7,9 +7,9 @@ import TextField from 'components/form/fields/TextField/TextField';
 export const OktaProfileFields = ({ legend, className, render }) => {
   const usernameFieldName = 'username';
   const emailFieldName = 'email';
-  const fNameFieldName = 'fName';
-  const lNameFieldName = 'lName';
-  const edipiFieldName = 'edipi';
+  const fNameFieldName = 'firstName';
+  const lNameFieldName = 'lastName';
+  const dodidFieldName = 'cac_edipi';
 
   return (
     <Fieldset legend={legend} className={className}>
@@ -19,7 +19,7 @@ export const OktaProfileFields = ({ legend, className, render }) => {
           <TextField label="Okta Email" name={emailFieldName} required />
           <TextField label="First Name" name={fNameFieldName} required />
           <TextField label="Last Name" name={lNameFieldName} required />
-          <TextField label="DoD ID Number" name={edipiFieldName} required />
+          <TextField label="DoD ID Number" name={dodidFieldName} required />
         </>,
       )}
     </Fieldset>

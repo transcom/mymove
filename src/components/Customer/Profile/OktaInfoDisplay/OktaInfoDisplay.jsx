@@ -10,7 +10,7 @@ import descriptionListStyles from 'styles/descriptionList.module.scss';
 
 const url = 'https://test-milmove.okta.mil/enduser/settings';
 
-const OktaInfoDisplay = ({ editURL }) => {
+const OktaInfoDisplay = ({ editURL, username, email, firstName, lastName, edipi }) => {
   return (
     <div className={oktaInfoDisplayStyles.serviceInfoContainer}>
       <div className={oktaInfoDisplayStyles.header}>
@@ -29,27 +29,27 @@ const OktaInfoDisplay = ({ editURL }) => {
         <dl className={descriptionListStyles.descriptionList}>
           <div className={descriptionListStyles.row}>
             <dt>Username</dt>
-            <dd>oktausername@email.com</dd>
+            <dd>{username}</dd>
           </div>
 
           <div className={descriptionListStyles.row}>
             <dt>Email</dt>
-            <dd>oktaEmail@email.com</dd>
+            <dd>{email}</dd>
           </div>
 
           <div className={descriptionListStyles.row}>
             <dt>First Name</dt>
-            <dd>First Name</dd>
+            <dd>{firstName}</dd>
           </div>
 
           <div className={descriptionListStyles.row}>
             <dt>Last Name</dt>
-            <dd>Last Name</dd>
+            <dd>{lastName}</dd>
           </div>
 
           <div className={descriptionListStyles.row}>
-            <dt>DoD ID Number</dt>
-            <dd>DoDID or &apos;Not Provided&apos;</dd>
+            <dt>DoD ID Number | EDIPI</dt>
+            <dd>{edipi}</dd>
           </div>
         </dl>
       </div>
