@@ -87,8 +87,8 @@ export async function patchServiceMember(serviceMember) {
 
 /** OKTA PROFILE */
 // this will call the backend and patch the Okta profile
-export async function patchOktaProfile(oktaProfile) {
-  console.log('to be added to!', oktaProfile);
+export async function patchOktaProfile() {
+  // TODO implement backend to update the okta profile
   // return makeInternalRequest(
   //   'service_members.patchServiceMember',
   //   {

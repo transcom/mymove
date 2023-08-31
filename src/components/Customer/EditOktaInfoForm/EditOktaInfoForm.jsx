@@ -13,7 +13,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
-import { OktaProfileFields } from 'components/form/OktaProfileFields';
+import { OktaInfoFields } from 'components/form/OktaInfoFields';
 
 const EditOktaInfoForm = ({ initialValues, onSubmit, onCancel }) => {
   // TODO need to add a validation schema to the form -- leaving what was previously here
@@ -47,7 +47,7 @@ const EditOktaInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                 those in the <Link to="https://test-milmove.okta.mil/enduser/settings">Okta Dashboard.</Link>
               </p>
 
-              <OktaProfileFields />
+              <OktaInfoFields />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>

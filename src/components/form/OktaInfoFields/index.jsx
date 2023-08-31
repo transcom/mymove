@@ -4,7 +4,7 @@ import { Fieldset } from '@trussworks/react-uswds';
 
 import TextField from 'components/form/fields/TextField/TextField';
 
-export const OktaProfileFields = ({ legend, className, render }) => {
+export const OktaInfoFields = ({ legend, className, render }) => {
   const usernameFieldName = 'oktaUsername';
   const emailFieldName = 'oktaEmail';
   const firstNameFieldName = 'oktaFirstName';
@@ -32,16 +32,16 @@ export const OktaProfileFields = ({ legend, className, render }) => {
   );
 };
 
-OktaProfileFields.propTypes = {
+OktaInfoFields.propTypes = {
   legend: node,
   className: string,
   render: func,
 };
 
-OktaProfileFields.defaultProps = {
+OktaInfoFields.defaultProps = {
   legend: '',
   className: '',
   render: (fields) => fields,
 };
 
-export default OktaProfileFields;
+export default OktaInfoFields;

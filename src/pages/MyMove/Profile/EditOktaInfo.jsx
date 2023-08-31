@@ -9,7 +9,7 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { customerRoutes } from 'constants/routes';
 import { getResponseError, patchOktaProfile } from 'services/internalApi';
 import { updateOktaProfile as updateOktaProfileAction } from 'store/entities/actions';
-import { selectBackupContacts, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
 export const EditOktaInfo = ({ serviceMember, setFlashMessage }) => {
@@ -58,6 +58,7 @@ export const EditOktaInfo = ({ serviceMember, setFlashMessage }) => {
     return patchOktaProfile(oktaPayload)
       .then(() => {
         setFlashMessage('EDIT_OKTA_PROFILE_SUCCESS', 'success', "You've updated your Okta profile.");
+        navigate(customerRoutes.PROFILE_PATH);
       })
       .catch((e) => {
         const { response } = e;
@@ -100,7 +101,6 @@ const mapDispatchToProps = {
 };
 
 const mapStateToProps = (state) => ({
-  currentBackupContacts: selectBackupContacts(state),
   serviceMember: selectServiceMemberFromLoggedInUser(state),
 });
 
