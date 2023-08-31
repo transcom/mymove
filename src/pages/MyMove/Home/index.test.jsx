@@ -342,9 +342,8 @@ describe('Home component', () => {
       uploadedOrderDocuments,
     };
 
-    const mockGetSignedCertification = jest.fn();
-
     it('gets the data for the legal agreement', () => {
+      const mockGetSignedCertification = jest.fn();
       render(
         <MockProviders>
           <Home {...defaultProps} {...props} getSignedCertification={mockGetSignedCertification} />
