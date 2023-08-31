@@ -377,22 +377,11 @@ commands:
         description: dp3 env to deploy to (exp, loadtest, demo)
         type: string
         default: *dp3-env
-        # executor: aws-cli/default
     steps:
-      - aws-cli/setup:
-          profile-name: 'CIRCLECI-OIDC-PROFILE'
-          role-arn: 'arn:aws-us-gov:iam::469892416004:role/CircleCIOIDC'
-          role-session-name: example-session
       - run:
-          name: Log-into-AWS-ECR
+          name: 'Setting up AWS environment variables for dp3 env defined in &dp3-env'
           command: |
-            aws ecr get-login-password --profile "CIRCLECI-OIDC-PROFILE"
-      - run: aws ssm get-parameters-by-path --with-decryption --path /app-loadtest/circleci-test | jq -r '.[][0].Value'
-      - run:
-          name:
-            'Setting up AWS environment variables for dp3 env defined in &dp3-env'
-            #echo "export AWS_DEFAULT_REGION=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_REGION" >> $BASH_ENV
-          command: |
+            echo "export AWS_DEFAULT_REGION=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_REGION" >> $BASH_ENV
             echo "export AWS_ACCOUNT_ID=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_ACCOUNT_ID" >> $BASH_ENV
             echo "export AWS_ACCESS_KEY_ID=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_SECRET_ACCESS_KEY" >> $BASH_ENV
@@ -1089,6 +1078,19 @@ jobs:
     executor: base_small
     steps:
       - run: echo "noop"
+
+  setup_environment_variables_from_aws:
+    executor: aws-cli/default
+    steps:
+      - aws-cli/setup:
+          profile-name: 'CIRCLECI-OIDC-PROFILE'
+          role-arn: 'arn:aws-us-gov:iam::469892416004:role/CircleCIOIDC'
+          role-session-name: example-session
+      - run:
+          name: Log-into-AWS-ECR
+          command: |
+            aws ecr get-login-password --profile "CIRCLECI-OIDC-PROFILE"
+      - run: aws ssm get-parameters-by-path --with-decryption --path /app-loadtest/circleci-test | jq -r '.[][0].Value'
 
   # `pre_deps_golang` is used for caching Go module sources
   pre_deps_golang:
