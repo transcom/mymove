@@ -13,6 +13,9 @@
 
 version: 2.1
 
+orbs:
+  aws-cli: circleci/aws-cli@3.1
+
 # References for variables shared across the file
 references:
   circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-726bfe44bd27d3b41da41acbe3eb231811a993f7
@@ -260,7 +263,7 @@ executors:
 
 commands:
   create_dot_go_version:
-    description: "Creates a .go-version file (if needed) which can be used for cache keys specific to golang"
+    description: 'Creates a .go-version file (if needed) which can be used for cache keys specific to golang'
     steps:
       - run:
           name: Create a .go-version file
@@ -374,7 +377,17 @@ commands:
         description: dp3 env to deploy to (exp, loadtest, demo)
         type: string
         default: *dp3-env
+        # executor: aws-cli/default
     steps:
+      - aws-cli/setup:
+          profile-name: 'CIRCLECI-OIDC-PROFILE'
+          role-arn: 'arn:aws-us-gov:iam::469892416004:role/CircleCIOIDC'
+          role-session-name: example-session
+      - run:
+          name: Log-into-AWS-ECR
+          command: |
+            aws ecr get-login-password --profile "CIRCLECI-OIDC-PROFILE"
+      - run: aws ssm get-parameters-by-path --with-decryption --path /app-loadtest/circleci-test | jq -r '.[][0].Value'
       - run:
           name: 'Setting up AWS environment variables for dp3 env defined in &dp3-env'
           command: |
