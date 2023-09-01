@@ -2,39 +2,36 @@ import classnames from 'classnames';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
-import * as Yup from 'yup';
+// import * as Yup from 'yup';
 import { Link } from 'react-router-dom';
 
 import oktaLogo from '../../../shared/images/okta_logo.png';
 
 import editOktaInfoFormStyle from './EditOktaInfoForm.module.scss';
 
+import { isProduction } from 'shared/constants';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
-import { backupContactInfoSchema, contactInfoSchema, requiredAddressSchema } from 'utils/validation';
-import { ResidentialAddressShape } from 'types/address';
-import { OktaProfileFields } from 'components/form/OktaProfileFields';
-import { BackupContactShape } from 'types/customerShapes';
-
-export const residentialAddressName = 'residential_address';
-export const backupAddressName = 'backup_mailing_address';
-export const backupContactName = 'backup_contact';
+import { OktaInfoFields } from 'components/form/OktaInfoFields';
 
 const EditOktaInfoForm = ({ initialValues, onSubmit, onCancel }) => {
-  const validationSchema = Yup.object().shape({
-    ...contactInfoSchema.fields,
-    [residentialAddressName]: requiredAddressSchema.required(),
-    [backupAddressName]: requiredAddressSchema.required(),
-    [backupContactName]: backupContactInfoSchema.required(),
-  });
+  // TODO need to add a validation schema to the form -- leaving what was previously here
+  // const validationSchema = Yup.object().shape({
+  //   ...contactInfoSchema.fields,
+  //   [residentialAddressName]: requiredAddressSchema.required(),
+  //   [backupAddressName]: requiredAddressSchema.required(),
+  //   [backupContactName]: backupContactInfoSchema.required(),
+  // });
 
   const sectionStyles = classnames(formStyles.formSection, editOktaInfoFormStyle.formSection);
-  const url = 'https://test-milmove.okta.mil';
+  const url = isProduction
+    ? 'https://milmove.okta.mil/enduser/settings'
+    : 'https://test-milmove.okta.mil/enduser/settings';
 
   return (
-    <Formik initialValues={initialValues} onSubmit={onSubmit} validateOnMount validationSchema={validationSchema}>
+    <Formik initialValues={initialValues} onSubmit={onSubmit} validateOnMount>
       {({ isValid, isSubmitting, handleSubmit }) => {
         return (
           <Form className={classnames(formStyles.form, editOktaInfoFormStyle.form)}>
@@ -46,14 +43,14 @@ const EditOktaInfoForm = ({ initialValues, onSubmit, onCancel }) => {
               <h2>Your Okta Profile</h2>
               <p>
                 This is the information stored in your Okta Profile used for logging into MilMove. If you wish to change
-                any information, you can do so here by changing these fields and clicking <b>Save</b>.
+                any information, you can do so here by changing the appropriate fields and clicking <b>Save</b>.
               </p>
               <p>
                 If you need to update your security methods or set up additional security methods, you can update/add
-                those in the <Link to="https://test-milmove.okta.mil/enduser/settings">Okta Dashboard.</Link>
+                those in the <Link to={url}>Okta Dashboard.</Link>
               </p>
 
-              <OktaProfileFields />
+              <OktaInfoFields />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
@@ -73,14 +70,10 @@ const EditOktaInfoForm = ({ initialValues, onSubmit, onCancel }) => {
 
 EditOktaInfoForm.propTypes = {
   initialValues: PropTypes.shape({
-    telephone: PropTypes.string.isRequired,
-    secondary_telephone: PropTypes.string,
-    personal_email: PropTypes.string.isRequired,
-    phone_is_preferred: PropTypes.bool,
-    email_is_preferred: PropTypes.bool,
-    [residentialAddressName]: ResidentialAddressShape.isRequired,
-    [backupAddressName]: ResidentialAddressShape.isRequired,
-    [backupContactName]: BackupContactShape.isRequired,
+    oktaUsername: PropTypes.string.isRequired,
+    oktaEmail: PropTypes.string.isRequired,
+    oktaFirstName: PropTypes.string.isRequired,
+    oktaLastName: PropTypes.string.isRequired,
   }),
   onCancel: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
@@ -88,9 +81,7 @@ EditOktaInfoForm.propTypes = {
 
 EditOktaInfoForm.defaultProps = {
   initialValues: {
-    secondaryTelephone: '',
-    phoneIsPreferred: false,
-    emailIsPreferred: false,
+    oktaEdipi: 'Not Provided',
   },
 };
 

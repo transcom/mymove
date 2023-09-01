@@ -4,10 +4,26 @@
 @import 'shared/styles/colors';
 
 .oktaLogo {
-  height: 100px;
+  height: 80px;
 }
 
 .form {
+
+  a {
+    color: $link;
+    text-decoration: none;
+
+    &:visited {
+      color: $link;
+    }
+
+    &:hover,
+    &:focus {
+      color: $link;
+      @include u-text('no-underline');
+    }
+  }
+
   h2 {
     @include u-margin-bottom(0);
   }

@@ -31,6 +31,10 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
     email: currentBackupContacts[0]?.email || '',
   };
 
+  // displays the profile data for MilMove & Okta
+  // Profile w/contact info for servicemember & backup contact
+  // Service info that displays name, branch, rank, DoDID/EDIPI, and current duty location
+  // okta profile information: username, email, first name, last name, and DoDID/EDIPI
   return (
     <div className="grid-container usa-prose">
       <ConnectedFlashMessage />
@@ -72,17 +76,12 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
           </SectionWrapper>
           <SectionWrapper className={formStyles.formSection}>
             <OktaInfoDisplay
-              firstName={serviceMember?.first_name || ''}
-              lastName={serviceMember?.last_name || ''}
-              originDutyLocationName={originDutyLocation?.name || ''}
-              originTransportationOfficeName={originDutyLocation?.transportation_office?.name || ''}
-              originTransportationOfficePhone={transportationOfficePhone}
-              affiliation={ORDERS_BRANCH_OPTIONS[serviceMember?.affiliation] || ''}
-              rank={ORDERS_RANK_OPTIONS[rank] || ''}
-              edipi={serviceMember?.edipi || ''}
+              oktaUsername={serviceMember?.okta_username || 'Not Provided'}
+              oktaEmail={serviceMember?.okta_email || 'Not Provided'}
+              oktaFirstName={serviceMember?.okta_firstName || 'Not Provided'}
+              oktaLastName={serviceMember?.okta_lastName || 'Not Provided'}
+              oktaEdipi={serviceMember?.okta_edipi || 'Not Provided'}
               editURL={customerRoutes.EDIT_OKTA_PROFILE_PATH}
-              isEditable={moveIsInDraft}
-              showMessage={showMessages}
             />
           </SectionWrapper>
         </div>
