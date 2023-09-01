@@ -73,6 +73,8 @@ export const SitStatusShape = PropTypes.shape({
     sitEntryDate: PropTypes.string,
     sitDepartureDate: PropTypes.string,
     sitAllowanceEndDate: PropTypes.string,
+    sitCustomerContacted: PropTypes.string,
+    sitRequestedDelivery: PropTypes.string,
   }),
   pastSITServiceItems: PropTypes.arrayOf(PastServiceItemsShape),
 });

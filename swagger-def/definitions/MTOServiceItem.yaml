@@ -57,6 +57,14 @@ properties:
     type: string
     format: date-time
     x-nullable: true
+  sitCustomerContacted:
+    type: string
+    format: date
+    x-nullable: true
+  sitRequestedDelivery:
+    type: string
+    format: date
+    x-nullable: true
   sitDestinationOriginalAddress:
     $ref: 'Address.yaml'
   sitDestinationFinalAddress:
