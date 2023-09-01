@@ -197,8 +197,8 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 		)
 
 		suite.Error(err)
-		suite.Equal("Could not lookup contract year: "+models.RecordNotFoundErrorString, err.Error())
 		suite.Nil(rateEngineParams)
+		suite.Contains(err.Error(), "could not calculate escalated price")
 	})
 
 	suite.Run("weight below minimum", func() {

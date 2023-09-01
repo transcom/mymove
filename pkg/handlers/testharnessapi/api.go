@@ -47,10 +47,15 @@ func NewDefaultBuilder(handlerConfig handlers.HandlerConfig) http.Handler {
 				t := template.Must(template.New("users").Parse(`
 				  <html>
 				  <head>
-					<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+					<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
 				  </head>
 				  <body class="py-4">
 					<div class="container">
+					  <a class="btn btn-primary" href="/testharness/list" role="button">Back to Testharness data scenarios list</a>
+					  <h1>Testharness data scenario created <span class="badge bg-success text-bg-success">Success</span></h1>
+					  <div class="alert alert-success">
+						<p>The Testharness scenario was created successfully. The raw JSON output below contains information on the created scenario.</p>
+					  </div>
 					  <div class="row mb-3">
 						<pre>{{.}}</pre>
 					  </div>
@@ -78,10 +83,14 @@ func NewBuilderList(handlerConfig handlers.HandlerConfig) http.Handler {
 			t := template.Must(template.New("actions").Parse(`
 	  <html>
 	  <head>
-		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
 	  </head>
 	  <body class="py-4">
 		<div class="container">
+			<h1>Welcome to the Testharness data scenarios <span class="badge bg-primary text-bg-primary">New</span></h1>
+		  <div class="alert alert-info">
+			<p>These scenarios were introduced in <a href="https://transcom.github.io/mymove-docs/docs/adrs/use-playwright/">ADR 0076</a> and addressed further in <a href="https://transcom.github.io/mymove-docs/docs/adrs/deprecating-devseed-scenarios">ADR 0083</a>. These scenarios can be used to create Moves in the MilMove system when working locally or with Ephemeral deployments. <mark>Click any of the buttons below to create a Move data scenario.</mark></p>
+		  </div>
 		  <div class="row mb-3">
 			<div class="col-md-8">
 			{{range .}}

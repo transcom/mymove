@@ -394,6 +394,90 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 	}
 	scenario.MakeSITExtensionsForShipment(appCtx, MTOShipment)
 
+	currentTimeDCRT := time.Now()
+
+	basicPaymentServiceItemParamsDCRT := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractYearName,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameEscalationCompounded,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.FormatFloat(1.125, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "1.71",
+		},
+		{
+			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTimeDCRT.Format("2006-01-03"),
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTimeDCRT.Format("2006-01-03"),
+		},
+		{
+			Key:     models.ServiceItemParamNameCubicFeetBilled,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "4.00",
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(2),
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "004",
+		},
+		{
+			Key:     models.ServiceItemParamNameZipPickupAddress,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "32210",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionHeight,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "10",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionLength,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "12",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionWidth,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "3",
+		},
+	}
+
+	factory.BuildPaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeDCRT,
+		basicPaymentServiceItemParamsDCRT,
+		[]factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    MTOShipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil)
+
 	dcrtCost := unit.Cents(99999)
 	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(appCtx.DB(), testdatagen.Assertions{
 		Move:        mto,
@@ -667,6 +751,124 @@ func MakePrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext) mod
 			LinkOnly: true,
 		},
 	}, nil)
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
+func MakePrimeSimulatorMoveSameBasePointCity(appCtx appcontext.AppContext) models.Move {
+	now := time.Now()
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Status:               models.MoveStatusAPPROVED,
+				AvailableToPrimeAt:   &now,
+				ApprovalsRequestedAt: &now,
+				SubmittedAt:          &now,
+			},
+		},
+	}, nil)
+	factory.BuildMTOServiceItemBasic(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeMS,
+			},
+		},
+	}, nil)
+
+	requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+	pickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				ID:             uuid.Must(uuid.NewV4()),
+				StreetAddress1: "1 First St",
+				StreetAddress2: models.StringPointer("Apt 1"),
+				City:           "Miami Gardens",
+				State:          "FL",
+				PostalCode:     "33169",
+				Country:        models.StringPointer("US"),
+			},
+		},
+	}, nil)
+	destinationAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				ID:             uuid.Must(uuid.NewV4()),
+				StreetAddress1: "2 Second St",
+				StreetAddress2: models.StringPointer("Bldg 2"),
+				City:           "Key West",
+				State:          "FL",
+				PostalCode:     "33040",
+				Country:        models.StringPointer("US"),
+			},
+		},
+	}, nil)
+
+	estimatedWeight := unit.Pound(1400)
+	actualWeight := unit.Pound(2000)
+	shipmentFields := models.MTOShipment{
+		PrimeEstimatedWeight:  &estimatedWeight,
+		PrimeActualWeight:     &actualWeight,
+		Status:                models.MTOShipmentStatusApproved,
+		RequestedPickupDate:   &requestedPickupDate,
+		RequestedDeliveryDate: &requestedDeliveryDate,
+	}
+
+	firstShipment := factory.BuildMTOShipmentMinimal(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: shipmentFields,
+		},
+		{
+			Model:    pickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
+		},
+		{
+			Model:    destinationAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
+	}, nil)
+
+	factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
+		},
+		{
+			Model: models.ReService{
+				Code: models.ReServiceCodeDLH,
+			},
+		},
+		{
+			Model:    firstShipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
