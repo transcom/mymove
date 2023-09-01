@@ -208,6 +208,10 @@ type SITStatusCurrentSIT struct {
 	// Format: date
 	SitAllowanceEndDate *strfmt.Date `json:"sitAllowanceEndDate,omitempty"`
 
+	// sit customer contacted
+	// Format: date
+	SitCustomerContacted *strfmt.Date `json:"sitCustomerContacted,omitempty"`
+
 	// sit departure date
 	// Format: date
 	SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
@@ -215,6 +219,10 @@ type SITStatusCurrentSIT struct {
 	// sit entry date
 	// Format: date
 	SitEntryDate *strfmt.Date `json:"sitEntryDate,omitempty"`
+
+	// sit requested delivery
+	// Format: date
+	SitRequestedDelivery *strfmt.Date `json:"sitRequestedDelivery,omitempty"`
 }
 
 // Validate validates this s i t status current s i t
@@ -229,11 +237,19 @@ func (m *SITStatusCurrentSIT) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateSitCustomerContacted(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateSitDepartureDate(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateSitEntryDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitRequestedDelivery(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -267,6 +283,18 @@ func (m *SITStatusCurrentSIT) validateSitAllowanceEndDate(formats strfmt.Registr
 	return nil
 }
 
+func (m *SITStatusCurrentSIT) validateSitCustomerContacted(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitCustomerContacted) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("currentSIT"+"."+"sitCustomerContacted", "body", "date", m.SitCustomerContacted.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *SITStatusCurrentSIT) validateSitDepartureDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.SitDepartureDate) { // not required
 		return nil
@@ -285,6 +313,18 @@ func (m *SITStatusCurrentSIT) validateSitEntryDate(formats strfmt.Registry) erro
 	}
 
 	if err := validate.FormatOf("currentSIT"+"."+"sitEntryDate", "body", "date", m.SitEntryDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *SITStatusCurrentSIT) validateSitRequestedDelivery(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitRequestedDelivery) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("currentSIT"+"."+"sitRequestedDelivery", "body", "date", m.SitRequestedDelivery.String(), formats); err != nil {
 		return err
 	}
 
