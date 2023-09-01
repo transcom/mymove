@@ -35,6 +35,13 @@ const serviceAreaOrigin = (params) => {
   )}`;
 };
 
+const sitServiceAreaOrigin = (params) => {
+  return `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.SITServiceAreaOrigin]}: ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.SITServiceAreaOrigin,
+    params,
+  )}`;
+};
+
 const serviceAreaDest = (params) => {
   return `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ServiceAreaDest]}: ${getParamValue(
     SERVICE_ITEM_PARAM_KEYS.ServiceAreaDest,
@@ -263,14 +270,19 @@ const dddSITmileageZip5 = (params) => {
 
 // There is no param representing the orgin price as available in the re_domestic_service_area_prices table
 // A param to return the service schedule is also not being created
-const originPrice = (params, shipmentType) => {
+const originPrice = (params, shipmentType, serviceCode) => {
   const value = getPriceRateOrFactor(params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.OriginPrice;
 
+  // First day origin sit utilizes a SIT specific service area origin service param
+  let serviceArea = serviceAreaOrigin(params);
+  if (serviceCode === SERVICE_ITEM_CODES.DOFSIT) {
+    serviceArea = sitServiceAreaOrigin(params);
+  }
   return calculation(
     value,
     label,
-    formatDetail(serviceAreaOrigin(params)),
+    formatDetail(serviceArea),
     formatDetail(referenceDate(params, shipmentType)),
     formatDetail(peak(params)),
   );
@@ -457,7 +469,7 @@ const additionalDayOriginSITPrice = (params, shipmentType) => {
   return calculation(
     value,
     label,
-    formatDetail(serviceAreaOrigin(params)),
+    formatDetail(sitServiceAreaOrigin(params)),
     formatDetail(referenceDate(params, shipmentType)),
     formatDetail(peak(params)),
   );
@@ -662,7 +674,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
     case SERVICE_ITEM_CODES.DOP:
       result = [
         billableWeight(params),
-        originPrice(params, shipmentType),
+        originPrice(params, shipmentType, SERVICE_ITEM_CODES.DOP),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
@@ -671,7 +683,7 @@ export default function makeCalculations(itemCode, totalAmount, params, mtoParam
     case SERVICE_ITEM_CODES.DOFSIT:
       result = [
         billableWeight(params),
-        originPrice(params, shipmentType),
+        originPrice(params, shipmentType, SERVICE_ITEM_CODES.DOFSIT),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];
