@@ -105,3 +105,12 @@ export const backupContactInfoSchema = Yup.object().shape({
   email: emailSchema.required('Required'),
   telephone: phoneSchema.required('Required'),
 });
+
+// EDIPI can be between 7-10 digits to account for USCG members who use EIN
+export const oktaInfoSchema = Yup.object().shape({
+  oktaUsername: Yup.string().email('Must be in email format').required('Required'),
+  oktaEmail: Yup.string().email('Invalid email').required('Required'),
+  oktaFirstName: Yup.string().required('Required'),
+  oktaLastName: Yup.string().required('Required'),
+  oktaEdipi: Yup.string().min(7, 'Must be between 7-10 digits').max(10, 'Cannot be more than 10 digits'),
+});
