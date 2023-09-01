@@ -415,16 +415,17 @@ func createPricerGeneratedParams(appCtx appcontext.AppContext, paymentServiceIte
 	return paymentServiceItemParams, nil
 }
 
-// escalatePriceForContractYear calculates the escalated price from the base price, which is provided by the caller/pricer,
+// escalatePriceForContractYear calculates the escalated price from the base price in cents, which is provided by the caller/pricer,
 // and the escalation factor, which is provided by the contract year. The result is rounded to the nearest cent, or to the
-// nearest tenth-cent before and after the escalation factor for linehaul prices. The contract year is also returned.
-func escalatePriceForContractYear(appCtx appcontext.AppContext, contractID uuid.UUID, referenceDate time.Time, isLinehaul bool, basePrice float64) (float64, models.ReContractYear, error) {
+// nearest tenth-cent before and after the escalation factor for linehaul prices. The resulting price is returned in cents along
+// with the contract year.
+func escalatePriceForContractYear(appCtx appcontext.AppContext, contractID uuid.UUID, referenceDate time.Time, isLinehaul bool, basePriceCents float64) (float64, models.ReContractYear, error) {
 	contractYear, err := fetchContractYear(appCtx, contractID, referenceDate)
 	if err != nil {
 		return 0, contractYear, fmt.Errorf("could not lookup contract year: %w", err)
 	}
 
-	escalatedPrice := basePrice
+	escalatedPrice := basePriceCents
 
 	// round escalated price to the nearest cent, or the nearest tenth-of-a-cent if linehaul
 	precision := 0
