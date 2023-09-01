@@ -25,7 +25,7 @@ const EditOktaInfoForm = ({ initialValues, onSubmit, onCancel }) => {
   // });
 
   const sectionStyles = classnames(formStyles.formSection, editOktaInfoFormStyle.formSection);
-  const url = 'https://test-milmove.okta.mil';
+  const url = 'https://test-milmove.okta.mil/enduser/settings';
 
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validateOnMount>
@@ -44,7 +44,7 @@ const EditOktaInfoForm = ({ initialValues, onSubmit, onCancel }) => {
               </p>
               <p>
                 If you need to update your security methods or set up additional security methods, you can update/add
-                those in the <Link to="https://test-milmove.okta.mil/enduser/settings">Okta Dashboard.</Link>
+                those in the <Link to={url}>Okta Dashboard.</Link>
               </p>
 
               <OktaInfoFields />
