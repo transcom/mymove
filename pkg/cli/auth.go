@@ -77,14 +77,6 @@ const (
 	OktaAdminSecretKeyFlag string = "okta-admin-secret-key"
 )
 
-type errInvalidClientID struct {
-	ClientID string
-}
-
-func (e *errInvalidClientID) Error() string {
-	return fmt.Sprintf("invalid client ID %s, must be of format 'urn:gov:gsa:openidconnect.profiles:sp:sso:dod:IDENTIFIER'", e.ClientID)
-}
-
 // InitAuthFlags initializes Auth command line flags
 func InitAuthFlags(flag *pflag.FlagSet) {
 	flag.String(ClientAuthSecretKeyFlag, "", "Client auth secret JWT key.")
