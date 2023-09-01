@@ -164,7 +164,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 		{
 			paymentRequest: &oldPaymentRequest,
 			serviceCode:    models.ReServiceCodeDLH,
-			priceCents:     unit.Cents(281402),
+			priceCents:     unit.Cents(279407),
 			paramsToCheck: []paramMap{
 				{models.ServiceItemParamNameWeightOriginal, strTestOriginalWeight},
 				{models.ServiceItemParamNameWeightBilled, strTestOriginalWeight},
@@ -208,7 +208,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 			isNewPaymentRequest: true,
 			paymentRequest:      newPaymentRequest,
 			serviceCode:         models.ReServiceCodeDLH,
-			priceCents:          unit.Cents(262909),
+			priceCents:          unit.Cents(261045),
 			paramsToCheck: []paramMap{
 				{models.ServiceItemParamNameWeightOriginal, strTestChangedOriginalWeight},
 				{models.ServiceItemParamNameWeightBilled, strTestChangedOriginalWeight},

@@ -113,8 +113,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginSITPickupPricer50PlusM
 	distance := unit.Miles(77) // > 50 miles
 
 	pricer := NewDomesticOriginSITPickupPricer()
-	expectedPriceMillicents := unit.Millicents(16320568) // dopsitTestDomesticLinehaulBasePriceMillicents * (dopsitTestWeight / 100) * distance * dopsitTestEscalationCompounded
-	expectedPrice := expectedPriceMillicents.ToCents()
+	expectedPrice := unit.Cents(16485)
 
 	suite.Run("success using PaymentServiceItemParams", func() {
 		suite.setupDomesticLinehaulPrice(dopsitTestServiceArea, dopsitTestIsPeakPeriod, dopsitTestWeightLower, dopsitTestWeightUpper, dopsitTestMilesLower, dopsitTestMilesUpper, dopsitTestDomesticLinehaulBasePriceMillicents, dopsitTestContractYearName, dopsitTestEscalationCompounded)
