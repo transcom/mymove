@@ -6,9 +6,12 @@ import oktaLogo from '../../../../shared/images/okta_logo.png';
 
 import oktaInfoDisplayStyles from './OktaInfoDisplay.module.scss';
 
+import { isProduction } from 'shared/constants';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 
-const url = 'https://test-milmove.okta.mil/enduser/settings';
+const url = isProduction
+  ? 'https://milmove.okta.mil/enduser/settings'
+  : 'https://test-milmove.okta.mil/enduser/settings';
 
 const OktaInfoDisplay = ({ editURL, oktaUsername, oktaEmail, oktaFirstName, oktaLastName, oktaEdipi }) => {
   return (
