@@ -2187,7 +2187,9 @@ workflows:
 
   app:
     jobs:
-      - setup_environment_variables_from_aws
+      - setup_environment_variables_from_aws:
+          context: aws
+
       - check_tls_certificate_dp3
 
       - check_tls_certificate_stg
