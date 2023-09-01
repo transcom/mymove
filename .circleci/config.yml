@@ -747,7 +747,6 @@ commands:
           name: make server_test_build for <<parameters.application>>
           command: |
             export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
-            export OKTA_CUSTOMER_CLIENT_ID=$(echo $okta-customer-client-id)
             make server_test
           environment:
             APPLICATION: '<< parameters.application >>'
