@@ -82,6 +82,7 @@ export const oktaEmail = new schema.Entity('oktaEmail');
 export const oktaFirstName = new schema.Entity('oktaFirstName');
 export const oktaLastName = new schema.Entity('oktaLastName');
 export const oktaEdipi = new schema.Entity('oktaEdipi');
+export const oktaId = new schema.Entity('oktaId');
 
 export const oktaProfile = new schema.Entity('oktaProfile', {
   oktaUsername,
@@ -89,6 +90,7 @@ export const oktaProfile = new schema.Entity('oktaProfile', {
   oktaFirstName,
   oktaLastName,
   oktaEdipi,
+  oktaId,
 });
 
 // Loggedin User
