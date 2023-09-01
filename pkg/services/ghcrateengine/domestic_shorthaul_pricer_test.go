@@ -198,7 +198,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 
 		suite.Error(err)
 		suite.Nil(rateEngineParams)
-		suite.Contains(err.Error(), "could not look up escalated price")
+		suite.Contains(err.Error(), "could not calculate escalated price")
 	})
 
 	suite.Run("weight below minimum", func() {
