@@ -5,7 +5,6 @@ import (
 	"sync"
 
 	"go.opentelemetry.io/otel/sdk/metric"
-	"go.opentelemetry.io/otel/sdk/metric/aggregation"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 )
 
@@ -25,7 +24,7 @@ func (i *InMemoryExporter) Temporality(k metric.InstrumentKind) metricdata.Tempo
 	return metric.DefaultTemporalitySelector(k)
 }
 
-func (i *InMemoryExporter) Aggregation(k metric.InstrumentKind) aggregation.Aggregation {
+func (i *InMemoryExporter) Aggregation(k metric.InstrumentKind) metric.Aggregation {
 	return metric.DefaultAggregationSelector(k)
 }
 
