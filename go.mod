@@ -102,7 +102,6 @@ require (
 )
 
 require (
-
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.0-20210816181553-5444fa50b93d // indirect
 	github.com/goccy/go-json v0.9.6 // indirect
 	github.com/lestrrat-go/backoff/v2 v2.0.8 // indirect
