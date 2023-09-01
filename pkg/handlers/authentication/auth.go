@@ -473,7 +473,6 @@ func NewLogoutHandler(ac Context, hc handlers.HandlerConfig) LogoutHandler {
 	return logoutHandler
 }
 
-// !Needs to be finalized after sessions.
 func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	appCtx := h.AppContextFromRequest(r)
 	if appCtx.Session() != nil {
