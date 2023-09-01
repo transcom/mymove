@@ -2189,7 +2189,7 @@ definitions:
         description: zip code, international allowed
         format: zip
         title: ZIP
-        example: '''90210'' or ''N15 3NL'''
+        example: "'90210' or 'N15 3NL'"
       postal_code_type:
         type: string
         enum:
@@ -6287,6 +6287,28 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  /okta-profile:
+    get:
+      summary: Returns the given service member's okta profile
+      description: Returns the okta profile data for service member
+      operationId: showOktaInfo
+      tags:
+        - okta_profile
+      responses:
+        '200':
+          description: the instance of the service member
+          schema:
+            $ref: '#/definitions/ServiceMemberPayload'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '403':
+          description: user is not authorized
+        '404':
+          description: service member not found
+        '500':
+          description: internal server error
 responses:
   InvalidRequest:
     description: The request payload is invalid.

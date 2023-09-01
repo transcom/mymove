@@ -234,6 +234,15 @@ type Session struct {
 	Permissions     []string
 	AccessToken     string
 	ClientID        string
+	OktaSessionInfo OktaSessionInfo
+}
+
+type OktaSessionInfo struct {
+	OktaUsername  string
+	OktaFirstName string
+	OktaLastName  string
+	OktaEdipi     string
+	OktaID        string
 }
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data

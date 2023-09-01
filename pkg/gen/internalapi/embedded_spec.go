@@ -1814,6 +1814,39 @@ func init() {
         }
       }
     },
+    "/okta-profile": {
+      "get": {
+        "description": "Returns the okta profile data for service member",
+        "tags": [
+          "okta_profile"
+        ],
+        "summary": "Returns the given service member's okta profile",
+        "operationId": "showOktaInfo",
+        "responses": {
+          "200": {
+            "description": "the instance of the service member",
+            "schema": {
+              "$ref": "#/definitions/ServiceMemberPayload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "service member not found"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/orders": {
       "post": {
         "description": "Creates an instance of orders tied to a service member",
@@ -10175,6 +10208,39 @@ func init() {
             "schema": {
               "$ref": "#/definitions/Error"
             }
+          }
+        }
+      }
+    },
+    "/okta-profile": {
+      "get": {
+        "description": "Returns the okta profile data for service member",
+        "tags": [
+          "okta_profile"
+        ],
+        "summary": "Returns the given service member's okta profile",
+        "operationId": "showOktaInfo",
+        "responses": {
+          "200": {
+            "description": "the instance of the service member",
+            "schema": {
+              "$ref": "#/definitions/ServiceMemberPayload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "service member not found"
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       }
