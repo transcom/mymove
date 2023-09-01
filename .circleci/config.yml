@@ -1082,6 +1082,7 @@ jobs:
   setup_environment_variables_from_aws:
     executor: aws-cli/default
     steps:
+      - aws_vars_dp3
       - checkout
       - aws-cli/setup:
           profile-name: 'CIRCLECI-OIDC-PROFILE'
