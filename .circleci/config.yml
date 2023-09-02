@@ -1083,10 +1083,15 @@ jobs:
     executor: aws-cli/default
     steps:
       - checkout
+      - run:
+          name: 'Setting up AWS environment variables for dp3 env defined in &dp3-env'
+          command: |
+            echo "export AWS_DEFAULT_REGION=us-west-2" >> $BASH_ENV
       - aws-cli/setup:
           profile-name: 'CIRCLECI-OIDC-PROFILE'
           role-arn: 'arn:aws-us-gov:iam::469892416004:role/CircleCIOIDC'
           role-session-name: example-session
+          aws-region: AWS_DEFAULT_REGION
       - run:
           name: Log-into-AWS-ECR
           command: |
