@@ -1081,7 +1081,7 @@ jobs:
 
   setup_environment_variables_from_aws:
     environment:
-      AWS_DEFAULT_REGION: us-west-2
+      AWS_DEFAULT_REGION: us-gov-west-1
     executor: aws-cli/default
     steps:
       - checkout
