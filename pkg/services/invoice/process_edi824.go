@@ -135,10 +135,12 @@ func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, _ string, st
 				InterchangeControlNumberID: &prToICN.ID,
 				EDIType:                    models.EDIType824,
 			}
+			txnAppCtx.Logger().Error("Saving edi technical error", zap.Any("ediError", ediError))
+
 			err = txnAppCtx.DB().Save(&ediError)
 			if err != nil {
 				txnAppCtx.Logger().Error("failure saving edi technical error description", zap.Error(err))
-				return fmt.Errorf("failure saving edi technical error with PaymentRequestID %v, code %v, and description %v", ediError.PaymentRequestID, ediError.Code, ediError.Description)
+				return fmt.Errorf("failure saving edi technical error description: %w", err)
 			}
 		}
 
