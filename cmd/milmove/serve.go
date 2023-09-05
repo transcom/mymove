@@ -47,6 +47,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/invoice"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/telemetry"
+	"github.com/transcom/mymove/pkg/trdm"
 )
 
 // initServeFlags - Order matters!
@@ -801,6 +802,16 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			logger.Fatal("error creating mutual-tls server", zap.Error(err))
 		}
 		go startListener(mutualTLSServer, logger, true)
+	}
+
+	// TRDM SOAP Request
+	trdmIsEnabled := v.GetBool(cli.TRDMIsEnabled)
+	if trdmIsEnabled {
+		// Call the initial SOAP call for LastTableUpdate on server start and once per day
+		err := trdm.LastTableUpdate(v, tlsConfig)
+		if err != nil {
+			return err
+		}
 	}
 
 	// make sure we flush any pending startup messages
