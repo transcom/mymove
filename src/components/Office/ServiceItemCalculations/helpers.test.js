@@ -338,7 +338,7 @@ describe('makeCalculations', () => {
         value: '1.71',
         label: 'Origin price',
         details: [
-          { text: 'SIT Origin service area: 176', styles: {} },
+          { text: 'SIT origin service area: 176', styles: {} },
           { text: 'Requested pickup: 09 Mar 2020', styles: {} },
           { text: 'Domestic non-peak', styles: {} },
         ],
@@ -407,7 +407,7 @@ describe('makeCalculations', () => {
       },
       {
         details: [
-          { text: 'SIT Origin service area: 176', styles: {} },
+          { text: 'SIT origin service area: 176', styles: {} },
           { text: 'Requested pickup: 09 Mar 2020', styles: {} },
           { text: 'Domestic non-peak', styles: {} },
         ],
