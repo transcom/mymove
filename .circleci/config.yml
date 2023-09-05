@@ -76,7 +76,7 @@ executors:
       - image: *cimg_base
         auth:
           username: $D_U
-          password: $DOCKERHUB_PASSWORD
+          password: $D_U
   tls_small:
     resource_class: small
     working_directory: ~/transcom/mymove
@@ -84,7 +84,7 @@ executors:
       - image: *circleci-docker
         auth:
           username: $D_U
-          password: $DOCKERHUB_PASSWORD
+          password: $D_U
   av_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
@@ -96,7 +96,7 @@ executors:
         # IPs.
         auth:
           username: $D_U
-          password: $DOCKERHUB_PASSWORD
+          password: $D_U
   mymove_pusher:
     # needs to be medium+ so it can checkout and restore the workspace
     resource_class: medium+
@@ -105,7 +105,7 @@ executors:
       - image: *circleci-docker
         auth:
           username: $D_U
-          password: $DOCKERHUB_PASSWORD
+          password: $D_U
   mymove_builder:
     resource_class: medium+
     working_directory: /mnt/ramdisk
@@ -113,7 +113,7 @@ executors:
       - image: *circleci-docker
         auth:
           username: $D_U
-          password: $DOCKERHUB_PASSWORD
+          password: $D_U
   mymove_compiler:
     # large and no ram disk
     resource_class: large
@@ -134,7 +134,7 @@ executors:
       - image: *circleci-docker
         auth:
           username: $D_U
-          password: $DOCKERHUB_PASSWORD
+          password: $D_U
         environment:
           GOPATH: /home/circleci/go
 
@@ -146,7 +146,7 @@ executors:
       - image: *circleci-docker
         auth:
           username: $D_U
-          password: $DOCKERHUB_PASSWORD
+          password: $D_U
         environment:
           GOPATH: /home/circleci/go
 
@@ -158,7 +158,7 @@ executors:
       - image: *circleci-docker
         auth:
           username: $D_U
-          password: $DOCKERHUB_PASSWORD
+          password: $D_U
         environment:
           GOPATH: /home/circleci/go
 
@@ -169,13 +169,13 @@ executors:
       - image: *circleci-docker
         auth:
           username: $D_U
-          password: $DOCKERHUB_PASSWORD
+          password: $D_U
         environment:
           GOPATH: /home/circleci/go
       - image: *postgres
         auth:
           username: $D_U
-          password: $DOCKERHUB_PASSWORD
+          password: $D_U
         environment:
           POSTGRES_PASSWORD: mysecretpassword
           POSTGRES_DB: test_db
@@ -192,7 +192,7 @@ executors:
       - image: *redis
         auth:
           username: $D_U
-          password: $DOCKERHUB_PASSWORD
+          password: $D_U
 
   mymove_load_tester:
     resource_class: large
@@ -201,7 +201,7 @@ executors:
       - image: *load_tester
         auth:
           username: $D_U
-          password: $DOCKERHUB_PASSWORD
+          password: $D_U
         environment:
           GOPATH: /home/circleci/go
       - image: *postgres
@@ -224,7 +224,7 @@ executors:
       - image: *redis
         auth:
           username: $D_U
-          password: $DOCKERHUB_PASSWORD
+          password: $D_U
 
   milmove_playwright_tester:
     # maybe don't need xlarge, but getting many timeouts with large
@@ -237,13 +237,13 @@ executors:
       - image: *playwright
         auth:
           username: $D_U
-          password: $DOCKERHUB_PASSWORD
+          password: $D_U
         environment:
           GOPATH: /home/circleci/go
       - image: *postgres
         auth:
           username: $D_U
-          password: $DOCKERHUB_PASSWORD
+          password: $D_U
         environment:
           POSTGRES_PASSWORD: mysecretpassword
           POSTGRES_DB: test_db
@@ -259,7 +259,7 @@ executors:
       - image: *redis
         auth:
           username: $D_U
-          password: $DOCKERHUB_PASSWORD
+          password: $D_U
 
 commands:
   create_dot_go_version:
