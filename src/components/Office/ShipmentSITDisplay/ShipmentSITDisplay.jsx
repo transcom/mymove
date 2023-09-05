@@ -16,6 +16,7 @@ import { formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
 import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import { ShipmentShape } from 'types/shipment';
 import { SitStatusShape, LOCATION_TYPES } from 'types/sitStatusShape';
+import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
 
 const SITHistoryItem = ({ sitItem }) => (
   <dl data-testid="sitHistoryItem">
@@ -114,6 +115,12 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
     return 'Expired';
   };
 
+  // Customer delivery request
+  const isDestination = sitStatus.currentSIT?.location === LOCATION_TYPES.DESTINATION;
+  const customerContactDate =
+    formatDate(sitStatus?.currentSIT?.sitCustomerContacted, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE;
+  const sitRequestedDelivery =
+    formatDate(sitStatus?.currentSIT?.sitRequestedDelivery, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE;
   return (
     <>
       <div className={styles.title}>
@@ -151,6 +158,17 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
       {sitStatus.pastSITServiceItems && (
         <div className={styles.tableContainer}>
           <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
+        </div>
+      )}
+
+      {isDestination && (
+        <div className={styles.tableContainer}>
+          <p className={styles.sitHeader}>Customer delivery request</p>
+          <DataTable
+            columnHeaders={['Customer contact date', 'Requested delivery date']}
+            dataRow={[customerContactDate, sitRequestedDelivery]}
+            custClass={styles.currentLocation}
+          />
         </div>
       )}
     </>

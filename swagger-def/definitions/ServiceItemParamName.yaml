@@ -54,6 +54,7 @@ enum:
   - SITScheduleDest
   - SITScheduleOrigin
   - SITServiceAreaDest
+  - SITServiceAreaOrigin
   - WeightAdjusted
   - WeightBilled
   - WeightEstimated

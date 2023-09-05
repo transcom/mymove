@@ -78,6 +78,19 @@ export const SITStatusDestination = {
     daysInSIT: 15,
     sitEntryDate: '2021-08-13',
     sitAllowanceEndDate: '2021-08-28',
+    sitCustomerContacted: '2021-08-26',
+    sitRequestedDelivery: '2021-08-30',
+  },
+};
+
+export const SITStatusDestinationWithoutCustomerDeliveryInfo = {
+  totalSITDaysUsed: 45,
+  totalDaysRemaining: 60,
+  currentSIT: {
+    location: LOCATION_VALUES.DESTINATION,
+    daysInSIT: 15,
+    sitEntryDate: '2021-08-13',
+    sitAllowanceEndDate: '2021-08-28',
   },
 };
 

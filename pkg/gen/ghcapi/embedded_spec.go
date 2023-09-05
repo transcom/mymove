@@ -6188,6 +6188,11 @@ func init() {
         "sitAddressUpdates": {
           "$ref": "#/definitions/SITAddressUpdates"
         },
+        "sitCustomerContacted": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "sitDepartureDate": {
           "type": "string",
           "format": "date-time",
@@ -6202,6 +6207,11 @@ func init() {
         "sitEntryDate": {
           "type": "string",
           "format": "date-time",
+          "x-nullable": true
+        },
+        "sitRequestedDelivery": {
+          "type": "string",
+          "format": "date",
           "x-nullable": true
         },
         "status": {
@@ -8499,12 +8509,22 @@ func init() {
               "format": "date",
               "x-nullable": true
             },
+            "sitCustomerContacted": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "sitDepartureDate": {
               "type": "string",
               "format": "date",
               "x-nullable": true
             },
             "sitEntryDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitRequestedDelivery": {
               "type": "string",
               "format": "date",
               "x-nullable": true
@@ -8652,6 +8672,7 @@ func init() {
         "SITScheduleDest",
         "SITScheduleOrigin",
         "SITServiceAreaDest",
+        "SITServiceAreaOrigin",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",
@@ -17382,6 +17403,11 @@ func init() {
         "sitAddressUpdates": {
           "$ref": "#/definitions/SITAddressUpdates"
         },
+        "sitCustomerContacted": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "sitDepartureDate": {
           "type": "string",
           "format": "date-time",
@@ -17396,6 +17422,11 @@ func init() {
         "sitEntryDate": {
           "type": "string",
           "format": "date-time",
+          "x-nullable": true
+        },
+        "sitRequestedDelivery": {
+          "type": "string",
+          "format": "date",
           "x-nullable": true
         },
         "status": {
@@ -19696,12 +19727,22 @@ func init() {
               "format": "date",
               "x-nullable": true
             },
+            "sitCustomerContacted": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "sitDepartureDate": {
               "type": "string",
               "format": "date",
               "x-nullable": true
             },
             "sitEntryDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitRequestedDelivery": {
               "type": "string",
               "format": "date",
               "x-nullable": true
@@ -19739,12 +19780,22 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "sitCustomerContacted": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "sitDepartureDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
         "sitEntryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitRequestedDelivery": {
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -19881,6 +19932,7 @@ func init() {
         "SITScheduleDest",
         "SITScheduleOrigin",
         "SITServiceAreaDest",
+        "SITServiceAreaOrigin",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",

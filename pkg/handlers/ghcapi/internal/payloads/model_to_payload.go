@@ -673,11 +673,13 @@ func currentSIT(currentSIT *services.CurrentSIT) *ghcmessages.SITStatusCurrentSI
 		return nil
 	}
 	return &ghcmessages.SITStatusCurrentSIT{
-		Location:            currentSIT.Location,
-		DaysInSIT:           handlers.FmtIntPtrToInt64(&currentSIT.DaysInSIT),
-		SitEntryDate:        handlers.FmtDate(currentSIT.SITEntryDate),
-		SitDepartureDate:    handlers.FmtDatePtr(currentSIT.SITDepartureDate),
-		SitAllowanceEndDate: handlers.FmtDate(currentSIT.SITAllowanceEndDate),
+		Location:             currentSIT.Location,
+		DaysInSIT:            handlers.FmtIntPtrToInt64(&currentSIT.DaysInSIT),
+		SitEntryDate:         handlers.FmtDate(currentSIT.SITEntryDate),
+		SitDepartureDate:     handlers.FmtDatePtr(currentSIT.SITDepartureDate),
+		SitAllowanceEndDate:  handlers.FmtDate(currentSIT.SITAllowanceEndDate),
+		SitCustomerContacted: handlers.FmtDatePtr(currentSIT.SITCustomerContacted),
+		SitRequestedDelivery: handlers.FmtDatePtr(currentSIT.SITRequestedDelivery),
 	}
 }
 
@@ -1284,6 +1286,8 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		SITPostalCode:                 handlers.FmtStringPtr(s.SITPostalCode),
 		SitEntryDate:                  handlers.FmtDateTimePtr(s.SITEntryDate),
 		SitDepartureDate:              handlers.FmtDateTimePtr(s.SITDepartureDate),
+		SitCustomerContacted:          handlers.FmtDatePtr(s.SITCustomerContacted),
+		SitRequestedDelivery:          handlers.FmtDatePtr(s.SITRequestedDelivery),
 		Status:                        ghcmessages.MTOServiceItemStatus(s.Status),
 		Description:                   handlers.FmtStringPtr(s.Description),
 		Dimensions:                    MTOServiceItemDimensions(s.Dimensions),
