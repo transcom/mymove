@@ -75,7 +75,7 @@ executors:
     docker:
       - image: *cimg_base
         auth:
-          username: $DOCKERHUB_USERNAME
+          username: $D_U
           password: $DOCKERHUB_PASSWORD
   tls_small:
     resource_class: small
@@ -83,7 +83,7 @@ executors:
     docker:
       - image: *circleci-docker
         auth:
-          username: $DOCKERHUB_USERNAME
+          username: $D_U
           password: $DOCKERHUB_PASSWORD
   av_medium:
     resource_class: medium
@@ -95,7 +95,7 @@ executors:
         # We'll need this until CircleCI and Docker Hub work out a deal to prevent rate limiting errors from CircleCI
         # IPs.
         auth:
-          username: $DOCKERHUB_USERNAME
+          username: $D_U
           password: $DOCKERHUB_PASSWORD
   mymove_pusher:
     # needs to be medium+ so it can checkout and restore the workspace
@@ -104,7 +104,7 @@ executors:
     docker:
       - image: *circleci-docker
         auth:
-          username: $DOCKERHUB_USERNAME
+          username: $D_U
           password: $DOCKERHUB_PASSWORD
   mymove_builder:
     resource_class: medium+
@@ -112,7 +112,7 @@ executors:
     docker:
       - image: *circleci-docker
         auth:
-          username: $DOCKERHUB_USERNAME
+          username: $D_U
           password: $DOCKERHUB_PASSWORD
   mymove_compiler:
     # large and no ram disk
@@ -121,7 +121,7 @@ executors:
     docker:
       - image: *circleci-docker
         auth:
-          username: $DOCKERHUB_USERNAME
+          username: $D_U
           password: $DOCKERHUB_PASSWORD
         environment:
           GOPATH: /home/circleci/go
@@ -133,7 +133,7 @@ executors:
     docker:
       - image: *circleci-docker
         auth:
-          username: $DOCKERHUB_USERNAME
+          username: $D_U
           password: $DOCKERHUB_PASSWORD
         environment:
           GOPATH: /home/circleci/go
@@ -145,7 +145,7 @@ executors:
     docker:
       - image: *circleci-docker
         auth:
-          username: $DOCKERHUB_USERNAME
+          username: $D_U
           password: $DOCKERHUB_PASSWORD
         environment:
           GOPATH: /home/circleci/go
@@ -157,7 +157,7 @@ executors:
     docker:
       - image: *circleci-docker
         auth:
-          username: $DOCKERHUB_USERNAME
+          username: $D_U
           password: $DOCKERHUB_PASSWORD
         environment:
           GOPATH: /home/circleci/go
@@ -168,13 +168,13 @@ executors:
     docker:
       - image: *circleci-docker
         auth:
-          username: $DOCKERHUB_USERNAME
+          username: $D_U
           password: $DOCKERHUB_PASSWORD
         environment:
           GOPATH: /home/circleci/go
       - image: *postgres
         auth:
-          username: $DOCKERHUB_USERNAME
+          username: $D_U
           password: $DOCKERHUB_PASSWORD
         environment:
           POSTGRES_PASSWORD: mysecretpassword
@@ -191,7 +191,7 @@ executors:
 
       - image: *redis
         auth:
-          username: $DOCKERHUB_USERNAME
+          username: $D_U
           password: $DOCKERHUB_PASSWORD
 
   mymove_load_tester:
@@ -200,13 +200,13 @@ executors:
     docker:
       - image: *load_tester
         auth:
-          username: $DOCKERHUB_USERNAME
+          username: $D_U
           password: $DOCKERHUB_PASSWORD
         environment:
           GOPATH: /home/circleci/go
       - image: *postgres
         auth:
-          username: $DOCKERHUB_USERNAME
+          username: $D_U
           password: $DOCKERHUB_PASSWORD
         environment:
           POSTGRES_PASSWORD: mysecretpassword
@@ -223,7 +223,7 @@ executors:
 
       - image: *redis
         auth:
-          username: $DOCKERHUB_USERNAME
+          username: $D_U
           password: $DOCKERHUB_PASSWORD
 
   milmove_playwright_tester:
@@ -236,13 +236,13 @@ executors:
     docker:
       - image: *playwright
         auth:
-          username: $DOCKERHUB_USERNAME
+          username: $D_U
           password: $DOCKERHUB_PASSWORD
         environment:
           GOPATH: /home/circleci/go
       - image: *postgres
         auth:
-          username: $DOCKERHUB_USERNAME
+          username: $D_U
           password: $DOCKERHUB_PASSWORD
         environment:
           POSTGRES_PASSWORD: mysecretpassword
@@ -258,7 +258,7 @@ executors:
         command: -c 'ln -s /dev/shm/pgdata/data /var/lib/postgresql/ && exec /usr/local/bin/docker-entrypoint.sh postgres'
       - image: *redis
         auth:
-          username: $DOCKERHUB_USERNAME
+          username: $D_U
           password: $DOCKERHUB_PASSWORD
 
 commands:
@@ -1093,6 +1093,7 @@ jobs:
           name: Log-into-AWS-ECR
           command: |
             aws ecr get-login-password --profile "CIRCLECI-OIDC-PROFILE"
+      - run: echo 'export D_U=${aws ssm get-parameter --with-decryption --name /app-loadtest/dockerhub_username | jq -r .Parameter.Value}' >> $BASH_ENV
       - run: echo 'export TEST_ENV=${aws ssm get-parameter --with-decryption --name /app-loadtest/circleci-test | jq -r .Parameter.Value}' >> $BASH_ENV
 
   # `pre_deps_golang` is used for caching Go module sources
