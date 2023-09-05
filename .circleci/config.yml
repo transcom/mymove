@@ -1096,8 +1096,8 @@ jobs:
       - run:
           name: 'Setting up AWS environment variables'
           command: |
-            echo "export DOCKERHUB_USERNAME=\$(aws ssm get-parameter --with-decryption --name /app-loadtest/dockerhub_username | jq -r .Parameter.Value)"" >> $BASH_ENV
-            echo "export TEST_ENV_VAR=\$(aws ssm get-parameter --with-decryption --name /app-loadtest/circleci-test | jq -r .Parameter.Value) >> $BASH_ENV
+            echo "export DOCKERHUB_USERNAME=\$(aws ssm get-parameter --with-decryption --name /app-loadtest/dockerhub_username | jq -r .Parameter.Value)" >> $BASH_ENV
+            echo "export TEST_ENV_VAR=\$(aws ssm get-parameter --with-decryption --name /app-loadtest/circleci-test | jq -r .Parameter.Value)" >> $BASH_ENV
         # echo "export AWS_DEFAULT_REGION=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_REGION" >> $BASH_ENV
 
   # `pre_deps_golang` is used for caching Go module sources
