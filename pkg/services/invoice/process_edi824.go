@@ -138,7 +138,7 @@ func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, _ string, st
 			err = txnAppCtx.DB().Save(&ediError)
 			if err != nil {
 				txnAppCtx.Logger().Error("failure saving edi technical error description", zap.Error(err))
-				return fmt.Errorf("failure saving edi technical error description: %w", err)
+				return fmt.Errorf("failure saving edi technical error with PaymentRequestID %v, code %v, and description %v", ediError.PaymentRequestID, ediError.Code, ediError.Description)
 			}
 		}
 
