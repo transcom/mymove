@@ -92,5 +92,24 @@ func (suite *TRDMSuite) TestFetchLOARecordsByTime() {
 
 	suite.NoError(err)
 	suite.NotEqual(finalCodesLength, intialLoaCodesLength)
+}
+
+func (suite *TRDMSuite) TestFetchTACRecordsByTime() {
+	// Get initial TAC codes count
+	initialCodes, err := trdm.FetchTACRecordsByTime(suite.AppContextForTest(), time.Now().Format(time.RFC3339))
+	initialTacCodeLength := len(initialCodes)
+	suite.NoError(err)
+
+	// Creates a test TAC code record in the DB
+	testdatagen.MakeDefaultTranportationAccountingCode(suite.DB())
+
+	// Fetch All TAC Records
+	codes, err := trdm.FetchTACRecordsByTime(suite.AppContextForTest(), time.Now().Format(time.RFC3339))
+
+	// Compare new TAC Code count to initial count
+	finalCodesLength := len(codes)
+
+	suite.NoError(err)
+	suite.NotEqual(finalCodesLength, initialTacCodeLength)
 
 }

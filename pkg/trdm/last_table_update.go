@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"github.com/tiaguinho/gosoap"
 	"go.uber.org/zap"
@@ -17,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 /*******************************************
@@ -83,6 +85,19 @@ func NewTRDMGetLastTableUpdate(physicalName string, securityToken string, privat
 		securityToken: securityToken,
 		privateKey:    privateKey,
 	}
+
+}
+
+// FetchAllTACRecords queries and fetches all transportation_accounting_codes
+func FetchAllTACRecords(appcontext appcontext.AppContext) ([]models.TransportationAccountingCode, error) {
+	var tacCodes []models.TransportationAccountingCode
+	query := `SELECT * FROM transportation_accounting_codes`
+	err := appcontext.DB().RawQuery(query).All(&tacCodes)
+	if err != nil {
+		return tacCodes, errors.Wrap(err, "Fetch line items query failed")
+	}
+
+	return tacCodes, nil
 
 }
 
@@ -168,7 +183,6 @@ func StartLastTableUpdateCron(appCtx appcontext.AppContext, certificate string, 
 }
 
 func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config) error {
-
 	dbEnv := v.GetString(cli.DbEnvFlag)
 	logger, _, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	if err != nil {

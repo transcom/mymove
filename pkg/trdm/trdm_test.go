@@ -12,10 +12,7 @@ type TRDMSuite struct {
 	*testingsuite.PopTestSuite
 }
 
-func (suite *TRDMSuite) SetupTest() {
-
-}
-func TestModelSuite(t *testing.T) {
+func TestTRDMSuite(t *testing.T) {
 	hs := &TRDMSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 	}
