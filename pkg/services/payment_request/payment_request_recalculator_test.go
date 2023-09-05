@@ -228,7 +228,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 			isNewPaymentRequest: true,
 			paymentRequest:      newPaymentRequest,
 			serviceCode:         models.ReServiceCodeDOASIT,
-			priceCents:          unit.Cents(237920), // Price same as before since new weight still in same weight bracket
+			priceCents:          unit.Cents(237900), // Price same as before since new weight still in same weight bracket
 			paramsToCheck: []paramMap{
 				{models.ServiceItemParamNameWeightOriginal, strTestChangedOriginalWeight},
 				{models.ServiceItemParamNameWeightBilled, strTestChangedOriginalWeight},
