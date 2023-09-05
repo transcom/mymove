@@ -209,9 +209,9 @@ test.describe('TOO user', () => {
 
       // Edit orders fields
 
-      await tooFlowPage.selectDutyLocation('Fort Irwin', 'originDutyLocation');
+      await tooFlowPage.selectDutyLocation('Fort Irwin, CA 92310', 'originDutyLocation');
       // select the 5th option in the dropdown
-      await tooFlowPage.selectDutyLocation('JB McGuire-Dix-Lakehurst', 'newDutyLocation', 5);
+      await tooFlowPage.selectDutyLocation('JB McGuire-Dix-Lakehurst', 'newDutyLocation', 1);
 
       await page.locator('input[name="issueDate"]').clear();
       await page.locator('input[name="issueDate"]').type('16 Mar 2018');
@@ -236,7 +236,7 @@ test.describe('TOO user', () => {
 
       await expect(page.locator('[data-testid="currentDutyLocation"]')).toContainText('Fort Irwin');
       await expect(page.locator('[data-testid="newDutyLocation"]')).toContainText(
-        'Joint Base Lewis-McChord (McChord AFB)',
+        'JB McGuire-Dix-Lakehurst (Lakehurst), NJ 08753',
       );
       await expect(page.locator('[data-testid="issuedDate"]')).toContainText('16 Mar 2018');
       await expect(page.locator('[data-testid="reportByDate"]')).toContainText('22 Mar 2018');
