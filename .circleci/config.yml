@@ -828,6 +828,9 @@ commands:
             export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
             export LOGIN_GOV_CALLBACK_PORT=4000
             export LOGIN_GOV_CALLBACK_PROTOCOL=http
+            export OKTA_CUSTOMER_CLIENT_ID=1q2w3e4r5t6y7u8i9o
+            export OKTA_ADMIN_CLIENT_ID=AQ1SW2DE3FR4G5
+            export OKTA_OFFICE_CLEINT_ID=9f9f9s8s90gig9
             export SERVE_API_PRIME=false
             export SERVE_API_SUPPORT=true
             export SERVE_PRIME_SIMULATOR=true
@@ -922,6 +925,9 @@ commands:
             export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
             export LOGIN_GOV_CALLBACK_PORT=4000
             export LOGIN_GOV_CALLBACK_PROTOCOL=http
+            export OKTA_CUSTOMER_CLIENT_ID=1q2w3e4r5t6y7u8i9o
+            export OKTA_ADMIN_CLIENT_ID=AQ1SW2DE3FR4G5
+            export OKTA_OFFICE_CLEINT_ID=9f9f9s8s90gig9
             export SERVE_API_SUPPORT=true
             export SERVE_PRIME_SIMULATOR=true
             export DEVLOCAL_CA=$PWD/config/tls/devlocal-ca.pem
@@ -998,6 +1004,9 @@ commands:
             export HERE_MAPS_ROUTING_ENDPOINT=https://route.api.here.com/routing/7.2/calculateroute.json
             export LOGIN_GOV_CALLBACK_PORT=4000
             export LOGIN_GOV_CALLBACK_PROTOCOL=http
+            export OKTA_CUSTOMER_CLIENT_ID=1q2w3e4r5t6y7u8i9o
+            export OKTA_ADMIN_CLIENT_ID=AQ1SW2DE3FR4G5
+            export OKTA_OFFICE_CLEINT_ID=9f9f9s8s90gig9
             export SERVE_API_SUPPORT=true
             export MUTUAL_TLS_ENABLED=true
             export SERVE_PRIME_SIMULATOR=true
