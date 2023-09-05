@@ -6,16 +6,16 @@ interactions:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
-        content_length: 130
+        content_length: 297
         transfer_encoding: []
         trailer: {}
         host: localhost:5050
         remote_addr: ""
         request_uri: ""
-        body: '{"requestId":"d15db60d-090a-4c2b-9949-f19b9fa02e94", "namespaceKey":"development", "flagKey":"multi_variant", "entityId":"system"}'
+        body: '{"requestId":"fd6dd67e-991d-4fb3-ac05-f68e5b844928", "namespaceKey":"development", "flagKey":"boolean_flag", "entityId":"00000000-0000-0000-0000-000000000001", "context":{"applicationName":"mil", "email":"foo@example.com", "isAdminUser":"false", "isOfficeUser":"false", "isServiceMember":"false"}}'
         form: {}
         headers: {}
-        url: http://localhost:5050/evaluate/v1/variant
+        url: http://localhost:5050/evaluate/v1/boolean
         method: POST
       response:
         proto: HTTP/1.1
@@ -25,7 +25,7 @@ interactions:
         trailer: {}
         content_length: -1
         uncompressed: true
-        body: '{"match":true,"segmentKeys":["all-entities"],"reason":"MATCH_EVALUATION_REASON","variantKey":"two","variantAttachment":"null","requestId":"d15db60d-090a-4c2b-9949-f19b9fa02e94","requestDurationMillis":0.061,"timestamp":"2023-09-05T18:04:02.033944463Z"}'
+        body: '{"enabled":true,"reason":"DEFAULT_EVALUATION_REASON","requestId":"fd6dd67e-991d-4fb3-ac05-f68e5b844928","requestDurationMillis":0.18025,"timestamp":"2023-09-05T18:04:02.005116047Z"}'
         headers:
             Content-Security-Policy:
                 - default-src 'self'; img-src * data:; frame-ancestors 'none';
@@ -42,4 +42,4 @@ interactions:
                 - nosniff
         status: 200 OK
         code: 200
-        duration: 3.507625ms
+        duration: 6.422ms

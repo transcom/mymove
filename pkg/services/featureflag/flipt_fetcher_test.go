@@ -17,7 +17,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -46,6 +45,14 @@ type fliptRequestBody struct {
 	Timestamp      string            `json:"timestamp"`
 }
 
+// This test uses go-vcr to record actual API requests. If you are
+// making a change that affects the API requests, you will need to
+// re-record them.
+//
+//  1. Remove the recorded requests: `rm pkg/services/featureflag/testdata/flipt_*`
+//  2. Start flipt: `make feature_flag_docker`
+//  3. Run the tests. That will re-record the requests
+//  4. Stop flipt
 func (suite *FliptFetcherSuite) setupRecorder(path string) *recorder.Recorder {
 	recorder, err := recorder.New(path)
 	suite.NoError(err)
@@ -129,35 +136,32 @@ func (suite *FliptFetcherSuite) TestGetFlagForUserDisabledVariant() {
 		Email:           "foo@example.com",
 		ApplicationName: auth.MilApp,
 	}
-	flag, err := f.GetFlagForUser(context.Background(),
+	disabledVariantKey := "disabled_variant"
+	flag, err := f.GetVariantFlagForUser(context.Background(),
 		suite.AppContextWithSessionForTest(fakeSession),
-		"disabled_variant", map[string]string{})
+		disabledVariantKey, map[string]string{})
 	suite.NoError(err)
-	suite.Equal("disabled_variant", flag.Key)
+	suite.Equal(disabledVariantKey, flag.Key)
 	suite.False(flag.Match)
 	suite.Equal(fakeSession.UserID.String(), flag.Entity)
-	suite.Equal("", flag.Value)
+	suite.Equal("", flag.Variant)
 	suite.Equal(f.config.Namespace, flag.Namespace)
-	suite.False(flag.IsEnabledVariant())
 }
 
-func (suite *FliptFetcherSuite) TestGetFlagForUserBooleanVariant() {
-	f := suite.setupFliptFetcher("testdata/flipt_user_boolean_variant")
+func (suite *FliptFetcherSuite) TestGetFlagForUserBooleanFlag() {
+	f := suite.setupFliptFetcher("testdata/flipt_user_boolean_flag")
 	fakeSession := &auth.Session{
 		UserID:          uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"),
 		Email:           "foo@example.com",
 		ApplicationName: auth.MilApp,
 	}
-	flag, err := f.GetFlagForUser(context.Background(),
+	const booleanKey = "boolean_flag"
+	flag, err := f.GetBooleanFlagForUser(context.Background(),
 		suite.AppContextWithSessionForTest(fakeSession),
-		"boolean_variant", map[string]string{})
+		booleanKey, map[string]string{})
 	suite.NoError(err)
-	suite.Equal("boolean_variant", flag.Key)
+	suite.Equal(booleanKey, flag.Key)
 	suite.True(flag.Match)
-	suite.Equal(fakeSession.UserID.String(), flag.Entity)
-	suite.Equal(services.FeatureFlagEnabledVariant, flag.Value)
-	suite.Equal(f.config.Namespace, flag.Namespace)
-	suite.True(flag.IsEnabledVariant())
 }
 
 func (suite *FliptFetcherSuite) TestGetFlagForUserMultiVariant() {
@@ -167,13 +171,13 @@ func (suite *FliptFetcherSuite) TestGetFlagForUserMultiVariant() {
 		Email:           "foo@example.com",
 		ApplicationName: auth.MilApp,
 	}
-	flag, err := f.GetFlagForUser(context.Background(),
+	flag, err := f.GetVariantFlagForUser(context.Background(),
 		suite.AppContextWithSessionForTest(fakeSession),
 		"multi_variant", map[string]string{})
 	suite.NoError(err)
 	suite.True(flag.Match)
 	suite.Equal("multi_variant", flag.Key)
-	suite.Equal("one", flag.Value)
+	suite.Equal("one", flag.Variant)
 	suite.Equal(fakeSession.UserID.String(), flag.Entity)
 	suite.Equal(f.config.Namespace, flag.Namespace)
 	suite.True(flag.IsVariant("one"))
@@ -182,14 +186,14 @@ func (suite *FliptFetcherSuite) TestGetFlagForUserMultiVariant() {
 
 func (suite *FliptFetcherSuite) TestGetFlagSystemMultiVariant() {
 	f := suite.setupFliptFetcher("testdata/flipt_system_multi_variant")
-	flag, err := f.GetFlag(context.Background(),
+	flag, err := f.GetVariantFlag(context.Background(),
 		suite.Logger(),
 		"system",
 		"multi_variant", map[string]string{})
 	suite.NoError(err)
 	suite.True(flag.Match)
 	suite.Equal("multi_variant", flag.Key)
-	suite.Equal("two", flag.Value)
+	suite.Equal("two", flag.Variant)
 	suite.Equal("system", flag.Entity)
 	suite.Equal(f.config.Namespace, flag.Namespace)
 	suite.True(flag.IsVariant("two"))

@@ -1,13 +1,10 @@
+version: "1.2"
 namespace: development
 flags:
-  - key: boolean_variant
-    name: Boolean Variant
+  - key: boolean_flag
+    name: Boolean Flag
+    type: BOOLEAN_FLAG_TYPE
     enabled: true
-    variants:
-      - key: enabled
-        name: Enabled
-      - key: disabled
-        name: Disabled
     rules:
       - segment: mil-app
         rank: 1
@@ -17,6 +14,7 @@ flags:
 
   - key: multi_variant
     name: Multi Variant
+    type: VARIANT_FLAG_TYPE
     enabled: true
     variants:
       - key: one
@@ -39,6 +37,7 @@ flags:
 
   - key: disabled_variant
     name: Disabled Variant
+    type: VARIANT_FLAG_TYPE
     enabled: false
     variants:
       - key: one
