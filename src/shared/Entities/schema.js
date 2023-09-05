@@ -77,21 +77,7 @@ export const serviceMember = new schema.Entity('serviceMembers', {
 });
 
 // Okta Profile
-export const oktaUsername = new schema.Entity('oktaUsername');
-export const oktaEmail = new schema.Entity('oktaEmail');
-export const oktaFirstName = new schema.Entity('oktaFirstName');
-export const oktaLastName = new schema.Entity('oktaLastName');
-export const oktaEdipi = new schema.Entity('oktaEdipi');
-export const oktaId = new schema.Entity('oktaId');
-
-export const oktaProfile = new schema.Entity('oktaProfile', {
-  oktaUsername,
-  oktaEmail,
-  oktaFirstName,
-  oktaLastName,
-  oktaEdipi,
-  oktaId,
-});
+export const oktaUser = new schema.Entity('oktaUser');
 
 // Loggedin User
 export const loggedInUser = new schema.Entity('user', {

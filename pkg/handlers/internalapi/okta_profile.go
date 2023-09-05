@@ -4,6 +4,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/transcom/mymove/pkg/appcontext"
 	oktaop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/okta_profile"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
@@ -17,13 +18,22 @@ func (h GetOktaProfileHandler) Handle(params oktaop.ShowOktaInfoParams) middlewa
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			oktaPayload := appCtx.Session().OktaSessionInfo
+			oktaProfile := appCtx.Session().OktaSessionInfo
+
+			oktaUserPayload := internalmessages.OktaUserPayload{
+				Username:  oktaProfile.Username,
+				Email:     oktaProfile.Email,
+				FirstName: oktaProfile.FirstName,
+				LastName:  oktaProfile.LastName,
+				Edipi:     &oktaProfile.Edipi,
+				Sub:       oktaProfile.Sub,
+			}
 
 			// this is going to check to see if the Okta profile data is present in the session
-			if oktaPayload.OktaID == "" {
+			if oktaUserPayload.Sub == "" {
 				appCtx.Logger().Error("Session does not contain Okta values")
 			}
 
-			return oktaop.NewShowOktaInfoOK().WithPayload(nil), nil
+			return oktaop.NewShowOktaInfoOK().WithPayload(&oktaUserPayload), nil
 		})
 }

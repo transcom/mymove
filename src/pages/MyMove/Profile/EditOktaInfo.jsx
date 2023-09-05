@@ -8,7 +8,6 @@ import EditOktaInfoForm from 'components/Customer/EditOktaInfoForm/EditOktaInfoF
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { customerRoutes } from 'constants/routes';
 import { getResponseError, getOktaProfile } from 'services/internalApi';
-import { updateOktaProfile as updateOktaProfileAction } from 'store/entities/actions';
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
@@ -22,6 +21,7 @@ export const EditOktaInfo = ({ serviceMember, setFlashMessage }) => {
     oktaFirstName: serviceMember?.oktaFirstName || 'Not Provided',
     oktaLastName: serviceMember?.oktaLastName || 'Not Provided',
     oktaEdipi: serviceMember?.oktaEdipi || 'Not Provided',
+    oktaSub: serviceMember?.oktaSub,
   };
 
   const handleCancel = () => {
@@ -32,6 +32,7 @@ export const EditOktaInfo = ({ serviceMember, setFlashMessage }) => {
   // TODO need to redirect the user back to customerRoutes.PROFILE_PATH
   // TODO need to also update the users table with okta_email if it is different
   const handleSubmit = async (values) => {
+    // const res = await getOktaProfile();
     const oktaPayload = {
       id: serviceMember.id,
       username: values?.oktaUsername,
@@ -58,7 +59,7 @@ export const EditOktaInfo = ({ serviceMember, setFlashMessage }) => {
     return getOktaProfile(oktaPayload)
       .then(() => {
         setFlashMessage('EDIT_OKTA_PROFILE_SUCCESS', 'success', "You've updated your Okta profile.");
-        navigate(customerRoutes.PROFILE_PATH);
+        // navigate(customerRoutes.PROFILE_PATH);
       })
       .catch((e) => {
         const { response } = e;
@@ -97,7 +98,6 @@ EditOktaInfo.propTypes = {
 
 const mapDispatchToProps = {
   setFlashMessage: setFlashMessageAction,
-  updateOktaProfile: updateOktaProfileAction,
 };
 
 const mapStateToProps = (state) => ({

@@ -2,6 +2,7 @@ import { createSelector } from 'reselect';
 
 import { profileStates } from 'constants/customerStates';
 import { MOVE_STATUSES, NULL_UUID } from 'shared/constants';
+import { getOktaProfile } from 'services/internalApi';
 
 /**
  * Use this file for selecting "slices" of state from Redux and for computed
@@ -13,6 +14,13 @@ import { MOVE_STATUSES, NULL_UUID } from 'shared/constants';
 export const selectLoggedInUser = (state) => {
   if (state.entities.user) return Object.values(state.entities.user)[0];
   return null;
+};
+
+/** Okta Profile */
+export const selectOktaProfile = () => {
+  const oktaUser = getOktaProfile();
+  if (!oktaUser) return null;
+  return oktaUser;
 };
 
 /** Service Member */

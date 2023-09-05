@@ -26,7 +26,7 @@ type ShowOktaInfoOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *internalmessages.ServiceMemberPayload `json:"body,omitempty"`
+	Payload *internalmessages.OktaUserPayload `json:"body,omitempty"`
 }
 
 // NewShowOktaInfoOK creates ShowOktaInfoOK with default headers values
@@ -36,13 +36,13 @@ func NewShowOktaInfoOK() *ShowOktaInfoOK {
 }
 
 // WithPayload adds the payload to the show okta info o k response
-func (o *ShowOktaInfoOK) WithPayload(payload *internalmessages.ServiceMemberPayload) *ShowOktaInfoOK {
+func (o *ShowOktaInfoOK) WithPayload(payload *internalmessages.OktaUserPayload) *ShowOktaInfoOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the show okta info o k response
-func (o *ShowOktaInfoOK) SetPayload(payload *internalmessages.ServiceMemberPayload) {
+func (o *ShowOktaInfoOK) SetPayload(payload *internalmessages.OktaUserPayload) {
 	o.Payload = payload
 }
 

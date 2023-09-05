@@ -1826,7 +1826,7 @@ func init() {
           "200": {
             "description": "the instance of the service member",
             "schema": {
-              "$ref": "#/definitions/ServiceMemberPayload"
+              "$ref": "#/definitions/OktaUserPayload"
             }
           },
           "400": {
@@ -5691,6 +5691,44 @@ func init() {
         }
       }
     },
+    "OktaUserPayload": {
+      "type": "object",
+      "properties": {
+        "edipi": {
+          "type": "string",
+          "maxLength": 10,
+          "minLength": 7,
+          "pattern": "^\\d{10}$",
+          "x-nullable": true,
+          "example": "1234567890"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "user@email.com"
+        },
+        "first_name": {
+          "type": "string",
+          "example": "John"
+        },
+        "last_name": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "sub": {
+          "type": "string",
+          "format": "string",
+          "example": "1duekdue9ekrjghf"
+        },
+        "username": {
+          "type": "string",
+          "format": "string",
+          "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "user@email.com"
+        }
+      }
+    },
     "OmittableMovingExpenseType": {
       "description": "Moving Expense Type",
       "type": "string",
@@ -7091,6 +7129,9 @@ func init() {
           "title": "Middle name",
           "x-nullable": true,
           "example": "L."
+        },
+        "okta_profile": {
+          "$ref": "#/definitions/OktaUserPayload"
         },
         "orders": {
           "type": "array",
@@ -10224,7 +10265,7 @@ func init() {
           "200": {
             "description": "the instance of the service member",
             "schema": {
-              "$ref": "#/definitions/ServiceMemberPayload"
+              "$ref": "#/definitions/OktaUserPayload"
             }
           },
           "400": {
@@ -14447,6 +14488,44 @@ func init() {
         }
       }
     },
+    "OktaUserPayload": {
+      "type": "object",
+      "properties": {
+        "edipi": {
+          "type": "string",
+          "maxLength": 10,
+          "minLength": 7,
+          "pattern": "^\\d{10}$",
+          "x-nullable": true,
+          "example": "1234567890"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "user@email.com"
+        },
+        "first_name": {
+          "type": "string",
+          "example": "John"
+        },
+        "last_name": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "sub": {
+          "type": "string",
+          "format": "string",
+          "example": "1duekdue9ekrjghf"
+        },
+        "username": {
+          "type": "string",
+          "format": "string",
+          "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "user@email.com"
+        }
+      }
+    },
     "OmittableMovingExpenseType": {
       "description": "Moving Expense Type",
       "type": "string",
@@ -15852,6 +15931,9 @@ func init() {
           "title": "Middle name",
           "x-nullable": true,
           "example": "L."
+        },
+        "okta_profile": {
+          "$ref": "#/definitions/OktaUserPayload"
         },
         "orders": {
           "type": "array",

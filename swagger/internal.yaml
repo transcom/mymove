@@ -39,6 +39,36 @@ tags:
   - name: mtoShipment
   - name: featureFlags
 definitions:
+  OktaUserPayload:
+    type: object
+    properties:
+      sub:
+        type: string
+        format: string
+        example: 1duekdue9ekrjghf
+      username:
+        type: string
+        format: string
+        example: user@email.com
+        pattern: '^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      email:
+        type: string
+        format: x-email
+        example: user@email.com
+        pattern: '^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      first_name:
+        type: string
+        example: John
+      last_name:
+        type: string
+        example: Doe
+      edipi:
+        type: string
+        example: '1234567890'
+        pattern: '^\d{10}$'
+        minLength: 7
+        maxLength: 10
+        x-nullable: true
   LoggedInUserPayload:
     type: object
     properties:
@@ -1176,6 +1206,8 @@ definitions:
         format: date-time
       weight_allotment:
         $ref: '#/definitions/WeightAllotment'
+      okta_profile:
+        $ref: '#/definitions/OktaUserPayload'
     required:
       - id
       - user_id
@@ -6298,7 +6330,7 @@ paths:
         '200':
           description: the instance of the service member
           schema:
-            $ref: '#/definitions/ServiceMemberPayload'
+            $ref: '#/definitions/OktaUserPayload'
         '400':
           description: invalid request
         '401':

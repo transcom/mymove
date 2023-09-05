@@ -805,11 +805,12 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	appCtx.Session().IDToken = exchange.IDToken
 	appCtx.Session().Email = profileData.Email
 	oktaInfo := auth.OktaSessionInfo{
-		OktaUsername:  profileData.PreferredUsername,
-		OktaFirstName: profileData.GivenName,
-		OktaLastName:  profileData.FamilyName,
-		OktaEdipi:     profileData.Edipi,
-		OktaID:        profileData.Sub,
+		Username:  profileData.PreferredUsername,
+		Email:     profileData.Email,
+		FirstName: profileData.GivenName,
+		LastName:  profileData.FamilyName,
+		Edipi:     profileData.Edipi,
+		Sub:       profileData.Sub,
 	}
 	appCtx.Session().OktaSessionInfo = oktaInfo
 

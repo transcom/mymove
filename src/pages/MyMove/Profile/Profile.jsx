@@ -18,6 +18,7 @@ import OktaInfoDisplay from 'components/Customer/Profile/OktaInfoDisplay/OktaInf
 import { customerRoutes } from 'constants/routes';
 import formStyles from 'styles/form.module.scss';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
+import { selectOktaUser } from 'shared/Entities/modules/oktaUser';
 
 const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsInDraft }) => {
   const showMessages = currentOrders.id && !moveIsInDraft;
@@ -103,6 +104,7 @@ function mapStateToProps(state) {
     moveIsInDraft: selectMoveIsInDraft(state),
     currentOrders: selectCurrentOrders(state) || {},
     currentBackupContacts: selectBackupContacts(state),
+    oktaUser: selectOktaUser(state),
   };
 }
 
