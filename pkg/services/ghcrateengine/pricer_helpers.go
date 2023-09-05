@@ -51,11 +51,13 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 		finalWeight = minDomesticWeight
 	}
 
-	basePrice := domOtherPrice.PriceCents.Float64() * finalWeight.ToCWTFloat64()
+	basePrice := domOtherPrice.PriceCents.Float64()
 	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, domOtherPrice.ContractID, referenceDate, false, basePrice)
 	if err != nil {
 		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
+
+	escalatedPrice = escalatedPrice * finalWeight.ToCWTFloat64()
 
 	displayParams := services.PricingDisplayParams{
 		{
