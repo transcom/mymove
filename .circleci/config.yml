@@ -1093,7 +1093,7 @@ jobs:
           name: Log-into-AWS-ECR
           command: |
             aws ecr get-login-password --profile "CIRCLECI-OIDC-PROFILE"
-      - run: echo 'export D_U=${aws ssm get-parameter --with-decryption --name /app-loadtest/dockerhub_username | jq -r .Parameter.Value}' >> $BASH_ENV
+      - run: echo 'export DOCKERHUB_U=${aws ssm get-parameter --with-decryption --name /app-loadtest/dockerhub_username | jq -r .Parameter.Value}' >> $BASH_ENV
       - run: echo 'export TEST_ENV=${aws ssm get-parameter --with-decryption --name /app-loadtest/circleci-test | jq -r .Parameter.Value}' >> $BASH_ENV
 
   # `pre_deps_golang` is used for caching Go module sources
