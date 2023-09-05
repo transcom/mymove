@@ -51,6 +51,7 @@ func (p *paymentRequestRecalculator) doRecalculate(appCtx appcontext.AppContext,
 	err := appCtx.DB().
 		EagerPreload(
 			"PaymentServiceItems.MTOServiceItem.ReService",
+			"PaymentServiceItems.MTOServiceItem.SITOriginHHGOriginalAddress",
 			"ProofOfServiceDocs",
 		).
 		Find(&oldPaymentRequest, paymentRequestID)
