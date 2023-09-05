@@ -67,6 +67,7 @@ definitions:
         pattern: '^\d{10}$'
         minLength: 7
         maxLength: 10
+        x-nullable: true
   LoggedInUserPayload:
     type: object
     properties:
@@ -5068,8 +5069,8 @@ paths:
           $ref: '#/responses/ServerError'
   /okta-profile:
     get:
-      summary: Returns the given service member's okta profile
-      description: Returns the okta profile data for service member
+      summary: Returns the given service member's okta profile data
+      description: Returns the okta profile data for service member that is logged in
       operationId: showOktaInfo
       tags:
         - okta_profile

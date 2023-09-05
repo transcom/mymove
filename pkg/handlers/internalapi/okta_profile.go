@@ -17,6 +17,13 @@ func (h GetOktaProfileHandler) Handle(params oktaop.ShowOktaInfoParams) middlewa
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
+			oktaPayload := appCtx.Session().OktaSessionInfo
+
+			// this is going to check to see if the Okta profile data is present in the session
+			if oktaPayload.OktaID == "" {
+				appCtx.Logger().Error("Session does not contain Okta values")
+			}
+
 			return oktaop.NewShowOktaInfoOK().WithPayload(nil), nil
 		})
 }

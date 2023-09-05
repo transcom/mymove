@@ -7,7 +7,7 @@ import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import EditOktaInfoForm from 'components/Customer/EditOktaInfoForm/EditOktaInfoForm';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { customerRoutes } from 'constants/routes';
-import { getResponseError, patchOktaProfile } from 'services/internalApi';
+import { getResponseError, getOktaProfile } from 'services/internalApi';
 import { updateOktaProfile as updateOktaProfileAction } from 'store/entities/actions';
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
@@ -55,7 +55,7 @@ export const EditOktaInfo = ({ serviceMember, setFlashMessage }) => {
     //   setServerError(errorMessage);
     // });
 
-    return patchOktaProfile(oktaPayload)
+    return getOktaProfile(oktaPayload)
       .then(() => {
         setFlashMessage('EDIT_OKTA_PROFILE_SUCCESS', 'success', "You've updated your Okta profile.");
         navigate(customerRoutes.PROFILE_PATH);
