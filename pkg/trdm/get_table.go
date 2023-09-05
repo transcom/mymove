@@ -3,6 +3,7 @@ package trdm
 import (
 	"bytes"
 	"crypto/rsa"
+	"crypto/x509"
 	"encoding/xml"
 	"fmt"
 	"time"
@@ -58,7 +59,7 @@ const transportationAccountingCode = "TRNSPRTN_ACNT"
 
 type GetTableRequestElement struct {
 	soapClient    SoapCaller
-	securityToken string
+	securityToken *x509.Certificate
 	privateKey    *rsa.PrivateKey
 	Input         struct {
 		TRDM struct {
@@ -96,10 +97,10 @@ type GetTableResponseElement struct {
 }
 
 type GetTableUpdater interface {
-	GetTable(appCtx appcontext.AppContext, physicalName string, lastUpdate string) error
+	GetTable(appCtx appcontext.AppContext, physicalName string, lastUpdate time.Time) error
 }
 
-func NewGetTable(physicalName string, securityToken string, privateKey *rsa.PrivateKey, soapClient SoapCaller) GetTableUpdater {
+func NewGetTable(physicalName string, securityToken *x509.Certificate, privateKey *rsa.PrivateKey, soapClient SoapCaller) GetTableUpdater {
 	return &GetTableRequestElement{
 		securityToken: securityToken,
 		privateKey:    privateKey,
@@ -130,7 +131,7 @@ func NewGetTable(physicalName string, securityToken string, privateKey *rsa.Priv
 // Because updated_at is before LastTableUpdate the DB will return records that match this case.
 //
 //	returns []models.TransportationAccountingCode, error
-func FetchTACRecordsByTime(appcontext appcontext.AppContext, time string) ([]models.TransportationAccountingCode, error) {
+func FetchTACRecordsByTime(appcontext appcontext.AppContext, time time.Time) ([]models.TransportationAccountingCode, error) {
 	var tacCodes []models.TransportationAccountingCode
 	err := appcontext.DB().Select("*").Where("updated_at < $1", time).All(&tacCodes)
 
@@ -150,7 +151,7 @@ func FetchTACRecordsByTime(appcontext appcontext.AppContext, time string) ([]mod
 // Because updated_at is before LastTableUpdate the DB will return records that match this case.
 //
 //	returns []models.LineOfAccounting, error
-func FetchLOARecordsByTime(appcontext appcontext.AppContext, time string) ([]models.LineOfAccounting, error) {
+func FetchLOARecordsByTime(appcontext appcontext.AppContext, time time.Time) ([]models.LineOfAccounting, error) {
 	var loa []models.LineOfAccounting
 	err := appcontext.DB().Select("*").Where("updated_at < $1", time).All(&loa)
 	if err != nil {
@@ -166,7 +167,7 @@ func FetchLOARecordsByTime(appcontext appcontext.AppContext, time string) ([]mod
 //   - lastUpdate: Returned date time from LastTableUpdate Soap Request
 //
 // returns error
-func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physicalName string, lastUpdate string) error {
+func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physicalName string, lastUpdate time.Time) error {
 
 	switch physicalName {
 	case lineOfAccounting:

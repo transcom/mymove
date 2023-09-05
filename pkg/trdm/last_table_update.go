@@ -64,13 +64,13 @@ type GetLastTableUpdateRequestElement struct {
 	XMLName       string `xml:"ret:getLastTableUpdateReqElement"`
 	PhysicalName  string `xml:"ret:physicalName"`
 	soapClient    SoapCaller
-	securityToken string
+	securityToken *x509.Certificate
 	privateKey    *rsa.PrivateKey
 }
 type GetLastTableUpdateResponseElement struct {
-	XMLName    xml.Name `xml:"getLastTableUpdateResponseElement"`
-	LastUpdate string   `xml:"lastUpdate"`
-	Status     status   `xml:"status"`
+	XMLName    xml.Name  `xml:"getLastTableUpdateResponseElement"`
+	LastUpdate time.Time `xml:"lastUpdate"`
+	Status     status    `xml:"status"`
 }
 
 type Status struct {
@@ -78,7 +78,7 @@ type Status struct {
 	DateTime   string `xml:"dateTime"`
 }
 
-func NewTRDMGetLastTableUpdate(physicalName string, securityToken string, privateKey *rsa.PrivateKey, soapClient SoapCaller) GetLastTableUpdater {
+func NewTRDMGetLastTableUpdate(physicalName string, securityToken *x509.Certificate, privateKey *rsa.PrivateKey, soapClient SoapCaller) GetLastTableUpdater {
 	return &GetLastTableUpdateRequestElement{
 		PhysicalName:  physicalName,
 		soapClient:    soapClient,
@@ -164,7 +164,7 @@ func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.
 	appCtx.Logger().Debug("getLastTableUpdate result", zap.Any("processRequestResponse", r))
 	return nil
 }
-func StartLastTableUpdateCron(appCtx appcontext.AppContext, certificate string, privateKey *rsa.PrivateKey, physicalName string, soapCaller SoapCaller) error {
+func StartLastTableUpdateCron(appCtx appcontext.AppContext, certificate *x509.Certificate, privateKey *rsa.PrivateKey, physicalName string, soapCaller SoapCaller) error {
 	cron := cron.New()
 
 	cronTask := func() {
@@ -210,6 +210,10 @@ func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config) error {
 	soapClient.URL = trdmURL
 
 	x509CertString := v.GetString(cli.TRDMx509Cert)
+	certificate, err := x509.ParseCertificate([]byte(x509CertString))
+	if err != nil {
+		return err
+	}
 
 	privateKeyString := v.GetString(cli.TRDMx509PrivateKey)
 	privateKey, err := x509.ParsePKCS1PrivateKey([]byte(privateKeyString))
@@ -217,8 +221,8 @@ func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config) error {
 		return err
 	}
 
-	getLastTableUpdateTACErr := NewTRDMGetLastTableUpdate(transportationAccountingCode, x509CertString, privateKey, soapClient).GetLastTableUpdate(appCtx, transportationAccountingCode)
-	getLastTableUpdateLOAErr := NewTRDMGetLastTableUpdate(lineOfAccounting, x509CertString, privateKey, soapClient).GetLastTableUpdate(appCtx, lineOfAccounting)
+	getLastTableUpdateTACErr := NewTRDMGetLastTableUpdate(transportationAccountingCode, certificate, privateKey, soapClient).GetLastTableUpdate(appCtx, transportationAccountingCode)
+	getLastTableUpdateLOAErr := NewTRDMGetLastTableUpdate(lineOfAccounting, certificate, privateKey, soapClient).GetLastTableUpdate(appCtx, lineOfAccounting)
 	if getLastTableUpdateLOAErr != nil {
 		return getLastTableUpdateLOAErr
 	}
@@ -226,8 +230,8 @@ func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config) error {
 		return getLastTableUpdateTACErr
 	}
 
-	cronErrTAC := StartLastTableUpdateCron(appCtx, x509CertString, privateKey, transportationAccountingCode, soapClient)
-	cronErrLOA := StartLastTableUpdateCron(appCtx, x509CertString, privateKey, lineOfAccounting, soapClient)
+	cronErrTAC := StartLastTableUpdateCron(appCtx, certificate, privateKey, transportationAccountingCode, soapClient)
+	cronErrLOA := StartLastTableUpdateCron(appCtx, certificate, privateKey, lineOfAccounting, soapClient)
 
 	if cronErrLOA != nil {
 		return cronErrLOA

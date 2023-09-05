@@ -3,6 +3,7 @@ package trdm_test
 import (
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/x509"
 	"fmt"
 	"time"
 
@@ -10,7 +11,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/tiaguinho/gosoap"
 
-	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/trdm"
 	"github.com/transcom/mymove/pkg/trdm/trdmmocks"
 )
@@ -63,30 +64,29 @@ func (suite *TRDMSuite) TestTRDMGetLastTableUpdateFake() {
 			if keyErr != nil {
 				suite.Error(keyErr)
 			}
-			lastTableUpdate := trdm.NewTRDMGetLastTableUpdate(physicalName, "kdsjfhlaksdfhasdkfhjasdlkfjhafa=", privatekey, testSoapClient)
-			err := lastTableUpdate.GetLastTableUpdate(suite.AppContextForTest(), physicalName)
-
-			if err != nil {
-				suite.Error(err)
-			} else {
-				suite.NoError(err)
-			}
+			certificate, err := x509.ParseCertificate([]byte(tlsPublicKey))
+			suite.NoError(err)
+			lastTableUpdate := trdm.NewTRDMGetLastTableUpdate(physicalName, certificate, privatekey, testSoapClient)
+			err = lastTableUpdate.GetLastTableUpdate(suite.AppContextForTest(), physicalName)
+			suite.NoError(err)
 		})
 	}
 }
 
 func (suite *TRDMSuite) TestFetchLOARecordsByTime() {
 	// Get initial TAC codes count
-	initialCodes, err := trdm.FetchLOARecordsByTime(suite.AppContextForTest(), time.Now().Format(time.RFC3339))
+	//now := time.Now().Format("2006-01-02 15:04:05")
+	initialCodes, err := trdm.FetchLOARecordsByTime(suite.AppContextForTest(), time.Now())
 	intialLoaCodesLength := len(initialCodes)
 	suite.NoError(err)
 
 	// Creates a test TAC code record in the DB
-	testdatagen.MakeDefualtLineOfAccounting(suite.DB())
+	factory.BuildDefaultLineOfAccounting(suite.DB())
 
 	// Fetch All TAC Records
-	codes, err := trdm.FetchLOARecordsByTime(suite.AppContextForTest(), time.Now().Format(time.RFC3339))
-
+	// !! A second time.Now() statement is intentional based on the SQL query.
+	codes, err := trdm.FetchLOARecordsByTime(suite.AppContextForTest(), time.Now())
+	suite.NoError(err)
 	// Compare new TAC Code count to initial count
 	finalCodesLength := len(codes)
 
@@ -96,15 +96,15 @@ func (suite *TRDMSuite) TestFetchLOARecordsByTime() {
 
 func (suite *TRDMSuite) TestFetchTACRecordsByTime() {
 	// Get initial TAC codes count
-	initialCodes, err := trdm.FetchTACRecordsByTime(suite.AppContextForTest(), time.Now().Format(time.RFC3339))
+	initialCodes, err := trdm.FetchTACRecordsByTime(suite.AppContextForTest(), time.Now())
 	initialTacCodeLength := len(initialCodes)
 	suite.NoError(err)
 
 	// Creates a test TAC code record in the DB
-	testdatagen.MakeDefaultTranportationAccountingCode(suite.DB())
+	factory.BuildDefaultTransportationAccountingCode(suite.DB())
 
 	// Fetch All TAC Records
-	codes, err := trdm.FetchTACRecordsByTime(suite.AppContextForTest(), time.Now().Format(time.RFC3339))
+	codes, err := trdm.FetchTACRecordsByTime(suite.AppContextForTest(), time.Now())
 
 	// Compare new TAC Code count to initial count
 	finalCodesLength := len(codes)

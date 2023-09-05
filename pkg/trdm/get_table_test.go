@@ -3,6 +3,9 @@ package trdm_test
 import (
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/x509"
+	"encoding/base64"
+	"encoding/pem"
 	"fmt"
 	"os"
 	"time"
@@ -78,8 +81,77 @@ func (suite *TRDMSuite) TestGetTableFake() {
 				suite.Error(keyErr)
 			}
 
-			getTable := trdm.NewGetTable(test.physicalName, "kjdhfkasjhflaksjfhklafhkadsf=", privatekey, testSoapClient)
-			err := getTable.GetTable(suite.AppContextForTest(), test.physicalName, time.Now().Format(time.RFC3339))
+			certificate, err := x509.ParseCertificate([]byte(tlsPublicKey))
+			suite.NoError(err)
+			getTable := trdm.NewGetTable(test.physicalName, certificate, privatekey, testSoapClient)
+			err = getTable.GetTable(suite.AppContextForTest(), test.physicalName, time.Now())
+
+			if err != nil {
+				suite.Error(err)
+			} else {
+				suite.NoError(err)
+			}
+		})
+	}
+}
+func (suite *TRDMSuite) TestGetTableReal() {
+	tests := []struct {
+		name          string
+		physicalName  string
+		statusCode    string
+		payload       []byte
+		responseError bool
+		shouldError   bool
+	}{
+		{"Update Line of Accounting", "LN_OF_ACCT", "Successful", getTextFile("../parser/loa/fixtures/Line Of Accounting.txt"), false, false},
+		{"Should not fetch update", "fakeName", "Failure", getTextFile(""), false, false},
+		{"Update Transportation Accounting Codes", "TRNSPRTN_ACNT", "Successful", getTextFile("../parser/tac/fixtures/Transportation Account.txt"), false, false},
+	}
+	for _, test := range tests {
+		suite.Run("fake call to TRDM: "+test.name, func() {
+			var soapError error
+			if test.responseError {
+				soapError = errors.New("some error")
+			}
+
+			testSoapClient := &trdmmocks.SoapCaller{}
+			testSoapClient.On("Call",
+				mock.Anything,
+				mock.Anything,
+			).Return(soapResponseForGetTable(test.statusCode, test.payload), soapError)
+			/* Public Key */
+			rawCert, err := base64.StdEncoding.DecodeString(tlsPublicKey)
+			if err != nil {
+				suite.Error(err)
+			}
+
+			pemBlock, rest := pem.Decode(rawCert)
+			if pemBlock == nil || len(rest) > 0 {
+				suite.Errorf(errors.New("PEM Decode Issue"), "Could not parse PEM block from decoded base64, or extra data was encountered")
+			}
+
+			parsedCert, err := x509.ParseCertificate(pemBlock.Bytes)
+			if err != nil {
+				suite.Error(err)
+			}
+			/* Private Key */
+			rawKey, err := base64.StdEncoding.DecodeString(tlsPrivateKey)
+			if err != nil {
+				suite.Error(err)
+			}
+
+			pemBlock, rest = pem.Decode(rawKey)
+			if pemBlock == nil || len(rest) > 0 {
+				suite.Errorf(errors.New("PEM Decode Issue"), "Could not parse PEM block from decoded base64, or extra data was encountered")
+			}
+
+			privateKey, err := x509.ParsePKCS1PrivateKey(pemBlock.Bytes)
+			if err != nil {
+				suite.Error(err)
+			}
+
+			getTable := trdm.NewGetTable(test.physicalName, parsedCert, privateKey, testSoapClient)
+			err = getTable.GetTable(suite.AppContextForTest(), test.physicalName, time.Now())
 
 			if err != nil {
 				suite.Error(err)

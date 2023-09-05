@@ -95,16 +95,11 @@ type signatureValue struct {
 	Text []byte `xml:",chardata"`
 }
 
-func GenerateSignedHeader(certificate string, privateKey *rsa.PrivateKey) ([]byte, error) {
-	x509Cert, x509ParseErr := x509.ParseCertificate([]byte(certificate))
-	if x509ParseErr != nil {
-		return nil, x509ParseErr
-	}
-
+func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.PrivateKey) ([]byte, error) {
 	const certificateID = "X509-CertificateId"
-	encodedDigest := digest.FromBytes([]byte(x509Cert.Raw)).Encoded()
+	encodedDigest := digest.FromBytes([]byte(certificate.Raw)).Encoded()
 
-	canonicalized := digest.Canonical.Encode([]byte(x509Cert.Raw))
+	canonicalized := digest.Canonical.Encode([]byte(certificate.Raw))
 
 	msgHash := sha256.New()
 	_, err := msgHash.Write([]byte(canonicalized))
@@ -113,7 +108,7 @@ func GenerateSignedHeader(certificate string, privateKey *rsa.PrivateKey) ([]byt
 	}
 	msgHashSum := msgHash.Sum(nil)
 
-	signedHash, err := privateKey.Sign(rand.Reader, msgHashSum, crypto.SHA256)
+	signedHash, err := privateKey.Sign(rand.Reader, msgHashSum, crypto.SHA512)
 	if err != nil {
 		return nil, err
 	}
@@ -126,7 +121,7 @@ func GenerateSignedHeader(certificate string, privateKey *rsa.PrivateKey) ([]byt
 			BinarySecurityToken: binarySecurityToken{
 				EncodingType: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary",
 				ValueType:    "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3",
-				Text:         certificate,
+				Text:         string(certificate.Raw),
 				ID:           certificateID,
 			},
 			Signature: signature{
@@ -136,7 +131,7 @@ func GenerateSignedHeader(certificate string, privateKey *rsa.PrivateKey) ([]byt
 						Algorithm: "http://www.w3.org/2001/10/xml-exc-c14n#",
 					},
 					SignatureMethod: signatureMethod{
-						Algorithm: "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
+						Algorithm: "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512",
 					},
 					Reference: reference{
 						URI: certificateID,
@@ -146,7 +141,7 @@ func GenerateSignedHeader(certificate string, privateKey *rsa.PrivateKey) ([]byt
 							},
 						},
 						DigestMethod: digestMethod{
-							Algorithm: "http://www.w3.org/2001/04/xmlenc#sha256",
+							Algorithm: "http://www.w3.org/2001/04/xmlenc#sha512",
 						},
 						DigetValue: digestValue{
 							Text: encodedDigest,
