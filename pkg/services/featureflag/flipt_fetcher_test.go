@@ -121,7 +121,7 @@ func (suite *FliptFetcherSuite) setupFliptFetcher(path string) *FliptFetcher {
 	recorder := suite.setupRecorder(path)
 	client := recorder.GetDefaultClient()
 	ffConfig := cli.FeatureFlagConfig{
-		URL:       "http://localhost:5050",
+		URL:       "http://localhost:9080",
 		Namespace: "development",
 	}
 	f, err := NewFliptFetcherWithClient(ffConfig, client)

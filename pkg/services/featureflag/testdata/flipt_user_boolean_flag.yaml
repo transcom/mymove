@@ -9,13 +9,13 @@ interactions:
         content_length: 297
         transfer_encoding: []
         trailer: {}
-        host: localhost:5050
+        host: localhost:9080
         remote_addr: ""
         request_uri: ""
-        body: '{"requestId":"fd6dd67e-991d-4fb3-ac05-f68e5b844928", "namespaceKey":"development", "flagKey":"boolean_flag", "entityId":"00000000-0000-0000-0000-000000000001", "context":{"applicationName":"mil", "email":"foo@example.com", "isAdminUser":"false", "isOfficeUser":"false", "isServiceMember":"false"}}'
+        body: '{"requestId":"d24459e5-0e62-4955-8ba8-52ddaf3c9157", "namespaceKey":"development", "flagKey":"boolean_flag", "entityId":"00000000-0000-0000-0000-000000000001", "context":{"applicationName":"mil", "email":"foo@example.com", "isAdminUser":"false", "isOfficeUser":"false", "isServiceMember":"false"}}'
         form: {}
         headers: {}
-        url: http://localhost:5050/evaluate/v1/boolean
+        url: http://localhost:9080/evaluate/v1/boolean
         method: POST
       response:
         proto: HTTP/1.1
@@ -25,14 +25,14 @@ interactions:
         trailer: {}
         content_length: -1
         uncompressed: true
-        body: '{"enabled":true,"reason":"DEFAULT_EVALUATION_REASON","requestId":"fd6dd67e-991d-4fb3-ac05-f68e5b844928","requestDurationMillis":0.18025,"timestamp":"2023-09-05T18:04:02.005116047Z"}'
+        body: '{"enabled":true,"reason":"DEFAULT_EVALUATION_REASON","requestId":"d24459e5-0e62-4955-8ba8-52ddaf3c9157","requestDurationMillis":0.133375,"timestamp":"2023-09-06T13:21:02.544594459Z"}'
         headers:
             Content-Security-Policy:
                 - default-src 'self'; img-src * data:; frame-ancestors 'none';
             Content-Type:
                 - application/json
             Date:
-                - Tue, 05 Sep 2023 18:04:02 GMT
+                - Wed, 06 Sep 2023 13:21:02 GMT
             Grpc-Metadata-Content-Type:
                 - application/grpc
             Vary:
@@ -42,4 +42,4 @@ interactions:
                 - nosniff
         status: 200 OK
         code: 200
-        duration: 6.422ms
+        duration: 4.753958ms
