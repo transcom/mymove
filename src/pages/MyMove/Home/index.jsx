@@ -85,7 +85,7 @@ export class Home extends Component {
 
   componentDidMount() {
     const { move, getSignedCertification } = this.props;
-    if (Object.entries(move).length && move.status === MOVE_STATUSES.SUBMITTED) {
+    if (Object.entries(move).length) {
       getSignedCertification(move.id);
     }
   }
