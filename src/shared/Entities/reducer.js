@@ -46,6 +46,7 @@ const initialState = {
   mtoShipments: {},
   reimbursements: {},
   signedCertifications: {},
+  oktaUser: {},
 };
 
 // Actions of either of these types will be merged into the store:

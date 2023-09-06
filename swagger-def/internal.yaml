@@ -1187,8 +1187,6 @@ definitions:
         format: date-time
       weight_allotment:
         $ref: '#/definitions/WeightAllotment'
-      okta_profile:
-        $ref: '#/definitions/OktaUserPayload'
     required:
       - id
       - user_id

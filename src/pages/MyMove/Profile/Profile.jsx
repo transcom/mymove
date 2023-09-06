@@ -11,6 +11,7 @@ import {
   selectMoveIsInDraft,
   selectCurrentOrders,
   selectBackupContacts,
+  selectOktaProfile,
 } from 'store/entities/selectors';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import ServiceInfoDisplay from 'components/Customer/Review/ServiceInfoDisplay/ServiceInfoDisplay';
@@ -18,9 +19,9 @@ import OktaInfoDisplay from 'components/Customer/Profile/OktaInfoDisplay/OktaInf
 import { customerRoutes } from 'constants/routes';
 import formStyles from 'styles/form.module.scss';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
-import { selectOktaUser } from 'shared/Entities/modules/oktaUser';
+import { OktaUserInfoShape } from 'types/user';
 
-const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsInDraft }) => {
+const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsInDraft, oktaUser }) => {
   const showMessages = currentOrders.id && !moveIsInDraft;
   const rank = currentOrders.grade ?? serviceMember.rank;
   const originDutyLocation = currentOrders.origin_duty_location ?? serviceMember.current_location;
@@ -77,11 +78,11 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
           </SectionWrapper>
           <SectionWrapper className={formStyles.formSection}>
             <OktaInfoDisplay
-              oktaUsername={serviceMember?.okta_username || 'Not Provided'}
-              oktaEmail={serviceMember?.okta_email || 'Not Provided'}
-              oktaFirstName={serviceMember?.okta_firstName || 'Not Provided'}
-              oktaLastName={serviceMember?.okta_lastName || 'Not Provided'}
-              oktaEdipi={serviceMember?.okta_edipi || 'Not Provided'}
+              oktaUsername={oktaUser?.username || 'Not Provided'}
+              oktaEmail={oktaUser?.email || 'Not Provided'}
+              oktaFirstName={oktaUser?.first_name || 'Not Provided'}
+              oktaLastName={oktaUser?.last_name || 'Not Provided'}
+              oktaEdipi={oktaUser?.edipi || 'Not Provided'}
               editURL={customerRoutes.EDIT_OKTA_PROFILE_PATH}
             />
           </SectionWrapper>
@@ -96,6 +97,7 @@ Profile.propTypes = {
   currentOrders: OrdersShape.isRequired,
   currentBackupContacts: arrayOf(BackupContactShape).isRequired,
   moveIsInDraft: bool.isRequired,
+  oktaUser: OktaUserInfoShape.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -104,7 +106,7 @@ function mapStateToProps(state) {
     moveIsInDraft: selectMoveIsInDraft(state),
     currentOrders: selectCurrentOrders(state) || {},
     currentBackupContacts: selectBackupContacts(state),
-    oktaUser: selectOktaUser(state),
+    oktaUser: selectOktaProfile(state),
   };
 }
 
