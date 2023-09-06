@@ -61,6 +61,9 @@ services:
       - MOVE_MIL_DOD_TLS_CERT
       - MOVE_MIL_DOD_TLS_KEY
       - MUTUAL_TLS_ENABLED=1
+      - OKTA_CUSTOMER_CLIENT_ID
+      - OKTA_ADMIN_CLIENT_ID
+      - OKTA_OFFICE_CLEINT_ID
       - PGPASSWORD=mysecretpassword
       - REDIS_ENABLED=false
       - SERVE_API_PRIME=true
