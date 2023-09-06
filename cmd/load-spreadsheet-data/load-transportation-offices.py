@@ -27,7 +27,7 @@ def process_transportation_office_csv(input_file: str, output_file: str) -> None
     with open(output_file, 'w') as out:
       for _, row in df.iterrows():
         # Remove extraneous whitespace
-        transportation_office_id = str(row["id"]).strip()
+        transportation_office_id = row["id"]
         name = str(row["name"]).strip()
         gbloc = str(row["GBLOC"]).strip()
 
