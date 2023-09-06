@@ -1098,6 +1098,8 @@ jobs:
           command: |
             echo "export DOCKERHUB_USERNAME=\$(aws ssm get-parameter --with-decryption --name /app-loadtest/dockerhub_username | jq -r .Parameter.Value)" >> $BASH_ENV
             echo "export TEST_ENV_VAR=\$(aws ssm get-parameter --with-decryption --name /app-loadtest/circleci-test | jq -r .Parameter.Value)" >> $BASH_ENV
+
+        # echo "export AWS_ACCOUNT_ID=\$(aws sts get-caller-identity) | jq -r .Account" >> $BASH_ENV
         # echo "export AWS_DEFAULT_REGION=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_REGION" >> $BASH_ENV
 
   # `pre_deps_golang` is used for caching Go module sources
@@ -1815,7 +1817,7 @@ jobs:
   push_app_dp3:
     executor: mymove_pusher
     steps:
-      - aws_vars_dp3
+      # - aws_vars_dp3
       - push_image:
           ecr_env: *dp3-env
           image_name: app
