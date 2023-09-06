@@ -1,0 +1,9 @@
+@media (max-width:1240px) {
+  body{
+    min-width: $mobile;
+    overflow-x: scroll;
+  }
+  .sb-main-padded, .sb-show-main {
+    min-width: 0;
+  }
+}
