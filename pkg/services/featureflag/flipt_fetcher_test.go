@@ -51,7 +51,7 @@ type fliptRequestBody struct {
 //
 //  1. Remove the recorded requests: `rm pkg/services/featureflag/testdata/flipt_*`
 //  2. Start flipt: `make feature_flag_docker`
-//  3. Run the tests. That will re-record the requests
+//  3. Run the tests to re-record the requests: `go test -count 1 ./pkg/services/featureflag/...`
 //  4. Stop flipt
 func (suite *FliptFetcherSuite) setupRecorder(path string) *recorder.Recorder {
 	recorder, err := recorder.New(path)
