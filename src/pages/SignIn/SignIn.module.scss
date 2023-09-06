@@ -3,6 +3,14 @@ button.signInButton {
   width: 100%;
 }
 
+body[style*="--viewport-orientation='portrait'"]{
+//    ADD Style
+}
+
+body[style*="--viewport-orientation='landscape'"]{
+//    ADD Style
+
+}
 :global(.usa-button-group) {
   justify-content: center;
 }

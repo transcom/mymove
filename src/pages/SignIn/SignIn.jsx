@@ -16,6 +16,27 @@ import { isDevelopment } from 'shared/constants';
 import { useTitle } from 'hooks/custom';
 
 const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
+  useEffect(() => {
+    function handleOrientationChange() {
+      if (window.innerWidth <= 768) {
+        document.documentElement.style.setProperty('--viewport-orientation', 'portrait');
+      } else {
+        document.documentElement.style.setProperty('--viewport-orientation', 'landscape');
+      }
+    }
+
+    handleOrientationChange();
+    window.addEventListener('resize', handleOrientationChange);
+
+    return () => {
+      window.removeEventListener('resize', handleOrientationChange);
+    };
+  }, []);
+
+  return (
+    <PortraitContainer>
+    </PortraitContainer>
+  )
   const location = useLocation();
   const [showEula, setShowEula] = useState(false);
   const navigate = useNavigate();
