@@ -63,7 +63,7 @@ services:
       - MUTUAL_TLS_ENABLED=1
       - OKTA_CUSTOMER_CLIENT_ID
       - OKTA_ADMIN_CLIENT_ID
-      - OKTA_OFFICE_CLEINT_ID
+      - OKTA_OFFICE_CLIENT_ID
       - PGPASSWORD=mysecretpassword
       - REDIS_ENABLED=false
       - SERVE_API_PRIME=true

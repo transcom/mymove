@@ -94,7 +94,7 @@ services:
       - NO_TLS_PORT=4000
       - OKTA_CUSTOMER_CLIENT_ID
       - OKTA_ADMIN_CLIENT_ID
-      - OKTA_OFFICE_CLEINT_ID
+      - OKTA_OFFICE_CLIENT_ID
       - PGPASSWORD=mysecretpassword
       - SERVE_API_GHC=true
       - SERVE_API_INTERNAL=true
