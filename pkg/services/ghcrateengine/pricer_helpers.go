@@ -356,11 +356,13 @@ func priceDomesticCrating(appCtx appcontext.AppContext, code models.ReServiceCod
 		return 0, nil, fmt.Errorf("could not lookup Domestic Accessorial Area Price: %w", err)
 	}
 
-	basePrice := domAccessorialPrice.PerUnitCents.Float64() * float64(billedCubicFeet)
+	basePrice := domAccessorialPrice.PerUnitCents.Float64()
 	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, domAccessorialPrice.ContractID, referenceDate, false, basePrice)
 	if err != nil {
 		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
+
+	escalatedPrice = escalatedPrice * float64(billedCubicFeet)
 	totalCost := unit.Cents(math.Round(escalatedPrice))
 
 	params := services.PricingDisplayParams{
