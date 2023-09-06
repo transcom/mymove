@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
-	"encoding/base64"
 	"encoding/pem"
 	"fmt"
 	"os"
@@ -76,12 +75,12 @@ func (suite *TRDMSuite) TestGetTableFake() {
 				mock.Anything,
 				mock.Anything,
 			).Return(soapResponseForGetTable(test.statusCode, test.payload), soapError)
-			privatekey, keyErr := rsa.GenerateKey(rand.Reader, 2048)
-			if keyErr != nil {
-				suite.Error(keyErr)
-			}
-
-			certificate, err := x509.ParseCertificate([]byte(tlsPublicKey))
+			privatekey, err := rsa.GenerateKey(rand.Reader, 2048)
+			suite.NoError(err)
+			// ! Real public key
+			pem, rest := pem.Decode([]byte(tlsPublicKey))
+			suite.Empty(rest)
+			certificate, err := x509.ParseCertificate(pem.Bytes)
 			suite.NoError(err)
 			getTable := trdm.NewGetTable(test.physicalName, certificate, privatekey, testSoapClient)
 			err = getTable.GetTable(suite.AppContextForTest(), test.physicalName, time.Now())
@@ -119,38 +118,19 @@ func (suite *TRDMSuite) TestGetTableReal() {
 				mock.Anything,
 				mock.Anything,
 			).Return(soapResponseForGetTable(test.statusCode, test.payload), soapError)
-			/* Public Key */
-			rawCert, err := base64.StdEncoding.DecodeString(tlsPublicKey)
-			if err != nil {
-				suite.Error(err)
-			}
+			// ! Real public key TODO: Remove
+			publicPem, rest := pem.Decode([]byte(tlsPublicKey))
+			suite.Empty(rest)
+			publicCertificate, err := x509.ParseCertificate(publicPem.Bytes)
+			suite.NoError(err)
+			// ! Real private key TODO: Remove
+			privatePem, rest := pem.Decode([]byte(tlsPrivateKey))
+			suite.Empty(rest)
+			suite.NotNil(privatePem)
+			privateKey, err := x509.ParsePKCS1PrivateKey(privatePem.Bytes)
+			suite.NoError(err)
 
-			pemBlock, rest := pem.Decode(rawCert)
-			if pemBlock == nil || len(rest) > 0 {
-				suite.Errorf(errors.New("PEM Decode Issue"), "Could not parse PEM block from decoded base64, or extra data was encountered")
-			}
-
-			parsedCert, err := x509.ParseCertificate(pemBlock.Bytes)
-			if err != nil {
-				suite.Error(err)
-			}
-			/* Private Key */
-			rawKey, err := base64.StdEncoding.DecodeString(tlsPrivateKey)
-			if err != nil {
-				suite.Error(err)
-			}
-
-			pemBlock, rest = pem.Decode(rawKey)
-			if pemBlock == nil || len(rest) > 0 {
-				suite.Errorf(errors.New("PEM Decode Issue"), "Could not parse PEM block from decoded base64, or extra data was encountered")
-			}
-
-			privateKey, err := x509.ParsePKCS1PrivateKey(pemBlock.Bytes)
-			if err != nil {
-				suite.Error(err)
-			}
-
-			getTable := trdm.NewGetTable(test.physicalName, parsedCert, privateKey, testSoapClient)
+			getTable := trdm.NewGetTable(test.physicalName, publicCertificate, privateKey, testSoapClient)
 			err = getTable.GetTable(suite.AppContextForTest(), test.physicalName, time.Now())
 
 			if err != nil {

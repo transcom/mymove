@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"time"
 
@@ -44,9 +45,9 @@ func (suite *TRDMSuite) TestTRDMGetLastTableUpdateFake() {
 		responseError bool
 		shouldError   bool
 	}{
-		{"No update", time.Now().String(), "Successful", false, false},
-		{"Should not fetch update", time.Now().String(), "Failure", false, false},
-		{"There is an update", time.Now().Add(-72 * time.Hour).String(), "Successful", false, false},
+		{"No update", time.Now().Format(time.RFC3339), "Successful", false, false},
+		{"Should not fetch update", time.Now().Format(time.RFC3339), "Failure", false, false},
+		{"There is an update", time.Now().Add(-72 * time.Hour).Format(time.RFC3339), "Successful", false, false},
 	}
 	for _, test := range tests {
 		suite.Run("fake call to TRDM: "+test.name, func() {
@@ -64,7 +65,10 @@ func (suite *TRDMSuite) TestTRDMGetLastTableUpdateFake() {
 			if keyErr != nil {
 				suite.Error(keyErr)
 			}
-			certificate, err := x509.ParseCertificate([]byte(tlsPublicKey))
+			// ! Real public key TODO: Remove
+			publicPem, rest := pem.Decode([]byte(tlsPublicKey))
+			suite.Empty(rest)
+			certificate, err := x509.ParseCertificate([]byte(publicPem.Bytes))
 			suite.NoError(err)
 			lastTableUpdate := trdm.NewTRDMGetLastTableUpdate(physicalName, certificate, privatekey, testSoapClient)
 			err = lastTableUpdate.GetLastTableUpdate(suite.AppContextForTest(), physicalName)
@@ -75,7 +79,6 @@ func (suite *TRDMSuite) TestTRDMGetLastTableUpdateFake() {
 
 func (suite *TRDMSuite) TestFetchLOARecordsByTime() {
 	// Get initial TAC codes count
-	//now := time.Now().Format("2006-01-02 15:04:05")
 	initialCodes, err := trdm.FetchLOARecordsByTime(suite.AppContextForTest(), time.Now())
 	intialLoaCodesLength := len(initialCodes)
 	suite.NoError(err)

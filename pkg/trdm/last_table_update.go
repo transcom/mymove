@@ -130,7 +130,7 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 	}
 	err := lastTableUpdateSoapCall(d, newParams, appCtx)
 	if err != nil {
-		return fmt.Errorf("Request error: %s", err.Error())
+		return fmt.Errorf("request error: %s", err.Error())
 	}
 	return nil
 }
@@ -148,7 +148,6 @@ func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.
 
 	var r GetLastTableUpdateResponseElement
 	err = res.Unmarshal(&r)
-
 	if err != nil {
 		return fmt.Errorf("unmarshal error: %s", err.Error())
 	}

@@ -4,7 +4,7 @@ import (
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
-	"crypto/sha256"
+	"crypto/sha512"
 	"crypto/x509"
 	"encoding/xml"
 	"time"
@@ -101,7 +101,7 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 
 	canonicalized := digest.Canonical.Encode([]byte(certificate.Raw))
 
-	msgHash := sha256.New()
+	msgHash := sha512.New()
 	_, err := msgHash.Write([]byte(canonicalized))
 	if err != nil {
 		return nil, err
