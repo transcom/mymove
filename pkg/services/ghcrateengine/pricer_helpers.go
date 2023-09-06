@@ -313,7 +313,7 @@ func priceDomesticShuttling(appCtx appcontext.AppContext, shuttlingCode models.R
 	basePrice := domAccessorialPrice.PerUnitCents.Float64() * weight.ToCWTFloat64()
 	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, domAccessorialPrice.ContractID, referenceDate, false, basePrice)
 	if err != nil {
-		return 0, nil, fmt.Errorf("unable to calculate escalated total price: %w", err)
+		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 	totalCost := unit.Cents(math.Round(escalatedPrice))
 
