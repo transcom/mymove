@@ -219,7 +219,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginSITPickupServiceItem(
 				Value:   dopsitTestRequestedPickupDate.Format(DateParamFormat),
 			},
 			{
-				Key:     models.ServiceItemParamNameServiceAreaOrigin,
+				Key:     models.ServiceItemParamNameSITServiceAreaOrigin,
 				KeyType: models.ServiceItemParamTypeString,
 				Value:   dopsitTestServiceArea,
 			},
