@@ -2966,6 +2966,7 @@ definitions:
       - SITScheduleDest
       - SITScheduleOrigin
       - SITServiceAreaDest
+      - SITServiceAreaOrigin
       - WeightAdjusted
       - WeightBilled
       - WeightEstimated

@@ -522,7 +522,14 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 	}
 
 	// DOASIT
-	mtoServiceItemDOASIT := factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDOASIT, moveTaskOrder, moveTaskOrder.MTOShipments[0], nil, nil)
+	mtoServiceItemDOASIT := factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDOASIT, moveTaskOrder, moveTaskOrder.MTOShipments[0],
+		[]factory.Customization{
+			{
+				Model:    pickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITOriginHHGOriginalAddress,
+			},
+		}, nil)
 	mtoServiceItemDOASIT.SITEntryDate = &recalculateSITEntryDate
 	suite.MustSave(&mtoServiceItemDOASIT)
 
