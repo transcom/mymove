@@ -5,7 +5,7 @@ import { LOAD_USER, getLoggedInUserStart, getLoggedInUserSuccess, getLoggedInUse
 import { setFlashMessage } from 'store/flash/actions';
 import { GetIsLoggedIn, GetLoggedInUser, GetOktaProfile } from 'utils/api';
 import { loggedInUser } from 'shared/Entities/schema';
-import { addEntities } from 'shared/Entities/actions';
+import { addEntities, setOktaUser } from 'shared/Entities/actions';
 
 /**
  * This saga mirrors the getCurrentUserInfo thunk (shared/Data/users.js)
@@ -24,6 +24,7 @@ export function* fetchUser() {
 
         const userEntities = normalize(user, loggedInUser, okta);
 
+        yield put(setOktaUser(okta));
         yield put(addEntities(userEntities.entities)); // populate entities
         yield put(getLoggedInUserSuccess(user));
       } catch (e) {
