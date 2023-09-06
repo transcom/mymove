@@ -6,6 +6,7 @@ import (
 	"crypto/rsa"
 	"crypto/sha512"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/xml"
 	"time"
 
@@ -92,7 +93,7 @@ type timestamp struct {
 	Expires string `xml:"Expires"`
 }
 type signatureValue struct {
-	Text []byte `xml:",chardata"`
+	Text string `xml:",chardata"`
 }
 
 func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.PrivateKey) ([]byte, error) {
@@ -121,7 +122,7 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 			BinarySecurityToken: binarySecurityToken{
 				EncodingType: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary",
 				ValueType:    "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3",
-				Text:         string(certificate.Raw),
+				Text:         base64.StdEncoding.EncodeToString(certificate.Raw),
 				ID:           certificateID,
 			},
 			Signature: signature{
@@ -149,7 +150,7 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 					},
 				},
 				SignatureValue: signatureValue{
-					Text: signedHash,
+					Text: base64.StdEncoding.EncodeToString(signedHash),
 				},
 				KeyInfo: keyInfo{
 					ID: "KI-KeyInfoIdentification",
