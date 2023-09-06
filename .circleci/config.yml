@@ -412,15 +412,11 @@ commands:
             source $BASH_ENV
 
   setup_environment_variables_from_aws:
-    parameters:
-      region:
-        type: string
-        default: us-gov-west-1
     steps:
       - run:
           name: 'Set up region for the aws-cli'
           command: |
-            echo "export AWS_DEFAULT_REGION=\$$(echo << parameters.region >>)" >> $BASH_ENV
+            echo "export AWS_DEFAULT_REGION=us-gov-west-1" >> $BASH_ENV
       - aws-cli/setup:
           profile-name: 'CIRCLECI-OIDC-PROFILE'
           role-arn: 'arn:aws-us-gov:iam::469892416004:role/CircleCIOIDC'
