@@ -1,10 +1,6 @@
 package trdm_test
 
 import (
-	"crypto/rand"
-	"crypto/rsa"
-	"crypto/x509"
-	"encoding/pem"
 	"fmt"
 	"os"
 	"time"
@@ -13,6 +9,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/tiaguinho/gosoap"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/trdm"
 	"github.com/transcom/mymove/pkg/trdm/trdmmocks"
 )
@@ -75,14 +72,9 @@ func (suite *TRDMSuite) TestGetTableFake() {
 				mock.Anything,
 				mock.Anything,
 			).Return(soapResponseForGetTable(test.statusCode, test.payload), soapError)
-			privatekey, err := rsa.GenerateKey(rand.Reader, 2048)
+			cert, key, err := factory.Generatex509CertAndSecret()
 			suite.NoError(err)
-			// ! Real public key
-			pem, rest := pem.Decode([]byte(tlsPublicKey))
-			suite.Empty(rest)
-			certificate, err := x509.ParseCertificate(pem.Bytes)
-			suite.NoError(err)
-			getTable := trdm.NewGetTable(test.physicalName, certificate, privatekey, testSoapClient)
+			getTable := trdm.NewGetTable(test.physicalName, cert, key, testSoapClient)
 			err = getTable.GetTable(suite.AppContextForTest(), test.physicalName, time.Now())
 
 			if err != nil {

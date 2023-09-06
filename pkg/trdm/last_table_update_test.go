@@ -1,10 +1,6 @@
 package trdm_test
 
 import (
-	"crypto/rand"
-	"crypto/rsa"
-	"crypto/x509"
-	"encoding/pem"
 	"fmt"
 	"time"
 
@@ -61,16 +57,9 @@ func (suite *TRDMSuite) TestTRDMGetLastTableUpdateFake() {
 				mock.Anything,
 				mock.Anything,
 			).Return(soapResponseForGetLastTableUpdate(test.lastUpdate, test.statusCode), soapError)
-			privatekey, keyErr := rsa.GenerateKey(rand.Reader, 2048)
-			if keyErr != nil {
-				suite.Error(keyErr)
-			}
-			// ! Real public key TODO: Remove
-			publicPem, rest := pem.Decode([]byte(tlsPublicKey))
-			suite.Empty(rest)
-			certificate, err := x509.ParseCertificate([]byte(publicPem.Bytes))
+			cert, key, err := factory.Generatex509CertAndSecret()
 			suite.NoError(err)
-			lastTableUpdate := trdm.NewTRDMGetLastTableUpdate(physicalName, certificate, privatekey, testSoapClient)
+			lastTableUpdate := trdm.NewTRDMGetLastTableUpdate(physicalName, cert, key, testSoapClient)
 			err = lastTableUpdate.GetLastTableUpdate(suite.AppContextForTest(), physicalName)
 			suite.NoError(err)
 		})
