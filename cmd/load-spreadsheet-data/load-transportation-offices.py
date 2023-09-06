@@ -25,18 +25,16 @@ def process_transportation_office_csv(input_file: str, output_file: str) -> None
     df = df.reset_index()
 
     with open(output_file, 'w') as out:
-      # Wrap this in a transaction so if anything goes wrong, the entire operation gets rolled back
-      out.write("BEGIN;\n\n")
-
       for _, row in df.iterrows():
-        transportation_office_id = row["id"]
-        name = row["name"]
-        gbloc = row["GBLOC"]
+        # Remove extraneous whitespace
+        transportation_office_id = str(row["id"]).strip()
+        name = str(row["name"]).strip()
+        gbloc = str(row["GBLOC"]).strip()
 
-        street_address_1 = row["street_address_1"]
-        street_address_2 = row["street_address_2"]
-        city = row["city"]
-        state = row["state"]
+        street_address_1 = str(row["street_address_1"]).strip()
+        street_address_2 = str(row["street_address_2"]).strip()
+        city = str(row["city"]).strip()
+        state = str(row["state"]).strip()
         # trim to zip5
         postal_code = "%05d" % int(str(row["postal_code"]).split("-")[0])
 
@@ -60,8 +58,6 @@ def process_transportation_office_csv(input_file: str, output_file: str) -> None
             out.write(
                 f"UPDATE addresses SET street_address_1 = '{street_address_1}', street_address_2 = '{street_address_2}', city = '{city}', state = '{state}', postal_code = '{postal_code}' WHERE id = (SELECT address_id FROM transportation_offices where id = '{transportation_office_id}');\n\n"
             )
-
-      out.write("END;\n")
 
   except FileNotFoundError:
       sys.stderr.write(f"File not found: {input_file}")

@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Update the TO and address
 UPDATE transportation_offices SET name = 'CPPSO Fort Cavazos (HBAT) - USA', gbloc = 'HBAT' WHERE id = 'ba4a9a98-c8a7-4e3b-bf37-064c0b19e78b';
 
@@ -18,7 +16,7 @@ UPDATE addresses SET street_address_1 = '7920 14th St', street_address_2 = 'Bldg
 -- Update the TO and address
 UPDATE transportation_offices SET name = 'JPPSO - Mid Atlantic (BGAC) - USA', gbloc = 'BGAC' WHERE id = '8e25ccc1-7891-4146-a9d0-cd0d48b59a50';
 
-UPDATE addresses SET street_address_1 = '10109 Gridley Rd ', street_address_2 = 'Bldg 314', city = 'Fort Belvoir', state = 'VA', postal_code = '22060' WHERE id = (SELECT address_id FROM transportation_offices where id = '8e25ccc1-7891-4146-a9d0-cd0d48b59a50');
+UPDATE addresses SET street_address_1 = '10109 Gridley Rd', street_address_2 = 'Bldg 314', city = 'Fort Belvoir', state = 'VA', postal_code = '22060' WHERE id = (SELECT address_id FROM transportation_offices where id = '8e25ccc1-7891-4146-a9d0-cd0d48b59a50');
 
 -- Update the TO and address
 UPDATE transportation_offices SET name = 'JPPSO - North Central (KKFA) - USAF', gbloc = 'KKFA' WHERE id = '171b54fa-4c89-45d8-8111-a2d65818ff8c';
@@ -28,7 +26,7 @@ UPDATE addresses SET street_address_1 = '121 S. Tejon St', street_address_2 = 'S
 -- Update the TO and address
 UPDATE transportation_offices SET name = 'JPPSO - North East (AGFM) - USAF', gbloc = 'AGFM' WHERE id = '3132b512-1889-4776-a666-9c08a24afe20';
 
-UPDATE addresses SET street_address_1 = '25 Chennault St ', street_address_2 = 'Bldg 1723', city = 'Hanscom AFB', state = 'MA', postal_code = '01731' WHERE id = (SELECT address_id FROM transportation_offices where id = '3132b512-1889-4776-a666-9c08a24afe20');
+UPDATE addresses SET street_address_1 = '25 Chennault St', street_address_2 = 'Bldg 1723', city = 'Hanscom AFB', state = 'MA', postal_code = '01731' WHERE id = (SELECT address_id FROM transportation_offices where id = '3132b512-1889-4776-a666-9c08a24afe20');
 
 -- Update the TO and address
 UPDATE transportation_offices SET name = 'JPPSO - North West (JEAT) - USA', gbloc = 'JEAT' WHERE id = '5a3388e1-6d46-4639-ac8f-a8937dc26938';
@@ -61,7 +59,7 @@ UPDATE transportation_offices SET name = 'PPM Processing (FINCEN) - USCG', gbloc
 UPDATE addresses SET street_address_1 = 'P.O. Box 4102', street_address_2 = 'nan', city = 'Chesapeake', state = 'VA', postal_code = '23327' WHERE id = (SELECT address_id FROM transportation_offices where id = '6598f143-9451-4635-b921-94a4f86f9ed1');
 
 -- Update the TO and address
-UPDATE transportation_offices SET name = 'PPM Processing (TVCB) - USMC ', gbloc = 'TVCB' WHERE id = 'aed72dfd-41cf-4111-9131-f27066aa9e88';
+UPDATE transportation_offices SET name = 'PPM Processing (TVCB) - USMC', gbloc = 'TVCB' WHERE id = 'aed72dfd-41cf-4111-9131-f27066aa9e88';
 
 UPDATE addresses SET street_address_1 = '814 Radford Blvd', street_address_2 = 'Suite 20262', city = 'Albany', state = 'GA', postal_code = '31704' WHERE id = (SELECT address_id FROM transportation_offices where id = 'aed72dfd-41cf-4111-9131-f27066aa9e88');
 
@@ -83,7 +81,7 @@ UPDATE addresses SET street_address_1 = '308 N. 1st St', street_address_2 = '97 
 -- Update the TO and address
 UPDATE transportation_offices SET name = 'PPPO Aviation Training Center Elizabeth City - USCG', gbloc = 'BGNC' WHERE id = 'f7d9f4a4-c097-4c72-b0a8-41fc59e9cf44';
 
-UPDATE addresses SET street_address_1 = '1664 Weeksville Rd ', street_address_2 = 'ATTN: Transportation Office ', city = 'Elizabeth City', state = 'NC', postal_code = '27909' WHERE id = (SELECT address_id FROM transportation_offices where id = 'f7d9f4a4-c097-4c72-b0a8-41fc59e9cf44');
+UPDATE addresses SET street_address_1 = '1664 Weeksville Rd', street_address_2 = 'ATTN: Transportation Office', city = 'Elizabeth City', state = 'NC', postal_code = '27909' WHERE id = (SELECT address_id FROM transportation_offices where id = 'f7d9f4a4-c097-4c72-b0a8-41fc59e9cf44');
 
 -- Update the TO and address
 UPDATE transportation_offices SET name = 'PPPO Aviation Training Center Mobile - USCG', gbloc = 'HAFC' WHERE id = '27c8d71a-c3c6-4a2d-ac1b-874cbf6a5f85';
@@ -103,7 +101,7 @@ UPDATE addresses SET street_address_1 = 'Coast Guard Island', street_address_2 =
 -- Update the TO and address
 UPDATE transportation_offices SET name = 'PPPO Base Boston - USCG', gbloc = 'AGFM' WHERE id = 'cf1addea-a4f9-4173-8506-2bb82a064cb7';
 
-UPDATE addresses SET street_address_1 = 'ATTN: Transportation Office ', street_address_2 = '427 Commerical Street ', city = 'Boston', state = 'MA', postal_code = '02109' WHERE id = (SELECT address_id FROM transportation_offices where id = 'cf1addea-a4f9-4173-8506-2bb82a064cb7');
+UPDATE addresses SET street_address_1 = 'ATTN: Transportation Office', street_address_2 = '427 Commerical Street', city = 'Boston', state = 'MA', postal_code = '02109' WHERE id = (SELECT address_id FROM transportation_offices where id = 'cf1addea-a4f9-4173-8506-2bb82a064cb7');
 
 -- Update the TO and address
 UPDATE transportation_offices SET name = 'PPPO Base Cape Cod - USCG', gbloc = 'AGFM' WHERE id = 'ca40217d-c4e0-4931-b181-e8b99c4a2a75';
@@ -123,7 +121,7 @@ UPDATE addresses SET street_address_1 = '1001 South Seaside Ave', street_address
 -- Update the TO and address
 UPDATE transportation_offices SET name = 'PPPO Base Miami - USCG', gbloc = 'CLPK' WHERE id = '1b3e7496-efa7-48aa-ba22-b630d6fea98b';
 
-UPDATE addresses SET street_address_1 = '15610 SW 117th Ave ', street_address_2 = 'nan', city = 'Miami', state = 'FL', postal_code = '33177' WHERE id = (SELECT address_id FROM transportation_offices where id = '1b3e7496-efa7-48aa-ba22-b630d6fea98b');
+UPDATE addresses SET street_address_1 = '15610 SW 117th Ave', street_address_2 = 'nan', city = 'Miami', state = 'FL', postal_code = '33177' WHERE id = (SELECT address_id FROM transportation_offices where id = '1b3e7496-efa7-48aa-ba22-b630d6fea98b');
 
 -- Update the TO and address
 UPDATE transportation_offices SET name = 'PPPO Base National Capital Region - USCG', gbloc = 'BGAC' WHERE id = '12377a7a-7cd0-4c75-acbb-1a19242909f0';
@@ -135,15 +133,15 @@ UPDATE transportation_offices SET name = 'PPPO Base Portsmouth - USCG', gbloc = 
 
 UPDATE addresses SET street_address_1 = '4000 Coast Guard Blvd', street_address_2 = 'nan', city = 'Portsmouth', state = 'VA', postal_code = '23707' WHERE id = (SELECT address_id FROM transportation_offices where id = '3021df82-cb36-4286-bfb6-94051d04b59b');
 
--- Insert the address and TO
-INSERT INTO addresses (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at) VALUES ('462afc49-e09b-4b3f-ae3e-fbb6df1a694e', '1001 S. Seaside Ave', 'Bldg 25', 'San Pedro', 'CA', '90731', now(), now());
+-- Update the TO and address
+UPDATE transportation_offices SET name = 'PPPO Base San Pedro - USCG', gbloc = 'KKFA' WHERE id = 'nan';
 
-INSERT INTO transportation_offices (id, address_id, gbloc, name, created_at, updated_at, latitude, longitude) VALUES ('1f19beea-282a-41aa-96ed-f88b2064ea9c', '462afc49-e09b-4b3f-ae3e-fbb6df1a694e', 'KKFA', 'PPPO Base San Pedro - USCG', now(), now(), 0, 0);
+UPDATE addresses SET street_address_1 = '1001 S. Seaside Ave', street_address_2 = 'Bldg 25', city = 'San Pedro', state = 'CA', postal_code = '90731' WHERE id = (SELECT address_id FROM transportation_offices where id = 'nan');
 
 -- Update the TO and address
 UPDATE transportation_offices SET name = 'PPPO Base Seattle - USCG', gbloc = 'JEAT' WHERE id = '183969ce-8abd-4136-b193-2041a8c4f1be';
 
-UPDATE addresses SET street_address_1 = 'ATTN: Transportation Office ', street_address_2 = '1519 Alaskan Way South', city = 'Seattle', state = 'WA', postal_code = '98134' WHERE id = (SELECT address_id FROM transportation_offices where id = '183969ce-8abd-4136-b193-2041a8c4f1be');
+UPDATE addresses SET street_address_1 = 'ATTN: Transportation Office', street_address_2 = '1519 Alaskan Way South', city = 'Seattle', state = 'WA', postal_code = '98134' WHERE id = (SELECT address_id FROM transportation_offices where id = '183969ce-8abd-4136-b193-2041a8c4f1be');
 
 -- Update the TO and address
 UPDATE transportation_offices SET name = 'PPPO Base St Louis - USCG', gbloc = 'AGFM' WHERE id = '254765b6-1781-4441-b7f1-27c42beaa583';
@@ -201,19 +199,19 @@ UPDATE transportation_offices SET name = 'PPPO Detroit Arsenal - USA', gbloc = '
 UPDATE addresses SET street_address_1 = '6501 E. 11 Mile Rd', street_address_2 = 'Bldg 232', city = 'Detroit Arsenal', state = 'MI', postal_code = '48397' WHERE id = (SELECT address_id FROM transportation_offices where id = '07c5e487-ee37-4e43-b2db-2b4bd79ea7e5');
 
 -- Update the TO and address
-UPDATE transportation_offices SET name = 'PPPO DMO Albany - USMC ', gbloc = 'CNNQ' WHERE id = '65bc635c-c097-428b-a4e5-8b752510f22e';
+UPDATE transportation_offices SET name = 'PPPO DMO Albany - USMC', gbloc = 'CNNQ' WHERE id = '65bc635c-c097-428b-a4e5-8b752510f22e';
 
 UPDATE addresses SET street_address_1 = '814 Radford Blvd', street_address_2 = 'Bldg 3500, Wing 500, Rooms 501 and 503', city = 'Albany', state = 'GA', postal_code = '31704' WHERE id = (SELECT address_id FROM transportation_offices where id = '65bc635c-c097-428b-a4e5-8b752510f22e');
 
 -- Update the TO and address
-UPDATE transportation_offices SET name = 'PPPO DMO Camp Lejeune - USMC ', gbloc = 'CNNQ' WHERE id = '22894aa1-1c29-49d8-bd1b-2ce64448cc8d';
+UPDATE transportation_offices SET name = 'PPPO DMO Camp Lejeune - USMC', gbloc = 'CNNQ' WHERE id = '22894aa1-1c29-49d8-bd1b-2ce64448cc8d';
 
 UPDATE addresses SET street_address_1 = 'Ash St', street_address_2 = 'Bldg 1011', city = 'Camp Lejeune', state = 'NC', postal_code = '28547' WHERE id = (SELECT address_id FROM transportation_offices where id = '22894aa1-1c29-49d8-bd1b-2ce64448cc8d');
 
--- Insert the address and TO
-INSERT INTO addresses (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at) VALUES ('c7139b67-2b29-4f48-bf17-36e6b222da2f', 'Vandergrift Blvd', 'Bldg 2263', 'Camp Pendleton', 'CA', '92055', now(), now());
+-- Update the TO and address
+UPDATE transportation_offices SET name = 'PPPO DMO Camp Pendleton - USMC', gbloc = 'USMC' WHERE id = 'nan';
 
-INSERT INTO transportation_offices (id, address_id, gbloc, name, created_at, updated_at, latitude, longitude) VALUES ('bf395470-36cf-4e18-a3f2-9f81ea529c43', 'c7139b67-2b29-4f48-bf17-36e6b222da2f', 'USMC', 'PPPO DMO Camp Pendleton - USMC', now(), now(), 0, 0);
+UPDATE addresses SET street_address_1 = 'Vandergrift Blvd', street_address_2 = 'Bldg 2263', city = 'Camp Pendleton', state = 'CA', postal_code = '92055' WHERE id = (SELECT address_id FROM transportation_offices where id = 'nan');
 
 -- Update the TO and address
 UPDATE transportation_offices SET name = 'PPPO DMO Camp Pendleton - USMC', gbloc = 'LKNQ' WHERE id = 'f50eb7f5-960a-46e8-aa64-6025b44132ab';
@@ -221,7 +219,7 @@ UPDATE transportation_offices SET name = 'PPPO DMO Camp Pendleton - USMC', gbloc
 UPDATE addresses SET street_address_1 = 'Vandergrift Blvd', street_address_2 = 'Bldg 2263', city = 'Camp Pendleton', state = 'CA', postal_code = '92055' WHERE id = (SELECT address_id FROM transportation_offices where id = 'f50eb7f5-960a-46e8-aa64-6025b44132ab');
 
 -- Update the TO and address
-UPDATE transportation_offices SET name = 'PPPO DMO JB Myer-Henderson Hall - USMC ', gbloc = 'BGAC' WHERE id = '20e19766-555d-486d-96a0-995d4d2cdacf';
+UPDATE transportation_offices SET name = 'PPPO DMO JB Myer-Henderson Hall - USMC', gbloc = 'BGAC' WHERE id = '20e19766-555d-486d-96a0-995d4d2cdacf';
 
 UPDATE addresses SET street_address_1 = '1555 Southgate Rd', street_address_2 = 'Henderson Hall, Bldg 29, Room 302', city = 'Arlington', state = 'VA', postal_code = '22214' WHERE id = (SELECT address_id FROM transportation_offices where id = '20e19766-555d-486d-96a0-995d4d2cdacf');
 
@@ -251,12 +249,12 @@ UPDATE transportation_offices SET name = 'PPPO DMO MCAS Yuma - USMC', gbloc = 'L
 UPDATE addresses SET street_address_1 = 'Spears St', street_address_2 = 'Bldg 328, 2nd Floor', city = 'Yuma', state = 'AZ', postal_code = '85369' WHERE id = (SELECT address_id FROM transportation_offices where id = '6ac7e595-1e0c-44cb-a9a4-cd7205868ed4');
 
 -- Update the TO and address
-UPDATE transportation_offices SET name = 'PPPO DMO MCB Quantico - USMC ', gbloc = 'BGAC' WHERE id = '2ffbe627-9918-4f52-a440-4be87f5fca73';
+UPDATE transportation_offices SET name = 'PPPO DMO MCB Quantico - USMC', gbloc = 'BGAC' WHERE id = '2ffbe627-9918-4f52-a440-4be87f5fca73';
 
 UPDATE addresses SET street_address_1 = '2009 Zeilin Rd', street_address_2 = 'PPPO DMO Quantico, Bldg 2009', city = 'MCB Quantico', state = 'VA', postal_code = '22134' WHERE id = (SELECT address_id FROM transportation_offices where id = '2ffbe627-9918-4f52-a440-4be87f5fca73');
 
 -- Update the TO and address
-UPDATE transportation_offices SET name = 'PPPO DMO Mountain Warfare Training Center Bridgeport - USMC ', gbloc = 'KKFA' WHERE id = 'fab58a38-ee1f-4adf-929a-2dd246fc5e67';
+UPDATE transportation_offices SET name = 'PPPO DMO Mountain Warfare Training Center Bridgeport - USMC', gbloc = 'KKFA' WHERE id = 'fab58a38-ee1f-4adf-929a-2dd246fc5e67';
 
 UPDATE addresses SET street_address_1 = 'HC 83', street_address_2 = 'Bldg 7047', city = 'Bridgeport', state = 'CA', postal_code = '93517' WHERE id = (SELECT address_id FROM transportation_offices where id = 'fab58a38-ee1f-4adf-929a-2dd246fc5e67');
 
@@ -695,10 +693,10 @@ UPDATE transportation_offices SET name = 'PPPO NSA Saratoga Springs - USN', gblo
 
 UPDATE addresses SET street_address_1 = '19 J. F. King Dr', street_address_2 = 'Bldg 102', city = 'Saratoga Springs', state = 'NY', postal_code = '12866' WHERE id = (SELECT address_id FROM transportation_offices where id = '559eb724-7577-4e4c-830f-e55cbb030e06');
 
--- Insert the address and TO
-INSERT INTO addresses (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at) VALUES ('6f1378a4-a931-493e-b905-64769193315c', '110 Vernon Ave', 'Bldg 386', 'Panama City', 'FL', '32407', now(), now());
+-- Update the TO and address
+UPDATE transportation_offices SET name = 'PPPO NSWC Panama City Division - USN', gbloc = 'HAFC' WHERE id = 'nan';
 
-INSERT INTO transportation_offices (id, address_id, gbloc, name, created_at, updated_at, latitude, longitude) VALUES ('61eaa5b5-7115-480b-93f0-9c37da7e1851', '6f1378a4-a931-493e-b905-64769193315c', 'HAFC', 'PPPO NSWC Panama City Division - USN', now(), now(), 0, 0);
+UPDATE addresses SET street_address_1 = '110 Vernon Ave', street_address_2 = 'Bldg 386', city = 'Panama City', state = 'FL', postal_code = '32407' WHERE id = (SELECT address_id FROM transportation_offices where id = 'nan');
 
 -- Update the TO and address
 UPDATE transportation_offices SET name = 'PPPO Offutt AFB - USAF', gbloc = 'KKFA' WHERE id = '78443187-1d59-4e10-82c9-ee7a0e062730';
@@ -783,7 +781,7 @@ UPDATE addresses SET street_address_1 = '426 5th Ave', street_address_2 = 'Bldg 
 -- Update the TO and address
 UPDATE transportation_offices SET name = 'PPPO Surface Forces Logistics Command Baltimore - USCG', gbloc = 'BGAC' WHERE id = '0a048293-15c4-4036-8915-dd4b9d3ef2de';
 
-UPDATE addresses SET street_address_1 = 'ATTN: Transportion Office ', street_address_2 = '2401 Hawkins Point Rd', city = 'Baltimore', state = 'MD', postal_code = '21226' WHERE id = (SELECT address_id FROM transportation_offices where id = '0a048293-15c4-4036-8915-dd4b9d3ef2de');
+UPDATE addresses SET street_address_1 = 'ATTN: Transportion Office', street_address_2 = '2401 Hawkins Point Rd', city = 'Baltimore', state = 'MD', postal_code = '21226' WHERE id = (SELECT address_id FROM transportation_offices where id = '0a048293-15c4-4036-8915-dd4b9d3ef2de');
 
 -- Update the TO and address
 UPDATE transportation_offices SET name = 'PPPO Tinker AFB - USAF', gbloc = 'HAFC' WHERE id = '7876373d-57e4-4cde-b11f-c26a8feee9e8';
@@ -798,7 +796,7 @@ UPDATE addresses SET street_address_1 = '11 Hap Arnold Blvd', street_address_2 =
 -- Update the TO and address
 UPDATE transportation_offices SET name = 'PPPO Training Center Cape May - USCG', gbloc = 'AGFM' WHERE id = '7ac0f374-b97a-4b98-9878-eabef89adff9';
 
-UPDATE addresses SET street_address_1 = 'ATTN: Transportation Office  ', street_address_2 = '1 Munro Ave', city = 'Cape May', state = 'NJ', postal_code = '08204' WHERE id = (SELECT address_id FROM transportation_offices where id = '7ac0f374-b97a-4b98-9878-eabef89adff9');
+UPDATE addresses SET street_address_1 = 'ATTN: Transportation Office', street_address_2 = '1 Munro Ave', city = 'Cape May', state = 'NJ', postal_code = '08204' WHERE id = (SELECT address_id FROM transportation_offices where id = '7ac0f374-b97a-4b98-9878-eabef89adff9');
 
 -- Update the TO and address
 UPDATE transportation_offices SET name = 'PPPO Training Center Petaluma - USCG', gbloc = 'LHNQ' WHERE id = 'f54d8b95-6ee8-4ffa-bf79-67400ae09aa2';
@@ -808,7 +806,7 @@ UPDATE addresses SET street_address_1 = '599 Tomales Rd', street_address_2 = 'Bl
 -- Update the TO and address
 UPDATE transportation_offices SET name = 'PPPO Training Center Yorktown - USCG', gbloc = 'AGFM' WHERE id = '4ed2762d-73bc-4c62-bea9-725c5c64cb62';
 
-UPDATE addresses SET street_address_1 = 'ATTN: Transportation Office ', street_address_2 = '1 US Coast Guard Training Center', city = 'Yorktown', state = 'VA', postal_code = '23690' WHERE id = (SELECT address_id FROM transportation_offices where id = '4ed2762d-73bc-4c62-bea9-725c5c64cb62');
+UPDATE addresses SET street_address_1 = 'ATTN: Transportation Office', street_address_2 = '1 US Coast Guard Training Center', city = 'Yorktown', state = 'VA', postal_code = '23690' WHERE id = (SELECT address_id FROM transportation_offices where id = '4ed2762d-73bc-4c62-bea9-725c5c64cb62');
 
 -- Update the TO and address
 UPDATE transportation_offices SET name = 'PPPO Travis AFB - USAF', gbloc = 'KKFA' WHERE id = 'a038e200-8db4-499f-b1a3-2c15f6e97614';
@@ -866,7 +864,7 @@ UPDATE transportation_offices SET name = 'PPPO Yuma Proving Ground - USA', gbloc
 UPDATE addresses SET street_address_1 = '301 C St', street_address_2 = 'Bldg 2710', city = 'Yuma', state = 'AZ', postal_code = '85365' WHERE id = (SELECT address_id FROM transportation_offices where id = '7145e8fe-465b-44e5-a486-b893357148ef');
 
 -- Update the TO and address
-UPDATE transportation_offices SET name = 'PPSO DMO Camp Lejeune - USMC ', gbloc = 'USMC' WHERE id = 'ccf50409-9d03-4cac-a931-580649f1647a';
+UPDATE transportation_offices SET name = 'PPSO DMO Camp Lejeune - USMC', gbloc = 'USMC' WHERE id = 'ccf50409-9d03-4cac-a931-580649f1647a';
 
 UPDATE addresses SET street_address_1 = 'Ash St', street_address_2 = 'Bldg 1011', city = 'Camp Lejeune', state = 'NC', postal_code = '28547' WHERE id = (SELECT address_id FROM transportation_offices where id = 'ccf50409-9d03-4cac-a931-580649f1647a');
 
@@ -885,4 +883,3 @@ UPDATE transportation_offices SET name = 'USN PPM Processing (NAVY) - USN', gblo
 
 UPDATE addresses SET street_address_1 = '1968 Gilbert St', street_address_2 = 'Suite 600', city = 'Norfolk', state = 'VA', postal_code = '23511' WHERE id = (SELECT address_id FROM transportation_offices where id = '83d25227-e27d-4c56-8e71-1ff464f47128');
 
-END;
