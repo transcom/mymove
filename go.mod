@@ -14,7 +14,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchevents v1.15.13
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.19.5
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.27.4
-	github.com/aws/aws-sdk-go-v2/service/rds v1.45.2
+	github.com/aws/aws-sdk-go-v2/service/rds v1.54.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.38.5
 	github.com/aws/aws-sdk-go-v2/service/ses v1.16.7
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.37.5
@@ -52,7 +52,7 @@ require (
 	github.com/imdario/mergo v0.3.16
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
 	github.com/jessevdk/go-flags v1.5.0
-	github.com/jinzhu/copier v0.3.5
+	github.com/jinzhu/copier v0.4.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/lib/pq v1.10.9
@@ -60,7 +60,7 @@ require (
 	github.com/namsral/flag v1.7.4-pre
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.9.1
-	github.com/pkg/sftp v1.13.5
+	github.com/pkg/sftp v1.13.6
 	github.com/pterm/pterm v0.12.66
 	github.com/rickar/cal/v2 v2.1.13
 	github.com/spf13/afero v1.9.5
