@@ -92,6 +92,9 @@ services:
       - MUTUAL_TLS_ENABLED=1
       - NO_TLS_ENABLED=1
       - NO_TLS_PORT=4000
+      - OKTA_CUSTOMER_CLIENT_ID
+      - OKTA_ADMIN_CLIENT_ID
+      - OKTA_OFFICE_CLEINT_ID
       - PGPASSWORD=mysecretpassword
       - SERVE_API_GHC=true
       - SERVE_API_INTERNAL=true
