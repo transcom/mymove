@@ -264,6 +264,12 @@ var (
 		Type:        models.ServiceItemParamTypeInteger,
 		Origin:      models.ServiceItemParamOriginSystem,
 	}
+	paramSITServiceAreaOrigin = models.ServiceItemParamKey{
+		Key:         models.ServiceItemParamNameSITServiceAreaOrigin,
+		Description: "SIT Origin service area",
+		Type:        models.ServiceItemParamTypeString,
+		Origin:      models.ServiceItemParamOriginSystem,
+	}
 	paramWeightAdjusted = models.ServiceItemParamKey{
 		Key:         models.ServiceItemParamNameWeightAdjusted,
 		Description: "weight adjusted",
@@ -421,7 +427,7 @@ var (
 			paramPriceRateOrFactor,
 			paramReferenceDate,
 			paramRequestedPickupDate,
-			paramServiceAreaOrigin,
+			paramSITServiceAreaOrigin,
 			paramSITPaymentRequestEnd,
 			paramSITPaymentRequestStart,
 			paramWeightAdjusted,

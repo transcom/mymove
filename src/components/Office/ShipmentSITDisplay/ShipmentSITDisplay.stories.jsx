@@ -7,6 +7,7 @@ import {
   SITExtensions,
   SITStatusOrigin,
   SITStatusDestination,
+  SITStatusDestinationWithoutCustomerDeliveryInfo,
   SITShipment,
   SITStatusWithPastSITOriginServiceItem,
   SITStatusWithPastSITServiceItems,
@@ -42,6 +43,12 @@ export const AtOriginNoPreviousSIT = () => (
 export const AtDestinationNoPreviousSIT = () => (
   <MockProviders permissions={[permissionTypes.updateSITExtension]}>
     <ShipmentSITDisplay sitStatus={SITStatusDestination} shipment={SITShipment} />
+  </MockProviders>
+);
+
+export const AtDestinationWithoutCustomerDeliveryInfo = () => (
+  <MockProviders permissions={[permissionTypes.updateSITExtension]}>
+    <ShipmentSITDisplay sitStatus={SITStatusDestinationWithoutCustomerDeliveryInfo} shipment={SITShipment} />
   </MockProviders>
 );
 
