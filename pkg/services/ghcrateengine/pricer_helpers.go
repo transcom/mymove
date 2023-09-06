@@ -121,11 +121,13 @@ func priceDomesticFirstDaySIT(appCtx appcontext.AppContext, firstDaySITCode mode
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic %s first day SIT rate: %w", sitType, err)
 	}
 
-	baseTotalPrice := serviceAreaPrice.PriceCents.Float64() * weight.ToCWTFloat64()
-	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, serviceAreaPrice.ContractID, referenceDate, false, baseTotalPrice)
+	basePrice := serviceAreaPrice.PriceCents.Float64()
+	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, serviceAreaPrice.ContractID, referenceDate, false, basePrice)
 	if err != nil {
 		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
+
+	escalatedPrice = escalatedPrice * weight.ToCWTFloat64()
 	totalPriceCents := unit.Cents(math.Round(escalatedPrice))
 
 	params := services.PricingDisplayParams{
@@ -158,14 +160,14 @@ func priceDomesticAdditionalDaysSIT(appCtx appcontext.AppContext, additionalDayS
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic %s additional days SIT rate: %w", sitType, err)
 	}
 
-	baseTotalPrice := serviceAreaPrice.PriceCents.Float64() * weight.ToCWTFloat64()
-	escalatedTotalPrice, contractYear, err := escalatePriceForContractYear(appCtx, serviceAreaPrice.ContractID, referenceDate, false, baseTotalPrice)
+	basePrice := serviceAreaPrice.PriceCents.Float64()
+	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, serviceAreaPrice.ContractID, referenceDate, false, basePrice)
 	if err != nil {
 		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 
-	totalForNumberOfDaysPrice := escalatedTotalPrice * float64(numberOfDaysInSIT)
-
+	escalatedPrice = escalatedPrice * weight.ToCWTFloat64()
+	totalForNumberOfDaysPrice := escalatedPrice * float64(numberOfDaysInSIT)
 	totalPriceCents := unit.Cents(math.Round(totalForNumberOfDaysPrice))
 
 	displayParams := services.PricingDisplayParams{
@@ -259,12 +261,15 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic %s SIT %s rate: %w", sitType, sitModifier, err)
 	}
-	baseTotalPrice := domOtherPrice.PriceCents.Float64() * weight.ToCWTFloat64()
-	escalatedTotalPrice, contractYear, err := escalatePriceForContractYear(appCtx, domOtherPrice.ContractID, referenceDate, false, baseTotalPrice)
+	basePrice := domOtherPrice.PriceCents.Float64()
+
+	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, domOtherPrice.ContractID, referenceDate, false, basePrice)
 	if err != nil {
 		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
-	totalPriceCents := unit.Cents(math.Round(escalatedTotalPrice))
+	escalatedPrice = escalatedPrice * weight.ToCWTFloat64()
+
+	totalPriceCents := unit.Cents(math.Round(escalatedPrice))
 
 	displayParams := services.PricingDisplayParams{
 		{
