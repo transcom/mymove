@@ -1022,6 +1022,9 @@ commands:
             export OKTA_CUSTOMER_CLIENT_ID=1q2w3e4r5t6y7u8i9o
             export OKTA_ADMIN_CLIENT_ID=AQ1SW2DE3FR4G5
             export OKTA_OFFICE_CLIENT_ID=9f9f9s8s90gig9
+            export OKTA_CUSTOMER_SECRET_KEY=notrealkey
+            export OKTA_OFFICE_SECRET_KEY=notrealkey1
+            export OKTA_ADMIN_SECRET_KEY=notrealkey2
             export SERVE_API_SUPPORT=true
             export MUTUAL_TLS_ENABLED=true
             export SERVE_PRIME_SIMULATOR=true
