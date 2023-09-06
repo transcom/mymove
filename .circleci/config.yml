@@ -776,7 +776,7 @@ commands:
             SERVE_API_INTERNAL: 'true'
             OKTA_CUSTOMER_CLIENT_ID: 1q2w3e4r5t6y7u8i9o
             OKTA_ADMIN_CLIENT_ID: AQ1SW2DE3FR4G5
-            OKTA_OFFICE_CLEINT_ID: 9f9f9s8s90gig9
+            OKTA_OFFICE_CLIENT_ID: 9f9f9s8s90gig9
   # run playwright tests without using setup_remote_docker
   # the remote docker resources are not configurable and thus are
   # SLOOOOOOW
@@ -836,7 +836,7 @@ commands:
             export LOGIN_GOV_CALLBACK_PROTOCOL=http
             export OKTA_CUSTOMER_CLIENT_ID=1q2w3e4r5t6y7u8i9o
             export OKTA_ADMIN_CLIENT_ID=AQ1SW2DE3FR4G5
-            export OKTA_OFFICE_CLEINT_ID=9f9f9s8s90gig9
+            export OKTA_OFFICE_CLIENT_ID=9f9f9s8s90gig9
             export SERVE_API_PRIME=false
             export SERVE_API_SUPPORT=true
             export SERVE_PRIME_SIMULATOR=true
@@ -933,7 +933,7 @@ commands:
             export LOGIN_GOV_CALLBACK_PROTOCOL=http
             export OKTA_CUSTOMER_CLIENT_ID=1q2w3e4r5t6y7u8i9o
             export OKTA_ADMIN_CLIENT_ID=AQ1SW2DE3FR4G5
-            export OKTA_OFFICE_CLEINT_ID=9f9f9s8s90gig9
+            export OKTA_OFFICE_CLIENT_ID=9f9f9s8s90gig9
             export SERVE_API_SUPPORT=true
             export SERVE_PRIME_SIMULATOR=true
             export DEVLOCAL_CA=$PWD/config/tls/devlocal-ca.pem
@@ -1012,7 +1012,7 @@ commands:
             export LOGIN_GOV_CALLBACK_PROTOCOL=http
             export OKTA_CUSTOMER_CLIENT_ID=1q2w3e4r5t6y7u8i9o
             export OKTA_ADMIN_CLIENT_ID=AQ1SW2DE3FR4G5
-            export OKTA_OFFICE_CLEINT_ID=9f9f9s8s90gig9
+            export OKTA_OFFICE_CLIENT_ID=9f9f9s8s90gig9
             export SERVE_API_SUPPORT=true
             export MUTUAL_TLS_ENABLED=true
             export SERVE_PRIME_SIMULATOR=true
