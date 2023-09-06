@@ -750,6 +750,9 @@ commands:
             export OKTA_CUST_CLIENT_ID=notrealkey
             export OKTA_OFFICE_CLIENT_ID=notrealkey1
             export OKTA_ADMIN_CLIENT_ID=notrealkey2
+            export OKTA_CUSTOMER_SECRET_KEY=notrealkey
+            export OKTA_OFFICE_SECRET_KEY=notrealkey1
+            export OKTA_ADMIN_SECRET_KEY=notrealkey2
 
             make server_test
           environment:
