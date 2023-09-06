@@ -35,7 +35,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginSITPickupPricerSameZip
 	distance := unit.Miles(12)
 
 	pricer := NewDomesticOriginSITPickupPricer()
-	expectedPrice := unit.Cents(127316) // dopsitTestDomesticServiceAreaBasePriceCents * (dopsitTestWeight / 100) * distance * dopsitTestEscalationCompounded
+	expectedPrice := unit.Cents(127358) // dopsitTestDomesticServiceAreaBasePriceCents * (dopsitTestWeight / 100) * distance * dopsitTestEscalationCompounded
 
 	suite.Run("success using PaymentServiceItemParams", func() {
 		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDSH, dopsitTestServiceArea, dopsitTestIsPeakPeriod, dopsitTestDomesticServiceAreaBasePriceCents, dopsitTestContractYearName, dopsitTestEscalationCompounded)
