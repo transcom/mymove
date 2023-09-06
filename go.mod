@@ -14,7 +14,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchevents v1.15.13
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.19.5
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.27.4
-	github.com/aws/aws-sdk-go-v2/service/rds v1.45.2
+	github.com/aws/aws-sdk-go-v2/service/rds v1.54.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.38.5
 	github.com/aws/aws-sdk-go-v2/service/ses v1.16.7
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.37.5
