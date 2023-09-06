@@ -91,6 +91,11 @@ export async function getOktaProfile() {
   return makeInternalRequest('okta_profile.showOktaInfo');
 }
 
+// TODO implement patch function when user updates their Okta profile
+// export async function patchOktaProfile() {
+//   return makeInternalRequest('okta_profile.showOktaInfo');
+// }
+
 /** BACKUP CONTACTS */
 export async function createBackupContactForServiceMember(serviceMemberId, backupContact) {
   return makeInternalRequest(

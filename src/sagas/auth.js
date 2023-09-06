@@ -24,7 +24,7 @@ export function* fetchUser() {
 
         const userEntities = normalize(user, loggedInUser, okta);
 
-        yield put(setOktaUser(okta));
+        yield put(setOktaUser(okta)); // adds Okta data to entities in state
         yield put(addEntities(userEntities.entities)); // populate entities
         yield put(getLoggedInUserSuccess(user));
       } catch (e) {
