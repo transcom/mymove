@@ -20,6 +20,63 @@ function generateDetailText(details, id, className) {
   return detailList;
 }
 
+function generateDestinationSITDetailSection(id, serviceRequestDocUploads, details, additionalDetails) {
+  const { customerContacts } = details;
+  // Below we are using the sortBy func in lodash to sort the customer contacts
+  // by the firstAvailableDeliveryDate field. sortBy returns a new
+  // array with the elements in ascending order.
+  const sortedCustomerContacts = sortBy(customerContacts, [
+    (a) => {
+      return new Date(a.firstAvailableDeliveryDate);
+    },
+  ]);
+  const defaultDetailText = generateDetailText({
+    'First available delivery date 1': '-',
+    'Customer contact 1': '-',
+  });
+  return (
+    <div>
+      <dl>
+        {additionalDetails ? generateDetailText(additionalDetails) : null}
+        {!isEmpty(sortedCustomerContacts)
+          ? sortedCustomerContacts.map((contact, index) => (
+              <>
+                {generateDetailText(
+                  {
+                    [`First available delivery date ${index + 1}`]:
+                      contact && contact.firstAvailableDeliveryDate
+                        ? formatDate(contact.firstAvailableDeliveryDate, 'DD MMM YYYY')
+                        : '-',
+                    [`Customer contact attempt ${index + 1}`]:
+                      contact && contact.dateOfContact && contact.timeMilitary
+                        ? `${formatDate(contact.dateOfContact, 'DD MMM YYYY')}, ${contact.timeMilitary}`
+                        : '-',
+                  },
+                  id,
+                )}
+              </>
+            ))
+          : defaultDetailText}
+        {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
+        {details.rejectionReason &&
+          generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+        {!isEmpty(serviceRequestDocUploads) ? (
+          <div className={styles.uploads}>
+            <p className={styles.detailType}>Download service item documentation:</p>
+            {serviceRequestDocUploads.map((file) => (
+              <div className={styles.uploads}>
+                <a href={file.url} download>
+                  {trimFileName(file.filename)}
+                </a>
+              </div>
+            ))}
+          </div>
+        ) : null}
+      </dl>
+    </div>
+  );
+}
+
 const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
   const serviceRequestDocUploads = serviceRequestDocs?.map((doc) => doc.uploads[0]);
 
@@ -58,63 +115,22 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
       );
       break;
     }
-    case 'DDFSIT':
-    case 'DDASIT':
-    case 'DDDSIT':
-    case 'DDSFSC': {
-      const { customerContacts } = details;
-      // Below we are using the sortBy func in lodash to sort the customer contacts
-      // by the firstAvailableDeliveryDate field. sortBy returns a new
-      // array with the elements in ascending order.
-      const sortedCustomerContacts = sortBy(customerContacts, [
-        (a) => {
-          return new Date(a.firstAvailableDeliveryDate);
-        },
-      ]);
-      const defaultDetailText = generateDetailText({
-        'First available delivery date 1': '-',
-        'Customer contact 1': '-',
+    case 'DDFSIT': {
+      detailSection = generateDestinationSITDetailSection(id, serviceRequestDocUploads, details);
+      break;
+    }
+    case 'DDASIT': {
+      detailSection = generateDestinationSITDetailSection(id, serviceRequestDocUploads, details);
+      break;
+    }
+    case 'DDDSIT': {
+      detailSection = generateDestinationSITDetailSection(id, serviceRequestDocUploads, details, {
+        'SIT departure date': details.sitDepartureDate ? formatDate(details.sitDepartureDate, 'DD MMM YYYY') : '-',
       });
-      detailSection = (
-        <div>
-          <dl>
-            {!isEmpty(sortedCustomerContacts)
-              ? sortedCustomerContacts.map((contact, index) => (
-                  <>
-                    {generateDetailText(
-                      {
-                        [`First available delivery date ${index + 1}`]:
-                          contact && contact.firstAvailableDeliveryDate
-                            ? formatDate(contact.firstAvailableDeliveryDate, 'DD MMM YYYY')
-                            : '-',
-                        [`Customer contact attempt ${index + 1}`]:
-                          contact && contact.dateOfContact && contact.timeMilitary
-                            ? `${formatDate(contact.dateOfContact, 'DD MMM YYYY')}, ${contact.timeMilitary}`
-                            : '-',
-                      },
-                      id,
-                    )}
-                  </>
-                ))
-              : defaultDetailText}
-            {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
-            {details.rejectionReason &&
-              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
-            {!isEmpty(serviceRequestDocUploads) ? (
-              <div className={styles.uploads}>
-                <p className={styles.detailType}>Download service item documentation:</p>
-                {serviceRequestDocUploads.map((file) => (
-                  <div className={styles.uploads}>
-                    <a href={file.url} download>
-                      {trimFileName(file.filename)}
-                    </a>
-                  </div>
-                ))}
-              </div>
-            ) : null}
-          </dl>
-        </div>
-      );
+      break;
+    }
+    case 'DDSFSC': {
+      detailSection = generateDestinationSITDetailSection(id, serviceRequestDocUploads, details);
       break;
     }
     case 'DCRT':
