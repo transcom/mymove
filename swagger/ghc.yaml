@@ -5961,6 +5961,14 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
+      sitCustomerContacted:
+        type: string
+        format: date
+        x-nullable: true
+      sitRequestedDelivery:
+        type: string
+        format: date
+        x-nullable: true
       sitDestinationOriginalAddress:
         $ref: '#/definitions/Address'
       sitDestinationFinalAddress:
@@ -6277,6 +6285,14 @@ definitions:
             format: date
             x-nullable: true
           sitAllowanceEndDate:
+            type: string
+            format: date
+            x-nullable: true
+          sitCustomerContacted:
+            type: string
+            format: date
+            x-nullable: true
+          sitRequestedDelivery:
             type: string
             format: date
             x-nullable: true
@@ -7405,6 +7421,7 @@ definitions:
       - SITScheduleDest
       - SITScheduleOrigin
       - SITServiceAreaDest
+      - SITServiceAreaOrigin
       - WeightAdjusted
       - WeightBilled
       - WeightEstimated

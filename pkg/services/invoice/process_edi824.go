@@ -3,6 +3,7 @@ package invoice
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"go.uber.org/zap"
 
@@ -114,13 +115,13 @@ func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, _ string, st
 			}
 		}
 
-		// The BGN02 Reference Identification field from the 824 stores the payment request number used in the 858.
-		// For MilMove we use the Payment Request Number in the 858
+		// The BGN02 Reference Identification field from the 824 stores the move's referenceId number used in the 858.
+		// Each payment request adds a sequential count to the move referenceID to generate the payment request number
+		// We should already have looked up the payment request reference from the generated ICN above
 		bgnRefIdentification := bgn.ReferenceIdentification
-		paymentRequestNumber := paymentRequest.PaymentRequestNumber
-		if bgnRefIdentification != paymentRequestNumber {
-			txnAppCtx.Logger().Error(fmt.Sprintf("The BGN02 Reference Identification field: %s doesn't match the PaymentRequestNumber %s of the associated payment request", bgnRefIdentification, paymentRequestNumber), zap.Error(err))
-			return fmt.Errorf("The BGN02 Reference Identification field: %s doesn't match the PaymentRequestNumber %v of the associated payment request", bgnRefIdentification, paymentRequestNumber)
+		if moveReferenceID := paymentRequest.PaymentRequestNumber[:strings.LastIndex(paymentRequest.PaymentRequestNumber, "-")]; bgnRefIdentification != moveReferenceID {
+			txnAppCtx.Logger().Error(fmt.Sprintf("The BGN02 Reference Identification field: %s doesn't match the MTO reference ID %s of the associated payment request", bgnRefIdentification, moveReferenceID), zap.Error(err))
+			return fmt.Errorf("The BGN02 Reference Identification field: %s doesn't match the MTO reference ID %v of the associated payment request", bgnRefIdentification, moveReferenceID)
 		}
 
 		teds := fetchTEDSegments(edi824)

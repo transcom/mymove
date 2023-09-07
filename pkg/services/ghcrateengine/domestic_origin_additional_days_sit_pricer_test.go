@@ -20,7 +20,7 @@ const (
 	doasitTestEscalationCompounded = 1.042
 	doasitTestWeight               = unit.Pound(4200)
 	doasitTestNumberOfDaysInSIT    = 29
-	doasitTestPriceCents           = unit.Cents(948060) // doasitTestBasePriceCents * (doasitTestWeight / 100) * doasitTestEscalationCompounded * doasitTestNumberOfDaysInSIT
+	doasitTestPriceCents           = unit.Cents(948068) // doasitTestBasePriceCents * (doasitTestWeight / 100) * doasitTestEscalationCompounded948068 * doasitTestNumberOfDaysInSIT
 )
 
 var doasitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.January, 5, 7, 33, 11, 456, time.UTC)
@@ -87,7 +87,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 		twoYearsLaterPickupDate := doasitTestRequestedPickupDate.AddDate(2, 0, 0)
 		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, doasitTestWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT, false)
 		suite.Error(err)
-		suite.Contains(err.Error(), "could not fetch contract year")
+		suite.Contains(err.Error(), "could not lookup contract year")
 	})
 }
 
@@ -118,7 +118,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 					Value:   doasitTestRequestedPickupDate.Format(DateParamFormat),
 				},
 				{
-					Key:     models.ServiceItemParamNameServiceAreaOrigin,
+					Key:     models.ServiceItemParamNameSITServiceAreaOrigin,
 					KeyType: models.ServiceItemParamTypeString,
 					Value:   doasitTestServiceArea,
 				},
@@ -126,7 +126,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 		},
 		{
 			testDescription: "not finding service area origin",
-			expectedError:   "could not find param with key ServiceAreaOrigin",
+			expectedError:   "could not find param with key SITServiceAreaOrigin",
 			psiParams: []factory.CreatePaymentServiceItemParams{
 				{
 					Key:     models.ServiceItemParamNameContractCode,
@@ -216,7 +216,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginAdditionalDaysSITServ
 				Value:   doasitTestRequestedPickupDate.Format(DateParamFormat),
 			},
 			{
-				Key:     models.ServiceItemParamNameServiceAreaOrigin,
+				Key:     models.ServiceItemParamNameSITServiceAreaOrigin,
 				KeyType: models.ServiceItemParamTypeString,
 				Value:   doasitTestServiceArea,
 			},

@@ -176,9 +176,9 @@ func (suite *HandlerSuite) TestUpdateProGearWeightTicketHandler() {
 
 		response := subtestData.handler.Handle(params)
 
-		suite.IsType(&progearops.UpdateProGearWeightTicketCreated{}, response)
+		suite.IsType(&progearops.UpdateProGearWeightTicketOK{}, response)
 
-		updatedProgear := response.(*progearops.UpdateProGearWeightTicketCreated).Payload
+		updatedProgear := response.(*progearops.UpdateProGearWeightTicketOK).Payload
 		suite.Equal(subtestData.progear.ID.String(), updatedProgear.ID.String())
 		suite.Equal(params.UpdateProGearWeightTicket.Description, *updatedProgear.Description)
 	})

@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
@@ -75,11 +76,13 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 	}
 
 	suite.Run("GetPPMShipment", func() {
-		suite.Run("Can fetch a PPM Shipment", func() {
+		suite.Run("Can fetch a PPM Shipment if there is no session (e.g. a prime request)", func() {
+			appCtx := suite.AppContextWithSessionForTest(nil)
+
 			ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 			ppmShipmentReturned, err := fetcher.GetPPMShipment(
-				suite.AppContextForTest(),
+				appCtx,
 				ppmShipment.ID,
 				nil,
 				nil,
@@ -87,6 +90,76 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 
 			if suite.NoError(err) && suite.NotNil(ppmShipmentReturned) {
 				suite.Equal(ppmShipment.ID, ppmShipmentReturned.ID)
+			}
+		})
+
+		suite.Run("Can fetch a PPM Shipment if it is an office user making a request from the office app", func() {
+			officeUser := factory.BuildOfficeUser(suite.DB(), factory.GetTraitActiveOfficeUser(), nil)
+
+			appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+				ApplicationName: auth.OfficeApp,
+				UserID:          officeUser.User.ID,
+				OfficeUserID:    officeUser.ID,
+			})
+
+			ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+
+			ppmShipmentReturned, err := fetcher.GetPPMShipment(
+				appCtx,
+				ppmShipment.ID,
+				nil,
+				nil,
+			)
+
+			if suite.NoError(err) && suite.NotNil(ppmShipmentReturned) {
+				suite.Equal(ppmShipment.ID, ppmShipmentReturned.ID)
+			}
+		})
+
+		suite.Run("Can fetch a PPM Shipment if it is a customer app request by the customer it belongs to", func() {
+			ppmShipment := factory.BuildPPMShipment(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
+			serviceMember := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+
+			appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+				ApplicationName: auth.MilApp,
+				UserID:          serviceMember.User.ID,
+				ServiceMemberID: serviceMember.ID,
+			})
+
+			ppmShipmentReturned, err := fetcher.GetPPMShipment(
+				appCtx,
+				ppmShipment.ID,
+				nil,
+				nil,
+			)
+
+			if suite.NoError(err) && suite.NotNil(ppmShipmentReturned) {
+				suite.Equal(ppmShipment.ID, ppmShipmentReturned.ID)
+			}
+		})
+
+		suite.Run("Returns a not found error if it is a customer app request by a customer that it doesn't belong to", func() {
+			maliciousUser := factory.BuildExtendedServiceMember(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
+
+			appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+				ApplicationName: auth.MilApp,
+				UserID:          maliciousUser.User.ID,
+				ServiceMemberID: maliciousUser.ID,
+			})
+
+			ppmShipment := factory.BuildPPMShipment(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
+
+			ppmShipmentReturned, err := fetcher.GetPPMShipment(
+				appCtx,
+				ppmShipment.ID,
+				nil,
+				nil,
+			)
+
+			if suite.Error(err) && suite.Nil(ppmShipmentReturned) {
+				suite.IsType(apperror.NotFoundError{}, err)
+
+				suite.Equal(fmt.Sprintf("ID: %s not found while looking for PPMShipment", ppmShipment.ID), err.Error())
 			}
 		})
 
@@ -325,7 +398,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 		suite.Run("Can fetch a ppm shipment and get both eagerPreloadAssociations and postloadAssociations", func() {
 			appCtx := suite.AppContextForTest()
 
-			ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil)
+			ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
 
 			ppmShipmentReturned, err := fetcher.GetPPMShipment(
 				appCtx,
@@ -352,7 +425,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 		suite.Run("Doesn't return postload association if a necessary higher level association isn't eagerly preloaded", func() {
 			appCtx := suite.AppContextForTest()
 
-			ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), userUploader)
+			ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), userUploader, nil)
 
 			suite.FatalTrue(len(ppmShipment.WeightTickets) > 0, "Test data that was set up is invalid, no weight tickets found")
 
@@ -360,7 +433,9 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 				appCtx,
 				ppmShipment.ID,
 				nil,
-				nil,
+				[]string{
+					PostLoadAssociationWeightTicketUploads,
+				},
 			)
 
 			if suite.NoError(err) && suite.NotNil(ppmShipmentReturned) {
@@ -770,7 +845,7 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	})
 
 	suite.Run("FindPPMShipment - loads weight tickets association", func() {
-		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil)
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
 
 		// No uploads are added by default for the ProofOfTrailerOwnershipDocument to the WeightTicket model
 		testdatagen.GetOrCreateDocumentWithUploads(suite.DB(),
@@ -787,7 +862,7 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	})
 
 	suite.Run("FindPPMShipment - loads ProgearWeightTicket and MovingExpense associations", func() {
-		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil)
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
 
 		factory.BuildProgearWeightTicket(suite.DB(), []factory.Customization{
 			{
@@ -815,7 +890,7 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 
 	suite.Run("FindPPMShipment - loads signed certification", func() {
 		signedCertification := factory.BuildSignedCertification(suite.DB(), nil, nil)
-		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil)
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
 		signedCertification.PpmID = &ppmShipment.ID
 		suite.NoError(suite.DB().Save(&signedCertification))
 
@@ -859,7 +934,7 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	})
 
 	suite.Run("FindPPMShipment - deleted uploads are removed", func() {
-		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil)
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
 
 		testdatagen.GetOrCreateDocumentWithUploads(suite.DB(),
 			ppmShipment.WeightTickets[0].ProofOfTrailerOwnershipDocument,
@@ -982,7 +1057,7 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 	})
 
 	suite.Run("FindPPMShipmentByMTOID - Success deleted line items are excluded", func() {
-		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil)
+		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
 
 		weightTicketToDelete := factory.BuildWeightTicket(suite.DB(), []factory.Customization{
 			{

@@ -82,7 +82,12 @@ func GetListOfAllPostloadAssociations() []string {
 }
 
 // GetPPMShipment returns a PPMShipment with any desired associations by ID
-func (f ppmShipmentFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, eagerPreloadAssociations []string, postloadAssociations []string) (*models.PPMShipment, error) {
+func (f ppmShipmentFetcher) GetPPMShipment(
+	appCtx appcontext.AppContext,
+	ppmShipmentID uuid.UUID,
+	eagerPreloadAssociations []string,
+	postloadAssociations []string,
+) (*models.PPMShipment, error) {
 	if eagerPreloadAssociations != nil {
 		validPreloadAssociations := make(map[string]bool)
 		for _, v := range GetListOfAllPreloadAssociations() {
@@ -91,7 +96,9 @@ func (f ppmShipmentFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShip
 
 		for _, association := range eagerPreloadAssociations {
 			if !validPreloadAssociations[association] {
-				return nil, apperror.NewNotImplementedError(fmt.Sprintf("Requested eager preload association %s is not implemented", association))
+				msg := fmt.Sprintf("Requested eager preload association %s is not implemented", association)
+
+				return nil, apperror.NewNotImplementedError(msg)
 			}
 		}
 	}
@@ -99,10 +106,18 @@ func (f ppmShipmentFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShip
 	var ppmShipment models.PPMShipment
 
 	q := appCtx.DB().Q().
-		Scope(utilities.ExcludeDeletedScope())
+		Scope(utilities.ExcludeDeletedScope(models.PPMShipment{}))
 
 	if eagerPreloadAssociations != nil {
 		q.EagerPreload(eagerPreloadAssociations...)
+	}
+
+	if appCtx.Session() != nil && appCtx.Session().IsMilApp() {
+		q.
+			InnerJoin("mto_shipments", "mto_shipments.id = ppm_shipments.shipment_id").
+			InnerJoin("moves", "moves.id = mto_shipments.move_id").
+			InnerJoin("orders", "orders.id = moves.orders_id").
+			Where("orders.service_member_id = ?", appCtx.Session().ServiceMemberID)
 	}
 
 	err := q.Find(&ppmShipment, ppmShipmentID)
@@ -132,7 +147,11 @@ func (f ppmShipmentFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShip
 }
 
 // PostloadAssociations loads associations that can't be eager preloaded due to bugs in pop
-func (f ppmShipmentFetcher) PostloadAssociations(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, postloadAssociations []string) error {
+func (f ppmShipmentFetcher) PostloadAssociations(
+	appCtx appcontext.AppContext,
+	ppmShipment *models.PPMShipment,
+	postloadAssociations []string,
+) error {
 	for _, association := range postloadAssociations {
 		switch association {
 		case PostLoadAssociationSignedCertification:

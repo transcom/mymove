@@ -14,6 +14,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { roleTypes } from 'constants/userRoles';
 import { SHIPMENT_OPTIONS, SHIPMENT_OPTIONS_URL } from 'shared/constants';
+import { ORDERS_TYPE } from 'constants/orders';
 
 const ServicesCounselingAddShipment = () => {
   const params = useParams();
@@ -27,6 +28,9 @@ const ServicesCounselingAddShipment = () => {
   }
 
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
+  const isRetirementOrSeparation =
+    order?.order_type === ORDERS_TYPE.RETIREMENT || order?.order_type === ORDERS_TYPE.SEPARATION;
+
   const queryClient = useQueryClient();
   const { mutate: mutateMTOShipments } = useMutation(createMTOShipment, {
     onSuccess: (newMTOShipment) => {
@@ -73,7 +77,7 @@ const ServicesCounselingAddShipment = () => {
                 TACs={TACs}
                 SACs={SACs}
                 userRole={roleTypes.SERVICES_COUNSELOR}
-                displayDestinationType
+                displayDestinationType={isRetirementOrSeparation}
                 move={move}
               />
             </Grid>

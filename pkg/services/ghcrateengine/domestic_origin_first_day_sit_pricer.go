@@ -34,7 +34,7 @@ func (p domesticOriginFirstDaySITPricer) PriceUsingParams(appCtx appcontext.AppC
 		return unit.Cents(0), nil, err
 	}
 
-	serviceAreaOrigin, err := getParamString(params, models.ServiceItemParamNameServiceAreaOrigin)
+	serviceAreaOrigin, err := getParamString(params, models.ServiceItemParamNameSITServiceAreaOrigin)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}

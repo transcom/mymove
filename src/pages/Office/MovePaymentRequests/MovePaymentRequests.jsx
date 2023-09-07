@@ -29,7 +29,7 @@ import {
   useCalculatedTotalBillableWeight,
 } from 'hooks/custom';
 import { updateFinancialFlag, updateMTOReviewedBillableWeights, updateMTOShipment } from 'services/ghcApi';
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { milmoveLogger } from 'utils/milmoveLog';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
 import LeftNav from 'components/LeftNav/LeftNav';
@@ -64,7 +64,7 @@ const MovePaymentRequests = ({
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 
@@ -149,20 +149,30 @@ const MovePaymentRequests = ({
   const shipmentsInfo = [];
 
   if (paymentRequests.length) {
-    mtoShipments.forEach((shipment) => {
-      const tacType = shipment.shipmentType === SHIPMENT_OPTIONS.HHG ? LOA_TYPE.HHG : shipment.tacType;
-      const sacType = shipment.shipmentType === SHIPMENT_OPTIONS.HHG ? LOA_TYPE.HHG : shipment.sacType;
+    // NOTE: We are attempting a try-catch here for the `mtoShipments`
+    // iteration because it has previously been flagged as a bug in our
+    // backlog, MB-15562.
+    try {
+      mtoShipments.forEach((shipment) => {
+        const tacType = shipment.shipmentType === SHIPMENT_OPTIONS.HHG ? LOA_TYPE.HHG : shipment.tacType;
+        const sacType = shipment.shipmentType === SHIPMENT_OPTIONS.HHG ? LOA_TYPE.HHG : shipment.sacType;
 
-      shipmentsInfo.push({
-        mtoShipmentID: shipment.id,
-        address: formatPaymentRequestAddressString(shipment.pickupAddress, shipment.destinationAddress),
-        departureDate: shipment.actualPickupDate,
-        modificationType: getShipmentModificationType(shipment),
-        mtoServiceItems: shipment.mtoServiceItems,
-        tacType,
-        sacType,
+        shipmentsInfo.push({
+          mtoShipmentID: shipment.id,
+          address: formatPaymentRequestAddressString(shipment.pickupAddress, shipment.destinationAddress),
+          departureDate: shipment.actualPickupDate,
+          modificationType: getShipmentModificationType(shipment),
+          mtoServiceItems: shipment.mtoServiceItems,
+          tacType,
+          sacType,
+        });
       });
-    });
+    } catch (error) {
+      milmoveLogger.warn(
+        'MovePaymentRequests.jsx: Move Task Orders should always have Shipments associated with them.',
+        error,
+      );
+    }
   }
 
   const handleReviewWeightsClick = () => {

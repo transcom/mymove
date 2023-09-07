@@ -9,6 +9,9 @@ import 'styles/customer.scss';
 
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 
+// Logger
+import { milmoveLogger } from 'utils/milmoveLog';
+import { retryPageLoading } from 'utils/retryPageLoading';
 import BypassBlock from 'components/BypassBlock';
 import CUIHeader from 'components/CUIHeader/CUIHeader';
 import LoggedOutHeader from 'containers/Headers/LoggedOutHeader';
@@ -93,11 +96,14 @@ export class CustomerApp extends Component {
   }
 
   componentDidCatch(error, info) {
+    const { message } = error;
+    milmoveLogger.error({ message, info });
     this.setState({
       hasError: true,
       error,
       info,
     });
+    retryPageLoading(error);
   }
 
   render() {

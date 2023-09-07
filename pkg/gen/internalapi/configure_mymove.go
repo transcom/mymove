@@ -18,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/feature_flags"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
@@ -78,6 +79,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.OfficeApproveReimbursementHandler == nil {
 		api.OfficeApproveReimbursementHandler = office.ApproveReimbursementHandlerFunc(func(params office.ApproveReimbursementParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ApproveReimbursement has not yet been implemented")
+		})
+	}
+	if api.FeatureFlagsBooleanFeatureFlagForUserHandler == nil {
+		api.FeatureFlagsBooleanFeatureFlagForUserHandler = feature_flags.BooleanFeatureFlagForUserHandlerFunc(func(params feature_flags.BooleanFeatureFlagForUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation feature_flags.BooleanFeatureFlagForUser has not yet been implemented")
 		})
 	}
 	if api.OfficeCancelMoveHandler == nil {
@@ -428,6 +434,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.PostalCodesValidatePostalCodeWithRateDataHandler == nil {
 		api.PostalCodesValidatePostalCodeWithRateDataHandler = postal_codes.ValidatePostalCodeWithRateDataHandlerFunc(func(params postal_codes.ValidatePostalCodeWithRateDataParams) middleware.Responder {
 			return middleware.NotImplemented("operation postal_codes.ValidatePostalCodeWithRateData has not yet been implemented")
+		})
+	}
+	if api.FeatureFlagsVariantFeatureFlagForUserHandler == nil {
+		api.FeatureFlagsVariantFeatureFlagForUserHandler = feature_flags.VariantFeatureFlagForUserHandlerFunc(func(params feature_flags.VariantFeatureFlagForUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation feature_flags.VariantFeatureFlagForUser has not yet been implemented")
 		})
 	}
 

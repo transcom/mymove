@@ -6,6 +6,10 @@
   padding-top: 1rem;
 }
 
+.alertClose {
+  color: $base-darkest;
+}
+
 .modalbody {
   @include u-border('base-lighter');
   @include u-border('1px');

@@ -300,7 +300,7 @@ describe('EditBillableWeight', () => {
     expect(mockEditEntity.mock.calls[0][0].billableWeightJustification).toBe(newBillableWeightJustification);
   });
 
-  it('should disable save button if remarks or billable weight fields are empty', async () => {
+  it('should disable save button if billable weight field is empty', async () => {
     const defaultProps = {
       title: 'Max billable weight',
       weightAllowance: 8000,
@@ -314,8 +314,25 @@ describe('EditBillableWeight', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
     expect(screen.queryByText('Edit')).toBeNull();
     await userEvent.clear(screen.getByTestId('textInput'));
+    expect(screen.getByText('Required')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+  });
+
+  it('should disable save button if remarks field is empty', async () => {
+    const defaultProps = {
+      title: 'Max billable weight',
+      weightAllowance: 8000,
+      estimatedWeight: 13750,
+      maxBillableWeight: 10000,
+      billableWeightJustification: 'some remarks',
+      editEntity: () => {},
+    };
+
+    render(<EditBillableWeight {...defaultProps} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    expect(screen.queryByText('Edit')).toBeNull();
     await userEvent.clear(screen.getByTestId('remarks'));
-    (await screen.findByTestId('remarks')).blur();
+    screen.getByTestId('remarks').blur();
     expect(screen.getByText('Required')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save changes' })).toBeDisabled();
   });

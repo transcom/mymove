@@ -45,3 +45,17 @@ func (r *ReZip3) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&validators.UUIDIsPresent{Field: r.DomesticServiceAreaID, Name: "DomesticServiceAreaID"},
 	), nil
 }
+
+// FetchReZip3Item returns an reZip3 for a given zip3
+func FetchReZip3Item(tx *pop.Connection, zip3 string) (*ReZip3, error) {
+	var reZip3 ReZip3
+	err := tx.
+		Where("zip3 = $1", zip3).
+		First(&reZip3)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &reZip3, err
+}

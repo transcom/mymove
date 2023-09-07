@@ -36,6 +36,16 @@ export async function getLoggedInUserQueries(key, normalize = false) {
   return makeInternalRequest('users.showLoggedInUser', {}, { normalize });
 }
 
+export async function getBooleanFeatureFlagForUser(key, flagContext) {
+  const normalize = false;
+  return makeInternalRequest('featureFlags.booleanFeatureFlagForUser', { key, flagContext }, { normalize });
+}
+
+export async function getVariantFeatureFlagForUser(key, flagContext) {
+  const normalize = false;
+  return makeInternalRequest('featureFlags.variantFeatureFlagForUser', { key, flagContext }, { normalize });
+}
+
 export async function getMTOShipmentsForMove(moveTaskOrderID, normalize = true) {
   return makeInternalRequest(
     'mtoShipment.listMTOShipments',

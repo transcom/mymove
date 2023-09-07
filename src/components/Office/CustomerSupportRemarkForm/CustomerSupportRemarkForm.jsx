@@ -11,7 +11,7 @@ import customerSupportRemarkFormStyles from './CustomerSupportRemarkForm.module.
 
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
+import { milmoveLogger } from 'utils/milmoveLog';
 import { CUSTOMER_SUPPORT_REMARKS } from 'constants/queryKeys';
 import { OfficeUserInfoShape } from 'types/index';
 import { selectLoggedInUser } from 'store/entities/selectors';
@@ -27,7 +27,7 @@ const CustomerSupportRemarkForm = ({ officeUser }) => {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
+      milmoveLogger.error(errorMsg);
     },
   });
 

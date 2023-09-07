@@ -3,7 +3,9 @@ import { arrayOf, bool, func, number, shape, string, oneOf } from 'prop-types';
 import { Field, Formik } from 'formik';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { Alert, Button, Checkbox, Fieldset, FormGroup, Link, Radio } from '@trussworks/react-uswds';
+import { Alert, Button, Checkbox, Fieldset, FormGroup, Radio } from '@trussworks/react-uswds';
+import classNames from 'classnames';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
 import { CloseoutOfficeInput } from '../../form/fields/CloseoutOfficeInput';
@@ -36,7 +38,7 @@ import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
 import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
 import { ADDRESS_UPDATE_STATUS, shipmentDestinationTypes } from 'constants/shipments';
 import { officeRoles, roleTypes } from 'constants/userRoles';
-import { deleteShipment, updateMoveCloseoutOffice } from 'services/ghcApi';
+import { deleteShipment, reviewShipmentAddressUpdate, updateMoveCloseoutOffice } from 'services/ghcApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import formStyles from 'styles/form.module.scss';
 import { AccountingCodesShape } from 'types/accountingCodes';
@@ -78,7 +80,11 @@ const ShipmentForm = (props) => {
   const navigate = useNavigate();
 
   const [errorMessage, setErrorMessage] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [shipmentAddressUpdateReviewErrorMessage, setShipmentAddressUpdateReviewErrorMessage] = useState(null);
+
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
+  const [isAddressChangeModalOpen, setIsAddressChangeModalOpen] = useState(false);
 
   const shipments = mtoShipments;
 
@@ -108,6 +114,25 @@ const ShipmentForm = (props) => {
     },
   });
 
+  const { mutate: mutateShipmentAddressUpdateReview } = useMutation(reviewShipmentAddressUpdate, {
+    onSuccess: (_, { successCallback }) => {
+      setSuccessMessage('Changes sent to contractor.');
+      setShipmentAddressUpdateReviewErrorMessage(null);
+      setIsAddressChangeModalOpen(false);
+      // After successfully updating, re-fetch MTO Shipments to get the shipment's updated address change request status
+      queryClient
+        .invalidateQueries([MTO_SHIPMENTS, moveTaskOrderID])
+        .then(() => queryClient.refetchQueries([MTO_SHIPMENTS, moveTaskOrderID]));
+      successCallback();
+    },
+    onError: () => {
+      setSuccessMessage(null);
+      setShipmentAddressUpdateReviewErrorMessage(
+        'Something went wrong, and your changes were not saved. Please refresh the page and try again.',
+      );
+    },
+  });
+
   const getShipmentNumber = () => {
     // TODO - this is not supported by IE11, shipment number should be calculable from Redux anyways
     // we should fix this also b/c it doesn't display correctly in storybook
@@ -123,13 +148,35 @@ const ShipmentForm = (props) => {
     });
   };
 
+  const handleSubmitShipmentAddressUpdateReview = async (
+    shipmentID,
+    shipmentETag,
+    status,
+    officeRemarks,
+    successCallback,
+  ) => {
+    mutateShipmentAddressUpdateReview({
+      shipmentID,
+      ifMatchETag: shipmentETag,
+      body: {
+        status,
+        officeRemarks,
+      },
+      successCallback,
+    });
+  };
+
   const handleShowCancellationModal = () => {
     setIsCancelModalVisible(true);
   };
 
-  const deliveryAddressUpdateRequested = mtoShipment?.deliveryAddressUpdate?.status === ADDRESS_UPDATE_STATUS.REQUESTED;
+  const successMessageAlertControl = (
+    <Button type="button" onClick={() => setSuccessMessage(null)} unstyled>
+      <FontAwesomeIcon icon="times" className={styles.alertClose} />
+    </Button>
+  );
 
-  const [isAddressChangeModalOpen, setIsAddressChangeModalOpen] = useState(false);
+  const deliveryAddressUpdateRequested = mtoShipment?.deliveryAddressUpdate?.status === ADDRESS_UPDATE_STATUS.REQUESTED;
 
   const isHHG = shipmentType === SHIPMENT_OPTIONS.HHG;
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
@@ -463,13 +510,40 @@ const ShipmentForm = (props) => {
             <ConnectedShipmentAddressUpdateReviewRequestModal
               isOpen={isAddressChangeModalOpen}
               onClose={() => setIsAddressChangeModalOpen(false)}
-              deliveryAddressUpdate={mtoShipment?.deliveryAddressUpdate}
-              shipmentType={mtoShipment?.shipmentType}
+              shipment={mtoShipment}
+              onSubmit={async (shipmentID, shipmentETag, status, officeRemarks) => {
+                const successCallback = () => {
+                  if (status === ADDRESS_UPDATE_STATUS.APPROVED) {
+                    setValues({
+                      ...values,
+                      delivery: {
+                        ...values.delivery,
+                        address: mtoShipment.deliveryAddressUpdate.newAddress,
+                      },
+                    });
+                  }
+                };
+                await handleSubmitShipmentAddressUpdateReview(
+                  shipmentID,
+                  shipmentETag,
+                  status,
+                  officeRemarks,
+                  successCallback,
+                );
+              }}
+              errorMessage={shipmentAddressUpdateReviewErrorMessage}
+              setErrorMessage={setShipmentAddressUpdateReviewErrorMessage}
             />
             <NotificationScrollToTop dependency={errorMessage} />
             {errorMessage && (
               <Alert type="error" headingLevel="h4" heading="An error occurred">
                 {errorMessage}
+              </Alert>
+            )}
+            <NotificationScrollToTop dependency={successMessage} />
+            {successMessage && (
+              <Alert type="success" cta={successMessageAlertControl}>
+                {successMessage}
               </Alert>
             )}
             {isTOO && mtoShipment.usesExternalVendor && (
@@ -625,112 +699,120 @@ const ShipmentForm = (props) => {
                         )}
                       </Fieldset>
                     ) : (
-                      <Fieldset legend="Delivery location" disabled={deliveryAddressUpdateRequested}>
+                      <>
+                        <p className={classNames('usa-legend', styles.mockLegend)}>Delivery location</p>
                         {deliveryAddressUpdateRequested && (
-                          <Alert type="error" slim>
-                            <span className={styles.deliveryAddressUpdateAlert}>
+                          <Alert type="error" slim className={styles.deliveryAddressUpdateAlert}>
+                            <span className={styles.deliveryAddressUpdateAlertContent}>
                               Pending delivery location change request needs review.{' '}
-                              <Link
+                              <Button
                                 className={styles.reviewRequestLink}
-                                onClick={() => {
-                                  setIsAddressChangeModalOpen(true);
-                                }}
+                                type="button"
+                                unstyled
+                                onClick={() => setIsAddressChangeModalOpen(true)}
+                                disabled={false}
                               >
                                 Review request
-                              </Link>{' '}
+                              </Button>{' '}
                               to proceed.
                             </span>
                           </Alert>
                         )}
-                        <FormGroup>
-                          <p>Does the customer know their delivery address yet?</p>
-                          <div className={formStyles.radioGroup}>
-                            <Field
-                              as={Radio}
-                              id="has-delivery-address"
-                              label="Yes"
-                              name="hasDeliveryAddress"
-                              value="yes"
-                              title="Yes, I know my delivery address"
-                              checked={hasDeliveryAddress === 'yes'}
-                            />
-                            <Field
-                              as={Radio}
-                              id="no-delivery-address"
-                              label="No"
-                              name="hasDeliveryAddress"
-                              value="no"
-                              title="No, I do not know my delivery address"
-                              checked={hasDeliveryAddress === 'no'}
-                            />
-                          </div>
-                        </FormGroup>
-                        {hasDeliveryAddress === 'yes' ? (
-                          <AddressFields
-                            name="delivery.address"
-                            render={(fields) => (
-                              <>
-                                {fields}
-                                {displayDestinationType && (
-                                  <DropdownInput
-                                    label="Destination type"
-                                    name="destinationType"
-                                    options={shipmentDestinationAddressOptions}
-                                    id="destinationType"
-                                  />
-                                )}
-                                <h4>Second delivery location</h4>
-                                <FormGroup>
-                                  <p>Do you want the movers to deliver any belongings to a second address?</p>
-                                  <div className={formStyles.radioGroup}>
-                                    <Field
-                                      as={Radio}
-                                      data-testid="has-secondary-delivery"
-                                      id="has-secondary-delivery"
-                                      label="Yes"
-                                      name="hasSecondaryDelivery"
-                                      value="yes"
-                                      title="Yes, I have a second destination location"
-                                      checked={hasSecondaryDelivery === 'yes'}
-                                    />
-                                    <Field
-                                      as={Radio}
-                                      data-testid="no-secondary-delivery"
-                                      id="no-secondary-delivery"
-                                      label="No"
-                                      name="hasSecondaryDelivery"
-                                      value="no"
-                                      title="No, I do not have a second destination location"
-                                      checked={hasSecondaryDelivery !== 'yes'}
-                                    />
-                                  </div>
-                                </FormGroup>
-                                {hasSecondaryDelivery === 'yes' && <AddressFields name="secondaryDelivery.address" />}
-                              </>
-                            )}
-                          />
-                        ) : (
-                          <div>
-                            <p>
-                              We can use the zip of their{' '}
-                              {displayDestinationType ? 'HOR, HOS or PLEAD:' : 'new duty location:'}
-                              <br />
-                              <strong>
-                                {newDutyLocationAddress.city}, {newDutyLocationAddress.state}{' '}
-                                {newDutyLocationAddress.postalCode}{' '}
-                              </strong>
-                            </p>
-                            {displayDestinationType && (
-                              <DropdownInput
-                                label="Destination type"
-                                name="destinationType"
-                                options={shipmentDestinationAddressOptions}
-                                id="destinationType"
+                        <Fieldset
+                          legendStyle="srOnly"
+                          legend="Delivery location"
+                          disabled={deliveryAddressUpdateRequested}
+                        >
+                          <FormGroup>
+                            <p>Does the customer know their delivery address yet?</p>
+                            <div className={formStyles.radioGroup}>
+                              <Field
+                                as={Radio}
+                                id="has-delivery-address"
+                                label="Yes"
+                                name="hasDeliveryAddress"
+                                value="yes"
+                                title="Yes, I know my delivery address"
+                                checked={hasDeliveryAddress === 'yes'}
                               />
-                            )}
-                          </div>
-                        )}
-                      </Fieldset>
+                              <Field
+                                as={Radio}
+                                id="no-delivery-address"
+                                label="No"
+                                name="hasDeliveryAddress"
+                                value="no"
+                                title="No, I do not know my delivery address"
+                                checked={hasDeliveryAddress === 'no'}
+                              />
+                            </div>
+                          </FormGroup>
+                          {hasDeliveryAddress === 'yes' ? (
+                            <AddressFields
+                              name="delivery.address"
+                              render={(fields) => (
+                                <>
+                                  {fields}
+                                  {displayDestinationType && (
+                                    <DropdownInput
+                                      label="Destination type"
+                                      name="destinationType"
+                                      options={shipmentDestinationAddressOptions}
+                                      id="destinationType"
+                                    />
+                                  )}
+                                  <h4>Second delivery location</h4>
+                                  <FormGroup>
+                                    <p>Do you want the movers to deliver any belongings to a second address?</p>
+                                    <div className={formStyles.radioGroup}>
+                                      <Field
+                                        as={Radio}
+                                        data-testid="has-secondary-delivery"
+                                        id="has-secondary-delivery"
+                                        label="Yes"
+                                        name="hasSecondaryDelivery"
+                                        value="yes"
+                                        title="Yes, I have a second destination location"
+                                        checked={hasSecondaryDelivery === 'yes'}
+                                      />
+                                      <Field
+                                        as={Radio}
+                                        data-testid="no-secondary-delivery"
+                                        id="no-secondary-delivery"
+                                        label="No"
+                                        name="hasSecondaryDelivery"
+                                        value="no"
+                                        title="No, I do not have a second destination location"
+                                        checked={hasSecondaryDelivery !== 'yes'}
+                                      />
+                                    </div>
+                                  </FormGroup>
+                                  {hasSecondaryDelivery === 'yes' && <AddressFields name="secondaryDelivery.address" />}
+                                </>
+                              )}
+                            />
+                          ) : (
+                            <div>
+                              <p>
+                                We can use the zip of their{' '}
+                                {displayDestinationType ? 'HOR, HOS or PLEAD:' : 'new duty location:'}
+                                <br />
+                                <strong>
+                                  {newDutyLocationAddress.city}, {newDutyLocationAddress.state}{' '}
+                                  {newDutyLocationAddress.postalCode}{' '}
+                                </strong>
+                              </p>
+                              {displayDestinationType && (
+                                <DropdownInput
+                                  label="Destination type"
+                                  name="destinationType"
+                                  options={shipmentDestinationAddressOptions}
+                                  id="destinationType"
+                                />
+                              )}
+                            </div>
+                          )}
+                        </Fieldset>
+                      </>
                     )}
 
                     <ContactInfoFields

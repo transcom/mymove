@@ -1,0 +1,18 @@
+#
+version: '3.7'
+x-default-logging: &logging
+  driver: "json-file"
+  options:
+    max-size: "5m"
+    max-file: "2"
+
+services:
+  flipt:
+    image: flipt/flipt:v1.25.0
+    container_name: flipt
+    restart: unless-stopped
+    volumes:
+      - ./config/flipt:/etc/flipt
+    ports:
+      - "9080:8080" # Flipt API and UI
+    logging: *logging

@@ -1,8 +1,6 @@
 package movingexpense
 
 import (
-	"fmt"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -16,6 +14,7 @@ func (suite *MovingExpenseSuite) TestMovingExpenseCreator() {
 		serviceMemberID := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID
 
 		session := &auth.Session{
+			ApplicationName: auth.MilApp,
 			ServiceMemberID: serviceMemberID,
 		}
 
@@ -32,6 +31,7 @@ func (suite *MovingExpenseSuite) TestMovingExpenseCreator() {
 	suite.Run("Fails when an invalid ppmShipmentID is used", func() {
 		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
 		session := &auth.Session{
+			ApplicationName: auth.MilApp,
 			ServiceMemberID: serviceMember.ID,
 		}
 
@@ -39,12 +39,16 @@ func (suite *MovingExpenseSuite) TestMovingExpenseCreator() {
 		movingExpense, err := movingExpenseCreator.CreateMovingExpense(suite.AppContextWithSessionForTest(session), uuid.Nil)
 
 		suite.Nil(movingExpense)
-		suite.ErrorContains(err, fmt.Sprintf("Error fetching PPM with ID %s", uuid.Nil))
+
+		expectedErr := apperror.NewNotFoundError(uuid.Nil, "while looking for PPMShipment")
+
+		suite.ErrorIs(err, expectedErr)
 	})
 
 	suite.Run("Fails when session has invalid serviceMemberID", func() {
 		session := &auth.Session{
-			ServiceMemberID: uuid.Nil,
+			ApplicationName: auth.MilApp,
+			ServiceMemberID: uuid.Must(uuid.NewV4()),
 		}
 		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 
@@ -52,9 +56,9 @@ func (suite *MovingExpenseSuite) TestMovingExpenseCreator() {
 		movingExpense, err := movingExpenseCreator.CreateMovingExpense(suite.AppContextWithSessionForTest(session), ppmShipment.ID)
 
 		suite.Nil(movingExpense)
-		suite.NotNil(err)
-		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Contains(err.Error(), "No such shipment found for this service member")
-	})
 
+		expectedErr := apperror.NewNotFoundError(ppmShipment.ID, "while looking for PPMShipment")
+
+		suite.ErrorIs(err, expectedErr)
+	})
 }
