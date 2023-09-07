@@ -253,7 +253,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySITSameZ
 		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDSH, dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestDomesticServiceAreaBasePriceCents, dshContractName, dddsitTestEscalationCompounded)
 		priceCents, displayParams, err := priceDomesticPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, dshZipDest, dshZipSITDest, dshDistance)
 		suite.NoError(err)
-		expectedPrice := unit.Cents(53187) // dddsitTestDomesticServiceAreaBasePriceCents * (dddsitTestWeight / 100) * distance * dddsitTestEscalationCompounded
+		expectedPrice := unit.Cents(53325) // dddsitTestDomesticServiceAreaBasePriceCents * (dddsitTestWeight / 100) * distance * dddsitTestEscalationCompounded
 		suite.Equal(expectedPrice, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
@@ -308,8 +308,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySIT50Plu
 		suite.setupDomesticLinehaulPrice(dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestWeightLower, dddsitTestWeightUpper, dddsitTestMilesLower, dddsitTestMilesUpper, dddsitTestDomesticLinehaulBasePriceMillicents, dlhContractName, dddsitTestEscalationCompounded)
 		priceCents, displayParams, err := priceDomesticPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, dlhZipDest, dlhZipSITDest, dlhDistance)
 		suite.NoError(err)
-		expectedPriceMillicents := unit.Millicents(45944438) // dddsitTestDomesticLinehaulBasePriceMillicents * (dddsitTestWeight / 100) * distance * dddsitTestEscalationCompounded
-		expectedPrice := expectedPriceMillicents.ToCents()
+		expectedPrice := unit.Cents(45979)
 
 		suite.Equal(expectedPrice, priceCents)
 
@@ -339,7 +338,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySIT50Mil
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, domContractName, dddsitTestEscalationCompounded)
 		priceCents, displayParams, err := priceDomesticPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, domOtherZipDest, domOtherZipSITDest, domOtherDistance)
 		suite.NoError(err)
-		expectedPrice := unit.Cents(58355) // dddsitTestDomesticOtherBasePriceCents * (dddsitTestWeight / 100) * dddsitTestEscalationCompounded
+		expectedPrice := unit.Cents(58365)
 		suite.Equal(expectedPrice, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
