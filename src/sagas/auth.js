@@ -3,7 +3,7 @@ import { normalize } from 'normalizr';
 
 import { LOAD_USER, getLoggedInUserStart, getLoggedInUserSuccess, getLoggedInUserFailure } from 'store/auth/actions';
 import { setFlashMessage } from 'store/flash/actions';
-import { GetIsLoggedIn, GetLoggedInUser, GetOktaProfile } from 'utils/api';
+import { GetIsLoggedIn, GetLoggedInUser, GetOktaUser } from 'utils/api';
 import { loggedInUser } from 'shared/Entities/schema';
 import { addEntities, setOktaUser } from 'shared/Entities/actions';
 
@@ -20,7 +20,7 @@ export function* fetchUser() {
     if (isLoggedIn) {
       try {
         const user = yield call(GetLoggedInUser); // make user API call
-        const okta = yield call(GetOktaProfile); // get Okta profile data
+        const okta = yield call(GetOktaUser); // get Okta profile data
 
         const userEntities = normalize(user, loggedInUser, okta);
 

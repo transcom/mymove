@@ -11,7 +11,7 @@ import {
   selectMoveIsInDraft,
   selectCurrentOrders,
   selectBackupContacts,
-  selectOktaProfile,
+  selectOktaUser,
 } from 'store/entities/selectors';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import ServiceInfoDisplay from 'components/Customer/Review/ServiceInfoDisplay/ServiceInfoDisplay';
@@ -106,7 +106,7 @@ function mapStateToProps(state) {
     moveIsInDraft: selectMoveIsInDraft(state),
     currentOrders: selectCurrentOrders(state) || {},
     currentBackupContacts: selectBackupContacts(state),
-    oktaUser: selectOktaProfile(state),
+    oktaUser: selectOktaUser(state),
   };
 }
 

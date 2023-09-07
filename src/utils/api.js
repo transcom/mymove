@@ -23,7 +23,7 @@ export async function GetLoggedInUser() {
   return response.body;
 }
 
-export async function GetOktaProfile() {
+export async function GetOktaUser() {
   const client = await getClient();
   const response = await client.apis.okta_profile.showOktaInfo({});
   checkResponse(response, 'failed to get user due to server error');

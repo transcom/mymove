@@ -87,7 +87,7 @@ export async function patchServiceMember(serviceMember) {
 
 /** OKTA PROFILE */
 // this will call the backend and patch the Okta profile
-export async function getOktaProfile() {
+export async function getOktaUser() {
   return makeInternalRequest('okta_profile.showOktaInfo');
 }
 

@@ -8,8 +8,8 @@ import { OktaUserInfoShape } from 'types/user';
 import EditOktaInfoForm from 'components/Customer/EditOktaInfoForm/EditOktaInfoForm';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { customerRoutes } from 'constants/routes';
-import { getResponseError, getOktaProfile } from 'services/internalApi';
-import { selectServiceMemberFromLoggedInUser, selectOktaProfile } from 'store/entities/selectors';
+import { getResponseError, getOktaUser } from 'services/internalApi';
+import { selectServiceMemberFromLoggedInUser, selectOktaUser } from 'store/entities/selectors';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
 export const EditOktaInfo = ({ serviceMember, setFlashMessage, oktaUser }) => {
@@ -57,7 +57,7 @@ export const EditOktaInfo = ({ serviceMember, setFlashMessage, oktaUser }) => {
     //   setServerError(errorMessage);
     // });
 
-    return getOktaProfile(oktaPayload)
+    return getOktaUser(oktaPayload)
       .then(() => {
         setFlashMessage('EDIT_OKTA_PROFILE_SUCCESS', 'success', "You've updated your Okta profile.");
         navigate(customerRoutes.PROFILE_PATH);
@@ -104,7 +104,7 @@ const mapDispatchToProps = {
 
 const mapStateToProps = (state) => ({
   serviceMember: selectServiceMemberFromLoggedInUser(state),
-  oktaUser: selectOktaProfile(state),
+  oktaUser: selectOktaUser(state),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditOktaInfo);

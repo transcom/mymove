@@ -16,7 +16,7 @@ export const selectLoggedInUser = (state) => {
 };
 
 /** Okta Profile */
-export const selectOktaProfile = (state) => {
+export const selectOktaUser = (state) => {
   if (state.entities.oktaUser) return state.entities.oktaUser;
   return null;
 };
