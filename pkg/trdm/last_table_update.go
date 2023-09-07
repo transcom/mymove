@@ -179,7 +179,7 @@ func StartLastTableUpdateCron(appCtx appcontext.AppContext, certificate *x509.Ce
 
 	res, err := cron.AddFunc("@every 24h00m00s", cronTask)
 	if err != nil {
-		return fmt.Errorf("Error adding cron task: %s, %v", err.Error(), res)
+		return fmt.Errorf("error adding cron task: %s, %v", err.Error(), res)
 	}
 	cron.Start()
 	return nil

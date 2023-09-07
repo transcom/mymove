@@ -242,7 +242,7 @@ func setupSoapCall(d *GetTableRequestElement, appCtx appcontext.AppContext, phys
 	b.InitialInterval = 1 * time.Hour
 	err = backoff.Retry(operation, b)
 	if err != nil {
-		return fmt.Errorf("Failed after retries: %s", err)
+		return fmt.Errorf("failed after retries: %s", err)
 	}
 	return nil
 }

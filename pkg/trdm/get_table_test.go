@@ -32,12 +32,12 @@ const getTableTemplate = `
       </getTableResponseElement>
 `
 
-func getTextFile(filePath string) []byte {
+func getTextFile(filePath string) ([]byte, error) {
 	text, err := os.ReadFile(filePath)
 	if err != nil {
-		print(err)
+		return nil, err
 	}
-	return text
+	return text, nil
 }
 
 func soapResponseForGetTable(statusCode string, payload []byte) *gosoap.Response {
@@ -48,6 +48,10 @@ func soapResponseForGetTable(statusCode string, payload []byte) *gosoap.Response
 }
 
 func (suite *TRDMSuite) TestGetTableFake() {
+	loaFile, err := getTextFile("../parser/loa/fixtures/Line Of Accounting.txt")
+	suite.NoError(err)
+	tacFile, err := getTextFile("../parser/tac/fixtures/Transportation Account.txt")
+	suite.NoError(err)
 	tests := []struct {
 		name          string
 		physicalName  string
@@ -56,15 +60,16 @@ func (suite *TRDMSuite) TestGetTableFake() {
 		responseError bool
 		shouldError   bool
 	}{
-		{"Update Line of Accounting", "LN_OF_ACCT", "Successful", getTextFile("../parser/loa/fixtures/Line Of Accounting.txt"), false, false},
-		{"Should not fetch update", "fakeName", "Failure", getTextFile(""), false, false},
-		{"Update Transportation Accounting Codes", "TRNSPRTN_ACNT", "Successful", getTextFile("../parser/tac/fixtures/Transportation Account.txt"), false, false},
+		{"Update Line of Accounting", "LN_OF_ACCT", "Successful", loaFile, false, false},
+		{"Should not fetch update", "fakeName", "Failure", nil, false, false},
+		{"Update Transportation Accounting Codes", "TRNSPRTN_ACNT", "Successful", tacFile, false, false},
 	}
 	for _, test := range tests {
 		suite.Run("fake call to TRDM: "+test.name, func() {
 			var soapError error
 			if test.responseError {
-				soapError = errors.New("some error")
+				soapError = errors.New("Error running range of GetTable tests")
+				suite.Error(soapError)
 			}
 
 			testSoapClient := &trdmmocks.SoapCaller{}
@@ -76,12 +81,7 @@ func (suite *TRDMSuite) TestGetTableFake() {
 			suite.NoError(err)
 			getTable := trdm.NewGetTable(test.physicalName, cert, key, testSoapClient)
 			err = getTable.GetTable(suite.AppContextForTest(), test.physicalName, time.Now())
-
-			if err != nil {
-				suite.Error(err)
-			} else {
-				suite.NoError(err)
-			}
+			suite.NoError(err)
 		})
 	}
 }

@@ -49,7 +49,8 @@ func (suite *TRDMSuite) TestTRDMGetLastTableUpdateFake() {
 		suite.Run("fake call to TRDM: "+test.name, func() {
 			var soapError error
 			if test.responseError {
-				soapError = errors.New("some error")
+				soapError = errors.New("Error running range of GetLastTableUpdate tests")
+				suite.NoError(soapError)
 			}
 
 			testSoapClient := &trdmmocks.SoapCaller{}
@@ -89,19 +90,18 @@ func (suite *TRDMSuite) TestFetchLOARecordsByTime() {
 func (suite *TRDMSuite) TestFetchTACRecordsByTime() {
 	// Get initial TAC codes count
 	initialCodes, err := trdm.FetchTACRecordsByTime(suite.AppContextForTest(), time.Now())
-	initialTacCodeLength := len(initialCodes)
 	suite.NoError(err)
+	initialTacCodeLength := len(initialCodes)
 
 	// Creates a test TAC code record in the DB
 	factory.BuildDefaultTransportationAccountingCode(suite.DB())
 
 	// Fetch All TAC Records
 	codes, err := trdm.FetchTACRecordsByTime(suite.AppContextForTest(), time.Now())
+	suite.NoError(err)
 
 	// Compare new TAC Code count to initial count
 	finalCodesLength := len(codes)
 
-	suite.NoError(err)
 	suite.NotEqual(finalCodesLength, initialTacCodeLength)
-
 }
