@@ -74,29 +74,30 @@ func NewBaseHandlerTestSuite(sender notifications.NotificationSender, packageNam
 func (suite *BaseHandlerTestSuite) HandlerConfig() *Config {
 	// create a mock feature flag fetcher that always returns enabled
 	mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
-	mockGetFlagFunc := func(ctx context.Context, logger *zap.Logger, entityID string, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+	mockGetFlagFunc := func(ctx context.Context, logger *zap.Logger, entityID string, key string, flagContext map[string]string, mockVariant string) (services.FeatureFlag, error) {
 		return services.FeatureFlag{
 			Entity:    entityID,
 			Key:       key,
 			Match:     true,
-			Value:     "mock",
+			Variant:   mockVariant,
 			Namespace: "test",
 		}, nil
 	}
-	mockFeatureFlagFetcher.On("GetFlag",
-		mock.Anything,
-		mock.Anything,
-		mock.AnythingOfType("string"),
-		mock.AnythingOfType("string"),
-		mock.Anything,
-	).Return(mockGetFlagFunc)
-	mockFeatureFlagFetcher.On("GetFlagForUser",
+	mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
 		mock.Anything,
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("string"),
 		mock.Anything,
 	).Return(func(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
-		return mockGetFlagFunc(ctx, appCtx.Logger(), "user@example.com", key, flagContext)
+		return mockGetFlagFunc(ctx, appCtx.Logger(), "user@example.com", key, flagContext, "")
+	})
+	mockFeatureFlagFetcher.On("GetVariantFlagForUser",
+		mock.Anything,
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("string"),
+		mock.Anything,
+	).Return(func(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+		return mockGetFlagFunc(ctx, appCtx.Logger(), "user@example.com", key, flagContext, "mockVariant")
 	})
 	return &Config{
 		db:                 suite.DB(),
