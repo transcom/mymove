@@ -68,6 +68,11 @@ definitions:
         minLength: 7
         maxLength: 10
         x-nullable: true
+    UpdateOktaUserPayload:
+    type: object
+    properties:
+      profile:
+        $ref: '#/definitions/OktaUserPayload'
   LoggedInUserPayload:
     type: object
     properties:
@@ -5105,7 +5110,7 @@ paths:
         '200':
           description: okta profile for user
           schema:
-            $ref: '#/definitions/OktaUserPayload'
+            $ref: '#/definitions/UpdateOktaUserPayload'
         '400':
           description: invalid request
         '401':

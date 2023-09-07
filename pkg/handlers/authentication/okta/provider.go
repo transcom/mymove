@@ -237,23 +237,21 @@ func (op *Provider) GetOrgURL() string {
 func (op *Provider) GetTokenURL() string {
 	return op.orgURL + "/oauth2/default/v1/token"
 }
-
+func (op *Provider) GetAuthURL() string {
+	return op.orgURL + "/oauth2/v1/authorize"
+}
 func (op *Provider) GetUserInfoURL() string {
 	return op.orgURL + "/oauth2/default/v1/userinfo"
 }
-
 func (op *Provider) SetCallbackURL(URL string) {
 	op.callbackURL = URL
 }
-
 func (op *Provider) GetCallbackURL() string {
 	return op.callbackURL
 }
-
 func (op *Provider) GetIssuerURL() string {
 	return op.orgURL + "/oauth2/default"
 }
-
 func (op *Provider) GetLogoutURL() string {
 	return op.orgURL + "/oauth2/v1/logout"
 }
@@ -265,6 +263,28 @@ func (op *Provider) GetOpenIDConfigURL() string {
 }
 func (op *Provider) GetUserURL(profileID string) string {
 	return op.orgURL + "/api/v1/users/" + profileID
+}
+func (op *Provider) GetUserAuthUrl(v *viper.Viper) string {
+	authUrl := op.GetAuthURL()
+	parsedUrl, err := url.Parse(authUrl)
+	if err != nil {
+		op.logger.Error("Parse auth URL", zap.Error(err))
+		return err.Error()
+	}
+	clientID := op.clientID
+	state := generateNonce()
+	params := parsedUrl.Query()
+	// Add the nonce and scope to the URL when getting ready to redirect to the login URL
+	params.Add("client_id", clientID)
+	params.Add("response_type", "code")
+	params.Add("response_mode", "fragment")
+	params.Add("scope", "okta.users.manage")
+	params.Add("redirect_uri", op.callbackURL)
+	params.Add("nonce", state)
+
+	parsedUrl.RawQuery = params.Encode()
+
+	return parsedUrl.String()
 }
 
 // TokenURL returns a full URL to retrieve a user token from okta.mil

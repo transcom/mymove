@@ -34,13 +34,15 @@ export const EditOktaInfo = ({ serviceMember, setFlashMessage, oktaUser }) => {
   const handleSubmit = async (values) => {
     // including serviceMember.id in case we need to udpate users table with new okta_email
     const oktaPayload = {
-      id: serviceMember.id,
-      username: values?.oktaUsername,
-      email: values?.oktaEmail,
-      first_name: values?.oktaFirstName,
-      last_name: values?.oktaLastName,
-      cac_edipi: values?.oktaEdipi,
-      sub: values?.oktaSub,
+      profile: {
+        id: serviceMember.id,
+        username: values?.oktaUsername,
+        email: values?.oktaEmail,
+        first_name: values?.oktaFirstName,
+        last_name: values?.oktaLastName,
+        cac_edipi: values?.oktaEdipi,
+        sub: values?.oktaSub,
+      },
     };
 
     //! leaving this here for reference when implementing API calls for Okta

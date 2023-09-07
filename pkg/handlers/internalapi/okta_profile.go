@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/spf13/viper"
 	"github.com/transcom/mymove/pkg/appcontext"
 	oktaop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/okta_profile"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -50,22 +51,37 @@ type UpdateOktaProfileHandler struct {
 	handlers.HandlerConfig
 }
 
-// Handle implements okta_profile.ShowOktaInfoHandler.
+type ProfileStruct struct {
+	internalmessages.OktaUserPayload
+}
+
+// Handle implements okta_profile.UpdateOktaInfoHandler
+// following the docs here: https://developer.okta.com/docs/reference/api/oidc/#client-authentication-methods
 func (h UpdateOktaProfileHandler) Handle(params oktaop.UpdateOktaInfoParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
+			// getting okta id of user from session, to be used for api call
 			oktaUserID := appCtx.Session().OktaSessionInfo.Sub
+
+			// getting okta domain url for post request
 			provider, err := okta.GetOktaProviderForRequest(params.HTTPRequest)
 			if err != nil {
 				return nil, err
 			}
 
+			// payload is what is submitted from FE, should contain
+			// {email, username, first_name, last_naame, edipi, sub}
 			payload := params.UpdateOktaUserPayload
 
+			test := provider.GetUserAuthUrl(viper.New())
+			appCtx.Logger().Debug(test)
+
+			// getting the api call url from provider.go
 			url := provider.GetUserURL(oktaUserID)
 			body, _ := json.Marshal(payload)
 
+			// making HTTP request to Okta Users API
 			req, _ := http.NewRequest("POST", url, bytes.NewReader(body))
 			h := req.Header
 			h.Add("Authorization", "Bearer "+appCtx.Session().AccessToken)
@@ -86,6 +102,6 @@ func (h UpdateOktaProfileHandler) Handle(params oktaop.UpdateOktaInfoParams) mid
 				appCtx.Logger().Error("could not unmarshal body", zap.Error(err))
 			}
 
-			return oktaop.NewUpdateOktaInfoOK().WithPayload(payload), nil
+			return oktaop.NewUpdateOktaInfoOK().WithPayload(nil), nil
 		})
 }

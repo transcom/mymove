@@ -38,7 +38,7 @@ type UpdateOktaInfoParams struct {
 	  Required: true
 	  In: body
 	*/
-	UpdateOktaUserPayload *internalmessages.OktaUserPayload
+	UpdateOktaUserPayload *internalmessages.UpdateOktaUserPayload
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -52,7 +52,7 @@ func (o *UpdateOktaInfoParams) BindRequest(r *http.Request, route *middleware.Ma
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body internalmessages.OktaUserPayload
+		var body internalmessages.UpdateOktaUserPayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("updateOktaUserPayload", "body", ""))

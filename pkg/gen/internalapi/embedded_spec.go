@@ -1859,7 +1859,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/OktaUserPayload"
+              "$ref": "#/definitions/UpdateOktaUserPayload"
             }
           }
         ],
@@ -7594,6 +7594,14 @@ func init() {
         }
       }
     },
+    "UpdateOktaUserPayload": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "$ref": "#/definitions/OktaUserPayload"
+        }
+      }
+    },
     "UpdatePPMShipment": {
       "type": "object",
       "properties": {
@@ -10336,7 +10344,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/OktaUserPayload"
+              "$ref": "#/definitions/UpdateOktaUserPayload"
             }
           }
         ],
@@ -16431,6 +16439,14 @@ func init() {
           "type": "string",
           "format": "date",
           "example": "2022-04-26"
+        }
+      }
+    },
+    "UpdateOktaUserPayload": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "$ref": "#/definitions/OktaUserPayload"
         }
       }
     },
