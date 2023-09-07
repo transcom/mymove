@@ -5095,6 +5095,12 @@ paths:
       operationId: updateOktaInfo
       tags:
         - okta_profile
+      parameters:
+        - in: body
+          name: updateOktaUserPayload
+          required: true
+          schema:
+            $ref: '#/definitions/OktaUserPayload'
       responses:
         '200':
           description: okta profile for user

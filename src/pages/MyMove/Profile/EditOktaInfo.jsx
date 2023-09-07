@@ -8,7 +8,7 @@ import { OktaUserInfoShape } from 'types/user';
 import EditOktaInfoForm from 'components/Customer/EditOktaInfoForm/EditOktaInfoForm';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { customerRoutes } from 'constants/routes';
-import { getResponseError, getOktaUser } from 'services/internalApi';
+import { getResponseError, updateOktaUser } from 'services/internalApi';
 import { selectServiceMemberFromLoggedInUser, selectOktaUser } from 'store/entities/selectors';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
@@ -37,8 +37,8 @@ export const EditOktaInfo = ({ serviceMember, setFlashMessage, oktaUser }) => {
       id: serviceMember.id,
       username: values?.oktaUsername,
       email: values?.oktaEmail,
-      firstName: values?.oktaFirstName,
-      lastName: values?.oktaLastName,
+      first_name: values?.oktaFirstName,
+      last_name: values?.oktaLastName,
       cac_edipi: values?.oktaEdipi,
       sub: values?.oktaSub,
     };
@@ -57,10 +57,10 @@ export const EditOktaInfo = ({ serviceMember, setFlashMessage, oktaUser }) => {
     //   setServerError(errorMessage);
     // });
 
-    return getOktaUser(oktaPayload)
+    return updateOktaUser(oktaPayload)
       .then(() => {
         setFlashMessage('EDIT_OKTA_PROFILE_SUCCESS', 'success', "You've updated your Okta profile.");
-        navigate(customerRoutes.PROFILE_PATH);
+        // navigate(customerRoutes.PROFILE_PATH);
       })
       .catch((e) => {
         const { response } = e;

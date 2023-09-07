@@ -407,6 +407,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.UpdateMovingExpense has not yet been implemented")
 		})
 	}
+	if api.OktaProfileUpdateOktaInfoHandler == nil {
+		api.OktaProfileUpdateOktaInfoHandler = okta_profile.UpdateOktaInfoHandlerFunc(func(params okta_profile.UpdateOktaInfoParams) middleware.Responder {
+			return middleware.NotImplemented("operation okta_profile.UpdateOktaInfo has not yet been implemented")
+		})
+	}
 	if api.OrdersUpdateOrdersHandler == nil {
 		api.OrdersUpdateOrdersHandler = orders.UpdateOrdersHandlerFunc(func(params orders.UpdateOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.UpdateOrders has not yet been implemented")

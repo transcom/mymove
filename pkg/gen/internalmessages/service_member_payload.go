@@ -69,9 +69,6 @@ type ServiceMemberPayload struct {
 	// Example: L.
 	MiddleName *string `json:"middle_name,omitempty"`
 
-	// okta profile
-	OktaProfile *OktaUserPayload `json:"okta_profile,omitempty"`
-
 	// orders
 	Orders []*Orders `json:"orders"`
 
@@ -151,10 +148,6 @@ func (m *ServiceMemberPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateIsProfileComplete(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateOktaProfile(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -329,25 +322,6 @@ func (m *ServiceMemberPayload) validateIsProfileComplete(formats strfmt.Registry
 	return nil
 }
 
-func (m *ServiceMemberPayload) validateOktaProfile(formats strfmt.Registry) error {
-	if swag.IsZero(m.OktaProfile) { // not required
-		return nil
-	}
-
-	if m.OktaProfile != nil {
-		if err := m.OktaProfile.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("okta_profile")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("okta_profile")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (m *ServiceMemberPayload) validateOrders(formats strfmt.Registry) error {
 	if swag.IsZero(m.Orders) { // not required
 		return nil
@@ -513,10 +487,6 @@ func (m *ServiceMemberPayload) ContextValidate(ctx context.Context, formats strf
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateOktaProfile(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateOrders(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -608,27 +578,6 @@ func (m *ServiceMemberPayload) contextValidateCurrentLocation(ctx context.Contex
 				return ve.ValidateName("current_location")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("current_location")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *ServiceMemberPayload) contextValidateOktaProfile(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.OktaProfile != nil {
-
-		if swag.IsZero(m.OktaProfile) { // not required
-			return nil
-		}
-
-		if err := m.OktaProfile.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("okta_profile")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("okta_profile")
 			}
 			return err
 		}

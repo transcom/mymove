@@ -1845,6 +1845,47 @@ func init() {
             "description": "internal server error"
           }
         }
+      },
+      "post": {
+        "description": "Updates the okta email, first \u0026 last name, and edipi",
+        "tags": [
+          "okta_profile"
+        ],
+        "summary": "Update the user's okta profile",
+        "operationId": "updateOktaInfo",
+        "parameters": [
+          {
+            "name": "updateOktaUserPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OktaUserPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "okta profile for user",
+            "schema": {
+              "$ref": "#/definitions/OktaUserPayload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "service member not found"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
       }
     },
     "/orders": {
@@ -7130,9 +7171,6 @@ func init() {
           "x-nullable": true,
           "example": "L."
         },
-        "okta_profile": {
-          "$ref": "#/definitions/OktaUserPayload"
-        },
         "orders": {
           "type": "array",
           "items": {
@@ -10264,6 +10302,47 @@ func init() {
         "responses": {
           "200": {
             "description": "the instance of the service member",
+            "schema": {
+              "$ref": "#/definitions/OktaUserPayload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "service member not found"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      },
+      "post": {
+        "description": "Updates the okta email, first \u0026 last name, and edipi",
+        "tags": [
+          "okta_profile"
+        ],
+        "summary": "Update the user's okta profile",
+        "operationId": "updateOktaInfo",
+        "parameters": [
+          {
+            "name": "updateOktaUserPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OktaUserPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "okta profile for user",
             "schema": {
               "$ref": "#/definitions/OktaUserPayload"
             }
@@ -15931,9 +16010,6 @@ func init() {
           "title": "Middle name",
           "x-nullable": true,
           "example": "L."
-        },
-        "okta_profile": {
-          "$ref": "#/definitions/OktaUserPayload"
         },
         "orders": {
           "type": "array",
