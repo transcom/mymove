@@ -9,7 +9,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -28,60 +27,70 @@ func TestEnvFetcherSuite(t *testing.T) {
 	hs.PopTestSuite.TearDown()
 }
 
-func (suite *EnvFetcherSuite) TestGetFlagForUserEnvMissing() {
+func (suite *EnvFetcherSuite) TestGetBooleanFlagForUserEnvMissing() {
 	f, err := NewEnvFetcher(cli.FeatureFlagConfig{})
 	suite.NoError(err)
-	flag, err := f.GetFlagForUser(context.Background(),
+	flag, err := f.GetBooleanFlagForUser(context.Background(),
 		suite.AppContextWithSessionForTest(&auth.Session{Email: "foo@example.com"}),
 		"missing", map[string]string{})
 	suite.NoError(err)
 	suite.False(flag.Match)
-	suite.False(flag.IsEnabledVariant())
+}
+
+func (suite *EnvFetcherSuite) TestGetVariantFlagForUserEnvMissing() {
+	f, err := NewEnvFetcher(cli.FeatureFlagConfig{})
+	suite.NoError(err)
+	flag, err := f.GetVariantFlagForUser(context.Background(),
+		suite.AppContextWithSessionForTest(&auth.Session{Email: "foo@example.com"}),
+		"missing", map[string]string{})
+	suite.NoError(err)
+	suite.Equal("missing", flag.Key)
+	suite.False(flag.Match)
 }
 
 func (suite *EnvFetcherSuite) TestGetFlagForUserEnvDisabled() {
 	f, err := NewEnvFetcher(cli.FeatureFlagConfig{})
 	suite.NoError(err)
 	suite.T().Setenv("FEATURE_FLAG_FOO", "0")
-	flag, err := f.GetFlagForUser(context.Background(),
+	flag, err := f.GetBooleanFlagForUser(context.Background(),
 		suite.AppContextWithSessionForTest(&auth.Session{Email: "foo@example.com"}),
 		"foo", map[string]string{})
 	suite.NoError(err)
-	suite.True(flag.Match)
-	suite.False(flag.IsEnabledVariant())
+	suite.Equal("foo", flag.Key)
+	suite.False(flag.Match)
 }
 
-func (suite *EnvFetcherSuite) TestGetFlagForUserEnvEnabled() {
+func (suite *EnvFetcherSuite) TestGetBooleanFlagForUserEnvEnabled() {
 	f, err := NewEnvFetcher(cli.FeatureFlagConfig{})
 	suite.NoError(err)
-	suite.T().Setenv("FEATURE_FLAG_FOO", services.FeatureFlagEnabledVariant)
-	flag, err := f.GetFlagForUser(context.Background(),
+	suite.T().Setenv("FEATURE_FLAG_FOO", envVariantEnabled)
+	flag, err := f.GetBooleanFlagForUser(context.Background(),
 		suite.AppContextWithSessionForTest(&auth.Session{Email: "foo@example.com"}),
 		"foo", map[string]string{})
 	suite.NoError(err)
+	suite.Equal("foo", flag.Key)
 	suite.True(flag.Match)
-	suite.True(flag.IsEnabledVariant())
 }
 
-func (suite *EnvFetcherSuite) TestGetFlagEnvEnabled() {
+func (suite *EnvFetcherSuite) TestGetBooleanFlagEnvEnabled() {
 	f, err := NewEnvFetcher(cli.FeatureFlagConfig{})
 	suite.NoError(err)
-	suite.T().Setenv("FEATURE_FLAG_FOO", services.FeatureFlagEnabledVariant)
-	flag, err := f.GetFlag(context.Background(),
+	suite.T().Setenv("FEATURE_FLAG_FOO", envVariantEnabled)
+	flag, err := f.GetBooleanFlag(context.Background(),
 		suite.Logger(),
 		"systemEntity",
 		"foo", map[string]string{})
 	suite.NoError(err)
+	suite.Equal("foo", flag.Key)
 	suite.True(flag.Match)
-	suite.True(flag.IsEnabledVariant())
 }
 
-func (suite *EnvFetcherSuite) TestGetFlagEnvVariant() {
+func (suite *EnvFetcherSuite) TestGetVariantFlagEnv() {
 	f, err := NewEnvFetcher(cli.FeatureFlagConfig{})
 	suite.NoError(err)
 	const myVariant = "myVariant"
 	suite.T().Setenv("FEATURE_FLAG_FOO", myVariant)
-	flag, err := f.GetFlag(context.Background(),
+	flag, err := f.GetVariantFlag(context.Background(),
 		suite.Logger(),
 		"systemEntity",
 		"foo", map[string]string{})
@@ -90,31 +99,33 @@ func (suite *EnvFetcherSuite) TestGetFlagEnvVariant() {
 	suite.True(flag.IsVariant(myVariant))
 }
 
-func (suite *EnvFetcherSuite) TestGetFlagForUserEnvEmailDisabled() {
+func (suite *EnvFetcherSuite) TestGetBooleanFlagForUserEnvEmailDisabled() {
 	f, err := NewEnvFetcher(cli.FeatureFlagConfig{})
 	suite.NoError(err)
 	disabledEmail := "foo@example.com"
-	suite.T().Setenv("FEATURE_FLAG_FOO", services.FeatureFlagEnabledVariant)
+	suite.T().Setenv("FEATURE_FLAG_FOO", envVariantEnabled)
 	suite.T().Setenv("FEATURE_FLAG_FOO_EMAIL", disabledEmail)
-	suite.T().Setenv("FEATURE_FLAG_FOO_EMAIL_VALUE", services.FeatureFlagDisabledVariant)
+	suite.T().Setenv("FEATURE_FLAG_FOO_EMAIL_VALUE", "0")
 
-	flag, err := f.GetFlagForUser(context.Background(),
+	// any user another than the disabled one should be enabled
+	flag, err := f.GetBooleanFlagForUser(context.Background(),
 		suite.AppContextWithSessionForTest(&auth.Session{
 			UserID: uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"),
 			Email:  "anyother@example.com",
 		}),
 		"foo", map[string]string{})
 	suite.NoError(err)
+	suite.Equal("foo", flag.Key)
 	suite.True(flag.Match)
-	suite.True(flag.IsEnabledVariant())
 
-	flag, err = f.GetFlagForUser(context.Background(),
+	// but the disabled email should not be enabled
+	flag, err = f.GetBooleanFlagForUser(context.Background(),
 		suite.AppContextWithSessionForTest(&auth.Session{
 			UserID: uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"),
 			Email:  disabledEmail,
 		}),
 		"foo", map[string]string{})
 	suite.NoError(err)
-	suite.True(flag.Match)
-	suite.False(flag.IsEnabledVariant())
+	suite.Equal("foo", flag.Key)
+	suite.False(flag.Match)
 }

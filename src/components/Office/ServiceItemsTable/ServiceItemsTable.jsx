@@ -14,7 +14,7 @@ import { formatDateFromIso } from 'utils/formatters';
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
-import { selectDateFieldByStatus } from 'utils/dates';
+import { selectDateFieldByStatus, selectDatePrefixByStatus } from 'utils/dates';
 
 const ServiceItemsTable = ({
   serviceItems,
@@ -36,6 +36,12 @@ const ServiceItemsTable = ({
       ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) &&
       hasSITAddressUpdate(sitAddressUpdates)
     );
+  };
+
+  const getServiceItemDisplayDate = (item) => {
+    const prefix = selectDatePrefixByStatus(statusForTableType);
+    const date = formatDateFromIso(item[`${selectDateFieldByStatus(statusForTableType)}`], 'DD MMM YYYY');
+    return `${prefix}: ${date}`;
   };
 
   const tableRows = serviceItems.map((serviceItem, index) => {
@@ -65,7 +71,7 @@ const ServiceItemsTable = ({
         <tr key={id}>
           <td className={styles.nameAndDate}>
             <p className={styles.codeName}>{serviceItem.serviceItem}</p>
-            <p>{formatDateFromIso(item[`${selectDateFieldByStatus(statusForTableType)}`], 'DD MMM YYYY')}</p>
+            <p>{getServiceItemDisplayDate(item)}</p>
           </td>
           <td className={styles.detail}>
             <ServiceItemDetails
