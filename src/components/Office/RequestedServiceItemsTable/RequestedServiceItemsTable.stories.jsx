@@ -80,7 +80,7 @@ const DOSFSC = {
 const domesticDestinationSitDetails = {
   reason: "Customer's housing at base is not ready",
   sitEntryDate: '2022-11-01',
-  sitDeliveryDate: undefined,
+  sitDepartureDate: undefined,
   customerContacts: [
     { dateOfContact: '2022-11-10', timeMilitary: '1400Z', firstAvailableDeliveryDate: '2022-11-14' },
     { dateOfContact: '2022-11-01', timeMilitary: '1400Z', firstAvailableDeliveryDate: '2022-11-05' },
