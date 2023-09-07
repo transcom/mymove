@@ -100,7 +100,7 @@ COMMENT ON COLUMN transportation_offices.gbloc IS 'A 4-character code representi
 COMMENT ON TABLE users IS 'Holds all users. Anyone who signs in to any of the mymove apps is automatically created in this table after signing in with login_gov.';
 COMMENT ON COLUMN users.created_at IS 'Date & time the user was created.';
 COMMENT ON COLUMN users.updated_at IS 'Date & time the user was updated.';
-COMMENT ON COLUMN users.login_gov_id IS 'The login_gov id of the user.';
+COMMENT ON COLUMN users.login_gov_uuid IS 'The login_gov id of the user.';
 COMMENT ON COLUMN users.login_gov_email IS 'The login_gov email of the user.';
 COMMENT ON COLUMN users.active IS 'A boolean that determines whether or not a user is active. Users that are not active are not allowed to access the mymove apps. See https://github.com/transcom/mymove/wiki/create-or-deactivate-users.';
 COMMENT ON COLUMN users.current_mil_session_id IS 'This field gets populated when a user signs into the mil app. The string matches the session id stored in Redis. It is used to allow an admin user to revoke the session if necessary.';
