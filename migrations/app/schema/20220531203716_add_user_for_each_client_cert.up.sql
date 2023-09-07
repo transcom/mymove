@@ -16,14 +16,13 @@ BEGIN
 			new_user_id := uuid_generate_v4();
 			INSERT INTO users (
 				id,
-				okta_email,
-				okta_id,
+				login_gov_email,
 				created_at,
 				updated_at
 			)
 			VALUES (
 				new_user_id,
-				client_cert.sha256_digest || '@okta.mil',
+				client_cert.sha256_digest || '@api.move.mil',
 				client_cert.sha256_digest,
 				now(),
 				now()
