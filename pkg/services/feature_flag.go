@@ -8,35 +8,32 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 )
 
-const (
-	// use a convention where the name of the variant is enabled or
-	// disabled for booleans
-	FeatureFlagEnabledVariant  = "enabled"
-	FeatureFlagDisabledVariant = "disabled"
-)
-
 // Simplifed struct based on
-// https://pkg.go.dev/go.flipt.io/flipt/rpc/flipt#EvaluationResponse
+// https://pkg.go.dev/go.flipt.io/flipt/rpc/flipt@v1.25.0/evaluation#VariantEvaluationResponse
+// For boolean responses, Variant is the empty string and Match is the
+// flag value
 type FeatureFlag struct {
 	Entity    string
 	Key       string
 	Match     bool
-	Value     string
+	Variant   string
 	Namespace string
 }
 
-func (ff FeatureFlag) IsEnabledVariant() bool {
-	return ff.Match && ff.Value == FeatureFlagEnabledVariant
-}
-
 func (ff FeatureFlag) IsVariant(variant string) bool {
-	return ff.Match && ff.Value == variant
+	return ff.Match && ff.Variant == variant
 }
 
 // FeatureFlagFetcher is the exported interface for feature flags
 //
+// This service is a thin wrapper around flipt, so it doesn't expose
+// all of flipt's API. We can change/expand the API as we get
+// experience.
+//
 //go:generate mockery --name FeatureFlagFetcher
 type FeatureFlagFetcher interface {
-	GetFlagForUser(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (FeatureFlag, error)
-	GetFlag(ctx context.Context, logger *zap.Logger, entityID string, key string, flagContext map[string]string) (FeatureFlag, error)
+	GetBooleanFlagForUser(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (FeatureFlag, error)
+	GetBooleanFlag(ctx context.Context, logger *zap.Logger, entityID string, key string, flagContext map[string]string) (FeatureFlag, error)
+	GetVariantFlagForUser(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (FeatureFlag, error)
+	GetVariantFlag(ctx context.Context, logger *zap.Logger, entityID string, key string, flagContext map[string]string) (FeatureFlag, error)
 }
