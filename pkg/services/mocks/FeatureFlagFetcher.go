@@ -19,8 +19,8 @@ type FeatureFlagFetcher struct {
 	mock.Mock
 }
 
-// GetFlag provides a mock function with given fields: ctx, logger, entityID, key, flagContext
-func (_m *FeatureFlagFetcher) GetFlag(ctx context.Context, logger *zap.Logger, entityID string, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+// GetBooleanFlag provides a mock function with given fields: ctx, logger, entityID, key, flagContext
+func (_m *FeatureFlagFetcher) GetBooleanFlag(ctx context.Context, logger *zap.Logger, entityID string, key string, flagContext map[string]string) (services.FeatureFlag, error) {
 	ret := _m.Called(ctx, logger, entityID, key, flagContext)
 
 	var r0 services.FeatureFlag
@@ -43,8 +43,56 @@ func (_m *FeatureFlagFetcher) GetFlag(ctx context.Context, logger *zap.Logger, e
 	return r0, r1
 }
 
-// GetFlagForUser provides a mock function with given fields: ctx, appCtx, key, flagContext
-func (_m *FeatureFlagFetcher) GetFlagForUser(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+// GetBooleanFlagForUser provides a mock function with given fields: ctx, appCtx, key, flagContext
+func (_m *FeatureFlagFetcher) GetBooleanFlagForUser(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+	ret := _m.Called(ctx, appCtx, key, flagContext)
+
+	var r0 services.FeatureFlag
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, appcontext.AppContext, string, map[string]string) (services.FeatureFlag, error)); ok {
+		return rf(ctx, appCtx, key, flagContext)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, appcontext.AppContext, string, map[string]string) services.FeatureFlag); ok {
+		r0 = rf(ctx, appCtx, key, flagContext)
+	} else {
+		r0 = ret.Get(0).(services.FeatureFlag)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, appcontext.AppContext, string, map[string]string) error); ok {
+		r1 = rf(ctx, appCtx, key, flagContext)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetVariantFlag provides a mock function with given fields: ctx, logger, entityID, key, flagContext
+func (_m *FeatureFlagFetcher) GetVariantFlag(ctx context.Context, logger *zap.Logger, entityID string, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+	ret := _m.Called(ctx, logger, entityID, key, flagContext)
+
+	var r0 services.FeatureFlag
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *zap.Logger, string, string, map[string]string) (services.FeatureFlag, error)); ok {
+		return rf(ctx, logger, entityID, key, flagContext)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *zap.Logger, string, string, map[string]string) services.FeatureFlag); ok {
+		r0 = rf(ctx, logger, entityID, key, flagContext)
+	} else {
+		r0 = ret.Get(0).(services.FeatureFlag)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *zap.Logger, string, string, map[string]string) error); ok {
+		r1 = rf(ctx, logger, entityID, key, flagContext)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetVariantFlagForUser provides a mock function with given fields: ctx, appCtx, key, flagContext
+func (_m *FeatureFlagFetcher) GetVariantFlagForUser(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
 	ret := _m.Called(ctx, appCtx, key, flagContext)
 
 	var r0 services.FeatureFlag
