@@ -2,7 +2,6 @@ import classnames from 'classnames';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
-// import * as Yup from 'yup';
 import { Link } from 'react-router-dom';
 
 import oktaLogo from '../../../shared/images/okta_logo.png';
@@ -15,23 +14,16 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import { OktaInfoFields } from 'components/form/OktaInfoFields';
+import { oktaInfoSchema } from 'utils/validation';
 
 const EditOktaInfoForm = ({ initialValues, onSubmit, onCancel }) => {
-  // TODO need to add a validation schema to the form -- leaving what was previously here
-  // const validationSchema = Yup.object().shape({
-  //   ...contactInfoSchema.fields,
-  //   [residentialAddressName]: requiredAddressSchema.required(),
-  //   [backupAddressName]: requiredAddressSchema.required(),
-  //   [backupContactName]: backupContactInfoSchema.required(),
-  // });
-
   const sectionStyles = classnames(formStyles.formSection, editOktaInfoFormStyle.formSection);
   const url = isProduction
     ? 'https://milmove.okta.mil/enduser/settings'
     : 'https://test-milmove.okta.mil/enduser/settings';
 
   return (
-    <Formik initialValues={initialValues} onSubmit={onSubmit} validateOnMount>
+    <Formik initialValues={initialValues} onSubmit={onSubmit} validateOnMount validationSchema={oktaInfoSchema}>
       {({ isValid, isSubmitting, handleSubmit }) => {
         return (
           <Form className={classnames(formStyles.form, editOktaInfoFormStyle.form)}>
