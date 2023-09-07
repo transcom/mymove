@@ -70,8 +70,8 @@ func (suite *TRDMSuite) TestTRDMGetLastTableUpdateFake() {
 func (suite *TRDMSuite) TestFetchLOARecordsByTime() {
 	// Get initial TAC codes count
 	initialCodes, err := trdm.FetchLOARecordsByTime(suite.AppContextForTest(), time.Now())
-	intialLoaCodesLength := len(initialCodes)
 	suite.NoError(err)
+	intialLoaCodesLength := len(initialCodes)
 
 	// Creates a test TAC code record in the DB
 	factory.BuildDefaultLineOfAccounting(suite.DB())
