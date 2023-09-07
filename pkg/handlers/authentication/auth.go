@@ -473,7 +473,6 @@ func NewLogoutHandler(ac Context, hc handlers.HandlerConfig) LogoutHandler {
 	return logoutHandler
 }
 
-// !Needs to be finalized after sessions.
 func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	appCtx := h.AppContextFromRequest(r)
 	if appCtx.Session() != nil {
@@ -802,9 +801,18 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// adding Okta profile data with intent to use for Okta profile editing from MilMove app
 	appCtx.Session().IDToken = exchange.IDToken
 	appCtx.Session().Email = profileData.Email
-	//appCtx.Session().ClientID = profileData.Aud
+	oktaInfo := auth.OktaSessionInfo{
+		Username:  profileData.PreferredUsername,
+		Email:     profileData.Email,
+		FirstName: profileData.GivenName,
+		LastName:  profileData.FamilyName,
+		Edipi:     profileData.Edipi,
+		Sub:       profileData.Sub,
+	}
+	appCtx.Session().OktaSessionInfo = oktaInfo
 
 	appCtx.Logger().Info("New Login", zap.String("Okta user", profileData.PreferredUsername), zap.String("Okta email", profileData.Email), zap.String("Host", appCtx.Session().Hostname))
 
@@ -815,7 +823,6 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case authorizationResultUnauthorized:
 		invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
 	case authorizationResultAuthorized:
-		// http.Redirect(w, r, "http://milmovelocal:3000/", http.StatusTemporaryRedirect)
 		http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
 	}
 }

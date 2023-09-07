@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/okta_profile"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/postal_codes"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
@@ -314,6 +315,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.OfficeShowOfficeOrdersHandler == nil {
 		api.OfficeShowOfficeOrdersHandler = office.ShowOfficeOrdersHandlerFunc(func(params office.ShowOfficeOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ShowOfficeOrders has not yet been implemented")
+		})
+	}
+	if api.OktaProfileShowOktaInfoHandler == nil {
+		api.OktaProfileShowOktaInfoHandler = okta_profile.ShowOktaInfoHandlerFunc(func(params okta_profile.ShowOktaInfoParams) middleware.Responder {
+			return middleware.NotImplemented("operation okta_profile.ShowOktaInfo has not yet been implemented")
 		})
 	}
 	if api.OrdersShowOrdersHandler == nil {

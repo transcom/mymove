@@ -15,7 +15,7 @@ export const OktaInfoFields = ({ legend, className, render }) => {
     <Fieldset legend={legend} className={className}>
       {render(
         <>
-          <TextField label="Okta Username" name={usernameFieldName} id="oktaUsername" required />
+          <TextField isDisabled label="Okta Username" name={usernameFieldName} id="oktaUsername" required />
           <TextField label="Okta Email" name={emailFieldName} id="oktaEmail" required />
           <TextField label="First Name" name={firstNameFieldName} id="oktaFirstName" required />
           <TextField label="Last Name" name={lastNameFieldName} id="oktaLastName" required />

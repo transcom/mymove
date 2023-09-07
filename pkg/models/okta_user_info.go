@@ -11,4 +11,5 @@ type OktaUser struct {
 	ZoneInfo          string `json:"zoneinfo"`
 	UpdatedAt         string `json:"updated_at"`
 	EmailVerified     string `json:"email_verified"`
+	Edipi             string `json:"cac_edipi"`
 }

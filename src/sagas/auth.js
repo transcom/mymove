@@ -3,9 +3,9 @@ import { normalize } from 'normalizr';
 
 import { LOAD_USER, getLoggedInUserStart, getLoggedInUserSuccess, getLoggedInUserFailure } from 'store/auth/actions';
 import { setFlashMessage } from 'store/flash/actions';
-import { GetIsLoggedIn, GetLoggedInUser } from 'utils/api';
+import { GetIsLoggedIn, GetLoggedInUser, GetOktaUser } from 'utils/api';
 import { loggedInUser } from 'shared/Entities/schema';
-import { addEntities } from 'shared/Entities/actions';
+import { addEntities, setOktaUser } from 'shared/Entities/actions';
 
 /**
  * This saga mirrors the getCurrentUserInfo thunk (shared/Data/users.js)
@@ -20,9 +20,11 @@ export function* fetchUser() {
     if (isLoggedIn) {
       try {
         const user = yield call(GetLoggedInUser); // make user API call
+        const okta = yield call(GetOktaUser); // get Okta profile data
 
-        const userEntities = normalize(user, loggedInUser);
+        const userEntities = normalize(user, loggedInUser, okta);
 
+        yield put(setOktaUser(okta)); // adds Okta data to entities in state
         yield put(addEntities(userEntities.entities)); // populate entities
         yield put(getLoggedInUserSuccess(user));
       } catch (e) {
