@@ -18,15 +18,15 @@ func (h GetOktaProfileHandler) Handle(params oktaop.ShowOktaInfoParams) middlewa
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			oktaProfile := appCtx.Session().OktaSessionInfo
+			oktaUser := appCtx.Session().OktaSessionInfo
 
 			oktaUserPayload := internalmessages.OktaUserPayload{
-				Username:  oktaProfile.Username,
-				Email:     oktaProfile.Email,
-				FirstName: oktaProfile.FirstName,
-				LastName:  oktaProfile.LastName,
-				Edipi:     &oktaProfile.Edipi,
-				Sub:       oktaProfile.Sub,
+				Username:  oktaUser.Username,
+				Email:     oktaUser.Email,
+				FirstName: oktaUser.FirstName,
+				LastName:  oktaUser.LastName,
+				Edipi:     &oktaUser.Edipi,
+				Sub:       oktaUser.Sub,
 			}
 
 			// this is going to check to see if the Okta profile data is present in the session
