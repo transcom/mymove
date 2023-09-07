@@ -217,8 +217,13 @@ func setupSoapCall(d *GetTableRequestElement, appCtx appcontext.AppContext, phys
 		return marshalErr
 	}
 
+	bodyID, err := GenerateSOAPURIWithPrefix("#id")
+	if err != nil {
+		return err
+	}
+
 	operation := func() error {
-		signedHeader, headerSigningError := GenerateSignedHeader(d.securityToken, d.privateKey)
+		signedHeader, headerSigningError := GenerateSignedHeader(d.securityToken, d.privateKey, bodyID)
 		if headerSigningError != nil {
 			return headerSigningError
 		}
@@ -235,7 +240,7 @@ func setupSoapCall(d *GetTableRequestElement, appCtx appcontext.AppContext, phys
 
 	// Only re-call after 1 hour
 	b.InitialInterval = 1 * time.Hour
-	err := backoff.Retry(operation, b)
+	err = backoff.Retry(operation, b)
 	if err != nil {
 		return fmt.Errorf("Failed after retries: %s", err)
 	}

@@ -11,7 +11,9 @@ func (suite *TRDMSuite) TestGenerateSignedHeader() {
 	//cert, key, err := getRealCertAndKey()
 	suite.NoError(err)
 	// Pass certificate and key for header signing
-	headerByte, err := trdm.GenerateSignedHeader(cert, key)
+	bodyID, err := trdm.GenerateSOAPURIWithPrefix("#id")
+	suite.NoError(err)
+	headerByte, err := trdm.GenerateSignedHeader(cert, key, bodyID)
 	suite.NoError(err)
 	// ! Readme is currently for debugging purposes
 	readme := string(headerByte)

@@ -120,7 +120,11 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 	if marshalEr != nil {
 		return marshalEr
 	}
-	signedHeader, headerSigningError := GenerateSignedHeader(d.securityToken, d.privateKey)
+	bodyID, err := GenerateSOAPURIWithPrefix("#id")
+	if err != nil {
+		return err
+	}
+	signedHeader, headerSigningError := GenerateSignedHeader(d.securityToken, d.privateKey, bodyID)
 	if headerSigningError != nil {
 		return headerSigningError
 	}
@@ -128,7 +132,7 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 		"header": signedHeader,
 		"body":   marshaledBody,
 	}
-	err := lastTableUpdateSoapCall(d, newParams, appCtx)
+	err = lastTableUpdateSoapCall(d, newParams, appCtx)
 	if err != nil {
 		return fmt.Errorf("request error: %s", err.Error())
 	}
