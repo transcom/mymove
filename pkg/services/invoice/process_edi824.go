@@ -135,7 +135,7 @@ func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, _ string, st
 				InterchangeControlNumberID: &prToICN.ID,
 				EDIType:                    models.EDIType824,
 			}
-			txnAppCtx.Logger().Error("Saving edi technical error", zap.Any("ediError", ediError))
+			txnAppCtx.Logger().Error("Saving edi technical error", zap.Object("ediError", &ediError))
 
 			err = txnAppCtx.DB().Save(&ediError)
 			if err != nil {
