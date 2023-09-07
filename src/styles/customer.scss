@@ -1,6 +1,4 @@
 @import '../ghc_index.scss';
-@import '../ghc_index.scss';
-@import 'src/styles/_customerLayoutRules.scss';
 
 .my-move-container,
 .my-move .usa-footer {
@@ -8,11 +6,6 @@
   @media (min-width: $tablet) {
     background-color: $bg-gray;
   }
-}
-
-// Fix 100% height layouts in IE11 - https://philipwalton.com/articles/normalizing-cross-browser-flexbox-bugs/
-.site--fullscreen {
-  height: 100vh;
 }
 
 @media print {
