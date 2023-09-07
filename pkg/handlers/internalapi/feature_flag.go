@@ -9,29 +9,57 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
-// ShowLoggedInUserHandler returns the logged in user
-type FeatureFlagsForUserHandler struct {
+// BooleanFeatureFlagsForUserHandler handles evaluating boolean feature flags for
+// users
+type BooleanFeatureFlagsForUserHandler struct {
 	handlers.HandlerConfig
 }
 
-// Handle returns the logged in user
-func (h FeatureFlagsForUserHandler) Handle(params ffop.FeatureFlagForUserParams) middleware.Responder {
+// Handle returns the boolean feature flag
+func (h BooleanFeatureFlagsForUserHandler) Handle(params ffop.BooleanFeatureFlagForUserParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			flag, err := h.FeatureFlagFetcher().GetFlagForUser(
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(
 				params.HTTPRequest.Context(), appCtx, params.Key, params.FlagContext)
 
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-			flagPayload := internalmessages.FeatureFlag{
+			flagPayload := internalmessages.FeatureFlagBoolean{
 				Entity:    &flag.Entity,
-				Key:       &flag.Key,
+				Key:       &params.Key,
 				Match:     &flag.Match,
-				Value:     &flag.Value,
 				Namespace: &flag.Namespace,
 			}
-			return ffop.NewFeatureFlagForUserOK().WithPayload(&flagPayload), nil
+			return ffop.NewBooleanFeatureFlagForUserOK().WithPayload(&flagPayload), nil
+		})
+}
+
+// VariantFeatureFlagsForUserHandler handles evaluating variant feature flags for
+// users
+type VariantFeatureFlagsForUserHandler struct {
+	handlers.HandlerConfig
+}
+
+// Handle returns the boolean feature flag
+func (h VariantFeatureFlagsForUserHandler) Handle(params ffop.VariantFeatureFlagForUserParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			flag, err := h.FeatureFlagFetcher().GetVariantFlagForUser(
+				params.HTTPRequest.Context(), appCtx, params.Key, params.FlagContext)
+
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+			flagPayload := internalmessages.FeatureFlagVariant{
+				Entity:    &flag.Entity,
+				Key:       &params.Key,
+				Match:     &flag.Match,
+				Variant:   &flag.Variant,
+				Namespace: &flag.Namespace,
+			}
+			return ffop.NewVariantFeatureFlagForUserOK().WithPayload(&flagPayload), nil
 		})
 }

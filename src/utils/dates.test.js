@@ -1,4 +1,4 @@
-import { numOfDaysBetweenDates, selectDateFieldByStatus } from './dates';
+import { numOfDaysBetweenDates, selectDateFieldByStatus, selectDatePrefixByStatus } from './dates';
 
 describe('numOfDaysBetweenDates', () => {
   it('should return 5 for number of days between Aug 5th and Aug 10', () => {
@@ -6,6 +6,21 @@ describe('numOfDaysBetweenDates', () => {
   });
   it('should return 6 for number of days between Aug 31 and Sept 6th', () => {
     expect(numOfDaysBetweenDates('2022-08-31', '2022-09-06')).toBe(6);
+  });
+});
+
+describe('selectDatePrefixByStatus', () => {
+  it('should return "Date requested" for a SUBMITTED status', () => {
+    expect(selectDatePrefixByStatus('SUBMITTED')).toEqual('Date requested');
+  });
+  it('should return "Date approved" for a APPROVED status', () => {
+    expect(selectDatePrefixByStatus('APPROVED')).toEqual('Date approved');
+  });
+  it('should return "Date rejected" for a REJECTED status', () => {
+    expect(selectDatePrefixByStatus('REJECTED')).toEqual('Date rejected');
+  });
+  it('should return "Date requested" as default', () => {
+    expect(selectDatePrefixByStatus('noMatch')).toEqual('Date requested');
   });
 });
 
