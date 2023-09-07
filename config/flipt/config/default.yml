@@ -11,10 +11,7 @@ cors:
   enabled: true
   allowed_origins: ["*"]
 
-experimental:
-  filesystem_storage:
-    enabled: true
 storage:
   type: local
   local:
-    path: /local/storage
+    path: /etc/flipt/storage
