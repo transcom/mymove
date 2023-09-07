@@ -424,7 +424,7 @@ commands:
       - run:
           name: Log-into-AWS-ECR
           command: |
-            aws ecr get-login-password --profile "CIRCLECI-OIDC-PROFILE"
+            echo "export AWS_LOGIN=$(aws ecr get-login-password --profile "CIRCLECI-OIDC-PROFILE)" >> $BASH_ENV
       - run:
           name: 'Setting up AWS environment variables'
           command: |
