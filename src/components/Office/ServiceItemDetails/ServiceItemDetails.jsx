@@ -116,7 +116,9 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
       break;
     }
     case 'DDFSIT': {
-      detailSection = generateDestinationSITDetailSection(id, serviceRequestDocUploads, details);
+      detailSection = generateDestinationSITDetailSection(id, serviceRequestDocUploads, details, {
+        'SIT entry date': details.sitEntryDate ? formatDate(details.sitEntryDate, 'DD MMM YYYY') : '-',
+      });
       break;
     }
     case 'DDASIT': {
