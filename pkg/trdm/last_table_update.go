@@ -271,7 +271,7 @@ func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config) error {
 		return err
 	}
 
-	// Type assertion
+	// Type assertion from any to *rsa.PrivateKey
 	key, ok := unassertedPrivateKey.(*rsa.PrivateKey)
 	if !ok {
 		return fmt.Errorf("failed to type assert private key as *rsa.PrivateKey")
