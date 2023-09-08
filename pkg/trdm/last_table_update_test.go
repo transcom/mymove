@@ -14,7 +14,7 @@ import (
 )
 
 const getLastTableUpdateTemplate = `
-   <getLastTableUpdateResponseElement xmlns="http://ReturnTablePackage/">
+   <getLastTableUpdateResponseElement xmlns="http://trdm/ReturnTableService">
 	  <lastUpdate>%v</lastUpdate>
 	  <status>
 		 <statusCode>%v</statusCode>

@@ -30,8 +30,8 @@ This method GetLastTableUpdate sends a SOAP request to TRDM to get the last tabl
 This code is using the gosoap lib https://github.com/tiaguinho/gosoap
 
 SOAP Request:
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-xmlns:ret="http://ReturnTablePackage/">
+<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope"
+xmlns:ret="http://trdm/ReturnTableService">
    <soapenv:Header/>
    <soapenv:Body>
       <ret:getLastTableUpdateRequestElement>
@@ -41,9 +41,9 @@ xmlns:ret="http://ReturnTablePackage/">
 </soapenv:Envelope>
 
 SOAP Response:
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
    <soap:Body>
-      <getLastTableUpdateResponseElement xmlns="http://ReturnTablePackage/">
+      <getLastTableUpdateResponseElement xmlns="http://trdm/ReturnTableService">
          <lastUpdate>2020-01-27T16:14:20.000Z</lastUpdate>
          <status>
             <statusCode>Successful</statusCode>
@@ -110,8 +110,8 @@ func FetchAllTACRecords(appcontext appcontext.AppContext) ([]models.Transportati
 func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string) error {
 
 	gosoap.SetCustomEnvelope("soapenv", map[string]string{
-		"xmlns:soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
-		"xmlns:ret":     "http://ReturnTablePackage/",
+		"xmlns:soapenv": "http://www.w3.org/2003/05/soap-envelope",
+		"xmlns:ret":     "http://trdm/ReturnTableService",
 	})
 
 	params := GetLastTableUpdateRequestElement{
@@ -125,14 +125,15 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 	if err != nil {
 		return err
 	}
-	signedHeader, headerSigningError := GenerateSignedHeader(d.securityToken, d.privateKey, bodyID)
-	if headerSigningError != nil {
-		return headerSigningError
+	signedHeader, err := GenerateSignedHeader(d.securityToken, d.privateKey, bodyID)
+	if err != nil {
+		return err
 	}
 	newParams := gosoap.Params{
 		"header": signedHeader,
 		"body":   marshaledBody,
 	}
+
 	err = lastTableUpdateSoapCall(d, newParams, appCtx)
 	if err != nil {
 		return fmt.Errorf("request error: %s", err.Error())
@@ -146,6 +147,7 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 //   - appCtx - Application context
 //   - returns error
 func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.Params, appCtx appcontext.AppContext) error {
+	// This will hit the ?WSDL endpoint with the marshaled body and header
 	res, err := d.soapClient.Call("ProcessRequest", params)
 	if err != nil {
 		return fmt.Errorf("call error: %s", err.Error())

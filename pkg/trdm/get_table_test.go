@@ -15,7 +15,7 @@ import (
 )
 
 const getTableTemplate = `
-<getTableResponseElement xmlns="http://ReturnTablePackage/">
+<getTableResponseElement xmlns="http://trdm/ReturnTableService">
          <output>
             <TRDM>
                <status>
@@ -26,7 +26,7 @@ const getTableTemplate = `
             </TRDM>
          </output>
          <attachment>
-            <xop:Include href="cid:fefe5d81-468c-4639-a543-e758a3cbceea-2@ReturnTablePackage"
+            <xop:Include href="cid:fefe5d81-468c-4639-a543-e758a3cbceea-2@ReturnTableService"
 			xmlns:xop="http://www.w3.org/2004/08/xop/include"/>
          </attachment>
       </getTableResponseElement>
