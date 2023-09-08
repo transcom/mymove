@@ -4,6 +4,7 @@ import (
 	"crypto/rsa"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/pem"
 	"encoding/xml"
 	"fmt"
 	"net/http"
@@ -204,7 +205,7 @@ func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config) error {
 	tr := &http.Transport{TLSClientConfig: tlsConfig}
 	httpClient := &http.Client{Transport: tr, Timeout: time.Duration(30) * time.Second}
 
-	trdmWSDL := v.GetString(cli.TRDMApiWSDLFlag)
+	trdmWSDL := v.GetString(cli.TRDMApiReturnTableV7WSDLFlag)
 	trdmURL := v.GetString(cli.TRDMApiURLFlag)
 	soapClient, err := gosoap.SoapClient(trdmWSDL, httpClient)
 	if err != nil {
@@ -212,20 +213,35 @@ func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config) error {
 	}
 	soapClient.URL = trdmURL
 
-	x509CertString := v.GetString(cli.TRDMx509Cert)
-	certificate, err := x509.ParseCertificate([]byte(x509CertString))
+	x509CertString := v.GetString(cli.MoveMilDoDTLSCertFlag)
+	publicPem, rest := pem.Decode([]byte(x509CertString))
+	if len(rest) != 0 {
+		return fmt.Errorf("unable to properly decode public key, something is leftover: %w", err)
+	}
+
+	certificate, err := x509.ParseCertificate(publicPem.Bytes)
 	if err != nil {
 		return err
 	}
 
-	privateKeyString := v.GetString(cli.TRDMx509PrivateKey)
-	privateKey, err := x509.ParsePKCS1PrivateKey([]byte(privateKeyString))
+	privateKeyString := v.GetString(cli.MoveMilDoDTLSKeyFlag)
+	privatePem, rest := pem.Decode([]byte(privateKeyString))
+	if len(rest) != 0 {
+		return fmt.Errorf("unable to properly decode private key, something is leftover: %w", err)
+	}
+	unassertedPrivateKey, err := x509.ParsePKCS8PrivateKey([]byte(privatePem.Bytes))
 	if err != nil {
 		return err
 	}
 
-	getLastTableUpdateTACErr := NewTRDMGetLastTableUpdate(transportationAccountingCode, certificate, privateKey, soapClient).GetLastTableUpdate(appCtx, transportationAccountingCode)
-	getLastTableUpdateLOAErr := NewTRDMGetLastTableUpdate(lineOfAccounting, certificate, privateKey, soapClient).GetLastTableUpdate(appCtx, lineOfAccounting)
+	// Type assertion
+	key, ok := unassertedPrivateKey.(*rsa.PrivateKey)
+	if !ok {
+		return fmt.Errorf("failed to type assert private key as *rsa.PrivateKey")
+	}
+
+	getLastTableUpdateTACErr := NewTRDMGetLastTableUpdate(transportationAccountingCode, certificate, key, soapClient).GetLastTableUpdate(appCtx, transportationAccountingCode)
+	getLastTableUpdateLOAErr := NewTRDMGetLastTableUpdate(lineOfAccounting, certificate, key, soapClient).GetLastTableUpdate(appCtx, lineOfAccounting)
 	if getLastTableUpdateLOAErr != nil {
 		return getLastTableUpdateLOAErr
 	}
@@ -233,8 +249,8 @@ func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config) error {
 		return getLastTableUpdateTACErr
 	}
 
-	cronErrTAC := StartLastTableUpdateCron(appCtx, certificate, privateKey, transportationAccountingCode, soapClient)
-	cronErrLOA := StartLastTableUpdateCron(appCtx, certificate, privateKey, lineOfAccounting, soapClient)
+	cronErrTAC := StartLastTableUpdateCron(appCtx, certificate, key, transportationAccountingCode, soapClient)
+	cronErrLOA := StartLastTableUpdateCron(appCtx, certificate, key, lineOfAccounting, soapClient)
 
 	if cronErrLOA != nil {
 		return cronErrLOA
