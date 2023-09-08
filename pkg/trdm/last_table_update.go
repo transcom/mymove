@@ -72,16 +72,15 @@ type input struct {
 type lastTableUpdateRequestElement struct {
 	Input input `xml:"ret:input"`
 }
-type body struct {
+
+type GetLastTableUpdateRequestElement struct {
+	XMLName                       xml.Name                      `xml:"soap:Body"`
 	ID                            string                        `xml:"wsu:Id,attr"`
 	Wsu                           string                        `xml:"xmlns:wsu,attr"`
 	LastTableUpdateRequestElement lastTableUpdateRequestElement `xml:"ret:getLastTableUpdateReqElement"`
-}
-type GetLastTableUpdateRequestElement struct {
-	Body          body `xml:"soap:Body"`
-	soapClient    SoapCaller
-	securityToken *x509.Certificate
-	privateKey    *rsa.PrivateKey
+	soapClient                    SoapCaller
+	securityToken                 *x509.Certificate
+	privateKey                    *rsa.PrivateKey
 }
 type GetLastTableUpdateResponseElement struct {
 	XMLName    xml.Name  `xml:"getLastTableUpdateResponseElement"`
@@ -96,23 +95,21 @@ type Status struct {
 
 func NewTRDMGetLastTableUpdate(physicalName string, bodyID string, securityToken *x509.Certificate, privateKey *rsa.PrivateKey, soapClient SoapCaller) GetLastTableUpdater {
 	return &GetLastTableUpdateRequestElement{
-		Body: body{
-			ID:  bodyID,
-			Wsu: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
-			LastTableUpdateRequestElement: lastTableUpdateRequestElement{
-				Input: input{
-					TRDMInput: trdmInput{
-						PhysicalName:  physicalName,
-						ReturnContent: "true",
-					},
+		LastTableUpdateRequestElement: lastTableUpdateRequestElement{
+			Input: input{
+				TRDMInput: trdmInput{
+					PhysicalName:  physicalName,
+					ReturnContent: "true",
 				},
 			},
 		},
+		ID:  bodyID,
+		Wsu: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
+
 		soapClient:    soapClient,
 		securityToken: securityToken,
 		privateKey:    privateKey,
 	}
-
 }
 
 // FetchAllTACRecords queries and fetches all transportation_accounting_codes
@@ -145,15 +142,13 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 	}
 	// Needs to be nested in test:input ret:TRDM
 	params := GetLastTableUpdateRequestElement{
-		Body: body{
-			ID:  bodyID,
-			Wsu: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
-			LastTableUpdateRequestElement: lastTableUpdateRequestElement{
-				Input: input{
-					TRDMInput: trdmInput{
-						PhysicalName:  physicalName,
-						ReturnContent: "true",
-					},
+		ID:  bodyID,
+		Wsu: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
+		LastTableUpdateRequestElement: lastTableUpdateRequestElement{
+			Input: input{
+				TRDMInput: trdmInput{
+					PhysicalName:  physicalName,
+					ReturnContent: "true",
 				},
 			},
 		},
@@ -197,8 +192,8 @@ func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.
 	}
 
 	if r.Status.StatusCode == successfulStatusCode {
-		getTable := NewGetTable(d.Body.LastTableUpdateRequestElement.Input.TRDMInput.PhysicalName, d.securityToken, d.privateKey, d.soapClient)
-		getTableErr := getTable.GetTable(appCtx, d.Body.LastTableUpdateRequestElement.Input.TRDMInput.PhysicalName, r.LastUpdate)
+		getTable := NewGetTable(d.LastTableUpdateRequestElement.Input.TRDMInput.PhysicalName, d.securityToken, d.privateKey, d.soapClient)
+		getTableErr := getTable.GetTable(appCtx, d.LastTableUpdateRequestElement.Input.TRDMInput.PhysicalName, r.LastUpdate)
 		if getTableErr != nil {
 			return fmt.Errorf("getTable error: %s", getTableErr.Error())
 		}
