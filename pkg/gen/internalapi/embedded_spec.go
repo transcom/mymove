@@ -547,7 +547,7 @@ func init() {
         }
       }
     },
-    "/feature-flags/user/{key}": {
+    "/feature-flags/user-boolean/{key}": {
       "post": {
         "description": "Determines if a user has a feature flag enabled. The flagContext contains context used to determine if this flag applies to the logged in user.",
         "consumes": [
@@ -560,7 +560,7 @@ func init() {
           "featureFlags"
         ],
         "summary": "Determines if a user has a feature flag enabled",
-        "operationId": "featureFlagForUser",
+        "operationId": "booleanFeatureFlagForUser",
         "parameters": [
           {
             "type": "string",
@@ -584,9 +584,63 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Feature Flag Status",
+            "description": "Boolean Feature Flag Status",
             "schema": {
-              "$ref": "#/definitions/FeatureFlag"
+              "$ref": "#/definitions/FeatureFlagBoolean"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/feature-flags/user-variant/{key}": {
+      "post": {
+        "description": "Determines if a user has a feature flag enabled. The flagContext contains context used to determine if this flag applies to the logged in user.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "featureFlags"
+        ],
+        "summary": "Determines if a user has a feature flag enabled",
+        "operationId": "variantFeatureFlagForUser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Feature Flag Key",
+            "name": "key",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "context for the feature flag request",
+            "name": "flagContext",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Variant Feature Flag Status",
+            "schema": {
+              "$ref": "#/definitions/FeatureFlagVariant"
             }
           },
           "400": {
@@ -4645,20 +4699,48 @@ func init() {
         }
       }
     },
-    "FeatureFlag": {
+    "FeatureFlagBoolean": {
       "description": "A feature flag",
       "type": "object",
       "required": [
         "entity",
         "key",
         "match",
-        "value",
         "namespace"
       ],
       "properties": {
         "entity": {
           "type": "string",
-          "example": "user@example.com"
+          "example": "11111111-1111-1111-1111-111111111111"
+        },
+        "key": {
+          "type": "string",
+          "example": "flag"
+        },
+        "match": {
+          "type": "boolean",
+          "example": true
+        },
+        "namespace": {
+          "type": "string",
+          "example": "test"
+        }
+      }
+    },
+    "FeatureFlagVariant": {
+      "description": "A feature flag",
+      "type": "object",
+      "required": [
+        "entity",
+        "key",
+        "match",
+        "variant",
+        "namespace"
+      ],
+      "properties": {
+        "entity": {
+          "type": "string",
+          "example": "11111111-1111-1111-1111-111111111111"
         },
         "key": {
           "type": "string",
@@ -4672,7 +4754,7 @@ func init() {
           "type": "string",
           "example": "test"
         },
-        "value": {
+        "variant": {
           "type": "string",
           "example": "myval"
         }
@@ -8839,7 +8921,7 @@ func init() {
         }
       }
     },
-    "/feature-flags/user/{key}": {
+    "/feature-flags/user-boolean/{key}": {
       "post": {
         "description": "Determines if a user has a feature flag enabled. The flagContext contains context used to determine if this flag applies to the logged in user.",
         "consumes": [
@@ -8852,7 +8934,7 @@ func init() {
           "featureFlags"
         ],
         "summary": "Determines if a user has a feature flag enabled",
-        "operationId": "featureFlagForUser",
+        "operationId": "booleanFeatureFlagForUser",
         "parameters": [
           {
             "type": "string",
@@ -8876,9 +8958,63 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Feature Flag Status",
+            "description": "Boolean Feature Flag Status",
             "schema": {
-              "$ref": "#/definitions/FeatureFlag"
+              "$ref": "#/definitions/FeatureFlagBoolean"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/feature-flags/user-variant/{key}": {
+      "post": {
+        "description": "Determines if a user has a feature flag enabled. The flagContext contains context used to determine if this flag applies to the logged in user.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "featureFlags"
+        ],
+        "summary": "Determines if a user has a feature flag enabled",
+        "operationId": "variantFeatureFlagForUser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Feature Flag Key",
+            "name": "key",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "context for the feature flag request",
+            "name": "flagContext",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Variant Feature Flag Status",
+            "schema": {
+              "$ref": "#/definitions/FeatureFlagVariant"
             }
           },
           "400": {
@@ -13366,20 +13502,48 @@ func init() {
         }
       }
     },
-    "FeatureFlag": {
+    "FeatureFlagBoolean": {
       "description": "A feature flag",
       "type": "object",
       "required": [
         "entity",
         "key",
         "match",
-        "value",
         "namespace"
       ],
       "properties": {
         "entity": {
           "type": "string",
-          "example": "user@example.com"
+          "example": "11111111-1111-1111-1111-111111111111"
+        },
+        "key": {
+          "type": "string",
+          "example": "flag"
+        },
+        "match": {
+          "type": "boolean",
+          "example": true
+        },
+        "namespace": {
+          "type": "string",
+          "example": "test"
+        }
+      }
+    },
+    "FeatureFlagVariant": {
+      "description": "A feature flag",
+      "type": "object",
+      "required": [
+        "entity",
+        "key",
+        "match",
+        "variant",
+        "namespace"
+      ],
+      "properties": {
+        "entity": {
+          "type": "string",
+          "example": "11111111-1111-1111-1111-111111111111"
         },
         "key": {
           "type": "string",
@@ -13393,7 +13557,7 @@ func init() {
           "type": "string",
           "example": "test"
         },
-        "value": {
+        "variant": {
           "type": "string",
           "example": "myval"
         }

@@ -8,15 +8,11 @@ x-default-logging: &logging
 
 services:
   flipt:
-    image: flipt/flipt:v1.24.2
+    image: flipt/flipt:v1.25.0
     container_name: flipt
-    command:
-      - "/flipt"
-      - "--config"
-      - "/local/config.yaml"
     restart: unless-stopped
     volumes:
-      - ./config/flipt:/local
+      - ./config/flipt:/etc/flipt
     ports:
       - "9080:8080" # Flipt API and UI
     logging: *logging
