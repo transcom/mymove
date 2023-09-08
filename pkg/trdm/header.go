@@ -20,8 +20,6 @@ type header struct {
 }
 
 type security struct {
-	// ! Text may not be needed here
-	Text                string              `xml:"chardata"`
 	Wsse                string              `xml:"xmlns:wsse,attr"`
 	Wsu                 string              `xml:"xmlns:wsu,attr"`
 	BinarySecurityToken binarySecurityToken `xml:"wsse:BinarySecurityToken"`
