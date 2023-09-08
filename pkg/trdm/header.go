@@ -15,7 +15,7 @@ import (
 )
 
 type header struct {
-	XMLName  xml.Name `xml:"soap:header"`
+	XMLName  xml.Name `xml:"soap:Header"`
 	Security security `xml:"wsse:Security"`
 }
 
@@ -137,6 +137,10 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 	if err != nil {
 		return nil, err
 	}
+	signatureID, err := GenerateSOAPURIWithPrefix("SIG")
+	if err != nil {
+		return nil, err
+	}
 	encodedDigest := digest.FromBytes([]byte(certificate.Raw)).Encoded()
 
 	canonicalized := digest.Canonical.Encode([]byte(certificate.Raw))
@@ -165,8 +169,7 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 				ID:           wsseReferenceURI,
 			},
 			Signature: signature{
-				// ! Update ID value
-				ID: "SignatureID",
+				ID: signatureID,
 				Ds: "http://www.w3.org/2000/09/xmldsig#",
 				SignedInfo: signedInfo{
 					CanonicalizationMethod: canonicalizationMethod{
