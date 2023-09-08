@@ -24,7 +24,7 @@ test.describe('Entire PPM closeout flow', () => {
         totalNetWeight: '2,000 lbs',
         proGearWeight: '2,000 lbs',
         expensesClaimed: '675.99',
-        finalIncentiveAmount: '$31,180.87',
+        finalIncentiveAmount: '$31,184.80',
       });
     });
 
@@ -46,7 +46,7 @@ test.describe('Entire PPM closeout flow', () => {
         totalNetWeight: '2,000 lbs',
         proGearWeight: '500 lbs',
         expensesClaimed: '833.41',
-        finalIncentiveAmount: '$31,180.87',
+        finalIncentiveAmount: '$31,184.80',
       });
     });
 
