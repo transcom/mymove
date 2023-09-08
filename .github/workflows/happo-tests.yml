@@ -23,6 +23,9 @@ jobs:
   happo:
     needs: changes
     if: ${{ needs.changes.outputs.frontend == 'true' }}
+    concurrency:
+      group: happo-${{ github.event.action || 'unknown' }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
