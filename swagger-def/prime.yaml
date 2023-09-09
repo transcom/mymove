@@ -1096,6 +1096,9 @@ paths:
         **Fuel Surcharge** service items require `ActualPickupDate` to be
         updated on the shipment.
 
+        To create a paymentRequest for a SIT Destination Additional Days mtoServiceItem, the SITPaymentRequestStart and
+        SITPaymentRequestEnd dates must not overlap previously requested SIT dates.
+
         To create a paymentRequest for a SIT Delivery mtoServiceItem, the item must
         first have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).
       operationId: createPaymentRequest
