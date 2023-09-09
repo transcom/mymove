@@ -13,7 +13,7 @@ import (
 
 const (
 	ddpTestServiceArea = "006"
-	ddpTestWeight      = 3600
+	ddpTestWeight      = 3700
 )
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationWithServiceItemParamsBadData() {
@@ -62,7 +62,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationWithServiceI
 		paymentServiceItem := suite.setupDomesticDestinationServiceItems()
 
 		cost, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
-		expectedCost := unit.Cents(5470)
+		expectedCost := unit.Cents(5624)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 	})
@@ -110,7 +110,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 			ddpTestServiceArea,
 			isPPM,
 		)
-		expectedCost := unit.Cents(5470)
+		expectedCost := unit.Cents(5624)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 
@@ -135,7 +135,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 			ddpTestServiceArea,
 			isPPM,
 		)
-		expectedCost := unit.Cents(4758)
+		expectedCost := unit.Cents(4884)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 
