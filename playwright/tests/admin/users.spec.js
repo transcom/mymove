@@ -73,7 +73,7 @@ test.describe('Users Details Edit Page', () => {
     // check page content
     const pageContent = [
       'Id',
-      'Login gov email',
+      'Okta email',
       'Active',
       'Revoke admin session',
       'Revoke office session',
