@@ -99,8 +99,8 @@ type signatureMethod struct {
 }
 type timestamp struct {
 	ID      string `xml:"wsu:Id,attr"`
-	Created string `xml:"Created"`
-	Expires string `xml:"Expires"`
+	Created string `xml:"wsu:Created"`
+	Expires string `xml:"wsu:Expires"`
 }
 type signatureValue struct {
 	Text string `xml:",chardata"`
@@ -115,9 +115,7 @@ func GenerateSOAPURIWithPrefix(prefix string) (string, error) {
 	return prefix + "-" + hex.EncodeToString(randBytes), nil
 }
 
-// ! TODO: Ensure the bodyReferenceURI correctly references the body in the envelope. Includes refactoring envelope.
 func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.PrivateKey, bodyReferenceURI string) ([]byte, error) {
-	const certificateID = "X509-CertificateId"
 	const signatureAlgorithm = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512"
 	const digestAlgorithm = "http://www.w3.org/2001/04/xmlenc#sha512"
 	const signatureCanonicalizationMethod = "http://www.w3.org/2001/10/xml-exc-c14n#"
@@ -143,7 +141,7 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 	}
 	encodedDigest := digest.FromBytes([]byte(certificate.Raw)).Encoded()
 
-	canonicalized := digest.Canonical.Encode([]byte(certificate.Raw))
+	canonicalized := digest.Canonical.Encode([]byte("audsufhasdiufuiheruiiuhfhuisdiuhfwhuiuisiuhesiu"))
 
 	msgHash := sha512.New()
 	_, err = msgHash.Write([]byte(canonicalized))
@@ -151,7 +149,6 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 		return nil, err
 	}
 	msgHashSum := msgHash.Sum(nil)
-
 	signedHash, err := privateKey.Sign(rand.Reader, msgHashSum, crypto.SHA512)
 	if err != nil {
 		return nil, err
@@ -203,14 +200,13 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 							},
 						},
 						{
-							// References KeyInfo's wsse:Reference URI
-							URI: wsseReferenceURI,
+							// References the body
+							URI: bodyReferenceURI,
 							Transforms: transforms{
 								Transform: transform{
 									Algorithm: signatureCanonicalizationMethod,
 									InclusiveNamespaces: inclusiveNameSpaces{
-										// Prefix intentionaly left blank
-										PrefixList: "",
+										PrefixList: "ret",
 										Ec:         signatureCanonicalizationMethod,
 									},
 								},
@@ -223,13 +219,14 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 							},
 						},
 						{
-							// References the body
-							URI: bodyReferenceURI,
+							// References KeyInfo's wsse:Reference URI
+							URI: wsseReferenceURI,
 							Transforms: transforms{
 								Transform: transform{
 									Algorithm: signatureCanonicalizationMethod,
 									InclusiveNamespaces: inclusiveNameSpaces{
-										PrefixList: "ret",
+										// Prefix intentionaly left blank
+										PrefixList: "",
 										Ec:         signatureCanonicalizationMethod,
 									},
 								},
@@ -251,7 +248,7 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 					SecurityTokenReference: securityTokenReference{
 						ID: securityTokenReferenceID,
 						STReference: sTReference{
-							URI:       certificateID,
+							URI:       wsseReferenceURI,
 							ValueType: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3",
 						},
 					},
@@ -260,7 +257,7 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 			Timestamp: timestamp{
 				ID:      timestampReferenceID,
 				Created: time.Now().UTC().Format(time.RFC3339),
-				Expires: time.Now().Add(time.Millisecond * 5000).UTC().Format(time.RFC3339),
+				Expires: time.Now().Add(time.Millisecond * 120000).UTC().Format(time.RFC3339),
 			},
 		},
 	}

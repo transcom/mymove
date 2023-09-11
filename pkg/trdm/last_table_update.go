@@ -77,7 +77,7 @@ type GetLastTableUpdateRequestElement struct {
 	XMLName                       xml.Name                      `xml:"soap:Body"`
 	ID                            string                        `xml:"wsu:Id,attr"`
 	Wsu                           string                        `xml:"xmlns:wsu,attr"`
-	LastTableUpdateRequestElement lastTableUpdateRequestElement `xml:"ret:getLastTableUpdateReqElement"`
+	LastTableUpdateRequestElement lastTableUpdateRequestElement `xml:"ret:getLastTableUpdateRequestElement"`
 	soapClient                    SoapCaller
 	securityToken                 *x509.Certificate
 	privateKey                    *rsa.PrivateKey
@@ -103,9 +103,8 @@ func NewTRDMGetLastTableUpdate(physicalName string, bodyID string, securityToken
 				},
 			},
 		},
-		ID:  bodyID,
-		Wsu: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
-
+		ID:            bodyID,
+		Wsu:           "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
 		soapClient:    soapClient,
 		securityToken: securityToken,
 		privateKey:    privateKey,
@@ -131,7 +130,6 @@ func FetchAllTACRecords(appcontext appcontext.AppContext) ([]models.Transportati
 //   - Generates custom soap envelope, soap body, soap header.
 //   - Returns Error
 func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string) error {
-
 	gosoap.SetCustomEnvelope("soapenv", map[string]string{
 		"xmlns:soapenv": "http://www.w3.org/2003/05/soap-envelope",
 		"xmlns:ret":     "http://trdm/ReturnTableService",
@@ -166,6 +164,22 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 		"body":   marshaledBody,
 	}
 
+	// ! This is being utilized because the vscode debugger does not support
+	// ! strings above 64 bytes
+	// Start printing
+	headerStr := string(newParams["header"].([]byte))
+	bodyStr := string(marshaledBody)
+
+	soapEnvelope := fmt.Sprintf(
+		`<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ret="http://trdm/ReturnTableService">
+							%s
+							%s
+					</soap:Envelope>`,
+		headerStr, bodyStr,
+	)
+
+	fmt.Println(soapEnvelope)
+	// End printing
 	err = lastTableUpdateSoapCall(d, newParams, appCtx)
 	if err != nil {
 		return fmt.Errorf("request error: %s", err.Error())
