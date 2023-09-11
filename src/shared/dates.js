@@ -16,6 +16,7 @@ const allowedDateFormats = [
   'DD-MMM-YY',
   'DD MMM YYYY',
   'YYYY-MM-DDTHH:mm:ssZ',
+  'YYYY-MM-DDTHH:mm:ss.SSSZ',
 ];
 
 export function parseDate(str, _format, locale = 'en') {
