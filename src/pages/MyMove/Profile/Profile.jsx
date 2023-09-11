@@ -78,11 +78,11 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
           </SectionWrapper>
           <SectionWrapper className={formStyles.formSection}>
             <OktaInfoDisplay
-              oktaUsername={oktaUser?.username || 'Not Provided'}
+              oktaUsername={oktaUser?.login || 'Not Provided'}
               oktaEmail={oktaUser?.email || 'Not Provided'}
-              oktaFirstName={oktaUser?.first_name || 'Not Provided'}
-              oktaLastName={oktaUser?.last_name || 'Not Provided'}
-              oktaEdipi={oktaUser?.edipi || 'Not Provided'}
+              oktaFirstName={oktaUser?.firstName || 'Not Provided'}
+              oktaLastName={oktaUser?.lastName || 'Not Provided'}
+              oktaEdipi={oktaUser?.cac_edipi || 'Not Provided'}
               editURL={customerRoutes.EDIT_OKTA_PROFILE_PATH}
             />
           </SectionWrapper>

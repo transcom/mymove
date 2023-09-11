@@ -164,10 +164,9 @@ func (op *Provider) RegisterProviders(v *viper.Viper) error {
 
 	// Declare OIDC scopes to be used within the providers
 	scope := []string{"openid", "email", "profile"}
-	customerScope := []string{"openid", "email", "profile", "okta.myAccount.profile.read"}
 
 	// Register customer provider and pull values from env variables
-	err := op.RegisterOktaProvider(MilProviderName, oktaTenantOrgURL, oktaCustomerCallbackURL, oktaCustomerClientID, oktaCustomerSecretKey, customerScope)
+	err := op.RegisterOktaProvider(MilProviderName, oktaTenantOrgURL, oktaCustomerCallbackURL, oktaCustomerClientID, oktaCustomerSecretKey, scope)
 	if err != nil {
 		op.logger.Error("Could not register customer okta provider", zap.Error(err))
 		return err
@@ -269,8 +268,8 @@ func (op *Provider) GetJWKSURL() string {
 func (op *Provider) GetOpenIDConfigURL() string {
 	return op.orgURL + "/oauth2/default/.well-known/openid-configuration"
 }
-func (op *Provider) GetUserURL() string {
-	return op.orgURL + "/idp/myaccount/profile/"
+func (op *Provider) GetUserURL(oktaUserId string) string {
+	return op.orgURL + "/api/v1/users/" + oktaUserId
 }
 
 // TokenURL returns a full URL to retrieve a user token from okta.mil

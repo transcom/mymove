@@ -46,7 +46,7 @@ definitions:
         type: string
         format: string
         example: 1duekdue9ekrjghf
-      username:
+      login:
         type: string
         format: string
         example: user@email.com
@@ -56,13 +56,13 @@ definitions:
         format: x-email
         example: user@email.com
         pattern: '^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-      first_name:
+      firstName:
         type: string
         example: John
-      last_name:
+      lastName:
         type: string
         example: Doe
-      edipi:
+      cac_edipi:
         type: string
         example: '1234567890'
         pattern: '^\d{10}$'

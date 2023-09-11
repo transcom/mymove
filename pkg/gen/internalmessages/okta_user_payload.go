@@ -19,12 +19,12 @@ import (
 // swagger:model OktaUserPayload
 type OktaUserPayload struct {
 
-	// edipi
+	// cac edipi
 	// Example: 1234567890
 	// Max Length: 10
 	// Min Length: 7
 	// Pattern: ^\d{10}$
-	Edipi *string `json:"edipi,omitempty"`
+	CacEdipi *string `json:"cac_edipi,omitempty"`
 
 	// email
 	// Example: user@email.com
@@ -33,27 +33,27 @@ type OktaUserPayload struct {
 
 	// first name
 	// Example: John
-	FirstName string `json:"first_name,omitempty"`
+	FirstName string `json:"firstName,omitempty"`
 
 	// last name
 	// Example: Doe
-	LastName string `json:"last_name,omitempty"`
+	LastName string `json:"lastName,omitempty"`
+
+	// login
+	// Example: user@email.com
+	// Pattern: ^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+	Login string `json:"login,omitempty"`
 
 	// sub
 	// Example: 1duekdue9ekrjghf
 	Sub string `json:"sub,omitempty"`
-
-	// username
-	// Example: user@email.com
-	// Pattern: ^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
-	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this okta user payload
 func (m *OktaUserPayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateEdipi(formats); err != nil {
+	if err := m.validateCacEdipi(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -61,7 +61,7 @@ func (m *OktaUserPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateUsername(formats); err != nil {
+	if err := m.validateLogin(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -71,20 +71,20 @@ func (m *OktaUserPayload) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *OktaUserPayload) validateEdipi(formats strfmt.Registry) error {
-	if swag.IsZero(m.Edipi) { // not required
+func (m *OktaUserPayload) validateCacEdipi(formats strfmt.Registry) error {
+	if swag.IsZero(m.CacEdipi) { // not required
 		return nil
 	}
 
-	if err := validate.MinLength("edipi", "body", *m.Edipi, 7); err != nil {
+	if err := validate.MinLength("cac_edipi", "body", *m.CacEdipi, 7); err != nil {
 		return err
 	}
 
-	if err := validate.MaxLength("edipi", "body", *m.Edipi, 10); err != nil {
+	if err := validate.MaxLength("cac_edipi", "body", *m.CacEdipi, 10); err != nil {
 		return err
 	}
 
-	if err := validate.Pattern("edipi", "body", *m.Edipi, `^\d{10}$`); err != nil {
+	if err := validate.Pattern("cac_edipi", "body", *m.CacEdipi, `^\d{10}$`); err != nil {
 		return err
 	}
 
@@ -103,12 +103,12 @@ func (m *OktaUserPayload) validateEmail(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *OktaUserPayload) validateUsername(formats strfmt.Registry) error {
-	if swag.IsZero(m.Username) { // not required
+func (m *OktaUserPayload) validateLogin(formats strfmt.Registry) error {
+	if swag.IsZero(m.Login) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("username", "body", m.Username, `^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("login", "body", m.Login, `^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
 	}
 

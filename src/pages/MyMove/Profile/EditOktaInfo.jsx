@@ -17,11 +17,11 @@ export const EditOktaInfo = ({ serviceMember, setFlashMessage, oktaUser }) => {
   const [serverError, setServerError] = useState(null);
 
   const initialValues = {
-    oktaUsername: oktaUser?.username || 'Not Provided',
+    oktaUsername: oktaUser?.login || 'Not Provided',
     oktaEmail: oktaUser?.email || 'Not Provided',
-    oktaFirstName: oktaUser?.first_name || 'Not Provided',
-    oktaLastName: oktaUser?.last_name || 'Not Provided',
-    oktaEdipi: oktaUser?.edipi || '',
+    oktaFirstName: oktaUser?.firstName || 'Not Provided',
+    oktaLastName: oktaUser?.lastName || 'Not Provided',
+    oktaEdipi: oktaUser?.cac_edipi || '',
     oktaSub: oktaUser?.sub,
   };
 
@@ -36,34 +36,19 @@ export const EditOktaInfo = ({ serviceMember, setFlashMessage, oktaUser }) => {
     const oktaPayload = {
       profile: {
         id: serviceMember.id,
-        username: values?.oktaUsername,
+        login: values?.oktaUsername,
         email: values?.oktaEmail,
-        first_name: values?.oktaFirstName,
-        last_name: values?.oktaLastName,
-        edipi: values?.oktaEdipi,
-        sub: values?.oktaSub,
+        firstName: values?.oktaFirstName,
+        lastName: values?.oktaLastName,
+        cac_edipi: values?.oktaEdipi,
       },
     };
-    console.log(oktaPayload);
-
-    //! leaving this here for reference when implementing API calls for Okta
-    // return patchOktaProfile(oktaPayload)
-    // .then(updateServiceMember)
-    // .then(() => {
-    //   setFlashMessage('EDIT_CONTACT_INFO_SUCCESS', 'success', "You've updated your information.");
-    //   navigate(customerRoutes.PROFILE_PATH);
-    // })
-    // .catch((e) => {
-    //   const { response } = e;
-    //   const errorMessage = getResponseError(response, 'Failed to update service member due to server error');
-
-    //   setServerError(errorMessage);
-    // });
 
     return updateOktaUser(oktaPayload)
-      .then(() => {
+      .then((response) => {
+        console.log(response);
         setFlashMessage('EDIT_OKTA_PROFILE_SUCCESS', 'success', "You've updated your Okta profile.");
-        // navigate(customerRoutes.PROFILE_PATH);
+        navigate(customerRoutes.PROFILE_PATH);
       })
       .catch((e) => {
         const { response } = e;

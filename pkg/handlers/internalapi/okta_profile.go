@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"os"
+	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/spf13/viper"
@@ -31,11 +31,11 @@ func (h GetOktaProfileHandler) Handle(params oktaop.ShowOktaInfoParams) middlewa
 			oktaUser := appCtx.Session().OktaSessionInfo
 
 			oktaUserPayload := internalmessages.OktaUserPayload{
-				Username:  oktaUser.Username,
+				Login:     oktaUser.Login,
 				Email:     oktaUser.Email,
 				FirstName: oktaUser.FirstName,
 				LastName:  oktaUser.LastName,
-				Edipi:     &oktaUser.Edipi,
+				CacEdipi:  &oktaUser.Edipi,
 				Sub:       oktaUser.Sub,
 			}
 
@@ -64,11 +64,13 @@ func (h UpdateOktaProfileHandler) Handle(params oktaop.UpdateOktaInfoParams) mid
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			// getting okta id of user from session, to be used for api call
-			// oktaUserID := appCtx.Session().OktaSessionInfo.Sub
+			oktaUserID := appCtx.Session().OktaSessionInfo.Sub
+
+			// setting viper so we can access the api key in the env vars
 			v := viper.New()
+			v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+			v.AutomaticEnv()
 			apiKey := v.GetString(cli.OktaApiKeyFlag)
-			a := os.Getenv("OKTA_CUSTOMER_SECRET_KEY")
-			appCtx.Logger().Debug(a)
 
 			// getting okta domain url for post request
 			provider, err := okta.GetOktaProviderForRequest(params.HTTPRequest)
@@ -76,37 +78,60 @@ func (h UpdateOktaProfileHandler) Handle(params oktaop.UpdateOktaInfoParams) mid
 				return nil, err
 			}
 
-			// payload is what is submitted from FE, should contain
-			// {email, username, first_name, last_naame, edipi, sub}
+			// payload is what is submitted from frontend, should contain
+			// {email, login, firstName, lastName, cac_edipi}
 			payload := params.UpdateOktaUserPayload
 
 			// getting the api call url from provider.go
-			baseUrl := provider.GetUserURL()
+			baseUrl := provider.GetUserURL(oktaUserID)
 
 			body, _ := json.Marshal(payload)
 
-			// making HTTP request to Okta Users API
-			req, _ := http.NewRequest("GET", baseUrl, bytes.NewReader([]byte("")))
+			// making HTTP request to Okta Users API to update user
+			// this is done via a POST request for partial profile updates
+			// https://developer.okta.com/docs/reference/api/users/#update-current-user-s-profile
+			req, _ := http.NewRequest("POST", baseUrl, bytes.NewReader(body))
 			h := req.Header
-			h.Add("Authorization", "Bearer "+appCtx.Session().AccessToken)
-			h.Add("Accept", "application/json; okta-version=1.0.0")
-			h.Add("scope", apiKey)
+			h.Add("Authorization", "SSWS "+apiKey)
+			h.Add("Accept", "application/json")
+			h.Add("Content-Type", "application/json")
 
 			client := &http.Client{}
 			resp, err := client.Do(req)
 			if err != nil {
 				appCtx.Logger().Error("could not execute request", zap.Error(err))
 			}
+
 			body, err = io.ReadAll(resp.Body)
 			if err != nil {
 				appCtx.Logger().Error("could not read response body", zap.Error(err))
 			}
+
 			defer resp.Body.Close()
-			err = json.Unmarshal(body, payload)
+
+			err = json.Unmarshal(body, &payload)
 			if err != nil {
 				appCtx.Logger().Error("could not unmarshal body", zap.Error(err))
 			}
 
-			return oktaop.NewUpdateOktaInfoOK().WithPayload(nil), nil
+			// when calling Okta, we have to have the body wrapped in a JSON profile object
+			// here we will take the repsonse and convert it to a struct that doesn't have profile wrap
+			oktaUserPayload := internalmessages.OktaUserPayload{
+				Login:     payload.Profile.Login,
+				Email:     payload.Profile.Email,
+				FirstName: payload.Profile.FirstName,
+				LastName:  payload.Profile.LastName,
+				CacEdipi:  payload.Profile.CacEdipi,
+				Sub:       oktaUserID,
+			}
+
+			// setting app context values to new so frontend can update
+			appCtx.Session().OktaSessionInfo.Login = oktaUserPayload.Login
+			appCtx.Session().OktaSessionInfo.Email = oktaUserPayload.Email
+			appCtx.Session().OktaSessionInfo.FirstName = oktaUserPayload.FirstName
+			appCtx.Session().OktaSessionInfo.LastName = oktaUserPayload.LastName
+			appCtx.Session().OktaSessionInfo.Edipi = *oktaUserPayload.CacEdipi
+
+			return oktaop.NewUpdateOktaInfoOK().WithPayload(&oktaUserPayload), nil
 		})
 }

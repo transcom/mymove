@@ -5735,7 +5735,7 @@ func init() {
     "OktaUserPayload": {
       "type": "object",
       "properties": {
-        "edipi": {
+        "cac_edipi": {
           "type": "string",
           "maxLength": 10,
           "minLength": 7,
@@ -5749,24 +5749,24 @@ func init() {
           "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "example": "user@email.com"
         },
-        "first_name": {
+        "firstName": {
           "type": "string",
           "example": "John"
         },
-        "last_name": {
+        "lastName": {
           "type": "string",
           "example": "Doe"
+        },
+        "login": {
+          "type": "string",
+          "format": "string",
+          "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "user@email.com"
         },
         "sub": {
           "type": "string",
           "format": "string",
           "example": "1duekdue9ekrjghf"
-        },
-        "username": {
-          "type": "string",
-          "format": "string",
-          "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-          "example": "user@email.com"
         }
       }
     },
@@ -14578,7 +14578,7 @@ func init() {
     "OktaUserPayload": {
       "type": "object",
       "properties": {
-        "edipi": {
+        "cac_edipi": {
           "type": "string",
           "maxLength": 10,
           "minLength": 7,
@@ -14592,24 +14592,24 @@ func init() {
           "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "example": "user@email.com"
         },
-        "first_name": {
+        "firstName": {
           "type": "string",
           "example": "John"
         },
-        "last_name": {
+        "lastName": {
           "type": "string",
           "example": "Doe"
+        },
+        "login": {
+          "type": "string",
+          "format": "string",
+          "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "user@email.com"
         },
         "sub": {
           "type": "string",
           "format": "string",
           "example": "1duekdue9ekrjghf"
-        },
-        "username": {
-          "type": "string",
-          "format": "string",
-          "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-          "example": "user@email.com"
         }
       }
     },
