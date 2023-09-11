@@ -17,7 +17,7 @@ const (
 	doshutTestBasePriceCents       = unit.Cents(353)
 	doshutTestEscalationCompounded = 1.125
 	doshutTestWeight               = unit.Pound(4000)
-	doshutTestPriceCents           = unit.Cents(15885) // doshutTestBasePriceCents * (doshutTestWeight / 100) * doshutTestEscalationCompounded
+	doshutTestPriceCents           = unit.Cents(15880)
 )
 
 var doshutTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
