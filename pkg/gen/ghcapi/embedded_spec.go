@@ -8800,6 +8800,11 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "pendingBilledStartDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "pendingSITDaysInvoiced": {
           "type": "integer"
         },
@@ -20056,6 +20061,11 @@ func init() {
     "ShipmentPaymentSITBalance": {
       "properties": {
         "pendingBilledEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "pendingBilledStartDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
