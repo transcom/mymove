@@ -657,7 +657,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 	var loa models.LineOfAccounting
 
 	// If service member is in coast guard, only include items with household goods code 'HS'
-	if *orders.ServiceMember.Affiliation == "COAST GUARD" {
+	if *orders.ServiceMember.Affiliation == models.AffiliationCOASTGUARD {
 		err := appCtx.DB().Q().
 			Join("transportation_accounting_codes t", "t.loa_id = lines_of_accounting.id").
 			Where("t.tac = ?", tac).
