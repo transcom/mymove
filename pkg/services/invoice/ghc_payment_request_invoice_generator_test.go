@@ -1658,9 +1658,14 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		setupTestData()
 
 		// Add TAC/LOA records with fully filled out LOA fields
-		loa := factory.BuildFullLineOfAccounting(nil)
-		loa.LoaBgnDt = &sixMonthsBefore
-		loa.LoaEndDt = &sixMonthsAfter
+		loa := factory.BuildFullLineOfAccounting(nil, []factory.Customization{
+			{
+				Model: models.LineOfAccounting{
+					LoaBgnDt: &sixMonthsBefore,
+					LoaEndDt: &sixMonthsAfter,
+				},
+			}}, nil)
+
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
@@ -1875,15 +1880,19 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 	setupLoaTestData := func() {
 		allLoaHsGdsCds := []string{models.LineOfAccountingHouseholdGoodsCodeCivilian, models.LineOfAccountingHouseholdGoodsCodeEnlisted, models.LineOfAccountingHouseholdGoodsCodeDual, models.LineOfAccountingHouseholdGoodsCodeOfficer, models.LineOfAccountingHouseholdGoodsCodeNTS, models.LineOfAccountingHouseholdGoodsCodeOther}
 		for i := range allLoaHsGdsCds {
-			loa := factory.BuildFullLineOfAccounting(nil)
-			loa.LoaBgnDt = &sixMonthsBefore
-			loa.LoaEndDt = &sixMonthsAfter
-			loa.LoaHsGdsCd = &allLoaHsGdsCds[i]
-			// The LoaDocID is not used in our LOA selection logic, and it appears in the final EDI.
-			// Most of the fields that we use internally to identify or pick the LOA are carried through to the final
-			// EDI. So we can use this LoaDocID field to identify which LOA was used to generate an EDI.
-			// This is a hack. Hopefully there's a better way.
-			loa.LoaDocID = &allLoaHsGdsCds[i]
+			loa := factory.BuildFullLineOfAccounting(nil, []factory.Customization{
+				{
+					Model: models.LineOfAccounting{
+						LoaBgnDt:   &sixMonthsBefore,
+						LoaEndDt:   &sixMonthsAfter,
+						LoaHsGdsCd: &allLoaHsGdsCds[i],
+						// The LoaDocID is not used in our LOA selection logic, and it appears in the final EDI.
+						// Most of the fields that we use internally to identify or pick the LOA are carried through to the final
+						// EDI. So we can use this LoaDocID field to identify which LOA was used to generate an EDI.
+						// This is a hack. Hopefully there's a better way.
+						LoaDocID: &allLoaHsGdsCds[i],
+					},
+				}}, nil)
 
 			factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 				{
@@ -1958,15 +1967,19 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 	}
 
 	setupLOA := func(loahgc string) models.LineOfAccounting {
-		loa := factory.BuildFullLineOfAccounting(nil)
-		loa.LoaBgnDt = &sixMonthsBefore
-		loa.LoaEndDt = &sixMonthsAfter
-		loa.LoaHsGdsCd = &loahgc
-		// The LoaDocID is not used in our LOA selection logic, and it appears in the final EDI.
-		// Most of the fields that we use internally to identify or pick the LOA are carried through to the final
-		// EDI. So we can use this LoaDocID field to identify which LOA was used to generate an EDI.
-		// This is a hack. Hopefully there's a better way.
-		loa.LoaDocID = &loahgc
+		loa := factory.BuildFullLineOfAccounting(nil, []factory.Customization{
+			{
+				Model: models.LineOfAccounting{
+					LoaBgnDt:   &sixMonthsBefore,
+					LoaEndDt:   &sixMonthsAfter,
+					LoaHsGdsCd: &loahgc,
+					// The LoaDocID is not used in our LOA selection logic, and it appears in the final EDI.
+					// Most of the fields that we use internally to identify or pick the LOA are carried through to the final
+					// EDI. So we can use this LoaDocID field to identify which LOA was used to generate an EDI.
+					// This is a hack. Hopefully there's a better way.
+					LoaDocID: &loahgc,
+				},
+			}}, nil)
 
 		return loa
 	}
@@ -2137,11 +2150,19 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 
 		// Create LOA with old datetime (loa_bgn_dt) and civilian code
 		loahgc := models.LineOfAccountingHouseholdGoodsCodeCivilian
-		oldLoa := factory.BuildFullLineOfAccounting(nil)
-		oldLoa.LoaBgnDt = &fiveYearsAgo
-		oldLoa.LoaEndDt = &sixMonthsAfter // Still need to overlap the order issue date to be included
-		oldLoa.LoaHsGdsCd = &loahgc
-		oldLoa.LoaDocID = &loahgc
+		oldLoa := factory.BuildFullLineOfAccounting(nil, []factory.Customization{
+			{
+				Model: models.LineOfAccounting{
+					LoaBgnDt:   &fiveYearsAgo,
+					LoaEndDt:   &sixMonthsAfter,
+					LoaHsGdsCd: &loahgc,
+					// The LoaDocID is not used in our LOA selection logic, and it appears in the final EDI.
+					// Most of the fields that we use internally to identify or pick the LOA are carried through to the final
+					// EDI. So we can use this LoaDocID field to identify which LOA was used to generate an EDI.
+					// This is a hack. Hopefully there's a better way.
+					LoaDocID: &loahgc,
+				},
+			}}, nil)
 
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
