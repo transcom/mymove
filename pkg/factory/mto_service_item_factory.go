@@ -694,6 +694,7 @@ func BuildOriginSITServiceItems(db *pop.Connection, move models.Move, shipment m
 	postalCode := "90210"
 	reason := "peak season all trucks in use"
 	defaultEntryDate := time.Now().AddDate(0, 0, -45)
+	defaultApprovedAtDate := time.Now()
 	if entryDate != nil {
 		defaultEntryDate = *entryDate
 	}
@@ -706,6 +707,8 @@ func BuildOriginSITServiceItems(db *pop.Connection, move models.Move, shipment m
 		{
 			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
+				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},
@@ -724,6 +727,8 @@ func BuildOriginSITServiceItems(db *pop.Connection, move models.Move, shipment m
 		{
 			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
+				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},
@@ -734,6 +739,7 @@ func BuildOriginSITServiceItems(db *pop.Connection, move models.Move, shipment m
 		{
 			Model: models.MTOServiceItem{
 				Status:           models.MTOServiceItemStatusApproved,
+				ApprovedAt:       &defaultApprovedAtDate,
 				SITEntryDate:     &defaultEntryDate,
 				SITDepartureDate: defaultDepartureDate,
 				SITPostalCode:    &postalCode,
@@ -746,6 +752,8 @@ func BuildOriginSITServiceItems(db *pop.Connection, move models.Move, shipment m
 		{
 			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
+				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},
@@ -770,6 +778,7 @@ func BuildDestSITServiceItems(db *pop.Connection, move models.Move, shipment mod
 	postalCode := "90210"
 	reason := "peak season all trucks in use"
 	defaultEntryDate := time.Now().AddDate(0, 0, -45)
+	defaultApprovedAtDate := time.Now()
 	if entryDate != nil {
 		defaultEntryDate = *entryDate
 	}
@@ -782,6 +791,8 @@ func BuildDestSITServiceItems(db *pop.Connection, move models.Move, shipment mod
 		{
 			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
+				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},
@@ -792,6 +803,8 @@ func BuildDestSITServiceItems(db *pop.Connection, move models.Move, shipment mod
 		{
 			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
+				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},
@@ -802,6 +815,7 @@ func BuildDestSITServiceItems(db *pop.Connection, move models.Move, shipment mod
 		{
 			Model: models.MTOServiceItem{
 				Status:           models.MTOServiceItemStatusApproved,
+				ApprovedAt:       &defaultApprovedAtDate,
 				SITEntryDate:     &defaultEntryDate,
 				SITDepartureDate: defaultDepartureDate,
 				SITPostalCode:    &postalCode,
@@ -822,6 +836,8 @@ func BuildDestSITServiceItems(db *pop.Connection, move models.Move, shipment mod
 		{
 			Model: models.MTOServiceItem{
 				Status:        models.MTOServiceItemStatusApproved,
+				ApprovedAt:    &defaultApprovedAtDate,
+				SITEntryDate:  &defaultEntryDate,
 				SITPostalCode: &postalCode,
 				Reason:        &reason,
 			},
