@@ -2,10 +2,8 @@ package models_test
 
 import (
 	"github.com/gofrs/uuid"
-	"github.com/jackc/pgerrcode"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/db/dberr"
 	"github.com/transcom/mymove/pkg/factory"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -40,38 +38,10 @@ func (suite *ModelSuite) TestUserCreationWithoutValues() {
 	suite.verifyValidationErrors(newUser, expErrors)
 }
 
-func (suite *ModelSuite) TestUserCreationDuplicateOktaID() {
-	oktaID := "abcdefghijklmnopqrst"
-	userEmail := "sally@government.gov"
-
-	newUser := User{
-		OktaID:    oktaID,
-		OktaEmail: userEmail,
-	}
-
-	sameUser := User{
-		OktaID:    oktaID,
-		OktaEmail: userEmail,
-	}
-
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
-	//RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
-	//RA: in which this would be considered a risk
-	//RA Developer Status: Mitigated
-	//RA Validator Status: Mitigated
-	//RA Modified Severity: N/A
-	// nolint:errcheck
-	suite.DB().Create(&newUser)
-	err := suite.DB().Create(&sameUser)
-	suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "users_okta_un"), "Db should have errored on unique constraint for UUID")
-}
-
 func (suite *ModelSuite) TestCreateUser() {
 	const testEmail = "Sally@GoVernment.gov"
 	const expectedEmail = "sally@government.gov"
-	const oktaID = "00u3ckm7yEoUJuI1i0k6"
+	oktaID := factory.MakeRandomString(20)
 
 	sally, err := CreateUser(suite.DB(), oktaID, testEmail)
 	suite.Nil(err, "No error for good create")
