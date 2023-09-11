@@ -106,6 +106,44 @@ type signatureValue struct {
 	Text string `xml:",chardata"`
 }
 
+// Generate SHA-512 digest
+func GenerateDigest(data []byte) (string, error) {
+	hasher := sha512.New()
+	_, err := hasher.Write(data)
+	if err != nil {
+		return "", err
+	}
+	hashValue := hasher.Sum(nil)
+	encodedHash := base64.StdEncoding.EncodeToString(hashValue)
+	return encodedHash, nil
+}
+
+// Generate timestamp XML and digest
+func GenerateTimestampAndDigest() ([]byte, string, error) {
+	tsID, err := GenerateSOAPURIWithPrefix("#TS")
+	if err != nil {
+		return nil, "", err
+	}
+	timestamp := timestamp{
+		ID:      tsID,
+		Created: time.Now().UTC().Format(time.RFC3339),
+		// Currently 3 minutes for testing
+		Expires: time.Now().Add(time.Minute * 3).UTC().Format(time.RFC3339),
+	}
+
+	timestampXML, err := xml.Marshal(timestamp)
+	if err != nil {
+		return nil, "", err
+	}
+
+	digest, err := GenerateDigest(timestampXML)
+	if err != nil {
+		return nil, "", err
+	}
+
+	return timestampXML, digest, nil
+}
+
 func GenerateSOAPURIWithPrefix(prefix string) (string, error) {
 	randBytes := make([]byte, 8)
 	_, err := rand.Read(randBytes)
@@ -115,7 +153,7 @@ func GenerateSOAPURIWithPrefix(prefix string) (string, error) {
 	return prefix + "-" + hex.EncodeToString(randBytes), nil
 }
 
-func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.PrivateKey, bodyReferenceURI string) ([]byte, error) {
+func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.PrivateKey, bodyReferenceURI string, bodyXML []byte) ([]byte, error) {
 	const signatureAlgorithm = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512"
 	const digestAlgorithm = "http://www.w3.org/2001/04/xmlenc#sha512"
 	const signatureCanonicalizationMethod = "http://www.w3.org/2001/10/xml-exc-c14n#"
@@ -139,9 +177,20 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 	if err != nil {
 		return nil, err
 	}
-	encodedDigest := digest.FromBytes([]byte(certificate.Raw)).Encoded()
 
-	canonicalized := digest.Canonical.Encode([]byte("audsufhasdiufuiheruiiuhfhuisdiuhfwhuiuisiuhesiu"))
+	_, timestampDigest, err := GenerateTimestampAndDigest()
+	if err != nil {
+		return nil, err
+	}
+
+	bodyDigest, err := GenerateDigest(bodyXML)
+	if err != nil {
+		return nil, err
+	}
+
+	x509EncodedDigest := digest.FromBytes([]byte(certificate.Raw)).Encoded()
+
+	canonicalized := digest.Canonical.Encode([]byte(certificate.Raw))
 
 	msgHash := sha512.New()
 	_, err = msgHash.Write([]byte(canonicalized))
@@ -153,6 +202,20 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 	if err != nil {
 		return nil, err
 	}
+	// publicKey, ok := certificate.PublicKey.(*rsa.PublicKey)
+	// if !ok {
+	// 	return nil, err
+	// }
+
+	// encrypted, err := rsa.EncryptPKCS1v15(rand.Reader, publicKey, msgHashSum)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// decrypted, err := rsa.DecryptPKCS1v15(rand.Reader, privateKey, encrypted)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
 	// canonicalize & sign private key of x509 cert -> use this value for signaturevalue
 
 	securityHeader := header{
@@ -196,7 +259,7 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 								Algorithm: digestAlgorithm,
 							},
 							DigestValue: digestValue{
-								Text: encodedDigest,
+								Text: timestampDigest,
 							},
 						},
 						{
@@ -215,7 +278,7 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 								Algorithm: digestAlgorithm,
 							},
 							DigestValue: digestValue{
-								Text: encodedDigest,
+								Text: bodyDigest,
 							},
 						},
 						{
@@ -235,7 +298,7 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 								Algorithm: digestAlgorithm,
 							},
 							DigestValue: digestValue{
-								Text: encodedDigest,
+								Text: x509EncodedDigest,
 							},
 						},
 					},

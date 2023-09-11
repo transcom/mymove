@@ -155,7 +155,7 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 	if marshalEr != nil {
 		return marshalEr
 	}
-	signedHeader, err := GenerateSignedHeader(d.securityToken, d.privateKey, bodyID)
+	signedHeader, err := GenerateSignedHeader(d.securityToken, d.privateKey, bodyID, marshaledBody)
 	if err != nil {
 		return err
 	}
