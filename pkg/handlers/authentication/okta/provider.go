@@ -91,7 +91,7 @@ func (op *Provider) AuthorizationURL(r *http.Request) (*Data, error) {
 	// Generate a new state that will later be stored in a cookie for auth
 	state := generateNonce()
 
-	// Generate a session rom the provider and state (nonce)
+	// Generate a session from the provider and state (nonce)
 	sess, err := provider.BeginAuth(state)
 	if err != nil {
 		op.logger.Error("Goth begin auth", zap.Error(err))
@@ -106,6 +106,13 @@ func (op *Provider) AuthorizationURL(r *http.Request) (*Data, error) {
 		return nil, err
 	}
 
+	// &client_id=0oa3jalqz3iCyRT9i0k6
+	// &nonce=QGeBBKrwoP5rvNWe0uIAqm4VRzovhukInZPoEv12hxwobirIYupF5pWzQM0mJs8XsjtfojwKJeVM32qP_TxVbA%3D%3D
+	// &redirect_uri=http%3A%2F%2Fmilmovelocal%3A3000%2Fauth%2Fokta%2Fcallback
+	// &response_type=code
+	// &scope=openid+profile+email+okta.users.manage
+	// &state=QGeBBKrwoP5rvNWe0uIAqm4VRzovhukInZPoEv12hxwobirIYupF5pWzQM0mJs8XsjtfojwKJeVM32qP_TxVbA%3D%3D
+
 	// Parse URL
 	authURL, err := url.Parse(baseURL)
 	if err != nil {
@@ -116,7 +123,7 @@ func (op *Provider) AuthorizationURL(r *http.Request) (*Data, error) {
 	params := authURL.Query()
 	// Add the nonce and scope to the URL when getting ready to redirect to the login URL
 	params.Add("nonce", state)
-	params.Set("scope", "openid profile email")
+	params.Set("scope", "openid profile email okta.myAccount.profile.read")
 
 	authURL.RawQuery = params.Encode()
 
@@ -157,9 +164,10 @@ func (op *Provider) RegisterProviders(v *viper.Viper) error {
 
 	// Declare OIDC scopes to be used within the providers
 	scope := []string{"openid", "email", "profile"}
+	customerScope := []string{"openid", "email", "profile", "okta.myAccount.profile.read"}
 
 	// Register customer provider and pull values from env variables
-	err := op.RegisterOktaProvider(MilProviderName, oktaTenantOrgURL, oktaCustomerCallbackURL, oktaCustomerClientID, oktaCustomerSecretKey, scope)
+	err := op.RegisterOktaProvider(MilProviderName, oktaTenantOrgURL, oktaCustomerCallbackURL, oktaCustomerClientID, oktaCustomerSecretKey, customerScope)
 	if err != nil {
 		op.logger.Error("Could not register customer okta provider", zap.Error(err))
 		return err
@@ -261,30 +269,8 @@ func (op *Provider) GetJWKSURL() string {
 func (op *Provider) GetOpenIDConfigURL() string {
 	return op.orgURL + "/oauth2/default/.well-known/openid-configuration"
 }
-func (op *Provider) GetUserURL(profileID string) string {
-	return op.orgURL + "/api/v1/users/" + profileID
-}
-func (op *Provider) GetUserAuthUrl(v *viper.Viper) string {
-	authUrl := op.GetAuthURL()
-	parsedUrl, err := url.Parse(authUrl)
-	if err != nil {
-		op.logger.Error("Parse auth URL", zap.Error(err))
-		return err.Error()
-	}
-	clientID := op.clientID
-	state := generateNonce()
-	params := parsedUrl.Query()
-	// Add the nonce and scope to the URL when getting ready to redirect to the login URL
-	params.Add("client_id", clientID)
-	params.Add("response_type", "code")
-	params.Add("response_mode", "fragment")
-	params.Add("scope", "okta.users.manage")
-	params.Add("redirect_uri", op.callbackURL)
-	params.Add("nonce", state)
-
-	parsedUrl.RawQuery = params.Encode()
-
-	return parsedUrl.String()
+func (op *Provider) GetUserURL() string {
+	return op.orgURL + "/idp/myaccount/profile/"
 }
 
 // TokenURL returns a full URL to retrieve a user token from okta.mil

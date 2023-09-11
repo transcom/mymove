@@ -40,10 +40,11 @@ export const EditOktaInfo = ({ serviceMember, setFlashMessage, oktaUser }) => {
         email: values?.oktaEmail,
         first_name: values?.oktaFirstName,
         last_name: values?.oktaLastName,
-        cac_edipi: values?.oktaEdipi,
+        edipi: values?.oktaEdipi,
         sub: values?.oktaSub,
       },
     };
+    console.log(oktaPayload);
 
     //! leaving this here for reference when implementing API calls for Okta
     // return patchOktaProfile(oktaPayload)

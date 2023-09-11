@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"os"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/spf13/viper"
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/cli"
 	oktaop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/okta_profile"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -62,7 +64,11 @@ func (h UpdateOktaProfileHandler) Handle(params oktaop.UpdateOktaInfoParams) mid
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			// getting okta id of user from session, to be used for api call
-			oktaUserID := appCtx.Session().OktaSessionInfo.Sub
+			// oktaUserID := appCtx.Session().OktaSessionInfo.Sub
+			v := viper.New()
+			apiKey := v.GetString(cli.OktaApiKeyFlag)
+			a := os.Getenv("OKTA_CUSTOMER_SECRET_KEY")
+			appCtx.Logger().Debug(a)
 
 			// getting okta domain url for post request
 			provider, err := okta.GetOktaProviderForRequest(params.HTTPRequest)
@@ -74,18 +80,17 @@ func (h UpdateOktaProfileHandler) Handle(params oktaop.UpdateOktaInfoParams) mid
 			// {email, username, first_name, last_naame, edipi, sub}
 			payload := params.UpdateOktaUserPayload
 
-			test := provider.GetUserAuthUrl(viper.New())
-			appCtx.Logger().Debug(test)
-
 			// getting the api call url from provider.go
-			url := provider.GetUserURL(oktaUserID)
+			baseUrl := provider.GetUserURL()
+
 			body, _ := json.Marshal(payload)
 
 			// making HTTP request to Okta Users API
-			req, _ := http.NewRequest("POST", url, bytes.NewReader(body))
+			req, _ := http.NewRequest("GET", baseUrl, bytes.NewReader([]byte("")))
 			h := req.Header
 			h.Add("Authorization", "Bearer "+appCtx.Session().AccessToken)
-			h.Add("Accept", "application/json")
+			h.Add("Accept", "application/json; okta-version=1.0.0")
+			h.Add("scope", apiKey)
 
 			client := &http.Client{}
 			resp, err := client.Do(req)
