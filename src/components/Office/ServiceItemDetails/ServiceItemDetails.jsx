@@ -20,7 +20,7 @@ function generateDetailText(details, id, className) {
   return detailList;
 }
 
-function generateDestinationSITDetailSection(id, serviceRequestDocUploads, details, additionalDetails) {
+const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, details, code) => {
   const { customerContacts } = details;
   // Below we are using the sortBy func in lodash to sort the customer contacts
   // by the firstAvailableDeliveryDate field. sortBy returns a new
@@ -34,10 +34,17 @@ function generateDestinationSITDetailSection(id, serviceRequestDocUploads, detai
     'First available delivery date 1': '-',
     'Customer contact 1': '-',
   });
+
   return (
     <div>
       <dl>
-        {additionalDetails ? generateDetailText(additionalDetails) : null}
+        {code === 'DDDSIT'
+          ? generateDetailText({
+              'SIT departure date': details.sitDepartureDate
+                ? formatDate(details.sitDepartureDate, 'DD MMM YYYY')
+                : '-',
+            })
+          : null}
         {!isEmpty(sortedCustomerContacts)
           ? sortedCustomerContacts.map((contact, index) => (
               <>
@@ -75,7 +82,7 @@ function generateDestinationSITDetailSection(id, serviceRequestDocUploads, detai
       </dl>
     </div>
   );
-}
+};
 
 const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
   const serviceRequestDocUploads = serviceRequestDocs?.map((doc) => doc.uploads[0]);
@@ -115,22 +122,11 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
       );
       break;
     }
-    case 'DDFSIT': {
-      detailSection = generateDestinationSITDetailSection(id, serviceRequestDocUploads, details);
-      break;
-    }
-    case 'DDASIT': {
-      detailSection = generateDestinationSITDetailSection(id, serviceRequestDocUploads, details);
-      break;
-    }
-    case 'DDDSIT': {
-      detailSection = generateDestinationSITDetailSection(id, serviceRequestDocUploads, details, {
-        'SIT departure date': details.sitDepartureDate ? formatDate(details.sitDepartureDate, 'DD MMM YYYY') : '-',
-      });
-      break;
-    }
+    case 'DDFSIT':
+    case 'DDASIT':
+    case 'DDDSIT':
     case 'DDSFSC': {
-      detailSection = generateDestinationSITDetailSection(id, serviceRequestDocUploads, details);
+      detailSection = generateDestinationSITDetailSection(id, serviceRequestDocUploads, details, code);
       break;
     }
     case 'DCRT':
