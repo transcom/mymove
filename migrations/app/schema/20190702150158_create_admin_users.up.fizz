@@ -17,7 +17,7 @@ add_index("admin_users", "organization_id", {})
 
 sql("
 	INSERT INTO admin_users(id, user_id, role, email, created_at, updated_at)
-	SELECT uuid_generate_v4(), id, 'SYSTEM_ADMIN', login_gov_email, now(), now()
+	SELECT uuid_generate_v4(), id, 'SYSTEM_ADMIN', okta_email, now(), now()
 	FROM users
 	WHERE is_superuser = true
 ")
