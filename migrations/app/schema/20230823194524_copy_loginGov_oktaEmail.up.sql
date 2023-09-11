@@ -1,2 +1,2 @@
 -- commenting this out due to replacement of login_gov_email in previous migration file
-update users set okta_email = login_gov_email;
+--update users set okta_email = login_gov_email;
