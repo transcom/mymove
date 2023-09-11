@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 -- Generated programmatically by load-transportation-offices.py
 
+=======
+>>>>>>> 3394ea313a (Delete parent records for duty_locations being deleted.)
 -- Update the TO
 UPDATE transportation_offices SET name = 'CPPSO Fort Cavazos (HBAT) - USA', gbloc = 'HBAT' WHERE id = 'ba4a9a98-c8a7-4e3b-bf37-064c0b19e78b';
 
