@@ -81,8 +81,13 @@ describe('ServiceItemsTable', () => {
         serviceItem: 'Domestic Crating',
         code: 'DDFSIT',
         details: {
+          sitEntryDate: '2020-12-31',
           customerContacts: [
-            { timeMilitary: '0400Z', firstAvailableDeliveryDate: '2020-12-31', dateOfContact: '2020-12-31' },
+            {
+              timeMilitary: '0400Z',
+              firstAvailableDeliveryDate: '2020-12-31',
+              dateOfContact: '2020-12-31',
+            },
             { timeMilitary: '0800Z', firstAvailableDeliveryDate: '2021-01-01', dateOfContact: '2021-01-01' },
           ],
         },
@@ -99,6 +104,8 @@ describe('ServiceItemsTable', () => {
 
     expect(wrapper.find('table').exists()).toBe(true);
 
+    expect(wrapper.find('dt').at(0).text()).toBe('SIT entry date:');
+    expect(wrapper.find('dd').at(0).text()).toBe('31 Dec 2020');
     expect(wrapper.find('dt').at(1).text()).toBe('First available delivery date 1:');
     expect(wrapper.find('dd').at(1).text()).toBe('31 Dec 2020');
     expect(wrapper.find('dt').at(2).text()).toBe('Customer contact attempt 1:');
