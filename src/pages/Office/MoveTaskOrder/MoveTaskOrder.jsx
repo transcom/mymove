@@ -165,6 +165,7 @@ export const MoveTaskOrder = (props) => {
         estimatedWeight: item.estimatedWeight,
         rejectionReason: item.rejectionReason,
         sitDepartureDate: item.sitDepartureDate,
+        sitEntryDate: item.sitEntryDate,
       };
 
       if (serviceItemsForShipment[`${newItem.mtoShipmentID}`]) {

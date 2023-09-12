@@ -45,6 +45,12 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                 : '-',
             })
           : null}
+        {code === 'DDFSIT'
+          ? generateDetailText({
+              'SIT entry date': details.sitEntryDate ? formatDate(details.sitEntryDate, 'DD MMM YYYY') : '-',
+            })
+          : null}
+
         {!isEmpty(sortedCustomerContacts)
           ? sortedCustomerContacts.map((contact, index) => (
               <>
