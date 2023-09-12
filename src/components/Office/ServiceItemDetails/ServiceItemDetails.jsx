@@ -122,6 +122,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
       );
       break;
     }
+
     case 'DDFSIT':
     case 'DDASIT':
     case 'DDDSIT':
