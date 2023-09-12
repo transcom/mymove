@@ -164,7 +164,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 		{
 			paymentRequest: &oldPaymentRequest,
 			serviceCode:    models.ReServiceCodeDLH,
-			priceCents:     unit.Cents(281402),
+			priceCents:     unit.Cents(279407),
 			paramsToCheck: []paramMap{
 				{models.ServiceItemParamNameWeightOriginal, strTestOriginalWeight},
 				{models.ServiceItemParamNameWeightBilled, strTestOriginalWeight},
@@ -182,7 +182,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 		{
 			paymentRequest: &oldPaymentRequest,
 			serviceCode:    models.ReServiceCodeDOASIT,
-			priceCents:     unit.Cents(254640),
+			priceCents:     unit.Cents(254910),
 			paramsToCheck: []paramMap{
 				{models.ServiceItemParamNameWeightOriginal, strTestOriginalWeight},
 				{models.ServiceItemParamNameWeightBilled, strTestOriginalWeight},
@@ -208,7 +208,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 			isNewPaymentRequest: true,
 			paymentRequest:      newPaymentRequest,
 			serviceCode:         models.ReServiceCodeDLH,
-			priceCents:          unit.Cents(262909),
+			priceCents:          unit.Cents(261045),
 			paramsToCheck: []paramMap{
 				{models.ServiceItemParamNameWeightOriginal, strTestChangedOriginalWeight},
 				{models.ServiceItemParamNameWeightBilled, strTestChangedOriginalWeight},
@@ -228,7 +228,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 			isNewPaymentRequest: true,
 			paymentRequest:      newPaymentRequest,
 			serviceCode:         models.ReServiceCodeDOASIT,
-			priceCents:          unit.Cents(237920), // Price same as before since new weight still in same weight bracket
+			priceCents:          unit.Cents(238158), // Price same as before since new weight still in same weight bracket
 			paramsToCheck: []paramMap{
 				{models.ServiceItemParamNameWeightOriginal, strTestChangedOriginalWeight},
 				{models.ServiceItemParamNameWeightBilled, strTestChangedOriginalWeight},
@@ -522,7 +522,14 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 	}
 
 	// DOASIT
-	mtoServiceItemDOASIT := factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDOASIT, moveTaskOrder, moveTaskOrder.MTOShipments[0], nil, nil)
+	mtoServiceItemDOASIT := factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDOASIT, moveTaskOrder, moveTaskOrder.MTOShipments[0],
+		[]factory.Customization{
+			{
+				Model:    pickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITOriginHHGOriginalAddress,
+			},
+		}, nil)
 	mtoServiceItemDOASIT.SITEntryDate = &recalculateSITEntryDate
 	suite.MustSave(&mtoServiceItemDOASIT)
 

@@ -46,7 +46,7 @@ describe('ServiceItemsTable', () => {
     const serviceItems = [
       {
         id: 'abc123',
-        submittedAt: '2020-11-20',
+        createdAt: '2020-11-20',
         serviceItem: 'Domestic Crating',
         code: 'DCRT',
         details: {
@@ -65,6 +65,7 @@ describe('ServiceItemsTable', () => {
       />,
     );
 
+    expect(wrapper.find('td').at(0).text()).toContain('Date requested: 20 Nov 2020');
     expect(wrapper.find('dt').at(0).text()).toBe('Description:');
     expect(wrapper.find('dd').at(0).text()).toBe('grandfather clock');
     expect(wrapper.find('dt').at(1).text()).toBe('Item size:');
@@ -77,7 +78,7 @@ describe('ServiceItemsTable', () => {
     const serviceItems = [
       {
         id: 'abc123',
-        submittedAt: '2020-11-20',
+        createdAt: '2020-11-20',
         serviceItem: 'Domestic Crating',
         code: 'DDFSIT',
         details: {
@@ -98,6 +99,7 @@ describe('ServiceItemsTable', () => {
     );
 
     expect(wrapper.find('table').exists()).toBe(true);
+    expect(wrapper.find('td').at(0).text()).toContain('Date requested: 20 Nov 2020');
     expect(wrapper.find('dt').at(0).text()).toBe('First available delivery date 1:');
     expect(wrapper.find('dd').at(0).text()).toBe('31 Dec 2020');
     expect(wrapper.find('dt').at(1).text()).toBe('Customer contact attempt 1:');
@@ -235,7 +237,7 @@ describe('ServiceItemsTable', () => {
       {
         id: 'abc123',
         mtoShipmentID: 'xyz789',
-        submittedAt: '2020-11-20',
+        createdAt: '2020-11-20',
         serviceItem: 'Domestic destination SIT delivery',
         code: 'DDDSIT',
         sitAddressUpdates: [
@@ -267,7 +269,8 @@ describe('ServiceItemsTable', () => {
       {
         id: 'abc123',
         mtoShipmentID: 'xyz789',
-        submittedAt: '2020-11-20',
+        createdAt: '2020-11-20',
+        approvedAt: '2020-11-21',
         serviceItem: 'Domestic destination SIT delivery',
         code: 'DDDSIT',
         sitAddressUpdates: [
@@ -302,6 +305,7 @@ describe('ServiceItemsTable', () => {
     );
 
     expect(wrapper.find('[data-testid="serviceItemAddressUpdateAlert"]').exists()).toBe(true);
+    expect(wrapper.find('td').at(1).text()).toContain('Date approved: 21 Nov 2020');
   });
 
   it('properly displays service item table tag for rejected address update', () => {
@@ -309,7 +313,8 @@ describe('ServiceItemsTable', () => {
       {
         id: 'abc123',
         mtoShipmentID: 'xyz789',
-        submittedAt: '2020-11-20',
+        createdAt: '2020-11-20',
+        rejectedAt: '2020-11-21',
         serviceItem: 'Domestic destination SIT delivery',
         code: 'DDDSIT',
         sitAddressUpdates: [
@@ -613,7 +618,8 @@ describe('ServiceItemsTable', () => {
       {
         id: 'abc123',
         mtoShipmentID: 'xyz789',
-        submittedAt: '2020-11-20',
+        createdAt: '2020-11-20',
+        rejectedAt: '2020-11-21',
         serviceItem: 'Domestic destination SIT delivery',
         code: 'DDDSIT',
       },
@@ -635,6 +641,7 @@ describe('ServiceItemsTable', () => {
 
     expect(approveTextButton.at(0).find('svg[data-icon="check"]').length).toBe(1);
     expect(approveTextButton.at(0).contains('Approve')).toBe(true);
+    expect(wrapper.find('td').at(0).text()).toContain('Date rejected: 21 Nov 2020');
   });
 
   it('calls the handleUpdateMTOServiceItemStatus handler when the Approve text button is clicked', () => {
