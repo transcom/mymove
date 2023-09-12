@@ -30,7 +30,7 @@ def handle_aliases(aliases, id):
 
 # takes a duty_location id and deletes all of its recursive parent records with an FK constraint
 # this is done considering that any existing records in these tables are safe to delete, and is not necessarily a model for future duty location updates
-def delete_dl_and_parents(id):
+def delete_dl_and_parents(dl_id):
     for t in [
         "archived_move_documents",
         "archived_signed_certifications",
@@ -45,28 +45,21 @@ def delete_dl_and_parents(id):
         "webhook_notifications",
     ]:
         f.write(
-            f"DELETE from {t} where move_id = (SELECT id from moves where orders_id = (SELECT id from orders where origin_duty_location_id = '{dl_id}' or new_duty_location_id = '{dl_id}'));\n"
+            f"DELETE from {t} where move_id = (SELECT id from moves where orders_id = (SELECT id from orders where origin_duty_location_id = {dl_id} or new_duty_location_id = {dl_id}));\n"
         )
     f.write(
-        f"DELETE from moves where orders_id = (SELECT id from orders where origin_duty_location_id = '{dl_id}' or new_duty_location_id = '{dl_id}');\n"
+        f"DELETE from moves where orders_id = (SELECT id from orders where origin_duty_location_id = {dl_id} or new_duty_location_id = {dl_id});\n"
     )
     f.write(
-        f"DELETE from orders where origin_duty_location_id = '{dl_id}' or new_duty_location_id = '{dl_id}';\n"
+        f"DELETE from orders where origin_duty_location_id = {dl_id} or new_duty_location_id = {dl_id};\n"
     )
     for t in ["documents", "archived_access_codes", "notifications"]:
         f.write(
-            f"DELETE from {t} where service_member_id = (SELECT id from service_members where duty_location_id = '{dl_id}');\n"
+            f"DELETE from {t} where service_member_id = (SELECT id from service_members where duty_location_id = {dl_id});\n"
         )
-    f.write(f"DELETE from service_members where duty_location_id = '{dl_id}';\n")
-    f.write(f"DELETE from duty_location_names where duty_location_id = '{dl_id}';\n")
-    f.write(f"DELETE from duty_locations where id = '{dl_id}';\n\n")
-
-
-for delete in deletes:
-    # e.g. "Adak, AK 99546",
-    f.write(f"--DELETE\n")
-    dl_id = delete[1]
-    delete_dl_and_parents(dl_id)
+    f.write(f"DELETE from service_members where duty_location_id = {dl_id};\n")
+    f.write(f"DELETE from duty_location_names where duty_location_id = {dl_id};\n")
+    f.write(f"DELETE from duty_locations where id = {dl_id};\n\n")
 
 
 for rename in renames:
@@ -74,6 +67,12 @@ for rename in renames:
     f.write(
         f"UPDATE duty_locations SET name = '{rename[1]}' WHERE name = '{rename[0]}';\n\n"
     )
+
+for delete in deletes:
+    # e.g. "Adak, AK 99546",
+    f.write(f"--DELETE\n")
+    dl_id = delete[1]
+    delete_dl_and_parents(f"'{dl_id}'")
 
 for new in news:
     (
