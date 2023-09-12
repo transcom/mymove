@@ -1,3 +1,4 @@
+// @ts-check
 import { BatchOtelExporter } from './batchOtelExporter';
 
 // As for 2023-03-03 opentelemetry logging is still in development
@@ -6,8 +7,8 @@ import { BatchOtelExporter } from './batchOtelExporter';
 // Implement a logger that will upload
 export class OtelLogger {
   /**
-     @private
-     @type {import('./batchOtelExporter').BatchOtelExporter}
+   * @private
+   * @type {import('./batchOtelExporter').BatchOtelExporter}
    */
   exporter;
 
@@ -27,7 +28,6 @@ export class OtelLogger {
    *   between two consecutive imports
    * @param {number} [options.exportTimeoutMillis=10000] How log the
    *   export can run before it is cancelled
-   * @returns {import{'@opentelemetry/api').DiagLogger}
    */
   constructor(app, options = {}) {
     // keep exporter hidden so the only exposed API are the log functions

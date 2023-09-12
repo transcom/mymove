@@ -1,3 +1,4 @@
+// @ts-check
 // use the diag logger from opentelemetry
 // This uses the logger configured via `diag.setLogger`, otherwise
 // calls to diag are noops
