@@ -33,7 +33,7 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		defaultUser := models.User{
 			OktaEmail: "first.last@okta.mil",
 
-			Active:    false,
+			Active: false,
 		}
 
 		// CALL FUNCTION UNDER TEST

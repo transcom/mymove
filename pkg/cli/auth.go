@@ -25,7 +25,16 @@ const (
 	ClientAuthSecretKeyFlag string = "client-auth-secret-key"
 
 	// Okta API key flag
-	OktaApiKeyFlag string = "okta-api-key"
+	//RA Summary: gosec - G101 - Password Management: Hardcoded Password
+	//RA: This line was flagged because of use of the word "secret"
+	//RA: This line is used to identify the name of the flag. OktaApiKeyFlag is the Okta API Key Flag.
+	//RA: This value of this variable does not store an application secret.
+	//RA Developer Status:
+	//RA Validator Status:
+	//RA Validator:
+	//RA Modified Severity:
+	// #nosec G101
+	OktaAPIKeyFlag string = "okta-api-key"
 
 	// Okta flags for local development environment that serves test-milmove.okta.mil
 	// Okta tenant flags
@@ -92,7 +101,7 @@ func (e *errInvalidClientID) Error() string {
 // InitAuthFlags initializes Auth command line flags
 func InitAuthFlags(flag *pflag.FlagSet) {
 	flag.String(ClientAuthSecretKeyFlag, "", "Client auth secret JWT key.")
-	flag.String(OktaApiKeyFlag, "", "The api key for updating okta values in MilMove.")
+	flag.String(OktaAPIKeyFlag, "", "The api key for updating okta values in MilMove.")
 
 	flag.String(OktaTenantOrgURLFlag, "", "Okta tenant org URL.")
 	flag.Int(OktaTenantCallbackPortFlag, 443, "The port for callback URLs.")
@@ -123,7 +132,7 @@ func CheckAuth(v *viper.Viper) error {
 		OktaCustomerClientIDFlag,
 		OktaOfficeClientIDFlag,
 		OktaAdminClientIDFlag,
-		OktaApiKeyFlag,
+		OktaAPIKeyFlag,
 	}
 
 	secretKeyVars := []string{

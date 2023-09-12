@@ -46,13 +46,11 @@ definitions:
       login:
         type: string
         format: x-email
-        format: string
         example: user@email.com
         pattern: '^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
       email:
         type: string
         format: x-email
-        format: string
         example: user@email.com
         pattern: '^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
       firstName:
@@ -68,7 +66,7 @@ definitions:
         minLength: 7
         maxLength: 10
         x-nullable: true
-    UpdateOktaUserPayload:
+  UpdateOktaUserPayload:
     type: object
     properties:
       profile:
@@ -5074,8 +5072,8 @@ paths:
           $ref: '#/responses/ServerError'
   /okta-profile:
     get:
-      summary: Returns the given service member's okta profile data
-      description: Returns the okta profile data for service member that is logged in
+      summary: Returns Okta profile values from Okta's Users API
+      description: Calls a GET request to Okta's Users API and returns profile values
       operationId: showOktaInfo
       tags:
         - okta_profile
@@ -5095,8 +5093,8 @@ paths:
         '500':
           description: internal server error
     post:
-      summary: Update the user's okta profile
-      description: Updates the okta email, first & last name, and edipi
+      summary: Update the user's okta profile, returns Okta profile values from Okta's Users API
+      description: Calls a POST request to Okta's Users API and updates provided fields
       operationId: updateOktaInfo
       tags:
         - okta_profile

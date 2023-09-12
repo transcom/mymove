@@ -268,8 +268,8 @@ func (op *Provider) GetJWKSURL() string {
 func (op *Provider) GetOpenIDConfigURL() string {
 	return op.orgURL + "/oauth2/default/.well-known/openid-configuration"
 }
-func (op *Provider) GetUserURL(oktaUserId string) string {
-	return op.orgURL + "/api/v1/users/" + oktaUserId
+func (op *Provider) GetUserURL(oktaUserID string) string {
+	return op.orgURL + "/api/v1/users/" + oktaUserID
 }
 
 // TokenURL returns a full URL to retrieve a user token from okta.mil

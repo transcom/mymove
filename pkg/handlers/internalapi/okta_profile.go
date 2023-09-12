@@ -9,13 +9,14 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 	oktaop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/okta_profile"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
-	"go.uber.org/zap"
 )
 
 // GetOktaProfileHandler gets Okta Profile via GET /okta-profile
@@ -23,7 +24,8 @@ type GetOktaProfileHandler struct {
 	handlers.HandlerConfig
 }
 
-// Handle retrieves a service member in the system belonging to the logged in user given service member ID
+// Handle performs a GET request from Okta API, returns values in profile object from response
+// Could  not use data from sessions since access token data does not change when profile is updated
 func (h GetOktaProfileHandler) Handle(params oktaop.ShowOktaInfoParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
@@ -35,7 +37,7 @@ func (h GetOktaProfileHandler) Handle(params oktaop.ShowOktaInfoParams) middlewa
 			v := viper.New()
 			v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 			v.AutomaticEnv()
-			apiKey := v.GetString(cli.OktaApiKeyFlag)
+			apiKey := v.GetString(cli.OktaAPIKeyFlag)
 
 			// getting okta domain url for request
 			provider, err := okta.GetOktaProviderForRequest(params.HTTPRequest)
@@ -43,18 +45,17 @@ func (h GetOktaProfileHandler) Handle(params oktaop.ShowOktaInfoParams) middlewa
 				return nil, err
 			}
 
-			// need to pull this payload since it is wrapped in a profile object
+			// need to pull this payload since it is wrapped in a profile object so resp
+			// body can populate accurately
 			user := internalmessages.UpdateOktaUserPayload{}
 
 			// getting the api call url from provider.go
-			baseUrl := provider.GetUserURL(oktaUserID)
-
-			body, _ := json.Marshal(user)
+			baseURL := provider.GetUserURL(oktaUserID)
 
 			// making HTTP request to Okta Users API to update user
 			// this is done via a POST request for partial profile updates
 			// https://developer.okta.com/docs/reference/api/users/#update-current-user-s-profile
-			req, _ := http.NewRequest("GET", baseUrl, bytes.NewReader([]byte("")))
+			req, _ := http.NewRequest("GET", baseURL, bytes.NewReader([]byte("")))
 			h := req.Header
 			h.Add("Authorization", "SSWS "+apiKey)
 			h.Add("Accept", "application/json")
@@ -66,7 +67,7 @@ func (h GetOktaProfileHandler) Handle(params oktaop.ShowOktaInfoParams) middlewa
 				appCtx.Logger().Error("could not execute request", zap.Error(err))
 			}
 
-			body, err = io.ReadAll(resp.Body)
+			body, err := io.ReadAll(resp.Body)
 			if err != nil {
 				appCtx.Logger().Error("could not read response body", zap.Error(err))
 			}
@@ -78,6 +79,9 @@ func (h GetOktaProfileHandler) Handle(params oktaop.ShowOktaInfoParams) middlewa
 				appCtx.Logger().Error("could not unmarshal body", zap.Error(err))
 			}
 
+			// the return value has to be of type OktaUserPayload
+			// our initial objet was of type UpdateOktaUserPayload, so needs to be changed
+			// OktaUserPayload is not wrapped in a profile object
 			oktaUserPayload := internalmessages.OktaUserPayload{
 				Login:     user.Profile.Login,
 				Email:     user.Profile.Email,
@@ -113,7 +117,7 @@ func (h UpdateOktaProfileHandler) Handle(params oktaop.UpdateOktaInfoParams) mid
 			v := viper.New()
 			v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 			v.AutomaticEnv()
-			apiKey := v.GetString(cli.OktaApiKeyFlag)
+			apiKey := v.GetString(cli.OktaAPIKeyFlag)
 
 			// getting okta domain url for post request
 			provider, err := okta.GetOktaProviderForRequest(params.HTTPRequest)
@@ -126,14 +130,14 @@ func (h UpdateOktaProfileHandler) Handle(params oktaop.UpdateOktaInfoParams) mid
 			payload := params.UpdateOktaUserPayload
 
 			// getting the api call url from provider.go
-			baseUrl := provider.GetUserURL(oktaUserID)
+			baseURL := provider.GetUserURL(oktaUserID)
 
 			body, _ := json.Marshal(payload)
 
 			// making HTTP request to Okta Users API to update user
 			// this is done via a POST request for partial profile updates
 			// https://developer.okta.com/docs/reference/api/users/#update-current-user-s-profile
-			req, _ := http.NewRequest("POST", baseUrl, bytes.NewReader(body))
+			req, _ := http.NewRequest("POST", baseURL, bytes.NewReader(body))
 			h := req.Header
 			h.Add("Authorization", "SSWS "+apiKey)
 			h.Add("Accept", "application/json")
@@ -174,13 +178,6 @@ func (h UpdateOktaProfileHandler) Handle(params oktaop.UpdateOktaInfoParams) mid
 			appCtx.Session().OktaSessionInfo.FirstName = oktaUserPayload.FirstName
 			appCtx.Session().OktaSessionInfo.LastName = oktaUserPayload.LastName
 			appCtx.Session().OktaSessionInfo.Edipi = *oktaUserPayload.CacEdipi
-
-			appCtx.Logger().Debug("API POST request return values to session")
-			appCtx.Logger().Debug(appCtx.Session().OktaSessionInfo.Login)
-			appCtx.Logger().Debug(appCtx.Session().OktaSessionInfo.Email)
-			appCtx.Logger().Debug(appCtx.Session().OktaSessionInfo.FirstName)
-			appCtx.Logger().Debug(appCtx.Session().OktaSessionInfo.LastName)
-			appCtx.Logger().Debug(appCtx.Session().OktaSessionInfo.Edipi)
 
 			return oktaop.NewUpdateOktaInfoOK().WithPayload(&oktaUserPayload), nil
 		})

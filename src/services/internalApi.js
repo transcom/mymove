@@ -91,7 +91,6 @@ export async function getOktaUser() {
   return makeInternalRequest('okta_profile.showOktaInfo');
 }
 
-// TODO implement patch function when user updates their Okta profile
 export async function updateOktaUser(oktaUser) {
   return makeInternalRequest(
     'okta_profile.updateOktaInfo',

@@ -15,8 +15,7 @@ jest.mock('react-router-dom', () => ({
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
-  patchBackupContact: jest.fn(),
-  patchServiceMember: jest.fn(),
+  updateOktaUser: jest.fn(),
 }));
 
 beforeEach(() => {
@@ -25,7 +24,7 @@ beforeEach(() => {
 
 describe('EditOktaInfo page', () => {
   const testProps = {
-    oktaInfo: {
+    oktaUser: {
       id: 'testServiceMemberID',
       oktaUsername: 'test@okta.mil',
       oktaEmail: 'test@okta.mil',
@@ -33,7 +32,11 @@ describe('EditOktaInfo page', () => {
       oktaLastName: 'Dunk',
       oktaEdipi: '1234123412',
     },
+    serviceMember: {
+      id: 'testServiceMemberId',
+    },
     setFlashMessage: jest.fn(),
+    updateOktaUser: jest.fn(),
   };
 
   it('renders the EditOktaInfo form', async () => {
