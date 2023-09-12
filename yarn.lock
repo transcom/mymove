@@ -4022,7 +4022,7 @@
   dependencies:
     "@opentelemetry/semantic-conventions" "1.15.1"
 
-"@opentelemetry/core@1.17.0", "@opentelemetry/core@^1.17.0":
+"@opentelemetry/core@1.17.0", "@opentelemetry/core@^1.0.0", "@opentelemetry/core@^1.17.0":
   version "1.17.0"
   resolved "https://registry.yarnpkg.com/@opentelemetry/core/-/core-1.17.0.tgz#6a72425f5f953dc68b4c7c66d947c018173d30d2"
   integrity sha512-tfnl3h+UefCgx1aeN2xtrmr6BmdWGKXypk0pflQR0urFS40aE88trnkOMc2HTJZbMrqEEl4HsaBeFhwLVXsrJg==
@@ -4039,6 +4039,13 @@
     "@opentelemetry/otlp-transformer" "0.43.0"
     "@opentelemetry/resources" "1.17.0"
     "@opentelemetry/sdk-trace-base" "1.17.0"
+
+"@opentelemetry/id-generator-aws-xray@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/id-generator-aws-xray/-/id-generator-aws-xray-1.2.1.tgz#6988ae621acdb618394fa0e6250e7a7cbc4280ec"
+  integrity sha512-C3CkZuIquW+mb6/nBAW81CPkAVFIOarPorLr7dghiGLN4ksDUaSRHNg2PJhGMRy2SsJknOq/oluW0IvO4Z1BzQ==
+  dependencies:
+    "@opentelemetry/core" "^1.0.0"
 
 "@opentelemetry/instrumentation-document-load@^0.33.1":
   version "0.33.1"

@@ -10,6 +10,7 @@
     "@opentelemetry/context-zone": "^1.17.0",
     "@opentelemetry/core": "^1.17.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.43.0",
+    "@opentelemetry/id-generator-aws-xray": "^1.2.1",
     "@opentelemetry/instrumentation": "^0.43.0",
     "@opentelemetry/instrumentation-document-load": "^0.33.1",
     "@opentelemetry/instrumentation-fetch": "^0.43.0",

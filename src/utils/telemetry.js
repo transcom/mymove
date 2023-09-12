@@ -10,11 +10,12 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { DocumentLoadInstrumentation } from '@opentelemetry/instrumentation-document-load';
 import { FetchInstrumentation } from '@opentelemetry/instrumentation-fetch';
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
+import { AWSXRayIdGenerator } from '@opentelemetry/id-generator-aws-xray';
 import { useEffect } from 'react';
 import { createRoutesFromElements, matchRoutes, useLocation, useNavigationType } from 'react-router-dom';
 
 import { configureOtelRoutes, OtelRouteContextManager } from 'components/ThirdParty/OtelRoutes';
-import { gitBranch, gitSha, isTelemetryEnabled, serviceName } from 'shared/constants';
+import { gitBranch, gitSha, isTelemetryEnabled, serviceName, useXRayId } from 'shared/constants';
 
 const serviceVersion = `${gitSha}@${gitBranch}`;
 
@@ -38,12 +39,18 @@ export function configureTelemetry() {
   // Trace provider (Main application trace)
 
   if (isTelemetryEnabled) {
-    const provider = new WebTracerProvider({
+    /** @type {import('@opentelemetry/sdk-trace-web').TracerConfig} */
+    const tracerConfig = {
       resource: new Resource({
         [SemanticResourceAttributes.SERVICE_NAME]: serviceName(),
         [SemanticResourceAttributes.SERVICE_VERSION]: serviceVersion,
       }),
-    });
+    };
+
+    if (useXRayId) {
+      tracerConfig.idGenerator = new AWSXRayIdGenerator();
+    }
+    const provider = new WebTracerProvider(tracerConfig);
 
     // from https://www.npmjs.com/package/@opentelemetry/exporter-trace-otlp-http
     provider.addSpanProcessor(
