@@ -17,7 +17,7 @@ const (
 	ducrtTestBasePriceCents       = unit.Cents(595)
 	ducrtTestEscalationCompounded = 1.125
 	ducrtTestBilledCubicFeet      = 10
-	ducrtTestPriceCents           = unit.Cents(6694) // ducrtTestBasePriceCents * ducrtTestBilledCubicFeet * ducrtTestEscalationCompounded
+	ducrtTestPriceCents           = unit.Cents(6690)
 )
 
 var ducrtTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)

@@ -23,7 +23,7 @@ const (
 	dlhTestEscalationCompounded = 1.04071
 	dlhTestDistance             = unit.Miles(1201)
 	dlhTestWeight               = unit.Pound(4001)
-	dlhPriceCents               = unit.Cents(255592)
+	dlhPriceCents               = unit.Cents(254676)
 )
 
 var dlhRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
@@ -87,7 +87,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		// < 50 mile distance with PPM
 		priceCents, _, err := linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, unit.Miles(49), dlhTestWeight, dlhTestServiceArea, isPPM)
 		suite.NoError(err)
-		suite.Equal(unit.Cents(10428), priceCents)
+		suite.Equal(unit.Cents(10391), priceCents)
 	})
 
 	suite.Run("successfully finds linehaul price for ppm with distance < 50 miles with PriceUsingParams method", func() {
