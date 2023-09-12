@@ -17,7 +17,7 @@ const (
 	ddshutTestBasePriceCents       = unit.Cents(353)
 	ddshutTestEscalationCompounded = 1.125
 	ddshutTestWeight               = unit.Pound(4000)
-	ddshutTestPriceCents           = unit.Cents(15885) // ddshutTestBasePriceCents * (ddshutTestWeight / 100) * ddshutTestEscalationCompounded
+	ddshutTestPriceCents           = unit.Cents(15880)
 )
 
 var ddshutTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)

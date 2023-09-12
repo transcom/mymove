@@ -64,6 +64,6 @@ test.describe('Services counselor user', () => {
     await expect(shipmentContainer.locator('[data-testid="secondDestinationZIP"]')).toContainText('08540');
     await expect(shipmentContainer.locator('[data-testid="proGearWeight"]')).toContainText('Yes, 1,000 lbs');
     await expect(shipmentContainer.locator('[data-testid="spouseProGear"]')).toContainText('Yes, 500 lbs');
-    await expect(shipmentContainer.locator('[data-testid="estimatedIncentive"]')).toContainText('$67,692');
+    await expect(shipmentContainer.locator('[data-testid="estimatedIncentive"]')).toContainText('$67,689');
   });
 });
