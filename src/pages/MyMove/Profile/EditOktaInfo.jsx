@@ -29,10 +29,11 @@ export const EditOktaInfo = ({ serviceMember, setFlashMessage, oktaUser }) => {
     navigate(customerRoutes.PROFILE_PATH);
   };
 
-  // sends Okta data in form to backend to call Okta API to update profile values
-  // TODO need to also update the users table with okta_email if it is different
+  // sends POST request to Okta API with form values
+  // then updates the state with updated values
+  // sends the user back to profile page with confirmation banner
   const handleSubmit = async (values) => {
-    // including serviceMember.id in case we need to udpate users table with new okta_email
+    // wrapping values in profile due to Okta API requirements
     const oktaPayload = {
       profile: {
         id: serviceMember.id,

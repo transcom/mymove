@@ -58,7 +58,7 @@ type ProfileStruct struct {
 }
 
 // Handle implements okta_profile.UpdateOktaInfoHandler
-// following the docs here: https://developer.okta.com/docs/reference/api/oidc/#client-authentication-methods
+// following the API call docs here: https://developer.okta.com/docs/reference/api/oidc/#client-authentication-methods
 func (h UpdateOktaProfileHandler) Handle(params oktaop.UpdateOktaInfoParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
@@ -125,7 +125,7 @@ func (h UpdateOktaProfileHandler) Handle(params oktaop.UpdateOktaInfoParams) mid
 				Sub:       oktaUserID,
 			}
 
-			// setting app context values to new so frontend can update
+			// setting app context values with updated values so frontend can update
 			appCtx.Session().OktaSessionInfo.Login = oktaUserPayload.Login
 			appCtx.Session().OktaSessionInfo.Email = oktaUserPayload.Email
 			appCtx.Session().OktaSessionInfo.FirstName = oktaUserPayload.FirstName
