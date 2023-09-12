@@ -28,20 +28,63 @@ func (h GetOktaProfileHandler) Handle(params oktaop.ShowOktaInfoParams) middlewa
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			oktaUser := appCtx.Session().OktaSessionInfo
+			// getting okta id of user from session, to be used for api call
+			oktaUserID := appCtx.Session().OktaSessionInfo.Sub
 
-			oktaUserPayload := internalmessages.OktaUserPayload{
-				Login:     oktaUser.Login,
-				Email:     oktaUser.Email,
-				FirstName: oktaUser.FirstName,
-				LastName:  oktaUser.LastName,
-				CacEdipi:  &oktaUser.Edipi,
-				Sub:       oktaUser.Sub,
+			// setting viper so we can access the api key in the env vars
+			v := viper.New()
+			v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+			v.AutomaticEnv()
+			apiKey := v.GetString(cli.OktaApiKeyFlag)
+
+			// getting okta domain url for request
+			provider, err := okta.GetOktaProviderForRequest(params.HTTPRequest)
+			if err != nil {
+				return nil, err
 			}
 
-			// this is going to check to see if the Okta profile data is present in the session
-			if oktaUserPayload.Sub == "" {
-				appCtx.Logger().Error("Session does not contain Okta values")
+			// need to pull this payload since it is wrapped in a profile object
+			user := internalmessages.UpdateOktaUserPayload{}
+
+			// getting the api call url from provider.go
+			baseUrl := provider.GetUserURL(oktaUserID)
+
+			body, _ := json.Marshal(user)
+
+			// making HTTP request to Okta Users API to update user
+			// this is done via a POST request for partial profile updates
+			// https://developer.okta.com/docs/reference/api/users/#update-current-user-s-profile
+			req, _ := http.NewRequest("GET", baseUrl, bytes.NewReader([]byte("")))
+			h := req.Header
+			h.Add("Authorization", "SSWS "+apiKey)
+			h.Add("Accept", "application/json")
+			h.Add("Content-Type", "application/json")
+
+			client := &http.Client{}
+			resp, err := client.Do(req)
+			if err != nil {
+				appCtx.Logger().Error("could not execute request", zap.Error(err))
+			}
+
+			body, err = io.ReadAll(resp.Body)
+			if err != nil {
+				appCtx.Logger().Error("could not read response body", zap.Error(err))
+			}
+
+			defer resp.Body.Close()
+
+			err = json.Unmarshal(body, &user)
+			if err != nil {
+				appCtx.Logger().Error("could not unmarshal body", zap.Error(err))
+			}
+
+			oktaUserPayload := internalmessages.OktaUserPayload{
+				Login:     user.Profile.Login,
+				Email:     user.Profile.Email,
+				FirstName: user.Profile.FirstName,
+				LastName:  user.Profile.LastName,
+				CacEdipi:  user.Profile.CacEdipi,
+				Sub:       user.Profile.Sub,
 			}
 
 			return oktaop.NewShowOktaInfoOK().WithPayload(&oktaUserPayload), nil
@@ -131,6 +174,13 @@ func (h UpdateOktaProfileHandler) Handle(params oktaop.UpdateOktaInfoParams) mid
 			appCtx.Session().OktaSessionInfo.FirstName = oktaUserPayload.FirstName
 			appCtx.Session().OktaSessionInfo.LastName = oktaUserPayload.LastName
 			appCtx.Session().OktaSessionInfo.Edipi = *oktaUserPayload.CacEdipi
+
+			appCtx.Logger().Debug("API POST request return values to session")
+			appCtx.Logger().Debug(appCtx.Session().OktaSessionInfo.Login)
+			appCtx.Logger().Debug(appCtx.Session().OktaSessionInfo.Email)
+			appCtx.Logger().Debug(appCtx.Session().OktaSessionInfo.FirstName)
+			appCtx.Logger().Debug(appCtx.Session().OktaSessionInfo.LastName)
+			appCtx.Logger().Debug(appCtx.Session().OktaSessionInfo.Edipi)
 
 			return oktaop.NewUpdateOktaInfoOK().WithPayload(&oktaUserPayload), nil
 		})

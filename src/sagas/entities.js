@@ -13,7 +13,13 @@ import {
   UPDATE_PPM_SIT_ESTIMATE,
 } from 'store/entities/actions';
 import { normalizeResponse } from 'services/swaggerRequest';
-import { addEntities, updateMTOShipmentsEntity } from 'shared/Entities/actions';
+import { addEntities, updateMTOShipmentsEntity, setOktaUser } from 'shared/Entities/actions';
+
+export function* updateOktaUserState(action) {
+  const { payload } = action;
+
+  yield put(setOktaUser(payload));
+}
 
 export function* updateServiceMember(action) {
   const { payload } = action;

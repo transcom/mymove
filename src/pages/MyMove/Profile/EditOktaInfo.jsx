@@ -10,9 +10,10 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { customerRoutes } from 'constants/routes';
 import { getResponseError, updateOktaUser } from 'services/internalApi';
 import { selectServiceMemberFromLoggedInUser, selectOktaUser } from 'store/entities/selectors';
+import { updateOktaUserState as updateOktaUserStateAction } from 'store/entities/actions';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
-export const EditOktaInfo = ({ serviceMember, setFlashMessage, oktaUser }) => {
+export const EditOktaInfo = ({ serviceMember, setFlashMessage, oktaUser, updateOktaUserState }) => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
 
@@ -47,7 +48,7 @@ export const EditOktaInfo = ({ serviceMember, setFlashMessage, oktaUser }) => {
 
     return updateOktaUser(oktaPayload)
       .then((response) => {
-        console.log(response);
+        updateOktaUserState(response);
         setFlashMessage('EDIT_OKTA_PROFILE_SUCCESS', 'success', "You've updated your Okta profile.");
         navigate(customerRoutes.PROFILE_PATH);
       })
@@ -89,6 +90,7 @@ EditOktaInfo.propTypes = {
 
 const mapDispatchToProps = {
   setFlashMessage: setFlashMessageAction,
+  updateOktaUserState: updateOktaUserStateAction,
 };
 
 const mapStateToProps = (state) => ({
