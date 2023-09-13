@@ -4,7 +4,7 @@
 insert into addresses
     (id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at)
 values
-    ('96e22159-d829-4f68-b53e-44f790dc06df', '10109 Gridley Rd', 'Bldg 314' 'Fort Belvoir', 'VA', '22060', now(), now());
+    ('96e22159-d829-4f68-b53e-44f790dc06df', '10109 Gridley Rd', 'Bldg 314', 'Fort Belvoir', 'VA', '22060', now(), now());
 
 insert into transportation_offices
     (id, name, gbloc, address_id, latitude, longitude, created_at, updated_at)
