@@ -83,6 +83,8 @@ export function unregister() {
   }
 }
 
+// MilMove does not have or use a service worker as of 2023-09-07
+// See src/index.jsx for how to re-enable this should that change
 export default function register() {
   const isServiceWorkerEnv = process.env.NODE_ENV === 'production' || process.env.REACT_APP_SERVICE_WORKER === 'true';
   if (isServiceWorkerEnv && 'serviceWorker' in navigator) {

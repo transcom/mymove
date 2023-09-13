@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap/zapcore"
 )
 
 // EdiError stores errors found while sending an 858 and being reported from EDI response files (824, 997)
@@ -48,4 +49,14 @@ func (e *EdiError) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	}
 
 	return validate.Validate(vs...), nil
+}
+
+// MarshalLogObject is required to be able to zap.Object log this model.
+func (e *EdiError) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	encoder.AddString("EDIType", e.EDIType.String())
+	encoder.AddString("PaymentRequestID", e.PaymentRequestID.String())
+	encoder.AddString("Code", *e.Code)
+	encoder.AddString("Description ", *e.Description)
+
+	return nil
 }

@@ -6,16 +6,16 @@ interactions:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
-        content_length: 127
+        content_length: 130
         transfer_encoding: []
         trailer: {}
-        host: localhost:5050
+        host: localhost:9080
         remote_addr: ""
         request_uri: ""
-        body: '{"requestId":"316ab946-9e87-4973-890e-21b1be3f6813","flagKey":"multi_variant","entityId":"system","namespaceKey":"development"}'
+        body: '{"requestId":"7b70ce8f-b759-46a0-8bd7-0724a8c917ab", "namespaceKey":"development", "flagKey":"multi_variant", "entityId":"system"}'
         form: {}
         headers: {}
-        url: http://localhost:5050/api/v1/namespaces/development/evaluate
+        url: http://localhost:9080/evaluate/v1/variant
         method: POST
       response:
         proto: HTTP/1.1
@@ -25,20 +25,21 @@ interactions:
         trailer: {}
         content_length: -1
         uncompressed: true
-        body: '{"requestId":"316ab946-9e87-4973-890e-21b1be3f6813","entityId":"system","requestContext":{},"match":true,"flagKey":"multi_variant","segmentKey":"all-entities","timestamp":"2023-06-27T16:41:18.880462846Z","value":"two","requestDurationMillis":0.052667,"attachment":"null","reason":"MATCH_EVALUATION_REASON","namespaceKey":"development"}'
+        body: '{"match":true,"segmentKeys":["all-entities"],"reason":"MATCH_EVALUATION_REASON","variantKey":"two","variantAttachment":"null","requestId":"7b70ce8f-b759-46a0-8bd7-0724a8c917ab","requestDurationMillis":0.037,"timestamp":"2023-09-06T13:21:02.570114668Z"}'
         headers:
             Content-Security-Policy:
                 - default-src 'self'; img-src * data:; frame-ancestors 'none';
             Content-Type:
                 - application/json
             Date:
-                - Tue, 27 Jun 2023 16:41:18 GMT
+                - Wed, 06 Sep 2023 13:21:02 GMT
             Grpc-Metadata-Content-Type:
                 - application/grpc
             Vary:
+                - Origin
                 - Accept-Encoding
             X-Content-Type-Options:
                 - nosniff
         status: 200 OK
         code: 200
-        duration: 1.934417ms
+        duration: 1.432459ms

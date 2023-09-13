@@ -52,6 +52,15 @@ const ServiceAreaOrigin = {
   type: 'STRING',
   value: '176',
 };
+const SITServiceAreaOrigin = {
+  eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4zMTY5NDha',
+  id: '87e77d29-d8c9-4b74-b45f-6842cd3ef970',
+  key: 'SITServiceAreaOrigin',
+  origin: 'SYSTEM',
+  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
+  type: 'STRING',
+  value: '176',
+};
 const WeightAdjusted = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4zMjY2NDVa',
   id: '70abd9bc-afaa-4e4d-ad15-d3e55b57d2fb',
@@ -565,7 +574,7 @@ const testParams = {
     WeightBilled,
     WeightEstimated,
     PriceRateOrFactor,
-    ServiceAreaOrigin,
+    SITServiceAreaOrigin,
     ReferenceDate,
     ZipPickupAddress,
     EscalationCompounded,
@@ -585,7 +594,7 @@ const testParams = {
   DomesticOriginAdditionalSIT: [
     NumberDaysSIT,
     ReferenceDate,
-    ServiceAreaOrigin,
+    SITServiceAreaOrigin,
     WeightOriginal,
     WeightBilled,
     WeightEstimated,
