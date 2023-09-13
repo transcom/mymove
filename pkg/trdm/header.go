@@ -119,10 +119,10 @@ func GenerateDigest(data []byte) (string, error) {
 }
 
 // Generate timestamp XML and digest
-func GenerateTimestampAndDigest() ([]byte, string, error) {
+func GenerateTimestampAndDigest() (timestamp, string, error) {
 	tsID, err := GenerateSOAPURIWithPrefix("#TS")
 	if err != nil {
-		return nil, "", err
+		return timestamp{}, "", err
 	}
 	ts := timestamp{
 		ID:      tsID,
@@ -133,15 +133,15 @@ func GenerateTimestampAndDigest() ([]byte, string, error) {
 
 	timestampXML, err := xml.Marshal(ts)
 	if err != nil {
-		return nil, "", err
+		return timestamp{}, "", err
 	}
 
 	digest, err := GenerateDigest(timestampXML)
 	if err != nil {
-		return nil, "", err
+		return timestamp{}, "", err
 	}
 
-	return timestampXML, digest, nil
+	return ts, digest, nil
 }
 
 func GenerateSOAPURIWithPrefix(prefix string) (string, error) {
@@ -178,7 +178,7 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 		return nil, err
 	}
 
-	_, timestampDigest, err := GenerateTimestampAndDigest()
+	ts, timestampDigest, err := GenerateTimestampAndDigest()
 	if err != nil {
 		return nil, err
 	}
@@ -317,11 +317,7 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 					},
 				},
 			},
-			Timestamp: timestamp{
-				ID:      timestampReferenceID,
-				Created: time.Now().UTC().Format(time.RFC3339),
-				Expires: time.Now().Add(time.Millisecond * 120000).UTC().Format(time.RFC3339),
-			},
+			Timestamp: ts,
 		},
 	}
 	marshaledHeader, err := xml.Marshal(securityHeader)
