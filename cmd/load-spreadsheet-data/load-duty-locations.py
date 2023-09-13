@@ -31,6 +31,44 @@ def handle_aliases(aliases, id):
 # takes a duty_location id and deletes all of its recursive parent records with an FK constraint
 # this is done considering that any existing records in these tables are safe to delete, and is not necessarily a model for future duty location updates
 def delete_dl_and_parents(dl_id):
+    orders_query = f"(SELECT id from orders where origin_duty_location_id = {dl_id} or new_duty_location_id = {dl_id})"
+    mto_service_item_query = f"(SELECT id from mto_service_items where move_id = (SELECT id from moves where orders_id = {orders_query}))"
+    f.write(
+        f"DELETE from payment_service_item_params where payment_service_item_id = (SELECT id from payment_service_items where mto_service_item_id = {mto_service_item_query});\n"
+    )
+    f.write(
+        f"DELETE from service_request_document_uploads where service_request_documents_id = (SELECT id from service_request_documents where mto_service_item_id = {mto_service_item_query});\n"
+    )
+    for t in [
+        "mto_service_item_dimensions",
+        "payment_service_items",
+        "service_request_documents",
+        "sit_address_updates",
+    ]:
+        f.write(
+            f"DELETE from {t} where mto_service_item_id = {mto_service_item_query};\n"
+        )
+    f.write(
+        f"DELETE from service_items_customer_contacts where mtoservice_item_id = (SELECT id from mto_service_items where move_id = (SELECT id from moves where orders_id = {orders_query}));\n"
+    )
+    payment_requests_query = f"(SELECT id from payment_requests where move_id = (SELECT id from moves where orders_id = {orders_query}))"
+    f.write(
+        f"DELETE from prime_uploads where proof_of_service_docs_id = (SELECT id from proof_of_service_docs where payment_request_id = {payment_requests_query});\n"
+    )
+    for t in [
+        "proof_of_service_docs",
+        "edi_errors",
+        "payment_request_to_interchange_control_numbers",
+    ]:
+        f.write(
+            f"DELETE from {t} where payment_request_id = {payment_requests_query};\n"
+        )
+    f.write(
+        f"DELETE from ppm_shipments where shipment_id = (SELECT id from mto_shipments where move_id = (SELECT id from moves where orders_id = {orders_query}));\n"
+    )
+    f.write(
+        f"DELETE from archived_weight_ticket_set_documents where move_document_id = (SELECT id from archived_move_documents where move_id = (SELECT id from moves where orders_id = {orders_query}));\n"
+    )
     for t in [
         "archived_move_documents",
         "archived_signed_certifications",
@@ -45,22 +83,18 @@ def delete_dl_and_parents(dl_id):
         "webhook_notifications",
     ]:
         f.write(
-            f"DELETE from {t} where move_id = (SELECT id from moves where orders_id = (SELECT id from orders where origin_duty_location_id = {dl_id} or new_duty_location_id = {dl_id}));\n"
+            f"DELETE from {t} where move_id = (SELECT id from moves where orders_id = {orders_query});\n"
         )
-    f.write(
-        f"DELETE from moves where orders_id = (SELECT id from orders where origin_duty_location_id = {dl_id} or new_duty_location_id = {dl_id});\n"
-    )
+    f.write(f"DELETE from moves where orders_id = {orders_query};\n")
     f.write(
         f"DELETE from orders where origin_duty_location_id = {dl_id} or new_duty_location_id = {dl_id};\n"
     )
-    for t in ["documents", "archived_access_codes", "notifications"]:
-        f.write(
-            f"DELETE from {t} where service_member_id = (SELECT id from service_members where duty_location_id = {dl_id});\n"
-        )
-    f.write(f"DELETE from service_members where duty_location_id = {dl_id};\n")
+
     f.write(f"DELETE from duty_location_names where duty_location_id = {dl_id};\n")
     f.write(f"DELETE from duty_locations where id = {dl_id};\n\n")
 
+
+f.write("-- Generated programmatically by load-duty-locations.py\n\n")
 
 for rename in renames:
     # Fort Gordon => Fort Eisenhower
@@ -86,14 +120,16 @@ for new in news:
         state,
         postal_code,
         aliases,
+        transportation_office_id,
     ) = new
 
+    transportation_office_id = (
+        f"'{transportation_office_id}'" if transportation_office_id else "NULL"
+    )
     affiliation = f"'{affiliation}'" if affiliation else "NULL"
     gbloc = gbloc if gbloc else "NULL"
 
     f.write("--NEW\n")
-    address_query = f"(SELECT id from addresses where street_address_1 = '{street_address}' and city = '{city}' and state = '{state}' and postal_code = '{postal_code}' LIMIT 1)"
-    to_query = f"(SELECT t.id FROM transportation_offices AS t, addresses AS a WHERE t.address_id = a.id AND t.gbloc='{gbloc}' AND a.state='{state}' LIMIT 1)"
 
     f.write(
         f"INSERT INTO addresses (id, street_address_1, city, state, postal_code, created_at, updated_at) VALUES ('{address_id}', '{street_address}', '{city}', '{state}', '{postal_code}', now(), now());\n"
@@ -103,7 +139,7 @@ for new in news:
         "INSERT INTO duty_locations (id, address_id, transportation_office_id, name, affiliation, provides_services_counseling, updated_at, created_at) "
     )
     f.write(
-        f"VALUES ('{id}', '{address_id}', {to_query}, '{name}', {affiliation}, TRUE, now(), now());\n\n"
+        f"VALUES ('{id}', '{address_id}', {transportation_office_id}, '{name}', {affiliation}, TRUE, now(), now());\n\n"
     )
 
 for merge in merges:
