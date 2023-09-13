@@ -124,14 +124,14 @@ func GenerateTimestampAndDigest() ([]byte, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
-	timestamp := timestamp{
+	ts := timestamp{
 		ID:      tsID,
 		Created: time.Now().UTC().Format(time.RFC3339),
 		// Currently 3 minutes for testing
 		Expires: time.Now().Add(time.Minute * 3).UTC().Format(time.RFC3339),
 	}
 
-	timestampXML, err := xml.Marshal(timestamp)
+	timestampXML, err := xml.Marshal(ts)
 	if err != nil {
 		return nil, "", err
 	}
