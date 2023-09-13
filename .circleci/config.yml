@@ -69,6 +69,13 @@ references:
   # them
   server-ignore-branch: &server-ignore-branch placeholder_branch_name
 
+  # used in aws-cli/setup for setting up OIDC to the loadtest environment
+  loadtest-role: &loadtest-role 'arn:aws-us-gov:iam::469892416004:role/CircleCIOIDC'
+
+  demo-role: &demo-role 'test role'
+
+  exp-role: &exp-role 'test role'
+
 executors:
   base_small:
     resource_class: small
@@ -412,14 +419,31 @@ commands:
             source $BASH_ENV
 
   setup_environment_variables_from_aws:
+    parameters:
+      dp3-env:
+        description: dp3 env to deploy to (exp, loadtest, demo)
+        type: string
+        default: *dp3-env
     steps:
       - run:
           name: 'Set up region for the aws-cli'
           command: |
             echo "export AWS_DEFAULT_REGION=us-gov-west-1" >> $BASH_ENV
+            source $BASH_ENV
+      - run:
+          name: 'Set up role for the aws-cli'
+          command: |
+            if [ << parameters.dp3-env >> == "loadtest" ]; then
+              echo "export AWS_ROLE=*loadtest-role" >> $BASH_ENV
+            elif [ << parameters.dp3-env >> == "demo" ]; then
+              echo "export AWS_ROLE=*demo-role" >> $BASH_ENV
+            else
+              echo "export AWS_ROLE=*exp-role" >> $BASH_ENV
+            fi
+            source $BASH_ENV
       - aws-cli/setup:
           profile-name: 'CIRCLECI-OIDC-PROFILE'
-          role-arn: 'arn:aws-us-gov:iam::469892416004:role/CircleCIOIDC'
+          role-arn: AWS_ROLE
           role-session-name: example-session
       - run:
           name: Log-into-AWS-ECR
@@ -431,6 +455,7 @@ commands:
             echo "export DOCKERHUB_USERNAME=$(aws ssm get-parameter --with-decryption --name /app-loadtest/dockerhub_username | jq -r .Parameter.Value)" >> $BASH_ENV
             echo "export AWS_ACCOUNT_ID=$(aws sts get-caller-identity | jq -r .Account)" >> $BASH_ENV
             echo "export TEST_ENV_VAR=$(aws ssm get-parameter --with-decryption --name /app-loadtest/circleci-test | jq -r .Parameter.Value)" >> $BASH_ENV
+            source $BASH_ENV
 
           # echo "export AWS_DEFAULT_REGION=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_REGION" >> $BASH_ENV
 
