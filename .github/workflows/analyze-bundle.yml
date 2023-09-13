@@ -68,7 +68,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.cache-bundle-stats.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile --immutable
+        run: yarn install --frozen-lockfile
 
       - name: Build PR with options
         if: steps.cache-bundle-stats.outputs.cache-hit != 'true'
@@ -124,7 +124,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.cache-bundle-stats.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile --immutable
+        run: yarn install --frozen-lockfile
 
       - name: Build base with options
         if: steps.cache-bundle-stats.outputs.cache-hit != 'true'

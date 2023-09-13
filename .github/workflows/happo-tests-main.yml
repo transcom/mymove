@@ -18,7 +18,7 @@ jobs:
           node-version-file: '.tool-versions'
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --immutable
+        run: yarn install --frozen-lockfile
 
       - name: Start Happo run
         run: yarn happo-ci-github-actions
