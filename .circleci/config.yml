@@ -69,13 +69,6 @@ references:
   # them
   server-ignore-branch: &server-ignore-branch placeholder_branch_name
 
-  # used in aws-cli/setup for setting up OIDC to the loadtest environment
-  loadtest-role: &loadtest-role 'arn:aws-us-gov:iam::469892416004:role/CircleCIOIDC'
-
-  demo-role: &demo-role 'test role'
-
-  exp-role: &exp-role 'test role'
-
 executors:
   base_small:
     resource_class: small
@@ -434,11 +427,11 @@ commands:
           name: 'Set up role for the aws-cli'
           command: |
             if [ << parameters.dp3-env >> == "loadtest" ]; then
-              echo "export AWS_ROLE=$(*loadtest-role)" >> $BASH_ENV
+              echo "export AWS_ROLE=arn:aws-us-gov:iam::469892416004:role/CircleCIOIDC" >> $BASH_ENV
             elif [ << parameters.dp3-env >> == "demo" ]; then
-              echo "export AWS_ROLE=$(*demo-role)" >> $BASH_ENV
+              echo "export AWS_ROLE=test-role" >> $BASH_ENV
             else
-              echo "export AWS_ROLE=$(*exp-role)" >> $BASH_ENV
+              echo "export AWS_ROLE=test-role" >> $BASH_ENV
             fi
             source $BASH_ENV
       - aws-cli/setup:
