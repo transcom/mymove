@@ -3139,6 +3139,8 @@ paths:
               - Reviewed
               - Rejected
               - Paid
+              - Deprecated
+              - Error
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
