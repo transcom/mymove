@@ -4,6 +4,7 @@ import (
 	"crypto/rsa"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/pem"
 	"encoding/xml"
 	"fmt"
 	"net/http"
@@ -29,8 +30,8 @@ This method GetLastTableUpdate sends a SOAP request to TRDM to get the last tabl
 This code is using the gosoap lib https://github.com/tiaguinho/gosoap
 
 SOAP Request:
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-xmlns:ret="http://ReturnTablePackage/">
+<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope"
+xmlns:ret="http://trdm/ReturnTableService">
    <soapenv:Header/>
    <soapenv:Body>
       <ret:getLastTableUpdateRequestElement>
@@ -40,9 +41,9 @@ xmlns:ret="http://ReturnTablePackage/">
 </soapenv:Envelope>
 
 SOAP Response:
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
    <soap:Body>
-      <getLastTableUpdateResponseElement xmlns="http://ReturnTablePackage/">
+      <getLastTableUpdateResponseElement xmlns="http://trdm/ReturnTableService">
          <lastUpdate>2020-01-27T16:14:20.000Z</lastUpdate>
          <status>
             <statusCode>Successful</statusCode>
@@ -60,12 +61,26 @@ type GetLastTableUpdater interface {
 	GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string) error
 }
 
-type GetLastTableUpdateRequestElement struct {
-	XMLName       string `xml:"ret:getLastTableUpdateReqElement"`
+type trdmInput struct {
 	PhysicalName  string `xml:"ret:physicalName"`
-	soapClient    SoapCaller
-	securityToken *x509.Certificate
-	privateKey    *rsa.PrivateKey
+	ReturnContent string `xml:"ret:returnContent"`
+}
+
+type input struct {
+	TRDMInput trdmInput `xml:"ret:TRDM"`
+}
+type lastTableUpdateRequestElement struct {
+	Input input `xml:"ret:input"`
+}
+
+type GetLastTableUpdateRequestElement struct {
+	XMLName                       xml.Name                      `xml:"soap:Body"`
+	ID                            string                        `xml:"wsu:Id,attr"`
+	Wsu                           string                        `xml:"xmlns:wsu,attr"`
+	LastTableUpdateRequestElement lastTableUpdateRequestElement `xml:"ret:getLastTableUpdateRequestElement"`
+	soapClient                    SoapCaller
+	securityToken                 *x509.Certificate
+	privateKey                    *rsa.PrivateKey
 }
 type GetLastTableUpdateResponseElement struct {
 	XMLName    xml.Name  `xml:"getLastTableUpdateResponseElement"`
@@ -78,14 +93,22 @@ type Status struct {
 	DateTime   string `xml:"dateTime"`
 }
 
-func NewTRDMGetLastTableUpdate(physicalName string, securityToken *x509.Certificate, privateKey *rsa.PrivateKey, soapClient SoapCaller) GetLastTableUpdater {
+func NewTRDMGetLastTableUpdate(physicalName string, bodyID string, securityToken *x509.Certificate, privateKey *rsa.PrivateKey, soapClient SoapCaller) GetLastTableUpdater {
 	return &GetLastTableUpdateRequestElement{
-		PhysicalName:  physicalName,
+		LastTableUpdateRequestElement: lastTableUpdateRequestElement{
+			Input: input{
+				TRDMInput: trdmInput{
+					PhysicalName:  physicalName,
+					ReturnContent: "true",
+				},
+			},
+		},
+		ID:            bodyID,
+		Wsu:           "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
 		soapClient:    soapClient,
 		securityToken: securityToken,
 		privateKey:    privateKey,
 	}
-
 }
 
 // FetchAllTACRecords queries and fetches all transportation_accounting_codes
@@ -107,31 +130,56 @@ func FetchAllTACRecords(appcontext appcontext.AppContext) ([]models.Transportati
 //   - Generates custom soap envelope, soap body, soap header.
 //   - Returns Error
 func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string) error {
-
 	gosoap.SetCustomEnvelope("soapenv", map[string]string{
-		"xmlns:soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
-		"xmlns:ret":     "http://ReturnTablePackage/",
+		"xmlns:soapenv": "http://www.w3.org/2003/05/soap-envelope",
+		"xmlns:ret":     "http://trdm/ReturnTableService",
 	})
-
+	bodyID, err := GenerateSOAPURIWithPrefix("#id")
+	if err != nil {
+		return err
+	}
+	// Needs to be nested in test:input ret:TRDM
 	params := GetLastTableUpdateRequestElement{
-		PhysicalName: physicalName,
+		ID:  bodyID,
+		Wsu: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
+		LastTableUpdateRequestElement: lastTableUpdateRequestElement{
+			Input: input{
+				TRDMInput: trdmInput{
+					PhysicalName:  physicalName,
+					ReturnContent: "true",
+				},
+			},
+		},
 	}
 	marshaledBody, marshalEr := xml.Marshal(params)
 	if marshalEr != nil {
 		return marshalEr
 	}
-	bodyID, err := GenerateSOAPURIWithPrefix("#id")
+	signedHeader, err := GenerateSignedHeader(d.securityToken, d.privateKey, bodyID, marshaledBody)
 	if err != nil {
 		return err
-	}
-	signedHeader, headerSigningError := GenerateSignedHeader(d.securityToken, d.privateKey, bodyID)
-	if headerSigningError != nil {
-		return headerSigningError
 	}
 	newParams := gosoap.Params{
 		"header": signedHeader,
 		"body":   marshaledBody,
 	}
+
+	// ! This is being utilized because the vscode debugger does not support
+	// ! strings above 64 bytes
+	// Start printing
+	headerStr := string(newParams["header"].([]byte))
+	bodyStr := string(marshaledBody)
+
+	soapEnvelope := fmt.Sprintf(
+		`<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ret="http://trdm/ReturnTableService">
+							%s
+							%s
+					</soap:Envelope>`,
+		headerStr, bodyStr,
+	)
+
+	fmt.Println(soapEnvelope)
+	// End printing
 	err = lastTableUpdateSoapCall(d, newParams, appCtx)
 	if err != nil {
 		return fmt.Errorf("request error: %s", err.Error())
@@ -145,6 +193,7 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 //   - appCtx - Application context
 //   - returns error
 func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.Params, appCtx appcontext.AppContext) error {
+	// This will hit the ?WSDL endpoint with the marshaled body and header
 	res, err := d.soapClient.Call("ProcessRequest", params)
 	if err != nil {
 		return fmt.Errorf("call error: %s", err.Error())
@@ -157,8 +206,8 @@ func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.
 	}
 
 	if r.Status.StatusCode == successfulStatusCode {
-		getTable := NewGetTable(d.PhysicalName, d.securityToken, d.privateKey, d.soapClient)
-		getTableErr := getTable.GetTable(appCtx, d.PhysicalName, r.LastUpdate)
+		getTable := NewGetTable(d.LastTableUpdateRequestElement.Input.TRDMInput.PhysicalName, d.securityToken, d.privateKey, d.soapClient)
+		getTableErr := getTable.GetTable(appCtx, d.LastTableUpdateRequestElement.Input.TRDMInput.PhysicalName, r.LastUpdate)
 		if getTableErr != nil {
 			return fmt.Errorf("getTable error: %s", getTableErr.Error())
 		}
@@ -169,9 +218,12 @@ func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.
 }
 func StartLastTableUpdateCron(appCtx appcontext.AppContext, certificate *x509.Certificate, privateKey *rsa.PrivateKey, physicalName string, soapCaller SoapCaller) error {
 	cron := cron.New()
-
+	bodyID, err := GenerateSOAPURIWithPrefix("#id")
+	if err != nil {
+		return err
+	}
 	cronTask := func() {
-		err := NewTRDMGetLastTableUpdate(physicalName, certificate, privateKey, soapCaller).GetLastTableUpdate(appCtx, physicalName)
+		err = NewTRDMGetLastTableUpdate(physicalName, bodyID, certificate, privateKey, soapCaller).GetLastTableUpdate(appCtx, physicalName)
 		if err != nil {
 			fmt.Println("Error in lastTableUpdate cron task: ", err)
 		}
@@ -204,7 +256,7 @@ func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config) error {
 	tr := &http.Transport{TLSClientConfig: tlsConfig}
 	httpClient := &http.Client{Transport: tr, Timeout: time.Duration(30) * time.Second}
 
-	trdmWSDL := v.GetString(cli.TRDMApiWSDLFlag)
+	trdmWSDL := v.GetString(cli.TRDMApiReturnTableV7WSDLFlag)
 	trdmURL := v.GetString(cli.TRDMApiURLFlag)
 	soapClient, err := gosoap.SoapClient(trdmWSDL, httpClient)
 	if err != nil {
@@ -212,20 +264,42 @@ func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config) error {
 	}
 	soapClient.URL = trdmURL
 
-	x509CertString := v.GetString(cli.TRDMx509Cert)
-	certificate, err := x509.ParseCertificate([]byte(x509CertString))
+	x509CertString := v.GetString(cli.MoveMilDoDTLSCertFlag)
+	publicPem, rest := pem.Decode([]byte(x509CertString))
+	if len(rest) != 0 {
+		return fmt.Errorf("unable to properly decode public key, something is leftover: %w", err)
+	}
+
+	certificate, err := x509.ParseCertificate(publicPem.Bytes)
 	if err != nil {
 		return err
 	}
 
-	privateKeyString := v.GetString(cli.TRDMx509PrivateKey)
-	privateKey, err := x509.ParsePKCS1PrivateKey([]byte(privateKeyString))
+	privateKeyString := v.GetString(cli.MoveMilDoDTLSKeyFlag)
+	privatePem, rest := pem.Decode([]byte(privateKeyString))
+	if len(rest) != 0 {
+		return fmt.Errorf("unable to properly decode private key, something is leftover: %w", err)
+	}
+	unassertedPrivateKey, err := x509.ParsePKCS8PrivateKey([]byte(privatePem.Bytes))
 	if err != nil {
 		return err
 	}
 
-	getLastTableUpdateTACErr := NewTRDMGetLastTableUpdate(transportationAccountingCode, certificate, privateKey, soapClient).GetLastTableUpdate(appCtx, transportationAccountingCode)
-	getLastTableUpdateLOAErr := NewTRDMGetLastTableUpdate(lineOfAccounting, certificate, privateKey, soapClient).GetLastTableUpdate(appCtx, lineOfAccounting)
+	// Type assertion from any to *rsa.PrivateKey
+	key, ok := unassertedPrivateKey.(*rsa.PrivateKey)
+	if !ok {
+		return fmt.Errorf("failed to type assert private key as *rsa.PrivateKey")
+	}
+	tacBodyID, err := GenerateSOAPURIWithPrefix("#id")
+	if err != nil {
+		return err
+	}
+	loaBodyID, err := GenerateSOAPURIWithPrefix("#id")
+	if err != nil {
+		return err
+	}
+	getLastTableUpdateTACErr := NewTRDMGetLastTableUpdate(transportationAccountingCode, tacBodyID, certificate, key, soapClient).GetLastTableUpdate(appCtx, transportationAccountingCode)
+	getLastTableUpdateLOAErr := NewTRDMGetLastTableUpdate(lineOfAccounting, loaBodyID, certificate, key, soapClient).GetLastTableUpdate(appCtx, lineOfAccounting)
 	if getLastTableUpdateLOAErr != nil {
 		return getLastTableUpdateLOAErr
 	}
@@ -233,8 +307,8 @@ func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config) error {
 		return getLastTableUpdateTACErr
 	}
 
-	cronErrTAC := StartLastTableUpdateCron(appCtx, certificate, privateKey, transportationAccountingCode, soapClient)
-	cronErrLOA := StartLastTableUpdateCron(appCtx, certificate, privateKey, lineOfAccounting, soapClient)
+	cronErrTAC := StartLastTableUpdateCron(appCtx, certificate, key, transportationAccountingCode, soapClient)
+	cronErrLOA := StartLastTableUpdateCron(appCtx, certificate, key, lineOfAccounting, soapClient)
 
 	if cronErrLOA != nil {
 		return cronErrLOA

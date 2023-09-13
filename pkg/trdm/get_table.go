@@ -19,7 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/parser/tac"
 )
 
-// <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ret="http://ReturnTablePackage/">
+// <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope" xmlns:ret="http://trdm/ReturnTableService">
 //    <soapenv:Header/>
 //    <soapenv:Body>
 //       <ret:getTableRequestElement>
@@ -34,9 +34,9 @@ import (
 // </soapenv:Envelope>
 
 // SOAP Response:
-// <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+// <soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
 //    <soap:Body>
-//       <getTableResponseElement xmlns="http://ReturnTablePackage/">
+//       <getTableResponseElement xmlns="http://trdm/ReturnTableService">
 //          <output>
 //             <TRDM>
 //                <status>
@@ -47,7 +47,7 @@ import (
 //             </TRDM>
 //          </output>
 //          <attachment>
-//             <xop:Include href="cid:fefe5d81-468c-4639-a543-e758a3cbceea-2@ReturnTablePackage" xmlns:xop="http://www.w3.org/2004/08/xop/include"/>
+//             <xop:Include href="cid:fefe5d81-468c-4639-a543-e758a3cbceea-2@ReturnTableService" xmlns:xop="http://www.w3.org/2004/08/xop/include"/>
 //          </attachment>
 //       </getTableResponseElement>
 //    </soap:Body>
@@ -205,8 +205,8 @@ func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physical
 //	returns error
 func setupSoapCall(d *GetTableRequestElement, appCtx appcontext.AppContext, physicalName string) error {
 	gosoap.SetCustomEnvelope("soapenv", map[string]string{
-		"xmlns:soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
-		"xmlns:ret":     "http://ReturnTablePackage/",
+		"xmlns:soapenv": "http://www.w3.org/2003/05/soap-envelope",
+		"xmlns:ret":     "http://trdm/ReturnTableService",
 	})
 	params := GetTableRequestElement{
 		Input: d.Input,
@@ -223,7 +223,7 @@ func setupSoapCall(d *GetTableRequestElement, appCtx appcontext.AppContext, phys
 	}
 
 	operation := func() error {
-		signedHeader, headerSigningError := GenerateSignedHeader(d.securityToken, d.privateKey, bodyID)
+		signedHeader, headerSigningError := GenerateSignedHeader(d.securityToken, d.privateKey, bodyID, marshaledBody)
 		if headerSigningError != nil {
 			return headerSigningError
 		}

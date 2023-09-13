@@ -71,6 +71,9 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// Certs
 	cli.InitCertFlags(flag)
 
+	// TRDM
+	cli.InitTRDMFlags(flag)
+
 	// Ports to listen to
 	cli.InitPortFlags(flag)
 
@@ -154,6 +157,10 @@ func checkServeConfig(v *viper.Viper, logger *zap.Logger) error {
 	}
 
 	if err := cli.CheckCert(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckTRDM(v); err != nil {
 		return err
 	}
 
@@ -805,7 +812,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// TRDM SOAP Request
-	trdmIsEnabled := v.GetBool(cli.TRDMIsEnabled)
+	trdmIsEnabled := v.GetBool(cli.TRDMIsEnabledFlag)
 	if trdmIsEnabled {
 		// Call the initial SOAP call for LastTableUpdate on server start and once per day
 		err := trdm.LastTableUpdate(v, tlsConfig)

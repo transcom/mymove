@@ -14,7 +14,7 @@ import (
 )
 
 const getLastTableUpdateTemplate = `
-   <getLastTableUpdateResponseElement xmlns="http://ReturnTablePackage/">
+   <getLastTableUpdateResponseElement xmlns="http://trdm/ReturnTableService">
 	  <lastUpdate>%v</lastUpdate>
 	  <status>
 		 <statusCode>%v</statusCode>
@@ -60,7 +60,9 @@ func (suite *TRDMSuite) TestTRDMGetLastTableUpdateFake() {
 			).Return(soapResponseForGetLastTableUpdate(test.lastUpdate, test.statusCode), soapError)
 			cert, key, err := factory.Generatex509CertAndSecret()
 			suite.NoError(err)
-			lastTableUpdate := trdm.NewTRDMGetLastTableUpdate(physicalName, cert, key, testSoapClient)
+			bodyID, err := trdm.GenerateSOAPURIWithPrefix("#id")
+			suite.NoError(err)
+			lastTableUpdate := trdm.NewTRDMGetLastTableUpdate(physicalName, bodyID, cert, key, testSoapClient)
 			err = lastTableUpdate.GetLastTableUpdate(suite.AppContextForTest(), physicalName)
 			suite.NoError(err)
 		})

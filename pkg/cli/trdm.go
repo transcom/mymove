@@ -9,37 +9,29 @@ import (
 const (
 	// TRDMApiURLFlag is the TRDM API URL Flag
 	TRDMApiURLFlag string = "trdm-api-url"
-	// TRDMApiWSDLFlag is the TRDM API WSDL Flag
-	TRDMApiWSDLFlag string = "trdm-api-wsdl"
+	// TRDMApiWSDLFlag is the TRDM API WSDL Flag for ReturnTableV7
+	TRDMApiReturnTableV7WSDLFlag string = "trdm-api-return-table-v7-wsdl"
 	// TRDMUseMockFlag is the TRDM Use Mock Flag
 	TRDMUseMockFlag string = "trdm-use-mock"
-	// x509 Certificate for MilMove
-	TRDMx509Cert string = "trdm-x509-cert"
-	// x509 Certificate Private Key
-	TRDMx509PrivateKey string = "trdm-x509-privatekey"
 	// FF to enable or disable TRDM soap requests
-	TRDMIsEnabled string = "trdm-is-enabled"
+	TRDMIsEnabledFlag string = "trdm-is-enabled"
 )
 
 // InitTRDMFlags initializes Route command line flags
 func InitTRDMFlags(flag *pflag.FlagSet) {
 	flag.String(TRDMApiURLFlag, "", "URL for sending a SOAP request to TRDM")
-	flag.String(TRDMApiWSDLFlag, "", "WSDL for sending a SOAP request to TRDM")
-	flag.String(TRDMx509Cert, "", "x509 certificate for TRDM web services")
-	flag.String(TRDMx509PrivateKey, "", "x509 private key for TRDM web services")
+	flag.String(TRDMApiReturnTableV7WSDLFlag, "", "WSDL for sending a SOAP request to TRDM ReturnTable, V7")
 
 	flag.Bool(TRDMUseMockFlag, false, "Whether to use a mocked version of TRDM")
-	flag.Bool(TRDMIsEnabled, false, "Enable TRDM SOAP requests")
+	flag.Bool(TRDMIsEnabledFlag, false, "Enable TRDM SOAP requests")
 }
 
 // CheckRoute validates Route command line flags
 func CheckTRDM(v *viper.Viper) error {
 	urlVars := []string{
 		TRDMApiURLFlag,
-		TRDMApiWSDLFlag,
-		TRDMx509Cert,
-		TRDMx509PrivateKey,
-		TRDMIsEnabled,
+		TRDMApiReturnTableV7WSDLFlag,
+		TRDMIsEnabledFlag,
 	}
 
 	for _, c := range urlVars {
