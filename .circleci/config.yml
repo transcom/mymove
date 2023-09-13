@@ -443,7 +443,7 @@ commands:
             source $BASH_ENV
       - aws-cli/setup:
           profile-name: 'CIRCLECI-OIDC-PROFILE'
-          role-arn: AWS_ROLE
+          role-arn: $AWS_ROLE
           role-session-name: example-session
       - run:
           name: Log-into-AWS-ECR
