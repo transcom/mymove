@@ -316,14 +316,14 @@ IEA*1*000000001
 	})
 }
 
-func (suite *ProcessEDI824Suite) TestIdentifyingTEDs() {
-	suite.Run("fetchTEDSegments can fetch all TED segments", func() {
+func (suite *ProcessEDI824Suite) TestIdentifyingOTIsAndTEDs() {
+	suite.Run("fetchTransactionSetSegments can fetch all OTI and TED segments", func() {
 		sample824EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *210217*1530*U*00401*2000000000*8*A*|
 GS*SA*MILMOVE*8004171844*20190903*1617*2000000000*X*004010
 ST*824*000000001
 BGN*19**20211313
-OTI*VA*MM**X*X*20211311**-1*AB
+OTI*TR*MM**X*X*20211311**-1*AB
 TED*k*Missing Data
 TED*k*Missing Data
 TED*k*Missing Data
@@ -332,7 +332,7 @@ GE*2*1
 GS*SA*MILMOVE*8004171844*20190903*1617*2000000000*X*004010
 ST*824*000000001
 BGN*19**20211313
-OTI*VA*MM**X*X*20211311**-1*AB
+OTI*TE*MM**X*X*20211311**-1*AB
 TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
 TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
 TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
@@ -343,7 +343,8 @@ IEA*1*000000001
 		edi824 := ediResponse824.EDI{}
 		err := edi824.Parse(sample824EDIString)
 		suite.NoError(err)
-		teds := fetchTEDSegments(edi824)
+		otis, teds := fetchTransactionSetSegments(edi824)
+		suite.Equal(2, len(otis))
 		suite.Equal(6, len(teds))
 	})
 }
