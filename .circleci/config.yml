@@ -1791,7 +1791,8 @@ jobs:
   push_otel_collector_image_dp3:
     executor: mymove_pusher
     steps:
-      - aws_vars_dp3
+      # - aws_vars_dp3
+      - setup_environment_variables_from_aws
       - push_otel_collector_image:
           ecr_env: *dp3-env
           aws_otel_collector_image: *aws-otel-collector
@@ -1921,7 +1922,8 @@ jobs:
   push_migrations_dp3:
     executor: mymove_pusher
     steps:
-      - aws_vars_dp3
+      # - aws_vars_dp3
+      - setup_environment_variables_from_aws
       - push_image:
           ecr_env: *dp3-env
           image_name: app-migrations
@@ -1991,7 +1993,8 @@ jobs:
   push_tasks_dp3:
     executor: mymove_pusher
     steps:
-      - aws_vars_dp3
+      # - aws_vars_dp3
+      - setup_environment_variables_from_aws
       - push_image:
           ecr_env: *dp3-env
           image_name: tasks
@@ -2032,7 +2035,8 @@ jobs:
       APP_ENVIRONMENT: *dp3-env
     steps:
       - checkout
-      - aws_vars_dp3
+      # - aws_vars_dp3
+      - setup_environment_variables_from_aws
       - deploy_migrations_steps:
           ecr_env: *dp3-env
 
@@ -2043,7 +2047,8 @@ jobs:
       APP_ENVIRONMENT: *dp3-env
     steps:
       - checkout
-      - aws_vars_dp3
+      # - aws_vars_dp3
+      - setup_environment_variables_from_aws
       - deploy_dp3_tasks_steps:
           ecr_env: *dp3-env
 
@@ -2061,7 +2066,8 @@ jobs:
       HEALTH_CHECK: 'true'
     steps:
       - checkout
-      - aws_vars_dp3
+      # - aws_vars_dp3
+      - setup_environment_variables_from_aws
       - deploy_app_steps:
           compare_host: '' # leave blank since we want dp3 to be able to roll back
           health_check_hosts: my.<< parameters.dp3-env >>.dp3.us,office.<< parameters.dp3-env >>.dp3.us,admin.<< parameters.dp3-env >>.dp3.us
@@ -2080,7 +2086,8 @@ jobs:
       HEALTH_CHECK: 'true'
     steps:
       - checkout
-      - aws_vars_dp3
+      # - aws_vars_dp3
+      - setup_environment_variables_from_aws
       - tls_vars_dp3
       - deploy_app_client_tls_steps:
           compare_host: '' # leave blank since we want dp3 to be able to roll back
