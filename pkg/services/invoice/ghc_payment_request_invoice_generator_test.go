@@ -1658,7 +1658,7 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		setupTestData()
 
 		// Add TAC/LOA records with fully filled out LOA fields
-		loa := factory.BuildFullLineOfAccounting(nil)
+		loa := factory.BuildFullLineOfAccounting(nil, nil, nil)
 		loa.LoaBgnDt = &sixMonthsBefore
 		loa.LoaEndDt = &sixMonthsAfter
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
@@ -1875,7 +1875,7 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 	setupLoaTestData := func() {
 		allLoaHsGdsCds := []string{models.LineOfAccountingHouseholdGoodsCodeCivilian, models.LineOfAccountingHouseholdGoodsCodeEnlisted, models.LineOfAccountingHouseholdGoodsCodeDual, models.LineOfAccountingHouseholdGoodsCodeOfficer, models.LineOfAccountingHouseholdGoodsCodeNTS, models.LineOfAccountingHouseholdGoodsCodeOther}
 		for i := range allLoaHsGdsCds {
-			loa := factory.BuildFullLineOfAccounting(nil)
+			loa := factory.BuildFullLineOfAccounting(nil, nil, nil)
 			loa.LoaBgnDt = &sixMonthsBefore
 			loa.LoaEndDt = &sixMonthsAfter
 			loa.LoaHsGdsCd = &allLoaHsGdsCds[i]
@@ -1958,7 +1958,7 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 	}
 
 	setupLOA := func(loahgc string) models.LineOfAccounting {
-		loa := factory.BuildFullLineOfAccounting(nil)
+		loa := factory.BuildFullLineOfAccounting(nil, nil, nil)
 		loa.LoaBgnDt = &sixMonthsBefore
 		loa.LoaEndDt = &sixMonthsAfter
 		loa.LoaHsGdsCd = &loahgc
@@ -2137,7 +2137,7 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 
 		// Create LOA with old datetime (loa_bgn_dt) and civilian code
 		loahgc := models.LineOfAccountingHouseholdGoodsCodeCivilian
-		oldLoa := factory.BuildFullLineOfAccounting(nil)
+		oldLoa := factory.BuildFullLineOfAccounting(nil, nil, nil)
 		oldLoa.LoaBgnDt = &fiveYearsAgo
 		oldLoa.LoaEndDt = &sixMonthsAfter // Still need to overlap the order issue date to be included
 		oldLoa.LoaHsGdsCd = &loahgc
