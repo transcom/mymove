@@ -434,11 +434,11 @@ commands:
           name: 'Set up role for the aws-cli'
           command: |
             if [ << parameters.dp3-env >> == "loadtest" ]; then
-              echo "export AWS_ROLE=*loadtest-role" >> $BASH_ENV
+              echo "export AWS_ROLE=$(*loadtest-role)" >> $BASH_ENV
             elif [ << parameters.dp3-env >> == "demo" ]; then
-              echo "export AWS_ROLE=*demo-role" >> $BASH_ENV
+              echo "export AWS_ROLE=$(*demo-role)" >> $BASH_ENV
             else
-              echo "export AWS_ROLE=*exp-role" >> $BASH_ENV
+              echo "export AWS_ROLE=$(*exp-role)" >> $BASH_ENV
             fi
             source $BASH_ENV
       - aws-cli/setup:
