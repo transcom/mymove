@@ -79,16 +79,16 @@ require (
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.43.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.43.0
 	go.opentelemetry.io/contrib/propagators/aws v1.18.0
-	go.opentelemetry.io/otel v1.17.0
+	go.opentelemetry.io/otel v1.18.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v0.40.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.17.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.17.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.18.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.18.0
 	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v0.40.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.17.0
-	go.opentelemetry.io/otel/metric v1.17.0
-	go.opentelemetry.io/otel/sdk v1.17.0
+	go.opentelemetry.io/otel/metric v1.18.0
+	go.opentelemetry.io/otel/sdk v1.18.0
 	go.opentelemetry.io/otel/sdk/metric v0.40.0
-	go.opentelemetry.io/otel/trace v1.17.0
+	go.opentelemetry.io/otel/trace v1.18.0
 	go.uber.org/zap v1.25.0
 	golang.org/x/crypto v0.13.0
 	golang.org/x/net v0.15.0
