@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 
 	verifier "github.com/okta/okta-jwt-verifier-golang"
 	"go.uber.org/zap"
@@ -129,25 +130,34 @@ type Exchange struct {
 	IDToken          string `json:"id_token,omitempty"`
 }
 
-// Future functionality
-/*
-func revokeCurrentOktaToken(r *http.Request, provider okta.Provider, revokeURL, accessToken string) error {
-	authHeader := base64.StdEncoding.EncodeToString(
-		[]byte(provider.GetClientID() + ":" + provider.GetSecret()))
+// logging a user out of okta requires calling the /logout API endpoint
+// it is a GET request and clears the browser session
+// a user will need to re-authenticate upon logging back in
+func logoutOktaUser(provider *okta.Provider, idToken string, redirectURL string) error {
 
-	data := url.Values{}
-	data.Set("token", accessToken)
-	data.Set("token_type_hint", "access_token")
+	// baseURL will end in /logout
+	baseURL := provider.GetLogoutURL()
 
-	req, err := http.NewRequest("POST", revokeURL, strings.NewReader(data.Encode()))
+	// Parse URL
+	logoutURL, err := url.Parse(baseURL)
+	if err != nil {
+		return fmt.Errorf("error parsing URL: %v", err)
+	}
+
+	// add params required by Okta to successfully call the API
+	params := logoutURL.Query()
+	params.Set("id_token_hint", idToken)
+	params.Set("post_logout_redirect_uri", redirectURL)
+
+	logoutURL.RawQuery = params.Encode()
+
+	req, err := http.NewRequest("GET", logoutURL.String(), bytes.NewReader([]byte("")))
 	if err != nil {
 		return fmt.Errorf("error creating the request: %v", err)
 	}
-
 	h := req.Header
-	h.Add("Authorization", "Basic "+authHeader)
 	h.Add("Accept", "application/json")
-	h.Add("Content-Type", "application/x-www-form-urlencoded")
+	h.Add("Content-Type", "application/json")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -156,14 +166,14 @@ func revokeCurrentOktaToken(r *http.Request, provider okta.Provider, revokeURL, 
 	}
 	defer resp.Body.Close()
 
+	// if response code is not 200, then it was probably a bad request
 	if resp.StatusCode != 200 {
 		bodyBytes, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return fmt.Errorf("error reading response body: %v", err)
 		}
-		return fmt.Errorf("failed to revoke token, status: %v, body: %s", resp.Status, string(bodyBytes))
+		return fmt.Errorf("failed to logout, status: %v, body: %s", resp.Status, string(bodyBytes))
 	}
 
-	return nil
+	return err
 }
-*/

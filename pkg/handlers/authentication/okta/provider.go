@@ -255,7 +255,7 @@ func (op *Provider) GetIssuerURL() string {
 }
 
 func (op *Provider) GetLogoutURL() string {
-	return op.orgURL + "/oauth2/v1/logout"
+	return op.orgURL + "/oauth2/default/v1/logout"
 }
 func (op *Provider) GetRevokeURL() string {
 	return op.orgURL + "/oauth2/v1/revoke"
