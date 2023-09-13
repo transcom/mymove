@@ -1,3 +1,4 @@
+# deletes are primarily OCONUS, with a few additional locations that have been removed
 deletes = [
     ("Adak, AK 99546", "c86a979f-a8d6-451a-a9fe-d1b853d92ad8"),
     ("Aiea, HI 96701", "ae2b31c5-49a6-4365-b6b0-9017f87e006e"),
@@ -417,13 +418,9 @@ deletes = [
     ("USCG Base Kodiak", "18704453-ec98-4705-b30d-e4fedb2d5ce5"),
 ]
 
+# merges were found using manual searches of duplicate locations, favoring the form "{location}, {state} {postal_code}"
+# incoming merges' related records are given to the merged record, and the name is added as a duty_location_name
 merges = [
-    (
-        "E CO 2ND BN 25TH MAR DET 10 (1018-1019)",
-        "25TH MAR DET 10 Harrisburg, PA 17110",
-        "7b1860f5-0c11-4cd6-a2be-9844ad1ecd27",
-        "f77c0b88-3953-4c65-aa71-f218e9aec7f6",
-    ),
     (
         "FEDERAL LAW ENFORCEMENT TRNG CTR",
         "Federal Law Enforcement Trng Cntr Glynco, GA 32212",
@@ -1474,6 +1471,8 @@ merges = [
     ("Rome, NY", "Rome, NY 13441", "02118838-b815-4fbb-bea5-88f0b8916a4c"),
 ]
 
+# renames were given as an explicit list by TRANSCOM
+# in cases like Fort Gordon, two records existed; both are renamed and are then included in merges
 renames = [
     ("Fort Gordon", "Fort Eisenhower"),
     ("Fort Gordon, GA 30813", "Fort Eisenhower, GA 30813"),
@@ -1509,8 +1508,10 @@ renames = [
         "USCG Surface Forces Logistics Command Baltimore",
         "USCG Sector Baltimore, MD 21226",
     ),
+    ("E CO 2ND BN 25TH MAR DET 10 (1018-1019)", "25TH MAR DET 10 Harrisburg, PA 17110"),
 ]
 
+# news are any duty locations in the original spreadsheet that did not appear in either the existing database or any of the above
 news = [
     (
         "4df2711e-3df8-41cf-a61f-4098858588c9",
@@ -1523,6 +1524,7 @@ news = [
         "MI",
         "48397",
         "ASC Detroit Arsenal, DTA Michigan",
+        "07c5e487-ee37-4e43-b2db-2b4bd79ea7e5",
     ),
     (
         "4decb74b-f3b5-4802-a43b-a3d2348ebb66",
@@ -1535,6 +1537,7 @@ news = [
         "KY",
         "40475",
         "BGAD",
+        "175a4999-ccf7-4077-b25f-955e19fd5873",
     ),
     (
         "6b29d8b4-913b-4059-a5ec-c02f43d5d126",
@@ -1547,6 +1550,7 @@ news = [
         "CO",
         "80011",
         "Buckley Air Force Base, Buckley Space Force Base, Buckley AFB",
+        "9ff34ab7-2e87-4515-be3a-f35c90e65e6a",
     ),
     (
         "9e372e6c-86d9-444c-b3dd-67adec47d0fb",
@@ -1559,6 +1563,7 @@ news = [
         "MA",
         "02542",
         "Buzzards Bay",
+        "ca40217d-c4e0-4931-b181-e8b99c4a2a75",
     ),
     (
         "4836b832-7329-4900-a4cf-d279e8426b41",
@@ -1571,6 +1576,7 @@ news = [
         "TX",
         "76127",
         "Carswell Field, Naval Air Station Fort Worth Joint Reserve Base, NAS Fort Worth, Naval AS JRB, Naval Air Station JRB",
+        "f69f315c-942a-4ef3-9427-7fee7883ce73",
     ),
     (
         "fc251255-0d52-404c-bc9a-c6d347a9e3cf",
@@ -1583,6 +1589,7 @@ news = [
         "MD",
         "21226",
         "Coast Guard Yard, Coast Guard Yard Curtis Bay",
+        "0a048293-15c4-4036-8915-dd4b9d3ef2de",
     ),
     (
         "86ef59f9-bfd9-4868-8301-20a289cb8cfb",
@@ -1595,6 +1602,7 @@ news = [
         "MS",
         "39710",
         "Columbus Air Force Base",
+        "1ef624a7-d612-4457-b310-d9e4c3fd6c85",
     ),
     (
         "dcdf99ac-581c-4d23-a074-a77188a1afe2",
@@ -1607,6 +1615,7 @@ news = [
         "NV",
         "89018",
         "Creech Air Force Base",
+        "5de30a80-a8e5-458c-9b54-edfae7b8cdb9",
     ),
     (
         "2f9708b2-dab0-445e-a4b3-ae25fe9cf286",
@@ -1619,6 +1628,7 @@ news = [
         "AZ",
         "85707",
         "Davis-Monthan Air Force Base",
+        "54156892-dff1-4657-8998-39ff4e3a259e",
     ),
     (
         "851acd34-fa2d-4e9b-b77a-e8ceea97c169",
@@ -1631,6 +1641,7 @@ news = [
         "UT",
         "84022",
         "DPG",
+        "c8d5f80f-07c9-4d5f-9479-90b02e48c1d1",
     ),
     (
         "44da0493-72fa-4d62-aca6-f34b29392973",
@@ -1643,6 +1654,7 @@ news = [
         "CA",
         "93523",
         "Edwards Air Force Base",
+        "311b5292-6a8c-4ed4-a7e1-374734118737",
     ),
     (
         "3b8472c3-1201-4b8c-821e-0065b8fcdd89",
@@ -1655,6 +1667,7 @@ news = [
         "CA",
         "93524",
         "Edwards Air Force Base",
+        "311b5292-6a8c-4ed4-a7e1-374734118737",
     ),
     (
         "ac4756be-73bc-4fb9-b9ed-b011094e4727",
@@ -1667,6 +1680,7 @@ news = [
         "TX",
         "77034",
         "Ellington Field Air National Guard Base, Hunter Army Airfield",
+        "4716d536-7879-4eca-a5a8-cdff3a451367",
     ),
     (
         "520b7015-3f81-4a33-9996-032f056c684e",
@@ -1679,6 +1693,7 @@ news = [
         "WY",
         "82005",
         "F.E. Warren Air Force Base",
+        "485ab35a-79e0-4db4-9f13-09f57532deee",
     ),
     (
         "87468748-59f1-4a79-bc0d-bbe319939dc9",
@@ -1691,6 +1706,7 @@ news = [
         "WA",
         "99011",
         "Fairchild Air Force Base",
+        "972c238d-89a0-4b50-a0cf-79995c3ed1e7",
     ),
     (
         "2e842bbc-fcc1-4e1c-bfca-c047a5bb5dcc",
@@ -1703,6 +1719,7 @@ news = [
         "CO",
         "80913",
         "Ft Carson",
+        "c696167c-9320-4c73-b0ce-80ec0920d9fd",
     ),
     (
         "d928c0f7-826e-4cdc-bffe-1af43b9a6e1f",
@@ -1715,6 +1732,7 @@ news = [
         "MD",
         "21702",
         "Ft Detrick",
+        "1fd1720c-4dfb-40e4-b661-b4ac994deaae",
     ),
     (
         "62e795f4-61a8-4cca-b59d-028345c07b89",
@@ -1727,6 +1745,7 @@ news = [
         "GA",
         "30813",
         "Ft Eisenhower",
+        "19bd6cfc-35a9-4aa4-bbff-dd5efa7a9e3f",
     ),
     (
         "9cf15b8d-985b-4ca3-9f27-4ba32a263908",
@@ -1739,6 +1758,7 @@ news = [
         "VA",
         "23801",
         "Ft Gregg-Adams",
+        "4cc26e01-f0ea-4048-8081-1d179426a6d9",
     ),
     (
         "c5860474-7688-4a79-8b3f-00d893962e0a",
@@ -1751,6 +1771,7 @@ news = [
         "NY",
         "11252",
         "Ft Hamilton",
+        "9324bf4b-d84f-4a28-994f-32cdda5580d1",
     ),
     (
         "bf0d30ed-0bec-4353-9d46-576a3d198c56",
@@ -1763,6 +1784,7 @@ news = [
         "SC",
         "29207",
         "Ft Jackson",
+        "a1baca88-3b40-4dff-8c87-aa38b3d5acf2",
     ),
     (
         "594460fe-c448-4b28-a113-4380ed036aa5",
@@ -1775,6 +1797,7 @@ news = [
         "KS",
         "66048",
         "Ft Leavenworth",
+        "b2f76d56-6996-41a3-aef7-483524a643d1",
     ),
     (
         "d34d1eb3-42cf-4909-87e6-b96bbb1af69e",
@@ -1787,6 +1810,7 @@ news = [
         "WI",
         "54656",
         "Ft McCoy",
+        "dc7c6746-50b5-418a-a925-66dfa19481df",
     ),
     (
         "070a53c3-5f6f-4e04-b405-38c39cc3e029",
@@ -1799,6 +1823,7 @@ news = [
         "GA",
         "31905",
         "Ft Moore",
+        "5a9ed15c-ed78-47e5-8afd-7583f3cc660d",
     ),
     (
         "7c469b60-fa3c-4782-a025-3ff5262cc70d",
@@ -1811,6 +1836,7 @@ news = [
         "DC",
         "20032",
         "JBAB, Joint Base Anacostia-Bolling",
+        "d06fce02-5133-4c47-a0a4-83559826b9f5",
     ),
     (
         "788cc724-e91b-40cf-8a68-c021c5ced84f",
@@ -1823,6 +1849,7 @@ news = [
         "VA",
         "23604",
         "JBLE, Joint Base Langley-Eustis",
+        "e3f5e683-889f-437f-b13d-3ccd7ad0d453",
     ),
     (
         "ff90f2bb-4613-407c-bbbf-939204c263ec",
@@ -1835,6 +1862,7 @@ news = [
         "WA",
         "98433",
         "JBLM-Lewis",
+        "c21c5710-e2ff-4548-827b-0b26f83d3119",
     ),
     (
         "2679c00b-bbab-485d-bcb8-7d043d278850",
@@ -1847,6 +1875,7 @@ news = [
         "WA",
         "98438",
         "JBLM, Joint Base Lewis-McChord, JBLM-McChord",
+        "95abaeaa-452f-4fe0-9264-960cd2a15ccd",
     ),
     (
         "3cb479b9-5f11-429f-b78e-032c5957bea3",
@@ -1859,6 +1888,7 @@ news = [
         "MD",
         "20735",
         "Joint Base Andrews",
+        "d9807312-f4d0-4186-ab23-c770974ea5a7",
     ),
     (
         "2406028d-8e7f-481f-855e-86603549afd4",
@@ -1871,6 +1901,7 @@ news = [
         "MD",
         "20746",
         "Joint Base Andrews",
+        "d9807312-f4d0-4186-ab23-c770974ea5a7",
     ),
     (
         "bd08785d-18cb-4ab1-a5b9-998c6df77e7c",
@@ -1883,6 +1914,7 @@ news = [
         "MD",
         "20762",
         "Joint Base Andrews",
+        "d9807312-f4d0-4186-ab23-c770974ea5a7",
     ),
     (
         "4b89c997-8097-4abb-a430-27f6760fc643",
@@ -1895,6 +1927,7 @@ news = [
         "NJ",
         "08640",
         "Joint Base McGuire-Dix-Lakehurst, JBMDL",
+        "10052404-6cf0-47da-b5bc-42b03e02f904",
     ),
     (
         "1d699a4b-85e4-4c43-a86a-2ff0d64e0cbf",
@@ -1907,6 +1940,7 @@ news = [
         "NJ",
         "08753",
         "Joint Base McGuire-Dix-Lakehurst, JBMDL",
+        "10052404-6cf0-47da-b5bc-42b03e02f904",
     ),
     (
         "7425fcb9-4f2e-4345-bb6a-bbbf7f473268",
@@ -1919,6 +1953,7 @@ news = [
         "NJ",
         "08562",
         "Joint Base McGuire-Dix-Lakehurst, JBMDL",
+        "10052404-6cf0-47da-b5bc-42b03e02f904",
     ),
     (
         "a702b3e5-b12b-47ce-bb79-870fff5a3699",
@@ -1931,6 +1966,7 @@ news = [
         "NJ",
         "08641",
         "Joint Base McGuire-Dix-Lakehurst, JBMDL",
+        "10052404-6cf0-47da-b5bc-42b03e02f904",
     ),
     (
         "6d0e4437-e506-4e22-bf5b-1045ab43009f",
@@ -1943,6 +1979,7 @@ news = [
         "VA",
         "22214",
         "Joint Base Myer-Henderson Hall",
+        "20e19766-555d-486d-96a0-995d4d2cdacf",
     ),
     (
         "c6c49c5c-db92-4e61-9af7-9fbf0a5505a8",
@@ -1955,6 +1992,7 @@ news = [
         "MS",
         "39534",
         "Keesler Air Force Base",
+        "7fcd0f3d-49de-4445-bd1d-074ed1a29215",
     ),
     (
         "e1f8cbd8-ed1f-49b5-978f-98944a4b2552",
@@ -1967,6 +2005,7 @@ news = [
         "CA",
         "90245",
         "LAAFB, Los Angeles Air Force Base, LASFB, Los Angeles Space Force Base",
+        "ca6234a4-ed56-4094-a39c-738802798c6b",
     ),
     (
         "450ce4e6-7ee7-4e24-aa15-d2fefa6cd7d8",
@@ -1979,6 +2018,7 @@ news = [
         "AZ",
         "85309",
         "Luke Air Force Base",
+        "3210a533-19b8-4805-a564-7eb452afce10",
     ),
     (
         "a95a2884-5902-4b54-8057-7e3a35fe982d",
@@ -1991,6 +2031,7 @@ news = [
         "FL",
         "33608",
         "MacDill Air Force Base",
+        "21b421c5-c1cb-43ff-8b3b-65dabe6f39cc",
     ),
     (
         "74651905-dd53-49f9-a196-6c3e9b43c734",
@@ -2003,6 +2044,7 @@ news = [
         "CA",
         "93517",
         "Marine Corps Mountain Warfare Training Center - Bridgeport",
+        "fab58a38-ee1f-4adf-929a-2dd246fc5e67",
     ),
     (
         "381a7342-9c35-4f55-a613-a413049fa6d7",
@@ -2015,6 +2057,7 @@ news = [
         "AL",
         "36112",
         "Maxwell Air Force Base",
+        "9215499f-4ac2-488f-b91d-6f14ec9d9160",
     ),
     (
         "e017cd1a-a2b1-4e64-b887-e6e06e2d3f6c",
@@ -2027,6 +2070,7 @@ news = [
         "OK",
         "74501",
         "McAlester Army Ammunition Plant, McAlester AAP",
+        "d1359c20-c762-4b04-9ed6-fd2b9060615b",
     ),
     (
         "e0a40c01-7e93-4b6a-9e61-2a320cf6e332",
@@ -2039,6 +2083,7 @@ news = [
         "AZ",
         "85369",
         "MCAS Yuma",
+        "7145e8fe-465b-44e5-a486-b893357148ef",
     ),
     (
         "dac0aebc-87a4-475d-92f1-cddcfef7c607",
@@ -2051,6 +2096,7 @@ news = [
         "WA",
         "98278",
         "NASWI, Naval Air Station Whidbey Island",
+        "f133c300-16af-4381-a1d7-a34edb094103",
     ),
     (
         "e0bd6585-c828-4533-b3d0-f6a5b278269f",
@@ -2063,6 +2109,7 @@ news = [
         "TX",
         "78419",
         "Naval Air Station Corpus Christi",
+        "5853ef41-0169-4050-9483-2d2bb382bd4e",
     ),
     (
         "e1934d66-96b5-439c-b092-07ec27f9e67c",
@@ -2075,6 +2122,7 @@ news = [
         "NV",
         "89496",
         "Naval Air Station Fallon",
+        "e665a46c-059e-4834-b7df-6e973747a92e",
     ),
     (
         "4a7dc605-833a-47ea-904d-f751a8be1aec",
@@ -2087,6 +2135,7 @@ news = [
         "LA",
         "70143",
         "Naval Air Station Joint Reserve Base New Orleans",
+        "358ab6bb-9d2c-4f07-9be8-b69e1a92b4f8",
     ),
     (
         "b06c1089-ab9a-49b3-a6fc-1bd077743db4",
@@ -2099,6 +2148,7 @@ news = [
         "FL",
         "33040",
         "Naval Air Station Key West",
+        "d29f36e7-003c-44e9-84f5-d8045f63fb87",
     ),
     (
         "3e60ffbe-a87a-431f-a0d8-0e400a7df0a1",
@@ -2111,6 +2161,7 @@ news = [
         "CA",
         "93246",
         "Naval Air Station Lemoore",
+        "1039d189-39ba-47d4-8ed7-c96304576862",
     ),
     (
         "334fecaf-abeb-49ce-99b5-81d69c8beae5",
@@ -2123,6 +2174,7 @@ news = [
         "MS",
         "39302",
         "Naval Air Station Meridian",
+        "f8c700ae-6633-4092-95a5-dddbf10da356",
     ),
     (
         "52e3db3b-7900-4620-ab89-808bb0b3de0d",
@@ -2135,6 +2187,7 @@ news = [
         "MD",
         "20670",
         "Naval Air Station Patuxent River",
+        "c12dcaae-ffcd-44aa-ae7b-2798f9e5f418",
     ),
     (
         "d2c9b1d7-6c81-466c-969e-de8036146587",
@@ -2147,6 +2200,7 @@ news = [
         "FL",
         "32508",
         "Naval Air Station Pensacola, Naval Support Activity Pensacola",
+        "2581f0aa-bc31-4c89-92cd-9a1843b49e59",
     ),
     (
         "e68eab7b-dc78-4ad0-a248-449d7f0c955a",
@@ -2159,6 +2213,7 @@ news = [
         "CA",
         "93555",
         "Naval Air Weapons Station China Lake",
+        "7e50b5f0-1717-4067-95d5-a2adb41939c5",
     ),
     (
         "679f98d2-ac51-41d9-8a05-05dd74f9d1c9",
@@ -2171,6 +2226,7 @@ news = [
         "MS",
         "39501",
         "Naval Construction Battalion Center Gulfport",
+        "3ea05911-86f9-4cf1-8f8e-b5e46ed36d4c",
     ),
     (
         "880654b0-ac66-42d9-83a7-ce9a3f3281d5",
@@ -2183,6 +2239,7 @@ news = [
         "WA",
         "98207",
         "Naval Station Everett",
+        "880fff01-d4be-4317-92f1-a3fab7ab1149",
     ),
     (
         "924af89b-a0cd-4556-93ce-692e6d90a914",
@@ -2195,6 +2252,7 @@ news = [
         "RI",
         "02841",
         "Naval Station Newport",
+        "afafec09-7a91-4a7e-981d-3601f700ebbf",
     ),
     (
         "023b1791-c436-4773-997d-5bdaab6e0c70",
@@ -2207,6 +2265,7 @@ news = [
         "VA",
         "23505",
         "Naval Station Norfolk, FLC Norfolk",
+        "cc6ce760-c324-4b83-bed7-c24153fd074c",
     ),
     (
         "e03b3503-33b2-4f59-af5e-77233950e7e5",
@@ -2219,6 +2278,7 @@ news = [
         "CT",
         "06349",
         "Naval Submarine Base New London",
+        "5eb485ae-fb9c-4c90-80e4-6231158797df",
     ),
     (
         "fde869af-0bb9-4b60-90c1-0a47c1d64659",
@@ -2231,6 +2291,7 @@ news = [
         "WA",
         "98315",
         "Naval Supply Fleet Logistics Center Puget Sound",
+        "affb700e-7e76-4fcc-a143-2c4ea4b0c480",
     ),
     (
         "0e5cf581-d4a4-466b-91a4-0a860ad44d19",
@@ -2243,6 +2304,7 @@ news = [
         "NY",
         "12866",
         "Naval Support Activity Saratoga Springs",
+        "559eb724-7577-4e4c-830f-e55cbb030e06",
     ),
     (
         "c92e7b3d-25fb-42ae-aa6f-857fa2662c31",
@@ -2255,6 +2317,7 @@ news = [
         "CA",
         "93043",
         "NBVC, Naval Base Ventury County",
+        "8b78ce40-0b34-413d-98af-c51d440e7a4d",
     ),
     (
         "df9efc27-35bc-4262-a073-70e8910461ea",
@@ -2267,6 +2330,7 @@ news = [
         "CA",
         "93940",
         "NPS",
+        "2a0fb7ab-5a57-4450-b782-e7a58713bccb",
     ),
     (
         "2f5528e9-2cc3-4924-a376-6d02b038f234",
@@ -2279,6 +2343,7 @@ news = [
         "MD",
         "20889",
         "NSAB, Naval Support Activity Bethesda",
+        "0a58af30-a939-46a2-9b09-1fc40c5f0011",
     ),
     (
         "d464e3aa-4163-4a9a-93e8-ea6f5761980f",
@@ -2291,6 +2356,7 @@ news = [
         "TN",
         "38054",
         "NSAMS, Naval Support Activity Mid-South",
+        "04df1fa8-a0e9-4a1e-9d03-7e37947ce81d",
     ),
     (
         "3c95c3e4-4b6c-40f9-8abc-213454e612b7",
@@ -2303,6 +2369,7 @@ news = [
         "FL",
         "32407",
         "NSAPC, Naval Support Activity Panama City",
+        "57cf1e81-8113-4a52-bc50-3cb8902c2efd",
     ),
     (
         "90c7f3d5-6f69-4be6-bd09-3f46703f9501",
@@ -2315,6 +2382,7 @@ news = [
         "IL",
         "60088",
         "NTC Great Lakes",
+        "c65f1903-9f40-42e8-9720-f4e804702817",
     ),
     (
         "f25a6aee-c594-48c6-9f46-68a46ad18ba5",
@@ -2327,6 +2395,7 @@ news = [
         "AR",
         "71602",
         "PBA",
+        "65363850-3cb1-44c7-a7c1-191b28a53479",
     ),
     (
         "6def5b0a-4afb-4c73-82fd-355278679e97",
@@ -2339,6 +2408,7 @@ news = [
         "CO",
         "80916",
         "Peterson Air Force Base, Peterson Space Force Base, Peterson AFB",
+        "cc107598-3d72-4679-a4aa-c28d1fd2a016",
     ),
     (
         "8a41c2a0-38f5-4df8-b720-f8560314310f",
@@ -2351,6 +2421,7 @@ news = [
         "ME",
         "03904",
         "PNS, Portsmouth Navy Yard",
+        "30ad1395-fc3b-4a16-839d-865b19898f8d",
     ),
     (
         "0ed8ed35-730c-4c5b-8364-518a93fc10e9",
@@ -2363,6 +2434,7 @@ news = [
         "GA",
         "31098",
         "Robins Air Force Base",
+        "540e2057-7a6a-4a39-8ff5-2e472c4fcd25",
     ),
     (
         "3d947e08-8d29-4a8a-bce6-5e95e069d718",
@@ -2375,6 +2447,7 @@ news = [
         "IL",
         "61299",
         "RSA",
+        "9e83a154-ae38-47a2-98da-52b38f4a87a1",
     ),
     (
         "ee5ea675-6575-4afe-b6fc-634662b2c359",
@@ -2387,6 +2460,7 @@ news = [
         "CO",
         "80912",
         "Schriever Air Force Base, Schriever Space Force Base",
+        "cc107598-3d72-4679-a4aa-c28d1fd2a016",
     ),
     (
         "2c85d8d6-00a8-44ba-a81e-2b5ee7bdfd7e",
@@ -2399,6 +2473,7 @@ news = [
         "CO",
         "80914",
         "Schriever Air Force Base, Schriever Space Force Base",
+        "cc107598-3d72-4679-a4aa-c28d1fd2a016",
     ),
     (
         "59eb25a5-1246-4ecb-9fa9-b47f78583967",
@@ -2411,6 +2486,7 @@ news = [
         "NC",
         "27531",
         "Seymour Johnson Air Force Base",
+        "f760ee76-d386-47d8-9df1-aff8c347fa96",
     ),
     (
         "09a6084a-ff6c-42cf-9468-5dc1624e8dd0",
@@ -2423,6 +2499,7 @@ news = [
         "NY",
         "10305",
         "Staten Island",
+        "19bafaf1-8e6f-492d-b6ac-6eacc1e5b64c",
     ),
     (
         "15397ba5-9f54-4468-98c2-fccee3b46dd2",
@@ -2435,6 +2512,7 @@ news = [
         "FL",
         "32403",
         "Tyndall Air Force Base",
+        "4a2e6595-46e0-477c-b037-dfe042283ebe",
     ),
     (
         "9c178d28-c6a3-4102-baaa-5945cf9ab063",
@@ -2447,6 +2525,7 @@ news = [
         "FL",
         "33172",
         "USAG-Miami Southern Command",
+        "7f7cc97c-2f3c-4866-90fe-b335f5c8e042",
     ),
     (
         "8f79f552-de45-4be0-af10-8df5e72e89a4",
@@ -2459,6 +2538,7 @@ news = [
         "AL",
         "36608",
         "USCG Aviation Training Center Mobile",
+        "c2c440ae-5394-4483-84fb-f872e32126bb",
     ),
     (
         "05d2e90c-6b59-4302-b314-4a8805aa7a73",
@@ -2471,6 +2551,7 @@ news = [
         "MO",
         "63103",
         "USCG Base St. Louis",
+        "254765b6-1781-4441-b7f1-27c42beaa583",
     ),
     (
         "ff41e7c2-0f8c-4c16-9fe6-3bebed9e1e1e",
@@ -2483,6 +2564,7 @@ news = [
         "DC",
         "20593",
         "USCG Washington DC, USCG NCR, US Coast Guard Washington",
+        "12377a7a-7cd0-4c75-acbb-1a19242909f0",
     ),
     (
         "390ef713-8b82-4bc3-ba86-46225454cde1",
@@ -2495,6 +2577,7 @@ news = [
         "MD",
         "21402",
         "USNA, Annapolis",
+        "6eca781d-7b97-4893-afbe-2048c1629007",
     ),
     (
         "2b896908-e329-4129-be53-48cd677aa8a0",
@@ -2507,6 +2590,7 @@ news = [
         "OK",
         "73705",
         "Vance Air Force Base",
+        "2be0d1b8-68f0-4aee-b86b-5babbd5d49af",
     ),
     (
         "e8fa27a5-3bc5-45f3-9743-f36358ee3aac",
@@ -2519,6 +2603,7 @@ news = [
         "CA",
         "93437",
         "Vandenberg Air Force Base, Vandenberg Space Force Base, Vandenberg AFB",
+        "32b29875-474a-4983-98c2-c02694d10724",
     ),
     (
         "9f3c96ca-0c83-4481-a4e4-a29c818ed4de",
@@ -2531,18 +2616,7 @@ news = [
         "OH",
         "45433",
         "WPAFB, Wright-Patterson Air Force Base",
-    ),
-    (
-        "7b1860f5-0c11-4cd6-a2be-9844ad1ecd27",
-        "25TH MAR DET 10 Harrisburg, PA 17110",
-        "43df6263-3823-4ced-b204-f737f47c6c22",
-        "BGAC",
-        "MARINES",
-        "n/a",
-        "Harrisburg",
-        "PA",
-        "17110",
-        "",
+        "9ac9a242-d193-49b9-b24a-f2825452f737",
     ),
     (
         "9e3a2b54-03fb-457c-9957-9ebb5be9dd29",
@@ -2555,6 +2629,7 @@ news = [
         "PA",
         "17013",
         "",
+        None,
     ),
     (
         "0d0835c8-b142-431b-9bf4-a621bf37ccd7",
@@ -2567,6 +2642,7 @@ news = [
         "PA",
         "17013",
         "",
+        "e37860be-c642-4037-af9a-8a1be690d8d7",
     ),
     (
         "49b38b5a-2a38-4729-850c-0743ed2568f7",
@@ -2579,6 +2655,7 @@ news = [
         "GA",
         "32212",
         "",
+        None,
     ),
     (
         "e74bc2d1-1a7e-4800-b5ba-bde50996625b",
@@ -2591,6 +2668,7 @@ news = [
         "FL",
         "32212",
         "",
+        "f5ab88fe-47f8-4b58-99af-41067d6cb60d",
     ),
     (
         "ee2a98c3-8549-4afc-9e49-0d32e293f002",
@@ -2603,6 +2681,7 @@ news = [
         "KY",
         "41017",
         "",
+        None,
     ),
     (
         "ff5c62ac-b192-4884-9043-b75918514d52",
@@ -2615,6 +2694,7 @@ news = [
         "GA",
         "31995",
         "",
+        None,
     ),
     (
         "df907842-6c4d-43d3-8a23-93005f9d6397",
@@ -2627,6 +2707,7 @@ news = [
         "VA",
         "22427",
         "",
+        None,
     ),
     (
         "31795101-1866-4d2a-8bf2-4514cccf7601",
@@ -2639,6 +2720,7 @@ news = [
         "SC",
         "29404",
         "",
+        "ae98567c-3943-4ab8-92b4-771275d9b918",
     ),
     (
         "22fba9fc-65d6-426b-9743-28ae8eb0db5a",
@@ -2651,6 +2733,7 @@ news = [
         "SC",
         "29445",
         "",
+        "67281ea0-222a-41ea-9ec2-dc274a2513ea",
     ),
     (
         "772a2408-23ef-4873-b8d1-aecff3c571eb",
@@ -2663,6 +2746,7 @@ news = [
         "VA",
         "23665",
         "",
+        "525af4ce-3656-4ec6-a23d-2df6b4f39b64",
     ),
     (
         "d7df0313-39ec-42e3-a829-a94fe9b16ab0",
@@ -2675,6 +2759,7 @@ news = [
         "VA",
         "22211",
         "",
+        None,
     ),
     (
         "cb1af2b1-9490-4dfb-a018-ab516096aa0d",
@@ -2687,6 +2772,7 @@ news = [
         "MN",
         "55109",
         "",
+        None,
     ),
     (
         "12b7395f-e6a3-4416-b139-5300437a72f2",
@@ -2699,6 +2785,7 @@ news = [
         "FL",
         "33068",
         "",
+        None,
     ),
     (
         "eca7fafb-bed9-43d5-afca-4c4c67a03621",
@@ -2711,6 +2798,7 @@ news = [
         "FL",
         "33073",
         "",
+        None,
     ),
     (
         "4226d1ff-3b57-4434-9b3b-33b5c026f54f",
@@ -2723,6 +2811,7 @@ news = [
         "SC",
         "29904",
         "",
+        "e83c17ae-600c-43aa-ba0b-321936038f36",
     ),
     (
         "8c64d965-b8c1-43f5-9394-57fe46c2d2d9",
@@ -2735,6 +2824,7 @@ news = [
         "NC",
         "28533",
         "",
+        "1c17dc49-f411-4815-9b96-71b26a960f7b",
     ),
     (
         "0efa7d10-feb9-42a9-9b74-9fb2f2a11fb7",
@@ -2747,6 +2837,7 @@ news = [
         "VA",
         "22134",
         "",
+        "2ffbe627-9918-4f52-a440-4be87f5fca73",
     ),
     (
         "f070428c-d441-4d68-936d-93412f8129ec",
@@ -2759,6 +2850,7 @@ news = [
         "GA",
         "31704",
         "",
+        "65bc635c-c097-428b-a4e5-8b752510f22e",
     ),
     (
         "3a40137a-c61d-4cf2-a5eb-ec156fce9fdc",
@@ -2771,6 +2863,7 @@ news = [
         "CA",
         "92140",
         "",
+        "7e6b9019-5493-40a4-9dcd-c83fb4f77961",
     ),
     (
         "d86d7760-9aba-41de-875a-85f577007c79",
@@ -2783,6 +2876,7 @@ news = [
         "UT",
         "84413",
         "",
+        "8f849395-2dfb-48ee-9bc5-704189a3b366",
     ),
     (
         "12e0b451-7a52-4870-aa5e-5ed0b470b77b",
@@ -2795,6 +2889,7 @@ news = [
         "FL",
         "33014",
         "",
+        None,
     ),
     (
         "dc90d07f-a8aa-4d09-aa16-88f06c1e844c",
@@ -2807,6 +2902,7 @@ news = [
         "OH",
         "44130",
         "",
+        None,
     ),
     (
         "7290e56e-86b5-44dc-a687-532e873597d8",
@@ -2819,6 +2915,7 @@ news = [
         "OK",
         "73130",
         "",
+        None,
     ),
     (
         "9fa52891-b51b-42f6-a8ea-9be5591146e5",
@@ -2831,6 +2928,7 @@ news = [
         "CA",
         "94035",
         "",
+        "a038e200-8db4-499f-b1a3-2c15f6e97614",
     ),
     (
         "de169d3b-9455-4fdd-aaf3-a06b54f26f2c",
@@ -2843,6 +2941,7 @@ news = [
         "WI",
         "53716",
         "",
+        None,
     ),
     (
         "a2c11931-dd99-4825-bfdb-7aae87fbc42f",
@@ -2855,6 +2954,7 @@ news = [
         "PA",
         "17201",
         "",
+        "e37860be-c642-4037-af9a-8a1be690d8d7",
     ),
     (
         "385ae74b-3f59-49e7-82f2-a4b767f047ea",
@@ -2867,6 +2967,7 @@ news = [
         "TX",
         "76127",
         "",
+        None,
     ),
     (
         "1bb0676c-7e09-40d2-be10-74a3f0ab00b3",
@@ -2879,6 +2980,7 @@ news = [
         "CA",
         "92878",
         "",
+        "bc3e0b87-7a63-44be-b551-1510e8e24655",
     ),
     (
         "1909123e-5914-43d4-8cb5-d03121e45750",
@@ -2891,6 +2993,7 @@ news = [
         "CA",
         "92136",
         "",
+        "27002d34-e9ea-4ef5-a086-f23d07c4088c",
     ),
     (
         "ebe1ffcd-8c90-416a-9a41-1f669bce8f53",
@@ -2903,6 +3006,7 @@ news = [
         "CA",
         "90740",
         "",
+        "a0de70b3-e7e9-4e47-8c7e-3f9f7ba4c5ab",
     ),
     (
         "c8ac6ee5-0006-4aa3-903a-80e00ba48a6d",
@@ -2915,6 +3019,7 @@ news = [
         "CA",
         "95652",
         "",
+        None,
     ),
     (
         "1d0bf8ea-09a5-485d-b836-b1d0261ae77f",
@@ -2927,6 +3032,7 @@ news = [
         "FL",
         "33162",
         "",
+        None,
     ),
     (
         "a729081e-4fec-4526-aa04-d560d5d3e8a0",
@@ -2939,6 +3045,7 @@ news = [
         "IL",
         "60546",
         "",
+        None,
     ),
     (
         "0ebf7e87-926d-4ddc-ba41-13b989fbfcad",
@@ -2951,6 +3058,7 @@ news = [
         "MO",
         "65804",
         "",
+        "add2ac4a-2cd2-4ec5-aa16-1d39ac454bc7",
     ),
     (
         "835cd9a7-c3cb-4e58-ad4d-52edbda0a267",
@@ -2963,6 +3071,7 @@ news = [
         "PA",
         "15137",
         "",
+        "e37860be-c642-4037-af9a-8a1be690d8d7",
     ),
     (
         "5991d612-072c-483b-ab51-c4e7b0b607e3",
@@ -2975,6 +3084,7 @@ news = [
         "FL",
         "32571",
         "",
+        None,
     ),
     (
         "b1f144e9-6d5b-46e8-990b-0ecc11afdebf",
@@ -2987,6 +3097,7 @@ news = [
         "WA",
         "98444",
         "",
+        None,
     ),
     (
         "059d4313-485f-432a-a2cc-5357a3e9dbd1",
@@ -2999,6 +3110,7 @@ news = [
         "OH",
         "44130",
         "",
+        None,
     ),
     (
         "2df0d25d-8c40-47ea-b762-ac1f08bf2d11",
@@ -3011,6 +3123,7 @@ news = [
         "FL",
         "33024",
         "",
+        None,
     ),
     (
         "9d982756-f462-4772-b941-aa8b5beb0cab",
@@ -3023,6 +3136,7 @@ news = [
         "AL",
         "35898",
         "",
+        "5cdb638c-2649-45e3-b8d7-1b5ff5040228",
     ),
     (
         "0a187a7b-21dd-4324-b588-a91bddb445f0",
@@ -3035,6 +3149,7 @@ news = [
         "VA",
         "23294",
         "",
+        None,
     ),
     (
         "17ef708a-05e1-4aab-909c-414652123dbb",
@@ -3047,6 +3162,7 @@ news = [
         "OH",
         "45431",
         "",
+        None,
     ),
     (
         "91016dde-030c-4583-8bb6-2ae1aed813ea",
@@ -3059,6 +3175,7 @@ news = [
         "MN",
         "55113",
         "",
+        None,
     ),
     (
         "dcdf67ec-f43b-4d99-9b16-2a8627652ab7",
@@ -3071,6 +3188,7 @@ news = [
         "WA",
         "99212",
         "",
+        None,
     ),
     (
         "67cc1bcc-0315-490c-95f7-ccd959810e42",
@@ -3083,6 +3201,7 @@ news = [
         "UT",
         "84118",
         "",
+        None,
     ),
     (
         "626b2f46-1092-47d7-be03-8c2168a0384a",
@@ -3095,6 +3214,7 @@ news = [
         "VA",
         "22202",
         "",
+        "d9807312-f4d0-4186-ab23-c770974ea5a7",
     ),
     (
         "431aafae-b879-42a5-8e34-682856352a22",
@@ -3107,6 +3227,7 @@ news = [
         "CO",
         "80229",
         "",
+        None,
     ),
     (
         "5207370d-e7c2-4638-8afe-eb1461dd85d9",
@@ -3119,6 +3240,7 @@ news = [
         "NJ",
         "07724",
         "",
+        None,
     ),
     (
         "ce5b2152-3c3e-4955-b127-5cb068cd647c",
@@ -3131,6 +3253,7 @@ news = [
         "WA",
         "98188",
         "",
+        None,
     ),
     (
         "73c3a46a-6cca-4338-a486-67139a3e86df",
@@ -3143,6 +3266,7 @@ news = [
         "MO",
         "65211",
         "",
+        "631d129b-5d1c-4bed-b37f-d54c423832ef",
     ),
     (
         "144b7208-c6da-46f0-ba97-a291e8164b27",
@@ -3155,6 +3279,7 @@ news = [
         "CA",
         "94501",
         "",
+        "9c509a6f-e87c-4e1f-b04d-780ddaf4d340",
     ),
     (
         "fe22d023-426a-4ecb-a36d-681545672636",
@@ -3167,6 +3292,7 @@ news = [
         "MA",
         "02109",
         "",
+        "cf1addea-a4f9-4173-8506-2bb82a064cb7",
     ),
     (
         "5e133fcd-ac0b-4a7d-aa06-aaee06870509",
@@ -3179,6 +3305,7 @@ news = [
         "SC",
         "29405",
         "",
+        "b429ec35-eb8b-4c35-979b-e96cb9a9cbf7",
     ),
     (
         "10e775c0-407a-4fc1-810d-ae8465a779e6",
@@ -3191,6 +3318,7 @@ news = [
         "NC",
         "27909",
         "",
+        "f7d9f4a4-c097-4c72-b0a8-41fc59e9cf44",
     ),
     (
         "5d52de22-cdf5-4553-811f-05c38faf831f",
@@ -3203,6 +3331,7 @@ news = [
         "CA",
         "90731",
         "",
+        "f3ce3548-fb03-4e2e-b986-386a1adf2400",
     ),
     (
         "f27a5640-8cad-4e60-b8ba-f14407eb5c10",
@@ -3215,6 +3344,7 @@ news = [
         "FL",
         "33177",
         "",
+        "1b3e7496-efa7-48aa-ba22-b630d6fea98b",
     ),
     (
         "c7469fff-8c8b-45b6-8018-a816f37d3b72",
@@ -3227,6 +3357,7 @@ news = [
         "VA",
         "23703",
         "",
+        "3021df82-cb36-4286-bfb6-94051d04b59b",
     ),
     (
         "1bc85d60-8ca2-4e82-9f67-bc64942532b6",
@@ -3239,6 +3370,7 @@ news = [
         "WA",
         "98134",
         "",
+        "183969ce-8abd-4136-b193-2041a8c4f1be",
     ),
     (
         "68aa6b57-2ea2-4ff6-a4a7-7347aa2fb5fb",
@@ -3251,6 +3383,7 @@ news = [
         "CA",
         "95519",
         "",
+        "15ca034d-89bb-4124-ad20-4b75d7f0c101",
     ),
     (
         "c4c9b539-debf-4f26-aecf-5f2c4ee509e7",
@@ -3263,6 +3396,7 @@ news = [
         "NJ",
         "08204",
         "",
+        "7ac0f374-b97a-4b98-9878-eabef89adff9",
     ),
     (
         "f55ef88f-cee3-47e0-ba3b-29115ada24d5",
@@ -3275,6 +3409,7 @@ news = [
         "CA",
         "94952",
         "",
+        "f54d8b95-6ee8-4ffa-bf79-67400ae09aa2",
     ),
     (
         "0f5442a5-e528-448f-a8e4-77cc8a5f8a0f",
@@ -3287,6 +3422,7 @@ news = [
         "VA",
         "23690",
         "",
+        "4ed2762d-73bc-4c62-bea9-725c5c64cb62",
     ),
     (
         "7a39a6c0-dc6d-4215-ac87-5d534763552e",
@@ -3299,6 +3435,7 @@ news = [
         "CA",
         "92145",
         "",
+        "42f7ef32-7d1f-4c03-b0df-6af9832615fc",
     ),
     (
         "dc77746b-7295-48fb-97c5-2c9f7df8e591",
@@ -3311,6 +3448,7 @@ news = [
         "PA",
         "17055",
         "",
+        "8736624a-09d6-4867-b712-2287b3df766a",
     ),
     (
         "8780cc24-dc83-4ad8-be7f-208d03760f67",
@@ -3323,6 +3461,7 @@ news = [
         "GA",
         "31699",
         "",
+        None,
     ),
     (
         "45b12ca8-505d-4bcb-bdc7-283c56946ffe",
@@ -3335,6 +3474,7 @@ news = [
         "CT",
         "06066",
         "",
+        None,
     ),
     (
         "eb51ebd7-6ad0-4b21-ba3b-5b4dea36c501",
@@ -3347,6 +3487,7 @@ news = [
         "TX",
         "76712",
         "",
+        None,
     ),
     (
         "32156836-cf39-4f2a-a83a-b64a725f2de0",
@@ -3359,6 +3500,7 @@ news = [
         "WI",
         "53226",
         "",
+        None,
     ),
     (
         "e9867e22-de68-4aba-877e-f727f398f26b",
@@ -3371,6 +3513,7 @@ news = [
         "NY",
         "14221",
         "",
+        None,
     ),
     (
         "6004a187-b646-4377-a720-3720ba5e0c69",
@@ -3383,6 +3526,7 @@ news = [
         "OH",
         "43953",
         "",
+        None,
     ),
     (
         "95f2e409-1b7c-4848-b350-4c8540470137",
@@ -3395,6 +3539,7 @@ news = [
         "PA",
         "19610",
         "",
+        None,
     ),
     (
         "892a8b54-2a79-4609-9c3c-5bc2c9658a7f",
@@ -3407,5 +3552,6 @@ news = [
         "AZ",
         "85365",
         "",
+        "7145e8fe-465b-44e5-a486-b893357148ef",
     ),
 ]

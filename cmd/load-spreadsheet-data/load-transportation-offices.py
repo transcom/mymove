@@ -12,11 +12,8 @@ if len(sys.argv) < 2:
 df = pd.read_excel(pd.ExcelFile(sys.argv[1]))
 df = df.reset_index()
 
-<<<<<<< HEAD
 f.write("-- Generated programmatically by load-transportation-offices.py\n\n")
 
-=======
->>>>>>> 3394ea313a (Delete parent records for duty_locations being deleted.)
 for index, row in df.iterrows():
     id = row["id"]
     name = row["name"]
