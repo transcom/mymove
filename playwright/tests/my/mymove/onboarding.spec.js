@@ -35,7 +35,7 @@ test('A customer can go through onboarding', async ({ page, customerPage }) => {
   // 'mark' is not yet supported by react testing library
   // https://github.com/testing-library/dom-testing-library/issues/1150
   // @ts-expect-error:next-line
-  await page.getByRole('mark').nth(0).click();
+  await page.getByRole('mark').click();
   await customerPage.navigateForward();
 
   // Current pickup address section
