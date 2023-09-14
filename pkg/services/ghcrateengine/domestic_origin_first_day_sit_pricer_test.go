@@ -18,7 +18,7 @@ const (
 	dofsitTestContractYearName     = "DOFSIT Test Year"
 	dofsitTestEscalationCompounded = 1.125
 	dofsitTestWeight               = unit.Pound(4000)
-	dofsitTestPriceCents           = unit.Cents(15885) // dofsitTestBasePriceCents * (dofsitTestWeight / 100) * dofsitTestEscalationCompounded
+	dofsitTestPriceCents           = unit.Cents(15880)
 )
 
 var dofsitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
