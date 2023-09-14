@@ -175,5 +175,5 @@ func logoutOktaUser(provider *okta.Provider, idToken string, redirectURL string)
 		return fmt.Errorf("failed to logout, status: %v, body: %s", resp.Status, string(bodyBytes))
 	}
 
-	return err
+	return nil
 }

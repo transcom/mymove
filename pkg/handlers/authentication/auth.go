@@ -475,6 +475,11 @@ func NewLogoutHandler(ac Context, hc handlers.HandlerConfig) LogoutHandler {
 
 func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	appCtx := h.AppContextFromRequest(r)
+	provider, err := okta.GetOktaProviderForRequest(r)
+	if err != nil {
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
 	if appCtx.Session() != nil {
 		sessionManager := h.SessionManagers().SessionManagerForApplication(appCtx.Session().ApplicationName)
 		if sessionManager == nil {
@@ -485,12 +490,6 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		redirectURL := h.landingURL(appCtx.Session())
 		if appCtx.Session().IDToken != "" {
 			var logoutURL string
-
-			provider, err := okta.GetOktaProviderForRequest(r)
-			if err != nil {
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return
-			}
 
 			// storing ID token to use for /logout call to Okta
 			userIDToken := appCtx.Session().IDToken
@@ -508,7 +507,7 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 			// Remember, UserID is UUID; however, the Okta ID is not.
 			if appCtx.Session().UserID != uuid.Nil {
-				err := resetUserCurrentSessionID(appCtx)
+				err = resetUserCurrentSessionID(appCtx)
 				if err != nil {
 					appCtx.Logger().Error("failed to reset user's current_x_session_id")
 				}
