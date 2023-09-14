@@ -437,7 +437,7 @@ commands:
       - aws-cli/setup:
           profile-name: 'CIRCLECI-OIDC-PROFILE'
           role-arn: $AWS_ROLE
-          role-session-name: example-session
+          role-session-name: circleci-session
       - run:
           name: Log-into-AWS-ECR
           command: |
