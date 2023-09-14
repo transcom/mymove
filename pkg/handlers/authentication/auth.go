@@ -489,7 +489,6 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		redirectURL := h.landingURL(appCtx.Session())
 		if appCtx.Session().IDToken != "" {
-			var logoutURL string
 
 			// storing ID token to use for /logout call to Okta
 			userIDToken := appCtx.Session().IDToken
@@ -499,10 +498,10 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			appCtx.Session().AccessToken = ""
 			appCtx.Session().IDToken = ""
 
-			// logging out the user by calling Okta /logout endpoint
-			err = logoutOktaUser(provider, userIDToken, redirectURL)
-			if err != nil {
-				appCtx.Logger().Error("failed to log user out of Okta")
+			// getting okta logout URL that will contain ID token and redirect
+			oktaLogoutURL, err := logoutOktaUserURL(provider, userIDToken, redirectURL)
+			if oktaLogoutURL == "" || err != nil {
+				appCtx.Logger().Error("failed to get Okta Logout URL")
 			}
 
 			// Remember, UserID is UUID; however, the Okta ID is not.
@@ -518,7 +517,7 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 			auth.DeleteCSRFCookies(w)
 			appCtx.Logger().Info("user logged out of application")
-			fmt.Fprint(w, logoutURL)
+			fmt.Fprint(w, oktaLogoutURL)
 		} else {
 			// Can't log out of okta.mil without a token, redirect and let them re-auth
 			appCtx.Logger().Info("session exists but has an empty IDToken")
