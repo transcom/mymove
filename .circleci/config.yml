@@ -1033,7 +1033,7 @@ commands:
             export OKTA_OFFICE_SECRET_KEY=notrealkey1
             export OKTA_ADMIN_SECRET_KEY=notrealkey2
             export OKTA_TENANT_CALLBACK_PORT=4000
-            export ßOKTA_TENANT_CALLBACK_PROTOCOL=http
+            export OKTA_TENANT_CALLBACK_PROTOCOL=http
             export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
             export SERVE_API_SUPPORT=true
             export MUTUAL_TLS_ENABLED=true
