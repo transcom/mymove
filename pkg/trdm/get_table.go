@@ -217,7 +217,7 @@ func setupSoapCall(d *GetTableRequestElement, appCtx appcontext.AppContext, phys
 		return marshalErr
 	}
 
-	bodyID, err := GenerateSOAPURIWithPrefix("#id")
+	bodyID, err := GenerateSOAPURIWithPrefix("id")
 	if err != nil {
 		return err
 	}

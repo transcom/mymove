@@ -1,6 +1,7 @@
 package trdm
 
 import (
+	"bytes"
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
@@ -11,7 +12,7 @@ import (
 	"encoding/xml"
 	"time"
 
-	"github.com/opencontainers/go-digest"
+	"github.com/ucarion/c14n"
 )
 
 type header struct {
@@ -24,7 +25,7 @@ type security struct {
 	Wsu                 string              `xml:"xmlns:wsu,attr"`
 	BinarySecurityToken binarySecurityToken `xml:"wsse:BinarySecurityToken"`
 	Signature           signature           `xml:"ds:Signature"`
-	Timestamp           timestamp           `xml:"wsu:TimeStamp"`
+	Timestamp           timestamp           `xml:"wsu:Timestamp"`
 }
 type signature struct {
 	Text           string         `xml:",chardata"`
@@ -107,41 +108,50 @@ type signatureValue struct {
 }
 
 // Generate SHA-512 digest
-func GenerateDigest(data []byte) (string, error) {
+func GenerateDigest(data []byte) ([]byte, string, error) {
 	hasher := sha512.New()
 	_, err := hasher.Write(data)
 	if err != nil {
-		return "", err
+		return nil, "", err
 	}
 	hashValue := hasher.Sum(nil)
 	encodedHash := base64.StdEncoding.EncodeToString(hashValue)
-	return encodedHash, nil
+	return hashValue, encodedHash, nil
+}
+
+func CanonicalizeXML(xmlByte []byte) ([]byte, error) {
+	decoder := xml.NewDecoder(bytes.NewReader(xmlByte))
+	out, err := c14n.Canonicalize(decoder)
+	if err != nil {
+		return nil, nil
+	}
+	return out, nil
 }
 
 // Generate timestamp XML and digest
-func GenerateTimestampAndDigest() (timestamp, string, error) {
-	tsID, err := GenerateSOAPURIWithPrefix("#TS")
+// Returns
+// - Struct
+// - Canon XML Byte
+// - Digest Value
+// - Error
+func GenerateTimestampAndDigest() (timestamp, []byte, string, error) {
+	tsID, err := GenerateSOAPURIWithPrefix("TS")
 	if err != nil {
-		return timestamp{}, "", err
+		return timestamp{}, nil, "", err
 	}
 	ts := timestamp{
 		ID:      tsID,
 		Created: time.Now().UTC().Format(time.RFC3339),
-		// Currently 3 minutes for testing
-		Expires: time.Now().Add(time.Minute * 3).UTC().Format(time.RFC3339),
+		// Currently 10 minutes for testing
+		Expires: time.Now().Add(time.Minute * 10).UTC().Format(time.RFC3339),
 	}
 
-	timestampXML, err := xml.Marshal(ts)
+	xmlByte, digest, err := GenerateSecurityElement(ts)
 	if err != nil {
-		return timestamp{}, "", err
+		return timestamp{}, nil, "", err
 	}
 
-	digest, err := GenerateDigest(timestampXML)
-	if err != nil {
-		return timestamp{}, "", err
-	}
-
-	return ts, digest, nil
+	return ts, xmlByte, digest, nil
 }
 
 func GenerateSOAPURIWithPrefix(prefix string) (string, error) {
@@ -153,15 +163,55 @@ func GenerateSOAPURIWithPrefix(prefix string) (string, error) {
 	return prefix + "-" + hex.EncodeToString(randBytes), nil
 }
 
+// Returns
+// - XML Byte
+// - XML Digest
+// - Error
+func GenerateSecurityElement(t interface{}) ([]byte, string, error) {
+	// ID should already be located inside of the interface
+	noncanonXML, err := xml.Marshal(t)
+	if err != nil {
+		return nil, "", err
+	}
+	canonXML, err := CanonicalizeXML(noncanonXML)
+	if err != nil {
+		return nil, "", err
+	}
+	_, digest, err := GenerateDigest(canonXML)
+	if err != nil {
+		return nil, "", err
+	}
+	return canonXML, digest, nil
+}
+
+// Does not return canonXML
+// Returns canon digest
+func canonicalizeAndDigestBodyXML(body []byte) (string, error) {
+	canon, err := CanonicalizeXML(body)
+	if err != nil {
+		return "", err
+	}
+	_, digest, err := GenerateDigest(canon)
+	if err != nil {
+		return "", err
+	}
+	return digest, nil
+}
+
 func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.PrivateKey, bodyReferenceURI string, bodyXML []byte) ([]byte, error) {
 	const signatureAlgorithm = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512"
 	const digestAlgorithm = "http://www.w3.org/2001/04/xmlenc#sha512"
 	const signatureCanonicalizationMethod = "http://www.w3.org/2001/10/xml-exc-c14n#"
-	wsseReferenceURI, err := GenerateSOAPURIWithPrefix("#X509")
+	// Generate URIs
+	// These URIs should only have '#' in front of them when they are a
+	// reference. It must exist once in the XML without
+	// being referenced first, and should be unique.
+	// Prepend the '#' reference where necessary.
+	x509URI, err := GenerateSOAPURIWithPrefix("X509")
 	if err != nil {
 		return nil, err
 	}
-	timestampReferenceID, err := GenerateSOAPURIWithPrefix("#TS")
+	timestampReferenceID, err := GenerateSOAPURIWithPrefix("TS")
 	if err != nil {
 		return nil, err
 	}
@@ -178,45 +228,25 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 		return nil, err
 	}
 
-	ts, timestampDigest, err := GenerateTimestampAndDigest()
+	ts, _, timestampDigest, err := GenerateTimestampAndDigest()
 	if err != nil {
 		return nil, err
 	}
 
-	bodyDigest, err := GenerateDigest(bodyXML)
+	bodyDigest, err := canonicalizeAndDigestBodyXML(bodyXML)
 	if err != nil {
 		return nil, err
 	}
 
-	x509EncodedDigest := digest.FromBytes([]byte(certificate.Raw)).Encoded()
-
-	canonicalized := digest.Canonical.Encode([]byte(certificate.Raw))
-
-	msgHash := sha512.New()
-	_, err = msgHash.Write([]byte(canonicalized))
+	x509Hash, _, err := GenerateDigest([]byte(certificate.Raw))
 	if err != nil {
 		return nil, err
 	}
-	msgHashSum := msgHash.Sum(nil)
-	signedHash, err := privateKey.Sign(rand.Reader, msgHashSum, crypto.SHA512)
+
+	signedHash, err := privateKey.Sign(rand.Reader, x509Hash, crypto.SHA512)
 	if err != nil {
 		return nil, err
 	}
-	// publicKey, ok := certificate.PublicKey.(*rsa.PublicKey)
-	// if !ok {
-	// 	return nil, err
-	// }
-
-	// encrypted, err := rsa.EncryptPKCS1v15(rand.Reader, publicKey, msgHashSum)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// decrypted, err := rsa.DecryptPKCS1v15(rand.Reader, privateKey, encrypted)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// canonicalize & sign private key of x509 cert -> use this value for signaturevalue
 
 	securityHeader := header{
 		Security: security{
@@ -226,7 +256,7 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 				EncodingType: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary",
 				ValueType:    "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3",
 				Text:         base64.StdEncoding.EncodeToString(certificate.Raw),
-				ID:           wsseReferenceURI,
+				ID:           x509URI,
 			},
 			Signature: signature{
 				ID: signatureID,
@@ -245,7 +275,8 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 					Reference: []reference{
 						{
 							// References the Timestamp's wsu:Id, the one at the bottom of the envelope
-							URI: timestampReferenceID,
+							// Prepend with # to reference
+							URI: "#" + timestampReferenceID,
 							Transforms: transforms{
 								Transform: transform{
 									Algorithm: signatureCanonicalizationMethod,
@@ -263,8 +294,8 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 							},
 						},
 						{
-							// References the body
-							URI: bodyReferenceURI,
+							// References the bodyID with #
+							URI: "#" + bodyReferenceURI,
 							Transforms: transforms{
 								Transform: transform{
 									Algorithm: signatureCanonicalizationMethod,
@@ -283,7 +314,8 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 						},
 						{
 							// References KeyInfo's wsse:Reference URI
-							URI: wsseReferenceURI,
+							// Prepend with # to reference
+							URI: "#" + x509URI,
 							Transforms: transforms{
 								Transform: transform{
 									Algorithm: signatureCanonicalizationMethod,
@@ -298,7 +330,7 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 								Algorithm: digestAlgorithm,
 							},
 							DigestValue: digestValue{
-								Text: x509EncodedDigest,
+								Text: base64.StdEncoding.EncodeToString(x509Hash),
 							},
 						},
 					},
@@ -311,7 +343,7 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 					SecurityTokenReference: securityTokenReference{
 						ID: securityTokenReferenceID,
 						STReference: sTReference{
-							URI:       wsseReferenceURI,
+							URI:       "#" + x509URI,
 							ValueType: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3",
 						},
 					},

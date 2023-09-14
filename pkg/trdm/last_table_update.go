@@ -61,16 +61,26 @@ type GetLastTableUpdater interface {
 	GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string) error
 }
 
-type trdmInput struct {
+// ReturnContent is to sometimes be left blank intentionally
+// For example. it is required for getTable but should not be provided
+// in getLastTableUpdate
+type getTableTRDMInput struct {
 	PhysicalName  string `xml:"ret:physicalName"`
 	ReturnContent string `xml:"ret:returnContent"`
 }
 
-type input struct {
-	TRDMInput trdmInput `xml:"ret:TRDM"`
+type lastTableUpdateTRDMInput struct {
+	PhysicalName string `xml:"ret:physicalName"`
 }
+
+type input struct {
+	TRDMInput getTableTRDMInput `xml:"ret:TRDM"`
+}
+
+// ret:input is only for getTable, not getLastTable
+// Directly embed trdmInput here
 type lastTableUpdateRequestElement struct {
-	Input input `xml:"ret:input"`
+	lastTableUpdateTRDMInput
 }
 
 type GetLastTableUpdateRequestElement struct {
@@ -96,11 +106,9 @@ type Status struct {
 func NewTRDMGetLastTableUpdate(physicalName string, bodyID string, securityToken *x509.Certificate, privateKey *rsa.PrivateKey, soapClient SoapCaller) GetLastTableUpdater {
 	return &GetLastTableUpdateRequestElement{
 		LastTableUpdateRequestElement: lastTableUpdateRequestElement{
-			Input: input{
-				TRDMInput: trdmInput{
-					PhysicalName:  physicalName,
-					ReturnContent: "true",
-				},
+			// Remember, leaving returnContent in trdmInput blank is intentional
+			lastTableUpdateTRDMInput{
+				PhysicalName: physicalName,
 			},
 		},
 		ID:            bodyID,
@@ -134,7 +142,7 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 		"xmlns:soapenv": "http://www.w3.org/2003/05/soap-envelope",
 		"xmlns:ret":     "http://trdm/ReturnTableService",
 	})
-	bodyID, err := GenerateSOAPURIWithPrefix("#id")
+	bodyID, err := GenerateSOAPURIWithPrefix("id")
 	if err != nil {
 		return err
 	}
@@ -142,12 +150,10 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 	params := GetLastTableUpdateRequestElement{
 		ID:  bodyID,
 		Wsu: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
+		// Remember, leaving returnContent in trdmInput blank is intentional
 		LastTableUpdateRequestElement: lastTableUpdateRequestElement{
-			Input: input{
-				TRDMInput: trdmInput{
-					PhysicalName:  physicalName,
-					ReturnContent: "true",
-				},
+			lastTableUpdateTRDMInput{
+				PhysicalName: physicalName,
 			},
 		},
 	}
@@ -168,13 +174,14 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 	// ! strings above 64 bytes
 	// Start printing
 	headerStr := string(newParams["header"].([]byte))
-	bodyStr := string(marshaledBody)
+	bodyStr := string(newParams["body"].([]byte))
+	//bodyStr := string(marshaledBody)
 
 	soapEnvelope := fmt.Sprintf(
 		`<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ret="http://trdm/ReturnTableService">
-							%s
-							%s
-					</soap:Envelope>`,
+	%s
+	%s
+</soap:Envelope>`,
 		headerStr, bodyStr,
 	)
 
@@ -206,8 +213,8 @@ func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.
 	}
 
 	if r.Status.StatusCode == successfulStatusCode {
-		getTable := NewGetTable(d.LastTableUpdateRequestElement.Input.TRDMInput.PhysicalName, d.securityToken, d.privateKey, d.soapClient)
-		getTableErr := getTable.GetTable(appCtx, d.LastTableUpdateRequestElement.Input.TRDMInput.PhysicalName, r.LastUpdate)
+		getTable := NewGetTable(d.LastTableUpdateRequestElement.PhysicalName, d.securityToken, d.privateKey, d.soapClient)
+		getTableErr := getTable.GetTable(appCtx, d.LastTableUpdateRequestElement.PhysicalName, r.LastUpdate)
 		if getTableErr != nil {
 			return fmt.Errorf("getTable error: %s", getTableErr.Error())
 		}
@@ -216,7 +223,7 @@ func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.
 	appCtx.Logger().Debug("getLastTableUpdate result", zap.Any("processRequestResponse", r))
 	return nil
 }
-func StartLastTableUpdateCron(appCtx appcontext.AppContext, certificate *x509.Certificate, privateKey *rsa.PrivateKey, physicalName string, soapCaller SoapCaller) error {
+func StartLastTableUpdateCron(appCtx appcontext.AppContext, certificate *x509.Certificate, publicPem *pem.Block, privateKey *rsa.PrivateKey, physicalName string, soapCaller SoapCaller) error {
 	cron := cron.New()
 	bodyID, err := GenerateSOAPURIWithPrefix("#id")
 	if err != nil {
@@ -265,6 +272,7 @@ func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config) error {
 	soapClient.URL = trdmURL
 
 	x509CertString := v.GetString(cli.MoveMilDoDTLSCertFlag)
+
 	publicPem, rest := pem.Decode([]byte(x509CertString))
 	if len(rest) != 0 {
 		return fmt.Errorf("unable to properly decode public key, something is leftover: %w", err)
@@ -307,8 +315,8 @@ func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config) error {
 		return getLastTableUpdateTACErr
 	}
 
-	cronErrTAC := StartLastTableUpdateCron(appCtx, certificate, key, transportationAccountingCode, soapClient)
-	cronErrLOA := StartLastTableUpdateCron(appCtx, certificate, key, lineOfAccounting, soapClient)
+	cronErrTAC := StartLastTableUpdateCron(appCtx, certificate, publicPem, key, transportationAccountingCode, soapClient)
+	cronErrLOA := StartLastTableUpdateCron(appCtx, certificate, publicPem, key, lineOfAccounting, soapClient)
 
 	if cronErrLOA != nil {
 		return cronErrLOA
