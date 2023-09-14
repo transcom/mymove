@@ -64,6 +64,7 @@ services:
       - OKTA_CUSTOMER_CLIENT_ID
       - OKTA_ADMIN_CLIENT_ID
       - OKTA_OFFICE_CLIENT_ID
+      - OKTA_TENANT_CALLBACK_PORT=8080
       - PGPASSWORD=mysecretpassword
       - REDIS_ENABLED=false
       - SERVE_API_PRIME=true
