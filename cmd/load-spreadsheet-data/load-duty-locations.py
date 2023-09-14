@@ -66,9 +66,13 @@ def delete_dl_and_parents(dl_id):
     f.write(
         f"DELETE from ppm_shipments where shipment_id = (SELECT id from mto_shipments where move_id = (SELECT id from moves where orders_id = {orders_query}));\n"
     )
-    f.write(
-        f"DELETE from archived_weight_ticket_set_documents where move_document_id = (SELECT id from archived_move_documents where move_id = (SELECT id from moves where orders_id = {orders_query}));\n"
-    )
+    for t in [
+        "archived_moving_expense_documents",
+        "archived_weight_ticket_set_documents",
+    ]:
+        f.write(
+            f"DELETE from {t} where move_document_id = (SELECT id from archived_move_documents where move_id = (SELECT id from moves where orders_id = {orders_query}));\n"
+        )
     for t in [
         "archived_move_documents",
         "archived_signed_certifications",
