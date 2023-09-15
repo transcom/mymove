@@ -1714,6 +1714,7 @@ func ShipmentPaymentSITBalance(shipmentSITBalance *services.ShipmentPaymentSITBa
 	}
 
 	payload := &ghcmessages.ShipmentPaymentSITBalance{
+		PendingBilledStartDate:  handlers.FmtDate(shipmentSITBalance.PendingBilledStartDate),
 		PendingBilledEndDate:    handlers.FmtDate(shipmentSITBalance.PendingBilledEndDate),
 		PendingSITDaysInvoiced:  int64(shipmentSITBalance.PendingSITDaysInvoiced),
 		PreviouslyBilledDays:    handlers.FmtIntPtrToInt64(shipmentSITBalance.PreviouslyBilledDays),
