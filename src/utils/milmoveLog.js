@@ -4,6 +4,7 @@
 import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
 
 import { OtelLogger } from 'utils/otelLogger';
+import { serviceName } from 'shared/constants';
 
 /**
  * configure the logger
@@ -24,6 +25,13 @@ export function configureLogger(app, options = {}) {
     const logLevel = DiagLogLevel[loggingLevel] || DiagLogLevel.VERBOSE;
     diag.setLogger(logger, { logLevel });
   }
+}
+
+export function configureGlobalLogger() {
+  const loggingType = process.env.REACT_APP_ERROR_LOGGING || 'none';
+  const loggingLevel = process.env.REACT_APP_ERROR_LOGGING_LEVEL || 'unknown';
+
+  configureLogger(serviceName(), { loggingType, loggingLevel });
 }
 
 // Use the opentelemetry provided logger. If it has not been
