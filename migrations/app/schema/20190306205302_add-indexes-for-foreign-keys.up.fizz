@@ -5,7 +5,7 @@ add_index("distance_calculations", "destination_address_id", {})
 
 add_index("documents", "service_member_id", {})
 
-add_index("dps_users", "okta_email", {})
+add_index("dps_users", "login_gov_email", {})
 
 add_index("duty_stations", "address_id", {})
 add_index("duty_stations", "transportation_office_id", {})
@@ -90,4 +90,4 @@ add_index("tsp_users", "transportation_service_provider_id", {})
 add_index("uploads", "uploader_id", {})
 add_index("uploads", "document_id", {})
 
-add_index("users", "okta_email", {})
+add_index("users", "login_gov_email", {})

@@ -36,11 +36,11 @@
 -- 	prime_role_id := (SELECT id FROM roles WHERE role_type = 'prime');
 --
 -- NOTE: The next 24 lines are adding new Users to the `users`
--- table with a static GUID and a custom `okta_email` with their SHA256
+-- table with a static GUID and a custom `login_gov_email` with their SHA256
 -- value appended with `@api.move.mil`.
 -- 	INSERT INTO users (
 -- 		id,
--- 		okta_email,
+-- 		login_gov_email,
 -- 		created_at,
 -- 		updated_at
 -- 	)
