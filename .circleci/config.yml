@@ -449,6 +449,17 @@ commands:
             echo "export AWS_ACCOUNT_ID=$(aws sts get-caller-identity | jq -r .Account)" >> $BASH_ENV
             echo "export TEST_ENV_VAR=$(aws ssm get-parameter --with-decryption --name /app-loadtest/circleci-test | jq -r .Parameter.Value)" >> $BASH_ENV
             source $BASH_ENV
+      - when:
+          condition:
+            equal: [loadtest, << parameters.dp3-env >>]
+          steps:
+            - run:
+                name: 'Increase cpu/memory reservation for loadtest'
+                command: |
+                  # override default cpu/memory
+                  echo "export SERVICE_RESERVATION_CPU=2048" >> $BASH_ENV
+                  echo "export SERVICE_RESERVATION_MEM=4096" >> $BASH_ENV
+                  source $BASH_ENV
 
           # echo "export AWS_DEFAULT_REGION=\$$(echo << parameters.dp3-env >> | tr 'a-z' 'A-Z')_REGION" >> $BASH_ENV
 
@@ -2047,8 +2058,8 @@ jobs:
       APP_ENVIRONMENT: *dp3-env
     steps:
       - checkout
-      - aws_vars_dp3
-      # - setup_environment_variables_from_aws
+      # - aws_vars_dp3
+      - setup_environment_variables_from_aws
       - deploy_dp3_tasks_steps:
           ecr_env: *dp3-env
 
