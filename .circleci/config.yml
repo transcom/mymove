@@ -2047,8 +2047,8 @@ jobs:
       APP_ENVIRONMENT: *dp3-env
     steps:
       - checkout
-      # - aws_vars_dp3
-      - setup_environment_variables_from_aws
+      - aws_vars_dp3
+      # - setup_environment_variables_from_aws
       - deploy_dp3_tasks_steps:
           ecr_env: *dp3-env
 
