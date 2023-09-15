@@ -13,6 +13,9 @@ parser = argparse.ArgumentParser(
 parser.add_argument('--no-dtod-mock', dest='dtod_mock', action='store_false',
                     default=True,
                     help='Disable DTOD_MOCK. Defaults to true')
+parser.add_argument('--client-error-logging', dest='client_error_logging',
+                    action='store_true',
+                    help='Send client logs to the server')
 parser.add_argument('--flipt', dest='flipt', action='store_true',
                     help='Start the flipt container, set FEATURE_FLAG_URL')
 parser.add_argument('--standalone', dest='standalone', action='store_true',
@@ -23,6 +26,10 @@ parser.add_argument('--telemetry', dest='telemetry', action='store_true',
 args = parser.parse_args()
 
 os.environ["DTOD_MOCK"] = str.lower(str(args.dtod_mock))
+
+if args.client_error_logging:
+    os.environ["REACT_APP_ERROR_LOGGING"] = "otel"
+    os.environ["SERVE_CLIENT_COLLECTOR"] = "true"
 
 if args.flipt:
     os.environ["FEATURE_FLAG_SERVER_URL"] = "http://localhost:9080"
