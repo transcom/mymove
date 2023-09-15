@@ -1,6 +1,6 @@
 create_table("users") {
 	t.Column("id", "uuid", {"primary": true})
-	t.Column("okta_id", "text", {})
-	t.Column("okta_email", "text", {})
+	t.Column("login_gov_uuid", "uuid", {})
+	t.Column("login_gov_email", "text", {})
 	t.Timestamps()
 }

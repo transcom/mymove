@@ -10,6 +10,6 @@
 -- Once the Navy completes their integration between NSIPS and the Orders API,
 -- this CAC certificate should be removed.
 -- Alternatively, if nom is integrated into MilMove and nom or the Orders API
--- gains the ability to authenticate using okta, then we should use that
+-- gains the ability to authenticate using login.gov, then we should use that
 -- instead for this particular Navy use-case and remove this CAC certificate.
 -- In development, load no new certs. This is just for the real environments.
