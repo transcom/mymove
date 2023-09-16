@@ -36,46 +36,46 @@ UPDATE duty_locations
 
 -- 'CG BASE KETCHIKAN' -> 'JPPSO - North West (JEAT) - USA'
 UPDATE office_users
-	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26939'
+	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE transportation_office_id = '2d65fc57-ab6b-4965-b5b2-cde15f166cb3';
 UPDATE moves
-	SET updated_at = now(), closeout_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26939'
+	SET updated_at = now(), closeout_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE closeout_office_id = '2d65fc57-ab6b-4965-b5b2-cde15f166cb3';
 UPDATE duty_locations
-	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26939'
+	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE transportation_office_id = '2d65fc57-ab6b-4965-b5b2-cde15f166cb3';
 
 -- 'CG BASE KETCHIKAN, AK' -> 'JPPSO - North West (JEAT) - USA'
 UPDATE office_users
-	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26940'
+	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE transportation_office_id = '0b2545a6-bc74-4c35-b7fb-eea2647cbbb7';
 UPDATE moves
-	SET updated_at = now(), closeout_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26940'
+	SET updated_at = now(), closeout_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE closeout_office_id = '0b2545a6-bc74-4c35-b7fb-eea2647cbbb7';
 UPDATE duty_locations
-	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26940'
+	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE transportation_office_id = '0b2545a6-bc74-4c35-b7fb-eea2647cbbb7';
 
 -- 'CG BASE KODIAK, AK' -> 'JPPSO - North West (JEAT) - USA'
 UPDATE office_users
-	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26941'
+	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE transportation_office_id = 'b1ceb0a7-9457-4595-b61f-fb89ef668f1f';
 UPDATE moves
-	SET updated_at = now(), closeout_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26941'
+	SET updated_at = now(), closeout_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE closeout_office_id = 'b1ceb0a7-9457-4595-b61f-fb89ef668f1f';
 UPDATE duty_locations
-	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26941'
+	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE transportation_office_id = 'b1ceb0a7-9457-4595-b61f-fb89ef668f1f';
 
 -- 'CG BSU, KODIAK, AK' -> 'JPPSO - North West (JEAT) - USA'
 UPDATE office_users
-	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26942'
+	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE transportation_office_id = 'a617a56f-1e8c-4de3-bfce-81e4780361c2';
 UPDATE moves
-	SET updated_at = now(), closeout_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26942'
+	SET updated_at = now(), closeout_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE closeout_office_id = 'a617a56f-1e8c-4de3-bfce-81e4780361c2';
 UPDATE duty_locations
-	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26942'
+	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE transportation_office_id = 'a617a56f-1e8c-4de3-bfce-81e4780361c2';
 
 -- 'Charleston Naval Weapon Station' -> 'PPPO JB Charleston (Naval Weapon Station) - USAF'
@@ -135,13 +135,13 @@ UPDATE duty_locations
 
 -- 'Eielson AFB' -> 'JPPSO - North West (JEAT) - USA'
 UPDATE office_users
-	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26943'
+	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE transportation_office_id = '41ef1e1c-c257-48d3-8727-ba560ac6ac3d';
 UPDATE moves
-	SET updated_at = now(), closeout_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26943'
+	SET updated_at = now(), closeout_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE closeout_office_id = '41ef1e1c-c257-48d3-8727-ba560ac6ac3d';
 UPDATE duty_locations
-	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26943'
+	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE transportation_office_id = '41ef1e1c-c257-48d3-8727-ba560ac6ac3d';
 
 -- 'Ellsworth AFB' -> 'PPPO Ellsworth AFB - USAF'
@@ -179,35 +179,35 @@ UPDATE duty_locations
 
 -- 'JBER Travel Center-Elmendorf' -> 'JPPSO - North West (JEAT) - USA'
 UPDATE office_users
-	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26944'
+	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE transportation_office_id = '4522d141-87f1-4f1e-a111-466303c6ae14';
 UPDATE moves
-	SET updated_at = now(), closeout_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26944'
+	SET updated_at = now(), closeout_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE closeout_office_id = '4522d141-87f1-4f1e-a111-466303c6ae14';
 UPDATE duty_locations
-	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26944'
+	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE transportation_office_id = '4522d141-87f1-4f1e-a111-466303c6ae14';
 
 -- 'JBER Travel Center-Richardson' -> 'JPPSO - North West (JEAT) - USA'
 UPDATE office_users
-	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26945'
+	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE transportation_office_id = 'bc34e876-7f18-4401-ab91-507b0861a947';
 UPDATE moves
-	SET updated_at = now(), closeout_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26945'
+	SET updated_at = now(), closeout_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE closeout_office_id = 'bc34e876-7f18-4401-ab91-507b0861a947';
 UPDATE duty_locations
-	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26945'
+	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE transportation_office_id = 'bc34e876-7f18-4401-ab91-507b0861a947';
 
 -- 'JOINT BASE ELMENDORF-RICHARDSON, AK' -> 'JPPSO - North West (JEAT) - USA'
 UPDATE office_users
-	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26946'
+	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE transportation_office_id = '0dcf17dd-e06a-435f-91cf-ccef70af35e0';
 UPDATE moves
-	SET updated_at = now(), closeout_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26946'
+	SET updated_at = now(), closeout_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE closeout_office_id = '0dcf17dd-e06a-435f-91cf-ccef70af35e0';
 UPDATE duty_locations
-	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26946'
+	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE transportation_office_id = '0dcf17dd-e06a-435f-91cf-ccef70af35e0';
 
 -- 'JOINT PERS PROP SHIPPING OFFICE - MA' -> 'JPPSO - Mid Atlantic (BGAC) - USA'
@@ -223,24 +223,24 @@ UPDATE duty_locations
 
 -- 'JPPSO: JOINT PERS PROP SHIPPING OFFICE - MA' -> 'JPPSO - Mid Atlantic (BGAC) - USA'
 UPDATE office_users
-	SET updated_at = now(), transportation_office_id = '8e25ccc1-7891-4146-a9d0-cd0d48b59a51'
+	SET updated_at = now(), transportation_office_id = '8e25ccc1-7891-4146-a9d0-cd0d48b59a50'
 	WHERE transportation_office_id = '1b6d6f26-b0d9-4d3d-ab90-33816ced0c83';
 UPDATE moves
-	SET updated_at = now(), closeout_office_id = '8e25ccc1-7891-4146-a9d0-cd0d48b59a51'
+	SET updated_at = now(), closeout_office_id = '8e25ccc1-7891-4146-a9d0-cd0d48b59a50'
 	WHERE closeout_office_id = '1b6d6f26-b0d9-4d3d-ab90-33816ced0c83';
 UPDATE duty_locations
-	SET updated_at = now(), transportation_office_id = '8e25ccc1-7891-4146-a9d0-cd0d48b59a51'
+	SET updated_at = now(), transportation_office_id = '8e25ccc1-7891-4146-a9d0-cd0d48b59a50'
 	WHERE transportation_office_id = '1b6d6f26-b0d9-4d3d-ab90-33816ced0c83';
 
 -- 'JPPSO-MA: Regional Customer Service Office' -> 'JPPSO - Mid Atlantic (BGAC) - USA'
 UPDATE office_users
-	SET updated_at = now(), transportation_office_id = '8e25ccc1-7891-4146-a9d0-cd0d48b59a52'
+	SET updated_at = now(), transportation_office_id = '8e25ccc1-7891-4146-a9d0-cd0d48b59a50'
 	WHERE transportation_office_id = '39c5c8a3-b758-49de-8606-588a8a67b149';
 UPDATE moves
-	SET updated_at = now(), closeout_office_id = '8e25ccc1-7891-4146-a9d0-cd0d48b59a52'
+	SET updated_at = now(), closeout_office_id = '8e25ccc1-7891-4146-a9d0-cd0d48b59a50'
 	WHERE closeout_office_id = '39c5c8a3-b758-49de-8606-588a8a67b149';
 UPDATE duty_locations
-	SET updated_at = now(), transportation_office_id = '8e25ccc1-7891-4146-a9d0-cd0d48b59a52'
+	SET updated_at = now(), transportation_office_id = '8e25ccc1-7891-4146-a9d0-cd0d48b59a50'
 	WHERE transportation_office_id = '39c5c8a3-b758-49de-8606-588a8a67b149';
 
 -- 'JPPSO SOUTHWEST' -> 'JPPSO - South West (LKNQ) - USN'
@@ -377,13 +377,13 @@ UPDATE duty_locations
 
 -- 'Personal Property Processing Office Fort Greely, AK' -> 'JPPSO - North West (JEAT) - USA'
 UPDATE office_users
-	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26947'
+	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE transportation_office_id = 'dd2c98a6-303d-4596-86e8-b067a7deb1a2';
 UPDATE moves
-	SET updated_at = now(), closeout_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26947'
+	SET updated_at = now(), closeout_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE closeout_office_id = 'dd2c98a6-303d-4596-86e8-b067a7deb1a2';
 UPDATE duty_locations
-	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26947'
+	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE transportation_office_id = 'dd2c98a6-303d-4596-86e8-b067a7deb1a2';
 
 -- 'Personal Property Processing Office Fort Leavenworth' -> 'PPPO Fort Leavenworth - USA'
@@ -410,13 +410,13 @@ UPDATE duty_locations
 
 -- 'Personal Property Processing Office Fort Wainwright, AK' -> 'JPPSO - North West (JEAT) - USA'
 UPDATE office_users
-	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26948'
+	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE transportation_office_id = '446aaf44-a5c8-4000-a0b8-6e5e421f62b0';
 UPDATE moves
-	SET updated_at = now(), closeout_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26948'
+	SET updated_at = now(), closeout_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE closeout_office_id = '446aaf44-a5c8-4000-a0b8-6e5e421f62b0';
 UPDATE duty_locations
-	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26948'
+	SET updated_at = now(), transportation_office_id = '5a3388e1-6d46-4639-ac8f-a8937dc26938'
 	WHERE transportation_office_id = '446aaf44-a5c8-4000-a0b8-6e5e421f62b0';
 
 -- 'Personal Property Processing Office Lewis-Main' -> 'PPPO Scott AFB - USAF'
@@ -528,4 +528,3 @@ UPDATE moves
 UPDATE duty_locations
 	SET updated_at = now(), transportation_office_id = '27002d34-e9ea-4ef5-a086-f23d07c4088c'
 	WHERE transportation_office_id = '468e99cc-9f62-4ce5-ab2e-a26eb3ee3f58';
-
