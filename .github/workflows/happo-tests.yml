@@ -23,6 +23,9 @@ jobs:
   happo:
     needs: changes
     if: ${{ needs.changes.outputs.frontend == 'true' }}
+    concurrency:
+      group: happo-${{ github.event.action || 'unknown' }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -31,10 +34,11 @@ jobs:
       - name: Set up node
         uses: actions/setup-node@v3
         with:
+          cache: 'yarn'
           node-version-file: '.tool-versions'
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
       - name: Start Happo run
         run: yarn happo-ci-github-actions
