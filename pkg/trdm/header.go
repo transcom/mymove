@@ -15,6 +15,10 @@ import (
 	"github.com/ucarion/c14n"
 )
 
+const SignatureAlgorithm = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512"
+const DigestAlgorithm = "http://www.w3.org/2001/04/xmlenc#sha512"
+const SignatureCanonicalizationMethod = "http://www.w3.org/2001/10/xml-exc-c14n#"
+
 type header struct {
 	XMLName  xml.Name `xml:"soap:Header"`
 	Security security `xml:"wsse:Security"`
@@ -108,6 +112,10 @@ type signatureValue struct {
 }
 
 // Generate SHA-512 digest
+// Returns
+// - hashValue
+// - encodedHash
+// - Error
 func GenerateDigest(data []byte) ([]byte, string, error) {
 	hasher := sha512.New()
 	_, err := hasher.Write(data)
@@ -153,7 +161,90 @@ func GenerateTimestampAndDigest() (timestamp, []byte, string, error) {
 
 	return ts, xmlByte, digest, nil
 }
+func GenerateSignedInfoAndDigest(timestampID string, timestampDigest string, bodyID string, bodyDigest string, x509ID string, x509Digest string) (signedInfo, []byte, string, error) {
 
+	signedInfoStruct := signedInfo{
+		CanonicalizationMethod: canonicalizationMethod{
+			Algorithm: SignatureCanonicalizationMethod,
+			InclusiveNamespaces: inclusiveNameSpaces{
+				PrefixList: "ret soap",
+				Ec:         SignatureCanonicalizationMethod,
+			},
+		},
+		SignatureMethod: signatureMethod{
+			Algorithm: SignatureAlgorithm,
+		},
+		Reference: []reference{
+			{
+				// References the Timestamp's wsu:Id, the one at the bottom of the envelope
+				// Prepend with # to reference
+				URI: "#" + timestampID,
+				Transforms: transforms{
+					Transform: transform{
+						Algorithm: SignatureCanonicalizationMethod,
+						InclusiveNamespaces: inclusiveNameSpaces{
+							PrefixList: "wsse ret soap",
+							Ec:         SignatureCanonicalizationMethod,
+						},
+					},
+				},
+				DigestMethod: digestMethod{
+					Algorithm: DigestAlgorithm,
+				},
+				DigestValue: digestValue{
+					Text: timestampDigest,
+				},
+			},
+			{
+				// References the bodyID with #
+				URI: "#" + bodyID,
+				Transforms: transforms{
+					Transform: transform{
+						Algorithm: SignatureCanonicalizationMethod,
+						InclusiveNamespaces: inclusiveNameSpaces{
+							PrefixList: "ret",
+							Ec:         SignatureCanonicalizationMethod,
+						},
+					},
+				},
+				DigestMethod: digestMethod{
+					Algorithm: DigestAlgorithm,
+				},
+				DigestValue: digestValue{
+					Text: bodyDigest,
+				},
+			},
+			{
+				// References KeyInfo's wsse:Reference URI
+				// Prepend with # to reference
+				URI: "#" + x509ID,
+				Transforms: transforms{
+					Transform: transform{
+						Algorithm: SignatureCanonicalizationMethod,
+						InclusiveNamespaces: inclusiveNameSpaces{
+							// Prefix intentionaly left blank
+							PrefixList: "",
+							Ec:         SignatureCanonicalizationMethod,
+						},
+					},
+				},
+				DigestMethod: digestMethod{
+					Algorithm: DigestAlgorithm,
+				},
+				DigestValue: digestValue{
+					Text: x509Digest,
+				},
+			},
+		},
+	}
+
+	xmlByte, digest, err := GenerateSecurityElement(signedInfoStruct)
+	if err != nil {
+		return signedInfo{}, nil, "", err
+	}
+
+	return signedInfoStruct, xmlByte, digest, nil
+}
 func GenerateSOAPURIWithPrefix(prefix string) (string, error) {
 	randBytes := make([]byte, 8)
 	_, err := rand.Read(randBytes)
@@ -199,19 +290,12 @@ func canonicalizeAndDigestBodyXML(body []byte) (string, error) {
 }
 
 func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.PrivateKey, bodyReferenceURI string, bodyXML []byte) ([]byte, error) {
-	const signatureAlgorithm = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512"
-	const digestAlgorithm = "http://www.w3.org/2001/04/xmlenc#sha512"
-	const signatureCanonicalizationMethod = "http://www.w3.org/2001/10/xml-exc-c14n#"
 	// Generate URIs
 	// These URIs should only have '#' in front of them when they are a
 	// reference. It must exist once in the XML without
 	// being referenced first, and should be unique.
 	// Prepend the '#' reference where necessary.
 	x509URI, err := GenerateSOAPURIWithPrefix("X509")
-	if err != nil {
-		return nil, err
-	}
-	timestampReferenceID, err := GenerateSOAPURIWithPrefix("TS")
 	if err != nil {
 		return nil, err
 	}
@@ -238,12 +322,24 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 		return nil, err
 	}
 
-	x509Hash, _, err := GenerateDigest([]byte(certificate.Raw))
+	_, x509Digest, err := GenerateDigest([]byte(certificate.Raw))
 	if err != nil {
 		return nil, err
 	}
 
-	signedHash, err := privateKey.Sign(rand.Reader, x509Hash, crypto.SHA512)
+	signedInfoStruct, signedInfoXML, _, err := GenerateSignedInfoAndDigest(ts.ID, timestampDigest, bodyReferenceURI, bodyDigest, x509URI, x509Digest)
+	if err != nil {
+		return nil, err
+	}
+
+	signedInfoHash := sha512.New()
+	_, err = signedInfoHash.Write(signedInfoXML)
+	if err != nil {
+		return nil, err
+	}
+	finalHash := signedInfoHash.Sum(nil)
+
+	signedHash, err := privateKey.Sign(rand.Reader, finalHash, crypto.SHA512)
 	if err != nil {
 		return nil, err
 	}
@@ -259,82 +355,9 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 				ID:           x509URI,
 			},
 			Signature: signature{
-				ID: signatureID,
-				Ds: "http://www.w3.org/2000/09/xmldsig#",
-				SignedInfo: signedInfo{
-					CanonicalizationMethod: canonicalizationMethod{
-						Algorithm: signatureCanonicalizationMethod,
-						InclusiveNamespaces: inclusiveNameSpaces{
-							PrefixList: "ret soap",
-							Ec:         signatureCanonicalizationMethod,
-						},
-					},
-					SignatureMethod: signatureMethod{
-						Algorithm: signatureAlgorithm,
-					},
-					Reference: []reference{
-						{
-							// References the Timestamp's wsu:Id, the one at the bottom of the envelope
-							// Prepend with # to reference
-							URI: "#" + timestampReferenceID,
-							Transforms: transforms{
-								Transform: transform{
-									Algorithm: signatureCanonicalizationMethod,
-									InclusiveNamespaces: inclusiveNameSpaces{
-										PrefixList: "wsse ret soap",
-										Ec:         signatureCanonicalizationMethod,
-									},
-								},
-							},
-							DigestMethod: digestMethod{
-								Algorithm: digestAlgorithm,
-							},
-							DigestValue: digestValue{
-								Text: timestampDigest,
-							},
-						},
-						{
-							// References the bodyID with #
-							URI: "#" + bodyReferenceURI,
-							Transforms: transforms{
-								Transform: transform{
-									Algorithm: signatureCanonicalizationMethod,
-									InclusiveNamespaces: inclusiveNameSpaces{
-										PrefixList: "ret",
-										Ec:         signatureCanonicalizationMethod,
-									},
-								},
-							},
-							DigestMethod: digestMethod{
-								Algorithm: digestAlgorithm,
-							},
-							DigestValue: digestValue{
-								Text: bodyDigest,
-							},
-						},
-						{
-							// References KeyInfo's wsse:Reference URI
-							// Prepend with # to reference
-							URI: "#" + x509URI,
-							Transforms: transforms{
-								Transform: transform{
-									Algorithm: signatureCanonicalizationMethod,
-									InclusiveNamespaces: inclusiveNameSpaces{
-										// Prefix intentionaly left blank
-										PrefixList: "",
-										Ec:         signatureCanonicalizationMethod,
-									},
-								},
-							},
-							DigestMethod: digestMethod{
-								Algorithm: digestAlgorithm,
-							},
-							DigestValue: digestValue{
-								Text: base64.StdEncoding.EncodeToString(x509Hash),
-							},
-						},
-					},
-				},
+				ID:         signatureID,
+				Ds:         "http://www.w3.org/2000/09/xmldsig#",
+				SignedInfo: signedInfoStruct,
 				SignatureValue: signatureValue{
 					Text: base64.StdEncoding.EncodeToString(signedHash),
 				},
@@ -352,9 +375,13 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 			Timestamp: ts,
 		},
 	}
+
+	// Canonicalizing the entire header here will be rejected by the server after successful TLS handshake. It must be put together earlier.
+
 	marshaledHeader, err := xml.Marshal(securityHeader)
 	if err != nil {
 		return nil, err
 	}
+
 	return marshaledHeader, nil
 }
