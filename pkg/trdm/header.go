@@ -10,6 +10,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/xml"
+	"fmt"
 	"time"
 
 	"github.com/ucarion/c14n"
@@ -40,6 +41,7 @@ type signature struct {
 	KeyInfo        keyInfo        `xml:"ds:KeyInfo"`
 }
 type keyInfo struct {
+	XMLName                xml.Name               `xml:"ds:KeyInfo"`
 	ID                     string                 `xml:"Id,attr"`
 	SecurityTokenReference securityTokenReference `xml:"wsse:SecurityTokenReference"`
 }
@@ -54,13 +56,15 @@ type sTReference struct {
 }
 
 type binarySecurityToken struct {
-	Text         string `xml:",chardata"`
-	EncodingType string `xml:"EncodingType,attr"`
-	ValueType    string `xml:"ValueType,attr"`
-	ID           string `xml:"wsu:Id,attr"`
+	XMLName      xml.Name `xml:"wsse:BinarySecurityToken"`
+	Text         string   `xml:",chardata"`
+	EncodingType string   `xml:"EncodingType,attr"`
+	ValueType    string   `xml:"ValueType,attr"`
+	ID           string   `xml:"wsu:Id,attr"`
 }
 
 type signedInfo struct {
+	XMLName                xml.Name               `xml:"ds:SignedInfo"`
 	CanonicalizationMethod canonicalizationMethod `xml:"ds:CanonicalizationMethod"`
 	SignatureMethod        signatureMethod        `xml:"ds:SignatureMethod"`
 	// For hitting the TRDM V7 endpoints there are typically three references.
@@ -103,9 +107,10 @@ type signatureMethod struct {
 	Algorithm string `xml:"Algorithm,attr"`
 }
 type timestamp struct {
-	ID      string `xml:"wsu:Id,attr"`
-	Created string `xml:"wsu:Created"`
-	Expires string `xml:"wsu:Expires"`
+	XMLName xml.Name `xml:"wsu:Timestamp"`
+	ID      string   `xml:"wsu:Id,attr"`
+	Created string   `xml:"wsu:Created"`
+	Expires string   `xml:"wsu:Expires"`
 }
 type signatureValue struct {
 	Text string `xml:",chardata"`
@@ -254,7 +259,7 @@ func GenerateSOAPURIWithPrefix(prefix string) (string, error) {
 	return prefix + "-" + hex.EncodeToString(randBytes), nil
 }
 
-// Returns
+// Returns canon security element
 // - XML Byte
 // - XML Digest
 // - Error
@@ -307,81 +312,202 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 	if err != nil {
 		return nil, err
 	}
-	signatureID, err := GenerateSOAPURIWithPrefix("SIG")
-	if err != nil {
-		return nil, err
-	}
-
-	ts, _, timestampDigest, err := GenerateTimestampAndDigest()
-	if err != nil {
-		return nil, err
-	}
 
 	bodyDigest, err := canonicalizeAndDigestBodyXML(bodyXML)
 	if err != nil {
 		return nil, err
 	}
 
-	_, x509Digest, err := GenerateDigest([]byte(certificate.Raw))
+	headerXML, err := generateHeaderXML(*certificate, privateKey, x509URI, bodyReferenceURI, bodyDigest, keyInfoReferenceID, securityTokenReferenceID)
 	if err != nil {
 		return nil, err
 	}
-
-	signedInfoStruct, signedInfoXML, _, err := GenerateSignedInfoAndDigest(ts.ID, timestampDigest, bodyReferenceURI, bodyDigest, x509URI, x509Digest)
-	if err != nil {
-		return nil, err
-	}
-
-	signedInfoHash := sha512.New()
-	_, err = signedInfoHash.Write(signedInfoXML)
-	if err != nil {
-		return nil, err
-	}
-	finalHash := signedInfoHash.Sum(nil)
-
-	signedHash, err := privateKey.Sign(rand.Reader, finalHash, crypto.SHA512)
-	if err != nil {
-		return nil, err
-	}
-
-	securityHeader := header{
-		Security: security{
-			Wsse: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
-			Wsu:  "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
-			BinarySecurityToken: binarySecurityToken{
-				EncodingType: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary",
-				ValueType:    "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3",
-				Text:         base64.StdEncoding.EncodeToString(certificate.Raw),
-				ID:           x509URI,
-			},
-			Signature: signature{
-				ID:         signatureID,
-				Ds:         "http://www.w3.org/2000/09/xmldsig#",
-				SignedInfo: signedInfoStruct,
-				SignatureValue: signatureValue{
-					Text: base64.StdEncoding.EncodeToString(signedHash),
+	/*
+		securityHeader := header{
+			Security: security{
+				Wsse: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+				Wsu:  "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
+				BinarySecurityToken: binarySecurityToken{
+					EncodingType: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary",
+					ValueType:    "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3",
+					Text:         base64.StdEncoding.EncodeToString(certificate.Raw),
+					ID:           x509URI,
 				},
-				KeyInfo: keyInfo{
-					ID: keyInfoReferenceID,
-					SecurityTokenReference: securityTokenReference{
-						ID: securityTokenReferenceID,
-						STReference: sTReference{
-							URI:       "#" + x509URI,
-							ValueType: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3",
+				Signature: signature{
+					ID:         signatureID,
+					Ds:         "http://www.w3.org/2000/09/xmldsig#",
+					SignedInfo: signedInfoStruct,
+					SignatureValue: signatureValue{
+						Text: base64.StdEncoding.EncodeToString(signedHash),
+					},
+					KeyInfo: keyInfo{
+						ID: keyInfoReferenceID,
+						SecurityTokenReference: securityTokenReference{
+							ID: securityTokenReferenceID,
+							STReference: sTReference{
+								URI:       "#" + x509URI,
+								ValueType: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3",
+							},
 						},
 					},
 				},
+				Timestamp: ts,
 			},
-			Timestamp: ts,
-		},
-	}
-
+		}
+	*/
 	// Canonicalizing the entire header here will be rejected by the server after successful TLS handshake. It must be put together earlier.
 
-	marshaledHeader, err := xml.Marshal(securityHeader)
+	// marshaledHeader, err := xml.Marshal(securityHeader)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	return []byte(headerXML), nil
+}
+
+func generateHeaderXML(cert x509.Certificate, key *rsa.PrivateKey, certURI string, bodyURI string, bodyDigest string, keyInfoURI string, strURI string) (string, error) {
+	bstXML, bstDigest, err := generateBinarySecurityToken(cert, certURI)
+	if err != nil {
+		return "", err
+	}
+
+	ts, timestampXML, timestampDigest, err := GenerateTimestampAndDigest()
+	if err != nil {
+		return "", err
+	}
+
+	// ! Cert digest is the digest of the x509 XML element, not just a digest of the certificate. Aka the binarySecurityToken
+	_, signedInfoXML, _, err := GenerateSignedInfoAndDigest(ts.ID, timestampDigest, bodyURI, bodyDigest, certURI, bstDigest)
+	if err != nil {
+		return "", err
+	}
+
+	keyInfoXML, _, err := generateKeyInfo(keyInfoURI, strURI, certURI)
+	if err != nil {
+		return "", err
+	}
+
+	sigURI, err := GenerateSOAPURIWithPrefix("SIG")
+	if err != nil {
+		return "", err
+	}
+	sigXML, sigHash, err := generateSignature(signedInfoXML, keyInfoXML, keyInfoURI, sigURI, key)
+	if err != nil {
+		return "", err
+	}
+
+	headerXML := fmt.Sprintf(`<soap:Header>
+<wsse:Security
+xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+%s
+%s
+%s
+</wsse:Security>
+</soap:Header>`, bstXML, sigXML, timestampXML)
+	fmt.Println(headerXML)
+
+	signedInfoHash := sha512.New()
+	_, err = signedInfoHash.Write([]byte(signedInfoXML))
+	if err != nil {
+		return "", err
+	}
+	finalHash := signedInfoHash.Sum(nil)
+
+	rsaCert := cert.PublicKey.(*rsa.PublicKey)
+	err = rsa.VerifyPKCS1v15(rsaCert, crypto.SHA512, finalHash, sigHash)
+	if err != nil {
+		return "", err
+	}
+
+	return headerXML, nil
+}
+
+// Returns
+// - XML
+// - Digest
+// - Error
+func generateBinarySecurityToken(cert x509.Certificate, x509URI string) ([]byte, string, error) {
+	// Do not return struct, it should no longer be used after the XML has been generated
+	t := binarySecurityToken{
+		EncodingType: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary",
+		ValueType:    "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3",
+		Text:         base64.StdEncoding.EncodeToString(cert.Raw),
+		ID:           x509URI,
+	}
+	xmlByte, digest, err := GenerateSecurityElement(t)
+	if err != nil {
+		return nil, "", err
+	}
+
+	return xmlByte, digest, nil
+}
+
+// Returns
+// - Canon XML
+// - Digest
+// - Error
+func generateSignature(signedInfoXML []byte, keyInfoXML []byte, keyInfoURI string, sigURI string, key *rsa.PrivateKey) (string, []byte, error) {
+	// Do not return struct, it should no longer be used after the XML has been generated
+	signedHash, err := signXML(signedInfoXML, key)
+	if err != nil {
+		return "", nil, err
+	}
+
+	fmt.Printf("\nThis is the XML I have signed\n%s\n", string(signedInfoXML))
+
+	sigXML := fmt.Sprintf(`<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Id="%s">
+%s
+<ds:SignatureValue>%s</ds:SignatureValue>
+%s
+</ds:Signature>`, sigURI, string(signedInfoXML), base64.StdEncoding.EncodeToString(signedHash), string(keyInfoXML))
+
+	// Do not canonicalize, the child elements already have canonicalized XML. Recanonicalizing will break the canonicalization
+
+	return sigXML, signedHash, nil
+}
+
+// Returns
+// - Signed XML hash
+// - Error
+func signXML(xml []byte, key *rsa.PrivateKey) ([]byte, error) {
+	hash := sha512.New()
+	_, err := hash.Write(xml)
+	if err != nil {
+		return nil, err
+	}
+	finalHash := hash.Sum(nil)
+	signedHash, err := rsa.SignPKCS1v15(rand.Reader, key, crypto.SHA512, finalHash)
 	if err != nil {
 		return nil, err
 	}
 
-	return marshaledHeader, nil
+	fmt.Printf("\nMy final hash \n%s\nMy xml that is being signed\n%s\n", base64.StdEncoding.EncodeToString(finalHash), string(xml))
+
+	return signedHash, nil
+}
+
+// Returns
+// - XML
+// - Digest
+// - Error
+func generateKeyInfo(keyinfoURI string, strURI string, certURI string) ([]byte, string, error) {
+	// str = securityTokenReference
+	// Do not return struct, it should no longer be used after the XML has been generated
+	t := keyInfo{
+		ID: keyinfoURI,
+		SecurityTokenReference: securityTokenReference{
+			ID: strURI,
+			STReference: sTReference{
+				URI:       "#" + certURI,
+				ValueType: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3",
+			},
+		},
+	}
+	xmlByte, digest, err := GenerateSecurityElement(t)
+	if err != nil {
+		return nil, "", err
+	}
+
+	return xmlByte, digest, nil
 }
