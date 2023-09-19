@@ -89,7 +89,7 @@ def delete_dl_and_parents(dl_id):
         f.write(
             f"DELETE from {t} where shipment_id IN (SELECT id from mto_shipments where move_id IN ((SELECT id from moves where orders_id IN {orders_query}));\n"
         )
-        
+
     for t in [
         "archived_move_documents",
         "archived_signed_certifications",
