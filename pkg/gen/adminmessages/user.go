@@ -49,10 +49,10 @@ type User struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// login gov email
+	// okta email
 	// Required: true
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
-	LoginGovEmail *string `json:"loginGovEmail"`
+	OktaEmail *string `json:"oktaEmail"`
 
 	// updated at
 	// Required: true
@@ -89,7 +89,7 @@ func (m *User) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateLoginGovEmail(formats); err != nil {
+	if err := m.validateOktaEmail(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -164,13 +164,13 @@ func (m *User) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *User) validateLoginGovEmail(formats strfmt.Registry) error {
+func (m *User) validateOktaEmail(formats strfmt.Registry) error {
 
-	if err := validate.Required("loginGovEmail", "body", m.LoginGovEmail); err != nil {
+	if err := validate.Required("oktaEmail", "body", m.OktaEmail); err != nil {
 		return err
 	}
 
-	if err := validate.Pattern("loginGovEmail", "body", *m.LoginGovEmail, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("oktaEmail", "body", *m.OktaEmail, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
 	}
 

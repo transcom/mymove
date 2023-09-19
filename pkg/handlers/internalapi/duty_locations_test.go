@@ -16,10 +16,10 @@ func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
 	t := suite.T()
 
 	// Need a logged in user
-	lgu := uuid.Must(uuid.NewV4())
+	lgu := uuid.Must(uuid.NewV4()).String()
 	user := models.User{
-		LoginGovUUID:  &lgu,
-		LoginGovEmail: "email@example.com",
+		OktaID:    lgu,
+		OktaEmail: "email@example.com",
 	}
 	suite.MustSave(&user)
 
