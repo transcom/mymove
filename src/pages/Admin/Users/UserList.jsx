@@ -10,7 +10,7 @@ const UserFilter = (props) => (
   </Filter>
 );
 
-const defaultSort = { field: 'loginGovEmail', order: 'ASC' };
+const defaultSort = { field: 'oktaEmail', order: 'ASC' };
 
 const UserList = () => (
   <List
@@ -22,7 +22,7 @@ const UserList = () => (
   >
     <Datagrid bulkActionButtons={false} data-testid="user-data-grid" rowClick="show">
       <TextField data-testid="user-id" source="id" />
-      <TextField source="loginGovEmail" label="Email" />
+      <TextField source="oktaEmail" label="Email" />
       <BooleanField source="active" />
       <TextField source="createdAt" />
     </Datagrid>

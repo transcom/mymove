@@ -61,7 +61,7 @@ func (suite *ClientCertServiceSuite) TestCreateClientCert() {
 		creator := NewClientCertCreator(queryBuilder, associator, mockSender)
 		clientCert, verrs, err := creator.CreateClientCert(
 			suite.AppContextWithSessionForTest(&auth.Session{}),
-			user.LoginGovEmail, &clientCertInfo)
+			user.OktaEmail, &clientCertInfo)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(clientCert.ID)

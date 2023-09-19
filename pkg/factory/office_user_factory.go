@@ -114,11 +114,11 @@ func BuildOfficeUserWithRoles(db *pop.Connection, customs []Customization, roleT
 // GetTraitOfficeUserEmail helps comply with the uniqueness constraint on emails
 func GetTraitOfficeUserEmail() []Customization {
 	// There's a uniqueness constraint on office user emails so add some randomness
-	email := strings.ToLower(fmt.Sprintf("leo_spaceman_office_%s@example.com", makeRandomString(5)))
+	email := strings.ToLower(fmt.Sprintf("leo_spaceman_office_%s@example.com", MakeRandomString(5)))
 	return []Customization{
 		{
 			Model: models.User{
-				LoginGovEmail: email,
+				OktaEmail: email,
 			},
 			Type: &User,
 		},
