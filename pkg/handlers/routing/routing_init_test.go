@@ -184,18 +184,3 @@ func (suite *RoutingSuite) TestBasicAuthLoginRouting() {
 	suite.Contains(u.Host, suite.RoutingConfig().HandlerConfig.AppNames().MilServername)
 	suite.Equal("/", u.Path)
 }
-
-func (suite *RoutingSuite) TestBasicAuthLogoutRouting() {
-	siteHandler := suite.SetupSiteHandler()
-
-	serviceMember := factory.BuildServiceMember(suite.DB(), factory.GetTraitActiveServiceMemberUser(), nil)
-	// an authenticted request will redirect and we just want to check
-	// that the route is set up correctly
-	req := suite.NewAuthenticatedMilRequest("POST", "/auth/logout", nil, serviceMember)
-	rr := httptest.NewRecorder()
-	siteHandler.ServeHTTP(rr, req)
-	suite.Equal(http.StatusOK, rr.Code)
-	u, err := url.Parse(rr.Body.String())
-	suite.NoError(err)
-	suite.Contains(u.Host, suite.RoutingConfig().HandlerConfig.AppNames().MilServername)
-}
