@@ -4416,6 +4416,10 @@ definitions:
         x-nullable: true
       pendingSITDaysInvoiced:
         type: integer
+      pendingBilledStartDate:
+        type: string
+        format: date
+        x-nullable: true
       pendingBilledEndDate:
         type: string
         format: date
