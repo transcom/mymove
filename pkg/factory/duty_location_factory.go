@@ -53,7 +53,7 @@ func buildDutyLocationWithBuildType(db *pop.Connection, customs []Customization,
 	affiliation := internalmessages.AffiliationAIRFORCE
 
 	location := models.DutyLocation{
-		Name:        makeRandomString(10),
+		Name:        MakeRandomString(10),
 		Affiliation: &affiliation,
 		AddressID:   dlAddress.ID,
 		Address:     dlAddress,

@@ -20,6 +20,11 @@ export default {
       type: 'number',
       defaultValue: 60,
     },
+    pendingBilledStartDate: {
+      type: 'string',
+      defaultValue: '2021-07-08',
+      required: false,
+    },
     pendingBilledEndDate: {
       type: 'string',
       defaultValue: '2021-08-08',
@@ -43,6 +48,7 @@ const defaultArgs = {
   previouslyBilledDays: 30,
   previouslyBilledEndDate: '2021-06-08',
   pendingSITDaysInvoiced: 60,
+  pendingBilledStartDate: '2021-07-08',
   pendingBilledEndDate: '2021-08-08',
   totalSITDaysAuthorized: 120,
   totalSITDaysRemaining: 30,

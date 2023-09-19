@@ -92,6 +92,11 @@ services:
       - MUTUAL_TLS_ENABLED=0
       - NO_TLS_ENABLED=1
       - NO_TLS_PORT=4000
+      - OKTA_CUSTOMER_CLIENT_ID=1q2w2w3e3e
+      - OKTA_ADMIN_CLIENT_ID=1q1q1q1q1q
+      - OKTA_OFFICE_CLIENT_ID=q1q1w2w2w1
+      - OKTA_TENANT_CALLBACK_PORT=4000
+      - OKTA_TENANT_CALLBACK_PROTOCOL=http
       - PGPASSWORD=mysecretpassword
       - REDIS_HOST=redis
       - SERVE_ADMIN=true
