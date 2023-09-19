@@ -12,7 +12,7 @@ func (suite *ModelSuite) Test_LineOfAccountingAllFieldsOptionalCanSave() {
 }
 
 func (suite *ModelSuite) Test_LineOfAccountingAllFieldsPresentCanSave() {
-	loa := factory.BuildFullLineOfAccounting(suite.DB())
+	loa := factory.BuildFullLineOfAccounting(suite.DB(), nil, nil)
 
 	suite.MustSave(&loa)
 }
