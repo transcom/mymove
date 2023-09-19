@@ -2772,7 +2772,7 @@ func init() {
     "User": {
       "type": "object",
       "required": [
-        "loginGovEmail",
+        "oktaEmail",
         "active",
         "createdAt",
         "updatedAt",
@@ -2806,7 +2806,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "loginGovEmail": {
+        "oktaEmail": {
           "type": "string",
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
@@ -5774,7 +5774,7 @@ func init() {
     "User": {
       "type": "object",
       "required": [
-        "loginGovEmail",
+        "oktaEmail",
         "active",
         "createdAt",
         "updatedAt",
@@ -5808,7 +5808,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "loginGovEmail": {
+        "oktaEmail": {
           "type": "string",
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"

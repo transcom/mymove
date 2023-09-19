@@ -3431,7 +3431,9 @@ func init() {
                 "Payment requested",
                 "Reviewed",
                 "Rejected",
-                "Paid"
+                "Paid",
+                "Deprecated",
+                "Error"
               ],
               "type": "string"
             },
@@ -8796,6 +8798,11 @@ func init() {
     "ShipmentPaymentSITBalance": {
       "properties": {
         "pendingBilledEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "pendingBilledStartDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -14297,7 +14304,9 @@ func init() {
                 "Payment requested",
                 "Reviewed",
                 "Rejected",
-                "Paid"
+                "Paid",
+                "Deprecated",
+                "Error"
               ],
               "type": "string"
             },
@@ -20056,6 +20065,11 @@ func init() {
     "ShipmentPaymentSITBalance": {
       "properties": {
         "pendingBilledEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "pendingBilledStartDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
