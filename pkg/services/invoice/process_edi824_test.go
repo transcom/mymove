@@ -185,6 +185,39 @@ IEA*1*000000996
 		suite.Equal(models.PaymentRequestStatusEDIError, updatedPR.Status)
 	})
 
+	suite.Run("does not update a payment request status after processing a valid EDI824 if every segment is TA", func() {
+		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
+		sample824EDIString := fmt.Sprintf(`
+ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000996*0*T*|
+GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
+ST*824*000000001
+BGN*11*%s*20210217
+OTI*TA*BM*%s*MILMOVE*8004171844*20210217**100001255*0001
+TED*K*DOCUMENT OWNER CANNOT BE DETERMINED
+SE*5*000000001
+GE*1*1
+IEA*1*000000996
+`, *paymentRequest.MoveTaskOrder.ReferenceID, *paymentRequest.MoveTaskOrder.ReferenceID)
+		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequestToInterchangeControlNumber{
+					InterchangeControlNumber: 100001255,
+					EDIType:                  models.EDIType858,
+				},
+			},
+			{
+				Model:    paymentRequest,
+				LinkOnly: true,
+			},
+		}, nil)
+		err := edi824Processor.ProcessFile(suite.AppContextForTest(), "", sample824EDIString)
+		suite.NoError(err)
+
+		var updatedPR models.PaymentRequest
+		err = suite.DB().Where("id = ?", paymentRequest.ID).First(&updatedPR)
+		suite.NoError(err)
+		suite.Equal(models.PaymentRequestStatusPending, updatedPR.Status)
+	})
 	suite.Run("doesn't update a payment request status after processing an invalid EDI824", func() {
 		sample824EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*0000005*0*T*|
