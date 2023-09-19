@@ -474,9 +474,13 @@ func NewLogoutHandler(ac Context, hc handlers.HandlerConfig) LogoutHandler {
 	return logoutHandler
 }
 
-// !Needs to be finalized after sessions.
 func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	appCtx := h.AppContextFromRequest(r)
+	provider, err := okta.GetOktaProviderForRequest(r)
+	if err != nil {
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
 	if appCtx.Session() != nil {
 		sessionManager := h.SessionManagers().SessionManagerForApplication(appCtx.Session().ApplicationName)
 		if sessionManager == nil {
@@ -486,24 +490,35 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		redirectURL := h.landingURL(appCtx.Session())
 		if appCtx.Session().IDToken != "" {
-			var logoutURL string
+
+			// storing ID token to use for /logout call to Okta
+			userIDToken := appCtx.Session().IDToken
+
 			// clearing okta.mil sessions by clearing Access Token & ID Token
 			// this is shown in a sample app here: https://github.com/okta/samples-golang/blob/master/okta-hosted-login/main.go
 			appCtx.Session().AccessToken = ""
 			appCtx.Session().IDToken = ""
+
+			// getting okta logout URL that will contain ID token and redirect
+			oktaLogoutURL, err := logoutOktaUserURL(provider, userIDToken, redirectURL)
+			if oktaLogoutURL == "" || err != nil {
+				appCtx.Logger().Error("failed to get Okta Logout URL")
+			}
+
+			// Remember, UserID is UUID; however, the Okta ID is not.
 			if appCtx.Session().UserID != uuid.Nil {
-				err := resetUserCurrentSessionID(appCtx)
+				err = resetUserCurrentSessionID(appCtx)
 				if err != nil {
 					appCtx.Logger().Error("failed to reset user's current_x_session_id")
 				}
 			}
-			err := sessionManager.Destroy(r.Context())
+			err = sessionManager.Destroy(r.Context())
 			if err != nil {
 				appCtx.Logger().Error("failed to destroy session")
 			}
 			auth.DeleteCSRFCookies(w)
-			appCtx.Logger().Info("user logged out")
-			fmt.Fprint(w, logoutURL)
+			appCtx.Logger().Info("user logged out of application")
+			fmt.Fprint(w, oktaLogoutURL)
 		} else {
 			// Can't log out of okta.mil without a token, redirect and let them re-auth
 			appCtx.Logger().Info("session exists but has an empty IDToken")
@@ -816,7 +831,6 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case authorizationResultUnauthorized:
 		invalidPermissionsResponse(appCtx, h.HandlerConfig, h.Context, w, r)
 	case authorizationResultAuthorized:
-		// http.Redirect(w, r, "http://milmovelocal:3000/", http.StatusTemporaryRedirect)
 		http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
 	}
 }
