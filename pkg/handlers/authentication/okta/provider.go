@@ -91,7 +91,7 @@ func (op *Provider) AuthorizationURL(r *http.Request) (*Data, error) {
 	// Generate a new state that will later be stored in a cookie for auth
 	state := generateNonce()
 
-	// Generate a session rom the provider and state (nonce)
+	// Generate a session from the provider and state (nonce)
 	sess, err := provider.BeginAuth(state)
 	if err != nil {
 		op.logger.Error("Goth begin auth", zap.Error(err))
@@ -105,6 +105,13 @@ func (op *Provider) AuthorizationURL(r *http.Request) (*Data, error) {
 		op.logger.Error("Goth get auth URL", zap.Error(err))
 		return nil, err
 	}
+
+	// &client_id=0oa3jalqz3iCyRT9i0k6
+	// &nonce=QGeBBKrwoP5rvNWe0uIAqm4VRzovhukInZPoEv12hxwobirIYupF5pWzQM0mJs8XsjtfojwKJeVM32qP_TxVbA%3D%3D
+	// &redirect_uri=http%3A%2F%2Fmilmovelocal%3A3000%2Fauth%2Fokta%2Fcallback
+	// &response_type=code
+	// &scope=openid+profile+email+okta.users.manage
+	// &state=QGeBBKrwoP5rvNWe0uIAqm4VRzovhukInZPoEv12hxwobirIYupF5pWzQM0mJs8XsjtfojwKJeVM32qP_TxVbA%3D%3D
 
 	// Parse URL
 	authURL, err := url.Parse(baseURL)
@@ -237,23 +244,21 @@ func (op *Provider) GetOrgURL() string {
 func (op *Provider) GetTokenURL() string {
 	return op.orgURL + "/oauth2/default/v1/token"
 }
-
+func (op *Provider) GetAuthURL() string {
+	return op.orgURL + "/oauth2/v1/authorize"
+}
 func (op *Provider) GetUserInfoURL() string {
 	return op.orgURL + "/oauth2/default/v1/userinfo"
 }
-
 func (op *Provider) SetCallbackURL(URL string) {
 	op.callbackURL = URL
 }
-
 func (op *Provider) GetCallbackURL() string {
 	return op.callbackURL
 }
-
 func (op *Provider) GetIssuerURL() string {
 	return op.orgURL + "/oauth2/default"
 }
-
 func (op *Provider) GetLogoutURL() string {
 	return op.orgURL + "/oauth2/v1/logout"
 }
@@ -262,6 +267,9 @@ func (op *Provider) GetJWKSURL() string {
 }
 func (op *Provider) GetOpenIDConfigURL() string {
 	return op.orgURL + "/oauth2/default/.well-known/openid-configuration"
+}
+func (op *Provider) GetUserURL(oktaUserID string) string {
+	return op.orgURL + "/api/v1/users/" + oktaUserID
 }
 
 // TokenURL returns a full URL to retrieve a user token from okta.mil

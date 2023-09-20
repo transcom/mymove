@@ -1816,15 +1816,56 @@ func init() {
     },
     "/okta-profile": {
       "get": {
-        "description": "Returns the okta profile data for service member",
+        "description": "Calls a GET request to Okta's Users API and returns profile values",
         "tags": [
           "okta_profile"
         ],
-        "summary": "Returns the given service member's okta profile",
+        "summary": "Returns Okta profile values from Okta's Users API",
         "operationId": "showOktaInfo",
         "responses": {
           "200": {
-            "description": "the instance of the service member",
+            "description": "okta profile for user",
+            "schema": {
+              "$ref": "#/definitions/OktaUserPayload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "service member not found"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      },
+      "post": {
+        "description": "Calls a POST request to Okta's Users API and updates provided fields",
+        "tags": [
+          "okta_profile"
+        ],
+        "summary": "Update the user's okta profile, returns Okta profile values from Okta's Users API",
+        "operationId": "updateOktaInfo",
+        "parameters": [
+          {
+            "name": "updateOktaUserPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateOktaUserPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "okta profile for user",
             "schema": {
               "$ref": "#/definitions/OktaUserPayload"
             }
@@ -5694,7 +5735,7 @@ func init() {
     "OktaUserPayload": {
       "type": "object",
       "properties": {
-        "edipi": {
+        "cac_edipi": {
           "type": "string",
           "maxLength": 10,
           "minLength": 7,
@@ -5708,24 +5749,24 @@ func init() {
           "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "example": "user@email.com"
         },
-        "first_name": {
+        "firstName": {
           "type": "string",
           "example": "John"
         },
-        "last_name": {
+        "lastName": {
           "type": "string",
           "example": "Doe"
+        },
+        "login": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "user@email.com"
         },
         "sub": {
           "type": "string",
           "format": "string",
           "example": "1duekdue9ekrjghf"
-        },
-        "username": {
-          "type": "string",
-          "format": "string",
-          "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-          "example": "user@email.com"
         }
       }
     },
@@ -7130,9 +7171,6 @@ func init() {
           "x-nullable": true,
           "example": "L."
         },
-        "okta_profile": {
-          "$ref": "#/definitions/OktaUserPayload"
-        },
         "orders": {
           "type": "array",
           "items": {
@@ -7553,6 +7591,14 @@ func init() {
           "type": "string",
           "format": "date",
           "example": "2022-04-26"
+        }
+      }
+    },
+    "UpdateOktaUserPayload": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "$ref": "#/definitions/OktaUserPayload"
         }
       }
     },
@@ -10255,15 +10301,56 @@ func init() {
     },
     "/okta-profile": {
       "get": {
-        "description": "Returns the okta profile data for service member",
+        "description": "Calls a GET request to Okta's Users API and returns profile values",
         "tags": [
           "okta_profile"
         ],
-        "summary": "Returns the given service member's okta profile",
+        "summary": "Returns Okta profile values from Okta's Users API",
         "operationId": "showOktaInfo",
         "responses": {
           "200": {
-            "description": "the instance of the service member",
+            "description": "okta profile for user",
+            "schema": {
+              "$ref": "#/definitions/OktaUserPayload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "service member not found"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      },
+      "post": {
+        "description": "Calls a POST request to Okta's Users API and updates provided fields",
+        "tags": [
+          "okta_profile"
+        ],
+        "summary": "Update the user's okta profile, returns Okta profile values from Okta's Users API",
+        "operationId": "updateOktaInfo",
+        "parameters": [
+          {
+            "name": "updateOktaUserPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateOktaUserPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "okta profile for user",
             "schema": {
               "$ref": "#/definitions/OktaUserPayload"
             }
@@ -14491,7 +14578,7 @@ func init() {
     "OktaUserPayload": {
       "type": "object",
       "properties": {
-        "edipi": {
+        "cac_edipi": {
           "type": "string",
           "maxLength": 10,
           "minLength": 7,
@@ -14505,24 +14592,24 @@ func init() {
           "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "example": "user@email.com"
         },
-        "first_name": {
+        "firstName": {
           "type": "string",
           "example": "John"
         },
-        "last_name": {
+        "lastName": {
           "type": "string",
           "example": "Doe"
+        },
+        "login": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "user@email.com"
         },
         "sub": {
           "type": "string",
           "format": "string",
           "example": "1duekdue9ekrjghf"
-        },
-        "username": {
-          "type": "string",
-          "format": "string",
-          "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-          "example": "user@email.com"
         }
       }
     },
@@ -15932,9 +16019,6 @@ func init() {
           "x-nullable": true,
           "example": "L."
         },
-        "okta_profile": {
-          "$ref": "#/definitions/OktaUserPayload"
-        },
         "orders": {
           "type": "array",
           "items": {
@@ -16355,6 +16439,14 @@ func init() {
           "type": "string",
           "format": "date",
           "example": "2022-04-26"
+        }
+      }
+    },
+    "UpdateOktaUserPayload": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "$ref": "#/definitions/OktaUserPayload"
         }
       }
     },

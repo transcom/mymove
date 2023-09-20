@@ -22,7 +22,7 @@ export function* fetchUser() {
         const user = yield call(GetLoggedInUser); // make user API call
         const okta = yield call(GetOktaUser); // get Okta profile data
 
-        const userEntities = normalize(user, loggedInUser, okta);
+        const userEntities = normalize(user, loggedInUser);
 
         yield put(setOktaUser(okta)); // adds Okta data to entities in state
         yield put(addEntities(userEntities.entities)); // populate entities

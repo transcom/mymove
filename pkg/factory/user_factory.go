@@ -35,7 +35,7 @@ func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) mode
 		OktaID:    OktaID,
 		OktaEmail: "first.last@okta.mil",
 
-		Active:    false,
+		Active: false,
 	}
 
 	// Overwrite values with those from assertions

@@ -270,6 +270,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmUpdateMovingExpenseHandler: ppm.UpdateMovingExpenseHandlerFunc(func(params ppm.UpdateMovingExpenseParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.UpdateMovingExpense has not yet been implemented")
 		}),
+		OktaProfileUpdateOktaInfoHandler: okta_profile.UpdateOktaInfoHandlerFunc(func(params okta_profile.UpdateOktaInfoParams) middleware.Responder {
+			return middleware.NotImplemented("operation okta_profile.UpdateOktaInfo has not yet been implemented")
+		}),
 		OrdersUpdateOrdersHandler: orders.UpdateOrdersHandlerFunc(func(params orders.UpdateOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.UpdateOrders has not yet been implemented")
 		}),
@@ -474,6 +477,8 @@ type MymoveAPI struct {
 	MoveDocsUpdateMoveDocumentHandler move_docs.UpdateMoveDocumentHandler
 	// PpmUpdateMovingExpenseHandler sets the operation handler for the update moving expense operation
 	PpmUpdateMovingExpenseHandler ppm.UpdateMovingExpenseHandler
+	// OktaProfileUpdateOktaInfoHandler sets the operation handler for the update okta info operation
+	OktaProfileUpdateOktaInfoHandler okta_profile.UpdateOktaInfoHandler
 	// OrdersUpdateOrdersHandler sets the operation handler for the update orders operation
 	OrdersUpdateOrdersHandler orders.UpdateOrdersHandler
 	// PpmUpdatePersonallyProcuredMoveHandler sets the operation handler for the update personally procured move operation
@@ -774,6 +779,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PpmUpdateMovingExpenseHandler == nil {
 		unregistered = append(unregistered, "ppm.UpdateMovingExpenseHandler")
+	}
+	if o.OktaProfileUpdateOktaInfoHandler == nil {
+		unregistered = append(unregistered, "okta_profile.UpdateOktaInfoHandler")
 	}
 	if o.OrdersUpdateOrdersHandler == nil {
 		unregistered = append(unregistered, "orders.UpdateOrdersHandler")
@@ -1160,6 +1168,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}"] = ppm.NewUpdateMovingExpense(o.context, o.PpmUpdateMovingExpenseHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/okta-profile"] = okta_profile.NewUpdateOktaInfo(o.context, o.OktaProfileUpdateOktaInfoHandler)
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}

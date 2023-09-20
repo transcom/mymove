@@ -138,7 +138,6 @@ func (suite *FactorySuite) TestBuildOfficeUserExtra() {
 		// Expected outcome: officeUser and User should be created
 		//                   User should have specified ID
 
-
 		defaultOktaEmail := "first.last@okta.mil"
 
 		uuid := uuid.FromStringOrNil("6f97d298-1502-4d8c-9472-f8b5b2a63a10")

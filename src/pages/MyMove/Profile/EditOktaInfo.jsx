@@ -8,20 +8,21 @@ import { OktaUserInfoShape } from 'types/user';
 import EditOktaInfoForm from 'components/Customer/EditOktaInfoForm/EditOktaInfoForm';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { customerRoutes } from 'constants/routes';
-import { getResponseError, getOktaUser } from 'services/internalApi';
+import { getResponseError, updateOktaUser } from 'services/internalApi';
 import { selectServiceMemberFromLoggedInUser, selectOktaUser } from 'store/entities/selectors';
+import { updateOktaUserState as updateOktaUserStateAction } from 'store/entities/actions';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
-export const EditOktaInfo = ({ serviceMember, setFlashMessage, oktaUser }) => {
+export const EditOktaInfo = ({ serviceMember, setFlashMessage, oktaUser, updateOktaUserState }) => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
 
   const initialValues = {
-    oktaUsername: oktaUser?.username || 'Not Provided',
+    oktaUsername: oktaUser?.login || 'Not Provided',
     oktaEmail: oktaUser?.email || 'Not Provided',
-    oktaFirstName: oktaUser?.first_name || 'Not Provided',
-    oktaLastName: oktaUser?.last_name || 'Not Provided',
-    oktaEdipi: oktaUser?.edipi || '',
+    oktaFirstName: oktaUser?.firstName || 'Not Provided',
+    oktaLastName: oktaUser?.lastName || 'Not Provided',
+    oktaEdipi: oktaUser?.cac_edipi || '',
     oktaSub: oktaUser?.sub,
   };
 
@@ -29,36 +30,25 @@ export const EditOktaInfo = ({ serviceMember, setFlashMessage, oktaUser }) => {
     navigate(customerRoutes.PROFILE_PATH);
   };
 
-  // sends Okta data in form to backend to call Okta API to update profile values
-  // TODO need to also update the users table with okta_email if it is different
+  // sends POST request to Okta API with form values
+  // then updates the state with updated values
+  // sends the user back to profile page with confirmation banner
   const handleSubmit = async (values) => {
-    // including serviceMember.id in case we need to udpate users table with new okta_email
+    // wrapping values in profile due to Okta API requirements
     const oktaPayload = {
-      id: serviceMember.id,
-      username: values?.oktaUsername,
-      email: values?.oktaEmail,
-      firstName: values?.oktaFirstName,
-      lastName: values?.oktaLastName,
-      cac_edipi: values?.oktaEdipi,
-      sub: values?.oktaSub,
+      profile: {
+        id: serviceMember.id,
+        login: values?.oktaUsername,
+        email: values?.oktaEmail,
+        firstName: values?.oktaFirstName,
+        lastName: values?.oktaLastName,
+        cac_edipi: values?.oktaEdipi,
+      },
     };
 
-    //! leaving this here for reference when implementing API calls for Okta
-    // return patchOktaProfile(oktaPayload)
-    // .then(updateServiceMember)
-    // .then(() => {
-    //   setFlashMessage('EDIT_CONTACT_INFO_SUCCESS', 'success', "You've updated your information.");
-    //   navigate(customerRoutes.PROFILE_PATH);
-    // })
-    // .catch((e) => {
-    //   const { response } = e;
-    //   const errorMessage = getResponseError(response, 'Failed to update service member due to server error');
-
-    //   setServerError(errorMessage);
-    // });
-
-    return getOktaUser(oktaPayload)
-      .then(() => {
+    return updateOktaUser(oktaPayload)
+      .then((response) => {
+        updateOktaUserState(response);
         setFlashMessage('EDIT_OKTA_PROFILE_SUCCESS', 'success', "You've updated your Okta profile.");
         navigate(customerRoutes.PROFILE_PATH);
       })
@@ -100,6 +90,7 @@ EditOktaInfo.propTypes = {
 
 const mapDispatchToProps = {
   setFlashMessage: setFlashMessageAction,
+  updateOktaUserState: updateOktaUserStateAction,
 };
 
 const mapStateToProps = (state) => ({

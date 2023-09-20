@@ -46,29 +46,34 @@ definitions:
         type: string
         format: string
         example: 1duekdue9ekrjghf
-      username:
+      login:
         type: string
-        format: string
+        format: x-email
         example: user@email.com
-        pattern: '^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
       email:
         type: string
         format: x-email
         example: user@email.com
-        pattern: '^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-      first_name:
+        pattern: ^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+      firstName:
         type: string
         example: John
-      last_name:
+      lastName:
         type: string
         example: Doe
-      edipi:
+      cac_edipi:
         type: string
         example: '1234567890'
-        pattern: '^\d{10}$'
+        pattern: ^\d{10}$
         minLength: 7
         maxLength: 10
         x-nullable: true
+  UpdateOktaUserPayload:
+    type: object
+    properties:
+      profile:
+        $ref: '#/definitions/OktaUserPayload'
   LoggedInUserPayload:
     type: object
     properties:
@@ -2219,7 +2224,7 @@ definitions:
         description: zip code, international allowed
         format: zip
         title: ZIP
-        example: "'90210' or 'N15 3NL'"
+        example: '''90210'' or ''N15 3NL'''
       postal_code_type:
         type: string
         enum:
@@ -6319,14 +6324,43 @@ paths:
           $ref: '#/responses/ServerError'
   /okta-profile:
     get:
-      summary: Returns the given service member's okta profile
-      description: Returns the okta profile data for service member
+      summary: Returns Okta profile values from Okta's Users API
+      description: Calls a GET request to Okta's Users API and returns profile values
       operationId: showOktaInfo
       tags:
         - okta_profile
       responses:
         '200':
-          description: the instance of the service member
+          description: okta profile for user
+          schema:
+            $ref: '#/definitions/OktaUserPayload'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '403':
+          description: user is not authorized
+        '404':
+          description: service member not found
+        '500':
+          description: internal server error
+    post:
+      summary: >-
+        Update the user's okta profile, returns Okta profile values from Okta's
+        Users API
+      description: Calls a POST request to Okta's Users API and updates provided fields
+      operationId: updateOktaInfo
+      tags:
+        - okta_profile
+      parameters:
+        - in: body
+          name: updateOktaUserPayload
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateOktaUserPayload'
+      responses:
+        '200':
+          description: okta profile for user
           schema:
             $ref: '#/definitions/OktaUserPayload'
         '400':

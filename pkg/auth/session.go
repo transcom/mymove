@@ -238,7 +238,7 @@ type Session struct {
 }
 
 type OktaSessionInfo struct {
-	Username  string
+	Login     string
 	Email     string
 	FirstName string
 	LastName  string

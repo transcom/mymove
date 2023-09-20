@@ -17,7 +17,7 @@ import (
 const ShowOktaInfoOKCode int = 200
 
 /*
-ShowOktaInfoOK the instance of the service member
+ShowOktaInfoOK okta profile for user
 
 swagger:response showOktaInfoOK
 */
