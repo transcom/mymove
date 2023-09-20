@@ -191,8 +191,11 @@ var actionDispatcher = map[string]actionFunc{
 	"MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx)
 	},
-	"MakeMoveWithReviewedServiceItemsReadyForEDI": func(appCtx appcontext.AppContext) testHarnessResponse {
-		return MakeMoveWithReviewedServiceItemsReadyForEDI(appCtx)
+	"MakeMoveReadyForEDI": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeMoveReadyForEDI(appCtx)
+	},
+	"MakeCoastGuardMoveReadyForEDI": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeCoastGuardMoveReadyForEDI(appCtx)
 	},
 }
 

@@ -1,3 +1,4 @@
+
 DO $$
 DECLARE
 	client_cert RECORD;

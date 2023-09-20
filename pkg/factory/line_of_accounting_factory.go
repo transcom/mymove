@@ -48,6 +48,7 @@ func BuildFullLineOfAccounting(db *pop.Connection, customs []Customization, trai
 
 	now := time.Now()
 	later := now.AddDate(1, 0, 0)
+
 	lineOfAccounting := models.LineOfAccounting{
 		LoaSysID:               models.IntPointer(123456),
 		LoaDptID:               models.StringPointer("12"),
@@ -72,7 +73,7 @@ func BuildFullLineOfAccounting(db *pop.Connection, customs []Customization, trai
 		LoaBdgtAcntClsNm:       models.StringPointer("12345678"),
 		LoaDocID:               models.StringPointer("123456789012345"),
 		LoaClsRefID:            models.StringPointer("12"),
-		LoaInstlAcntgActID:     models.StringPointer("123456"),
+		LoaInstlAcntgActID:     models.StringPointer("102"),
 		LoaLclInstlID:          models.StringPointer("123456789012345678"),
 		LoaFmsTrnsactnID:       models.StringPointer("123456789012"),
 		LoaDscTx:               models.StringPointer("LoaDscTx"),

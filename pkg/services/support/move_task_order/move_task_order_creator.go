@@ -192,7 +192,7 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 	return order, nil
 }
 
-// createUser creates a user but this is a fake login.gov user
+// createUser creates a user but this is a fake Okta user
 // this is support code only, do not use in a production case
 func createUser(appCtx appcontext.AppContext, userEmail *string) (*models.User, error) {
 	if userEmail == nil {
@@ -201,9 +201,9 @@ func createUser(appCtx appcontext.AppContext, userEmail *string) (*models.User, 
 	}
 	id := uuid.Must(uuid.NewV4())
 	user := models.User{
-		LoginGovUUID:  &id,
-		LoginGovEmail: *userEmail,
-		Active:        true,
+		OktaID:    id.String(),
+		OktaEmail: *userEmail,
+		Active:    true,
 	}
 	verrs, err := appCtx.DB().ValidateAndCreate(&user)
 	if verrs.Count() > 0 {
