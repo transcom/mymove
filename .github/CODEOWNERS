@@ -6,23 +6,6 @@
 # owners will be requested for a review.
 # Add language specific code owners if it becomes relevant
 
-# ADRs are architectural decisions records that should all be approved by all teams
-/docs/adr/* @transcom/truss-sr-eng
-
-# Docs about the database should be reviewed by people working on our database guidelines
-/docs/database/* @transcom/truss-db
-
-# Migrations are where database schema changes are made and we want them reviewed by people working on our database guidelines
-/migrations/ @transcom/truss-db
-
-# These are raw SQL files that are embedded in the project after ADR 0073 Use
-# Templates for SQL Queries
-# NOTE: Specific queries can be excluded from truss-db ownership
-# in order to prevent teams from experiencing bottlenecks in PR reviews
-/pkg/assets/sql_scripts/ @transcom/truss-db
-# Excluded SQL files:
-/pkg/assets/sql_scripts/move_history_fetcher.sql
-
 # Require design / frontend reviews on Storybook
 /src/stories/ @transcom/truss-design
 *.stories.jsx @transcom/truss-design
