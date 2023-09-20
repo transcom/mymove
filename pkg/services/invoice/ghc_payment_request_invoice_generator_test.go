@@ -815,7 +815,10 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	suite.Run("adds orders destination address", func() {
 		setupTestData()
 		expectedDutyLocation := paymentRequest.MoveTaskOrder.Orders.NewDutyLocation
-		transportationOffice, err := models.FetchDutyLocationTransportationOffice(suite.DB(), expectedDutyLocation.ID)
+		// This used to match a duty location by name in our database and ignore the default factory values.  Now that
+		// it doesn't match a named duty location ("Fort Gordon"), the EDI ends up using the postal code to determine
+		// the GBLOC value.
+		destinationPostalCodeToGBLOC, err := models.FetchGBLOCForPostalCode(suite.DB(), expectedDutyLocation.Address.PostalCode)
 		suite.FatalNoError(err)
 		// name
 		n1 := result.Header.DestinationName
@@ -823,7 +826,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("ST", n1.EntityIdentifierCode)
 		suite.Equal(expectedDutyLocation.Name, n1.Name)
 		suite.Equal("10", n1.IdentificationCodeQualifier)
-		suite.Equal(transportationOffice.Gbloc, n1.IdentificationCode)
+		suite.Equal(destinationPostalCodeToGBLOC.GBLOC, n1.IdentificationCode)
 		// street address
 		address := expectedDutyLocation.Address
 		destAddress := result.Header.DestinationStreetAddress
