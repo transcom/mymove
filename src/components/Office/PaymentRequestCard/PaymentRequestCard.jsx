@@ -115,6 +115,48 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, hasBillableWeightIs
     navigate(`/moves/${locator}/orders`);
   };
 
+  const renderReviewServiceItemsBtnForTOO = () => {
+    return (
+      <Restricted to={permissionTypes.readPaymentServiceItemStatus}>
+        <div className={styles.reviewButton}>
+          <Button style={{ maxWidth: '225px' }} onClick={handleClick} disabled data-testid="reviewBtn">
+            <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
+            Review service items
+          </Button>
+          {hasBillableWeightIssues && (
+            <span className={styles.errorText} data-testid="errorTxt">
+              Resolve billable weight before reviewing service items.
+            </span>
+          )}
+        </div>
+      </Restricted>
+    );
+  };
+
+  // This defaults to the TIO view but if they don't have permission it tries the TOO view
+  const renderReviewServiceItemsBtnForTIOandTOO = () => {
+    return (
+      <Restricted to={permissionTypes.updatePaymentServiceItemStatus} fallback={renderReviewServiceItemsBtnForTOO()}>
+        <div className={styles.reviewButton}>
+          <Button
+            style={{ maxWidth: '225px' }}
+            onClick={handleClick}
+            disabled={hasBillableWeightIssues}
+            data-testid="reviewBtn"
+          >
+            <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
+            Review service items
+          </Button>
+          {hasBillableWeightIssues && (
+            <span className={styles.errorText} data-testid="errorTxt">
+              Resolve billable weight before reviewing service items.
+            </span>
+          )}
+        </div>
+      </Restricted>
+    );
+  };
+
   return (
     <div className={classnames(styles.PaymentRequestCard, 'container')}>
       <div className={styles.summary}>
@@ -166,41 +208,7 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, hasBillableWeightIs
               )}
             </>
           )}
-          {paymentRequest.status === PAYMENT_REQUEST_STATUS.PENDING && (
-            <>
-              <Restricted to={permissionTypes.readPaymentServiceItemStatus}>
-                <div className={styles.reviewButton}>
-                  <Button style={{ maxWidth: '225px' }} onClick={handleClick} disabled data-testid="reviewBtn">
-                    <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
-                    Review service items
-                  </Button>
-                  {hasBillableWeightIssues && (
-                    <span className={styles.errorText} data-testid="errorTxt">
-                      Resolve billable weight before reviewing service items.
-                    </span>
-                  )}
-                </div>
-              </Restricted>
-              <Restricted to={permissionTypes.updatePaymentServiceItemStatus}>
-                <div className={styles.reviewButton}>
-                  <Button
-                    style={{ maxWidth: '225px' }}
-                    onClick={handleClick}
-                    disabled={hasBillableWeightIssues}
-                    data-testid="reviewBtn"
-                  >
-                    <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
-                    Review service items
-                  </Button>
-                  {hasBillableWeightIssues && (
-                    <span className={styles.errorText} data-testid="errorTxt">
-                      Resolve billable weight before reviewing service items.
-                    </span>
-                  )}
-                </div>
-              </Restricted>
-            </>
-          )}
+          {paymentRequest.status === PAYMENT_REQUEST_STATUS.PENDING && renderReviewServiceItemsBtnForTIOandTOO()}
         </div>
         <div className={styles.footer}>
           <dl>
