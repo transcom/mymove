@@ -106,13 +106,6 @@ func (op *Provider) AuthorizationURL(r *http.Request) (*Data, error) {
 		return nil, err
 	}
 
-	// &client_id=0oa3jalqz3iCyRT9i0k6
-	// &nonce=QGeBBKrwoP5rvNWe0uIAqm4VRzovhukInZPoEv12hxwobirIYupF5pWzQM0mJs8XsjtfojwKJeVM32qP_TxVbA%3D%3D
-	// &redirect_uri=http%3A%2F%2Fmilmovelocal%3A3000%2Fauth%2Fokta%2Fcallback
-	// &response_type=code
-	// &scope=openid+profile+email+okta.users.manage
-	// &state=QGeBBKrwoP5rvNWe0uIAqm4VRzovhukInZPoEv12hxwobirIYupF5pWzQM0mJs8XsjtfojwKJeVM32qP_TxVbA%3D%3D
-
 	// Parse URL
 	authURL, err := url.Parse(baseURL)
 	if err != nil {
