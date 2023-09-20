@@ -123,7 +123,7 @@ func (op *Provider) AuthorizationURL(r *http.Request) (*Data, error) {
 	params := authURL.Query()
 	// Add the nonce and scope to the URL when getting ready to redirect to the login URL
 	params.Add("nonce", state)
-	params.Set("scope", "openid profile email okta.myAccount.profile.read")
+	params.Set("scope", "openid profile email")
 
 	authURL.RawQuery = params.Encode()
 
