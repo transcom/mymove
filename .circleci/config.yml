@@ -753,6 +753,7 @@ commands:
             export OKTA_OFFICE_SECRET_KEY=notrealkey1
             export OKTA_ADMIN_SECRET_KEY=notrealkey2
             export OKTA_TENANT_ORG_URL=test-milmove.okta.mil
+            export OKTA_API_KEY=notrealapikey
 
 
             make server_test
