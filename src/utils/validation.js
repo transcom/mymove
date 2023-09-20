@@ -108,7 +108,7 @@ export const backupContactInfoSchema = Yup.object().shape({
 
 export const edipiMinErrorMsg = 'Must be between 7-10 digits';
 export const edipiMaxErrorMsg = 'Cannot be more than 10 digits in length';
-export const emailFormatErrorMsg = 'Cannot be more than 10 digits in length';
+export const emailFormatErrorMsg = 'Must be in email format';
 
 // EDIPI can be between 7-10 digits to account for USCG members who use EIN
 export const oktaInfoSchema = Yup.object().shape({
