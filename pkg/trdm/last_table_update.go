@@ -1,15 +1,20 @@
 package trdm
 
 import (
+	"bytes"
+	"crypto"
 	"crypto/rsa"
+	"crypto/sha512"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/pem"
 	"encoding/xml"
 	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/beevik/etree"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"github.com/tiaguinho/gosoap"
@@ -174,23 +179,117 @@ func (d *GetLastTableUpdateRequestElement) GetLastTableUpdate(appCtx appcontext.
 	// ! strings above 64 bytes
 	// Start printing
 	headerStr := string(newParams["header"].([]byte))
-	bodyStr := string(newParams["body"].([]byte))
+	canonBodyXML, err := CanonicalizeXML(newParams["body"].([]byte))
+	if err != nil {
+		return err
+	}
+	//bodyStr := string(newParams["body"].([]byte))
 	//bodyStr := string(marshaledBody)
-
 	soapEnvelope := fmt.Sprintf(
-		`<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ret="http://trdm/ReturnTableService">
-	%s
-	%s
+		`<soap:Envelope xmlns:ret="http://trdm/ReturnTableService" xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+%s
+%s
 </soap:Envelope>`,
-		headerStr, bodyStr,
+		headerStr, canonBodyXML,
 	)
 
 	fmt.Println(soapEnvelope)
+
+	if err = verifySignedInfoXML(soapEnvelope); err != nil {
+		return err
+	}
+	/*
+		err = verifyXML(soapEnvelope)
+		if err != nil {
+			return err
+		}
+	*/
 	// End printing
 	err = lastTableUpdateSoapCall(d, newParams, appCtx)
 	if err != nil {
 		return fmt.Errorf("request error: %s", err.Error())
 	}
+	return nil
+}
+func verifySignedInfoXML(xmlContent string) error {
+	doc := etree.NewDocument()
+	if err := doc.ReadFromString(xmlContent); err != nil {
+		return err
+	}
+	signedInfoElem := doc.FindElement("//SignedInfo")
+	if signedInfoElem == nil {
+		return fmt.Errorf("could not find signed info elem")
+	}
+	doc.SetRoot(signedInfoElem)
+
+	return nil
+}
+func verifyXML(xmlContent string) error {
+	doc := etree.NewDocument()
+	if err := doc.ReadFromString(xmlContent); err != nil {
+		return err
+	}
+
+	// Locate the SignatureValue and extract the signature
+	signatureElement := doc.FindElement("//ds:SignatureValue")
+	if signatureElement == nil {
+		return fmt.Errorf("could not find signature element")
+	}
+
+	decodedSignature, err := base64.StdEncoding.DecodeString(signatureElement.Text())
+	if err != nil {
+		return err
+	}
+
+	// Locate the certificate and extract it
+	certElement := doc.FindElement("//wsse:BinarySecurityToken")
+	if certElement == nil {
+		return fmt.Errorf("could not find x509 cert")
+	}
+
+	decodedCert, err := base64.StdEncoding.DecodeString(certElement.Text())
+	if err != nil {
+		return err
+	}
+
+	// Parse the certificate
+	cert, err := x509.ParseCertificate([]byte(decodedCert))
+	if err != nil {
+		return fmt.Errorf("Failed to parse certificate PEM")
+	}
+
+	// Compute the hash of the SignedInfo element
+	signedInfoElement := doc.FindElement("//SignedInfo")
+	if signedInfoElement == nil {
+		fmt.Errorf("SignedInfo not found")
+	}
+
+	headerElem := doc.FindElement("//Header")
+	headerElem.CreateAttr("ret", "http://trdm/ReturnTableService")
+	headerElem.CreateAttr("soap", "http://www.w3.org/2003/05/soap-envelope")
+	// signedInfoElement.CreateAttr("xmlns:ds", "http://www.w3.org/2000/09/xmldsig#")
+	// signedInfoElement.CreateAttr("Id", "SIG-8796c3e3fa1d1183")
+
+	// Create a new document to write just the SignedInfo element
+	docFragment := etree.NewDocument()
+	docFragment.SetRoot(signedInfoElement.Copy())
+
+	strBuffer := &bytes.Buffer{}
+	if _, err := docFragment.WriteTo(strBuffer); err != nil {
+		return err
+	}
+
+	// canonicalSignedInfo, err := signedInfoElement.WriteToString()
+	// if err != nil {
+	// 	return err
+	// }
+
+	hashed := sha512.Sum512([]byte(strBuffer.Bytes()))
+	// Verify the signature
+	if err := rsa.VerifyPKCS1v15(cert.PublicKey.(*rsa.PublicKey), crypto.SHA512, hashed[:], decodedSignature); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -271,6 +370,7 @@ func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config) error {
 	}
 	soapClient.URL = trdmURL
 
+	// Base64 DER encoded x509 certificate
 	x509CertString := v.GetString(cli.MoveMilDoDTLSCertFlag)
 
 	publicPem, rest := pem.Decode([]byte(x509CertString))
@@ -283,21 +383,35 @@ func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config) error {
 		return err
 	}
 
+	// Currently the private key is in PKSC1 format
 	privateKeyString := v.GetString(cli.MoveMilDoDTLSKeyFlag)
+
 	privatePem, rest := pem.Decode([]byte(privateKeyString))
 	if len(rest) != 0 {
 		return fmt.Errorf("unable to properly decode private key, something is leftover: %w", err)
 	}
-	unassertedPrivateKey, err := x509.ParsePKCS8PrivateKey([]byte(privatePem.Bytes))
+
+	// Declare key here for PKCS1 and PKCS8 handling
+	var key interface{}
+
+	// ! If this line is failing, it's because app-devlocal uses PKCS8 and app-stg and app-prd use PKCS1
+	// Try to parse as PKCS1
+	key, err = x509.ParsePKCS1PrivateKey([]byte(privatePem.Bytes))
 	if err != nil {
-		return err
+		// Try to parse as PKCS8
+		var pkcs8err error
+		key, pkcs8err = x509.ParsePKCS8PrivateKey([]byte(privatePem.Bytes))
+		if pkcs8err != nil {
+			return fmt.Errorf("failed parsing private keys, \n PKCS1 err: %s \n PKCS8 err: %s", err, pkcs8err)
+		}
 	}
 
-	// Type assertion from any to *rsa.PrivateKey
-	key, ok := unassertedPrivateKey.(*rsa.PrivateKey)
+	// Type assert
+	rsaKey, ok := key.(*rsa.PrivateKey)
 	if !ok {
-		return fmt.Errorf("failed to type assert private key as *rsa.PrivateKey")
+		return fmt.Errorf("key is not of type *rsa.PrivateKey, got: %T", key)
 	}
+
 	tacBodyID, err := GenerateSOAPURIWithPrefix("#id")
 	if err != nil {
 		return err
@@ -306,8 +420,8 @@ func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config) error {
 	if err != nil {
 		return err
 	}
-	getLastTableUpdateTACErr := NewTRDMGetLastTableUpdate(transportationAccountingCode, tacBodyID, certificate, key, soapClient).GetLastTableUpdate(appCtx, transportationAccountingCode)
-	getLastTableUpdateLOAErr := NewTRDMGetLastTableUpdate(lineOfAccounting, loaBodyID, certificate, key, soapClient).GetLastTableUpdate(appCtx, lineOfAccounting)
+	getLastTableUpdateTACErr := NewTRDMGetLastTableUpdate(transportationAccountingCode, tacBodyID, certificate, rsaKey, soapClient).GetLastTableUpdate(appCtx, transportationAccountingCode)
+	getLastTableUpdateLOAErr := NewTRDMGetLastTableUpdate(lineOfAccounting, loaBodyID, certificate, rsaKey, soapClient).GetLastTableUpdate(appCtx, lineOfAccounting)
 	if getLastTableUpdateLOAErr != nil {
 		return getLastTableUpdateLOAErr
 	}
@@ -315,8 +429,8 @@ func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config) error {
 		return getLastTableUpdateTACErr
 	}
 
-	cronErrTAC := StartLastTableUpdateCron(appCtx, certificate, publicPem, key, transportationAccountingCode, soapClient)
-	cronErrLOA := StartLastTableUpdateCron(appCtx, certificate, publicPem, key, lineOfAccounting, soapClient)
+	cronErrTAC := StartLastTableUpdateCron(appCtx, certificate, publicPem, rsaKey, transportationAccountingCode, soapClient)
+	cronErrLOA := StartLastTableUpdateCron(appCtx, certificate, publicPem, rsaKey, lineOfAccounting, soapClient)
 
 	if cronErrLOA != nil {
 		return cronErrLOA

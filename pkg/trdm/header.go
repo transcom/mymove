@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/beevik/etree"
 	"github.com/ucarion/c14n"
 )
 
@@ -294,7 +295,19 @@ func canonicalizeAndDigestBodyXML(body []byte) (string, error) {
 	return digest, nil
 }
 
+// ! Future readers: Keep in mind the vast majority of this code is currently inoperable. The bottom of this function has an additional function call that overwrites all
+// ! of the witnessed functions here. There have been multiple implementations attempted and strings printed to utilize in `curl` requests for testing - however none have
+// ! worked. See etree_imp.go for the latest attempt, you will find many artifacts in this current file referencing marshaled XML generation as well as
+// ! manual string concatenation and canonicalization.
 func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.PrivateKey, bodyReferenceURI string, bodyXML []byte) ([]byte, error) {
+
+	// ! WARNING !
+	// ! Read the comment above this function before proceeding.
+
+	// ! Read the comment above this function before proceeding.
+
+	// ! Read the comment above this function before proceeding.
+
 	// Generate URIs
 	// These URIs should only have '#' in front of them when they are a
 	// reference. It must exist once in the XML without
@@ -318,51 +331,20 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 		return nil, err
 	}
 
-	headerXML, err := generateHeaderXML(*certificate, privateKey, x509URI, bodyReferenceURI, bodyDigest, keyInfoReferenceID, securityTokenReferenceID)
+	// Old generation of headerXML
+	_, err = generateHeaderXML(*certificate, privateKey, x509URI, bodyReferenceURI, bodyDigest, keyInfoReferenceID, securityTokenReferenceID)
 	if err != nil {
 		return nil, err
 	}
-	/*
-		securityHeader := header{
-			Security: security{
-				Wsse: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
-				Wsu:  "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
-				BinarySecurityToken: binarySecurityToken{
-					EncodingType: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary",
-					ValueType:    "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3",
-					Text:         base64.StdEncoding.EncodeToString(certificate.Raw),
-					ID:           x509URI,
-				},
-				Signature: signature{
-					ID:         signatureID,
-					Ds:         "http://www.w3.org/2000/09/xmldsig#",
-					SignedInfo: signedInfoStruct,
-					SignatureValue: signatureValue{
-						Text: base64.StdEncoding.EncodeToString(signedHash),
-					},
-					KeyInfo: keyInfo{
-						ID: keyInfoReferenceID,
-						SecurityTokenReference: securityTokenReference{
-							ID: securityTokenReferenceID,
-							STReference: sTReference{
-								URI:       "#" + x509URI,
-								ValueType: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3",
-							},
-						},
-					},
-				},
-				Timestamp: ts,
-			},
-		}
-	*/
-	// Canonicalizing the entire header here will be rejected by the server after successful TLS handshake. It must be put together earlier.
 
-	// marshaledHeader, err := xml.Marshal(securityHeader)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	return []byte(headerXML), nil
+	var envBytes bytes.Buffer
+	envelope, err := genEtreeEnvelope(*certificate, privateKey, "TRNSPRTN_ACNT", time.Millisecond*5000)
+	if err != nil {
+		return nil, err
+	}
+	envelope.WriteTo(&envBytes, &etree.WriteSettings{CanonicalText: true, CanonicalEndTags: true, CanonicalAttrVal: true})
+	fmt.Printf("\n My canon envelope from etree: \n %s", string(envBytes.Bytes()))
+	return envBytes.Bytes(), nil
 }
 
 func generateHeaderXML(cert x509.Certificate, key *rsa.PrivateKey, certURI string, bodyURI string, bodyDigest string, keyInfoURI string, strURI string) (string, error) {
@@ -481,8 +463,6 @@ func signXML(xml []byte, key *rsa.PrivateKey) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Printf("\nMy final hash \n%s\nMy xml that is being signed\n%s\n", base64.StdEncoding.EncodeToString(finalHash), string(xml))
 
 	return signedHash, nil
 }
