@@ -44,6 +44,7 @@ if args.telemetry:
 if args.standalone:
     os.environ["REACT_APP_NODE_ENV"] = "development"
     os.environ["LOGIN_GOV_CALLBACK_PORT"] = "8080"
+    os.environ["OKTA_TENANT_CALLBACK_PORT"] ="8080"
     # Now build the client
     # This can be faster than waiting for 'yarn start'
     subprocess.run(["make", "client_build"], check=True)
