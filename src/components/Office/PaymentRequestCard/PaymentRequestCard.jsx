@@ -133,7 +133,8 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, hasBillableWeightIs
     );
   };
 
-  const renderReviewServiceItemsBtnForTIO = () => {
+  // This defaults to the TIO view but if they don't have permission it tries the TOO view
+  const renderReviewServiceItemsBtnForTIOandTOO = () => {
     return (
       <Restricted to={permissionTypes.updatePaymentServiceItemStatus} fallback={renderReviewServiceItemsBtnForTOO()}>
         <div className={styles.reviewButton}>
@@ -207,7 +208,7 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, hasBillableWeightIs
               )}
             </>
           )}
-          {paymentRequest.status === PAYMENT_REQUEST_STATUS.PENDING && renderReviewServiceItemsBtnForTIO()}
+          {paymentRequest.status === PAYMENT_REQUEST_STATUS.PENDING && renderReviewServiceItemsBtnForTIOandTOO()}
         </div>
         <div className={styles.footer}>
           <dl>
