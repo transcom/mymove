@@ -100,10 +100,6 @@ type UpdateOktaProfileHandler struct {
 	handlers.HandlerConfig
 }
 
-type ProfileStruct struct {
-	internalmessages.OktaUserPayload
-}
-
 // Handle implements okta_profile.UpdateOktaInfoHandler
 // following the API call docs here: https://developer.okta.com/docs/reference/api/oidc/#client-authentication-methods
 func (h UpdateOktaProfileHandler) Handle(params oktaop.UpdateOktaInfoParams) middleware.Responder {

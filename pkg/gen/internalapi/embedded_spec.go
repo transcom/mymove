@@ -1816,15 +1816,15 @@ func init() {
     },
     "/okta-profile": {
       "get": {
-        "description": "Returns the okta profile data for service member",
+        "description": "Calls a GET request to Okta's Users API and returns profile values",
         "tags": [
           "okta_profile"
         ],
-        "summary": "Returns the given service member's okta profile",
+        "summary": "Returns Okta profile values from Okta's Users API",
         "operationId": "showOktaInfo",
         "responses": {
           "200": {
-            "description": "the instance of the service member",
+            "description": "okta profile for user",
             "schema": {
               "$ref": "#/definitions/OktaUserPayload"
             }
@@ -1847,11 +1847,11 @@ func init() {
         }
       },
       "post": {
-        "description": "Updates the okta email, first \u0026 last name, and edipi",
+        "description": "Calls a POST request to Okta's Users API and updates provided fields",
         "tags": [
           "okta_profile"
         ],
-        "summary": "Update the user's okta profile",
+        "summary": "Update the user's okta profile, returns Okta profile values from Okta's Users API",
         "operationId": "updateOktaInfo",
         "parameters": [
           {
@@ -5759,7 +5759,7 @@ func init() {
         },
         "login": {
           "type": "string",
-          "format": "string",
+          "format": "x-email",
           "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "example": "user@email.com"
         },
@@ -10301,15 +10301,15 @@ func init() {
     },
     "/okta-profile": {
       "get": {
-        "description": "Returns the okta profile data for service member",
+        "description": "Calls a GET request to Okta's Users API and returns profile values",
         "tags": [
           "okta_profile"
         ],
-        "summary": "Returns the given service member's okta profile",
+        "summary": "Returns Okta profile values from Okta's Users API",
         "operationId": "showOktaInfo",
         "responses": {
           "200": {
-            "description": "the instance of the service member",
+            "description": "okta profile for user",
             "schema": {
               "$ref": "#/definitions/OktaUserPayload"
             }
@@ -10332,11 +10332,11 @@ func init() {
         }
       },
       "post": {
-        "description": "Updates the okta email, first \u0026 last name, and edipi",
+        "description": "Calls a POST request to Okta's Users API and updates provided fields",
         "tags": [
           "okta_profile"
         ],
-        "summary": "Update the user's okta profile",
+        "summary": "Update the user's okta profile, returns Okta profile values from Okta's Users API",
         "operationId": "updateOktaInfo",
         "parameters": [
           {
@@ -14602,7 +14602,7 @@ func init() {
         },
         "login": {
           "type": "string",
-          "format": "string",
+          "format": "x-email",
           "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "example": "user@email.com"
         },

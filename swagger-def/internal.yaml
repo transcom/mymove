@@ -5103,12 +5103,12 @@ paths:
           name: updateOktaUserPayload
           required: true
           schema:
-            $ref: '#/definitions/OktaUserPayload'
+            $ref: '#/definitions/UpdateOktaUserPayload'
       responses:
         '200':
           description: okta profile for user
           schema:
-            $ref: '#/definitions/UpdateOktaUserPayload'
+            $ref: '#/definitions/OktaUserPayload'
         '400':
           description: invalid request
         '401':

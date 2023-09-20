@@ -32,9 +32,9 @@ func NewShowOktaInfo(ctx *middleware.Context, handler ShowOktaInfoHandler) *Show
 /*
 	ShowOktaInfo swagger:route GET /okta-profile okta_profile showOktaInfo
 
-# Returns the given service member's okta profile
+# Returns Okta profile values from Okta's Users API
 
-Returns the okta profile data for service member
+Calls a GET request to Okta's Users API and returns profile values
 */
 type ShowOktaInfo struct {
 	Context *middleware.Context

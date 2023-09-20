@@ -48,14 +48,14 @@ definitions:
         example: 1duekdue9ekrjghf
       login:
         type: string
-        format: string
+        format: x-email
         example: user@email.com
-        pattern: '^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
       email:
         type: string
         format: x-email
         example: user@email.com
-        pattern: '^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
       firstName:
         type: string
         example: John
@@ -65,7 +65,7 @@ definitions:
       cac_edipi:
         type: string
         example: '1234567890'
-        pattern: '^\d{10}$'
+        pattern: ^\d{10}$
         minLength: 7
         maxLength: 10
         x-nullable: true
@@ -2224,7 +2224,7 @@ definitions:
         description: zip code, international allowed
         format: zip
         title: ZIP
-        example: "'90210' or 'N15 3NL'"
+        example: '''90210'' or ''N15 3NL'''
       postal_code_type:
         type: string
         enum:
@@ -6331,7 +6331,7 @@ paths:
         - okta_profile
       responses:
         '200':
-          description: the instance of the service member
+          description: okta profile for user
           schema:
             $ref: '#/definitions/OktaUserPayload'
         '400':
@@ -6345,7 +6345,9 @@ paths:
         '500':
           description: internal server error
     post:
-      summary: Update the user's okta profile, returns Okta profile values from Okta's Users API
+      summary: >-
+        Update the user's okta profile, returns Okta profile values from Okta's
+        Users API
       description: Calls a POST request to Okta's Users API and updates provided fields
       operationId: updateOktaInfo
       tags:
