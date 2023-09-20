@@ -43,27 +43,10 @@ describe('EditOktaInfoForm component', () => {
     expect(oktaEdipi).toHaveValue(testProps.initialValues.oktaEdipi);
   });
 
-  it('shows an error message if Okta Username is empty', async () => {
+  it('shows an error message if Okta Email is not in email format', async () => {
     renderWithRouter(<EditOktaInfoForm {...testProps} />);
 
-    const saveButton = await screen.findByRole('button', { name: 'Save' });
-    expect(saveButton).toBeEnabled();
-
-    const emailInput = await screen.findByLabelText('Okta Username');
-    await userEvent.clear(emailInput);
-    await userEvent.tab();
-
-    const alert = await screen.findByRole('alert');
-    expect(alert).toBeInTheDocument();
-    expect(alert).toHaveTextContent('Required');
-
-    expect(saveButton).toBeDisabled();
-  });
-
-  it('shows an error message if Okta Username is not in email format', async () => {
-    renderWithRouter(<EditOktaInfoForm {...testProps} />);
-
-    const emailInput = await screen.findByLabelText('Okta Username');
+    const emailInput = await screen.findByLabelText('Okta Email');
     await userEvent.clear(emailInput);
     await userEvent.type(emailInput, 'oktaUserWithoutEmail');
     await userEvent.tab();
@@ -88,19 +71,6 @@ describe('EditOktaInfoForm component', () => {
     expect(alert).toHaveTextContent('Required');
 
     expect(saveButton).toBeDisabled();
-  });
-
-  it('shows an error message if Okta Email is not in email format', async () => {
-    renderWithRouter(<EditOktaInfoForm {...testProps} />);
-
-    const emailInput = await screen.findByLabelText('Okta Email');
-    await userEvent.clear(emailInput);
-    await userEvent.type(emailInput, 'Not an email');
-    await userEvent.tab();
-
-    const alert = await screen.findByRole('alert');
-    expect(alert).toBeInTheDocument();
-    expect(alert).toHaveTextContent('Invalid email');
   });
 
   it('submits the form when its valid', async () => {
