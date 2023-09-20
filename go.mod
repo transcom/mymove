@@ -20,6 +20,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.37.5
 	github.com/aws/aws-sdk-go-v2/service/sts v1.21.5
 	github.com/aws/smithy-go v1.14.2
+	github.com/beevik/etree v1.2.0
 	github.com/benbjohnson/clock v1.3.5
 	github.com/cenkalti/backoff/v4 v4.2.1
 	github.com/codegangsta/gin v0.0.0-20211113050330-71f90109db02
@@ -59,7 +60,6 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/markbates/goth v1.77.0
 	github.com/namsral/flag v1.7.4-pre
-	github.com/opencontainers/go-digest v1.0.0
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.5
@@ -73,6 +73,7 @@ require (
 	github.com/tcnksm/go-input v0.0.0-20180404061846-548a7d7a8ee8
 	github.com/tealeg/xlsx/v3 v3.3.0
 	github.com/tiaguinho/gosoap v1.4.4
+	github.com/ucarion/c14n v0.1.0
 	github.com/vektra/mockery/v2 v2.33.0
 	go.flipt.io/flipt/rpc/flipt v1.25.0
 	go.flipt.io/flipt/sdk/go v0.5.0
@@ -101,11 +102,6 @@ require (
 	gopkg.in/dnaeon/go-vcr.v3 v3.1.2
 	gotest.tools/gotestsum v1.10.1
 	pault.ag/go/pksigner v1.0.2
-)
-
-require (
-	github.com/beevik/etree v1.2.0 // indirect
-	github.com/ucarion/c14n v0.1.0 // indirect
 )
 
 require (
