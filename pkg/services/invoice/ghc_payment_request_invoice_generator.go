@@ -656,14 +656,15 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 	var loas []models.LineOfAccounting
 	var loa models.LineOfAccounting
 
-	// If service member is in coast guard, only include items with household goods code 'HS'
+	// If a service member is in the Coast Guard don't filter out the household goods code of 'HS' because that is
+	// primarily how their TGET records are coded along with 'HT' and 'HC' infrequently. If this changes in the future
+	// then this can be revisited to weight the different LOAs similar to the other services.
 	if *orders.ServiceMember.Affiliation == models.AffiliationCOASTGUARD {
 		err := appCtx.DB().Q().
 			Join("transportation_accounting_codes t", "t.loa_id = lines_of_accounting.id").
 			Where("t.tac = ?", tac).
 			Where("? between loa_bgn_dt and loa_end_dt", orders.IssueDate).
 			Where("t.tac_fn_bl_mod_cd != 'P'").
-			Where("loa_hs_gds_cd = ?", models.LineOfAccountingHouseholdGoodsCodeNTS).
 			Order("t.tac_fn_bl_mod_cd asc").
 			Order("loa_bgn_dt desc").
 			Order("t.tac_fy_txt desc").
