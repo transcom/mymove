@@ -79,7 +79,7 @@ def delete_dl_and_parents(dl_id):
         'mto_agents',
     ]:
         f.write(
-            f"DELETE from {t} where mto_shipment_id IN (SELECT id from mto_shipments where move_id IN ((SELECT id from moves where orders_id IN {orders_query}));\n"
+            f"DELETE from {t} where mto_shipment_id IN (SELECT id from mto_shipments where move_id IN (SELECT id from moves where orders_id IN {orders_query}));\n"
         )
 
     for t in [
@@ -87,7 +87,7 @@ def delete_dl_and_parents(dl_id):
         'shipment_address_updates',
     ]:
         f.write(
-            f"DELETE from {t} where shipment_id IN (SELECT id from mto_shipments where move_id IN ((SELECT id from moves where orders_id IN {orders_query}));\n"
+            f"DELETE from {t} where shipment_id IN (SELECT id from mto_shipments where move_id IN (SELECT id from moves where orders_id IN {orders_query}));\n"
         )
 
     for t in [
