@@ -84,6 +84,7 @@ func exchangeCode(code string, r *http.Request, appCtx appcontext.AppContext, pr
 	q.Add("grant_type", "authorization_code")
 	q.Set("code", code)
 	q.Add("redirect_uri", provider.GetCallbackURL())
+	q.Add("scope", "openid email profile")
 
 	url := provider.GetTokenURL() + "?" + q.Encode()
 

@@ -15,6 +15,12 @@ export const selectLoggedInUser = (state) => {
   return null;
 };
 
+/** Okta Profile */
+export const selectOktaUser = (state) => {
+  if (state.entities.oktaUser) return state.entities.oktaUser;
+  return null;
+};
+
 /** Service Member */
 export const selectServiceMemberFromLoggedInUser = (state) => {
   const user = selectLoggedInUser(state);

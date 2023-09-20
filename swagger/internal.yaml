@@ -39,6 +39,41 @@ tags:
   - name: mtoShipment
   - name: featureFlags
 definitions:
+  OktaUserPayload:
+    type: object
+    properties:
+      sub:
+        type: string
+        format: string
+        example: 1duekdue9ekrjghf
+      login:
+        type: string
+        format: x-email
+        example: user@email.com
+        pattern: ^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+      email:
+        type: string
+        format: x-email
+        example: user@email.com
+        pattern: ^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+      firstName:
+        type: string
+        example: John
+      lastName:
+        type: string
+        example: Doe
+      cac_edipi:
+        type: string
+        example: '1234567890'
+        pattern: ^\d{10}$
+        minLength: 7
+        maxLength: 10
+        x-nullable: true
+  UpdateOktaUserPayload:
+    type: object
+    properties:
+      profile:
+        $ref: '#/definitions/OktaUserPayload'
   LoggedInUserPayload:
     type: object
     properties:
@@ -6347,6 +6382,57 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  /okta-profile:
+    get:
+      summary: Returns Okta profile values from Okta's Users API
+      description: Calls a GET request to Okta's Users API and returns profile values
+      operationId: showOktaInfo
+      tags:
+        - okta_profile
+      responses:
+        '200':
+          description: okta profile for user
+          schema:
+            $ref: '#/definitions/OktaUserPayload'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '403':
+          description: user is not authorized
+        '404':
+          description: service member not found
+        '500':
+          description: internal server error
+    post:
+      summary: >-
+        Update the user's okta profile, returns Okta profile values from Okta's
+        Users API
+      description: Calls a POST request to Okta's Users API and updates provided fields
+      operationId: updateOktaInfo
+      tags:
+        - okta_profile
+      parameters:
+        - in: body
+          name: updateOktaUserPayload
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateOktaUserPayload'
+      responses:
+        '200':
+          description: okta profile for user
+          schema:
+            $ref: '#/definitions/OktaUserPayload'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '403':
+          description: user is not authorized
+        '404':
+          description: service member not found
+        '500':
+          description: internal server error
 responses:
   InvalidRequest:
     description: The request payload is invalid.

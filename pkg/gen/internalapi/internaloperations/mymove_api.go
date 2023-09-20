@@ -31,6 +31,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/okta_profile"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/postal_codes"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
@@ -215,6 +216,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OfficeShowOfficeOrdersHandler: office.ShowOfficeOrdersHandlerFunc(func(params office.ShowOfficeOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ShowOfficeOrders has not yet been implemented")
 		}),
+		OktaProfileShowOktaInfoHandler: okta_profile.ShowOktaInfoHandlerFunc(func(params okta_profile.ShowOktaInfoParams) middleware.Responder {
+			return middleware.NotImplemented("operation okta_profile.ShowOktaInfo has not yet been implemented")
+		}),
 		OrdersShowOrdersHandler: orders.ShowOrdersHandlerFunc(func(params orders.ShowOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.ShowOrders has not yet been implemented")
 		}),
@@ -265,6 +269,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		PpmUpdateMovingExpenseHandler: ppm.UpdateMovingExpenseHandlerFunc(func(params ppm.UpdateMovingExpenseParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.UpdateMovingExpense has not yet been implemented")
+		}),
+		OktaProfileUpdateOktaInfoHandler: okta_profile.UpdateOktaInfoHandlerFunc(func(params okta_profile.UpdateOktaInfoParams) middleware.Responder {
+			return middleware.NotImplemented("operation okta_profile.UpdateOktaInfo has not yet been implemented")
 		}),
 		OrdersUpdateOrdersHandler: orders.UpdateOrdersHandlerFunc(func(params orders.UpdateOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.UpdateOrders has not yet been implemented")
@@ -437,6 +444,8 @@ type MymoveAPI struct {
 	MovesShowMoveDatesSummaryHandler moves.ShowMoveDatesSummaryHandler
 	// OfficeShowOfficeOrdersHandler sets the operation handler for the show office orders operation
 	OfficeShowOfficeOrdersHandler office.ShowOfficeOrdersHandler
+	// OktaProfileShowOktaInfoHandler sets the operation handler for the show okta info operation
+	OktaProfileShowOktaInfoHandler okta_profile.ShowOktaInfoHandler
 	// OrdersShowOrdersHandler sets the operation handler for the show orders operation
 	OrdersShowOrdersHandler orders.ShowOrdersHandler
 	// PpmShowPPMEstimateHandler sets the operation handler for the show p p m estimate operation
@@ -471,6 +480,8 @@ type MymoveAPI struct {
 	MoveDocsUpdateMoveDocumentHandler move_docs.UpdateMoveDocumentHandler
 	// PpmUpdateMovingExpenseHandler sets the operation handler for the update moving expense operation
 	PpmUpdateMovingExpenseHandler ppm.UpdateMovingExpenseHandler
+	// OktaProfileUpdateOktaInfoHandler sets the operation handler for the update okta info operation
+	OktaProfileUpdateOktaInfoHandler okta_profile.UpdateOktaInfoHandler
 	// OrdersUpdateOrdersHandler sets the operation handler for the update orders operation
 	OrdersUpdateOrdersHandler orders.UpdateOrdersHandler
 	// PpmUpdatePersonallyProcuredMoveHandler sets the operation handler for the update personally procured move operation
@@ -720,6 +731,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.OfficeShowOfficeOrdersHandler == nil {
 		unregistered = append(unregistered, "office.ShowOfficeOrdersHandler")
 	}
+	if o.OktaProfileShowOktaInfoHandler == nil {
+		unregistered = append(unregistered, "okta_profile.ShowOktaInfoHandler")
+	}
 	if o.OrdersShowOrdersHandler == nil {
 		unregistered = append(unregistered, "orders.ShowOrdersHandler")
 	}
@@ -770,6 +784,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PpmUpdateMovingExpenseHandler == nil {
 		unregistered = append(unregistered, "ppm.UpdateMovingExpenseHandler")
+	}
+	if o.OktaProfileUpdateOktaInfoHandler == nil {
+		unregistered = append(unregistered, "okta_profile.UpdateOktaInfoHandler")
 	}
 	if o.OrdersUpdateOrdersHandler == nil {
 		unregistered = append(unregistered, "orders.UpdateOrdersHandler")
@@ -1090,6 +1107,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/okta-profile"] = okta_profile.NewShowOktaInfo(o.context, o.OktaProfileShowOktaInfoHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/orders/{ordersId}"] = orders.NewShowOrders(o.context, o.OrdersShowOrdersHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1155,6 +1176,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}"] = ppm.NewUpdateMovingExpense(o.context, o.PpmUpdateMovingExpenseHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/okta-profile"] = okta_profile.NewUpdateOktaInfo(o.context, o.OktaProfileUpdateOktaInfoHandler)
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}

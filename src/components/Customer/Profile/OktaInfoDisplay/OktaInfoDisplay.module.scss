@@ -2,8 +2,8 @@
 @import 'shared/styles/_basics';
 @import 'shared/styles/colors';
 
-.contactInfoContainer {
-  .contactInfoHeader {
+.serviceInfoContainer {
+  .header {
     h2 {
       flex-shrink: 0;
       @include u-margin(0);
@@ -16,35 +16,40 @@
     justify-content: space-between;
   }
 
-  .contactInfoSection {
-    h3 {
-      @include u-margin-top(3);
-    }
-
+  .oktaInfoSection {
     dl {
       dt {
         @include u-width(33%);
       }
-
       dd {
         @include u-width(67%);
       }
       @include u-margin-bottom(0);
     }
   }
-}
 
-a {
-  color: $link;
-  text-decoration: none;
-
-  &:visited {
-    color: $link;
+  .oktaLogo {
+    height: 60px;
+    max-width: 120px;
+    margin-left: -15px;
   }
 
-  &:hover,
-  &:focus {
+  .oktaEditLink {
+    align-self: center;
+  }
+
+  a {
     color: $link;
-    @include u-text('no-underline');
+    text-decoration: none;
+
+    &:visited {
+      color: $link;
+    }
+
+    &:hover,
+    &:focus {
+      color: $link;
+      @include u-text('no-underline');
+    }
   }
 }

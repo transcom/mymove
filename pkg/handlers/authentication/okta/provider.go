@@ -91,7 +91,7 @@ func (op *Provider) AuthorizationURL(r *http.Request) (*Data, error) {
 	// Generate a new state that will later be stored in a cookie for auth
 	state := generateNonce()
 
-	// Generate a session rom the provider and state (nonce)
+	// Generate a session from the provider and state (nonce)
 	sess, err := provider.BeginAuth(state)
 	if err != nil {
 		op.logger.Error("Goth begin auth", zap.Error(err))
@@ -237,23 +237,21 @@ func (op *Provider) GetOrgURL() string {
 func (op *Provider) GetTokenURL() string {
 	return op.orgURL + "/oauth2/default/v1/token"
 }
-
+func (op *Provider) GetAuthURL() string {
+	return op.orgURL + "/oauth2/v1/authorize"
+}
 func (op *Provider) GetUserInfoURL() string {
 	return op.orgURL + "/oauth2/default/v1/userinfo"
 }
-
 func (op *Provider) SetCallbackURL(URL string) {
 	op.callbackURL = URL
 }
-
 func (op *Provider) GetCallbackURL() string {
 	return op.callbackURL
 }
-
 func (op *Provider) GetIssuerURL() string {
 	return op.orgURL + "/oauth2/default"
 }
-
 func (op *Provider) GetLogoutURL() string {
 	return op.orgURL + "/oauth2/default/v1/logout"
 }
@@ -268,6 +266,9 @@ func (op *Provider) GetJWKSURL() string {
 }
 func (op *Provider) GetOpenIDConfigURL() string {
 	return op.orgURL + "/oauth2/default/.well-known/openid-configuration"
+}
+func (op *Provider) GetUserURL(oktaUserID string) string {
+	return op.orgURL + "/api/v1/users/" + oktaUserID
 }
 
 // TokenURL returns a full URL to retrieve a user token from okta.mil

@@ -76,6 +76,9 @@ export const serviceMember = new schema.Entity('serviceMembers', {
   orders: ordersArray,
 });
 
+// Okta Profile
+export const oktaUser = new schema.Entity('oktaUser');
+
 // Loggedin User
 export const loggedInUser = new schema.Entity('user', {
   service_member: serviceMember,
