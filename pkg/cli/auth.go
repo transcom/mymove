@@ -3,7 +3,6 @@ package cli
 import (
 	"fmt"
 	"regexp"
-	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
@@ -53,9 +52,9 @@ const (
 	// RA: This line is used to identify the name of the flag. OktaCustomerSecretKeyFlag is the Okta Customer Application Secret Key Flag.
 	// RA: This value of this variable does not store an application secret.
 	// RA Developer Status: RA Request
-	// RA Validator Status:
-	// RA Validator:
-	// RA Modified Severity:
+	// RA Validator Status: Mitigated
+	// RA Validator: leodis.f.scott.civ@mail.mil
+	// RA Modified Severity: CAT III
 	// #nosec G101
 	OktaCustomerSecretKeyFlag string = "okta-customer-secret-key"
 
@@ -68,9 +67,9 @@ const (
 	// RA: This line is used to identify the name of the flag. OktaOfficeSecretKeyFlag is the Okta Office Application Secret Key Flag.
 	// RA: This value of this variable does not store an application secret.
 	// RA Developer Status: RA Request
-	// RA Validator Status:
-	// RA Validator:
-	// RA Modified Severity:
+	// RA Validator Status: Mitigated
+	// RA Validator: leodis.f.scott.civ@mail.mil
+	// RA Modified Severity: CAT III
 	// #nosec G101
 	OktaOfficeSecretKeyFlag string = "okta-office-secret-key"
 
@@ -83,20 +82,12 @@ const (
 	// RA: This line is used to identify the name of the flag. OktaAdminSecretKeyFlag is the Okta Admin Application Secret Key Flag.
 	// RA: This value of this variable does not store an application secret.
 	// RA Developer Status: RA Request
-	// RA Validator Status:
-	// RA Validator:
-	// RA Modified Severity:
+	// RA Validator Status: Mitigated
+	// RA Validator: leodis.f.scott.civ@mail.mil
+	// RA Modified Severity: CAT III
 	// #nosec G101
 	OktaAdminSecretKeyFlag string = "okta-admin-secret-key"
 )
-
-type errInvalidClientID struct {
-	ClientID string
-}
-
-func (e *errInvalidClientID) Error() string {
-	return fmt.Sprintf("invalid client ID %s, must be of format 'urn:gov:gsa:openidconnect.profiles:sp:sso:dod:IDENTIFIER'", e.ClientID)
-}
 
 // InitAuthFlags initializes Auth command line flags
 func InitAuthFlags(flag *pflag.FlagSet) {
@@ -157,26 +148,6 @@ func CheckAuth(v *viper.Viper) error {
 		}
 	}
 
-	return nil
-}
-
-// ValidateClientID validates a proper Login.gov ClientID was passed
-func ValidateClientID(v *viper.Viper, flagname string) error {
-	clientID := v.GetString(flagname)
-	clientIDParts := strings.Split(clientID, ":")
-	clientIDLen := 8
-	if len(clientIDParts) != clientIDLen {
-		return errors.Wrap(&errInvalidClientID{ClientID: clientID}, fmt.Sprintf("%s is invalid due to length, found %d parts, expected %d. ClientID was %s.", flagname, len(clientIDParts), clientIDLen, clientID))
-	}
-	openIDFormat := []string{"urn", "gov", "gsa", "openidconnect.profiles", "sp", "sso", "dod"}
-	for i, v := range clientIDParts {
-		if i == 7 {
-			break
-		}
-		if v != openIDFormat[i] {
-			return errors.Wrap(&errInvalidClientID{ClientID: clientID}, fmt.Sprintf("%s is not using OpenID connect", flagname))
-		}
-	}
 	return nil
 }
 

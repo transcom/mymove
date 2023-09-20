@@ -30,7 +30,7 @@ func BuildUser(db *pop.Connection, customs []Customization, traits []Trait) mode
 	}
 
 	// create user
-	OktaID := makeRandomString(20)
+	OktaID := MakeRandomString(20)
 	user := models.User{
 		OktaID:    OktaID,
 		OktaEmail: "first.last@okta.mil",

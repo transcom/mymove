@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 
 	verifier "github.com/okta/okta-jwt-verifier-golang"
 	"go.uber.org/zap"
@@ -46,6 +47,7 @@ func getProfileData(appCtx appcontext.AppContext, provider okta.Provider) (model
 	err = json.Unmarshal(body, &user)
 	if err != nil {
 		appCtx.Logger().Error("could not unmarshal body", zap.Error(err))
+		return user, err
 	}
 
 	return user, nil
@@ -86,7 +88,11 @@ func exchangeCode(code string, r *http.Request, appCtx appcontext.AppContext, pr
 
 	url := provider.GetTokenURL() + "?" + q.Encode()
 
-	req, _ := http.NewRequest("POST", url, bytes.NewReader([]byte("")))
+	req, err := http.NewRequest("POST", url, bytes.NewReader([]byte("")))
+	if err != nil {
+		appCtx.Logger().Error("Post request generate", zap.Error(err))
+		return Exchange{}, err
+	}
 	h := req.Header
 	h.Add("Authorization", "Basic "+authHeader)
 	h.Add("Accept", "application/json")
@@ -96,12 +102,13 @@ func exchangeCode(code string, r *http.Request, appCtx appcontext.AppContext, pr
 
 	resp, err := client.Do(req)
 	if err != nil {
-		appCtx.Logger().Error("Code exchange", zap.Error(err))
+		appCtx.Logger().Error("Exchange client request", zap.Error(err))
+		return Exchange{}, err
 	}
-	fmt.Println("t")
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		appCtx.Logger().Error("Code exchange", zap.Error(err))
+		appCtx.Logger().Error("Exchange response body", zap.Error(err))
+		return Exchange{}, err
 	}
 	defer resp.Body.Close()
 	var exchange Exchange
@@ -122,4 +129,29 @@ type Exchange struct {
 	ExpiresIn        int    `json:"expires_in,omitempty"`
 	Scope            string `json:"scope,omitempty"`
 	IDToken          string `json:"id_token,omitempty"`
+}
+
+// logging a user out of okta requires calling the /logout API endpoint
+// it is a GET request and clears the browser session
+// the URL will need to be built using the ID token and a redirect URI
+func logoutOktaUserURL(provider *okta.Provider, idToken string, redirectURL string) (string, error) {
+	// baseURL will end in /logout
+	baseURL := provider.GetLogoutURL()
+
+	// Parse URL
+	logoutURL, err := url.Parse(baseURL)
+	if err != nil {
+		return "", err
+	}
+
+	// add params required by Okta to successfully sign a user out
+	params := logoutURL.Query()
+	params.Set("id_token_hint", idToken)
+	params.Set("post_logout_redirect_uri", redirectURL+"sign-in")
+
+	logoutURL.RawQuery = params.Encode()
+
+	oktaLogoutURL := logoutURL.String()
+
+	return oktaLogoutURL, err
 }

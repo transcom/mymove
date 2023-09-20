@@ -1,6 +1,7 @@
 package ghcrateengine
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -62,7 +63,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginWithServiceItemPa
 		paymentServiceItem := suite.setupDomesticOriginServiceItems()
 
 		cost, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
-		expectedCost := unit.Cents(5470)
+		expectedCost := unit.Cents(5472)
 
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
@@ -120,7 +121,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 			dopTestServiceArea,
 			isPPM,
 		)
-		expectedCost := unit.Cents(5470)
+		expectedCost := unit.Cents(5472)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 
@@ -147,7 +148,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 			isPPM,
 		)
 
-		expectedCost := unit.Cents(4758)
+		expectedCost := unit.Cents(4752)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 
@@ -190,8 +191,14 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 			isPPM,
 		)
 
-		suite.Error(err)
-		suite.Equal("Could not lookup contract year: "+models.RecordNotFoundErrorString, err.Error())
+		if suite.Error(err) {
+			expectedErr := fmt.Sprintf(
+				"could not calculate escalated price: could not lookup contract year: %s",
+				models.RecordNotFoundErrorString,
+			)
+
+			suite.Equal(expectedErr, err.Error())
+		}
 	})
 
 	suite.Run("weight below minimum", func() {

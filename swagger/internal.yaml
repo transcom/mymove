@@ -2660,20 +2660,41 @@ definitions:
       - title
       - detail
     type: object
-  FeatureFlag:
+  FeatureFlagBoolean:
     description: A feature flag
     type: object
     properties:
       entity:
         type: string
-        example: user@example.com
+        example: 11111111-1111-1111-1111-111111111111
       key:
         type: string
         example: flag
       match:
         type: boolean
         example: true
-      value:
+      namespace:
+        type: string
+        example: test
+    required:
+      - entity
+      - key
+      - match
+      - namespace
+  FeatureFlagVariant:
+    description: A feature flag
+    type: object
+    properties:
+      entity:
+        type: string
+        example: 11111111-1111-1111-1111-111111111111
+      key:
+        type: string
+        example: flag
+      match:
+        type: boolean
+        example: true
+      variant:
         type: string
         example: myval
       namespace:
@@ -2683,7 +2704,7 @@ definitions:
       - entity
       - key
       - match
-      - value
+      - variant
       - namespace
   OrdersType:
     type: string
@@ -3929,14 +3950,14 @@ paths:
           description: the payload was unprocessable
         '500':
           description: internal server error
-  /feature-flags/user/{key}:
+  /feature-flags/user-boolean/{key}:
     post:
       summary: Determines if a user has a feature flag enabled
       description: >-
         Determines if a user has a feature flag enabled. The flagContext
         contains context used to determine if this flag applies to the logged in
         user.
-      operationId: featureFlagForUser
+      operationId: booleanFeatureFlagForUser
       tags:
         - featureFlags
       consumes:
@@ -3959,9 +3980,48 @@ paths:
         - application/json
       responses:
         '200':
-          description: Feature Flag Status
+          description: Boolean Feature Flag Status
           schema:
-            $ref: '#/definitions/FeatureFlag'
+            $ref: '#/definitions/FeatureFlagBoolean'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '500':
+          description: internal server error
+  /feature-flags/user-variant/{key}:
+    post:
+      summary: Determines if a user has a feature flag enabled
+      description: >-
+        Determines if a user has a feature flag enabled. The flagContext
+        contains context used to determine if this flag applies to the logged in
+        user.
+      operationId: variantFeatureFlagForUser
+      tags:
+        - featureFlags
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: key
+          type: string
+          required: true
+          description: Feature Flag Key
+        - in: body
+          name: flagContext
+          required: true
+          description: context for the feature flag request
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Variant Feature Flag Status
+          schema:
+            $ref: '#/definitions/FeatureFlagVariant'
         '400':
           description: invalid request
         '401':

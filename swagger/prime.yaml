@@ -1294,6 +1294,13 @@ paths:
         updated on the shipment.
 
 
+        To create a paymentRequest for a SIT Destination Additional Days
+        mtoServiceItem, the SITPaymentRequestStart and
+
+        SITPaymentRequestEnd dates must not overlap previously requested SIT
+        dates.
+
+
         To create a paymentRequest for a SIT Delivery mtoServiceItem, the item
         must
 
@@ -1892,6 +1899,18 @@ definitions:
             x-omitempty: false
           sitAddressUpdates:
             $ref: '#/definitions/SitAddressUpdates'
+          sitRequestedDelivery:
+            format: date
+            type: string
+            description: Date when the customer has requested delivery out of SIT.
+            x-nullable: true
+          sitCustomerContacted:
+            format: date
+            type: string
+            description: >-
+              Date when the customer contacted the prime for a delivery out of
+              SIT.
+            x-nullable: true
         required:
           - reServiceCode
           - sitEntryDate
@@ -2225,6 +2244,18 @@ definitions:
             format: date
             type: string
             description: Second available date that Prime can deliver SIT service item.
+            x-nullable: true
+          sitRequestedDelivery:
+            format: date
+            type: string
+            description: Date when the customer has requested delivery out of SIT.
+            x-nullable: true
+          sitCustomerContacted:
+            format: date
+            type: string
+            description: >-
+              Date when the customer contacted the prime for a delivery out of
+              SIT.
             x-nullable: true
   UpdateMTOShipment:
     properties:
@@ -2942,6 +2973,7 @@ definitions:
       - SITScheduleDest
       - SITScheduleOrigin
       - SITServiceAreaDest
+      - SITServiceAreaOrigin
       - WeightAdjusted
       - WeightBilled
       - WeightEstimated

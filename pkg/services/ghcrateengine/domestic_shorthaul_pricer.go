@@ -54,13 +54,13 @@ func (p domesticShorthaulPricer) Price(appCtx appcontext.AppContext, contractCod
 		return 0, nil, fmt.Errorf("Could not lookup Domestic Service Area Price: %w", err)
 	}
 
-	contractYear, err := fetchContractYear(appCtx, domServiceAreaPrice.ContractID, referenceDate)
+	basePrice := domServiceAreaPrice.PriceCents.Float64()
+	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, domServiceAreaPrice.ContractID, referenceDate, false, basePrice)
 	if err != nil {
-		return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
+		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 
-	basePrice := domServiceAreaPrice.PriceCents.Float64() * distance.Float64() * weight.ToCWTFloat64()
-	escalatedPrice := basePrice * contractYear.EscalationCompounded
+	escalatedPrice = escalatedPrice * distance.Float64() * weight.ToCWTFloat64()
 	totalCost = unit.Cents(math.Round(escalatedPrice))
 
 	var pricingRateEngineParams = services.PricingDisplayParams{

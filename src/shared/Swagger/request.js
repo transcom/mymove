@@ -130,13 +130,23 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
         dispatch(action);
         return action;
       })
-      .catch((response) => {
-        milmoveLogger.error(`Operation ${operationPath} failed: ${response} (${response.status})`);
-        const updatedRequestLog = { ...requestLog, ok: false, end: new Date(), response, isLoading: false };
+      .catch((responseError) => {
+        const traceId = responseError?.response?.headers['x-milmove-trace-id'] || 'unknown-milmove-trace-id';
+        milmoveLogger.error(
+          `Operation ${operationPath} failed: ${responseError} (${responseError.status})`,
+          `milmove_trace_id: ${traceId}`,
+        );
+        const updatedRequestLog = {
+          ...requestLog,
+          ok: false,
+          end: new Date(),
+          response: responseError.response,
+          isLoading: false,
+        };
         const action = {
           type: `@@swagger/${operationPath}/FAILURE`,
           request: updatedRequestLog,
-          response,
+          response: responseError.response,
           label,
         };
         dispatch(action);

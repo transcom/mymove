@@ -201,7 +201,8 @@ func CustomerAPIAuthMiddleware(_ appcontext.AppContext, api APIWithContext) func
 var allowedRoutes = map[string]bool{
 	"addresses.showAddress":                       true,
 	"duty_locations.searchDutyLocations":          true,
-	"featureFlags.featureFlagForUser":             true,
+	"featureFlags.booleanFeatureFlagForUser":      true,
+	"featureFlags.variantFeatureFlagForUser":      true,
 	"move_docs.createGenericMoveDocument":         true,
 	"move_docs.deleteMoveDocument":                true,
 	"move_docs.indexMoveDocuments":                true,
@@ -475,6 +476,11 @@ func NewLogoutHandler(ac Context, hc handlers.HandlerConfig) LogoutHandler {
 
 func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	appCtx := h.AppContextFromRequest(r)
+	provider, err := okta.GetOktaProviderForRequest(r)
+	if err != nil {
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
 	if appCtx.Session() != nil {
 		sessionManager := h.SessionManagers().SessionManagerForApplication(appCtx.Session().ApplicationName)
 		if sessionManager == nil {
@@ -484,24 +490,35 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		redirectURL := h.landingURL(appCtx.Session())
 		if appCtx.Session().IDToken != "" {
-			var logoutURL string
+
+			// storing ID token to use for /logout call to Okta
+			userIDToken := appCtx.Session().IDToken
+
 			// clearing okta.mil sessions by clearing Access Token & ID Token
 			// this is shown in a sample app here: https://github.com/okta/samples-golang/blob/master/okta-hosted-login/main.go
 			appCtx.Session().AccessToken = ""
 			appCtx.Session().IDToken = ""
+
+			// getting okta logout URL that will contain ID token and redirect
+			oktaLogoutURL, err := logoutOktaUserURL(provider, userIDToken, redirectURL)
+			if oktaLogoutURL == "" || err != nil {
+				appCtx.Logger().Error("failed to get Okta Logout URL")
+			}
+
+			// Remember, UserID is UUID; however, the Okta ID is not.
 			if appCtx.Session().UserID != uuid.Nil {
-				err := resetUserCurrentSessionID(appCtx)
+				err = resetUserCurrentSessionID(appCtx)
 				if err != nil {
 					appCtx.Logger().Error("failed to reset user's current_x_session_id")
 				}
 			}
-			err := sessionManager.Destroy(r.Context())
+			err = sessionManager.Destroy(r.Context())
 			if err != nil {
 				appCtx.Logger().Error("failed to destroy session")
 			}
 			auth.DeleteCSRFCookies(w)
-			appCtx.Logger().Info("user logged out")
-			fmt.Fprint(w, logoutURL)
+			appCtx.Logger().Info("user logged out of application")
+			fmt.Fprint(w, oktaLogoutURL)
 		} else {
 			// Can't log out of okta.mil without a token, redirect and let them re-auth
 			appCtx.Logger().Info("session exists but has an empty IDToken")
@@ -1115,58 +1132,6 @@ func authorizeUnknownUser(ctx context.Context, appCtx appcontext.AppContext, okt
 
 	return authorizationResultAuthorized
 }
-
-// !This func is currently a leftover from login_gov.
-// TODO: Remove once Okta sessions are in place
-// commented out until Okta is in full swing - was getting errors in login_gov.go
-// and had to comment out some functions there in order to run server
-
-// func fetchToken(code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
-// 	logger := loginGovProvider.logger
-// 	expiry := auth.GetExpiryTimeFromMinutes(auth.SessionExpiryInMinutes)
-// 	params, err := loginGovProvider.TokenParams(code, clientID, expiry)
-// 	if err != nil {
-// 		logger.Error("Creating token endpoint params", zap.Error(err))
-// 		return nil, err
-// 	}
-
-// 	response, err := http.PostForm(loginGovProvider.TokenURL(), params)
-// 	if err != nil {
-// 		logger.Error("Post to Login.gov token endpoint", zap.Error(err))
-// 		return nil, err
-// 	}
-
-// 	defer func() {
-// 		if closeErr := response.Body.Close(); closeErr != nil {
-// 			logger.Error("Error in closing response", zap.Error(closeErr))
-// 		}
-// 	}()
-
-// 	responseBody, err := io.ReadAll(response.Body)
-// 	if err != nil {
-// 		logger.Error("Reading Login.gov token response", zap.Error(err))
-// 		return nil, err
-// 	}
-
-// 	var parsedResponse LoginGovTokenResponse
-// 	err = json.Unmarshal(responseBody, &parsedResponse)
-// 	if err != nil {
-// 		logger.Error("Parsing login.gov token", zap.Error(err))
-// 		return nil, errors.Wrap(err, "parsing login.gov")
-// 	}
-// 	if parsedResponse.Error != "" {
-// 		logger.Error("Error in Login.gov token response", zap.String("error", parsedResponse.Error))
-// 		return nil, errors.New(parsedResponse.Error)
-// 	}
-
-// 	// TODO: get goth session from storage instead of constructing a new one
-// 	session := openidConnect.Session{
-// 		AccessToken: parsedResponse.AccessToken,
-// 		ExpiresAt:   time.Now().Add(time.Second * time.Duration(parsedResponse.ExpiresIn)),
-// 		IDToken:     parsedResponse.IDToken,
-// 	}
-// 	return &session, err
-// }
 
 // InitAuth initializes the Okta provider
 func InitAuth(v *viper.Viper, logger *zap.Logger, _ auth.ApplicationServername) (*okta.Provider, error) {

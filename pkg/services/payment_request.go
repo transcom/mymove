@@ -99,6 +99,7 @@ type ShipmentPaymentSITBalance struct {
 	TotalSITDaysRemaining   int
 	TotalSITEndDate         time.Time
 	PendingSITDaysInvoiced  int
+	PendingBilledStartDate  time.Time
 	PendingBilledEndDate    time.Time
 	PreviouslyBilledDays    *int
 	PreviouslyBilledEndDate *time.Time

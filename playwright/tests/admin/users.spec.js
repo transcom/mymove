@@ -40,7 +40,7 @@ test.describe('Users Details Show Page', () => {
     await page.getByText(email).click();
     await adminPage.waitForPage.adminPage();
 
-    // check that the user's login.gov email is shown in the page title
+    // check that the user's okta email is shown in the page title
     await expect(page.getByRole('heading', { name: email })).toBeVisible();
 
     const labels = ['User ID', 'User email', 'Active', 'Created at', 'Updated at'];
@@ -73,7 +73,7 @@ test.describe('Users Details Edit Page', () => {
     // check page content
     const pageContent = [
       'Id',
-      'Login gov email',
+      'Okta email',
       'Active',
       'Revoke admin session',
       'Revoke office session',

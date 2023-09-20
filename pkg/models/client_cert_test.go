@@ -13,7 +13,7 @@ func (suite *ModelSuite) Test_FetchClientCert() {
 	userForClientCert := models.User{
 		ID:        uuid.Must(uuid.NewV4()),
 		OktaID:    oktaID,
-		OktaEmail: "prime_user_with_client_cert@login.gov.test",
+		OktaEmail: "prime_user_with_client_cert@okta.mil",
 		Active:    true,
 	}
 	suite.MustCreate(&userForClientCert)

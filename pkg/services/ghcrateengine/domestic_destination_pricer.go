@@ -50,11 +50,13 @@ func (p domesticDestinationPricer) Price(appCtx appcontext.AppContext, contractC
 		finalWeight = minDomesticWeight
 	}
 
-	basePrice := domServiceAreaPrice.PriceCents.Float64() * finalWeight.ToCWTFloat64()
+	basePrice := domServiceAreaPrice.PriceCents.Float64()
 	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, domServiceAreaPrice.ContractID, referenceDate, false, basePrice)
 	if err != nil {
-		return 0, nil, fmt.Errorf("could not look up escalated price: %w", err)
+		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
+
+	escalatedPrice = escalatedPrice * finalWeight.ToCWTFloat64()
 
 	totalCost := unit.Cents(math.Round(escalatedPrice))
 

@@ -374,6 +374,7 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(appCtx appcontext.AppCon
 		ReServiceID:      reService.ID,
 		ReService:        reService,
 		SITEntryDate:     firstSIT.SITEntryDate,
+		SITDepartureDate: firstSIT.SITDepartureDate,
 		SITPostalCode:    firstSIT.SITPostalCode,
 		Reason:           firstSIT.Reason,
 		Status:           models.MTOServiceItemStatusSubmitted,

@@ -16,7 +16,7 @@ func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser
 	// There's a uniqueness constraint on office user emails so add some randomness
 	email := fmt.Sprintf("leo_spaceman_office_%s@example.com", MakeRandomString(5))
 
-	if *assertions.OfficeUser.UserID == uuid.Nil {
+	if assertions.OfficeUser.UserID == nil || isZeroUUID(*assertions.OfficeUser.UserID) {
 
 		if assertions.User.OktaEmail == "" {
 			assertions.User.OktaEmail = email

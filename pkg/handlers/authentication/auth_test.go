@@ -3,9 +3,11 @@ package authentication
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/gob"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -33,6 +35,7 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/notifications/mocks"
+	"github.com/transcom/mymove/pkg/random"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -67,10 +70,28 @@ P/kQq1B0p4/qCtR73QIDAQAB
 
 const DummyRSAModulus = "0OtoQx0UQHbkrlEA8YsZ-tW20S4_YgQZkRtN61tzzZ5Es63KH_crZymNi19gwD2kq_9RJu376oqL81YONxJXxRyQawrJCali6YYn7-qqBl9acLDwP0W_jAan7TFNWau1AvRIrP0o3tkBse5NNiaEMvkfxD_5EKtQdKeP6grUe90"
 const jwtKeyID = "keyID"
+const officeProviderName = "officeProvider"
 
 // SessionCookieName returns the session cookie name
 func SessionCookieName(session *auth.Session) string {
 	return fmt.Sprintf("%s_%s", string(session.ApplicationName), UserSessionCookieName)
+}
+
+func generateNonce() string {
+	nonceBytes := make([]byte, 64)
+	//RA Summary: gosec - G404 - Insecure random number source (rand)
+	//RA: gosec detected use of the insecure package math/rand rather than the more secure cryptographically secure pseudo-random number generator crypto/rand.
+	//RA: This particular usage is mitigated by sourcing the seed from crypto/rand in order to create the new random number using math/rand.
+	//RA Developer Status: Mitigated
+	//RA Validator: jneuner@mitre.org
+	//RA Validator Status: Mitigated
+	//RA Modified Severity: CAT III
+	// #nosec G404
+	randomInt := rand.New(random.NewCryptoSeededSource())
+	for i := 0; i < 64; i++ {
+		nonceBytes[i] = byte(randomInt.Int63() % 256)
+	}
+	return base64.URLEncoding.EncodeToString(nonceBytes)
 }
 
 type AuthSuite struct {
@@ -1035,10 +1056,10 @@ func (suite *AuthSuite) TestAuthKnownServiceMember() {
 // What is being tested: authorizeUnknownUser function
 // Mocked: oktaProvider, auth.Session, goth.User, scs.SessionManager
 // Behaviour: The function gets passed in the following arguments:
-// - an instance of goth.User: a struct with the login.gov UUID and email
+// - an instance of goth.User: a struct with the okta ID and email
 // - the callback handler
 // - the session (instance of auth.Session)
-// It should create the user using the login.gov UUID and email, then create a
+// It should create the user using the okta ID and email, then create a
 // service member associated with the user, and populate the session with the ID
 // of the service member in the `ServiceMemberID` key.
 func (suite *AuthSuite) TestAuthUnknownServiceMember() {
@@ -1058,7 +1079,7 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 	sessionManager := handlerConfig.SessionManagers().Mil
 	mockSender := setUpMockNotificationSender() // We should get an email for this activity
 
-	// Prepare the goth.User to simulate the UUID and email that login.gov would
+	// Prepare the goth.User to simulate the UUID and email that okta would
 	// provide
 	fakeUUID, _ := uuid.NewV4()
 	user := models.OktaUser{

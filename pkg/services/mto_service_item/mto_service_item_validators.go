@@ -299,6 +299,9 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 	newMTOServiceItem.SITDepartureDate = services.SetOptionalDateTimeField(
 		v.updatedServiceItem.SITDepartureDate, newMTOServiceItem.SITDepartureDate)
 
+	newMTOServiceItem.SITCustomerContacted = services.SetOptionalDateTimeField(v.updatedServiceItem.SITCustomerContacted, newMTOServiceItem.SITCustomerContacted)
+	newMTOServiceItem.SITRequestedDelivery = services.SetOptionalDateTimeField(v.updatedServiceItem.SITRequestedDelivery, newMTOServiceItem.SITRequestedDelivery)
+
 	if v.updatedServiceItem.SITDestinationFinalAddress != nil {
 		newMTOServiceItem.SITDestinationFinalAddress = v.updatedServiceItem.SITDestinationFinalAddress
 		newMTOServiceItem.SITDestinationFinalAddressID = &v.updatedServiceItem.SITDestinationFinalAddress.ID

@@ -82,6 +82,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation office.ApproveReimbursement has not yet been implemented")
 		})
 	}
+	if api.FeatureFlagsBooleanFeatureFlagForUserHandler == nil {
+		api.FeatureFlagsBooleanFeatureFlagForUserHandler = feature_flags.BooleanFeatureFlagForUserHandlerFunc(func(params feature_flags.BooleanFeatureFlagForUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation feature_flags.BooleanFeatureFlagForUser has not yet been implemented")
+		})
+	}
 	if api.OfficeCancelMoveHandler == nil {
 		api.OfficeCancelMoveHandler = office.CancelMoveHandlerFunc(func(params office.CancelMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.CancelMove has not yet been implemented")
@@ -195,11 +200,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.PpmDeleteWeightTicketHandler == nil {
 		api.PpmDeleteWeightTicketHandler = ppm.DeleteWeightTicketHandlerFunc(func(params ppm.DeleteWeightTicketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.DeleteWeightTicket has not yet been implemented")
-		})
-	}
-	if api.FeatureFlagsFeatureFlagForUserHandler == nil {
-		api.FeatureFlagsFeatureFlagForUserHandler = feature_flags.FeatureFlagForUserHandlerFunc(func(params feature_flags.FeatureFlagForUserParams) middleware.Responder {
-			return middleware.NotImplemented("operation feature_flags.FeatureFlagForUser has not yet been implemented")
 		})
 	}
 	if api.TransportationOfficesGetTransportationOfficesHandler == nil {
@@ -445,6 +445,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.PostalCodesValidatePostalCodeWithRateDataHandler == nil {
 		api.PostalCodesValidatePostalCodeWithRateDataHandler = postal_codes.ValidatePostalCodeWithRateDataHandlerFunc(func(params postal_codes.ValidatePostalCodeWithRateDataParams) middleware.Responder {
 			return middleware.NotImplemented("operation postal_codes.ValidatePostalCodeWithRateData has not yet been implemented")
+		})
+	}
+	if api.FeatureFlagsVariantFeatureFlagForUserHandler == nil {
+		api.FeatureFlagsVariantFeatureFlagForUserHandler = feature_flags.VariantFeatureFlagForUserHandlerFunc(func(params feature_flags.VariantFeatureFlagForUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation feature_flags.VariantFeatureFlagForUser has not yet been implemented")
 		})
 	}
 

@@ -1,46 +1,64 @@
 import React from 'react';
 import { screen, render, waitFor } from '@testing-library/react';
 
-import FeatureFlag, { featureIsEnabled, DISABLED_VALUE, ENABLED_VALUE } from './FeatureFlag';
+import FeatureFlag, { BOOLEAN_FLAG_TYPE, VARIANT_FLAG_TYPE } from './FeatureFlag';
 
-import { getFeatureFlagForUser } from 'services/internalApi';
+import { getBooleanFeatureFlagForUser, getVariantFeatureFlagForUser } from 'services/internalApi';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
-  getFeatureFlagForUser: jest.fn(),
+  getBooleanFeatureFlagForUser: jest.fn(),
+  getVariantFeatureFlagForUser: jest.fn(),
 }));
 
 describe('FeatureFlag', () => {
   const featureFlagRender = (flagValue) => {
-    if (featureIsEnabled(flagValue)) {
+    if (flagValue === 'true') {
       return <div>Yes</div>;
     }
-    return <div>Nope</div>;
+    if (flagValue === 'false') {
+      return <div>Nope</div>;
+    }
+    if (flagValue === '') {
+      return <div>Missing</div>;
+    }
+    return <div>{flagValue}</div>;
   };
 
-  it('should render enabled if enabled', async () => {
-    getFeatureFlagForUser.mockResolvedValue({ match: true, value: ENABLED_VALUE });
+  it('should render yes if boolean enabled', async () => {
+    getBooleanFeatureFlagForUser.mockResolvedValue({ match: true });
 
-    render(<FeatureFlag flagKey="key" render={featureFlagRender} />);
+    render(<FeatureFlag flagType={BOOLEAN_FLAG_TYPE} flagKey="key" render={featureFlagRender} />);
     await waitFor(() => {
       expect(screen.getByText('Yes')).toBeInTheDocument();
     });
   });
 
-  it('should render disabled if disabled', async () => {
-    getFeatureFlagForUser.mockResolvedValue({ match: true, value: DISABLED_VALUE });
+  it('should render nope if boolean disabled', async () => {
+    getBooleanFeatureFlagForUser.mockResolvedValue({ match: false });
 
-    render(<FeatureFlag flagKey="key" render={featureFlagRender} />);
+    render(<FeatureFlag flagType={BOOLEAN_FLAG_TYPE} flagKey="key" render={featureFlagRender} />);
     await waitFor(() => {
       expect(screen.getByText('Nope')).toBeInTheDocument();
     });
   });
-  it('should render disabled if no match', async () => {
-    getFeatureFlagForUser.mockResolvedValue({ match: false, value: '' });
 
-    render(<FeatureFlag flagKey="key" render={featureFlagRender} />);
+  it('should render missing if variant has no match', async () => {
+    getVariantFeatureFlagForUser.mockResolvedValue({ match: false, variant: '' });
+
+    render(<FeatureFlag flagType={VARIANT_FLAG_TYPE} flagKey="key" render={featureFlagRender} />);
     await waitFor(() => {
-      expect(screen.getByText('Nope')).toBeInTheDocument();
+      expect(screen.getByText('Missing')).toBeInTheDocument();
+    });
+  });
+
+  it('should render value if variant has match', async () => {
+    const myVariant = 'my_variant';
+    getVariantFeatureFlagForUser.mockResolvedValue({ match: true, variant: myVariant });
+
+    render(<FeatureFlag flagType={VARIANT_FLAG_TYPE} flagKey="key" render={featureFlagRender} />);
+    await waitFor(() => {
+      expect(screen.getByText(myVariant)).toBeInTheDocument();
     });
   });
 });

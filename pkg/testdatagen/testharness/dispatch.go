@@ -119,6 +119,9 @@ var actionDispatcher = map[string]actionFunc{
 	"PrimeSimulatorMoveNeedsShipmentUpdate": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakePrimeSimulatorMoveNeedsShipmentUpdate(appCtx)
 	},
+	"MakePrimeSimulatorMoveSameBasePointCity": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakePrimeSimulatorMoveSameBasePointCity(appCtx)
+	},
 	"NeedsOrdersUser": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeNeedsOrdersUser(appCtx.DB())
 	},
@@ -187,6 +190,9 @@ var actionDispatcher = map[string]actionFunc{
 	},
 	"MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx)
+	},
+	"MakeMoveReadyForEDI": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeMoveReadyForEDI(appCtx)
 	},
 }
 

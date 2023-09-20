@@ -2,10 +2,8 @@ package models_test
 
 import (
 	"github.com/gofrs/uuid"
-	"github.com/jackc/pgerrcode"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/db/dberr"
 	"github.com/transcom/mymove/pkg/factory"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -14,11 +12,11 @@ import (
 )
 
 func (suite *ModelSuite) TestUserValidation() {
-	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc1")
+	oktaID := "abcdefghijklmnopqrst"
 	userEmail := "sally@government.gov"
 
 	newUser := User{
-		OktaID:    fakeUUID.String(),
+		OktaID:    oktaID,
 		OktaEmail: userEmail,
 	}
 
@@ -27,7 +25,7 @@ func (suite *ModelSuite) TestUserValidation() {
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "Error validating model")
 	suite.Equal(userEmail, newUser.OktaEmail)
-	suite.Equal(fakeUUID, newUser.OktaID)
+	suite.Equal(oktaID, newUser.OktaID)
 }
 
 func (suite *ModelSuite) TestUserCreationWithoutValues() {
@@ -40,55 +38,21 @@ func (suite *ModelSuite) TestUserCreationWithoutValues() {
 	suite.verifyValidationErrors(newUser, expErrors)
 }
 
-func (suite *ModelSuite) TestUserCreationDuplicateUUID() {
-	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
-	userEmail := "sally@government.gov"
-
-	newUser := User{
-		OktaID:    fakeUUID.String(),
-		OktaEmail: userEmail,
-	}
-
-	sameUser := User{
-		OktaID:    fakeUUID.String(),
-		OktaEmail: userEmail,
-	}
-
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Functions with unchecked return values in the file are used to generate stub data for a localized version of the application.
-	//RA: Given the data is being generated for local use and does not contain any sensitive information, there are no unexpected states and conditions
-	//RA: in which this would be considered a risk
-	//RA Developer Status: Mitigated
-	//RA Validator Status: Mitigated
-	//RA Modified Severity: N/A
-	// nolint:errcheck
-	suite.DB().Create(&newUser)
-	err := suite.DB().Create(&sameUser)
-
-	suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "constraint_name"), "Db should have errored on unique constraint for UUID")
-}
-
 func (suite *ModelSuite) TestCreateUser() {
 	const testEmail = "Sally@GoVernment.gov"
 	const expectedEmail = "sally@government.gov"
-	const goodUUID = "39b28c92-0506-4bef-8b57-e39519f42dc2"
-	const badUUID = "39xnfc92-0506-4bef-8b57-e39519f42dc2"
+	oktaID := factory.MakeRandomString(20)
 
-	sally, err := CreateUser(suite.DB(), goodUUID, testEmail)
+	sally, err := CreateUser(suite.DB(), oktaID, testEmail)
 	suite.Nil(err, "No error for good create")
 	suite.Equal(expectedEmail, sally.OktaEmail, "should convert email to lower case")
 	suite.NotEqual(sally.ID, uuid.Nil)
-
-	fail, err := CreateUser(suite.DB(), expectedEmail, badUUID)
-	suite.NotNil(err, "should get and error from bad uuid")
-	suite.Nil(fail, "no user with bad uuid")
 }
 
 func (suite *ModelSuite) TestFetchUserIdentity() {
-	const goodUUID = "39b28c92-0506-4bef-8b57-e39519f42dc2"
+	oktaID := factory.MakeRandomString(20)
 	// First check that it all works with no record
-	identity, err := FetchUserIdentity(suite.DB(), goodUUID)
+	identity, err := FetchUserIdentity(suite.DB(), oktaID)
 	suite.Equal(ErrFetchNotFound, err, "Expected not to find missing Identity")
 	suite.Nil(identity)
 
@@ -139,7 +103,6 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(systemAdmin.User.OktaEmail, identity.Email)
 	suite.Nil(identity.ServiceMemberID)
 	suite.Nil(identity.OfficeUserID)
-
 	rs := []roles.Role{{
 		ID:       uuid.FromStringOrNil("ed2d2cd7-d427-412a-98bb-a9b391d98d32"),
 		RoleType: roles.RoleTypeCustomer,
@@ -150,11 +113,11 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	}
 	suite.NoError(suite.DB().Create(&rs))
 	customerRole := rs[0]
-	patUUID := uuid.Must(uuid.NewV4())
+	patOktaID := factory.MakeRandomString(20)
 	pat := factory.BuildUser(suite.DB(), []factory.Customization{
 		{
 			Model: User{
-				OktaID: patUUID.String(),
+				OktaID: patOktaID,
 				Active: true,
 				Roles:  []roles.Role{customerRole},
 			},
@@ -261,7 +224,7 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 	suite.Run("service member", func() {
 
 		// Create a user email that won't be filtered out of the devlocal user query w/ a default value of
-		// first.last@login.gov.test
+		// first.last@okta.mil
 		user := factory.BuildUser(suite.DB(), []factory.Customization{
 			{
 				Model: User{

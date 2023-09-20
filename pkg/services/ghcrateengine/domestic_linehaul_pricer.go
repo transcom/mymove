@@ -2,6 +2,7 @@ package ghcrateengine
 
 import (
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/pkg/errors"
@@ -50,16 +51,19 @@ func (p domesticLinehaulPricer) Price(appCtx appcontext.AppContext, contractCode
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic linehaul rate: %w", err)
 	}
 
-	contractYear, err := fetchContractYear(appCtx, domesticLinehaulPrice.ContractID, referenceDate)
+	basePrice := domesticLinehaulPrice.PriceMillicents.Float64() / 1000
+	escalatedPrice, contractYear, err := escalatePriceForContractYear(
+		appCtx,
+		domesticLinehaulPrice.ContractID,
+		referenceDate,
+		true,
+		basePrice)
 	if err != nil {
-		return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
+		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 
-	baseTotalPrice := finalWeight.ToCWTFloat64() * distance.Float64() * domesticLinehaulPrice.PriceMillicents.Float64()
-	escalatedTotalPrice := contractYear.EscalationCompounded * baseTotalPrice
-
-	totalPriceMillicents := unit.Millicents(escalatedTotalPrice)
-	totalPriceCents := totalPriceMillicents.ToCents()
+	totalPrice := finalWeight.ToCWTFloat64() * distance.Float64() * escalatedPrice
+	totalPriceCents := unit.Cents(math.Round(totalPrice))
 
 	params := services.PricingDisplayParams{
 		{Key: models.ServiceItemParamNameContractYearName, Value: contractYear.Name},

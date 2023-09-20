@@ -18,7 +18,7 @@ const (
 	ddfsitTestContractYearName     = "DDFSIT Test Year"
 	ddfsitTestEscalationCompounded = 1.052
 	ddfsitTestWeight               = unit.Pound(3300)
-	ddfsitTestPriceCents           = unit.Cents(18226) // ddfsitTestBasePriceCents * (ddfsitTestWeight / 100) * ddfsitTestEscalationCompounded
+	ddfsitTestPriceCents           = unit.Cents(18216)
 )
 
 var ddfsitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.January, 5, 7, 33, 11, 456, time.UTC)
@@ -82,7 +82,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationFirstDaySITPricer
 		twoYearsLaterPickupDate := ddfsitTestRequestedPickupDate.AddDate(2, 0, 0)
 		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ddfsitTestWeight, ddfsitTestServiceArea, false)
 		suite.Error(err)
-		suite.Contains(err.Error(), "could not fetch contract year")
+		suite.Contains(err.Error(), "could not lookup contract year")
 	})
 }
 

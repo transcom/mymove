@@ -154,3 +154,5 @@ export const defaultRelativeWindowSize = 2 / 3;
 export const DATE_FORMAT_STRING = 'DD MMM YYYY';
 // The date and time used to format date strings
 export const DATE_TIME_FORMAT_STRING = 'DD MMM YYYY, hh:mm a';
+
+export const DEFAULT_EMPTY_VALUE = '—'; // emdash

@@ -9,15 +9,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v3.6.0
 
       - name: Set up node
         uses: actions/setup-node@v3
         with:
+          cache: 'yarn'
           node-version-file: '.tool-versions'
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
       - name: Start Happo run
         run: yarn happo-ci-github-actions

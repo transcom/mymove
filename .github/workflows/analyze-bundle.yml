@@ -15,12 +15,15 @@ name: F/E bundle diff
 #
 # Using pull_request means changes to the workflow file are used in
 # the PR, which is incredibly helpful when testing out changes
+#
+# In addition analyze_bundle needs to check out and build a branch and
+# that branch could possibly have untrusted code, and so pull_request
+# is safer.
+
 on:
   pull_request:
-  pull_request_target:
     branches:
       - main
-
 
 jobs:
   changes:
@@ -36,65 +39,109 @@ jobs:
               - 'src/**'
               - 'yarn.lock'
 
-  build-head:
+  build-pr:
     concurrency:
-      group: bundle-build-head-${{ github.event.pull_request.number || github.ref }}
+      group: bundle-build-pr-${{ github.event.action || 'unknown' }}-${{ github.event.pull_request.number || github.ref }}
       cancel-in-progress: true
     needs: changes
     if: ${{ needs.changes.outputs.frontend == 'true' }}
-    name: 'Build head'
+    name: 'Build PR'
     runs-on: ubuntu-latest
     steps:
+      - name: Cache PR bundle stats
+        id: cache-bundle-stats
+        uses: actions/cache@v3
+        with:
+          path: build/bundle-stats-${{ github.event.pull_request.head.sha }}.json
+          key: bundle-stats-${{ github.event.pull_request.head.sha }}
+
       - name: Check out branch
-        uses: actions/checkout@v3.5.3
+        if: steps.cache-bundle-stats.outputs.cache-hit != 'true'
+        uses: actions/checkout@v3.6.0
 
       - name: Set up node
+        if: steps.cache-bundle-stats.outputs.cache-hit != 'true'
         uses: actions/setup-node@v3
         with:
+          cache: 'yarn'
           node-version-file: '.tool-versions'
 
       - name: Install dependencies
-        run: yarn install
+        if: steps.cache-bundle-stats.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile
 
-      - name: Build head with options
+      - name: Build PR with options
+        if: steps.cache-bundle-stats.outputs.cache-hit != 'true'
         run: |
           export NODE_OPTIONS="--max-old-space-size=4096"
           echo "Using NODE_OPTIONS:${NODE_OPTIONS}"
           yarn build --stats
 
+      - name: Copy stats to cache
+        if: steps.cache-bundle-stats.outputs.cache-hit != 'true'
+        run: |
+          cp ./build/bundle-stats.json ./build/bundle-stats-${{ github.event.pull_request.head.sha }}.json
+
+      - name: Restore stats from cache
+        if: steps.cache-bundle-stats.outputs.cache-hit == 'true'
+        run: |
+          cp ./build/bundle-stats-${{ github.event.pull_request.head.sha }}.json ./build/bundle-stats.json
+
       - name: Upload stats.json
         uses: actions/upload-artifact@v3
         with:
-          name: head-stats
+          name: pr-stats
           path: ./build/bundle-stats.json
 
   build-base:
     concurrency:
-      group: bundle-build-base-${{ github.event.pull_request.number || github.ref }}
+      group: bundle-build-base-${{ github.event.action || 'unknown' }}-${{ github.event.pull_request.number || github.ref }}
       cancel-in-progress: true
     needs: changes
     if: ${{ needs.changes.outputs.frontend == 'true' }}
     name: 'Build base'
     runs-on: ubuntu-latest
     steps:
+      - name: Cache base bundle stats
+        id: cache-bundle-stats
+        uses: actions/cache@v3
+        with:
+          path: build/bundle-stats-${{ github.event.pull_request.base.sha }}.json
+          key: bundle-stats-${{ github.event.pull_request.base.sha }}
+
       - name: Check out base branch
-        uses: actions/checkout@v3.5.3
+        if: steps.cache-bundle-stats.outputs.cache-hit != 'true'
+        uses: actions/checkout@v3.6.0
         with:
           ref: ${{ github.base_ref }}
 
       - name: Set up node
+        if: steps.cache-bundle-stats.outputs.cache-hit != 'true'
         uses: actions/setup-node@v3
         with:
+          cache: 'yarn'
           node-version-file: '.tool-versions'
 
       - name: Install dependencies
-        run: yarn install
+        if: steps.cache-bundle-stats.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile
 
       - name: Build base with options
+        if: steps.cache-bundle-stats.outputs.cache-hit != 'true'
         run: |
           export NODE_OPTIONS="--max-old-space-size=4096"
           echo "Using NODE_OPTIONS:${NODE_OPTIONS}"
           yarn build --stats
+
+      - name: Copy stats to cache
+        if: steps.cache-bundle-stats.outputs.cache-hit != 'true'
+        run: |
+          cp ./build/bundle-stats.json ./build/bundle-stats-${{ github.event.pull_request.base.sha }}.json
+
+      - name: Restore stats from cache
+        if: steps.cache-bundle-stats.outputs.cache-hit == 'true'
+        run: |
+          cp ./build/bundle-stats-${{ github.event.pull_request.base.sha }}.json ./build/bundle-stats.json
 
       - name: Upload stats.json
         uses: actions/upload-artifact@v3
@@ -106,23 +153,23 @@ jobs:
   compare:
     if: ${{ needs.changes.outputs.frontend == 'true' }}
     concurrency:
-      group: bundle-compare-${{ github.event.pull_request.number || github.ref }}
+      group: bundle-compare-${{ github.event.action || 'unknown' }}-${{ github.event.pull_request.number || github.ref }}
       cancel-in-progress: true
-    name: 'Compare base & head bundle sizes'
+    name: 'Compare base & PR bundle sizes'
     runs-on: ubuntu-latest
-    needs: [build-base, build-head]
+    needs: [build-base, build-pr]
     permissions:
       pull-requests: write
     steps:
       - uses: actions/download-artifact@v3
-      - uses: github/webpack-bundlesize-compare-action@v1.8.1
+      - uses: github/webpack-bundlesize-compare-action@v1.8.2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          current-stats-json-path: ./head-stats/bundle-stats.json
+          current-stats-json-path: ./pr-stats/bundle-stats.json
           base-stats-json-path: ./base-stats/bundle-stats.json
 
   noop:
     name: 'Noop job to prevent notification'
     runs-on: ubuntu-latest
     steps:
-      - run: 'echo "No build required" '
+      - run: 'echo "No build required"'

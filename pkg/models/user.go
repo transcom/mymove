@@ -66,7 +66,7 @@ func GetUserFromEmail(db *pop.Connection, email string) (*User, error) {
 	return &users[0], err
 }
 
-// CreateUser is called upon successful login.gov verification of a new user
+// CreateUser is called upon successful Okta verification of a new user
 func CreateUser(db *pop.Connection, oktaID string, email string) (*User, error) {
 
 	newUser := User{
@@ -123,7 +123,7 @@ type UserIdentity struct {
 }
 
 // FetchUserIdentity queries the database for information about the logged in user
-func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, error) {
+func FetchUserIdentity(db *pop.Connection, oktaID string) (*UserIdentity, error) {
 	var identities []UserIdentity
 	query := `SELECT users.id,
 				users.okta_email AS email,
@@ -147,7 +147,7 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 			LEFT OUTER JOIN office_users AS ou on ou.user_id = users.id
 			LEFT OUTER JOIN admin_users AS au on au.user_id = users.id
 			WHERE users.okta_id  = $1`
-	err := db.RawQuery(query, loginGovID).All(&identities)
+	err := db.RawQuery(query, oktaID).All(&identities)
 	if err != nil {
 		return nil, err
 	} else if len(identities) == 0 {
@@ -202,7 +202,7 @@ func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit 
 				sm.middle_name AS sm_middle
 			FROM service_members as sm
 			JOIN users on sm.user_id = users.id
-			WHERE users.okta_email != 'first.last@login.gov.test'
+			WHERE users.okta_email != 'first.last@okta.mil'
 			ORDER BY users.created_at DESC LIMIT $1`
 	}
 

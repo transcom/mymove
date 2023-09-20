@@ -18,7 +18,7 @@ const (
 	dofsitTestContractYearName     = "DOFSIT Test Year"
 	dofsitTestEscalationCompounded = 1.125
 	dofsitTestWeight               = unit.Pound(4000)
-	dofsitTestPriceCents           = unit.Cents(15885) // dofsitTestBasePriceCents * (dofsitTestWeight / 100) * dofsitTestEscalationCompounded
+	dofsitTestPriceCents           = unit.Cents(15880)
 )
 
 var dofsitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
@@ -82,7 +82,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginFirstDaySITPricer() {
 		twoYearsLaterPickupDate := dofsitTestRequestedPickupDate.AddDate(2, 0, 0)
 		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dofsitTestWeight, dofsitTestServiceArea, false)
 		suite.Error(err)
-		suite.Contains(err.Error(), "could not fetch contract year")
+		suite.Contains(err.Error(), "could not lookup contract year")
 	})
 }
 
@@ -102,7 +102,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginFirstDaySITServiceIte
 				Value:   dofsitTestRequestedPickupDate.Format(DateParamFormat),
 			},
 			{
-				Key:     models.ServiceItemParamNameServiceAreaOrigin,
+				Key:     models.ServiceItemParamNameSITServiceAreaOrigin,
 				KeyType: models.ServiceItemParamTypeString,
 				Value:   dofsitTestServiceArea,
 			},
