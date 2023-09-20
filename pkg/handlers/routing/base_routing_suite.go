@@ -22,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/authentication"
+	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
@@ -83,9 +84,8 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig.SetFileStorer(fakeS3)
 
-	fakeLoginGovProvider := authentication.NewLoginGovProvider("fakeHostname", "secret_key", suite.Logger())
-
-	authContext := authentication.NewAuthContext(suite.Logger(), fakeLoginGovProvider, "http", suite.port)
+	fakeOktaProvider := okta.NewOktaProvider(suite.Logger())
+	authContext := authentication.NewAuthContext(suite.Logger(), *fakeOktaProvider, "http", suite.port)
 
 	fakeFs := afero.NewMemMapFs()
 	fakeBase := "fakebase"
@@ -154,9 +154,9 @@ func (suite *BaseRoutingSuite) setupRequestSession(req *http.Request, user model
 		Hostname:        hostname,
 	}
 
-	suite.FatalNotNil(user.LoginGovUUID)
-	suite.FatalFalse(user.LoginGovUUID.IsNil())
-	userIdentity, err := models.FetchUserIdentity(suite.DB(), user.LoginGovUUID.String())
+	suite.FatalNotNil(user.OktaID)
+	suite.NotNil(user.OktaID)
+	userIdentity, err := models.FetchUserIdentity(suite.DB(), user.OktaID)
 	suite.FatalNoError(err)
 
 	// use AuthorizeKnownUser which also sets up various things in the
