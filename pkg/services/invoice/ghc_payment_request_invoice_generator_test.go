@@ -815,7 +815,10 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	suite.Run("adds orders destination address", func() {
 		setupTestData()
 		expectedDutyLocation := paymentRequest.MoveTaskOrder.Orders.NewDutyLocation
-		transportationOffice, err := models.FetchDutyLocationTransportationOffice(suite.DB(), expectedDutyLocation.ID)
+		// This used to match a duty location by name in our database and ignore the default factory values.  Now that
+		// it doesn't match a named duty location ("Fort Gordon"), the EDI ends up using the postal code to determine
+		// the GBLOC value.
+		destinationPostalCodeToGBLOC, err := models.FetchGBLOCForPostalCode(suite.DB(), expectedDutyLocation.Address.PostalCode)
 		suite.FatalNoError(err)
 		// name
 		n1 := result.Header.DestinationName
@@ -823,7 +826,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("ST", n1.EntityIdentifierCode)
 		suite.Equal(expectedDutyLocation.Name, n1.Name)
 		suite.Equal("10", n1.IdentificationCodeQualifier)
-		suite.Equal(transportationOffice.Gbloc, n1.IdentificationCode)
+		suite.Equal(destinationPostalCodeToGBLOC.GBLOC, n1.IdentificationCode)
 		// street address
 		address := expectedDutyLocation.Address
 		destAddress := result.Header.DestinationStreetAddress
@@ -2257,6 +2260,90 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		// Should have gotten the officer LOA since that is the more recent loa_bgn_dt
 		suite.Equal(models.LineOfAccountingHouseholdGoodsCodeOfficer, actualDocID)
 	})
+
+	suite.Run("test Coast Guard service members get 'HS' household goods code LOA", func() {
+		setupTestData()
+
+		// Create LOA with 'HS' household goods code
+		loa := setupLOA(models.LineOfAccountingHouseholdGoodsCodeNTS)
+		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationAccountingCode{
+					TAC:          *move.Orders.TAC,
+					TacFnBlModCd: models.StringPointer("W"),
+				},
+			},
+			{
+				Model: loa,
+			},
+		}, nil)
+
+		// Update service member affiliation to Coast Guard
+		testCaseAffiliation := models.AffiliationCOASTGUARD
+		move.Orders.ServiceMember.Affiliation = &testCaseAffiliation
+		paymentRequest.MoveTaskOrder.Orders.ServiceMember.Affiliation = &testCaseAffiliation
+		err := suite.DB().Save(&move.Orders.ServiceMember)
+		suite.NoError(err)
+
+		// Create invoice
+		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+
+		// Get the LOA Household Goods Code from the invoice
+		var actualLoaHsGdsCd string
+		for _, fa2 := range result.ServiceItems[0].FA2s {
+			if fa2.BreakdownStructureDetailCode == edisegment.FA2DetailCodeJ1 {
+				actualLoaHsGdsCd = fa2.FinancialInformationCode
+				break
+			}
+		}
+		suite.NotNil(actualLoaHsGdsCd)
+
+		// Should have 'HS' as the LOA Household Goods Code from the invoice
+		suite.Equal(models.LineOfAccountingHouseholdGoodsCodeNTS, actualLoaHsGdsCd)
+	})
+
+	suite.Run("test non Coast Guard service members dont get 'HS' household goods code LOA", func() {
+		setupTestData()
+
+		// Create LOA with 'HS' household goods code
+		loa := setupLOA(models.LineOfAccountingHouseholdGoodsCodeNTS)
+		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationAccountingCode{
+					TAC:          *move.Orders.TAC,
+					TacFnBlModCd: models.StringPointer("W"),
+				},
+			},
+			{
+				Model: loa,
+			},
+		}, nil)
+
+		// Update service member affiliation to Army
+		testCaseAffiliation := models.AffiliationARMY
+		move.Orders.ServiceMember.Affiliation = &testCaseAffiliation
+		paymentRequest.MoveTaskOrder.Orders.ServiceMember.Affiliation = &testCaseAffiliation
+		err := suite.DB().Save(&move.Orders.ServiceMember)
+		suite.NoError(err)
+
+		// Create invoice
+		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+
+		// Get the LOA Household Goods Code from the invoice
+		var actualLoaHsGdsCd string
+		for _, fa2 := range result.ServiceItems[0].FA2s {
+			if fa2.BreakdownStructureDetailCode == edisegment.FA2DetailCodeJ1 {
+				actualLoaHsGdsCd = fa2.FinancialInformationCode
+				break
+			}
+		}
+
+		// Should not be able to get the HouseholdGoodsCodeNT LOA since the only one was 'HS' and the service member is not Coast Guard
+		suite.Equal(actualLoaHsGdsCd, "")
+	})
+
 }
 
 func (suite *GHCInvoiceSuite) TestDetermineDutyLocationPhoneLinesFunc() {
