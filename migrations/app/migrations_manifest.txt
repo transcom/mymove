@@ -863,3 +863,4 @@
 20230915060851_update_orders_gbloc_bkas_to_bgac.up.sql
 20230921144719_update_dutylocation_mayport_fl_govt_counseling.up.sql
 20230921173336_update_shipping_offices.up.sql
+20230921180020_delete_transportation_offices.up.sql
