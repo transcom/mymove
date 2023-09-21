@@ -82,8 +82,13 @@ describe('ServiceItemsTable', () => {
         serviceItem: 'Domestic Crating',
         code: 'DDFSIT',
         details: {
+          sitEntryDate: '2020-12-31',
           customerContacts: [
-            { timeMilitary: '0400Z', firstAvailableDeliveryDate: '2020-12-31', dateOfContact: '2020-12-31' },
+            {
+              timeMilitary: '0400Z',
+              firstAvailableDeliveryDate: '2020-12-31',
+              dateOfContact: '2020-12-31',
+            },
             { timeMilitary: '0800Z', firstAvailableDeliveryDate: '2021-01-01', dateOfContact: '2021-01-01' },
           ],
         },
@@ -99,16 +104,18 @@ describe('ServiceItemsTable', () => {
     );
 
     expect(wrapper.find('table').exists()).toBe(true);
-    expect(wrapper.find('td').at(0).text()).toContain('Date requested: 20 Nov 2020');
-    expect(wrapper.find('dt').at(0).text()).toBe('First available delivery date 1:');
-    expect(wrapper.find('dd').at(0).text()).toBe('31 Dec 2020');
-    expect(wrapper.find('dt').at(1).text()).toBe('Customer contact attempt 1:');
-    expect(wrapper.find('dd').at(1).text()).toBe('31 Dec 2020, 0400Z');
 
-    expect(wrapper.find('dt').at(2).text()).toBe('First available delivery date 2:');
-    expect(wrapper.find('dd').at(2).text()).toBe('01 Jan 2021');
-    expect(wrapper.find('dt').at(3).text()).toBe('Customer contact attempt 2:');
-    expect(wrapper.find('dd').at(3).text()).toBe('01 Jan 2021, 0800Z');
+    expect(wrapper.find('dt').at(0).text()).toBe('SIT entry date:');
+    expect(wrapper.find('dd').at(0).text()).toBe('31 Dec 2020');
+    expect(wrapper.find('dt').at(1).text()).toBe('First available delivery date 1:');
+    expect(wrapper.find('dd').at(1).text()).toBe('31 Dec 2020');
+    expect(wrapper.find('dt').at(2).text()).toBe('Customer contact attempt 1:');
+    expect(wrapper.find('dd').at(2).text()).toBe('31 Dec 2020, 0400Z');
+
+    expect(wrapper.find('dt').at(3).text()).toBe('First available delivery date 2:');
+    expect(wrapper.find('dd').at(3).text()).toBe('01 Jan 2021');
+    expect(wrapper.find('dt').at(4).text()).toBe('Customer contact attempt 2:');
+    expect(wrapper.find('dd').at(4).text()).toBe('01 Jan 2021, 0800Z');
   });
 
   it('should render the SITPostalCode ZIP, and reason for DOFSIT service item', () => {

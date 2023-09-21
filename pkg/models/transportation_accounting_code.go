@@ -10,6 +10,8 @@ import (
 )
 
 // TransportationAccountingCode model struct that represents transportation accounting codes
+// TODO: Update this model and internal use to reflect incoming TransportationAccountingCode model updates.
+// Don't forget to update the MakeDefaultTransportationAccountingCode function inside of the testdatagen package.
 type TransportationAccountingCode struct {
 	ID                 uuid.UUID         `json:"id" db:"id"`
 	TAC                string            `json:"tac" db:"tac"`

@@ -77,6 +77,7 @@ services:
       - LOGIN_GOV_SECRET_KEY
       - MOVE_MIL_DOD_CA_CERT
       - MOVE_MIL_DOD_TLS_CERT
-      - MOVE_MIL_DOD_TLS_KEY
+      - MOVE_MIL_DOD_TLS_KEY+
+      - OKTA_TENANT_CALLBACK_PROTOCOL
       - REDIS_HOST=redis_review
       - REVIEW_BASE_DOMAIN

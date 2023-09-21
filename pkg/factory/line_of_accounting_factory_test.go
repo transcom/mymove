@@ -90,7 +90,7 @@ func (suite *FactorySuite) TestBuildLineOfAccounting() {
 		// Under test:      BuildFullLineOfAccounting
 		// Set up:          Create a Line of Accounting with no customizations or traits
 		// Expected outcome:TAC should be created with custom value
-		loa := BuildFullLineOfAccounting(suite.DB())
+		loa := BuildFullLineOfAccounting(suite.DB(), nil, nil)
 
 		// VALIDATE RESULTS
 		suite.NotNil(loa.LoaSysID)

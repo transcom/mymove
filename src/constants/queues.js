@@ -33,6 +33,8 @@ export const PAYMENT_REQUEST_STATUS_OPTIONS = [
   { value: 'Reviewed', label: 'Reviewed' },
   { value: 'Rejected', label: 'Rejected' },
   { value: 'Paid', label: 'Paid' },
+  { value: 'Deprecated', label: 'Deprecated' },
+  { value: 'Error', label: 'Error' },
 ];
 
 export const BRANCH_OPTIONS = [

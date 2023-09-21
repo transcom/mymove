@@ -656,70 +656,103 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 	var loas []models.LineOfAccounting
 	var loa models.LineOfAccounting
 
-	// tac_fn_bl_mod_cd is a char(1) field. It has a mix of letters and numbers. We want to get lowest numbers first, and
-	// numbers before letters. This is the behavior we get from order by.
-	err := appCtx.DB().Q().
-		Join("transportation_accounting_codes t", "t.loa_id = lines_of_accounting.id").
-		Where("t.tac = ?", tac).
-		Where("? between loa_bgn_dt and loa_end_dt", orders.IssueDate).
-		Where("t.tac_fn_bl_mod_cd != 'P'").
-		Where("loa_hs_gds_cd != ?", models.LineOfAccountingHouseholdGoodsCodeNTS).
-		Order("t.tac_fn_bl_mod_cd asc").
-		Order("loa_bgn_dt desc").
-		Order("t.tac_fy_txt desc").
-		All(&loas)
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			// If no matching rows, don't include any long lines of accounting.
+	// If a service member is in the Coast Guard don't filter out the household goods code of 'HS' because that is
+	// primarily how their TGET records are coded along with 'HT' and 'HC' infrequently. If this changes in the future
+	// then this can be revisited to weight the different LOAs similar to the other services.
+	if *orders.ServiceMember.Affiliation == models.AffiliationCOASTGUARD {
+		err := appCtx.DB().Q().
+			Join("transportation_accounting_codes t", "t.loa_id = lines_of_accounting.id").
+			Where("t.tac = ?", tac).
+			Where("? between loa_bgn_dt and loa_end_dt", orders.IssueDate).
+			Where("t.tac_fn_bl_mod_cd != 'P'").
+			Order("t.tac_fn_bl_mod_cd asc").
+			Order("loa_bgn_dt desc").
+			Order("t.tac_fy_txt desc").
+			All(&loas)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				// If no matching rows, don't include any long lines of accounting.
+				return nil, nil
+			default:
+				return nil, apperror.NewQueryError("lineOfAccounting", err, "Unexpected error")
+			}
+		}
+
+		if len(loas) == 0 {
 			return nil, nil
-		default:
-			return nil, apperror.NewQueryError("lineOfAccounting", err, "Unexpected error")
 		}
-	}
 
-	if len(loas) == 0 {
-		return nil, nil
-	}
-
-	//"HE" - E-1 through E-9 and Special Enlisted
-	//"HO" - O-1 Academy graduate through O-10, W1 - W5, Aviation Cadet, Academy Cadet, and Midshipman
-	//"HC" - Civilian employee
-
-	if orders.ServiceMember.Rank == nil {
-		return nil, apperror.NewConflictError(orders.ServiceMember.ID, "this service member has no rank")
-	}
-	rank := *orders.ServiceMember.Rank
-
-	hhgCode := ""
-	if rank[:2] == "E_" {
-		hhgCode = "HE"
-	} else if rank[:2] == "O_" || rank[:2] == "W_" || rank == models.ServiceMemberRankACADEMYCADET || rank == models.ServiceMemberRankAVIATIONCADET || rank == models.ServiceMemberRankMIDSHIPMAN {
-		hhgCode = "HO"
-	} else if rank == models.ServiceMemberRankCIVILIANEMPLOYEE {
-		hhgCode = "HC"
-	} else {
-		return nil, apperror.NotImplementedError{}
-	}
-	// if just one, pick it
-	// if multiple,lowest FBMC
-	var loaWithMatchingCode []models.LineOfAccounting
-
-	for _, line := range loas {
-		if line.LoaHsGdsCd != nil && *line.LoaHsGdsCd == hhgCode {
-			loaWithMatchingCode = append(loaWithMatchingCode, line)
-		}
-	}
-	if len(loaWithMatchingCode) == 0 {
-		// fall back to the whole set and then sort by fbmc
-		// take first thing from whole set
+		// pick first one (sorted by FBMC, loa_bgn_dt, tac_fy_txt)
 		loa = loas[0]
-	}
-	if len(loaWithMatchingCode) >= 1 {
-		// take first of loaWithMatchingCode
-		loa = loaWithMatchingCode[0]
-	}
 
+	} else {
+
+		// tac_fn_bl_mod_cd is a char(1) field. It has a mix of letters and numbers. We want to get lowest numbers first, and
+		// numbers before letters. This is the behavior we get from order by.
+		err := appCtx.DB().Q().
+			Join("transportation_accounting_codes t", "t.loa_id = lines_of_accounting.id").
+			Where("t.tac = ?", tac).
+			Where("? between loa_bgn_dt and loa_end_dt", orders.IssueDate).
+			Where("t.tac_fn_bl_mod_cd != 'P'").
+			Where("loa_hs_gds_cd != ?", models.LineOfAccountingHouseholdGoodsCodeNTS).
+			Order("t.tac_fn_bl_mod_cd asc").
+			Order("loa_bgn_dt desc").
+			Order("t.tac_fy_txt desc").
+			All(&loas)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				// If no matching rows, don't include any long lines of accounting.
+				return nil, nil
+			default:
+				return nil, apperror.NewQueryError("lineOfAccounting", err, "Unexpected error")
+			}
+		}
+
+		if len(loas) == 0 {
+			return nil, nil
+		}
+
+		//"HE" - E-1 through E-9 and Special Enlisted
+		//"HO" - O-1 Academy graduate through O-10, W1 - W5, Aviation Cadet, Academy Cadet, and Midshipman
+		//"HC" - Civilian employee
+
+		if orders.ServiceMember.Rank == nil {
+			return nil, apperror.NewConflictError(orders.ServiceMember.ID, "this service member has no rank")
+		}
+		rank := *orders.ServiceMember.Rank
+
+		hhgCode := ""
+		if rank[:2] == "E_" {
+			hhgCode = "HE"
+		} else if rank[:2] == "O_" || rank[:2] == "W_" || rank == models.ServiceMemberRankACADEMYCADET || rank == models.ServiceMemberRankAVIATIONCADET || rank == models.ServiceMemberRankMIDSHIPMAN {
+			hhgCode = "HO"
+		} else if rank == models.ServiceMemberRankCIVILIANEMPLOYEE {
+			hhgCode = "HC"
+		} else {
+			return nil, apperror.NotImplementedError{}
+		}
+		// if just one, pick it
+		// if multiple,lowest FBMC
+		var loaWithMatchingCode []models.LineOfAccounting
+
+		for _, line := range loas {
+			if line.LoaHsGdsCd != nil && *line.LoaHsGdsCd == hhgCode {
+				loaWithMatchingCode = append(loaWithMatchingCode, line)
+			}
+		}
+		if len(loaWithMatchingCode) == 0 {
+			// fall back to the whole set and then sort by fbmc
+			// take first thing from whole set
+			loa = loas[0]
+		}
+		if len(loaWithMatchingCode) >= 1 {
+			// take first of loaWithMatchingCode
+			loa = loaWithMatchingCode[0]
+		}
+
+	}
 	var fa2LongLoaSegments []edisegment.FA2
 
 	var concatDate *string
