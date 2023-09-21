@@ -194,6 +194,9 @@ var actionDispatcher = map[string]actionFunc{
 	"MakeMoveReadyForEDI": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeMoveReadyForEDI(appCtx)
 	},
+	"MakeCoastGuardMoveReadyForEDI": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeCoastGuardMoveReadyForEDI(appCtx)
+	},
 }
 
 func Actions() []string {
