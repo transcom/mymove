@@ -1411,6 +1411,7 @@ func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
 
 func (suite *GHCInvoiceSuite) TestFA2s() {
 	mockClock := clock.NewMock()
+	mockClock.Set(time.Now())
 	currentTime := mockClock.Now()
 	sixMonthsBefore := currentTime.AddDate(0, -6, 0)
 	sixMonthsAfter := currentTime.AddDate(0, 6, 0)
@@ -1722,6 +1723,8 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 
 	suite.Run("shipment with nil/blank long line of accounting (except fiscal year)", func() {
 		setupTestData()
+		fyBeg := sixMonthsBefore.Year()
+		fyEnd := sixMonthsAfter.Year()
 
 		// Add TAC/LOA records, with an LOA containing empty strings and nils
 		emptyString := ""
@@ -1734,10 +1737,10 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 			},
 			{
 				Model: models.LineOfAccounting{
-					LoaDptID:      &emptyString,     // A1
-					LoaTnsfrDptNm: &emptyString,     // A2
-					LoaBgnDt:      &sixMonthsBefore, // A3 (first part)
-					LoaEndDt:      &sixMonthsAfter,  // A3 (second part)
+					LoaDptID:      &emptyString, // A1
+					LoaTnsfrDptNm: &emptyString, // A2
+					LoaBgFyTx:     &fyBeg,       // A3 (first part)
+					LoaEndFyTx:    &fyEnd,       // A3 (second part)
 					LoaHsGdsCd:    models.StringPointer("HT"),
 					// rest of fields will be nil
 				},
@@ -1813,6 +1816,74 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 			{edisegment.FA2DetailCodeA1, loa.LoaDptID},
 			{edisegment.FA2DetailCodeA2, loa.LoaTnsfrDptNm},
 			{edisegment.FA2DetailCodeA3, &concatDate},
+			{edisegment.FA2DetailCodeA4, loa.LoaBafID},
+			{edisegment.FA2DetailCodeA5, loa.LoaTrsySfxTx},
+			{edisegment.FA2DetailCodeA6, loa.LoaMajClmNm},
+			{edisegment.FA2DetailCodeB1, loa.LoaOpAgncyID},
+			{edisegment.FA2DetailCodeB2, loa.LoaAlltSnID},
+			{edisegment.FA2DetailCodeC1, loa.LoaPgmElmntID},
+			{edisegment.FA2DetailCodeC2, loa.LoaTskBdgtSblnTx},
+			{edisegment.FA2DetailCodeD1, loa.LoaDfAgncyAlctnRcpntID},
+			{edisegment.FA2DetailCodeD4, loa.LoaJbOrdNm},
+			{edisegment.FA2DetailCodeD6, loa.LoaSbaltmtRcpntID},
+			{edisegment.FA2DetailCodeD7, loa.LoaWkCntrRcpntNm},
+		}
+
+		suite.Len(result.ServiceItems[0].FA2s, len(fa2Assertions))
+		for i, fa2Assertion := range fa2Assertions {
+			fa2Segment := result.ServiceItems[0].FA2s[i]
+			suite.Equal(fa2Assertion.expectedDetailCode, fa2Segment.BreakdownStructureDetailCode)
+			suite.Equal(*fa2Assertion.expectedInfoCode, fa2Segment.FinancialInformationCode)
+		}
+	})
+
+	suite.Run("shipment with partial long line of accounting (missing fiscal year)", func() {
+		setupTestData()
+
+		// Add TAC/LOA records, with the LOA containing only some of the values
+		tac := factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationAccountingCode{
+					TAC:          *move.Orders.TAC, // TA
+					TacFnBlModCd: models.StringPointer("W"),
+				},
+			},
+			{
+				Model: models.LineOfAccounting{
+					LoaSysID:               models.IntPointer(123456),
+					LoaDptID:               models.StringPointer("12"),           // A1
+					LoaTnsfrDptNm:          models.StringPointer("1234"),         // A2
+					LoaBafID:               models.StringPointer("1234"),         // A4
+					LoaTrsySfxTx:           models.StringPointer("1234"),         // A5
+					LoaMajClmNm:            models.StringPointer("1234"),         // A6
+					LoaOpAgncyID:           models.StringPointer("1234"),         // B1
+					LoaAlltSnID:            models.StringPointer("12345"),        // B2
+					LoaPgmElmntID:          models.StringPointer("123456789012"), // C1
+					LoaTskBdgtSblnTx:       models.StringPointer("88888888"),     // C2
+					LoaDfAgncyAlctnRcpntID: models.StringPointer("1234"),         // D1
+					LoaJbOrdNm:             models.StringPointer("1234567890"),   // D4
+					LoaSbaltmtRcpntID:      models.StringPointer("1"),            // D6
+					LoaWkCntrRcpntNm:       models.StringPointer("123456"),       // D7
+					LoaHsGdsCd:             models.StringPointer("HT"),
+					// rest of fields will be nil
+				},
+			},
+		}, nil)
+
+		loa := tac.LineOfAccounting
+
+		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+
+		nilDate := "XXXXXXXX"
+		fa2Assertions := []struct {
+			expectedDetailCode edisegment.FA2DetailCode
+			expectedInfoCode   *string
+		}{
+			{edisegment.FA2DetailCodeTA, move.Orders.TAC},
+			{edisegment.FA2DetailCodeA1, loa.LoaDptID},
+			{edisegment.FA2DetailCodeA2, loa.LoaTnsfrDptNm},
+			{edisegment.FA2DetailCodeA3, &nilDate},
 			{edisegment.FA2DetailCodeA4, loa.LoaBafID},
 			{edisegment.FA2DetailCodeA5, loa.LoaTrsySfxTx},
 			{edisegment.FA2DetailCodeA6, loa.LoaMajClmNm},
