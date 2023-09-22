@@ -865,3 +865,4 @@
 20230921173336_update_shipping_offices.up.sql
 20230921180020_delete_transportation_offices.up.sql
 20230922174009_update_incorrect_duty_locations.up.sql
+20230922180941_update_incorrect_transportation_office.up.sql
