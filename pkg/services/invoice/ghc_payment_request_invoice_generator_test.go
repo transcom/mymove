@@ -1753,7 +1753,7 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.NoError(err)
 
-		concatDate := fmt.Sprintf("%d%d", tac.LineOfAccounting.LoaBgnDt.Year(), tac.LineOfAccounting.LoaEndDt.Year())
+		concatDate := fmt.Sprintf("%d%d", *tac.LineOfAccounting.LoaBgFyTx, *tac.LineOfAccounting.LoaEndFyTx)
 		fa2Assertions := []struct {
 			expectedDetailCode edisegment.FA2DetailCode
 			expectedInfoCode   *string
@@ -1772,6 +1772,8 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 
 	suite.Run("shipment with partial long line of accounting (except fiscal year)", func() {
 		setupTestData()
+		fyBeg := sixMonthsBefore.Year()
+		fyEnd := sixMonthsAfter.Year()
 
 		// Add TAC/LOA records, with the LOA containing only some of the values
 		tac := factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
@@ -1797,8 +1799,8 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 					LoaJbOrdNm:             models.StringPointer("1234567890"),   // D4
 					LoaSbaltmtRcpntID:      models.StringPointer("1"),            // D6
 					LoaWkCntrRcpntNm:       models.StringPointer("123456"),       // D7
-					LoaBgnDt:               &sixMonthsBefore,                     // A3 (first part)
-					LoaEndDt:               &sixMonthsAfter,                      // A3 (second part)
+					LoaBgFyTx:              &fyBeg,                               // A3 (first part)
+					LoaEndFyTx:             &fyEnd,                               // A3 (second part)
 					LoaHsGdsCd:             models.StringPointer("HT"),
 					// rest of fields will be nil
 				},
