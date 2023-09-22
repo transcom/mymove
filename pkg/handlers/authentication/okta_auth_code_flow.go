@@ -141,7 +141,7 @@ func logoutOktaUserURL(provider *okta.Provider, idToken string, redirectURL stri
 	// Parse URL
 	logoutURL, err := url.Parse(baseURL)
 	if err != nil {
-		return "", err
+		return "Failed to parse logout URL", err
 	}
 
 	// add params required by Okta to successfully sign a user out
