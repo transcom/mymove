@@ -1742,8 +1742,10 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 				Model: models.LineOfAccounting{
 					LoaDptID:      &emptyString, // A1
 					LoaTnsfrDptNm: &emptyString, // A2
-					LoaBgFyTx:     &fyBeg,       // A3 (first part)
-					LoaEndFyTx:    &fyEnd,       // A3 (second part)
+					LoaBgnDt:      &sixMonthsBefore,
+					LoaEndDt:      &sixMonthsAfter,
+					LoaBgFyTx:     &fyBeg, // A3 (first part)
+					LoaEndFyTx:    &fyEnd, // A3 (second part)
 					LoaHsGdsCd:    models.StringPointer("HT"),
 					// rest of fields will be nil
 				},
@@ -1799,8 +1801,10 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 					LoaJbOrdNm:             models.StringPointer("1234567890"),   // D4
 					LoaSbaltmtRcpntID:      models.StringPointer("1"),            // D6
 					LoaWkCntrRcpntNm:       models.StringPointer("123456"),       // D7
-					LoaBgFyTx:              &fyBeg,                               // A3 (first part)
-					LoaEndFyTx:             &fyEnd,                               // A3 (second part)
+					LoaBgnDt:               &sixMonthsBefore,
+					LoaEndDt:               &sixMonthsAfter,
+					LoaBgFyTx:              &fyBeg, // A3 (first part)
+					LoaEndFyTx:             &fyEnd, // A3 (second part)
 					LoaHsGdsCd:             models.StringPointer("HT"),
 					// rest of fields will be nil
 				},
