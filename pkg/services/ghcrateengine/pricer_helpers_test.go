@@ -291,10 +291,10 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySITSameZ
 		suite.Contains(err.Error(), "invalid SIT final destination postal code")
 	})
 
-	suite.Run("error from shorthaul pricer", func() {
+	suite.Run("error fetching domestic destination SIT delivery rate", func() {
 		_, _, err := priceDomesticPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, "BOGUS", dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, dshZipDest, dshZipSITDest, dshDistance)
 		suite.Error(err)
-		suite.Contains(err.Error(), "could not price shorthaul")
+		suite.Contains(err.Error(), "could not fetch domestic destination SIT delivery rate")
 	})
 }
 
