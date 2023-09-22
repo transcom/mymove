@@ -37,6 +37,16 @@ type Data struct {
 	GothSession goth.Session
 }
 
+// NewProvider creates a new instance of the Okta provider with the specified orgURL
+func NewProvider(orgURL string, callbackURL string, clientID string, secret string) *Provider {
+	return &Provider{
+		orgURL:      orgURL,
+		callbackURL: callbackURL,
+		clientID:    clientID,
+		secret:      secret,
+	}
+}
+
 // This function will select the correct provider to use based on its set name.
 func GetOktaProviderForRequest(r *http.Request) (*Provider, error) {
 	session := auth.SessionFromRequestContext(r)
@@ -45,7 +55,7 @@ func GetOktaProviderForRequest(r *http.Request) (*Provider, error) {
 	// It will update based on if office or admin app
 	providerName := MilProviderName
 
-	// Set the provider name based on of it is an office or admin app. Remember, the provider is slected by its name
+	// Set the provider name based on of it is an office or admin app. Remember, the provider is selected by its name
 	if session.IsOfficeApp() {
 		providerName = OfficeProviderName
 	} else if session.IsAdminApp() {
@@ -89,7 +99,7 @@ func (op *Provider) AuthorizationURL(r *http.Request) (*Data, error) {
 	}
 
 	// Generate a new state that will later be stored in a cookie for auth
-	state := generateNonce()
+	state := GenerateNonce()
 
 	// Generate a session from the provider and state (nonce)
 	sess, err := provider.BeginAuth(state)
@@ -238,7 +248,7 @@ func (op *Provider) GetTokenURL() string {
 	return op.orgURL + "/oauth2/default/v1/token"
 }
 func (op *Provider) GetAuthURL() string {
-	return op.orgURL + "/oauth2/v1/authorize"
+	return op.orgURL + "/oauth2/default/v1/authorize"
 }
 func (op *Provider) GetUserInfoURL() string {
 	return op.orgURL + "/oauth2/default/v1/userinfo"
@@ -256,10 +266,10 @@ func (op *Provider) GetLogoutURL() string {
 	return op.orgURL + "/oauth2/default/v1/logout"
 }
 func (op *Provider) GetRevokeURL() string {
-	return op.orgURL + "/oauth2/v1/revoke"
+	return op.orgURL + "/oauth2/default/v1/revoke"
 }
 func (op *Provider) GetSessionsURL() string {
-	return op.orgURL + "/oauth2/v1/sessions"
+	return op.orgURL + "/oauth2/default/v1/sessions"
 }
 func (op *Provider) GetJWKSURL() string {
 	return op.orgURL + "/oauth2/default/.well-known/jwks.json"
@@ -281,7 +291,7 @@ func (op Provider) TokenURL(r *http.Request) string {
 	return tokenURL
 }
 
-func generateNonce() string {
+func GenerateNonce() string {
 	nonceBytes := make([]byte, 64)
 	//RA Summary: gosec - G404 - Insecure random number source (rand)
 	//RA: gosec detected use of the insecure package math/rand rather than the more secure cryptographically secure pseudo-random number generator crypto/rand.
