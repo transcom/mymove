@@ -245,6 +245,24 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		addressUpdate.OfficeRemarks = &tooRemarks
 		shipment.DestinationAddress = &addressUpdate.NewAddress
 		shipment.DestinationAddressID = &addressUpdate.NewAddressID
+
+		//We want to make sure the newly approved address update does not affect line haul/short haul pricing
+		haulPricingTypeHasChanged, err := f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, addressUpdate.NewAddress)
+		if err != nil {
+			return nil, err
+		}
+
+		//If the pricing type has changed then we automatically reject the service items on the shipment since they are now inaccurate
+		if haulPricingTypeHasChanged {
+			autoRejectionRemark := "Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul."
+
+			for _, serviceItem := range shipment.MTOServiceItems {
+				if serviceItem.Status != models.MTOServiceItemStatusRejected {
+					serviceItem.Status = models.MTOServiceItemStatusRejected
+					serviceItem.RejectionReason = &autoRejectionRemark
+				}
+			}
+		}
 	}
 
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusRejected {
