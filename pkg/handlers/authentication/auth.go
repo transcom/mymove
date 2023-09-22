@@ -226,6 +226,7 @@ var allowedRoutes = map[string]bool{
 	"queues.showQueue":                            true,
 	"uploads.deleteUpload":                        true,
 	"users.showLoggedInUser":                      true,
+	"okta_profile.showOktaInfo":                   true,
 }
 
 // checkIfRouteIsAllowed checks to see if the route is one of the ones that should be allowed through without stricter
