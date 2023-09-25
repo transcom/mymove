@@ -762,6 +762,9 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 		concatDate = &fiscalYearStr
 	}
 
+	// The FA2 L1 segment must be exactly six characters in length. Our imported database values from TRDM are numeric
+	// strings and so we need to left pad with zeros to meet the threshold.  This may not be needed when the real TGET
+	// integration is introduced.
 	var accountingInstallationNumber *string
 	if loa.LoaInstlAcntgActID != nil {
 		zeroPaddedInstlAcntgActID := fmt.Sprintf("%06s", *loa.LoaInstlAcntgActID)
