@@ -20,14 +20,11 @@ export function* fetchUser() {
     if (isLoggedIn) {
       try {
         const user = yield call(GetLoggedInUser); // make user API call
+        const okta = yield call(GetOktaUser); // get Okta profile data
 
         const userEntities = normalize(user, loggedInUser);
         yield put(addEntities(userEntities.entities)); // populate entities
-
-        if (user.service_member) {
-          const okta = yield call(GetOktaUser); // get Okta profile data
-          yield put(setOktaUser(okta)); // adds Okta data to entities in state
-        }
+        yield put(setOktaUser(okta)); // adds Okta data to entities in state
         yield put(getLoggedInUserSuccess(user));
       } catch (e) {
         yield put(
