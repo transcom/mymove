@@ -1,25 +1,26 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
 import { Link, useNavigate } from 'react-router-dom';
 
 import MilMoveHeader from 'components/MilMoveHeader/index';
 import OfficeUserInfo from 'components/MilMoveHeader/OfficeUserInfo';
 import { LogoutUser } from 'utils/api';
-import { isDevelopment } from 'shared/constants';
 import { logOut as logOutAction } from 'store/auth/actions';
 import { OfficeUserInfoShape } from 'types/index';
 import { selectLoggedInUser } from 'store/entities/selectors';
 import { roleTypes } from 'constants/userRoles';
 
-const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut, isLocalSignIn }) => {
+const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
   const navigate = useNavigate();
   const handleLogout = () => {
     logOut();
     LogoutUser().then((r) => {
       const redirectURL = r.body;
-      if (redirectURL && !isLocalSignIn) {
+      // checking to see if "Local Sign In" button was used to sign in
+      const urlParams = new URLSearchParams(redirectURL.split('?')[1]);
+      const idTokenHint = urlParams.get('id_token_hint');
+      if (redirectURL && idTokenHint !== 'devlocal') {
         window.location.href = redirectURL;
       } else {
         navigate('/sign-in', { state: { hasLoggedOut: true } });
@@ -67,7 +68,6 @@ const mapStateToProps = (state) => {
   return {
     officeUser: user?.office_user || {},
     activeRole: state.auth.activeRole,
-    isLocalSignIn: get(state, 'isDevelopment', isDevelopment),
   };
 };
 

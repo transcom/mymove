@@ -34,7 +34,7 @@ func NewShowOktaInfo(ctx *middleware.Context, handler ShowOktaInfoHandler) *Show
 
 # Returns Okta profile values from Okta's Users API
 
-Calls a GET request to Okta's Users API and returns profile values
+Calls a GET request to Okta's Users API and returns profile values that includes Okta data that the user provided upon registration or most recent profile update.
 */
 type ShowOktaInfo struct {
 	Context *middleware.Context

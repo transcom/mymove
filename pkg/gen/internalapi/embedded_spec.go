@@ -1870,7 +1870,10 @@ func init() {
     },
     "/okta-profile": {
       "get": {
-        "description": "Calls a GET request to Okta's Users API and returns profile values",
+        "description": "Calls a GET request to Okta's Users API and returns profile values that includes Okta data that the user provided upon registration or most recent profile update.",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "okta_profile"
         ],
@@ -1880,7 +1883,7 @@ func init() {
           "200": {
             "description": "okta profile for user",
             "schema": {
-              "$ref": "#/definitions/OktaUserPayload"
+              "$ref": "#/definitions/OktaUserProfileData"
             }
           },
           "400": {
@@ -1901,19 +1904,25 @@ func init() {
         }
       },
       "post": {
-        "description": "Calls a POST request to Okta's Users API and updates provided fields",
+        "description": "Update the user's okta profile with primary data, returns Okta profile values from the Okta's Users API reflecting updated values.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "okta_profile"
         ],
-        "summary": "Update the user's okta profile, returns Okta profile values from Okta's Users API",
+        "summary": "Update the user's okta profile with primary data, returns Okta profile values from the Okta's Users API reflecting updated values.",
         "operationId": "updateOktaInfo",
         "parameters": [
           {
-            "name": "updateOktaUserPayload",
+            "name": "updateOktaUserProfileData",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateOktaUserPayload"
+              "$ref": "#/definitions/UpdateOktaUserProfileData"
             }
           }
         ],
@@ -1921,7 +1930,7 @@ func init() {
           "200": {
             "description": "okta profile for user",
             "schema": {
-              "$ref": "#/definitions/OktaUserPayload"
+              "$ref": "#/definitions/OktaUserProfileData"
             }
           },
           "400": {
@@ -5814,7 +5823,7 @@ func init() {
         }
       }
     },
-    "OktaUserPayload": {
+    "OktaUserProfileData": {
       "type": "object",
       "properties": {
         "cac_edipi": {
@@ -7676,11 +7685,11 @@ func init() {
         }
       }
     },
-    "UpdateOktaUserPayload": {
+    "UpdateOktaUserProfileData": {
       "type": "object",
       "properties": {
         "profile": {
-          "$ref": "#/definitions/OktaUserPayload"
+          "$ref": "#/definitions/OktaUserProfileData"
         }
       }
     },
@@ -8508,6 +8517,9 @@ func init() {
     },
     {
       "name": "featureFlags"
+    },
+    {
+      "name": "okta_profile"
     }
   ]
 }`))
@@ -10437,7 +10449,10 @@ func init() {
     },
     "/okta-profile": {
       "get": {
-        "description": "Calls a GET request to Okta's Users API and returns profile values",
+        "description": "Calls a GET request to Okta's Users API and returns profile values that includes Okta data that the user provided upon registration or most recent profile update.",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "okta_profile"
         ],
@@ -10447,7 +10462,7 @@ func init() {
           "200": {
             "description": "okta profile for user",
             "schema": {
-              "$ref": "#/definitions/OktaUserPayload"
+              "$ref": "#/definitions/OktaUserProfileData"
             }
           },
           "400": {
@@ -10468,19 +10483,25 @@ func init() {
         }
       },
       "post": {
-        "description": "Calls a POST request to Okta's Users API and updates provided fields",
+        "description": "Update the user's okta profile with primary data, returns Okta profile values from the Okta's Users API reflecting updated values.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "okta_profile"
         ],
-        "summary": "Update the user's okta profile, returns Okta profile values from Okta's Users API",
+        "summary": "Update the user's okta profile with primary data, returns Okta profile values from the Okta's Users API reflecting updated values.",
         "operationId": "updateOktaInfo",
         "parameters": [
           {
-            "name": "updateOktaUserPayload",
+            "name": "updateOktaUserProfileData",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateOktaUserPayload"
+              "$ref": "#/definitions/UpdateOktaUserProfileData"
             }
           }
         ],
@@ -10488,7 +10509,7 @@ func init() {
           "200": {
             "description": "okta profile for user",
             "schema": {
-              "$ref": "#/definitions/OktaUserPayload"
+              "$ref": "#/definitions/OktaUserProfileData"
             }
           },
           "400": {
@@ -14739,7 +14760,7 @@ func init() {
         }
       }
     },
-    "OktaUserPayload": {
+    "OktaUserProfileData": {
       "type": "object",
       "properties": {
         "cac_edipi": {
@@ -16606,11 +16627,11 @@ func init() {
         }
       }
     },
-    "UpdateOktaUserPayload": {
+    "UpdateOktaUserProfileData": {
       "type": "object",
       "properties": {
         "profile": {
-          "$ref": "#/definitions/OktaUserPayload"
+          "$ref": "#/definitions/OktaUserProfileData"
         }
       }
     },
@@ -17451,6 +17472,9 @@ func init() {
     },
     {
       "name": "featureFlags"
+    },
+    {
+      "name": "okta_profile"
     }
   ]
 }`))

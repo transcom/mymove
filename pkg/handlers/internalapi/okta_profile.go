@@ -33,7 +33,7 @@ func (h GetOktaProfileHandler) Handle(params oktaop.ShowOktaInfoParams) middlewa
 			// if the "Local Sign In" is clicked we are going to send back dummy values
 			sess := appCtx.Session()
 			if sess.IDToken == "devlocal" {
-				oktaUserPayload := internalmessages.OktaUserPayload{
+				oktaUserPayload := internalmessages.OktaUserProfileData{
 					Login:     "devlocal",
 					Email:     "devlocal",
 					FirstName: "devlocal",
@@ -61,7 +61,7 @@ func (h GetOktaProfileHandler) Handle(params oktaop.ShowOktaInfoParams) middlewa
 
 			// need to pull this payload since it is wrapped in a profile object so resp
 			// body can populate accurately
-			user := internalmessages.UpdateOktaUserPayload{}
+			user := internalmessages.UpdateOktaUserProfileData{}
 
 			// getting the api call url from provider.go
 			baseURL := provider.GetUserURL(oktaUserID)
@@ -96,7 +96,7 @@ func (h GetOktaProfileHandler) Handle(params oktaop.ShowOktaInfoParams) middlewa
 			// the return value has to be of type OktaUserPayload
 			// our initial objet was of type UpdateOktaUserPayload, so needs to be changed
 			// OktaUserPayload is not wrapped in a profile object
-			oktaUserPayload := internalmessages.OktaUserPayload{
+			oktaUserPayload := internalmessages.OktaUserProfileData{
 				Login:     user.Profile.Login,
 				Email:     user.Profile.Email,
 				FirstName: user.Profile.FirstName,
@@ -137,7 +137,7 @@ func (h UpdateOktaProfileHandler) Handle(params oktaop.UpdateOktaInfoParams) mid
 
 			// payload is what is submitted from frontend, should contain
 			// {email, login, firstName, lastName, cac_edipi}
-			payload := params.UpdateOktaUserPayload
+			payload := params.UpdateOktaUserProfileData
 
 			// getting the api call url from provider.go
 			baseURL := provider.GetUserURL(oktaUserID)
@@ -173,7 +173,7 @@ func (h UpdateOktaProfileHandler) Handle(params oktaop.UpdateOktaInfoParams) mid
 
 			// when calling Okta, we have to have the body wrapped in a JSON profile object
 			// here we will take the repsonse and convert it to a struct that doesn't have profile wrap
-			oktaUserPayload := internalmessages.OktaUserPayload{
+			oktaUserPayload := internalmessages.OktaUserProfileData{
 				Login:     payload.Profile.Login,
 				Email:     payload.Profile.Email,
 				FirstName: payload.Profile.FirstName,
