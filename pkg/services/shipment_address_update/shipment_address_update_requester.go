@@ -2,6 +2,7 @@ package shipmentaddressupdate
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/gofrs/uuid"
 
@@ -230,7 +231,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 	var shipment models.MTOShipment
 	var addressUpdate models.ShipmentAddressUpdate
 
-	err := appCtx.DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "Shipment.PickupAddress", "OriginalAddress", "NewAddress").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
+	err := appCtx.DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "Shipment.MTOServiceItems", "Shipment.PickupAddress", "OriginalAddress", "NewAddress").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, apperror.NewNotFoundError(shipmentID, "looking for shipment address update")
@@ -251,17 +252,32 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		if err != nil {
 			return nil, err
 		}
+		/////////
+		// for _, createdServiceItem := range []models.MTOServiceItem{serviceItemDDASIT, serviceItemDDDSIT, serviceItemDDFSIT, serviceItemDDSFSC} {
+		// 	_, updateErr := serviceItemUpdater.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
+		// 	if updateErr != nil {
+		// 		logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
+		// 	}
+		// }
+		/////////
 
+		fmt.Println("haulPricingTypeHasChanged", haulPricingTypeHasChanged)
+		fmt.Println("len(shipment.MTOServiceItems)", len(shipment.MTOServiceItems))
 		//If the pricing type has changed then we automatically reject the service items on the shipment since they are now inaccurate
-		if haulPricingTypeHasChanged {
+		if haulPricingTypeHasChanged && len(shipment.MTOServiceItems) > 0 {
+			serviceItems := shipment.MTOServiceItems
 			autoRejectionRemark := "Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul."
+			fmt.Println("service item status before loop", shipment.MTOServiceItems[0].Status)
+			fmt.Println("service item reason before loop", shipment.MTOServiceItems[0].RejectionReason)
 
-			for _, serviceItem := range shipment.MTOServiceItems {
-				if serviceItem.Status != models.MTOServiceItemStatusRejected {
+			for _, serviceItem := range serviceItems {
+				if serviceItem.Status == models.MTOServiceItemStatusApproved {
 					serviceItem.Status = models.MTOServiceItemStatusRejected
 					serviceItem.RejectionReason = &autoRejectionRemark
 				}
 			}
+			fmt.Println("service item status after loop", shipment.MTOServiceItems[0].Status)
+			fmt.Println("service item reason after loop", shipment.MTOServiceItems[0].RejectionReason)
 		}
 	}
 
