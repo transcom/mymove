@@ -1418,6 +1418,8 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 	currentTime := mockClock.Now()
 	sixMonthsBefore := currentTime.AddDate(0, -6, 0)
 	sixMonthsAfter := currentTime.AddDate(0, 6, 0)
+	begYear := sixMonthsBefore.Year()
+	endYear := sixMonthsAfter.Year()
 	basicPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -1665,7 +1667,10 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		loa := factory.BuildFullLineOfAccounting(nil, nil, nil)
 		loa.LoaBgnDt = &sixMonthsBefore
 		loa.LoaEndDt = &sixMonthsAfter
-		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
+		loa.LoaBgFyTx = &begYear
+		loa.LoaEndFyTx = &endYear
+
+		tac := factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
 					TAC:          *move.Orders.TAC,
@@ -1680,7 +1685,7 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.NoError(err)
 
-		concatDate := fmt.Sprintf("%d%d", loa.LoaBgnDt.Year(), loa.LoaEndDt.Year())
+		concatDate := fmt.Sprintf("%d%d", *tac.LineOfAccounting.LoaBgFyTx, *tac.LineOfAccounting.LoaEndFyTx)
 		fa2Assertions := []struct {
 			expectedDetailCode edisegment.FA2DetailCode
 			expectedInfoCode   *string
@@ -1726,12 +1731,10 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 
 	suite.Run("shipment with nil/blank long line of accounting (except fiscal year)", func() {
 		setupTestData()
-		fyBeg := sixMonthsBefore.Year()
-		fyEnd := sixMonthsAfter.Year()
 
 		// Add TAC/LOA records, with an LOA containing empty strings and nils
 		emptyString := ""
-		tac := factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
+		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationAccountingCode{
 					TAC:          *move.Orders.TAC, // TA
@@ -1744,8 +1747,8 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 					LoaTnsfrDptNm: &emptyString, // A2
 					LoaBgnDt:      &sixMonthsBefore,
 					LoaEndDt:      &sixMonthsAfter,
-					LoaBgFyTx:     &fyBeg, // A3 (first part)
-					LoaEndFyTx:    &fyEnd, // A3 (second part)
+					LoaBgFyTx:     &begYear, // A3 (first part)
+					LoaEndFyTx:    &endYear, // A3 (second part)
 					LoaHsGdsCd:    models.StringPointer("HT"),
 					// rest of fields will be nil
 				},
@@ -1755,7 +1758,7 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.NoError(err)
 
-		concatDate := fmt.Sprintf("%d%d", *tac.LineOfAccounting.LoaBgFyTx, *tac.LineOfAccounting.LoaEndFyTx)
+		concatDate := fmt.Sprintf("%d%d", begYear, endYear)
 		fa2Assertions := []struct {
 			expectedDetailCode edisegment.FA2DetailCode
 			expectedInfoCode   *string
@@ -1774,8 +1777,6 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 
 	suite.Run("shipment with partial long line of accounting (except fiscal year)", func() {
 		setupTestData()
-		fyBeg := sixMonthsBefore.Year()
-		fyEnd := sixMonthsAfter.Year()
 
 		// Add TAC/LOA records, with the LOA containing only some of the values
 		tac := factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
@@ -1803,8 +1804,8 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 					LoaWkCntrRcpntNm:       models.StringPointer("123456"),       // D7
 					LoaBgnDt:               &sixMonthsBefore,
 					LoaEndDt:               &sixMonthsAfter,
-					LoaBgFyTx:              &fyBeg, // A3 (first part)
-					LoaEndFyTx:             &fyEnd, // A3 (second part)
+					LoaBgFyTx:              &begYear, // A3 (first part)
+					LoaEndFyTx:             &endYear, // A3 (second part)
 					LoaHsGdsCd:             models.StringPointer("HT"),
 					// rest of fields will be nil
 				},
@@ -1816,7 +1817,7 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.NoError(err)
 
-		concatDate := fmt.Sprintf("%d%d", *tac.LineOfAccounting.LoaBgFyTx, *tac.LineOfAccounting.LoaEndFyTx)
+		concatDate := fmt.Sprintf("%d%d", begYear, endYear)
 		fa2Assertions := []struct {
 			expectedDetailCode edisegment.FA2DetailCode
 			expectedInfoCode   *string
@@ -1874,6 +1875,8 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 					LoaSbaltmtRcpntID:      models.StringPointer("1"),            // D6
 					LoaWkCntrRcpntNm:       models.StringPointer("123456"),       // D7
 					LoaHsGdsCd:             models.StringPointer("HT"),
+					LoaBgnDt:               &sixMonthsBefore,
+					LoaEndDt:               &sixMonthsAfter,
 					// rest of fields will be nil
 				},
 			},

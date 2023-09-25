@@ -757,7 +757,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 
 	var concatDate *string
 	if loa.LoaBgFyTx != nil && loa.LoaEndFyTx != nil {
-		fiscalYearStr := fmt.Sprintf("%d%d", loa.LoaBgFyTx, loa.LoaEndFyTx)
+		fiscalYearStr := fmt.Sprintf("%d%d", *loa.LoaBgFyTx, *loa.LoaEndFyTx)
 		concatDate = &fiscalYearStr
 	} else {
 		blankValue := "XXXXXXXX"
