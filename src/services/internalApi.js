@@ -100,7 +100,7 @@ export async function updateOktaUser(oktaUser) {
   return makeInternalRequest(
     'okta_profile.updateOktaInfo',
     {
-      updateOktaUserPayload: oktaUser,
+      updateOktaUserProfileData: oktaUser,
     },
     {
       normalize: false,
