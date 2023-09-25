@@ -13,12 +13,16 @@ import (
 	serviceparamvaluelookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 type shipmentAddressUpdateRequester struct {
-	planner        route.Planner
-	addressCreator services.AddressCreator
-	moveRouter     services.MoveRouter
+	planner         route.Planner
+	addressCreator  services.AddressCreator
+	moveRouter      services.MoveRouter
+	shipmentFetcher services.MTOShipmentFetcher
+	services.MTOServiceItemUpdater
 }
 
 func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator services.AddressCreator, moveRouter services.MoveRouter) services.ShipmentAddressUpdateRequester {
@@ -242,6 +246,9 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 	shipment = addressUpdate.Shipment
 
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusApproved {
+		queryBuilder := query.NewQueryBuilder()
+		serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, f.moveRouter, f.shipmentFetcher, f.addressCreator)
+
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusApproved
 		addressUpdate.OfficeRemarks = &tooRemarks
 		shipment.DestinationAddress = &addressUpdate.NewAddress
@@ -271,9 +278,9 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 			fmt.Println("service item reason before loop", shipment.MTOServiceItems[0].RejectionReason)
 
 			for _, serviceItem := range serviceItems {
-				if serviceItem.Status == models.MTOServiceItemStatusApproved {
-					serviceItem.Status = models.MTOServiceItemStatusRejected
-					serviceItem.RejectionReason = &autoRejectionRemark
+				_, updateErr := serviceItemUpdater.ApproveOrRejectServiceItem(appCtx, serviceItem.ID, models.MTOServiceItemStatusRejected, &autoRejectionRemark, etag.GenerateEtag(serviceItem.UpdatedAt))
+				if updateErr != nil {
+					return nil, updateErr
 				}
 			}
 			fmt.Println("service item status after loop", shipment.MTOServiceItems[0].Status)
