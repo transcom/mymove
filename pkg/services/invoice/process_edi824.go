@@ -127,11 +127,17 @@ func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, _ string, st
 		otis, teds := fetchTransactionSetSegments(edi824)
 
 		hasError := false
+
 		for i, oti := range otis {
 			if oti.ApplicationAcknowledgementCode != "TA" {
 				hasError = true
 			}
 			txnAppCtx.Logger().Info(fmt.Sprintf("EDI 824 OTI %d/%d", i+1, len(otis)), zap.Any("oti", oti))
+		}
+
+		// If any TEDS segments are present, mark this as an error
+		if len(teds) > 0 {
+			hasError = true
 		}
 
 		for _, ted := range teds {
