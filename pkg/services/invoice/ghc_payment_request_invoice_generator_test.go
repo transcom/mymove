@@ -1685,8 +1685,7 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
 		suite.NoError(err)
 
-		concatDate := fmt.Sprintf("%d%d", *tac.LineOfAccounting.LoaBgFyTx, *tac.LineOfAccounting.LoaEndFyTx)
-		accountingInstallationNumber := fmt.Sprintf("%06s", *loa.LoaInstlAcntgActID)
+		concatDate := fmt.Sprintf("%d%d", loa.LoaBgnDt.Year(), loa.LoaEndDt.Year())
 
 		fa2Assertions := []struct {
 			expectedDetailCode edisegment.FA2DetailCode
