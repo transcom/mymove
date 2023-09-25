@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/okta_profile"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/postal_codes"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
@@ -316,6 +317,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation office.ShowOfficeOrders has not yet been implemented")
 		})
 	}
+	if api.OktaProfileShowOktaInfoHandler == nil {
+		api.OktaProfileShowOktaInfoHandler = okta_profile.ShowOktaInfoHandlerFunc(func(params okta_profile.ShowOktaInfoParams) middleware.Responder {
+			return middleware.NotImplemented("operation okta_profile.ShowOktaInfo has not yet been implemented")
+		})
+	}
 	if api.OrdersShowOrdersHandler == nil {
 		api.OrdersShowOrdersHandler = orders.ShowOrdersHandlerFunc(func(params orders.ShowOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.ShowOrders has not yet been implemented")
@@ -399,6 +405,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.PpmUpdateMovingExpenseHandler == nil {
 		api.PpmUpdateMovingExpenseHandler = ppm.UpdateMovingExpenseHandlerFunc(func(params ppm.UpdateMovingExpenseParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.UpdateMovingExpense has not yet been implemented")
+		})
+	}
+	if api.OktaProfileUpdateOktaInfoHandler == nil {
+		api.OktaProfileUpdateOktaInfoHandler = okta_profile.UpdateOktaInfoHandlerFunc(func(params okta_profile.UpdateOktaInfoParams) middleware.Responder {
+			return middleware.NotImplemented("operation okta_profile.UpdateOktaInfo has not yet been implemented")
 		})
 	}
 	if api.OrdersUpdateOrdersHandler == nil {

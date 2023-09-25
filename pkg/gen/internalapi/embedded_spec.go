@@ -1868,6 +1868,89 @@ func init() {
         }
       }
     },
+    "/okta-profile": {
+      "get": {
+        "description": "Calls a GET request to Okta's Users API and returns profile values that includes Okta data that the user provided upon registration or most recent profile update.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "okta_profile"
+        ],
+        "summary": "Returns Okta profile values from Okta's Users API",
+        "operationId": "showOktaInfo",
+        "responses": {
+          "200": {
+            "description": "okta profile for user",
+            "schema": {
+              "$ref": "#/definitions/OktaUserProfileData"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "service member not found"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      },
+      "post": {
+        "description": "Update the user's okta profile with primary data, returns Okta profile values from the Okta's Users API reflecting updated values.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "okta_profile"
+        ],
+        "summary": "Update the user's okta profile with primary data, returns Okta profile values from the Okta's Users API reflecting updated values.",
+        "operationId": "updateOktaInfo",
+        "parameters": [
+          {
+            "name": "updateOktaUserProfileData",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateOktaUserProfileData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "okta profile for user",
+            "schema": {
+              "$ref": "#/definitions/OktaUserProfileData"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "service member not found"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/orders": {
       "post": {
         "description": "Creates an instance of orders tied to a service member",
@@ -5740,6 +5823,44 @@ func init() {
         }
       }
     },
+    "OktaUserProfileData": {
+      "type": "object",
+      "properties": {
+        "cac_edipi": {
+          "type": "string",
+          "maxLength": 10,
+          "minLength": 7,
+          "pattern": "^\\d{10}$",
+          "x-nullable": true,
+          "example": "1234567890"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "user@email.com"
+        },
+        "firstName": {
+          "type": "string",
+          "example": "John"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "login": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "user@email.com"
+        },
+        "sub": {
+          "type": "string",
+          "format": "string",
+          "example": "1duekdue9ekrjghf"
+        }
+      }
+    },
     "OmittableMovingExpenseType": {
       "description": "Moving Expense Type",
       "type": "string",
@@ -7564,6 +7685,14 @@ func init() {
         }
       }
     },
+    "UpdateOktaUserProfileData": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "$ref": "#/definitions/OktaUserProfileData"
+        }
+      }
+    },
     "UpdatePPMShipment": {
       "type": "object",
       "properties": {
@@ -8388,6 +8517,9 @@ func init() {
     },
     {
       "name": "featureFlags"
+    },
+    {
+      "name": "okta_profile"
     }
   ]
 }`))
@@ -10311,6 +10443,89 @@ func init() {
             "schema": {
               "$ref": "#/definitions/Error"
             }
+          }
+        }
+      }
+    },
+    "/okta-profile": {
+      "get": {
+        "description": "Calls a GET request to Okta's Users API and returns profile values that includes Okta data that the user provided upon registration or most recent profile update.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "okta_profile"
+        ],
+        "summary": "Returns Okta profile values from Okta's Users API",
+        "operationId": "showOktaInfo",
+        "responses": {
+          "200": {
+            "description": "okta profile for user",
+            "schema": {
+              "$ref": "#/definitions/OktaUserProfileData"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "service member not found"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      },
+      "post": {
+        "description": "Update the user's okta profile with primary data, returns Okta profile values from the Okta's Users API reflecting updated values.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "okta_profile"
+        ],
+        "summary": "Update the user's okta profile with primary data, returns Okta profile values from the Okta's Users API reflecting updated values.",
+        "operationId": "updateOktaInfo",
+        "parameters": [
+          {
+            "name": "updateOktaUserProfileData",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateOktaUserProfileData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "okta profile for user",
+            "schema": {
+              "$ref": "#/definitions/OktaUserProfileData"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "service member not found"
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       }
@@ -14545,6 +14760,44 @@ func init() {
         }
       }
     },
+    "OktaUserProfileData": {
+      "type": "object",
+      "properties": {
+        "cac_edipi": {
+          "type": "string",
+          "maxLength": 10,
+          "minLength": 7,
+          "pattern": "^\\d{10}$",
+          "x-nullable": true,
+          "example": "1234567890"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "user@email.com"
+        },
+        "firstName": {
+          "type": "string",
+          "example": "John"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "login": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "user@email.com"
+        },
+        "sub": {
+          "type": "string",
+          "format": "string",
+          "example": "1duekdue9ekrjghf"
+        }
+      }
+    },
     "OmittableMovingExpenseType": {
       "description": "Moving Expense Type",
       "type": "string",
@@ -16374,6 +16627,14 @@ func init() {
         }
       }
     },
+    "UpdateOktaUserProfileData": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "$ref": "#/definitions/OktaUserProfileData"
+        }
+      }
+    },
     "UpdatePPMShipment": {
       "type": "object",
       "properties": {
@@ -17211,6 +17472,9 @@ func init() {
     },
     {
       "name": "featureFlags"
+    },
+    {
+      "name": "okta_profile"
     }
   ]
 }`))

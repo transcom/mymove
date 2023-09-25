@@ -97,6 +97,9 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	}
 	internalAPI.MovesShowMoveDatesSummaryHandler = ShowMoveDatesSummaryHandler{handlerConfig}
 
+	internalAPI.OktaProfileShowOktaInfoHandler = GetOktaProfileHandler{handlerConfig}
+	internalAPI.OktaProfileUpdateOktaInfoHandler = UpdateOktaProfileHandler{handlerConfig}
+
 	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler{handlerConfig}
 	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler{handlerConfig}
 	internalAPI.ServiceMembersShowServiceMemberHandler = ShowServiceMemberHandler{handlerConfig}

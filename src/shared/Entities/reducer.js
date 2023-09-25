@@ -46,6 +46,7 @@ const initialState = {
   mtoShipments: {},
   reimbursements: {},
   signedCertifications: {},
+  oktaUser: {},
 };
 
 // Actions of either of these types will be merged into the store:
@@ -69,6 +70,12 @@ export function entitiesReducer(state = initialState, action) {
       }
       return mergeEntities(state, action.entities);
     }
+  }
+  if (action.type === 'SET_OKTA_USER') {
+    return {
+      ...state,
+      oktaUser: action.oktaUser || {},
+    };
   }
   return state;
 }
