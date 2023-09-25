@@ -30,6 +30,20 @@ func (h GetOktaProfileHandler) Handle(params oktaop.ShowOktaInfoParams) middlewa
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
+			// if the "Local Sign In" is clicked we are going to send back dummy values
+			sess := appCtx.Session()
+			if sess.IDToken == "devlocal" {
+				oktaUserPayload := internalmessages.OktaUserPayload{
+					Login:     "devlocal",
+					Email:     "devlocal",
+					FirstName: "devlocal",
+					LastName:  "devlocal",
+					CacEdipi:  nil,
+					Sub:       "devlocal",
+				}
+				return oktaop.NewShowOktaInfoOK().WithPayload(&oktaUserPayload), nil
+			}
+
 			// getting okta id of user from session, to be used for api call
 			oktaUserID := appCtx.Session().OktaSessionInfo.Sub
 
