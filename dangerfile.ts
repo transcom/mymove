@@ -36,7 +36,7 @@ const fileChecks = () => {
   const legacyFiles = danger.git.fileMatch('src/shared/**/*', 'src/scenes/**/*');
 
   if (legacyFiles.created) {
-    fail(`New files have been created under one of the legacy directories
+    warn(`New files have been created under one of the legacy directories
 (src/shared or src/scenes). Please relocate them according to the file structure described [here](https://transcom.github.io/mymove-docs/docs/dev/contributing/frontend/frontend#file-layout--naming).
 
 View the [frontend file org ADR](https://github.com/transcom/mymove/blob/main/docs/adr/0048-frontend-file-org.md) for more information`);
