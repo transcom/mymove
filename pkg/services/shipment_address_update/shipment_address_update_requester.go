@@ -2,7 +2,6 @@ package shipmentaddressupdate
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/gofrs/uuid"
 
@@ -259,23 +258,11 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		if err != nil {
 			return nil, err
 		}
-		/////////
-		// for _, serviceItem := range serviceItems {
-		// 	_, updateErr := serviceItemUpdater.ApproveOrRejectServiceItem(appCtx, serviceItem.ID, models.MTOServiceItemStatusRejected, autoRejectionRemark, etag.GenerateEtag(serviceItem.UpdatedAt))
-		// 	if updateErr != nil {
-		// 		return nil, updateErr
-		// 	}
-		// }
-		/////////
 
-		fmt.Println("haulPricingTypeHasChanged", haulPricingTypeHasChanged)
-		fmt.Println("len(shipment.MTOServiceItems)", len(shipment.MTOServiceItems))
 		//If the pricing type has changed then we automatically reject the service items on the shipment since they are now inaccurate
 		if haulPricingTypeHasChanged && len(shipment.MTOServiceItems) > 0 {
 			serviceItems := shipment.MTOServiceItems
 			autoRejectionRemark := "Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul."
-			fmt.Println("service item status before loop", shipment.MTOServiceItems[0].Status)
-			fmt.Println("service item reason before loop", shipment.MTOServiceItems[0].RejectionReason)
 
 			for _, serviceItem := range serviceItems {
 				_, updateErr := serviceItemUpdater.ApproveOrRejectServiceItem(appCtx, serviceItem.ID, models.MTOServiceItemStatusRejected, &autoRejectionRemark, etag.GenerateEtag(serviceItem.UpdatedAt))
@@ -283,8 +270,6 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 					return nil, updateErr
 				}
 			}
-			fmt.Println("service item status after loop", shipment.MTOServiceItems[0].Status)
-			fmt.Println("service item reason after loop", shipment.MTOServiceItems[0].RejectionReason)
 		}
 	}
 
