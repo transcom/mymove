@@ -35,8 +35,9 @@ tags:
   - name: addresses
   - name: mtoShipment
   - name: featureFlags
+  - name: okta_profile
 definitions:
-  OktaUserPayload:
+  OktaUserProfileData:
     type: object
     properties:
       sub:
@@ -47,12 +48,12 @@ definitions:
         type: string
         format: x-email
         example: user@email.com
-        pattern: '^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
       email:
         type: string
         format: x-email
         example: user@email.com
-        pattern: '^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: ^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
       firstName:
         type: string
         example: John
@@ -62,15 +63,15 @@ definitions:
       cac_edipi:
         type: string
         example: '1234567890'
-        pattern: '^\d{10}$'
+        pattern: ^\d{10}$
         minLength: 7
         maxLength: 10
         x-nullable: true
-  UpdateOktaUserPayload:
+  UpdateOktaUserProfileData:
     type: object
     properties:
       profile:
-        $ref: '#/definitions/OktaUserPayload'
+        $ref: '#/definitions/OktaUserProfileData'
   LoggedInUserPayload:
     type: object
     properties:
@@ -5109,15 +5110,17 @@ paths:
   /okta-profile:
     get:
       summary: Returns Okta profile values from Okta's Users API
-      description: Calls a GET request to Okta's Users API and returns profile values
+      description: Calls a GET request to Okta's Users API and returns profile values that includes Okta data that the user provided upon registration or most recent profile update.
       operationId: showOktaInfo
       tags:
         - okta_profile
+      produces:
+        - application/json
       responses:
         '200':
           description: okta profile for user
           schema:
-            $ref: '#/definitions/OktaUserPayload'
+            $ref: '#/definitions/OktaUserProfileData'
         '400':
           description: invalid request
         '401':
@@ -5129,22 +5132,26 @@ paths:
         '500':
           description: internal server error
     post:
-      summary: Update the user's okta profile, returns Okta profile values from Okta's Users API
-      description: Calls a POST request to Okta's Users API and updates provided fields
+      summary: Update the user's okta profile with primary data, returns Okta profile values from the Okta's Users API reflecting updated values.
+      description: Update the user's okta profile with primary data, returns Okta profile values from the Okta's Users API reflecting updated values.
       operationId: updateOktaInfo
       tags:
         - okta_profile
       parameters:
         - in: body
-          name: updateOktaUserPayload
+          name: updateOktaUserProfileData
           required: true
           schema:
-            $ref: '#/definitions/UpdateOktaUserPayload'
+            $ref: '#/definitions/UpdateOktaUserProfileData'
+      consumes:
+        - application/json
+      produces:
+        - application/json
       responses:
         '200':
           description: okta profile for user
           schema:
-            $ref: '#/definitions/OktaUserPayload'
+            $ref: '#/definitions/OktaUserProfileData'
         '400':
           description: invalid request
         '401':

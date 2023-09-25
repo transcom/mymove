@@ -38,7 +38,7 @@ type UpdateOktaInfoParams struct {
 	  Required: true
 	  In: body
 	*/
-	UpdateOktaUserPayload *internalmessages.UpdateOktaUserPayload
+	UpdateOktaUserProfileData *internalmessages.UpdateOktaUserProfileData
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -52,12 +52,12 @@ func (o *UpdateOktaInfoParams) BindRequest(r *http.Request, route *middleware.Ma
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body internalmessages.UpdateOktaUserPayload
+		var body internalmessages.UpdateOktaUserProfileData
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("updateOktaUserPayload", "body", ""))
+				res = append(res, errors.Required("updateOktaUserProfileData", "body", ""))
 			} else {
-				res = append(res, errors.NewParseError("updateOktaUserPayload", "body", "", err))
+				res = append(res, errors.NewParseError("updateOktaUserProfileData", "body", "", err))
 			}
 		} else {
 			// validate body object
@@ -71,11 +71,11 @@ func (o *UpdateOktaInfoParams) BindRequest(r *http.Request, route *middleware.Ma
 			}
 
 			if len(res) == 0 {
-				o.UpdateOktaUserPayload = &body
+				o.UpdateOktaUserProfileData = &body
 			}
 		}
 	} else {
-		res = append(res, errors.Required("updateOktaUserPayload", "body", ""))
+		res = append(res, errors.Required("updateOktaUserProfileData", "body", ""))
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

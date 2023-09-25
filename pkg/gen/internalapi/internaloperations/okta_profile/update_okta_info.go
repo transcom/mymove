@@ -32,9 +32,9 @@ func NewUpdateOktaInfo(ctx *middleware.Context, handler UpdateOktaInfoHandler) *
 /*
 	UpdateOktaInfo swagger:route POST /okta-profile okta_profile updateOktaInfo
 
-# Update the user's okta profile, returns Okta profile values from Okta's Users API
+Update the user's okta profile with primary data, returns Okta profile values from the Okta's Users API reflecting updated values.
 
-Calls a POST request to Okta's Users API and updates provided fields
+Update the user's okta profile with primary data, returns Okta profile values from the Okta's Users API reflecting updated values.
 */
 type UpdateOktaInfo struct {
 	Context *middleware.Context
