@@ -103,8 +103,8 @@ func BuildFullLineOfAccounting(db *pop.Connection, customs []Customization, trai
 		LoaWrkOrdID:            models.StringPointer("1234567890123456"),
 		LoaFnclArID:            models.StringPointer("123456"),
 		LoaScrtyCoopCustCd:     models.StringPointer("12"),
-		LoaEndFyTx:             models.IntPointer(now.Year()),
-		LoaBgFyTx:              models.IntPointer(later.Year()),
+		LoaEndFyTx:             models.IntPointer(later.Year()),
+		LoaBgFyTx:              models.IntPointer(now.Year()),
 		LoaBgtRstrCd:           models.StringPointer("1"),
 		LoaBgtSubActCd:         models.StringPointer("1234"),
 	}
