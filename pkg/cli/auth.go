@@ -28,7 +28,7 @@ const (
 	//RA: This line was flagged because of use of the word "key"
 	//RA: This line is used to identify the name of the flag. OktaApiKeyFlag is the Okta API Key Flag.
 	//RA: This value of this variable does not store an application secret.
-	//RA Developer Status: Mitigated 
+	//RA Developer Status: Mitigated
 	//RA Validator Status: Mitigated
 	//RA Validator: leodis.f.scott.civ@mail.mil
 	//RA Modified Severity: CAT III
