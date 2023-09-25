@@ -253,10 +253,10 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 			return nil, err
 		}
 		/////////
-		// for _, createdServiceItem := range []models.MTOServiceItem{serviceItemDDASIT, serviceItemDDDSIT, serviceItemDDFSIT, serviceItemDDSFSC} {
-		// 	_, updateErr := serviceItemUpdater.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
+		// for _, serviceItem := range serviceItems {
+		// 	_, updateErr := serviceItemUpdater.ApproveOrRejectServiceItem(appCtx, serviceItem.ID, models.MTOServiceItemStatusRejected, autoRejectionRemark, etag.GenerateEtag(serviceItem.UpdatedAt))
 		// 	if updateErr != nil {
-		// 		logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
+		// 		return nil, updateErr
 		// 	}
 		// }
 		/////////
