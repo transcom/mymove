@@ -1083,6 +1083,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	}
 
 	sitEntryDate := time.Now()
+	sitDepartureDate := sitEntryDate.AddDate(0, 0, 7)
 	attemptedContact := time.Now()
 
 	// Failed creation of DDFSIT because DDASIT/DDDSIT codes are not found in DB
@@ -1157,6 +1158,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			MTOShipment:      shipment,
 			ReService:        reServiceDDFSIT,
 			SITEntryDate:     &sitEntryDate,
+			SITDepartureDate: &sitDepartureDate,
 			CustomerContacts: getCustomerContacts(),
 			Status:           models.MTOServiceItemStatusSubmitted,
 		}
@@ -1177,6 +1179,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			suite.Equal(item.MoveTaskOrderID, serviceItemDDFSIT.MoveTaskOrderID)
 			suite.Equal(item.MTOShipmentID, serviceItemDDFSIT.MTOShipmentID)
 			suite.Equal(item.SITEntryDate, serviceItemDDFSIT.SITEntryDate)
+			suite.Equal(item.SITDepartureDate, serviceItemDDFSIT.SITDepartureDate)
 
 			if item.ReService.Code == models.ReServiceCodeDDASIT {
 				numDDASITFound++

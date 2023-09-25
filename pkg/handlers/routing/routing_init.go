@@ -531,8 +531,8 @@ func mountGHCAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.R
 func mountAuthRoutes(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
 	site.Route("/auth/", func(r chi.Router) {
 		r.Use(middleware.NoCache())
-		r.Method("GET", "/login-gov", authentication.NewRedirectHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, routingConfig.HandlerConfig.UseSecureCookie()))
-		r.Method("GET", "/login-gov/callback", authentication.NewCallbackHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, routingConfig.HandlerConfig.NotificationSender()))
+		r.Method("GET", "/okta", authentication.NewRedirectHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, routingConfig.HandlerConfig.UseSecureCookie()))
+		r.Method("GET", "/okta/callback", authentication.NewCallbackHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, routingConfig.HandlerConfig.NotificationSender()))
 		r.Method("POST", "/logout", authentication.NewLogoutHandler(routingConfig.AuthContext, routingConfig.HandlerConfig))
 	})
 

@@ -1,0 +1,1 @@
+--update users set okta_email = login_gov_email;

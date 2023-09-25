@@ -26,7 +26,7 @@ const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton, showTestharnessLi
         <ConnectedEulaModal
           isOpen={showEula}
           acceptTerms={() => {
-            window.location.href = '/auth/login-gov';
+            window.location.href = '/auth/okta';
           }}
           closeModal={() => setShowEula(false)}
         />

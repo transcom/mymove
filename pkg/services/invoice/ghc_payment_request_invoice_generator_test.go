@@ -815,7 +815,10 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	suite.Run("adds orders destination address", func() {
 		setupTestData()
 		expectedDutyLocation := paymentRequest.MoveTaskOrder.Orders.NewDutyLocation
-		transportationOffice, err := models.FetchDutyLocationTransportationOffice(suite.DB(), expectedDutyLocation.ID)
+		// This used to match a duty location by name in our database and ignore the default factory values.  Now that
+		// it doesn't match a named duty location ("Fort Gordon"), the EDI ends up using the postal code to determine
+		// the GBLOC value.
+		destinationPostalCodeToGBLOC, err := models.FetchGBLOCForPostalCode(suite.DB(), expectedDutyLocation.Address.PostalCode)
 		suite.FatalNoError(err)
 		// name
 		n1 := result.Header.DestinationName
@@ -823,7 +826,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("ST", n1.EntityIdentifierCode)
 		suite.Equal(expectedDutyLocation.Name, n1.Name)
 		suite.Equal("10", n1.IdentificationCodeQualifier)
-		suite.Equal(transportationOffice.Gbloc, n1.IdentificationCode)
+		suite.Equal(destinationPostalCodeToGBLOC.GBLOC, n1.IdentificationCode)
 		// street address
 		address := expectedDutyLocation.Address
 		destAddress := result.Header.DestinationStreetAddress
@@ -1657,8 +1660,12 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 	suite.Run("shipment with complete long line of accounting", func() {
 		setupTestData()
 
-		// Add TAC/LOA records with fully filled out LOA fields
-		loa := factory.BuildFullLineOfAccounting(nil)
+		// Add TAC/LOA records with fully filled out LOA fields, ensure we're testing L1 segment padding
+		loa := factory.BuildFullLineOfAccounting(nil, []factory.Customization{
+			{
+				Model: models.LineOfAccounting{LoaInstlAcntgActID: models.StringPointer("123")},
+			},
+		}, nil)
 		loa.LoaBgnDt = &sixMonthsBefore
 		loa.LoaEndDt = &sixMonthsAfter
 		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
@@ -1677,6 +1684,8 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		suite.NoError(err)
 
 		concatDate := fmt.Sprintf("%d%d", loa.LoaBgnDt.Year(), loa.LoaEndDt.Year())
+		accountingInstallationNumber := fmt.Sprintf("%06s", *loa.LoaInstlAcntgActID)
+
 		fa2Assertions := []struct {
 			expectedDetailCode edisegment.FA2DetailCode
 			expectedInfoCode   *string
@@ -1706,13 +1715,15 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 			{edisegment.FA2DetailCodeI1, loa.LoaBdgtAcntClsNm},
 			{edisegment.FA2DetailCodeJ1, loa.LoaDocID},
 			{edisegment.FA2DetailCodeK6, loa.LoaClsRefID},
-			{edisegment.FA2DetailCodeL1, loa.LoaInstlAcntgActID},
+			{edisegment.FA2DetailCodeL1, &accountingInstallationNumber},
 			{edisegment.FA2DetailCodeM1, loa.LoaLclInstlID},
 			{edisegment.FA2DetailCodeN1, loa.LoaTrnsnID},
 			{edisegment.FA2DetailCodeP5, loa.LoaFmsTrnsactnID},
 		}
 
 		suite.Len(result.ServiceItems[0].FA2s, len(fa2Assertions))
+		// L1 segment must be padded to a length of 6 to meet the specification
+		suite.Len(result.ServiceItems[0].FA2s[25].FinancialInformationCode, 6)
 		for i, fa2Assertion := range fa2Assertions {
 			fa2Segment := result.ServiceItems[0].FA2s[i]
 			suite.Equal(fa2Assertion.expectedDetailCode, fa2Segment.BreakdownStructureDetailCode)
@@ -1875,7 +1886,7 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 	setupLoaTestData := func() {
 		allLoaHsGdsCds := []string{models.LineOfAccountingHouseholdGoodsCodeCivilian, models.LineOfAccountingHouseholdGoodsCodeEnlisted, models.LineOfAccountingHouseholdGoodsCodeDual, models.LineOfAccountingHouseholdGoodsCodeOfficer, models.LineOfAccountingHouseholdGoodsCodeNTS, models.LineOfAccountingHouseholdGoodsCodeOther}
 		for i := range allLoaHsGdsCds {
-			loa := factory.BuildFullLineOfAccounting(nil)
+			loa := factory.BuildFullLineOfAccounting(nil, nil, nil)
 			loa.LoaBgnDt = &sixMonthsBefore
 			loa.LoaEndDt = &sixMonthsAfter
 			loa.LoaHsGdsCd = &allLoaHsGdsCds[i]
@@ -1958,7 +1969,7 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 	}
 
 	setupLOA := func(loahgc string) models.LineOfAccounting {
-		loa := factory.BuildFullLineOfAccounting(nil)
+		loa := factory.BuildFullLineOfAccounting(nil, nil, nil)
 		loa.LoaBgnDt = &sixMonthsBefore
 		loa.LoaEndDt = &sixMonthsAfter
 		loa.LoaHsGdsCd = &loahgc
@@ -2137,7 +2148,7 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 
 		// Create LOA with old datetime (loa_bgn_dt) and civilian code
 		loahgc := models.LineOfAccountingHouseholdGoodsCodeCivilian
-		oldLoa := factory.BuildFullLineOfAccounting(nil)
+		oldLoa := factory.BuildFullLineOfAccounting(nil, nil, nil)
 		oldLoa.LoaBgnDt = &fiveYearsAgo
 		oldLoa.LoaEndDt = &sixMonthsAfter // Still need to overlap the order issue date to be included
 		oldLoa.LoaHsGdsCd = &loahgc
@@ -2186,6 +2197,90 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		// Should have gotten the officer LOA since that is the more recent loa_bgn_dt
 		suite.Equal(models.LineOfAccountingHouseholdGoodsCodeOfficer, actualDocID)
 	})
+
+	suite.Run("test Coast Guard service members get 'HS' household goods code LOA", func() {
+		setupTestData()
+
+		// Create LOA with 'HS' household goods code
+		loa := setupLOA(models.LineOfAccountingHouseholdGoodsCodeNTS)
+		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationAccountingCode{
+					TAC:          *move.Orders.TAC,
+					TacFnBlModCd: models.StringPointer("W"),
+				},
+			},
+			{
+				Model: loa,
+			},
+		}, nil)
+
+		// Update service member affiliation to Coast Guard
+		testCaseAffiliation := models.AffiliationCOASTGUARD
+		move.Orders.ServiceMember.Affiliation = &testCaseAffiliation
+		paymentRequest.MoveTaskOrder.Orders.ServiceMember.Affiliation = &testCaseAffiliation
+		err := suite.DB().Save(&move.Orders.ServiceMember)
+		suite.NoError(err)
+
+		// Create invoice
+		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+
+		// Get the LOA Household Goods Code from the invoice
+		var actualLoaHsGdsCd string
+		for _, fa2 := range result.ServiceItems[0].FA2s {
+			if fa2.BreakdownStructureDetailCode == edisegment.FA2DetailCodeJ1 {
+				actualLoaHsGdsCd = fa2.FinancialInformationCode
+				break
+			}
+		}
+		suite.NotNil(actualLoaHsGdsCd)
+
+		// Should have 'HS' as the LOA Household Goods Code from the invoice
+		suite.Equal(models.LineOfAccountingHouseholdGoodsCodeNTS, actualLoaHsGdsCd)
+	})
+
+	suite.Run("test non Coast Guard service members dont get 'HS' household goods code LOA", func() {
+		setupTestData()
+
+		// Create LOA with 'HS' household goods code
+		loa := setupLOA(models.LineOfAccountingHouseholdGoodsCodeNTS)
+		factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationAccountingCode{
+					TAC:          *move.Orders.TAC,
+					TacFnBlModCd: models.StringPointer("W"),
+				},
+			},
+			{
+				Model: loa,
+			},
+		}, nil)
+
+		// Update service member affiliation to Army
+		testCaseAffiliation := models.AffiliationARMY
+		move.Orders.ServiceMember.Affiliation = &testCaseAffiliation
+		paymentRequest.MoveTaskOrder.Orders.ServiceMember.Affiliation = &testCaseAffiliation
+		err := suite.DB().Save(&move.Orders.ServiceMember)
+		suite.NoError(err)
+
+		// Create invoice
+		result, err := generator.Generate(suite.AppContextForTest(), paymentRequest, false)
+		suite.NoError(err)
+
+		// Get the LOA Household Goods Code from the invoice
+		var actualLoaHsGdsCd string
+		for _, fa2 := range result.ServiceItems[0].FA2s {
+			if fa2.BreakdownStructureDetailCode == edisegment.FA2DetailCodeJ1 {
+				actualLoaHsGdsCd = fa2.FinancialInformationCode
+				break
+			}
+		}
+
+		// Should not be able to get the HouseholdGoodsCodeNT LOA since the only one was 'HS' and the service member is not Coast Guard
+		suite.Equal(actualLoaHsGdsCd, "")
+	})
+
 }
 
 func (suite *GHCInvoiceSuite) TestDetermineDutyLocationPhoneLinesFunc() {

@@ -32,12 +32,12 @@ def handle_aliases(aliases, id):
 # this is done considering that any existing records in these tables are safe to delete, and is not necessarily a model for future duty location updates
 def delete_dl_and_parents(dl_id):
     orders_query = f"(SELECT id from orders where origin_duty_location_id = {dl_id} or new_duty_location_id = {dl_id})"
-    mto_service_item_query = f"(SELECT id from mto_service_items where move_id = (SELECT id from moves where orders_id = {orders_query}))"
+    mto_service_item_query = f"(SELECT id from mto_service_items where move_id IN (SELECT id from moves where orders_id IN {orders_query}))"
     f.write(
-        f"DELETE from payment_service_item_params where payment_service_item_id = (SELECT id from payment_service_items where mto_service_item_id = {mto_service_item_query});\n"
+        f"DELETE from payment_service_item_params where payment_service_item_id IN (SELECT id from payment_service_items where mto_service_item_id IN {mto_service_item_query});\n"
     )
     f.write(
-        f"DELETE from service_request_document_uploads where service_request_documents_id = (SELECT id from service_request_documents where mto_service_item_id = {mto_service_item_query});\n"
+        f"DELETE from service_request_document_uploads where service_request_documents_id IN (SELECT id from service_request_documents where mto_service_item_id IN {mto_service_item_query});\n"
     )
     for t in [
         "mto_service_item_dimensions",
@@ -46,14 +46,14 @@ def delete_dl_and_parents(dl_id):
         "sit_address_updates",
     ]:
         f.write(
-            f"DELETE from {t} where mto_service_item_id = {mto_service_item_query};\n"
+            f"DELETE from {t} where mto_service_item_id IN {mto_service_item_query};\n"
         )
     f.write(
-        f"DELETE from service_items_customer_contacts where mtoservice_item_id = (SELECT id from mto_service_items where move_id = (SELECT id from moves where orders_id = {orders_query}));\n"
+        f"DELETE from service_items_customer_contacts where mtoservice_item_id IN (SELECT id from mto_service_items where move_id IN (SELECT id from moves where orders_id IN {orders_query}));\n"
     )
-    payment_requests_query = f"(SELECT id from payment_requests where move_id = (SELECT id from moves where orders_id = {orders_query}))"
+    payment_requests_query = f"(SELECT id from payment_requests where move_id IN (SELECT id from moves where orders_id IN {orders_query}))"
     f.write(
-        f"DELETE from prime_uploads where proof_of_service_docs_id = (SELECT id from proof_of_service_docs where payment_request_id = {payment_requests_query});\n"
+        f"DELETE from prime_uploads where proof_of_service_docs_id IN (SELECT id from proof_of_service_docs where payment_request_id IN {payment_requests_query});\n"
     )
     for t in [
         "proof_of_service_docs",
@@ -61,11 +61,35 @@ def delete_dl_and_parents(dl_id):
         "payment_request_to_interchange_control_numbers",
     ]:
         f.write(
-            f"DELETE from {t} where payment_request_id = {payment_requests_query};\n"
+            f"DELETE from {t} where payment_request_id IN {payment_requests_query};\n"
         )
     f.write(
-        f"DELETE from ppm_shipments where shipment_id = (SELECT id from mto_shipments where move_id = (SELECT id from moves where orders_id = {orders_query}));"
+        f"DELETE from ppm_shipments where shipment_id IN (SELECT id from mto_shipments where move_id IN (SELECT id from moves where orders_id IN {orders_query}));\n"
     )
+    for t in [
+        "archived_moving_expense_documents",
+        "archived_weight_ticket_set_documents",
+    ]:
+        f.write(
+            f"DELETE from {t} where move_document_id IN (SELECT id from archived_move_documents where move_id IN (SELECT id from moves where orders_id IN {orders_query}));\n"
+        )
+
+    for t in [
+        'sit_extensions',
+        'mto_agents',
+    ]:
+        f.write(
+            f"DELETE from {t} where mto_shipment_id IN (SELECT id from mto_shipments where move_id IN (SELECT id from moves where orders_id IN {orders_query}));\n"
+        )
+
+    for t in [
+        'reweighs',
+        'shipment_address_updates',
+    ]:
+        f.write(
+            f"DELETE from {t} where shipment_id IN (SELECT id from mto_shipments where move_id IN (SELECT id from moves where orders_id IN {orders_query}));\n"
+        )
+
     for t in [
         "archived_move_documents",
         "archived_signed_certifications",
@@ -80,9 +104,9 @@ def delete_dl_and_parents(dl_id):
         "webhook_notifications",
     ]:
         f.write(
-            f"DELETE from {t} where move_id = (SELECT id from moves where orders_id = {orders_query});\n"
+            f"DELETE from {t} where move_id IN (SELECT id from moves where orders_id IN {orders_query});\n"
         )
-    f.write(f"DELETE from moves where orders_id = {orders_query};\n")
+    f.write(f"DELETE from moves where orders_id IN {orders_query};\n")
     f.write(
         f"DELETE from orders where origin_duty_location_id = {dl_id} or new_duty_location_id = {dl_id};\n"
     )
