@@ -105,3 +105,14 @@ export const backupContactInfoSchema = Yup.object().shape({
   email: emailSchema.required('Required'),
   telephone: phoneSchema.required('Required'),
 });
+
+export const edipiMaxErrorMsg = 'Cannot be more than 10 digits in length';
+export const emailFormatErrorMsg = 'Must be in email format';
+
+export const oktaInfoSchema = Yup.object().shape({
+  oktaUsername: Yup.string().required('Required'),
+  oktaEmail: Yup.string().email(emailFormatErrorMsg).required('Required'),
+  oktaFirstName: Yup.string().required('Required'),
+  oktaLastName: Yup.string().required('Required'),
+  oktaEdipi: Yup.string().max(10, edipiMaxErrorMsg),
+});

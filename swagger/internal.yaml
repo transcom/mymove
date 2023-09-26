@@ -38,7 +38,41 @@ tags:
   - name: addresses
   - name: mtoShipment
   - name: featureFlags
+  - name: okta_profile
 definitions:
+  OktaUserProfileData:
+    type: object
+    properties:
+      sub:
+        type: string
+        format: string
+        example: 1duekdue9ekrjghf
+      login:
+        type: string
+        format: x-email
+        example: user@email.com
+        pattern: ^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+      email:
+        type: string
+        format: x-email
+        example: user@email.com
+        pattern: ^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+      firstName:
+        type: string
+        example: John
+      lastName:
+        type: string
+        example: Doe
+      cac_edipi:
+        type: string
+        example: '1234567890'
+        maxLength: 10
+        x-nullable: true
+  UpdateOktaUserProfileData:
+    type: object
+    properties:
+      profile:
+        $ref: '#/definitions/OktaUserProfileData'
   LoggedInUserPayload:
     type: object
     properties:
@@ -6347,6 +6381,68 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  /okta-profile:
+    get:
+      summary: Returns Okta profile values from Okta's Users API
+      description: >-
+        Calls a GET request to Okta's Users API and returns profile values that
+        includes Okta data that the user provided upon registration or most
+        recent profile update.
+      operationId: showOktaInfo
+      tags:
+        - okta_profile
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: okta profile for user
+          schema:
+            $ref: '#/definitions/OktaUserProfileData'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '403':
+          description: user is not authorized
+        '404':
+          description: service member not found
+        '500':
+          description: internal server error
+    post:
+      summary: >-
+        Update the user's okta profile with primary data, returns Okta profile
+        values from the Okta's Users API reflecting updated values.
+      description: >-
+        Update the user's okta profile with primary data, returns Okta profile
+        values from the Okta's Users API reflecting updated values.
+      operationId: updateOktaInfo
+      tags:
+        - okta_profile
+      parameters:
+        - in: body
+          name: updateOktaUserProfileData
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateOktaUserProfileData'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: okta profile for user
+          schema:
+            $ref: '#/definitions/OktaUserProfileData'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '403':
+          description: user is not authorized
+        '404':
+          description: service member not found
+        '500':
+          description: internal server error
 responses:
   InvalidRequest:
     description: The request payload is invalid.

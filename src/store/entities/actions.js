@@ -8,6 +8,12 @@ export const UPDATE_PPMS = 'UPDATE_PPMS';
 export const UPDATE_PPM = 'UPDATE_PPM';
 export const UPDATE_PPM_ESTIMATE = 'UPDATE_PPM_ESTIMATE';
 export const UPDATE_PPM_SIT_ESTIMATE = 'UPDATE_PPM_SIT_ESTIMATE';
+export const UPDATE_OKTA_USER_STATE = 'SET_OKTA_USER';
+
+export const updateOktaUserState = (oktaUser) => ({
+  type: UPDATE_OKTA_USER_STATE,
+  oktaUser,
+});
 
 export const updateServiceMember = (payload) => ({
   type: UPDATE_SERVICE_MEMBER,
