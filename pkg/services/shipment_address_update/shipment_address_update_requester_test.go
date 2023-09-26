@@ -472,49 +472,6 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 }
 
 func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUpdateRequest() {
-	setupTestData := func() models.Move {
-		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
-		originalDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
-			ReDomesticServiceArea: models.ReDomesticServiceArea{
-				ServiceArea:      "004",
-				ServicesSchedule: 2,
-			},
-			ReContract: testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{}),
-		})
-
-		// Common ZIP3s used in these tests
-		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
-			ReZip3: models.ReZip3{
-				Contract:            originalDomesticServiceArea.Contract,
-				ContractID:          originalDomesticServiceArea.ContractID,
-				DomesticServiceArea: originalDomesticServiceArea,
-				Zip3:                "895",
-			},
-		})
-		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
-			ReZip3: models.ReZip3{
-				Contract:            originalDomesticServiceArea.Contract,
-				ContractID:          originalDomesticServiceArea.ContractID,
-				DomesticServiceArea: originalDomesticServiceArea,
-				Zip3:                "902",
-			},
-		})
-		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
-			ReZip3: models.ReZip3{
-				Contract:            originalDomesticServiceArea.Contract,
-				ContractID:          originalDomesticServiceArea.ContractID,
-				DomesticServiceArea: originalDomesticServiceArea,
-				Zip3:                "945",
-			},
-		})
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		return move
-	}
 	addressCreator := address.NewAddressCreator()
 	mockPlanner := &routemocks.Planner{}
 	moveRouter := moveservices.NewMoveRouter()
@@ -534,71 +491,6 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		suite.Equal(models.ShipmentAddressUpdateStatusApproved, update.Status)
 		suite.Equal("This is a TOO remark", *update.OfficeRemarks)
 
-	})
-
-	suite.Run("Service items are rejected when pricing type changes post TOO approval", func() {
-		move := setupTestData()
-		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
-
-		addressChange := factory.BuildShipmentAddressUpdate(suite.DB(), []factory.Customization{
-			{
-				Model:    shipment,
-				LinkOnly: true,
-			},
-		}, []factory.Trait{
-			factory.GetTraitAvailableToPrimeMove,
-		})
-
-		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOServiceItem{
-					Status: models.MTOServiceItemStatusApproved,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
-				LinkOnly: true,
-			},
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeMS,
-				},
-			},
-		}, nil)
-
-		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOServiceItem{
-					Status: models.MTOServiceItemStatusApproved,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
-				LinkOnly: true,
-			},
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDLH,
-				},
-			},
-		}, nil)
-		officeRemarks := "This is a TOO remark"
-
-		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "APPROVED", officeRemarks)
-
-		suite.NoError(err)
-		suite.NotNil(update)
-		suite.Equal(models.ShipmentAddressUpdateStatusApproved, update.Status)
-		suite.Equal("This is a TOO remark", *update.OfficeRemarks)
-		//will add new assertions
 	})
 
 	suite.Run("TOO rejects address change", func() {
@@ -653,4 +545,161 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 
 	})
 
+}
+
+func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUpdateRequestChangedPricing() {
+	setupTestData := func() models.Move {
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+		originalDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				ServiceArea:      "004",
+				ServicesSchedule: 2,
+			},
+			ReContract: testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{}),
+		})
+
+		// Common ZIP3s used in these tests
+		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Contract:            originalDomesticServiceArea.Contract,
+				ContractID:          originalDomesticServiceArea.ContractID,
+				DomesticServiceArea: originalDomesticServiceArea,
+				Zip3:                "895",
+			},
+		})
+		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Contract:            originalDomesticServiceArea.Contract,
+				ContractID:          originalDomesticServiceArea.ContractID,
+				DomesticServiceArea: originalDomesticServiceArea,
+				Zip3:                "902",
+			},
+		})
+		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Contract:            originalDomesticServiceArea.Contract,
+				ContractID:          originalDomesticServiceArea.ContractID,
+				DomesticServiceArea: originalDomesticServiceArea,
+				Zip3:                "945",
+			},
+		})
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		return move
+	}
+	addressCreator := address.NewAddressCreator()
+	mockPlanner := &routemocks.Planner{}
+	moveRouter := moveservices.NewMoveRouter()
+	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
+
+	suite.Run("Service items are rejected when pricing type changes post TOO approval", func() {
+		mockPlanner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			"89523",
+			"89503",
+		).Return(2500, nil).Once()
+		mockPlanner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			"89523",
+			"90210",
+		).Return(2500, nil).Once()
+		move := setupTestData()
+		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "89523",
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.Address{
+					PostalCode: "90210",
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+		//Generate a couple of service items to test their status changes upon approval
+		factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeMS, move, shipment, nil, nil)
+		factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDLH, move, shipment, nil, nil)
+
+		newAddress := models.Address{
+			StreetAddress1: "123 Any St",
+			City:           "Beverly Hills",
+			State:          "CA",
+			PostalCode:     "89503",
+			Country:        models.StringPointer("United States"),
+		}
+
+		// Trigger the prime address update to get move in correct state for DLH -> DSH
+		addressChange, _ := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		officeRemarks := "This is a TOO remark"
+
+		// TOO Approves address change
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.ShipmentID, "APPROVED", officeRemarks)
+
+		suite.NoError(err)
+		suite.NotNil(update)
+		suite.Equal(models.ShipmentAddressUpdateStatusApproved, update.Status)
+		suite.Equal("This is a TOO remark", *update.OfficeRemarks)
+
+		// Assert that all service items were rejected
+		// TODO: MB-16790 will auto-generate new service items, this check will need to be updated
+		rejectedServiceItems := suite.getServiceItemsByStatus(update.Shipment.MTOServiceItems, models.MTOServiceItemStatusRejected)
+		autoRejectionRemark := "Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul."
+
+		suite.Equal(len(update.Shipment.MTOServiceItems), len(rejectedServiceItems))
+		suite.Equal(autoRejectionRemark, *rejectedServiceItems[0].RejectionReason)
+	})
+
+	suite.Run("Service items are not rejected when pricing type does not change post TOO approval", func() {
+		move := setupTestData()
+		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
+
+		//Generate service items to test their statuses upon approval
+		factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeMS, move, shipment, nil, nil)
+		factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDLH, move, shipment, nil, nil)
+
+		newAddress := models.Address{
+			StreetAddress1: "123 Any St",
+			City:           "Beverly Hills",
+			State:          "CA",
+			PostalCode:     shipment.DestinationAddress.PostalCode,
+			Country:        models.StringPointer("United States"),
+		}
+		mockPlanner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			"90210",
+			"94535",
+		).Return(2500, nil).Once()
+
+		addressChange, _ := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		officeRemarks := "This is a TOO remark"
+
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.ShipmentID, "APPROVED", officeRemarks)
+
+		suite.NoError(err)
+		suite.NotNil(update)
+		suite.Equal(models.ShipmentAddressUpdateStatusApproved, update.Status)
+		suite.Equal("This is a TOO remark", *update.OfficeRemarks)
+		// Assert that service item was not rejected
+		rejectedServiceItems := suite.getServiceItemsByStatus(update.Shipment.MTOServiceItems, models.MTOServiceItemStatusRejected)
+		suite.Equal(len(rejectedServiceItems), 0)
+	})
+
+}
+
+func (suite *ShipmentAddressUpdateServiceSuite) getServiceItemsByStatus(items models.MTOServiceItems, status models.MTOServiceItemStatus) models.MTOServiceItems {
+	itemsWithStatus := models.MTOServiceItems{}
+
+	for _, si := range items {
+		if si.Status == status {
+			itemsWithStatus = append(itemsWithStatus, si)
+		}
+	}
+
+	return itemsWithStatus
 }
