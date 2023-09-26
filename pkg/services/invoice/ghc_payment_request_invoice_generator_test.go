@@ -1664,7 +1664,11 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		setupTestData()
 
 		// Add TAC/LOA records with fully filled out LOA fields
-		loa := factory.BuildFullLineOfAccounting(nil, nil, nil)
+		loa := factory.BuildFullLineOfAccounting(nil, []factory.Customization{
+			{
+				Model: models.LineOfAccounting{LoaInstlAcntgActID: models.StringPointer("123")},
+			},
+		}, nil)
 		loa.LoaBgnDt = &sixMonthsBefore
 		loa.LoaEndDt = &sixMonthsAfter
 		loa.LoaBgFyTx = &begYear
@@ -1686,6 +1690,7 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 		suite.NoError(err)
 
 		concatDate := fmt.Sprintf("%d%d", *tac.LineOfAccounting.LoaBgFyTx, *tac.LineOfAccounting.LoaEndFyTx)
+		accountingInstallationNumber := fmt.Sprintf("%06s", *loa.LoaInstlAcntgActID)
 
 		fa2Assertions := []struct {
 			expectedDetailCode edisegment.FA2DetailCode
@@ -1716,13 +1721,15 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 			{edisegment.FA2DetailCodeI1, loa.LoaBdgtAcntClsNm},
 			{edisegment.FA2DetailCodeJ1, loa.LoaDocID},
 			{edisegment.FA2DetailCodeK6, loa.LoaClsRefID},
-			{edisegment.FA2DetailCodeL1, loa.LoaInstlAcntgActID},
+			{edisegment.FA2DetailCodeL1, &accountingInstallationNumber},
 			{edisegment.FA2DetailCodeM1, loa.LoaLclInstlID},
 			{edisegment.FA2DetailCodeN1, loa.LoaTrnsnID},
 			{edisegment.FA2DetailCodeP5, loa.LoaFmsTrnsactnID},
 		}
 
 		suite.Len(result.ServiceItems[0].FA2s, len(fa2Assertions))
+		// L1 segment must be padded to a length of 6 to meet the specification
+		suite.Len(result.ServiceItems[0].FA2s[25].FinancialInformationCode, 6)
 		for i, fa2Assertion := range fa2Assertions {
 			fa2Segment := result.ServiceItems[0].FA2s[i]
 			suite.Equal(fa2Assertion.expectedDetailCode, fa2Segment.BreakdownStructureDetailCode)
