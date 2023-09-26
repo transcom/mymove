@@ -12,12 +12,16 @@ import (
 	serviceparamvaluelookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 type shipmentAddressUpdateRequester struct {
-	planner        route.Planner
-	addressCreator services.AddressCreator
-	moveRouter     services.MoveRouter
+	planner         route.Planner
+	addressCreator  services.AddressCreator
+	moveRouter      services.MoveRouter
+	shipmentFetcher services.MTOShipmentFetcher
+	services.MTOServiceItemUpdater
 }
 
 func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator services.AddressCreator, moveRouter services.MoveRouter) services.ShipmentAddressUpdateRequester {
@@ -230,7 +234,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 	var shipment models.MTOShipment
 	var addressUpdate models.ShipmentAddressUpdate
 
-	err := appCtx.DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "OriginalAddress", "NewAddress").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
+	err := appCtx.DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "Shipment.MTOServiceItems", "Shipment.PickupAddress", "OriginalAddress", "NewAddress").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, apperror.NewNotFoundError(shipmentID, "looking for shipment address update")
@@ -241,10 +245,35 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 	shipment = addressUpdate.Shipment
 
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusApproved {
+		queryBuilder := query.NewQueryBuilder()
+		serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, f.moveRouter, f.shipmentFetcher, f.addressCreator)
+
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusApproved
 		addressUpdate.OfficeRemarks = &tooRemarks
 		shipment.DestinationAddress = &addressUpdate.NewAddress
 		shipment.DestinationAddressID = &addressUpdate.NewAddressID
+
+		//We want to make sure the newly approved address update does not affect line haul/short haul pricing
+		haulPricingTypeHasChanged, err := f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, addressUpdate.NewAddress)
+		if err != nil {
+			return nil, err
+		}
+
+		//If the pricing type has changed then we automatically reject the service items on the shipment since they are now inaccurate
+		if haulPricingTypeHasChanged && len(shipment.MTOServiceItems) > 0 {
+			serviceItems := shipment.MTOServiceItems
+			autoRejectionRemark := "Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul."
+
+			for i, serviceItem := range serviceItems {
+				updatedServiceItem, updateErr := serviceItemUpdater.ApproveOrRejectServiceItem(appCtx, serviceItem.ID, models.MTOServiceItemStatusRejected, &autoRejectionRemark, etag.GenerateEtag(serviceItem.UpdatedAt))
+				if updateErr != nil {
+					return nil, updateErr
+				}
+				serviceItems[i] = *updatedServiceItem
+
+				// TODO: MB-16790 updates here
+			}
+		}
 	}
 
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusRejected {
