@@ -22,8 +22,6 @@ type OktaUserProfileData struct {
 	// cac edipi
 	// Example: 1234567890
 	// Max Length: 10
-	// Min Length: 7
-	// Pattern: ^\d{10}$
 	CacEdipi *string `json:"cac_edipi,omitempty"`
 
 	// email
@@ -76,15 +74,7 @@ func (m *OktaUserProfileData) validateCacEdipi(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MinLength("cac_edipi", "body", *m.CacEdipi, 7); err != nil {
-		return err
-	}
-
 	if err := validate.MaxLength("cac_edipi", "body", *m.CacEdipi, 10); err != nil {
-		return err
-	}
-
-	if err := validate.Pattern("cac_edipi", "body", *m.CacEdipi, `^\d{10}$`); err != nil {
 		return err
 	}
 
