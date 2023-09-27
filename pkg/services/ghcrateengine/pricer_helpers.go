@@ -223,6 +223,44 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 
 	// Three different pricing scenarios below.
 
+	if distance <= 50 {
+		isPeakPeriod := IsPeakPeriod(referenceDate)
+		domOtherPrice, err := fetchDomOtherPrice(appCtx, contractCode, pickupDeliverySITCode, sitSchedule, isPeakPeriod)
+		if err != nil {
+			return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic %s SIT %s rate: %w", sitType, sitModifier, err)
+		}
+		basePrice := domOtherPrice.PriceCents.Float64()
+
+		escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, domOtherPrice.ContractID, referenceDate, false, basePrice)
+		if err != nil {
+			return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
+		}
+		escalatedPrice = escalatedPrice * weight.ToCWTFloat64()
+
+		totalPriceCents := unit.Cents(math.Round(escalatedPrice))
+
+		displayParams := services.PricingDisplayParams{
+			{
+				Key:   models.ServiceItemParamNamePriceRateOrFactor,
+				Value: FormatCents(domOtherPrice.PriceCents),
+			},
+			{
+				Key:   models.ServiceItemParamNameContractYearName,
+				Value: contractYear.Name,
+			},
+			{
+				Key:   models.ServiceItemParamNameIsPeak,
+				Value: FormatBool(isPeakPeriod),
+			},
+			{
+				Key:   models.ServiceItemParamNameEscalationCompounded,
+				Value: FormatEscalation(contractYear.EscalationCompounded),
+			},
+		}
+
+		return totalPriceCents, displayParams, nil
+	}
+
 	// 1) Zip3 to same zip3
 	if zip3Original == zip3Actual {
 		// Do a normal shorthaul calculation
