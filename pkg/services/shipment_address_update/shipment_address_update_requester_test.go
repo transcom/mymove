@@ -596,7 +596,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 	moveRouter := moveservices.NewMoveRouter()
 	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
 
-	suite.Run("Service items are rejected when pricing type changes post TOO approval", func() {
+	suite.Run("Service items are rejected and regenerated when pricing type changes post TOO approval", func() {
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"89523",
@@ -655,6 +655,72 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		// Should have an equal number of rejected and approved service items
 		suite.Equal(len(approvedServiceItems), len(rejectedServiceItems))
 		suite.Equal(autoRejectionRemark, *rejectedServiceItems[0].RejectionReason)
+	})
+
+	suite.Run("Service items were already rejected are not regenerated when pricing type changes post TOO approval", func() {
+		mockPlanner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			"89523",
+			"89503",
+		).Return(2500, nil).Once()
+		mockPlanner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			"89523",
+			"90210",
+		).Return(2500, nil).Once()
+		move := setupTestData()
+		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "89523",
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.Address{
+					PostalCode: "90210",
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+		//Generate a couple of service items to test their status changes upon approval
+		factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDLH, move, shipment, nil, nil)
+		factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeMS, move, shipment, []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusRejected,
+				},
+			},
+		}, nil)
+		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDSH)
+
+		newAddress := models.Address{
+			StreetAddress1: "123 Any St",
+			City:           "Beverly Hills",
+			State:          "CA",
+			PostalCode:     "89503",
+			Country:        models.StringPointer("United States"),
+		}
+
+		// Trigger the prime address update to get move in correct state for DLH -> DSH
+		addressChange, _ := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		officeRemarks := "This is a TOO remark"
+
+		// TOO Approves address change
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.ShipmentID, "APPROVED", officeRemarks)
+
+		suite.NoError(err)
+		suite.NotNil(update)
+		suite.Equal(models.ShipmentAddressUpdateStatusApproved, update.Status)
+		suite.Equal("This is a TOO remark", *update.OfficeRemarks)
+
+		// Assert that only the service items that weren't already rejected were the ones regenerated
+		rejectedServiceItems := suite.getServiceItemsByStatus(update.Shipment.MTOServiceItems, models.MTOServiceItemStatusRejected)
+		approvedServiceItems := suite.getServiceItemsByStatus(update.Shipment.MTOServiceItems, models.MTOServiceItemStatusApproved)
+
+		// Should have 2 rejected service items and only 1 approved
+		suite.Equal(len(approvedServiceItems), 1)
+		suite.Equal(len(rejectedServiceItems), 2)
 	})
 
 	suite.Run("Service items are not rejected when pricing type does not change post TOO approval", func() {

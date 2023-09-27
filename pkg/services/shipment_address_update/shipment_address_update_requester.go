@@ -313,24 +313,28 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 			var regeneratedServiceItems models.MTOServiceItems
 
 			for i, serviceItem := range serviceItems {
-				rejectedServiceItem, updateErr := serviceItemUpdater.ApproveOrRejectServiceItem(appCtx, serviceItem.ID, models.MTOServiceItemStatusRejected, &autoRejectionRemark, etag.GenerateEtag(serviceItem.UpdatedAt))
-				if updateErr != nil {
-					return nil, updateErr
-				}
-				copyOfServiceItem := f.mapServiceItemWithUpdatedPriceRequirements(*rejectedServiceItem)
-				serviceItems[i] = *rejectedServiceItem
+				if serviceItem.Status != models.MTOServiceItemStatusRejected {
+					rejectedServiceItem, updateErr := serviceItemUpdater.ApproveOrRejectServiceItem(appCtx, serviceItem.ID, models.MTOServiceItemStatusRejected, &autoRejectionRemark, etag.GenerateEtag(serviceItem.UpdatedAt))
+					if updateErr != nil {
+						return nil, updateErr
+					}
+					copyOfServiceItem := f.mapServiceItemWithUpdatedPriceRequirements(*rejectedServiceItem)
+					serviceItems[i] = *rejectedServiceItem
 
-				// Regenerate approved service items to replace the rejected ones.
-				// Ensure that the updated pricing is applied (e.g. DLH -> DSH, DSH -> DLH etc.)
-				regeneratedServiceItem, _, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &copyOfServiceItem)
-				if createErr != nil {
-					return nil, createErr
+					// Regenerate approved service items to replace the rejected ones.
+					// Ensure that the updated pricing is applied (e.g. DLH -> DSH, DSH -> DLH etc.)
+					regeneratedServiceItem, _, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &copyOfServiceItem)
+					if createErr != nil {
+						return nil, createErr
+					}
+					regeneratedServiceItems = append(regeneratedServiceItems, *regeneratedServiceItem...)
 				}
-				regeneratedServiceItems = append(regeneratedServiceItems, *regeneratedServiceItem...)
 			}
 
 			// Append the auto-generated service items to the shipment service items slice
-			addressUpdate.Shipment.MTOServiceItems = append(addressUpdate.Shipment.MTOServiceItems, regeneratedServiceItems...)
+			if len(regeneratedServiceItems) > 0 {
+				addressUpdate.Shipment.MTOServiceItems = append(addressUpdate.Shipment.MTOServiceItems, regeneratedServiceItems...)
+			}
 		}
 	}
 
