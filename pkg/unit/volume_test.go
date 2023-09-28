@@ -28,6 +28,31 @@ func Test_CubicFeetStringConversion(t *testing.T) {
 	if result != expected {
 		t.Errorf("wrong string of CubicFeet: expected %s, got %s", expected, result)
 	}
+
+	cubicFeet = CubicFeet(9.001)
+	result = cubicFeet.String()
+
+	expected = "9.00"
+	if result != expected {
+		t.Errorf("wrong string of CubicFeet: expected %s, got %s", expected, result)
+	}
+
+	cubicFeet = CubicFeet(9.0001)
+	result = cubicFeet.String()
+
+	expected = "9.00"
+	if result != expected {
+		t.Errorf("wrong string of CubicFeet: expected %s, got %s", expected, result)
+	}
+
+	cubicFeet = CubicFeet(8.90625)
+	result = cubicFeet.String()
+
+	expected = "8.90"
+	if result != expected {
+		t.Errorf("wrong string of CubicFeet: expected %s, got %s", expected, result)
+	}
+
 	cubicFeet = CubicFeet(9.90000000000000000000000001)
 	result = cubicFeet.String()
 

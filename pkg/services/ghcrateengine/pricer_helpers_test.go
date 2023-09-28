@@ -571,6 +571,20 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticCrating() {
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
+	suite.Run("crating golden path with truncation", func() {
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
+		priceCents, displayParams, err := priceDomesticCrating(suite.AppContextForTest(), models.ReServiceCodeDCRT, testdatagen.DefaultContractCode, dcrtTestRequestedPickupDate, unit.CubicFeet(8.90625), dcrtTestServiceSchedule)
+		suite.NoError(err)
+		suite.Equal(unit.Cents(23049), priceCents)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dcrtTestEscalationCompounded)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dcrtTestBasePriceCents)},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
+	})
+
 	suite.Run("invalid service code", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
 		_, _, err := priceDomesticCrating(suite.AppContextForTest(), models.ReServiceCodeCS, testdatagen.DefaultContractCode, dcrtTestRequestedPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule)
