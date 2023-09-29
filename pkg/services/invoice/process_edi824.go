@@ -126,8 +126,18 @@ func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, _ string, st
 
 		otis, teds := fetchTransactionSetSegments(edi824)
 
+		hasError := false
+
 		for i, oti := range otis {
+			if oti.ApplicationAcknowledgementCode != "TA" {
+				hasError = true
+			}
 			txnAppCtx.Logger().Info(fmt.Sprintf("EDI 824 OTI %d/%d", i+1, len(otis)), zap.Any("oti", oti))
+		}
+
+		// If any TEDS segments are present, mark this as an error
+		if len(teds) > 0 {
+			hasError = true
 		}
 
 		for _, ted := range teds {
@@ -149,14 +159,16 @@ func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, _ string, st
 			}
 		}
 
-		paymentRequest.Status = models.PaymentRequestStatusEDIError
-		err = txnAppCtx.DB().Update(&paymentRequest)
-		if err != nil {
-			txnAppCtx.Logger().Error("failure updating payment request status:", zap.Error(err))
-			return fmt.Errorf("failure updating payment request status: %w", err)
+		if hasError {
+			paymentRequest.Status = models.PaymentRequestStatusEDIError
+			err = txnAppCtx.DB().Update(&paymentRequest)
+			if err != nil {
+				txnAppCtx.Logger().Error("failure updating payment request status:", zap.Error(err))
+				return fmt.Errorf("failure updating payment request status: %w", err)
+			}
+			txnAppCtx.Logger().Info("SUCCESS: 824 Processor updated Payment Request to new status")
+			e.logEDIWithPaymentRequest(txnAppCtx, edi824, paymentRequest)
 		}
-		txnAppCtx.Logger().Info("SUCCESS: 824 Processor updated Payment Request to new status")
-		e.logEDIWithPaymentRequest(txnAppCtx, edi824, paymentRequest)
 		return nil
 	})
 
