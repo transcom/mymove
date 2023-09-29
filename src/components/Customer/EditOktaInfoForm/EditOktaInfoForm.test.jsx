@@ -53,7 +53,7 @@ describe('EditOktaInfoForm component', () => {
 
     const alert = await screen.findByRole('alert');
     expect(alert).toBeInTheDocument();
-    expect(alert).toHaveTextContent('Must be in email format');
+    expect(alert).toHaveTextContent('Email address must end in a valid domain');
   });
 
   it('shows an error message if Okta Email is empty', async () => {
