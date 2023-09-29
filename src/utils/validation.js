@@ -108,7 +108,7 @@ export const backupContactInfoSchema = Yup.object().shape({
 
 export const edipiMaxErrorMsg = 'Must be 10 digits in length';
 export const emailFormatErrorMsg = 'Must be in email format';
-export const numericOnlyErrorMsg = 'EDIPi must contain only numeric characters';
+export const numericOnlyErrorMsg = 'EDIPI must contain only numeric characters';
 export const noNumericAllowedErrorMsg = 'Cannot contain numeric characters';
 export const domainFormatErrorMsg = 'Email address must end in a valid domain';
 export const allowedDomains = ['.com', '.gov', '.mil', '.edu', '.org', '.net', '.int', '.eu', '.io', '.co'];
