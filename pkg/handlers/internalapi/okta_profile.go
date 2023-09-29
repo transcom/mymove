@@ -80,6 +80,17 @@ func (h GetOktaProfileHandler) Handle(params oktaop.ShowOktaInfoParams) middlewa
 			if err != nil {
 				appCtx.Logger().Error("could not execute request", zap.Error(err))
 			}
+			if resp.StatusCode != http.StatusOK {
+				if resp.StatusCode == http.StatusInternalServerError {
+					return oktaop.NewShowOktaInfoInternalServerError(), err
+				}
+				if resp.StatusCode == http.StatusBadRequest {
+					return oktaop.NewShowOktaInfoBadRequest(), err
+				}
+				if resp.StatusCode == http.StatusForbidden {
+					return oktaop.NewShowOktaInfoForbidden(), err
+				}
+			}
 
 			body, err := io.ReadAll(resp.Body)
 			if err != nil {
@@ -104,6 +115,7 @@ func (h GetOktaProfileHandler) Handle(params oktaop.ShowOktaInfoParams) middlewa
 				CacEdipi:  user.Profile.CacEdipi,
 				Sub:       user.Profile.Sub,
 			}
+			appCtx.Logger().Info("getting okta profile", zap.Any("okta profile", oktaUserPayload))
 
 			return oktaop.NewShowOktaInfoOK().WithPayload(&oktaUserPayload), nil
 		})
@@ -158,10 +170,21 @@ func (h UpdateOktaProfileHandler) Handle(params oktaop.UpdateOktaInfoParams) mid
 			if err != nil {
 				appCtx.Logger().Error("could not execute request", zap.Error(err))
 			}
+			if resp.StatusCode != http.StatusOK {
+				if resp.StatusCode == http.StatusInternalServerError {
+					return oktaop.NewShowOktaInfoInternalServerError(), err
+				}
+				if resp.StatusCode == http.StatusBadRequest {
+					return oktaop.NewShowOktaInfoBadRequest(), err
+				}
+				if resp.StatusCode == http.StatusForbidden {
+					return oktaop.NewShowOktaInfoForbidden(), err
+				}
+			}
 
 			body, err = io.ReadAll(resp.Body)
 			if err != nil {
-				appCtx.Logger().Error("could not read response body", zap.Error(err))
+				appCtx.Logger().Error("could not read response body", zap.Any("returned status", resp.Status))
 			}
 
 			defer resp.Body.Close()
@@ -181,6 +204,7 @@ func (h UpdateOktaProfileHandler) Handle(params oktaop.UpdateOktaInfoParams) mid
 				CacEdipi:  payload.Profile.CacEdipi,
 				Sub:       oktaUserID,
 			}
+			appCtx.Logger().Info("updated okta profile", zap.Any("okta profile", oktaUserPayload))
 
 			// setting app context values with updated values so frontend can update
 			appCtx.Session().OktaSessionInfo.Login = oktaUserPayload.Login

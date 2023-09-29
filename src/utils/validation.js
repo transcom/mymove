@@ -106,15 +106,48 @@ export const backupContactInfoSchema = Yup.object().shape({
   telephone: phoneSchema.required('Required'),
 });
 
-export const edipiMinErrorMsg = 'Must be between 7-10 digits';
-export const edipiMaxErrorMsg = 'Cannot be more than 10 digits in length';
+export const edipiMaxErrorMsg = 'Must be 10 digits in length';
 export const emailFormatErrorMsg = 'Must be in email format';
+export const numericOnlyErrorMsg = 'EDIPi must contain only numeric characters';
+export const noNumericAllowedErrorMsg = 'Cannot contain numeric characters';
+export const domainFormatErrorMsg = 'Email address must end in a valid domain';
+export const allowedDomains = ['.com', '.gov', '.mil', '.edu', '.org', '.net', '.int', '.eu', '.io', '.co'];
 
-// EDIPI can be between 7-10 digits to account for USCG members who use EIN
+// checking okta profile edit form
+// oktaEmail must end in the domain listed in allowedDomain variable
+// oktaFirst&LastName must not contain numbers
+// edipi can only be numbers
+// we are validating here to avoid confusing swagger errors
 export const oktaInfoSchema = Yup.object().shape({
   oktaUsername: Yup.string().required('Required'),
-  oktaEmail: Yup.string().email(emailFormatErrorMsg).required('Required'),
-  oktaFirstName: Yup.string().required('Required'),
-  oktaLastName: Yup.string().required('Required'),
-  oktaEdipi: Yup.string().min(7, edipiMinErrorMsg).max(10, edipiMaxErrorMsg),
+  oktaEmail: Yup.string()
+    .test('domain-suffix', domainFormatErrorMsg, (value) => {
+      if (!value) {
+        return true;
+      }
+      const domainMatch = value.match(/@([A-Za-z0-9.-]+)$/);
+
+      if (domainMatch) {
+        const domain = domainMatch[1].toLowerCase();
+        const tldMatch = domain.match(/\.[A-Za-z]+$/);
+        if (tldMatch) {
+          const tld = tldMatch[0].toLowerCase();
+          return allowedDomains.includes(tld);
+        }
+      }
+      return false;
+    })
+    .email(emailFormatErrorMsg)
+    .required('Required'),
+  oktaFirstName: Yup.string()
+    .matches(/^[A-Za-z]+$/, noNumericAllowedErrorMsg)
+    .required('Required'),
+  oktaLastName: Yup.string()
+    .matches(/^[A-Za-z]+$/, noNumericAllowedErrorMsg)
+    .required('Required'),
+  oktaEdipi: Yup.string()
+    .min(10, edipiMaxErrorMsg)
+    .max(10, edipiMaxErrorMsg)
+    .matches(/^[0-9]*$/, numericOnlyErrorMsg)
+    .nullable(),
 });
