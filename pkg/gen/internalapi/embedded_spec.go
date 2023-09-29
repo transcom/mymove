@@ -5829,8 +5829,6 @@ func init() {
         "cac_edipi": {
           "type": "string",
           "maxLength": 10,
-          "minLength": 7,
-          "pattern": "^\\d{10}$",
           "x-nullable": true,
           "example": "1234567890"
         },
@@ -14766,8 +14764,6 @@ func init() {
         "cac_edipi": {
           "type": "string",
           "maxLength": 10,
-          "minLength": 7,
-          "pattern": "^\\d{10}$",
           "x-nullable": true,
           "example": "1234567890"
         },

@@ -66,8 +66,6 @@ definitions:
       cac_edipi:
         type: string
         example: '1234567890'
-        pattern: ^\d{10}$
-        minLength: 7
         maxLength: 10
         x-nullable: true
   UpdateOktaUserProfileData:
