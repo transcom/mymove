@@ -8,7 +8,6 @@ import oktaLogo from '../../../shared/images/okta_logo.png';
 
 import editOktaInfoFormStyle from './EditOktaInfoForm.module.scss';
 
-import { isProduction } from 'shared/constants';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { Form } from 'components/form/Form';
@@ -18,9 +17,11 @@ import { oktaInfoSchema } from 'utils/validation';
 
 const EditOktaInfoForm = ({ initialValues, onSubmit, onCancel }) => {
   const sectionStyles = classnames(formStyles.formSection, editOktaInfoFormStyle.formSection);
-  const url = isProduction
-    ? 'https://milmove.okta.mil/enduser/settings'
-    : 'https://test-milmove.okta.mil/enduser/settings';
+  const hostname = window && window.location && window.location.hostname;
+  const url =
+    hostname === 'my.move.mil'
+      ? 'https://milmove.okta.mil/enduser/settings'
+      : 'https://test-milmove.okta.mil/enduser/settings';
 
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validateOnMount validationSchema={oktaInfoSchema}>

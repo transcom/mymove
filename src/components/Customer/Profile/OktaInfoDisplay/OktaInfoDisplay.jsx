@@ -6,20 +6,13 @@ import oktaLogo from '../../../../shared/images/okta_logo.png';
 
 import oktaInfoDisplayStyles from './OktaInfoDisplay.module.scss';
 
-import { isProduction } from 'shared/constants';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
-
-const url = isProduction
-  ? 'https://milmove.okta.mil/enduser/settings'
-  : 'https://test-milmove.okta.mil/enduser/settings';
 
 const OktaInfoDisplay = ({ editURL, oktaUsername, oktaEmail, oktaFirstName, oktaLastName, oktaEdipi }) => {
   return (
     <div className={oktaInfoDisplayStyles.serviceInfoContainer}>
       <div className={oktaInfoDisplayStyles.header}>
-        <a href={url}>
-          <img className={oktaInfoDisplayStyles.oktaLogo} src={oktaLogo} alt="Okta logo" />
-        </a>
+        <img className={oktaInfoDisplayStyles.oktaLogo} src={oktaLogo} alt="Okta logo" />
         <Link className={oktaInfoDisplayStyles.oktaEditLink} to={editURL}>
           Edit
         </Link>

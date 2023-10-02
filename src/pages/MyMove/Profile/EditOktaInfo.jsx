@@ -16,6 +16,7 @@ import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 export const EditOktaInfo = ({ serviceMember, setFlashMessage, oktaUser, updateOktaUserState }) => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
+  const [noChangeError, setNoChangeError] = useState(null);
 
   const initialValues = {
     oktaUsername: oktaUser?.login || 'Not Provided',
@@ -46,29 +47,49 @@ export const EditOktaInfo = ({ serviceMember, setFlashMessage, oktaUser, updateO
       },
     };
 
-    return updateOktaUser(oktaPayload)
-      .then((response) => {
-        updateOktaUserState(response);
-        setFlashMessage('EDIT_OKTA_PROFILE_SUCCESS', 'success', "You've updated your Okta profile.");
-        navigate(customerRoutes.PROFILE_PATH);
-      })
-      .catch((e) => {
-        const { response } = e;
-        const errorMessage = getResponseError(response, 'Failed to update okta profile due to server error');
+    // checking to see if the values are the same to avoid unnecessary api call
+    if (
+      oktaPayload.profile.cac_edipi === oktaUser.cac_edipi &&
+      oktaPayload.profile.login === oktaUser.login &&
+      oktaPayload.profile.firstName === oktaUser.firstName &&
+      oktaPayload.profile.lastName === oktaUser.lastName
+    ) {
+      setNoChangeError(true); // if true, we'll let the customer know
+    } else {
+      return updateOktaUser(oktaPayload)
+        .then((response) => {
+          updateOktaUserState(response);
+          setFlashMessage('EDIT_OKTA_PROFILE_SUCCESS', 'success', "You've updated your Okta profile.");
+          navigate(customerRoutes.PROFILE_PATH);
+        })
+        .catch((e) => {
+          const { response } = e;
+          const errorMessage = getResponseError(response, 'Failed to update okta profile due to server error');
 
-        setServerError(errorMessage);
-      });
+          setServerError(errorMessage);
+        });
+    }
+    return Promise.resolve();
   };
 
   return (
     <GridContainer>
-      <NotificationScrollToTop dependency={serverError} />
+      <NotificationScrollToTop dependency={serverError || noChangeError} />
 
       {serverError && (
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
             <Alert type="error" headingLevel="h4" heading="An error occurred">
               {serverError}
+            </Alert>
+          </Grid>
+        </Grid>
+      )}
+      {noChangeError && (
+        <Grid row>
+          <Grid col desktop={{ col: 8, offset: 2 }}>
+            <Alert type="warning" headingLevel="h4" heading="No changes were made">
+              You must make some changes if you want to edit your Okta profile.
             </Alert>
           </Grid>
         </Grid>
