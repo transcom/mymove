@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"testing"
 
 	"github.com/transcom/mymove/pkg/factory"
 	oktaop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/okta_profile"
@@ -72,7 +71,8 @@ func stringPtr(s string) *string {
 	return &s
 }
 
-func (suite *HandlerSuite) TestUpdateOktaProfileHandler_Handle(t *testing.T) {
+func (suite *HandlerSuite) TestUpdateOktaProfileHandler() {
+	t := suite.T()
 	// Create a test server to emulate Okta's API
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Check the request method and path
@@ -121,11 +121,12 @@ func (suite *HandlerSuite) TestUpdateOktaProfileHandler_Handle(t *testing.T) {
 	req := httptest.NewRequest("POST", server.URL+"/okta-profile", bytes.NewReader(body))
 	req = suite.AuthenticateUserRequest(req, defaultUser)
 
-	params := oktaop.ShowOktaInfoParams{
-		HTTPRequest: req,
+	params := oktaop.UpdateOktaInfoParams{
+		HTTPRequest:               req,
+		UpdateOktaUserProfileData: &reqPayload,
 	}
 
-	handler := GetOktaProfileHandler{suite.HandlerConfig()}
+	handler := UpdateOktaProfileHandler{suite.HandlerConfig()}
 	response := handler.Handle(params)
 
 	// TODO figure out how to write this test correctly
