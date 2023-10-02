@@ -133,29 +133,47 @@ func (o *UpdateOktaInfoForbidden) WriteResponse(rw http.ResponseWriter, producer
 	rw.WriteHeader(403)
 }
 
-// UpdateOktaInfoNotFoundCode is the HTTP code returned for type UpdateOktaInfoNotFound
-const UpdateOktaInfoNotFoundCode int = 404
+// UpdateOktaInfoUnprocessableEntityCode is the HTTP code returned for type UpdateOktaInfoUnprocessableEntity
+const UpdateOktaInfoUnprocessableEntityCode int = 422
 
 /*
-UpdateOktaInfoNotFound service member not found
+UpdateOktaInfoUnprocessableEntity validation error
 
-swagger:response updateOktaInfoNotFound
+swagger:response updateOktaInfoUnprocessableEntity
 */
-type UpdateOktaInfoNotFound struct {
+type UpdateOktaInfoUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
 }
 
-// NewUpdateOktaInfoNotFound creates UpdateOktaInfoNotFound with default headers values
-func NewUpdateOktaInfoNotFound() *UpdateOktaInfoNotFound {
+// NewUpdateOktaInfoUnprocessableEntity creates UpdateOktaInfoUnprocessableEntity with default headers values
+func NewUpdateOktaInfoUnprocessableEntity() *UpdateOktaInfoUnprocessableEntity {
 
-	return &UpdateOktaInfoNotFound{}
+	return &UpdateOktaInfoUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the update okta info unprocessable entity response
+func (o *UpdateOktaInfoUnprocessableEntity) WithPayload(payload interface{}) *UpdateOktaInfoUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update okta info unprocessable entity response
+func (o *UpdateOktaInfoUnprocessableEntity) SetPayload(payload interface{}) {
+	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *UpdateOktaInfoNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *UpdateOktaInfoUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
-	rw.WriteHeader(404)
+	rw.WriteHeader(422)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
 }
 
 // UpdateOktaInfoInternalServerErrorCode is the HTTP code returned for type UpdateOktaInfoInternalServerError
