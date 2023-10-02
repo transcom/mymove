@@ -12,6 +12,10 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
+func stringPtr(s string) *string {
+	return &s
+}
+
 func (suite *HandlerSuite) TestGetOktaProfileHandler() {
 	t := suite.T()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -67,17 +71,13 @@ func (suite *HandlerSuite) TestGetOktaProfileHandler() {
 	suite.Assertions.IsType(nil, response)
 }
 
-func stringPtr(s string) *string {
-	return &s
-}
-
 func (suite *HandlerSuite) TestUpdateOktaProfileHandler() {
 	t := suite.T()
 	// Create a test server to emulate Okta's API
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Check the request method and path
-		if r.Method != http.MethodPost || r.URL.Path != "/v1/users" {
-			t.Errorf("Expected POST request to '/v1/users', but got %s request to %s", r.Method, r.URL.Path)
+		if r.Method != http.MethodPost || r.URL.Path != "/okta-profile" {
+			t.Errorf("Expected POST request to '/okta-profile', but got %s request to %s", r.Method, r.URL.Path)
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
@@ -111,7 +111,6 @@ func (suite *HandlerSuite) TestUpdateOktaProfileHandler() {
 			FirstName: "John",
 			LastName:  "Doe",
 			CacEdipi:  stringPtr("1234567890"),
-			Sub:       "notARealNumber",
 		},
 	}
 
