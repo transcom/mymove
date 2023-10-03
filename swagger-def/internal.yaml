@@ -5156,8 +5156,10 @@ paths:
           description: request requires user authentication
         '403':
           description: user is not authorized
-        '404':
-          description: service member not found
+        '422':
+          description: validation error
+          schema:
+            $ref: '#/responses/UnprocessableEntity'
         '500':
           description: internal server error
 responses:

@@ -50,7 +50,7 @@ export const EditOktaInfo = ({ serviceMember, setFlashMessage, oktaUser, updateO
     // checking to see if the values are the same to avoid unnecessary api call
     if (
       oktaPayload.profile.cac_edipi === oktaUser.cac_edipi &&
-      oktaPayload.profile.login === oktaUser.login &&
+      oktaPayload.profile.email === oktaUser.email &&
       oktaPayload.profile.firstName === oktaUser.firstName &&
       oktaPayload.profile.lastName === oktaUser.lastName
     ) {

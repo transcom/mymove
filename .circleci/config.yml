@@ -1247,7 +1247,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v2-spectral-lint-
+            - v3-spectral-lint-
       - run:
           name: Save Baseline Spectral Lint
           command: |
@@ -1306,7 +1306,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v2-spectral-lint-{{ .BuildNum }}
+                key: v3-spectral-lint-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/spectral
       - store_artifacts:
@@ -1457,7 +1457,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v6-server-tests-coverage-
+            - v7-server-tests-coverage-
       - run:
           name: Ensure Test Coverage Increasing
           command: |
@@ -1513,7 +1513,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v6-server-tests-coverage-{{ .BuildNum }}
+                key: v7-server-tests-coverage-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/tmp/baseline-go-coverage
                 when: always

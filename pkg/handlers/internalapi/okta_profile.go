@@ -79,6 +79,13 @@ func (h GetOktaProfileHandler) Handle(params oktaop.ShowOktaInfoParams) middlewa
 			resp, err := client.Do(req)
 			if err != nil {
 				appCtx.Logger().Error("could not execute request", zap.Error(err))
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			body, err := io.ReadAll(resp.Body)
+			if err != nil {
+				appCtx.Logger().Error("could not read response body", zap.Error(err))
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			if resp.StatusCode != http.StatusOK {
 				if resp.StatusCode == http.StatusInternalServerError {
@@ -92,16 +99,12 @@ func (h GetOktaProfileHandler) Handle(params oktaop.ShowOktaInfoParams) middlewa
 				}
 			}
 
-			body, err := io.ReadAll(resp.Body)
-			if err != nil {
-				appCtx.Logger().Error("could not read response body", zap.Error(err))
-			}
-
 			defer resp.Body.Close()
 
 			err = json.Unmarshal(body, &user)
 			if err != nil {
 				appCtx.Logger().Error("could not unmarshal body", zap.Error(err))
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			// the return value has to be of type OktaUserPayload
@@ -124,6 +127,16 @@ func (h GetOktaProfileHandler) Handle(params oktaop.ShowOktaInfoParams) middlewa
 // GetOktaProfileHandler gets Okta Profile via GET /okta-profile
 type UpdateOktaProfileHandler struct {
 	handlers.HandlerConfig
+}
+
+type ErrorResponse struct {
+	ErrorCode    string `json:"errorCode"`
+	ErrorSummary string `json:"errorSummary"`
+	ErrorLink    string `json:"errorLink"`
+	ErrorID      string `json:"errorId"`
+	ErrorCauses  []struct {
+		ErrorSummary string `json:"errorSummary"`
+	} `json:"errorCauses"`
 }
 
 // Handle implements okta_profile.UpdateOktaInfoHandler
@@ -166,32 +179,69 @@ func (h UpdateOktaProfileHandler) Handle(params oktaop.UpdateOktaInfoParams) mid
 			h.Add("Content-Type", "application/json")
 
 			client := &http.Client{}
+
 			resp, err := client.Do(req)
 			if err != nil {
 				appCtx.Logger().Error("could not execute request", zap.Error(err))
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
+
+			body, err = io.ReadAll(resp.Body)
+			if err != nil {
+				appCtx.Logger().Error("could not read response body", zap.Any("returned status", resp.Status))
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			defer resp.Body.Close()
+
+			// we are going to check for an okta error response
+			var response ErrorResponse
+			err = json.Unmarshal(body, &response)
+			if err != nil {
+				appCtx.Logger().Error("could not unmarshal body", zap.Error(err))
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+			// if there's an error code, we will see what the error will be and display it to the user
+			if response.ErrorCode != "" {
+				errorSummary := response.ErrorSummary
+				fieldError := strings.TrimSpace(strings.SplitN(errorSummary, "Api validation failed:", 2)[1])
+				// changing json fields to something more easier to read
+				switch fieldError {
+				case "cac_edipi":
+					fieldError = "Dod ID | EDIPI"
+				case "firstName":
+					fieldError = "Last Name"
+				case "lastName":
+					fieldError = "First Name"
+				case "email":
+					fieldError = "Email"
+				default:
+					fieldError = ""
+				}
+				// extracting the part of the response that we want
+				errorDescription := response.ErrorCauses[0].ErrorSummary
+				extractedDescription := strings.TrimSpace(strings.SplitN(errorDescription, ":", 2)[1])
+				errPayload := internalmessages.ValidationError{}
+				errPayload.Detail = handlers.FmtString(string(fieldError + ": " + extractedDescription))
+				return oktaop.NewUpdateOktaInfoUnprocessableEntity().WithPayload(errPayload), err
+			}
+
 			if resp.StatusCode != http.StatusOK {
 				if resp.StatusCode == http.StatusInternalServerError {
 					return oktaop.NewShowOktaInfoInternalServerError(), err
 				}
 				if resp.StatusCode == http.StatusBadRequest {
-					return oktaop.NewShowOktaInfoBadRequest(), err
+					return oktaop.NewUpdateOktaInfoBadRequest(), err
 				}
 				if resp.StatusCode == http.StatusForbidden {
 					return oktaop.NewShowOktaInfoForbidden(), err
 				}
 			}
 
-			body, err = io.ReadAll(resp.Body)
-			if err != nil {
-				appCtx.Logger().Error("could not read response body", zap.Any("returned status", resp.Status))
-			}
-
-			defer resp.Body.Close()
-
 			err = json.Unmarshal(body, &payload)
 			if err != nil {
 				appCtx.Logger().Error("could not unmarshal body", zap.Error(err))
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			// when calling Okta, we have to have the body wrapped in a JSON profile object

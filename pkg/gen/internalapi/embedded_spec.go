@@ -1942,8 +1942,11 @@ func init() {
           "403": {
             "description": "user is not authorized"
           },
-          "404": {
-            "description": "service member not found"
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/responses/UnprocessableEntity"
+            }
           },
           "500": {
             "description": "internal server error"
@@ -10519,8 +10522,14 @@ func init() {
           "403": {
             "description": "user is not authorized"
           },
-          "404": {
-            "description": "service member not found"
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "description": "The payload was unprocessable.",
+              "schema": {
+                "$ref": "#/definitions/ValidationError"
+              }
+            }
           },
           "500": {
             "description": "internal server error"
