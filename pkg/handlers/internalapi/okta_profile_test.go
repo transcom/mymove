@@ -16,6 +16,7 @@ func stringPtr(s string) *string {
 	return &s
 }
 
+// TODO figure out how to write this test correctly - gettin 403 forbidden response
 func (suite *HandlerSuite) TestGetOktaProfileHandler() {
 	t := suite.T()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -42,7 +43,7 @@ func (suite *HandlerSuite) TestGetOktaProfileHandler() {
 		}
 	}))
 	defer server.Close()
-	defaultUser := factory.BuildDefaultUser(suite.DB())
+	loggedInUser := factory.BuildServiceMember(suite.DB(), nil, nil)
 
 	// Given: A logged-in user
 	user := internalmessages.UpdateOktaUserProfileData{
@@ -57,8 +58,8 @@ func (suite *HandlerSuite) TestGetOktaProfileHandler() {
 	fmt.Print(user)
 
 	// Create a mock HTTP request to your API
-	req := httptest.NewRequest("GET", server.URL+"/okta-profile", nil)
-	req = suite.AuthenticateUserRequest(req, defaultUser)
+	req := httptest.NewRequest("GET", "/okta_profile", nil)
+	req = suite.AuthenticateRequest(req, loggedInUser)
 
 	params := oktaop.ShowOktaInfoParams{
 		HTTPRequest: req,
@@ -67,10 +68,10 @@ func (suite *HandlerSuite) TestGetOktaProfileHandler() {
 	handler := GetOktaProfileHandler{suite.HandlerConfig()}
 	response := handler.Handle(params)
 
-	// TODO figure out how to write this test correctly
 	suite.Assertions.IsType(nil, response)
 }
 
+// TODO figure out how to write this test correctly - gettin 403 forbidden response
 func (suite *HandlerSuite) TestUpdateOktaProfileHandler() {
 	t := suite.T()
 	// Create a test server to emulate Okta's API
