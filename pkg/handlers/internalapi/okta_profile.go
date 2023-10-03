@@ -130,7 +130,7 @@ type ErrorResponse struct {
 	ErrorCode    string `json:"errorCode"`
 	ErrorSummary string `json:"errorSummary"`
 	ErrorLink    string `json:"errorLink"`
-	ErrorId      string `json:"errorId"`
+	ErrorID      string `json:"errorId"`
 	ErrorCauses  []struct {
 		ErrorSummary string `json:"errorSummary"`
 	} `json:"errorCauses"`
@@ -191,7 +191,10 @@ func (h UpdateOktaProfileHandler) Handle(params oktaop.UpdateOktaInfoParams) mid
 
 			// we are going to check for an okta error response
 			var response ErrorResponse
-			json.Unmarshal(body, &response)
+			err = json.Unmarshal(body, &response)
+			if err != nil {
+				appCtx.Logger().Error("could not unmarshal body", zap.Error(err))
+			}
 			// if there's an error code, we will see what the error will be and display it to the user
 			if response.ErrorCode != "" {
 				errorSummary := response.ErrorSummary
