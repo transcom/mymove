@@ -7,43 +7,57 @@ import (
 	"net/http"
 	"net/http/httptest"
 
+	"github.com/jarcoal/httpmock"
+
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	oktaop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/okta_profile"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
 )
 
 func stringPtr(s string) *string {
 	return &s
 }
 
-// TODO figure out how to write this test correctly - gettin 403 forbidden response
-func (suite *HandlerSuite) TestGetOktaProfileHandler() {
-	t := suite.T()
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet || r.URL.Path != "/okta-profile" {
-			t.Errorf("Expected GET request to '/okta-profile', but got %s request to %s", r.Method, r.URL.Path)
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-		responseJSON := `{
+func mockGetOktaProfile(provider *okta.Provider, oktaUserID string) {
+
+	getUserURL := provider.GetUserURL(oktaUserID)
+
+	httpmock.RegisterResponder("GET", getUserURL,
+		httpmock.NewStringResponder(200, `{
 			"profile": {
-				"login": "testuser@okta.mil",
-				"email": "testuser@okta.mil",
+				"login": "testUser@okta.mil",
+				"email": "testUser@okta.mil",
 				"firstName": "Test",
 				"lastName": "User",
-				"cac_edipi": "1231231231",
+				"cac_edipi": "1234567890",
+				"sub": "fakeSubNumber",
 			}
-		}`
+		}`))
 
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		_, err := w.Write([]byte(responseJSON))
-		if err != nil {
-			t.Errorf("Error writing response: %v", err)
-		}
-	}))
-	defer server.Close()
+	httpmock.Activate()
+}
+
+// TODO figure out how to write this test correctly - gettin 403 forbidden response
+func (suite *HandlerSuite) TestGetOktaProfileHandler() {
+	// build a service member user
 	loggedInUser := factory.BuildServiceMember(suite.DB(), nil, nil)
+
+	// build a provider
+	provider, err := factory.BuildOktaProvider(okta.MilProviderName)
+	suite.NoError(err)
+
+	// session data cause we need the oktaID
+	session := auth.Session{
+		OktaSessionInfo: auth.OktaSessionInfo{
+			Sub: "fakeSubNumber",
+		},
+	}
+	oktaUserID := session.OktaSessionInfo.Sub
+
+	// mocking the okta response
+	mockGetOktaProfile(provider, oktaUserID)
 
 	// Given: A logged-in user
 	user := internalmessages.UpdateOktaUserProfileData{
@@ -68,6 +82,7 @@ func (suite *HandlerSuite) TestGetOktaProfileHandler() {
 	handler := GetOktaProfileHandler{suite.HandlerConfig()}
 	response := handler.Handle(params)
 
+	suite.CheckResponseBadRequest(response)
 	suite.Assertions.IsType(nil, response)
 }
 
