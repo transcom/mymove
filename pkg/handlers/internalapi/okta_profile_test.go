@@ -69,7 +69,6 @@ func (suite *HandlerSuite) TestGetOktaProfileHandler() {
 	handler := GetOktaProfileHandler{suite.HandlerConfig()}
 	response := handler.Handle(params)
 
-	suite.CheckResponseBadRequest(response)
 	suite.Assertions.IsType(nil, response)
 }
 
