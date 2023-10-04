@@ -3,7 +3,6 @@ package internalapi
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 
@@ -33,7 +32,7 @@ func mockGetOktaProfile(provider *okta.Provider, oktaUserID string) {
 				"lastName": "User",
 				"cac_edipi": "1234567890",
 				"sub": "fakeSubNumber",
-			}
+			},
 		}`))
 
 	httpmock.Activate()
@@ -48,7 +47,7 @@ func (suite *HandlerSuite) TestGetOktaProfileHandler() {
 	provider, err := factory.BuildOktaProvider(okta.MilProviderName)
 	suite.NoError(err)
 
-	// session data cause we need the oktaID
+	// session data cause we need the oktaID for the api url
 	session := auth.Session{
 		OktaSessionInfo: auth.OktaSessionInfo{
 			Sub: "fakeSubNumber",
@@ -58,18 +57,6 @@ func (suite *HandlerSuite) TestGetOktaProfileHandler() {
 
 	// mocking the okta response
 	mockGetOktaProfile(provider, oktaUserID)
-
-	// Given: A logged-in user
-	user := internalmessages.UpdateOktaUserProfileData{
-		Profile: &internalmessages.OktaUserProfileData{
-			Login:     "testuser@okta.com",
-			Email:     "testuser@okta.com",
-			FirstName: "John",
-			LastName:  "Doe",
-			CacEdipi:  stringPtr("1234567890"),
-		},
-	}
-	fmt.Print(user)
 
 	// Create a mock HTTP request to your API
 	req := httptest.NewRequest("GET", "/okta_profile", nil)
