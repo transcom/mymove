@@ -66,6 +66,8 @@ import { tooRoutes } from 'constants/routes';
 import EditSitAddressChangeForm from 'components/Office/ServiceItemUpdateModal/EditSitAddressChangeForm';
 import ReviewSitAddressChange from 'components/Office/ServiceItemUpdateModal/ReviewSitAddressChange';
 import { requiredAddressSchema } from 'utils/validation';
+import { formatDateForSwagger } from 'shared/dates';
+import EditSitEntryDateModal from 'components/Office/EditSitEntryDateModal/EditSitEntryDateModal';
 
 const nonShipmentSectionLabels = {
   'move-weights': 'Move weights',
@@ -102,6 +104,7 @@ export const MoveTaskOrder = (props) => {
   // SIT Address Updates
   const [isReviewRequestSITAddressModalVisible, setIsReviewRequestSITAddressModalVisible] = useState(false);
   const [isEditSitAddressModalVisible, setIsEditSitAddressModalVisible] = useState(false);
+  const [isEditSitEntryDateModalVisible, setIsEditSitEntryDateModalVisible] = useState(false);
   /* ------------------ Alerts ------------------------- */
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
@@ -283,6 +286,7 @@ export const MoveTaskOrder = (props) => {
   const { mutate: mutateSITExtensionApproval } = useMutation({
     mutationFn: approveSITExtension,
     onSuccess: (data, variables) => {
+      console.log('data', data);
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
@@ -311,6 +315,7 @@ export const MoveTaskOrder = (props) => {
   const { mutate: mutateSubmitSITExtension } = useMutation({
     mutationFn: submitSITExtension,
     onSuccess: (data, variables) => {
+      console.log('data', data);
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
@@ -402,6 +407,18 @@ export const MoveTaskOrder = (props) => {
     setIsEditSitAddressModalVisible(false);
   };
 
+  const handleShowEditSitEntryDateModal = (mtoServiceItemID, mtoShipmentID) => {
+    console.log('hello');
+    const serviceItem = shipmentServiceItems[`${mtoShipmentID}`]?.find((item) => item.id === mtoServiceItemID);
+    console.log(serviceItem);
+    setSelectedServiceItem(serviceItem);
+    setIsEditSitEntryDateModalVisible(true);
+  };
+
+  const handleCancelEditSitEntryDateModal = () => {
+    setIsEditSitEntryDateModalVisible(false);
+  };
+
   const handleShowCancellationModal = (mtoShipment) => {
     setSelectedShipment(mtoShipment);
     setIsCancelModalVisible(true);
@@ -481,6 +498,7 @@ export const MoveTaskOrder = (props) => {
     );
   };
   const handleReviewSITExtension = (sitExtensionID, formValues, shipment) => {
+    console.log('handleReviewSITExtension', formValues);
     if (formValues.acceptExtension === 'yes') {
       mutateSITExtensionApproval({
         shipmentID: shipment.id,
@@ -511,6 +529,8 @@ export const MoveTaskOrder = (props) => {
           requestReason: formValues.requestReason,
           officeRemarks: formValues.officeRemarks,
           approvedDays: parseInt(formValues.daysApproved, 10) - shipment.sitDaysAllowance,
+          sitEntryDate: formatDateForSwagger(formValues.sitEntryDate),
+          moveID: shipment.moveTaskOrderID,
         },
       },
       {
@@ -669,6 +689,7 @@ export const MoveTaskOrder = (props) => {
    * OnSuccess, it closes the modal and sets a success message.
    */
   const handleSubmitSitAddressChange = (mtoServiceItemID, { newAddress, officeRemarks }) => {
+    console.log(mtoServiceItemID, newAddress, officeRemarks);
     mutateSitAddressUpdate(
       {
         mtoServiceItemID,
@@ -747,6 +768,10 @@ export const MoveTaskOrder = (props) => {
         },
       );
     }
+  };
+
+  const handleSubmitSitEntryDateChange = (formValues) => {
+    console.log('formValues: ', formValues);
   };
 
   /*
@@ -1091,6 +1116,14 @@ export const MoveTaskOrder = (props) => {
               <EditSitAddressChangeForm initialAddress={getSitAddressInitialValues()} />
             </ConnectedServiceItemUpdateModal>
           )}
+          {isEditSitEntryDateModalVisible && (
+            <EditSitEntryDateModal
+              onClose={handleCancelEditSitEntryDateModal}
+              onSubmit={handleSubmitSitEntryDateChange}
+              isOpen={isEditSitEntryDateModalVisible}
+              serviceItem={selectedServiceItem}
+            />
+          )}
           <div className={styles.pageHeader}>
             <h1>Move task order</h1>
             <div className={styles.pageHeaderDetails}>
@@ -1194,6 +1227,7 @@ export const MoveTaskOrder = (props) => {
                     handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
                     handleShowRejectionDialog={handleShowRejectionDialog}
                     handleShowEditSitAddressModal={handleShowEditSitAddressModal}
+                    handleShowEditSitEntryDateModal={handleShowEditSitEntryDateModal}
                     statusForTableType={SERVICE_ITEM_STATUSES.SUBMITTED}
                     serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
                   />
@@ -1205,6 +1239,7 @@ export const MoveTaskOrder = (props) => {
                     handleShowRejectionDialog={handleShowRejectionDialog}
                     handleRequestSITAddressUpdateModal={handleReviewRequestSITAddressUpdateModal}
                     handleShowEditSitAddressModal={handleShowEditSitAddressModal}
+                    handleShowEditSitEntryDateModal={handleShowEditSitEntryDateModal}
                     statusForTableType={SERVICE_ITEM_STATUSES.APPROVED}
                     serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
                   />

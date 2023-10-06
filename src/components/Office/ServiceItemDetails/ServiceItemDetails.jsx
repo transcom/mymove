@@ -104,6 +104,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
           <dl>
             {generateDetailText(
               {
+                'SIT entry date': details.sitEntryDate ? formatDate(details.sitEntryDate, 'DD MMM YYYY') : '-',
                 ZIP: details.SITPostalCode ? details.SITPostalCode : '-',
                 Reason: details.reason ? details.reason : '-',
               },
