@@ -904,7 +904,7 @@ func init() {
           "200": {
             "description": "Successfully retrieved a line item for a move task order by ID",
             "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
+              "$ref": "#/definitions/MTOServiceItemSingle"
             }
           },
           "400": {
@@ -3545,6 +3545,70 @@ func init() {
           "format": "uuid",
           "description": "the evaluation report ID that has associated violations",
           "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/service-item/{mtoServiceItemID}/entry-date-update": {
+      "patch": {
+        "description": "Updates a service item's SIT entry date",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "Updates a service item's SIT entry date by ID",
+        "operationId": "updateServiceItemSitEntryDate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ServiceItemSitEntryDate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated SIT entry date",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItemSingle"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of the service item",
+          "name": "mtoServiceItemID",
           "in": "path",
           "required": true
         }
@@ -6307,6 +6371,97 @@ func init() {
         "$ref": "#/definitions/MTOServiceItemDimension"
       }
     },
+    "MTOServiceItemSingle": {
+      "type": "object",
+      "properties": {
+        "SITPostalCode": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "pickupPostalCode": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "reServiceCode": {
+          "type": "string"
+        },
+        "reServiceID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reServiceName": {
+          "type": "string"
+        },
+        "rejectedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "sitCustomerContacted": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitRequestedDelivery": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "status": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
     "MTOServiceItemStatus": {
       "description": "Describes all statuses for a MTOServiceItem",
       "type": "string",
@@ -8708,6 +8863,21 @@ func init() {
         "PaymentServiceItemUUID",
         "BOOLEAN"
       ]
+    },
+    "ServiceItemSitEntryDate": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        }
+      }
     },
     "ServiceRequestDocument": {
       "type": "object",
@@ -11132,7 +11302,7 @@ func init() {
           "200": {
             "description": "Successfully retrieved a line item for a move task order by ID",
             "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
+              "$ref": "#/definitions/MTOServiceItemSingle"
             }
           },
           "400": {
@@ -14459,6 +14629,91 @@ func init() {
         }
       ]
     },
+    "/service-item/{mtoServiceItemID}/entry-date-update": {
+      "patch": {
+        "description": "Updates a service item's SIT entry date",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "Updates a service item's SIT entry date by ID",
+        "operationId": "updateServiceItemSitEntryDate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ServiceItemSitEntryDate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated SIT entry date",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItemSingle"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of the service item",
+          "name": "mtoServiceItemID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/service-items/{mtoServiceItemID}/sit-address-update": {
       "post": {
         "description": "TOO can create an already-approved SIT Address Update on behalf of a customer",
@@ -17529,6 +17784,97 @@ func init() {
         "$ref": "#/definitions/MTOServiceItemDimension"
       }
     },
+    "MTOServiceItemSingle": {
+      "type": "object",
+      "properties": {
+        "SITPostalCode": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "pickupPostalCode": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "reServiceCode": {
+          "type": "string"
+        },
+        "reServiceID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reServiceName": {
+          "type": "string"
+        },
+        "rejectedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "sitCustomerContacted": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitRequestedDelivery": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "status": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
     "MTOServiceItemStatus": {
       "description": "Describes all statuses for a MTOServiceItem",
       "type": "string",
@@ -19975,6 +20321,21 @@ func init() {
         "PaymentServiceItemUUID",
         "BOOLEAN"
       ]
+    },
+    "ServiceItemSitEntryDate": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        }
+      }
     },
     "ServiceRequestDocument": {
       "type": "object",

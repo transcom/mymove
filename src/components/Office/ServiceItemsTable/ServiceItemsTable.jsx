@@ -80,6 +80,7 @@ const ServiceItemsTable = ({
               code={code}
               details={details}
               serviceRequestDocs={serviceRequestDocuments}
+              serviceItem={serviceItem}
             />
           </td>
           <td>

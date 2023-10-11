@@ -25,7 +25,6 @@ import { selectDateFieldByStatus } from 'utils/dates';
  */
 const ServiceItemDetail = ({ serviceItem }) => {
   const { id, code, details, status } = serviceItem;
-  console.log('service item', serviceItem);
 
   return (
     <table data-testid="sitAddressUpdateDetailTable" className={styles.serviceItemDetails}>

@@ -4,6 +4,7 @@ import { Formik, Field, useField } from 'formik';
 import PropTypes from 'prop-types';
 import { Button, Label, Textarea } from '@trussworks/react-uswds';
 import moment from 'moment';
+import * as Yup from 'yup';
 
 import styles from './EditSitEntryDateModal.module.scss';
 
@@ -12,7 +13,7 @@ import DataTable from 'components/DataTable/index';
 import { DatePickerInput } from 'components/form/fields';
 import { Form } from 'components/form';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
-import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
+import Modal, { ModalActions, ModalClose, ModalTitle, connectModal } from 'components/Modal/Modal';
 import { formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
 
 const SitEntryDateForm = ({ onChange }) => (
@@ -26,8 +27,8 @@ const DisabledSitEntryDateForm = () => (
  * @description This component contains the calendar pop outs and also sets the value when
  * the user changes the date in the proposed new SIT entry date change.
  */
-const SitStatusTables = () => {
-  // setting up these helpers in order to update the values of form when date is changed
+const SitDatePickers = () => {
+  // setting up a helper in order to update the values of form when the date is changed
   const entryDateHelper = useField({ name: 'sitEntryDate', id: 'sitEntryDate' })[2];
   const handleSitStartDateChange = (startDate) => {
     // Update form values
@@ -39,11 +40,7 @@ const SitStatusTables = () => {
       <DataTable
         columnHeaders={[`Original SIT entry date`, `New SIT entry date`]}
         dataRow={[
-          <DisabledSitEntryDateForm
-            onChange={(value) => {
-              handleSitStartDateChange(value);
-            }}
-          />,
+          <DisabledSitEntryDateForm />,
           <SitEntryDateForm
             onChange={(value) => {
               handleSitStartDateChange(value);
@@ -57,15 +54,21 @@ const SitStatusTables = () => {
 };
 
 /**
- * @description This component contains a form that can be viewed from the SIT
- * Display on the MTO page when the Prime submits a SIT Extension for review of
- * the TOO.
+ * @description This component contains a form that can be viewed from the MTO page
+ * when a user clicks "Edit" next to a service item that contains a SIT entry date
  */
 const EditSitEntryDateModal = ({ onClose, onSubmit, serviceItem }) => {
+  // setting initial values that requires some formatting for display requirements
   const initialValues = {
     sitEntryDate: formatDateForDatePicker(moment(serviceItem.sitEntryDate, swaggerDateFormat)),
     prevSitEntryDate: formatDateForDatePicker(moment(serviceItem.sitEntryDate, swaggerDateFormat)),
   };
+
+  // right now the office remarks are just for show
+  // TODO add change of SIT entry date to audit logs
+  const editSitEntryDateModalSchema = Yup.object().shape({
+    officeRemarks: Yup.string().required('Required'),
+  });
 
   return (
     <div>
@@ -77,7 +80,12 @@ const EditSitEntryDateModal = ({ onClose, onSubmit, serviceItem }) => {
             <h2>Edit SIT Entry Date</h2>
           </ModalTitle>
           <div>
-            <Formik onSubmit={(values) => onSubmit(values)} initialValues={initialValues}>
+            <Formik
+              onSubmit={(values) => onSubmit(serviceItem.id, values.sitEntryDate)}
+              initialValues={{ ...initialValues, officeRemarks: '' }}
+              validationSchema={editSitEntryDateModalSchema}
+              validateOnMount
+            >
               {({ isValid }) => {
                 return (
                   <Form>
@@ -85,7 +93,7 @@ const EditSitEntryDateModal = ({ onClose, onSubmit, serviceItem }) => {
                       className={classnames('maxw-tablet', styles.sitDisplayForm)}
                       testID="sitExtensions"
                     >
-                      <SitStatusTables serviceItem={serviceItem} />
+                      <SitDatePickers serviceItem={serviceItem} />
                     </DataTableWrapper>
                     <Label htmlFor="officeRemarks">Office remarks</Label>
                     <Field
@@ -124,4 +132,4 @@ EditSitEntryDateModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
 };
-export default EditSitEntryDateModal;
+export default connectModal(EditSitEntryDateModal);

@@ -47,6 +47,7 @@ import {
   createSitAddressUpdate,
   approveSitAddressUpdate,
   rejectSitAddressUpdate,
+  updateServiceItemSITEntryDate,
 } from 'services/ghcApi';
 import { MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -286,7 +287,6 @@ export const MoveTaskOrder = (props) => {
   const { mutate: mutateSITExtensionApproval } = useMutation({
     mutationFn: approveSITExtension,
     onSuccess: (data, variables) => {
-      console.log('data', data);
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
@@ -315,7 +315,6 @@ export const MoveTaskOrder = (props) => {
   const { mutate: mutateSubmitSITExtension } = useMutation({
     mutationFn: submitSITExtension,
     onSuccess: (data, variables) => {
-      console.log('data', data);
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
@@ -376,6 +375,27 @@ export const MoveTaskOrder = (props) => {
       milmoveLogger.error(errorMsg);
     },
   });
+
+  const { mutate: mutateServiceItemSitEntryDate } = useMutation({
+    mutationFn: updateServiceItemSITEntryDate,
+    onSuccess: (data) => {
+      // here we are updating the service item
+      const updatedServiceItems = [...mtoServiceItems];
+      updatedServiceItems[updatedServiceItems.findIndex((serviceItem) => serviceItem.id === data.id)] = data;
+      queryClient.setQueryData([MTO_SERVICE_ITEMS, move.id, false], updatedServiceItems);
+      queryClient.invalidateQueries({ queryKey: [MTO_SERVICE_ITEMS, move.id, false] });
+
+      // here we are updating the shipment (focusing on the currentSit object)
+      const updatedMTOShipment = data;
+      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === data.mtoShipmentID)] = updatedMTOShipment;
+      queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID] });
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLogger.error(errorMsg);
+    },
+  });
   /*
     *
     -------------------------  Toggle Modals  -------------------------
@@ -408,9 +428,7 @@ export const MoveTaskOrder = (props) => {
   };
 
   const handleShowEditSitEntryDateModal = (mtoServiceItemID, mtoShipmentID) => {
-    console.log('hello');
     const serviceItem = shipmentServiceItems[`${mtoShipmentID}`]?.find((item) => item.id === mtoServiceItemID);
-    console.log(serviceItem);
     setSelectedServiceItem(serviceItem);
     setIsEditSitEntryDateModalVisible(true);
   };
@@ -498,7 +516,6 @@ export const MoveTaskOrder = (props) => {
     );
   };
   const handleReviewSITExtension = (sitExtensionID, formValues, shipment) => {
-    console.log('handleReviewSITExtension', formValues);
     if (formValues.acceptExtension === 'yes') {
       mutateSITExtensionApproval({
         shipmentID: shipment.id,
@@ -689,7 +706,6 @@ export const MoveTaskOrder = (props) => {
    * OnSuccess, it closes the modal and sets a success message.
    */
   const handleSubmitSitAddressChange = (mtoServiceItemID, { newAddress, officeRemarks }) => {
-    console.log(mtoServiceItemID, newAddress, officeRemarks);
     mutateSitAddressUpdate(
       {
         mtoServiceItemID,
@@ -770,8 +786,28 @@ export const MoveTaskOrder = (props) => {
     }
   };
 
-  const handleSubmitSitEntryDateChange = (formValues) => {
-    console.log('formValues: ', formValues);
+  /**
+   * @function
+   * @param {string} mtoServiceItemID
+   * @param {Date} newSitEntryDate
+   * @description Updates the selected SIT entry date
+   * OnSuccess, it closes the modal and sets a success message.
+   */
+  const handleSubmitSitEntryDateChange = (mtoServiceItemID, newSitEntryDate) => {
+    mutateServiceItemSitEntryDate(
+      {
+        mtoServiceItemID,
+        body: { ID: mtoServiceItemID, SitEntryDate: newSitEntryDate },
+      },
+      {
+        onSuccess: () => {
+          setSelectedServiceItem({});
+          setIsEditSitEntryDateModalVisible(false);
+          setAlertMessage('SIT entry date updated');
+          setAlertType('success');
+        },
+      },
+    );
   };
 
   /*
