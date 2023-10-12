@@ -111,7 +111,7 @@ func (h UpdateServiceItemSitEntryDateHandler) Handle(params mtoserviceitemop.Upd
 					h.GetTraceIDFromRequest(params.HTTPRequest),
 					validate.NewErrors())
 
-				return mtoserviceitemop.NewUpdateMTOServiceItemStatusUnprocessableEntity().WithPayload(payload), err
+				return mtoserviceitemop.NewUpdateServiceItemSitEntryDateUnprocessableEntity().WithPayload(payload), err
 			}
 			sitEntryDateModel := models.SITEntryDateUpdate{
 				ID:           mtoServiceItemID,
@@ -127,7 +127,7 @@ func (h UpdateServiceItemSitEntryDateHandler) Handle(params mtoserviceitemop.Upd
 					h.GetTraceIDFromRequest(params.HTTPRequest),
 					validate.NewErrors())
 
-				return mtoserviceitemop.NewUpdateMTOServiceItemStatusUnprocessableEntity().WithPayload(payload), err
+				return mtoserviceitemop.NewUpdateServiceItemSitEntryDateUnprocessableEntity().WithPayload(payload), err
 			}
 			payload := payloads.MTOServiceItemSingleModel(serviceItem)
 

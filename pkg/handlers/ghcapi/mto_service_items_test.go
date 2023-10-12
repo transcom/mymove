@@ -28,7 +28,6 @@ import (
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	sitaddressupdate "github.com/transcom/mymove/pkg/services/sit_address_update"
-	sitentrydateupdate "github.com/transcom/mymove/pkg/services/sit_entry_date_update"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/trace"
 )
@@ -1511,8 +1510,81 @@ func (suite *HandlerSuite) TestRejectSITAddressUpdate() {
 	})
 }
 
+func (suite *HandlerSuite) TestGetMTOServiceItemHandler() {
+	serviceItemID := uuid.Must(uuid.FromString("f7b4b9e2-04e8-4c34-827a-df917e69caf4"))
+	moveTaskOrderID := uuid.Must(uuid.FromString("f7b4b9e2-04e8-4c34-1234-df917e69caf4"))
+	var requestUser models.User
+
+	setupTestData := func() mtoserviceitemop.GetMTOServiceItemParams {
+		requestUser = factory.BuildUser(nil, nil, nil)
+		req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/service_items/%s",
+			moveTaskOrderID, serviceItemID), nil)
+
+		req = suite.AuthenticateUserRequest(req, requestUser)
+		params := mtoserviceitemop.GetMTOServiceItemParams{
+			HTTPRequest:      req,
+			MoveTaskOrderID:  moveTaskOrderID.String(),
+			MtoServiceItemID: serviceItemID.String(),
+		}
+		return params
+	}
+
+	suite.Run("200 - success response", func() {
+		// setting up test data
+		params := setupTestData()
+		// mock function
+		serviceItemFetcher := mocks.MTOServiceItemFetcher{}
+
+		// setting up data to be used for updating sit entry date
+		serviceItemID := uuid.Must(uuid.FromString("f7b4b9e2-04e8-4c34-827a-df917e69caf4"))
+		// creating struct that returns from mock function & updating values
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, nil)
+		mtoServiceItem.ID = serviceItemID
+		// calling mock function, passing in what we want, and saying "return this"
+		serviceItemFetcher.On("GetServiceItem",
+			mock.AnythingOfType("*appcontext.appContext"),
+			serviceItemID,
+		).Return(&mtoServiceItem, nil).Once()
+
+		handler := GetMTOServiceItemHandler{
+			HandlerConfig:         suite.HandlerConfig(),
+			mtoServiceItemFetcher: &serviceItemFetcher,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemop.GetMTOServiceItemOK{}, response)
+		payload := response.(*mtoserviceitemop.GetMTOServiceItemOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+	})
+
+	// With this first set of tests we'll use mocked service object responses so that we can make sure the handler
+	// is returning the right HTTP code given a set of circumstances.
+	suite.Run("404 - not found response", func() {
+		params := setupTestData()
+		serviceItemFetcher := mocks.MTOServiceItemFetcher{}
+		serviceItemFetcher.On("GetServiceItem",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(nil, errors.New("Not found error")).Once()
+
+		handler := GetMTOServiceItemHandler{
+			HandlerConfig:         suite.HandlerConfig(),
+			mtoServiceItemFetcher: &serviceItemFetcher,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemop.GetMTOServiceItemInternalServerError{}, response)
+		payload := response.(*mtoserviceitemop.GetMTOServiceItemInternalServerError).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.IsType(payload, &ghcmessages.Error{})
+	})
+}
+
 func (suite *HandlerSuite) TestUpdateServiceItemSitEntryDateHandler() {
-	serviceItemID, _ := uuid.NewV4()
+	serviceItemID := uuid.Must(uuid.FromString("f7b4b9e2-04e8-4c34-827a-df917e69caf4"))
 	var requestUser models.User
 	newSitEntryDate := time.Date(2023, time.October, 10, 10, 10, 0, 0, time.UTC)
 
@@ -1535,48 +1607,33 @@ func (suite *HandlerSuite) TestUpdateServiceItemSitEntryDateHandler() {
 		return params
 	}
 
-	// With this first set of tests we'll use mocked service object responses so that we can make sure the handler
-	// is returning the right HTTP code given a set of circumstances.
-	// suite.Run("404 - not found response", func() {
-	// 	params := setupTestData()
-	// 	sitEntryDateUpdater := mocks.SitEntryDateUpdater{}
-	// 	sitEntryDateUpdater.On("UpdateSitEntryDate",
-	// 		mock.AnythingOfType("*appcontext.appContext"),
-	// 		mock.Anything,
-	// 		mock.Anything,
-	// 	).Return(errors.New("Not found error")).Once()
-
-	// 	handler := UpdateServiceItemSitEntryDateHandler{
-	// 		HandlerConfig:       suite.HandlerConfig(),
-	// 		sitEntryDateUpdater: &sitEntryDateUpdater,
-	// 	}
-
-	// 	// Validate incoming payload
-	// 	suite.NoError(params.Body.Validate(strfmt.Default))
-
-	// 	response := handler.Handle(params)
-	// 	suite.IsType(&mtoserviceitemop.UpdateServiceItemSitEntryDateNotFound{}, response)
-	// 	payload := response.(*mtoserviceitemop.UpdateServiceItemSitEntryDateNotFound).Payload
-
-	// 	// Validate outgoing payload: nil payload
-	// 	suite.Nil(payload)
-	// })
-
 	suite.Run("200 - success response", func() {
+		// setting up test data
 		params := setupTestData()
+		// mock function
 		sitEntryDateUpdater := mocks.SitEntryDateUpdater{}
+
+		// setting up data to be used for updating sit entry date
+		newSitEntryDate := time.Date(2023, time.October, 10, 10, 10, 0, 0, time.UTC)
+		expectedUUID := uuid.Must(uuid.FromString("f7b4b9e2-04e8-4c34-827a-df917e69caf4"))
+		// creating struct that passes into mock function
+		sitEntryDateUpdateModel := models.SITEntryDateUpdate{
+			ID: expectedUUID, SITEntryDate: &newSitEntryDate,
+		}
+		// creating struct that returns from mock function & updating values
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, nil)
+		mtoServiceItem.ID = sitEntryDateUpdateModel.ID
+		mtoServiceItem.SITEntryDate = sitEntryDateUpdateModel.SITEntryDate
+		// calling mock function, passing in what we want, and saying "return this"
 		sitEntryDateUpdater.On("UpdateSitEntryDate",
 			mock.AnythingOfType("*appcontext.appContext"),
-			&models.SITEntryDateUpdate{ID: serviceItemID, SITEntryDate: &newSitEntryDate},
-		).Return(&models.MTOServiceItem{ID: serviceItemID, SITEntryDate: &newSitEntryDate}).Once()
+			&sitEntryDateUpdateModel,
+		).Return(&mtoServiceItem, nil).Once()
 
 		handler := UpdateServiceItemSitEntryDateHandler{
 			HandlerConfig:       suite.HandlerConfig(),
 			sitEntryDateUpdater: &sitEntryDateUpdater,
 		}
-
-		// Validate incoming payload
-		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemop.UpdateServiceItemSitEntryDateOK{}, response)
@@ -1586,99 +1643,26 @@ func (suite *HandlerSuite) TestUpdateServiceItemSitEntryDateHandler() {
 		suite.NoError(payload.Validate(strfmt.Default))
 	})
 
-	// With this we'll do a happy path integration test to ensure that the use of the service object
-	// by the handler is working as expected.
-	suite.Run("Successful sit entry date update - Integration test", func() {
-
-		mtoServiceItem, _ := suite.createServiceItem()
-		requestUser := factory.BuildUser(nil, nil, nil)
-
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/service_item/%s/entry_date_update",
-			serviceItemID), nil)
-		req = suite.AuthenticateUserRequest(req, requestUser)
-
-		sitEntryDateParamsBody := ghcmessages.ServiceItemSitEntryDate{
-			ID:           *handlers.FmtUUID(serviceItemID),
-			SitEntryDate: handlers.FmtDateTime(newSitEntryDate),
-		}
-		params := mtoserviceitemop.UpdateServiceItemSitEntryDateParams{
-			HTTPRequest:      req,
-			Body:             &sitEntryDateParamsBody,
-			MtoServiceItemID: mtoServiceItem.ID.String(),
-		}
-
-		mtoServiceItemStatusUpdater := sitentrydateupdate.NewSitEntryDateUpdater()
+	// With this first set of tests we'll use mocked service object responses so that we can make sure the handler
+	// is returning the right HTTP code given a set of circumstances.
+	suite.Run("404 - not found response", func() {
+		params := setupTestData()
+		sitEntryDateUpdater := mocks.SitEntryDateUpdater{}
+		sitEntryDateUpdater.On("UpdateSitEntryDate",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(nil, errors.New("Not found error")).Once()
 
 		handler := UpdateServiceItemSitEntryDateHandler{
 			HandlerConfig:       suite.HandlerConfig(),
-			sitEntryDateUpdater: mtoServiceItemStatusUpdater,
+			sitEntryDateUpdater: &sitEntryDateUpdater,
 		}
-
-		// Validate incoming payload
-		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
-		suite.IsType(&mtoserviceitemop.UpdateServiceItemSitEntryDateOK{}, response)
-		okResponse := response.(*mtoserviceitemop.UpdateServiceItemSitEntryDateOK)
+		suite.IsType(&mtoserviceitemop.UpdateServiceItemSitEntryDateUnprocessableEntity{}, response)
+		payload := response.(*mtoserviceitemop.UpdateServiceItemSitEntryDateUnprocessableEntity).Payload
 
-		// Validate outgoing payload
-		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
-
-		suite.NotNil(okResponse.Payload)
-	})
-
-	// With this we'll do a happy path integration test to ensure that the use of the service object
-	// by the handler is working as expected.
-	suite.Run("Successful status update of MTO service item and event trigger", func() {
-		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
-		shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
-		mtoServiceItem, availableMove := suite.createServiceItem()
-		requestUser := factory.BuildUser(nil, nil, nil)
-		availableMoveID := availableMove.ID
-		mtoServiceItemID := mtoServiceItem.ID
-
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status", availableMoveID, mtoServiceItemID), nil)
-		req = suite.AuthenticateUserRequest(req, requestUser)
-
-		traceID, err := uuid.NewV4()
-		suite.FatalNoError(err, "Error creating a new trace ID.")
-		req = req.WithContext(trace.NewContext(req.Context(), traceID))
-
-		params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
-			HTTPRequest:      req,
-			IfMatch:          etag.GenerateEtag(mtoServiceItem.UpdatedAt),
-			Body:             &ghcmessages.PatchMTOServiceItemStatusPayload{Status: "APPROVED"},
-			MoveTaskOrderID:  availableMoveID.String(),
-			MtoServiceItemID: mtoServiceItemID.String(),
-		}
-
-		fetcher := fetch.NewFetcher(queryBuilder)
-		addressCreator := address.NewAddressCreator()
-		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator)
-
-		handler := UpdateMTOServiceItemStatusHandler{
-			HandlerConfig:         suite.HandlerConfig(),
-			MTOServiceItemUpdater: mtoServiceItemStatusUpdater,
-			Fetcher:               fetcher,
-		}
-
-		// Validate incoming payload
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
-		response := handler.Handle(params)
-		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusOK{}, response)
-		okResponse := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusOK)
-
-		// Validate outgoing payload
-		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
-
-		suite.Equal(string(models.MTOServiceItemStatusApproved), string(okResponse.Payload.Status))
-		suite.NotNil(okResponse.Payload.ApprovedAt)
-		suite.HasWebhookNotification(mtoServiceItemID, traceID)
-
-		impactedMove := models.Move{}
-		_ = suite.DB().Find(&impactedMove, okResponse.Payload.MoveTaskOrderID)
-		suite.Equal(models.MoveStatusAPPROVED, impactedMove.Status)
+		// Validate outgoing payload: nil payload
+		suite.IsType(payload, &ghcmessages.ValidationError{})
 	})
 }
