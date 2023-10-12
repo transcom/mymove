@@ -1,8 +1,7 @@
 @import 'shared/styles/colors.scss';
 @import 'shared/styles/basics';
 
-.ReviewSITExtensionModal {
-  overflow-y: auto;
+.UpdateSitEntryDateModal {
   max-height: 90vh;
   max-width: 700px;
 
@@ -195,8 +194,4 @@ p.sitHeader {
     font-weight: 400;
     color: $base-darker;
   }
-}
-
-input.approvedDaysInput {
-  max-width: 108px !important;
 }

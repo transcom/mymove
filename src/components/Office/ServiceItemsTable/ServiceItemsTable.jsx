@@ -147,7 +147,7 @@ const ServiceItemsTable = ({
                           data-testid="editTextButton"
                           className="text-blue usa-button--unstyled margin-left-1"
                           onClick={() => {
-                            if (code === 'DOPSIT' || code === 'DDFSIT') {
+                            if (code === 'DDFSIT' || code === 'DOFSIT') {
                               handleShowEditSitEntryDateModal(id, mtoShipmentID);
                             } else {
                               handleShowEditSitAddressModal(id, mtoShipmentID);

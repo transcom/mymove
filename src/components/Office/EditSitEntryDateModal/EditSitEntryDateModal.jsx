@@ -13,7 +13,7 @@ import DataTable from 'components/DataTable/index';
 import { DatePickerInput } from 'components/form/fields';
 import { Form } from 'components/form';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
-import Modal, { ModalActions, ModalClose, ModalTitle, connectModal } from 'components/Modal/Modal';
+import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import { formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
 
 const SitEntryDateForm = ({ onChange }) => (
@@ -62,10 +62,10 @@ const EditSitEntryDateModal = ({ onClose, onSubmit, serviceItem }) => {
   const initialValues = {
     sitEntryDate: formatDateForDatePicker(moment(serviceItem.sitEntryDate, swaggerDateFormat)),
     prevSitEntryDate: formatDateForDatePicker(moment(serviceItem.sitEntryDate, swaggerDateFormat)),
+    officeRemarks: '',
   };
-
   // right now the office remarks are just for show
-  // TODO add change of SIT entry date to audit logs
+  // TODO add change of SIT entry date to audit logs? Could be an enhancement
   const editSitEntryDateModalSchema = Yup.object().shape({
     officeRemarks: Yup.string().required('Required'),
   });
@@ -74,7 +74,7 @@ const EditSitEntryDateModal = ({ onClose, onSubmit, serviceItem }) => {
     <div>
       <Overlay />
       <ModalContainer>
-        <Modal className={styles.ReviewSITExtensionModal}>
+        <Modal className={styles.UpdateSitEntryDateModal}>
           <ModalClose handleClick={() => onClose()} />
           <ModalTitle>
             <h2>Edit SIT Entry Date</h2>
@@ -84,7 +84,6 @@ const EditSitEntryDateModal = ({ onClose, onSubmit, serviceItem }) => {
               onSubmit={(values) => onSubmit(serviceItem.id, values.sitEntryDate)}
               initialValues={{ ...initialValues, officeRemarks: '' }}
               validationSchema={editSitEntryDateModalSchema}
-              validateOnMount
             >
               {({ isValid }) => {
                 return (
@@ -132,4 +131,4 @@ EditSitEntryDateModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
 };
-export default connectModal(EditSitEntryDateModal);
+export default EditSitEntryDateModal;
