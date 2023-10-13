@@ -16,6 +16,7 @@ import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal'
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import { formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
 
+// datepickers that show the SIT entry dates - the previous one will be disabled
 const SitEntryDateForm = ({ onChange }) => (
   <DatePickerInput name="sitEntryDate" label="" id="sitEntryDate" onChange={onChange} />
 );
@@ -55,7 +56,8 @@ const SitDatePickers = () => {
 
 /**
  * @description This component contains a form that can be viewed from the MTO page
- * when a user clicks "Edit" next to a service item that contains a SIT entry date
+ * when a user clicks "Edit" next service items that are either
+ * 1st day origin SIT || 1st day destination SIT
  */
 const EditSitEntryDateModal = ({ onClose, onSubmit, serviceItem }) => {
   // setting initial values that requires some formatting for display requirements
@@ -66,6 +68,7 @@ const EditSitEntryDateModal = ({ onClose, onSubmit, serviceItem }) => {
   };
   // right now the office remarks are just for show
   // TODO add change of SIT entry date to audit logs? Could be an enhancement
+  // TODO I'm going to leave this here just in case
   const editSitEntryDateModalSchema = Yup.object().shape({
     officeRemarks: Yup.string().required('Required'),
   });
