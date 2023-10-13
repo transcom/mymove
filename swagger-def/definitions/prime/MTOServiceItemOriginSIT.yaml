@@ -31,6 +31,8 @@ allOf:
         $ref: '../Address.yaml'
       sitHHGOriginalOrigin:
         $ref: '../Address.yaml'
+      # requestApprovalsRequestedStatus:
+      #   type: boolean
     required:
       - reServiceCode
       - reason

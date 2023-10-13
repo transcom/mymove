@@ -53,6 +53,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
+		// requestApprovalRequestedStatus := false
 
 		// Customer gets new pickup address for SIT Origin Pickup (DOPSIT) which gets added when
 		// creating DOFSIT (SIT origin first day).
@@ -70,6 +71,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			SITEntryDate:              &sitEntryDate,
 			SITPostalCode:             &sitPostalCode,
 			SITOriginHHGActualAddress: &actualPickupAddress,
+			// RequestedApprovalsRequestedStatus: &requestApprovalRequestedStatus,
 		}
 
 		subtestData.params = mtoserviceitemops.CreateMTOServiceItemParams{

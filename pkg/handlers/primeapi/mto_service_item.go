@@ -158,6 +158,11 @@ func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOSe
 				}
 			}
 
+			// If MTO SIT Service Item is updated then the item status changes to SUBMITTED
+			if updatedMTOServiceItem.ReService.Code == models.ReServiceCodeDOFSIT {
+				updatedMTOServiceItem.Status = models.MTOServiceItemStatusSubmitted
+			}
+
 			return mtoserviceitemops.NewUpdateMTOServiceItemOK().WithPayload(payloads.MTOServiceItem(updatedMTOServiceItem)), nil
 		})
 }

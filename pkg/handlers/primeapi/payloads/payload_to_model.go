@@ -561,9 +561,27 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 		model.SITDepartureDate = models.TimePointer(time.Time(sit.SitDepartureDate))
 		model.ReService.Code = models.ReServiceCode(sit.ReServiceCode)
 		model.SITDestinationFinalAddress = AddressModel(sit.SitDestinationFinalAddress)
+		model.SITRequestedDelivery = (*time.Time)(sit.SitRequestedDelivery)
+		model.Status = models.MTOServiceItemStatusSubmitted
+		model.Reason = sit.UpdateReason
+
+		if sit.SitEntryDate != nil {
+			model.SITEntryDate = (*time.Time)(sit.SitEntryDate)
+		}
+
+		if sit.SitPostalCode != nil {
+			newPostalCode := sit.SitPostalCode
+			model.SITPostalCode = newPostalCode
+		}
+
 		if model.SITDestinationFinalAddress != nil {
 			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
 		}
+
+		// if *sit.RequestApprovalsRequestedStatus == true || *sit.RequestApprovalsRequestedStatus == false {
+		// 	pointerValue := *sit.RequestApprovalsRequestedStatus
+		// 	model.RequestedApprovalsRequestedStatus = &pointerValue
+		// }
 
 		if sit.ReServiceCode == string(models.ReServiceCodeDDDSIT) ||
 			sit.ReServiceCode == string(models.ReServiceCodeDDASIT) ||

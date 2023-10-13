@@ -6023,6 +6023,10 @@ definitions:
         x-nullable: true
       eTag:
         type: string
+      updateReason:
+        type: string
+        description: Reason for updating service item.
+        x-nullable: true
       serviceRequestDocuments:
         $ref: '#/definitions/ServiceRequestDocuments'
   MTOServiceItems:

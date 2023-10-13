@@ -70,7 +70,7 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 	}
 
 	// Checks that none of the fields that the Prime cannot update have been changed
-	err = serviceItemData.checkNonPrimeFields(appCtx)
+	err = serviceItemData.checkNonPrimeFields(appCtx, *serviceItemData)
 	if err != nil {
 		return err
 	}
@@ -117,6 +117,12 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 		return err
 	}
 
+	// Checks that the Old MTO SIT Service Item has a REJECTED status. If not the update req is rejected
+	err = serviceItemData.checkOldServiceItemStatus(appCtx, serviceItemData)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -143,6 +149,20 @@ func (v *updateMTOServiceItemData) checkLinkedIDs(_ appcontext.AppContext) error
 	return nil
 }
 
+// checkOldServiceItemStatus checks that the old service item has a REJECTED status
+func (v *updateMTOServiceItemData) checkOldServiceItemStatus(_ appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error {
+	// Rejects the update if the original SIT does not have a REJECTED status
+	if serviceItemData.oldServiceItem.Status != models.MTOServiceItemStatusRejected && serviceItemData.oldServiceItem.ReService.Code == models.ReServiceCodeDOFSIT {
+		return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
+			"- this SIT service item cannot be updated because the status is not in an editable state.")
+	}
+
+	// If not rejected, set updatedServiceItem status to submitted
+	serviceItemData.updatedServiceItem.Status = models.MTOServiceItemStatusSubmitted
+
+	return nil
+}
+
 // checkPrimeAvailability checks that the service item is connected to a Prime-available move
 func (v *updateMTOServiceItemData) checkPrimeAvailability(appCtx appcontext.AppContext) error {
 	isAvailable, err := v.availabilityChecker.MTOAvailableToPrime(appCtx, v.oldServiceItem.MoveTaskOrderID)
@@ -155,8 +175,9 @@ func (v *updateMTOServiceItemData) checkPrimeAvailability(appCtx appcontext.AppC
 }
 
 // checkNonPrimeFields checks that no fields were modified that are not allowed to be updated by the Prime
-func (v *updateMTOServiceItemData) checkNonPrimeFields(_ appcontext.AppContext) error {
-	if v.updatedServiceItem.Status != "" && v.updatedServiceItem.Status != v.oldServiceItem.Status {
+func (v *updateMTOServiceItemData) checkNonPrimeFields(_ appcontext.AppContext, serviceItemData updateMTOServiceItemData) error {
+
+	if v.updatedServiceItem.Status != "" && v.updatedServiceItem.Status != v.oldServiceItem.Status && serviceItemData.oldServiceItem.ReService.Code != models.ReServiceCodeDOFSIT {
 		v.verrs.Add("status", "cannot be updated")
 	}
 
@@ -182,12 +203,12 @@ func (v *updateMTOServiceItemData) checkSITDeparture(_ appcontext.AppContext) er
 		return nil // the SITDepartureDate isn't being updated, so we're fine here
 	}
 
-	if v.oldServiceItem.ReService.Code == models.ReServiceCodeDDDSIT || v.oldServiceItem.ReService.Code == models.ReServiceCodeDOPSIT {
-		return nil // the service item is a SIT departure service, so we're fine
+	if v.oldServiceItem.ReService.Code == models.ReServiceCodeDDDSIT || v.oldServiceItem.ReService.Code == models.ReServiceCodeDOPSIT || v.oldServiceItem.ReService.Code == models.ReServiceCodeDOFSIT {
+		return nil // the service item is a SIT departure service or SIT Domestic origin 1st day SIT , so we're fine
 	}
 
 	return apperror.NewConflictError(v.updatedServiceItem.ID,
-		fmt.Sprintf("- SIT Departure Date may only be manually updated for %s and %s service items.", models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT))
+		fmt.Sprintf("- SIT Departure Date may only be manually updated for %s, %s, and %s service items.", models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT))
 }
 
 // checkSITDestinationOriginalAddress checks that SITDestinationOriginalAddress isn't being changed
@@ -272,6 +293,11 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 		newMTOServiceItem.Status = v.updatedServiceItem.Status
 	}
 
+	// If the updated RequestedApprovalsRequestedStatus param is not null/nil then update the new serviceItem
+	// if *v.updatedServiceItem.RequestedApprovalsRequestedStatus == true || *v.updatedServiceItem.RequestedApprovalsRequestedStatus == false {
+	// 	newMTOServiceItem.RequestedApprovalsRequestedStatus = v.updatedServiceItem.RequestedApprovalsRequestedStatus
+	// }
+
 	// Set string fields:
 	newMTOServiceItem.Reason = services.SetOptionalStringField(v.updatedServiceItem.Reason, newMTOServiceItem.Reason)
 
@@ -280,6 +306,11 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 
 	newMTOServiceItem.RejectionReason = services.SetOptionalStringField(
 		v.updatedServiceItem.RejectionReason, newMTOServiceItem.RejectionReason)
+
+	if v.updatedServiceItem.SITPostalCode != nil {
+		newMTOServiceItem.SITPostalCode = services.SetOptionalStringField(
+			v.updatedServiceItem.SITPostalCode, newMTOServiceItem.SITPostalCode)
+	}
 
 	newMTOServiceItem.SITPostalCode = services.SetOptionalStringField(
 		v.updatedServiceItem.SITPostalCode, newMTOServiceItem.SITPostalCode)
@@ -292,6 +323,11 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 	newMTOServiceItem.ApprovedAt = services.SetOptionalDateTimeField(v.updatedServiceItem.ApprovedAt, newMTOServiceItem.ApprovedAt)
 
 	newMTOServiceItem.RejectedAt = services.SetOptionalDateTimeField(v.updatedServiceItem.RejectedAt, newMTOServiceItem.RejectedAt)
+
+	if v.updatedServiceItem.SITEntryDate != nil {
+		newMTOServiceItem.SITEntryDate = services.SetOptionalDateTimeField(
+			v.updatedServiceItem.SITEntryDate, newMTOServiceItem.SITEntryDate)
+	}
 
 	newMTOServiceItem.SITEntryDate = services.SetOptionalDateTimeField(
 		v.updatedServiceItem.SITEntryDate, newMTOServiceItem.SITEntryDate)

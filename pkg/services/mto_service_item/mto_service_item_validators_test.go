@@ -125,7 +125,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkNonPrimeFields(suite.AppContextForTest())
+		err := serviceItemData.checkNonPrimeFields(suite.AppContextForTest(), serviceItemData)
 
 		suite.NoError(err)
 		suite.NoVerrs(serviceItemData.verrs)
@@ -146,7 +146,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkNonPrimeFields(suite.AppContextForTest())
+		err := serviceItemData.checkNonPrimeFields(suite.AppContextForTest(), serviceItemData)
 
 		suite.NoError(err)
 		suite.True(serviceItemData.verrs.HasAny())
@@ -202,22 +202,22 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	// Test unsuccessful check for SIT departure service item - not a departure SIT item
 	suite.Run("checkSITDeparture w/ non-departure SIT - failure", func() {
 		// Under test:  checkSITDeparture checks that the service item is a
-		//			    DDDSIT or DOPSIT if the user is trying to update the
+		//			    DDDSIT, DOPSIT, or DOFSIT if the user is trying to update the
 		// 			    SITDepartureDate
 		// Set up:      Create any non DDDSIT service item
 		// Expected outcome: Conflict Error
-		oldDOFSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
+		oldDOASIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOFSIT,
+					Code: models.ReServiceCodeDOASIT,
 				},
 			},
 		}, nil)
-		newDOFSIT := oldDOFSIT
-		newDOFSIT.SITDepartureDate = &now
+		newDOASIT := oldDOASIT
+		newDOASIT.SITDepartureDate = &now
 		serviceItemData := updateMTOServiceItemData{
-			updatedServiceItem: newDOFSIT, // default is not DDDSIT/DOPSIT
-			oldServiceItem:     oldDOFSIT,
+			updatedServiceItem: newDOASIT, // default is not DDDSIT/DOPSIT
+			oldServiceItem:     oldDOASIT,
 			verrs:              validate.NewErrors(),
 		}
 		err := serviceItemData.checkSITDeparture(suite.AppContextForTest())
@@ -225,7 +225,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
 		suite.NoVerrs(serviceItemData.verrs) // this check doesn't add a validation error
-		suite.Contains(err.Error(), fmt.Sprintf("SIT Departure Date may only be manually updated for %s and %s service items", models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT))
+		suite.Contains(err.Error(), fmt.Sprintf("SIT Departure Date may only be manually updated for %s, %s, and %s service items", models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT))
 	})
 
 	// Test successful check for service item w/out payment request
@@ -293,7 +293,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			verrs:              validate.NewErrors(),
 		}
 		_ = serviceItemData.checkLinkedIDs(suite.AppContextForTest()) // this test should pass regardless of potential errors here
-		_ = serviceItemData.checkNonPrimeFields(suite.AppContextForTest())
+		_ = serviceItemData.checkNonPrimeFields(suite.AppContextForTest(), serviceItemData)
 		err := serviceItemData.getVerrs()
 
 		suite.NoError(err)
@@ -327,7 +327,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			verrs:              validate.NewErrors(),
 		}
 		_ = serviceItemData.checkLinkedIDs(suite.AppContextForTest())
-		_ = serviceItemData.checkNonPrimeFields(suite.AppContextForTest())
+		_ = serviceItemData.checkNonPrimeFields(suite.AppContextForTest(), serviceItemData)
 		err := serviceItemData.getVerrs()
 
 		suite.Error(err)

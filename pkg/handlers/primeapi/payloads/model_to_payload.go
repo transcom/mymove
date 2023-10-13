@@ -581,6 +581,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			SitPostalCode:        mtoServiceItem.SITPostalCode,
 			SitHHGActualOrigin:   Address(mtoServiceItem.SITOriginHHGActualAddress),
 			SitHHGOriginalOrigin: Address(mtoServiceItem.SITOriginHHGOriginalAddress),
+			// RequestApprovalsRequestedStatus: *mtoServiceItem.RequestedApprovalsRequestedStatus,
 		}
 	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDSFSC:
 		var sitDepartureDate, firstAvailableDeliveryDate1, firstAvailableDeliveryDate2, dateOfContact1, dateOfContact2 time.Time

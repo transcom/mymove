@@ -61,6 +61,7 @@ type MTOServiceItem struct {
 	UpdatedAt                       time.Time                      `db:"updated_at"`
 	ApprovedAt                      *time.Time                     `db:"approved_at"`
 	RejectedAt                      *time.Time                     `db:"rejected_at"`
+	// RequestedApprovalsRequestedStatus *bool                          `db:"requested_approvals_requested_status"`
 }
 
 // TableName overrides the table name used by Pop.
