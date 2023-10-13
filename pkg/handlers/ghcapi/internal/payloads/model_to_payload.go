@@ -1258,7 +1258,7 @@ func ServiceRequestDoc(serviceRequest models.ServiceRequestDocument, storer stor
 // MTOServiceItemSingleModel payload
 func MTOServiceItemSingleModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItemSingle {
 	return &ghcmessages.MTOServiceItemSingle{
-		SITPostalCode:        handlers.FmtStringPtr(s.SITPostalCode),
+		SitPostalCode:        handlers.FmtStringPtr(s.SITPostalCode),
 		ApprovedAt:           handlers.FmtDateTimePtr(s.ApprovedAt),
 		CreatedAt:            *handlers.FmtDateTime(s.CreatedAt),
 		ID:                   *handlers.FmtUUID(s.ID),

@@ -20,6 +20,7 @@
       createdAt:
         format: date-time
         type: string
+        readOnly: true
       deletedAt:
         format: date
         type: string
@@ -29,7 +30,7 @@
       pickupPostalCode:
         type: string
         x-nullable: true
-      SITPostalCode:
+      sitPostalCode:
         type: string
         readOnly: true
         x-nullable: true
@@ -59,6 +60,7 @@
       updatedAt:
         format: date-time
         type: string
+        readOnly: true
       approvedAt:
         format: date-time
         type: string

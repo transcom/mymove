@@ -3552,7 +3552,7 @@ func init() {
     },
     "/service-item/{mtoServiceItemID}/entry-date-update": {
       "patch": {
-        "description": "Updates a service item's SIT entry date",
+        "description": "Locates the service item in the database and updates the SIT entry date for the selected service item and returns the service item",
         "consumes": [
           "application/json"
         ],
@@ -6374,11 +6374,6 @@ func init() {
     "MTOServiceItemSingle": {
       "type": "object",
       "properties": {
-        "SITPostalCode": {
-          "type": "string",
-          "x-nullable": true,
-          "readOnly": true
-        },
         "approvedAt": {
           "type": "string",
           "format": "date-time",
@@ -6386,7 +6381,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "deletedAt": {
           "type": "string",
@@ -6447,6 +6443,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "sitPostalCode": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "sitRequestedDelivery": {
           "type": "string",
           "format": "date",
@@ -6458,7 +6459,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -14631,7 +14633,7 @@ func init() {
     },
     "/service-item/{mtoServiceItemID}/entry-date-update": {
       "patch": {
-        "description": "Updates a service item's SIT entry date",
+        "description": "Locates the service item in the database and updates the SIT entry date for the selected service item and returns the service item",
         "consumes": [
           "application/json"
         ],
@@ -17787,11 +17789,6 @@ func init() {
     "MTOServiceItemSingle": {
       "type": "object",
       "properties": {
-        "SITPostalCode": {
-          "type": "string",
-          "x-nullable": true,
-          "readOnly": true
-        },
         "approvedAt": {
           "type": "string",
           "format": "date-time",
@@ -17799,7 +17796,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "deletedAt": {
           "type": "string",
@@ -17860,6 +17858,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "sitPostalCode": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "sitRequestedDelivery": {
           "type": "string",
           "format": "date",
@@ -17871,7 +17874,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },

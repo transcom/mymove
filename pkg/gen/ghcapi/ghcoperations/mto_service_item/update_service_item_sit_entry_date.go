@@ -34,7 +34,7 @@ func NewUpdateServiceItemSitEntryDate(ctx *middleware.Context, handler UpdateSer
 
 # Updates a service item's SIT entry date by ID
 
-Updates a service item's SIT entry date
+Locates the service item in the database and updates the SIT entry date for the selected service item and returns the service item
 */
 type UpdateServiceItemSitEntryDate struct {
 	Context *middleware.Context

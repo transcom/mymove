@@ -1839,7 +1839,7 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - mtoServiceItem
-      description: Updates a service item's SIT entry date
+      description: Locates the service item in the database and updates the SIT entry date for the selected service item and returns the service item
       operationId: updateServiceItemSitEntryDate
       summary: Updates a service item's SIT entry date by ID
   '/move-task-orders/{moveTaskOrderID}/status':
