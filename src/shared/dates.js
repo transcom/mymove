@@ -57,7 +57,7 @@ export function formatDateTime(dateString) {
  */
 export function formatDateForDatePicker(date) {
   if (date) {
-    return date.format(datePickerFormat);
+    return formatDate(date, datePickerFormat);
   }
   return undefined;
 }

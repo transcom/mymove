@@ -55,6 +55,9 @@ describe('EditSitEntryDateModal', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Edit SIT Entry Date')).toBeInTheDocument();
+      expect(screen.getByText('Original SIT entry date')).toBeInTheDocument();
+      expect(screen.getByText('New SIT entry date')).toBeInTheDocument();
+      expect(screen.getByText('Office remarks')).toBeInTheDocument();
     });
   });
 });
