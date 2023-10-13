@@ -30,8 +30,6 @@ export function parseDate(str, _format, locale = 'en') {
 }
 
 export function formatDate(date, format = defaultDateFormat, locale = 'en') {
-  // returning UTC to prevent returning the day prior
-  date = moment.utc(date);
   return moment(date, allowedDateFormats, locale, true).locale(locale).format(format);
 }
 
