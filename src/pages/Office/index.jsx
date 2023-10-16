@@ -175,7 +175,7 @@ export class OfficeApp extends Component {
                   and give them this code: <strong>{traceId}</strong>
                 </SystemError>
               )}
-              {hasError && <SomethingWentWrong error={error} info={info} />}
+              {hasError && <SomethingWentWrong error={error} info={info} hasError={hasError} />}
 
               <Suspense fallback={<LoadingPlaceholder />}>
                 {!userIsLoggedIn && (
