@@ -1699,10 +1699,10 @@ definitions:
             type: string
             description: Entry date for the SIT.
             x-nullable: true
-          # requestApprovalsRequestedStatus:
-          #   description: Indicates if "Approvals Requested" status is being requested.
-          #   type: boolean
-          #   x-nullable: true
+          requestApprovalsRequestedStatus:
+            description: Indicates if "Approvals Requested" status is being requested.
+            type: boolean
+            x-nullable: true
   UpdateMTOShipment:
     properties:
       scheduledPickupDate:

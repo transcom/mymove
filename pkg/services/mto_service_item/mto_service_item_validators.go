@@ -294,9 +294,9 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 	}
 
 	// If the updated RequestedApprovalsRequestedStatus param is not null/nil then update the new serviceItem
-	// if *v.updatedServiceItem.RequestedApprovalsRequestedStatus == true || *v.updatedServiceItem.RequestedApprovalsRequestedStatus == false {
-	// 	newMTOServiceItem.RequestedApprovalsRequestedStatus = v.updatedServiceItem.RequestedApprovalsRequestedStatus
-	// }
+	if v.updatedServiceItem.RequestedApprovalsRequestedStatus != nil {
+		newMTOServiceItem.RequestedApprovalsRequestedStatus = v.updatedServiceItem.RequestedApprovalsRequestedStatus
+	}
 
 	// Set string fields:
 	newMTOServiceItem.Reason = services.SetOptionalStringField(v.updatedServiceItem.Reason, newMTOServiceItem.Reason)

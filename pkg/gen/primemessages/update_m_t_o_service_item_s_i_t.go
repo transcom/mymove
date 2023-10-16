@@ -43,7 +43,6 @@ type UpdateMTOServiceItemSIT struct {
 	ReServiceCode string `json:"reServiceCode,omitempty"`
 
 	// Indicates if "Approvals Requested" status is being requested.
-	// Example: true
 	RequestApprovalsRequestedStatus *bool `json:"requestApprovalsRequestedStatus,omitempty"`
 
 	// Date when the customer contacted the prime for a delivery out of SIT.
@@ -128,7 +127,6 @@ func (m *UpdateMTOServiceItemSIT) UnmarshalJSON(raw []byte) error {
 		ReServiceCode string `json:"reServiceCode,omitempty"`
 
 		// Indicates if "Approvals Requested" status is being requested.
-		// Example: true
 		RequestApprovalsRequestedStatus *bool `json:"requestApprovalsRequestedStatus,omitempty"`
 
 		// Date when the customer contacted the prime for a delivery out of SIT.
@@ -248,7 +246,6 @@ func (m UpdateMTOServiceItemSIT) MarshalJSON() ([]byte, error) {
 		ReServiceCode string `json:"reServiceCode,omitempty"`
 
 		// Indicates if "Approvals Requested" status is being requested.
-		// Example: true
 		RequestApprovalsRequestedStatus *bool `json:"requestApprovalsRequestedStatus,omitempty"`
 
 		// Date when the customer contacted the prime for a delivery out of SIT.

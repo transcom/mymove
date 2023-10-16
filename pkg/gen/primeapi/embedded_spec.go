@@ -4070,8 +4070,7 @@ func init() {
             "requestApprovalsRequestedStatus": {
               "description": "Indicates if \"Approvals Requested\" status is being requested.",
               "type": "boolean",
-              "x-nullable": true,
-              "example": "true"
+              "x-nullable": true
             },
             "sitCustomerContacted": {
               "description": "Date when the customer contacted the prime for a delivery out of SIT.",
@@ -9063,8 +9062,7 @@ func init() {
             "requestApprovalsRequestedStatus": {
               "description": "Indicates if \"Approvals Requested\" status is being requested.",
               "type": "boolean",
-              "x-nullable": true,
-              "example": "true"
+              "x-nullable": true
             },
             "sitCustomerContacted": {
               "description": "Date when the customer contacted the prime for a delivery out of SIT.",

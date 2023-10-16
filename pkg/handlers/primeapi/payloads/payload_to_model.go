@@ -378,13 +378,17 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 
 	shipmentID := uuid.FromStringOrNil(mtoServiceItem.MtoShipmentID().String())
 
+	// Default requested approvals value when an MTOServiceItem is created
+	requestedApprovalsRequestedStatus := false
+
 	// basic service item
 	model := &models.MTOServiceItem{
-		ID:              uuid.FromStringOrNil(mtoServiceItem.ID().String()),
-		MoveTaskOrderID: uuid.FromStringOrNil(mtoServiceItem.MoveTaskOrderID().String()),
-		MTOShipmentID:   &shipmentID,
-		CreatedAt:       time.Now(),
-		UpdatedAt:       time.Now(),
+		ID:                                uuid.FromStringOrNil(mtoServiceItem.ID().String()),
+		MoveTaskOrderID:                   uuid.FromStringOrNil(mtoServiceItem.MoveTaskOrderID().String()),
+		MTOShipmentID:                     &shipmentID,
+		CreatedAt:                         time.Now(),
+		UpdatedAt:                         time.Now(),
+		RequestedApprovalsRequestedStatus: &requestedApprovalsRequestedStatus,
 	}
 
 	// here we initialize more fields below for other service item types. Eg. MTOServiceItemDOFSIT
@@ -578,10 +582,11 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
 		}
 
-		// if *sit.RequestApprovalsRequestedStatus == true || *sit.RequestApprovalsRequestedStatus == false {
-		// 	pointerValue := *sit.RequestApprovalsRequestedStatus
-		// 	model.RequestedApprovalsRequestedStatus = &pointerValue
-		// }
+		// If the request params have a have the RequestApprovalsRequestedStatus set the model RequestApprovalsRequestedStatus value to the incoming value
+		if sit.RequestApprovalsRequestedStatus != nil {
+			pointerValue := *sit.RequestApprovalsRequestedStatus
+			model.RequestedApprovalsRequestedStatus = &pointerValue
+		}
 
 		if sit.ReServiceCode == string(models.ReServiceCodeDDDSIT) ||
 			sit.ReServiceCode == string(models.ReServiceCodeDDASIT) ||
