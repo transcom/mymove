@@ -1,5 +1,5 @@
 import React from 'react';
-import HoverTooltip from './HoverTooltip';
+import HoverTooltip from '../HoverTooltip/HoverTooltip';
 import { mount } from 'enzyme';
 
 describe('HoverTooltip', () => {
