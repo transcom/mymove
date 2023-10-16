@@ -14,7 +14,6 @@ import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { MTOServiceItemShape, OrdersInfoShape } from 'types/order';
 import { ShipmentShape } from 'types/shipment';
 import { formatDateFromIso } from 'utils/formatters';
-import HoverToolTip from 'shared/HoverToolTip/HoverToolTip';
 
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
 // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
@@ -64,7 +63,6 @@ const ApprovedRequestedShipments = ({ mtoShipments, ordersInfo, mtoServiceItems,
   return (
     <div className={styles.RequestedShipments} data-testid="requested-shipments">
       <h2>Approved Shipments</h2>
-      <HoverToolTip text="Pressing this will destroy humanity" position="bottom" icon="circle-exclamation" />
       <div className={shipmentCardsStyles.shipmentCards}>
         {mtoShipments &&
           mtoShipments.map((shipment) => {

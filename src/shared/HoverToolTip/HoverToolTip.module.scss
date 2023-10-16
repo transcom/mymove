@@ -10,11 +10,11 @@
       color: white;
       padding: 10px;
       border-radius: 4px;
-      height: 80px;
+      height: 80px; // setting hard width and height to keep positioning constant
       width: 200px;
       text-align: center;
       white-space: normal;
-      overflow: auto;
+      overflow: auto; // sets a scrollbar
       z-index: 1; // Ensure the tooltip is above other elements
   }
 

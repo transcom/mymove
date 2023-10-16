@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styles from './HoverToolTip.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const HoverTooltip = ({ text, position, icon }) => {
+  // this state determines if the text is visible on mousehover/leave
   const [isVisible, setIsVisible] = useState(false);
-  let textStyle;
+  const tooltipRef = useRef(null);
+  let textStyle; // setting initial textStyle variable
 
+  // if the position prop is passed in, this will run checks
+  // if not, it will default to top
   if (!position || position === 'top') {
     textStyle = `${styles.tooltipTextTop}`;
   } else if (position === 'left') {
@@ -16,11 +20,31 @@ const HoverTooltip = ({ text, position, icon }) => {
     textStyle = `${styles.tooltipTextBottom}`;
   }
 
+  const determineIsVisible = () => {
+    setIsVisible(!isVisible);
+  };
+
+  // this will hide the tooltips when a user clicks outside of the div
+  // multiple tooltips can be open at one time, but a click will hide all of them
+  const handleClickOutside = (e) => {
+    if (tooltipRef.current && !tooltipRef.current.contains(e.target)) {
+      setIsVisible(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
+
   return (
     <div
       className={styles.tooltipContainer}
       onMouseEnter={() => setIsVisible(true)}
-      onMouseLeave={() => setIsVisible(false)}
+      onClick={() => determineIsVisible()}
+      ref={tooltipRef}
     >
       <FontAwesomeIcon icon={icon || 'circle-question'} />
       {isVisible && <div className={textStyle}>{text}</div>}
