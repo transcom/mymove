@@ -1,6 +1,7 @@
 import React from 'react';
-import HoverTooltip from '../HoverTooltip/HoverTooltip';
 import { mount } from 'enzyme';
+
+import HoverTooltip from './HoverTooltip';
 
 describe('HoverTooltip', () => {
   it('should display tooltip on top', () => {
@@ -23,7 +24,7 @@ describe('HoverTooltip', () => {
     // Simulate a click on the tooltip container
     component.find('.tooltipContainer').simulate('click');
 
-    // Find the tooltip content after the click with top class
+    // Find the tooltip content after the click with bottom class
     const tooltipContent = component.find('.tooltipTextBottom');
 
     // Assert that the tooltip content is displayed
@@ -36,7 +37,7 @@ describe('HoverTooltip', () => {
     // Simulate a click on the tooltip container
     component.find('.tooltipContainer').simulate('click');
 
-    // Find the tooltip content after the click with top class
+    // Find the tooltip content after the click with right class
     const tooltipContent = component.find('.tooltipTextRight');
 
     // Assert that the tooltip content is displayed
@@ -49,7 +50,7 @@ describe('HoverTooltip', () => {
     // Simulate a click on the tooltip container
     component.find('.tooltipContainer').simulate('click');
 
-    // Find the tooltip content after the click with top class
+    // Find the tooltip content after the click with left class
     const tooltipContent = component.find('.tooltipTextLeft');
 
     // Assert that the tooltip content is displayed
