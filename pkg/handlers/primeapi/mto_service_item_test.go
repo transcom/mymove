@@ -82,34 +82,34 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		return subtestData
 	}
 
-	// suite.Run("Successful POST - Integration Test", func() {
-	// 	subtestData := makeSubtestData()
-	// 	moveRouter := moverouter.NewMoveRouter()
-	// 	creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
-	// 	handler := CreateMTOServiceItemHandler{
-	// 		suite.HandlerConfig(),
-	// 		creator,
-	// 		mtoChecker,
-	// 	}
+	suite.Run("Successful POST - Integration Test", func() {
+		subtestData := makeSubtestData()
+		moveRouter := moverouter.NewMoveRouter()
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
+		handler := CreateMTOServiceItemHandler{
+			suite.HandlerConfig(),
+			creator,
+			mtoChecker,
+		}
 
-	// 	// Validate incoming payload
-	// 	suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+		// Validate incoming payload
+		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
 
-	// 	response := handler.Handle(subtestData.params)
-	// 	suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
-	// 	okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
+		response := handler.Handle(subtestData.params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
 
-	// 	// TODO: This is failing because DOPSIT and DDDSIT are being sent back in the response
-	// 	//   but those are not listed in the enum in the swagger file.  They aren't allowed for
-	// 	//   incoming payloads, but are allowed for outgoing payloads, but the same payload spec
-	// 	//   is used for both.  Need to figure out best way to resolve.
-	// 	// Validate outgoing payload (each element of slice)
-	// 	// for _, mtoServiceItem := range okResponse.Payload {
-	// 	// 	suite.NoError(mtoServiceItem.Validate(strfmt.Default))
-	// 	// }
+		// TODO: This is failing because DOPSIT and DDDSIT are being sent back in the response
+		//   but those are not listed in the enum in the swagger file.  They aren't allowed for
+		//   incoming payloads, but are allowed for outgoing payloads, but the same payload spec
+		//   is used for both.  Need to figure out best way to resolve.
+		// Validate outgoing payload (each element of slice)
+		// for _, mtoServiceItem := range okResponse.Payload {
+		// 	suite.NoError(mtoServiceItem.Validate(strfmt.Default))
+		// }
 
-	// 	suite.NotZero(okResponse.Payload[0].ID())
-	// })
+		suite.NotZero(okResponse.Payload[0].ID())
+	})
 
 	suite.Run("Successful POST for Creating Shuttling without PrimeEstimatedWeight set - Integration Test", func() {
 		mto := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
