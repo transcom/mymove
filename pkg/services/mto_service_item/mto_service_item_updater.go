@@ -142,40 +142,34 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 		if (serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
 			serviceItem.ReService.Code == models.ReServiceCodeDDSFSC) &&
 			serviceItem.SITDestinationOriginalAddressID == nil {
-			// Check to see if the service item has a SIT Destination Final
-			// Address ID passed in from the Prime request. If it does have
-			// one, then we set the service item's Destination Original Address
-			// to that value otherwise we use the shipment's Destination
-			// Address as a last resort.
-			// Not creating a new address record for SITDestinationOriginalAddress since
-			// a new address record is created for SITDestinationFinalAddress when it's updated
-			if serviceItem.SITDestinationFinalAddressID != nil {
-				serviceItem.SITDestinationOriginalAddressID = serviceItem.SITDestinationFinalAddressID
-				serviceItem.SITDestinationOriginalAddress = serviceItem.SITDestinationFinalAddress
-			} else {
-				mtoShipment, err := p.shipmentFetcher.GetShipment(appCtx, *serviceItem.MTOShipmentID, "DestinationAddress")
-				if err != nil {
-					return nil, err
-				}
-				// Set the original address on a service item to the shipment's
-				// destination address when approving a SIT service item.
-				// Creating a new address record to ensure SITDestinationOriginalAddress
-				// doesn't change if shipment destination address is updated
-				shipmentDestinationAddress := &models.Address{
-					StreetAddress1: mtoShipment.DestinationAddress.StreetAddress1,
-					StreetAddress2: mtoShipment.DestinationAddress.StreetAddress2,
-					StreetAddress3: mtoShipment.DestinationAddress.StreetAddress3,
-					City:           mtoShipment.DestinationAddress.City,
-					State:          mtoShipment.DestinationAddress.State,
-					PostalCode:     mtoShipment.DestinationAddress.PostalCode,
-					Country:        mtoShipment.DestinationAddress.Country,
-				}
-				shipmentDestinationAddress, err = p.addressCreator.CreateAddress(appCtx, shipmentDestinationAddress)
-				if err != nil {
-					return nil, err
-				}
-				serviceItem.SITDestinationOriginalAddressID = &shipmentDestinationAddress.ID
-				serviceItem.SITDestinationOriginalAddress = shipmentDestinationAddress
+
+			// Get the shipment destination address
+			mtoShipment, err := p.shipmentFetcher.GetShipment(appCtx, *serviceItem.MTOShipmentID, "DestinationAddress")
+			if err != nil {
+				return nil, err
+			}
+
+			// Set the original address on a service item to the shipment's
+			// destination address when approving a SIT service item.
+			// Creating a new address record to ensure SITDestinationOriginalAddress
+			// doesn't change if shipment destination address is updated
+			shipmentDestinationAddress := &models.Address{
+				StreetAddress1: mtoShipment.DestinationAddress.StreetAddress1,
+				StreetAddress2: mtoShipment.DestinationAddress.StreetAddress2,
+				StreetAddress3: mtoShipment.DestinationAddress.StreetAddress3,
+				City:           mtoShipment.DestinationAddress.City,
+				State:          mtoShipment.DestinationAddress.State,
+				PostalCode:     mtoShipment.DestinationAddress.PostalCode,
+				Country:        mtoShipment.DestinationAddress.Country,
+			}
+			shipmentDestinationAddress, err = p.addressCreator.CreateAddress(appCtx, shipmentDestinationAddress)
+			if err != nil {
+				return nil, err
+			}
+			serviceItem.SITDestinationOriginalAddressID = &shipmentDestinationAddress.ID
+			serviceItem.SITDestinationOriginalAddress = shipmentDestinationAddress
+
+			if serviceItem.SITDestinationFinalAddressID == nil {
 				serviceItem.SITDestinationFinalAddressID = &shipmentDestinationAddress.ID
 				serviceItem.SITDestinationFinalAddress = shipmentDestinationAddress
 			}
