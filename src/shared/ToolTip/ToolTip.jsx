@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import styles from './HoverToolTip.module.scss';
+import styles from './ToolTip.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-const HoverTooltip = ({ text, position, icon }) => {
+const ToolTip = ({ text, position, icon }) => {
   // this state determines if the text is visible on mousehover/leave
   const [isVisible, setIsVisible] = useState(false);
   const tooltipRef = useRef(null);
@@ -52,4 +52,4 @@ const HoverTooltip = ({ text, position, icon }) => {
   );
 };
 
-export default HoverTooltip;
+export default ToolTip;

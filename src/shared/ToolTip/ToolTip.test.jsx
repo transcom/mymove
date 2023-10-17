@@ -1,12 +1,12 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import HoverTooltip from './HoverTooltip';
+import ToolTip from './ToolTip';
 
-describe('HoverTooltip', () => {
+describe('ToolTip', () => {
   it('should display tooltip on top', () => {
     const text = 'Test Text';
-    const component = mount(<HoverTooltip text={text} icon="circle-question" />);
+    const component = mount(<ToolTip text={text} icon="circle-question" />);
 
     // Simulate a click on the tooltip container
     component.find('.tooltipContainer').simulate('click');
@@ -19,7 +19,7 @@ describe('HoverTooltip', () => {
   });
   it('should display tooltip on bottom', () => {
     const text = 'Test Text';
-    const component = mount(<HoverTooltip text={text} icon="circle-question" position="bottom" />);
+    const component = mount(<ToolTip text={text} icon="circle-question" position="bottom" />);
 
     // Simulate a click on the tooltip container
     component.find('.tooltipContainer').simulate('click');
@@ -32,7 +32,7 @@ describe('HoverTooltip', () => {
   });
   it('should display tooltip on right', () => {
     const text = 'Test Text';
-    const component = mount(<HoverTooltip text={text} icon="circle-question" position="right" />);
+    const component = mount(<ToolTip text={text} icon="circle-question" position="right" />);
 
     // Simulate a click on the tooltip container
     component.find('.tooltipContainer').simulate('click');
@@ -45,7 +45,7 @@ describe('HoverTooltip', () => {
   });
   it('should display tooltip on left', () => {
     const text = 'Test Text';
-    const component = mount(<HoverTooltip text={text} icon="circle-question" position="left" />);
+    const component = mount(<ToolTip text={text} icon="circle-question" position="left" />);
 
     // Simulate a click on the tooltip container
     component.find('.tooltipContainer').simulate('click');
