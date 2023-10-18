@@ -207,6 +207,9 @@ test.describe('TOO user', () => {
       await tooFlowPage.waitForLoading();
       expect(page.url()).toContain(`/moves/${tooFlowPage.moveLocator}/orders`);
 
+      // Check for link that allows TIO to download the PDF for copy/paste functionality
+      await expect(page.locator('p[class*="DocumentViewer_downloadLink"] > a > span')).toHaveText('Download file');
+
       // Edit orders fields
 
       await tooFlowPage.selectDutyLocation('Fort Irwin', 'originDutyLocation');

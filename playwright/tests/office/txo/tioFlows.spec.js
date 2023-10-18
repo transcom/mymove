@@ -193,6 +193,10 @@ test.describe('TIO user', () => {
 
       await form.getByRole('link', { name: 'View orders' }).click();
       await tioFlowPage.waitForLoading();
+
+      // Check for link that allows TIO to download the PDF for copy/paste functionality
+      await expect(page.locator('p[class*="DocumentViewer_downloadLink"] > a > span')).toHaveText('Download file');
+
       // Edit orders page | Make edits
       await form.locator('input[name="tac"]').clear();
       await form.locator('input[name="tac"]').type('E15A');
