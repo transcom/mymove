@@ -32,7 +32,7 @@ const MoveDocumentWrapper = () => {
     <div className={styles.DocumentWrapper}>
       {documentsForViewer && (
         <div className={styles.embed}>
-          <DocumentViewer files={documentsForViewer} />
+          <DocumentViewer files={documentsForViewer} allowDownload />
         </div>
       )}
       {showOrders ? <Orders moveCode={moveCode} /> : <MoveAllowances moveCode={moveCode} />}
