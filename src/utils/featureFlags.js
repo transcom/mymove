@@ -15,18 +15,15 @@ const defaultFlags = {
   moveInfoComboButton: true,
   sitPanel: true,
   ppmPaymentRequest: true,
-  allOrdersTypes: false,
-  hhgFlow: false,
-  ghcFlow: false,
+  allOrdersTypes: true,
+  hhgFlow: true,
+  ghcFlow: true,
   markerIO: false,
 };
 
 const environmentFlags = {
   development: {
     ...defaultFlags,
-    allOrdersTypes: true,
-    hhgFlow: true,
-    ghcFlow: true,
   },
 
   test: {
@@ -35,32 +32,20 @@ const environmentFlags = {
 
   experimental: {
     ...defaultFlags,
-    allOrdersTypes: true,
-    hhgFlow: true,
-    ghcFlow: true,
   },
 
   staging: {
     ...defaultFlags,
-    allOrdersTypes: true,
-    hhgFlow: true,
-    ghcFlow: true,
     markerIO: true,
   },
 
   demo: {
     ...defaultFlags,
-    allOrdersTypes: true,
-    hhgFlow: true,
-    ghcFlow: true,
     markerIO: true,
   },
 
   production: {
     ...defaultFlags,
-    allOrdersTypes: true,
-    hhgFlow: true,
-    ghcFlow: true,
   },
 };
 
