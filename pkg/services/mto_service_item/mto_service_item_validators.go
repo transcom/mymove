@@ -157,9 +157,6 @@ func (v *updateMTOServiceItemData) checkOldServiceItemStatus(_ appcontext.AppCon
 			"- this SIT service item cannot be updated because the status is not in an editable state.")
 	}
 
-	// If not rejected, set updatedServiceItem status to submitted
-	serviceItemData.updatedServiceItem.Status = models.MTOServiceItemStatusSubmitted
-
 	return nil
 }
 
