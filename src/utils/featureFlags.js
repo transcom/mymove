@@ -58,6 +58,7 @@ const environmentFlags = {
 
   production: {
     ...defaultFlags,
+    allOrdersTypes: true,
     hhgFlow: true,
     ghcFlow: true,
   },
