@@ -700,12 +700,12 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.Nil(updatedServiceItem.RejectionReason)
 		suite.Nil(updatedServiceItem.RejectedAt)
 		suite.NotNil(updatedServiceItem)
-		suite.Equal(sitDestinationFinalAddress.ID, *updatedServiceItem.SITDestinationOriginalAddressID)
-		suite.Equal(sitDestinationFinalAddress.ID, updatedServiceItem.SITDestinationOriginalAddress.ID)
-		suite.Equal(sitDestinationFinalAddress.StreetAddress1, updatedServiceItem.SITDestinationOriginalAddress.StreetAddress1)
-		suite.Equal(sitDestinationFinalAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
-		suite.Equal(sitDestinationFinalAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
-		suite.Equal(sitDestinationFinalAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
+
+		destinationAddress := serviceItem.MTOShipment.DestinationAddress
+		suite.Equal(destinationAddress.StreetAddress1, updatedServiceItem.SITDestinationOriginalAddress.StreetAddress1)
+		suite.Equal(destinationAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
+		suite.Equal(destinationAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
+		suite.Equal(destinationAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
 	})
 
 	suite.Run("When TOO approves a DDDSIT service item without a SITDestinationFinalAddress", func() {
@@ -756,12 +756,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.Equal(shipment.DestinationAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
 		suite.Equal(shipment.DestinationAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
 		suite.Equal(shipment.DestinationAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
-		suite.NotEqual(shipment.DestinationAddressID, *updatedServiceItem.SITDestinationFinalAddressID)
-		suite.NotEqual(shipment.DestinationAddress.ID, *updatedServiceItem.SITDestinationFinalAddressID)
-		suite.Equal(shipment.DestinationAddress.StreetAddress1, updatedServiceItem.SITDestinationFinalAddress.StreetAddress1)
-		suite.Equal(shipment.DestinationAddress.City, updatedServiceItem.SITDestinationFinalAddress.City)
-		suite.Equal(shipment.DestinationAddress.State, updatedServiceItem.SITDestinationFinalAddress.State)
-		suite.Equal(shipment.DestinationAddress.PostalCode, updatedServiceItem.SITDestinationFinalAddress.PostalCode)
 	})
 
 	suite.Run("When TOO approves a DDSFSC service item with an existing SITDestinationFinalAddress", func() {
@@ -806,12 +800,11 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.Nil(updatedServiceItem.RejectionReason)
 		suite.Nil(updatedServiceItem.RejectedAt)
 		suite.NotNil(updatedServiceItem)
-		suite.Equal(sitDestinationFinalAddress.ID, *updatedServiceItem.SITDestinationOriginalAddressID)
-		suite.Equal(sitDestinationFinalAddress.ID, updatedServiceItem.SITDestinationOriginalAddress.ID)
-		suite.Equal(sitDestinationFinalAddress.StreetAddress1, updatedServiceItem.SITDestinationOriginalAddress.StreetAddress1)
-		suite.Equal(sitDestinationFinalAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
-		suite.Equal(sitDestinationFinalAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
-		suite.Equal(sitDestinationFinalAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
+		destinationAddress := serviceItem.MTOShipment.DestinationAddress
+		suite.Equal(destinationAddress.StreetAddress1, updatedServiceItem.SITDestinationOriginalAddress.StreetAddress1)
+		suite.Equal(destinationAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
+		suite.Equal(destinationAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
+		suite.Equal(destinationAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
 	})
 
 	suite.Run("When TOO approves a DDSFSC service item without a SITDestinationFinalAddress", func() {
@@ -862,12 +855,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.Equal(shipment.DestinationAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
 		suite.Equal(shipment.DestinationAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
 		suite.Equal(shipment.DestinationAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
-		suite.NotEqual(shipment.DestinationAddressID, *updatedServiceItem.SITDestinationFinalAddressID)
-		suite.NotEqual(shipment.DestinationAddress.ID, *updatedServiceItem.SITDestinationFinalAddressID)
-		suite.Equal(shipment.DestinationAddress.StreetAddress1, updatedServiceItem.SITDestinationFinalAddress.StreetAddress1)
-		suite.Equal(shipment.DestinationAddress.City, updatedServiceItem.SITDestinationFinalAddress.City)
-		suite.Equal(shipment.DestinationAddress.State, updatedServiceItem.SITDestinationFinalAddress.State)
-		suite.Equal(shipment.DestinationAddress.PostalCode, updatedServiceItem.SITDestinationFinalAddress.PostalCode)
 	})
 
 	// Test that the move's status changes to Approvals Requested if any of its service
