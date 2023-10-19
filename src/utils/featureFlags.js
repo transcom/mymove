@@ -58,7 +58,6 @@ const environmentFlags = {
 
   production: {
     ...defaultFlags,
-    sitPanel: false,
     hhgFlow: true,
     ghcFlow: true,
   },
