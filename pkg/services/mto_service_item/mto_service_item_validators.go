@@ -6,6 +6,7 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"golang.org/x/exp/slices"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -70,7 +71,7 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 	}
 
 	// Checks that none of the fields that the Prime cannot update have been changed
-	err = serviceItemData.checkNonPrimeFields(appCtx, *serviceItemData)
+	err = serviceItemData.checkNonPrimeFields(appCtx)
 	if err != nil {
 		return err
 	}
@@ -151,8 +152,12 @@ func (v *updateMTOServiceItemData) checkLinkedIDs(_ appcontext.AppContext) error
 
 // checkOldServiceItemStatus checks that the old service item has a REJECTED status
 func (v *updateMTOServiceItemData) checkOldServiceItemStatus(_ appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error {
+
+	// Only apply this check to the service items in this list
+	reServiceCodesAllowed := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT}
+
 	// Rejects the update if the original SIT does not have a REJECTED status
-	if serviceItemData.oldServiceItem.Status != models.MTOServiceItemStatusRejected && serviceItemData.oldServiceItem.ReService.Code == models.ReServiceCodeDOFSIT {
+	if serviceItemData.oldServiceItem.Status != models.MTOServiceItemStatusRejected && (slices.Contains(reServiceCodesAllowed, serviceItemData.oldServiceItem.ReService.Code)) {
 		return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
 			"- this SIT service item cannot be updated because the status is not in an editable state.")
 	}
@@ -172,9 +177,11 @@ func (v *updateMTOServiceItemData) checkPrimeAvailability(appCtx appcontext.AppC
 }
 
 // checkNonPrimeFields checks that no fields were modified that are not allowed to be updated by the Prime
-func (v *updateMTOServiceItemData) checkNonPrimeFields(_ appcontext.AppContext, serviceItemData updateMTOServiceItemData) error {
+func (v *updateMTOServiceItemData) checkNonPrimeFields(_ appcontext.AppContext) error {
 
-	if v.updatedServiceItem.Status != "" && v.updatedServiceItem.Status != v.oldServiceItem.Status && serviceItemData.oldServiceItem.ReService.Code != models.ReServiceCodeDOFSIT {
+	reServiceCodesAllowed := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT}
+
+	if v.updatedServiceItem.Status != "" && v.updatedServiceItem.Status != v.oldServiceItem.Status && (!slices.Contains(reServiceCodesAllowed, v.oldServiceItem.ReService.Code)) {
 		v.verrs.Add("status", "cannot be updated")
 	}
 
@@ -196,16 +203,20 @@ func (v *updateMTOServiceItemData) checkNonPrimeFields(_ appcontext.AppContext, 
 // checkSITDeparture checks that the service item is a DDDSIT or DOPSIT if the user is trying to update the
 // SITDepartureDate
 func (v *updateMTOServiceItemData) checkSITDeparture(_ appcontext.AppContext) error {
+
+	// Manual updates to SIT Departure dates are allowed for these service items
+	reServiceCodesAllowed := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT}
+
 	if v.updatedServiceItem.SITDepartureDate == nil || v.updatedServiceItem.SITDepartureDate == v.oldServiceItem.SITDepartureDate {
 		return nil // the SITDepartureDate isn't being updated, so we're fine here
 	}
 
-	if v.oldServiceItem.ReService.Code == models.ReServiceCodeDDDSIT || v.oldServiceItem.ReService.Code == models.ReServiceCodeDOPSIT || v.oldServiceItem.ReService.Code == models.ReServiceCodeDOFSIT {
+	if slices.Contains(reServiceCodesAllowed, v.oldServiceItem.ReService.Code) {
 		return nil // the service item is a SIT departure service or SIT Domestic origin 1st day SIT , so we're fine
 	}
 
 	return apperror.NewConflictError(v.updatedServiceItem.ID,
-		fmt.Sprintf("- SIT Departure Date may only be manually updated for %s, %s, and %s service items.", models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT))
+		fmt.Sprintf("- SIT Departure Date may only be manually updated for the following service items: %s, %s, %s, %s", models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT))
 }
 
 // checkSITDestinationOriginalAddress checks that SITDestinationOriginalAddress isn't being changed

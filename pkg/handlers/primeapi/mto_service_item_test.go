@@ -1330,6 +1330,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 			{
 				Model: models.MTOServiceItem{
 					SITEntryDate: models.TimePointer(time.Now()),
+					Status:       "REJECTED",
 				},
 			},
 			{

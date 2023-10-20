@@ -125,7 +125,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkNonPrimeFields(suite.AppContextForTest(), serviceItemData)
+		err := serviceItemData.checkNonPrimeFields(suite.AppContextForTest())
 
 		suite.NoError(err)
 		suite.NoVerrs(serviceItemData.verrs)
@@ -146,7 +146,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkNonPrimeFields(suite.AppContextForTest(), serviceItemData)
+		err := serviceItemData.checkNonPrimeFields(suite.AppContextForTest())
 
 		suite.NoError(err)
 		suite.True(serviceItemData.verrs.HasAny())
@@ -225,7 +225,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
 		suite.NoVerrs(serviceItemData.verrs) // this check doesn't add a validation error
-		suite.Contains(err.Error(), fmt.Sprintf("SIT Departure Date may only be manually updated for %s, %s, and %s service items", models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT))
+		suite.Contains(err.Error(), fmt.Sprintf("SIT Departure Date may only be manually updated for the following service items: %s, %s, %s, %s", models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT))
 	})
 
 	// Test successful check for service item w/out payment request
@@ -293,7 +293,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			verrs:              validate.NewErrors(),
 		}
 		_ = serviceItemData.checkLinkedIDs(suite.AppContextForTest()) // this test should pass regardless of potential errors here
-		_ = serviceItemData.checkNonPrimeFields(suite.AppContextForTest(), serviceItemData)
+		_ = serviceItemData.checkNonPrimeFields(suite.AppContextForTest())
 		err := serviceItemData.getVerrs()
 
 		suite.NoError(err)
@@ -327,7 +327,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			verrs:              validate.NewErrors(),
 		}
 		_ = serviceItemData.checkLinkedIDs(suite.AppContextForTest())
-		_ = serviceItemData.checkNonPrimeFields(suite.AppContextForTest(), serviceItemData)
+		_ = serviceItemData.checkNonPrimeFields(suite.AppContextForTest())
 		err := serviceItemData.getVerrs()
 
 		suite.Error(err)
