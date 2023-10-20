@@ -37,7 +37,9 @@ func (p sitEntryDateUpdater) UpdateSitEntryDate(appCtx appcontext.AppContext, s 
 	}
 
 	// updating service item struct with the new SIT entry date
-	if s.SITEntryDate != nil {
+	if s.SITEntryDate == nil {
+		return nil, apperror.NewUnprocessableEntityError("You must provide the SIT entry date in the request")
+	} else if s.SITEntryDate != nil {
 		serviceItem.SITEntryDate = s.SITEntryDate
 	}
 
