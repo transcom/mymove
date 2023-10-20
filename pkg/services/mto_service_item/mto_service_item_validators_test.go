@@ -202,22 +202,22 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	// Test unsuccessful check for SIT departure service item - not a departure SIT item
 	suite.Run("checkSITDeparture w/ non-departure SIT - failure", func() {
 		// Under test:  checkSITDeparture checks that the service item is a
-		//			    DDDSIT, DOPSIT, or DOFSIT if the user is trying to update the
+		//			    DDDSIT, DOPSIT, DOASIT or DOFSIT if the user is trying to update the
 		// 			    SITDepartureDate
-		// Set up:      Create any non DDDSIT service item
+		// Set up:      Create any non DDDSIT, DOPSIT, DOASIT, DOFSIT service item
 		// Expected outcome: Conflict Error
-		oldDOASIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
+		oldDDFSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOASIT,
+					Code: models.ReServiceCodeDDFSIT,
 				},
 			},
 		}, nil)
-		newDOASIT := oldDOASIT
-		newDOASIT.SITDepartureDate = &now
+		newDDFSIT := oldDDFSIT
+		newDDFSIT.SITDepartureDate = &now
 		serviceItemData := updateMTOServiceItemData{
-			updatedServiceItem: newDOASIT, // default is not DDDSIT/DOPSIT
-			oldServiceItem:     oldDOASIT,
+			updatedServiceItem: newDDFSIT, // default is not DDDSIT/DOPSIT
+			oldServiceItem:     newDDFSIT,
 			verrs:              validate.NewErrors(),
 		}
 		err := serviceItemData.checkSITDeparture(suite.AppContextForTest())
