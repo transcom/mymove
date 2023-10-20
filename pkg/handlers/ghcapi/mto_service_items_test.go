@@ -1613,7 +1613,7 @@ func (suite *HandlerSuite) TestUpdateServiceItemSitEntryDateHandler() {
 
 		// setting up data to be used for updating sit entry date
 		newSitEntryDate := time.Date(2023, time.October, 10, 10, 10, 0, 0, time.UTC)
-		expectedUUID := uuid.Must(uuid.FromString("f7b4b9e2-04e8-4c34-827a-df917e69caf4"))
+		expectedUUID := serviceItemID
 		// creating struct that passes into mock function
 		sitEntryDateUpdateModel := models.SITEntryDateUpdate{
 			ID: expectedUUID, SITEntryDate: &newSitEntryDate,
