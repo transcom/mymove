@@ -217,7 +217,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		newDDFSIT.SITDepartureDate = &now
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: newDDFSIT, // default is not DDDSIT/DOPSIT
-			oldServiceItem:     newDDFSIT,
+			oldServiceItem:     oldDDFSIT,
 			verrs:              validate.NewErrors(),
 		}
 		err := serviceItemData.checkSITDeparture(suite.AppContextForTest())
