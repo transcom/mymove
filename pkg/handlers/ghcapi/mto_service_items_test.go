@@ -1535,8 +1535,6 @@ func (suite *HandlerSuite) TestGetMTOServiceItemHandler() {
 		// mock function
 		serviceItemFetcher := mocks.MTOServiceItemFetcher{}
 
-		// setting up data to be used for updating sit entry date
-		serviceItemID := uuid.Must(uuid.FromString("f7b4b9e2-04e8-4c34-827a-df917e69caf4"))
 		// creating struct that returns from mock function & updating values
 		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, nil)
 		mtoServiceItem.ID = serviceItemID
