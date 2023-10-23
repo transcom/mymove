@@ -1,0 +1,71 @@
+    type: object
+    properties:
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        x-nullable: true
+      reServiceID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reServiceCode:
+        type: string
+      reServiceName:
+        type: string
+      createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      deletedAt:
+        format: date
+        type: string
+      rejectionReason:
+        type: string
+        x-nullable: true
+      pickupPostalCode:
+        type: string
+        x-nullable: true
+      sitPostalCode:
+        type: string
+        readOnly: true
+        x-nullable: true
+      sitEntryDate:
+        type: string
+        format: date-time
+        x-nullable: true
+      sitDepartureDate:
+        type: string
+        format: date-time
+        x-nullable: true
+      sitCustomerContacted:
+        type: string
+        format: date
+        x-nullable: true
+      sitRequestedDelivery:
+        type: string
+        format: date
+        x-nullable: true
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      status:
+        type: string
+        x-nullable: true
+      updatedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      approvedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      rejectedAt:
+        format: date-time
+        type: string
+        x-nullable: true

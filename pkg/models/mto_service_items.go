@@ -63,6 +63,34 @@ type MTOServiceItem struct {
 	RejectedAt                      *time.Time                     `db:"rejected_at"`
 }
 
+// MTOServiceItemSingle is an object representing a single column in the service items table
+type MTOServiceItemSingle struct {
+	ID                              uuid.UUID            `db:"id"`
+	MoveTaskOrderID                 uuid.UUID            `db:"move_id"`
+	MTOShipmentID                   *uuid.UUID           `db:"mto_shipment_id"`
+	ReServiceID                     uuid.UUID            `db:"re_service_id"`
+	CreatedAt                       time.Time            `db:"created_at"`
+	UpdatedAt                       time.Time            `db:"updated_at"`
+	Reason                          *string              `db:"reason"`
+	PickupPostalCode                *string              `db:"pickup_postal_code"`
+	Description                     *string              `db:"description"`
+	Status                          MTOServiceItemStatus `db:"status"`
+	RejectionReason                 *string              `db:"rejection_reason"`
+	ApprovedAt                      *time.Time           `db:"approved_at"`
+	RejectedAt                      *time.Time           `db:"rejected_at"`
+	SITPostalCode                   *string              `db:"sit_postal_code"`
+	SITEntryDate                    *time.Time           `db:"sit_entry_date"`
+	SITDepartureDate                *time.Time           `db:"sit_departure_date"`
+	SITDestinationFinalAddressID    *uuid.UUID           `db:"sit_destination_final_address_id"`
+	SITOriginHHGOriginalAddressID   *uuid.UUID           `db:"sit_origin_hhg_original_address_id"`
+	SITOriginHHGActualAddressID     *uuid.UUID           `db:"sit_origin_hhg_actual_address_id"`
+	EstimatedWeight                 *unit.Pound          `db:"estimated_weight"`
+	ActualWeight                    *unit.Pound          `db:"actual_weight"`
+	SITDestinationOriginalAddressID *uuid.UUID           `db:"sit_destination_original_address_id"`
+	SITCustomerContacted            *time.Time           `db:"sit_customer_contacted"`
+	SITRequestedDelivery            *time.Time           `db:"sit_requested_delivery"`
+}
+
 // TableName overrides the table name used by Pop.
 func (m MTOServiceItem) TableName() string {
 	return "mto_service_items"
