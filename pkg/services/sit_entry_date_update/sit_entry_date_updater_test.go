@@ -26,9 +26,10 @@ func (suite *UpdateSitEntryDateServiceSuite) TestUpdateSitEntryDate() {
 	// Test not found error
 	suite.Run("Not Found Error", func() {
 		serviceItem := setupSitEntryDateUpdateModel()
-		notFoundUUID := "00000000-0000-0000-0000-000000000001"
+		notFoundUUID, err := uuid.NewV4()
+		suite.NoError(err)
 		notFoundServiceItem := serviceItem
-		notFoundServiceItem.ID = uuid.FromStringOrNil(notFoundUUID)
+		notFoundServiceItem.ID = notFoundUUID
 
 		updatedServiceItem, err := updater.UpdateSitEntryDate(suite.AppContextForTest(), &notFoundServiceItem)
 
