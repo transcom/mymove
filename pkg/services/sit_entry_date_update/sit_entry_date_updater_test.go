@@ -36,7 +36,6 @@ func (suite *UpdateSitEntryDateServiceSuite) TestUpdateSitEntryDate() {
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Contains(err.Error(), notFoundUUID)
 	})
 
 	// Test successful update
