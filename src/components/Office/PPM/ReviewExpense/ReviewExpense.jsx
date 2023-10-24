@@ -76,7 +76,6 @@ export default function ReviewExpense({ mtoShipment, expense, tripNumber, ppmNum
     const payload = {
       ppmShipmentId: expense.ppmShipmentId,
       description: expense.description,
-      // amount: parseInt(values.amount * 100, 10),
       amount: convertDollarsToCents(values.amount),
       paidWithGtcc: values.paidWithGtcc,
       sitStartDate: formatDate(values.sitStartDate, 'DD MMM YYYY', 'YYYY-MM-DD'),
