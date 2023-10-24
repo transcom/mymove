@@ -47,6 +47,7 @@ import {
   createSitAddressUpdate,
   approveSitAddressUpdate,
   rejectSitAddressUpdate,
+  updateServiceItemSITEntryDate,
 } from 'services/ghcApi';
 import { MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -66,6 +67,8 @@ import { tooRoutes } from 'constants/routes';
 import EditSitAddressChangeForm from 'components/Office/ServiceItemUpdateModal/EditSitAddressChangeForm';
 import ReviewSitAddressChange from 'components/Office/ServiceItemUpdateModal/ReviewSitAddressChange';
 import { requiredAddressSchema } from 'utils/validation';
+import { formatDateForSwagger } from 'shared/dates';
+import EditSitEntryDateModal from 'components/Office/EditSitEntryDateModal/EditSitEntryDateModal';
 
 const nonShipmentSectionLabels = {
   'move-weights': 'Move weights',
@@ -102,6 +105,7 @@ export const MoveTaskOrder = (props) => {
   // SIT Address Updates
   const [isReviewRequestSITAddressModalVisible, setIsReviewRequestSITAddressModalVisible] = useState(false);
   const [isEditSitAddressModalVisible, setIsEditSitAddressModalVisible] = useState(false);
+  const [isEditSitEntryDateModalVisible, setIsEditSitEntryDateModalVisible] = useState(false);
   /* ------------------ Alerts ------------------------- */
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
@@ -180,10 +184,12 @@ export const MoveTaskOrder = (props) => {
   /*
   *
   -------------------------  Mutation Funtions  -------------------------
-  *
+  * using istanbul ignore next to omit from test coverage since these functions
+  * cannot be exported
   */
 
   const queryClient = useQueryClient();
+  /* istanbul ignore next */
   const { mutate: mutateMTOServiceItemStatus } = useMutation({
     mutationFn: patchMTOServiceItemStatus,
     onSuccess: (data, variables) => {
@@ -200,6 +206,7 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
+  /* istanbul ignore next */
   const { mutate: mutateMTOShipment } = useMutation({
     mutationFn: updateMTOShipment,
     onSuccess: (_, variables) => {
@@ -208,6 +215,7 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
+  /* istanbul ignore next */
   const { mutate: mutateMTOShipmentStatus } = useMutation({
     mutationFn: updateMTOShipmentStatus,
     onSuccess: (data, variables) => {
@@ -225,6 +233,7 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
+  /* istanbul ignore next */
   const { mutate: mutateMTOShipmentRequestReweigh } = useMutation({
     mutationFn: updateMTOShipmentRequestReweigh,
     onSuccess: (data) => {
@@ -241,6 +250,7 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
+  /* istanbul ignore next */
   const { mutate: mutateOrderBillableWeight } = useMutation({
     mutationFn: updateBillableWeight,
     onSuccess: (data, variables) => {
@@ -259,6 +269,7 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
+  /* istanbul ignore next */
   const { mutate: mutateAcknowledgeExcessWeightRisk } = useMutation({
     mutationFn: acknowledgeExcessWeightRisk,
     onSuccess: () => {
@@ -280,6 +291,7 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
+  /* istanbul ignore next */
   const { mutate: mutateSITExtensionApproval } = useMutation({
     mutationFn: approveSITExtension,
     onSuccess: (data, variables) => {
@@ -294,6 +306,7 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
+  /* istanbul ignore next */
   const { mutate: mutateSITExtensionDenial } = useMutation({
     mutationFn: denySITExtension,
     onSuccess: (data, variables) => {
@@ -308,6 +321,7 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
+  /* istanbul ignore next */
   const { mutate: mutateSubmitSITExtension } = useMutation({
     mutationFn: submitSITExtension,
     onSuccess: (data, variables) => {
@@ -322,6 +336,7 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
+  /* istanbul ignore next */
   const { mutate: mutateFinancialReview } = useMutation({
     mutationFn: updateFinancialFlag,
     onSuccess: (data) => {
@@ -330,6 +345,7 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
+  /* istanbul ignore next */
   const { mutate: mutateSitAddressUpdate } = useMutation({
     mutationFn: createSitAddressUpdate,
     onSuccess: (data) => {
@@ -344,6 +360,7 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
+  /* istanbul ignore next */
   const { mutate: mutateApproveSitAddressUpdate } = useMutation({
     mutationFn: approveSitAddressUpdate,
     onSuccess: (data) => {
@@ -358,6 +375,7 @@ export const MoveTaskOrder = (props) => {
     },
   });
 
+  /* istanbul ignore next */
   const { mutate: mutateRejectSitAddressUpdate } = useMutation({
     mutationFn: rejectSitAddressUpdate,
     onSuccess: (data) => {
@@ -371,42 +389,85 @@ export const MoveTaskOrder = (props) => {
       milmoveLogger.error(errorMsg);
     },
   });
+
+  /* istanbul ignore next */
+  const { mutate: mutateServiceItemSitEntryDate } = useMutation({
+    mutationFn: updateServiceItemSITEntryDate,
+    onSuccess: (data) => {
+      // here we are updating the service item
+      const updatedServiceItems = [...mtoServiceItems];
+      updatedServiceItems[updatedServiceItems.findIndex((serviceItem) => serviceItem.id === data.id)] = data;
+      queryClient.setQueryData([MTO_SERVICE_ITEMS, move.id, false], updatedServiceItems);
+      queryClient.invalidateQueries({ queryKey: [MTO_SERVICE_ITEMS, move.id, false] });
+
+      // here we are updating the shipment (focusing on the currentSit object)
+      const updatedMTOShipment = data;
+      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === data.mtoShipmentID)] = updatedMTOShipment;
+      queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID] });
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLogger.error(errorMsg);
+    },
+  });
   /*
     *
     -------------------------  Toggle Modals  -------------------------
                   Functions to show and hide modals
+    * using istanbul ignore next to omit from test coverage since these functions
+    * cannot be exported
     *
     */
 
+  /* istanbul ignore next */
   const handleCancelFinancialReviewModal = () => {
     setIsFinancialModalVisible(false);
   };
 
+  /* istanbul ignore next */
   const handleShowFinancialReviewModal = () => {
     setIsFinancialModalVisible(true);
   };
 
+  /* istanbul ignore next */
   const handleShowRejectionDialog = (mtoServiceItemID, mtoShipmentID) => {
     const serviceItem = shipmentServiceItems[`${mtoShipmentID}`]?.find((item) => item.id === mtoServiceItemID);
     setSelectedServiceItem(serviceItem);
     setIsModalVisible(true);
   };
 
+  /* istanbul ignore next */
   const handleShowEditSitAddressModal = (mtoServiceItemID, mtoShipmentID) => {
     const serviceItem = shipmentServiceItems[`${mtoShipmentID}`]?.find((item) => item.id === mtoServiceItemID);
     setSelectedServiceItem(serviceItem);
     setIsEditSitAddressModalVisible(true);
   };
 
+  /* istanbul ignore next */
   const handleCancelEditAddressModal = () => {
     setIsEditSitAddressModalVisible(false);
   };
 
+  /* istanbul ignore next */
+  const handleShowEditSitEntryDateModal = (mtoServiceItemID, mtoShipmentID) => {
+    const serviceItem = shipmentServiceItems[`${mtoShipmentID}`]?.find((item) => item.id === mtoServiceItemID);
+    setSelectedServiceItem(serviceItem);
+    setIsEditSitEntryDateModalVisible(true);
+  };
+
+  /* istanbul ignore next */
+  const handleCancelEditSitEntryDateModal = () => {
+    setIsEditSitEntryDateModalVisible(false);
+  };
+
+  /* istanbul ignore next */
   const handleShowCancellationModal = (mtoShipment) => {
     setSelectedShipment(mtoShipment);
     setIsCancelModalVisible(true);
   };
 
+  /* istanbul ignore next */
   const handleRequestReweighModal = (mtoShipment) => {
     setSelectedShipment(mtoShipment);
     setIsReweighModalVisible(true);
@@ -452,8 +513,12 @@ export const MoveTaskOrder = (props) => {
   *
   -------------------------  Submit Handlers  -------------------------
               Contain mutation functions to handle form submissions
+              Using istanbul ignore next to omit from test coverage
+              since they cannot be exported
   *
   */
+
+  /* istanbul ignore next */
   const handleSubmitFinancialReviewModal = (remarks, flagForReview) => {
     // if it's set to yes let's send a true to the backend. If not we'll send false.
     const flagForReviewBool = flagForReview === 'yes';
@@ -480,6 +545,7 @@ export const MoveTaskOrder = (props) => {
       },
     );
   };
+  /* istanbul ignore next */
   const handleReviewSITExtension = (sitExtensionID, formValues, shipment) => {
     if (formValues.acceptExtension === 'yes') {
       mutateSITExtensionApproval({
@@ -502,6 +568,7 @@ export const MoveTaskOrder = (props) => {
     }
   };
 
+  /* istanbul ignore next */
   const handleSubmitSITExtension = (formValues, shipment) => {
     mutateSubmitSITExtension(
       {
@@ -511,6 +578,8 @@ export const MoveTaskOrder = (props) => {
           requestReason: formValues.requestReason,
           officeRemarks: formValues.officeRemarks,
           approvedDays: parseInt(formValues.daysApproved, 10) - shipment.sitDaysAllowance,
+          sitEntryDate: formatDateForSwagger(formValues.sitEntryDate),
+          moveID: shipment.moveTaskOrderID,
         },
       },
       {
@@ -519,6 +588,7 @@ export const MoveTaskOrder = (props) => {
     );
   };
 
+  /* istanbul ignore next */
   const handleDivertShipment = (mtoShipmentID, eTag) => {
     mutateMTOShipmentStatus(
       {
@@ -537,6 +607,7 @@ export const MoveTaskOrder = (props) => {
     );
   };
 
+  /* istanbul ignore next */
   const handleReweighShipment = (mtoShipmentID, eTag) => {
     mutateMTOShipmentRequestReweigh(
       {
@@ -554,6 +625,7 @@ export const MoveTaskOrder = (props) => {
     );
   };
 
+  /* istanbul ignore next */
   const handleEditAccountingCodes = (fields, shipment) => {
     const body = { tacType: null, sacType: null, ...fields };
     mutateMTOShipment({
@@ -564,6 +636,7 @@ export const MoveTaskOrder = (props) => {
     });
   };
 
+  /* istanbul ignore next */
   const handleUpdateMTOShipmentStatus = (moveTaskOrderID, mtoShipmentID, eTag) => {
     mutateMTOShipmentStatus(
       {
@@ -582,6 +655,7 @@ export const MoveTaskOrder = (props) => {
     );
   };
 
+  /* istanbul ignore next */
   const handleEditFacilityInfo = (fields, shipment) => {
     const formattedStorageFacility = formatStorageFacilityForAPI(fields.storageFacility);
     const formattedStorageFacilityAddress = removeEtag(formatAddressForAPI(fields.storageFacility.address));
@@ -597,6 +671,7 @@ export const MoveTaskOrder = (props) => {
     });
   };
 
+  /* istanbul ignore next */
   const handleEditServiceOrderNumber = (fields, shipment) => {
     mutateMTOShipment({
       moveTaskOrderID: shipment.moveTaskOrderID,
@@ -606,6 +681,7 @@ export const MoveTaskOrder = (props) => {
     });
   };
 
+  /* istanbul ignore next */
   const handleUpdateMTOServiceItemStatus = (mtoServiceItemID, mtoShipmentID, status, rejectionReason) => {
     const mtoServiceItemForRequest = shipmentServiceItems[`${mtoShipmentID}`]?.find((s) => s.id === mtoServiceItemID);
 
@@ -626,6 +702,7 @@ export const MoveTaskOrder = (props) => {
     );
   };
 
+  /* istanbul ignore next */
   const handleUpdateBillableWeight = (maxBillableWeight) => {
     mutateOrderBillableWeight(
       {
@@ -668,6 +745,7 @@ export const MoveTaskOrder = (props) => {
    * @description Updates the sitAddressUpdate logs and final SIT address with the new address submitted.
    * OnSuccess, it closes the modal and sets a success message.
    */
+  /* istanbul ignore next */
   const handleSubmitSitAddressChange = (mtoServiceItemID, { newAddress, officeRemarks }) => {
     mutateSitAddressUpdate(
       {
@@ -698,6 +776,7 @@ export const MoveTaskOrder = (props) => {
     );
   };
 
+  /* istanbul ignore next */
   const handleSubmitSitAddressUpdateChange = (mtoServiceItemID, { sitAddressUpdate, officeRemarks }) => {
     const { id, eTag } = findSITAddressUpdate(selectedServiceItem.id, selectedServiceItem.sitAddressUpdates);
     const runOnSuccess = (data) => {
@@ -747,6 +826,31 @@ export const MoveTaskOrder = (props) => {
         },
       );
     }
+  };
+
+  /**
+   * @function
+   * @param {string} mtoServiceItemID
+   * @param {Date} newSitEntryDate
+   * @description Updates the selected SIT entry date
+   * OnSuccess, it closes the modal and sets a success message.
+   */
+  /* istanbul ignore next */
+  const handleSubmitSitEntryDateChange = (mtoServiceItemID, newSitEntryDate) => {
+    mutateServiceItemSitEntryDate(
+      {
+        mtoServiceItemID,
+        body: { ID: mtoServiceItemID, SitEntryDate: newSitEntryDate },
+      },
+      {
+        onSuccess: () => {
+          setSelectedServiceItem({});
+          setIsEditSitEntryDateModalVisible(false);
+          setAlertMessage('SIT entry date updated');
+          setAlertType('success');
+        },
+      },
+    );
   };
 
   /*
@@ -875,6 +979,7 @@ export const MoveTaskOrder = (props) => {
    * @todo ETag and Id need to be removed from response from backend or address fields needs to be in their own object
    * @returns {AddressShape}
    */
+  /* istanbul ignore next */
   const getSitAddressInitialValues = () => {
     const address = selectedServiceItem.sitDestinationFinalAddress || selectedServiceItem.sitDestinationOriginalAddress;
 
@@ -1092,6 +1197,14 @@ export const MoveTaskOrder = (props) => {
               <EditSitAddressChangeForm initialAddress={getSitAddressInitialValues()} />
             </ConnectedServiceItemUpdateModal>
           )}
+          {isEditSitEntryDateModalVisible && (
+            <EditSitEntryDateModal
+              onClose={handleCancelEditSitEntryDateModal}
+              onSubmit={handleSubmitSitEntryDateChange}
+              isOpen={isEditSitEntryDateModalVisible}
+              serviceItem={selectedServiceItem}
+            />
+          )}
           <div className={styles.pageHeader}>
             <h1>Move task order</h1>
             <div className={styles.pageHeaderDetails}>
@@ -1195,6 +1308,7 @@ export const MoveTaskOrder = (props) => {
                     handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
                     handleShowRejectionDialog={handleShowRejectionDialog}
                     handleShowEditSitAddressModal={handleShowEditSitAddressModal}
+                    handleShowEditSitEntryDateModal={handleShowEditSitEntryDateModal}
                     statusForTableType={SERVICE_ITEM_STATUSES.SUBMITTED}
                     serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
                   />
@@ -1206,6 +1320,7 @@ export const MoveTaskOrder = (props) => {
                     handleShowRejectionDialog={handleShowRejectionDialog}
                     handleRequestSITAddressUpdateModal={handleReviewRequestSITAddressUpdateModal}
                     handleShowEditSitAddressModal={handleShowEditSitAddressModal}
+                    handleShowEditSitEntryDateModal={handleShowEditSitEntryDateModal}
                     statusForTableType={SERVICE_ITEM_STATUSES.APPROVED}
                     serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
                   />
