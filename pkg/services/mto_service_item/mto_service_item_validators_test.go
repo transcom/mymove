@@ -212,6 +212,11 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 					Code: models.ReServiceCodeDOFSIT,
 				},
 			},
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate: &later,
+				},
+			},
 		}, nil)
 		newDOFSIT := oldDOFSIT
 		newDOFSIT.SITDepartureDate = &now

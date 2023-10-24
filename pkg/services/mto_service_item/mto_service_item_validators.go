@@ -6,6 +6,7 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"golang.org/x/exp/slices"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -69,6 +70,12 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 		return err
 	}
 
+	// Check to see if the updated service item is different than the old one
+	err = serviceItemData.checkForSITItemChanges(appCtx, serviceItemData)
+	if err != nil {
+		return err
+	}
+
 	// Checks that none of the fields that the Prime cannot update have been changed
 	err = serviceItemData.checkNonPrimeFields(appCtx)
 	if err != nil {
@@ -126,6 +133,73 @@ type updateMTOServiceItemData struct {
 	oldServiceItem      models.MTOServiceItem
 	availabilityChecker services.MoveTaskOrderChecker
 	verrs               *validate.Errors
+}
+
+// Check to see if the updatedSIT service item is different than the old one
+// Turns out creating a custom comparsion method using if-statements has better performance than using a library in go
+func (v *updateMTOServiceItemData) checkForSITItemChanges(_ appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error {
+
+	oldServiceItem := serviceItemData.oldServiceItem
+
+	// This check is for the service items in this list
+	serviceItemsToCheck := []models.ReServiceCode{
+		models.ReServiceCodeDOFSIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDOASIT,
+	}
+
+	// Check will only be executed for serviceItems with reservice codes in the serviceItemsToCheck array
+	if slices.Contains(serviceItemsToCheck, oldServiceItem.ReService.Code) {
+
+		updatedServiceItem := serviceItemData.updatedServiceItem
+
+		// Start checking for differences. If a difference is found return nil. No need to reject the request if there are changes.
+		// For now only check fields that the prime can actually submit a change for
+
+		if updatedServiceItem.ReService.Code.String() != "" && updatedServiceItem.ReService.Code != oldServiceItem.ReService.Code {
+			return nil
+		}
+
+		if !updatedServiceItem.SITDepartureDate.IsZero() && updatedServiceItem.SITDepartureDate.UTC() != oldServiceItem.SITDepartureDate.UTC() {
+			return nil
+		}
+
+		if updatedServiceItem.SITDestinationFinalAddress != nil && updatedServiceItem.SITDestinationFinalAddress != oldServiceItem.SITDestinationFinalAddress {
+			return nil
+		}
+
+		if updatedServiceItem.SITCustomerContacted != nil && updatedServiceItem.SITCustomerContacted != oldServiceItem.SITCustomerContacted {
+			return nil
+		}
+
+		if updatedServiceItem.SITRequestedDelivery != nil && updatedServiceItem.SITRequestedDelivery != oldServiceItem.SITRequestedDelivery {
+			return nil
+		}
+
+		if updatedServiceItem.SITEntryDate != nil && updatedServiceItem.SITEntryDate != oldServiceItem.SITEntryDate {
+			return nil
+		}
+
+		// Uncomment when B-17642 is done. requestApprovalsRequestedStatus needs to be implemented
+		// if updatedServiceItem.Reason != nil && updatedServiceItem.Reason != oldServiceItem.Reason {
+		// 	return nil
+		// }
+
+		// Uncomment when B-17642 is done. requestApprovalsRequestedStatus needs to be implemented
+		// if updatedServiceItem.SITPostalCode != nil && updatedServiceItem.SITPostalCode != oldServiceItem.SITPostalCode {
+		// 	return nil
+		// }
+
+		// Uncomment when B-17642 is done. requestApprovalsRequestedStatus needs to be implemented
+		// if updatedServiceItem.requestApprovalsRequestedStatus != oldServiceItem.requestApprovalsRequestedStatus {
+		// 	return nil
+		// }
+
+		// If execution made it this far no changes were detected. Reject the request.
+		return apperror.NewConflictError(oldServiceItem.ID,
+			"- to re-submit a SIT sevice item the new SIT service item must be different than the previous one.")
+
+	}
+
+	return nil
 }
 
 // checkLinkedIDs checks that the user didn't attempt to change the service item's move, shipment, or reService IDs
