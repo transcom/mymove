@@ -1316,7 +1316,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 			},
 			{
 				Model: models.MTOServiceItem{
-					SITEntryDate: models.TimePointer(time.Now()),
+					SITEntryDate:     models.TimePointer(time.Now()),
+					SITDepartureDate: &timeNow,
 				},
 			},
 			{
