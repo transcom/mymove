@@ -133,9 +133,4 @@ describe('ReviewExpenseForm component', () => {
       expect(screen.getByText('484 characters')).toBeInTheDocument();
     });
   });
-  // describe('displays form', () => {
-  //   it('properly handles submit with valid data', async () => {
-
-  //   })
-  // })
 });
