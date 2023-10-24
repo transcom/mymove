@@ -53,7 +53,7 @@ const serviceItemWithDetails = {
   id: 'abc12345',
   createdAt: '2020-10-15',
   serviceItem: 'Domestic origin 1st day SIT',
-  code: 'DOFSIT',
+  code: 'DOPSIT',
   details: {
     pickupPostalCode: '20050',
     SITPostalCode: '12345',

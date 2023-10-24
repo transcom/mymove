@@ -15,6 +15,7 @@ describe('ServiceItemsTable', () => {
     handleShowRejectionDialog: jest.fn(),
     handleRequestSITAddressUpdateModal: jest.fn(),
     handleShowEditSitAddressModal: jest.fn(),
+    handleShowEditSitEntryDateModal: jest.fn(),
     serviceItemAddressUpdateAlert: {
       makeVisible: false,
       alertMessage: '',
@@ -129,6 +130,7 @@ describe('ServiceItemsTable', () => {
           pickupPostalCode: '11111',
           SITPostalCode: '12345',
           reason: 'This is the reason',
+          sitEntryDate: '2023-12-25T00:00:00.000Z',
         },
       },
     ];
@@ -140,10 +142,12 @@ describe('ServiceItemsTable', () => {
         statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
       />,
     );
-    expect(wrapper.find('dt').at(0).contains('ZIP')).toBe(true);
-    expect(wrapper.find('dd').at(0).contains('12345')).toBe(true);
-    expect(wrapper.find('dt').at(1).contains('Reason')).toBe(true);
-    expect(wrapper.find('dd').at(1).contains('This is the reason')).toBe(true);
+    expect(wrapper.find('dt').at(0).contains('SIT entry date')).toBe(true);
+    expect(wrapper.find('dd').at(0).contains('25 Dec 2023')).toBe(true);
+    expect(wrapper.find('dt').at(1).contains('ZIP')).toBe(true);
+    expect(wrapper.find('dd').at(1).contains('12345')).toBe(true);
+    expect(wrapper.find('dt').at(2).contains('Reason')).toBe(true);
+    expect(wrapper.find('dd').at(2).contains('This is the reason')).toBe(true);
   });
 
   it('calls the update service item status handler when the accept button is clicked', () => {
@@ -494,6 +498,58 @@ describe('ServiceItemsTable', () => {
     wrapper.find('button[data-testid="editTextButton"]').simulate('click');
 
     expect(defaultProps.handleShowEditSitAddressModal).toHaveBeenCalledWith('abc123', 'xyz789');
+  });
+
+  it('calls the handleShowEditSitEntryDateModal handler when the edit button is clicked for DOFSIT service item', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic origin 1st day SIT',
+        code: 'DOFSIT',
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
+    );
+
+    wrapper.find('button[data-testid="editTextButton"]').simulate('click');
+
+    expect(defaultProps.handleShowEditSitEntryDateModal).toHaveBeenCalledWith('abc123', 'xyz789');
+  });
+
+  it('calls the handleShowEditSitEntryDateModal handler when the edit button is clicked for DDFSIT service item', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic destination 1st day SIT',
+        code: 'DDFSIT',
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
+    );
+
+    wrapper.find('button[data-testid="editTextButton"]').simulate('click');
+
+    expect(defaultProps.handleShowEditSitEntryDateModal).toHaveBeenCalledWith('abc123', 'xyz789');
   });
 
   it('shows review request button when service item contains requested sit address update', () => {

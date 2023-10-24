@@ -14,6 +14,7 @@ const RequestedServiceItemsTable = ({
   handleShowRejectionDialog,
   handleRequestSITAddressUpdateModal,
   handleShowEditSitAddressModal,
+  handleShowEditSitEntryDateModal,
   statusForTableType,
   serviceItemAddressUpdateAlert,
 }) => {
@@ -46,6 +47,7 @@ const RequestedServiceItemsTable = ({
         handleShowRejectionDialog={handleShowRejectionDialog}
         handleShowEditSitAddressModal={handleShowEditSitAddressModal}
         handleRequestSITAddressUpdateModal={handleRequestSITAddressUpdateModal}
+        handleShowEditSitEntryDateModal={handleShowEditSitEntryDateModal}
         statusForTableType={statusForTableType}
         serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
       />
