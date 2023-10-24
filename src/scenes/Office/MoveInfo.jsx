@@ -22,7 +22,6 @@ import { showBanner, removeBanner } from './ducks';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
-import ToolTip from 'shared/ToolTip';
 import ComboButton from 'shared/ComboButton';
 import { DropDown, DropDownItem } from 'shared/ComboButton/dropdown';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
@@ -50,6 +49,7 @@ import { getMoveDocumentsForMove, selectAllDocumentsForMove } from 'shared/Entit
 import PrivateRoute from 'containers/PrivateRoute';
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types';
+import ToolTip from 'shared/ToolTip/ToolTip';
 
 const BasicsTabContent = (props) => {
   return (
@@ -191,11 +191,6 @@ class MoveInfo extends Component {
     );
   };
 
-  handleToolTipHover = () => {
-    // Temporarily disable due to bug: https://ustcdp3.slack.com/archives/CP4979J0G/p1575412461036700
-    // this.setState({ hideTooltip: !this.state.hideTooltip });
-  };
-
   render() {
     const { move, moveId, moveDocuments, moveStatus, orders, ppm, serviceMember, upload } = this.props;
     const showDocumentViewer = this.props.context.flags.documentViewer;
@@ -327,33 +322,28 @@ class MoveInfo extends Component {
                   Please fill out missing data
                 </Alert>
               )}
-              <div onMouseEnter={this.handleToolTipHover} onMouseLeave={this.handleToolTipHover}>
-                <ToolTip
-                  disabled={this.state.hideTooltip}
-                  textStyle="tooltiptext-large"
-                  toolTipText="Some information about the move is missing or contains errors. Please fix these problems before approving."
-                >
-                  {moveInfoComboButton && (
-                    <ComboButton
-                      allAreApproved={this.allAreApproved}
-                      buttonText={`Approve${this.allAreApproved ? 'd' : ''}`}
-                      disabled={this.allAreApproved || !ordersComplete}
-                    >
-                      <DropDown>
-                        <DropDownItem
-                          value="Approve Basics"
-                          disabled={moveApproved || !ordersComplete}
-                          onClick={this.approveBasics}
-                        />
-                        <DropDownItem
-                          disabled={ppmApproved || !moveApproved || !ordersComplete}
-                          onClick={this.approvePPM}
-                          value="Approve PPM"
-                        />
-                      </DropDown>
-                    </ComboButton>
-                  )}
-                </ToolTip>
+              <div>
+                <ToolTip text="Some information about the move is missing or contains errors. Please fix these problems before approving." />
+                {moveInfoComboButton && (
+                  <ComboButton
+                    allAreApproved={this.allAreApproved}
+                    buttonText={`Approve${this.allAreApproved ? 'd' : ''}`}
+                    disabled={this.allAreApproved || !ordersComplete}
+                  >
+                    <DropDown>
+                      <DropDownItem
+                        value="Approve Basics"
+                        disabled={moveApproved || !ordersComplete}
+                        onClick={this.approveBasics}
+                      />
+                      <DropDownItem
+                        disabled={ppmApproved || !moveApproved || !ordersComplete}
+                        onClick={this.approvePPM}
+                        value="Approve PPM"
+                      />
+                    </DropDown>
+                  </ComboButton>
+                )}
                 <ConfirmWithReasonButton
                   buttonTitle="Cancel Move"
                   reasonPrompt="Why is the move being canceled?"

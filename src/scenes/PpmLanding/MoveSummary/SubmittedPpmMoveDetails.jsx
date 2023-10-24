@@ -3,12 +3,12 @@ import { connect } from 'react-redux';
 
 import styles from './PpmMoveDetails.module.scss';
 
-import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { formatCents } from 'utils/formatters';
 import { getIncentiveRange } from 'utils/incentives';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { selectCurrentPPM, selectPPMEstimateRange, selectReimbursementById } from 'store/entities/selectors';
 import { selectPPMEstimateError } from 'store/onboarding/selectors';
+import ToolTip from 'shared/ToolTip/ToolTip';
 
 const SubmittedPpmMoveDetails = (props) => {
   const { advance, currentPPM, hasEstimateError, estimateRange } = props;
@@ -31,11 +31,7 @@ const SubmittedPpmMoveDetails = (props) => {
         {!incentiveRange || hasEstimateError ? (
           <>
             Not ready yet{' '}
-            <IconWithTooltip
-              // without this styling the tooltip is obstructed by the status timeline and z-index does not help because they don't share the same parent container
-              toolTipStyles={{ position: 'absolute', top: '8.5em', left: '20.5em' }}
-              toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive."
-            />
+            <ToolTip text="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
           </>
         ) : (
           incentiveRange
