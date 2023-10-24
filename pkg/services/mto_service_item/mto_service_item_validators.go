@@ -158,7 +158,7 @@ func (v *updateMTOServiceItemData) checkForSITItemChanges(_ appcontext.AppContex
 			return nil
 		}
 
-		if !updatedServiceItem.SITDepartureDate.IsZero() && updatedServiceItem.SITDepartureDate.UTC() != oldServiceItem.SITDepartureDate.UTC() {
+		if updatedServiceItem.SITDepartureDate != nil && !updatedServiceItem.SITDepartureDate.IsZero() && updatedServiceItem.SITDepartureDate.UTC() != oldServiceItem.SITDepartureDate.UTC() {
 			return nil
 		}
 
@@ -195,7 +195,7 @@ func (v *updateMTOServiceItemData) checkForSITItemChanges(_ appcontext.AppContex
 
 		// If execution made it this far no changes were detected. Reject the request.
 		return apperror.NewConflictError(oldServiceItem.ID,
-			"- to re-submit a SIT sevice item the new SIT service item must be different than the previous one.")
+			"- To re-submit a SIT sevice item the new SIT service item must be different than the previous one.")
 
 	}
 

@@ -156,6 +156,52 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.Contains(serviceItemData.verrs.Keys(), "rejectedAt")
 	})
 
+	// Test unsuccessful check for checkForSITItemChanges
+	suite.Run("checkForSITItemChanges - should not throw error when SIT Item is changed", func() {
+
+		// Update the non-updateable fields:
+		oldServiceItem, newServiceItem := setupTestData() // Create old and new service item
+
+		// Make both sthe newServiceItem of type DOFSIT because this type of service item will be checked by checkForSITItemChanges
+		newServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
+
+		// Sit Entry Date change. Need to make the newServiceItem different than the old.
+		newSitEntryDate := time.Date(2023, time.October, 10, 10, 10, 0, 0, time.UTC)
+		newServiceItem.SITEntryDate = &newSitEntryDate
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newServiceItem,
+			oldServiceItem:     oldServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+
+		err := serviceItemData.checkForSITItemChanges(suite.AppContextForTest(), &serviceItemData)
+
+		suite.NoError(err)
+	})
+
+	suite.Run("checkForSITItemChanges - should throw error when SIT Item is not changed", func() {
+
+		oldServiceItem, newServiceItem := setupTestData() // Create old and new service item
+
+		// Make both service items of type DOFSIT because this type of service item will be checked by checkForSITItemChanges
+		oldServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
+		newServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newServiceItem,
+			oldServiceItem:     oldServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+
+		err := serviceItemData.checkForSITItemChanges(suite.AppContextForTest(), &serviceItemData)
+
+		// Should error with message if nothing has changed between the new service item and the old one
+		suite.Error(err)
+		suite.Contains(err.Error(), "To re-submit a SIT sevice item the new SIT service item must be different than the previous one.")
+
+	})
+
 	// Test successful check for SIT departure service item - not updating SITDepartureDate
 	suite.Run("checkSITDeparture w/ no SITDepartureDate update - success", func() {
 		oldServiceItem, newServiceItem := setupTestData() // These
