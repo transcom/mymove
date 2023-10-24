@@ -7,7 +7,7 @@ import Alert from 'shared/Alert';
 import { LogoutUser } from 'utils/api';
 
 const defaultIdleTimeout = 10_000 * 60;
-const defaultWarningTime = 1000 * 60;
+const defaultWarningTime = 1_000 * 60;
 const keepAliveEndpoint = '/internal/users/logged_in';
 
 /**
