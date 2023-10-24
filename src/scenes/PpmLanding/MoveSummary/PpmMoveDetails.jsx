@@ -4,11 +4,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './PpmMoveDetails.module.scss';
 
-import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { formatCentsRange, formatCents } from 'utils/formatters';
 import { getIncentiveRange } from 'utils/incentives';
 import { selectPPMEstimateRange, selectReimbursementById } from 'store/entities/selectors';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
+import ToolTip from 'shared/ToolTip/ToolTip';
 
 const PpmMoveDetails = ({ advance, ppm, isMissingWeightTicketDocuments, estimateRange, netWeight }) => {
   const privateStorageString = ppm.estimated_storage_reimbursement
@@ -28,7 +28,7 @@ const PpmMoveDetails = ({ advance, ppm, isMissingWeightTicketDocuments, estimate
     return (
       <>
         Not ready yet{' '}
-        <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
+        <ToolTip text="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
       </>
     );
   };
