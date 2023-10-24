@@ -10,7 +10,6 @@ import Alert from 'shared/Alert';
 import { formatCentsRange } from 'utils/formatters';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
-import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import RadioButton from 'shared/RadioButton';
 import 'react-rangeslider/lib/index.css';
 import { withContext } from 'shared/AppContext';
@@ -32,6 +31,7 @@ import {
 } from 'store/entities/selectors';
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types';
+import ToolTip from 'shared/ToolTip/ToolTip';
 
 const WeightWizardForm = reduxifyWizardForm('weight-wizard-form');
 
@@ -211,7 +211,7 @@ export class PpmWeight extends Component {
       return (
         <div className="incentive">
           Not ready yet{' '}
-          <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
+          <ToolTip text="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
         </div>
       );
     }

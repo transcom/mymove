@@ -5,6 +5,8 @@ import Cookies from 'js-cookie';
 
 import WebhookSubscriptionEdit from '../../pages/Admin/WebhookSubscriptions/WebhookSubscriptionEdit';
 
+import AdminLogoutOnInactivity from 'layout/AdminIdleTimeout';
+
 import restProvider from './shared/rest_provider';
 import Menu from './shared/Menu';
 import UploadShow from './Uploads/UploadShow';
@@ -55,6 +57,7 @@ const httpClient = (url, options = {}) => {
 
 const CUIWrapper = () => (
   <>
+    <AdminLogoutOnInactivity />
     <CUIHeader />
     <AppBar />
   </>
