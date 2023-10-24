@@ -90,7 +90,7 @@ export const ServiceItemUpdateModal = ({
             <Form className={formStyles.form}>
               <div className={styles.sitPanelForm}>
                 <div className={styles.modalHeader}>
-                  <h3 className={styles.modalReviewHeader}>SIT delivery address</h3>
+                  {serviceItem.code !== 'DOPSIT' && <h3 className={styles.modalReviewHeader}>SIT delivery address</h3>}
                   {title === 'Review request: service item update' && (
                     <Tag data-testid="sitAddressUpdateTag" className={styles.sitAddressUpdateTag}>
                       UPDATE REQUESTED

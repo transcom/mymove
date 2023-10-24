@@ -23,6 +23,7 @@ const ServiceItemsTable = ({
   handleRequestSITAddressUpdateModal,
   handleShowRejectionDialog,
   handleShowEditSitAddressModal,
+  handleShowEditSitEntryDateModal,
   serviceItemAddressUpdateAlert,
 }) => {
   const hasSITAddressUpdate = (sitAddressUpdates) => {
@@ -79,6 +80,7 @@ const ServiceItemsTable = ({
               code={code}
               details={details}
               serviceRequestDocs={serviceRequestDocuments}
+              serviceItem={serviceItem}
             />
           </td>
           <td>
@@ -144,7 +146,13 @@ const ServiceItemsTable = ({
                           type="button"
                           data-testid="editTextButton"
                           className="text-blue usa-button--unstyled margin-left-1"
-                          onClick={() => handleShowEditSitAddressModal(id, mtoShipmentID)}
+                          onClick={() => {
+                            if (code === 'DDFSIT' || code === 'DOFSIT') {
+                              handleShowEditSitEntryDateModal(id, mtoShipmentID);
+                            } else {
+                              handleShowEditSitAddressModal(id, mtoShipmentID);
+                            }
+                          }}
                         >
                           <span>
                             <FontAwesomeIcon icon="pencil" style={{ marginRight: '5px' }} />

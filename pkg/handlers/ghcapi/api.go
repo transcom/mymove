@@ -32,6 +32,7 @@ import (
 	reportviolation "github.com/transcom/mymove/pkg/services/report_violation"
 	shipmentaddressupdate "github.com/transcom/mymove/pkg/services/shipment_address_update"
 	sitaddressupdate "github.com/transcom/mymove/pkg/services/sit_address_update"
+	sitentrydateupdate "github.com/transcom/mymove/pkg/services/sit_entry_date_update"
 	sitextension "github.com/transcom/mymove/pkg/services/sit_extension"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
@@ -132,6 +133,16 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.EvaluationReportsSubmitEvaluationReportHandler = SubmitEvaluationReportHandler{
 		HandlerConfig:           handlerConfig,
 		EvaluationReportUpdater: evaluationreport.NewEvaluationReportUpdater(),
+	}
+
+	ghcAPI.MtoServiceItemGetMTOServiceItemHandler = GetMTOServiceItemHandler{
+		HandlerConfig:         handlerConfig,
+		mtoServiceItemFetcher: mtoserviceitem.NewMTOServiceItemFetcher(),
+	}
+
+	ghcAPI.MtoServiceItemUpdateServiceItemSitEntryDateHandler = UpdateServiceItemSitEntryDateHandler{
+		HandlerConfig:       handlerConfig,
+		sitEntryDateUpdater: sitentrydateupdate.NewSitEntryDateUpdater(),
 	}
 
 	ghcAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{

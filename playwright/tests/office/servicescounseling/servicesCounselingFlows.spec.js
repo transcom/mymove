@@ -107,6 +107,9 @@ test.describe('Services counselor user', () => {
       await page.getByRole('link', { name: 'View and edit orders' }).click();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(3);
+
+      // Check for link that allows counselor to download the PDF for copy/paste functionality
+      await expect(page.locator('p[class*="DocumentViewer_downloadLink"] > a > span')).toHaveText('Download file');
     });
   });
 

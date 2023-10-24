@@ -10,6 +10,13 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+// MTOServiceItemFetcher is the exported interface for fetching a mto service item
+//
+//go:generate mockery --name MTOServiceItemFetcher
+type MTOServiceItemFetcher interface {
+	GetServiceItem(appCtx appcontext.AppContext, serviceItemID uuid.UUID) (*models.MTOServiceItem, error)
+}
+
 // MTOServiceItemCreator is the exported interface for creating a mto service item
 //
 //go:generate mockery --name MTOServiceItemCreator

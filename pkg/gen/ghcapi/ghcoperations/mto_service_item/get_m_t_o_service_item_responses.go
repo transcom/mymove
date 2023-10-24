@@ -26,7 +26,7 @@ type GetMTOServiceItemOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.MTOServiceItem `json:"body,omitempty"`
+	Payload *ghcmessages.MTOServiceItemSingle `json:"body,omitempty"`
 }
 
 // NewGetMTOServiceItemOK creates GetMTOServiceItemOK with default headers values
@@ -36,13 +36,13 @@ func NewGetMTOServiceItemOK() *GetMTOServiceItemOK {
 }
 
 // WithPayload adds the payload to the get m t o service item o k response
-func (o *GetMTOServiceItemOK) WithPayload(payload *ghcmessages.MTOServiceItem) *GetMTOServiceItemOK {
+func (o *GetMTOServiceItemOK) WithPayload(payload *ghcmessages.MTOServiceItemSingle) *GetMTOServiceItemOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get m t o service item o k response
-func (o *GetMTOServiceItemOK) SetPayload(payload *ghcmessages.MTOServiceItem) {
+func (o *GetMTOServiceItemOK) SetPayload(payload *ghcmessages.MTOServiceItemSingle) {
 	o.Payload = payload
 }
 
