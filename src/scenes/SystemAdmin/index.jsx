@@ -4,7 +4,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Home from './Home';
 
 import { GetLoggedInUser } from 'utils/api';
-import CUIHeader from 'components/CUIHeader/CUIHeader';
 // Logger
 import { milmoveLogger } from 'utils/milmoveLog';
 import { retryPageLoading } from 'utils/retryPageLoading';
@@ -36,7 +35,6 @@ class AdminWrapper extends Component {
     return (
       <>
         <div id="app-root">
-          <CUIHeader />
           <Routes>
             {/* no auth */}
             <Route path="/sign-in" element={<SignIn />} />
