@@ -184,20 +184,17 @@ func (v *updateMTOServiceItemData) checkForSITItemChanges(_ appcontext.AppContex
 			return nil
 		}
 
-		// Uncomment when B-17642 is done. requestApprovalsRequestedStatus needs to be implemented
-		// if updatedServiceItem.Reason != nil && updatedServiceItem.Reason != oldServiceItem.Reason {
-		// 	return nil
-		// }
+		if updatedServiceItem.Reason != nil && *updatedServiceItem.Reason != *oldServiceItem.Reason {
+			return nil
+		}
 
-		// Uncomment when B-17642 is done. requestApprovalsRequestedStatus needs to be implemented
-		// if updatedServiceItem.SITPostalCode != nil && updatedServiceItem.SITPostalCode != oldServiceItem.SITPostalCode {
-		// 	return nil
-		// }
+		if updatedServiceItem.SITPostalCode != nil && *updatedServiceItem.SITPostalCode != *oldServiceItem.SITPostalCode {
+			return nil
+		}
 
-		// Uncomment when B-17642 is done. requestApprovalsRequestedStatus needs to be implemented
-		// if updatedServiceItem.requestApprovalsRequestedStatus != oldServiceItem.requestApprovalsRequestedStatus {
-		// 	return nil
-		// }
+		if updatedServiceItem.RequestedApprovalsRequestedStatus != nil && *updatedServiceItem.RequestedApprovalsRequestedStatus != *oldServiceItem.RequestedApprovalsRequestedStatus {
+			return nil
+		}
 
 		// If execution made it this far no changes were detected. Reject the request.
 		return apperror.NewConflictError(oldServiceItem.ID,
