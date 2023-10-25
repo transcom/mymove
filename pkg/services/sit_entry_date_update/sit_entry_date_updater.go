@@ -23,40 +23,55 @@ func NewSitEntryDateUpdater() services.SitEntryDateUpdater {
 // replaces sit entry date
 // sends back updated service item
 func (p sitEntryDateUpdater) UpdateSitEntryDate(appCtx appcontext.AppContext, s *models.SITEntryDateUpdate) (*models.MTOServiceItem, error) {
+	// we will need to update not only the target SIT service item, but it's sister service item
+	// of additional days since the entry dates can't be the same
+	// and the SIT add'l days service item will need to be the NEXT day
 	var serviceItem models.MTOServiceItem
 	var serviceItemAdditionalDays models.MTOServiceItem
-	findServiceItemQuery := appCtx.DB().Q()
 
-	// finding the current service item
-	err := findServiceItemQuery.Find(&serviceItem, s.ID)
-
+	// finding the service item and populating serviceItem variable
+	err := appCtx.DB().Q().EagerPreload(
+		"MoveTaskOrder",
+		"SITDestinationFinalAddress",
+		"ReService",
+	).Find(&serviceItem, s.ID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			return nil, apperror.NewNotFoundError(s.ID, "while looking for service item")
 		default:
-			return nil, apperror.NewQueryError("ServiceItem", err, "")
+			return nil, apperror.NewQueryError("MTOServiceItem", err, "")
 		}
 	}
 
-	eagerAssociations := []string{"MoveTaskOrder", "MTOServiceItems"}
+	// eager associations is needed to get data from other tables
+	// retrieving the shipment to get the other service items
+	eagerAssociations := []string{"MoveTaskOrder", "MTOServiceItems", "MTOServiceItems.ReService"}
 	shipment, err := mtoshipment.NewMTOShipmentFetcher().GetShipment(appCtx, *serviceItem.MTOShipmentID, eagerAssociations...)
 	if err != nil {
 		return nil, apperror.NewQueryError("Shipment", err, "")
 	}
 
+	// the service code can either be DOFSIT or DDFSIT
 	serviceItemCode := serviceItem.ReService.Code
+	if serviceItemCode != models.ReServiceCodeDOFSIT && serviceItemCode != models.ReServiceCodeDDFSIT {
+		return nil, apperror.NewUnprocessableEntityError("You cannot change the SIT entry date of this service item.")
+	}
 
+	// looping through each service item in the shipment based on the service item code
+	// looking for the sister service item of add'l days
 	if serviceItemCode == models.ReServiceCodeDOFSIT {
 		for _, si := range shipment.MTOServiceItems {
 			if si.ReService.Code == models.ReServiceCodeDOASIT {
 				serviceItemAdditionalDays = si
+				break
 			}
 		}
 	} else if serviceItemCode == models.ReServiceCodeDDFSIT {
 		for _, si := range shipment.MTOServiceItems {
 			if si.ReService.Code == models.ReServiceCodeDDASIT {
 				serviceItemAdditionalDays = si
+				break
 			}
 		}
 	} else {
@@ -64,6 +79,7 @@ func (p sitEntryDateUpdater) UpdateSitEntryDate(appCtx appcontext.AppContext, s 
 	}
 
 	// updating service item struct with the new SIT entry date
+	// updating sister service item to have the next day for SIT entry date
 	if s.SITEntryDate == nil {
 		return nil, apperror.NewUnprocessableEntityError("You must provide the SIT entry date in the request")
 	} else if s.SITEntryDate != nil {
@@ -72,7 +88,7 @@ func (p sitEntryDateUpdater) UpdateSitEntryDate(appCtx appcontext.AppContext, s 
 		serviceItemAdditionalDays.SITEntryDate = &dayAfter
 	}
 
-	// Make the update and create a InvalidInputError if there were validation issues
+	// Make the update to both service items and create a InvalidInputError if there were validation issues
 	transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 
 		verrs, err := txnCtx.DB().ValidateAndUpdate(&serviceItem)
