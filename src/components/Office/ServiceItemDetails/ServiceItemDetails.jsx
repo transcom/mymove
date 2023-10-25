@@ -7,7 +7,7 @@ import { trimFileName } from '../../../utils/serviceItems';
 
 import styles from './ServiceItemDetails.module.scss';
 
-import { formatDate } from 'shared/dates';
+import { formatDate, formatDateWithUTC } from 'shared/dates';
 import { formatWeight, convertFromThousandthInchToInch } from 'utils/formatters';
 
 function generateDetailText(details, id, className) {
@@ -47,7 +47,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
           : null}
         {code === 'DDFSIT'
           ? generateDetailText({
-              'SIT entry date': details.sitEntryDate ? formatDate(details.sitEntryDate, 'DD MMM YYYY') : '-',
+              'SIT entry date': details.sitEntryDate ? formatDateWithUTC(details.sitEntryDate, 'DD MMM YYYY') : '-',
             })
           : null}
 
@@ -101,7 +101,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
           <dl>
             {generateDetailText(
               {
-                'SIT entry date': details.sitEntryDate ? formatDate(details.sitEntryDate, 'DD MMM YYYY') : '-',
+                'SIT entry date': details.sitEntryDate ? formatDateWithUTC(details.sitEntryDate, 'DD MMM YYYY') : '-',
                 ZIP: details.SITPostalCode ? details.SITPostalCode : '-',
                 Reason: details.reason ? details.reason : '-',
               },
