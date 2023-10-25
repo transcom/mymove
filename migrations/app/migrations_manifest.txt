@@ -868,3 +868,4 @@
 20230922180941_update_incorrect_transportation_office.up.sql
 20230925170109_update_deletion_fk_policies_duty_location.up.sql
 20230925221618_delete_fort_lee_dutylocation.up.sql
+20231023144545_add_column_for_partial_payments.up.sql
