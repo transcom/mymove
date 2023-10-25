@@ -129,6 +129,20 @@ func (h UpdateServiceItemSitEntryDateHandler) Handle(params mtoserviceitemop.Upd
 
 				return mtoserviceitemop.NewUpdateServiceItemSitEntryDateUnprocessableEntity().WithPayload(payload), err
 			}
+
+			// trigger webhook event for Prime
+			_, err = event.TriggerEvent(event.Event{
+				EventKey:        event.MTOServiceItemUpdateEventKey,
+				MtoID:           serviceItem.MoveTaskOrderID,
+				UpdatedObjectID: serviceItem.ID,
+				EndpointKey:     event.GhcUpdateMTOServiceItemStatusEndpointKey,
+				AppContext:      appCtx,
+				TraceID:         h.GetTraceIDFromRequest(params.HTTPRequest),
+			})
+
+			if err != nil {
+				appCtx.Logger().Error("ghcapi.UpdateMTOServiceItemStatusHandler could not generate the event")
+			}
 			payload := payloads.MTOServiceItemSingleModel(serviceItem)
 
 			return mtoserviceitemop.NewUpdateServiceItemSitEntryDateOK().WithPayload(payload), nil
