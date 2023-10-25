@@ -23,8 +23,8 @@ import { formatDate, formatCents } from 'utils/formatters';
 
 import './PaymentsPanel.css';
 import Alert from 'shared/Alert';
-import ToolTip from 'shared/ToolTip';
 import withRouter from 'utils/routing';
+import ToolTip from 'shared/ToolTip/ToolTip';
 
 const attachmentsErrorMessages = {
   422: 'Encountered an error while trying to create attachments bundle: Document is in the wrong format',
@@ -122,26 +122,11 @@ class PaymentsTable extends Component {
       }
       return (
         <div onClick={this.approveReimbursement}>
-          <ToolTip disabled={false} text="Approve" textStyle="tooltiptext-small">
-            <FontAwesomeIcon aria-hidden className="icon approval-ready" icon="check" title="Approve" />
-          </ToolTip>
+          <ToolTip text="Approve" icon="check" />
         </div>
       );
     }
-    return (
-      <ToolTip
-        disabled={false}
-        text={"Can't approve payment until shipment is approved"}
-        textStyle="tooltiptext-medium"
-      >
-        <FontAwesomeIcon
-          aria-hidden
-          className="icon approval-blocked"
-          icon="check"
-          title="Can't approve payment until shipment is approved."
-        />
-      </ToolTip>
-    );
+    return <ToolTip text="Can't approve payment until shipment is approved" icon="check" />;
   };
 
   render() {
