@@ -1,4 +1,4 @@
-## [Jira ticket](tbd)
+## [Agility ticket](tbd)
 
 ## Summary
 
@@ -11,17 +11,22 @@ Is there anything you would like reviewers to give additional scrutiny?
 These are to be checked by the author.
 
 - [ ] Tested in the Experimental environment (for changes to containers, app startup, or connection to data stores)
-- [ ] Have the Jira acceptance criteria been met for this change?
+- [ ] Have the Agility acceptance criteria been met for this change?
 
 ## Verification Steps for Reviewers
 
 These are to be checked by a reviewer.
 
+- [ ] Has the branch been pulled in and checked out?
+- [ ] Have the BL acceptance criteria been met for this change?
+- [ ] Was the CircleCI build successful?
+- [ ] Has the code been reviewed from a standards and best practices point of view?
+
 ### Setup to Run the Code
 
-- [Instructions for starting storybook](https://transcom.github.io/mymove-docs/docs/frontend/setup/run-storybook)
-- [Instructions for starting the MilMove application](https://transcom.github.io/mymove-docs/docs/about/application-setup/milmove-local-client/)
-- [Instructions for running tests](https://transcom.github.io/mymove-docs/docs/about/development/testing)
+- [Instructions for starting storybook](https://transcom.github.io/mymove-docs/docs/frontend/setup/storybook)
+- [Instructions for starting the MilMove application](https://transcom.github.io/mymove-docs/docs/getting-started/application-setup/)
+- [Instructions for running tests](https://transcom.github.io/mymove-docs/docs/getting-started/development/testing)
 
 ### How to test
 
@@ -32,14 +37,15 @@ These are to be checked by a reviewer.
 ### Frontend
 
 - [ ] There are no aXe warnings for UI.
-- [ ] This works in [Supported Browsers and their phone views](https://transcom.github.io/mymove-docs/docs/about/supported-browsers) (Chrome, Firefox, Edge).
+- [ ] This works in [Supported Browsers and their phone views](https://transcom.github.io/mymove-docs/docs/adrs/Browser-Support/#minimum-browser-requirements) (Chrome, Firefox, Edge).
 - [ ] There are no new console errors in the browser devtools.
 - [ ] There are no new console errors in the test output.
 - [ ] If this PR adds a new component to Storybook, it ensures the component is fully responsive, OR if it is intentionally not, a wrapping div using the `officeApp` class or custom `min-width` styling is used to hide any states the would not be visible to the user.
+- [ ] This change meets the standards for [Section 508 compliance](https://www.ssa.gov/accessibility/andi/help/install.html).
 
 ### Backend
 
-- [ ] Code follows the guidelines for [Logging](https://transcom.github.io/mymove-docs/docs/about/development/logging).
+- [ ] Code follows the guidelines for [Logging](https://transcom.github.io/mymove-docs/docs/getting-started/development/logging).
 - [ ] The requirements listed in [Querying the Database Safely](https://transcom.github.io/mymove-docs/docs/backend/guides/golang-guide#querying-the-database-safely) have been satisfied.
 
 ### Database
