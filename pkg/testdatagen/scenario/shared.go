@@ -4312,6 +4312,14 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	originSITAddress := shipment.PickupAddress
 	originSITAddress.ID = uuid.Nil
 
+	destSITAddress := factory.BuildAddress(db, []factory.Customization{
+		{
+			Model: models.Address{
+				PostalCode: "30813",
+			},
+		},
+	}, nil)
+
 	destinationSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
 		{
 			Model:    move,
@@ -4325,6 +4333,11 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 			Model: models.ReService{
 				Code: models.ReServiceCodeDDFSIT,
 			},
+		},
+		{
+			Model:    destSITAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.SITDestinationFinalAddress,
 		},
 		{
 			Model: models.MTOServiceItem{

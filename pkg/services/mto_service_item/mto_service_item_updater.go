@@ -166,13 +166,31 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 			if err != nil {
 				return nil, err
 			}
-			serviceItem.SITDestinationOriginalAddressID = &shipmentDestinationAddress.ID
-			serviceItem.SITDestinationOriginalAddress = shipmentDestinationAddress
 
-			if serviceItem.SITDestinationFinalAddressID == nil {
-				serviceItem.SITDestinationFinalAddressID = &shipmentDestinationAddress.ID
-				serviceItem.SITDestinationFinalAddress = shipmentDestinationAddress
+			// If we're looking at fuel surcharge let's make sure the original and final addresses are the same as the DDDSIT item
+			if serviceItem.ReService.Code == models.ReServiceCodeDDSFSC {
+				deliveryServiceItems, err := models.FetchRelatedDestinationSITServiceItems(appCtx.DB(), *serviceItem.MTOShipmentID)
+				if err != nil {
+					return nil, err
+				}
+				// Iterating through the delivery related service items and getting the address from the DDDSIT item
+				for _, item := range deliveryServiceItems {
+					if item.ReService.Code == models.ReServiceCodeDDDSIT && (item.SITDestinationOriginalAddressID != nil || item.SITDestinationFinalAddressID != nil) {
+						serviceItem.SITDestinationOriginalAddressID = item.SITDestinationOriginalAddressID
+						serviceItem.SITDestinationOriginalAddress = item.SITDestinationOriginalAddress
+						serviceItem.SITDestinationFinalAddressID = item.SITDestinationFinalAddressID
+						serviceItem.SITDestinationFinalAddress = item.SITDestinationFinalAddress
+					}
+				}
+				if serviceItem.SITDestinationOriginalAddressID == nil {
+					serviceItem.SITDestinationOriginalAddressID = &shipmentDestinationAddress.ID
+					serviceItem.SITDestinationOriginalAddress = shipmentDestinationAddress
+				}
+			} else {
+				serviceItem.SITDestinationOriginalAddressID = &shipmentDestinationAddress.ID
+				serviceItem.SITDestinationOriginalAddress = shipmentDestinationAddress
 			}
+
 		}
 	}
 
