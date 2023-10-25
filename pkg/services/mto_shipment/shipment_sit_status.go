@@ -89,7 +89,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 
 	if currentSIT != nil {
 		location := DestinationSITLocation
-		if currentSIT.ReService.Code == models.ReServiceCodeDOPSIT {
+		if currentSIT.ReService.Code == models.ReServiceCodeDOFSIT {
 			location = OriginSITLocation
 		}
 		daysInSIT := daysInSIT(*currentSIT, today)

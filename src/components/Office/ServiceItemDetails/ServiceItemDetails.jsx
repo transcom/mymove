@@ -22,6 +22,7 @@ function generateDetailText(details, id, className) {
 
 const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, details, code) => {
   const { customerContacts } = details;
+  console.log(`service item details for ${code}`, details);
   // Below we are using the sortBy func in lodash to sort the customer contacts
   // by the firstAvailableDeliveryDate field. sortBy returns a new
   // array with the elements in ascending order.

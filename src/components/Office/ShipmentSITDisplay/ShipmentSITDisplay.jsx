@@ -71,6 +71,8 @@ const SitHistoryList = ({ sitHistory, dayAllowance }) => {
 };
 
 const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }) => {
+  // console.log(shipment);
+  console.log('sitStatus', sitStatus);
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
   const currentDaysInSIT = sitStatus.currentSIT?.daysInSIT || 0;
   const currentDaysInSITElement = <p>{currentDaysInSIT}</p>;
@@ -93,7 +95,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
   // Previous SIT calculations and date ranges
   const previousDaysUsed = sitStatus.pastSITServiceItems?.map((pastSITItem) => {
     const sitDaysUsed = moment(pastSITItem.sitDepartureDate).diff(pastSITItem.sitEntryDate, 'days');
-    const location = pastSITItem.reServiceCode === SERVICE_ITEM_CODES.DOPSIT ? 'origin' : 'destination';
+    const location = pastSITItem.reServiceCode === SERVICE_ITEM_CODES.DOFSIT ? 'origin' : 'destination';
 
     const start = formatDate(pastSITItem.sitEntryDate, swaggerDateFormat, 'DD MMM YYYY');
     const end = formatDate(pastSITItem.sitDepartureDate, swaggerDateFormat, 'DD MMM YYYY');
