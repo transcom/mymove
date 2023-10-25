@@ -1,6 +1,13 @@
 import moment from 'moment';
 
-import { parseDate, formatDate, formatDateForSwagger, formatDateTime, formatDateForDatePicker } from './dates';
+import {
+  parseDate,
+  formatDate,
+  formatDateForSwagger,
+  formatDateTime,
+  formatDateForDatePicker,
+  formatDateWithUTC,
+} from './dates';
 
 describe('dates', () => {
   describe('parseDate', () => {
@@ -30,6 +37,24 @@ describe('dates', () => {
     });
     describe('when parsing a date that does the match allowed date formats', () => {
       const result = formatDate('8-23-2019');
+      it('should return 8/23/2019', () => {
+        expect(result).toEqual('8/23/2019');
+      });
+    });
+  });
+  describe('formatDateWithUTC', () => {
+    describe('when formatting a date that does not match the allowed date formats', () => {
+      it('should return "invalid date"', () => {
+        const result = formatDateWithUTC('8');
+        expect(result).toEqual('Invalid date');
+      });
+      it('should return "invalid date"', () => {
+        const result = formatDateWithUTC();
+        expect(result).toEqual('Invalid date');
+      });
+    });
+    describe('when parsing a date that does the match allowed date formats', () => {
+      const result = formatDateWithUTC('8-23-2019');
       it('should return 8/23/2019', () => {
         expect(result).toEqual('8/23/2019');
       });
