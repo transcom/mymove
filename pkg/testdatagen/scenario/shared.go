@@ -4870,15 +4870,6 @@ func createHHGWithPaymentServiceItems(
 	}
 
 	destDepartureDate := destEntryDate.Add(15 * 24 * time.Hour)
-	serviceItemDDDSIT.SITDepartureDate = &destDepartureDate
-
-	updatedDDDSIT, updateDestErr := serviceItemUpdater.UpdateMTOServiceItemPrime(appCtx, &serviceItemDDDSIT, etag.GenerateEtag(serviceItemDDDSIT.UpdatedAt))
-
-	if updateDestErr != nil {
-		logger.Fatal(fmt.Sprintf("Error updating %s with departure date", models.ReServiceCodeDDDSIT))
-	}
-
-	serviceItemDDDSIT = *updatedDDDSIT
 
 	for _, createdServiceItem := range []models.MTOServiceItem{serviceItemDDASIT, serviceItemDDDSIT, serviceItemDDFSIT, serviceItemDDSFSC} {
 		_, updateErr := serviceItemUpdater.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))

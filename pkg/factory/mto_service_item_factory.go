@@ -53,15 +53,18 @@ func buildMTOServiceItemWithBuildType(db *pop.Connection, customs []Customizatio
 		reService = FetchOrBuildReServiceByCode(db, models.ReServiceCode("STEST"))
 	}
 
+	requestedApprovalsRequestedStatus := false
+
 	// Create default MTOServiceItem
 	mtoServiceItem := models.MTOServiceItem{
-		MoveTaskOrder:   move,
-		MoveTaskOrderID: move.ID,
-		MTOShipment:     mtoShipment,
-		MTOShipmentID:   mtoShipmentID,
-		ReService:       reService,
-		ReServiceID:     reService.ID,
-		Status:          models.MTOServiceItemStatusSubmitted,
+		MoveTaskOrder:                     move,
+		MoveTaskOrderID:                   move.ID,
+		MTOShipment:                       mtoShipment,
+		MTOShipmentID:                     mtoShipmentID,
+		ReService:                         reService,
+		ReServiceID:                       reService.ID,
+		Status:                            models.MTOServiceItemStatusSubmitted,
+		RequestedApprovalsRequestedStatus: &requestedApprovalsRequestedStatus,
 	}
 
 	// only set SITOriginHHGOriginalAddress if a customization is provided

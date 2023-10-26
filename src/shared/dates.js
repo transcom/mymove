@@ -33,6 +33,10 @@ export function formatDate(date, format = defaultDateFormat, locale = 'en') {
   return moment(date, allowedDateFormats, locale, true).locale(locale).format(format);
 }
 
+export function formatDateWithUTC(date, format = defaultDateFormat, locale = 'en') {
+  return moment.utc(date, allowedDateFormats, locale, true).locale(locale).format(format);
+}
+
 export function formatDateForSwagger(dateString) {
   if (dateString) {
     return formatDate(dateString, swaggerDateFormat);
@@ -57,7 +61,7 @@ export function formatDateTime(dateString) {
  */
 export function formatDateForDatePicker(date) {
   if (date) {
-    return date.format(datePickerFormat);
+    return formatDate(date, datePickerFormat);
   }
   return undefined;
 }

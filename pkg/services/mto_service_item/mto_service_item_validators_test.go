@@ -202,22 +202,22 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	// Test unsuccessful check for SIT departure service item - not a departure SIT item
 	suite.Run("checkSITDeparture w/ non-departure SIT - failure", func() {
 		// Under test:  checkSITDeparture checks that the service item is a
-		//			    DDDSIT or DOPSIT if the user is trying to update the
+		//			    DDDSIT, DOPSIT, DOASIT or DOFSIT if the user is trying to update the
 		// 			    SITDepartureDate
-		// Set up:      Create any non DDDSIT service item
+		// Set up:      Create any non DDDSIT, DOPSIT, DOASIT, DOFSIT service item
 		// Expected outcome: Conflict Error
-		oldDOFSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
+		oldDDFSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOFSIT,
+					Code: models.ReServiceCodeDDFSIT,
 				},
 			},
 		}, nil)
-		newDOFSIT := oldDOFSIT
-		newDOFSIT.SITDepartureDate = &now
+		newDDFSIT := oldDDFSIT
+		newDDFSIT.SITDepartureDate = &now
 		serviceItemData := updateMTOServiceItemData{
-			updatedServiceItem: newDOFSIT, // default is not DDDSIT/DOPSIT
-			oldServiceItem:     oldDOFSIT,
+			updatedServiceItem: newDDFSIT, // default is not DDDSIT/DOPSIT
+			oldServiceItem:     oldDDFSIT,
 			verrs:              validate.NewErrors(),
 		}
 		err := serviceItemData.checkSITDeparture(suite.AppContextForTest())
@@ -225,7 +225,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
 		suite.NoVerrs(serviceItemData.verrs) // this check doesn't add a validation error
-		suite.Contains(err.Error(), fmt.Sprintf("SIT Departure Date may only be manually updated for %s and %s service items", models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT))
+		suite.Contains(err.Error(), fmt.Sprintf("SIT Departure Date may only be manually updated for the following service items: %s, %s, %s, %s", models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT))
 	})
 
 	// Test successful check for service item w/out payment request

@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
@@ -40,6 +41,98 @@ func payloadForValidationError(title string, detail string, instance uuid.UUID, 
 	}
 
 	return payload
+}
+
+// GetMTOServiceItem returns an MTO Service item stored in the mto_service_items table
+// requires a uuid to find the service item
+type GetMTOServiceItemHandler struct {
+	handlers.HandlerConfig
+	mtoServiceItemFetcher services.MTOServiceItemFetcher
+}
+
+func (h GetMTOServiceItemHandler) Handle(params mtoserviceitemop.GetMTOServiceItemParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			// handling error responses based on error values
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("GetServiceItem error", zap.Error(err))
+				payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return mtoserviceitemop.NewGetMTOServiceItemNotFound().WithPayload(payload), err
+				case apperror.ForbiddenError:
+					return mtoserviceitemop.NewGetMTOServiceItemForbidden().WithPayload(payload), err
+				case apperror.QueryError:
+					return mtoserviceitemop.NewGetMTOServiceItemInternalServerError(), err
+				default:
+					return mtoserviceitemop.NewGetMTOServiceItemInternalServerError(), err
+				}
+			}
+
+			mtoServiceItemID, err := uuid.FromString(params.MtoServiceItemID)
+			// return parsing errors
+			if err != nil {
+				parsingError := fmt.Errorf("UUID parsing failed for mtoServiceItem: %w", err).Error()
+				appCtx.Logger().Error(parsingError)
+				payload := payloadForValidationError(
+					"UUID(s) parsing error",
+					parsingError,
+					h.GetTraceIDFromRequest(params.HTTPRequest),
+					validate.NewErrors())
+
+				return mtoserviceitemop.NewUpdateMTOServiceItemStatusUnprocessableEntity().WithPayload(payload), err
+			}
+			serviceItem, err := h.mtoServiceItemFetcher.GetServiceItem(appCtx, mtoServiceItemID)
+			if err != nil {
+				return handleError(err)
+			}
+			payload := payloads.MTOServiceItemSingleModel(serviceItem)
+			return mtoserviceitemop.NewGetMTOServiceItemOK().WithPayload(payload), nil
+		})
+}
+
+type UpdateServiceItemSitEntryDateHandler struct {
+	handlers.HandlerConfig
+	sitEntryDateUpdater services.SitEntryDateUpdater
+}
+
+func (h UpdateServiceItemSitEntryDateHandler) Handle(params mtoserviceitemop.UpdateServiceItemSitEntryDateParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			mtoServiceItemID, err := uuid.FromString(params.MtoServiceItemID)
+			// return parsing errors
+			if err != nil {
+				parsingError := fmt.Errorf("UUID parsing failed for mtoServiceItem: %w", err).Error()
+				appCtx.Logger().Error(parsingError)
+				payload := payloadForValidationError(
+					"UUID(s) parsing error",
+					parsingError,
+					h.GetTraceIDFromRequest(params.HTTPRequest),
+					validate.NewErrors())
+
+				return mtoserviceitemop.NewUpdateServiceItemSitEntryDateUnprocessableEntity().WithPayload(payload), err
+			}
+			sitEntryDateModel := models.SITEntryDateUpdate{
+				ID:           mtoServiceItemID,
+				SITEntryDate: (*time.Time)(params.Body.SitEntryDate),
+			}
+			serviceItem, err := h.sitEntryDateUpdater.UpdateSitEntryDate(appCtx, &sitEntryDateModel)
+			if err != nil {
+				databaseError := fmt.Errorf("UpdateSitEntryDate failed for service item: %w", err).Error()
+				appCtx.Logger().Error(databaseError)
+				payload := payloadForValidationError(
+					"Database error",
+					databaseError,
+					h.GetTraceIDFromRequest(params.HTTPRequest),
+					validate.NewErrors())
+
+				return mtoserviceitemop.NewUpdateServiceItemSitEntryDateUnprocessableEntity().WithPayload(payload), err
+			}
+			payload := payloads.MTOServiceItemSingleModel(serviceItem)
+
+			return mtoserviceitemop.NewUpdateServiceItemSitEntryDateOK().WithPayload(payload), nil
+		})
 }
 
 // UpdateMTOServiceItemStatusHandler struct that describes updating service item status

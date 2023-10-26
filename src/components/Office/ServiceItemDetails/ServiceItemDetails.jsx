@@ -7,7 +7,7 @@ import { trimFileName } from '../../../utils/serviceItems';
 
 import styles from './ServiceItemDetails.module.scss';
 
-import { formatDate } from 'shared/dates';
+import { formatDate, formatDateWithUTC } from 'shared/dates';
 import { formatWeight, convertFromThousandthInchToInch } from 'utils/formatters';
 
 function generateDetailText(details, id, className) {
@@ -47,7 +47,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
           : null}
         {code === 'DDFSIT'
           ? generateDetailText({
-              'SIT entry date': details.sitEntryDate ? formatDate(details.sitEntryDate, 'DD MMM YYYY') : '-',
+              'SIT entry date': details.sitEntryDate ? formatDateWithUTC(details.sitEntryDate, 'DD MMM YYYY') : '-',
             })
           : null}
 
@@ -95,7 +95,37 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
 
   let detailSection;
   switch (code) {
-    case 'DOFSIT':
+    case 'DOFSIT': {
+      detailSection = (
+        <div>
+          <dl>
+            {generateDetailText(
+              {
+                'SIT entry date': details.sitEntryDate ? formatDateWithUTC(details.sitEntryDate, 'DD MMM YYYY') : '-',
+                ZIP: details.SITPostalCode ? details.SITPostalCode : '-',
+                Reason: details.reason ? details.reason : '-',
+              },
+              id,
+            )}
+            {details.rejectionReason &&
+              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </dl>
+        </div>
+      );
+      break;
+    }
     case 'DOASIT':
     case 'DOPSIT':
     case 'DOSFSC': {

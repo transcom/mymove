@@ -1509,3 +1509,158 @@ func (suite *HandlerSuite) TestRejectSITAddressUpdate() {
 		suite.Nil(payload)
 	})
 }
+
+func (suite *HandlerSuite) TestGetMTOServiceItemHandler() {
+	serviceItemID := uuid.Must(uuid.FromString("f7b4b9e2-04e8-4c34-827a-df917e69caf4"))
+	moveTaskOrderID := uuid.Must(uuid.FromString("f7b4b9e2-04e8-4c34-1234-df917e69caf4"))
+	var requestUser models.User
+
+	setupTestData := func() mtoserviceitemop.GetMTOServiceItemParams {
+		requestUser = factory.BuildUser(nil, nil, nil)
+		req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/service_items/%s",
+			moveTaskOrderID, serviceItemID), nil)
+
+		req = suite.AuthenticateUserRequest(req, requestUser)
+		params := mtoserviceitemop.GetMTOServiceItemParams{
+			HTTPRequest:      req,
+			MoveTaskOrderID:  moveTaskOrderID.String(),
+			MtoServiceItemID: serviceItemID.String(),
+		}
+		return params
+	}
+
+	suite.Run("200 - success response", func() {
+		// setting up test data
+		params := setupTestData()
+		// mock function
+		serviceItemFetcher := mocks.MTOServiceItemFetcher{}
+
+		// creating struct that returns from mock function & updating values
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, nil)
+		mtoServiceItem.ID = serviceItemID
+		// calling mock function, passing in what we want, and saying "return this"
+		serviceItemFetcher.On("GetServiceItem",
+			mock.AnythingOfType("*appcontext.appContext"),
+			serviceItemID,
+		).Return(&mtoServiceItem, nil).Once()
+
+		handler := GetMTOServiceItemHandler{
+			HandlerConfig:         suite.HandlerConfig(),
+			mtoServiceItemFetcher: &serviceItemFetcher,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemop.GetMTOServiceItemOK{}, response)
+		payload := response.(*mtoserviceitemop.GetMTOServiceItemOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+	})
+
+	// With this first set of tests we'll use mocked service object responses so that we can make sure the handler
+	// is returning the right HTTP code given a set of circumstances.
+	suite.Run("404 - not found response", func() {
+		params := setupTestData()
+		serviceItemFetcher := mocks.MTOServiceItemFetcher{}
+		serviceItemFetcher.On("GetServiceItem",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(nil, errors.New("Not found error")).Once()
+
+		handler := GetMTOServiceItemHandler{
+			HandlerConfig:         suite.HandlerConfig(),
+			mtoServiceItemFetcher: &serviceItemFetcher,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemop.GetMTOServiceItemInternalServerError{}, response)
+		payload := response.(*mtoserviceitemop.GetMTOServiceItemInternalServerError).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.IsType(payload, &ghcmessages.Error{})
+	})
+}
+
+func (suite *HandlerSuite) TestUpdateServiceItemSitEntryDateHandler() {
+	serviceItemID := uuid.Must(uuid.FromString("f7b4b9e2-04e8-4c34-827a-df917e69caf4"))
+	var requestUser models.User
+	newSitEntryDate := time.Date(2023, time.October, 10, 10, 10, 0, 0, time.UTC)
+
+	sitEntryDateParamsBody := ghcmessages.ServiceItemSitEntryDate{
+		ID:           *handlers.FmtUUID(serviceItemID),
+		SitEntryDate: handlers.FmtDateTime(newSitEntryDate),
+	}
+
+	setupTestData := func() mtoserviceitemop.UpdateServiceItemSitEntryDateParams {
+		requestUser = factory.BuildUser(nil, nil, nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/service_item/%s/entry_date_update",
+			serviceItemID), nil)
+
+		req = suite.AuthenticateUserRequest(req, requestUser)
+		params := mtoserviceitemop.UpdateServiceItemSitEntryDateParams{
+			HTTPRequest:      req,
+			Body:             &sitEntryDateParamsBody,
+			MtoServiceItemID: serviceItemID.String(),
+		}
+		return params
+	}
+
+	suite.Run("200 - success response", func() {
+		// setting up test data
+		params := setupTestData()
+		// mock function
+		sitEntryDateUpdater := mocks.SitEntryDateUpdater{}
+
+		// setting up data to be used for updating sit entry date
+		newSitEntryDate := time.Date(2023, time.October, 10, 10, 10, 0, 0, time.UTC)
+		expectedUUID := serviceItemID
+		// creating struct that passes into mock function
+		sitEntryDateUpdateModel := models.SITEntryDateUpdate{
+			ID: expectedUUID, SITEntryDate: &newSitEntryDate,
+		}
+		// creating struct that returns from mock function & updating values
+		mtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), nil, nil)
+		mtoServiceItem.ID = sitEntryDateUpdateModel.ID
+		mtoServiceItem.SITEntryDate = sitEntryDateUpdateModel.SITEntryDate
+		// calling mock function, passing in what we want, and saying "return this"
+		sitEntryDateUpdater.On("UpdateSitEntryDate",
+			mock.AnythingOfType("*appcontext.appContext"),
+			&sitEntryDateUpdateModel,
+		).Return(&mtoServiceItem, nil).Once()
+
+		handler := UpdateServiceItemSitEntryDateHandler{
+			HandlerConfig:       suite.HandlerConfig(),
+			sitEntryDateUpdater: &sitEntryDateUpdater,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemop.UpdateServiceItemSitEntryDateOK{}, response)
+		payload := response.(*mtoserviceitemop.UpdateServiceItemSitEntryDateOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+	})
+
+	// With this first set of tests we'll use mocked service object responses so that we can make sure the handler
+	// is returning the right HTTP code given a set of circumstances.
+	suite.Run("404 - not found response", func() {
+		params := setupTestData()
+		sitEntryDateUpdater := mocks.SitEntryDateUpdater{}
+		sitEntryDateUpdater.On("UpdateSitEntryDate",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(nil, errors.New("Not found error")).Once()
+
+		handler := UpdateServiceItemSitEntryDateHandler{
+			HandlerConfig:       suite.HandlerConfig(),
+			sitEntryDateUpdater: &sitEntryDateUpdater,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemop.UpdateServiceItemSitEntryDateUnprocessableEntity{}, response)
+		payload := response.(*mtoserviceitemop.UpdateServiceItemSitEntryDateUnprocessableEntity).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.IsType(payload, &ghcmessages.ValidationError{})
+	})
+}
