@@ -169,8 +169,8 @@ export const LocationSearchBoxComponent = ({
     [styles.dutyInputBoxError]: errorMsg,
   });
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Backspace' && !inputValue) {
+  const handleKeyDown = (event) => {
+    if (event.key === 'Backspace' && !inputValue) {
       onChange(null);
     }
   };
