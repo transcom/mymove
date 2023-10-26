@@ -55,7 +55,7 @@ func (p sitEntryDateUpdater) UpdateSitEntryDate(appCtx appcontext.AppContext, s 
 	// the service code can either be DOFSIT or DDFSIT
 	serviceItemCode := serviceItem.ReService.Code
 	if serviceItemCode != models.ReServiceCodeDOFSIT && serviceItemCode != models.ReServiceCodeDDFSIT {
-		return nil, apperror.NewUnprocessableEntityError("You cannot change the SIT entry date of this service item.")
+		return nil, apperror.NewUnprocessableEntityError(string(serviceItemCode) + "You cannot change the SIT entry date of this service item.")
 	}
 
 	// looping through each service item in the shipment based on the service item code
