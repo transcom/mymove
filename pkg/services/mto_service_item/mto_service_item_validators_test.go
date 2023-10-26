@@ -49,7 +49,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkLinkedIDs(suite.AppContextForTest())
+		err := serviceItemData.checkLinkedIDs()
 
 		suite.NoError(err)
 		suite.NoVerrs(serviceItemData.verrs)
@@ -68,7 +68,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkLinkedIDs(suite.AppContextForTest())
+		err := serviceItemData.checkLinkedIDs()
 
 		suite.NoError(err)
 		suite.True(serviceItemData.verrs.HasAny())
@@ -175,7 +175,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			verrs:              validate.NewErrors(),
 		}
 
-		err := serviceItemData.checkForSITItemChanges(suite.AppContextForTest(), &serviceItemData)
+		err := serviceItemData.checkForSITItemChanges(&serviceItemData)
 
 		suite.NoError(err)
 	})
@@ -194,7 +194,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			verrs:              validate.NewErrors(),
 		}
 
-		err := serviceItemData.checkForSITItemChanges(suite.AppContextForTest(), &serviceItemData)
+		err := serviceItemData.checkForSITItemChanges(&serviceItemData)
 
 		// Should error with message if nothing has changed between the new service item and the old one
 		suite.Error(err)
@@ -343,7 +343,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		_ = serviceItemData.checkLinkedIDs(suite.AppContextForTest()) // this test should pass regardless of potential errors here
+		_ = serviceItemData.checkLinkedIDs() // this test should pass regardless of potential errors here
 		_ = serviceItemData.checkNonPrimeFields(suite.AppContextForTest())
 		err := serviceItemData.getVerrs()
 
@@ -377,7 +377,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		_ = serviceItemData.checkLinkedIDs(suite.AppContextForTest())
+		_ = serviceItemData.checkLinkedIDs()
 		_ = serviceItemData.checkNonPrimeFields(suite.AppContextForTest())
 		err := serviceItemData.getVerrs()
 

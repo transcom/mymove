@@ -34,7 +34,7 @@ type updateMTOServiceItemValidator interface {
 type basicUpdateMTOServiceItemValidator struct{}
 
 func (v *basicUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error {
-	err := serviceItemData.checkLinkedIDs(appCtx)
+	err := serviceItemData.checkLinkedIDs()
 	if err != nil {
 		return err
 	}
@@ -59,7 +59,7 @@ type primeUpdateMTOServiceItemValidator struct{}
 
 func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error {
 	// Checks that the MTO ID, Shipment ID, and ReService IDs haven't changed
-	err := serviceItemData.checkLinkedIDs(appCtx)
+	err := serviceItemData.checkLinkedIDs()
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 	}
 
 	// Check to see if the updated service item is different than the old one
-	err = serviceItemData.checkForSITItemChanges(appCtx, serviceItemData)
+	err = serviceItemData.checkForSITItemChanges(serviceItemData)
 	if err != nil {
 		return err
 	}
@@ -143,7 +143,7 @@ type updateMTOServiceItemData struct {
 
 // Check to see if the updatedSIT service item is different than the old one
 // Turns out creating a custom comparsion method using if-statements has better performance than using a library in go
-func (v *updateMTOServiceItemData) checkForSITItemChanges(_ appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error {
+func (v *updateMTOServiceItemData) checkForSITItemChanges(serviceItemData *updateMTOServiceItemData) error {
 
 	oldServiceItem := serviceItemData.oldServiceItem
 
@@ -206,7 +206,7 @@ func (v *updateMTOServiceItemData) checkForSITItemChanges(_ appcontext.AppContex
 }
 
 // checkLinkedIDs checks that the user didn't attempt to change the service item's move, shipment, or reService IDs
-func (v *updateMTOServiceItemData) checkLinkedIDs(_ appcontext.AppContext) error {
+func (v *updateMTOServiceItemData) checkLinkedIDs() error {
 	if v.updatedServiceItem.MoveTaskOrderID != uuid.Nil && v.updatedServiceItem.MoveTaskOrderID != v.oldServiceItem.MoveTaskOrderID {
 		v.verrs.Add("moveTaskOrderID", "cannot be updated")
 	}
