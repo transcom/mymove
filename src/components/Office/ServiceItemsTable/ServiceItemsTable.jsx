@@ -15,8 +15,6 @@ import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItem
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import { selectDateFieldByStatus, selectDatePrefixByStatus } from 'utils/dates';
-import ToolTip from 'shared/ToolTip/ToolTip';
-import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 
 const ServiceItemsTable = ({
   serviceItems,
@@ -47,33 +45,6 @@ const ServiceItemsTable = ({
     return `${prefix}: ${date}`;
   };
 
-  const getServiceCodeDescription = (code) => {
-    let content;
-    switch (code) {
-      case SERVICE_ITEM_CODES.DOFSIT:
-        content = 'The first day of Origin SIT.';
-        break;
-      case SERVICE_ITEM_CODES.DOASIT:
-        content = 'Additional days of Origin SIT that occur after the first day of SIT.';
-        break;
-      case SERVICE_ITEM_CODES.DOPSIT:
-        content = 'Picking up items from the home prior to beginning the first day of Origin SIT.';
-        break;
-      case SERVICE_ITEM_CODES.DDFSIT:
-        content = 'The first day of Destination SIT.';
-        break;
-      case SERVICE_ITEM_CODES.DDASIT:
-        content = 'Additional days of Destination SIT that occur after the first day of Destination SIT.';
-        break;
-      case SERVICE_ITEM_CODES.DDDSIT:
-        content = 'Delivery of items to home following Destination SIT.';
-        break;
-      default:
-        content = 'No definition provided.';
-    }
-    return content;
-  };
-
   const tableRows = serviceItems.map((serviceItem, index) => {
     const { id, code, details, mtoShipmentID, sitAddressUpdates, serviceRequestDocuments, ...item } = serviceItem;
     const { makeVisible, alertType, alertMessage } = serviceItemAddressUpdateAlert;
@@ -100,10 +71,7 @@ const ServiceItemsTable = ({
         )}
         <tr key={id}>
           <td className={styles.nameAndDate}>
-            <p className={styles.codeName}>
-              {serviceItem.serviceItem}{' '}
-              <ToolTip text={getServiceCodeDescription(code)} color="black" position="right" />
-            </p>
+            <p className={styles.codeName}>{serviceItem.serviceItem}</p>
             <p>{getServiceItemDisplayDate(item)}</p>
           </td>
           <td className={styles.detail}>

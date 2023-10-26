@@ -39,7 +39,7 @@ const retrieveTextToDisplay = (fieldName, value) => {
   };
 };
 
-const LabeledDetailsWithToolTip = ({ historyRecord, toolTipText }) => {
+const LabeledDetailsWithToolTip = ({ historyRecord, toolTipText, toolTipColor, toolTipTextPosition, toolTipIcon }) => {
   const changedValuesToUse = historyRecord.changedValues;
   let shipmentDisplay = '';
 
@@ -50,6 +50,7 @@ const LabeledDetailsWithToolTip = ({ historyRecord, toolTipText }) => {
     delete changedValuesToUse.shipment_type;
   }
 
+  // check for service item and add it to the header
   if ('service_item_name' in changedValuesToUse) {
     shipmentDisplay += `, ${changedValuesToUse.service_item_name}`;
     delete changedValuesToUse.service_item_name;
@@ -72,7 +73,8 @@ const LabeledDetailsWithToolTip = ({ historyRecord, toolTipText }) => {
 
         return (
           <div key={modelField}>
-            <b>{displayName}</b>: {displayValue} <ToolTip text={toolTipText} color="#3d4551" position="top" />
+            <b>{displayName}</b>: {displayValue}{' '}
+            <ToolTip text={toolTipText} color={toolTipColor} position={toolTipTextPosition} icon={toolTipIcon} />
           </div>
         );
       })}

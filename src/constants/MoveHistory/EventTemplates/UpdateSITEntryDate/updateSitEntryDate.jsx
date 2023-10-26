@@ -24,13 +24,23 @@ export default {
   action: a.UPDATE,
   eventName: o.updateServiceItemSitEntryDate,
   tableName: t.mto_service_items,
-  getEventNameDisplay: () => 'Updated SIT entry date',
+  getEventNameDisplay: () => {
+    return (
+      <div>
+        Updated service item
+        <br />
+        SIT entry date
+      </div>
+    );
+  },
   getDetails: (historyRecord) => {
     return (
       <div style={{ position: 'relative', display: 'inline-block' }}>
         <LabeledDetailsWithToolTip
           historyRecord={formatChangedValues(historyRecord)}
           toolTipText={generateToolTipText(historyRecord)}
+          toolTipColor="#3d4551"
+          toolTipTextPosition="top"
         />
       </div>
     );

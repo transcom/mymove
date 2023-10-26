@@ -19,8 +19,8 @@ func NewSitEntryDateUpdater() services.SitEntryDateUpdater {
 	return &sitEntryDateUpdater{}
 }
 
-// finds the current service item
-// replaces sit entry date
+// finds the current service item & it's sister add'l days service item
+// replaces sit entry date for both
 // sends back updated service item
 func (p sitEntryDateUpdater) UpdateSitEntryDate(appCtx appcontext.AppContext, s *models.SITEntryDateUpdate) (*models.MTOServiceItem, error) {
 	// we will need to update not only the target SIT service item, but it's sister service item
@@ -30,9 +30,9 @@ func (p sitEntryDateUpdater) UpdateSitEntryDate(appCtx appcontext.AppContext, s 
 	var serviceItemAdditionalDays models.MTOServiceItem
 
 	// finding the service item and populating serviceItem variable
+	// passing in relations so we can get ReService codes & add'l info
 	err := appCtx.DB().Q().EagerPreload(
 		"MoveTaskOrder",
-		"SITDestinationFinalAddress",
 		"ReService",
 	).Find(&serviceItem, s.ID)
 	if err != nil {
@@ -59,7 +59,9 @@ func (p sitEntryDateUpdater) UpdateSitEntryDate(appCtx appcontext.AppContext, s 
 	}
 
 	// looping through each service item in the shipment based on the service item code
-	// looking for the sister service item of add'l days
+	// then looking for the sister service item of add'l days
+	// once found, we'll set the value of variable to that service item
+	// so now we have the 1st day of SIT service item & the add'l days SIT service item
 	if serviceItemCode == models.ReServiceCodeDOFSIT {
 		for _, si := range shipment.MTOServiceItems {
 			if si.ReService.Code == models.ReServiceCodeDOASIT {
@@ -75,6 +77,7 @@ func (p sitEntryDateUpdater) UpdateSitEntryDate(appCtx appcontext.AppContext, s 
 			}
 		}
 	} else {
+		// if it is not either service codes, then we shouldn't be updating the SIT entry date this way
 		return nil, apperror.NewUnprocessableEntityError("This service item's SIT entry date cannot be updated due to being an uneditable service code.")
 	}
 
@@ -91,6 +94,7 @@ func (p sitEntryDateUpdater) UpdateSitEntryDate(appCtx appcontext.AppContext, s 
 	// Make the update to both service items and create a InvalidInputError if there were validation issues
 	transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 
+		// updating 1st day of SIT service item
 		verrs, err := txnCtx.DB().ValidateAndUpdate(&serviceItem)
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(s.ID, err, verrs, "invalid input found while updating service item")
@@ -98,13 +102,14 @@ func (p sitEntryDateUpdater) UpdateSitEntryDate(appCtx appcontext.AppContext, s 
 			return apperror.NewQueryError("Service item", err, "")
 		}
 
+		// updating add'l days of SIT service item
 		verrs, err = txnCtx.DB().ValidateAndUpdate(&serviceItemAdditionalDays)
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(s.ID, err, verrs, "invalid input found while updating service item")
 		} else if err != nil {
 			return apperror.NewQueryError("Service item", err, "")
 		}
-		// Done with updates to service item
+		// Done with updates to service items, will return nil if there were no errors
 		return nil
 	})
 
