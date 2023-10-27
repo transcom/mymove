@@ -225,6 +225,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	})
 
 	suite.Run("Successful Prime update - adding SITDestinationFinalAddress", func() {
+		requestApproavalsRequestedStatus := false
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
@@ -233,6 +234,12 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			{
 				Model: models.ReService{
 					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:                            "REJECTED",
+					RequestedApprovalsRequestedStatus: &requestApproavalsRequestedStatus,
 				},
 			},
 		}, nil)
