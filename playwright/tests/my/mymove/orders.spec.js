@@ -30,6 +30,11 @@ test('Users can upload orders, and delete if the move is in draft status', async
   await page.locator('div:has(label:has-text("Are dependents")) >> div.usa-radio').getByText('No').click();
 
   await customerPage.selectDutyLocation('Yuma AFB', 'new_duty_location');
+  await page.keyboard.press('Backspace'); // tests if backspace clears the duty location field
+  expect(expect(page.getByLabel('New duty location')).toBeEmpty() || page.getByLabel('New duty location')).toContain(
+    'Start typing a duty location...',
+  );
+  await customerPage.selectDutyLocation('Yuma AFB', 'new_duty_location');
   await customerPage.navigateForward();
   await customerPage.waitForPage.ordersUpload();
 

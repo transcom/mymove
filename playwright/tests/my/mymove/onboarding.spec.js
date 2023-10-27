@@ -1,5 +1,5 @@
 // @ts-check
-import { test } from '../../utils/my/customerTest';
+import { test, expect } from '../../utils/my/customerTest';
 
 test('A customer can go through onboarding', async ({ page, customerPage }) => {
   // Create new customer user
@@ -31,6 +31,11 @@ test('A customer can go through onboarding', async ({ page, customerPage }) => {
 
   // Current duty location section
   await customerPage.waitForPage.onboardingDutyLocation();
+  await page.getByLabel('What is your current duty location?').fill('Scott AFB');
+  await page.keyboard.press('Backspace'); // tests if backspace clears the duty location field
+  expect(expect(page.getByLabel('New duty location')).toBeEmpty() || page.getByLabel('New duty location')).toContain(
+    'Start typing a duty location...',
+  );
   await page.getByLabel('What is your current duty location?').fill('Scott AFB');
   // 'mark' is not yet supported by react testing library
   // https://github.com/testing-library/dom-testing-library/issues/1150
