@@ -625,7 +625,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.Contains(err.Error(), fmt.Sprintf("ID: %s not found", badID))
 	})
 
-	suite.Run("Given an already paid or requested payment service item, the create should fail", func() {
+	suite.Run("Given an already paid or requested payment service item, the create should not fail", func() {
 		move := factory.BuildMove(suite.DB(), []factory.Customization{}, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
 
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -707,10 +707,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}
 		_, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequest2)
-		suite.Error(err)
-		suite.IsType(apperror.ConflictError{}, err)
 
-		suite.Equal(fmt.Sprintf("ID: %s is in a conflicting state Conflict Error: Payment Request for Service Item is already paid or requested", paymentRequest1.ID), err.Error())
+		suite.NoError(err)
 	})
 
 	suite.Run("Given no move task order id, the create should fail", func() {
