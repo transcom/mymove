@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/lib/pq"
 
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -127,6 +128,7 @@ type MTOShipment struct {
 	PrimeActualWeight                *unit.Pound            `db:"prime_actual_weight"`
 	BillableWeightCap                *unit.Pound            `db:"billable_weight_cap"`
 	BillableWeightJustification      *string                `db:"billable_weight_justification"`
+	PartialDeliveries                pq.Int32Array          `db:"partial_deliveries_weight"`
 	NTSRecordedWeight                *unit.Pound            `db:"nts_recorded_weight"`
 	ShipmentType                     MTOShipmentType        `db:"shipment_type"`
 	Status                           MTOShipmentStatus      `db:"status"`
