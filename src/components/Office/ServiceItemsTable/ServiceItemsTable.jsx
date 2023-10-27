@@ -72,9 +72,8 @@ const ServiceItemsTable = ({
     const { id, code, details, mtoShipmentID, sitAddressUpdates, serviceRequestDocuments, ...item } = serviceItem;
     const { makeVisible, alertType, alertMessage } = serviceItemAddressUpdateAlert;
     let hasPaymentRequestBeenMade;
-
     // if there are service items in the payment requests, we want to look to see if the service item is in there
-    // if so, we can't let the TOO edit the SIT entry date
+    // if so, we don't want to let the TOO edit the SIT entry date
     if (serviceItemInPaymentRequests && ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code)) {
       hasPaymentRequestBeenMade = isServiceItemFoundInPaymentRequests(id);
     }
