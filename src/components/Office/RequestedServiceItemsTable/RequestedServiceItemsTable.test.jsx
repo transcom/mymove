@@ -117,31 +117,35 @@ describe('RequestedServiceItemsTable', () => {
   it('displays the service item name and submitted date', () => {
     const serviceItems = [serviceItemWithCrating, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
-      <RequestedServiceItemsTable
-        {...defaultProps}
-        serviceItems={serviceItems}
-        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
-      />,
+      <MockProviders>
+        <RequestedServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        />
+      </MockProviders>,
     );
 
-    expect(wrapper.find('.codeName').at(0).text()).toBe('Domestic crating');
+    expect(wrapper.find('.codeName').at(0).text()).toBe('Domestic crating ');
     expect(wrapper.find('.nameAndDate').at(0).text().includes('20 Nov 2020')).toBe(true);
 
-    expect(wrapper.find('.codeName').at(1).text()).toBe('Domestic destination 1st day SIT');
+    expect(wrapper.find('.codeName').at(1).text()).toBe('Domestic destination 1st day SIT ');
     expect(wrapper.find('.nameAndDate').at(1).text().includes('1 Sep 2020')).toBe(true);
 
-    expect(wrapper.find('.codeName').at(2).text()).toBe('Domestic origin 1st day SIT');
+    expect(wrapper.find('.codeName').at(2).text()).toBe('Domestic origin 1st day SIT ');
     expect(wrapper.find('.nameAndDate').at(2).text().includes('15 Oct 2020')).toBe(true);
   });
 
   it('shows the service item detail text', () => {
     const serviceItems = [serviceItemWithCrating, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
-      <RequestedServiceItemsTable
-        {...defaultProps}
-        serviceItems={serviceItems}
-        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
-      />,
+      <MockProviders>
+        <RequestedServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        />
+      </MockProviders>,
     );
     testDetails(wrapper);
   });
