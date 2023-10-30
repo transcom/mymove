@@ -389,3 +389,39 @@ func (o *moveTaskOrderUpdater) ShowHide(appCtx appcontext.AppContext, moveID uui
 
 	return updatedMove, nil
 }
+
+// UpdatePPMType updates the PPMType field on the move (move task order)
+func (o moveTaskOrderUpdater) UpdatePPMType(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID) (*models.Move, error) {
+	searchParams := services.MoveTaskOrderFetcherParams{
+		IncludeHidden:   false,
+		MoveTaskOrderID: moveTaskOrderID,
+	}
+	move, err := o.FetchMoveTaskOrder(appCtx, &searchParams)
+	if err != nil {
+		return nil, err
+	}
+
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		if move.IsPPMOnly() { // Only PPM Shipments in the move
+			ppmType := models.MovePPMTypeFULL
+			move.PPMType = &ppmType
+		} else if move.HasPPM() { // At least 1 PPM Shipment in the move
+			ppmType := models.MovePPMTypePARTIAL
+			move.PPMType = &ppmType
+		} else {
+			move.PPMType = nil
+		}
+		// update PPMType Column for move in DB
+		err = appCtx.DB().UpdateColumns(move, "ppm_type")
+		if err != nil {
+			return err
+		}
+
+		return err
+	})
+	if transactionError != nil {
+		return move, transactionError
+	}
+
+	return move, nil
+}
