@@ -7,23 +7,28 @@ import styles from './importantShipmentDates.module.scss';
 import DataTable from 'components/DataTable/index';
 import DataTableWrapper from 'components/DataTableWrapper/index';
 
-const ImportantShipmentDates = ({ requestedPickupDate, scheduledPickupDate, requiredDeliveryDate }) => {
+const ImportantShipmentDates = ({
+  requestedPickupDate,
+  scheduledPickupDate,
+  requiredDeliveryDate,
+  actualPickupDate,
+}) => {
   const emDash = '\u2014';
   return (
     <div className={classnames('maxw-tablet', styles.shipmentDatesContainer)}>
       <DataTableWrapper className="table--data-point-group">
         <DataTable columnHeaders={['Customer requested pick up date']} dataRow={[requestedPickupDate || emDash]} />
-        {/* <DataTable
+        <DataTable
           columnHeaders={['Scheduled pick up date', 'Required delivery date']}
           dataRow={[scheduledPickupDate || emDash, requiredDeliveryDate || emDash]}
-        /> */}
+        />
 
         {/* cunningham
         pass in actual dates
         */}
         <DataTable
           columnHeaders={['Scheduled pick up date', 'Actual pick up date']}
-          dataRow={[scheduledPickupDate || emDash, requiredDeliveryDate || emDash]}
+          dataRow={[scheduledPickupDate || emDash, actualPickupDate || emDash]}
         />
       </DataTableWrapper>
     </div>
@@ -34,12 +39,14 @@ ImportantShipmentDates.defaultProps = {
   requestedPickupDate: '',
   scheduledPickupDate: '',
   requiredDeliveryDate: '',
+  actualPickupDate: '',
 };
 
 ImportantShipmentDates.propTypes = {
   requestedPickupDate: PropTypes.string,
   scheduledPickupDate: PropTypes.string,
   requiredDeliveryDate: PropTypes.string,
+  actualPickupDate: PropTypes.string,
 };
 
 export default ImportantShipmentDates;

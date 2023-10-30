@@ -50,6 +50,7 @@ const ShipmentDetailsMain = ({
   const {
     requestedPickupDate,
     scheduledPickupDate,
+    actualPickupDate,
     requiredDeliveryDate,
     pickupAddress,
     destinationAddress,
@@ -151,6 +152,7 @@ const ShipmentDetailsMain = ({
       <ImportantShipmentDates
         requestedPickupDate={formatDate(requestedPickupDate)}
         scheduledPickupDate={scheduledPickupDate ? formatDate(scheduledPickupDate) : null}
+        actualPickupDate={actualPickupDate ? formatDate(actualPickupDate) : null}
         requiredDeliveryDate={requiredDeliveryDate ? formatDate(requiredDeliveryDate) : null}
       />
       <ShipmentAddresses
