@@ -17,18 +17,23 @@ const ImportantShipmentDates = ({
   return (
     <div className={classnames('maxw-tablet', styles.shipmentDatesContainer)}>
       <DataTableWrapper className="table--data-point-group">
-        <DataTable columnHeaders={['Customer requested pick up date']} dataRow={[requestedPickupDate || emDash]} />
-        <DataTable
+        {/* <DataTable columnHeaders={[]} dataRow={[requestedPickupDate || emDash]} /> */}
+        {/* <DataTable
           columnHeaders={['Scheduled pick up date', 'Required delivery date']}
           dataRow={[scheduledPickupDate || emDash, requiredDeliveryDate || emDash]}
-        />
+        /> */}
 
         {/* cunningham
         pass in actual dates
         */}
+        <DataTable columnHeaders={['Required Delivery Date']} dataRow={[requiredDeliveryDate || emDash]} />
         <DataTable
-          columnHeaders={['Scheduled pick up date', 'Actual pick up date']}
-          dataRow={[scheduledPickupDate || emDash, actualPickupDate || emDash]}
+          columnHeaders={['Requested pick up date', 'Scheduled pick up date', 'Actual pick up date']}
+          dataRow={[requestedPickupDate || emDash, scheduledPickupDate || emDash, actualPickupDate || emDash]}
+        />
+        <DataTable
+          columnHeaders={['Requested delivery date', 'Scheduled delivery date', 'Actual delivery date']}
+          dataRow={[requestedPickupDate || emDash, scheduledPickupDate || emDash, actualPickupDate || emDash]}
         />
       </DataTableWrapper>
     </div>
