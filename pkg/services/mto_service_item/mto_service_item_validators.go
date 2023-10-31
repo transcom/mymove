@@ -164,7 +164,7 @@ func (v *updateMTOServiceItemData) checkForSITItemChanges(serviceItemData *updat
 			return nil
 		}
 
-		if updatedServiceItem.SITDepartureDate != nil && !updatedServiceItem.SITDepartureDate.IsZero() && updatedServiceItem.SITDepartureDate.UTC() != oldServiceItem.SITDepartureDate.UTC() {
+		if !updatedServiceItem.SITDepartureDate.IsZero() && updatedServiceItem.SITDepartureDate.UTC() != oldServiceItem.SITDepartureDate.UTC() {
 			return nil
 		}
 
@@ -176,11 +176,11 @@ func (v *updateMTOServiceItemData) checkForSITItemChanges(serviceItemData *updat
 			return nil
 		}
 
-		if updatedServiceItem.SITRequestedDelivery != nil && updatedServiceItem.SITRequestedDelivery != oldServiceItem.SITRequestedDelivery {
+		if updatedServiceItem.SITRequestedDelivery != nil && updatedServiceItem.SITRequestedDelivery.UTC() != oldServiceItem.SITRequestedDelivery.UTC() {
 			return nil
 		}
 
-		if updatedServiceItem.SITEntryDate != nil && updatedServiceItem.SITEntryDate != oldServiceItem.SITEntryDate {
+		if updatedServiceItem.SITEntryDate != nil && updatedServiceItem.SITEntryDate.UTC() != oldServiceItem.SITEntryDate.UTC() {
 			return nil
 		}
 
