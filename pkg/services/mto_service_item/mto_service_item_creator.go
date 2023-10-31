@@ -368,17 +368,20 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(appCtx appcontext.AppCon
 	// These service items will be associated with the same customer contacts as the DDFSIT.
 	contacts := firstSIT.CustomerContacts
 
+	// Default requestedApprovalsRequestedStatus value
+	requestedApprovalsRequestedStatus := false
 	extraServiceItem := models.MTOServiceItem{
-		MTOShipmentID:    firstSIT.MTOShipmentID,
-		MoveTaskOrderID:  firstSIT.MoveTaskOrderID,
-		ReServiceID:      reService.ID,
-		ReService:        reService,
-		SITEntryDate:     firstSIT.SITEntryDate,
-		SITDepartureDate: firstSIT.SITDepartureDate,
-		SITPostalCode:    firstSIT.SITPostalCode,
-		Reason:           firstSIT.Reason,
-		Status:           models.MTOServiceItemStatusSubmitted,
-		CustomerContacts: contacts,
+		MTOShipmentID:                     firstSIT.MTOShipmentID,
+		MoveTaskOrderID:                   firstSIT.MoveTaskOrderID,
+		ReServiceID:                       reService.ID,
+		ReService:                         reService,
+		SITEntryDate:                      firstSIT.SITEntryDate,
+		SITDepartureDate:                  firstSIT.SITDepartureDate,
+		SITPostalCode:                     firstSIT.SITPostalCode,
+		Reason:                            firstSIT.Reason,
+		Status:                            models.MTOServiceItemStatusSubmitted,
+		CustomerContacts:                  contacts,
+		RequestedApprovalsRequestedStatus: &requestedApprovalsRequestedStatus,
 	}
 
 	return &extraServiceItem, nil

@@ -144,6 +144,9 @@ type MTOServiceItem struct {
 	// total
 	Total int64 `json:"total,omitempty"`
 
+	// Reason for updating service item.
+	UpdateReason *string `json:"updateReason,omitempty"`
+
 	// updated at
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
