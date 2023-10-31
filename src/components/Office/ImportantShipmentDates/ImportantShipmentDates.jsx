@@ -12,20 +12,14 @@ const ImportantShipmentDates = ({
   scheduledPickupDate,
   requiredDeliveryDate,
   actualPickupDate,
+  requestedDeliveryDate,
+  scheduledDeliveryDate,
+  actualDeliveryDate,
 }) => {
   const emDash = '\u2014';
   return (
     <div className={classnames('maxw-tablet', styles.shipmentDatesContainer)}>
       <DataTableWrapper className="table--data-point-group">
-        {/* <DataTable columnHeaders={[]} dataRow={[requestedPickupDate || emDash]} /> */}
-        {/* <DataTable
-          columnHeaders={['Scheduled pick up date', 'Required delivery date']}
-          dataRow={[scheduledPickupDate || emDash, requiredDeliveryDate || emDash]}
-        /> */}
-
-        {/* cunningham
-        pass in actual dates
-        */}
         <DataTable columnHeaders={['Required Delivery Date']} dataRow={[requiredDeliveryDate || emDash]} />
         <DataTable
           columnHeaders={['Requested pick up date', 'Scheduled pick up date', 'Actual pick up date']}
@@ -33,7 +27,7 @@ const ImportantShipmentDates = ({
         />
         <DataTable
           columnHeaders={['Requested delivery date', 'Scheduled delivery date', 'Actual delivery date']}
-          dataRow={[requestedPickupDate || emDash, scheduledPickupDate || emDash, actualPickupDate || emDash]}
+          dataRow={[requestedDeliveryDate || emDash, scheduledDeliveryDate || emDash, actualDeliveryDate || emDash]}
         />
       </DataTableWrapper>
     </div>
@@ -45,6 +39,9 @@ ImportantShipmentDates.defaultProps = {
   scheduledPickupDate: '',
   requiredDeliveryDate: '',
   actualPickupDate: '',
+  requestedDeliveryDate: '',
+  scheduledDeliveryDate: '',
+  actualDeliveryDate: '',
 };
 
 ImportantShipmentDates.propTypes = {
@@ -52,6 +49,9 @@ ImportantShipmentDates.propTypes = {
   scheduledPickupDate: PropTypes.string,
   requiredDeliveryDate: PropTypes.string,
   actualPickupDate: PropTypes.string,
+  requestedDeliveryDate: PropTypes.string,
+  scheduledDeliveryDate: PropTypes.string,
+  actualDeliveryDate: PropTypes.string,
 };
 
 export default ImportantShipmentDates;
