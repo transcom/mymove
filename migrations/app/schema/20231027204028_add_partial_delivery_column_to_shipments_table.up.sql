@@ -1,7 +1,7 @@
 -- adding column for partial delivery
--- this is stored as an array of integers defining weight to account for potential multiple deliveries out of SIT
+-- this is stored as jsonb data type, which stores JSON data in binary format
 ALTER TABLE mto_shipments
-ADD COLUMN partial_deliveries_weight integer[];
+ADD COLUMN partial_deliveries_weight jsonb;
 
 -- Column comments
-COMMENT ON COLUMN mto_shipments.partial_deliveries_weight IS 'Partial deliveries defined by weight, stored as an array of integers';
+COMMENT ON COLUMN mto_shipments.partial_deliveries_weight IS 'Partial deliveries defined by weight, stored as JSON';
