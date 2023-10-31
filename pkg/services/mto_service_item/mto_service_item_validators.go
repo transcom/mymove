@@ -70,12 +70,6 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 		return err
 	}
 
-	// Check to see if the updated service item is different than the old one
-	err = serviceItemData.checkForSITItemChanges(serviceItemData)
-	if err != nil {
-		return err
-	}
-
 	// Checks that none of the fields that the Prime cannot update have been changed
 	err = serviceItemData.checkNonPrimeFields(appCtx)
 	if err != nil {
@@ -126,6 +120,12 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 
 	// Checks that the Old MTO SIT Service Item has a REJECTED status. If not the update req is rejected
 	err = serviceItemData.checkOldServiceItemStatus(appCtx, serviceItemData)
+	if err != nil {
+		return err
+	}
+
+	// Check to see if the updated service item is different than the old one
+	err = serviceItemData.checkForSITItemChanges(serviceItemData)
 	if err != nil {
 		return err
 	}
