@@ -62,6 +62,7 @@ const EditShipmentDetails = () => {
                   submitHandler={mutateMTOShipment}
                   isCreatePage={false}
                   currentResidence={customer.current_address}
+                  originDutyLocationAddress={order.originDutyLocation?.address}
                   newDutyLocationAddress={order.destinationDutyLocation?.address}
                   shipmentType={matchingShipment.shipmentType}
                   mtoShipment={matchingShipment}

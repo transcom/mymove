@@ -22,6 +22,7 @@ import ppmDocumentStatus from 'constants/ppms';
 import { expenseTypeLabels, expenseTypes } from 'constants/ppmExpenseTypes';
 import { ErrorMessage, Form } from 'components/form';
 import { patchExpense } from 'services/ghcApi';
+import { convertDollarsToCents } from 'shared/utils';
 
 const validationSchema = Yup.object().shape({
   amount: Yup.string()
@@ -75,7 +76,7 @@ export default function ReviewExpense({ mtoShipment, expense, tripNumber, ppmNum
     const payload = {
       ppmShipmentId: expense.ppmShipmentId,
       description: expense.description,
-      amount: parseInt(values.amount * 100, 10),
+      amount: convertDollarsToCents(values.amount),
       paidWithGtcc: values.paidWithGtcc,
       sitStartDate: formatDate(values.sitStartDate, 'DD MMM YYYY', 'YYYY-MM-DD'),
       sitEndDate: formatDate(values.sitEndDate, 'DD MMM YYYY', 'YYYY-MM-DD'),
