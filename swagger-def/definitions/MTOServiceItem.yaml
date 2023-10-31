@@ -113,5 +113,9 @@ properties:
     x-nullable: true
   eTag:
     type: string
+  updateReason:
+    type: string
+    description: Reason for updating service item.
+    x-nullable: true
   serviceRequestDocuments:
     $ref: 'ServiceRequestDocuments.yaml'

@@ -6291,6 +6291,11 @@ func init() {
           "type": "integer",
           "format": "cents"
         },
+        "updateReason": {
+          "description": "Reason for updating service item.",
+          "type": "string",
+          "x-nullable": true
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time"
@@ -17705,6 +17710,11 @@ func init() {
         "total": {
           "type": "integer",
           "format": "cents"
+        },
+        "updateReason": {
+          "description": "Reason for updating service item.",
+          "type": "string",
+          "x-nullable": true
         },
         "updatedAt": {
           "type": "string",

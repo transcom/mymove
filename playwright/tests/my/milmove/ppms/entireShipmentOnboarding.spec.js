@@ -79,7 +79,9 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
 
     // Change closeout location
     await this.selectDutyLocation('Fort Bragg', 'closeoutOffice');
-
+    await this.page.keyboard.press('Backspace'); // tests if backspace clears the duty location field
+    await expect(this.page.getByLabel('Which closeout office should review your PPM?')).toBeEmpty();
+    await this.selectDutyLocation('Fort Bragg', 'closeoutOffice');
     await this.navigateFromDateAndLocationPageToEstimatedWeightsPage();
 
     await this.page.getByRole('button', { name: 'Back' }).click();

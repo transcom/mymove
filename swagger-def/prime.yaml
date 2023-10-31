@@ -1684,6 +1684,25 @@ definitions:
             type: string
             description: Date when the customer contacted the prime for a delivery out of SIT.
             x-nullable: true
+          updateReason:
+            type: string
+            description: Reason for updating service item.
+            x-nullable: true
+          sitPostalCode:
+            type: string
+            format: zip
+            example: '90210'
+            pattern: '^(\d{5}([\-]\d{4})?)$'
+            x-nullable: true
+          sitEntryDate:
+            format: date
+            type: string
+            description: Entry date for the SIT.
+            x-nullable: true
+          requestApprovalsRequestedStatus:
+            description: Indicates if "Approvals Requested" status is being requested.
+            type: boolean
+            x-nullable: true
   UpdateMTOShipment:
     properties:
       scheduledPickupDate:

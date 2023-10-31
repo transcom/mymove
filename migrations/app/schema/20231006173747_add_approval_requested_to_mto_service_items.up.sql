@@ -1,0 +1,2 @@
+ALTER TABLE mto_service_items
+ADD COLUMN requested_approvals_requested_status BOOLEAN DEFAULT FALSE;
