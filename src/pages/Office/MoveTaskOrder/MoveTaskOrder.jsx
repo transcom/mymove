@@ -1203,6 +1203,7 @@ export const MoveTaskOrder = (props) => {
               onSubmit={handleSubmitSitEntryDateChange}
               isOpen={isEditSitEntryDateModalVisible}
               serviceItem={selectedServiceItem}
+              shipmentInfo={selectedShipment}
             />
           )}
           <div className={styles.pageHeader}>
