@@ -47,7 +47,7 @@ const ShipmentDetailsMain = ({
   const {
     requestedPickupDate,
     scheduledPickupDate,
-actualPickupDate,
+    actualPickupDate,
     requestedDeliveryDate,
     scheduledDeliveryDate,
     actualDeliveryDate,
@@ -155,7 +155,7 @@ actualPickupDate,
       <ImportantShipmentDates
         requestedPickupDate={formatDate(requestedPickupDate)}
         scheduledPickupDate={scheduledPickupDate ? formatDate(scheduledPickupDate) : null}
-actualPickupDate={actualPickupDate ? formatDate(actualPickupDate) : null}
+        actualPickupDate={actualPickupDate ? formatDate(actualPickupDate) : null}
         requestedDeliveryDate={requestedDeliveryDate ? formatDate(requestedDeliveryDate) : null}
         scheduledDeliveryDate={scheduledDeliveryDate ? formatDate(scheduledDeliveryDate) : null}
         actualDeliveryDate={actualDeliveryDate ? formatDate(actualDeliveryDate) : null}
