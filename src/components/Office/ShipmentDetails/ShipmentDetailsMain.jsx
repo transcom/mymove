@@ -35,6 +35,9 @@ const OpenModalButton = ({ permission, onClick, className, title }) => (
   </Restricted>
 );
 
+// cunningham
+// Get actual pick up/delivery date here?
+
 const ShipmentDetailsMain = ({
   className,
   shipment,
@@ -47,6 +50,10 @@ const ShipmentDetailsMain = ({
   const {
     requestedPickupDate,
     scheduledPickupDate,
+    actualPickupDate,
+    requestedDeliveryDate,
+    scheduledDeliveryDate,
+    actualDeliveryDate,
     requiredDeliveryDate,
     pickupAddress,
     destinationAddress,
@@ -148,6 +155,10 @@ const ShipmentDetailsMain = ({
       <ImportantShipmentDates
         requestedPickupDate={formatDate(requestedPickupDate)}
         scheduledPickupDate={scheduledPickupDate ? formatDate(scheduledPickupDate) : null}
+        actualPickupDate={actualPickupDate ? formatDate(actualPickupDate) : null}
+        requestedDeliveryDate={requestedDeliveryDate ? formatDate(requestedDeliveryDate) : null}
+        scheduledDeliveryDate={scheduledDeliveryDate ? formatDate(scheduledDeliveryDate) : null}
+        actualDeliveryDate={actualDeliveryDate ? formatDate(actualDeliveryDate) : null}
         requiredDeliveryDate={requiredDeliveryDate ? formatDate(requiredDeliveryDate) : null}
       />
       <ShipmentAddresses
