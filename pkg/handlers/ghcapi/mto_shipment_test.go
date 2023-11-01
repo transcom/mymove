@@ -147,7 +147,7 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		},
 		{
 			Model: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
+				Code: models.ReServiceCodeDOFSIT,
 			},
 		},
 	}, nil)
@@ -172,7 +172,7 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 		},
 		{
 			Model: models.ReService{
-				Code: models.ReServiceCodeDOPSIT,
+				Code: models.ReServiceCodeDOFSIT,
 			},
 		},
 	}, nil)
@@ -2683,7 +2683,7 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOPSIT,
+					Code: models.ReServiceCodeDOFSIT,
 				},
 			},
 		}, nil)

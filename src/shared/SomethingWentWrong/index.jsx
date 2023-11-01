@@ -2,7 +2,7 @@ import React from 'react';
 
 import sadComputer from 'shared/images/sad-computer.png';
 
-const SomethingWentWrong = ({ hasError, error, info }) => (
+const SomethingWentWrong = () => (
   <div className="usa-grid">
     <div className="usa-width-one-whole align-center">
       <p>
@@ -14,9 +14,6 @@ const SomethingWentWrong = ({ hasError, error, info }) => (
         Something went wrong.
       </h2>
       <p>Please try again in a few moments.</p>
-      <p>Is there an error?: {hasError || 'False'}</p>
-      <p>Error: {error || 'No error provided'}</p>
-      <p>Info: {info || 'No info provided'}</p>
       <br />
       <br />
       <br />
