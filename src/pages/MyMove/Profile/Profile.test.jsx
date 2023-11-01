@@ -103,6 +103,10 @@ describe('Profile component', () => {
     const editLinks = screen.getAllByText('Edit');
 
     expect(editLinks.length).toBe(4);
+
+    const homeLink = screen.getAllByText('Return to Move');
+
+    expect(homeLink.length).toBe(1);
   });
 
   it('renders the Profile Page when there are no orders', async () => {
@@ -178,6 +182,10 @@ describe('Profile component', () => {
     const editLinks = screen.getAllByText('Edit');
 
     expect(editLinks.length).toBe(3);
+
+    const homeLink = screen.getAllByText('Return to Move');
+
+    expect(homeLink.length).toBe(1);
 
     expect(screen.queryByText('Contact your movers if you need to make changes to your move.')).not.toBeInTheDocument();
 
@@ -277,5 +285,9 @@ describe('Profile component', () => {
     const editLinks = screen.getAllByText('Edit');
 
     expect(editLinks.length).toBe(3);
+
+    const homeLink = screen.getAllByText('Return to Move');
+
+    expect(homeLink.length).toBe(1);
   });
 });
