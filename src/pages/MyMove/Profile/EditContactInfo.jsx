@@ -10,7 +10,7 @@ import EditContactInfoForm, {
   residentialAddressName,
 } from 'components/Customer/EditContactInfoForm/EditContactInfoForm';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import { getResponseError, patchBackupContact, patchServiceMember } from 'services/internalApi';
 import {
   updateBackupContact as updateBackupContactAction,
@@ -117,7 +117,7 @@ export const EditContactInfo = ({
       .then(updateServiceMember)
       .then(() => {
         setFlashMessage('EDIT_CONTACT_INFO_SUCCESS', 'success', "You've updated your information.");
-        navigate(generalRoutes.HOME_PATH);
+        navigate(customerRoutes.PROFILE_PATH);
       })
       .catch((e) => {
         //     // TODO - error handling - below is rudimentary error handling to approximate existing UX
