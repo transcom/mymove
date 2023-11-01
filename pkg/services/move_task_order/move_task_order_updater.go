@@ -423,5 +423,11 @@ func (o moveTaskOrderUpdater) UpdatePPMType(appCtx appcontext.AppContext, moveTa
 		return move, transactionError
 	}
 
-	return move, nil
+	// Get the updated Move and return
+	updatedMove, err := o.FetchMoveTaskOrder(appCtx, &searchParams)
+	if err != nil {
+		return nil, apperror.NewQueryError("Move", err, fmt.Sprintf("Unexpected error after saving: %v", err))
+	}
+
+	return updatedMove, nil
 }

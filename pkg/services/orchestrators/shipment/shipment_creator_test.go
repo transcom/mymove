@@ -102,7 +102,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 			On(
 				updatePPMTypeMethodName,
 				mock.AnythingOfType("*appcontext.appContext"),
-				mock.AnythingOfType("*uuid.UUID"),
+				mock.AnythingOfType("uuid.UUID"),
 			).
 			Return(nil, nil)
 
