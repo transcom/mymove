@@ -57,7 +57,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOPSIT,
+					Code: models.ReServiceCodeDOFSIT,
 				},
 			},
 		}, nil)
@@ -83,7 +83,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
 		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		fifteenDaysAgo := aMonthAgo.Add(time.Hour * 24 * 15)
-		dopsit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		dofsit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model:    approvedShipment,
 				LinkOnly: true,
@@ -97,18 +97,18 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOPSIT,
+					Code: models.ReServiceCodeDOFSIT,
 				},
 			},
 		}, nil)
 
-		approvedShipment.MTOServiceItems = models.MTOServiceItems{dopsit}
+		approvedShipment.MTOServiceItems = models.MTOServiceItems{dofsit}
 
 		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
 		suite.NoError(err)
 		suite.NotNil(sitStatus)
 		suite.Len(sitStatus.PastSITs, 1)
-		suite.Equal(dopsit.ID.String(), sitStatus.PastSITs[0].ID.String())
+		suite.Equal(dofsit.ID.String(), sitStatus.PastSITs[0].ID.String())
 
 		suite.Equal(15, sitStatus.TotalSITDaysUsed)
 		suite.Equal(75, sitStatus.TotalDaysRemaining)
@@ -128,7 +128,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
 		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		dopsit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		dofsit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model:    approvedShipment,
 				LinkOnly: true,
@@ -141,12 +141,12 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOPSIT,
+					Code: models.ReServiceCodeDOFSIT,
 				},
 			},
 		}, nil)
 
-		approvedShipment.MTOServiceItems = models.MTOServiceItems{dopsit}
+		approvedShipment.MTOServiceItems = models.MTOServiceItems{dofsit}
 
 		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
 		suite.NoError(err)
@@ -176,7 +176,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
 		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		fifteenDaysAgo := aMonthAgo.Add(time.Hour * 24 * 15)
-		pastDOPSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		pastDOFSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model:    approvedShipment,
 				LinkOnly: true,
@@ -190,14 +190,14 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOPSIT,
+					Code: models.ReServiceCodeDOFSIT,
 				},
 			},
 		}, nil)
 
 		year, month, day = time.Now().Add(time.Hour * 24 * -7).Date()
 		aWeekAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		currentDOPSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		currentDOFSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model:    approvedShipment,
 				LinkOnly: true,
@@ -210,12 +210,12 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOPSIT,
+					Code: models.ReServiceCodeDOFSIT,
 				},
 			},
 		}, nil)
 
-		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOPSIT, currentDOPSIT}
+		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOFSIT, currentDOFSIT}
 
 		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
 		suite.NoError(err)
@@ -231,7 +231,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		suite.Equal(approvedShipment.ID.String(), sitStatus.ShipmentID.String())
 
 		suite.Len(sitStatus.PastSITs, 1)
-		suite.Equal(pastDOPSIT.ID.String(), sitStatus.PastSITs[0].ID.String())
+		suite.Equal(pastDOFSIT.ID.String(), sitStatus.PastSITs[0].ID.String())
 	})
 
 	suite.Run("combines SIT days sum for shipment with past origin and current destination SIT", func() {
@@ -248,7 +248,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
 		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		fifteenDaysAgo := aMonthAgo.Add(time.Hour * 24 * 15)
-		pastDOPSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		pastDOFSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model:    approvedShipment,
 				LinkOnly: true,
@@ -262,14 +262,14 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOPSIT,
+					Code: models.ReServiceCodeDOFSIT,
 				},
 			},
 		}, nil)
 
 		year, month, day = time.Now().Add(time.Hour * 24 * -7).Date()
 		aWeekAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		currentDDPSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		currentDDFSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model:    approvedShipment,
 				LinkOnly: true,
@@ -282,12 +282,12 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDDDSIT,
+					Code: models.ReServiceCodeDDFSIT,
 				},
 			},
 		}, nil)
 
-		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOPSIT, currentDDPSIT}
+		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOFSIT, currentDDFSIT}
 
 		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
 		suite.NoError(err)
@@ -303,7 +303,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		suite.Equal(approvedShipment.ID.String(), sitStatus.ShipmentID.String())
 
 		suite.Len(sitStatus.PastSITs, 1)
-		suite.Equal(pastDOPSIT.ID.String(), sitStatus.PastSITs[0].ID.String())
+		suite.Equal(pastDOFSIT.ID.String(), sitStatus.PastSITs[0].ID.String())
 	})
 
 	suite.Run("returns negative days remaining when days in SIT exceeds shipment allowance", func() {
@@ -320,7 +320,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		year, month, day := time.Now().Add(time.Hour * 24 * 30 * -6).Date()
 		sixMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		threeMonthsAgo := sixMonthsAgo.Add(time.Hour * 24 * 30 * 3)
-		pastDOPSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		pastDOFSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model:    approvedShipment,
 				LinkOnly: true,
@@ -334,14 +334,14 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOPSIT,
+					Code: models.ReServiceCodeDOFSIT,
 				},
 			},
 		}, nil)
 
 		year, month, day = time.Now().Add(time.Hour * 24 * -7).Date()
 		aWeekAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		currentDDPSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		currentDDFSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model:    approvedShipment,
 				LinkOnly: true,
@@ -354,12 +354,12 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDDDSIT,
+					Code: models.ReServiceCodeDDFSIT,
 				},
 			},
 		}, nil)
 
-		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOPSIT, currentDDPSIT}
+		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOFSIT, currentDDFSIT}
 
 		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
 		suite.NoError(err)
@@ -375,7 +375,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		suite.Equal(approvedShipment.ID.String(), sitStatus.ShipmentID.String())
 
 		suite.Len(sitStatus.PastSITs, 1)
-		suite.Equal(pastDOPSIT.ID.String(), sitStatus.PastSITs[0].ID.String())
+		suite.Equal(pastDOFSIT.ID.String(), sitStatus.PastSITs[0].ID.String())
 	})
 
 	suite.Run("excludes SIT service items that have not been approved by the TOO", func() {
@@ -392,7 +392,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		year, month, day := time.Now().Add(time.Hour * 24 * 30 * -6).Date()
 		sixMonthsAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		threeMonthsAgo := sixMonthsAgo.Add(time.Hour * 24 * 30 * 3)
-		pastDOPSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		pastDOFSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model:    approvedShipment,
 				LinkOnly: true,
@@ -406,14 +406,14 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOPSIT,
+					Code: models.ReServiceCodeDOFSIT,
 				},
 			},
 		}, nil)
 
 		year, month, day = time.Now().Add(time.Hour * 24 * -7).Date()
 		aWeekAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		currentDDPSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		currentDDFSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model:    approvedShipment,
 				LinkOnly: true,
@@ -426,12 +426,12 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDDDSIT,
+					Code: models.ReServiceCodeDDFSIT,
 				},
 			},
 		}, nil)
 
-		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOPSIT, currentDDPSIT}
+		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOFSIT, currentDDFSIT}
 
 		sitStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
 		suite.NoError(err)
