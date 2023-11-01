@@ -2,6 +2,7 @@ package paymentrequest
 
 import (
 	"database/sql"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -29,11 +30,13 @@ func getStartAndEndParams(params models.PaymentServiceItemParams) (start time.Ti
 		if paymentServiceItemParam.ServiceItemParamKey.Key == models.ServiceItemParamNameSITPaymentRequestStart {
 			// remove once the pricer work is done so a 500 server error isn't returned for an unparseable date
 			if paymentServiceItemParam.Value != "NOT IMPLEMENTED" {
+				fmt.Println(paymentServiceItemParam.PaymentServiceItemID)
 				start, err = time.Parse(sitParamDateFormat, paymentServiceItemParam.Value)
 			}
 		} else if paymentServiceItemParam.ServiceItemParamKey.Key == models.ServiceItemParamNameSITPaymentRequestEnd {
 			// remove once the pricer work is done so a 500 server error isn't returned for an unparseable date
 			if paymentServiceItemParam.Value != "NOT IMPLEMENTED" {
+				fmt.Println(paymentServiceItemParam.PaymentServiceItemID)
 				end, err = time.Parse(sitParamDateFormat, paymentServiceItemParam.Value)
 			}
 		}
