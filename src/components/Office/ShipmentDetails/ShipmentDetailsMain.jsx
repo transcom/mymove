@@ -68,7 +68,7 @@ const ShipmentDetailsMain = ({
 
   const [isReviewSITExtensionModalVisible, setIsReviewSITExtensionModalVisible] = useState(false);
   const [isSubmitITExtensionModalVisible, setIsSubmitITExtensionModalVisible] = useState(false);
-  const [submittedChangeTime, setSubmittedChangeTime] = useState(Date.now());
+  const [, setSubmittedChangeTime] = useState(Date.now());
 
   const reviewSITExtension = (sitExtensionID, formValues) => {
     setIsReviewSITExtensionModalVisible(false);
