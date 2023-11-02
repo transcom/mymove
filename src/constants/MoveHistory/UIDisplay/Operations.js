@@ -35,6 +35,7 @@ export default {
   updatePaymentRequestStatus: 'updatePaymentRequestStatus',
   updateReweigh: 'updateReweigh',
   updateServiceItemStatus: 'updateMTOServiceItemStatus',
+  updateServiceItemSitEntryDate: 'updateServiceItemSitEntryDate', // ghc.yaml
   uploadAmendedOrders: 'uploadAmendedOrders', // internal.yaml
   patchServiceMember: 'patchServiceMember', // internal.yaml
   createServiceMember: 'createServiceMember', // internal.yaml
