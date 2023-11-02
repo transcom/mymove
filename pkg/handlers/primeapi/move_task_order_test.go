@@ -722,10 +722,12 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 				LinkOnly: true,
 			},
 		}, nil)
+		now := time.Now()
 		serviceItem := factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOServiceItem{
-					MTOShipmentID: &successShipment.ID,
+					MTOShipmentID:    &successShipment.ID,
+					SITDepartureDate: &now,
 				},
 			},
 			{
