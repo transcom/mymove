@@ -383,10 +383,6 @@ func CreateMoveWithHHGAndPPM(appCtx appcontext.AppContext, userUploader *uploade
 		},
 	}, nil)
 
-	logger := appCtx.Logger()
-	logger.Debug("Printing move")
-	logger.Debug(fmt.Sprintf("%+v\n", move))
-
 	return move
 }
 
