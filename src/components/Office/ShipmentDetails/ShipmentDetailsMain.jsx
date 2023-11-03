@@ -153,7 +153,7 @@ const ShipmentDetailsMain = ({
         />
       )}
       <ImportantShipmentDates
-        requestedPickupDate={formatDate(requestedPickupDate)}
+        requestedPickupDate={requestedPickupDate ? formatDate(requestedPickupDate) : null}
         scheduledPickupDate={scheduledPickupDate ? formatDate(scheduledPickupDate) : null}
         actualPickupDate={actualPickupDate ? formatDate(actualPickupDate) : null}
         requestedDeliveryDate={requestedDeliveryDate ? formatDate(requestedDeliveryDate) : null}

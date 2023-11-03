@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { arrayOf, bool } from 'prop-types';
 import { Alert } from '@trussworks/react-uswds';
+import { Link } from 'react-router-dom';
 
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import ContactInfoDisplay from 'components/Customer/Profile/ContactInfoDisplay/ContactInfoDisplay';
@@ -16,7 +17,7 @@ import {
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import ServiceInfoDisplay from 'components/Customer/Review/ServiceInfoDisplay/ServiceInfoDisplay';
 import OktaInfoDisplay from 'components/Customer/Profile/OktaInfoDisplay/OktaInfoDisplay';
-import { customerRoutes } from 'constants/routes';
+import { customerRoutes, generalRoutes } from 'constants/routes';
 import formStyles from 'styles/form.module.scss';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { OktaUserInfoShape } from 'types/user';
@@ -42,6 +43,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
       <ConnectedFlashMessage />
       <div className="grid-row">
         <div className="grid-col-12">
+          <Link to={generalRoutes.HOME_PATH}>Return to Move</Link>
           <h1>Profile</h1>
           {showMessages && (
             <Alert headingLevel="h4" type="info">
