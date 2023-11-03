@@ -18,6 +18,12 @@
     @include u-margin-bottom(1);
     @include u-font-weight(bold);
   }
+
+  .codeDescription {
+    @include u-margin-top(-1);
+    @include u-margin-bottom(1);
+    @include u-font-weight(thin);
+  }
 }
 
 .statusAction {

@@ -87,7 +87,7 @@ describe('ShipmentSITDisplay', () => {
     expect(screen.getAllByText('—')).toHaveLength(2);
   });
 
-  it('renders the Shipment SIT at Destination, previous origin SIT', async () => {
+  it('renders the Shipment SIT at Destination, previous destination SIT', async () => {
     render(
       <MockProviders>
         <ShipmentSITDisplay sitStatus={SITStatusWithPastSITOriginServiceItem} shipment={SITShipment} />
