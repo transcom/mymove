@@ -10,6 +10,7 @@ import styles from './Summary.module.scss';
 
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import ConnectedAddShipmentModal from 'components/Customer/Review/AddShipmentModal/AddShipmentModal';
+import ConnectedIncompleteShipmentModal from 'components/Customer/Review/IncompleteShipmentModal/IncompletePPMModal';
 import OrdersTable from 'components/Customer/Review/OrdersTable/OrdersTable';
 import ProfileTable from 'components/Customer/Review/ProfileTable/ProfileTable';
 import HHGShipmentCard from 'components/Customer/Review/ShipmentCard/HHGShipmentCard/HHGShipmentCard';
@@ -43,8 +44,10 @@ export class Summary extends Component {
 
     this.state = {
       showModal: false,
+      showIncompletePPMModal: false,
       showDeleteModal: false,
       targetShipmentId: null,
+      incompleteShipmentInfo: null,
     };
   }
 
@@ -126,6 +129,7 @@ export class Summary extends Component {
             showEditAndDeleteBtn={showEditAndDeleteBtn}
             onEditClick={this.handleEditClick}
             onDeleteClick={this.handleDeleteClick}
+            onIncompleteClick={this.toggleIncompletePPMShipmentModal}
           />
         );
       }
@@ -202,9 +206,16 @@ export class Summary extends Component {
     }));
   };
 
+  toggleIncompletePPMShipmentModal = (shipmentInfo) => {
+    this.setState((state) => ({
+      showIncompletePPMModal: !state.showIncompletePPMModal,
+      incompleteShipmentInfo: shipmentInfo,
+    }));
+  };
+
   render() {
     const { currentMove, currentOrders, router, moveIsApproved, mtoShipments, serviceMember } = this.props;
-    const { showModal, showDeleteModal, targetShipmentId } = this.state;
+    const { showModal, showDeleteModal, targetShipmentId, showIncompletePPMModal, incompleteShipmentInfo } = this.state;
 
     const { pathname } = router.location;
     const { moveId } = router.params;
@@ -243,6 +254,11 @@ export class Summary extends Component {
           content="Your information will be gone. You’ll need to start over if you want it back."
           submitText="Yes, Delete"
           closeText="No, Keep It"
+        />
+        <ConnectedIncompleteShipmentModal
+          isOpen={showIncompletePPMModal}
+          closeModal={this.toggleIncompletePPMShipmentModal}
+          data={incompleteShipmentInfo}
         />
         <SectionWrapper className={styles.SummarySectionWrapper}>
           <ProfileTable

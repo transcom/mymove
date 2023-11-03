@@ -144,6 +144,21 @@
       @include u-border-bottom(0);
     }
   }
+
+  .buttonContainer {
+    display: flex;
+    align-items: center;
+
+    .buttonRight {
+      justify-content: flex-end;
+      padding: 0;
+      vertical-align: baseline;
+
+      @media (min-width: $tablet) {
+        justify-content: center;
+      }
+    }
+  }
 }
 
 @media (min-width: $tablet) {

@@ -1,7 +1,8 @@
 import React from 'react';
 import { bool, func, number, oneOf } from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
+import { Tag, Button, Grid } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from 'components/Customer/Review/ShipmentCard/ShipmentCard.module.scss';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
@@ -21,6 +22,7 @@ const PPMShipmentCard = ({
   showEditAndDeleteBtn,
   onEditClick,
   onDeleteClick,
+  onIncompleteClick,
 }) => {
   const { moveTaskOrderID, id, shipmentType } = shipment;
   const {
@@ -50,15 +52,40 @@ const PPMShipmentCard = ({
     closeoutOffice = move.closeout_office.name;
   }
 
+  const shipmentLabel = `${getShipmentTypeLabel(shipmentType)} ${shipmentNumber}`;
+  const shipmentIDAbbrevLabel = `#${id.substring(0, 8).toUpperCase()}`;
+  const incompleteShipmentModalData = {
+    shipmentLabel,
+    shipmentIDAbbrevLabel,
+  };
+  incompleteShipmentModalData.shipmentLabel = shipmentLabel;
+  incompleteShipmentModalData.shipmentIDAbbrevLabel = shipmentIDAbbrevLabel;
+
   return (
     <div className={styles.ShipmentCard}>
       <ShipmentContainer className={styles.container} shipmentType={SHIPMENT_OPTIONS.PPM}>
+        {!hasRequestedAdvance && (
+          <Grid row>
+            <Grid col="fill" tablet={{ col: 'auto' }}>
+              <Tag>Incomplete</Tag>
+            </Grid>
+            <Grid col="auto" className={styles.buttonContainer}>
+              <Button
+                title="Incomplete PPM"
+                type="button"
+                onClick={() => onIncompleteClick(JSON.stringify(incompleteShipmentModalData))}
+                unstyled
+                className="{styles.buttonRight}"
+              >
+                <FontAwesomeIcon icon={['far', 'circle-question']} />
+              </Button>
+            </Grid>
+          </Grid>
+        )}
         <div className={styles.ShipmentCardHeader}>
           <div className={styles.shipmentTypeNumber}>
-            <h3 data-testid="ShipmentCardNumber">
-              {getShipmentTypeLabel(shipmentType)} {shipmentNumber}
-            </h3>
-            <p>#{id.substring(0, 8).toUpperCase()}</p>
+            <h3 data-testid="ShipmentCardNumber">{shipmentLabel}</h3>
+            <p>{shipmentIDAbbrevLabel}</p>
           </div>
           {showEditAndDeleteBtn && (
             <div className={styles.btnContainer}>
@@ -142,6 +169,7 @@ PPMShipmentCard.propTypes = {
   onDeleteClick: func,
   move: MoveShape,
   affiliation: oneOf(Object.values(affiliations)),
+  onIncompleteClick: func,
 };
 
 PPMShipmentCard.defaultProps = {
@@ -150,6 +178,7 @@ PPMShipmentCard.defaultProps = {
   onDeleteClick: undefined,
   move: undefined,
   affiliation: undefined,
+  onIncompleteClick: undefined,
 };
 
 export default PPMShipmentCard;
