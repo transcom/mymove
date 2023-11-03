@@ -245,8 +245,8 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric v0.40.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.0.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/exp v0.0.0-20230212135524-a684f29349b6 // indirect
-	golang.org/x/image v0.5.0 // indirect
+	golang.org/x/exp v0.0.0-20230212135524-a684f29349b6
+	golang.org/x/image v0.10.0 // indirect
 	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
 	golang.org/x/sys v0.12.0 // indirect
