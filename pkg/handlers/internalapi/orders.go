@@ -154,6 +154,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 			grade := (*string)(serviceMember.Rank)
 
 			weight, entitlementErr := models.GetEntitlement(*serviceMember.Rank, *payload.HasDependents)
+
 			if entitlementErr != nil {
 				return handlers.ResponseForError(appCtx.Logger(), entitlementErr), entitlementErr
 			}
@@ -164,8 +165,10 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 
 			entitlement := models.Entitlement{
 				DependentsAuthorized: payload.HasDependents,
-				DBAuthorizedWeight:   models.IntPointer(weight),
+				DBAuthorizedWeight:   models.IntPointer(weight.TotalWeight),
 				StorageInTransit:     models.IntPointer(sitDaysAllowance),
+				ProGearWeight:        weight.ProGearWeight,
+				ProGearWeightSpouse:  weight.ProGearWeightSpouse,
 			}
 
 			if saveEntitlementErr := appCtx.DB().Save(&entitlement); saveEntitlementErr != nil {

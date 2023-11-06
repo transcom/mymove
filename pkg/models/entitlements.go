@@ -12,6 +12,12 @@ type WeightAllotment struct {
 	ProGearWeightSpouse           int
 }
 
+type WeightAllotmentReturn struct {
+	TotalWeight         int
+	ProGearWeight       int
+	ProGearWeightSpouse int
+}
+
 // the midshipman entitlement is shared with service academy cadet
 var midshipman = WeightAllotment{
 	TotalWeightSelf:               350,
@@ -230,19 +236,26 @@ func GetWeightAllotment(rank ServiceMemberRank) WeightAllotment {
 
 // GetEntitlement calculates the entitlement weight based on rank and dependents.
 // Only includes either TotalWeightSelf or TotalWeightSelfPlusDependents.
-func GetEntitlement(rank ServiceMemberRank, hasDependents bool) (int, error) {
-	weight := 0
+func GetEntitlement(rank ServiceMemberRank, hasDependents bool) (WeightAllotmentReturn, error) {
+	weight := WeightAllotmentReturn{
+		TotalWeight:         0,
+		ProGearWeight:       0,
+		ProGearWeightSpouse: 0,
+	}
 
 	selfEntitlement, err := getEntitlement(rank)
 	if err != nil {
-		return 0, fmt.Errorf("Rank %s not found in entitlement map", rank)
+		return weight, fmt.Errorf("Rank %s not found in entitlement map", rank)
 	}
 
 	if hasDependents {
-		weight = selfEntitlement.TotalWeightSelfPlusDependents
+		weight.TotalWeight = selfEntitlement.TotalWeightSelfPlusDependents
 	} else {
-		weight = selfEntitlement.TotalWeightSelf
+		weight.TotalWeight = selfEntitlement.TotalWeightSelf
 	}
+
+	weight.ProGearWeight = selfEntitlement.ProGearWeight
+	weight.ProGearWeightSpouse = selfEntitlement.ProGearWeightSpouse
 
 	return weight, nil
 }
