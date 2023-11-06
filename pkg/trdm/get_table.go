@@ -1,126 +1,17 @@
 package trdm
 
 import (
-	"bytes"
-	"crypto/rsa"
-	"crypto/x509"
-	"encoding/xml"
-	"fmt"
 	"time"
 
-	"github.com/cenkalti/backoff/v4"
 	"github.com/pkg/errors"
-	"github.com/tiaguinho/gosoap"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/parser/loa"
-	"github.com/transcom/mymove/pkg/parser/tac"
 )
 
-// <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope" xmlns:ret="http://trdm/ReturnTableService">
-//    <soapenv:Header/>
-//    <soapenv:Body>
-//       <ret:getTableRequestElement>
-//          <ret:input>
-//             <ret:TRDM>
-//                <ret:physicalName>ACFT</ret:physicalName>
-//                <ret:returnContent>true</ret:returnContent>
-//             </ret:TRDM>
-//          </ret:input>
-//       </ret:getTableRequestElement>
-//    </soapenv:Body>
-// </soapenv:Envelope>
-
-// SOAP Response:
-// <soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
-//    <soap:Body>
-//       <getTableResponseElement xmlns="http://trdm/ReturnTableService">
-//          <output>
-//             <TRDM>
-//                <status>
-//                   <rowCount>28740</rowCount>
-//                   <statusCode>Successful</statusCode>
-//                   <dateTime>2020-01-27T19:12:25.326Z</dateTime>
-//                </status>
-//             </TRDM>
-//          </output>
-//          <attachment>
-//             <xop:Include href="cid:fefe5d81-468c-4639-a543-e758a3cbceea-2@ReturnTableService" xmlns:xop="http://www.w3.org/2004/08/xop/include"/>
-//          </attachment>
-//       </getTableResponseElement>
-//    </soap:Body>
-// </soap:Envelope>
-
-const successResponseString = "Successful"
+// const successResponseString = "Successful"
 const lineOfAccounting = "LN_OF_ACCT"
 const transportationAccountingCode = "TRNSPRTN_ACNT"
-
-type GetTableRequestElement struct {
-	soapClient    SoapCaller
-	securityToken *x509.Certificate
-	privateKey    *rsa.PrivateKey
-	Input         struct {
-		TRDM struct {
-			PhysicalName  string `xml:"physicalName"`
-			ReturnContent string `xml:"returnContent"`
-		}
-	}
-}
-
-type output struct {
-	TRDM tRDM `xml:"TRDM"`
-}
-
-type tRDM struct {
-	Status status `xml:"status"`
-}
-type status struct {
-	RowCount   string `xml:"rowCount"`
-	StatusCode string `xml:"statusCode"`
-	DateTime   string `xml:"dateTime"`
-}
-
-type attachment struct {
-	Include include `xml:"include"`
-}
-type include struct {
-	Text string `xml:",chardata"`
-	Href string `xml:"href,attr"`
-	Xop  string `xml:"xop,attr"`
-}
-type GetTableResponseElement struct {
-	XMLName    xml.Name   `xml:"getTableResponseElement"`
-	Output     output     `xml:"output"`
-	Attachment attachment `xml:"attachment"`
-}
-
-type GetTableUpdater interface {
-	GetTable(appCtx appcontext.AppContext, physicalName string, lastUpdate time.Time) error
-}
-
-func NewGetTable(physicalName string, securityToken *x509.Certificate, privateKey *rsa.PrivateKey, soapClient SoapCaller) GetTableUpdater {
-	return &GetTableRequestElement{
-		securityToken: securityToken,
-		privateKey:    privateKey,
-		soapClient:    soapClient,
-		Input: struct {
-			TRDM struct {
-				PhysicalName  string `xml:"physicalName"`
-				ReturnContent string `xml:"returnContent"`
-			}
-		}{
-			TRDM: struct {
-				PhysicalName  string `xml:"physicalName"`
-				ReturnContent string `xml:"returnContent"`
-			}{
-				PhysicalName:  physicalName,
-				ReturnContent: fmt.Sprintf("%t", true),
-			},
-		},
-	}
-}
 
 // Fetch Transportation Accounting Codes from DB and return the list of records if the updated_at field is < the returned LastTableUpdate updated time.
 // Ex:
@@ -160,14 +51,14 @@ func FetchLOARecordsByTime(appcontext appcontext.AppContext, time time.Time) ([]
 	return loa, nil
 }
 
-// Determines if SOAP call is needed to be made
+// Determines if call is needed to be made
 // If the DB does not return any records we do not need make a call to GetTable and update our local mapping
 //   - appCtx: Application Context
 //   - physicalName: Table Name (Will be either TAC or LOA)
 //   - lastUpdate: Returned date time from LastTableUpdate Soap Request
 //
 // returns error
-func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physicalName string, lastUpdate time.Time) error {
+func GetTable(appCtx appcontext.AppContext, physicalName string, lastUpdate time.Time) error {
 
 	switch physicalName {
 	case lineOfAccounting:
@@ -178,9 +69,8 @@ func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physical
 		}
 
 		if len(loaRecords) > 0 {
-			if err := setupSoapCall(d, appCtx, physicalName); err != nil {
-				return err
-			}
+			// TODO: Send off the call
+			return loaFetchErr // Remove me
 		}
 	case transportationAccountingCode:
 		tacRecords, fetchErr := FetchTACRecordsByTime(appCtx, lastUpdate)
@@ -188,93 +78,19 @@ func (d *GetTableRequestElement) GetTable(appCtx appcontext.AppContext, physical
 			return fetchErr
 		}
 		if len(tacRecords) > 0 {
-			if err := setupSoapCall(d, appCtx, physicalName); err != nil {
-				return err
-			}
+			// TODO: Send off the call
+			return fetchErr // Remove me
 		}
 	}
 
-	return nil
-}
-
-// Sets up SOAP parameters. Signed SOAP header and SOAP body
-// Calls getTableSoap call within Exponential backoff function. If soap call errors out, it will wait 1 hour before making another call and then at maximum 5 calls after the second failure.
-//
-//	appCtx - application context
-//	physicalName - table name (TAC or LOA)
-//	returns error
-func setupSoapCall(d *GetTableRequestElement, appCtx appcontext.AppContext, physicalName string) error {
-	gosoap.SetCustomEnvelope("soapenv", map[string]string{
-		"xmlns:soapenv": "http://www.w3.org/2003/05/soap-envelope",
-		"xmlns:ret":     "http://trdm/ReturnTableService",
-	})
-	params := GetTableRequestElement{
-		Input: d.Input,
-	}
-
-	marshaledBody, marshalErr := xml.Marshal(params)
-	if marshalErr != nil {
-		return marshalErr
-	}
-
-	bodyID, err := GenerateSOAPURIWithPrefix("id")
-	if err != nil {
-		return err
-	}
-
-	operation := func() error {
-		signedHeader, headerSigningError := GenerateSignedHeader(d.securityToken, d.privateKey, bodyID, marshaledBody)
-		if headerSigningError != nil {
-			return headerSigningError
-		}
-		newParams := gosoap.Params{
-			"header": signedHeader,
-			"body":   marshaledBody,
-		}
-		return getTableSoapCall(d, newParams, appCtx, physicalName)
-	}
-	b := backoff.NewExponentialBackOff()
-
-	// Set the max retries to 5
-	b.MaxElapsedTime = 5 * time.Hour
-
-	// Only re-call after 1 hour
-	b.InitialInterval = 1 * time.Hour
-	err = backoff.Retry(operation, b)
-	if err != nil {
-		return fmt.Errorf("failed after retries: %s", err)
-	}
-	return nil
-}
-
-// Makes SOAP call to GetTable webservice and unmarshalls response.
-//
-//	returns error
-func getTableSoapCall(d *GetTableRequestElement, params gosoap.Params, appCtx appcontext.AppContext, physicalName string) error {
-	response, err := d.soapClient.Call("ProcessRequest", params)
-	if err != nil {
-		return err
-	}
-	var r GetTableResponseElement
-	unmarshalErr := response.Unmarshal(&r)
-	if unmarshalErr != nil {
-		return fmt.Errorf("unmarshall error: %s", unmarshalErr.Error())
-	}
-	if r.Output.TRDM.Status.StatusCode == successResponseString {
-		parseError := parseGetTableResponse(appCtx, response, physicalName)
-		if parseError != nil {
-			return parseError
-		}
-	} else {
-		return fmt.Errorf(r.Output.TRDM.Status.StatusCode, "GetTable response was not 'Successful'")
-	}
-	appCtx.Logger().Debug("getTable result", zap.Any("processRequestResponse", response))
 	return nil
 }
 
 // Parses pipedelimited file attachment from GetTable webservice and saves records to database
 //
 //	returns error
+// TODO: Impelement again
+/*
 func parseGetTableResponse(appcontext appcontext.AppContext, response *gosoap.Response, physicalName string) error {
 	reader := bytes.NewReader(response.Payload)
 	switch physicalName {
@@ -301,8 +117,11 @@ func parseGetTableResponse(appcontext appcontext.AppContext, response *gosoap.Re
 	}
 	return nil
 }
+*/
 
 // Saves TAC Code slice to DB and updates records
+// TODO: Implement again
+/*
 func saveTacCodes(appcontext appcontext.AppContext, tacCodes []models.TransportationAccountingCode) error {
 	saveErr := appcontext.DB().Update(tacCodes)
 	if saveErr != nil {
@@ -319,3 +138,4 @@ func saveLoaCodes(appcontext appcontext.AppContext, loa []models.LineOfAccountin
 	}
 	return nil
 }
+*/
