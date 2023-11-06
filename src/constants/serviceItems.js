@@ -187,4 +187,5 @@ export {
   SERVICE_ITEM_CODES,
   SIT_SERVICE_ITEM_CODES,
   allowedServiceItemCalculations,
+  SERVICE_ITEM_STATUSES,
 };
