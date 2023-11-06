@@ -183,7 +183,7 @@ func createBinarySecurityTokenElement(parent *etree.Element, bstURI string, cert
 }
 
 // Creeates the Signature element and its children
-func createSignatureElement(parent *etree.Element, sigURI string, keyInfoURI string, strURI string, cert x509.Certificate, tsURI string, bstURI string, bodyURI string, key *rsa.PrivateKey) error {
+func createSignatureElement(parent *etree.Element, sigURI string, keyInfoURI string, strURI string, _ x509.Certificate, tsURI string, bstURI string, bodyURI string, _ *rsa.PrivateKey) error {
 	signatureElement := parent.CreateElement("ds:Signature")
 	signatureElement.CreateAttr("Id", sigURI)
 	signatureElement.CreateAttr("xmlns:ds", "http://www.w3.org/2000/09/xmldsig#")
@@ -207,19 +207,19 @@ func createSignatureElement(parent *etree.Element, sigURI string, keyInfoURI str
 }
 
 // Returns the signature of the canonicalized element
-func signElement(element *etree.Element, key *rsa.PrivateKey) ([]byte, error) {
-	// Get the digest of the canon element
-	digest, err := retrieveElemCanonicalDigest(element)
-	if err != nil {
-		return nil, err
-	}
-	// Sign the canon digest
-	signature, err := key.Sign(rand.Reader, digest, crypto.SHA512)
-	if err != nil {
-		return nil, err
-	}
-	return signature, nil
-}
+// func signElement(element *etree.Element, key *rsa.PrivateKey) ([]byte, error) {
+// 	// Get the digest of the canon element
+// 	digest, err := retrieveElemCanonicalDigest(element)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	// Sign the canon digest
+// 	signature, err := key.Sign(rand.Reader, digest, crypto.SHA512)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return signature, nil
+// }
 
 // Creates the timestamp element and applies an expiration date to the envelope.
 // The expiration is proven by its digest value.

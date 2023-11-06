@@ -32,10 +32,12 @@ test('A customer can go through onboarding', async ({ page, customerPage }) => {
   // Current duty location section
   await customerPage.waitForPage.onboardingDutyLocation();
   await page.getByLabel('What is your current duty location?').fill('Scott AFB');
+  await page.keyboard.press('Backspace'); // tests if backspace clears the duty location field
+  await page.getByLabel('What is your current duty location?').fill('Scott AFB');
   // 'mark' is not yet supported by react testing library
   // https://github.com/testing-library/dom-testing-library/issues/1150
   // @ts-expect-error:next-line
-  await page.getByRole('mark').click();
+  await page.getByRole('mark').nth(0).click();
   await customerPage.navigateForward();
 
   // Current pickup address section

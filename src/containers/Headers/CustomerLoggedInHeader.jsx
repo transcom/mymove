@@ -15,7 +15,9 @@ const CustomerLoggedInHeader = ({ isProfileComplete, logOut }) => {
     logOut();
     LogoutUser().then((r) => {
       const redirectURL = r.body;
-      if (redirectURL) {
+      const urlParams = new URLSearchParams(redirectURL.split('?')[1]);
+      const idTokenHint = urlParams.get('id_token_hint');
+      if (redirectURL && idTokenHint !== 'devlocal') {
         window.location.href = redirectURL;
       } else {
         navigate('/sign-in', { state: { hasLoggedOut: true } });

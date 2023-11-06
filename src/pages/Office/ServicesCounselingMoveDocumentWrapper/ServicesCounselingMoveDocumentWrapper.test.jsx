@@ -176,7 +176,7 @@ describe('ServicesCounselingMoveDocumentWrapper', () => {
 
       const wrapper = shallow(<ServicesCounselingMoveDocumentWrapper />);
       expect(wrapper.find('DocumentViewer').props('files')).toEqual({
-        allowDownload: false,
+        allowDownload: true,
         files: [
           {
             contentType: 'application/pdf',

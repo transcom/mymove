@@ -35,6 +35,8 @@ const SERVICE_ITEM_PARAM_KEYS = {
   ServicesScheduleOrigin: 'ServicesScheduleOrigin',
   SITScheduleDest: 'SITScheduleDest',
   SITScheduleOrigin: 'SITScheduleOrigin',
+  SITServiceAreaDest: 'SITServiceAreaDest',
+  SITServiceAreaOrigin: 'SITServiceAreaOrigin',
   WeightAdjusted: 'WeightAdjusted',
   WeightOriginal: 'WeightOriginal',
   WeightBilled: 'WeightBilled',
@@ -46,7 +48,6 @@ const SERVICE_ITEM_PARAM_KEYS = {
   ZipSITDestHHGOriginalAddress: 'ZipSITDestHHGOriginalAddress',
   ZipSITOriginHHGActualAddress: 'ZipSITOriginHHGActualAddress',
   ZipSITOriginHHGOriginalAddress: 'ZipSITOriginHHGOriginalAddress',
-  SITServiceAreaDest: 'SITServiceAreaDest',
 };
 
 const SERVICE_ITEM_CALCULATION_LABELS = {
@@ -63,11 +64,12 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   [SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]: 'Requested pickup',
   [SERVICE_ITEM_PARAM_KEYS.ServiceAreaOrigin]: 'Origin service area',
   [SERVICE_ITEM_PARAM_KEYS.ServiceAreaDest]: 'Destination service area',
-  [SERVICE_ITEM_PARAM_KEYS.SITServiceAreaDest]: 'SIT Destination service area',
   [SERVICE_ITEM_PARAM_KEYS.ServicesScheduleDest]: 'Destination service schedule',
   [SERVICE_ITEM_PARAM_KEYS.ServicesScheduleOrigin]: 'Origin service schedule',
   [SERVICE_ITEM_PARAM_KEYS.SITScheduleDest]: 'Destination SIT schedule',
   [SERVICE_ITEM_PARAM_KEYS.SITScheduleOrigin]: 'Origin SIT schedule',
+  [SERVICE_ITEM_PARAM_KEYS.SITServiceAreaDest]: 'SIT destination service area',
+  [SERVICE_ITEM_PARAM_KEYS.SITServiceAreaOrigin]: 'SIT origin service area',
   [SERVICE_ITEM_PARAM_KEYS.WeightAdjusted]: 'Adjusted',
   [SERVICE_ITEM_PARAM_KEYS.WeightOriginal]: 'Original',
   [SERVICE_ITEM_PARAM_KEYS.WeightBilled]: 'Shipment weight',
@@ -185,4 +187,5 @@ export {
   SERVICE_ITEM_CODES,
   SIT_SERVICE_ITEM_CODES,
   allowedServiceItemCalculations,
+  SERVICE_ITEM_STATUSES,
 };

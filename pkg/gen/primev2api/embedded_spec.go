@@ -814,6 +814,9 @@ func init() {
               "type": "string",
               "example": "Storage items need to be picked up"
             },
+            "requestApprovalsRequestedStatus": {
+              "type": "boolean"
+            },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
               "type": "string",
@@ -2057,6 +2060,7 @@ func init() {
         "SITScheduleDest",
         "SITScheduleOrigin",
         "SITServiceAreaDest",
+        "SITServiceAreaOrigin",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",
@@ -3190,6 +3194,9 @@ func init() {
               "type": "string",
               "example": "Storage items need to be picked up"
             },
+            "requestApprovalsRequestedStatus": {
+              "type": "boolean"
+            },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
               "type": "string",
@@ -4433,6 +4440,7 @@ func init() {
         "SITScheduleDest",
         "SITScheduleOrigin",
         "SITServiceAreaDest",
+        "SITServiceAreaOrigin",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",

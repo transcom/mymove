@@ -207,6 +207,9 @@ test.describe('TOO user', () => {
       await tooFlowPage.waitForLoading();
       expect(page.url()).toContain(`/moves/${tooFlowPage.moveLocator}/orders`);
 
+      // Check for link that allows TIO to download the PDF for copy/paste functionality
+      await expect(page.locator('p[class*="DocumentViewer_downloadLink"] > a > span')).toHaveText('Download file');
+
       // Edit orders fields
 
       await tooFlowPage.selectDutyLocation('Fort Irwin', 'originDutyLocation');
@@ -236,7 +239,7 @@ test.describe('TOO user', () => {
 
       await expect(page.locator('[data-testid="currentDutyLocation"]')).toContainText('Fort Irwin');
       await expect(page.locator('[data-testid="newDutyLocation"]')).toContainText(
-        'Joint Base Lewis-McChord (McChord AFB)',
+        'JB Langley-Eustis (Fort Eustis), VA 23604',
       );
       await expect(page.locator('[data-testid="issuedDate"]')).toContainText('16 Mar 2018');
       await expect(page.locator('[data-testid="reportByDate"]')).toContainText('22 Mar 2018');

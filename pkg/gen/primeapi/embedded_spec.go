@@ -1202,7 +1202,7 @@ func init() {
     },
     "/payment-requests": {
       "post": {
-        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items,\nthe shipment *must* be updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n**Fuel Surcharge** service items require ` + "`" + `ActualPickupDate` + "`" + ` to be\nupdated on the shipment.\n\nTo create a paymentRequest for a SIT Delivery mtoServiceItem, the item must\nfirst have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).\n",
+        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items,\nthe shipment *must* be updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n**Fuel Surcharge** service items require ` + "`" + `ActualPickupDate` + "`" + ` to be\nupdated on the shipment.\n\nTo create a paymentRequest for a SIT Destination Additional Days mtoServiceItem, the SITPaymentRequestStart and\nSITPaymentRequestEnd dates must not overlap previously requested SIT dates.\n\nTo create a paymentRequest for a SIT Delivery mtoServiceItem, the item must\nfirst have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).\n",
         "consumes": [
           "application/json"
         ],
@@ -2486,6 +2486,9 @@ func init() {
               "type": "string",
               "example": "Storage items need to be picked up"
             },
+            "requestApprovalsRequestedStatus": {
+              "type": "boolean"
+            },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
               "type": "string",
@@ -3758,6 +3761,7 @@ func init() {
         "SITScheduleDest",
         "SITScheduleOrigin",
         "SITServiceAreaDest",
+        "SITServiceAreaOrigin",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",
@@ -4063,6 +4067,11 @@ func init() {
                 "DOPSIT"
               ]
             },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
+            },
             "sitCustomerContacted": {
               "description": "Date when the customer contacted the prime for a delivery out of SIT.",
               "type": "string",
@@ -4076,6 +4085,19 @@ func init() {
             },
             "sitDestinationFinalAddress": {
               "$ref": "#/definitions/Address"
+            },
+            "sitEntryDate": {
+              "description": "Entry date for the SIT.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitPostalCode": {
+              "type": "string",
+              "format": "zip",
+              "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+              "x-nullable": true,
+              "example": "90210"
             },
             "sitRequestedDelivery": {
               "description": "Date when the customer has requested delivery out of SIT.",
@@ -4096,6 +4118,11 @@ func init() {
               "pattern": "\\d{4}Z",
               "x-nullable": true,
               "example": "1400Z"
+            },
+            "updateReason": {
+              "description": "Reason for updating service item.",
+              "type": "string",
+              "x-nullable": true
             }
           }
         }
@@ -6107,7 +6134,7 @@ func init() {
     },
     "/payment-requests": {
       "post": {
-        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items,\nthe shipment *must* be updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n**Fuel Surcharge** service items require ` + "`" + `ActualPickupDate` + "`" + ` to be\nupdated on the shipment.\n\nTo create a paymentRequest for a SIT Delivery mtoServiceItem, the item must\nfirst have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).\n",
+        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items,\nthe shipment *must* be updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n**Fuel Surcharge** service items require ` + "`" + `ActualPickupDate` + "`" + ` to be\nupdated on the shipment.\n\nTo create a paymentRequest for a SIT Destination Additional Days mtoServiceItem, the SITPaymentRequestStart and\nSITPaymentRequestEnd dates must not overlap previously requested SIT dates.\n\nTo create a paymentRequest for a SIT Delivery mtoServiceItem, the item must\nfirst have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).\n",
         "consumes": [
           "application/json"
         ],
@@ -7448,6 +7475,9 @@ func init() {
               "type": "string",
               "example": "Storage items need to be picked up"
             },
+            "requestApprovalsRequestedStatus": {
+              "type": "boolean"
+            },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
               "type": "string",
@@ -8710,6 +8740,7 @@ func init() {
         "SITScheduleDest",
         "SITScheduleOrigin",
         "SITServiceAreaDest",
+        "SITServiceAreaOrigin",
         "WeightAdjusted",
         "WeightBilled",
         "WeightEstimated",
@@ -9028,6 +9059,11 @@ func init() {
                 "DOPSIT"
               ]
             },
+            "requestApprovalsRequestedStatus": {
+              "description": "Indicates if \"Approvals Requested\" status is being requested.",
+              "type": "boolean",
+              "x-nullable": true
+            },
             "sitCustomerContacted": {
               "description": "Date when the customer contacted the prime for a delivery out of SIT.",
               "type": "string",
@@ -9041,6 +9077,19 @@ func init() {
             },
             "sitDestinationFinalAddress": {
               "$ref": "#/definitions/Address"
+            },
+            "sitEntryDate": {
+              "description": "Entry date for the SIT.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitPostalCode": {
+              "type": "string",
+              "format": "zip",
+              "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+              "x-nullable": true,
+              "example": "90210"
             },
             "sitRequestedDelivery": {
               "description": "Date when the customer has requested delivery out of SIT.",
@@ -9061,6 +9110,11 @@ func init() {
               "pattern": "\\d{4}Z",
               "x-nullable": true,
               "example": "1400Z"
+            },
+            "updateReason": {
+              "description": "Reason for updating service item.",
+              "type": "string",
+              "x-nullable": true
             }
           }
         }

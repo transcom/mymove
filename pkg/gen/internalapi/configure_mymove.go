@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/okta_profile"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/postal_codes"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
@@ -79,6 +80,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.OfficeApproveReimbursementHandler == nil {
 		api.OfficeApproveReimbursementHandler = office.ApproveReimbursementHandlerFunc(func(params office.ApproveReimbursementParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ApproveReimbursement has not yet been implemented")
+		})
+	}
+	if api.FeatureFlagsBooleanFeatureFlagForUserHandler == nil {
+		api.FeatureFlagsBooleanFeatureFlagForUserHandler = feature_flags.BooleanFeatureFlagForUserHandlerFunc(func(params feature_flags.BooleanFeatureFlagForUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation feature_flags.BooleanFeatureFlagForUser has not yet been implemented")
 		})
 	}
 	if api.OfficeCancelMoveHandler == nil {
@@ -196,11 +202,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.DeleteWeightTicket has not yet been implemented")
 		})
 	}
-	if api.FeatureFlagsFeatureFlagForUserHandler == nil {
-		api.FeatureFlagsFeatureFlagForUserHandler = feature_flags.FeatureFlagForUserHandlerFunc(func(params feature_flags.FeatureFlagForUserParams) middleware.Responder {
-			return middleware.NotImplemented("operation feature_flags.FeatureFlagForUser has not yet been implemented")
-		})
-	}
 	if api.TransportationOfficesGetTransportationOfficesHandler == nil {
 		api.TransportationOfficesGetTransportationOfficesHandler = transportation_offices.GetTransportationOfficesHandlerFunc(func(params transportation_offices.GetTransportationOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_offices.GetTransportationOffices has not yet been implemented")
@@ -316,6 +317,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation office.ShowOfficeOrders has not yet been implemented")
 		})
 	}
+	if api.OktaProfileShowOktaInfoHandler == nil {
+		api.OktaProfileShowOktaInfoHandler = okta_profile.ShowOktaInfoHandlerFunc(func(params okta_profile.ShowOktaInfoParams) middleware.Responder {
+			return middleware.NotImplemented("operation okta_profile.ShowOktaInfo has not yet been implemented")
+		})
+	}
 	if api.OrdersShowOrdersHandler == nil {
 		api.OrdersShowOrdersHandler = orders.ShowOrdersHandlerFunc(func(params orders.ShowOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.ShowOrders has not yet been implemented")
@@ -401,6 +407,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.UpdateMovingExpense has not yet been implemented")
 		})
 	}
+	if api.OktaProfileUpdateOktaInfoHandler == nil {
+		api.OktaProfileUpdateOktaInfoHandler = okta_profile.UpdateOktaInfoHandlerFunc(func(params okta_profile.UpdateOktaInfoParams) middleware.Responder {
+			return middleware.NotImplemented("operation okta_profile.UpdateOktaInfo has not yet been implemented")
+		})
+	}
 	if api.OrdersUpdateOrdersHandler == nil {
 		api.OrdersUpdateOrdersHandler = orders.UpdateOrdersHandlerFunc(func(params orders.UpdateOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.UpdateOrders has not yet been implemented")
@@ -434,6 +445,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.PostalCodesValidatePostalCodeWithRateDataHandler == nil {
 		api.PostalCodesValidatePostalCodeWithRateDataHandler = postal_codes.ValidatePostalCodeWithRateDataHandlerFunc(func(params postal_codes.ValidatePostalCodeWithRateDataParams) middleware.Responder {
 			return middleware.NotImplemented("operation postal_codes.ValidatePostalCodeWithRateData has not yet been implemented")
+		})
+	}
+	if api.FeatureFlagsVariantFeatureFlagForUserHandler == nil {
+		api.FeatureFlagsVariantFeatureFlagForUserHandler = feature_flags.VariantFeatureFlagForUserHandlerFunc(func(params feature_flags.VariantFeatureFlagForUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation feature_flags.VariantFeatureFlagForUser has not yet been implemented")
 		})
 	}
 

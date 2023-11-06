@@ -50,6 +50,7 @@ repos:
             pkg/server/testdata/localhost-invalid.key$|
             pkg/server/testdata/officelocal.key$|
             pkg/auth/authentication/auth_test.go$|
+            pkg/handlers/authentication/auth_test.go$|
             .envrc.local.template|
             pkg/cli/auth.go$|
           )$

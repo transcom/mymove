@@ -78,6 +78,19 @@ export const SITStatusDestination = {
     daysInSIT: 15,
     sitEntryDate: '2021-08-13',
     sitAllowanceEndDate: '2021-08-28',
+    sitCustomerContacted: '2021-08-26',
+    sitRequestedDelivery: '2021-08-30',
+  },
+};
+
+export const SITStatusDestinationWithoutCustomerDeliveryInfo = {
+  totalSITDaysUsed: 45,
+  totalDaysRemaining: 60,
+  currentSIT: {
+    location: LOCATION_VALUES.DESTINATION,
+    daysInSIT: 15,
+    sitEntryDate: '2021-08-13',
+    sitAllowanceEndDate: '2021-08-28',
   },
 };
 
@@ -109,7 +122,7 @@ export const SITStatusWithPastSITOriginServiceItem = {
       moveTaskOrderID: '55c1cdbb-95b0-47f0-ab17-cfe5a0e46ab8',
       mtoShipmentID: 'f39ba92d-7d42-446a-be70-3a97b5f9f081',
       pickupPostalCode: null,
-      reServiceCode: SERVICE_ITEM_CODES.DOPSIT,
+      reServiceCode: SERVICE_ITEM_CODES.DOFSIT,
       reServiceID: 'd1a4f062-0ca3-4387-8f8e-3dd20493d0b7',
       reServiceName: 'Domestic origin SIT pickup',
       reason: 'peak season all trucks in use',
@@ -139,7 +152,7 @@ export const SITStatusWithPastSITServiceItems = {
       moveTaskOrderID: '55c1cdbb-95b0-47f0-ab17-cfe5a0e46ab8',
       mtoShipmentID: 'f39ba92d-7d42-446a-be70-3a97b5f9f081',
       pickupPostalCode: null,
-      reServiceCode: SERVICE_ITEM_CODES.DOPSIT,
+      reServiceCode: SERVICE_ITEM_CODES.DOFSIT,
       reServiceID: 'd1a4f062-0ca3-4387-8f8e-3dd20493d0b7',
       reServiceName: 'Domestic origin SIT pickup',
       reason: 'peak season all trucks in use',
@@ -186,7 +199,7 @@ export const SITStatusWithPastSITServiceItemsDeparted = {
       moveTaskOrderID: '55c1cdbb-95b0-47f0-ab17-cfe5a0e46ab8',
       mtoShipmentID: 'f39ba92d-7d42-446a-be70-3a97b5f9f081',
       pickupPostalCode: null,
-      reServiceCode: SERVICE_ITEM_CODES.DOPSIT,
+      reServiceCode: SERVICE_ITEM_CODES.DOFSIT,
       reServiceID: 'd1a4f062-0ca3-4387-8f8e-3dd20493d0b7',
       reServiceName: 'Domestic origin SIT pickup',
       reason: 'peak season all trucks in use',

@@ -547,7 +547,7 @@ func init() {
         }
       }
     },
-    "/feature-flags/user/{key}": {
+    "/feature-flags/user-boolean/{key}": {
       "post": {
         "description": "Determines if a user has a feature flag enabled. The flagContext contains context used to determine if this flag applies to the logged in user.",
         "consumes": [
@@ -560,7 +560,7 @@ func init() {
           "featureFlags"
         ],
         "summary": "Determines if a user has a feature flag enabled",
-        "operationId": "featureFlagForUser",
+        "operationId": "booleanFeatureFlagForUser",
         "parameters": [
           {
             "type": "string",
@@ -584,9 +584,63 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Feature Flag Status",
+            "description": "Boolean Feature Flag Status",
             "schema": {
-              "$ref": "#/definitions/FeatureFlag"
+              "$ref": "#/definitions/FeatureFlagBoolean"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/feature-flags/user-variant/{key}": {
+      "post": {
+        "description": "Determines if a user has a feature flag enabled. The flagContext contains context used to determine if this flag applies to the logged in user.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "featureFlags"
+        ],
+        "summary": "Determines if a user has a feature flag enabled",
+        "operationId": "variantFeatureFlagForUser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Feature Flag Key",
+            "name": "key",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "context for the feature flag request",
+            "name": "flagContext",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Variant Feature Flag Status",
+            "schema": {
+              "$ref": "#/definitions/FeatureFlagVariant"
             }
           },
           "400": {
@@ -1810,6 +1864,92 @@ func init() {
           },
           "500": {
             "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/okta-profile": {
+      "get": {
+        "description": "Calls a GET request to Okta's Users API and returns profile values that includes Okta data that the user provided upon registration or most recent profile update.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "okta_profile"
+        ],
+        "summary": "Returns Okta profile values from Okta's Users API",
+        "operationId": "showOktaInfo",
+        "responses": {
+          "200": {
+            "description": "okta profile for user",
+            "schema": {
+              "$ref": "#/definitions/OktaUserProfileData"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "service member not found"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      },
+      "post": {
+        "description": "Update the user's okta profile with primary data, returns Okta profile values from the Okta's Users API reflecting updated values.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "okta_profile"
+        ],
+        "summary": "Update the user's okta profile with primary data, returns Okta profile values from the Okta's Users API reflecting updated values.",
+        "operationId": "updateOktaInfo",
+        "parameters": [
+          {
+            "name": "updateOktaUserProfileData",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateOktaUserProfileData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "okta profile for user",
+            "schema": {
+              "$ref": "#/definitions/OktaUserProfileData"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/responses/UnprocessableEntity"
+            }
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       }
@@ -4645,20 +4785,48 @@ func init() {
         }
       }
     },
-    "FeatureFlag": {
+    "FeatureFlagBoolean": {
       "description": "A feature flag",
       "type": "object",
       "required": [
         "entity",
         "key",
         "match",
-        "value",
         "namespace"
       ],
       "properties": {
         "entity": {
           "type": "string",
-          "example": "user@example.com"
+          "example": "11111111-1111-1111-1111-111111111111"
+        },
+        "key": {
+          "type": "string",
+          "example": "flag"
+        },
+        "match": {
+          "type": "boolean",
+          "example": true
+        },
+        "namespace": {
+          "type": "string",
+          "example": "test"
+        }
+      }
+    },
+    "FeatureFlagVariant": {
+      "description": "A feature flag",
+      "type": "object",
+      "required": [
+        "entity",
+        "key",
+        "match",
+        "variant",
+        "namespace"
+      ],
+      "properties": {
+        "entity": {
+          "type": "string",
+          "example": "11111111-1111-1111-1111-111111111111"
         },
         "key": {
           "type": "string",
@@ -4672,7 +4840,7 @@ func init() {
           "type": "string",
           "example": "test"
         },
-        "value": {
+        "variant": {
           "type": "string",
           "example": "myval"
         }
@@ -5655,6 +5823,42 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "OktaUserProfileData": {
+      "type": "object",
+      "properties": {
+        "cac_edipi": {
+          "type": "string",
+          "maxLength": 10,
+          "x-nullable": true,
+          "example": "1234567890"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "user@email.com"
+        },
+        "firstName": {
+          "type": "string",
+          "example": "John"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "login": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "user@email.com"
+        },
+        "sub": {
+          "type": "string",
+          "format": "string",
+          "example": "1duekdue9ekrjghf"
         }
       }
     },
@@ -7482,6 +7686,14 @@ func init() {
         }
       }
     },
+    "UpdateOktaUserProfileData": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "$ref": "#/definitions/OktaUserProfileData"
+        }
+      }
+    },
     "UpdatePPMShipment": {
       "type": "object",
       "properties": {
@@ -8306,6 +8518,9 @@ func init() {
     },
     {
       "name": "featureFlags"
+    },
+    {
+      "name": "okta_profile"
     }
   ]
 }`))
@@ -8839,7 +9054,7 @@ func init() {
         }
       }
     },
-    "/feature-flags/user/{key}": {
+    "/feature-flags/user-boolean/{key}": {
       "post": {
         "description": "Determines if a user has a feature flag enabled. The flagContext contains context used to determine if this flag applies to the logged in user.",
         "consumes": [
@@ -8852,7 +9067,7 @@ func init() {
           "featureFlags"
         ],
         "summary": "Determines if a user has a feature flag enabled",
-        "operationId": "featureFlagForUser",
+        "operationId": "booleanFeatureFlagForUser",
         "parameters": [
           {
             "type": "string",
@@ -8876,9 +9091,63 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Feature Flag Status",
+            "description": "Boolean Feature Flag Status",
             "schema": {
-              "$ref": "#/definitions/FeatureFlag"
+              "$ref": "#/definitions/FeatureFlagBoolean"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/feature-flags/user-variant/{key}": {
+      "post": {
+        "description": "Determines if a user has a feature flag enabled. The flagContext contains context used to determine if this flag applies to the logged in user.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "featureFlags"
+        ],
+        "summary": "Determines if a user has a feature flag enabled",
+        "operationId": "variantFeatureFlagForUser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Feature Flag Key",
+            "name": "key",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "context for the feature flag request",
+            "name": "flagContext",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Variant Feature Flag Status",
+            "schema": {
+              "$ref": "#/definitions/FeatureFlagVariant"
             }
           },
           "400": {
@@ -10175,6 +10444,95 @@ func init() {
             "schema": {
               "$ref": "#/definitions/Error"
             }
+          }
+        }
+      }
+    },
+    "/okta-profile": {
+      "get": {
+        "description": "Calls a GET request to Okta's Users API and returns profile values that includes Okta data that the user provided upon registration or most recent profile update.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "okta_profile"
+        ],
+        "summary": "Returns Okta profile values from Okta's Users API",
+        "operationId": "showOktaInfo",
+        "responses": {
+          "200": {
+            "description": "okta profile for user",
+            "schema": {
+              "$ref": "#/definitions/OktaUserProfileData"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "service member not found"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      },
+      "post": {
+        "description": "Update the user's okta profile with primary data, returns Okta profile values from the Okta's Users API reflecting updated values.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "okta_profile"
+        ],
+        "summary": "Update the user's okta profile with primary data, returns Okta profile values from the Okta's Users API reflecting updated values.",
+        "operationId": "updateOktaInfo",
+        "parameters": [
+          {
+            "name": "updateOktaUserProfileData",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateOktaUserProfileData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "okta profile for user",
+            "schema": {
+              "$ref": "#/definitions/OktaUserProfileData"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "description": "The payload was unprocessable.",
+              "schema": {
+                "$ref": "#/definitions/ValidationError"
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       }
@@ -13366,20 +13724,48 @@ func init() {
         }
       }
     },
-    "FeatureFlag": {
+    "FeatureFlagBoolean": {
       "description": "A feature flag",
       "type": "object",
       "required": [
         "entity",
         "key",
         "match",
-        "value",
         "namespace"
       ],
       "properties": {
         "entity": {
           "type": "string",
-          "example": "user@example.com"
+          "example": "11111111-1111-1111-1111-111111111111"
+        },
+        "key": {
+          "type": "string",
+          "example": "flag"
+        },
+        "match": {
+          "type": "boolean",
+          "example": true
+        },
+        "namespace": {
+          "type": "string",
+          "example": "test"
+        }
+      }
+    },
+    "FeatureFlagVariant": {
+      "description": "A feature flag",
+      "type": "object",
+      "required": [
+        "entity",
+        "key",
+        "match",
+        "variant",
+        "namespace"
+      ],
+      "properties": {
+        "entity": {
+          "type": "string",
+          "example": "11111111-1111-1111-1111-111111111111"
         },
         "key": {
           "type": "string",
@@ -13393,7 +13779,7 @@ func init() {
           "type": "string",
           "example": "test"
         },
-        "value": {
+        "variant": {
           "type": "string",
           "example": "myval"
         }
@@ -14378,6 +14764,42 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "OktaUserProfileData": {
+      "type": "object",
+      "properties": {
+        "cac_edipi": {
+          "type": "string",
+          "maxLength": 10,
+          "x-nullable": true,
+          "example": "1234567890"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "user@email.com"
+        },
+        "firstName": {
+          "type": "string",
+          "example": "John"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "login": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "user@email.com"
+        },
+        "sub": {
+          "type": "string",
+          "format": "string",
+          "example": "1duekdue9ekrjghf"
         }
       }
     },
@@ -16210,6 +16632,14 @@ func init() {
         }
       }
     },
+    "UpdateOktaUserProfileData": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "$ref": "#/definitions/OktaUserProfileData"
+        }
+      }
+    },
     "UpdatePPMShipment": {
       "type": "object",
       "properties": {
@@ -17047,6 +17477,9 @@ func init() {
     },
     {
       "name": "featureFlags"
+    },
+    {
+      "name": "okta_profile"
     }
   ]
 }`))

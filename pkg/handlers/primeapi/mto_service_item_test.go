@@ -53,6 +53,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
+		requestApprovalRequestedStatus := false
 
 		// Customer gets new pickup address for SIT Origin Pickup (DOPSIT) which gets added when
 		// creating DOFSIT (SIT origin first day).
@@ -63,13 +64,14 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 
 		subtestData.mtoServiceItem = models.MTOServiceItem{
-			MoveTaskOrderID:           mto.ID,
-			MTOShipmentID:             &subtestData.mtoShipment.ID,
-			ReService:                 models.ReService{Code: models.ReServiceCodeDOFSIT},
-			Reason:                    models.StringPointer("lorem ipsum"),
-			SITEntryDate:              &sitEntryDate,
-			SITPostalCode:             &sitPostalCode,
-			SITOriginHHGActualAddress: &actualPickupAddress,
+			MoveTaskOrderID:                   mto.ID,
+			MTOShipmentID:                     &subtestData.mtoShipment.ID,
+			ReService:                         models.ReService{Code: models.ReServiceCodeDOFSIT},
+			Reason:                            models.StringPointer("lorem ipsum"),
+			SITEntryDate:                      &sitEntryDate,
+			SITPostalCode:                     &sitPostalCode,
+			SITOriginHHGActualAddress:         &actualPickupAddress,
+			RequestedApprovalsRequestedStatus: &requestApprovalRequestedStatus,
 		}
 
 		subtestData.params = mtoserviceitemops.CreateMTOServiceItemParams{
@@ -594,6 +596,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		//             Receive a 422 - Unprocessable Entity
 		// SETUP
 		// Create the payload
+		requestApprovalRequestedStatus := false
+		subtestData.mtoServiceItem.RequestedApprovalsRequestedStatus = &requestApprovalRequestedStatus
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOPSIT
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
@@ -632,6 +636,9 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		// SETUP
 		// Create the payload
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOASIT
+		requestApprovalRequestedStatus := false
+		subtestData.mtoServiceItem.RequestedApprovalsRequestedStatus = &requestApprovalRequestedStatus
+
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
@@ -668,6 +675,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		//             Receive a 404 - Not Found
 		// SETUP
 		// Create the payload
+		requestedApprovalsRequestedStatus := false
+		subtestData.mtoServiceItem.RequestedApprovalsRequestedStatus = &requestedApprovalsRequestedStatus
 		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{
@@ -768,6 +777,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoA
 		// SETUP
 		// Create the payload
 
+		requstedApprovalsRequestedStatus := false
+		subtestData.mtoServiceItem.RequestedApprovalsRequestedStatus = &requstedApprovalsRequestedStatus
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
@@ -868,6 +879,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 		// SETUP
 		// Create the payload
 
+		requestedApprovalsRequestedStatus := false
+		subtestData.mtoServiceItem.RequestedApprovalsRequestedStatus = &requestedApprovalsRequestedStatus
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
 		moveRouter := moverouter.NewMoveRouter()
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
@@ -1316,7 +1329,9 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 			},
 			{
 				Model: models.MTOServiceItem{
-					SITEntryDate: models.TimePointer(time.Now()),
+					SITEntryDate:     models.TimePointer(time.Now()),
+					SITDepartureDate: &timeNow,
+					Status:           "REJECTED",
 				},
 			},
 			{
@@ -1336,16 +1351,19 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		}
 
 		milTime := "1400Z"
+		requestApprovalRequestedStatus := false
+
 		// Create the payload with the desired update
 		subtestData.reqPayload = &primemessages.UpdateMTOServiceItemSIT{
-			ReServiceCode:               models.ReServiceCodeDDDSIT.String(),
-			SitDepartureDate:            *handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
-			SitDestinationFinalAddress:  &addr,
-			DateOfContact1:              handlers.FmtDate(time.Date(2020, time.December, 04, 0, 0, 0, 0, time.UTC)),
-			TimeMilitary1:               handlers.FmtStringPtrNonEmpty(&milTime),
-			FirstAvailableDeliveryDate1: handlers.FmtDate(time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC)),
-			SitCustomerContacted:        handlers.FmtDate(time.Now()),
-			SitRequestedDelivery:        handlers.FmtDate(time.Now().AddDate(0, 0, 3)),
+			ReServiceCode:                   models.ReServiceCodeDDDSIT.String(),
+			SitDepartureDate:                *handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
+			SitDestinationFinalAddress:      &addr,
+			DateOfContact1:                  handlers.FmtDate(time.Date(2020, time.December, 04, 0, 0, 0, 0, time.UTC)),
+			TimeMilitary1:                   handlers.FmtStringPtrNonEmpty(&milTime),
+			FirstAvailableDeliveryDate1:     handlers.FmtDate(time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC)),
+			SitCustomerContacted:            handlers.FmtDate(time.Now()),
+			SitRequestedDelivery:            handlers.FmtDate(time.Now().AddDate(0, 0, 3)),
+			RequestApprovalsRequestedStatus: &requestApprovalRequestedStatus,
 		}
 		subtestData.reqPayload.SetID(strfmt.UUID(subtestData.dddsit.ID.String()))
 
@@ -1538,6 +1556,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 	}
 
 	makeSubtestData := func() (subtestData *localSubtestData) {
+		requestApprovalRequestedStatus := false
 		subtestData = &localSubtestData{}
 		timeNow := time.Now()
 		subtestData.dopsit = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -1560,8 +1579,9 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 
 		// Create the payload with the desired update
 		subtestData.reqPayload = &primemessages.UpdateMTOServiceItemSIT{
-			ReServiceCode:    models.ReServiceCodeDOPSIT.String(),
-			SitDepartureDate: *handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
+			ReServiceCode:                   models.ReServiceCodeDOPSIT.String(),
+			SitDepartureDate:                *handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
+			RequestApprovalsRequestedStatus: &requestApprovalRequestedStatus,
 		}
 		subtestData.reqPayload.SetID(strfmt.UUID(subtestData.dopsit.ID.String()))
 

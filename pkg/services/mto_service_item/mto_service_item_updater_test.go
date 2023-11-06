@@ -225,6 +225,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	})
 
 	suite.Run("Successful Prime update - adding SITDestinationFinalAddress", func() {
+		now := time.Now()
+		requestApproavalsRequestedStatus := false
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
@@ -233,6 +235,13 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			{
 				Model: models.ReService{
 					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate:                  &now,
+					Status:                            "REJECTED",
+					RequestedApprovalsRequestedStatus: &requestApproavalsRequestedStatus,
 				},
 			},
 		}, nil)
@@ -258,6 +267,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	})
 
 	suite.Run("Unsuccessful Prime update - updating existing SITDestinationFinalAddres", func() {
+		now := time.Now()
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
@@ -270,6 +280,11 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			{
 				Model: models.ReService{
 					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate: &now,
 				},
 			},
 		}, nil)
@@ -292,6 +307,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	})
 
 	suite.Run("Unsuccessful basic update - adding SITDestinationOriginalAddress", func() {
+		now := time.Now()
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
@@ -300,6 +316,11 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			{
 				Model: models.ReService{
 					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate: &now,
 				},
 			},
 		}, nil)
@@ -323,6 +344,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	})
 
 	suite.Run("Unsuccessful prime update - adding SITDestinationOriginalAddress", func() {
+		now := time.Now()
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
@@ -331,6 +353,11 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			{
 				Model: models.ReService{
 					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate: &now,
 				},
 			},
 		}, nil)
@@ -700,12 +727,12 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.Nil(updatedServiceItem.RejectionReason)
 		suite.Nil(updatedServiceItem.RejectedAt)
 		suite.NotNil(updatedServiceItem)
-		suite.Equal(sitDestinationFinalAddress.ID, *updatedServiceItem.SITDestinationOriginalAddressID)
-		suite.Equal(sitDestinationFinalAddress.ID, updatedServiceItem.SITDestinationOriginalAddress.ID)
-		suite.Equal(sitDestinationFinalAddress.StreetAddress1, updatedServiceItem.SITDestinationOriginalAddress.StreetAddress1)
-		suite.Equal(sitDestinationFinalAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
-		suite.Equal(sitDestinationFinalAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
-		suite.Equal(sitDestinationFinalAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
+
+		destinationAddress := serviceItem.MTOShipment.DestinationAddress
+		suite.Equal(destinationAddress.StreetAddress1, updatedServiceItem.SITDestinationOriginalAddress.StreetAddress1)
+		suite.Equal(destinationAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
+		suite.Equal(destinationAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
+		suite.Equal(destinationAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
 	})
 
 	suite.Run("When TOO approves a DDDSIT service item without a SITDestinationFinalAddress", func() {
@@ -756,12 +783,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.Equal(shipment.DestinationAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
 		suite.Equal(shipment.DestinationAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
 		suite.Equal(shipment.DestinationAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
-		suite.NotEqual(shipment.DestinationAddressID, *updatedServiceItem.SITDestinationFinalAddressID)
-		suite.NotEqual(shipment.DestinationAddress.ID, *updatedServiceItem.SITDestinationFinalAddressID)
-		suite.Equal(shipment.DestinationAddress.StreetAddress1, updatedServiceItem.SITDestinationFinalAddress.StreetAddress1)
-		suite.Equal(shipment.DestinationAddress.City, updatedServiceItem.SITDestinationFinalAddress.City)
-		suite.Equal(shipment.DestinationAddress.State, updatedServiceItem.SITDestinationFinalAddress.State)
-		suite.Equal(shipment.DestinationAddress.PostalCode, updatedServiceItem.SITDestinationFinalAddress.PostalCode)
 	})
 
 	suite.Run("When TOO approves a DDSFSC service item with an existing SITDestinationFinalAddress", func() {
@@ -806,12 +827,11 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.Nil(updatedServiceItem.RejectionReason)
 		suite.Nil(updatedServiceItem.RejectedAt)
 		suite.NotNil(updatedServiceItem)
-		suite.Equal(sitDestinationFinalAddress.ID, *updatedServiceItem.SITDestinationOriginalAddressID)
-		suite.Equal(sitDestinationFinalAddress.ID, updatedServiceItem.SITDestinationOriginalAddress.ID)
-		suite.Equal(sitDestinationFinalAddress.StreetAddress1, updatedServiceItem.SITDestinationOriginalAddress.StreetAddress1)
-		suite.Equal(sitDestinationFinalAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
-		suite.Equal(sitDestinationFinalAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
-		suite.Equal(sitDestinationFinalAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
+		destinationAddress := serviceItem.MTOShipment.DestinationAddress
+		suite.Equal(destinationAddress.StreetAddress1, updatedServiceItem.SITDestinationOriginalAddress.StreetAddress1)
+		suite.Equal(destinationAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
+		suite.Equal(destinationAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
+		suite.Equal(destinationAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
 	})
 
 	suite.Run("When TOO approves a DDSFSC service item without a SITDestinationFinalAddress", func() {
@@ -862,12 +882,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.Equal(shipment.DestinationAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
 		suite.Equal(shipment.DestinationAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
 		suite.Equal(shipment.DestinationAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
-		suite.NotEqual(shipment.DestinationAddressID, *updatedServiceItem.SITDestinationFinalAddressID)
-		suite.NotEqual(shipment.DestinationAddress.ID, *updatedServiceItem.SITDestinationFinalAddressID)
-		suite.Equal(shipment.DestinationAddress.StreetAddress1, updatedServiceItem.SITDestinationFinalAddress.StreetAddress1)
-		suite.Equal(shipment.DestinationAddress.City, updatedServiceItem.SITDestinationFinalAddress.City)
-		suite.Equal(shipment.DestinationAddress.State, updatedServiceItem.SITDestinationFinalAddress.State)
-		suite.Equal(shipment.DestinationAddress.PostalCode, updatedServiceItem.SITDestinationFinalAddress.PostalCode)
 	})
 
 	// Test that the move's status changes to Approvals Requested if any of its service

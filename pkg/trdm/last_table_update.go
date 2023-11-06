@@ -1,13 +1,9 @@
 package trdm
 
 import (
-	"bytes"
-	"crypto"
 	"crypto/rsa"
-	"crypto/sha512"
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/base64"
 	"encoding/pem"
 	"encoding/xml"
 	"fmt"
@@ -69,18 +65,18 @@ type GetLastTableUpdater interface {
 // ReturnContent is to sometimes be left blank intentionally
 // For example. it is required for getTable but should not be provided
 // in getLastTableUpdate
-type getTableTRDMInput struct {
-	PhysicalName  string `xml:"ret:physicalName"`
-	ReturnContent string `xml:"ret:returnContent"`
-}
+// type getTableTRDMInput struct {
+// 	PhysicalName  string `xml:"ret:physicalName"`
+// 	ReturnContent string `xml:"ret:returnContent"`
+// }
 
 type lastTableUpdateTRDMInput struct {
 	PhysicalName string `xml:"ret:physicalName"`
 }
 
-type input struct {
-	TRDMInput getTableTRDMInput `xml:"ret:TRDM"`
-}
+// type input struct {
+// 	TRDMInput getTableTRDMInput `xml:"ret:TRDM"`
+// }
 
 // ret:input is only for getTable, not getLastTable
 // Directly embed trdmInput here
@@ -224,74 +220,71 @@ func verifySignedInfoXML(xmlContent string) error {
 
 	return nil
 }
-func verifyXML(xmlContent string) error {
-	doc := etree.NewDocument()
-	if err := doc.ReadFromString(xmlContent); err != nil {
-		return err
-	}
 
-	// Locate the SignatureValue and extract the signature
-	signatureElement := doc.FindElement("//ds:SignatureValue")
-	if signatureElement == nil {
-		return fmt.Errorf("could not find signature element")
-	}
+// func verifyXML(xmlContent string) error {
+// 	doc := etree.NewDocument()
+// 	if err := doc.ReadFromString(xmlContent); err != nil {
+// 		return err
+// 	}
 
-	decodedSignature, err := base64.StdEncoding.DecodeString(signatureElement.Text())
-	if err != nil {
-		return err
-	}
+// 	// Locate the SignatureValue and extract the signature
+// 	signatureElement := doc.FindElement("//ds:SignatureValue")
+// 	if signatureElement == nil {
+// 		return fmt.Errorf("could not find signature element")
+// 	}
 
-	// Locate the certificate and extract it
-	certElement := doc.FindElement("//wsse:BinarySecurityToken")
-	if certElement == nil {
-		return fmt.Errorf("could not find x509 cert")
-	}
+// 	decodedSignature, err := base64.StdEncoding.DecodeString(signatureElement.Text())
+// 	if err != nil {
+// 		return err
+// 	}
 
-	decodedCert, err := base64.StdEncoding.DecodeString(certElement.Text())
-	if err != nil {
-		return err
-	}
+// 	// Locate the certificate and extract it
+// 	certElement := doc.FindElement("//wsse:BinarySecurityToken")
+// 	if certElement == nil {
+// 		return fmt.Errorf("could not find x509 cert")
+// 	}
 
-	// Parse the certificate
-	cert, err := x509.ParseCertificate([]byte(decodedCert))
-	if err != nil {
-		return fmt.Errorf("Failed to parse certificate PEM")
-	}
+// 	decodedCert, err := base64.StdEncoding.DecodeString(certElement.Text())
+// 	if err != nil {
+// 		return err
+// 	}
 
-	// Compute the hash of the SignedInfo element
-	signedInfoElement := doc.FindElement("//SignedInfo")
-	if signedInfoElement == nil {
-		fmt.Errorf("SignedInfo not found")
-	}
+// 	// Parse the certificate
+// 	cert, err := x509.ParseCertificate([]byte(decodedCert))
+// 	if err != nil {
+// 		return fmt.Errorf("Failed to parse certificate PEM")
+// 	}
 
-	headerElem := doc.FindElement("//Header")
-	headerElem.CreateAttr("ret", "http://trdm/ReturnTableService")
-	headerElem.CreateAttr("soap", "http://www.w3.org/2003/05/soap-envelope")
-	// signedInfoElement.CreateAttr("xmlns:ds", "http://www.w3.org/2000/09/xmldsig#")
-	// signedInfoElement.CreateAttr("Id", "SIG-8796c3e3fa1d1183")
+// 	// Compute the hash of the SignedInfo element
+// 	signedInfoElement := doc.FindElement("//SignedInfo")
+// 	if signedInfoElement == nil {
+// 		fmt.Errorf("SignedInfo not found")
+// 	}
 
-	// Create a new document to write just the SignedInfo element
-	docFragment := etree.NewDocument()
-	docFragment.SetRoot(signedInfoElement.Copy())
+// 	headerElem := doc.FindElement("//Header")
+// 	headerElem.CreateAttr("ret", "http://trdm/ReturnTableService")
+// 	headerElem.CreateAttr("soap", "http://www.w3.org/2003/05/soap-envelope")
+// 	// signedInfoElement.CreateAttr("xmlns:ds", "http://www.w3.org/2000/09/xmldsig#")
+// 	// signedInfoElement.CreateAttr("Id", "SIG-8796c3e3fa1d1183")
 
-	strBuffer := &bytes.Buffer{}
-	if _, err := docFragment.WriteTo(strBuffer); err != nil {
-		return err
-	}
+// 	// Create a new document to write just the SignedInfo element
+// 	docFragment := etree.NewDocument()
+// 	docFragment.SetRoot(signedInfoElement.Copy())
 
-	// canonicalSignedInfo, err := signedInfoElement.WriteToString()
-	// if err != nil {
-	// 	return err
-	// }
+// 	strBuffer := &bytes.Buffer{}
+// 	if _, err := docFragment.WriteTo(strBuffer); err != nil {
+// 		return err
+// 	}
 
-	hashed := sha512.Sum512([]byte(strBuffer.Bytes()))
-	// Verify the signature
-	if err := rsa.VerifyPKCS1v15(cert.PublicKey.(*rsa.PublicKey), crypto.SHA512, hashed[:], decodedSignature); err != nil {
-		return err
-	}
+// 	// canonicalSignedInfo, err := signedInfoElement.WriteToString()
+// 	// if err != nil {
+// 	// 	return err
+// 	// }
 
-	return nil
-}
+// 	hashed := sha512.Sum512([]byte(strBuffer.Bytes()))
+// 	// Verify the signature
+// 	return rsa.VerifyPKCS1v15(cert.PublicKey.(*rsa.PublicKey), crypto.SHA512, hashed[:], decodedSignature)
+// }
 
 // Makes Soap Request for Last Table Update. If successful call GetTable to update TRDM table.
 //   - *GetLastTableUpdateRequestElement - request elements
@@ -322,7 +315,7 @@ func lastTableUpdateSoapCall(d *GetLastTableUpdateRequestElement, params gosoap.
 	appCtx.Logger().Debug("getLastTableUpdate result", zap.Any("processRequestResponse", r))
 	return nil
 }
-func StartLastTableUpdateCron(appCtx appcontext.AppContext, certificate *x509.Certificate, publicPem *pem.Block, privateKey *rsa.PrivateKey, physicalName string, soapCaller SoapCaller) error {
+func StartLastTableUpdateCron(appCtx appcontext.AppContext, certificate *x509.Certificate, _ *pem.Block, privateKey *rsa.PrivateKey, physicalName string, soapCaller SoapCaller) error {
 	cron := cron.New()
 	bodyID, err := GenerateSOAPURIWithPrefix("#id")
 	if err != nil {

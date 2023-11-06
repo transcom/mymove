@@ -2,6 +2,7 @@ package paymentrequest
 
 import (
 	"database/sql"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -29,11 +30,13 @@ func getStartAndEndParams(params models.PaymentServiceItemParams) (start time.Ti
 		if paymentServiceItemParam.ServiceItemParamKey.Key == models.ServiceItemParamNameSITPaymentRequestStart {
 			// remove once the pricer work is done so a 500 server error isn't returned for an unparseable date
 			if paymentServiceItemParam.Value != "NOT IMPLEMENTED" {
+				fmt.Println(paymentServiceItemParam.PaymentServiceItemID)
 				start, err = time.Parse(sitParamDateFormat, paymentServiceItemParam.Value)
 			}
 		} else if paymentServiceItemParam.ServiceItemParamKey.Key == models.ServiceItemParamNameSITPaymentRequestEnd {
 			// remove once the pricer work is done so a 500 server error isn't returned for an unparseable date
 			if paymentServiceItemParam.Value != "NOT IMPLEMENTED" {
+				fmt.Println(paymentServiceItemParam.PaymentServiceItemID)
 				end, err = time.Parse(sitParamDateFormat, paymentServiceItemParam.Value)
 			}
 		}
@@ -141,7 +144,7 @@ func calculatePendingSITBalance(appCtx appcontext.AppContext, paymentServiceItem
 
 		shipment := paymentServiceItem.MTOServiceItem.MTOShipment
 
-		_, end, err := getStartAndEndParams(paymentServiceItem.PaymentServiceItemParams)
+		start, end, err := getStartAndEndParams(paymentServiceItem.PaymentServiceItemParams)
 		if err != nil {
 			return err
 		}
@@ -153,6 +156,7 @@ func calculatePendingSITBalance(appCtx appcontext.AppContext, paymentServiceItem
 
 		if shipmentSITBalance, ok := shipmentsSITBalances[shipment.ID.String()]; ok {
 			shipmentSITBalance.PendingSITDaysInvoiced = daysInSIT
+			shipmentSITBalance.PendingBilledStartDate = start
 			// I think this would be accurate for the scenario there were 2 pending payment requests, they would see
 			// dates reflective of only their SIT items. I think we would need to do something different if we wanted
 			// to show different values for origin and dest SIT service items on the same payment request and shipment
@@ -168,6 +172,7 @@ func calculatePendingSITBalance(appCtx appcontext.AppContext, paymentServiceItem
 			shipmentSITBalance := services.ShipmentPaymentSITBalance{
 				ShipmentID:             shipment.ID,
 				PendingSITDaysInvoiced: daysInSIT,
+				PendingBilledStartDate: start,
 				PendingBilledEndDate:   end,
 			}
 

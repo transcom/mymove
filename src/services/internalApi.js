@@ -36,9 +36,14 @@ export async function getLoggedInUserQueries(key, normalize = false) {
   return makeInternalRequest('users.showLoggedInUser', {}, { normalize });
 }
 
-export async function getFeatureFlagForUser(key, flagContext) {
+export async function getBooleanFeatureFlagForUser(key, flagContext) {
   const normalize = false;
-  return makeInternalRequest('featureFlags.featureFlagForUser', { key, flagContext }, { normalize });
+  return makeInternalRequest('featureFlags.booleanFeatureFlagForUser', { key, flagContext }, { normalize });
+}
+
+export async function getVariantFeatureFlagForUser(key, flagContext) {
+  const normalize = false;
+  return makeInternalRequest('featureFlags.variantFeatureFlagForUser', { key, flagContext }, { normalize });
 }
 
 export async function getMTOShipmentsForMove(moveTaskOrderID, normalize = true) {
@@ -78,6 +83,24 @@ export async function patchServiceMember(serviceMember) {
     {
       serviceMemberId: serviceMember.id,
       patchServiceMemberPayload: serviceMember,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+/** OKTA PROFILE */
+// this will call the backend and patch the Okta profile
+export async function getOktaUser() {
+  return makeInternalRequest('okta_profile.showOktaInfo');
+}
+
+export async function updateOktaUser(oktaUser) {
+  return makeInternalRequest(
+    'okta_profile.updateOktaInfo',
+    {
+      updateOktaUserProfileData: oktaUser,
     },
     {
       normalize: false,

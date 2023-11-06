@@ -1690,7 +1690,7 @@ paths:
         '200':
           description: Successfully retrieved a line item for a move task order by ID
           schema:
-            $ref: 'definitions/MTOServiceItem.yaml'
+            $ref: 'definitions/MTOServiceItemSingle.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -1800,6 +1800,48 @@ paths:
       summary: Change the status of a line item for a move by ID
       x-permissions:
         - update.MTOServiceItem
+  '/service-item/{mtoServiceItemID}/entry-date-update':
+    parameters:
+      - description: ID of the service item
+        in: path
+        name: mtoServiceItemID
+        required: true
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: 'definitions/ServiceItemSitEntryDate.yaml'
+      responses:
+        '200':
+          description: Successfully updated SIT entry date
+          schema:
+            $ref: 'definitions/MTOServiceItemSingle.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - mtoServiceItem
+      description: Locates the service item in the database and updates the SIT entry date for the selected service item and returns the service item
+      operationId: updateServiceItemSitEntryDate
+      summary: Updates a service item's SIT entry date by ID
   '/move-task-orders/{moveTaskOrderID}/status':
     patch:
       consumes:
@@ -3033,6 +3075,8 @@ paths:
               - Reviewed
               - Rejected
               - Paid
+              - Deprecated
+              - Error
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -4271,6 +4315,10 @@ definitions:
         x-nullable: true
       pendingSITDaysInvoiced:
         type: integer
+      pendingBilledStartDate:
+        type: string
+        format: date
+        x-nullable: true
       pendingBilledEndDate:
         type: string
         format: date

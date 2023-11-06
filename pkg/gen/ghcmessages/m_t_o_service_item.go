@@ -112,6 +112,10 @@ type MTOServiceItem struct {
 	// sit address updates
 	SitAddressUpdates SITAddressUpdates `json:"sitAddressUpdates,omitempty"`
 
+	// sit customer contacted
+	// Format: date
+	SitCustomerContacted *strfmt.Date `json:"sitCustomerContacted,omitempty"`
+
 	// sit departure date
 	// Format: date-time
 	SitDepartureDate *strfmt.DateTime `json:"sitDepartureDate,omitempty"`
@@ -126,6 +130,10 @@ type MTOServiceItem struct {
 	// Format: date-time
 	SitEntryDate *strfmt.DateTime `json:"sitEntryDate,omitempty"`
 
+	// sit requested delivery
+	// Format: date
+	SitRequestedDelivery *strfmt.Date `json:"sitRequestedDelivery,omitempty"`
+
 	// status
 	Status MTOServiceItemStatus `json:"status,omitempty"`
 
@@ -135,6 +143,9 @@ type MTOServiceItem struct {
 
 	// total
 	Total int64 `json:"total,omitempty"`
+
+	// Reason for updating service item.
+	UpdateReason *string `json:"updateReason,omitempty"`
 
 	// updated at
 	// Format: date-time
@@ -205,6 +216,10 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateSitCustomerContacted(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateSitDepartureDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -218,6 +233,10 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSitEntryDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitRequestedDelivery(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -472,6 +491,18 @@ func (m *MTOServiceItem) validateSitAddressUpdates(formats strfmt.Registry) erro
 	return nil
 }
 
+func (m *MTOServiceItem) validateSitCustomerContacted(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitCustomerContacted) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("sitCustomerContacted", "body", "date", m.SitCustomerContacted.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOServiceItem) validateSitDepartureDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.SitDepartureDate) { // not required
 		return nil
@@ -528,6 +559,18 @@ func (m *MTOServiceItem) validateSitEntryDate(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("sitEntryDate", "body", "date-time", m.SitEntryDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) validateSitRequestedDelivery(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitRequestedDelivery) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("sitRequestedDelivery", "body", "date", m.SitRequestedDelivery.String(), formats); err != nil {
 		return err
 	}
 

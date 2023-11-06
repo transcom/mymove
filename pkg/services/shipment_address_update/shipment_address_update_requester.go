@@ -12,12 +12,17 @@ import (
 	serviceparamvaluelookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 type shipmentAddressUpdateRequester struct {
-	planner        route.Planner
-	addressCreator services.AddressCreator
-	moveRouter     services.MoveRouter
+	planner         route.Planner
+	addressCreator  services.AddressCreator
+	moveRouter      services.MoveRouter
+	shipmentFetcher services.MTOShipmentFetcher
+	services.MTOServiceItemUpdater
+	services.MTOServiceItemCreator
 }
 
 func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator services.AddressCreator, moveRouter services.MoveRouter) services.ShipmentAddressUpdateRequester {
@@ -116,6 +121,51 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeShipment
 		return false, nil
 	}
 	return true, nil
+}
+
+func (f *shipmentAddressUpdateRequester) mapServiceItemWithUpdatedPriceRequirements(originalServiceItem models.MTOServiceItem) models.MTOServiceItem {
+	var reService models.ReService
+
+	if originalServiceItem.ReService.Code == models.ReServiceCodeDSH {
+		reService = models.ReService{
+			Code: models.ReServiceCodeDLH,
+		}
+	} else if originalServiceItem.ReService.Code == models.ReServiceCodeDLH {
+		reService = models.ReService{
+			Code: models.ReServiceCodeDSH,
+		}
+	} else {
+		reService = originalServiceItem.ReService
+	}
+
+	newServiceItem := models.MTOServiceItem{
+		MTOShipmentID:                   originalServiceItem.MTOShipmentID,
+		MoveTaskOrderID:                 originalServiceItem.MoveTaskOrderID,
+		ReService:                       reService,
+		SITEntryDate:                    originalServiceItem.SITEntryDate,
+		SITDepartureDate:                originalServiceItem.SITDepartureDate,
+		SITPostalCode:                   originalServiceItem.SITPostalCode,
+		Reason:                          originalServiceItem.Reason,
+		Status:                          models.MTOServiceItemStatusApproved,
+		CustomerContacts:                originalServiceItem.CustomerContacts,
+		PickupPostalCode:                originalServiceItem.PickupPostalCode,
+		SITCustomerContacted:            originalServiceItem.SITCustomerContacted,
+		SITRequestedDelivery:            originalServiceItem.SITRequestedDelivery,
+		SITOriginHHGOriginalAddressID:   originalServiceItem.SITOriginHHGOriginalAddressID,
+		SITOriginHHGActualAddressID:     originalServiceItem.SITOriginHHGActualAddressID,
+		SITDestinationOriginalAddressID: originalServiceItem.SITDestinationOriginalAddressID,
+		SITDestinationFinalAddressID:    originalServiceItem.SITDestinationFinalAddressID,
+		Description:                     originalServiceItem.Description,
+		EstimatedWeight:                 originalServiceItem.EstimatedWeight,
+		ActualWeight:                    originalServiceItem.ActualWeight,
+		Dimensions:                      originalServiceItem.Dimensions,
+		SITAddressUpdates:               originalServiceItem.SITAddressUpdates,
+		ServiceRequestDocuments:         originalServiceItem.ServiceRequestDocuments,
+		CreatedAt:                       originalServiceItem.CreatedAt,
+		ApprovedAt:                      originalServiceItem.ApprovedAt,
+	}
+
+	return newServiceItem
 }
 
 // RequestShipmentDeliveryAddressUpdate is used to update the destination address of an HHG shipment without SIT after it has been approved by the TOO. If this update could result in excess cost for the customer, this service requires the change to go through TOO approval.
@@ -230,7 +280,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 	var shipment models.MTOShipment
 	var addressUpdate models.ShipmentAddressUpdate
 
-	err := appCtx.DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "OriginalAddress", "NewAddress").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
+	err := appCtx.DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "Shipment.MTOServiceItems", "Shipment.PickupAddress", "OriginalAddress", "NewAddress").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, apperror.NewNotFoundError(shipmentID, "looking for shipment address update")
@@ -241,10 +291,51 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 	shipment = addressUpdate.Shipment
 
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusApproved {
+		queryBuilder := query.NewQueryBuilder()
+		serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, f.moveRouter, f.shipmentFetcher, f.addressCreator)
+		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, f.moveRouter)
+
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusApproved
 		addressUpdate.OfficeRemarks = &tooRemarks
 		shipment.DestinationAddress = &addressUpdate.NewAddress
 		shipment.DestinationAddressID = &addressUpdate.NewAddressID
+
+		//We want to make sure the newly approved address update does not affect line haul/short haul pricing
+		haulPricingTypeHasChanged, err := f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, addressUpdate.NewAddress)
+		if err != nil {
+			return nil, err
+		}
+
+		//If the pricing type has changed then we automatically reject the service items on the shipment since they are now inaccurate
+		if haulPricingTypeHasChanged && len(shipment.MTOServiceItems) > 0 {
+			serviceItems := shipment.MTOServiceItems
+			autoRejectionRemark := "Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul."
+			var regeneratedServiceItems models.MTOServiceItems
+
+			for i, serviceItem := range serviceItems {
+				if serviceItem.Status != models.MTOServiceItemStatusRejected {
+					rejectedServiceItem, updateErr := serviceItemUpdater.ApproveOrRejectServiceItem(appCtx, serviceItem.ID, models.MTOServiceItemStatusRejected, &autoRejectionRemark, etag.GenerateEtag(serviceItem.UpdatedAt))
+					if updateErr != nil {
+						return nil, updateErr
+					}
+					copyOfServiceItem := f.mapServiceItemWithUpdatedPriceRequirements(*rejectedServiceItem)
+					serviceItems[i] = *rejectedServiceItem
+
+					// Regenerate approved service items to replace the rejected ones.
+					// Ensure that the updated pricing is applied (e.g. DLH -> DSH, DSH -> DLH etc.)
+					regeneratedServiceItem, _, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &copyOfServiceItem)
+					if createErr != nil {
+						return nil, createErr
+					}
+					regeneratedServiceItems = append(regeneratedServiceItems, *regeneratedServiceItem...)
+				}
+			}
+
+			// Append the auto-generated service items to the shipment service items slice
+			if len(regeneratedServiceItems) > 0 {
+				addressUpdate.Shipment.MTOServiceItems = append(addressUpdate.Shipment.MTOServiceItems, regeneratedServiceItems...)
+			}
+		}
 	}
 
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusRejected {

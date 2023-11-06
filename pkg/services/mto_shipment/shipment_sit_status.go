@@ -40,9 +40,10 @@ func newSortedShipmentSITs() SortedShipmentSITs {
 func SortShipmentSITs(shipment models.MTOShipment, today time.Time) SortedShipmentSITs {
 	shipmentSITs := newSortedShipmentSITs()
 
+	// TODO change service codes here to DOFSIT & DDFSIT and see what breaks
 	for _, serviceItem := range shipment.MTOServiceItems {
 		// only departure SIT service items have a departure date
-		if code := serviceItem.ReService.Code; (code == models.ReServiceCodeDOPSIT || code == models.ReServiceCodeDDDSIT) &&
+		if code := serviceItem.ReService.Code; (code == models.ReServiceCodeDOFSIT || code == models.ReServiceCodeDDFSIT) &&
 			serviceItem.Status == models.MTOServiceItemStatusApproved {
 			if serviceItem.SITEntryDate.After(today) {
 				shipmentSITs.futureSITs = append(shipmentSITs.futureSITs, serviceItem)
@@ -88,19 +89,25 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 
 	if currentSIT != nil {
 		location := DestinationSITLocation
-		if currentSIT.ReService.Code == models.ReServiceCodeDOPSIT {
+		if currentSIT.ReService.Code == models.ReServiceCodeDOFSIT {
 			location = OriginSITLocation
 		}
 		daysInSIT := daysInSIT(*currentSIT, today)
 		sitEntryDate := *currentSIT.SITEntryDate
 		sitDepartureDate := currentSIT.SITDepartureDate
 		sitAllowanceEndDate := CalculateSITAllowanceEndDate(shipmentSITStatus.TotalDaysRemaining, sitEntryDate, today)
+		var sitCustomerContacted, sitRequestedDelivery *time.Time
+		sitCustomerContacted = currentSIT.SITCustomerContacted
+		sitRequestedDelivery = currentSIT.SITRequestedDelivery
+
 		shipmentSITStatus.CurrentSIT = &services.CurrentSIT{
-			Location:            location,
-			DaysInSIT:           daysInSIT,
-			SITEntryDate:        sitEntryDate,
-			SITDepartureDate:    sitDepartureDate,
-			SITAllowanceEndDate: sitAllowanceEndDate,
+			Location:             location,
+			DaysInSIT:            daysInSIT,
+			SITEntryDate:         sitEntryDate,
+			SITDepartureDate:     sitDepartureDate,
+			SITAllowanceEndDate:  sitAllowanceEndDate,
+			SITCustomerContacted: sitCustomerContacted,
+			SITRequestedDelivery: sitRequestedDelivery,
 		}
 	}
 

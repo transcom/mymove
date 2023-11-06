@@ -250,6 +250,8 @@ definitions:
             $ref: '#/definitions/Address'
           sitHHGOriginalOrigin:
             $ref: '#/definitions/Address'
+          requestApprovalsRequestedStatus:
+            type: boolean
         required:
           - reServiceCode
           - reason
@@ -763,6 +765,7 @@ definitions:
       - SITScheduleDest
       - SITScheduleOrigin
       - SITServiceAreaDest
+      - SITServiceAreaOrigin
       - WeightAdjusted
       - WeightBilled
       - WeightEstimated

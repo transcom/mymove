@@ -31,6 +31,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/okta_profile"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/postal_codes"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
@@ -73,6 +74,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		OfficeApproveReimbursementHandler: office.ApproveReimbursementHandlerFunc(func(params office.ApproveReimbursementParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ApproveReimbursement has not yet been implemented")
+		}),
+		FeatureFlagsBooleanFeatureFlagForUserHandler: feature_flags.BooleanFeatureFlagForUserHandlerFunc(func(params feature_flags.BooleanFeatureFlagForUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation feature_flags.BooleanFeatureFlagForUser has not yet been implemented")
 		}),
 		OfficeCancelMoveHandler: office.CancelMoveHandlerFunc(func(params office.CancelMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.CancelMove has not yet been implemented")
@@ -143,9 +147,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmDeleteWeightTicketHandler: ppm.DeleteWeightTicketHandlerFunc(func(params ppm.DeleteWeightTicketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.DeleteWeightTicket has not yet been implemented")
 		}),
-		FeatureFlagsFeatureFlagForUserHandler: feature_flags.FeatureFlagForUserHandlerFunc(func(params feature_flags.FeatureFlagForUserParams) middleware.Responder {
-			return middleware.NotImplemented("operation feature_flags.FeatureFlagForUser has not yet been implemented")
-		}),
 		TransportationOfficesGetTransportationOfficesHandler: transportation_offices.GetTransportationOfficesHandlerFunc(func(params transportation_offices.GetTransportationOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_offices.GetTransportationOffices has not yet been implemented")
 		}),
@@ -215,6 +216,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OfficeShowOfficeOrdersHandler: office.ShowOfficeOrdersHandlerFunc(func(params office.ShowOfficeOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ShowOfficeOrders has not yet been implemented")
 		}),
+		OktaProfileShowOktaInfoHandler: okta_profile.ShowOktaInfoHandlerFunc(func(params okta_profile.ShowOktaInfoParams) middleware.Responder {
+			return middleware.NotImplemented("operation okta_profile.ShowOktaInfo has not yet been implemented")
+		}),
 		OrdersShowOrdersHandler: orders.ShowOrdersHandlerFunc(func(params orders.ShowOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.ShowOrders has not yet been implemented")
 		}),
@@ -266,6 +270,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmUpdateMovingExpenseHandler: ppm.UpdateMovingExpenseHandlerFunc(func(params ppm.UpdateMovingExpenseParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.UpdateMovingExpense has not yet been implemented")
 		}),
+		OktaProfileUpdateOktaInfoHandler: okta_profile.UpdateOktaInfoHandlerFunc(func(params okta_profile.UpdateOktaInfoParams) middleware.Responder {
+			return middleware.NotImplemented("operation okta_profile.UpdateOktaInfo has not yet been implemented")
+		}),
 		OrdersUpdateOrdersHandler: orders.UpdateOrdersHandlerFunc(func(params orders.UpdateOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.UpdateOrders has not yet been implemented")
 		}),
@@ -286,6 +293,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		PostalCodesValidatePostalCodeWithRateDataHandler: postal_codes.ValidatePostalCodeWithRateDataHandlerFunc(func(params postal_codes.ValidatePostalCodeWithRateDataParams) middleware.Responder {
 			return middleware.NotImplemented("operation postal_codes.ValidatePostalCodeWithRateData has not yet been implemented")
+		}),
+		FeatureFlagsVariantFeatureFlagForUserHandler: feature_flags.VariantFeatureFlagForUserHandlerFunc(func(params feature_flags.VariantFeatureFlagForUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation feature_flags.VariantFeatureFlagForUser has not yet been implemented")
 		}),
 	}
 }
@@ -340,6 +350,8 @@ type MymoveAPI struct {
 	OfficeApprovePPMHandler office.ApprovePPMHandler
 	// OfficeApproveReimbursementHandler sets the operation handler for the approve reimbursement operation
 	OfficeApproveReimbursementHandler office.ApproveReimbursementHandler
+	// FeatureFlagsBooleanFeatureFlagForUserHandler sets the operation handler for the boolean feature flag for user operation
+	FeatureFlagsBooleanFeatureFlagForUserHandler feature_flags.BooleanFeatureFlagForUserHandler
 	// OfficeCancelMoveHandler sets the operation handler for the cancel move operation
 	OfficeCancelMoveHandler office.CancelMoveHandler
 	// DocumentsCreateDocumentHandler sets the operation handler for the create document operation
@@ -386,8 +398,6 @@ type MymoveAPI struct {
 	UploadsDeleteUploadsHandler uploads.DeleteUploadsHandler
 	// PpmDeleteWeightTicketHandler sets the operation handler for the delete weight ticket operation
 	PpmDeleteWeightTicketHandler ppm.DeleteWeightTicketHandler
-	// FeatureFlagsFeatureFlagForUserHandler sets the operation handler for the feature flag for user operation
-	FeatureFlagsFeatureFlagForUserHandler feature_flags.FeatureFlagForUserHandler
 	// TransportationOfficesGetTransportationOfficesHandler sets the operation handler for the get transportation offices operation
 	TransportationOfficesGetTransportationOfficesHandler transportation_offices.GetTransportationOfficesHandler
 	// EntitlementsIndexEntitlementsHandler sets the operation handler for the index entitlements operation
@@ -434,6 +444,8 @@ type MymoveAPI struct {
 	MovesShowMoveDatesSummaryHandler moves.ShowMoveDatesSummaryHandler
 	// OfficeShowOfficeOrdersHandler sets the operation handler for the show office orders operation
 	OfficeShowOfficeOrdersHandler office.ShowOfficeOrdersHandler
+	// OktaProfileShowOktaInfoHandler sets the operation handler for the show okta info operation
+	OktaProfileShowOktaInfoHandler okta_profile.ShowOktaInfoHandler
 	// OrdersShowOrdersHandler sets the operation handler for the show orders operation
 	OrdersShowOrdersHandler orders.ShowOrdersHandler
 	// PpmShowPPMEstimateHandler sets the operation handler for the show p p m estimate operation
@@ -468,6 +480,8 @@ type MymoveAPI struct {
 	MoveDocsUpdateMoveDocumentHandler move_docs.UpdateMoveDocumentHandler
 	// PpmUpdateMovingExpenseHandler sets the operation handler for the update moving expense operation
 	PpmUpdateMovingExpenseHandler ppm.UpdateMovingExpenseHandler
+	// OktaProfileUpdateOktaInfoHandler sets the operation handler for the update okta info operation
+	OktaProfileUpdateOktaInfoHandler okta_profile.UpdateOktaInfoHandler
 	// OrdersUpdateOrdersHandler sets the operation handler for the update orders operation
 	OrdersUpdateOrdersHandler orders.UpdateOrdersHandler
 	// PpmUpdatePersonallyProcuredMoveHandler sets the operation handler for the update personally procured move operation
@@ -482,6 +496,8 @@ type MymoveAPI struct {
 	OrdersUploadAmendedOrdersHandler orders.UploadAmendedOrdersHandler
 	// PostalCodesValidatePostalCodeWithRateDataHandler sets the operation handler for the validate postal code with rate data operation
 	PostalCodesValidatePostalCodeWithRateDataHandler postal_codes.ValidatePostalCodeWithRateDataHandler
+	// FeatureFlagsVariantFeatureFlagForUserHandler sets the operation handler for the variant feature flag for user operation
+	FeatureFlagsVariantFeatureFlagForUserHandler feature_flags.VariantFeatureFlagForUserHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -574,6 +590,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.OfficeApproveReimbursementHandler == nil {
 		unregistered = append(unregistered, "office.ApproveReimbursementHandler")
 	}
+	if o.FeatureFlagsBooleanFeatureFlagForUserHandler == nil {
+		unregistered = append(unregistered, "feature_flags.BooleanFeatureFlagForUserHandler")
+	}
 	if o.OfficeCancelMoveHandler == nil {
 		unregistered = append(unregistered, "office.CancelMoveHandler")
 	}
@@ -642,9 +661,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PpmDeleteWeightTicketHandler == nil {
 		unregistered = append(unregistered, "ppm.DeleteWeightTicketHandler")
-	}
-	if o.FeatureFlagsFeatureFlagForUserHandler == nil {
-		unregistered = append(unregistered, "feature_flags.FeatureFlagForUserHandler")
 	}
 	if o.TransportationOfficesGetTransportationOfficesHandler == nil {
 		unregistered = append(unregistered, "transportation_offices.GetTransportationOfficesHandler")
@@ -715,6 +731,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.OfficeShowOfficeOrdersHandler == nil {
 		unregistered = append(unregistered, "office.ShowOfficeOrdersHandler")
 	}
+	if o.OktaProfileShowOktaInfoHandler == nil {
+		unregistered = append(unregistered, "okta_profile.ShowOktaInfoHandler")
+	}
 	if o.OrdersShowOrdersHandler == nil {
 		unregistered = append(unregistered, "orders.ShowOrdersHandler")
 	}
@@ -766,6 +785,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.PpmUpdateMovingExpenseHandler == nil {
 		unregistered = append(unregistered, "ppm.UpdateMovingExpenseHandler")
 	}
+	if o.OktaProfileUpdateOktaInfoHandler == nil {
+		unregistered = append(unregistered, "okta_profile.UpdateOktaInfoHandler")
+	}
 	if o.OrdersUpdateOrdersHandler == nil {
 		unregistered = append(unregistered, "orders.UpdateOrdersHandler")
 	}
@@ -786,6 +808,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PostalCodesValidatePostalCodeWithRateDataHandler == nil {
 		unregistered = append(unregistered, "postal_codes.ValidatePostalCodeWithRateDataHandler")
+	}
+	if o.FeatureFlagsVariantFeatureFlagForUserHandler == nil {
+		unregistered = append(unregistered, "feature_flags.VariantFeatureFlagForUserHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -894,6 +919,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/feature-flags/user-boolean/{key}"] = feature_flags.NewBooleanFeatureFlagForUser(o.context, o.FeatureFlagsBooleanFeatureFlagForUserHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/moves/{moveId}/cancel"] = office.NewCancelMove(o.context, o.OfficeCancelMoveHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -983,10 +1012,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}"] = ppm.NewDeleteWeightTicket(o.context, o.PpmDeleteWeightTicketHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/feature-flags/user/{key}"] = feature_flags.NewFeatureFlagForUser(o.context, o.FeatureFlagsFeatureFlagForUserHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -1082,6 +1107,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/okta-profile"] = okta_profile.NewShowOktaInfo(o.context, o.OktaProfileShowOktaInfoHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/orders/{ordersId}"] = orders.NewShowOrders(o.context, o.OrdersShowOrdersHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1147,6 +1176,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}"] = ppm.NewUpdateMovingExpense(o.context, o.PpmUpdateMovingExpenseHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/okta-profile"] = okta_profile.NewUpdateOktaInfo(o.context, o.OktaProfileUpdateOktaInfoHandler)
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
@@ -1175,6 +1208,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/rate_engine_postal_codes/{postal_code}"] = postal_codes.NewValidatePostalCodeWithRateData(o.context, o.PostalCodesValidatePostalCodeWithRateDataHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/feature-flags/user-variant/{key}"] = feature_flags.NewVariantFeatureFlagForUser(o.context, o.FeatureFlagsVariantFeatureFlagForUserHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

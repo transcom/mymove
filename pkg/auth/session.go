@@ -232,6 +232,18 @@ type Session struct {
 	AdminUserRole   string
 	Roles           roles.Roles
 	Permissions     []string
+	AccessToken     string
+	ClientID        string
+	OktaSessionInfo OktaSessionInfo
+}
+
+type OktaSessionInfo struct {
+	Login     string
+	Email     string
+	FirstName string
+	LastName  string
+	Edipi     string
+	Sub       string
 }
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data

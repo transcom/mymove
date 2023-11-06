@@ -15,6 +15,7 @@ describe('ServiceItemsTable', () => {
     handleShowRejectionDialog: jest.fn(),
     handleRequestSITAddressUpdateModal: jest.fn(),
     handleShowEditSitAddressModal: jest.fn(),
+    handleShowEditSitEntryDateModal: jest.fn(),
     serviceItemAddressUpdateAlert: {
       makeVisible: false,
       alertMessage: '',
@@ -33,11 +34,13 @@ describe('ServiceItemsTable', () => {
       },
     ];
     const wrapper = mount(
-      <ServiceItemsTable
-        {...defaultProps}
-        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
-        serviceItems={serviceItems}
-      />,
+      <MockProviders>
+        <ServiceItemsTable
+          {...defaultProps}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+          serviceItems={serviceItems}
+        />
+      </MockProviders>,
     );
     expect(wrapper.find('td').at(1).text()).toBe('—');
   });
@@ -46,7 +49,7 @@ describe('ServiceItemsTable', () => {
     const serviceItems = [
       {
         id: 'abc123',
-        submittedAt: '2020-11-20',
+        createdAt: '2020-11-20',
         serviceItem: 'Domestic Crating',
         code: 'DCRT',
         details: {
@@ -58,13 +61,16 @@ describe('ServiceItemsTable', () => {
     ];
 
     const wrapper = mount(
-      <ServiceItemsTable
-        {...defaultProps}
-        serviceItems={serviceItems}
-        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
-      />,
+      <MockProviders>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        />
+      </MockProviders>,
     );
 
+    expect(wrapper.find('td').at(0).text()).toContain('Date requested: 20 Nov 2020');
     expect(wrapper.find('dt').at(0).text()).toBe('Description:');
     expect(wrapper.find('dd').at(0).text()).toBe('grandfather clock');
     expect(wrapper.find('dt').at(1).text()).toBe('Item size:');
@@ -77,12 +83,17 @@ describe('ServiceItemsTable', () => {
     const serviceItems = [
       {
         id: 'abc123',
-        submittedAt: '2020-11-20',
+        createdAt: '2020-11-20',
         serviceItem: 'Domestic Crating',
         code: 'DDFSIT',
         details: {
+          sitEntryDate: '2020-12-31',
           customerContacts: [
-            { timeMilitary: '0400Z', firstAvailableDeliveryDate: '2020-12-31', dateOfContact: '2020-12-31' },
+            {
+              timeMilitary: '0400Z',
+              firstAvailableDeliveryDate: '2020-12-31',
+              dateOfContact: '2020-12-31',
+            },
             { timeMilitary: '0800Z', firstAvailableDeliveryDate: '2021-01-01', dateOfContact: '2021-01-01' },
           ],
         },
@@ -90,23 +101,28 @@ describe('ServiceItemsTable', () => {
     ];
 
     const wrapper = mount(
-      <ServiceItemsTable
-        {...defaultProps}
-        serviceItems={serviceItems}
-        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
-      />,
+      <MockProviders>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        />
+      </MockProviders>,
     );
 
     expect(wrapper.find('table').exists()).toBe(true);
-    expect(wrapper.find('dt').at(0).text()).toBe('First available delivery date 1:');
-    expect(wrapper.find('dd').at(0).text()).toBe('31 Dec 2020');
-    expect(wrapper.find('dt').at(1).text()).toBe('Customer contact attempt 1:');
-    expect(wrapper.find('dd').at(1).text()).toBe('31 Dec 2020, 0400Z');
 
-    expect(wrapper.find('dt').at(2).text()).toBe('First available delivery date 2:');
-    expect(wrapper.find('dd').at(2).text()).toBe('01 Jan 2021');
-    expect(wrapper.find('dt').at(3).text()).toBe('Customer contact attempt 2:');
-    expect(wrapper.find('dd').at(3).text()).toBe('01 Jan 2021, 0800Z');
+    expect(wrapper.find('dt').at(0).text()).toBe('SIT entry date:');
+    expect(wrapper.find('dd').at(0).text()).toBe('31 Dec 2020');
+    expect(wrapper.find('dt').at(1).text()).toBe('First available delivery date 1:');
+    expect(wrapper.find('dd').at(1).text()).toBe('31 Dec 2020');
+    expect(wrapper.find('dt').at(2).text()).toBe('Customer contact attempt 1:');
+    expect(wrapper.find('dd').at(2).text()).toBe('31 Dec 2020, 0400Z');
+
+    expect(wrapper.find('dt').at(3).text()).toBe('First available delivery date 2:');
+    expect(wrapper.find('dd').at(3).text()).toBe('01 Jan 2021');
+    expect(wrapper.find('dt').at(4).text()).toBe('Customer contact attempt 2:');
+    expect(wrapper.find('dd').at(4).text()).toBe('01 Jan 2021, 0800Z');
   });
 
   it('should render the SITPostalCode ZIP, and reason for DOFSIT service item', () => {
@@ -120,21 +136,26 @@ describe('ServiceItemsTable', () => {
           pickupPostalCode: '11111',
           SITPostalCode: '12345',
           reason: 'This is the reason',
+          sitEntryDate: '2023-12-25T00:00:00.000Z',
         },
       },
     ];
 
     const wrapper = mount(
-      <ServiceItemsTable
-        {...defaultProps}
-        serviceItems={serviceItems}
-        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
-      />,
+      <MockProviders>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        />
+      </MockProviders>,
     );
-    expect(wrapper.find('dt').at(0).contains('ZIP')).toBe(true);
-    expect(wrapper.find('dd').at(0).contains('12345')).toBe(true);
-    expect(wrapper.find('dt').at(1).contains('Reason')).toBe(true);
-    expect(wrapper.find('dd').at(1).contains('This is the reason')).toBe(true);
+    expect(wrapper.find('dt').at(0).contains('SIT entry date')).toBe(true);
+    expect(wrapper.find('dd').at(0).contains('25 Dec 2023')).toBe(true);
+    expect(wrapper.find('dt').at(1).contains('ZIP')).toBe(true);
+    expect(wrapper.find('dd').at(1).contains('12345')).toBe(true);
+    expect(wrapper.find('dt').at(2).contains('Reason')).toBe(true);
+    expect(wrapper.find('dd').at(2).contains('This is the reason')).toBe(true);
   });
 
   it('calls the update service item status handler when the accept button is clicked', () => {
@@ -217,11 +238,13 @@ describe('ServiceItemsTable', () => {
     ];
 
     const wrapper = mount(
-      <ServiceItemsTable
-        {...defaultProps}
-        serviceItems={serviceItems}
-        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
-      />,
+      <MockProviders>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        />
+      </MockProviders>,
     );
 
     expect(wrapper.find('button[data-testid="acceptButton"]').length).toBeFalsy();
@@ -235,7 +258,7 @@ describe('ServiceItemsTable', () => {
       {
         id: 'abc123',
         mtoShipmentID: 'xyz789',
-        submittedAt: '2020-11-20',
+        createdAt: '2020-11-20',
         serviceItem: 'Domestic destination SIT delivery',
         code: 'DDDSIT',
         sitAddressUpdates: [
@@ -267,7 +290,8 @@ describe('ServiceItemsTable', () => {
       {
         id: 'abc123',
         mtoShipmentID: 'xyz789',
-        submittedAt: '2020-11-20',
+        createdAt: '2020-11-20',
+        approvedAt: '2020-11-21',
         serviceItem: 'Domestic destination SIT delivery',
         code: 'DDDSIT',
         sitAddressUpdates: [
@@ -302,6 +326,7 @@ describe('ServiceItemsTable', () => {
     );
 
     expect(wrapper.find('[data-testid="serviceItemAddressUpdateAlert"]').exists()).toBe(true);
+    expect(wrapper.find('td').at(1).text()).toContain('Date approved: 21 Nov 2020');
   });
 
   it('properly displays service item table tag for rejected address update', () => {
@@ -309,7 +334,8 @@ describe('ServiceItemsTable', () => {
       {
         id: 'abc123',
         mtoShipmentID: 'xyz789',
-        submittedAt: '2020-11-20',
+        createdAt: '2020-11-20',
+        rejectedAt: '2020-11-21',
         serviceItem: 'Domestic destination SIT delivery',
         code: 'DDDSIT',
         sitAddressUpdates: [
@@ -404,11 +430,13 @@ describe('ServiceItemsTable', () => {
     ];
 
     const wrapper = mount(
-      <ServiceItemsTable
-        {...defaultProps}
-        serviceItems={serviceItems}
-        statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
-      />,
+      <MockProviders>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
     );
 
     expect(wrapper.find('button[data-testid="editTextButton"]').length).toBeFalsy();
@@ -482,6 +510,58 @@ describe('ServiceItemsTable', () => {
     wrapper.find('button[data-testid="editTextButton"]').simulate('click');
 
     expect(defaultProps.handleShowEditSitAddressModal).toHaveBeenCalledWith('abc123', 'xyz789');
+  });
+
+  it('calls the handleShowEditSitEntryDateModal handler when the edit button is clicked for DOFSIT service item', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic origin 1st day SIT',
+        code: 'DOFSIT',
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
+    );
+
+    wrapper.find('button[data-testid="editTextButton"]').simulate('click');
+
+    expect(defaultProps.handleShowEditSitEntryDateModal).toHaveBeenCalledWith('abc123', 'xyz789');
+  });
+
+  it('calls the handleShowEditSitEntryDateModal handler when the edit button is clicked for DDFSIT service item', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic destination 1st day SIT',
+        code: 'DDFSIT',
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
+    );
+
+    wrapper.find('button[data-testid="editTextButton"]').simulate('click');
+
+    expect(defaultProps.handleShowEditSitEntryDateModal).toHaveBeenCalledWith('abc123', 'xyz789');
   });
 
   it('shows review request button when service item contains requested sit address update', () => {
@@ -613,7 +693,8 @@ describe('ServiceItemsTable', () => {
       {
         id: 'abc123',
         mtoShipmentID: 'xyz789',
-        submittedAt: '2020-11-20',
+        createdAt: '2020-11-20',
+        rejectedAt: '2020-11-21',
         serviceItem: 'Domestic destination SIT delivery',
         code: 'DDDSIT',
       },
@@ -635,6 +716,7 @@ describe('ServiceItemsTable', () => {
 
     expect(approveTextButton.at(0).find('svg[data-icon="check"]').length).toBe(1);
     expect(approveTextButton.at(0).contains('Approve')).toBe(true);
+    expect(wrapper.find('td').at(0).text()).toContain('Date rejected: 21 Nov 2020');
   });
 
   it('calls the handleUpdateMTOServiceItemStatus handler when the Approve text button is clicked', () => {

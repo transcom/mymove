@@ -57,7 +57,8 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
 
-	internalAPI.FeatureFlagsFeatureFlagForUserHandler = FeatureFlagsForUserHandler{handlerConfig}
+	internalAPI.FeatureFlagsBooleanFeatureFlagForUserHandler = BooleanFeatureFlagsForUserHandler{handlerConfig}
+	internalAPI.FeatureFlagsVariantFeatureFlagForUserHandler = VariantFeatureFlagsForUserHandler{handlerConfig}
 
 	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{handlerConfig, officeuser.NewOfficeUserFetcherPop()}
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{handlerConfig}
@@ -95,6 +96,9 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		moveRouter,
 	}
 	internalAPI.MovesShowMoveDatesSummaryHandler = ShowMoveDatesSummaryHandler{handlerConfig}
+
+	internalAPI.OktaProfileShowOktaInfoHandler = GetOktaProfileHandler{handlerConfig}
+	internalAPI.OktaProfileUpdateOktaInfoHandler = UpdateOktaProfileHandler{handlerConfig}
 
 	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler{handlerConfig}
 	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler{handlerConfig}

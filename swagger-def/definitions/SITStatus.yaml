@@ -27,5 +27,13 @@ properties:
         type: string
         format: date
         x-nullable: true
+      sitCustomerContacted:
+        type: string
+        format: date
+        x-nullable: true
+      sitRequestedDelivery:
+        type: string
+        format: date
+        x-nullable: true
   pastSITServiceItems:
     $ref: 'MTOServiceItems.yaml'

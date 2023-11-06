@@ -7,19 +7,19 @@ require (
 	github.com/XSAM/otelsql v0.23.0
 	github.com/alexedwards/scs/redisstore v0.0.0-20221223131519-238b052508b6
 	github.com/alexedwards/scs/v2 v2.5.1
-	github.com/aws/aws-sdk-go-v2 v1.21.0
-	github.com/aws/aws-sdk-go-v2/config v1.18.37
-	github.com/aws/aws-sdk-go-v2/credentials v1.13.35
+	github.com/aws/aws-sdk-go-v2 v1.22.1
+	github.com/aws/aws-sdk-go-v2/config v1.18.39
+	github.com/aws/aws-sdk-go-v2/credentials v1.13.37
 	github.com/aws/aws-sdk-go-v2/feature/rds/auth v1.2.19
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchevents v1.15.13
-	github.com/aws/aws-sdk-go-v2/service/ecr v1.19.5
-	github.com/aws/aws-sdk-go-v2/service/ecs v1.27.4
-	github.com/aws/aws-sdk-go-v2/service/rds v1.45.2
+	github.com/aws/aws-sdk-go-v2/service/ecr v1.22.0
+	github.com/aws/aws-sdk-go-v2/service/ecs v1.30.1
+	github.com/aws/aws-sdk-go-v2/service/rds v1.54.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.38.5
 	github.com/aws/aws-sdk-go-v2/service/ses v1.16.7
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.37.5
 	github.com/aws/aws-sdk-go-v2/service/sts v1.21.5
-	github.com/aws/smithy-go v1.14.2
+	github.com/aws/smithy-go v1.16.0
 	github.com/beevik/etree v1.2.0
 	github.com/benbjohnson/clock v1.3.5
 	github.com/cenkalti/backoff/v4 v4.2.1
@@ -38,7 +38,7 @@ require (
 	github.com/go-openapi/strfmt v0.21.7
 	github.com/go-openapi/swag v0.22.4
 	github.com/go-openapi/validate v0.22.1
-	github.com/go-playground/validator/v10 v10.15.1
+	github.com/go-playground/validator/v10 v10.15.4
 	github.com/go-swagger/go-swagger v0.30.5
 	github.com/gobuffalo/envy v1.10.2
 	github.com/gobuffalo/fizz v1.14.4
@@ -54,7 +54,7 @@ require (
 	github.com/imdario/mergo v0.3.16
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
 	github.com/jessevdk/go-flags v1.5.0
-	github.com/jinzhu/copier v0.3.5
+	github.com/jinzhu/copier v0.4.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/lib/pq v1.10.9
@@ -62,7 +62,7 @@ require (
 	github.com/namsral/flag v1.7.4-pre
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.9.1
-	github.com/pkg/sftp v1.13.5
+	github.com/pkg/sftp v1.13.6
 	github.com/pterm/pterm v0.12.66
 	github.com/rickar/cal/v2 v2.1.13
 	github.com/spf13/afero v1.9.5
@@ -74,7 +74,7 @@ require (
 	github.com/tealeg/xlsx/v3 v3.3.0
 	github.com/tiaguinho/gosoap v1.4.4
 	github.com/ucarion/c14n v0.1.0
-	github.com/vektra/mockery/v2 v2.33.0
+	github.com/vektra/mockery/v2 v2.33.2
 	go.flipt.io/flipt/rpc/flipt v1.25.0
 	go.flipt.io/flipt/sdk/go v0.5.0
 	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352
@@ -82,26 +82,38 @@ require (
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.43.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.43.0
 	go.opentelemetry.io/contrib/propagators/aws v1.18.0
-	go.opentelemetry.io/otel v1.17.0
+	go.opentelemetry.io/otel v1.18.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v0.40.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.17.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.17.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.18.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.18.0
 	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v0.40.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.17.0
-	go.opentelemetry.io/otel/metric v1.17.0
-	go.opentelemetry.io/otel/sdk v1.17.0
+	go.opentelemetry.io/otel/metric v1.18.0
+	go.opentelemetry.io/otel/sdk v1.18.0
 	go.opentelemetry.io/otel/sdk/metric v0.40.0
-	go.opentelemetry.io/otel/trace v1.17.0
+	go.opentelemetry.io/otel/trace v1.18.0
 	go.uber.org/zap v1.25.0
-	golang.org/x/crypto v0.12.0
-	golang.org/x/net v0.14.0
-	golang.org/x/oauth2 v0.11.0
-	golang.org/x/text v0.12.0
-	golang.org/x/tools v0.12.0
-	google.golang.org/grpc v1.57.0
+	golang.org/x/crypto v0.13.0
+	golang.org/x/net v0.15.0
+	golang.org/x/oauth2 v0.12.0
+	golang.org/x/text v0.13.0
+	golang.org/x/tools v0.13.0
+	google.golang.org/grpc v1.58.0
 	gopkg.in/dnaeon/go-vcr.v3 v3.1.2
 	gotest.tools/gotestsum v1.10.1
 	pault.ag/go/pksigner v1.0.2
+)
+
+require (
+	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.0-20210816181553-5444fa50b93d // indirect
+	github.com/goccy/go-json v0.9.6 // indirect
+	github.com/lestrrat-go/backoff/v2 v2.0.8 // indirect
+	github.com/lestrrat-go/blackmagic v1.0.0 // indirect
+	github.com/lestrrat-go/httpcc v1.0.0 // indirect
+	github.com/lestrrat-go/iter v1.0.1 // indirect
+	github.com/lestrrat-go/jwx v1.2.21 // indirect
+	github.com/lestrrat-go/option v1.0.0 // indirect
+	github.com/patrickmn/go-cache v0.0.0-20180815053127-5633e0862627 // indirect
 )
 
 require (
@@ -115,16 +127,16 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.13 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.13.11 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.41 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.4.35 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.2.1 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.5.1 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/ini v1.3.42 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/v4a v1.1.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.9.14 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.1.36 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.9.35 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.15.4 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sso v1.13.5 // indirect
-	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.15.5 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sso v1.13.6 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.15.6 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/brunoscheufler/aws-ecs-metadata-go v0.0.0-20221221133751-67e37ae746cd // indirect
 	github.com/chigopher/pathlib v1.0.0 // indirect
@@ -182,6 +194,7 @@ require (
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgtype v1.14.0 // indirect
 	github.com/jackc/pgx/v4 v4.18.1 // indirect
+	github.com/jarcoal/httpmock v1.3.0
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
@@ -206,6 +219,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
+	github.com/okta/okta-jwt-verifier-golang v1.3.1
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/peterbourgon/diskv/v3 v3.0.1 // indirect
@@ -233,14 +247,14 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric v0.40.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.0.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/exp v0.0.0-20230212135524-a684f29349b6 // indirect
-	golang.org/x/image v0.5.0 // indirect
+	golang.org/x/exp v0.0.0-20230212135524-a684f29349b6
+	golang.org/x/image v0.10.0 // indirect
 	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
-	golang.org/x/sys v0.11.0 // indirect
-	golang.org/x/term v0.11.0 // indirect
+	golang.org/x/sys v0.12.0 // indirect
+	golang.org/x/term v0.12.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20230803162519-f966b187b2e5 // indirect
+	google.golang.org/genproto v0.0.0-20230822172742-b8732ec3820d // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20230822172742-b8732ec3820d // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230822172742-b8732ec3820d // indirect
 	google.golang.org/protobuf v1.31.0 // indirect

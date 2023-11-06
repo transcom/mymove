@@ -673,11 +673,13 @@ func currentSIT(currentSIT *services.CurrentSIT) *ghcmessages.SITStatusCurrentSI
 		return nil
 	}
 	return &ghcmessages.SITStatusCurrentSIT{
-		Location:            currentSIT.Location,
-		DaysInSIT:           handlers.FmtIntPtrToInt64(&currentSIT.DaysInSIT),
-		SitEntryDate:        handlers.FmtDate(currentSIT.SITEntryDate),
-		SitDepartureDate:    handlers.FmtDatePtr(currentSIT.SITDepartureDate),
-		SitAllowanceEndDate: handlers.FmtDate(currentSIT.SITAllowanceEndDate),
+		Location:             currentSIT.Location,
+		DaysInSIT:            handlers.FmtIntPtrToInt64(&currentSIT.DaysInSIT),
+		SitEntryDate:         handlers.FmtDate(currentSIT.SITEntryDate),
+		SitDepartureDate:     handlers.FmtDatePtr(currentSIT.SITDepartureDate),
+		SitAllowanceEndDate:  handlers.FmtDate(currentSIT.SITAllowanceEndDate),
+		SitCustomerContacted: handlers.FmtDatePtr(currentSIT.SITCustomerContacted),
+		SitRequestedDelivery: handlers.FmtDatePtr(currentSIT.SITRequestedDelivery),
 	}
 }
 
@@ -1253,6 +1255,28 @@ func ServiceRequestDoc(serviceRequest models.ServiceRequestDocument, storer stor
 
 }
 
+// MTOServiceItemSingleModel payload
+func MTOServiceItemSingleModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItemSingle {
+	return &ghcmessages.MTOServiceItemSingle{
+		SitPostalCode:        handlers.FmtStringPtr(s.SITPostalCode),
+		ApprovedAt:           handlers.FmtDateTimePtr(s.ApprovedAt),
+		CreatedAt:            *handlers.FmtDateTime(s.CreatedAt),
+		ID:                   *handlers.FmtUUID(s.ID),
+		MoveTaskOrderID:      *handlers.FmtUUID(s.MoveTaskOrderID),
+		MtoShipmentID:        handlers.FmtUUID(*s.MTOShipmentID),
+		PickupPostalCode:     handlers.FmtStringPtr(s.PickupPostalCode),
+		ReServiceID:          *handlers.FmtUUID(s.ReServiceID),
+		RejectedAt:           handlers.FmtDateTimePtr(s.RejectedAt),
+		RejectionReason:      handlers.FmtStringPtr(s.RejectionReason),
+		SitCustomerContacted: handlers.FmtDatePtr(s.SITCustomerContacted),
+		SitDepartureDate:     handlers.FmtDateTimePtr(s.SITDepartureDate),
+		SitEntryDate:         handlers.FmtDateTimePtr(s.SITEntryDate),
+		SitRequestedDelivery: handlers.FmtDatePtr(s.SITRequestedDelivery),
+		Status:               handlers.FmtString(string(s.Status)),
+		UpdatedAt:            *handlers.FmtDateTime(s.UpdatedAt),
+	}
+}
+
 // MTOServiceItemModel payload
 func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *ghcmessages.MTOServiceItem {
 	if s == nil {
@@ -1284,6 +1308,8 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		SITPostalCode:                 handlers.FmtStringPtr(s.SITPostalCode),
 		SitEntryDate:                  handlers.FmtDateTimePtr(s.SITEntryDate),
 		SitDepartureDate:              handlers.FmtDateTimePtr(s.SITDepartureDate),
+		SitCustomerContacted:          handlers.FmtDatePtr(s.SITCustomerContacted),
+		SitRequestedDelivery:          handlers.FmtDatePtr(s.SITRequestedDelivery),
 		Status:                        ghcmessages.MTOServiceItemStatus(s.Status),
 		Description:                   handlers.FmtStringPtr(s.Description),
 		Dimensions:                    MTOServiceItemDimensions(s.Dimensions),
@@ -1710,6 +1736,7 @@ func ShipmentPaymentSITBalance(shipmentSITBalance *services.ShipmentPaymentSITBa
 	}
 
 	payload := &ghcmessages.ShipmentPaymentSITBalance{
+		PendingBilledStartDate:  handlers.FmtDate(shipmentSITBalance.PendingBilledStartDate),
 		PendingBilledEndDate:    handlers.FmtDate(shipmentSITBalance.PendingBilledEndDate),
 		PendingSITDaysInvoiced:  int64(shipmentSITBalance.PendingSITDaysInvoiced),
 		PreviouslyBilledDays:    handlers.FmtIntPtrToInt64(shipmentSITBalance.PreviouslyBilledDays),

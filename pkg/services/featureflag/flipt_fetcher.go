@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
-	"go.flipt.io/flipt/rpc/flipt"
+	"go.flipt.io/flipt/rpc/flipt/evaluation"
 	sdk "go.flipt.io/flipt/sdk/go"
 	sdkhttp "go.flipt.io/flipt/sdk/go/http"
 	"go.uber.org/zap"
@@ -22,11 +22,11 @@ import (
 )
 
 const (
-	applicationName = "applicationName"
-	isAdminUser     = "isAdminUser"
-	isOfficeUser    = "isOfficeUser"
-	isServiceMember = "isServiceMember"
-	email           = "email"
+	applicationNameKey = "applicationName"
+	isAdminUserKey     = "isAdminUser"
+	isOfficeUserKey    = "isOfficeUser"
+	isServiceMemberKey = "isServiceMember"
+	emailKey           = "email"
 )
 
 type FliptFetcher struct {
@@ -80,23 +80,24 @@ func NewFliptFetcherWithClient(config cli.FeatureFlagConfig, httpClient *http.Cl
 	}, nil
 }
 
-func (ff *FliptFetcher) GetFlagForUser(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+// buildUserFlagContext creates the entityID and flag context from the
+// user information in the appCtx
+func buildUserFlagContext(appCtx appcontext.AppContext, flagContext map[string]string) (string, map[string]string, error) {
 	if nil == appCtx.Session() {
-		featureFlag := services.FeatureFlag{}
 		// if getting a flag for a user, a session must exist
-		return featureFlag, errors.New("Nil session when calling GetFlagForUser")
+		return "", flagContext, errors.New("Nil session when building user flag context")
 	}
 
 	entityID := appCtx.Session().UserID.String()
 
 	// automatically set the context
 	featureFlagContext := flagContext
-	featureFlagContext[email] = appCtx.Session().Email
-	featureFlagContext[applicationName] = string(appCtx.Session().ApplicationName)
+	featureFlagContext[emailKey] = appCtx.Session().Email
+	featureFlagContext[applicationNameKey] = string(appCtx.Session().ApplicationName)
 
-	featureFlagContext[isAdminUser] = strconv.FormatBool(appCtx.Session().IsAdminUser())
-	featureFlagContext[isOfficeUser] = strconv.FormatBool(appCtx.Session().IsOfficeUser())
-	featureFlagContext[isServiceMember] = strconv.FormatBool(appCtx.Session().IsServiceMember())
+	featureFlagContext[isAdminUserKey] = strconv.FormatBool(appCtx.Session().IsAdminUser())
+	featureFlagContext[isOfficeUserKey] = strconv.FormatBool(appCtx.Session().IsOfficeUser())
+	featureFlagContext[isServiceMemberKey] = strconv.FormatBool(appCtx.Session().IsServiceMember())
 
 	// instead of sending roles, send permissions as that is more
 	// granular and flexible
@@ -105,10 +106,19 @@ func (ff *FliptFetcher) GetFlagForUser(ctx context.Context, appCtx appcontext.Ap
 		featureFlagContext["permissions."+permissions[i]] = strconv.FormatBool(true)
 	}
 
-	return ff.GetFlag(ctx, appCtx.Logger(), entityID, key, flagContext)
+	return entityID, featureFlagContext, nil
 }
 
-func (ff *FliptFetcher) GetFlag(ctx context.Context, logger *zap.Logger, entityID string, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+func (ff *FliptFetcher) GetBooleanFlagForUser(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+
+	entityID, userFlagContext, err := buildUserFlagContext(appCtx, flagContext)
+	if err != nil {
+		return services.FeatureFlag{}, err
+	}
+	return ff.GetBooleanFlag(ctx, appCtx.Logger(), entityID, key, userFlagContext)
+}
+
+func (ff *FliptFetcher) GetBooleanFlag(ctx context.Context, logger *zap.Logger, entityID string, key string, flagContext map[string]string) (services.FeatureFlag, error) {
 
 	// defaults in case the flag is not found
 	featureFlag := services.FeatureFlag{
@@ -117,21 +127,68 @@ func (ff *FliptFetcher) GetFlag(ctx context.Context, logger *zap.Logger, entityI
 		Match:     false,
 		Namespace: ff.config.Namespace,
 	}
-	req := &flipt.EvaluationRequest{
+
+	req := &evaluation.EvaluationRequest{
 		RequestId:    uuid.Must(uuid.NewV4()).String(),
 		NamespaceKey: ff.config.Namespace,
 		FlagKey:      key,
 		EntityId:     entityID,
 		Context:      flagContext,
 	}
-	logger.Debug("flipt evaluation request", zap.Any("req", req))
-	result, err := ff.client.Flipt().Evaluate(ctx, req)
+	logger.Debug("flipt boolean evaluation request", zap.Any("req", req))
+	result, err := ff.client.Evaluation().Boolean(ctx, req)
 
 	if err != nil {
 		logger.Warn("Flipt error", zap.Error(err))
 		if s, ok := status.FromError(err); ok && s.Code() == codes.NotFound {
 			// treat a missing feature flag as a disabled one
-			logger.Warn("Feature flag not found",
+			logger.Warn("Feature flag variant not found",
+				zap.String("key", key),
+				zap.String("namespace", ff.config.Namespace))
+			return featureFlag, nil
+		}
+		return featureFlag, err
+	}
+
+	featureFlag.Match = result.Enabled
+
+	return featureFlag, nil
+}
+
+func (ff *FliptFetcher) GetVariantFlagForUser(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+
+	entityID, userFlagContext, err := buildUserFlagContext(appCtx, flagContext)
+	if err != nil {
+		return services.FeatureFlag{}, err
+	}
+	return ff.GetVariantFlag(ctx, appCtx.Logger(), entityID, key, userFlagContext)
+}
+
+func (ff *FliptFetcher) GetVariantFlag(ctx context.Context, logger *zap.Logger, entityID string, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+
+	// defaults in case the flag is not found
+	featureFlag := services.FeatureFlag{
+		Entity:    entityID,
+		Key:       key,
+		Match:     false,
+		Variant:   "",
+		Namespace: ff.config.Namespace,
+	}
+	req := &evaluation.EvaluationRequest{
+		RequestId:    uuid.Must(uuid.NewV4()).String(),
+		NamespaceKey: ff.config.Namespace,
+		FlagKey:      key,
+		EntityId:     entityID,
+		Context:      flagContext,
+	}
+	logger.Debug("flipt variant evaluation request", zap.Any("req", req))
+	result, err := ff.client.Evaluation().Variant(ctx, req)
+
+	if err != nil {
+		logger.Warn("Flipt error", zap.Error(err))
+		if s, ok := status.FromError(err); ok && s.Code() == codes.NotFound {
+			// treat a missing feature flag as a disabled one
+			logger.Warn("Feature flag variant not found",
 				zap.String("key", key),
 				zap.String("namespace", ff.config.Namespace))
 			return featureFlag, nil
@@ -140,7 +197,7 @@ func (ff *FliptFetcher) GetFlag(ctx context.Context, logger *zap.Logger, entityI
 	}
 
 	featureFlag.Match = result.Match
-	featureFlag.Value = result.Value
+	featureFlag.Variant = result.VariantKey
 
 	return featureFlag, nil
 }

@@ -32,7 +32,7 @@ const expenseRequiredProps = {
     movingExpenseType: expenseTypes.PACKING_MATERIALS,
     description: 'boxes, tape, bubble wrap',
     paidWithGtcc: false,
-    amount: 12345,
+    amount: 123456,
   },
 };
 
@@ -83,7 +83,7 @@ describe('ReviewExpenseForm component', () => {
       });
       expect(screen.getByText('boxes, tape, bubble wrap')).toBeInTheDocument();
 
-      expect(screen.getByLabelText('Amount')).toHaveDisplayValue('123.45');
+      expect(screen.getByLabelText('Amount')).toHaveDisplayValue('1,234.56');
     });
 
     it('shows SIT fields when expense type is Storage', async () => {

@@ -4,7 +4,7 @@ import { bool, shape, string } from 'prop-types';
 import { Button, ButtonGroup } from '@trussworks/react-uswds';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import '../../styles/office.scss';
+import '../../styles/signinImports.scss';
 import styles from './SignIn.module.scss';
 
 import '@trussworks/react-uswds/lib/index.css';
@@ -38,7 +38,7 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
       <ConnectedEulaModal
         isOpen={showEula}
         acceptTerms={() => {
-          window.location.href = '/auth/login-gov';
+          window.location.href = '/auth/okta';
         }}
         closeModal={() => setShowEula(false)}
       />

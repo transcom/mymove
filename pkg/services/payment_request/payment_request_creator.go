@@ -34,7 +34,6 @@ func NewPaymentRequestCreator(planner route.Planner, pricer services.ServiceItem
 		checks: []paymentRequestValidator{
 			checkMTOIDField(),
 			checkMTOIDMatchesServiceItemMTOID(),
-			checkStatusOfExistingPaymentRequest(),
 		},
 	}
 }
@@ -375,7 +374,7 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(appCtx appcontext.A
 func (p *paymentRequestCreator) createPaymentServiceItem(appCtx appcontext.AppContext, paymentServiceItem models.PaymentServiceItem, paymentRequest *models.PaymentRequest, requestedAt time.Time) (models.PaymentServiceItem, models.MTOServiceItem, error) {
 	// Verify that the MTO service item ID exists
 	var mtoServiceItem models.MTOServiceItem
-	err := appCtx.DB().Eager("ReService").Find(&mtoServiceItem, paymentServiceItem.MTOServiceItemID)
+	err := appCtx.DB().Eager("ReService", "SITOriginHHGOriginalAddress").Find(&mtoServiceItem, paymentServiceItem.MTOServiceItemID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:

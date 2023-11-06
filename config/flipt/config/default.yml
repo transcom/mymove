@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/flipt-io/flipt/main/config/flipt.schema.json
+
+# version: "1.0"
+log:
+  level: INFO
+
+authentication:
+  required: false
+
+cors:
+  enabled: true
+  allowed_origins: ["*"]
+
+storage:
+  type: local
+  local:
+    path: /etc/flipt/storage

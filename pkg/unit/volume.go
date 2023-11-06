@@ -2,8 +2,6 @@ package unit
 
 import (
 	"fmt"
-	"math"
-	"math/big"
 )
 
 // CubicFeet represents cubic feet
@@ -12,19 +10,9 @@ type CubicFeet float64
 // CubicThousandthInch represents values in cubic thousandths of an inch
 type CubicThousandthInch int
 
-// truncateFloat truncates a float to the given number of decimal places
+// truncateFloat truncates a float to 2 decimal places
 func truncateFloat(f float64) float64 {
-	// use big package to create a new float and get a minimum precision value before rounding would occur
-	value := big.NewFloat(f)
-	minPrec := value.MinPrec()
-
-	// 52 is the MinPrec return for 2 decimal places, so we're checking if our values is equal to or less than that
-	if minPrec <= 52 {
-		return f
-	}
-	// if we have more than 2 decimal places, we need to truncate
-	shift := math.Pow(10, float64(2))
-	return math.Floor(f*shift) / shift
+	return float64(int(f*100)) / 100
 }
 
 // String converts a CubicFeet value into a string

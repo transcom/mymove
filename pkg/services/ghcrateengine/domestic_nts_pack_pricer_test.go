@@ -20,7 +20,7 @@ const (
 	dnpkTestContractYearName       = "DNPK Test Year"
 	dnpkTestBasePriceCents         = unit.Cents(6333)
 	dnpkTestFactor                 = 1.35
-	dnpkTestPriceCents             = unit.Cents(186848) // dnpkTestBasePriceCents * (dnpkTestWeight / 100) * dnpkTestEscalationCompounded * dnpkTestFactor
+	dnpkTestPriceCents             = unit.Cents(186855)
 )
 
 var dnpkTestRequestedPickupDate = time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 5, 5, 5, 5, time.UTC)

@@ -574,13 +574,14 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			sitDepartureDate = *mtoServiceItem.SITDepartureDate
 		}
 		payload = &primemessages.MTOServiceItemOriginSIT{
-			ReServiceCode:        handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			Reason:               mtoServiceItem.Reason,
-			SitDepartureDate:     handlers.FmtDate(sitDepartureDate),
-			SitEntryDate:         handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
-			SitPostalCode:        mtoServiceItem.SITPostalCode,
-			SitHHGActualOrigin:   Address(mtoServiceItem.SITOriginHHGActualAddress),
-			SitHHGOriginalOrigin: Address(mtoServiceItem.SITOriginHHGOriginalAddress),
+			ReServiceCode:                   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:                          mtoServiceItem.Reason,
+			SitDepartureDate:                handlers.FmtDate(sitDepartureDate),
+			SitEntryDate:                    handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
+			SitPostalCode:                   mtoServiceItem.SITPostalCode,
+			SitHHGActualOrigin:              Address(mtoServiceItem.SITOriginHHGActualAddress),
+			SitHHGOriginalOrigin:            Address(mtoServiceItem.SITOriginHHGOriginalAddress),
+			RequestApprovalsRequestedStatus: *mtoServiceItem.RequestedApprovalsRequestedStatus,
 		}
 	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDSFSC:
 		var sitDepartureDate, firstAvailableDeliveryDate1, firstAvailableDeliveryDate2, dateOfContact1, dateOfContact2 time.Time

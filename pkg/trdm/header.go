@@ -21,26 +21,27 @@ const SignatureAlgorithm = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512"
 const DigestAlgorithm = "http://www.w3.org/2001/04/xmlenc#sha512"
 const SignatureCanonicalizationMethod = "http://www.w3.org/2001/10/xml-exc-c14n#"
 
-type header struct {
-	XMLName  xml.Name `xml:"soap:Header"`
-	Security security `xml:"wsse:Security"`
-}
+// type header struct {
+// 	XMLName  xml.Name `xml:"soap:Header"`
+// 	Security security `xml:"wsse:Security"`
+// }
 
-type security struct {
-	Wsse                string              `xml:"xmlns:wsse,attr"`
-	Wsu                 string              `xml:"xmlns:wsu,attr"`
-	BinarySecurityToken binarySecurityToken `xml:"wsse:BinarySecurityToken"`
-	Signature           signature           `xml:"ds:Signature"`
-	Timestamp           timestamp           `xml:"wsu:Timestamp"`
-}
-type signature struct {
-	Text           string         `xml:",chardata"`
-	ID             string         `xml:"Id,attr"`
-	Ds             string         `xml:"xmlns:ds,attr"`
-	SignedInfo     signedInfo     `xml:"ds:SignedInfo"`
-	SignatureValue signatureValue `xml:"ds:SignatureValue"`
-	KeyInfo        keyInfo        `xml:"ds:KeyInfo"`
-}
+//	type security struct {
+//		Wsse                string              `xml:"xmlns:wsse,attr"`
+//		Wsu                 string              `xml:"xmlns:wsu,attr"`
+//		BinarySecurityToken binarySecurityToken `xml:"wsse:BinarySecurityToken"`
+//		Signature           signature           `xml:"ds:Signature"`
+//		Timestamp           Timestamp           `xml:"wsu:Timestamp"`
+//	}
+//
+//	type signature struct {
+//		Text           string         `xml:",chardata"`
+//		ID             string         `xml:"Id,attr"`
+//		Ds             string         `xml:"xmlns:ds,attr"`
+//		SignedInfo     SignedInfo     `xml:"ds:SignedInfo"`
+//		SignatureValue signatureValue `xml:"ds:SignatureValue"`
+//		KeyInfo        keyInfo        `xml:"ds:KeyInfo"`
+//	}
 type keyInfo struct {
 	XMLName                xml.Name               `xml:"ds:KeyInfo"`
 	ID                     string                 `xml:"Id,attr"`
@@ -64,7 +65,7 @@ type binarySecurityToken struct {
 	ID           string   `xml:"wsu:Id,attr"`
 }
 
-type signedInfo struct {
+type SignedInfo struct {
 	XMLName                xml.Name               `xml:"ds:SignedInfo"`
 	CanonicalizationMethod canonicalizationMethod `xml:"ds:CanonicalizationMethod"`
 	SignatureMethod        signatureMethod        `xml:"ds:SignatureMethod"`
@@ -107,15 +108,16 @@ type signatureMethod struct {
 	Text      string `xml:",chardata"`
 	Algorithm string `xml:"Algorithm,attr"`
 }
-type timestamp struct {
+type Timestamp struct {
 	XMLName xml.Name `xml:"wsu:Timestamp"`
 	ID      string   `xml:"wsu:Id,attr"`
 	Created string   `xml:"wsu:Created"`
 	Expires string   `xml:"wsu:Expires"`
 }
-type signatureValue struct {
-	Text string `xml:",chardata"`
-}
+
+// type signatureValue struct {
+// 	Text string `xml:",chardata"`
+// }
 
 // Generate SHA-512 digest
 // Returns
@@ -148,12 +150,12 @@ func CanonicalizeXML(xmlByte []byte) ([]byte, error) {
 // - Canon XML Byte
 // - Digest Value
 // - Error
-func GenerateTimestampAndDigest() (timestamp, []byte, string, error) {
+func GenerateTimestampAndDigest() (Timestamp, []byte, string, error) {
 	tsID, err := GenerateSOAPURIWithPrefix("TS")
 	if err != nil {
-		return timestamp{}, nil, "", err
+		return Timestamp{}, nil, "", err
 	}
-	ts := timestamp{
+	ts := Timestamp{
 		ID:      tsID,
 		Created: time.Now().UTC().Format(time.RFC3339),
 		// Currently 10 minutes for testing
@@ -162,14 +164,14 @@ func GenerateTimestampAndDigest() (timestamp, []byte, string, error) {
 
 	xmlByte, digest, err := GenerateSecurityElement(ts)
 	if err != nil {
-		return timestamp{}, nil, "", err
+		return Timestamp{}, nil, "", err
 	}
 
 	return ts, xmlByte, digest, nil
 }
-func GenerateSignedInfoAndDigest(timestampID string, timestampDigest string, bodyID string, bodyDigest string, x509ID string, x509Digest string) (signedInfo, []byte, string, error) {
+func GenerateSignedInfoAndDigest(timestampID string, timestampDigest string, bodyID string, bodyDigest string, x509ID string, x509Digest string) (SignedInfo, []byte, string, error) {
 
-	signedInfoStruct := signedInfo{
+	signedInfoStruct := SignedInfo{
 		CanonicalizationMethod: canonicalizationMethod{
 			Algorithm: SignatureCanonicalizationMethod,
 			InclusiveNamespaces: inclusiveNameSpaces{
@@ -246,7 +248,7 @@ func GenerateSignedInfoAndDigest(timestampID string, timestampDigest string, bod
 
 	xmlByte, digest, err := GenerateSecurityElement(signedInfoStruct)
 	if err != nil {
-		return signedInfo{}, nil, "", err
+		return SignedInfo{}, nil, "", err
 	}
 
 	return signedInfoStruct, xmlByte, digest, nil
@@ -343,7 +345,7 @@ func GenerateSignedHeader(certificate *x509.Certificate, privateKey *rsa.Private
 		return nil, err
 	}
 	envelope.WriteTo(&envBytes, &etree.WriteSettings{CanonicalText: true, CanonicalEndTags: true, CanonicalAttrVal: true})
-	fmt.Printf("\n My canon envelope from etree: \n %s", string(envBytes.Bytes()))
+	fmt.Printf("\n My canon envelope from etree: \n %s", envBytes.String())
 	return envBytes.Bytes(), nil
 }
 
@@ -429,7 +431,7 @@ func generateBinarySecurityToken(cert x509.Certificate, x509URI string) ([]byte,
 // - Canon XML
 // - Digest
 // - Error
-func generateSignature(signedInfoXML []byte, keyInfoXML []byte, keyInfoURI string, sigURI string, key *rsa.PrivateKey) (string, []byte, error) {
+func generateSignature(signedInfoXML []byte, keyInfoXML []byte, _ string, sigURI string, key *rsa.PrivateKey) (string, []byte, error) {
 	// Do not return struct, it should no longer be used after the XML has been generated
 	signedHash, err := signXML(signedInfoXML, key)
 	if err != nil {

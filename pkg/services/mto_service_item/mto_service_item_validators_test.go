@@ -49,7 +49,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkLinkedIDs(suite.AppContextForTest())
+		err := serviceItemData.checkLinkedIDs()
 
 		suite.NoError(err)
 		suite.NoVerrs(serviceItemData.verrs)
@@ -68,7 +68,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkLinkedIDs(suite.AppContextForTest())
+		err := serviceItemData.checkLinkedIDs()
 
 		suite.NoError(err)
 		suite.True(serviceItemData.verrs.HasAny())
@@ -156,6 +156,53 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.Contains(serviceItemData.verrs.Keys(), "rejectedAt")
 	})
 
+	// Test unsuccessful check for checkForSITItemChanges
+	suite.Run("checkForSITItemChanges - should not throw error when SIT Item is changed", func() {
+
+		// Update the non-updateable fields:
+		oldServiceItem, newServiceItem := setupTestData() // Create old and new service item
+
+		// Make both sthe newServiceItem of type DOFSIT because this type of service item will be checked by checkForSITItemChanges
+		newServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
+
+		// Sit Entry Date change. Need to make the newServiceItem different than the old.
+		newSitEntryDate := time.Date(2023, time.October, 10, 10, 10, 0, 0, time.UTC)
+		newServiceItem.SITEntryDate = &newSitEntryDate
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newServiceItem,
+			oldServiceItem:     oldServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+
+		err := serviceItemData.checkForSITItemChanges(&serviceItemData)
+
+		suite.NoError(err)
+	})
+
+	suite.Run("checkForSITItemChanges - should throw error when SIT Item is not changed", func() {
+
+		oldServiceItem, newServiceItem := setupTestData() // Create old and new service item
+
+		// Make both service items of type DOFSIT because this type of service item will be checked by checkForSITItemChanges
+		oldServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
+		newServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
+		oldServiceItem.SITDepartureDate, newServiceItem.SITDepartureDate = &now, &now
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newServiceItem,
+			oldServiceItem:     oldServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+
+		err := serviceItemData.checkForSITItemChanges(&serviceItemData)
+
+		// Should error with message if nothing has changed between the new service item and the old one
+		suite.Error(err)
+		suite.Contains(err.Error(), "To re-submit a SIT sevice item the new SIT service item must be different than the previous one.")
+
+	})
+
 	// Test successful check for SIT departure service item - not updating SITDepartureDate
 	suite.Run("checkSITDeparture w/ no SITDepartureDate update - success", func() {
 		oldServiceItem, newServiceItem := setupTestData() // These
@@ -202,22 +249,27 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	// Test unsuccessful check for SIT departure service item - not a departure SIT item
 	suite.Run("checkSITDeparture w/ non-departure SIT - failure", func() {
 		// Under test:  checkSITDeparture checks that the service item is a
-		//			    DDDSIT or DOPSIT if the user is trying to update the
+		//			    DDDSIT, DOPSIT, DOASIT or DOFSIT if the user is trying to update the
 		// 			    SITDepartureDate
-		// Set up:      Create any non DDDSIT service item
+		// Set up:      Create any non DDDSIT, DOPSIT, DOASIT, DOFSIT service item
 		// Expected outcome: Conflict Error
-		oldDOFSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
+		oldDDFSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOFSIT,
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate: &later,
 				},
 			},
 		}, nil)
-		newDOFSIT := oldDOFSIT
-		newDOFSIT.SITDepartureDate = &now
+		newDDFSIT := oldDDFSIT
+		newDDFSIT.SITDepartureDate = &now
 		serviceItemData := updateMTOServiceItemData{
-			updatedServiceItem: newDOFSIT, // default is not DDDSIT/DOPSIT
-			oldServiceItem:     oldDOFSIT,
+			updatedServiceItem: newDDFSIT, // default is not DDDSIT/DOPSIT
+			oldServiceItem:     oldDDFSIT,
 			verrs:              validate.NewErrors(),
 		}
 		err := serviceItemData.checkSITDeparture(suite.AppContextForTest())
@@ -225,7 +277,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
 		suite.NoVerrs(serviceItemData.verrs) // this check doesn't add a validation error
-		suite.Contains(err.Error(), fmt.Sprintf("SIT Departure Date may only be manually updated for %s and %s service items", models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT))
+		suite.Contains(err.Error(), fmt.Sprintf("SIT Departure Date may only be manually updated for the following service items: %s, %s, %s, %s", models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT))
 	})
 
 	// Test successful check for service item w/out payment request
@@ -292,7 +344,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		_ = serviceItemData.checkLinkedIDs(suite.AppContextForTest()) // this test should pass regardless of potential errors here
+		_ = serviceItemData.checkLinkedIDs() // this test should pass regardless of potential errors here
 		_ = serviceItemData.checkNonPrimeFields(suite.AppContextForTest())
 		err := serviceItemData.getVerrs()
 
@@ -326,7 +378,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		_ = serviceItemData.checkLinkedIDs(suite.AppContextForTest())
+		_ = serviceItemData.checkLinkedIDs()
 		_ = serviceItemData.checkNonPrimeFields(suite.AppContextForTest())
 		err := serviceItemData.getVerrs()
 

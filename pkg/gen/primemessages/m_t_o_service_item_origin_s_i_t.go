@@ -46,6 +46,9 @@ type MTOServiceItemOriginSIT struct {
 	// Required: true
 	Reason *string `json:"reason"`
 
+	// request approvals requested status
+	RequestApprovalsRequestedStatus bool `json:"requestApprovalsRequestedStatus,omitempty"`
+
 	// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 	// Format: date
 	SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
@@ -171,6 +174,9 @@ func (m *MTOServiceItemOriginSIT) UnmarshalJSON(raw []byte) error {
 		// Required: true
 		Reason *string `json:"reason"`
 
+		// request approvals requested status
+		RequestApprovalsRequestedStatus bool `json:"requestApprovalsRequestedStatus,omitempty"`
+
 		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 		// Format: date
 		SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
@@ -253,6 +259,7 @@ func (m *MTOServiceItemOriginSIT) UnmarshalJSON(raw []byte) error {
 
 	result.ReServiceCode = data.ReServiceCode
 	result.Reason = data.Reason
+	result.RequestApprovalsRequestedStatus = data.RequestApprovalsRequestedStatus
 	result.SitDepartureDate = data.SitDepartureDate
 	result.SitEntryDate = data.SitEntryDate
 	result.SitHHGActualOrigin = data.SitHHGActualOrigin
@@ -280,6 +287,9 @@ func (m MTOServiceItemOriginSIT) MarshalJSON() ([]byte, error) {
 		// Required: true
 		Reason *string `json:"reason"`
 
+		// request approvals requested status
+		RequestApprovalsRequestedStatus bool `json:"requestApprovalsRequestedStatus,omitempty"`
+
 		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 		// Format: date
 		SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
@@ -305,6 +315,8 @@ func (m MTOServiceItemOriginSIT) MarshalJSON() ([]byte, error) {
 		ReServiceCode: m.ReServiceCode,
 
 		Reason: m.Reason,
+
+		RequestApprovalsRequestedStatus: m.RequestApprovalsRequestedStatus,
 
 		SitDepartureDate: m.SitDepartureDate,
 

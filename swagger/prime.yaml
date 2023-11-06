@@ -1294,6 +1294,13 @@ paths:
         updated on the shipment.
 
 
+        To create a paymentRequest for a SIT Destination Additional Days
+        mtoServiceItem, the SITPaymentRequestStart and
+
+        SITPaymentRequestEnd dates must not overlap previously requested SIT
+        dates.
+
+
         To create a paymentRequest for a SIT Delivery mtoServiceItem, the item
         must
 
@@ -1987,6 +1994,8 @@ definitions:
             $ref: '#/definitions/Address'
           sitHHGOriginalOrigin:
             $ref: '#/definitions/Address'
+          requestApprovalsRequestedStatus:
+            type: boolean
         required:
           - reServiceCode
           - reason
@@ -2249,6 +2258,25 @@ definitions:
             description: >-
               Date when the customer contacted the prime for a delivery out of
               SIT.
+            x-nullable: true
+          updateReason:
+            type: string
+            description: Reason for updating service item.
+            x-nullable: true
+          sitPostalCode:
+            type: string
+            format: zip
+            example: '90210'
+            pattern: ^(\d{5}([\-]\d{4})?)$
+            x-nullable: true
+          sitEntryDate:
+            format: date
+            type: string
+            description: Entry date for the SIT.
+            x-nullable: true
+          requestApprovalsRequestedStatus:
+            description: Indicates if "Approvals Requested" status is being requested.
+            type: boolean
             x-nullable: true
   UpdateMTOShipment:
     properties:
@@ -2966,6 +2994,7 @@ definitions:
       - SITScheduleDest
       - SITScheduleOrigin
       - SITServiceAreaDest
+      - SITServiceAreaOrigin
       - WeightAdjusted
       - WeightBilled
       - WeightEstimated
