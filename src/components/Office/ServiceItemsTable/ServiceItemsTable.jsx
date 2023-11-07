@@ -107,21 +107,34 @@ const ServiceItemsTable = ({
     return null;
   };
 
+  function formatKeyStringsForToolTip(key) {
+    // replace _ with ' ' and capitalize first letters of each word
+    let changedKey = key.replace(/(^|_)./g, (index) => index.toUpperCase().replace('_', ' '));
+    if (changedKey.indexOf('Sit') === 0) {
+      const replacement = 'SIT';
+      // Replace the first three characters with 'SIT'
+      changedKey = replacement + changedKey.slice(3);
+    }
+    if (changedKey.indexOf('Id') === 0) {
+      const replacement = 'ID';
+      // Replace the first two characters with 'ID'
+      changedKey = replacement + changedKey.slice(2);
+    }
+    return changedKey;
+  }
+
   function generateOldDetailText(details) {
-    const changeDetailKeys = Object.keys(details.changedValues);
-    const oldDetails = new Map(Object.entries(details.oldValues));
-    const oldValuesToDisplay = {};
-    const changedList = (
-      <div>
-        {changeDetailKeys.forEach((key) => {
-          oldValuesToDisplay[key] = oldDetails.get(key);
-          // console.log(oldValuesToDisplay);
-          // console.log(details.changedValues);
-          return null;
-        })}
-      </div>
-    );
-    return changedList;
+    let resultStringToDisplay = 'Previous Values:\n';
+    Object.keys(details.changedValues).forEach((key) => {
+      const formattedKeyString = formatKeyStringsForToolTip(key);
+      resultStringToDisplay += `${formattedKeyString}: ${details.oldValues[key]} \n`;
+    });
+    resultStringToDisplay += '\nUpdated Values:\n';
+    Object.keys(details.changedValues).forEach((key) => {
+      const formattedKeyString = formatKeyStringsForToolTip(key);
+      resultStringToDisplay += `${formattedKeyString}: ${details.changedValues[key]} \n`;
+    });
+    return resultStringToDisplay;
   }
 
   const history = useGHCGetMoveHistory({ moveCode });
@@ -169,7 +182,7 @@ const ServiceItemsTable = ({
         )}
         <tr key={id}>
           <td className={styles.nameAndDate}>
-            <p className={styles.codeName}>
+            <div className={styles.codeName}>
               {serviceItem.serviceItem}{' '}
               {ALLOWED_RESUBMISSION_SI_CODES.includes(code) && renderToolTipWithOldDataIfResubmission(id)}
               {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) && hasPaymentRequestBeenMade ? (
@@ -179,7 +192,7 @@ const ServiceItemsTable = ({
                   icon="circle-exclamation"
                 />
               ) : null}
-            </p>
+            </div>
             <p>{getServiceItemDisplayDate(item)}</p>
           </td>
           <td className={styles.detail}>
