@@ -8,7 +8,7 @@ import PickupDisplay from '../PickupDisplay';
 import DeliveryDisplay from '../DeliveryDisplay';
 
 import { AddressShape } from 'types/address';
-import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
+import { getShipmentTypeLabel, getMoveCodeLabel } from 'utils/shipmentDisplay';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import { customerRoutes } from 'constants/routes';
 
@@ -44,7 +44,7 @@ const HHGShipmentCard = ({
             <h3>
               {getShipmentTypeLabel(shipmentType)} {shipmentNumber}
             </h3>
-            <p>#{shipmentId.substring(0, 8).toUpperCase()}</p>
+            <p>{getMoveCodeLabel(shipmentId)}</p>
           </div>
           {showEditAndDeleteBtn && (
             <div className={styles.btnContainer}>

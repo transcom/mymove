@@ -12,6 +12,7 @@ import { ShipmentShape } from 'types/shipment';
 import { formatWeight } from 'utils/formatters';
 import { isPPMShipmentComplete } from 'utils/shipments';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
+import { getMoveCodeLabel } from 'utils/shipmentDisplay';
 
 export const ShipmentListItem = ({
   shipment,
@@ -45,7 +46,7 @@ export const ShipmentListItem = ({
       </strong>{' '}
       {/* use substring of the UUID until actual shipment code is available */}
       {!showShipmentWeight && !showIncomplete && (
-        <span className={styles['shipment-code']}>#{shipment.id.substring(0, 8).toUpperCase()}</span>
+        <span className={styles['shipment-code']}>{getMoveCodeLabel(shipment.id)}</span>
       )}{' '}
       {showIncomplete && <Tag>Incomplete</Tag>}
       {showShipmentWeight && (

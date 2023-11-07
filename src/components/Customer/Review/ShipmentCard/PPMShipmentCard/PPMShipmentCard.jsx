@@ -10,7 +10,7 @@ import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
-import { getShipmentTypeLabel, isArmyOrAirForce } from 'utils/shipmentDisplay';
+import { getShipmentTypeLabel, isArmyOrAirForce, getMoveCodeLabel } from 'utils/shipmentDisplay';
 import affiliations from 'content/serviceMemberAgencies';
 import { MoveShape } from 'types/customerShapes';
 
@@ -53,13 +53,12 @@ const PPMShipmentCard = ({
   }
 
   const shipmentLabel = `${getShipmentTypeLabel(shipmentType)} ${shipmentNumber}`;
-  const shipmentIDAbbrevLabel = `#${id.substring(0, 8).toUpperCase()}`;
+  const moveCodeLabel = getMoveCodeLabel(shipment.id);
   const incompleteShipmentModalData = {
     shipmentLabel,
-    shipmentIDAbbrevLabel,
+    moveCodeLabel,
+    shipmentType,
   };
-  incompleteShipmentModalData.shipmentLabel = shipmentLabel;
-  incompleteShipmentModalData.shipmentIDAbbrevLabel = shipmentIDAbbrevLabel;
 
   return (
     <div className={styles.ShipmentCard}>
@@ -71,7 +70,7 @@ const PPMShipmentCard = ({
             </Grid>
             <Grid col="auto" className={styles.buttonContainer}>
               <Button
-                title="Incomplete PPM"
+                title="Help about incomplete shipment"
                 type="button"
                 onClick={() => onIncompleteClick(JSON.stringify(incompleteShipmentModalData))}
                 unstyled
@@ -85,7 +84,7 @@ const PPMShipmentCard = ({
         <div className={styles.ShipmentCardHeader}>
           <div className={styles.shipmentTypeNumber}>
             <h3 data-testid="ShipmentCardNumber">{shipmentLabel}</h3>
-            <p>{shipmentIDAbbrevLabel}</p>
+            <p>{moveCodeLabel}</p>
           </div>
           {showEditAndDeleteBtn && (
             <div className={styles.btnContainer}>

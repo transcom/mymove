@@ -10,7 +10,7 @@ import styles from './Summary.module.scss';
 
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import ConnectedAddShipmentModal from 'components/Customer/Review/AddShipmentModal/AddShipmentModal';
-import ConnectedIncompleteShipmentModal from 'components/Customer/Review/IncompleteShipmentModal/IncompletePPMModal';
+import ConnectedIncompleteShipmentModal from 'components/Customer/Review/IncompleteShipmentModal/IncompleteShipmentModal';
 import OrdersTable from 'components/Customer/Review/OrdersTable/OrdersTable';
 import ProfileTable from 'components/Customer/Review/ProfileTable/ProfileTable';
 import HHGShipmentCard from 'components/Customer/Review/ShipmentCard/HHGShipmentCard/HHGShipmentCard';

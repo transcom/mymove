@@ -52,6 +52,34 @@ const completeProps = {
   },
 };
 
+const mockedOnIncompleteClickFunction = jest.fn();
+const inCompleteProps = {
+  showEditAndDeleteBtn: true,
+  onEditClick: jest.fn(),
+  onDeleteClick: jest.fn(),
+  onIncompleteClick: mockedOnIncompleteClickFunction,
+  shipmentNumber: 1,
+  shipment: {
+    moveTaskOrderID: 'testMove123',
+    id: '20fdbf58-879e-4692-b3a6-8a71f6dcfeaa',
+    shipmentType: SHIPMENT_OPTIONS.PPM,
+    ppmShipment: {
+      pickupPostalCode: '10001',
+      secondaryPickupPostalCode: '10002',
+      destinationPostalCode: '11111',
+      secondaryDestinationPostalCode: '22222',
+      sitExpected: true,
+      expectedDepartureDate: new Date('01/01/2020').toISOString(),
+      estimatedWeight: 5999,
+      proGearWeight: 1250,
+      spouseProGearWeight: 375,
+      estimatedIncentive: 1000099,
+      hasRequestedAdvance: false,
+      advanceAmountRequested: 600000,
+    },
+  },
+};
+
 describe('PPMShipmentCard component', () => {
   it('renders component with all fields', () => {
     render(<PPMShipmentCard {...completeProps} />);
@@ -210,5 +238,21 @@ describe('PPMShipmentCard component', () => {
     });
 
     expect();
+  });
+
+  it('renders incomplete label and tooltip icon for incomplete ppm shipment', async () => {
+    render(<PPMShipmentCard {...inCompleteProps} />);
+
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('PPM 1');
+    expect(screen.getByText(/^#20FDBF58$/, { selector: 'p' })).toBeInTheDocument();
+
+    expect(screen.getByText(/^Incomplete$/, { selector: 'span' })).toBeInTheDocument();
+
+    expect(screen.getByTitle('Help about incomplete shipment')).toBeInTheDocument();
+    await userEvent.click(screen.getByTitle('Help about incomplete shipment'));
+
+    // verify onclick is getting json string as parameter
+    const expectedOnIncompleteClickFunctionParam = "{\"shipmentLabel\":\"PPM 1\",\"moveCodeLabel\":\"#20FDBF58\",\"shipmentType\":\"PPM\"}";
+    expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith(expectedOnIncompleteClickFunctionParam);
   });
 });

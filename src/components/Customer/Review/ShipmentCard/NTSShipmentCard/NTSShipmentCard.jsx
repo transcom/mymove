@@ -8,7 +8,7 @@ import PickupDisplay from '../PickupDisplay';
 
 import { AddressShape } from 'types/address';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
-import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
+import { getShipmentTypeLabel, getMoveCodeLabel } from 'utils/shipmentDisplay';
 import { customerRoutes } from 'constants/routes';
 
 const NTSShipmentCard = ({
@@ -36,7 +36,7 @@ const NTSShipmentCard = ({
         <div className={styles.ShipmentCardHeader}>
           <div className={styles.shipmentTypeNumber}>
             <h3>{getShipmentTypeLabel(shipmentType)}</h3>
-            <p>#{shipmentId.substring(0, 8).toUpperCase()}</p>
+            <p>{getMoveCodeLabel(shipmentId)}</p>
           </div>
           {showEditAndDeleteBtn && (
             <div className={styles.btnContainer}>
