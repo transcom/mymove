@@ -440,3 +440,18 @@ func (m Move) IsPPMOnly() bool {
 	}
 	return ppmOnlyMove
 }
+
+// HasPPM returns true if at least one shipment type is "PPM" associated with the move, false otherwise
+func (m Move) HasPPM() bool {
+	if len(m.MTOShipments) == 0 {
+		return false
+	}
+	hasPpmMove := false
+	for _, s := range m.MTOShipments {
+		if s.ShipmentType == MTOShipmentTypePPM {
+			hasPpmMove = true
+			break
+		}
+	}
+	return hasPpmMove
+}
