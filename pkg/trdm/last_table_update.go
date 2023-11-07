@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
@@ -44,7 +46,7 @@ func FetchAllTACRecords(appcontext appcontext.AppContext) ([]models.Transportati
 	return tacCodes, nil
 }
 
-func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.Viper) error {
+func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.Viper, tlsConfig *tls.Config) error {
 
 	cron := cron.New()
 
@@ -68,6 +70,11 @@ func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 		// Setup response model
 		lastTableUpdateResponse := models.LastTableUpdateResponse{}
 
+		// Setup client
+		tr := &http.Transport{TLSClientConfig: tlsConfig}
+		httpClient := &http.Client{Transport: tr, Timeout: time.Duration(30) * time.Second}
+
+		// Create gateway service
 		service := NewGatewayService(httpClient, logger, regionFlag, roleFlag, gatewayURL, &creds)
 
 		// Fire off to retrieve the latest table update, compare that to our own internal latest update records,
@@ -101,7 +108,7 @@ func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 	return nil
 }
 
-func LastTableUpdate(v *viper.Viper, _ *tls.Config) error {
+func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config) error {
 	dbEnv := v.GetString(cli.DbEnvFlag)
 	logger, _, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	if err != nil {
@@ -126,8 +133,8 @@ func LastTableUpdate(v *viper.Viper, _ *tls.Config) error {
 	// TODO: Replace with REST
 
 	// These are likely to never err
-	getLastTableUpdateTACErr := StartLastTableUpdateCron(transportationAccountingCode, logger, v)
-	getLastTableUpdateLOAErr := StartLastTableUpdateCron(lineOfAccounting, logger, v)
+	getLastTableUpdateTACErr := StartLastTableUpdateCron(transportationAccountingCode, logger, v, tlsConfig)
+	getLastTableUpdateLOAErr := StartLastTableUpdateCron(lineOfAccounting, logger, v, tlsConfig)
 	if getLastTableUpdateLOAErr != nil {
 		return getLastTableUpdateLOAErr
 	}
