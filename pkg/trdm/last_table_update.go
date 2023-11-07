@@ -19,7 +19,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// const successfulStatusCode = "Successful"
 const (
 	// TrdmIamRoleFlag is the TRDM IAM Role flag
 	TrdmIamRoleFlag string = "trdm-iam-role"
@@ -27,6 +26,10 @@ const (
 	TrdmRegionFlag string = "trdm-region"
 	// GatewayURLFlag is the TRDM API Gateway URL flag
 	GatewayURLFlag string = "trdm-api-gateway-url"
+	// Success status code
+	successfulStatusCode string = "Successful"
+	// Failure status code
+	failureStatusCode string = "Failure"
 )
 
 // Date/time value is used in conjunction with the contentUpdatedSinceDateTime column in the getTable method.
@@ -92,7 +95,17 @@ func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 		if err != nil {
 			logger.Error("could not unmarshal body into lastTableUpdateResponse", zap.Error(err))
 		}
-		// TODO:
+
+		switch lastTableUpdateResponse.StatusCode {
+		case successfulStatusCode:
+			// Proceed to getTable requeest
+			// TODO:
+		case failureStatusCode:
+			logger.Error("trdm api gateway request failed, please inspect the trdm gateway logs")
+		default:
+			logger.Error("unexpected api gateway request failure response, please inspect the trdm gateway logs")
+		}
+
 	}
 
 	// Run the task immediately
@@ -116,23 +129,14 @@ func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config) error {
 	}
 	zap.ReplaceGlobals(logger)
 
-	// TODO: Turn back on when replacing with rest
+	// TODO: Turn back on when implementing getTable
 	// DB connection
 	// dbConnection, err := cli.InitDatabase(v, logger)
 	// if err != nil {
 	// 	return err
 	// }
 
-	// appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
-
-	// tr := &http.Transport{TLSClientConfig: tlsConfig}
-	// httpClient := &http.Client{Transport: tr, Timeout: time.Duration(30) * time.Second}
-
-	// TODO: Replace with api gateway call
-
-	// TODO: Replace with REST
-
-	// These are likely to never err
+	// These are likely to never err. Remember, errors are logged not returned in cron
 	getLastTableUpdateTACErr := StartLastTableUpdateCron(transportationAccountingCode, logger, v, tlsConfig)
 	getLastTableUpdateLOAErr := StartLastTableUpdateCron(lineOfAccounting, logger, v, tlsConfig)
 	if getLastTableUpdateLOAErr != nil {
