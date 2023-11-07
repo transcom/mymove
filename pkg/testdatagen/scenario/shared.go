@@ -232,6 +232,160 @@ func createServiceMemberWithNoUploadedOrders(appCtx appcontext.AppContext) {
 	}, nil)
 }
 
+// Create a move with both HHG and PPM shipments, used to test partial PPM orders.
+func CreateMoveWithHHGAndPPM(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveInfo MoveCreatorInfo, branch models.ServiceMemberAffiliation, readyForCloseout bool) models.Move {
+	oktaID := uuid.Must(uuid.NewV4())
+	submittedAt := time.Now()
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				ID:        moveInfo.UserID,
+				OktaID:    oktaID.String(),
+				OktaEmail: moveInfo.Email,
+				Active:    true,
+			}},
+	}, nil)
+
+	smWithPPM := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID:            moveInfo.SmID,
+				FirstName:     models.StringPointer(moveInfo.FirstName),
+				LastName:      models.StringPointer(moveInfo.LastName),
+				PersonalEmail: models.StringPointer(moveInfo.Email),
+				Affiliation:   &branch,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	address := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "2 Second St",
+				StreetAddress2: models.StringPointer("Apt 2"),
+				StreetAddress3: models.StringPointer("Suite B"),
+				City:           "Columbia",
+				State:          "SC",
+				PostalCode:     "29212",
+				Country:        models.StringPointer("US"),
+			},
+		},
+	}, nil)
+
+	newDutyLocation := factory.BuildDutyLocation(appCtx.DB(), []factory.Customization{
+		{
+			Model:    address,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	var closeoutOffice models.TransportationOffice
+	if moveInfo.CloseoutOfficeID != nil {
+		err := appCtx.DB().Q().Where(`id=$1`, moveInfo.CloseoutOfficeID).First(&closeoutOffice)
+		if err != nil {
+			log.Panic(err)
+		}
+	} else if branch == models.AffiliationARMY || branch == models.AffiliationAIRFORCE {
+		err := appCtx.DB().Q().Where(`id=$1`, DefaultCloseoutOfficeID).First(&closeoutOffice)
+		if err != nil {
+			log.Panic(err)
+		}
+	}
+
+	// If not ready for closeout, just submit the shipment
+	moveStatus := models.MoveStatusNeedsServiceCounseling
+	if readyForCloseout {
+		moveStatus = models.MoveStatusAPPROVED
+	}
+
+	customs := []factory.Customization{
+		{
+			Model:    smWithPPM,
+			LinkOnly: true,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
+		},
+		{
+			Model: models.Move{
+				ID:          moveInfo.MoveID,
+				Locator:     moveInfo.MoveLocator,
+				Status:      moveStatus,
+				SubmittedAt: &submittedAt,
+			},
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}
+
+	if !closeoutOffice.ID.IsNil() {
+		customs = append(customs, factory.Customization{
+			Model:    closeoutOffice,
+			LinkOnly: true,
+			Type:     &factory.TransportationOffices.CloseoutOffice,
+		})
+	}
+
+	move := factory.BuildMove(appCtx.DB(), customs, nil)
+
+	mtoShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+
+	// If not ready for closeout, just submit the shipment
+	ppmShipmentStatus := models.PPMShipmentStatusSubmitted
+	if readyForCloseout {
+		ppmShipmentStatus = models.PPMShipmentStatusWaitingOnCustomer
+	}
+
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model:    mtoShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.PPMShipment{
+				Status:      ppmShipmentStatus,
+				SubmittedAt: models.TimePointer(time.Now()),
+			},
+		},
+	}, nil)
+
+	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	return move
+}
+
 func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
 	/*
