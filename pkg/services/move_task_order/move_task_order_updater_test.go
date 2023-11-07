@@ -70,6 +70,38 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		}
 	})
 
+	suite.Run("Move/shipment/PPM statuses are updated successfully (with HHG and PPM shipment)", func() {
+		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
+		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(move.UpdatedAt)
+
+		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(suite.AppContextForTest(), move.ID, eTag)
+
+		suite.NoError(err)
+		suite.NotZero(actualMTO.ID)
+		suite.NotNil(actualMTO.ServiceCounselingCompletedAt)
+		for _, shipment := range actualMTO.MTOShipments {
+			if shipment.ShipmentType == models.MTOShipmentTypePPM {
+				suite.Equal(models.MTOShipmentStatusApproved, shipment.Status)
+				ppmShipment := *shipment.PPMShipment
+				suite.NotNil(ppmShipment.ApprovedAt)
+				suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, ppmShipment.Status)
+			}
+		}
+	})
+
 	suite.Run("MTO status is updated successfully with facility info", func() {
 		storageFacility := factory.BuildStorageFacility(suite.DB(), []factory.Customization{
 			{Model: models.StorageFacility{

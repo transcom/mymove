@@ -64,26 +64,26 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appc
 			return err
 		}
 
-		// If this is a PPM-only move, then we also need to adjust other statuses:
+		// If this is move has a PPM, then we also need to adjust other statuses:
 		//   - set MTO shipment status to APPROVED
 		//   - set PPM shipment status to WAITING_ON_CUSTOMER
 		// TODO: Perhaps this could be part of the shipment router. PPMs are a separate model/table,
 		//   so would need to figure out how they factor in.
-		if move.IsPPMOnly() {
+		if move.HasPPM() {
 			// Note: Avoiding the copy of the element in the range so we can preserve the changes to the
 			// statuses when we return the entire move tree.
-			for i := range move.MTOShipments { // We should only have PPM shipments if we get to here.
-				move.MTOShipments[i].Status = models.MTOShipmentStatusApproved
-
-				verrs, err = appCtx.DB().ValidateAndSave(&move.MTOShipments[i])
-				if verrs != nil && verrs.HasAny() {
-					return apperror.NewInvalidInputError(move.MTOShipments[i].ID, nil, verrs, "")
-				}
-				if err != nil {
-					return err
-				}
-
+			for i := range move.MTOShipments { // We should only change for PPM shipments.
 				if move.MTOShipments[i].PPMShipment != nil {
+					move.MTOShipments[i].Status = models.MTOShipmentStatusApproved
+
+					verrs, err = appCtx.DB().ValidateAndSave(&move.MTOShipments[i])
+					if verrs != nil && verrs.HasAny() {
+						return apperror.NewInvalidInputError(move.MTOShipments[i].ID, nil, verrs, "")
+					}
+					if err != nil {
+						return err
+					}
+
 					move.MTOShipments[i].PPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 					now := time.Now()
 					move.MTOShipments[i].PPMShipment.ApprovedAt = &now
