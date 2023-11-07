@@ -7,7 +7,6 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
-	"github.com/lib/pq"
 )
 
 // PaymentRequestStatus is a type of Payment Request Status
@@ -65,7 +64,6 @@ type PaymentRequest struct {
 	CreatedAt                       time.Time            `db:"created_at"`
 	UpdatedAt                       time.Time            `db:"updated_at"`
 	RecalculationOfPaymentRequestID *uuid.UUID           `json:"recalculation_of_payment_request_id" db:"recalculation_of_payment_request_id"`
-	PartialPayments                 pq.Int32Array        `json:"partial_payment_cents" db:"partial_payment_cents"`
 
 	// Associations
 	MoveTaskOrder                 Move                `belongs_to:"moves" fk_id:"move_id"`
