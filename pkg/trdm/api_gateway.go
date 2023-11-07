@@ -13,60 +13,73 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 )
+
+type GatewayService struct {
+	httpClient  *http.Client
+	logger      *zap.Logger
+	region      string
+	trdmIamRole string
+	gatewayURL  string
+	creds       *aws.Credentials
+}
+
+func NewGatewayService(httpClient *http.Client, logger *zap.Logger, region, trdmIamRole string, gatewayURL string, creds *aws.Credentials) *GatewayService {
+	return &GatewayService{
+		httpClient:  httpClient,
+		logger:      logger,
+		region:      region,
+		trdmIamRole: trdmIamRole,
+		gatewayURL:  gatewayURL,
+		creds:       creds,
+	}
+}
 
 const (
 	// ! Not in use yet
 	// TODO:
 	// TrdmIamFlag is the TRDM IAM flag
 	TrdmIamFlag string = "trdm-iam"
-	// TrdmIamRoleFlag is the TRDM IAM Role flag
-	TrdmIamRoleFlag string = "trdm-iam-role"
-	// TrdmRegionFlag is the TRDM Region flag
-	TrdmRegionFlag string = "trdm-region"
 )
 
-func gatewayLastTableUpdate(request models.LastTableUpdateRequest, url string, v *viper.Viper, logger *zap.Logger) error {
-	// Obtain viper info
-	region := v.GetString(TrdmRegionFlag)
-	trdmIamRole := v.GetString(TrdmIamRoleFlag)
-
+func (gs GatewayService) gatewayLastTableUpdate(request models.LastTableUpdateRequest) (*http.Response, error) {
 	// Create the request body
 	requestBody, err := json.Marshal(request)
 	if err != nil {
-		logger.Error("marshalling LastTableUpdate request body", zap.Error(err))
-		return err
+		gs.logger.Error("marshalling LastTableUpdate request body", zap.Error(err))
+		return nil, err
 	}
+
 	// Generate a SHA256 hash for signing
 	hash := GenerateSHA256Hash(requestBody)
 
 	// Put it into a new request
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
+	req, err := http.NewRequest("POST", gs.gatewayURL, bytes.NewBuffer(requestBody))
 	if err != nil {
-		logger.Error("lastTableUpdate request", zap.Error(err))
-		return err
+		gs.logger.Error("lastTableUpdate request", zap.Error(err))
+		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	// Obtain creds for signing
-	creds, err := retrieveCredentials(region, trdmIamRole, logger)
+	// Sign request, this will update req in place
+	err = signRequest(req, *gs.creds, string(hash), gs.region, gs.logger)
 	if err != nil {
-		logger.Error("retrieving aws creds", zap.Error(err))
-		return err
+		gs.logger.Error("signing lastTableUpdate request", zap.Error(err))
+		return nil, err
 	}
 
-	// Sign request
-	err = signRequest(req, creds, string(hash), region, logger)
+	// Send the request
+	resp, err := gs.httpClient.Do(req)
 	if err != nil {
-		logger.Error("signing lastTableUpdate request", zap.Error(err))
-		return err
+		gs.logger.Error("error sending request to API Gateway", zap.Error(err))
+		return nil, err
 	}
+	defer resp.Body.Close()
 
-	return nil
+	return resp, nil
 }
 
 func GenerateSHA256Hash(data []byte) []byte {
