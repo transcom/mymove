@@ -131,7 +131,7 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 	}
 
 	// may need to take into account floating point precision here but should be dealing with whole numbers
-	if int(float32(totalWeightAllowance.TotalWeight)*RiskOfExcessThreshold) <= estimatedWeightTotal {
+	if int(float32(totalWeightAllowance)*RiskOfExcessThreshold) <= estimatedWeightTotal {
 		excessWeightQualifiedAt := time.Now()
 		move.ExcessWeightQualifiedAt = &excessWeightQualifiedAt
 
@@ -195,7 +195,7 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 
 	autoReweighShipments := models.MTOShipments{}
 	// may need to take into account floating point precision here but should be dealing with whole numbers
-	if int(float32(totalWeightAllowance.TotalWeight)*AutoReweighRequestThreshold) <= moveWeightTotal {
+	if int(float32(totalWeightAllowance)*AutoReweighRequestThreshold) <= moveWeightTotal {
 		for _, shipment := range move.MTOShipments {
 			// We should avoid counting shipments that haven't been approved yet and will need to account for diversions
 			// and cancellations factoring into the weight total.
