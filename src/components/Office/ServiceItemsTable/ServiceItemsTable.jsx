@@ -123,17 +123,18 @@ const ServiceItemsTable = ({
     return changedKey;
   }
 
-  function generateOldDetailText(details) {
-    let resultStringToDisplay = 'Previous Values:\n';
-    Object.keys(details.changedValues).forEach((key) => {
+  function generateResubmissionDetailsText(details) {
+    const keys = Object.keys(details.changedValues);
+    let resultStringToDisplay = '';
+
+    keys.forEach((key) => {
       const formattedKeyString = formatKeyStringsForToolTip(key);
-      resultStringToDisplay += `${formattedKeyString}: ${details.oldValues[key]} \n`;
+      const newValue = details.changedValues[key];
+      const oldValue = details.oldValues[key];
+
+      resultStringToDisplay += `${formattedKeyString}\nNew: ${newValue} \nPrevious: ${oldValue}\n\n`;
     });
-    resultStringToDisplay += '\nUpdated Values:\n';
-    Object.keys(details.changedValues).forEach((key) => {
-      const formattedKeyString = formatKeyStringsForToolTip(key);
-      resultStringToDisplay += `${formattedKeyString}: ${details.changedValues[key]} \n`;
-    });
+
     return resultStringToDisplay;
   }
 
@@ -143,9 +144,14 @@ const ServiceItemsTable = ({
     const historyDataForServiceItem = getNewestHistoryDataForServiceItem(historyDataForMove, serviceItemId);
     const isResubmitted = getResubmissionStatus(historyDataForServiceItem);
     if (isResubmitted) {
-      // TODO: add logic here for seeing what fields are in the changed values section, then display the old data
-      // in the tooltip so the user can see old vs new data
-      return <ToolTip text={generateOldDetailText(historyDataForServiceItem)} position="bottom" />;
+      return (
+        <ToolTip
+          key={serviceItemId}
+          text={generateResubmissionDetailsText(historyDataForServiceItem)}
+          position="bottom"
+          color="#0050d8"
+        />
+      );
     }
     return null;
   };
