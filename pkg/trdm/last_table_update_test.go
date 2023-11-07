@@ -1,6 +1,7 @@
 package trdm_test
 
 import (
+	"crypto/tls"
 	"time"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -48,4 +49,9 @@ func (suite *TRDMSuite) TestFetchTACRecordsByTime() {
 	finalCodesLength := len(codes)
 
 	suite.NotEqual(finalCodesLength, initialTacCodeLength)
+}
+
+func (suite *TRDMSuite) TestLastTableUpdate() {
+	err := trdm.LastTableUpdate(suite.viper, &tls.Config{MinVersion: tls.VersionTLS13}, suite.AppContextForTest())
+	suite.NoError(err)
 }

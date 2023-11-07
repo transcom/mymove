@@ -68,7 +68,7 @@ func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 
 		// Initialize the request model with physicalName
 		request := models.LastTableUpdateRequest{
-			PhysicalName: physicalName, // assuming physicalName is available in this scope
+			PhysicalName: physicalName,
 		}
 
 		// Setup response model

@@ -18,8 +18,11 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
 type GatewayService struct {
-	httpClient  *http.Client
+	httpClient  HTTPClient
 	logger      *zap.Logger
 	region      string
 	trdmIamRole string
@@ -27,7 +30,7 @@ type GatewayService struct {
 	creds       *aws.Credentials
 }
 
-func NewGatewayService(httpClient *http.Client, logger *zap.Logger, region, trdmIamRole string, gatewayURL string, creds *aws.Credentials) *GatewayService {
+func NewGatewayService(httpClient HTTPClient, logger *zap.Logger, region, trdmIamRole string, gatewayURL string, creds *aws.Credentials) *GatewayService {
 	return &GatewayService{
 		httpClient:  httpClient,
 		logger:      logger,
