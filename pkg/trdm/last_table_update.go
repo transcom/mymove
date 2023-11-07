@@ -49,7 +49,7 @@ func FetchAllTACRecords(appcontext appcontext.AppContext) ([]models.Transportati
 	return tacCodes, nil
 }
 
-func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.Viper, tlsConfig *tls.Config) error {
+func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.Viper, tlsConfig *tls.Config, appCtx appcontext.AppContext) error {
 
 	cron := cron.New()
 
@@ -63,6 +63,7 @@ func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 		creds, err := retrieveCredentials(regionFlag, roleFlag, logger)
 		if err != nil {
 			logger.Error("retrieving aws creds", zap.Error(err))
+			return
 		}
 
 		// Initialize the request model with physicalName
@@ -85,27 +86,53 @@ func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 		httpResp, err := service.gatewayLastTableUpdate(request)
 		if err != nil {
 			logger.Error("gateway last table update", zap.Error(err))
+			return
 		}
 		body, err := io.ReadAll(httpResp.Body)
 		if err != nil {
 			logger.Error("could not read lastTableUpdate response body", zap.Error(err))
+			return
 		}
 		defer httpResp.Body.Close()
 		err = json.Unmarshal(body, &lastTableUpdateResponse)
 		if err != nil {
 			logger.Error("could not unmarshal body into lastTableUpdateResponse", zap.Error(err))
+			return
 		}
 
 		switch lastTableUpdateResponse.StatusCode {
 		case successfulStatusCode:
-			// Proceed to getTable requeest
-			// TODO:
+			switch physicalName {
+			case lineOfAccounting:
+				loas, err := FetchLOARecordsByTime(appCtx, lastTableUpdateResponse.LastUpdate)
+				if err != nil {
+					logger.Error("fetching loa records by time", zap.Error(err))
+					return
+				}
+				// Check if loas are out of date
+				if len(loas) > 0 {
+					// Since loas were returned, we are in fact out of date
+					// TODO: GetTable
+				}
+			}
+		case transportationAccountingCode:
+			tacs, err := FetchTACRecordsByTime(appCtx, lastTableUpdateResponse.LastUpdate)
+			if err != nil {
+				logger.Error("fetching tac records by time", zap.Error(err))
+				return
+			}
+			// Check if tacs are out of date
+			if len(tacs) > 0 {
+				// Since tacs were returned, we are in fact out of date
+				// TODO: GetTable
+			}
 		case failureStatusCode:
 			logger.Error("trdm api gateway request failed, please inspect the trdm gateway logs")
+			return
 		default:
 			logger.Error("unexpected api gateway request failure response, please inspect the trdm gateway logs")
+			return
 		}
-
 	}
 
 	// Run the task immediately
@@ -121,7 +148,7 @@ func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 	return nil
 }
 
-func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config) error {
+func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config, appCtx appcontext.AppContext) error {
 	dbEnv := v.GetString(cli.DbEnvFlag)
 	logger, _, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	if err != nil {
@@ -137,8 +164,8 @@ func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config) error {
 	// }
 
 	// These are likely to never err. Remember, errors are logged not returned in cron
-	getLastTableUpdateTACErr := StartLastTableUpdateCron(transportationAccountingCode, logger, v, tlsConfig)
-	getLastTableUpdateLOAErr := StartLastTableUpdateCron(lineOfAccounting, logger, v, tlsConfig)
+	getLastTableUpdateTACErr := StartLastTableUpdateCron(transportationAccountingCode, logger, v, tlsConfig, appCtx)
+	getLastTableUpdateLOAErr := StartLastTableUpdateCron(lineOfAccounting, logger, v, tlsConfig, appCtx)
 	if getLastTableUpdateLOAErr != nil {
 		return getLastTableUpdateLOAErr
 	}
