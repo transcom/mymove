@@ -110,18 +110,18 @@ func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 					// TODO: GetTable
 					return
 				}
-			}
-		case transportationAccountingCode:
-			tacs, err := FetchTACRecordsByTime(appCtx, lastTableUpdateResponse.LastUpdate)
-			if err != nil {
-				logger.Error("fetching tac records by time", zap.Error(err))
-				return
-			}
-			// Check if tacs are out of date
-			if len(tacs) > 0 {
-				// Since tacs were returned, we are in fact out of date
-				// TODO: GetTable
-				return
+			case transportationAccountingCode:
+				tacs, err := FetchTACRecordsByTime(appCtx, lastTableUpdateResponse.LastUpdate)
+				if err != nil {
+					logger.Error("fetching tac records by time", zap.Error(err))
+					return
+				}
+				// Check if tacs are out of date
+				if len(tacs) > 0 {
+					// Since tacs were returned, we are in fact out of date
+					// TODO: GetTable
+					return
+				}
 			}
 		case FailureStatusCode:
 			logger.Error("trdm api gateway request failed, please inspect the trdm gateway logs")
