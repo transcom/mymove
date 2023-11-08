@@ -154,19 +154,19 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 			grade := (*string)(serviceMember.Rank)
 
 			weight, entitlementErr := models.GetEntitlement(*serviceMember.Rank, *payload.HasDependents)
-			progear, progearErr := models.GetProGearEntitlement(*serviceMember.Rank, false)
-			progearSpouse, progearSpouseErr := models.GetProGearEntitlement(*serviceMember.Rank, true)
+			proGear, proGearErr := models.GetProGearEntitlement(*serviceMember.Rank, false)
+			proGearSpouse, proGearSpouseErr := models.GetProGearEntitlement(*serviceMember.Rank, true)
 
 			if entitlementErr != nil {
 				return handlers.ResponseForError(appCtx.Logger(), entitlementErr), entitlementErr
 			}
 
-			if progearErr != nil {
-				return handlers.ResponseForError(appCtx.Logger(), progearErr), progearErr
+			if proGearErr != nil {
+				return handlers.ResponseForError(appCtx.Logger(), proGearErr), proGearErr
 			}
 
-			if progearSpouseErr != nil {
-				return handlers.ResponseForError(appCtx.Logger(), progearSpouseErr), progearSpouseErr
+			if proGearSpouseErr != nil {
+				return handlers.ResponseForError(appCtx.Logger(), proGearSpouseErr), proGearSpouseErr
 			}
 
 			// Assign default SIT allowance based on customer type.
@@ -177,8 +177,8 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				DependentsAuthorized: payload.HasDependents,
 				DBAuthorizedWeight:   models.IntPointer(weight),
 				StorageInTransit:     models.IntPointer(sitDaysAllowance),
-				ProGearWeight:        progear,
-				ProGearWeightSpouse:  progearSpouse,
+				ProGearWeight:        proGear,
+				ProGearWeightSpouse:  proGearSpouse,
 			}
 
 			if saveEntitlementErr := appCtx.DB().Save(&entitlement); saveEntitlementErr != nil {
