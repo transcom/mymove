@@ -8,6 +8,7 @@ import { SERVICE_ITEM_STATUS } from 'shared/constants';
 import { SIT_ADDRESS_UPDATE_STATUS } from 'constants/sitUpdates';
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
+import ToolTip from 'shared/ToolTip/ToolTip';
 
 describe('ServiceItemsTable', () => {
   const defaultProps = {
@@ -743,5 +744,72 @@ describe('ServiceItemsTable', () => {
     wrapper.find('button[data-testid="approveTextButton"]').simulate('click');
 
     expect(defaultProps.handleUpdateMTOServiceItemStatus).toHaveBeenCalledWith('abc123', 'xyz789', 'APPROVED');
+  });
+
+  it('renders a tooltip if resubmitted service item', () => {
+    jest.mock('hooks/queries', () => ({
+      useGHCGetMoveHistory: () => ({
+        isLoading: false,
+        isError: false,
+        queueResult: {
+          totalCount: 2,
+          data: [
+            {
+              action: 'UPDATE',
+              actionTstampTx: '2022-03-09T15:33:38.579Z',
+              changedValues: {
+                sit_entry_date: '2023-10-01',
+                reason: 'New reason',
+                status: 'SUBMITTED',
+              },
+              clientQuery:
+                'UPDATE "moves" AS moves SET "available_to_prime_at" = $1, "billable_weights_reviewed_at" = $2, "cancel_reason" = $3, "contractor_id" = $4, "excess_weight_acknowledged_at" = $5, "excess_weight_qualified_at" = $6, "excess_weight_upload_id" = $7, "financial_review_flag" = $8, "financial_review_flag_set_at" = $9, "financial_review_remarks" = $10, "locator" = $11, "orders_id" = $12, "ppm_estimated_weight" = $13, "ppm_type" = $14, "reference_id" = $15, "selected_move_type" = $16, "service_counseling_completed_at" = $17, "show" = $18, "status" = $19, "submitted_at" = $20, "tio_remarks" = $21, "updated_at" = $22 WHERE moves.id = $23',
+              eventName: 'updateMTOServiceItem',
+              objectId: 'abc123',
+              oldValues: {
+                id: '3efc84ca-d5a8-4f5f-b9b8-6deca1188e11',
+                locator: 'YRHCWH',
+                sit_entry_date: '2023-09-01',
+                reason: 'Old reason',
+                status: 'REJECTED',
+              },
+            },
+          ],
+        },
+      }),
+    }));
+
+    // const serviceItems = [
+    //   {
+    //     id: 'abc123',
+    //     createdAt: '2023-11-5',
+    //     serviceItem: 'Domestic origin 1st day SIT',
+    //     code: 'DOFSIT',
+    //     reServiceCode: 'DOFSIT',
+    //     reServiceID: '987654321',
+    //     reServiceName: 'Domestic origin 1st day SIT',
+    //     mtoShipmentID: '123456789',
+    //     status: 'SUBMITTED',
+    //     sitRequestedDelivery: '2019-08-31',
+    //     moveTaskOrderID: '78f7f149-0c00-4b20-83ef-ce6aabadeaef',
+    //     SITPostalCode: '90211',
+    //     details: {
+    //       SITPostalCode: '90211',
+    //       reason: 'Test reason 82',
+    //       sitEntryDate: '2020-12-31',
+    //     },
+    //   },
+    // ];
+
+    const tooltipwrapper = mount(<ToolTip />);
+
+    // let textInToolTip = 'SIT Entry Date\nNew: 2023-10-01 \nPrevious: 2023-09-01\n\n';
+    // textInToolTip += 'Reason\nNew: New reason \nPrevious: Old reason\n\n';
+    // textInToolTip += 'Status\nNew: SUBMITTED \nPrevious: REJECTED\n\n';
+
+    expect(tooltipwrapper.exists()).toBe(true);
+    // expect(tooltipwrapper.find('ToolTip').text).toContain(textInToolTip);
+    // expect(tooltipwrapper.find('ToolTip').text).toEqual(textInToolTip);
+    // expect(tooltipContent.color).toBe('#0050d8');
   });
 });

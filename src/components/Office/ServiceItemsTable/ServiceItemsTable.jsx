@@ -126,15 +126,12 @@ const ServiceItemsTable = ({
   function generateResubmissionDetailsText(details) {
     const keys = Object.keys(details.changedValues);
     let resultStringToDisplay = '';
-
     keys.forEach((key) => {
       const formattedKeyString = formatKeyStringsForToolTip(key);
       const newValue = details.changedValues[key];
       const oldValue = details.oldValues[key];
-
       resultStringToDisplay += `${formattedKeyString}\nNew: ${newValue} \nPrevious: ${oldValue}\n\n`;
     });
-
     return resultStringToDisplay;
   }
 
