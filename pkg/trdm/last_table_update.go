@@ -2,12 +2,9 @@ package trdm
 
 import (
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
-	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/pkg/errors"
@@ -29,9 +26,9 @@ const (
 	// GatewayURLFlag is the TRDM API Gateway URL flag
 	GatewayURLFlag string = "trdm-api-gateway-url"
 	// Success status code
-	successfulStatusCode string = "Successful"
+	SuccessfulStatusCode string = "Successful"
 	// Failure status code
-	failureStatusCode string = "Failure"
+	FailureStatusCode string = "Failure"
 )
 
 // Custom assume role provider so we can inject tests.
@@ -58,7 +55,7 @@ func FetchAllTACRecords(appcontext appcontext.AppContext) ([]models.Transportati
 	return tacCodes, nil
 }
 
-func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.Viper, tlsConfig *tls.Config, appCtx appcontext.AppContext, provider AssumeRoleProvider) error {
+func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.Viper, appCtx appcontext.AppContext, provider AssumeRoleProvider, client HTTPClient) error {
 
 	cron := cron.New()
 
@@ -76,12 +73,8 @@ func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 		// Setup response model
 		lastTableUpdateResponse := models.LastTableUpdateResponse{}
 
-		// Setup client
-		tr := &http.Transport{TLSClientConfig: tlsConfig}
-		httpClient := &http.Client{Transport: tr, Timeout: time.Duration(30) * time.Second}
-
 		// Create gateway service
-		service := NewGatewayService(httpClient, logger, region, trdmIamRole, gatewayURL, provider)
+		service := NewGatewayService(client, logger, region, trdmIamRole, gatewayURL, provider)
 
 		// Fire off to retrieve the latest table update, compare that to our own internal latest update records,
 		// and then call getTable if there is new data found. The getTable call will happen inside of this chain
@@ -103,7 +96,7 @@ func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 		}
 
 		switch lastTableUpdateResponse.StatusCode {
-		case successfulStatusCode:
+		case SuccessfulStatusCode:
 			switch physicalName {
 			case lineOfAccounting:
 				loas, err := FetchLOARecordsByTime(appCtx, lastTableUpdateResponse.LastUpdate)
@@ -130,7 +123,7 @@ func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 				// TODO: GetTable
 				return
 			}
-		case failureStatusCode:
+		case FailureStatusCode:
 			logger.Error("trdm api gateway request failed, please inspect the trdm gateway logs")
 			return
 		default:
@@ -152,7 +145,7 @@ func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 	return nil
 }
 
-func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config, appCtx appcontext.AppContext, provider AssumeRoleProvider) error {
+func LastTableUpdate(v *viper.Viper, appCtx appcontext.AppContext, provider AssumeRoleProvider, client HTTPClient) error {
 	dbEnv := v.GetString(cli.DbEnvFlag)
 	logger, _, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	if err != nil {
@@ -168,8 +161,8 @@ func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config, appCtx appcontext.Ap
 	// }
 
 	// These are likely to never err. Remember, errors are logged not returned in cron
-	getLastTableUpdateTACErr := StartLastTableUpdateCron(transportationAccountingCode, logger, v, tlsConfig, appCtx, provider)
-	getLastTableUpdateLOAErr := StartLastTableUpdateCron(lineOfAccounting, logger, v, tlsConfig, appCtx, provider)
+	getLastTableUpdateTACErr := StartLastTableUpdateCron(transportationAccountingCode, logger, v, appCtx, provider, client)
+	getLastTableUpdateLOAErr := StartLastTableUpdateCron(lineOfAccounting, logger, v, appCtx, provider, client)
 	if getLastTableUpdateLOAErr != nil {
 		return getLastTableUpdateLOAErr
 	}

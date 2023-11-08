@@ -1,13 +1,17 @@
 package trdm_test
 
 import (
+	"bytes"
 	"context"
-	"crypto/tls"
+	"encoding/json"
+	"io"
+	"net/http"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/trdm"
 )
 
@@ -63,6 +67,18 @@ func (m *mockAssumeRoleProvider) Retrieve(_ context.Context) (aws.Credentials, e
 	return m.creds, nil
 }
 
+// Mock HTTP client for test injection, we're providing an HTTPClient type now in the
+// non test functions of the package
+type MockHTTPClient struct {
+	// DoFunc allows us to implement our own responses from when
+	// executing client.Do()
+	DoFunc func(req *http.Request) (*http.Response, error)
+}
+
+func (m *MockHTTPClient) Do(req *http.Request) (*http.Response, error) {
+	return m.DoFunc(req)
+}
+
 func (suite *TRDMSuite) TestLastTableUpdate() {
 	// Setup mock creds
 	mockCreds := aws.Credentials{
@@ -72,12 +88,30 @@ func (suite *TRDMSuite) TestLastTableUpdate() {
 		Source:          "mockProvider",
 	}
 	mockProvider := &mockAssumeRoleProvider{creds: mockCreds}
+
+	lastUpdateResponse := models.LastTableUpdateResponse{
+		StatusCode: trdm.SuccessfulStatusCode,
+		DateTime:   time.Now(),
+		LastUpdate: time.Now().Add(-24 * time.Hour),
+	}
+
+	responseBody, err := json.Marshal(lastUpdateResponse)
+	suite.NoError(err)
+
+	mockHTTPClient := &MockHTTPClient{
+		DoFunc: func(req *http.Request) (*http.Response, error) {
+			return &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(bytes.NewReader(responseBody)),
+			}, nil
+		},
+	}
 	// Set the configuration for the test
 	suite.viper.Set(trdm.TrdmIamRoleFlag, "mockRole")
 	suite.viper.Set(trdm.TrdmGatewayRegionFlag, "us-gov-west-1") // TODO: Possibly switch to var that itself is pulled from viper
 	suite.viper.Set(trdm.GatewayURLFlag, "https://test.gateway.url.amazon.com")
 
-	err := trdm.LastTableUpdate(suite.viper, &tls.Config{MinVersion: tls.VersionTLS13}, suite.AppContextForTest(), mockProvider)
+	err = trdm.LastTableUpdate(suite.viper, suite.AppContextForTest(), mockProvider, mockHTTPClient)
 	suite.NoError(err)
 }
 

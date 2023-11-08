@@ -831,9 +831,14 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		trdmIamRole := v.GetString(trdm.TrdmIamRoleFlag)
 		stsProvider := stscreds.NewAssumeRoleProvider(stsClient, trdmIamRole)
 
+		// Setup client
+		tr := &http.Transport{TLSClientConfig: tlsConfig}
+		httpClient := &http.Client{Transport: tr, Timeout: time.Duration(30) * time.Second}
+
 		// Initial REST call for LastTableUpdate on server start and once per day
-		err = trdm.LastTableUpdate(v, tlsConfig, appCtx, stsProvider)
+		err = trdm.LastTableUpdate(v, appCtx, stsProvider, httpClient)
 		if err != nil {
+			logger.Fatal("unable to retrieve latest TGET data from TRDM", zap.Error(err))
 			return err
 		}
 	}
