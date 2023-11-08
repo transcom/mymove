@@ -34,7 +34,7 @@ type updateMTOServiceItemValidator interface {
 type basicUpdateMTOServiceItemValidator struct{}
 
 func (v *basicUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error {
-	err := serviceItemData.checkLinkedIDs(appCtx)
+	err := serviceItemData.checkLinkedIDs()
 	if err != nil {
 		return err
 	}
@@ -59,7 +59,7 @@ type primeUpdateMTOServiceItemValidator struct{}
 
 func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error {
 	// Checks that the MTO ID, Shipment ID, and ReService IDs haven't changed
-	err := serviceItemData.checkLinkedIDs(appCtx)
+	err := serviceItemData.checkLinkedIDs()
 	if err != nil {
 		return err
 	}
@@ -124,6 +124,12 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 		return err
 	}
 
+	// Check to see if the updated service item is different than the old one
+	err = serviceItemData.checkForSITItemChanges(serviceItemData)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -135,8 +141,72 @@ type updateMTOServiceItemData struct {
 	verrs               *validate.Errors
 }
 
+// Check to see if the updatedSIT service item is different than the old one
+// Turns out creating a custom comparsion method using if-statements has better performance than using a library in go
+func (v *updateMTOServiceItemData) checkForSITItemChanges(serviceItemData *updateMTOServiceItemData) error {
+
+	oldServiceItem := serviceItemData.oldServiceItem
+
+	// This check is for the service items in this list
+	serviceItemsToCheck := []models.ReServiceCode{
+		models.ReServiceCodeDOFSIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDOASIT,
+	}
+
+	// Check will only be executed for serviceItems with reservice codes in the serviceItemsToCheck array
+	if slices.Contains(serviceItemsToCheck, oldServiceItem.ReService.Code) {
+
+		updatedServiceItem := serviceItemData.updatedServiceItem
+
+		// Start checking for differences. If a difference is found return nil. No need to reject the request if there are changes.
+		// For now only check fields that the prime can actually submit a change for
+
+		if updatedServiceItem.ReService.Code.String() != "" && updatedServiceItem.ReService.Code != oldServiceItem.ReService.Code {
+			return nil
+		}
+
+		if !updatedServiceItem.SITDepartureDate.IsZero() && updatedServiceItem.SITDepartureDate.UTC() != oldServiceItem.SITDepartureDate.UTC() {
+			return nil
+		}
+
+		if updatedServiceItem.SITDestinationFinalAddress != nil && updatedServiceItem.SITDestinationFinalAddress != oldServiceItem.SITDestinationFinalAddress {
+			return nil
+		}
+
+		if updatedServiceItem.SITCustomerContacted != nil && updatedServiceItem.SITCustomerContacted != oldServiceItem.SITCustomerContacted {
+			return nil
+		}
+
+		if updatedServiceItem.SITRequestedDelivery != nil && updatedServiceItem.SITRequestedDelivery.UTC() != oldServiceItem.SITRequestedDelivery.UTC() {
+			return nil
+		}
+
+		if updatedServiceItem.SITEntryDate != nil && updatedServiceItem.SITEntryDate.UTC() != oldServiceItem.SITEntryDate.UTC() {
+			return nil
+		}
+
+		if updatedServiceItem.Reason != nil && *updatedServiceItem.Reason != *oldServiceItem.Reason {
+			return nil
+		}
+
+		if updatedServiceItem.SITPostalCode != nil && *updatedServiceItem.SITPostalCode != *oldServiceItem.SITPostalCode {
+			return nil
+		}
+
+		if updatedServiceItem.RequestedApprovalsRequestedStatus != nil && *updatedServiceItem.RequestedApprovalsRequestedStatus != *oldServiceItem.RequestedApprovalsRequestedStatus {
+			return nil
+		}
+
+		// If execution made it this far no changes were detected. Reject the request.
+		return apperror.NewConflictError(oldServiceItem.ID,
+			"- To re-submit a SIT sevice item the new SIT service item must be different than the previous one.")
+
+	}
+
+	return nil
+}
+
 // checkLinkedIDs checks that the user didn't attempt to change the service item's move, shipment, or reService IDs
-func (v *updateMTOServiceItemData) checkLinkedIDs(_ appcontext.AppContext) error {
+func (v *updateMTOServiceItemData) checkLinkedIDs() error {
 	if v.updatedServiceItem.MoveTaskOrderID != uuid.Nil && v.updatedServiceItem.MoveTaskOrderID != v.oldServiceItem.MoveTaskOrderID {
 		v.verrs.Add("moveTaskOrderID", "cannot be updated")
 	}

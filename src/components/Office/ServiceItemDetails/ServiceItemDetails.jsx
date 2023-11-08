@@ -45,7 +45,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                 : '-',
             })
           : null}
-        {code === 'DDFSIT'
+        {code === 'DDFSIT' || code === 'DDASIT'
           ? generateDetailText({
               'SIT entry date': details.sitEntryDate ? formatDateWithUTC(details.sitEntryDate, 'DD MMM YYYY') : '-',
             })
@@ -95,7 +95,8 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
 
   let detailSection;
   switch (code) {
-    case 'DOFSIT': {
+    case 'DOFSIT':
+    case 'DOASIT': {
       detailSection = (
         <div>
           <dl>
@@ -126,7 +127,6 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
       );
       break;
     }
-    case 'DOASIT':
     case 'DOPSIT':
     case 'DOSFSC': {
       detailSection = (

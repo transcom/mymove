@@ -48,7 +48,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	ppmEstimator := mocks.PPMEstimator{}
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 	shipmentRouter := mtoshipment.NewShipmentRouter()
-	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, shipmentRouter)
+	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
+		builder,
+		mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
+		moveRouter,
+	)
+	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
 	mockCreator := mocks.ShipmentCreator{}
 
 	var pickupAddress primemessages.Address
@@ -2456,7 +2461,14 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 
 func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 	setupTestData := func() DeleteMTOShipmentHandler {
-		deleter := mtoshipment.NewPrimeShipmentDeleter()
+		builder := query.NewQueryBuilder()
+		moveRouter := moveservices.NewMoveRouter()
+		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
+			builder,
+			mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
+			moveRouter,
+		)
+		deleter := mtoshipment.NewPrimeShipmentDeleter(moveTaskOrderUpdater)
 		handlerConfig := suite.HandlerConfig()
 		handler := DeleteMTOShipmentHandler{
 			handlerConfig,
