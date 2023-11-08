@@ -54,11 +54,6 @@ const PPMShipmentCard = ({
 
   const shipmentLabel = `${getShipmentTypeLabel(shipmentType)} ${shipmentNumber}`;
   const moveCodeLabel = getMoveCodeLabel(shipment.id);
-  const incompleteShipmentModalData = {
-    shipmentLabel,
-    moveCodeLabel,
-    shipmentType,
-  };
 
   return (
     <div className={styles.ShipmentCard}>
@@ -72,7 +67,7 @@ const PPMShipmentCard = ({
               <Button
                 title="Help about incomplete shipment"
                 type="button"
-                onClick={() => onIncompleteClick(JSON.stringify(incompleteShipmentModalData))}
+                onClick={() => onIncompleteClick(shipmentLabel, moveCodeLabel, shipmentType)}
                 unstyled
                 className="{styles.buttonRight}"
               >

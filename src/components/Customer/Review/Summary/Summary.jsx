@@ -47,7 +47,9 @@ export class Summary extends Component {
       showIncompletePPMModal: false,
       showDeleteModal: false,
       targetShipmentId: null,
-      incompleteShipmentInfo: null,
+      targetShipmentLabel: null,
+      targetShipmentMoveCode: null,
+      targetShipmentType: null,
     };
   }
 
@@ -206,16 +208,26 @@ export class Summary extends Component {
     }));
   };
 
-  toggleIncompletePPMShipmentModal = (shipmentInfo) => {
+  toggleIncompletePPMShipmentModal = (ShipmentLabel, shipmentMoveCode, shipmentType) => {
     this.setState((state) => ({
       showIncompletePPMModal: !state.showIncompletePPMModal,
-      incompleteShipmentInfo: shipmentInfo,
+      targetShipmentLabel: ShipmentLabel,
+      targetShipmentMoveCode: shipmentMoveCode,
+      targetShipmentType: shipmentType,
     }));
   };
 
   render() {
     const { currentMove, currentOrders, router, moveIsApproved, mtoShipments, serviceMember } = this.props;
-    const { showModal, showDeleteModal, targetShipmentId, showIncompletePPMModal, incompleteShipmentInfo } = this.state;
+    const {
+      showModal,
+      showDeleteModal,
+      targetShipmentId,
+      showIncompletePPMModal,
+      targetShipmentLabel,
+      targetShipmentMoveCode,
+      targetShipmentType,
+    } = this.state;
 
     const { pathname } = router.location;
     const { moveId } = router.params;
@@ -258,7 +270,9 @@ export class Summary extends Component {
         <ConnectedIncompleteShipmentModal
           isOpen={showIncompletePPMModal}
           closeModal={this.toggleIncompletePPMShipmentModal}
-          data={incompleteShipmentInfo}
+          shipmentLabel={targetShipmentLabel}
+          shipmentMoveCode={targetShipmentMoveCode}
+          shipmentType={targetShipmentType}
         />
         <SectionWrapper className={styles.SummarySectionWrapper}>
           <ProfileTable

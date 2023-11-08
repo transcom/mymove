@@ -122,6 +122,7 @@ const ppmDefaultProps = {
   showEditAndDeleteBtn: true,
   onEditClick: noop,
   onDeleteClick: noop,
+  onIncompleteClick: noop,
 };
 
 const ppmShipmentSecondaryZIPProps = {

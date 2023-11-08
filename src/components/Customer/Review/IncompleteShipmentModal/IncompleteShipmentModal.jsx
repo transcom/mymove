@@ -5,19 +5,19 @@ import { Button } from '@trussworks/react-uswds';
 import styles from 'components/Customer/Review/IncompleteShipmentModal/IncompleteShipmentModal.module.scss';
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 
-export const IncompleteShipmentModal = ({ closeModal, data }) => (
+export const IncompleteShipmentModal = ({ closeModal, shipmentLabel, shipmentMoveCode, shipmentType }) => (
   <Modal className={styles.Modal}>
     <ModalClose handleClick={closeModal} />
     <ModalTitle>
       <h3>INCOMPLETE SHIPMENT</h3>
     </ModalTitle>
     <p>
-      {JSON.parse(data).shipmentLabel}: {JSON.parse(data).moveCodeLabel}
+      {shipmentLabel}: {shipmentMoveCode}
     </p>
     <p>
-      You have not finished adding all the details required for your {JSON.parse(data).shipmentType} shipment. Click
-      &quot;Edit&quot; to review your {JSON.parse(data).shipmentType} information, add any missing information, then
-      proceed to submit the request.
+      You have not finished adding all the details required for your {shipmentType} shipment. Click
+      <strong> Edit</strong> to review your {shipmentType} information, add any missing information, then proceed to
+      submit the request.
     </p>
     <ModalActions>
       <Button secondary type="button" onClick={closeModal} className={styles.Button}>
@@ -29,12 +29,16 @@ export const IncompleteShipmentModal = ({ closeModal, data }) => (
 
 IncompleteShipmentModal.propTypes = {
   closeModal: PropTypes.func,
-  data: PropTypes.string,
+  shipmentLabel: PropTypes.string,
+  shipmentMoveCode: PropTypes.string,
+  shipmentType: PropTypes.string,
 };
 
 IncompleteShipmentModal.defaultProps = {
   closeModal: () => {},
-  data: null,
+  shipmentLabel: null,
+  shipmentMoveCode: null,
+  shipmentType: null,
 };
 
 IncompleteShipmentModal.displayName = 'IncompleteShipmentModal';

@@ -20,7 +20,7 @@ beforeEach(() => {
 
 describe('IncompleteShipmentModal', () => {
   it('verify incompleteShipmentModal display', async () => {
-    render(<IncompleteShipmentModal closeModal={onClose} data={JSON.stringify(json)}  />);
+    render(<IncompleteShipmentModal closeModal={onClose} shipmentLabel={shipmentLabel} shipmentMoveCode={moveCodeLabel} shipmentType={shipmentType}/>);
 
     expect(
       await screen.findByRole('heading', { level: 3, name: 'INCOMPLETE SHIPMENT' }),

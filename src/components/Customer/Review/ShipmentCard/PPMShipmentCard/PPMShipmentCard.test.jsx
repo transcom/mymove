@@ -253,6 +253,6 @@ describe('PPMShipmentCard component', () => {
 
     // verify onclick is getting json string as parameter
     const expectedOnIncompleteClickFunctionParam = "{\"shipmentLabel\":\"PPM 1\",\"moveCodeLabel\":\"#20FDBF58\",\"shipmentType\":\"PPM\"}";
-    expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith(expectedOnIncompleteClickFunctionParam);
+    expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith("PPM 1", "#20FDBF58", "PPM");
   });
 });
