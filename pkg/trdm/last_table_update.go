@@ -125,6 +125,7 @@ func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 				if len(loas) > 0 {
 					// Since loas were returned, we are in fact out of date
 					// TODO: GetTable
+					return
 				}
 			}
 		case transportationAccountingCode:
@@ -137,6 +138,7 @@ func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 			if len(tacs) > 0 {
 				// Since tacs were returned, we are in fact out of date
 				// TODO: GetTable
+				return
 			}
 		case failureStatusCode:
 			logger.Error("trdm api gateway request failed, please inspect the trdm gateway logs")
