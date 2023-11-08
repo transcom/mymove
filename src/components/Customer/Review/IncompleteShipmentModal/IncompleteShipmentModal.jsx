@@ -28,17 +28,10 @@ export const IncompleteShipmentModal = ({ closeModal, shipmentLabel, shipmentMov
 );
 
 IncompleteShipmentModal.propTypes = {
-  closeModal: PropTypes.func,
-  shipmentLabel: PropTypes.string,
-  shipmentMoveCode: PropTypes.string,
-  shipmentType: PropTypes.string,
-};
-
-IncompleteShipmentModal.defaultProps = {
-  closeModal: () => {},
-  shipmentLabel: null,
-  shipmentMoveCode: null,
-  shipmentType: null,
+  closeModal: PropTypes.func.isRequired,
+  shipmentLabel: PropTypes.string.isRequired,
+  shipmentMoveCode: PropTypes.string.isRequired,
+  shipmentType: PropTypes.string.isRequired,
 };
 
 IncompleteShipmentModal.displayName = 'IncompleteShipmentModal';

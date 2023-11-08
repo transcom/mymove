@@ -1,6 +1,6 @@
 import React from 'react';
 import { bool, func, number, oneOf } from 'prop-types';
-import { Tag, Button, Grid } from '@trussworks/react-uswds';
+import { Tag, Button, Grid, GridContainer } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -59,22 +59,24 @@ const PPMShipmentCard = ({
     <div className={styles.ShipmentCard}>
       <ShipmentContainer className={styles.container} shipmentType={SHIPMENT_OPTIONS.PPM}>
         {!hasRequestedAdvance && (
-          <Grid row>
-            <Grid col="fill" tablet={{ col: 'auto' }}>
-              <Tag>Incomplete</Tag>
+          <GridContainer>
+            <Grid row>
+              <Grid col="fill" tablet={{ col: 'auto' }}>
+                <Tag>Incomplete</Tag>
+              </Grid>
+              <Grid col="auto" className={styles.buttonContainer}>
+                <Button
+                  title="Help about incomplete shipment"
+                  type="button"
+                  onClick={() => onIncompleteClick(shipmentLabel, moveCodeLabel, shipmentType)}
+                  unstyled
+                  className="{styles.buttonRight}"
+                >
+                  <FontAwesomeIcon icon={['far', 'circle-question']} />
+                </Button>
+              </Grid>
             </Grid>
-            <Grid col="auto" className={styles.buttonContainer}>
-              <Button
-                title="Help about incomplete shipment"
-                type="button"
-                onClick={() => onIncompleteClick(shipmentLabel, moveCodeLabel, shipmentType)}
-                unstyled
-                className="{styles.buttonRight}"
-              >
-                <FontAwesomeIcon icon={['far', 'circle-question']} />
-              </Button>
-            </Grid>
-          </Grid>
+          </GridContainer>
         )}
         <div className={styles.ShipmentCardHeader}>
           <div className={styles.shipmentTypeNumber}>
