@@ -17,6 +17,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gomodule/redigo/redis"
@@ -809,11 +812,27 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		go startListener(mutualTLSServer, logger, true)
 	}
 
-	// TRDM SOAP Request
+	// Gather TRDM TGET data
 	trdmIsEnabled := v.GetBool(cli.TRDMIsEnabledFlag)
 	if trdmIsEnabled {
-		// Call the initial SOAP call for LastTableUpdate on server start and once per day
-		err := trdm.LastTableUpdate(v, tlsConfig, appCtx)
+		// Get the AWS configuration so we can build a session
+		cfg, err := config.LoadDefaultConfig(context.Background(),
+			config.WithRegion(v.GetString(cli.AWSRegionFlag)),
+		)
+		if err != nil {
+			logger.Fatal("error loading default aws config", zap.Error(err))
+			return err
+		}
+
+		// Create an Amazon STS client
+		stsClient := sts.NewFromConfig(cfg)
+
+		// Obtain creds for signing
+		trdmIamRole := v.GetString(trdm.TrdmIamRoleFlag)
+		stsProvider := stscreds.NewAssumeRoleProvider(stsClient, trdmIamRole)
+
+		// Initial REST call for LastTableUpdate on server start and once per day
+		err = trdm.LastTableUpdate(v, tlsConfig, appCtx, stsProvider)
 		if err != nil {
 			return err
 		}

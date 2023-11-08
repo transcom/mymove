@@ -9,7 +9,6 @@ import (
 	"time"
 
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
-	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -29,10 +28,10 @@ type GatewayService struct {
 	region      string
 	trdmIamRole string
 	gatewayURL  string
-	stsCreds    *stscreds.AssumeRoleProvider
+	stsCreds    AssumeRoleProvider
 }
 
-func NewGatewayService(httpClient HTTPClient, logger *zap.Logger, region, trdmIamRole string, gatewayURL string, stsCreds *stscreds.AssumeRoleProvider) *GatewayService {
+func NewGatewayService(httpClient HTTPClient, logger *zap.Logger, region, trdmIamRole string, gatewayURL string, stsCreds AssumeRoleProvider) *GatewayService {
 	return &GatewayService{
 		httpClient:  httpClient,
 		logger:      logger,
@@ -86,7 +85,7 @@ func GenerateSHA256Hash(data []byte) []byte {
 	return hasher.Sum(nil)
 }
 
-func signRequest(req *http.Request, stsCreds *stscreds.AssumeRoleProvider, hash string, region string, logger *zap.Logger) error {
+func signRequest(req *http.Request, stsCreds AssumeRoleProvider, hash string, region string, logger *zap.Logger) error {
 	// V4 signing is used for request auth (AKA using IAM auth from Go as a client)
 	signer := v4.NewSigner()
 

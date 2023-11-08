@@ -9,9 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
-	"github.com/aws/aws-sdk-go-v2/service/sts"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -36,6 +34,13 @@ const (
 	failureStatusCode string = "Failure"
 )
 
+// Custom assume role provider so we can inject tests.
+// See aws go sdk v2 STS assume role provider, that's what we're
+// mimicking
+type AssumeRoleProvider interface {
+	Retrieve(ctx context.Context) (aws.Credentials, error)
+}
+
 // Date/time value is used in conjunction with the contentUpdatedSinceDateTime column in the getTable method.
 type GetLastTableUpdater interface {
 	GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string) error
@@ -53,30 +58,15 @@ func FetchAllTACRecords(appcontext appcontext.AppContext) ([]models.Transportati
 	return tacCodes, nil
 }
 
-func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.Viper, tlsConfig *tls.Config, appCtx appcontext.AppContext) error {
+func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.Viper, tlsConfig *tls.Config, appCtx appcontext.AppContext, provider AssumeRoleProvider) error {
 
 	cron := cron.New()
 
 	// Cron tasks do not return errors, only log
 	cronTask := func() {
-		roleFlag := v.GetString(TrdmIamRoleFlag)
-		regionFlag := v.GetString(TrdmGatewayRegionFlag)
+		trdmIamRole := v.GetString(TrdmIamRoleFlag)
+		region := v.GetString(TrdmGatewayRegionFlag)
 		gatewayURL := v.GetString(GatewayURLFlag)
-
-		// Get the AWS configuration so we can build a session
-		cfg, err := config.LoadDefaultConfig(context.Background(),
-			config.WithRegion(v.GetString(cli.AWSRegionFlag)),
-		)
-		if err != nil {
-			logger.Fatal("error loading default aws config", zap.Error(err))
-			return
-		}
-
-		// Create an Amazon STS client
-		stsClient := sts.NewFromConfig(cfg)
-
-		// Obtain creds for signing
-		stsCreds := stscreds.NewAssumeRoleProvider(stsClient, TrdmIamRoleFlag)
 
 		// Initialize the request model with physicalName
 		request := models.LastTableUpdateRequest{
@@ -91,7 +81,7 @@ func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 		httpClient := &http.Client{Transport: tr, Timeout: time.Duration(30) * time.Second}
 
 		// Create gateway service
-		service := NewGatewayService(httpClient, logger, regionFlag, roleFlag, gatewayURL, stsCreds)
+		service := NewGatewayService(httpClient, logger, region, trdmIamRole, gatewayURL, provider)
 
 		// Fire off to retrieve the latest table update, compare that to our own internal latest update records,
 		// and then call getTable if there is new data found. The getTable call will happen inside of this chain
@@ -162,7 +152,7 @@ func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 	return nil
 }
 
-func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config, appCtx appcontext.AppContext) error {
+func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config, appCtx appcontext.AppContext, provider AssumeRoleProvider) error {
 	dbEnv := v.GetString(cli.DbEnvFlag)
 	logger, _, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
 	if err != nil {
@@ -178,8 +168,8 @@ func LastTableUpdate(v *viper.Viper, tlsConfig *tls.Config, appCtx appcontext.Ap
 	// }
 
 	// These are likely to never err. Remember, errors are logged not returned in cron
-	getLastTableUpdateTACErr := StartLastTableUpdateCron(transportationAccountingCode, logger, v, tlsConfig, appCtx)
-	getLastTableUpdateLOAErr := StartLastTableUpdateCron(lineOfAccounting, logger, v, tlsConfig, appCtx)
+	getLastTableUpdateTACErr := StartLastTableUpdateCron(transportationAccountingCode, logger, v, tlsConfig, appCtx, provider)
+	getLastTableUpdateLOAErr := StartLastTableUpdateCron(lineOfAccounting, logger, v, tlsConfig, appCtx, provider)
 	if getLastTableUpdateLOAErr != nil {
 		return getLastTableUpdateLOAErr
 	}
