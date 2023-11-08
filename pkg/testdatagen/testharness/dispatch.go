@@ -86,6 +86,12 @@ var actionDispatcher = map[string]actionFunc{
 	"MoveWithNTSShipmentsForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeMoveWithNTSShipmentsForTOO(appCtx)
 	},
+	"HHGMoveWithPPMShipmentsReadyForCloseout": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithPPMShipmentsForTOO(appCtx, true)
+	},
+	"HHGMoveWithPPMShipmentsReadyForCounseling": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithPPMShipmentsForTOO(appCtx, false)
+	},
 	"HHGMoveWithExternalNTSShipmentsForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithExternalNTSShipmentsForTOO(appCtx)
 	},

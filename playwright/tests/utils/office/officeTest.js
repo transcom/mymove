@@ -10,6 +10,8 @@ import { BaseTestPage } from '../baseTest';
 
 import WaitForOfficePage from './waitForOfficePage';
 
+export const { expect } = base;
+
 /**
  * devlocal auth user types
  */
@@ -105,6 +107,20 @@ export class OfficePage extends BaseTestPage {
   }
 
   /**
+   * search for and navigate to move (Prime Simulator role)
+   * @param {string} moveLocator
+   */
+  async primeSimulatorNavigateToMove(moveLocator) {
+    await this.page.locator('input[name="moveCode"]').type(moveLocator);
+    await this.page.locator('input[name="moveCode"]').blur();
+
+    // Click the first returned row
+    await this.page.getByTestId('locator-0').click();
+    await this.waitForPage.moveDetails();
+    await expect(this.page.getByText(moveLocator)).toBeVisible();
+  }
+
+  /**
    * search for and navigate to move
    * @param {string} moveLocator
    */
@@ -164,7 +180,5 @@ const officeFixtures = {
 };
 
 export const test = base.test.extend(officeFixtures);
-
-export const { expect } = base;
 
 export default test;

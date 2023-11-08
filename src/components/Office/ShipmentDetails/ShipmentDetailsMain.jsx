@@ -35,9 +35,6 @@ const OpenModalButton = ({ permission, onClick, className, title }) => (
   </Restricted>
 );
 
-// cunningham
-// Get actual pick up/delivery date here?
-
 const ShipmentDetailsMain = ({
   className,
   shipment,
@@ -57,6 +54,7 @@ const ShipmentDetailsMain = ({
     requiredDeliveryDate,
     pickupAddress,
     destinationAddress,
+    calculatedBillableWeight,
     primeEstimatedWeight,
     primeActualWeight,
     counselorRemarks,
@@ -71,14 +69,17 @@ const ShipmentDetailsMain = ({
 
   const [isReviewSITExtensionModalVisible, setIsReviewSITExtensionModalVisible] = useState(false);
   const [isSubmitITExtensionModalVisible, setIsSubmitITExtensionModalVisible] = useState(false);
+  const [, setSubmittedChangeTime] = useState(Date.now());
 
   const reviewSITExtension = (sitExtensionID, formValues) => {
     setIsReviewSITExtensionModalVisible(false);
     handleReviewSITExtension(sitExtensionID, formValues, shipment);
+    setSubmittedChangeTime(Date.now());
   };
   const submitSITExtension = (formValues) => {
     setIsSubmitITExtensionModalVisible(false);
     handleSubmitSITExtension(formValues, shipment);
+    setSubmittedChangeTime(Date.now());
   };
 
   const pendingSITExtension = sitExtensions?.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
@@ -176,7 +177,8 @@ const ShipmentDetailsMain = ({
       />
       <ShipmentWeightDetails
         estimatedWeight={primeEstimatedWeight}
-        actualWeight={primeActualWeight}
+        initialWeight={primeActualWeight}
+        actualWeight={calculatedBillableWeight}
         shipmentInfo={{
           shipmentID: shipment.id,
           ifMatchEtag: shipment.eTag,
