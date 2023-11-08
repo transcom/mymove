@@ -26,8 +26,8 @@ import (
 const (
 	// TrdmIamRoleFlag is the TRDM IAM Role flag
 	TrdmIamRoleFlag string = "trdm-iam-role"
-	// TrdmRegionFlag is the TRDM Region flag
-	TrdmRegionFlag string = "trdm-region"
+	// TrdmGatewayRegionFlag is the TRDM Region flag
+	TrdmGatewayRegionFlag string = "trdm-gateway-region"
 	// GatewayURLFlag is the TRDM API Gateway URL flag
 	GatewayURLFlag string = "trdm-api-gateway-url"
 	// Success status code
@@ -60,7 +60,7 @@ func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 	// Cron tasks do not return errors, only log
 	cronTask := func() {
 		roleFlag := v.GetString(TrdmIamRoleFlag)
-		regionFlag := v.GetString(TrdmRegionFlag)
+		regionFlag := v.GetString(TrdmGatewayRegionFlag)
 		gatewayURL := v.GetString(GatewayURLFlag)
 
 		// Get the AWS configuration so we can build a session

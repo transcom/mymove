@@ -15,6 +15,11 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+const (
+	lastTableUpdateEndpoint string = "/api/v1/lastTableUpdate"
+	// getTableEndpoint        string = "/api/v1/getTable"
+)
+
 type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
@@ -50,7 +55,7 @@ func (gs GatewayService) gatewayLastTableUpdate(request models.LastTableUpdateRe
 	hash := GenerateSHA256Hash(requestBody)
 
 	// Put it into a new request
-	req, err := http.NewRequest("POST", gs.gatewayURL, bytes.NewBuffer(requestBody))
+	req, err := http.NewRequest("POST", gs.gatewayURL+lastTableUpdateEndpoint, bytes.NewBuffer(requestBody))
 	if err != nil {
 		gs.logger.Error("lastTableUpdate request", zap.Error(err))
 		return nil, err
