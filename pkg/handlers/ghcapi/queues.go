@@ -199,7 +199,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 			}
 
 			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
-				ListOrderParams.Status = []string{string(models.MoveStatusAPPROVED)}
+				ListOrderParams.Status = []string{string(models.MoveStatusAPPROVED), string(models.MoveStatusServiceCounselingCompleted)}
 			} else if len(params.Status) == 0 {
 				ListOrderParams.Status = []string{string(models.MoveStatusNeedsServiceCounseling)}
 			} else {

@@ -1,11 +1,14 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { mount } from 'enzyme';
 
 import ShipmentWeightDetails from './ShipmentWeightDetails';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
+
+const emDash = '\u2014';
 
 const shipmentInfoReweighRequested = {
   shipmentID: 'shipment1',
@@ -36,6 +39,7 @@ describe('ShipmentWeightDetails', () => {
       <MockProviders permissions={[permissionTypes.createReweighRequest]}>
         <ShipmentWeightDetails
           estimatedWeight={4500}
+          initialWeight={5000}
           actualWeight={5000}
           shipmentInfo={shipmentInfoNoReweigh}
           handleRequestReweighModal={handleRequestReweighModal}
@@ -43,14 +47,17 @@ describe('ShipmentWeightDetails', () => {
       </MockProviders>,
     );
 
-    const estWeight = await screen.findByText('Estimated weight');
-    expect(estWeight).toBeTruthy();
+    const estimatedWeight = await screen.findByText('Estimated weight');
+    expect(estimatedWeight).toBeTruthy();
 
-    const shipWeight = await screen.findByText('Shipment weight');
-    expect(shipWeight).toBeTruthy();
+    const initialWeight = await screen.findByText('Initial weight');
+    expect(initialWeight).toBeTruthy();
 
     const reweighButton = await screen.findByText('Request reweigh');
     expect(reweighButton).toBeTruthy();
+
+    const actualWeight = await screen.findByText('Actual shipment weight');
+    expect(actualWeight).toBeTruthy();
   });
 
   it('renders with estimated weight if not an NTSR', async () => {
@@ -68,7 +75,7 @@ describe('ShipmentWeightDetails', () => {
   });
 
   it('renders without estimated weight if an NTSR', async () => {
-    render(
+    const wrapper = mount(
       <ShipmentWeightDetails
         estimatedWeight={null}
         actualWeight={12000}
@@ -77,7 +84,7 @@ describe('ShipmentWeightDetails', () => {
       />,
     );
 
-    expect(screen.queryByText('Estimated weight')).not.toBeInTheDocument();
+    expect(wrapper.find('td').at(0).text()).toEqual(emDash);
   });
 
   it('renders with shipment weight', async () => {
