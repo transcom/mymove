@@ -8,11 +8,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
-	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
-	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -27,26 +24,19 @@ type GatewayService struct {
 	region      string
 	trdmIamRole string
 	gatewayURL  string
-	creds       *aws.Credentials
+	stsCreds    *stscreds.AssumeRoleProvider
 }
 
-func NewGatewayService(httpClient HTTPClient, logger *zap.Logger, region, trdmIamRole string, gatewayURL string, creds *aws.Credentials) *GatewayService {
+func NewGatewayService(httpClient HTTPClient, logger *zap.Logger, region, trdmIamRole string, gatewayURL string, stsCreds *stscreds.AssumeRoleProvider) *GatewayService {
 	return &GatewayService{
 		httpClient:  httpClient,
 		logger:      logger,
 		region:      region,
 		trdmIamRole: trdmIamRole,
 		gatewayURL:  gatewayURL,
-		creds:       creds,
+		stsCreds:    stsCreds,
 	}
 }
-
-const (
-	// ! Not in use yet
-	// TODO:
-	// TrdmIamFlag is the TRDM IAM flag
-	TrdmIamFlag string = "trdm-iam"
-)
 
 func (gs GatewayService) gatewayLastTableUpdate(request models.LastTableUpdateRequest) (*http.Response, error) {
 	// Create the request body
@@ -68,7 +58,7 @@ func (gs GatewayService) gatewayLastTableUpdate(request models.LastTableUpdateRe
 	req.Header.Set("Content-Type", "application/json")
 
 	// Sign request, this will update req in place
-	err = signRequest(req, *gs.creds, string(hash), gs.region, gs.logger)
+	err = signRequest(req, gs.stsCreds, string(hash), gs.region, gs.logger)
 	if err != nil {
 		gs.logger.Error("signing lastTableUpdate request", zap.Error(err))
 		return nil, err
@@ -91,41 +81,22 @@ func GenerateSHA256Hash(data []byte) []byte {
 	return hasher.Sum(nil)
 }
 
-func signRequest(req *http.Request, creds aws.Credentials, hash string, region string, logger *zap.Logger) error {
+func signRequest(req *http.Request, stsCreds *stscreds.AssumeRoleProvider, hash string, region string, logger *zap.Logger) error {
+	// V4 signing is used for request auth (AKA using IAM auth from Go as a client)
 	signer := v4.NewSigner()
 
+	// Generate temporary credentials
+	creds, err := stsCreds.Retrieve(context.Background())
+	if err != nil {
+		logger.Error("error retrieving sts credentials", zap.Error(err))
+		return err
+	}
 	// Provide execute-api service as we're going through the gateway for this request
-	err := signer.SignHTTP(context.Background(), creds, req, hash, "execute-api", region, time.Now())
+	err = signer.SignHTTP(context.Background(), creds, req, hash, "execute-api", region, time.Now())
 	if err != nil {
 		logger.Error("error signing http request", zap.Error(err))
 		return err
 	}
 
 	return nil
-}
-
-func retrieveCredentials(region string, trdmIamRole string, logger *zap.Logger) (aws.Credentials, error) {
-	// We want to get the credentials from the logged in AWS
-	// session rather than create directly, because the session
-	// conflates the environment, shared, and container metdata
-	// config within NewSession. With stscreds, we use the Secure
-	// Token Service, to assume the given role (that has API
-	// gateway `execute-api` permissions).
-	cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(region))
-	if err != nil {
-		logger.Error("loading aws config", zap.Error(err))
-		return aws.Credentials{}, err
-	}
-
-	logger.Info("assuming AWS role for API gateway execution", zap.String("role", trdmIamRole))
-	stsClient := sts.NewFromConfig(cfg)
-	provider := stscreds.NewAssumeRoleProvider(stsClient, trdmIamRole)
-
-	creds, err := provider.Retrieve(context.Background())
-	if err != nil {
-		logger.Error("error retrieving aws credentials", zap.Error(err))
-		return aws.Credentials{}, err
-	}
-
-	return creds, nil
 }

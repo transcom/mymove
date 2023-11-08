@@ -1,6 +1,7 @@
 package trdm
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
@@ -17,6 +18,10 @@ import (
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
+
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 )
 
 const (
@@ -59,12 +64,20 @@ func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 		regionFlag := v.GetString(TrdmRegionFlag)
 		gatewayURL := v.GetString(GatewayURLFlag)
 
-		// Obtain creds for signing
-		creds, err := retrieveCredentials(regionFlag, roleFlag, logger)
+		// Get the AWS configuration so we can build a session
+		cfg, err := config.LoadDefaultConfig(context.Background(),
+			config.WithRegion(v.GetString(cli.AWSRegionFlag)),
+		)
 		if err != nil {
-			logger.Error("retrieving aws creds", zap.Error(err))
+			logger.Fatal("error loading default aws config", zap.Error(err))
 			return
 		}
+
+		// Create an Amazon STS client
+		stsClient := sts.NewFromConfig(cfg)
+
+		// Obtain creds for signing
+		stsCreds := stscreds.NewAssumeRoleProvider(stsClient, TrdmIamRoleFlag)
 
 		// Initialize the request model with physicalName
 		request := models.LastTableUpdateRequest{
@@ -79,7 +92,7 @@ func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 		httpClient := &http.Client{Transport: tr, Timeout: time.Duration(30) * time.Second}
 
 		// Create gateway service
-		service := NewGatewayService(httpClient, logger, regionFlag, roleFlag, gatewayURL, &creds)
+		service := NewGatewayService(httpClient, logger, regionFlag, roleFlag, gatewayURL, stsCreds)
 
 		// Fire off to retrieve the latest table update, compare that to our own internal latest update records,
 		// and then call getTable if there is new data found. The getTable call will happen inside of this chain
