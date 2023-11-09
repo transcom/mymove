@@ -8230,6 +8230,9 @@ func init() {
     },
     "ProofOfServiceDoc": {
       "properties": {
+        "isWeightTicket": {
+          "type": "boolean"
+        },
         "uploads": {
           "type": "array",
           "items": {
@@ -19651,6 +19654,9 @@ func init() {
     },
     "ProofOfServiceDoc": {
       "properties": {
+        "isWeightTicket": {
+          "type": "boolean"
+        },
         "uploads": {
           "type": "array",
           "items": {

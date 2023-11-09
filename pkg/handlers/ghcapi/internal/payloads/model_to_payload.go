@@ -1437,8 +1437,18 @@ func ProofOfServiceDoc(proofOfService models.ProofOfServiceDoc, storer storage.F
 		}
 	}
 
+	// checking if isWeightTicket is NULL to avoid panic
+	// if it is NULL, we will set it to false
+	var isWeightTicket bool
+	if proofOfService.IsWeightTicket != nil {
+		isWeightTicket = *proofOfService.IsWeightTicket
+	} else {
+		isWeightTicket = false
+	}
+
 	return &ghcmessages.ProofOfServiceDoc{
-		Uploads: uploads,
+		IsWeightTicket: isWeightTicket,
+		Uploads:        uploads,
 	}, nil
 }
 

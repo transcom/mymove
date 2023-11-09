@@ -1259,7 +1259,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/uploads": {
       "post": {
-        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
+        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nRequired field of **isWeightTicket** indicates if the document is a weight ticket or not.\nThis will be used for partial and full deliveries and makes it easier for the Transportation Invoicing Officers to locate and review service item documents.\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
         "consumes": [
           "multipart/form-data"
         ],
@@ -1285,6 +1285,12 @@ func init() {
             "name": "file",
             "in": "formData",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "Indicates whether the file is a weight ticket.",
+            "name": "isWeightTicket",
+            "in": "formData"
           }
         ],
         "responses": {
@@ -6209,7 +6215,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/uploads": {
       "post": {
-        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
+        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nRequired field of **isWeightTicket** indicates if the document is a weight ticket or not.\nThis will be used for partial and full deliveries and makes it easier for the Transportation Invoicing Officers to locate and review service item documents.\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
         "consumes": [
           "multipart/form-data"
         ],
@@ -6235,6 +6241,12 @@ func init() {
             "name": "file",
             "in": "formData",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "Indicates whether the file is a weight ticket.",
+            "name": "isWeightTicket",
+            "in": "formData"
           }
         ],
         "responses": {

@@ -15,6 +15,7 @@ type ProofOfServiceDoc struct {
 	PaymentRequestID uuid.UUID `json:"payment_request_id" db:"payment_request_id"`
 	CreatedAt        time.Time `db:"created_at"`
 	UpdatedAt        time.Time `db:"updated_at"`
+	IsWeightTicket   *bool     `db:"is_weight_ticket"`
 
 	//Associations
 	PaymentRequest PaymentRequest `belongs_to:"payment_request" fk_id:"payment_request_id"`

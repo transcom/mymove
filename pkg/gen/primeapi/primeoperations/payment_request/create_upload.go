@@ -39,6 +39,9 @@ This endpoint **uploads** a Proof of Service document for a PaymentRequest.
 
 The PaymentRequest should already exist.
 
+Required field of **isWeightTicket** indicates if the document is a weight ticket or not.
+This will be used for partial and full deliveries and makes it easier for the Transportation Invoicing Officers to locate and review service item documents.
+
 PaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.
 */
 type CreateUpload struct {

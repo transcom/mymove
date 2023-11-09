@@ -51,7 +51,7 @@ func (p *paymentRequestUploadCreator) assembleUploadFilePathName(appCtx appconte
 	return uploadFileName, err
 }
 
-func (p *paymentRequestUploadCreator) CreateUpload(appCtx appcontext.AppContext, file io.ReadCloser, paymentRequestID uuid.UUID, contractorID uuid.UUID, uploadFilename string) (*models.Upload, error) {
+func (p *paymentRequestUploadCreator) CreateUpload(appCtx appcontext.AppContext, file io.ReadCloser, paymentRequestID uuid.UUID, contractorID uuid.UUID, uploadFilename string, isWeightTicket bool) (*models.Upload, error) {
 	var upload *models.Upload
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		newUploader, err := uploader.NewPrimeUploader(p.fileStorer, p.fileSizeLimit)
@@ -88,6 +88,7 @@ func (p *paymentRequestUploadCreator) CreateUpload(appCtx appcontext.AppContext,
 		proofOfServiceDoc := models.ProofOfServiceDoc{
 			PaymentRequestID: paymentRequestID,
 			PaymentRequest:   paymentRequest,
+			IsWeightTicket:   &isWeightTicket,
 		}
 		verrs, err := txnAppCtx.DB().ValidateAndCreate(&proofOfServiceDoc)
 		if err != nil {
