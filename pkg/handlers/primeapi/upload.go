@@ -69,6 +69,8 @@ func (h CreateUploadHandler) Handle(params paymentrequestop.CreateUploadParams) 
 				return paymentrequestop.NewCreateUploadInternalServerError(), err
 			}
 
+			// the prime may provide an optional param of isWeightTicket
+			// if null, we will change it to false to avoid panic
 			var isWeightTicket bool
 			if params.IsWeightTicket == nil {
 				isWeightTicket = false

@@ -90,6 +90,7 @@ func (p *paymentRequestUploadCreator) CreateUpload(appCtx appcontext.AppContext,
 			PaymentRequest:   paymentRequest,
 			IsWeightTicket:   &isWeightTicket,
 		}
+		// add proof of service doc to database
 		verrs, err := txnAppCtx.DB().ValidateAndCreate(&proofOfServiceDoc)
 		if err != nil {
 			return fmt.Errorf("failure creating proof of service doc: %w", err) // server err
