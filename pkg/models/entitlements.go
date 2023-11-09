@@ -228,21 +228,22 @@ func GetWeightAllotment(rank ServiceMemberRank) WeightAllotment {
 	return entitlement
 }
 
-func GetProGearEntitlement(rank ServiceMemberRank, isDependent bool) (int, error) {
-	weight := 0
-
+func GetProGearEntitlement(rank ServiceMemberRank) (int, error) {
 	selfEntitlement, err := getEntitlement(rank)
 	if err != nil {
-		return weight, fmt.Errorf("Rank %s not found in entitlement map", rank)
+		return 0, fmt.Errorf("Rank %s not found in entitlement map", rank)
 	}
 
-	if isDependent {
-		weight = selfEntitlement.ProGearWeightSpouse
-	} else {
-		weight = selfEntitlement.ProGearWeight
+	return selfEntitlement.ProGearWeight, nil
+}
+
+func GetProGearSpouseEntitlement(rank ServiceMemberRank) (int, error) {
+	selfEntitlement, err := getEntitlement(rank)
+	if err != nil {
+		return 0, fmt.Errorf("Rank %s not found in entitlement map", rank)
 	}
 
-	return weight, nil
+	return selfEntitlement.ProGearWeightSpouse, nil
 }
 
 // GetEntitlement calculates the entitlement weight based on rank and dependents.

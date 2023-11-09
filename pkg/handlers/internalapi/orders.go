@@ -154,19 +154,18 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 			grade := (*string)(serviceMember.Rank)
 
 			weight, entitlementErr := models.GetEntitlement(*serviceMember.Rank, *payload.HasDependents)
-			proGear, proGearErr := models.GetProGearEntitlement(*serviceMember.Rank, false)
-			proGearSpouse, proGearSpouseErr := models.GetProGearEntitlement(*serviceMember.Rank, true)
-
 			if entitlementErr != nil {
 				return handlers.ResponseForError(appCtx.Logger(), entitlementErr), entitlementErr
 			}
 
-			if proGearErr != nil {
-				return handlers.ResponseForError(appCtx.Logger(), proGearErr), proGearErr
+			proGear, entitlementErr := models.GetProGearEntitlement(*serviceMember.Rank)
+			if entitlementErr != nil {
+				return handlers.ResponseForError(appCtx.Logger(), entitlementErr), entitlementErr
 			}
 
-			if proGearSpouseErr != nil {
-				return handlers.ResponseForError(appCtx.Logger(), proGearSpouseErr), proGearSpouseErr
+			proGearSpouse, entitlementErr := models.GetProGearSpouseEntitlement(*serviceMember.Rank)
+			if entitlementErr != nil {
+				return handlers.ResponseForError(appCtx.Logger(), entitlementErr), entitlementErr
 			}
 
 			// Assign default SIT allowance based on customer type.
