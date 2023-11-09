@@ -17,8 +17,8 @@ import (
 const (
 	lastTableUpdateEndpoint      string = "/api/v1/lastTableUpdate"
 	getTableEndpoint             string = "/api/v1/getTable"
-	lineOfAccounting             string = "LN_OF_ACCT"
-	transportationAccountingCode string = "TRNSPRTN_ACNT"
+	LineOfAccounting             string = "LN_OF_ACCT"
+	TransportationAccountingCode string = "TRNSPRTN_ACNT"
 )
 
 type HTTPClient interface {

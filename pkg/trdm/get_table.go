@@ -11,7 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/parser/tac"
 )
 
-func getTGETData(getTableRequest models.GetTableRequest, service GatewayService, appCtx appcontext.AppContext) error {
+func GetTGETData(getTableRequest models.GetTableRequest, service GatewayService, appCtx appcontext.AppContext) error {
 	// Setup response model
 	getTableResponse := models.GetTableResponse{}
 
@@ -48,22 +48,22 @@ func getTGETData(getTableRequest models.GetTableRequest, service GatewayService,
 func parseGetTableResponse(appcontext appcontext.AppContext, attachment []byte, physicalName string) error {
 	reader := bytes.NewReader(attachment)
 	switch physicalName {
-	case lineOfAccounting:
+	case LineOfAccounting:
 		loaCodes, err := loa.Parse(reader)
 		if err != nil {
 			return err
 		}
-		err = saveLoaCodes(appcontext, loaCodes)
+		err = createLoaCodes(appcontext, loaCodes)
 		if err != nil {
 			return err
 		}
-	case transportationAccountingCode:
+	case TransportationAccountingCode:
 		tacCodes, err := tac.Parse(reader)
 		consolidatedTacs := tac.ConsolidateDuplicateTACsDesiredFromTRDM(tacCodes)
 		if err != nil {
 			return err
 		}
-		if err = saveTacCodes(appcontext, consolidatedTacs); err != nil {
+		if err = createTacCodes(appcontext, consolidatedTacs); err != nil {
 			return err
 		}
 	default:
@@ -72,18 +72,18 @@ func parseGetTableResponse(appcontext appcontext.AppContext, attachment []byte, 
 	return nil
 }
 
-// Saves TAC Code slice to DB and updates records
-func saveTacCodes(appcontext appcontext.AppContext, tacCodes []models.TransportationAccountingCode) error {
-	saveErr := appcontext.DB().Update(tacCodes)
+// Saves new TAC Code slice to DB
+func createTacCodes(appcontext appcontext.AppContext, tacCodes []models.TransportationAccountingCode) error {
+	saveErr := appcontext.DB().Create(tacCodes)
 	if saveErr != nil {
 		return saveErr
 	}
 	return nil
 }
 
-// Saves LOA Code slice to DB and updates records
-func saveLoaCodes(appcontext appcontext.AppContext, loa []models.LineOfAccounting) error {
-	saveErr := appcontext.DB().Update(loa)
+// Saves new LOA Code slice to DB
+func createLoaCodes(appcontext appcontext.AppContext, loa []models.LineOfAccounting) error {
+	saveErr := appcontext.DB().Create(loa)
 	if saveErr != nil {
 		return saveErr
 	}

@@ -17,16 +17,9 @@ func BeginTGETFlow(v *viper.Viper, appCtx appcontext.AppContext, provider Assume
 	}
 	zap.ReplaceGlobals(logger)
 
-	// TODO: Turn back on when implementing getTable
-	// DB connection
-	// dbConnection, err := cli.InitDatabase(v, logger)
-	// if err != nil {
-	// 	return err
-	// }
-
 	// These are likely to never err. Remember, errors are logged not returned in cron
-	getLastTableUpdateTACErr := startLastTableUpdateCron(transportationAccountingCode, logger, v, appCtx, provider, client)
-	getLastTableUpdateLOAErr := startLastTableUpdateCron(lineOfAccounting, logger, v, appCtx, provider, client)
+	getLastTableUpdateTACErr := startLastTableUpdateCron(TransportationAccountingCode, logger, v, appCtx, provider, client)
+	getLastTableUpdateLOAErr := startLastTableUpdateCron(LineOfAccounting, logger, v, appCtx, provider, client)
 	if getLastTableUpdateLOAErr != nil {
 		return getLastTableUpdateLOAErr
 	}

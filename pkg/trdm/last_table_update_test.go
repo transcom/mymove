@@ -80,14 +80,8 @@ func (m *MockHTTPClient) Do(req *http.Request) (*http.Response, error) {
 }
 
 func (suite *TRDMSuite) TestLastTableUpdate() {
-	// Setup mock creds
-	mockCreds := aws.Credentials{
-		AccessKeyID:     "mockAccessKeyID",
-		SecretAccessKey: "mockSecretAccessKey",
-		SessionToken:    "mockSessionToken",
-		Source:          "mockProvider",
-	}
-	mockProvider := &mockAssumeRoleProvider{creds: mockCreds}
+
+	mockProvider := &mockAssumeRoleProvider{creds: suite.creds}
 
 	lastUpdateResponse := models.LastTableUpdateResponse{
 		StatusCode: trdm.SuccessfulStatusCode,

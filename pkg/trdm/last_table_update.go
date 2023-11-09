@@ -94,7 +94,7 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 		switch lastTableUpdateResponse.StatusCode {
 		case SuccessfulStatusCode:
 			switch physicalName {
-			case lineOfAccounting:
+			case LineOfAccounting:
 				loas, err := FetchLOARecordsByTime(appCtx, lastTableUpdateResponse.LastUpdate)
 				if err != nil {
 					logger.Error("fetching loa records by time", zap.Error(err))
@@ -104,8 +104,8 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 				if len(loas) > 0 {
 					// Since loas were returned, we are in fact out of date
 					// Trigger Get TGET data and GetTable call
-					err := getTGETData(models.GetTableRequest{
-						PhysicalName:                lineOfAccounting,
+					err := GetTGETData(models.GetTableRequest{
+						PhysicalName:                LineOfAccounting,
 						ContentUpdatedSinceDateTime: lastTableUpdateResponse.LastUpdate,
 						ReturnContent:               true,
 					}, *service, appCtx)
@@ -116,7 +116,7 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 					}
 					return
 				}
-			case transportationAccountingCode:
+			case TransportationAccountingCode:
 				tacs, err := FetchTACRecordsByTime(appCtx, lastTableUpdateResponse.LastUpdate)
 				if err != nil {
 					logger.Error("fetching tac records by time", zap.Error(err))
@@ -126,8 +126,8 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 				if len(tacs) > 0 {
 					// Since tacs were returned, we are in fact out of date
 					// Trigger Get TGET data and GetTable call
-					err := getTGETData(models.GetTableRequest{
-						PhysicalName:                transportationAccountingCode,
+					err := GetTGETData(models.GetTableRequest{
+						PhysicalName:                TransportationAccountingCode,
 						ContentUpdatedSinceDateTime: lastTableUpdateResponse.LastUpdate,
 						ReturnContent:               true,
 					}, *service, appCtx)

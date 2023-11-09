@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
@@ -19,6 +20,7 @@ type TRDMSuite struct {
 	*testingsuite.PopTestSuite
 	viper  *viper.Viper
 	logger *zap.Logger
+	creds  aws.Credentials
 }
 
 type initFlags func(f *pflag.FlagSet)
@@ -58,10 +60,19 @@ func TestTRDMSuite(t *testing.T) {
 
 	logger := zaptest.NewLogger(t)
 
+	// Setup mock creds
+	mockCreds := aws.Credentials{
+		AccessKeyID:     "mockAccessKeyID",
+		SecretAccessKey: "mockSecretAccessKey",
+		SessionToken:    "mockSessionToken",
+		Source:          "mockProvider",
+	}
+
 	hs := &TRDMSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		viper:        v,
 		logger:       logger,
+		creds:        mockCreds,
 	}
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()
