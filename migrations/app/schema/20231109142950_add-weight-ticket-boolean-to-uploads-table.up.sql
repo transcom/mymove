@@ -4,4 +4,4 @@ ALTER TABLE proof_of_service_docs
 ADD COLUMN is_weight_ticket boolean;
 
 -- Column comments
-COMMENT ON COLUMN proof_of_service_docs.is_weight_ticket IS 'Determines if the proof of service doc is a weight ticket or not, this will be used in the UI when revieweing the requests.';
+COMMENT ON COLUMN proof_of_service_docs.is_weight_ticket IS 'Determines if the proof of service doc is a weight ticket or not, this will be used in the UI when reviewing the requests.';
