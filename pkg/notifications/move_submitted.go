@@ -89,7 +89,7 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		DestinationDutyLocation:      orders.NewDutyLocation.Name,
 		OriginDutyLocationPhoneLine:  originDutyLocationPhoneLine,
 		Locator:                      move.Locator,
-		WeightAllowance:              humanize.Comma(int64(totalEntitlement)),
+		WeightAllowance:              humanize.Comma(int64(totalEntitlement.TotalWeight)),
 		ProvidesGovernmentCounseling: providesGovernmentCounseling,
 	})
 
