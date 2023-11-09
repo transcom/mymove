@@ -51,6 +51,10 @@ func (p *paymentRequestUploadCreator) assembleUploadFilePathName(appCtx appconte
 	return uploadFileName, err
 }
 
+// handles creating an upload for a payment request and adds it to tables
+// adds upload doc to proof_of_service_docs table
+// then adds row to prime_uploads table
+// then adds row to uploads table
 func (p *paymentRequestUploadCreator) CreateUpload(appCtx appcontext.AppContext, file io.ReadCloser, paymentRequestID uuid.UUID, contractorID uuid.UUID, uploadFilename string, isWeightTicket bool) (*models.Upload, error) {
 	var upload *models.Upload
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
@@ -100,6 +104,7 @@ func (p *paymentRequestUploadCreator) CreateUpload(appCtx appcontext.AppContext,
 		}
 
 		posID := &proofOfServiceDoc.ID
+		// add row to prime_uploads table
 		primeUpload, verrs, err := newUploader.CreatePrimeUploadForDocument(txnAppCtx, posID, contractorID, uploader.File{File: aFile}, uploader.AllowedTypesPaymentRequest)
 		if verrs.HasAny() {
 			return apperror.NewInvalidCreateInputError(verrs, "validation error with creating payment request")

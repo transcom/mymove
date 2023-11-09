@@ -71,14 +71,14 @@ func (h CreateUploadHandler) Handle(params paymentrequestop.CreateUploadParams) 
 
 			// the prime may provide an optional param of isWeightTicket
 			// if null, we will change it to false to avoid panic
-			var isWeightTicket bool
+			var isWeightTicketParam bool
 			if params.IsWeightTicket == nil {
-				isWeightTicket = false
+				isWeightTicketParam = false
 			} else {
-				isWeightTicket = true
+				isWeightTicketParam = true
 			}
 
-			createdUpload, err := h.PaymentRequestUploadCreator.CreateUpload(appCtx, file.Data, paymentRequestID, contractorID, file.Header.Filename, isWeightTicket)
+			createdUpload, err := h.PaymentRequestUploadCreator.CreateUpload(appCtx, file.Data, paymentRequestID, contractorID, file.Header.Filename, isWeightTicketParam)
 			if err != nil {
 				appCtx.Logger().Error("primeapi.CreateUploadHandler error", zap.Error(err))
 				switch e := err.(type) {
