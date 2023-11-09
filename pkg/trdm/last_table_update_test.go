@@ -111,7 +111,7 @@ func (suite *TRDMSuite) TestLastTableUpdate() {
 	suite.viper.Set(trdm.TrdmGatewayRegionFlag, "us-gov-west-1") // TODO: Possibly switch to var that itself is pulled from viper
 	suite.viper.Set(trdm.GatewayURLFlag, "https://test.gateway.url.amazon.com")
 
-	err = trdm.LastTableUpdate(suite.viper, suite.AppContextForTest(), mockProvider, mockHTTPClient)
+	err = trdm.BeginTGETFlow(suite.viper, suite.AppContextForTest(), mockProvider, mockHTTPClient)
 	suite.NoError(err)
 }
 

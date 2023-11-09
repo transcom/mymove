@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/pkg/errors"
@@ -13,8 +14,6 @@ import (
 	"gopkg.in/robfig/cron.v2"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/cli"
-	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -38,11 +37,6 @@ type AssumeRoleProvider interface {
 	Retrieve(ctx context.Context) (aws.Credentials, error)
 }
 
-// Date/time value is used in conjunction with the contentUpdatedSinceDateTime column in the getTable method.
-type GetLastTableUpdater interface {
-	GetLastTableUpdate(appCtx appcontext.AppContext, physicalName string) error
-}
-
 // FetchAllTACRecords queries and fetches all transportation_accounting_codes
 func FetchAllTACRecords(appcontext appcontext.AppContext) ([]models.TransportationAccountingCode, error) {
 	var tacCodes []models.TransportationAccountingCode
@@ -55,7 +49,8 @@ func FetchAllTACRecords(appcontext appcontext.AppContext) ([]models.Transportati
 	return tacCodes, nil
 }
 
-func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.Viper, appCtx appcontext.AppContext, provider AssumeRoleProvider, client HTTPClient) error {
+// This is the start of the cron job. When called, it will immediately trigger the TRDM flow. After that, it will trigger again every 24 hours.
+func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.Viper, appCtx appcontext.AppContext, provider AssumeRoleProvider, client HTTPClient) error {
 
 	cron := cron.New()
 
@@ -95,6 +90,7 @@ func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 			return
 		}
 
+		// Handle the response from lastTableUpdate
 		switch lastTableUpdateResponse.StatusCode {
 		case SuccessfulStatusCode:
 			switch physicalName {
@@ -107,7 +103,17 @@ func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 				// Check if loas are out of date
 				if len(loas) > 0 {
 					// Since loas were returned, we are in fact out of date
-					// TODO: GetTable
+					// Trigger Get TGET data and GetTable call
+					err := getTGETData(models.GetTableRequest{
+						PhysicalName:                lineOfAccounting,
+						ContentUpdatedSinceDateTime: lastTableUpdateResponse.LastUpdate,
+						ReturnContent:               true,
+					}, *service, appCtx)
+					if err != nil {
+						logger.Info("successfully retrieved latest line of accounting TGET data")
+					} else {
+						logger.Fatal("failed to retrieve latest line of accounting TGET data")
+					}
 					return
 				}
 			case transportationAccountingCode:
@@ -119,9 +125,22 @@ func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 				// Check if tacs are out of date
 				if len(tacs) > 0 {
 					// Since tacs were returned, we are in fact out of date
-					// TODO: GetTable
+					// Trigger Get TGET data and GetTable call
+					err := getTGETData(models.GetTableRequest{
+						PhysicalName:                transportationAccountingCode,
+						ContentUpdatedSinceDateTime: lastTableUpdateResponse.LastUpdate,
+						ReturnContent:               true,
+					}, *service, appCtx)
+					if err != nil {
+						logger.Info("successfully retrieved latest transportation accounting TGET data")
+					} else {
+						logger.Fatal("failed to retrieve latest transportation accounting TGET data")
+					}
 					return
 				}
+			default:
+				logger.Error("unsupported table provided")
+				return
 			}
 		case FailureStatusCode:
 			logger.Error("trdm api gateway request failed, please inspect the trdm gateway logs")
@@ -145,30 +164,40 @@ func StartLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 	return nil
 }
 
-func LastTableUpdate(v *viper.Viper, appCtx appcontext.AppContext, provider AssumeRoleProvider, client HTTPClient) error {
-	dbEnv := v.GetString(cli.DbEnvFlag)
-	logger, _, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
+// Fetch Transportation Accounting Codes from DB and return the list of records if the updated_at field is < the returned LastTableUpdate updated time.
+// Ex:
+//
+//	LastTableUpdate : 2023-08-30 15:24:13.19931
+//	updated_at: 2023-08-29 15:24:13.19931
+//
+// Because updated_at is before LastTableUpdate the DB will return records that match this case.
+//
+//	returns []models.TransportationAccountingCode, error
+func FetchTACRecordsByTime(appcontext appcontext.AppContext, time time.Time) ([]models.TransportationAccountingCode, error) {
+	var tacCodes []models.TransportationAccountingCode
+	err := appcontext.DB().Select("*").Where("updated_at < $1", time).All(&tacCodes)
+
 	if err != nil {
-		return err
-	}
-	zap.ReplaceGlobals(logger)
-
-	// TODO: Turn back on when implementing getTable
-	// DB connection
-	// dbConnection, err := cli.InitDatabase(v, logger)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// These are likely to never err. Remember, errors are logged not returned in cron
-	getLastTableUpdateTACErr := StartLastTableUpdateCron(transportationAccountingCode, logger, v, appCtx, provider, client)
-	getLastTableUpdateLOAErr := StartLastTableUpdateCron(lineOfAccounting, logger, v, appCtx, provider, client)
-	if getLastTableUpdateLOAErr != nil {
-		return getLastTableUpdateLOAErr
-	}
-	if getLastTableUpdateTACErr != nil {
-		return getLastTableUpdateTACErr
+		return tacCodes, errors.Wrap(err, "Fetch line items query failed")
 	}
 
-	return nil
+	return tacCodes, nil
+}
+
+// Fetch Line Of Accounting records from DB and return the list of records if the updated_at field is < the returned LastTableUpdate updated time.
+// Ex:
+//
+//	LastTableUpdate : 2023-08-30 15:24:13.19931
+//	updated_at: 2023-08-29 15:24:13.19931
+//
+// Because updated_at is before LastTableUpdate the DB will return records that match this case.
+//
+//	returns []models.LineOfAccounting, error
+func FetchLOARecordsByTime(appcontext appcontext.AppContext, time time.Time) ([]models.LineOfAccounting, error) {
+	var loa []models.LineOfAccounting
+	err := appcontext.DB().Select("*").Where("updated_at < $1", time).All(&loa)
+	if err != nil {
+		return loa, errors.Wrap(err, "Fetch line items query failed")
+	}
+	return loa, nil
 }

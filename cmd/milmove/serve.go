@@ -836,7 +836,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		httpClient := &http.Client{Transport: tr, Timeout: time.Duration(30) * time.Second}
 
 		// Initial REST call for LastTableUpdate on server start and once per day
-		err = trdm.LastTableUpdate(v, appCtx, stsProvider, httpClient)
+		err = trdm.BeginTGETFlow(v, appCtx, stsProvider, httpClient)
 		if err != nil {
 			logger.Fatal("unable to retrieve latest TGET data from TRDM", zap.Error(err))
 			return err
