@@ -110,9 +110,9 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 						ReturnContent:               true,
 					}, *service, appCtx)
 					if err != nil {
-						logger.Info("successfully retrieved latest line of accounting TGET data")
-					} else {
 						logger.Fatal("failed to retrieve latest line of accounting TGET data")
+					} else {
+						logger.Info("successfully retrieved latest line of accounting TGET data")
 					}
 					return
 				}
