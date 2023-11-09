@@ -59,6 +59,7 @@ func parseGetTableResponse(appcontext appcontext.AppContext, attachment []byte, 
 		}
 	case TransportationAccountingCode:
 		tacCodes, err := tac.Parse(reader)
+		// Consolidate duplicates
 		consolidatedTacs := tac.ConsolidateDuplicateTACsDesiredFromTRDM(tacCodes)
 		if err != nil {
 			return err
