@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	lastTableUpdateEndpoint      string = "/api/v1/lastTableUpdate"
-	getTableEndpoint             string = "/api/v1/getTable"
+	LastTableUpdateEndpoint      string = "/api/v1/lastTableUpdate"
+	GetTableEndpoint             string = "/api/v1/getTable"
 	LineOfAccounting             string = "LN_OF_ACCT"
 	TransportationAccountingCode string = "TRNSPRTN_ACNT"
 )
@@ -56,7 +56,7 @@ func (gs GatewayService) gatewayLastTableUpdate(request models.LastTableUpdateRe
 	hash := generateSHA256Hash(requestBody)
 
 	// Put it into a new request
-	req, err := http.NewRequest("POST", gs.gatewayURL+lastTableUpdateEndpoint, bytes.NewBuffer(requestBody))
+	req, err := http.NewRequest("POST", gs.gatewayURL+LastTableUpdateEndpoint, bytes.NewBuffer(requestBody))
 	if err != nil {
 		gs.logger.Error("lastTableUpdate request", zap.Error(err))
 		return nil, err
@@ -93,7 +93,7 @@ func (gs GatewayService) gatewayGetTable(request models.GetTableRequest) (*http.
 	hash := generateSHA256Hash(requestBody)
 
 	// Put it into a new request
-	req, err := http.NewRequest("POST", gs.gatewayURL+getTableEndpoint, bytes.NewBuffer(requestBody))
+	req, err := http.NewRequest("POST", gs.gatewayURL+GetTableEndpoint, bytes.NewBuffer(requestBody))
 	if err != nil {
 		gs.logger.Error("getTable request", zap.Error(err))
 		return nil, err
