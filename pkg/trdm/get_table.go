@@ -58,33 +58,35 @@ func FetchLOARecordsByTime(appcontext appcontext.AppContext, time time.Time) ([]
 //   - lastUpdate: Returned date time from LastTableUpdate Soap Request
 //
 // returns error
-func GetTable(appCtx appcontext.AppContext, physicalName string, lastUpdate time.Time) error {
 
-	switch physicalName {
-	case lineOfAccounting:
-		loaRecords, loaFetchErr := FetchLOARecordsByTime(appCtx, lastUpdate)
+//TODO: Next story
+// func GetTable(appCtx appcontext.AppContext, physicalName string, lastUpdate time.Time) error {
 
-		if loaFetchErr != nil {
-			return loaFetchErr
-		}
+// 	switch physicalName {
+// 	case lineOfAccounting:
+// 		loaRecords, loaFetchErr := FetchLOARecordsByTime(appCtx, lastUpdate)
 
-		if len(loaRecords) > 0 {
-			// TODO: Send off the call
-			return loaFetchErr // Remove me
-		}
-	case transportationAccountingCode:
-		tacRecords, fetchErr := FetchTACRecordsByTime(appCtx, lastUpdate)
-		if fetchErr != nil {
-			return fetchErr
-		}
-		if len(tacRecords) > 0 {
-			// TODO: Send off the call
-			return fetchErr // Remove me
-		}
-	}
+// 		if loaFetchErr != nil {
+// 			return loaFetchErr
+// 		}
 
-	return nil
-}
+// 		if len(loaRecords) > 0 {
+// 			// TODO: Send off the call
+// 			return loaFetchErr // Remove me
+// 		}
+// 	case transportationAccountingCode:
+// 		tacRecords, fetchErr := FetchTACRecordsByTime(appCtx, lastUpdate)
+// 		if fetchErr != nil {
+// 			return fetchErr
+// 		}
+// 		if len(tacRecords) > 0 {
+// 			// TODO: Send off the call
+// 			return fetchErr // Remove me
+// 		}
+// 	}
+
+// 	return nil
+// }
 
 // Parses pipedelimited file attachment from GetTable webservice and saves records to database
 //

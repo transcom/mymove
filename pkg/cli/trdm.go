@@ -7,10 +7,8 @@ import (
 )
 
 const (
-	// TRDMApiURLFlag is the TRDM API URL Flag
-	TRDMApiURLFlag string = "trdm-api-url"
-	// TRDMApiWSDLFlag is the TRDM API WSDL Flag for ReturnTableV7
-	TRDMApiReturnTableV7WSDLFlag string = "trdm-api-return-table-v7-wsdl"
+	// TRDMApiGatewayURLFlag is the TRDM API Gateway URL Flag
+	TRDMApiGatewayURLFlag string = "trdm-api-gateway-url"
 	// TRDMUseMockFlag is the TRDM Use Mock Flag
 	TRDMUseMockFlag string = "trdm-use-mock"
 	// FF to enable or disable TRDM soap requests
@@ -19,18 +17,16 @@ const (
 
 // InitTRDMFlags initializes Route command line flags
 func InitTRDMFlags(flag *pflag.FlagSet) {
-	flag.String(TRDMApiURLFlag, "", "URL for sending a SOAP request to TRDM")
-	flag.String(TRDMApiReturnTableV7WSDLFlag, "", "WSDL for sending a SOAP request to TRDM ReturnTable, V7")
+	flag.String(TRDMApiGatewayURLFlag, "", "URL for sending a REST request to the TRDM gateway")
 
 	flag.Bool(TRDMUseMockFlag, false, "Whether to use a mocked version of TRDM")
-	flag.Bool(TRDMIsEnabledFlag, false, "Enable TRDM SOAP requests")
+	flag.Bool(TRDMIsEnabledFlag, false, "Enable TRDM data requests")
 }
 
 // CheckRoute validates Route command line flags
 func CheckTRDM(v *viper.Viper) error {
 	urlVars := []string{
-		TRDMApiURLFlag,
-		TRDMApiReturnTableV7WSDLFlag,
+		TRDMApiGatewayURLFlag,
 		TRDMIsEnabledFlag,
 	}
 
