@@ -72,7 +72,7 @@ func parseGetTableResponse(appcontext appcontext.AppContext, attachment []byte, 
 			return err
 		}
 	default:
-		return nil
+		return errors.New("provided physical name is not valid for TGET data")
 	}
 	return nil
 }

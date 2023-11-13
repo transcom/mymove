@@ -128,7 +128,7 @@ func (suite *TRDMSuite) TestSuccessfulGetTGETDataTAC() {
 	suite.Equal(len(expectedTACCodes), len(tacCodes))
 }
 
-func (suite *TRDMSuite) TestGetTGETDataBadPhysicalName() {
+func (suite *TRDMSuite) TestGetTGETDataNilResponseBody() {
 	mockClient := &MockHTTPClient{
 		DoFunc: func(req *http.Request) (*http.Response, error) {
 			return &http.Response{
@@ -148,5 +148,57 @@ func (suite *TRDMSuite) TestGetTGETDataBadPhysicalName() {
 	}
 
 	err := trdm.GetTGETData(getTableRequest, *service, suite.AppContextForTest())
+	suite.Error(err)
+}
+
+func (suite *TRDMSuite) TestGetTGETDataNilRequestBody() {
+	mockClient := &MockHTTPClient{
+		DoFunc: func(req *http.Request) (*http.Response, error) {
+			return &http.Response{
+				StatusCode: http.StatusBadRequest,
+				Body:       nil,
+			}, nil
+		}}
+
+	mockProvider := &mockAssumeRoleProvider{creds: suite.creds}
+
+	service := trdm.NewGatewayService(mockClient, suite.logger, "us-gov-west-1", "mockRole", "https://test.gateway.url.amazon.com", mockProvider)
+
+	getTableRequest := models.GetTableRequest{}
+
+	err := trdm.GetTGETData(getTableRequest, *service, suite.AppContextForTest())
+	suite.Error(err)
+}
+
+func (suite *TRDMSuite) TestGetTGETDataBadPhysicalName() {
+	getTableResponse := models.GetTableResponse{
+		RowCount:   2,
+		StatusCode: trdm.SuccessfulStatusCode,
+		DateTime:   time.Now(),
+		Attachment: nil,
+	}
+
+	responseBody, err := json.Marshal(getTableResponse)
+	suite.NoError(err)
+
+	mockClient := &MockHTTPClient{
+		DoFunc: func(req *http.Request) (*http.Response, error) {
+			return &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(bytes.NewReader(responseBody)),
+			}, nil
+		}}
+
+	mockProvider := &mockAssumeRoleProvider{creds: suite.creds}
+
+	service := trdm.NewGatewayService(mockClient, suite.logger, "us-gov-west-1", "mockRole", "https://test.gateway.url.amazon.com", mockProvider)
+
+	getTableRequest := models.GetTableRequest{
+		PhysicalName:                "badName",
+		ContentUpdatedSinceDateTime: time.Now().Add(time.Hour * 24 * 365 * 5),
+		ReturnContent:               true,
+	}
+
+	err = trdm.GetTGETData(getTableRequest, *service, suite.AppContextForTest())
 	suite.Error(err)
 }
