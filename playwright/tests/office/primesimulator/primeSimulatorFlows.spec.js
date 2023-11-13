@@ -133,4 +133,13 @@ test.describe('Prime simulator user', () => {
     expect(page.url()).toContain(`/simulator/moves/${moveID}/details`);
     // could also check for a payment request number but we won't know the value ahead of time
   });
+
+  // TODO: Unable to get a shipment to show up for Prime, skipping for now.
+  test.skip('is able to see partial status of partial PPM move', async ({ officePage }) => {
+    const partialPpmMoveCloseout = await officePage.testHarness.buildPartialPPMMoveReadyForCloseout();
+    const partialPpmCloseoutLocator = partialPpmMoveCloseout.locator;
+
+    await officePage.signInAsNewPrimeSimulatorUser();
+    await officePage.primeSimulatorNavigateToMove(partialPpmCloseoutLocator);
+  });
 });

@@ -208,13 +208,18 @@ const MoveDetails = ({
   }, [move?.excess_weight_acknowledged_at, mtoShipments, order?.entitlement.totalWeight, setExcessWeightRiskCount]);
 
   useEffect(() => {
-    let unapprovedSITExtensionCount = 0;
-    mtoShipments?.forEach((mtoShipment) => {
-      if (mtoShipment.sitExtensions?.find((sitEx) => sitEx.status === SIT_EXTENSION_STATUS.PENDING)) {
-        unapprovedSITExtensionCount += 1;
-      }
-    });
-    setUnapprovedSITExtensionCount(unapprovedSITExtensionCount);
+    const checkShipmentsForUnapprovedSITExtensions = (shipmentsWithStatus) => {
+      let unapprovedSITExtensionCount = 0;
+      shipmentsWithStatus?.forEach((mtoShipment) => {
+        const unapprovedSITExtItems =
+          mtoShipment.sitExtensions?.filter((sitEx) => sitEx.status === SIT_EXTENSION_STATUS.PENDING) ?? [];
+        const unapprovedSITCount = unapprovedSITExtItems.length;
+        unapprovedSITExtensionCount += unapprovedSITCount; // Top bar Label
+      });
+      return { count: unapprovedSITExtensionCount };
+    };
+    const { count } = checkShipmentsForUnapprovedSITExtensions(mtoShipments);
+    setUnapprovedSITExtensionCount(count);
   }, [mtoShipments, setUnapprovedSITExtensionCount]);
 
   useEffect(() => {
