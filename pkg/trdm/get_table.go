@@ -3,6 +3,7 @@ package trdm
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -21,6 +22,9 @@ func GetTGETData(getTableRequest models.GetTableRequest, service GatewayService,
 		return err
 	}
 	// Read it
+	if resp.Body == nil {
+		return errors.New("a body must be provided for TGET data gathering")
+	}
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err

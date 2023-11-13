@@ -113,7 +113,9 @@ func (gs GatewayService) gatewayGetTable(request models.GetTableRequest) (*http.
 		gs.logger.Error("error sending request to API Gateway", zap.Error(err))
 		return nil, err
 	}
-	defer resp.Body.Close()
+	if resp.Body != nil {
+		defer resp.Body.Close()
+	}
 
 	return resp, nil
 }

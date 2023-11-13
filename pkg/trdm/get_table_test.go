@@ -127,3 +127,26 @@ func (suite *TRDMSuite) TestSuccessfulGetTGETDataTAC() {
 	// just checking to see if the values are now present, not 1:1 matches
 	suite.Equal(len(expectedTACCodes), len(tacCodes))
 }
+
+func (suite *TRDMSuite) TestGetTGETDataBadPhysicalName() {
+	mockClient := &MockHTTPClient{
+		DoFunc: func(req *http.Request) (*http.Response, error) {
+			return &http.Response{
+				StatusCode: http.StatusBadRequest,
+				Body:       nil,
+			}, nil
+		}}
+
+	mockProvider := &mockAssumeRoleProvider{creds: suite.creds}
+
+	service := trdm.NewGatewayService(mockClient, suite.logger, "us-gov-west-1", "mockRole", "https://test.gateway.url.amazon.com", mockProvider)
+
+	getTableRequest := models.GetTableRequest{
+		PhysicalName:                "null",
+		ContentUpdatedSinceDateTime: time.Now().Add(time.Hour * 24 * 365 * 5),
+		ReturnContent:               true,
+	}
+
+	err := trdm.GetTGETData(getTableRequest, *service, suite.AppContextForTest())
+	suite.Error(err)
+}
