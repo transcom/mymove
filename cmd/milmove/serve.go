@@ -813,8 +813,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Gather TRDM TGET data
-	trdmIsEnabled := v.GetBool(cli.TRDMIsEnabledFlag)
-	if trdmIsEnabled {
+	trdmEnabledEnvironments := []string{
+		cli.EnvironmentTest,
+		cli.EnvironmentPrd,
+	}
+	if environment := v.GetString(cli.EnvironmentFlag); stringSliceContains(trdmEnabledEnvironments, environment) {
 		// Get the AWS configuration so we can build a session
 		cfg, err := config.LoadDefaultConfig(context.Background(),
 			config.WithRegion(v.GetString(cli.AWSRegionFlag)),
