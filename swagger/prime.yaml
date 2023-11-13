@@ -1631,6 +1631,14 @@ definitions:
       isFinal:
         default: false
         type: boolean
+      requestedWeightAmount:
+        type: integer
+        example: 4000
+        minimum: 1
+        maximum: 900000
+        description: Provided by the movers, weight requested in the payment request.
+        x-nullable: true
+        x-omitempty: false
       moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -3129,6 +3137,11 @@ definitions:
       eTag:
         type: string
         readOnly: true
+      requestedWeightAmount:
+        description: Provided by the movers, weight requested in the payment request.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
   PaymentRequests:
     type: array
     items:

@@ -64,6 +64,7 @@ type PaymentRequest struct {
 	CreatedAt                       time.Time            `db:"created_at"`
 	UpdatedAt                       time.Time            `db:"updated_at"`
 	RecalculationOfPaymentRequestID *uuid.UUID           `json:"recalculation_of_payment_request_id" db:"recalculation_of_payment_request_id"`
+	RequestedWeightAmount           int                  `json:"requested_weight_amount" db:"requested_weight_amount"`
 
 	// Associations
 	MoveTaskOrder                 Move                `belongs_to:"moves" fk_id:"move_id"`

@@ -1648,6 +1648,12 @@ func init() {
           "x-nullable": true,
           "example": "documentation was incomplete"
         },
+        "requestedWeightAmount": {
+          "description": "Provided by the movers, weight requested in the payment request.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
         }
@@ -4027,6 +4033,12 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "documentation was incomplete"
+        },
+        "requestedWeightAmount": {
+          "description": "Provided by the movers, weight requested in the payment request.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"

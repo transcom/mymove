@@ -1778,6 +1778,15 @@ func init() {
           "description": "Email or id of a contact person for this update.",
           "type": "string"
         },
+        "requestedWeightAmount": {
+          "description": "Provided by the movers, weight requested in the payment request.",
+          "type": "integer",
+          "maximum": 900000,
+          "minimum": 1,
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4000
+        },
         "serviceItems": {
           "type": "array",
           "minItems": 1,
@@ -3317,6 +3326,12 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "documentation was incomplete"
+        },
+        "requestedWeightAmount": {
+          "description": "Provided by the movers, weight requested in the payment request.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
@@ -6767,6 +6782,15 @@ func init() {
           "description": "Email or id of a contact person for this update.",
           "type": "string"
         },
+        "requestedWeightAmount": {
+          "description": "Provided by the movers, weight requested in the payment request.",
+          "type": "integer",
+          "maximum": 900000,
+          "minimum": 1,
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4000
+        },
         "serviceItems": {
           "type": "array",
           "minItems": 1,
@@ -8306,6 +8330,12 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "documentation was incomplete"
+        },
+        "requestedWeightAmount": {
+          "description": "Provided by the movers, weight requested in the payment request.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"

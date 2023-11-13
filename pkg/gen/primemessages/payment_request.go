@@ -58,6 +58,9 @@ type PaymentRequest struct {
 	// Example: documentation was incomplete
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
+	// Provided by the movers, weight requested in the payment request.
+	RequestedWeightAmount *int64 `json:"requestedWeightAmount"`
+
 	// status
 	Status PaymentRequestStatus `json:"status,omitempty"`
 }

@@ -62,9 +62,15 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 				isFinal = *payload.IsFinal
 			}
 
+			requestedWeightAmount := int64(0)
+			if payload.RequestedWeightAmount != nil {
+				requestedWeightAmount = int64(*payload.RequestedWeightAmount)
+			}
+
 			paymentRequest := models.PaymentRequest{
-				IsFinal:         isFinal,
-				MoveTaskOrderID: mtoID,
+				IsFinal:               isFinal,
+				MoveTaskOrderID:       mtoID,
+				RequestedWeightAmount: int(requestedWeightAmount),
 			}
 
 			// Build up the paymentRequest.PaymentServiceItems using the incoming payload to offload Swagger data coming

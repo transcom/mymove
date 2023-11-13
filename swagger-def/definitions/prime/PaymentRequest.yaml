@@ -35,3 +35,8 @@ properties:
   eTag:
     type: string
     readOnly: true
+  requestedWeightAmount:
+    description: Provided by the movers, weight requested in the payment request.
+    type: integer
+    x-nullable: true
+    x-omitempty: false
