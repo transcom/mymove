@@ -25,6 +25,8 @@ import (
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	shipmentorchestrator "github.com/transcom/mymove/pkg/services/orchestrators/shipment"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
@@ -67,7 +69,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 
 	shipmentRouter := mtoshipment.NewShipmentRouter()
-	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, shipmentRouter)
+	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
+		testMTOShipmentObjects.builder,
+		mtoserviceitem.NewMTOServiceItemCreator(testMTOShipmentObjects.builder, testMTOShipmentObjects.moveRouter),
+		testMTOShipmentObjects.moveRouter,
+	)
+	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
 
 	type mtoCreateSubtestData struct {
 		serviceMember models.ServiceMember
