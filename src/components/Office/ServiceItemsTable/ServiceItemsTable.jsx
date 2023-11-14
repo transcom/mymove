@@ -84,8 +84,6 @@ const ServiceItemsTable = ({
         isResubmitted = true;
       }
     }
-    // return true; // TEST
-    // console.log(isResubmitted); // TEST
     return isResubmitted;
   };
 

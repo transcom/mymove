@@ -71,20 +71,6 @@ describe('ServiceItemsTable', () => {
     useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
     useGHCGetMoveHistory.mockReturnValue(history);
 
-    // useGHCGetMoveHistory.mockReturnValue(history);
-    // const mockedcalls = useGHCGetMoveHistory();
-    // console.log(mockedcalls);
-
-    // const { container } = render(
-    // await render(
-    //   <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
-    //     <ServiceItemsTable
-    //       {...defaultProps}
-    //       serviceItems={serviceItems}
-    //       statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
-    //     />
-    //   </MockProviders>,
-    // );
     const wrapper = mount(
       <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
         <ServiceItemsTable
