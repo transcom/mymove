@@ -10,13 +10,13 @@ func (suite *ModelSuite) TestGetEntitlementWithValidValues() {
 	suite.Run("E1 with dependents", func() {
 		E1FullLoad, err := models.GetEntitlement(E1)
 		suite.NoError(err)
-		suite.Assertions.Equal(8000, E1FullLoad)
+		suite.Assertions.Equal(8000, E1FullLoad.TotalWeightSelfPlusDependents)
 	})
 
 	suite.Run("E1 without dependents", func() {
 		E1Solo, err := models.GetEntitlement(E1)
 		suite.NoError(err)
-		suite.Assertions.Equal(5000, E1Solo)
+		suite.Assertions.Equal(5000, E1Solo.TotalWeightSelf)
 	})
 
 	suite.Run("E1 Pro Gear", func() {
