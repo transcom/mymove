@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { bool } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import moment from 'moment';
@@ -24,8 +24,11 @@ const DocumentViewer = ({ files, allowDownload }) => {
   const [menuIsOpen, setMenuOpen] = useState(false);
 
   const sortedFiles = files.sort((a, b) => moment(b.createdAt) - moment(a.createdAt));
-
   const selectedFile = sortedFiles[parseInt(selectedFileIndex, 10)];
+
+  useEffect(() => {
+    selectFile(0);
+  }, [files]);
 
   if (!selectedFile) {
     return <h2>File Not Found</h2>;
