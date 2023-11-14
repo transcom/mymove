@@ -56,11 +56,19 @@ describe('ServiceItemsTable', () => {
             changedValues: {
               reason: 'New reason in test code',
               status: 'SUBMITTED',
+              id: 'abc12345',
+              pickup_postal_code: '54321',
+              sit_entry_date: '2023-01-01',
+              sit_postal_code: '09876',
             },
             objectId: 'historyObjectInServiceItemsTableTest',
             oldValues: {
               reason: 'Old reason in test code',
               status: 'REJECTED',
+              id: 'def67890',
+              pickup_postal_code: '12345',
+              sit_entry_date: '2022-12-12',
+              sit_postal_code: '67890',
             },
           },
         ],
@@ -85,6 +93,10 @@ describe('ServiceItemsTable', () => {
     expect(toolTip.exists()).toBe(true);
     let resultString = 'Reason\nNew: New reason in test code \nPrevious: Old reason in test code\n\n';
     resultString += 'Status\nNew: SUBMITTED \nPrevious: REJECTED\n\n';
+    resultString += 'ID\nNew: abc12345 \nPrevious: def67890\n\n';
+    resultString += 'Pickup Postal Code\nNew: 54321 \nPrevious: 12345\n\n';
+    resultString += 'SIT Entry Date\nNew: 2023-01-01 \nPrevious: 2022-12-12\n\n';
+    resultString += 'SIT Postal Code\nNew: 09876 \nPrevious: 67890\n\n';
     expect(toolTip.props().text).toBe(resultString);
   });
 });
