@@ -50,53 +50,51 @@ export const ReviewDocuments = () => {
     setMoveHasExcessWeight(moveWeightTotal > order.entitlement.totalWeight);
   }, [moveWeightTotal, order.entitlement.totalWeight]);
 
-  if (weightTickets.length > 0) {
-    weightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+  const chronologicalComparatorProperty = (input) => input.createdAt;
+  const sortByChronologicalDate = (itemA, itemB) =>
+    chronologicalComparatorProperty(itemA) < chronologicalComparatorProperty(itemB) ? -1 : 1;
 
-    documentSets = documentSets.concat(
-      weightTickets.map((weightTicket, index) => {
-        return {
-          documentSetType: DOCUMENT_TYPES.WEIGHT_TICKET,
-          documentSet: weightTicket,
-          uploads: [
-            ...weightTicket.emptyDocument.uploads,
-            ...weightTicket.fullDocument.uploads,
-            ...weightTicket.proofOfTrailerOwnershipDocument.uploads,
-          ],
-          tripNumber: index + 1,
-        };
-      }),
-    );
+  const constructWeightTicket = (weightTicket, tripNumber) => ({
+    documentSetType: DOCUMENT_TYPES.WEIGHT_TICKET,
+    documentSet: weightTicket,
+    uploads: [
+      ...weightTicket.emptyDocument.uploads,
+      ...weightTicket.fullDocument.uploads,
+      ...weightTicket.proofOfTrailerOwnershipDocument.uploads,
+    ],
+    tripNumber,
+  });
+
+  if (weightTickets.length > 0) {
+    weightTickets.sort(sortByChronologicalDate);
+
+    documentSets = documentSets.concat(weightTickets.map(constructWeightTicket));
   }
+
+  const constructProGearWeightTicket = (weightTicket, tripNumber) => ({
+    documentSetType: DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET,
+    documentSet: weightTicket,
+    uploads: weightTicket.document.uploads,
+    tripNumber,
+  });
 
   if (proGearWeightTickets.length > 0) {
-    proGearWeightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+    proGearWeightTickets.sort(sortByChronologicalDate);
 
-    documentSets = documentSets.concat(
-      proGearWeightTickets.map((proGearWeightTicket, index) => {
-        return {
-          documentSetType: DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET,
-          documentSet: proGearWeightTicket,
-          uploads: proGearWeightTicket.document.uploads,
-          tripNumber: index + 1,
-        };
-      }),
-    );
+    documentSets = documentSets.concat(proGearWeightTickets.map(constructProGearWeightTicket));
   }
 
-  if (movingExpenses.length > 0) {
-    movingExpenses.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+  const constructMovingExpense = (movingExpense, tripNumber) => ({
+    documentSetType: DOCUMENT_TYPES.MOVING_EXPENSE,
+    documentSet: movingExpense,
+    uploads: movingExpense.document.uploads,
+    tripNumber,
+  });
 
-    documentSets = documentSets.concat(
-      movingExpenses.map((movingExpense, index) => {
-        return {
-          documentSetType: DOCUMENT_TYPES.MOVING_EXPENSE,
-          documentSet: movingExpense,
-          uploads: movingExpense.document.uploads,
-          tripNumber: index + 1,
-        };
-      }),
-    );
+  if (movingExpenses.length > 0) {
+    movingExpenses.sort(sortByChronologicalDate);
+
+    documentSets = documentSets.concat(movingExpenses.map(constructMovingExpense));
   }
 
   const navigate = useNavigate();
@@ -167,8 +165,10 @@ export const ReviewDocuments = () => {
 
   const reviewShipmentWeightsLink = <a href={reviewShipmentWeightsURL}>Review shipment weights</a>;
 
+  const currentTripNumber = currentDocumentSet.tripNumber + 1;
+
   return (
-    <div data-testid="ReviewDocuments" className={styles.ReviewDocuments}>
+    <div data-testid="ReviewDocuments test" className={styles.ReviewDocuments}>
       <div className={styles.embed}>
         <DocumentViewer files={showOverview ? getAllUploads() : currentDocumentSet.uploads} allowDownload />
       </div>
@@ -176,9 +176,7 @@ export const ReviewDocuments = () => {
         title="Review documents"
         onClose={onClose}
         className={styles.sidebar}
-        supertitle={
-          showOverview ? 'All Document Sets' : `${documentSetIndex + 1} of ${documentSets.length} Document Sets`
-        }
+        supertitle={showOverview ? 'All Document Sets' : `${documentSetIndex} of ${documentSets.length} Document Sets`}
         defaultH3
         hyperlink={reviewShipmentWeightsLink}
       >
@@ -209,7 +207,7 @@ export const ReviewDocuments = () => {
                   <ReviewWeightTicket
                     weightTicket={currentDocumentSet.documentSet}
                     ppmNumber={1}
-                    tripNumber={currentDocumentSet.tripNumber}
+                    tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
                     order={order}
                     mtoShipments={mtoShipments}
@@ -222,7 +220,7 @@ export const ReviewDocuments = () => {
                   <ReviewProGear
                     proGear={currentDocumentSet.documentSet}
                     ppmNumber={1}
-                    tripNumber={currentDocumentSet.tripNumber}
+                    tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
                     onError={onError}
                     onSuccess={onSuccess}
@@ -233,7 +231,7 @@ export const ReviewDocuments = () => {
                   <ReviewExpense
                     expense={currentDocumentSet.documentSet}
                     ppmNumber={1}
-                    tripNumber={currentDocumentSet.tripNumber}
+                    tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
                     onError={onError}
                     onSuccess={onSuccess}

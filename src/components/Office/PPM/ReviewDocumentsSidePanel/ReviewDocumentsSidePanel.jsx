@@ -29,7 +29,6 @@ export default function ReviewDocumentsSidePanel({
 }) {
   let status;
   let showReason;
-  //naming values
   let storageNumber = 0;
   let receiptNumber = 0;
 
