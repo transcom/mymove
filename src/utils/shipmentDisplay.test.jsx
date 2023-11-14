@@ -351,7 +351,7 @@ describe('shipmentDisplay utils', () => {
   describe('getMoveCodeLabel', () => {
     it('show expected move code for shipment id', () => {
       const expectedMoveCodeLabel = getMoveCodeLabel('24e66b38-7832-4549-bd29-f9e325d3b99d');
-      expect(expectedMoveCodeLabel).toEqual('#24E66B38');
+      expect(expectedMoveCodeLabel).toEqual('24E66B38');
     });
   });
 });

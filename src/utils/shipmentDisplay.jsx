@@ -173,10 +173,9 @@ export function isArmyOrAirForce(affiliation) {
 
 /**
  * @description This function generates move code(also
- * known as locaton code) used in shipment display.
- * It parses shipment id and pre-appends # to it. ex. "#D889F48D".
+ * known as locaton code) used in shipment display by parsing shipment id. ex. "D889F48D".
  * @returns move code
  */
 export function getMoveCodeLabel(shipmentId) {
-  return `#${shipmentId.substring(0, 8).toUpperCase()}`;
+  return shipmentId.substring(0, 8).toUpperCase();
 }

@@ -131,7 +131,7 @@ export class Summary extends Component {
             showEditAndDeleteBtn={showEditAndDeleteBtn}
             onEditClick={this.handleEditClick}
             onDeleteClick={this.handleDeleteClick}
-            onIncompleteClick={this.toggleIncompletePPMShipmentModal}
+            onIncompleteClick={this.toggleIncompleteShipmentModal}
           />
         );
       }
@@ -154,6 +154,8 @@ export class Summary extends Component {
             requestedPickupDate={shipment.requestedPickupDate}
             shipmentId={shipment.id}
             shipmentType={shipment.shipmentType}
+            status={shipment.status}
+            onIncompleteClick={this.toggleIncompleteShipmentModal}
           />
         );
       }
@@ -173,6 +175,8 @@ export class Summary extends Component {
             requestedDeliveryDate={shipment.requestedDeliveryDate}
             shipmentId={shipment.id}
             shipmentType={shipment.shipmentType}
+            status={shipment.status}
+            onIncompleteClick={this.toggleIncompleteShipmentModal}
           />
         );
       }
@@ -197,6 +201,8 @@ export class Summary extends Component {
           shipmentNumber={hhgShipmentNumber}
           shipmentType={shipment.shipmentType}
           showEditAndDeleteBtn={showEditAndDeleteBtn}
+          status={shipment.status}
+          onIncompleteClick={this.toggleIncompleteShipmentModal}
         />
       );
     });
@@ -208,7 +214,7 @@ export class Summary extends Component {
     }));
   };
 
-  toggleIncompletePPMShipmentModal = (ShipmentLabel, shipmentMoveCode, shipmentType) => {
+  toggleIncompleteShipmentModal = (ShipmentLabel, shipmentMoveCode, shipmentType) => {
     this.setState((state) => ({
       showIncompletePPMModal: !state.showIncompletePPMModal,
       targetShipmentLabel: ShipmentLabel,
@@ -269,7 +275,7 @@ export class Summary extends Component {
         />
         <ConnectedIncompleteShipmentModal
           isOpen={showIncompletePPMModal}
-          closeModal={this.toggleIncompletePPMShipmentModal}
+          closeModal={this.toggleIncompleteShipmentModal}
           shipmentLabel={targetShipmentLabel}
           shipmentMoveCode={targetShipmentMoveCode}
           shipmentType={targetShipmentType}

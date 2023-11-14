@@ -117,7 +117,7 @@ const HHGShipment = {
 const PPMShipment = {
   id: 'ppmShipmentUuid',
   moveTaskOrderID: mtoUuid,
-  status: MOVE_STATUSES.DRAFT,
+  status: MOVE_STATUSES.SUBMITTED,
   shipmentType: SHIPMENT_OPTIONS.PPM,
   created_at: '2020-09-01T22:00:00.000Z',
   updated_at: '2020-09-01T22:30:00.000Z',
@@ -128,6 +128,21 @@ const PPMShipment = {
     sitExpected: false,
     estimatedWeight: 5000,
     estimatedIncentive: 1000000,
+  },
+};
+
+const IncompeletePPMShipment = {
+  id: 'ppmShipmentUuid',
+  moveTaskOrderID: mtoUuid,
+  status: MOVE_STATUSES.DRAFT,
+  shipmentType: SHIPMENT_OPTIONS.PPM,
+  created_at: '2020-09-01T22:00:00.000Z',
+  updated_at: '2020-09-01T22:30:00.000Z',
+  ppmShipment: {
+    expectedDepartureDate: '2021-06-23',
+    pickupPostalCode: '13643',
+    destinationPostalCode: '91945',
+    sitExpected: false,
   },
 };
 
@@ -148,6 +163,14 @@ export const WithPPM = () => {
   const props = {
     ...defaultProps,
     mtoShipments: [PPMShipment],
+  };
+  return <Summary {...props} />;
+};
+
+export const WithInCompletePPM = () => {
+  const props = {
+    ...defaultProps,
+    mtoShipments: [IncompeletePPMShipment],
   };
   return <Summary {...props} />;
 };

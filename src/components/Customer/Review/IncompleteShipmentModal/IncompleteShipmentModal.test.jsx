@@ -6,7 +6,7 @@ import { IncompleteShipmentModal } from 'components/Customer/Review/IncompleteSh
 
 let onClose;
 const shipmentLabel = 'PPM_1';
-const moveCodeLabel = '#D889F48D';
+const moveCodeLabel = 'D889F48D';
 const shipmentType = 'PPM';
 
 beforeEach(() => {
@@ -30,7 +30,7 @@ describe('IncompleteShipmentModal', () => {
     await userEvent.click(keepButton);
     expect(onClose).toHaveBeenCalledTimes(1);
 
-    expect(screen.getByText(/PPM_1: #D889F48D/, { selector: 'p' })).toBeInTheDocument();
+    expect(screen.getByText(/PPM_1: #D889F48D/, { selector: 'b' })).toBeInTheDocument();
 
     // make sure shipment type display is not hardcoded
     expect(screen.getByText(/PPM shipment/, { selector: 'p' })).toBeInTheDocument();

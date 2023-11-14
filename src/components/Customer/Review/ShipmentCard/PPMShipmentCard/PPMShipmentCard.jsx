@@ -1,12 +1,13 @@
 import React from 'react';
 import { bool, func, number, oneOf } from 'prop-types';
-import { Tag, Button, Grid, GridContainer } from '@trussworks/react-uswds';
+import { Button } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from 'components/Customer/Review/ShipmentCard/ShipmentCard.module.scss';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
+import IncompleteShipmentToolTip from 'components/Customer/Review/IncompleteShipmentToolTip/IncompleteShipmentToolTip';
 import { customerRoutes } from 'constants/routes';
+import { shipmentStatuses } from 'constants/shipments';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
@@ -24,7 +25,7 @@ const PPMShipmentCard = ({
   onDeleteClick,
   onIncompleteClick,
 }) => {
-  const { moveTaskOrderID, id, shipmentType } = shipment;
+  const { moveTaskOrderID, id, shipmentType, status } = shipment;
   const {
     pickupPostalCode,
     secondaryPickupPostalCode,
@@ -54,34 +55,23 @@ const PPMShipmentCard = ({
 
   const shipmentLabel = `${getShipmentTypeLabel(shipmentType)} ${shipmentNumber}`;
   const moveCodeLabel = getMoveCodeLabel(shipment.id);
+  const shipmentIsIncomplete = status === shipmentStatuses.DRAFT;
 
   return (
     <div className={styles.ShipmentCard}>
       <ShipmentContainer className={styles.container} shipmentType={SHIPMENT_OPTIONS.PPM}>
-        {!hasRequestedAdvance && (
-          <GridContainer>
-            <Grid row>
-              <Grid col="fill" tablet={{ col: 'auto' }}>
-                <Tag>Incomplete</Tag>
-              </Grid>
-              <Grid col="auto" className={styles.buttonContainer}>
-                <Button
-                  title="Help about incomplete shipment"
-                  type="button"
-                  onClick={() => onIncompleteClick(shipmentLabel, moveCodeLabel, shipmentType)}
-                  unstyled
-                  className="{styles.buttonRight}"
-                >
-                  <FontAwesomeIcon icon={['far', 'circle-question']} />
-                </Button>
-              </Grid>
-            </Grid>
-          </GridContainer>
+        {shipmentIsIncomplete && (
+          <IncompleteShipmentToolTip
+            onClick={onIncompleteClick}
+            shipmentLabel={shipmentLabel}
+            moveCodeLabel={moveCodeLabel}
+            shipmentTypeLabel={shipmentType}
+          />
         )}
         <div className={styles.ShipmentCardHeader}>
           <div className={styles.shipmentTypeNumber}>
             <h3 data-testid="ShipmentCardNumber">{shipmentLabel}</h3>
-            <p>{moveCodeLabel}</p>
+            <p>#{moveCodeLabel}</p>
           </div>
           {showEditAndDeleteBtn && (
             <div className={styles.btnContainer}>

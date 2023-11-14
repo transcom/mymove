@@ -9,6 +9,8 @@ import PickupDisplay from '../PickupDisplay';
 import { AddressShape } from 'types/address';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import { getShipmentTypeLabel, getMoveCodeLabel } from 'utils/shipmentDisplay';
+import IncompleteShipmentToolTip from 'components/Customer/Review/IncompleteShipmentToolTip/IncompleteShipmentToolTip';
+import { shipmentStatuses } from 'constants/shipments';
 import { customerRoutes } from 'constants/routes';
 
 const NTSShipmentCard = ({
@@ -24,19 +26,33 @@ const NTSShipmentCard = ({
   shipmentType,
   shipmentNumber,
   showEditAndDeleteBtn,
+  status,
+  onIncompleteClick,
 }) => {
   const editPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
     moveId,
     mtoShipmentId: shipmentId,
   });
 
+  const shipmentLabel = getShipmentTypeLabel(shipmentType);
+  const moveCodeLabel = getMoveCodeLabel(shipmentId);
+  const shipmentIsIncomplete = status === shipmentStatuses.DRAFT;
+
   return (
     <div className={styles.ShipmentCard} data-testid="nts-summary">
       <ShipmentContainer className={styles.container} shipmentType={shipmentType}>
+        {shipmentIsIncomplete && (
+          <IncompleteShipmentToolTip
+            onClick={onIncompleteClick}
+            shipmentLabel={shipmentLabel}
+            moveCodeLabel={moveCodeLabel}
+            shipmentTypeLabel={shipmentLabel}
+          />
+        )}
         <div className={styles.ShipmentCardHeader}>
           <div className={styles.shipmentTypeNumber}>
             <h3>{getShipmentTypeLabel(shipmentType)}</h3>
-            <p>{getMoveCodeLabel(shipmentId)}</p>
+            <p>#{getMoveCodeLabel(shipmentId)}</p>
           </div>
           {showEditAndDeleteBtn && (
             <div className={styles.btnContainer}>

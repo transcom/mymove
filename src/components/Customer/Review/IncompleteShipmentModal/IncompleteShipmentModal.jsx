@@ -12,12 +12,13 @@ export const IncompleteShipmentModal = ({ closeModal, shipmentLabel, shipmentMov
       <h3>INCOMPLETE SHIPMENT</h3>
     </ModalTitle>
     <p>
-      {shipmentLabel}: {shipmentMoveCode}
+      <b>
+        {shipmentLabel}: #{shipmentMoveCode}
+      </b>
     </p>
     <p>
-      You have not finished adding all the details required for your {shipmentType} shipment. Click
-      <strong> Edit</strong> to review your {shipmentType} information, add any missing information, then proceed to
-      submit the request.
+      You have not finished adding all the details required for your {shipmentType} shipment. Click <b>Edit</b> to
+      review your {shipmentType} information, add any missing information, then proceed to submit the request.
     </p>
     <ModalActions>
       <Button secondary type="button" onClick={closeModal} className={styles.Button}>

@@ -7,6 +7,7 @@ import PPMShipmentCard from './PPMShipmentCard';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import transportationOfficeFactory from 'utils/test/factories/transportationOffice';
 import affiliations from 'content/serviceMemberAgencies';
+import { shipmentStatuses } from 'constants/shipments';
 
 const defaultProps = {
   showEditAndDeleteBtn: true,
@@ -49,11 +50,12 @@ const completeProps = {
       hasRequestedAdvance: true,
       advanceAmountRequested: 600000,
     },
+    status: shipmentStatuses.SUBMITTED,
   },
 };
 
 const mockedOnIncompleteClickFunction = jest.fn();
-const inCompleteProps = {
+const incompleteProps = {
   showEditAndDeleteBtn: true,
   onEditClick: jest.fn(),
   onDeleteClick: jest.fn(),
@@ -65,18 +67,11 @@ const inCompleteProps = {
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
       pickupPostalCode: '10001',
-      secondaryPickupPostalCode: '10002',
       destinationPostalCode: '11111',
-      secondaryDestinationPostalCode: '22222',
-      sitExpected: true,
+      sitExpected: false,
       expectedDepartureDate: new Date('01/01/2020').toISOString(),
-      estimatedWeight: 5999,
-      proGearWeight: 1250,
-      spouseProGearWeight: 375,
-      estimatedIncentive: 1000099,
-      hasRequestedAdvance: false,
-      advanceAmountRequested: 600000,
     },
+    status: shipmentStatuses.DRAFT,
   },
 };
 
@@ -240,8 +235,17 @@ describe('PPMShipmentCard component', () => {
     expect();
   });
 
-  it('renders incomplete label and tooltip icon for incomplete ppm shipment', async () => {
-    render(<PPMShipmentCard {...inCompleteProps} />);
+  it('does not render incomplete label and tooltip icon for completed ppm shipment with SUBMITTED status', async () => {
+    render(<PPMShipmentCard {...completeProps} />);
+
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('PPM 1');
+    expect(screen.getByText(/^#20FDBF58$/, { selector: 'p' })).toBeInTheDocument();
+
+    expect(screen.queryByText('Incomplete')).toBeNull();
+  });
+
+  it('renders incomplete label and tooltip icon for incomplete ppm shipment with DRAFT status', async () => {
+    render(<PPMShipmentCard {...incompleteProps} />);
 
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('PPM 1');
     expect(screen.getByText(/^#20FDBF58$/, { selector: 'p' })).toBeInTheDocument();
@@ -252,6 +256,6 @@ describe('PPMShipmentCard component', () => {
     await userEvent.click(screen.getByTitle('Help about incomplete shipment'));
 
     // verify onclick is getting json string as parameter
-    expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('PPM 1', '#20FDBF58', 'PPM');
+    expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('PPM 1', '20FDBF58', 'PPM');
   });
 });
