@@ -17,7 +17,7 @@ jest.mock('hooks/queries', () => ({
 }));
 
 describe('ServiceItemsTable', () => {
-  it('renders a tooltip with old details if resubmitted service item', async () => {
+  it('renders a tooltip with old details if resubmitted service item', () => {
     const defaultProps = {
       handleUpdateMTOServiceItemStatus: jest.fn(),
       handleShowRejectionDialog: jest.fn(),
