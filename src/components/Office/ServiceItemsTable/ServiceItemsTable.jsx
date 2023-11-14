@@ -139,27 +139,9 @@ const ServiceItemsTable = ({
 
   const history = useGHCGetMoveHistory({ moveCode });
   const renderToolTipWithOldDataIfResubmission = (serviceItemId) => {
-    // console.log(history); // TEST
     const historyDataForMove = history.queueResult.data;
-    console.log(historyDataForMove); // TEST
     const historyDataForServiceItem = getNewestHistoryDataForServiceItem(historyDataForMove, serviceItemId);
-    // TEST
-    // const historyDataForServiceItem = {
-    //   action: 'UPDATE',
-    //   eventName: 'updateMTOServiceItem',
-    //   actionTstampTx: '2022-03-09T15:33:38.579Z',
-    //   changedValues: {
-    //     status: 'SUBMITTED',
-    //   },
-    //   objectId: 'abc123',
-    //   oldValues: {
-    //     status: 'REJECTED',
-    //   },
-    // };
-    // console.log(historyDataForServiceItem);
-    // TEST
     const isResubmitted = getResubmissionStatus(historyDataForServiceItem);
-    // console.log(isResubmitted); // TEST
     if (isResubmitted) {
       return (
         <ToolTip
