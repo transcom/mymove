@@ -42,12 +42,17 @@ func calculateMoveDatesFromMove(appCtx appcontext.AppContext, planner route.Plan
 		return summary, err
 	}
 
-	entitlement, err := models.GetEntitlement(*move.Orders.ServiceMember.Rank, move.Orders.HasDependents)
+	entitlement, err := models.GetEntitlement(*move.Orders.ServiceMember.Rank)
 	if err != nil {
 		return summary, err
 	}
 
-	entitlementWeight := unit.Pound(entitlement.TotalWeight)
+	weight := entitlement.TotalWeightSelf
+	if move.Orders.HasDependents {
+		weight = entitlement.TotalWeightSelfPlusDependents
+	}
+
+	entitlementWeight := unit.Pound(weight)
 	estimatedPackDays := models.PackDays(entitlementWeight)
 	estimatedTransitDays, err := models.TransitDays(entitlementWeight, transitDistance)
 	if err != nil {

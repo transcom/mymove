@@ -75,9 +75,14 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 
 	}
 
-	totalEntitlement, err := models.GetEntitlement(*serviceMember.Rank, orders.HasDependents)
+	totalEntitlement, err := models.GetEntitlement(*serviceMember.Rank)
 	if err != nil {
 		return emails, err
+	}
+
+	weight := totalEntitlement.TotalWeightSelf
+	if orders.HasDependents {
+		weight = totalEntitlement.TotalWeightSelfPlusDependents
 	}
 
 	if serviceMember.PersonalEmail == nil {
@@ -89,7 +94,7 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		DestinationDutyLocation:      orders.NewDutyLocation.Name,
 		OriginDutyLocationPhoneLine:  originDutyLocationPhoneLine,
 		Locator:                      move.Locator,
-		WeightAllowance:              humanize.Comma(int64(totalEntitlement.TotalWeight)),
+		WeightAllowance:              humanize.Comma(int64(weight)),
 		ProvidesGovernmentCounseling: providesGovernmentCounseling,
 	})
 

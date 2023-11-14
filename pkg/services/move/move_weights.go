@@ -98,9 +98,14 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 		return nil, nil, errors.New("could not determine excess weight entitlement without dependents authorization value")
 	}
 
-	totalWeightAllowance, err := models.GetEntitlement(models.ServiceMemberRank(*move.Orders.Grade), *move.Orders.Entitlement.DependentsAuthorized)
+	totalWeightAllowance, err := models.GetEntitlement(models.ServiceMemberRank(*move.Orders.Grade))
 	if err != nil {
 		return nil, nil, err
+	}
+
+	weight := totalWeightAllowance.TotalWeightSelf
+	if *move.Orders.Entitlement.DependentsAuthorized {
+		weight = totalWeightAllowance.TotalWeightSelfPlusDependents
 	}
 
 	// the shipment being updated/created potentially has not yet been saved in the database so use the weight in the
@@ -131,7 +136,7 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 	}
 
 	// may need to take into account floating point precision here but should be dealing with whole numbers
-	if int(float32(totalWeightAllowance.TotalWeight)*RiskOfExcessThreshold) <= estimatedWeightTotal {
+	if int(float32(weight)*RiskOfExcessThreshold) <= estimatedWeightTotal {
 		excessWeightQualifiedAt := time.Now()
 		move.ExcessWeightQualifiedAt = &excessWeightQualifiedAt
 
@@ -173,9 +178,14 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 		return nil, errors.New("could not determine excess weight entitlement without dependents authorization value")
 	}
 
-	totalWeightAllowance, err := models.GetEntitlement(models.ServiceMemberRank(*move.Orders.Grade), *move.Orders.Entitlement.DependentsAuthorized)
+	totalWeightAllowance, err := models.GetEntitlement(models.ServiceMemberRank(*move.Orders.Grade))
 	if err != nil {
 		return nil, err
+	}
+
+	weight := totalWeightAllowance.TotalWeightSelf
+	if *move.Orders.Entitlement.DependentsAuthorized {
+		weight = totalWeightAllowance.TotalWeightSelfPlusDependents
 	}
 
 	moveWeightTotal := 0
@@ -195,7 +205,7 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 
 	autoReweighShipments := models.MTOShipments{}
 	// may need to take into account floating point precision here but should be dealing with whole numbers
-	if int(float32(totalWeightAllowance.TotalWeight)*AutoReweighRequestThreshold) <= moveWeightTotal {
+	if int(float32(weight)*AutoReweighRequestThreshold) <= moveWeightTotal {
 		for _, shipment := range move.MTOShipments {
 			// We should avoid counting shipments that haven't been approved yet and will need to account for diversions
 			// and cancellations factoring into the weight total.
