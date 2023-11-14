@@ -584,7 +584,7 @@ const ShipmentForm = (props) => {
               </SectionWrapper>
 
               <Form className={formStyles.form}>
-                {isTOO && !isHHG && <ShipmentVendor />}
+                {!isTOO && !isHHG && <ShipmentVendor />}
 
                 {isNTSR && <ShipmentWeightInput userRole={userRole} />}
 
