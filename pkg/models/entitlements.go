@@ -227,14 +227,3 @@ func GetWeightAllotment(rank ServiceMemberRank) WeightAllotment {
 	}
 	return entitlement
 }
-
-// GetEntitlement calculates the entitlement weight based on rank and dependents.
-// Only includes either TotalWeightSelf or TotalWeightSelfPlusDependents.
-func GetEntitlement(rank ServiceMemberRank) (WeightAllotment, error) {
-	selfEntitlement, err := getEntitlement(rank)
-	if err != nil {
-		return WeightAllotment{}, fmt.Errorf("Rank %s not found in entitlement map", rank)
-	}
-
-	return selfEntitlement, nil
-}

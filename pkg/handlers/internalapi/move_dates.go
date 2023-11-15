@@ -42,7 +42,7 @@ func calculateMoveDatesFromMove(appCtx appcontext.AppContext, planner route.Plan
 		return summary, err
 	}
 
-	entitlement, err := models.GetEntitlement(*move.Orders.ServiceMember.Rank)
+	entitlement := models.GetWeightAllotment(*move.Orders.ServiceMember.Rank)
 	if err != nil {
 		return summary, err
 	}

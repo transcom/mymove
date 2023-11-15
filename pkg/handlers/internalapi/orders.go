@@ -153,10 +153,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 
 			grade := (*string)(serviceMember.Rank)
 
-			weightAllotment, weightAllotmentErr := models.GetEntitlement(*serviceMember.Rank)
-			if weightAllotmentErr != nil {
-				return handlers.ResponseForError(appCtx.Logger(), weightAllotmentErr), weightAllotmentErr
-			}
+			weightAllotment := models.GetWeightAllotment(*serviceMember.Rank)
 
 			weight := weightAllotment.TotalWeightSelf
 			if *payload.HasDependents {

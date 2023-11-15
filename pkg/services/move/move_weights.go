@@ -98,10 +98,7 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 		return nil, nil, errors.New("could not determine excess weight entitlement without dependents authorization value")
 	}
 
-	totalWeightAllowance, err := models.GetEntitlement(models.ServiceMemberRank(*move.Orders.Grade))
-	if err != nil {
-		return nil, nil, err
-	}
+	totalWeightAllowance := models.GetWeightAllotment(models.ServiceMemberRank(*move.Orders.Grade))
 
 	weight := totalWeightAllowance.TotalWeightSelf
 	if *move.Orders.Entitlement.DependentsAuthorized {
@@ -178,10 +175,7 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 		return nil, errors.New("could not determine excess weight entitlement without dependents authorization value")
 	}
 
-	totalWeightAllowance, err := models.GetEntitlement(models.ServiceMemberRank(*move.Orders.Grade))
-	if err != nil {
-		return nil, err
-	}
+	totalWeightAllowance := models.GetWeightAllotment(models.ServiceMemberRank(*move.Orders.Grade))
 
 	weight := totalWeightAllowance.TotalWeightSelf
 	if *move.Orders.Entitlement.DependentsAuthorized {
