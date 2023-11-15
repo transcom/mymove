@@ -158,16 +158,6 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), entitlementErr), entitlementErr
 			}
 
-			proGear, entitlementErr := models.GetProGearEntitlement(*serviceMember.Rank)
-			if entitlementErr != nil {
-				return handlers.ResponseForError(appCtx.Logger(), entitlementErr), entitlementErr
-			}
-
-			proGearSpouse, entitlementErr := models.GetProGearSpouseEntitlement(*serviceMember.Rank)
-			if entitlementErr != nil {
-				return handlers.ResponseForError(appCtx.Logger(), entitlementErr), entitlementErr
-			}
-
 			// Assign default SIT allowance based on customer type.
 			// We only have service members right now, but once we introduce more, this logic will have to change.
 			sitDaysAllowance := models.DefaultServiceMemberSITDaysAllowance
@@ -176,8 +166,6 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				DependentsAuthorized: payload.HasDependents,
 				DBAuthorizedWeight:   models.IntPointer(weight),
 				StorageInTransit:     models.IntPointer(sitDaysAllowance),
-				ProGearWeight:        proGear,
-				ProGearWeightSpouse:  proGearSpouse,
 			}
 
 			if saveEntitlementErr := appCtx.DB().Save(&entitlement); saveEntitlementErr != nil {
