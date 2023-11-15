@@ -15,7 +15,6 @@ import { ExpenseShape, PPMShipmentShape, ProGearTicketShape, WeightTicketShape }
 import formStyles from 'styles/form.module.scss';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
 import PPMDocumentsStatus from 'constants/ppms';
-import { expenseTypes } from 'constants/ppmExpenseTypes';
 
 export default function ReviewDocumentsSidePanel({
   ppmShipment,
