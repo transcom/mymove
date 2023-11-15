@@ -102,7 +102,11 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 		handlerConfig.NotificationSender(),
 		paymentRequestShipmentRecalculator,
 	)
-
+	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
+		queryBuilder,
+		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
+		moveRouter,
+	)
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 	addressUpdater := address.NewAddressUpdater()
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator, addressCreator, addressUpdater)
@@ -115,7 +119,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 
 	primeAPI.MtoShipmentDeleteMTOShipmentHandler = DeleteMTOShipmentHandler{
 		handlerConfig,
-		mtoshipment.NewPrimeShipmentDeleter(),
+		mtoshipment.NewPrimeShipmentDeleter(moveTaskOrderUpdater),
 	}
 
 	primeAPI.PaymentRequestCreatePaymentRequestHandler = CreatePaymentRequestHandler{
@@ -145,7 +149,8 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(ppmEstimator)
 	shipmentRouter := mtoshipment.NewShipmentRouter()
-	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, shipmentRouter)
+
+	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
 
 	primeAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		handlerConfig,

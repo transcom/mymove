@@ -101,6 +101,20 @@ export class TestHarness {
   /**
    * @returns {Promise<Move>}
    */
+  async buildPartialPPMMoveReadyForCloseout() {
+    return this.buildDefault('HHGMoveWithPPMShipmentsReadyForCloseout');
+  }
+
+  /**
+   * @returns {Promise<Move>}
+   */
+  async buildPartialPPMMoveReadyForCounseling() {
+    return this.buildDefault('HHGMoveWithPPMShipmentsReadyForCounseling');
+  }
+
+  /**
+   * @returns {Promise<Move>}
+   */
   async buildPPMInProgressMove() {
     return this.buildDefault('PPMInProgressMove');
   }

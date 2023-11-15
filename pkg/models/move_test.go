@@ -309,3 +309,41 @@ func (suite *ModelSuite) TestMoveIsPPMOnly() {
 	isPPMOnly = move.IsPPMOnly()
 	suite.False(isPPMOnly, "A move with one PPM shipment and one HHG shipment will return false for isPPMOnly.")
 }
+
+func (suite *ModelSuite) TestMoveHasPPM() {
+	move := factory.BuildMove(suite.DB(), nil, nil)
+	hasPPM := move.HasPPM()
+	suite.False(hasPPM, "A move with no shipments will return false for hasPPM.")
+
+	factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
+		{
+			Model: MTOShipment{
+				ShipmentType: MTOShipmentTypePPM,
+			},
+		},
+	}, nil)
+	hasPPM = move.HasPPM()
+	suite.True(hasPPM, "A move with only PPM shipments will return true for hasPPM")
+
+	factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
+		{
+			Model: MTOShipment{
+				ShipmentType: MTOShipmentTypeHHG,
+			},
+		},
+	}, nil)
+	hasPPM = move.HasPPM()
+	suite.True(hasPPM, "A move with one PPM shipment and one HHG shipment will return true for hasPPM.")
+
+	move2 := factory.BuildMove(suite.DB(), nil, nil)
+
+	factory.BuildMTOShipmentWithMove(&move2, suite.DB(), []factory.Customization{
+		{
+			Model: MTOShipment{
+				ShipmentType: MTOShipmentTypeHHG,
+			},
+		},
+	}, nil)
+	hasPPM = move2.HasPPM()
+	suite.False(hasPPM, "A move with one HHG shipment will return false for hasPPM.")
+}
