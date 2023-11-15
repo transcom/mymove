@@ -1423,7 +1423,8 @@ func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmes
 	return uploadPayload
 }
 
-// Upload payload
+// Upload payload for when a Proof of Service doc is designated as a weight ticket
+// This adds an isWeightTicket key to the payload for the UI to use
 func WeightTicketUpload(storer storage.FileStorer, upload models.Upload, url string, isWeightTicket bool) *ghcmessages.Upload {
 	uploadPayload := &ghcmessages.Upload{
 		ID:             handlers.FmtUUIDValue(upload.ID),
@@ -1466,7 +1467,7 @@ func ProofOfServiceDoc(proofOfService models.ProofOfServiceDoc, storer storage.F
 
 	// checking if isWeightTicket is NULL to avoid panic
 	// if it is NULL, we will set it to false
-	// should have a value since it is a required parameter
+	// should have a value since it is a required parameter, but leaving this here just in case
 	var isWeightTicket bool
 	if proofOfService.IsWeightTicket != nil {
 		isWeightTicket = *proofOfService.IsWeightTicket
