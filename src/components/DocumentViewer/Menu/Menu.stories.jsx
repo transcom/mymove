@@ -35,6 +35,13 @@ const testFiles = [
     createdAt: '2021-06-12T15:09:26.979879Z',
     isWeightTicket: true,
   },
+  {
+    filename: 'Test File 4 - A really long title that overflows with ellipsis.pdf',
+    fileType: 'pdf',
+    filePath: '',
+    createdAt: '2021-06-12T15:09:26.979879Z',
+    isWeightTicket: false,
+  },
 ];
 
 export const Menu = () => <DocViewerMenu isOpen files={testFiles} />;

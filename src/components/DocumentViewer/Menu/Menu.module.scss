@@ -59,7 +59,7 @@
 
   p {
     display: flex;
-    @include u-padding-y(2);
+    @include u-padding-y(1);
     @include u-text('gray-50');
     word-wrap: break-word;
     @include u-margin-y(0);
@@ -75,7 +75,6 @@
       @include u-font-size('body', '3xs');
       @include u-font-weight(normal);
       color: $base;
-      max-width: 55%;
     }
   }
 
@@ -103,6 +102,16 @@
   &:focus {
     @include focus-outline;
   }
+}
+
+// Limit the max width of the filename when a tag is present
+.fileNameWithTag {
+  max-width: 55%;
+}
+
+// This allows the filename to take up the full width when no tag is present
+.fileNameFullWidth {
+  max-width: 100%;
 }
 
 // TODO
