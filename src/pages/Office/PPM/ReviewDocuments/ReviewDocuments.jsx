@@ -116,7 +116,11 @@ export const ReviewDocuments = () => {
       return flattenedGroupsWithUnifiedIndex;
     };
 
-    documentSets = documentSets.concat(accumulateMovingExpensesCategoricallyIndexed(movingExpenses));
+    const resultSet = accumulateMovingExpensesCategoricallyIndexed(movingExpenses).sort((itemA, itemB) =>
+      sortByChronologicalDate(itemA.documentSet, itemB.documentSet),
+    );
+
+    documentSets = documentSets.concat(resultSet);
   }
 
   const navigate = useNavigate();
