@@ -27,7 +27,3 @@ func (suite *HandlerSuite) TestIndexEntitlementsHandlerReturns200() {
 	// Then: expect a 200 status code
 	suite.Assertions.IsType(&entitlementop.IndexEntitlementsOK{}, response)
 }
-
-func (suite *HandlerSuite) TestEntitlements() {
-
-}
