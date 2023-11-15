@@ -34,11 +34,13 @@ describe('ServiceItemsTable', () => {
       },
     ];
     const wrapper = mount(
-      <ServiceItemsTable
-        {...defaultProps}
-        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
-        serviceItems={serviceItems}
-      />,
+      <MockProviders>
+        <ServiceItemsTable
+          {...defaultProps}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+          serviceItems={serviceItems}
+        />
+      </MockProviders>,
     );
     expect(wrapper.find('td').at(1).text()).toBe('—');
   });
@@ -59,11 +61,13 @@ describe('ServiceItemsTable', () => {
     ];
 
     const wrapper = mount(
-      <ServiceItemsTable
-        {...defaultProps}
-        serviceItems={serviceItems}
-        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
-      />,
+      <MockProviders>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        />
+      </MockProviders>,
     );
 
     expect(wrapper.find('td').at(0).text()).toContain('Date requested: 20 Nov 2020');
@@ -97,11 +101,13 @@ describe('ServiceItemsTable', () => {
     ];
 
     const wrapper = mount(
-      <ServiceItemsTable
-        {...defaultProps}
-        serviceItems={serviceItems}
-        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
-      />,
+      <MockProviders>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        />
+      </MockProviders>,
     );
 
     expect(wrapper.find('table').exists()).toBe(true);
@@ -136,11 +142,13 @@ describe('ServiceItemsTable', () => {
     ];
 
     const wrapper = mount(
-      <ServiceItemsTable
-        {...defaultProps}
-        serviceItems={serviceItems}
-        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
-      />,
+      <MockProviders>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        />
+      </MockProviders>,
     );
     expect(wrapper.find('dt').at(0).contains('SIT entry date')).toBe(true);
     expect(wrapper.find('dd').at(0).contains('25 Dec 2023')).toBe(true);
@@ -230,11 +238,13 @@ describe('ServiceItemsTable', () => {
     ];
 
     const wrapper = mount(
-      <ServiceItemsTable
-        {...defaultProps}
-        serviceItems={serviceItems}
-        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
-      />,
+      <MockProviders>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        />
+      </MockProviders>,
     );
 
     expect(wrapper.find('button[data-testid="acceptButton"]').length).toBeFalsy();
@@ -420,11 +430,13 @@ describe('ServiceItemsTable', () => {
     ];
 
     const wrapper = mount(
-      <ServiceItemsTable
-        {...defaultProps}
-        serviceItems={serviceItems}
-        statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
-      />,
+      <MockProviders>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
     );
 
     expect(wrapper.find('button[data-testid="editTextButton"]').length).toBeFalsy();

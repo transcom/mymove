@@ -709,7 +709,7 @@ func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOPSIT,
+					Code: models.ReServiceCodeDOFSIT,
 				},
 			},
 			{

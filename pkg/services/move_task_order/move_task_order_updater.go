@@ -64,26 +64,26 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appc
 			return err
 		}
 
-		// If this is a PPM-only move, then we also need to adjust other statuses:
+		// If this is move has a PPM, then we also need to adjust other statuses:
 		//   - set MTO shipment status to APPROVED
 		//   - set PPM shipment status to WAITING_ON_CUSTOMER
 		// TODO: Perhaps this could be part of the shipment router. PPMs are a separate model/table,
 		//   so would need to figure out how they factor in.
-		if move.IsPPMOnly() {
+		if move.HasPPM() {
 			// Note: Avoiding the copy of the element in the range so we can preserve the changes to the
 			// statuses when we return the entire move tree.
-			for i := range move.MTOShipments { // We should only have PPM shipments if we get to here.
-				move.MTOShipments[i].Status = models.MTOShipmentStatusApproved
-
-				verrs, err = appCtx.DB().ValidateAndSave(&move.MTOShipments[i])
-				if verrs != nil && verrs.HasAny() {
-					return apperror.NewInvalidInputError(move.MTOShipments[i].ID, nil, verrs, "")
-				}
-				if err != nil {
-					return err
-				}
-
+			for i := range move.MTOShipments { // We should only change for PPM shipments.
 				if move.MTOShipments[i].PPMShipment != nil {
+					move.MTOShipments[i].Status = models.MTOShipmentStatusApproved
+
+					verrs, err = appCtx.DB().ValidateAndSave(&move.MTOShipments[i])
+					if verrs != nil && verrs.HasAny() {
+						return apperror.NewInvalidInputError(move.MTOShipments[i].ID, nil, verrs, "")
+					}
+					if err != nil {
+						return err
+					}
+
 					move.MTOShipments[i].PPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 					now := time.Now()
 					move.MTOShipments[i].PPMShipment.ApprovedAt = &now
@@ -379,6 +379,48 @@ func (o *moveTaskOrderUpdater) ShowHide(appCtx appcontext.AppContext, moveID uui
 		return nil, apperror.NewInvalidInputError(move.ID, err, verrs, "Invalid input found while updating the Move")
 	} else if err != nil {
 		return nil, apperror.NewQueryError("Move", err, "")
+	}
+
+	// Get the updated Move and return
+	updatedMove, err := o.FetchMoveTaskOrder(appCtx, &searchParams)
+	if err != nil {
+		return nil, apperror.NewQueryError("Move", err, fmt.Sprintf("Unexpected error after saving: %v", err))
+	}
+
+	return updatedMove, nil
+}
+
+// UpdatePPMType updates the PPMType field on the move (move task order)
+func (o moveTaskOrderUpdater) UpdatePPMType(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID) (*models.Move, error) {
+	searchParams := services.MoveTaskOrderFetcherParams{
+		IncludeHidden:   false,
+		MoveTaskOrderID: moveTaskOrderID,
+	}
+	move, err := o.FetchMoveTaskOrder(appCtx, &searchParams)
+	if err != nil {
+		return nil, err
+	}
+
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		if move.IsPPMOnly() { // Only PPM Shipments in the move
+			ppmType := models.MovePPMTypeFULL
+			move.PPMType = &ppmType
+		} else if move.HasPPM() { // At least 1 PPM Shipment in the move
+			ppmType := models.MovePPMTypePARTIAL
+			move.PPMType = &ppmType
+		} else {
+			move.PPMType = nil
+		}
+		// update PPMType Column for move in DB
+		err = appCtx.DB().UpdateColumns(move, "ppm_type")
+		if err != nil {
+			return err
+		}
+
+		return err
+	})
+	if transactionError != nil {
+		return move, transactionError
 	}
 
 	// Get the updated Move and return

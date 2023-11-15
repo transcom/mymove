@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Button, Tag, Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useParams } from 'react-router';
 
 import { ServiceItemDetailsShape } from '../../../types/serviceItems';
 
@@ -15,6 +16,8 @@ import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItem
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import { selectDateFieldByStatus, selectDatePrefixByStatus } from 'utils/dates';
+import { useMovePaymentRequestsQueries } from 'hooks/queries';
+import ToolTip from 'shared/ToolTip/ToolTip';
 
 const ServiceItemsTable = ({
   serviceItems,
@@ -45,9 +48,35 @@ const ServiceItemsTable = ({
     return `${prefix}: ${date}`;
   };
 
+  // adding in payment requests to determine edit button status
+  const { moveCode } = useParams();
+  const { paymentRequests } = useMovePaymentRequestsQueries(moveCode);
+  let serviceItemInPaymentRequests;
+  if (paymentRequests.some((obj) => 'serviceItems' in obj)) {
+    serviceItemInPaymentRequests = paymentRequests.map((obj) => ({
+      serviceItems: obj.serviceItems.map((s) => s.mtoServiceItemID),
+    }));
+  }
+
+  // function iterating through payment requests to find if a service item is in there
+  const isServiceItemFoundInPaymentRequests = (id) => {
+    return serviceItemInPaymentRequests.some((obj) => {
+      if (obj.serviceItems.includes(id)) {
+        return true; // Set the result to true when id is found
+      }
+      return false; // Return false when id is not found
+    });
+  };
+
   const tableRows = serviceItems.map((serviceItem, index) => {
     const { id, code, details, mtoShipmentID, sitAddressUpdates, serviceRequestDocuments, ...item } = serviceItem;
     const { makeVisible, alertType, alertMessage } = serviceItemAddressUpdateAlert;
+    let hasPaymentRequestBeenMade;
+    // if there are service items in the payment requests, we want to look to see if the service item is in there
+    // if so, we don't want to let the TOO edit the SIT entry date
+    if (serviceItemInPaymentRequests && ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code)) {
+      hasPaymentRequestBeenMade = isServiceItemFoundInPaymentRequests(id);
+    }
 
     return (
       <React.Fragment key={`sit-alert-${id}`}>
@@ -71,7 +100,16 @@ const ServiceItemsTable = ({
         )}
         <tr key={id}>
           <td className={styles.nameAndDate}>
-            <p className={styles.codeName}>{serviceItem.serviceItem}</p>
+            <p className={styles.codeName}>
+              {serviceItem.serviceItem}{' '}
+              {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) && hasPaymentRequestBeenMade ? (
+                <ToolTip
+                  text="This cannot be changed due to a payment request existing for this service item."
+                  color="#d54309"
+                  icon="circle-exclamation"
+                />
+              ) : null}
+            </p>
             <p>{getServiceItemDisplayDate(item)}</p>
           </td>
           <td className={styles.detail}>
@@ -146,6 +184,7 @@ const ServiceItemsTable = ({
                           type="button"
                           data-testid="editTextButton"
                           className="text-blue usa-button--unstyled margin-left-1"
+                          disabled={hasPaymentRequestBeenMade}
                           onClick={() => {
                             if (code === 'DDFSIT' || code === 'DOFSIT') {
                               handleShowEditSitEntryDateModal(id, mtoShipmentID);
