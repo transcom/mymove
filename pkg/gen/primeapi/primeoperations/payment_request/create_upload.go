@@ -42,6 +42,23 @@ The PaymentRequest should already exist.
 Required field of **isWeightTicket** indicates if the document is a weight ticket or not.
 This will be used for partial and full deliveries and makes it easier for the Transportation Invoicing Officers to locate and review service item documents.
 
+The JSON that is sent should look like this if it IS a weight ticket being attached to an existing payment request:
+
+	```json
+	{
+	  "file": "url",
+	  "isWeightTicket": true
+	}
+	```
+
+	If the proof of service doc is NOT a weight ticket, it will look like this:
+	```json
+	{
+	  "file": "url",
+	  "isWeightTicket": false
+	}
+	```
+
 PaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.
 */
 type CreateUpload struct {

@@ -1259,7 +1259,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/uploads": {
       "post": {
-        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nRequired field of **isWeightTicket** indicates if the document is a weight ticket or not.\nThis will be used for partial and full deliveries and makes it easier for the Transportation Invoicing Officers to locate and review service item documents.\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
+        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nRequired field of **isWeightTicket** indicates if the document is a weight ticket or not.\nThis will be used for partial and full deliveries and makes it easier for the Transportation Invoicing Officers to locate and review service item documents.\n\nThe JSON that is sent should look like this if it IS a weight ticket being attached to an existing payment request:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"url\",\n    \"isWeightTicket\": true\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n\n  If the proof of service doc is NOT a weight ticket, it will look like this:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"url\",\n    \"isWeightTicket\": false\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
         "consumes": [
           "multipart/form-data"
         ],
@@ -1290,7 +1290,8 @@ func init() {
             "type": "boolean",
             "description": "Indicates whether the file is a weight ticket.",
             "name": "isWeightTicket",
-            "in": "formData"
+            "in": "formData",
+            "required": true
           }
         ],
         "responses": {
@@ -6215,7 +6216,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/uploads": {
       "post": {
-        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nRequired field of **isWeightTicket** indicates if the document is a weight ticket or not.\nThis will be used for partial and full deliveries and makes it easier for the Transportation Invoicing Officers to locate and review service item documents.\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
+        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nRequired field of **isWeightTicket** indicates if the document is a weight ticket or not.\nThis will be used for partial and full deliveries and makes it easier for the Transportation Invoicing Officers to locate and review service item documents.\n\nThe JSON that is sent should look like this if it IS a weight ticket being attached to an existing payment request:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"url\",\n    \"isWeightTicket\": true\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n\n  If the proof of service doc is NOT a weight ticket, it will look like this:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"url\",\n    \"isWeightTicket\": false\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
         "consumes": [
           "multipart/form-data"
         ],
@@ -6246,7 +6247,8 @@ func init() {
             "type": "boolean",
             "description": "Indicates whether the file is a weight ticket.",
             "name": "isWeightTicket",
-            "in": "formData"
+            "in": "formData",
+            "required": true
           }
         ],
         "responses": {
