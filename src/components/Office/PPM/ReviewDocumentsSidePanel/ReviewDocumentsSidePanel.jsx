@@ -85,7 +85,6 @@ export default function ReviewDocumentsSidePanel({
   };
 
   const formatMovingType = (input) => input.toLowerCase().replace('_', ' ');
-  console.log(expenseSetProjection(expenseTickets));
 
   return (
     <Formik initialValues innerRef={formRef} onSubmit={handleSubmit}>

@@ -99,7 +99,7 @@ export default function ReviewExpense({
       eTag: expense.eTag,
     });
   };
-  const expenseName = movingExpenseType === expenseTypes.STORAGE ? 'Storage' : 'Receipt';
+  const expenseName = movingExpenseType.toLowerCase().replace('_', ' ');
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
       <Formik
@@ -126,11 +126,11 @@ export default function ReviewExpense({
             <Form className={classnames(formStyles.form, styles.ReviewExpense)}>
               <PPMHeaderSummary ppmShipment={ppmShipment} ppmNumber={ppmNumber} />
               <hr />
-              <h3 className={styles.tripNumber}>
-                {expenseName} {categoryIndex}
-              </h3>
+              <h3 className={styles.tripNumber}>Receipt {tripNumber}</h3>
               <legend className={classnames('usa-label', styles.label)}>Expense type</legend>
-              <div className={styles.displayValue}>{expenseTypeLabels[movingExpenseType]}</div>
+              <div className={styles.displayValue}>
+                {expenseTypeLabels[movingExpenseType]} ({categoryIndex})
+              </div>
               <legend className={classnames('usa-label', styles.label)}>Description</legend>
               <div className={styles.displayValue}>{description}</div>
               <MaskedTextField
@@ -159,9 +159,9 @@ export default function ReviewExpense({
                 </>
               )}
               <h3 className={styles.reviewHeader}>
-                Review {expenseName.toLowerCase()} {categoryIndex}
+                Review {expenseName} ({categoryIndex})
               </h3>
-              <p>Add a review for this {expenseName.toLowerCase()}</p>
+              <p>Add a review for this {expenseName}</p>
               <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
               <Fieldset className={styles.statusOptions}>
                 <div

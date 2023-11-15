@@ -112,13 +112,12 @@ export const ReviewDocuments = () => {
       );
       const flattenedGroupsWithUnifiedIndex = assignDiscreetIndexesPerGroupElements
         .flat()
+        .sort((itemA, itemB) => sortByChronologicalDate(itemA.documentSet, itemB.documentSet))
         .map(addFlattenedIndexToExpense);
       return flattenedGroupsWithUnifiedIndex;
     };
 
-    const resultSet = accumulateMovingExpensesCategoricallyIndexed(movingExpenses).sort((itemA, itemB) =>
-      sortByChronologicalDate(itemA.documentSet, itemB.documentSet),
-    );
+    const resultSet = accumulateMovingExpensesCategoricallyIndexed(movingExpenses);
 
     documentSets = documentSets.concat(resultSet);
   }
