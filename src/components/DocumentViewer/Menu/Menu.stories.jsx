@@ -40,7 +40,7 @@ const testFiles = [
     fileType: 'pdf',
     filePath: '',
     createdAt: '2021-06-12T15:09:26.979879Z',
-    isWeightTicket: false,
+    // No isWeightTicket intentional
   },
 ];
 
