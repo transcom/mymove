@@ -8117,6 +8117,9 @@ func init() {
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "isWeightTicket": {
+          "type": "boolean"
+        },
         "status": {
           "type": "string",
           "enum": [
@@ -17069,6 +17072,9 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "isWeightTicket": {
+          "type": "boolean"
         },
         "status": {
           "type": "string",

@@ -69,8 +69,7 @@ func (h CreateUploadHandler) Handle(params paymentrequestop.CreateUploadParams) 
 				return paymentrequestop.NewCreateUploadInternalServerError(), err
 			}
 
-			// the prime may provide an optional param of isWeightTicket
-			// if null, we will change it to false to avoid panic
+			// the prime is required to provide if a doc is a weight ticket or not
 			isWeightTicketParam := params.IsWeightTicket
 
 			createdUpload, err := h.PaymentRequestUploadCreator.CreateUpload(appCtx, file.Data, paymentRequestID, contractorID, file.Header.Filename, isWeightTicketParam)

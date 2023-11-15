@@ -5930,6 +5930,8 @@ definitions:
         type: string
         format: date-time
         readOnly: true
+      isWeightTicket:
+        type: boolean
     required:
       - id
       - url
