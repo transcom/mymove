@@ -85,9 +85,6 @@ export const ReviewDocuments = () => {
   }
 
   if (movingExpenses.length > 0) {
-    // sort expenses by occurrence
-    movingExpenses.sort(sortByChronologicalDate);
-
     // index individual input set elements by categorical type and chronological index.
     const accumulateMovingExpensesCategoricallyIndexed = (input) => {
       const constructExpenseCategoricallyIndexed = (movingExpense, categoryIndex) => ({
@@ -117,7 +114,9 @@ export const ReviewDocuments = () => {
       return flattenedGroupsWithUnifiedIndex;
     };
 
-    const resultSet = accumulateMovingExpensesCategoricallyIndexed(movingExpenses);
+    // sort expenses by occurrence
+    const sortedExpenses = [...movingExpenses].sort(sortByChronologicalDate);
+    const resultSet = accumulateMovingExpensesCategoricallyIndexed(sortedExpenses);
 
     documentSets = documentSets.concat(resultSet);
   }

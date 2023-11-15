@@ -79,9 +79,9 @@ export default function ReviewDocumentsSidePanel({
       return accumulator;
     }, {});
 
-    return Object.values(process)
-      .flat()
-      .sort((itemA, itemB) => itemA.receiptIndex >= itemB.receiptIndex);
+    const compareReceiptIndex = (itemA, itemB) => itemA.receiptIndex >= itemB.receiptIndex;
+
+    return Object.values(process).flat().sort(compareReceiptIndex);
   };
 
   const formatMovingType = (input) => input.toLowerCase().replace('_', ' ');
