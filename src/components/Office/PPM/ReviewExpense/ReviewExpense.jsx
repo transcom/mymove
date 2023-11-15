@@ -50,7 +50,16 @@ const validationSchema = Yup.object().shape({
   status: Yup.string().required('Reviewing this receipt is required'),
 });
 
-export default function ReviewExpense({ mtoShipment, expense, tripNumber, ppmNumber, onError, onSuccess, formRef }) {
+export default function ReviewExpense({
+  mtoShipment,
+  expense,
+  categoryIndex,
+  tripNumber,
+  ppmNumber,
+  onError,
+  onSuccess,
+  formRef,
+}) {
   const { movingExpenseType, description, amount, paidWithGtcc, sitStartDate, sitEndDate, status, reason } =
     expense || {};
 
@@ -118,7 +127,7 @@ export default function ReviewExpense({ mtoShipment, expense, tripNumber, ppmNum
               <PPMHeaderSummary ppmShipment={ppmShipment} ppmNumber={ppmNumber} />
               <hr />
               <h3 className={styles.tripNumber}>
-                {expenseName} {tripNumber}
+                {expenseName} {categoryIndex}
               </h3>
               <legend className={classnames('usa-label', styles.label)}>Expense type</legend>
               <div className={styles.displayValue}>{expenseTypeLabels[movingExpenseType]}</div>
@@ -150,7 +159,7 @@ export default function ReviewExpense({ mtoShipment, expense, tripNumber, ppmNum
                 </>
               )}
               <h3 className={styles.reviewHeader}>
-                Review {expenseName.toLowerCase()} {tripNumber}
+                Review {expenseName.toLowerCase()} {categoryIndex}
               </h3>
               <p>Add a review for this {expenseName.toLowerCase()}</p>
               <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>

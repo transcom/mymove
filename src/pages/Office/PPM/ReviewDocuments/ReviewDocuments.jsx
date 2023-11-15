@@ -84,17 +84,39 @@ export const ReviewDocuments = () => {
     documentSets = documentSets.concat(proGearWeightTickets.map(constructProGearWeightTicket));
   }
 
-  const constructMovingExpense = (movingExpense, tripNumber) => ({
-    documentSetType: DOCUMENT_TYPES.MOVING_EXPENSE,
-    documentSet: movingExpense,
-    uploads: movingExpense.document.uploads,
-    tripNumber,
-  });
-
   if (movingExpenses.length > 0) {
+    // sort expenses by occurrence
     movingExpenses.sort(sortByChronologicalDate);
 
-    documentSets = documentSets.concat(movingExpenses.map(constructMovingExpense));
+    // index individual input set elements by categorical type and chronological index.
+    const accumulateMovingExpensesCategoricallyIndexed = (input) => {
+      const constructExpenseCategoricallyIndexed = (movingExpense, categoryIndex) => ({
+        documentSetType: DOCUMENT_TYPES.MOVING_EXPENSE,
+        documentSet: movingExpense,
+        uploads: movingExpense.document.uploads,
+        categoryIndex,
+      });
+
+      const addFlattenedIndexToExpense = (expenseView, index) => ({ ...expenseView, tripNumber: index });
+      // safari's dev team hasn't caught up to the chromium javascript ecma version, so there is no cross-browser availability for Object.groupBy
+      const groupByFix = (iterable, key) => {
+        const groupByResult = iterable.reduce((accumulator, item) => {
+          (accumulator[key(item)] ??= []).push(item);
+          return accumulator;
+        }, {});
+        return groupByResult;
+      };
+      const groupResult = groupByFix(input, ({ movingExpenseType }) => movingExpenseType);
+      const assignDiscreetIndexesPerGroupElements = Object.values(groupResult).map((grp) =>
+        grp.map(constructExpenseCategoricallyIndexed),
+      );
+      const flattenedGroupsWithUnifiedIndex = assignDiscreetIndexesPerGroupElements
+        .flat()
+        .map(addFlattenedIndexToExpense);
+      return flattenedGroupsWithUnifiedIndex;
+    };
+
+    documentSets = documentSets.concat(accumulateMovingExpensesCategoricallyIndexed(movingExpenses));
   }
 
   const navigate = useNavigate();
@@ -166,6 +188,7 @@ export const ReviewDocuments = () => {
   const reviewShipmentWeightsLink = <a href={reviewShipmentWeightsURL}>Review shipment weights</a>;
 
   const currentTripNumber = currentDocumentSet.tripNumber + 1;
+  const currentDocumentCategoryIndex = currentDocumentSet.categoryIndex + 1;
 
   return (
     <div data-testid="ReviewDocuments test" className={styles.ReviewDocuments}>
@@ -230,6 +253,7 @@ export const ReviewDocuments = () => {
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && (
                   <ReviewExpense
                     expense={currentDocumentSet.documentSet}
+                    categoryIndex={currentDocumentCategoryIndex}
                     ppmNumber={1}
                     tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
