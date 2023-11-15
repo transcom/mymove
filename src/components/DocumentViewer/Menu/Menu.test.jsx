@@ -98,11 +98,8 @@ describe('DocViewerMenu', () => {
   });
 
   describe('weight ticket tag', () => {
-    let component;
+    const component = mount(<DocViewerMenu files={mockFiles} {...mockProps} />);
 
-    beforeEach(() => {
-      component = mount(<DocViewerMenu files={mockFiles} {...mockProps} />);
-    });
     it('displays the weight ticket tag if isWeightTicket is true', () => {
       mockFiles.forEach((file, index) => {
         const tag = component.find('li').at(index).find('[data-testid="tag"]');
