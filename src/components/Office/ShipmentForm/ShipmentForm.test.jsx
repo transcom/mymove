@@ -723,7 +723,6 @@ describe('ShipmentForm component', () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} userRole={roleTypes.TOO} />);
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
-      
       expect(screen.queryByRole('heading', { level: 2, name: 'Vendor' })).not.toBeInTheDocument();
       expect(screen.getByLabelText('Requested pickup date')).toBeInTheDocument();
       expect(screen.getByText('Pickup location')).toBeInTheDocument();
