@@ -1360,11 +1360,12 @@ paths:
         item documents.
 
 
-        The JSON that is sent should look like this if it IS a weight ticket
-        being attached to an existing payment request:
+        The formdata in the body of the POST request that is sent should look
+        like this if it IS a weight ticket being attached to an existing payment
+        request:
           ```json
           {
-            "file": "url",
+            "file": "filePath",
             "isWeightTicket": true
           }
           ```
@@ -1372,7 +1373,7 @@ paths:
           If the proof of service doc is NOT a weight ticket, it will look like this:
           ```json
           {
-            "file": "url",
+            "file": "filePath",
             "isWeightTicket": false
           }
           ```
