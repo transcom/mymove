@@ -109,6 +109,7 @@ export const ReviewDocuments = () => {
       );
       const flattenedGroupsWithUnifiedIndex = assignDiscreetIndexesPerGroupElements
         .flat()
+        // even though the initial set was ordered, we have to adjust the order again. (Maintaining the index of chronological existence)
         .sort((itemA, itemB) => sortByChronologicalDate(itemA.documentSet, itemB.documentSet))
         .map(addFlattenedIndexToExpense);
       return flattenedGroupsWithUnifiedIndex;
