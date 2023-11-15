@@ -129,7 +129,7 @@ export default function ReviewExpense({
               <h3 className={styles.tripNumber}>Receipt {tripNumber}</h3>
               <legend className={classnames('usa-label', styles.label)}>Expense type</legend>
               <div className={styles.displayValue}>
-                {expenseTypeLabels[movingExpenseType]} ({categoryIndex})
+                {expenseTypeLabels[movingExpenseType]} #{categoryIndex}
               </div>
               <legend className={classnames('usa-label', styles.label)}>Description</legend>
               <div className={styles.displayValue}>{description}</div>
@@ -159,7 +159,7 @@ export default function ReviewExpense({
                 </>
               )}
               <h3 className={styles.reviewHeader}>
-                Review {expenseName} ({categoryIndex})
+                Review {expenseName} #{categoryIndex}
               </h3>
               <p>Add a review for this {expenseName}</p>
               <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>

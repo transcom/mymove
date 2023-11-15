@@ -129,7 +129,7 @@ export default function ReviewDocumentsSidePanel({
                           <h3 className={styles.tripNumber}>
                             Receipt&nbsp;{exp.receiptIndex}
                             <br />
-                            {formatMovingType(exp.movingExpenseType)}&nbsp;({exp.groupIndex})
+                            {formatMovingType(exp.movingExpenseType)}&nbsp;#{exp.groupIndex}
                           </h3>
                           {statusWithIcon(exp)}
                         </div>
