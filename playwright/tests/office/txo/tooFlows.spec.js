@@ -6,6 +6,7 @@
 
 // @ts-check
 import { test, expect } from '../../utils/office/officeTest';
+import { DEPARTMENT_INDICATOR_OPTIONS } from '../../../../src/constants/departmentIndicators';
 
 import { TooFlowPage } from './tooTestFixture';
 
@@ -198,6 +199,16 @@ test.describe('TOO user', () => {
       await expect(page.getByTestId('edit-orders')).toContainText('Edit orders');
       await page.getByText('Edit orders').click();
       await tooFlowPage.waitForLoading();
+
+      // Check for department indicators
+      await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.AIR_FORCE);
+      await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.ARMY);
+      await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.ARMY_CORPS_OF_ENGINEERS);
+      await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.COAST_GUARD);
+      await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.NAVY_AND_MARINES);
+      await page
+        .getByLabel('Department indicator')
+        .selectOption(DEPARTMENT_INDICATOR_OPTIONS.OFFICE_OF_SECRETARY_OF_DEFENSE);
 
       // Toggle between Edit Allowances and Edit Orders page
       await page.getByTestId('view-allowances').click();
