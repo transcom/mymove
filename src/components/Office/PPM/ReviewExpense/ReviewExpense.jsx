@@ -99,6 +99,9 @@ export default function ReviewExpense({
       eTag: expense.eTag,
     });
   };
+
+  const titleCase = (input) => input.charAt(0).toUpperCase() + input.slice(1);
+  const allCase = (input) => input.split(' ').map(titleCase).join(' ');
   const expenseName = movingExpenseType.toLowerCase().replace('_', ' ');
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
@@ -129,7 +132,7 @@ export default function ReviewExpense({
               <h3 className={styles.tripNumber}>Receipt {tripNumber}</h3>
               <legend className={classnames('usa-label', styles.label)}>Expense type</legend>
               <div className={styles.displayValue}>
-                {expenseTypeLabels[movingExpenseType]} #{categoryIndex}
+                {allCase(expenseTypeLabels[movingExpenseType])} #{categoryIndex}
               </div>
               <legend className={classnames('usa-label', styles.label)}>Description</legend>
               <div className={styles.displayValue}>{description}</div>
