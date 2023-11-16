@@ -83,7 +83,9 @@ export default function ReviewDocumentsSidePanel({
     return Object.values(process).flat().sort(compareReceiptIndex);
   };
 
-  const formatMovingType = (input) => input.toLowerCase().replace('_', ' ');
+  const titleCase = (input) => input.charAt(0).toUpperCase() + input.slice(1);
+
+  const formatMovingType = (input) => titleCase(input.trim().toLowerCase()).replace('_', ' ');
 
   return (
     <Formik initialValues innerRef={formRef} onSubmit={handleSubmit}>
