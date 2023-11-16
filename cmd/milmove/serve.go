@@ -813,8 +813,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Gather TRDM TGET data
-	trdmIsEnabled := v.GetBool(cli.TRDMIsEnabledFlag)
-	if trdmIsEnabled {
+	trdmEnabledEnvironments := []string{
+		cli.EnvironmentTest,
+		cli.EnvironmentPrd,
+	}
+	if environment := v.GetString(cli.EnvironmentFlag); stringSliceContains(trdmEnabledEnvironments, environment) {
 		// Get the AWS configuration so we can build a session
 		cfg, err := config.LoadDefaultConfig(context.Background(),
 			config.WithRegion(v.GetString(cli.AWSRegionFlag)),
@@ -835,8 +838,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		tr := &http.Transport{TLSClientConfig: tlsConfig}
 		httpClient := &http.Client{Transport: tr, Timeout: time.Duration(30) * time.Second}
 
-		// Initial REST call for LastTableUpdate on server start and once per day
-		err = trdm.LastTableUpdate(v, appCtx, stsProvider, httpClient)
+		// Begin the TRDM cron job now (Referred to as the TGET flow as well). This will
+		// send a REST call to the lastTableUpdate endpoint within the trdm soap proxy api gateway,
+		// then if new data is discovered it will call getTable to retreive, parse, and store within the database.
+		// This will run immediately when the server turns on as well as every day at midnight.
+		err = trdm.BeginTGETFlow(v, appCtx, stsProvider, httpClient)
 		if err != nil {
 			logger.Fatal("unable to retrieve latest TGET data from TRDM", zap.Error(err))
 			return err
