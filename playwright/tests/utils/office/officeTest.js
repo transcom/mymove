@@ -21,6 +21,15 @@ export const QAECSROfficeUserType = 'QAE/CSR office';
 export const ServicesCounselorOfficeUserType = 'Services Counselor office';
 export const PrimeSimulatorUserType = 'Prime Simulator office';
 
+export const DEPARTMENT_INDICATOR_OPTIONS = {
+  AIR_FORCE: '57 Air Force and Space Force',
+  ARMY: '21 Army',
+  ARMY_CORPS_OF_ENGINEERS: '96 Army Corps of Engineers',
+  COAST_GUARD: '70 Coast Guard',
+  NAVY_AND_MARINES: '17 Navy and Marine Corps',
+  OFFICE_OF_SECRETARY_OF_DEFENSE: '97 Office of the Secretary of Defense and all Defense Agencies',
+};
+
 /**
  * office test fixture for playwright
  * See https://playwright.dev/docs/test-fixtures

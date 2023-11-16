@@ -5,8 +5,7 @@
  */
 
 // @ts-check
-import { test, expect } from '../../utils/office/officeTest';
-import { DEPARTMENT_INDICATOR_OPTIONS } from '../../../../src/constants/departmentIndicators';
+import { test, expect, DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
 
 import { TooFlowPage } from './tooTestFixture';
 

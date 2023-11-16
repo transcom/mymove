@@ -5,7 +5,7 @@
  */
 
 // @ts-check
-import { DEPARTMENT_INDICATOR_OPTIONS } from '../../../../src/constants/departmentIndicators';
+import { DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
 
 import { test, expect } from './servicesCounselingTestFixture';
 
