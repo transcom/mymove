@@ -5597,7 +5597,7 @@ func init() {
         "ARMY_CORPS_OF_ENGINEERS": "96 Army Corps of Engineers",
         "COAST_GUARD": "70 Coast Guard",
         "NAVY_AND_MARINES": "17 Navy and Marine Corps",
-        "OFFICE_OF_SECRETARY_OF_DEFENSE": "97 Office of the Secretary of Defense and all Defense Agencies"
+        "OFFICE_OF_SECRETARY_OF_DEFENSE": "97 Office of the Secretary of Defense"
       },
       "x-nullable": true
     },
@@ -17021,7 +17021,7 @@ func init() {
         "ARMY_CORPS_OF_ENGINEERS": "96 Army Corps of Engineers",
         "COAST_GUARD": "70 Coast Guard",
         "NAVY_AND_MARINES": "17 Navy and Marine Corps",
-        "OFFICE_OF_SECRETARY_OF_DEFENSE": "97 Office of the Secretary of Defense and all Defense Agencies"
+        "OFFICE_OF_SECRETARY_OF_DEFENSE": "97 Office of the Secretary of Defense"
       },
       "x-nullable": true
     },
