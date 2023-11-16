@@ -4634,14 +4634,18 @@ func init() {
       "enum": [
         "NAVY_AND_MARINES",
         "ARMY",
+        "ARMY_CORPS_OF_ENGINEERS",
         "AIR_FORCE",
-        "COAST_GUARD"
+        "COAST_GUARD",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE"
       ],
       "x-display-value": {
-        "AIR_FORCE": "57 Air Force",
+        "AIR_FORCE": "57 Air Force and Space Force",
         "ARMY": "21 Army",
+        "ARMY_CORPS_OF_ENGINEERS": "96 Army Corps of Engineers",
         "COAST_GUARD": "70 Coast Guard",
-        "NAVY_AND_MARINES": "17 Navy and Marine Corps"
+        "NAVY_AND_MARINES": "17 Navy and Marine Corps",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE": "97 Office of Secretary of Defense and all Defense Agencies"
       },
       "x-nullable": true
     },
@@ -13562,14 +13566,18 @@ func init() {
       "enum": [
         "NAVY_AND_MARINES",
         "ARMY",
+        "ARMY_CORPS_OF_ENGINEERS",
         "AIR_FORCE",
-        "COAST_GUARD"
+        "COAST_GUARD",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE"
       ],
       "x-display-value": {
-        "AIR_FORCE": "57 Air Force",
+        "AIR_FORCE": "57 Air Force and Space Force",
         "ARMY": "21 Army",
+        "ARMY_CORPS_OF_ENGINEERS": "96 Army Corps of Engineers",
         "COAST_GUARD": "70 Coast Guard",
-        "NAVY_AND_MARINES": "17 Navy and Marine Corps"
+        "NAVY_AND_MARINES": "17 Navy and Marine Corps",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE": "97 Office of Secretary of Defense and all Defense Agencies"
       },
       "x-nullable": true
     },
