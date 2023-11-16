@@ -1087,6 +1087,8 @@ paths:
         A move task order can have multiple payment requests, and
         a final payment request can be marked using boolean `isFinal`.
 
+        A ShipmentID must be provided.
+
         If a `PENDING` payment request is recalculated,
         a new payment request is created and the original request is
         marked with the status `DEPRECATED`.
@@ -1388,10 +1390,15 @@ definitions:
       isFinal:
         default: false
         type: boolean
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        description: The ID of the shipment this payment request is for.
       requestedWeightAmount:
         type: integer
         example: 4000
-        minimum: 1
+        minimum: 0
         maximum: 900000
         description: Provided by the movers, weight requested in the payment request.
         x-nullable: true
@@ -1411,6 +1418,7 @@ definitions:
     required:
       - moveTaskOrderID
       - serviceItems
+      - mtoShipmentID
   CreateSITExtension:
     description: CreateSITExtension contains the fields required for the prime to create a SIT Extension request.
     type: object

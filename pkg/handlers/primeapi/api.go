@@ -128,6 +128,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 			handlerConfig.HHGPlanner(),
 			ghcrateengine.NewServiceItemPricer(),
 		),
+		mtoshipment.NewMTOShipmentFetcher(),
 	}
 
 	primeAPI.PaymentRequestCreateUploadHandler = CreateUploadHandler{

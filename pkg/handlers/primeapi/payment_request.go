@@ -23,6 +23,7 @@ import (
 type CreatePaymentRequestHandler struct {
 	handlers.HandlerConfig
 	services.PaymentRequestCreator
+	services.MTOShipmentFetcher
 }
 
 // Handle creates the payment request
@@ -57,20 +58,35 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 				return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(errPayload), err
 			}
 
+			// Calculate the weight to be stored with the payment request.
+			// If a weight was not provided through the request then full weight from the shipment is used.
+			shipmentID := uuid.FromStringOrNil(params.Body.MtoShipmentID.String())
+			mtoShipment, err := h.GetShipment(appCtx, shipmentID)
+			if err != nil {
+				verrs := &validate.Errors{Errors: map[string][]string{
+					"Error": {"Shipment with the shipment ID provided was not found."},
+				},
+				}
+				errPayload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs)
+				return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(errPayload), err
+			}
+
+			requestedWeight := int64(0)
+			if payload.RequestedWeightAmount != nil {
+				requestedWeight = int64(*payload.RequestedWeightAmount)
+			} else {
+				requestedWeight = int64(*mtoShipment.PrimeActualWeight)
+			}
+
 			isFinal := false
 			if payload.IsFinal != nil {
 				isFinal = *payload.IsFinal
 			}
 
-			requestedWeightAmount := int64(0)
-			if payload.RequestedWeightAmount != nil {
-				requestedWeightAmount = int64(*payload.RequestedWeightAmount)
-			}
-
 			paymentRequest := models.PaymentRequest{
 				IsFinal:               isFinal,
 				MoveTaskOrderID:       mtoID,
-				RequestedWeightAmount: int(requestedWeightAmount),
+				RequestedWeightAmount: int(requestedWeight),
 			}
 
 			// Build up the paymentRequest.PaymentServiceItems using the incoming payload to offload Swagger data coming

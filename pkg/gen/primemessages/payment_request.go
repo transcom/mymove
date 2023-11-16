@@ -37,6 +37,11 @@ type PaymentRequest struct {
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
+	// The ID of the shipment this payment request is for.
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+	// Format: uuid
+	MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
+
 	// payment request number
 	// Example: 1234-5678-1
 	// Read Only: true
@@ -74,6 +79,10 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMoveTaskOrderID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMtoShipmentID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -117,6 +126,18 @@ func (m *PaymentRequest) validateMoveTaskOrderID(formats strfmt.Registry) error 
 	}
 
 	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentRequest) validateMtoShipmentID(formats strfmt.Registry) error {
+	if swag.IsZero(m.MtoShipmentID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("mtoShipmentID", "body", "uuid", m.MtoShipmentID.String(), formats); err != nil {
 		return err
 	}
 

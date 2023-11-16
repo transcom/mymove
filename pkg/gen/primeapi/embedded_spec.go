@@ -1202,7 +1202,7 @@ func init() {
     },
     "/payment-requests": {
       "post": {
-        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items,\nthe shipment *must* be updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n**Fuel Surcharge** service items require ` + "`" + `ActualPickupDate` + "`" + ` to be\nupdated on the shipment.\n\nTo create a paymentRequest for a SIT Destination Additional Days mtoServiceItem, the SITPaymentRequestStart and\nSITPaymentRequestEnd dates must not overlap previously requested SIT dates.\n\nTo create a paymentRequest for a SIT Delivery mtoServiceItem, the item must\nfirst have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).\n",
+        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nA ShipmentID must be provided.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items,\nthe shipment *must* be updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n**Fuel Surcharge** service items require ` + "`" + `ActualPickupDate` + "`" + ` to be\nupdated on the shipment.\n\nTo create a paymentRequest for a SIT Destination Additional Days mtoServiceItem, the SITPaymentRequestStart and\nSITPaymentRequestEnd dates must not overlap previously requested SIT dates.\n\nTo create a paymentRequest for a SIT Delivery mtoServiceItem, the item must\nfirst have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).\n",
         "consumes": [
           "application/json"
         ],
@@ -1762,7 +1762,8 @@ func init() {
       "type": "object",
       "required": [
         "moveTaskOrderID",
-        "serviceItems"
+        "serviceItems",
+        "mtoShipmentID"
       ],
       "properties": {
         "isFinal": {
@@ -1774,6 +1775,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "mtoShipmentID": {
+          "description": "The ID of the shipment this payment request is for.",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
         "pointOfContact": {
           "description": "Email or id of a contact person for this update.",
           "type": "string"
@@ -1782,7 +1789,6 @@ func init() {
           "description": "Provided by the movers, weight requested in the payment request.",
           "type": "integer",
           "maximum": 900000,
-          "minimum": 1,
           "x-nullable": true,
           "x-omitempty": false,
           "example": 4000
@@ -3303,6 +3309,12 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoShipmentID": {
+          "description": "The ID of the shipment this payment request is for.",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "paymentRequestNumber": {
           "type": "string",
@@ -6149,7 +6161,7 @@ func init() {
     },
     "/payment-requests": {
       "post": {
-        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items,\nthe shipment *must* be updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n**Fuel Surcharge** service items require ` + "`" + `ActualPickupDate` + "`" + ` to be\nupdated on the shipment.\n\nTo create a paymentRequest for a SIT Destination Additional Days mtoServiceItem, the SITPaymentRequestStart and\nSITPaymentRequestEnd dates must not overlap previously requested SIT dates.\n\nTo create a paymentRequest for a SIT Delivery mtoServiceItem, the item must\nfirst have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).\n",
+        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nA ShipmentID must be provided.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items,\nthe shipment *must* be updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n**Fuel Surcharge** service items require ` + "`" + `ActualPickupDate` + "`" + ` to be\nupdated on the shipment.\n\nTo create a paymentRequest for a SIT Destination Additional Days mtoServiceItem, the SITPaymentRequestStart and\nSITPaymentRequestEnd dates must not overlap previously requested SIT dates.\n\nTo create a paymentRequest for a SIT Delivery mtoServiceItem, the item must\nfirst have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).\n",
         "consumes": [
           "application/json"
         ],
@@ -6766,7 +6778,8 @@ func init() {
       "type": "object",
       "required": [
         "moveTaskOrderID",
-        "serviceItems"
+        "serviceItems",
+        "mtoShipmentID"
       ],
       "properties": {
         "isFinal": {
@@ -6778,6 +6791,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "mtoShipmentID": {
+          "description": "The ID of the shipment this payment request is for.",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
         "pointOfContact": {
           "description": "Email or id of a contact person for this update.",
           "type": "string"
@@ -6786,7 +6805,7 @@ func init() {
           "description": "Provided by the movers, weight requested in the payment request.",
           "type": "integer",
           "maximum": 900000,
-          "minimum": 1,
+          "minimum": 0,
           "x-nullable": true,
           "x-omitempty": false,
           "example": 4000
@@ -8307,6 +8326,12 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoShipmentID": {
+          "description": "The ID of the shipment this payment request is for.",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "paymentRequestNumber": {
           "type": "string",

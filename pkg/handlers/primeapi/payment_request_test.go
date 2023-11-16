@@ -116,16 +116,28 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 				return paymentRequest.PaymentServiceItems[0].MTOServiceItemID == subtestData.serviceItemID1
 			})).Return(&returnedPaymentRequest, nil).Once()
 
+		weight := unit.Pound(700)
+		shipment := models.MTOShipment{PrimeActualWeight: &weight}
+		shipmentFetcher := &mocks.MTOShipmentFetcher{}
+		shipmentFetcher.On("GetShipment",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(&shipment, nil).Once()
+
 		handler := CreatePaymentRequestHandler{
 			suite.HandlerConfig(),
 			paymentRequestCreator,
+			shipmentFetcher,
 		}
+
+		shipmentID := handlers.FmtUUID(subtestData.moveTaskOrderID)
 
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
+				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(subtestData.serviceItemID2),
@@ -179,19 +191,31 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, nil).Once()
 
+		weight := unit.Pound(700)
+		shipment := models.MTOShipment{PrimeActualWeight: &weight}
+		shipmentFetcher := &mocks.MTOShipmentFetcher{}
+		shipmentFetcher.On("GetShipment",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(&shipment, nil).Once()
+
 		handler := CreatePaymentRequestHandler{
 			suite.HandlerConfig(),
 			paymentRequestCreator,
+			shipmentFetcher,
 		}
 
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
+
+		shipmentID := handlers.FmtUUID(subtestData.moveTaskOrderID)
 
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
+				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(subtestData.serviceItemID1),
@@ -236,19 +260,31 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, nil).Once()
 
+		weight := unit.Pound(700)
+		shipment := models.MTOShipment{PrimeActualWeight: &weight}
+		shipmentFetcher := &mocks.MTOShipmentFetcher{}
+		shipmentFetcher.On("GetShipment",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(&shipment, nil).Once()
+
 		handler := CreatePaymentRequestHandler{
 			suite.HandlerConfig(),
 			paymentRequestCreator,
+			shipmentFetcher,
 		}
 
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
+
+		shipmentID := handlers.FmtUUID(subtestData.moveTaskOrderID)
 
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
+				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(subtestData.serviceItemID3),
@@ -283,9 +319,18 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
 
+		weight := unit.Pound(700)
+		shipment := models.MTOShipment{PrimeActualWeight: &weight}
+		shipmentFetcher := &mocks.MTOShipmentFetcher{}
+		shipmentFetcher.On("GetShipment",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(&shipment, nil).Once()
+
 		handler := CreatePaymentRequestHandler{
 			suite.HandlerConfig(),
 			paymentRequestCreator,
+			shipmentFetcher,
 		}
 
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
@@ -313,13 +358,24 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, errors.New("creator failed")).Once()
 
+		weight := unit.Pound(700)
+		shipment := models.MTOShipment{PrimeActualWeight: &weight}
+		shipmentFetcher := &mocks.MTOShipmentFetcher{}
+		shipmentFetcher.On("GetShipment",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(&shipment, nil).Once()
+
 		handler := CreatePaymentRequestHandler{
 			suite.HandlerConfig(),
 			paymentRequestCreator,
+			shipmentFetcher,
 		}
 
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
+
+		shipmentID := handlers.FmtUUID(subtestData.moveTaskOrderID)
 
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
@@ -327,6 +383,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
 				PointOfContact:  "user@prime.com",
+				MtoShipmentID:   shipmentID,
 			},
 		}
 
@@ -350,13 +407,24 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
 
+		weight := unit.Pound(700)
+		shipment := models.MTOShipment{PrimeActualWeight: &weight}
+		shipmentFetcher := &mocks.MTOShipmentFetcher{}
+		shipmentFetcher.On("GetShipment",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(&shipment, nil).Once()
+
 		handler := CreatePaymentRequestHandler{
 			suite.HandlerConfig(),
 			paymentRequestCreator,
+			shipmentFetcher,
 		}
 
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
+
+		shipmentID := handlers.FmtUUID(subtestData.moveTaskOrderID)
 
 		badFormatID := strfmt.UUID("hb7b134a-7c44-45f2-9114-bb0831cc5db3")
 		params := paymentrequestop.CreatePaymentRequestParams{
@@ -364,6 +432,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: &badFormatID,
+				MtoShipmentID:   shipmentID,
 			},
 		}
 
@@ -385,21 +454,34 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
 
+		weight := unit.Pound(700)
+		shipment := models.MTOShipment{PrimeActualWeight: &weight}
+		shipmentFetcher := &mocks.MTOShipmentFetcher{}
+		shipmentFetcher.On("GetShipment",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(&shipment, nil).Once()
+
 		handler := CreatePaymentRequestHandler{
 			suite.HandlerConfig(),
 			paymentRequestCreator,
+			shipmentFetcher,
 		}
 
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
 
 		badFormatID := strfmt.UUID("gb7b134a-7c44-45f2-9114-bb0831cc5db3")
+
+		shipmentID := handlers.FmtUUID(subtestData.moveTaskOrderID)
+
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
 				PointOfContact:  "user@prime.com",
+				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: badFormatID,
@@ -433,19 +515,31 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, err).Once()
 
+		weight := unit.Pound(700)
+		shipment := models.MTOShipment{PrimeActualWeight: &weight}
+		shipmentFetcher := &mocks.MTOShipmentFetcher{}
+		shipmentFetcher.On("GetShipment",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(&shipment, nil).Once()
+
 		handler := CreatePaymentRequestHandler{
 			suite.HandlerConfig(),
 			paymentRequestCreator,
+			shipmentFetcher,
 		}
 
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
+
+		shipmentID := handlers.FmtUUID(subtestData.moveTaskOrderID)
 
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
+				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(subtestData.serviceItemID1),
@@ -480,19 +574,31 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, err).Once()
 
+		weight := unit.Pound(700)
+		shipment := models.MTOShipment{PrimeActualWeight: &weight}
+		shipmentFetcher := &mocks.MTOShipmentFetcher{}
+		shipmentFetcher.On("GetShipment",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(&shipment, nil).Once()
+
 		handler := CreatePaymentRequestHandler{
 			suite.HandlerConfig(),
 			paymentRequestCreator,
+			shipmentFetcher,
 		}
 
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
+
+		shipmentID := handlers.FmtUUID(subtestData.moveTaskOrderID)
 
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
+				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(subtestData.serviceItemID1),
@@ -526,19 +632,31 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, err).Once()
 
+		weight := unit.Pound(700)
+		shipment := models.MTOShipment{PrimeActualWeight: &weight}
+		shipmentFetcher := &mocks.MTOShipmentFetcher{}
+		shipmentFetcher.On("GetShipment",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(&shipment, nil).Once()
+
 		handler := CreatePaymentRequestHandler{
 			suite.HandlerConfig(),
 			paymentRequestCreator,
+			shipmentFetcher,
 		}
 
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
+
+		shipmentID := handlers.FmtUUID(subtestData.moveTaskOrderID)
 
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
+				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(subtestData.serviceItemID1),
@@ -750,16 +868,29 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 			ghcrateengine.NewServiceItemPricer(),
 		)
 
+		weight := unit.Pound(700)
+		shipment := models.MTOShipment{PrimeActualWeight: &weight}
+		shipmentFetcher := &mocks.MTOShipmentFetcher{}
+		shipmentFetcher.On("GetShipment",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(&shipment, nil).Once()
+
 		handler := CreatePaymentRequestHandler{
 			suite.HandlerConfig(),
 			paymentRequestCreator,
+			shipmentFetcher,
 		}
+
+		subtestData := suite.makeCreateMTOAgentSubtestData()
+		shipmentID := handlers.FmtUUID(subtestData.mtoShipment.ID)
 
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
+				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(mtoServiceItems[0].ID),
@@ -808,16 +939,29 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 			ghcrateengine.NewServiceItemPricer(),
 		)
 
+		weight := unit.Pound(700)
+		shipment := models.MTOShipment{PrimeActualWeight: &weight}
+		shipmentFetcher := &mocks.MTOShipmentFetcher{}
+		shipmentFetcher.On("GetShipment",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(&shipment, nil).Once()
+
 		handler := CreatePaymentRequestHandler{
 			suite.HandlerConfig(),
 			paymentRequestCreator,
+			shipmentFetcher,
 		}
+
+		subtestData := suite.makeCreateMTOAgentSubtestData()
+		shipmentID := handlers.FmtUUID(subtestData.mtoShipment.ID)
 
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
+				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(mtoServiceItems[0].ID),
@@ -852,16 +996,29 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 			ghcrateengine.NewServiceItemPricer(),
 		)
 
+		weight := unit.Pound(700)
+		shipment := models.MTOShipment{PrimeActualWeight: &weight}
+		shipmentFetcher := &mocks.MTOShipmentFetcher{}
+		shipmentFetcher.On("GetShipment",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(&shipment, nil).Once()
+
 		handler := CreatePaymentRequestHandler{
 			suite.HandlerConfig(),
 			paymentRequestCreator,
+			shipmentFetcher,
 		}
+
+		subtestData := suite.makeCreateMTOAgentSubtestData()
+		shipmentID := handlers.FmtUUID(subtestData.mtoShipment.ID)
 
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
+				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(mtoServiceItems[0].ID),
@@ -909,16 +1066,29 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 			ghcrateengine.NewServiceItemPricer(),
 		)
 
+		weight := unit.Pound(700)
+		shipment := models.MTOShipment{PrimeActualWeight: &weight}
+		shipmentFetcher := &mocks.MTOShipmentFetcher{}
+		shipmentFetcher.On("GetShipment",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(&shipment, nil).Once()
+
 		handler := CreatePaymentRequestHandler{
 			suite.HandlerConfig(),
 			paymentRequestCreator,
+			shipmentFetcher,
 		}
+
+		subtestData := suite.makeCreateMTOAgentSubtestData()
+		shipmentID := handlers.FmtUUID(subtestData.mtoShipment.ID)
 
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
+				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(mtoServiceItems[0].ID),
@@ -974,16 +1144,29 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 			ghcrateengine.NewServiceItemPricer(),
 		)
 
+		weight := unit.Pound(700)
+		shipment := models.MTOShipment{PrimeActualWeight: &weight}
+		shipmentFetcher := &mocks.MTOShipmentFetcher{}
+		shipmentFetcher.On("GetShipment",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(&shipment, nil).Once()
+
 		handler := CreatePaymentRequestHandler{
 			suite.HandlerConfig(),
 			paymentRequestCreator,
+			shipmentFetcher,
 		}
+
+		subtestData := suite.makeCreateMTOAgentSubtestData()
+		shipmentID := handlers.FmtUUID(subtestData.mtoShipment.ID)
 
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
+				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(mtoServiceItems[0].ID),
