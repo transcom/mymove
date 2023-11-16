@@ -130,7 +130,7 @@ export default function ReviewExpense({
               <PPMHeaderSummary ppmShipment={ppmShipment} ppmNumber={ppmNumber} />
               <hr />
               <h3 className={styles.tripNumber}>Receipt {tripNumber}</h3>
-              <legend className={classnames('usa-label', styles.label)}>Expense type</legend>
+              <legend className={classnames('usa-label', styles.label)}>Expense Type</legend>
               <div className={styles.displayValue}>
                 {allCase(expenseTypeLabels[movingExpenseType])} #{categoryIndex}
               </div>
@@ -162,9 +162,9 @@ export default function ReviewExpense({
                 </>
               )}
               <h3 className={styles.reviewHeader}>
-                Review {expenseName} #{categoryIndex}
+                Review {allCase(expenseName)} #{categoryIndex}
               </h3>
-              <p>Add a review for this {expenseName}</p>
+              <p>Add a review for this {allCase(expenseName)}</p>
               <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
               <Fieldset className={styles.statusOptions}>
                 <div
