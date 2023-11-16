@@ -7,7 +7,6 @@ import PPMShipmentCard from './PPMShipmentCard';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import transportationOfficeFactory from 'utils/test/factories/transportationOffice';
 import affiliations from 'content/serviceMemberAgencies';
-import { shipmentStatuses } from 'constants/shipments';
 
 const defaultProps = {
   showEditAndDeleteBtn: true,
@@ -50,7 +49,6 @@ const completeProps = {
       hasRequestedAdvance: true,
       advanceAmountRequested: 600000,
     },
-    status: shipmentStatuses.SUBMITTED,
   },
 };
 
@@ -70,8 +68,8 @@ const incompleteProps = {
       destinationPostalCode: '11111',
       sitExpected: false,
       expectedDepartureDate: new Date('01/01/2020').toISOString(),
+      hasRequestedAdvance: null,
     },
-    status: shipmentStatuses.DRAFT,
   },
 };
 

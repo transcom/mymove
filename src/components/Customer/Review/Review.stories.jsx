@@ -117,7 +117,7 @@ const HHGShipment = {
 const PPMShipment = {
   id: 'ppmShipmentUuid',
   moveTaskOrderID: mtoUuid,
-  status: MOVE_STATUSES.SUBMITTED,
+  status: MOVE_STATUSES.DRAFT,
   shipmentType: SHIPMENT_OPTIONS.PPM,
   created_at: '2020-09-01T22:00:00.000Z',
   updated_at: '2020-09-01T22:30:00.000Z',
@@ -128,6 +128,7 @@ const PPMShipment = {
     sitExpected: false,
     estimatedWeight: 5000,
     estimatedIncentive: 1000000,
+    hasRequestedAdvance: false,
   },
 };
 
@@ -143,6 +144,7 @@ const IncompeletePPMShipment = {
     pickupPostalCode: '13643',
     destinationPostalCode: '91945',
     sitExpected: false,
+    hasRequestedAdvance: null,
   },
 };
 

@@ -7,13 +7,13 @@ import styles from 'components/Customer/Review/ShipmentCard/ShipmentCard.module.
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import IncompleteShipmentToolTip from 'components/Customer/Review/IncompleteShipmentToolTip/IncompleteShipmentToolTip';
 import { customerRoutes } from 'constants/routes';
-import { shipmentStatuses } from 'constants/shipments';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
 import { getShipmentTypeLabel, isArmyOrAirForce, getMoveCodeLabel } from 'utils/shipmentDisplay';
 import affiliations from 'content/serviceMemberAgencies';
 import { MoveShape } from 'types/customerShapes';
+import { isPPMShipmentComplete } from 'utils/shipments';
 
 const PPMShipmentCard = ({
   move,
@@ -25,7 +25,7 @@ const PPMShipmentCard = ({
   onDeleteClick,
   onIncompleteClick,
 }) => {
-  const { moveTaskOrderID, id, shipmentType, status } = shipment;
+  const { moveTaskOrderID, id, shipmentType } = shipment;
   const {
     pickupPostalCode,
     secondaryPickupPostalCode,
@@ -55,7 +55,7 @@ const PPMShipmentCard = ({
 
   const shipmentLabel = `${getShipmentTypeLabel(shipmentType)} ${shipmentNumber}`;
   const moveCodeLabel = getMoveCodeLabel(shipment.id);
-  const shipmentIsIncomplete = status === shipmentStatuses.DRAFT;
+  const shipmentIsIncomplete = !isPPMShipmentComplete(shipment);
 
   return (
     <div className={styles.ShipmentCard}>
