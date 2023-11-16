@@ -5592,7 +5592,7 @@ func init() {
         "OFFICE_OF_SECRETARY_OF_DEFENSE"
       ],
       "x-display-value": {
-        "AIR_FORCE": "57 Air Force",
+        "AIR_FORCE": "57 Air Force and Space Force",
         "ARMY": "21 Army",
         "ARMY_CORPS_OF_ENGINEERS": "96 Army Corps of Engineers",
         "COAST_GUARD": "70 Coast Guard",
@@ -17016,7 +17016,7 @@ func init() {
         "OFFICE_OF_SECRETARY_OF_DEFENSE"
       ],
       "x-display-value": {
-        "AIR_FORCE": "57 Air Force",
+        "AIR_FORCE": "57 Air Force and Space Force",
         "ARMY": "21 Army",
         "ARMY_CORPS_OF_ENGINEERS": "96 Army Corps of Engineers",
         "COAST_GUARD": "70 Coast Guard",
