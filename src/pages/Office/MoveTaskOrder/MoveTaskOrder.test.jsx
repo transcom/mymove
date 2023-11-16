@@ -20,10 +20,11 @@ import {
   riskOfExcessWeightQueryExternalShipment,
   unapprovedSITAddressUpdates,
   multiplePaymentRequests,
+  moveHistoryTestData,
 } from './moveTaskOrderUnitTestData';
 
 import { MoveTaskOrder } from 'pages/Office/MoveTaskOrder/MoveTaskOrder';
-import { useMoveTaskOrderQueries, useMovePaymentRequestsQueries } from 'hooks/queries';
+import { useMoveTaskOrderQueries, useMovePaymentRequestsQueries, useGHCGetMoveHistory } from 'hooks/queries';
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
 import SERVICE_ITEM_STATUS from 'constants/serviceItems';
@@ -31,6 +32,7 @@ import SERVICE_ITEM_STATUS from 'constants/serviceItems';
 jest.mock('hooks/queries', () => ({
   useMoveTaskOrderQueries: jest.fn(),
   useMovePaymentRequestsQueries: jest.fn(),
+  useGHCGetMoveHistory: jest.fn(),
 }));
 
 const mockPush = jest.fn();
@@ -116,6 +118,7 @@ describe('MoveTaskOrder', () => {
     it('displays the estimated total weight with all weights not set', async () => {
       useMoveTaskOrderQueries.mockReturnValue(missingWeightQuery);
       useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
+      useGHCGetMoveHistory.mockReturnValue(moveHistoryTestData);
 
       render(
         <MockProviders>
@@ -521,6 +524,7 @@ describe('MoveTaskOrder', () => {
   describe('approved mto with both submitted and approved shipments', () => {
     useMoveTaskOrderQueries.mockReturnValue(someShipmentsApprovedMTOQuery);
     useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
+    useGHCGetMoveHistory.mockReturnValue(moveHistoryTestData);
     const wrapper = mount(
       <MockProviders permissions={[permissionTypes.createShipmentCancellation]}>
         <MoveTaskOrder
