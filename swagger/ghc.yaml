@@ -3884,7 +3884,7 @@ definitions:
       ARMY_CORPS_OF_ENGINEERS: 96 Army Corps of Engineers
       AIR_FORCE: 57 Air Force
       COAST_GUARD: 70 Coast Guard
-      OFFICE_OF_SECRETARY_OF_DEFENSE: 97 Office of Secretary of Defense and all Defense Agencies
+      OFFICE_OF_SECRETARY_OF_DEFENSE: 97 Office of the Secretary of Defense and all Defense Agencies
   OrdersTypeDetail:
     type: string
     title: Orders type detail
