@@ -18,7 +18,7 @@ type Entitlement struct {
 	PrivatelyOwnedVehicle *bool     `db:"privately_owned_vehicle"`
 	//DBAuthorizedWeight is AuthorizedWeight when not null
 	DBAuthorizedWeight                           *int             `db:"authorized_weight"`
-	weightAllotment                              *WeightAllotment `db:"-"`
+	WeightAllotted                               *WeightAllotment `db:"-"`
 	StorageInTransit                             *int             `db:"storage_in_transit"`
 	RequiredMedicalEquipmentWeight               int              `db:"required_medical_equipment_weight"`
 	OrganizationalClothingAndIndividualEquipment bool             `db:"organizational_clothing_and_individual_equipment"`
@@ -49,12 +49,12 @@ func (e *Entitlement) Validate(*pop.Connection) (*validate.Errors, error) {
 // TODO diverge in the future
 func (e *Entitlement) SetWeightAllotment(grade string) {
 	wa := GetWeightAllotment(ServiceMemberRank(grade))
-	e.weightAllotment = &wa
+	e.WeightAllotted = &wa
 }
 
 // WeightAllotment returns the weight allotment
 func (e *Entitlement) WeightAllotment() *WeightAllotment {
-	return e.weightAllotment
+	return e.WeightAllotted
 }
 
 // AuthorizedWeight returns authorized weight. If authorized weight has not been
