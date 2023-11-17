@@ -37,6 +37,10 @@ const (
 	MoveStatusNeedsServiceCounseling MoveStatus = "NEEDS SERVICE COUNSELING"
 	// MoveStatusServiceCounselingCompleted captures enum value "SERVICE COUNSELING COMPLETED"
 	MoveStatusServiceCounselingCompleted MoveStatus = "SERVICE COUNSELING COMPLETED"
+	// MovePPMTypeFULL captures enum value "FULL"
+	MovePPMTypeFULL string = "FULL"
+	// MovePPMTypePARTIAL captures enum value "PARTIAL"
+	MovePPMTypePARTIAL string = "PARTIAL"
 )
 
 const maxLocatorAttempts = 3
