@@ -41,15 +41,15 @@ test('A customer can go through onboarding', async ({ page, customerPage }) => {
 
   for (const base of changedBaseNames) {
     await page.getByLabel('What is your current duty location?').fill(base.baseName);
-    await page.getByText(base.baseName, { exact: true }).click(); // click on the base name that pops up in result list
+    // click on the base name that pops up in result list
+    await page.getByText(base.baseName, { exact: true }).click();
     // verify the duty location that populates the outlined box is the full base address
     const dutyLocationInBox = page.locator('span').filter({ hasText: base.baseAddress });
     await expect(dutyLocationInBox).toHaveText(base.baseAddress);
     // verify the duty location that appears underneath the outlined box is the full base address
     const dutyLocationUnderBox = await page.getByTestId('formGroup').getByRole('paragraph');
     await expect(dutyLocationUnderBox).toHaveText(base.baseAddress);
-    const notdutyLocationUnderBox = await page.getByTestId('formGroup').getByRole('paragraph');
-    await expect(notdutyLocationUnderBox).not.toHaveText(base.oldBaseAddress);
+    await expect(dutyLocationUnderBox).not.toHaveText(base.oldBaseAddress);
   }
 
   await page.getByLabel('What is your current duty location?').fill('Scott AFB');
