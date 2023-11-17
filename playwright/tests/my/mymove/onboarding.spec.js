@@ -12,6 +12,7 @@ test('A customer can go through onboarding', async ({ page, customerPage }) => {
 
   // Branch/DOD ID/Rank section
   await customerPage.waitForPage.onboardingDodId();
+  await page.getByRole('combobox', { name: 'Branch of service' }).selectOption({ label: 'Space Force' });
   await page.getByRole('combobox', { name: 'Branch of service' }).selectOption({ label: 'Army' });
   await page.getByTestId('textInput').fill('1231231234');
   await page.getByRole('combobox', { name: 'Rank' }).selectOption({ label: 'E-7' });
