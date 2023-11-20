@@ -51,7 +51,7 @@ export const ReviewDocuments = () => {
   }, [moveWeightTotal, order.entitlement.totalWeight]);
 
   const chronologicalComparatorProperty = (input) => input.createdAt;
-  const sortByChronologicalDate = (itemA, itemB) =>
+  const compareChronologically = (itemA, itemB) =>
     chronologicalComparatorProperty(itemA) < chronologicalComparatorProperty(itemB) ? -1 : 1;
 
   const constructWeightTicket = (weightTicket, tripNumber) => ({
@@ -66,7 +66,7 @@ export const ReviewDocuments = () => {
   });
 
   if (weightTickets.length > 0) {
-    weightTickets.sort(sortByChronologicalDate);
+    weightTickets.sort(compareChronologically);
 
     documentSets = documentSets.concat(weightTickets.map(constructWeightTicket));
   }
@@ -79,7 +79,7 @@ export const ReviewDocuments = () => {
   });
 
   if (proGearWeightTickets.length > 0) {
-    proGearWeightTickets.sort(sortByChronologicalDate);
+    proGearWeightTickets.sort(compareChronologically);
 
     documentSets = documentSets.concat(proGearWeightTickets.map(constructProGearWeightTicket));
   }
@@ -110,13 +110,13 @@ export const ReviewDocuments = () => {
       const flattenedGroupsWithUnifiedIndex = assignDiscreetIndexesPerGroupElements
         .flat()
         // even though the initial set was ordered, we have to adjust the order again. (Maintaining the index of chronological existence)
-        .sort((itemA, itemB) => sortByChronologicalDate(itemA.documentSet, itemB.documentSet))
+        .sort((itemA, itemB) => compareChronologically(itemA.documentSet, itemB.documentSet))
         .map(addFlattenedIndexToExpense);
       return flattenedGroupsWithUnifiedIndex;
     };
 
     // sort expenses by occurrence
-    const sortedExpenses = [...movingExpenses].sort(sortByChronologicalDate);
+    const sortedExpenses = [...movingExpenses].sort(compareChronologically);
     const resultSet = accumulateMovingExpensesCategoricallyIndexed(sortedExpenses);
 
     documentSets = documentSets.concat(resultSet);
