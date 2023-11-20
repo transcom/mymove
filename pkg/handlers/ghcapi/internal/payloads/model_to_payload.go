@@ -1457,26 +1457,16 @@ func ProofOfServiceDoc(proofOfService models.ProofOfServiceDoc, storer storage.F
 			}
 			// if the doc is a weight ticket then we need to return a different payload so the UI can differentiate
 			weightTicket := proofOfService.IsWeightTicket
-			if *weightTicket {
-				uploads[i] = WeightTicketUpload(storer, primeUpload.Upload, url, *proofOfService.IsWeightTicket)
+			if weightTicket {
+				uploads[i] = WeightTicketUpload(storer, primeUpload.Upload, url, proofOfService.IsWeightTicket)
 			} else {
 				uploads[i] = Upload(storer, primeUpload.Upload, url)
 			}
 		}
 	}
 
-	// checking if isWeightTicket is NULL to avoid panic
-	// if it is NULL, we will set it to false
-	// should have a value since it is a required parameter, but leaving this here just in case
-	var isWeightTicket bool
-	if proofOfService.IsWeightTicket != nil {
-		isWeightTicket = *proofOfService.IsWeightTicket
-	} else {
-		isWeightTicket = false
-	}
-
 	return &ghcmessages.ProofOfServiceDoc{
-		IsWeightTicket: isWeightTicket,
+		IsWeightTicket: proofOfService.IsWeightTicket,
 		Uploads:        uploads,
 	}, nil
 }

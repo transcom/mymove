@@ -92,7 +92,7 @@ func (p *paymentRequestUploadCreator) CreateUpload(appCtx appcontext.AppContext,
 		proofOfServiceDoc := models.ProofOfServiceDoc{
 			PaymentRequestID: paymentRequestID,
 			PaymentRequest:   paymentRequest,
-			IsWeightTicket:   &isWeightTicket,
+			IsWeightTicket:   isWeightTicket,
 		}
 		// add proof of service doc to database
 		verrs, err := txnAppCtx.DB().ValidateAndCreate(&proofOfServiceDoc)

@@ -84,7 +84,7 @@ func (suite *PayloadsSuite) TestProofOfServiceDoc() {
 	proofOfServiceDoc := models.ProofOfServiceDoc{
 		ID:               uuid.Must(uuid.NewV4()),
 		PaymentRequestID: uuid.Must(uuid.NewV4()),
-		IsWeightTicket:   &isWeightTicket,
+		IsWeightTicket:   isWeightTicket,
 		CreatedAt:        time.Now(),
 		UpdatedAt:        time.Now(),
 	}
