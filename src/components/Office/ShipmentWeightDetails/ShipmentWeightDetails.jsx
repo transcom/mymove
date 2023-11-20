@@ -8,20 +8,16 @@ import DataTable from '../../DataTable/index';
 
 import styles from './ShipmentWeightDetails.module.scss';
 
+import returnLowestValue from 'utils/returnLowestValue';
 import { formatWeight } from 'utils/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 
-const ShipmentWeightDetails = ({
-  estimatedWeight,
-  initialWeight,
-  actualWeight,
-  shipmentInfo,
-  handleRequestReweighModal,
-}) => {
+const ShipmentWeightDetails = ({ estimatedWeight, initialWeight, shipmentInfo, handleRequestReweighModal }) => {
   const emDash = '\u2014';
+  const lowestWeight = returnLowestValue(initialWeight, shipmentInfo.reweighWeight);
 
   const reweighHeader = (
     <div className={styles.shipmentWeight}>
@@ -56,7 +52,7 @@ const ShipmentWeightDetails = ({
           columnHeaders={[reweighHeader, 'Actual shipment weight']}
           dataRow={[
             shipmentInfo.reweighWeight ? formatWeight(shipmentInfo.reweighWeight) : emDash,
-            actualWeight ? formatWeight(actualWeight) : emDash,
+            lowestWeight ? formatWeight(lowestWeight) : emDash,
           ]}
         />
       </DataTableWrapper>
@@ -66,7 +62,7 @@ const ShipmentWeightDetails = ({
 
 ShipmentWeightDetails.propTypes = {
   estimatedWeight: PropTypes.number,
-  actualWeight: PropTypes.number,
+  initialWeight: PropTypes.number,
   shipmentInfo: PropTypes.shape({
     shipmentID: PropTypes.string,
     ifMatchEtag: PropTypes.string,
@@ -79,7 +75,7 @@ ShipmentWeightDetails.propTypes = {
 
 ShipmentWeightDetails.defaultProps = {
   estimatedWeight: null,
-  actualWeight: null,
+  initialWeight: null,
 };
 
 export default ShipmentWeightDetails;

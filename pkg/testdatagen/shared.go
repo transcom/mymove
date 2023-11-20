@@ -45,6 +45,7 @@ type Assertions struct {
 	FuelEIADieselPrice                       models.FuelEIADieselPrice
 	GHCDieselFuelPrice                       models.GHCDieselFuelPrice
 	Invoice                                  models.Invoice
+	LineOfAccounting                         models.LineOfAccounting
 	Move                                     models.Move
 	MovingExpense                            models.MovingExpense
 	MTOAgent                                 models.MTOAgent
