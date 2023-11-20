@@ -36,6 +36,21 @@ const CreatePaymentRequestForm = ({
           )}
           <SectionWrapper className={formStyles.formSection}>
             <dl className={descriptionListStyles.descriptionList}>
+              <h2>Shipment Information</h2>
+              {groupedServiceItems.basic?.map((mtoServiceItem) => {
+                return (
+                  <SectionWrapper className={formStyles.formSection}>
+                    <div className={styles.serviceItemInputGroup}>
+                      <Label htmlFor={mtoServiceItem.id}>Input Shipment ID</Label>
+                      <Field type="textbox" name="shipmentIdInput" id="shipmentIdInput" data-testid="shipmentIdInput" />
+                    </div>
+                  </SectionWrapper>
+                );
+              })}
+            </dl>
+          </SectionWrapper>
+          <SectionWrapper className={formStyles.formSection}>
+            <dl className={descriptionListStyles.descriptionList}>
               <h2>Move Service Items</h2>
               {groupedServiceItems.basic?.map((mtoServiceItem) => {
                 return (

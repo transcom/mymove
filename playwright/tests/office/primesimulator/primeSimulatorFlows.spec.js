@@ -52,6 +52,7 @@ test.describe('Prime simulator user', () => {
     await officePage.signInAsNewPrimeSimulatorUser();
     const moveLocator = move.locator;
     const moveID = move.id;
+    const shipmentId = page.getByTestId('shipmentId');
 
     // wait for the the available moves page to load
     // select the move from the list
@@ -124,6 +125,8 @@ test.describe('Prime simulator user', () => {
     for (let i = 0; i < serviceItemCount; i += 1) {
       await serviceItems.nth(i).click();
     }
+
+    await page.locator('input[name="shipmentIdInput"]').type(shipmentId.textContent.toString());
 
     await page.getByText('Submit Payment Request').click();
 

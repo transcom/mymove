@@ -79,7 +79,9 @@ const Shipment = ({ shipment, moveId, onDelete }) => {
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Shipment ID:</dt>
-        <dd>{shipment.id}</dd>
+        <dd id="shipmentId" data-testid="shipmentId">
+          {shipment.id}
+        </dd>
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Shipment eTag:</dt>
