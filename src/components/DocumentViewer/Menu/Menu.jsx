@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
+import { Button, Tag } from '@trussworks/react-uswds';
 import moment from 'moment';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -24,6 +24,7 @@ const DocViewerMenu = ({ isOpen, files, handleClose, selectedFileIndex, handleSe
     </div>
     <ul className={styles.menuList}>
       {files.map((file, i) => {
+        const fileNameClass = file.isWeightTicket ? styles.fileNameWithTag : styles.fileNameFullWidth;
         const itemClasses = classnames(styles.menuItemBtn, {
           [styles.active]: i === selectedFileIndex,
         });
@@ -35,7 +36,10 @@ const DocViewerMenu = ({ isOpen, files, handleClose, selectedFileIndex, handleSe
             <div title={fileName}>
               <Button unstyled className={itemClasses} type="button" onClick={() => handleSelectFile(i)}>
                 <p>
-                  {fileName} <br /> <span>Uploaded on {fileDate}</span>
+                  <span className={fileNameClass}>{fileName}</span> {file.isWeightTicket && <Tag>Weight Ticket</Tag>}
+                </p>
+                <p>
+                  <span>Uploaded on {fileDate}</span>
                 </p>
               </Button>
             </div>
