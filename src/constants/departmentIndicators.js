@@ -1,5 +1,5 @@
 export default {
-  AIR_FORCE: 'AIR_FORCE',
+  AIR_AND_SPACE_FORCE: 'AIR_AND_SPACE_FORCE',
   ARMY: 'ARMY',
   ARMY_CORPS_OF_ENGINEERS: 'ARMY_CORPS_OF_ENGINEERS',
   COAST_GUARD: 'COAST_GUARD',
@@ -8,7 +8,7 @@ export default {
 };
 
 export const DEPARTMENT_INDICATOR_OPTIONS = {
-  AIR_FORCE: '57 Air Force and Space Force',
+  AIR_AND_SPACE_FORCE: '57 Air Force and Space Force',
   ARMY: '21 Army',
   ARMY_CORPS_OF_ENGINEERS: '96 Army Corps of Engineers',
   COAST_GUARD: '70 Coast Guard',
@@ -17,7 +17,7 @@ export const DEPARTMENT_INDICATOR_OPTIONS = {
 };
 
 export const DEPARTMENT_INDICATOR_LABELS = {
-  AIR_FORCE: 'Air Force and Space Force',
+  AIR_AND_SPACE_FORCE: 'Air Force and Space Force',
   ARMY: 'Army',
   ARMY_CORPS_OF_ENGINEERS: 'Army Corps of Engineers',
   COAST_GUARD: 'Coast Guard',

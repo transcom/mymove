@@ -1741,7 +1741,7 @@ export const reviewWeightsQuery = {
       },
       customerID: '25cd44a2-eb40-473f-b6c9-e99e25387a54',
       date_issued: '2018-03-15',
-      department_indicator: 'AIR_FORCE',
+      department_indicator: 'AIR_AND_SPACE_FORCE',
       destinationDutyLocation: {
         address: {
           city: 'Fort Gordon',
@@ -2197,7 +2197,7 @@ export const reviewWeightsNoProGearQuery = {
       },
       customerID: '25cd44a2-eb40-473f-b6c9-e99e25387a54',
       date_issued: '2018-03-15',
-      department_indicator: 'AIR_FORCE',
+      department_indicator: 'AIR_AND_SPACE_FORCE',
       destinationDutyLocation: {
         address: {
           city: 'Fort Gordon',

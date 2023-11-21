@@ -22,7 +22,7 @@ export const ServicesCounselorOfficeUserType = 'Services Counselor office';
 export const PrimeSimulatorUserType = 'Prime Simulator office';
 
 export const DEPARTMENT_INDICATOR_OPTIONS = {
-  AIR_FORCE: '57 Air Force and Space Force',
+  AIR_AND_SPACE_FORCE: '57 Air Force and Space Force',
   ARMY: '21 Army',
   ARMY_CORPS_OF_ENGINEERS: '96 Army Corps of Engineers',
   COAST_GUARD: '70 Coast Guard',

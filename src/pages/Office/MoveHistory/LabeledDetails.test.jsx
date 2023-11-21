@@ -32,7 +32,7 @@ describe('LabeledDetails', () => {
         sac: '3333',
         nts_tac: '4444',
         nts_sac: '5555',
-        department_indicator: 'AIR_FORCE',
+        department_indicator: 'AIR_AND_SPACE_FORCE',
         grade: 'E_1',
         actual_pickup_date: '2022-01-01',
         prime_actual_weight: '100 lbs',
