@@ -14,6 +14,8 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // CreateUploadMaxParseMemory sets the maximum size in bytes for
@@ -45,6 +47,11 @@ type CreateUploadParams struct {
 	  In: formData
 	*/
 	File io.ReadCloser
+	/*Indicates whether the file is a weight ticket.
+	  Required: true
+	  In: formData
+	*/
+	IsWeightTicket bool
 	/*UUID of payment request to use.
 	  Required: true
 	  In: path
@@ -68,6 +75,7 @@ func (o *CreateUploadParams) BindRequest(r *http.Request, route *middleware.Matc
 			return errors.New(400, "%v", err)
 		}
 	}
+	fds := runtime.Values(r.Form)
 
 	file, fileHeader, err := r.FormFile("file")
 	if err != nil {
@@ -77,6 +85,11 @@ func (o *CreateUploadParams) BindRequest(r *http.Request, route *middleware.Matc
 		res = append(res, err)
 	} else {
 		o.File = &runtime.File{Data: file, Header: fileHeader}
+	}
+
+	fdIsWeightTicket, fdhkIsWeightTicket, _ := fds.GetOK("isWeightTicket")
+	if err := o.bindIsWeightTicket(fdIsWeightTicket, fdhkIsWeightTicket, route.Formats); err != nil {
+		res = append(res, err)
 	}
 
 	rPaymentRequestID, rhkPaymentRequestID, _ := route.Params.GetOK("paymentRequestID")
@@ -93,6 +106,31 @@ func (o *CreateUploadParams) BindRequest(r *http.Request, route *middleware.Matc
 //
 // The only supported validations on files are MinLength and MaxLength
 func (o *CreateUploadParams) bindFile(file multipart.File, header *multipart.FileHeader) error {
+	return nil
+}
+
+// bindIsWeightTicket binds and validates parameter IsWeightTicket from formData.
+func (o *CreateUploadParams) bindIsWeightTicket(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	if !hasKey {
+		return errors.Required("isWeightTicket", "formData", rawData)
+	}
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+
+	if err := validate.RequiredString("isWeightTicket", "formData", raw); err != nil {
+		return err
+	}
+
+	value, err := swag.ConvertBool(raw)
+	if err != nil {
+		return errors.InvalidType("isWeightTicket", "formData", "bool", raw)
+	}
+	o.IsWeightTicket = value
+
 	return nil
 }
 
