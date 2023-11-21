@@ -121,14 +121,11 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			paymentRequestCreator,
 		}
 
-		shipmentID := handlers.FmtUUID(subtestData.moveTaskOrderID)
-
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
-				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(subtestData.serviceItemID2),
@@ -190,14 +187,11 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
 
-		shipmentID := handlers.FmtUUID(subtestData.moveTaskOrderID)
-
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
-				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(subtestData.serviceItemID1),
@@ -250,14 +244,11 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
 
-		shipmentID := handlers.FmtUUID(subtestData.moveTaskOrderID)
-
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
-				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(subtestData.serviceItemID3),
@@ -330,15 +321,12 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
 
-		shipmentID := handlers.FmtUUID(subtestData.moveTaskOrderID)
-
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
 				PointOfContact:  "user@prime.com",
-				MtoShipmentID:   shipmentID,
 			},
 		}
 
@@ -370,15 +358,12 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
 
-		shipmentID := handlers.FmtUUID(subtestData.moveTaskOrderID)
-
 		badFormatID := strfmt.UUID("hb7b134a-7c44-45f2-9114-bb0831cc5db3")
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: &badFormatID,
-				MtoShipmentID:   shipmentID,
 			},
 		}
 
@@ -410,15 +395,12 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 
 		badFormatID := strfmt.UUID("gb7b134a-7c44-45f2-9114-bb0831cc5db3")
 
-		shipmentID := handlers.FmtUUID(subtestData.moveTaskOrderID)
-
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
 				PointOfContact:  "user@prime.com",
-				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: badFormatID,
@@ -460,14 +442,11 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
 
-		shipmentID := handlers.FmtUUID(subtestData.moveTaskOrderID)
-
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
-				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(subtestData.serviceItemID1),
@@ -510,14 +489,11 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
 
-		shipmentID := handlers.FmtUUID(subtestData.moveTaskOrderID)
-
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
-				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(subtestData.serviceItemID1),
@@ -559,14 +535,11 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		req := httptest.NewRequest("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
 
-		shipmentID := handlers.FmtUUID(subtestData.moveTaskOrderID)
-
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(subtestData.moveTaskOrderID),
-				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(subtestData.serviceItemID1),
@@ -783,15 +756,11 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 			paymentRequestCreator,
 		}
 
-		subtestData := suite.makeCreateMTOAgentSubtestData()
-		shipmentID := handlers.FmtUUID(subtestData.mtoShipment.ID)
-
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
-				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(mtoServiceItems[0].ID),
@@ -845,15 +814,11 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 			paymentRequestCreator,
 		}
 
-		subtestData := suite.makeCreateMTOAgentSubtestData()
-		shipmentID := handlers.FmtUUID(subtestData.mtoShipment.ID)
-
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
-				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(mtoServiceItems[0].ID),
@@ -893,15 +858,11 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 			paymentRequestCreator,
 		}
 
-		subtestData := suite.makeCreateMTOAgentSubtestData()
-		shipmentID := handlers.FmtUUID(subtestData.mtoShipment.ID)
-
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
-				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(mtoServiceItems[0].ID),
@@ -954,15 +915,11 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 			paymentRequestCreator,
 		}
 
-		subtestData := suite.makeCreateMTOAgentSubtestData()
-		shipmentID := handlers.FmtUUID(subtestData.mtoShipment.ID)
-
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
-				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(mtoServiceItems[0].ID),
@@ -1023,15 +980,11 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 			paymentRequestCreator,
 		}
 
-		subtestData := suite.makeCreateMTOAgentSubtestData()
-		shipmentID := handlers.FmtUUID(subtestData.mtoShipment.ID)
-
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         models.BoolPointer(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
-				MtoShipmentID:   shipmentID,
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(mtoServiceItems[0].ID),

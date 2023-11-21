@@ -1277,9 +1277,6 @@ paths:
         a final payment request can be marked using boolean `isFinal`.
 
 
-        A ShipmentID must be provided.
-
-
         If a `PENDING` payment request is recalculated,
 
         a new payment request is created and the original request is
@@ -3108,11 +3105,6 @@ definitions:
         format: uuid
         readOnly: true
         type: string
-      mtoShipmentID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-        description: The ID of the shipment this payment request is for.
       isFinal:
         default: false
         type: boolean
