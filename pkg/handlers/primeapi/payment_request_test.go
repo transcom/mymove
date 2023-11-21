@@ -394,7 +394,6 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
 
 		badFormatID := strfmt.UUID("gb7b134a-7c44-45f2-9114-bb0831cc5db3")
-
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequest{
