@@ -3958,6 +3958,7 @@ func init() {
         "MARINES",
         "AIR_FORCE",
         "COAST_GUARD",
+        "SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -3966,7 +3967,8 @@ func init() {
         "COAST_GUARD": "Coast Guard",
         "MARINES": "Marine Corps",
         "NAVY": "Navy",
-        "OTHER": "OTHER"
+        "OTHER": "OTHER",
+        "SPACE_FORCE": "Space Force"
       },
       "x-nullable": true
     },
@@ -8116,6 +8118,9 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "isWeightTicket": {
+          "type": "boolean"
         },
         "status": {
           "type": "string",
@@ -12882,6 +12887,7 @@ func init() {
         "MARINES",
         "AIR_FORCE",
         "COAST_GUARD",
+        "SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -12890,7 +12896,8 @@ func init() {
         "COAST_GUARD": "Coast Guard",
         "MARINES": "Marine Corps",
         "NAVY": "Navy",
-        "OTHER": "OTHER"
+        "OTHER": "OTHER",
+        "SPACE_FORCE": "Space Force"
       },
       "x-nullable": true
     },
@@ -17069,6 +17076,9 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "isWeightTicket": {
+          "type": "boolean"
         },
         "status": {
           "type": "string",
