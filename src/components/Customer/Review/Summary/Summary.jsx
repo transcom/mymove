@@ -10,6 +10,7 @@ import styles from './Summary.module.scss';
 
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import ConnectedAddShipmentModal from 'components/Customer/Review/AddShipmentModal/AddShipmentModal';
+import ConnectedIncompleteShipmentModal from 'components/Customer/Review/IncompleteShipmentModal/IncompleteShipmentModal';
 import OrdersTable from 'components/Customer/Review/OrdersTable/OrdersTable';
 import ProfileTable from 'components/Customer/Review/ProfileTable/ProfileTable';
 import HHGShipmentCard from 'components/Customer/Review/ShipmentCard/HHGShipmentCard/HHGShipmentCard';
@@ -43,8 +44,12 @@ export class Summary extends Component {
 
     this.state = {
       showModal: false,
+      showIncompletePPMModal: false,
       showDeleteModal: false,
       targetShipmentId: null,
+      targetShipmentLabel: null,
+      targetShipmentMoveCode: null,
+      targetShipmentType: null,
     };
   }
 
@@ -126,6 +131,7 @@ export class Summary extends Component {
             showEditAndDeleteBtn={showEditAndDeleteBtn}
             onEditClick={this.handleEditClick}
             onDeleteClick={this.handleDeleteClick}
+            onIncompleteClick={this.toggleIncompleteShipmentModal}
           />
         );
       }
@@ -148,6 +154,8 @@ export class Summary extends Component {
             requestedPickupDate={shipment.requestedPickupDate}
             shipmentId={shipment.id}
             shipmentType={shipment.shipmentType}
+            status={shipment.status}
+            onIncompleteClick={this.toggleIncompleteShipmentModal}
           />
         );
       }
@@ -167,6 +175,8 @@ export class Summary extends Component {
             requestedDeliveryDate={shipment.requestedDeliveryDate}
             shipmentId={shipment.id}
             shipmentType={shipment.shipmentType}
+            status={shipment.status}
+            onIncompleteClick={this.toggleIncompleteShipmentModal}
           />
         );
       }
@@ -191,6 +201,8 @@ export class Summary extends Component {
           shipmentNumber={hhgShipmentNumber}
           shipmentType={shipment.shipmentType}
           showEditAndDeleteBtn={showEditAndDeleteBtn}
+          status={shipment.status}
+          onIncompleteClick={this.toggleIncompleteShipmentModal}
         />
       );
     });
@@ -202,9 +214,26 @@ export class Summary extends Component {
     }));
   };
 
+  toggleIncompleteShipmentModal = (ShipmentLabel, shipmentMoveCode, shipmentType) => {
+    this.setState((state) => ({
+      showIncompletePPMModal: !state.showIncompletePPMModal,
+      targetShipmentLabel: ShipmentLabel,
+      targetShipmentMoveCode: shipmentMoveCode,
+      targetShipmentType: shipmentType,
+    }));
+  };
+
   render() {
     const { currentMove, currentOrders, router, moveIsApproved, mtoShipments, serviceMember } = this.props;
-    const { showModal, showDeleteModal, targetShipmentId } = this.state;
+    const {
+      showModal,
+      showDeleteModal,
+      targetShipmentId,
+      showIncompletePPMModal,
+      targetShipmentLabel,
+      targetShipmentMoveCode,
+      targetShipmentType,
+    } = this.state;
 
     const { pathname } = router.location;
     const { moveId } = router.params;
@@ -243,6 +272,13 @@ export class Summary extends Component {
           content="Your information will be gone. You’ll need to start over if you want it back."
           submitText="Yes, Delete"
           closeText="No, Keep It"
+        />
+        <ConnectedIncompleteShipmentModal
+          isOpen={showIncompletePPMModal}
+          closeModal={this.toggleIncompleteShipmentModal}
+          shipmentLabel={targetShipmentLabel}
+          shipmentMoveCode={targetShipmentMoveCode}
+          shipmentType={targetShipmentType}
         />
         <SectionWrapper className={styles.SummarySectionWrapper}>
           <ProfileTable

@@ -52,6 +52,27 @@ const completeProps = {
   },
 };
 
+const mockedOnIncompleteClickFunction = jest.fn();
+const incompleteProps = {
+  showEditAndDeleteBtn: true,
+  onEditClick: jest.fn(),
+  onDeleteClick: jest.fn(),
+  onIncompleteClick: mockedOnIncompleteClickFunction,
+  shipmentNumber: 1,
+  shipment: {
+    moveTaskOrderID: 'testMove123',
+    id: '20fdbf58-879e-4692-b3a6-8a71f6dcfeaa',
+    shipmentType: SHIPMENT_OPTIONS.PPM,
+    ppmShipment: {
+      pickupPostalCode: '10001',
+      destinationPostalCode: '11111',
+      sitExpected: false,
+      expectedDepartureDate: new Date('01/01/2020').toISOString(),
+      hasRequestedAdvance: null,
+    },
+  },
+};
+
 describe('PPMShipmentCard component', () => {
   it('renders component with all fields', () => {
     render(<PPMShipmentCard {...completeProps} />);
@@ -210,5 +231,29 @@ describe('PPMShipmentCard component', () => {
     });
 
     expect();
+  });
+
+  it('does not render incomplete label and tooltip icon for completed ppm shipment with SUBMITTED status', async () => {
+    render(<PPMShipmentCard {...completeProps} />);
+
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('PPM 1');
+    expect(screen.getByText(/^#20FDBF58$/, { selector: 'p' })).toBeInTheDocument();
+
+    expect(screen.queryByText('Incomplete')).toBeNull();
+  });
+
+  it('renders incomplete label and tooltip icon for incomplete ppm shipment with DRAFT status', async () => {
+    render(<PPMShipmentCard {...incompleteProps} />);
+
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('PPM 1');
+    expect(screen.getByText(/^#20FDBF58$/, { selector: 'p' })).toBeInTheDocument();
+
+    expect(screen.getByText(/^Incomplete$/, { selector: 'span' })).toBeInTheDocument();
+
+    expect(screen.getByTitle('Help about incomplete shipment')).toBeInTheDocument();
+    await userEvent.click(screen.getByTitle('Help about incomplete shipment'));
+
+    // verify onclick is getting json string as parameter
+    expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('PPM 1', '20FDBF58', 'PPM');
   });
 });
