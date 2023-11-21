@@ -414,8 +414,8 @@ WITH move AS (
 					jsonb_build_object(
 						'shipment_type', move_sits.shipment_type,
 						'shipment_id_abbr', (CASE WHEN move_sits.shipment_id IS NOT NULL THEN LEFT(move_sits.shipment_id::TEXT, 5) ELSE NULL END),
-						'sit_destination_address_final', (SELECT row_to_json(x) FROM (SELECT * FROM addresses WHERE addresses.id = cast(move_sits.address_id AS UUID)) x)::TEXT,
-						'sit_destination_address_initial', (SELECT row_to_json(x) FROM (SELECT * FROM addresses WHERE addresses.id = cast(move_sits.original_address_id AS UUID)) x)::TEXT,
+						'sit_destination_address_final', (SELECT row_to_json(x) FROM (SELECT * FROM addresses WHERE addresses.id = CAST(move_sits.address_id AS UUID)) x)::TEXT,
+						'sit_destination_address_initial', (SELECT row_to_json(x) FROM (SELECT * FROM addresses WHERE addresses.id = CAST(move_sits.original_address_id AS UUID)) x)::TEXT,
 						'office_remarks', move_sits.office_remarks,
 						'contractor_remarks', move_sits.contractor_remarks,
 						'name', move_sits.service_name

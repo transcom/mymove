@@ -5,7 +5,7 @@ import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
-import { formatSITData } from 'utils/formatSITdata';
+import { formatSITData } from 'utils/formatSITData';
 
 // this allows office users to approve destination SIT updates requests made by the prime
 const formatChangedValues = (historyRecord) => {

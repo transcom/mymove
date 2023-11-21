@@ -5,7 +5,7 @@ import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
-import { formatSITData } from 'utils/formatSITdata';
+import { formatSITData } from 'utils/formatSITData';
 
 // this is for the prime to request an update to a destination SIT address
 const formatChangedValues = (historyRecord) => {
