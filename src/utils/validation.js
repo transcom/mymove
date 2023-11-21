@@ -73,7 +73,10 @@ export const addressSchema = Yup.object().shape({
   postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code'),
 });
 
-export const phoneSchema = Yup.string().min(12, 'Number must have 10 digits and a valid area code'); // min 12 includes hyphens
+export const phoneSchema = Yup.string().min(
+  12,
+  'Please enter a valid phone number. Phone numbers must be entered as ###-###-####.',
+); // min 12 includes hyphens
 
 export const emailSchema = Yup.string().matches(
   /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/,
