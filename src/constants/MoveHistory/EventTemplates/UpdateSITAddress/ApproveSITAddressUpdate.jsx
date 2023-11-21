@@ -5,15 +5,12 @@ import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
-import { formatMoveHistoryFullAddress } from 'utils/formatters';
+import { formatSITData } from 'utils/formatSITdata';
 
+// this allows office users to approve destination SIT updates requests made by the prime
 const formatChangedValues = (historyRecord) => {
-  const final = formatMoveHistoryFullAddress(JSON.parse(historyRecord.context[0].sit_destination_final_address));
-  const initial = formatMoveHistoryFullAddress(JSON.parse(historyRecord.context[0].sit_destination_initial_address));
-
   const newChangedValues = {
-    sit_destination_address_final: final,
-    sit_destination_address_initial: initial,
+    ...formatSITData(historyRecord),
     ...getMtoShipmentLabel(historyRecord),
     ...historyRecord.changedValues,
   };
