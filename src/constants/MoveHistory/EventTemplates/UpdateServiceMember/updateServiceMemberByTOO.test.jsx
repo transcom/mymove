@@ -10,7 +10,7 @@ describe('When a TOO updates shipping allowances', () => {
     tableName: 'service_members',
     eventNameDisplay: 'Updated profile',
     changedValues: {
-      affiliation: 'AIR_FORCE',
+      affiliation: 'AIR_AND_SPACE_FORCE',
       rank: 'E_2',
     },
   };
@@ -21,7 +21,7 @@ describe('When a TOO updates shipping allowances', () => {
   });
   describe('it correctly displays the details component', () => {
     it.each([
-      ['Branch', ': Air Force'],
+      ['Branch', ': Air Force and Space Force'],
       ['Rank', ': E-2'],
     ])('displays the correct details value for %s', async (label, value) => {
       const result = getTemplate(historyRecord);

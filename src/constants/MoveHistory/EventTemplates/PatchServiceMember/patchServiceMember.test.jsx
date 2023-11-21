@@ -5,7 +5,7 @@ import patchServiceMember from 'constants/MoveHistory/EventTemplates/PatchServic
 
 const PROFILE = {
   branch: {
-    affiliation: 'AIR_FORCE',
+    affiliation: 'AIR_AND_SPACE_FORCE',
     rank: 'E_4',
     edipi: '123456789',
   },
@@ -37,7 +37,7 @@ describe('When a service members updates their profile', () => {
   });
   describe('it correctly renders the details component for the branch form', () => {
     it.each([
-      ['Branch', ': Air Force'],
+      ['Branch', ': Air Force and Space Force'],
       ['Rank', ': E-4'],
     ])('displays the correct details value for %s', async (label, value) => {
       const historyRecord = { changedValues: PROFILE.branch };
