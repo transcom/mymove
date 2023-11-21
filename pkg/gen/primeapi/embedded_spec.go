@@ -26,7 +26,7 @@ func init() {
     "description": "The Prime API is a RESTful API that enables the Prime contractor to request\ninformation about upcoming moves, update the details and status of those moves,\nand make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `/prime/v1/` + "`" + `.\n",
     "title": "MilMove Prime API",
     "contact": {
-      "email": "dp3@truss.works"
+      "email": "milmove-developers@caci.com"
     },
     "license": {
       "name": "MIT",
@@ -1259,7 +1259,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/uploads": {
       "post": {
-        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
+        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nRequired field of **isWeightTicket** indicates if the document is a weight ticket or not.\nThis will be used for partial and full deliveries and makes it easier for the Transportation Invoicing Officers to locate and review service item documents.\n\nThe formdata in the body of the POST request that is sent should look like this if it IS a weight ticket being attached to an existing payment request:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": true\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n\n  If the proof of service doc is NOT a weight ticket, it will look like this:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": false\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
         "consumes": [
           "multipart/form-data"
         ],
@@ -1283,6 +1283,13 @@ func init() {
             "type": "file",
             "description": "The file to upload.",
             "name": "file",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "Indicates whether the file is a weight ticket.",
+            "name": "isWeightTicket",
             "in": "formData",
             "required": true
           }
@@ -4600,7 +4607,7 @@ func init() {
     "description": "The Prime API is a RESTful API that enables the Prime contractor to request\ninformation about upcoming moves, update the details and status of those moves,\nand make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `/prime/v1/` + "`" + `.\n",
     "title": "MilMove Prime API",
     "contact": {
-      "email": "dp3@truss.works"
+      "email": "milmove-developers@caci.com"
     },
     "license": {
       "name": "MIT",
@@ -6209,7 +6216,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/uploads": {
       "post": {
-        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
+        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nRequired field of **isWeightTicket** indicates if the document is a weight ticket or not.\nThis will be used for partial and full deliveries and makes it easier for the Transportation Invoicing Officers to locate and review service item documents.\n\nThe formdata in the body of the POST request that is sent should look like this if it IS a weight ticket being attached to an existing payment request:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": true\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n\n  If the proof of service doc is NOT a weight ticket, it will look like this:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": false\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
         "consumes": [
           "multipart/form-data"
         ],
@@ -6233,6 +6240,13 @@ func init() {
             "type": "file",
             "description": "The file to upload.",
             "name": "file",
+            "in": "formData",
+            "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "Indicates whether the file is a weight ticket.",
+            "name": "isWeightTicket",
             "in": "formData",
             "required": true
           }

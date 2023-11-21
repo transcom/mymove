@@ -26,7 +26,7 @@ func init() {
     "description": "The Support API gives you programmatic access to support functionality useful\nfor testing and debugging. **This API is not available in the Production\nenvironment**.\n\nAll endpoints are located at ` + "`" + `/support/v1/` + "`" + `.\n",
     "title": "MilMove Support API",
     "contact": {
-      "email": "dp3@truss.works"
+      "email": "milmove-developers@caci.com"
     },
     "license": {
       "name": "MIT",
@@ -2547,7 +2547,7 @@ func init() {
     "description": "The Support API gives you programmatic access to support functionality useful\nfor testing and debugging. **This API is not available in the Production\nenvironment**.\n\nAll endpoints are located at ` + "`" + `/support/v1/` + "`" + `.\n",
     "title": "MilMove Support API",
     "contact": {
-      "email": "dp3@truss.works"
+      "email": "milmove-developers@caci.com"
     },
     "license": {
       "name": "MIT",

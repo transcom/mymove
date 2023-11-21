@@ -6,7 +6,7 @@ info:
     name: MIT
     url: https://opensource.org/licenses/MIT
   contact:
-    email: dp3@truss.works
+    email: milmove-developers@caci.com
   description: >
     The Prime API is a RESTful API that enables the Prime contractor to request
 
@@ -1352,6 +1352,32 @@ paths:
         The PaymentRequest should already exist.
 
 
+        Required field of **isWeightTicket** indicates if the document is a
+        weight ticket or not.
+
+        This will be used for partial and full deliveries and makes it easier
+        for the Transportation Invoicing Officers to locate and review service
+        item documents.
+
+
+        The formdata in the body of the POST request that is sent should look
+        like this if it IS a weight ticket being attached to an existing payment
+        request:
+          ```json
+          {
+            "file": "filePath",
+            "isWeightTicket": true
+          }
+          ```
+
+          If the proof of service doc is NOT a weight ticket, it will look like this:
+          ```json
+          {
+            "file": "filePath",
+            "isWeightTicket": false
+          }
+          ```
+
         PaymentRequests are created with the
         [createPaymentRequest](#operation/createPaymentRequest) endpoint.
       operationId: createUpload
@@ -1371,6 +1397,11 @@ paths:
           name: file
           type: file
           description: The file to upload.
+          required: true
+        - in: formData
+          name: isWeightTicket
+          type: boolean
+          description: Indicates whether the file is a weight ticket.
           required: true
       responses:
         '201':
