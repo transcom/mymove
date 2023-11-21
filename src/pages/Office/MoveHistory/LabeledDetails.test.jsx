@@ -64,7 +64,7 @@ describe('LabeledDetails', () => {
       ['HHG SAC', ': 4444'],
       ['NTS SAC', ': 5555'],
       ['Rank', ': E-1'],
-      ['Dept. indicator', ': Air Force'],
+      ['Dept. indicator', ': Air Force and Space Force'],
       ['Departure date', ': 01 Jan 2022'],
       ['Shipment weight', ': 100 lbs'],
       ['Destination type', ': Home of selection (HOS)'],

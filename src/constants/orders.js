@@ -68,7 +68,7 @@ export const ORDERS_BRANCH_OPTIONS = {
   ARMY: 'Army',
   NAVY: 'Navy',
   MARINES: 'Marine Corps',
-  AIR_FORCE: 'Air Force',
+  AIR_AND_SPACE_FORCE: 'Air Force and Space Force',
   COAST_GUARD: 'Coast Guard',
   OTHER: 'Other',
 };

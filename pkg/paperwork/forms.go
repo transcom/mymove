@@ -64,7 +64,7 @@ var serviceMemberAffiliationDisplayValue = map[models.ServiceMemberAffiliation]s
 }
 
 var deptIndDisplayValue = map[internalmessages.DeptIndicator]string{
-	internalmessages.DeptIndicatorAIRANDSPACEFORCE: "Air and Space Force",
+	internalmessages.DeptIndicatorAIRANDSPACEFORCE: "Air Force and Space Force",
 	internalmessages.DeptIndicatorNAVYANDMARINES:   "Navy and Marine Corps",
 }
 
