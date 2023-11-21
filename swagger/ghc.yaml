@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   contact:
-    email: dp3@truss.works
+    email: milmove-developers@caci.com
   description: >
     The GHC API is a RESTful API that enables the Office application for
     MilMove.
@@ -5672,6 +5672,7 @@ definitions:
       - MARINES
       - AIR_FORCE
       - COAST_GUARD
+      - SPACE_FORCE
       - OTHER
     x-display-value:
       ARMY: Army
@@ -5679,6 +5680,7 @@ definitions:
       MARINES: Marine Corps
       AIR_FORCE: Air Force
       COAST_GUARD: Coast Guard
+      SPACE_FORCE: Space Force
       OTHER: OTHER
   DutyLocation:
     type: object

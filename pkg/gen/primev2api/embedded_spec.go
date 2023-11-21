@@ -26,7 +26,7 @@ func init() {
     "description": "The Prime V2 API is a RESTful API that enables the Prime contractor to request\ninformation about upcoming moves, update the details and status of those moves,\nand make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `/prime/v2/` + "`" + `.\n",
     "title": "MilMove Prime V2 API",
     "contact": {
-      "email": "dp3@truss.works"
+      "email": "milmove-developers@caci.com"
     },
     "license": {
       "name": "MIT",
@@ -2394,7 +2394,7 @@ func init() {
     "description": "The Prime V2 API is a RESTful API that enables the Prime contractor to request\ninformation about upcoming moves, update the details and status of those moves,\nand make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `/prime/v2/` + "`" + `.\n",
     "title": "MilMove Prime V2 API",
     "contact": {
-      "email": "dp3@truss.works"
+      "email": "milmove-developers@caci.com"
     },
     "license": {
       "name": "MIT",

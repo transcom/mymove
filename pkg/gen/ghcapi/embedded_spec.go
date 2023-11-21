@@ -26,7 +26,7 @@ func init() {
     "description": "The GHC API is a RESTful API that enables the Office application for MilMove.\n\nAll endpoints are located under ` + "`" + `/ghc/v1` + "`" + `.\n",
     "title": "MilMove GHC API",
     "contact": {
-      "email": "dp3@truss.works"
+      "email": "milmove-developers@caci.com"
     },
     "license": {
       "name": "MIT",
@@ -4915,6 +4915,7 @@ func init() {
         "MARINES",
         "AIR_FORCE",
         "COAST_GUARD",
+        "SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -4923,7 +4924,8 @@ func init() {
         "COAST_GUARD": "Coast Guard",
         "MARINES": "Marine Corps",
         "NAVY": "Navy",
-        "OTHER": "OTHER"
+        "OTHER": "OTHER",
+        "SPACE_FORCE": "Space Force"
       },
       "x-nullable": true
     },
@@ -10167,7 +10169,7 @@ func init() {
     "description": "The GHC API is a RESTful API that enables the Office application for MilMove.\n\nAll endpoints are located under ` + "`" + `/ghc/v1` + "`" + `.\n",
     "title": "MilMove GHC API",
     "contact": {
-      "email": "dp3@truss.works"
+      "email": "milmove-developers@caci.com"
     },
     "license": {
       "name": "MIT",
@@ -16337,6 +16339,7 @@ func init() {
         "MARINES",
         "AIR_FORCE",
         "COAST_GUARD",
+        "SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -16345,7 +16348,8 @@ func init() {
         "COAST_GUARD": "Coast Guard",
         "MARINES": "Marine Corps",
         "NAVY": "Navy",
-        "OTHER": "OTHER"
+        "OTHER": "OTHER",
+        "SPACE_FORCE": "Space Force"
       },
       "x-nullable": true
     },
