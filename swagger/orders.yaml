@@ -810,13 +810,13 @@ definitions:
       - ARMY
       - NAVY
       - MARINES
-      - AIR_AND_SPACE_FORCE
+      - AIR_FORCE
       - COAST_GUARD
       - OTHER
     x-display-value:
       ARMY: Army
       NAVY: Navy
       MARINES: Marine Corps
-      AIR_AND_SPACE_FORCE: Air Force
+      AIR_FORCE: Air Force
       COAST_GUARD: Coast Guard
       OTHER: OTHER

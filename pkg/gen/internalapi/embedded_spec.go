@@ -4635,12 +4635,12 @@ func init() {
         "NAVY_AND_MARINES",
         "ARMY",
         "ARMY_CORPS_OF_ENGINEERS",
-        "AIR_FORCE",
+        "AIR_AND_SPACE_FORCE",
         "COAST_GUARD",
         "OFFICE_OF_SECRETARY_OF_DEFENSE"
       ],
       "x-display-value": {
-        "AIR_FORCE": "57 Air Force and Space Force",
+        "AIR_AND_SPACE_FORCE": "57 Air Force and Space Force",
         "ARMY": "21 Army",
         "ARMY_CORPS_OF_ENGINEERS": "96 Army Corps of Engineers",
         "COAST_GUARD": "70 Coast Guard",
@@ -13567,12 +13567,12 @@ func init() {
         "NAVY_AND_MARINES",
         "ARMY",
         "ARMY_CORPS_OF_ENGINEERS",
-        "AIR_FORCE",
+        "AIR_AND_SPACE_FORCE",
         "COAST_GUARD",
         "OFFICE_OF_SECRETARY_OF_DEFENSE"
       ],
       "x-display-value": {
-        "AIR_FORCE": "57 Air Force and Space Force",
+        "AIR_AND_SPACE_FORCE": "57 Air Force and Space Force",
         "ARMY": "21 Army",
         "ARMY_CORPS_OF_ENGINEERS": "96 Army Corps of Engineers",
         "COAST_GUARD": "70 Coast Guard",
