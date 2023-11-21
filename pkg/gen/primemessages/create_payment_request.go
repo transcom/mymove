@@ -29,12 +29,6 @@ type CreatePaymentRequest struct {
 	// Format: uuid
 	MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
-	// The ID of the shipment this payment request is for.
-	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-	// Required: true
-	// Format: uuid
-	MtoShipmentID *strfmt.UUID `json:"mtoShipmentID"`
-
 	// Email or id of a contact person for this update.
 	PointOfContact string `json:"pointOfContact,omitempty"`
 
@@ -49,10 +43,6 @@ func (m *CreatePaymentRequest) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateMoveTaskOrderID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateMtoShipmentID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -73,19 +63,6 @@ func (m *CreatePaymentRequest) validateMoveTaskOrderID(formats strfmt.Registry) 
 	}
 
 	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *CreatePaymentRequest) validateMtoShipmentID(formats strfmt.Registry) error {
-
-	if err := validate.Required("mtoShipmentID", "body", m.MtoShipmentID); err != nil {
-		return err
-	}
-
-	if err := validate.FormatOf("mtoShipmentID", "body", "uuid", m.MtoShipmentID.String(), formats); err != nil {
 		return err
 	}
 

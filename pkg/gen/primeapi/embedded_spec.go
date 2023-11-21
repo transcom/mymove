@@ -1762,8 +1762,7 @@ func init() {
       "type": "object",
       "required": [
         "moveTaskOrderID",
-        "serviceItems",
-        "mtoShipmentID"
+        "serviceItems"
       ],
       "properties": {
         "isFinal": {
@@ -1774,12 +1773,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "mtoShipmentID": {
-          "description": "The ID of the shipment this payment request is for.",
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pointOfContact": {
           "description": "Email or id of a contact person for this update.",
@@ -6758,8 +6751,7 @@ func init() {
       "type": "object",
       "required": [
         "moveTaskOrderID",
-        "serviceItems",
-        "mtoShipmentID"
+        "serviceItems"
       ],
       "properties": {
         "isFinal": {
@@ -6770,12 +6762,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "mtoShipmentID": {
-          "description": "The ID of the shipment this payment request is for.",
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pointOfContact": {
           "description": "Email or id of a contact person for this update.",
