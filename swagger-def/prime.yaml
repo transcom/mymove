@@ -1395,14 +1395,6 @@ definitions:
         format: uuid
         type: string
         description: The ID of the shipment this payment request is for.
-      requestedWeightAmount:
-        type: integer
-        example: 4000
-        minimum: 0
-        maximum: 900000
-        description: Provided by the movers, weight requested in the payment request.
-        x-nullable: true
-        x-omitempty: false
       moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid

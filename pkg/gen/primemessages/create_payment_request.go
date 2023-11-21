@@ -38,12 +38,6 @@ type CreatePaymentRequest struct {
 	// Email or id of a contact person for this update.
 	PointOfContact string `json:"pointOfContact,omitempty"`
 
-	// Provided by the movers, weight requested in the payment request.
-	// Example: 4000
-	// Maximum: 900000
-	// Minimum: 0
-	RequestedWeightAmount *int64 `json:"requestedWeightAmount"`
-
 	// service items
 	// Required: true
 	// Min Items: 1
@@ -59,10 +53,6 @@ func (m *CreatePaymentRequest) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMtoShipmentID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateRequestedWeightAmount(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -96,22 +86,6 @@ func (m *CreatePaymentRequest) validateMtoShipmentID(formats strfmt.Registry) er
 	}
 
 	if err := validate.FormatOf("mtoShipmentID", "body", "uuid", m.MtoShipmentID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *CreatePaymentRequest) validateRequestedWeightAmount(formats strfmt.Registry) error {
-	if swag.IsZero(m.RequestedWeightAmount) { // not required
-		return nil
-	}
-
-	if err := validate.MinimumInt("requestedWeightAmount", "body", *m.RequestedWeightAmount, 0, false); err != nil {
-		return err
-	}
-
-	if err := validate.MaximumInt("requestedWeightAmount", "body", *m.RequestedWeightAmount, 900000, false); err != nil {
 		return err
 	}
 

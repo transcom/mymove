@@ -130,7 +130,7 @@ const CreatePaymentRequest = ({ setFlashMessage }) => {
       return { id: serviceItem };
     });
     createPaymentRequestMutation(
-      { moveTaskOrderID: moveTaskOrder.id, serviceItems: serviceItemsPayload, mtoShipmentID: values.shipmentIdInput },
+      { moveTaskOrderID: moveTaskOrder.id, serviceItems: serviceItemsPayload },
       {
         onSuccess: () => {
           setFlashMessage(
