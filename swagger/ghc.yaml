@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   contact:
-    email: dp3@truss.works
+    email: milmove-developers@caci.com
   description: >
     The GHC API is a RESTful API that enables the Office application for
     MilMove.
