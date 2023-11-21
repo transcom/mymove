@@ -26,7 +26,7 @@ func init() {
     "description": "The GHC API is a RESTful API that enables the Office application for MilMove.\n\nAll endpoints are located under ` + "`" + `/ghc/v1` + "`" + `.\n",
     "title": "MilMove GHC API",
     "contact": {
-      "email": "dp3@truss.works"
+      "email": "milmove-developers@caci.com"
     },
     "license": {
       "name": "MIT",
@@ -10167,7 +10167,7 @@ func init() {
     "description": "The GHC API is a RESTful API that enables the Office application for MilMove.\n\nAll endpoints are located under ` + "`" + `/ghc/v1` + "`" + `.\n",
     "title": "MilMove GHC API",
     "contact": {
-      "email": "dp3@truss.works"
+      "email": "milmove-developers@caci.com"
     },
     "license": {
       "name": "MIT",
