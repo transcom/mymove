@@ -13,7 +13,7 @@
 
     :global(.usa-form-group--error),
     :global(.usa-form-group.warning) {
-      @include u-margin-top(2);
+      margin-top: 1.6rem;
     }
 
     // last section wrapper on mobile shouldn't render divider
