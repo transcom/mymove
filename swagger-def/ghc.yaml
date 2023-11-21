@@ -4296,6 +4296,8 @@ definitions:
     type: array
   ProofOfServiceDoc:
     properties:
+      isWeightTicket:
+        type: boolean
       uploads:
         items:
           $ref: 'definitions/Upload.yaml'

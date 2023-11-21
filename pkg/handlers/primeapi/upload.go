@@ -69,7 +69,10 @@ func (h CreateUploadHandler) Handle(params paymentrequestop.CreateUploadParams) 
 				return paymentrequestop.NewCreateUploadInternalServerError(), err
 			}
 
-			createdUpload, err := h.PaymentRequestUploadCreator.CreateUpload(appCtx, file.Data, paymentRequestID, contractorID, file.Header.Filename)
+			// the prime is required to provide if a doc is a weight ticket or not
+			isWeightTicketParam := params.IsWeightTicket
+
+			createdUpload, err := h.PaymentRequestUploadCreator.CreateUpload(appCtx, file.Data, paymentRequestID, contractorID, file.Header.Filename, isWeightTicketParam)
 			if err != nil {
 				appCtx.Logger().Error("primeapi.CreateUploadHandler error", zap.Error(err))
 				switch e := err.(type) {
