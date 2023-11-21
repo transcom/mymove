@@ -124,9 +124,6 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 			return nil, err
 		}
 
-		// clear field to initialize
-		serviceItem.SITDestinationOriginalAddressID = nil
-
 		serviceItem.RejectionReason = rejectionReason
 		serviceItem.RejectedAt = &now
 		// clear field if previously accepted

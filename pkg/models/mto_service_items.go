@@ -150,3 +150,14 @@ func FetchServiceItem(db *pop.Connection, serviceItemID uuid.UUID) (MTOServiceIt
 
 	return serviceItem, nil
 }
+
+func FetchRelatedDestinationSITFuelCharge(tx *pop.Connection, mtoServiceItemID uuid.UUID) (MTOServiceItem, error) {
+	var serviceItem MTOServiceItem
+	err := tx.RawQuery(
+		`SELECT msi.id
+            FROM mto_service_items msi
+            INNER JOIN re_services res ON msi.re_service_id = res.id
+            WHERE res.code IN (?) AND mto_shipment_id IN (
+                SELECT mto_shipment_id FROM mto_service_items WHERE id = ?)`, ReServiceCodeDDSFSC, mtoServiceItemID).First(&serviceItem)
+	return serviceItem, err
+}

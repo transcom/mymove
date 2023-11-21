@@ -113,6 +113,21 @@ func (f *sitAddressUpdateRequestApprover) approveSITAddressUpdateRequest(appCtx 
 			return err
 		}
 
+		//Update SIT Destination Fuel Charge to the correct ZIP
+		relatedDestinationSITFuelCharge, err := models.FetchRelatedDestinationSITFuelCharge(txnAppCtx.DB(), serviceItem.ID)
+		if err != nil {
+			return err
+		}
+		serviceItemFSC, err := models.FetchServiceItem(txnAppCtx.DB(), relatedDestinationSITFuelCharge.ID)
+		if err != nil {
+			return err
+		}
+
+		_, err = f.updateServiceItemFinalAddress(txnAppCtx, serviceItemFSC, sitAddressUpdateRequest)
+		if err != nil {
+			return err
+		}
+
 		// Clear APPROVALS_REQUESTED status on move
 		_, err = f.moveRouter.ApproveOrRequestApproval(txnAppCtx, move)
 		if err != nil {
