@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   contact:
-    email: dp3@truss.works
+    email: milmove-developers@caci.com
   description:
     $ref: info/ghc_description.md
   license:
