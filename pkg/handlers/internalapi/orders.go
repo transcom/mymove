@@ -153,9 +153,11 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 
 			grade := (*string)(serviceMember.Rank)
 
-			weight, entitlementErr := models.GetEntitlement(*serviceMember.Rank, *payload.HasDependents)
-			if entitlementErr != nil {
-				return handlers.ResponseForError(appCtx.Logger(), entitlementErr), entitlementErr
+			weightAllotment := models.GetWeightAllotment(*serviceMember.Rank)
+
+			weight := weightAllotment.TotalWeightSelf
+			if *payload.HasDependents {
+				weight = weightAllotment.TotalWeightSelfPlusDependents
 			}
 
 			// Assign default SIT allowance based on customer type.
@@ -166,7 +168,15 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				DependentsAuthorized: payload.HasDependents,
 				DBAuthorizedWeight:   models.IntPointer(weight),
 				StorageInTransit:     models.IntPointer(sitDaysAllowance),
+				ProGearWeight:        weightAllotment.ProGearWeight,
+				ProGearWeightSpouse:  weightAllotment.ProGearWeightSpouse,
 			}
+
+			/*
+				IF you get that to work you'll still have to add conditionals for all the places the entitlement is used because it
+				isn't inheritly clear if it's using the spouse weight or not. So you'll be creating new variables and conditionals
+				in move_dats.go, move_weights, and move_submitted, etc
+			*/
 
 			if saveEntitlementErr := appCtx.DB().Save(&entitlement); saveEntitlementErr != nil {
 				return handlers.ResponseForError(appCtx.Logger(), saveEntitlementErr), saveEntitlementErr
