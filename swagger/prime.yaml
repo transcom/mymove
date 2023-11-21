@@ -1337,7 +1337,7 @@ paths:
 
         ---
 
-        If `BilledWeight` is not provided then the full shipment weight
+        If `WeightBilled` is not provided then the full shipment weight
         (`PrimeActualWeight`) will be considered in the calculation.
 
 
@@ -1346,7 +1346,7 @@ paths:
         ```json
           "params": [
             {
-              "key": "BilledWeight",
+              "key": "WeightBilled",
               "value": "integer"
             }
           ]
@@ -1363,7 +1363,7 @@ paths:
         ```json
           "params": [
             {
-              "key": "BilledWeight",
+              "key": "WeightBilled",
               "value": "integer"
             },
             {
@@ -1383,7 +1383,7 @@ paths:
         ```json
           "params": [
             {
-              "key": "BilledWeight",
+              "key": "WeightBilled",
               "value": "integer"
             }
           ]
@@ -1395,7 +1395,7 @@ paths:
         ```json
           "params": [
             {
-              "key": "BilledWeight",
+              "key": "WeightBilled",
               "value": "integer"
             }
           ]
@@ -1407,7 +1407,7 @@ paths:
         ```json
           "params": [
             {
-              "key": "BilledWeight",
+              "key": "WeightBilled",
               "value": "integer"
             }
           ]
@@ -1424,7 +1424,7 @@ paths:
         ```json
           "params": [
             {
-              "key": "BilledWeight",
+              "key": "WeightBilled",
               "value": "integer"
             },
             {
@@ -1448,7 +1448,7 @@ paths:
         ```json
           "params": [
             {
-              "key": "BilledWeight",
+              "key": "WeightBilled",
               "value": "integer"
             }
           ]
@@ -1460,7 +1460,7 @@ paths:
         ```json
           "params": [
             {
-              "key": "BilledWeight",
+              "key": "WeightBilled",
               "value": "integer"
             }
           ]

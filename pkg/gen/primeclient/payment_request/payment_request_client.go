@@ -83,14 +83,14 @@ In the request, if no params are necessary, then just the `serviceItem` `id` is 
 
 SIT Service Items & Accepted Payment Request Parameters:
 ---
-If `BilledWeight` is not provided then the full shipment weight (`PrimeActualWeight`) will be considered in the calculation.
+If `WeightBilled` is not provided then the full shipment weight (`PrimeActualWeight`) will be considered in the calculation.
 
 **DOFSIT - Domestic origin 1st day SIT**
 ```json
 
 	"params": [
 	  {
-	    "key": "BilledWeight",
+	    "key": "WeightBilled",
 	    "value": "integer"
 	  }
 	]
@@ -103,7 +103,7 @@ If `BilledWeight` is not provided then the full shipment weight (`PrimeActualWei
 
 	"params": [
 	  {
-	    "key": "BilledWeight",
+	    "key": "WeightBilled",
 	    "value": "integer"
 	  },
 	  {
@@ -123,7 +123,7 @@ If `BilledWeight` is not provided then the full shipment weight (`PrimeActualWei
 
 	"params": [
 	  {
-	    "key": "BilledWeight",
+	    "key": "WeightBilled",
 	    "value": "integer"
 	  }
 	]
@@ -135,7 +135,7 @@ If `BilledWeight` is not provided then the full shipment weight (`PrimeActualWei
 
 	"params": [
 	  {
-	    "key": "BilledWeight",
+	    "key": "WeightBilled",
 	    "value": "integer"
 	  }
 	]
@@ -147,7 +147,7 @@ If `BilledWeight` is not provided then the full shipment weight (`PrimeActualWei
 
 	"params": [
 	  {
-	    "key": "BilledWeight",
+	    "key": "WeightBilled",
 	    "value": "integer"
 	  }
 	]
@@ -160,7 +160,7 @@ If `BilledWeight` is not provided then the full shipment weight (`PrimeActualWei
 
 	"params": [
 	  {
-	    "key": "BilledWeight",
+	    "key": "WeightBilled",
 	    "value": "integer"
 	  },
 	  {
@@ -181,7 +181,7 @@ If `BilledWeight` is not provided then the full shipment weight (`PrimeActualWei
 
 	"params": [
 	  {
-	    "key": "BilledWeight",
+	    "key": "WeightBilled",
 	    "value": "integer"
 	  }
 	]
@@ -193,7 +193,7 @@ If `BilledWeight` is not provided then the full shipment weight (`PrimeActualWei
 
 	"params": [
 	  {
-	    "key": "BilledWeight",
+	    "key": "WeightBilled",
 	    "value": "integer"
 	  }
 	]
