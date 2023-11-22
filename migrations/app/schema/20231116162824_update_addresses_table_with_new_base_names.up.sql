@@ -22,7 +22,7 @@ INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated
  VALUES ('5e9393e5-38d6-496a-ab97-bb1dffcc4ce1', 'Fort Barfoot', 'b5f565fd-92ca-41c8-a7f6-91d7ce1d73fc', now(), now());
 
 -- update row in duty_locations from blackstone, va to include a reference to fort barfoot which will appear in the search bar
- UPDATE duty_locations SET name = 'Fort Barfoot/Blackstone, VA' WHERE id = 'b5f565fd-92ca-41c8-a7f6-91d7ce1d73fc';
+ UPDATE duty_locations SET name = 'Fort Barfoot' WHERE id = 'b5f565fd-92ca-41c8-a7f6-91d7ce1d73fc';
 
 -- update city names for 31995 from Fort Benning to Foort Moore
 UPDATE addresses SET city = 'Fort Moore' WHERE id = 'aa94a922-55c0-4998-a79d-0004e2a1d1c7';
