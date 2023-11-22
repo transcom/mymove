@@ -193,6 +193,8 @@ export const ReviewDocuments = () => {
   const currentTripNumber = currentDocumentSet.tripNumber + 1;
   const currentDocumentCategoryIndex = currentDocumentSet.categoryIndex + 1;
 
+  const formatDocumentSetDisplay = documentSetIndex + 1;
+
   return (
     <div data-testid="ReviewDocuments test" className={styles.ReviewDocuments}>
       <div className={styles.embed}>
@@ -202,7 +204,9 @@ export const ReviewDocuments = () => {
         title="Review documents"
         onClose={onClose}
         className={styles.sidebar}
-        supertitle={showOverview ? 'All Document Sets' : `${documentSetIndex} of ${documentSets.length} Document Sets`}
+        supertitle={
+          showOverview ? 'All Document Sets' : `${formatDocumentSetDisplay} of ${documentSets.length} Document Sets`
+        }
         defaultH3
         hyperlink={reviewShipmentWeightsLink}
       >
