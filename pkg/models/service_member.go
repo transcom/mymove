@@ -35,6 +35,8 @@ const (
 	AffiliationAIRFORCE ServiceMemberAffiliation = "AIR_AND_SPACE_FORCE"
 	// AffiliationCOASTGUARD captures enum value "COAST_GUARD"
 	AffiliationCOASTGUARD ServiceMemberAffiliation = "COAST_GUARD"
+	// AffiliationCOASTGUARD captures enum value "SPACE_FORCE"
+	AffiliationSPACEFORCE ServiceMemberAffiliation = "SPACE_FORCE"
 )
 
 // ServiceMember is a user of type service member
