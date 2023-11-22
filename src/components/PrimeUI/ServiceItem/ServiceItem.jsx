@@ -29,12 +29,12 @@ const ServiceItem = ({ serviceItem, mtoShipment }) => {
         <dt>eTag:</dt>
         <dd>{serviceItem.eTag}</dd>
       </div>
-      {SERVICE_ITEMS_ALLOWED_WEIGHT_BILLED_PARAM.includes(serviceItem.reServiceCode) ? (
+      {SERVICE_ITEMS_ALLOWED_WEIGHT_BILLED_PARAM.includes(serviceItem.reServiceCode) && (
         <div className={descriptionListStyles.row}>
           <dt>Shipment Weight (pounds):</dt>
           <dd>{mtoShipment.primeActualWeight || 'Not provided'}</dd>
         </div>
-      ) : null}
+      )}
     </dl>
   );
 };
