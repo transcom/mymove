@@ -101,7 +101,7 @@ func (a *Client) CreatePaymentRequest(params *CreatePaymentRequestParams, opts .
 
 	### Functionality
 
-This endpoint **uploads** a Proof of Service document for a PaymentRequest.
+This endpoint **uploads** a Proof of Service document for a PaymentRequest and attaches it to the request for the TIO to review.
 
 The PaymentRequest should already exist.
 
