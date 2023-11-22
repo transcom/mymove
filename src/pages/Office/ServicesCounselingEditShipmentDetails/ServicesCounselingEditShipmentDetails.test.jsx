@@ -29,7 +29,7 @@ const mockTransportationOffice = [
       streetAddress1: '',
     },
     address_id: '46c4640b-c35e-4293-a2f1-36c7b629f903',
-    affiliation: 'AIR_AND_SPACE_FORCE',
+    affiliation: 'AIR_FORCE',
     created_at: '2021-02-11T16:48:04.117Z',
     id: '93f0755f-6f35-478b-9a75-35a69211da1c',
     name: 'Altus AFB',

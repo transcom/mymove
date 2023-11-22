@@ -41,7 +41,7 @@ export const BRANCH_OPTIONS = [
   { value: '', label: 'All' },
   { value: 'ARMY', label: 'Army' },
   { value: 'NAVY', label: 'Navy' },
-  { value: 'AIR_AND_SPACE_FORCE', label: 'Air Force and Space Force' },
+  { value: 'AIR_FORCE', label: 'Air Force' },
   { value: 'COAST_GUARD', label: 'Coast Guard' },
   { value: 'SPACE_FORCE', label: 'Space Force' },
 ];
@@ -50,7 +50,7 @@ export const SERVICE_COUNSELING_BRANCH_OPTIONS = [
   { value: '', label: 'All' },
   { value: 'ARMY', label: 'Army' },
   { value: 'NAVY', label: 'Navy' },
-  { value: 'AIR_AND_SPACE_FORCE', label: 'Air Force and Space Force' },
+  { value: 'AIR_FORCE', label: 'Air Force' },
   { value: 'COAST_GUARD', label: 'Coast Guard' },
   { value: 'SPACE_FORCE', label: 'Space Force' },
   { value: 'MARINES', label: 'Marine Corps' },
