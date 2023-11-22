@@ -10,9 +10,9 @@ import { formatSITData } from 'utils/formatSITData';
 // this is for the prime to request an update to a destination SIT address
 const formatChangedValues = (historyRecord) => {
   const newChangedValues = {
+    ...historyRecord.changedValues,
     ...formatSITData(historyRecord),
     ...getMtoShipmentLabel(historyRecord),
-    ...historyRecord.changedValues,
   };
 
   return { ...historyRecord, changedValues: newChangedValues };

@@ -10,9 +10,9 @@ import { formatSITData } from 'utils/formatSITData';
 // this allows office users to approve destination SIT updates requests made by the prime
 const formatChangedValues = (historyRecord) => {
   const newChangedValues = {
+    ...historyRecord.changedValues,
     ...formatSITData(historyRecord),
     ...getMtoShipmentLabel(historyRecord),
-    ...historyRecord.changedValues,
   };
 
   return { ...historyRecord, changedValues: newChangedValues };

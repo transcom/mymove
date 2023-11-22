@@ -10,9 +10,9 @@ import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
 // this allows office users to reject destination SIT updates requests made by the prime
 const formatChangedValues = (historyRecord) => {
   const newChangedValues = {
+    ...historyRecord.changedValues,
     ...formatSITData(historyRecord),
     ...getMtoShipmentLabel(historyRecord),
-    ...historyRecord.changedValues,
   };
 
   return { ...historyRecord, changedValues: newChangedValues };

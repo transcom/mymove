@@ -10,9 +10,9 @@ import { formatSITData } from 'utils/formatSITData';
 // this is for office users to update a SIT address
 const formatChangedValues = (historyRecord) => {
   const newChangedValues = {
+    ...historyRecord.changedValues,
     ...formatSITData(historyRecord),
     ...getMtoShipmentLabel(historyRecord),
-    ...historyRecord.changedValues,
   };
 
   return { ...historyRecord, changedValues: newChangedValues };
