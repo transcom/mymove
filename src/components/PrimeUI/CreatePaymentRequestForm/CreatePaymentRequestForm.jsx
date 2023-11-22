@@ -90,6 +90,12 @@ const CreatePaymentRequestForm = ({
                           <ServiceItem serviceItem={mtoServiceItem} mtoShipment={mtoShipment} />
                           {(mtoServiceItem.reServiceCode === 'DDASIT' || mtoServiceItem.reServiceCode === 'DOASIT') && (
                             <>
+                              <TextField
+                                id={`${mtoServiceItem.id}-billedWeight`}
+                                label="Weight Billed (if different from shipment weight)"
+                                name={`params.${mtoServiceItem.id}.WeightBilled`}
+                                className={styles.shipmentWeightTextField}
+                              />
                               <DatePickerInput
                                 label="Payment start date"
                                 id={`paymentStart-${mtoServiceItem.id}`}
@@ -119,12 +125,6 @@ const CreatePaymentRequestForm = ({
                                     setFieldTouched,
                                   )
                                 }
-                              />
-                              <TextField
-                                id={`${mtoServiceItem.id}-billedWeight`}
-                                label="Weight Billed (if different from shipment weight)"
-                                name={`params.${mtoServiceItem.id}.WeightBilled`}
-                                className={styles.shipmentWeightTextField}
                               />
                             </>
                           )}
