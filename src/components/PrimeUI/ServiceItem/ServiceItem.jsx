@@ -8,7 +8,7 @@ import { SERVICE_ITEMS_ALLOWED_WEIGHT_BILLED_PARAM } from 'constants/serviceItem
 const ServiceItem = ({ serviceItem, mtoShipment }) => {
   return (
     <dl className={descriptionListStyles.descriptionList}>
-      <h3>{`${serviceItem.reServiceName}`}</h3>
+      <h3>{serviceItem.reServiceName}</h3>
       <div className={descriptionListStyles.row}>
         <dt>Status:</dt>
         <dd>{serviceItem.status}</dd>
