@@ -937,7 +937,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 			suite.Run("adds fa1 service item segment", func() {
 				fa1 := result.ServiceItems[segmentOffset].FA1
-				suite.Equal("DY", fa1.AgencyQualifierCode) // Default Order from testdatagen is AIR_AND_SPACE_FORCE
+				suite.Equal("DZ", fa1.AgencyQualifierCode) // Default Order from testdatagen is ARMY
 			})
 
 			suite.Run("adds fa2 service item segment", func() {
