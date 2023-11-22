@@ -12,7 +12,6 @@ import UploadsTable from 'components/UploadsTable/UploadsTable';
 import FileUpload from 'components/FileUpload/FileUpload';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
-import Checkbox from 'shared/Checkbox';
 
 const UploadPaymentRequest = ({ setFlashMessage }) => {
   const { moveCodeOrID } = useParams();
@@ -24,7 +23,6 @@ const UploadPaymentRequest = ({ setFlashMessage }) => {
   // since the endpoint being called only allows one upload at a time.
   const [filesToUpload, setFilesToUpload] = useState([]);
   const [uploadSuccess, setUploadSuccess] = useState(false);
-  const [isWeightTicketValue, setIsWeightTicketValue] = useState(false);
 
   const handleDelete = () => {
     setFilesToUpload([]);
@@ -32,6 +30,7 @@ const UploadPaymentRequest = ({ setFlashMessage }) => {
 
   const { mutate: mutateUploadPaymentRequestDocument } = useMutation(createUpload, {
     onSuccess: () => {
+      // TODO - show flash message?
       setUploadSuccess(true);
 
       setFlashMessage(`MSG_UPLOAD_DOC_SUCCESS${moveCodeOrID}`, 'success', 'Successfully uploaded document', '', true);
@@ -55,7 +54,6 @@ const UploadPaymentRequest = ({ setFlashMessage }) => {
         id: `${Date.now()}${file.name}`,
       },
     ]);
-    setUploadSuccess(true);
     return Promise.resolve();
   };
 
@@ -63,21 +61,8 @@ const UploadPaymentRequest = ({ setFlashMessage }) => {
     filePondEl.current?.removeFiles();
   };
 
-  // checking to make sure a file is uploaded prior to sending
-  // including required params for request
-  const handleSave = async () => {
-    if (filesToUpload.length === 0) {
-      setServerError('You must upload a file in order to proceed.');
-    }
-    mutateUploadPaymentRequestDocument({
-      paymentRequestID: paymentRequestId,
-      file: filesToUpload[0].file,
-      isWeightTicket: isWeightTicketValue.toString(),
-    });
-  };
-
-  const handleCheckboxChange = () => {
-    setIsWeightTicketValue(!isWeightTicketValue);
+  const handleSave = () => {
+    mutateUploadPaymentRequestDocument({ paymentRequestID: paymentRequestId, file: filesToUpload[0].file });
   };
 
   const handleCancel = () => {
@@ -119,17 +104,6 @@ const UploadPaymentRequest = ({ setFlashMessage }) => {
           />
         </div>
         <UploadsTable uploads={filesToUpload} onDelete={handleDelete} />
-        <div style={{ marginBottom: '30px' }}>
-          <Checkbox
-            label="Is this a weight ticket?"
-            id="isWeightTicketCheckbox"
-            name="isWeightTicketCheckbox"
-            onChange={handleCheckboxChange}
-            value={isWeightTicketValue}
-            checked={isWeightTicketValue}
-            data-testid="isWeightTicketCheckbox"
-          />
-        </div>
         <WizardNavigation editMode disableNext={false} onNextClick={handleSave} onCancelClick={handleCancel} />
       </SectionWrapper>
     </>

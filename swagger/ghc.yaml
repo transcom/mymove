@@ -4441,8 +4441,6 @@ definitions:
     type: array
   ProofOfServiceDoc:
     properties:
-      isWeightTicket:
-        type: boolean
       uploads:
         items:
           $ref: '#/definitions/Upload'
@@ -5936,8 +5934,6 @@ definitions:
         type: string
         format: date-time
         readOnly: true
-      isWeightTicket:
-        type: boolean
     required:
       - id
       - url
