@@ -37,7 +37,7 @@ describe('When given an update Destination SIT address history record', () => {
 
     render(template.getDetails(historyRecord));
     expect(screen.getByText('Status')).toBeInTheDocument();
-    expect(screen.getByText(': REQUESTED')).toBeInTheDocument();
+    expect(screen.getByText(': Updated')).toBeInTheDocument();
   });
 
   it('displays the initial SIT destination address', () => {
