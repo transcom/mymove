@@ -43,7 +43,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 			HTTPRequest:      req,
 			File:             file,
 			PaymentRequestID: paymentRequest.ID.String(),
-			IsWeightTicket:   isWeightTicketParam,
+			IsWeightTicket:   &isWeightTicketParam,
 		}
 
 		// Validate incoming payload: no body to validate

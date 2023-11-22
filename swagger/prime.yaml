@@ -1352,7 +1352,7 @@ paths:
         The PaymentRequest should already exist.
 
 
-        Required field of **isWeightTicket** indicates if the document is a
+        Optional field of **isWeightTicket** indicates if the document is a
         weight ticket or not.
 
         This will be used for partial and full deliveries and makes it easier
@@ -1370,11 +1370,16 @@ paths:
           }
           ```
 
-          If the proof of service doc is NOT a weight ticket, it will look like this:
+          If the proof of service doc is NOT a weight ticket, it will look like this - or you can leave it empty:
           ```json
           {
             "file": "filePath",
             "isWeightTicket": false
+          }
+          ```
+          ```json
+          {
+            "file": "filePath",
           }
           ```
 
@@ -1402,7 +1407,6 @@ paths:
           name: isWeightTicket
           type: boolean
           description: Indicates whether the file is a weight ticket.
-          required: true
       responses:
         '201':
           description: Successfully created upload of digital file.
