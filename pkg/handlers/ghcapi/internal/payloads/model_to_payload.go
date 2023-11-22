@@ -1423,28 +1423,6 @@ func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmes
 	return uploadPayload
 }
 
-// Upload payload for when a Proof of Service doc is designated as a weight ticket
-// This adds an isWeightTicket key to the payload for the UI to use
-func WeightTicketUpload(storer storage.FileStorer, upload models.Upload, url string, isWeightTicket bool) *ghcmessages.Upload {
-	uploadPayload := &ghcmessages.Upload{
-		ID:             handlers.FmtUUIDValue(upload.ID),
-		Filename:       upload.Filename,
-		ContentType:    upload.ContentType,
-		URL:            strfmt.URI(url),
-		Bytes:          upload.Bytes,
-		CreatedAt:      strfmt.DateTime(upload.CreatedAt),
-		UpdatedAt:      strfmt.DateTime(upload.UpdatedAt),
-		IsWeightTicket: isWeightTicket,
-	}
-	tags, err := storer.Tags(upload.StorageKey)
-	if err != nil || len(tags) == 0 {
-		uploadPayload.Status = "PROCESSING"
-	} else {
-		uploadPayload.Status = tags["av-status"]
-	}
-	return uploadPayload
-}
-
 // ProofOfServiceDoc payload from model
 func ProofOfServiceDoc(proofOfService models.ProofOfServiceDoc, storer storage.FileStorer) (*ghcmessages.ProofOfServiceDoc, error) {
 
@@ -1455,19 +1433,12 @@ func ProofOfServiceDoc(proofOfService models.ProofOfServiceDoc, storer storage.F
 			if err != nil {
 				return nil, err
 			}
-			// if the doc is a weight ticket then we need to return a different payload so the UI can differentiate
-			weightTicket := proofOfService.IsWeightTicket
-			if weightTicket {
-				uploads[i] = WeightTicketUpload(storer, primeUpload.Upload, url, proofOfService.IsWeightTicket)
-			} else {
-				uploads[i] = Upload(storer, primeUpload.Upload, url)
-			}
+			uploads[i] = Upload(storer, primeUpload.Upload, url)
 		}
 	}
 
 	return &ghcmessages.ProofOfServiceDoc{
-		IsWeightTicket: proofOfService.IsWeightTicket,
-		Uploads:        uploads,
+		Uploads: uploads,
 	}, nil
 }
 

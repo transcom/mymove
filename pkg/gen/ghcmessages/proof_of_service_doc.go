@@ -19,9 +19,6 @@ import (
 // swagger:model ProofOfServiceDoc
 type ProofOfServiceDoc struct {
 
-	// is weight ticket
-	IsWeightTicket bool `json:"isWeightTicket,omitempty"`
-
 	// uploads
 	Uploads []*Upload `json:"uploads"`
 }

@@ -37,13 +37,11 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 		req = suite.AuthenticateUserRequest(req, primeUser)
 
 		file := suite.Fixture("test.pdf")
-		isWeightTicketParam := true
 
 		params := uploadop.CreateUploadParams{
 			HTTPRequest:      req,
 			File:             file,
 			PaymentRequestID: paymentRequest.ID.String(),
-			IsWeightTicket:   isWeightTicketParam,
 		}
 
 		// Validate incoming payload: no body to validate
