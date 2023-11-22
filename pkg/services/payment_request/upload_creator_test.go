@@ -64,7 +64,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 	suite.Run("PrimeUpload is created successfully", func() {
 		setupTestData()
 		uploadCreator := NewPaymentRequestUploadCreator(fakeS3)
-		upload, err := uploadCreator.CreateUpload(suite.AppContextForTest(), testFile, paymentRequest.ID, contractor.ID, "unit-test-file.pdf", false)
+		upload, err := uploadCreator.CreateUpload(suite.AppContextForTest(), testFile, paymentRequest.ID, contractor.ID, "unit-test-file.pdf")
 
 		expectedFilename := fmt.Sprintf("/payment-request-uploads/mto-%s/payment-request-%s", moveTaskOrderID, paymentRequest.ID)
 		suite.NoError(err)
@@ -108,7 +108,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 		}()
 
 		uploadCreator := NewPaymentRequestUploadCreator(fakeS3)
-		_, err = uploadCreator.CreateUpload(suite.AppContextForTest(), testFile, uuid.FromStringOrNil("96b77644-4028-48c2-9ab8-754f33309db9"), contractor.ID, "unit-test-file.pdf", false)
+		_, err = uploadCreator.CreateUpload(suite.AppContextForTest(), testFile, uuid.FromStringOrNil("96b77644-4028-48c2-9ab8-754f33309db9"), contractor.ID, "unit-test-file.pdf")
 		suite.Error(err)
 	})
 
@@ -124,7 +124,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 
 		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		uploadCreator := NewPaymentRequestUploadCreator(fakeS3)
-		_, err = uploadCreator.CreateUpload(suite.AppContextForTest(), testFile, paymentRequest.ID, uuid.FromStringOrNil("806e2f96-f9f9-4cbb-9a3d-d2f488539a1f"), "unit-test-file.pdf", false)
+		_, err = uploadCreator.CreateUpload(suite.AppContextForTest(), testFile, paymentRequest.ID, uuid.FromStringOrNil("806e2f96-f9f9-4cbb-9a3d-d2f488539a1f"), "unit-test-file.pdf")
 		suite.Error(err)
 	})
 
@@ -141,7 +141,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 			}
 		}()
 
-		_, err = uploadCreator.CreateUpload(suite.AppContextForTest(), wrongTypeFile, paymentRequest.ID, contractor.ID, "unit-test-file.pdf", false)
+		_, err = uploadCreator.CreateUpload(suite.AppContextForTest(), wrongTypeFile, paymentRequest.ID, contractor.ID, "unit-test-file.pdf")
 		suite.Error(err)
 	})
 
