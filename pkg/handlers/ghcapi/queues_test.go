@@ -214,7 +214,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 		},
 	}, nil)
 
-	// Create an order where the service member has an AIR_AND_SPACE_FORCE affiliation
+	// Create an order where the service member has an AIR_FORCE affiliation
 	airForce := models.AffiliationAIRFORCE
 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
@@ -234,7 +234,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetMovesQueueParams{
 		HTTPRequest: request,
-		Branch:      models.StringPointer("AIR_AND_SPACE_FORCE"),
+		Branch:      models.StringPointer("AIR_FORCE"),
 	}
 	handlerConfig := suite.HandlerConfig()
 	handler := GetMovesQueueHandler{
@@ -255,7 +255,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 	result := payload.QueueMoves[0]
 
 	suite.Equal(1, len(payload.QueueMoves))
-	suite.Equal("AIR_AND_SPACE_FORCE", result.Customer.Agency)
+	suite.Equal("AIR_FORCE", result.Customer.Agency)
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
@@ -393,7 +393,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	}
 	airForce := models.AffiliationAIRFORCE
 
-	// New move with AIR_AND_SPACE_FORCE service member affiliation to test branch filter
+	// New move with AIR_FORCE service member affiliation to test branch filter
 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model: submittedMove,
@@ -574,13 +574,13 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		suite.ElementsMatch(expectedStatuses, actualStatuses)
 	})
 
-	suite.Run("1 result with status New Move and branch AIR_AND_SPACE_FORCE", func() {
+	suite.Run("1 result with status New Move and branch AIR_FORCE", func() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
 			Status: []string{
 				string(models.MoveStatusSUBMITTED),
 			},
-			Branch: models.StringPointer("AIR_AND_SPACE_FORCE"),
+			Branch: models.StringPointer("AIR_FORCE"),
 		}
 
 		// Validate incoming payload: no body to validate
@@ -595,7 +595,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		suite.EqualValues(1, payload.TotalCount)
 		suite.Len(payload.QueueMoves, 1)
 		suite.EqualValues(string(models.MoveStatusSUBMITTED), payload.QueueMoves[0].Status)
-		suite.Equal("AIR_AND_SPACE_FORCE", payload.QueueMoves[0].Customer.Agency)
+		suite.Equal("AIR_FORCE", payload.QueueMoves[0].Customer.Agency)
 	})
 
 	suite.Run("No results with status New Move and branch ARMY", func() {

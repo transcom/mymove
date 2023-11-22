@@ -204,7 +204,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 		// Create the airforce move
 		airForce := models.AffiliationAIRFORCE
-		airForceString := "AIR_AND_SPACE_FORCE"
+		airForceString := "AIR_FORCE"
 		airForceMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceMember{

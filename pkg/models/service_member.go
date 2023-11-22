@@ -32,7 +32,7 @@ const (
 	// AffiliationMARINES captures enum value "MARINES"
 	AffiliationMARINES ServiceMemberAffiliation = "MARINES"
 	// AffiliationAIRFORCE captures enum value "AIR_FORCE"
-	AffiliationAIRFORCE ServiceMemberAffiliation = "AIR_AND_SPACE_FORCE"
+	AffiliationAIRFORCE ServiceMemberAffiliation = "AIR_FORCE"
 	// AffiliationCOASTGUARD captures enum value "COAST_GUARD"
 	AffiliationCOASTGUARD ServiceMemberAffiliation = "COAST_GUARD"
 	// AffiliationCOASTGUARD captures enum value "SPACE_FORCE"
