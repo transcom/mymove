@@ -32,7 +32,7 @@ const ServiceItem = ({ serviceItem, mtoShipment }) => {
       {SERVICE_ITEMS_ALLOWED_WEIGHT_BILLED_PARAM.includes(serviceItem.reServiceCode) ? (
         <div className={descriptionListStyles.row}>
           <dt>Shipment Weight (pounds):</dt>
-          <dd>{mtoShipment.primeActualWeight}</dd>
+          <dd>{mtoShipment.primeActualWeight || 'Not provided'}</dd>
         </div>
       ) : null}
     </dl>
