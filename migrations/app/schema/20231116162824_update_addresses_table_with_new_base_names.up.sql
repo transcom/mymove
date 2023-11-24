@@ -23,3 +23,6 @@ DELETE FROM duty_locations WHERE name = 'Fort Walker, GA 31995';
 -- update the duty_location_names value 'Ft Benning' to 'Ft Walker' because it is tied to the Fort Walker, VA 22427 duty location
 -- fort benning should not be associated with fort walker
 UPDATE duty_location_names SET name = 'Ft Walker' WHERE name = 'Ft Benning';
+
+-- update fort gordon duty_location to fort eisenhower
+UPDATE duty_locations SET name = 'Fort Eisenhower' WHERE name = 'Fort Gordon';
