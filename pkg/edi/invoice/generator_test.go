@@ -166,7 +166,7 @@ func MakeValidEdi() Invoice858C {
 			IdentificationCode:          "CNNQ",
 		},
 		DestinationPostalDetails: edisegment.N4{
-			CityName:            "Augusta",
+			CityName:            "Fort Eisenhower",
 			StateOrProvinceCode: "GA",
 			PostalCode:          "30813",
 			CountryCode:         "US",

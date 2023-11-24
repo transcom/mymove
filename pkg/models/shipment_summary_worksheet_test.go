@@ -381,7 +381,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal("Air Force", sswPage1.ServiceBranch)
 	suite.Equal("90 days per each shipment", sswPage1.MaxSITStorageEntitlement)
 	suite.Equal("Yuma AFB, IA 50309", sswPage1.AuthorizedOrigin)
-	suite.Equal("Fort Gordon, GA 30813", sswPage1.AuthorizedDestination)
+	suite.Equal("Fort Eisenhower, GA 30813", sswPage1.AuthorizedDestination)
 	suite.Equal("No", sswPage1.POVAuthorized)
 	suite.Equal("444-555-8888", sswPage1.PreferredPhoneNumber)
 	suite.Equal("michael+ppm-expansion_1@truss.works", sswPage1.PreferredEmail)
@@ -391,7 +391,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal("21-Dec-2018", sswPage1.OrdersIssueDate)
 	suite.Equal("PCS/012345", sswPage1.OrdersTypeAndOrdersNumber)
 
-	suite.Equal("Fort Gordon, GA 30813", sswPage1.NewDutyAssignment)
+	suite.Equal("Fort Eisenhower, GA 30813", sswPage1.NewDutyAssignment)
 
 	suite.Equal("15,000", sswPage1.WeightAllotment)
 	suite.Equal("2,000", sswPage1.WeightAllotmentProgear)
@@ -688,10 +688,10 @@ func (suite *ModelSuite) TestFormatSSWGetEntitlementNoDependants() {
 }
 
 func (suite *ModelSuite) TestFormatLocation() {
-	fortGordon := models.DutyLocation{Name: "Fort Gordon", Address: models.Address{State: "GA", PostalCode: "30813"}}
+	fortEisenhower := models.DutyLocation{Name: "Fort Eisenhower, GA 30813", Address: models.Address{State: "GA", PostalCode: "30813"}}
 	yuma := models.DutyLocation{Name: "Yuma AFB", Address: models.Address{State: "IA", PostalCode: "50309"}}
 
-	suite.Equal("Fort Gordon, GA 30813", models.FormatLocation(fortGordon))
+	suite.Equal("Fort Eisenhower, GA 30813", models.FormatLocation(fortEisenhower))
 	suite.Equal("Yuma AFB, IA 50309", models.FormatLocation(yuma))
 }
 

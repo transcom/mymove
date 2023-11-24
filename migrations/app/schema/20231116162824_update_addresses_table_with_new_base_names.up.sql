@@ -25,4 +25,4 @@ DELETE FROM duty_locations WHERE name = 'Fort Walker, GA 31995';
 UPDATE duty_location_names SET name = 'Ft Walker' WHERE name = 'Ft Benning';
 
 -- update fort gordon duty_location to fort eisenhower
-UPDATE duty_locations SET name = 'Fort Eisenhower' WHERE name = 'Fort Gordon';
+-- UPDATE duty_locations SET name = 'Fort Eisenhower' WHERE name = 'Fort Gordon';
