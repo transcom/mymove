@@ -76,7 +76,7 @@ func (gs GatewayService) gatewayLastTableUpdate(request models.LastTableUpdateRe
 		gs.logger.Error("error sending request to API Gateway", zap.Error(err))
 		return nil, err
 	}
-	defer resp.Body.Close()
+	// Resp body closing comes from the function calling this
 
 	return resp, nil
 }
@@ -113,9 +113,7 @@ func (gs GatewayService) gatewayGetTable(request models.GetTableRequest) (*http.
 		gs.logger.Error("error sending request to API Gateway", zap.Error(err))
 		return nil, err
 	}
-	if resp.Body != nil {
-		defer resp.Body.Close()
-	}
+	// Resp body closing comes from the function calling this
 
 	return resp, nil
 }
