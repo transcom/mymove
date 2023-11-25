@@ -465,7 +465,7 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 	newDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
 			Model: models.DutyLocation{
-				Name: "Fort Eisenhower",
+				Name: "Fort Eisenhower, GA 30813",
 			},
 		},
 		{

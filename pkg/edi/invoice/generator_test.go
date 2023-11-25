@@ -71,7 +71,7 @@ G62*10*20200909**
 N1*BY*BuyerOrganizationName*92*LKNQ
 N1*SE*SellerOrganizationName*2*BLKW
 N1*ST*DestinationName*10*CNNQ
-N4*Augusta*GA*30813*US**
+N4*Fort Eisenhower*GA*30813*US**
 N1*SF*Uoe1WjuUjU*10*LKNQ
 N4*Des Moines*IA*50309*US**
 HL*1**I

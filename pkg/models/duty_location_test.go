@@ -17,7 +17,7 @@ func (suite *ModelSuite) TestFindDutyLocations() {
 	suite.MustSave(&address)
 
 	location1 := models.DutyLocation{
-		Name:      "Fort Liberty",
+		Name:      "Fort Bragg",
 		AddressID: address.ID,
 	}
 	suite.MustSave(&location1)
@@ -81,9 +81,9 @@ func (suite *ModelSuite) TestFindDutyLocations() {
 		query         string
 		dutyLocations []string
 	}{
-		{query: "fort", dutyLocations: []string{"Fort Liberty", "Fort Belvoir", "NAS Fort Worth JRB", "NAS Fallon"}},
-		{query: "ft", dutyLocations: []string{"Fort Liberty", "NAS Fallon", "Fort Belvoir", "NAS Fort Worth JRB"}},
-		{query: "ft be", dutyLocations: []string{"Fort Belvoir", "Fort Liberty", "NAS Fallon", "NAS Fort Worth JRB"}},
+		{query: "fort", dutyLocations: []string{"Fort Bragg", "Fort Belvoir", "NAS Fort Worth JRB", "NAS Fallon"}},
+		{query: "ft", dutyLocations: []string{"Fort Bragg", "NAS Fallon", "Fort Belvoir", "NAS Fort Worth JRB"}},
+		{query: "ft be", dutyLocations: []string{"Fort Belvoir", "Fort Bragg", "NAS Fallon", "NAS Fort Worth JRB"}},
 		{query: "davis-mon", dutyLocations: []string{"Davis Monthan AFB", "NAS Fallon", "JB Elmendorf-Richardson"}},
 		{query: "jber", dutyLocations: []string{"JB Elmendorf-Richardson", "NAS Fort Worth JRB"}},
 		{query: "naval air", dutyLocations: []string{"NAS Fallon", "NAS Fort Worth JRB", "Very Long City Name, OH 23456", "Fort Belvoir", "Davis Monthan AFB"}},

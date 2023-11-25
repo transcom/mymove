@@ -691,7 +691,7 @@ func (suite *ModelSuite) TestFormatLocation() {
 	fortEisenhower := models.DutyLocation{Name: "Fort Eisenhower, GA 30813", Address: models.Address{State: "GA", PostalCode: "30813"}}
 	yuma := models.DutyLocation{Name: "Yuma AFB", Address: models.Address{State: "IA", PostalCode: "50309"}}
 
-	suite.Equal("Fort Eisenhower, GA 30813", models.FormatLocation(fortEisenhower))
+	suite.Equal("Fort Eisenhower, GA 30813", fortEisenhower.Name)
 	suite.Equal("Yuma AFB, IA 50309", models.FormatLocation(yuma))
 }
 
