@@ -57,7 +57,7 @@ describe('DocumentViewer component', () => {
 
     const files = screen.getAllByRole('listitem');
 
-    expect(files[0].textContent).toEqual('Test File 4.gif  Uploaded on 16-Jun-2021');
+    expect(files[0].textContent).toEqual('Test File 4.gif Uploaded on 16-Jun-2021');
   });
 
   it('renders the title bar with the correct props', async () => {
