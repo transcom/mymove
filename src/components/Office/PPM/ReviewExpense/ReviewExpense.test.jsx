@@ -82,7 +82,7 @@ describe('ReviewExpenseForm component', () => {
       await waitFor(() => {
         expect(screen.getByText('Expense Type')).toBeInTheDocument();
       });
-      console.log(expenseRequiredProps);
+      
       expect(screen.getByText('Packing Materials #1')).toBeInTheDocument();
       expect(screen.getByText('boxes, tape, bubble wrap')).toBeInTheDocument();
       expect(screen.getByLabelText('Amount')).toHaveDisplayValue('1,234.56');
