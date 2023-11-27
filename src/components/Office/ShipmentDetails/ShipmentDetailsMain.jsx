@@ -54,7 +54,6 @@ const ShipmentDetailsMain = ({
     requiredDeliveryDate,
     pickupAddress,
     destinationAddress,
-    calculatedBillableWeight,
     primeEstimatedWeight,
     primeActualWeight,
     counselorRemarks,
@@ -178,7 +177,6 @@ const ShipmentDetailsMain = ({
       <ShipmentWeightDetails
         estimatedWeight={primeEstimatedWeight}
         initialWeight={primeActualWeight}
-        actualWeight={calculatedBillableWeight}
         shipmentInfo={{
           shipmentID: shipment.id,
           ifMatchEtag: shipment.eTag,
