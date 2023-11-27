@@ -122,7 +122,7 @@
 
   > :global(.usa-form-group:first-child .usa-label),
   > :global(.usa-form-group:first-child .usa-label .usa-label--error),
-  > :global(.usa-form-group--error :first-child),
+  // > :global(.usa-form-group--error :first-child),
   > :global(.usa-form-group.warning :first-child),
   > :global(.usa-form-group.warning:first-of-type .usa-label),
   > :global(.usa-form-group.usa-form-group--error:first-of-type .usa-label) {
