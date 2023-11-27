@@ -95,14 +95,13 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 		case SuccessfulStatusCode:
 			switch physicalName {
 			case LineOfAccounting:
-				loas, caseErr := FetchLOARecordsByTime(appCtx, lastTableUpdateResponse.LastUpdate)
+				loaDataOutOfDate, caseErr := TGETLOADataOutOfDate(appCtx, lastTableUpdateResponse.LastUpdate)
 				if caseErr != nil {
 					logger.Error("fetching loa records by time", zap.Error(err))
 					return
 				}
 				// Check if loas are out of date
-				if len(loas) > 0 {
-					// Since loas were returned, we are in fact out of date
+				if loaDataOutOfDate {
 					// Trigger Get TGET data and GetTable call
 					caseErr := GetTGETData(models.GetTableRequest{
 						PhysicalName:                LineOfAccounting,
@@ -117,14 +116,13 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 					return
 				}
 			case TransportationAccountingCode:
-				tacs, caseErr := FetchTACRecordsByTime(appCtx, lastTableUpdateResponse.LastUpdate)
+				tacDataOutOfDate, caseErr := TGETTACDataOutOfDate(appCtx, lastTableUpdateResponse.LastUpdate)
 				if caseErr != nil {
 					logger.Error("fetching tac records by time", zap.Error(err))
 					return
 				}
 				// Check if tacs are out of date
-				if len(tacs) > 0 {
-					// Since tacs were returned, we are in fact out of date
+				if tacDataOutOfDate {
 					// Trigger Get TGET data and GetTable call
 					caseErr := GetTGETData(models.GetTableRequest{
 						PhysicalName:                TransportationAccountingCode,
@@ -164,40 +162,46 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 	return nil
 }
 
-// Fetch Transportation Accounting Codes from DB and return the list of records if the updated_at field is < the returned LastTableUpdate updated time.
+// Fetching all TAC records by time to check if our TAC data is out of date is incredibly inefficient. So instead we will check if a record
+// exists.
 // Ex:
 //
 //	LastTableUpdate : 2023-08-30 15:24:13.19931
 //	updated_at: 2023-08-29 15:24:13.19931
 //
-// Because updated_at is before LastTableUpdate the DB will return records that match this case.
+// Because updated_at is before LastTableUpdate the DB will return true because this means out TGET data is out of date
 //
-//	returns []models.TransportationAccountingCode, error
-func FetchTACRecordsByTime(appcontext appcontext.AppContext, time time.Time) ([]models.TransportationAccountingCode, error) {
-	var tacCodes []models.TransportationAccountingCode
-	err := appcontext.DB().Select("*").Where("updated_at < $1", time).All(&tacCodes)
+//	returns bool, error
+func TGETTACDataOutOfDate(appcontext appcontext.AppContext, time time.Time) (bool, error) {
+	exists, err := appcontext.DB().
+		Where("updated_at < ?", time).
+		Exists(new(models.TransportationAccountingCode))
 
 	if err != nil {
-		return tacCodes, errors.Wrap(err, "Fetch line items query failed")
+		return false, errors.Wrap(err, "TGETTACDataOutOfDate query failed")
 	}
 
-	return tacCodes, nil
+	return exists, nil
 }
 
-// Fetch Line Of Accounting records from DB and return the list of records if the updated_at field is < the returned LastTableUpdate updated time.
+// Fetching all LOA records by time to check if our LOA data is out of date is incredibly inefficient. So instead we will check if a record
+// exists.
 // Ex:
 //
 //	LastTableUpdate : 2023-08-30 15:24:13.19931
 //	updated_at: 2023-08-29 15:24:13.19931
 //
-// Because updated_at is before LastTableUpdate the DB will return records that match this case.
+// Because updated_at is before LastTableUpdate the DB will return true because this means out TGET data is out of date
 //
-//	returns []models.LineOfAccounting, error
-func FetchLOARecordsByTime(appcontext appcontext.AppContext, time time.Time) ([]models.LineOfAccounting, error) {
-	var loa []models.LineOfAccounting
-	err := appcontext.DB().Select("*").Where("updated_at < $1", time).All(&loa)
+//	returns bool, error
+func TGETLOADataOutOfDate(appcontext appcontext.AppContext, time time.Time) (bool, error) {
+	exists, err := appcontext.DB().
+		Where("updated_at < ?", time).
+		Exists(new(models.LineOfAccounting))
+
 	if err != nil {
-		return loa, errors.Wrap(err, "Fetch line items query failed")
+		return false, errors.Wrap(err, "TGETTACDataOutOfDate query failed")
 	}
-	return loa, nil
+
+	return exists, nil
 }
