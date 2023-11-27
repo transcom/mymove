@@ -19,25 +19,25 @@ type PaymentRequestUploadCreator struct {
 	mock.Mock
 }
 
-// CreateUpload provides a mock function with given fields: appCtx, file, paymentRequestID, userID, filename, isWeightTicket
-func (_m *PaymentRequestUploadCreator) CreateUpload(appCtx appcontext.AppContext, file io.ReadCloser, paymentRequestID uuid.UUID, userID uuid.UUID, filename string, isWeightTicket bool) (*models.Upload, error) {
-	ret := _m.Called(appCtx, file, paymentRequestID, userID, filename, isWeightTicket)
+// CreateUpload provides a mock function with given fields: appCtx, file, paymentRequestID, userID, filename
+func (_m *PaymentRequestUploadCreator) CreateUpload(appCtx appcontext.AppContext, file io.ReadCloser, paymentRequestID uuid.UUID, userID uuid.UUID, filename string) (*models.Upload, error) {
+	ret := _m.Called(appCtx, file, paymentRequestID, userID, filename)
 
 	var r0 *models.Upload
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, io.ReadCloser, uuid.UUID, uuid.UUID, string, bool) (*models.Upload, error)); ok {
-		return rf(appCtx, file, paymentRequestID, userID, filename, isWeightTicket)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, io.ReadCloser, uuid.UUID, uuid.UUID, string) (*models.Upload, error)); ok {
+		return rf(appCtx, file, paymentRequestID, userID, filename)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, io.ReadCloser, uuid.UUID, uuid.UUID, string, bool) *models.Upload); ok {
-		r0 = rf(appCtx, file, paymentRequestID, userID, filename, isWeightTicket)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, io.ReadCloser, uuid.UUID, uuid.UUID, string) *models.Upload); ok {
+		r0 = rf(appCtx, file, paymentRequestID, userID, filename)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Upload)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, io.ReadCloser, uuid.UUID, uuid.UUID, string, bool) error); ok {
-		r1 = rf(appCtx, file, paymentRequestID, userID, filename, isWeightTicket)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, io.ReadCloser, uuid.UUID, uuid.UUID, string) error); ok {
+		r1 = rf(appCtx, file, paymentRequestID, userID, filename)
 	} else {
 		r1 = ret.Error(1)
 	}

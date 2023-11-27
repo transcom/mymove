@@ -28,12 +28,10 @@ func BuildProofOfServiceDoc(db *pop.Connection, customs []Customization, traits 
 	}
 
 	paymentRequest := BuildPaymentRequest(db, customs, traits)
-	isWeightTicket := false
 
 	ProofOfServiceDoc := models.ProofOfServiceDoc{
 		PaymentRequest:   paymentRequest,
 		PaymentRequestID: paymentRequest.ID,
-		IsWeightTicket:   isWeightTicket,
 	}
 
 	// Overwrite values with those from assertions
