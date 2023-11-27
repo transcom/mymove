@@ -101,7 +101,7 @@ export default function ReviewExpense({
   };
 
   const titleCase = (input) => input.charAt(0).toUpperCase() + input.slice(1);
-  const allCase = (input) => input.split(' ').map(titleCase).join(' ');
+  const allCase = (input) => input?.split(' ').map(titleCase).join(' ') ?? '';
   const expenseName = initialValues.movingExpenseType.toLowerCase().replace('_', ' ');
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
