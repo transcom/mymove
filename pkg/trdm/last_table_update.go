@@ -110,7 +110,7 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 						ReturnContent:               true,
 					}, *service, appCtx)
 					if err != nil {
-						logger.Fatal("failed to retrieve latest line of accounting TGET data")
+						logger.Fatal("failed to retrieve latest line of accounting TGET data", zap.String("responseBody", string(body)))
 					} else {
 						logger.Info("successfully retrieved latest line of accounting TGET data")
 					}
@@ -132,21 +132,21 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 						ReturnContent:               true,
 					}, *service, appCtx)
 					if err != nil {
-						logger.Fatal("failed to retrieve latest transportation accounting TGET data")
+						logger.Fatal("failed to retrieve latest transportation accounting TGET data", zap.String("responseBody", string(body)))
 					} else {
 						logger.Info("successfully retrieved latest transportation accounting TGET data")
 					}
 					return
 				}
 			default:
-				logger.Error("unsupported table provided")
+				logger.Error("unsupported table provided", zap.String("responseBody", string(body)))
 				return
 			}
 		case FailureStatusCode:
-			logger.Error("trdm api gateway request failed, please inspect the trdm gateway logs")
+			logger.Error("trdm api gateway request failed, please inspect the trdm gateway logs", zap.String("responseBody", string(body)))
 			return
 		default:
-			logger.Error("unexpected api gateway request failure response, please inspect the trdm gateway logs")
+			logger.Error("unexpected api gateway request failure response, please inspect the trdm gateway logs", zap.String("responseBody", string(body)))
 			return
 		}
 	}

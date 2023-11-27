@@ -837,8 +837,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		stsProvider := stscreds.NewAssumeRoleProvider(stsClient, trdmIamRole)
 
 		// Setup client
-		tr := &http.Transport{TLSClientConfig: tlsConfig}
-		httpClient := &http.Client{Transport: tr, Timeout: time.Duration(30) * time.Second}
+		tr := &http.Transport{}
+		httpClient := &http.Client{Transport: tr, Timeout: time.Duration(10) * time.Minute}
 
 		// Begin the TRDM cron job now (Referred to as the TGET flow as well). This will
 		// send a REST call to the lastTableUpdate endpoint within the trdm soap proxy api gateway,
