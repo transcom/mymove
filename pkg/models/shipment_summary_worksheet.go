@@ -351,8 +351,8 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.OrdersTypeAndOrdersNumber = FormatOrdersTypeAndOrdersNumber(data.Order)
 
 	page1.AuthorizedOrigin = FormatLocation(data.CurrentDutyLocation)
-	page1.AuthorizedDestination = FormatLocation(data.NewDutyLocation)
-	page1.NewDutyAssignment = FormatLocation(data.NewDutyLocation)
+	page1.AuthorizedDestination = data.NewDutyLocation.Name
+	page1.NewDutyAssignment = data.NewDutyLocation.Name
 
 	page1.WeightAllotment = FormatWeights(data.WeightAllotment.Entitlement)
 	page1.WeightAllotmentProgear = FormatWeights(data.WeightAllotment.ProGear)

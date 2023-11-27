@@ -1357,7 +1357,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 		{
 			Model: models.Address{
 				StreetAddress1: "235 Prospect Valley Road SE",
-				City:           "Augusta",
+				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     testStorageFacilityZip,
 			},
