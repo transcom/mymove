@@ -95,8 +95,8 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 		case SuccessfulStatusCode:
 			switch physicalName {
 			case LineOfAccounting:
-				loas, err := FetchLOARecordsByTime(appCtx, lastTableUpdateResponse.LastUpdate)
-				if err != nil {
+				loas, caseErr := FetchLOARecordsByTime(appCtx, lastTableUpdateResponse.LastUpdate)
+				if caseErr != nil {
 					logger.Error("fetching loa records by time", zap.Error(err))
 					return
 				}
@@ -104,21 +104,21 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 				if len(loas) > 0 {
 					// Since loas were returned, we are in fact out of date
 					// Trigger Get TGET data and GetTable call
-					err := GetTGETData(models.GetTableRequest{
+					caseErr := GetTGETData(models.GetTableRequest{
 						PhysicalName:                LineOfAccounting,
 						ContentUpdatedSinceDateTime: lastTableUpdateResponse.LastUpdate,
 						ReturnContent:               true,
 					}, *service, appCtx)
-					if err != nil {
-						logger.Fatal("failed to retrieve latest line of accounting TGET data", zap.String("responseBody", string(body)))
+					if caseErr != nil {
+						logger.Fatal("failed to retrieve latest line of accounting TGET data", zap.String("responseBody", string(body)), zap.Error(err))
 					} else {
 						logger.Info("successfully retrieved latest line of accounting TGET data")
 					}
 					return
 				}
 			case TransportationAccountingCode:
-				tacs, err := FetchTACRecordsByTime(appCtx, lastTableUpdateResponse.LastUpdate)
-				if err != nil {
+				tacs, caseErr := FetchTACRecordsByTime(appCtx, lastTableUpdateResponse.LastUpdate)
+				if caseErr != nil {
 					logger.Error("fetching tac records by time", zap.Error(err))
 					return
 				}
@@ -126,13 +126,13 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 				if len(tacs) > 0 {
 					// Since tacs were returned, we are in fact out of date
 					// Trigger Get TGET data and GetTable call
-					err := GetTGETData(models.GetTableRequest{
+					caseErr := GetTGETData(models.GetTableRequest{
 						PhysicalName:                TransportationAccountingCode,
 						ContentUpdatedSinceDateTime: lastTableUpdateResponse.LastUpdate,
 						ReturnContent:               true,
 					}, *service, appCtx)
-					if err != nil {
-						logger.Fatal("failed to retrieve latest transportation accounting TGET data", zap.String("responseBody", string(body)))
+					if caseErr != nil {
+						logger.Fatal("failed to retrieve latest transportation accounting TGET data", zap.String("responseBody", string(body)), zap.Error(err))
 					} else {
 						logger.Info("successfully retrieved latest transportation accounting TGET data")
 					}
@@ -143,10 +143,10 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 				return
 			}
 		case FailureStatusCode:
-			logger.Error("trdm api gateway request failed, please inspect the trdm gateway logs", zap.String("responseBody", string(body)))
+			logger.Error("trdm api gateway request failed, please inspect the trdm gateway logs", zap.String("responseBody", string(body)), zap.Error(err))
 			return
 		default:
-			logger.Error("unexpected api gateway request failure response, please inspect the trdm gateway logs", zap.String("responseBody", string(body)))
+			logger.Error("unexpected api gateway request failure response, please inspect the trdm gateway logs", zap.String("responseBody", string(body)), zap.Error(err))
 			return
 		}
 	}
