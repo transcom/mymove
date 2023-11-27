@@ -38,7 +38,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-	deptIndicator := internalmessages.DeptIndicatorAIRFORCE
+	deptIndicator := internalmessages.DeptIndicatorAIRANDSPACEFORCE
 	payload := &internalmessages.CreateUpdateOrders{
 		HasDependents:       handlers.FmtBool(hasDependents),
 		SpouseHasProGear:    handlers.FmtBool(spouseHasProGear),
@@ -447,7 +447,7 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 
 	newOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	newOrdersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
-	departmentIndicator := internalmessages.DeptIndicatorAIRFORCE
+	departmentIndicator := internalmessages.DeptIndicatorAIRANDSPACEFORCE
 	otherServiceMemberUUID := uuid.Must(uuid.NewV4())
 
 	payload := &internalmessages.CreateUpdateOrders{
