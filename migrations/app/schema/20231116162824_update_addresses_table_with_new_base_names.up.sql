@@ -1,10 +1,10 @@
 -- updating addresses table with city names that have changed due to changed base names
-UPDATE addresses SET city = 'Fort Cavazos' WHERE city in ('Fort Hood', 'FORT HOOD') and postal_code = '76544';
-UPDATE addresses SET city = 'Fort Novosel' WHERE city in ('Fort Rucker', 'FORT RUCKER') and postal_code = '36362';
-UPDATE addresses SET city = 'Fort Liberty' WHERE city in ('Fort Bragg', 'FORT BRAGG') and postal_code in ('28307', '28310');
+UPDATE addresses SET city = 'Fort Cavazos' WHERE UPPER(city) = 'FORT HOOD' and postal_code = '76544';
+UPDATE addresses SET city = 'Fort Novosel' WHERE UPPER(city) = 'FORT RUCKER' and postal_code = '36362';
+UPDATE addresses SET city = 'Fort Liberty' WHERE UPPER(city) = 'FORT BRAGG' and postal_code in ('28307', '28310');
 UPDATE addresses SET city = 'Fort Johnson' WHERE city in ('Fort Polk South', 'Fort Polk') and postal_code = '71459';
-UPDATE addresses SET city = 'Fort Moore' WHERE city IN ('Fort Benning', 'FORT BENNING') AND postal_code IN ('31905', '31995');
-UPDATE addresses SET city = 'Fort Gregg-Adams' WHERE city in ('Fort Lee', 'FORT LEE') AND postal_code = '23801';
+UPDATE addresses SET city = 'Fort Moore' WHERE UPPER(city) = 'FORT BENNING' AND postal_code IN ('31905', '31995');
+UPDATE addresses SET city = 'Fort Gregg-Adams' WHERE UPPER(city) = 'FORT LEE' AND postal_code = '23801';
 UPDATE addresses SET city = 'Fort Eisenhower' WHERE city = 'Fort Gordon' AND postal_code = '30813';
 
 -- add row into duty_location_names for fort barfoot
