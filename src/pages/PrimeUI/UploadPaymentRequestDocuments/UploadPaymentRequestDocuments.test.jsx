@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import UploadPaymentRequestDocuments from './UploadPaymentRequestDocuments';
@@ -64,6 +64,35 @@ describe('Upload Payment Request Documents Page', () => {
     );
 
     expect(screen.getByText('Upload Payment Request Document')).toBeInTheDocument();
+  });
+
+  it('renders the checkbox', () => {
+    render(
+      <MockProviders>
+        <UploadPaymentRequestDocuments />
+      </MockProviders>,
+    );
+
+    const checkbox = screen.getByRole('checkbox', { name: 'Is this a weight ticket?' });
+
+    expect(checkbox).toBeInTheDocument();
+    expect(checkbox).not.toBeChecked();
+    expect(screen.getByText('Is this a weight ticket?')).toBeInTheDocument();
+  });
+
+  it('checkbox changes when clicked', () => {
+    render(
+      <MockProviders>
+        <UploadPaymentRequestDocuments />
+      </MockProviders>,
+    );
+
+    const checkbox = screen.getByRole('checkbox', { name: 'Is this a weight ticket?' });
+
+    expect(checkbox).toBeInTheDocument();
+    expect(checkbox).not.toBeChecked();
+    fireEvent.click(checkbox);
+    expect(checkbox).toBeChecked();
   });
 
   it('navigates the user to the move details page when the cancel button is clicked', async () => {
