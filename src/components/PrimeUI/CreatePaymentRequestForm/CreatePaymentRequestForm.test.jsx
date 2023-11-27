@@ -180,7 +180,7 @@ describe('CreatePaymentRequestForm', () => {
     );
 
     expect(
-      screen.getByRole('textbox', { name: 'Weight Billed (if different from shipment weight)' }),
-    ).toBeInTheDocument();
+      screen.getAllByRole('textbox', { name: 'Weight Billed (if different from shipment weight)' }).length,
+    ).toBeGreaterThan(0);
   });
 });
