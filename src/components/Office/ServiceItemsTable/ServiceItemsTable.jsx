@@ -89,7 +89,7 @@ const ServiceItemsTable = ({
 
   const getNewestHistoryDataForServiceItem = (historyDataForMove, serviceItemId) => {
     if (historyDataForMove) {
-      let newestHistoryData = null;
+      let newestHistoryData = historyDataForMove[0];
       for (let i = 0; i < historyDataForMove.length; i += 1) {
         // find the first event in the move history for a given serviceItemId
         if (historyDataForMove[i].objectId === serviceItemId) {
@@ -100,6 +100,23 @@ const ServiceItemsTable = ({
       return newestHistoryData;
     }
     return null;
+
+    //   let newestHistoryData = historyDataForMove[0];
+    //   historyDataForMove.map((obj) => {
+    //     let newestEventInAuditHistory = historyDataForMove[0].actionTstampTx;
+    //     // object id of the audit history entry should match the id of the service item
+    //     if (obj.objectId === serviceItemId) {
+    //       // if time of curr obj is newer than the curr newestEventInAuditHistory
+    //       if (obj.actionTstampTx > newestEventInAuditHistory) {
+    //         newestEventInAuditHistory = obj.actionTstampTx;
+    //         newestHistoryData = obj;
+    //       }
+    //     }
+    //     return null;
+    //   });
+    //   return newestHistoryData;
+    // }
+    // return null;
   };
 
   function formatKeyStringsForToolTip(key) {
@@ -137,7 +154,11 @@ const ServiceItemsTable = ({
     const historyDataForMove = history.queueResult.data;
     const historyDataForServiceItem = getNewestHistoryDataForServiceItem(historyDataForMove, serviceItemId);
     const isResubmitted = getResubmissionStatus(historyDataForServiceItem);
-    const formattedResubmissionDetails = generateResubmissionDetailsText(historyDataForServiceItem);
+    // const formattedResubmissionDetails = generateResubmissionDetailsText(historyDataForServiceItem);
+    let formattedResubmissionDetails = '';
+    if (isResubmitted) {
+      formattedResubmissionDetails = generateResubmissionDetailsText(historyDataForServiceItem);
+    }
     const resubmittedServiceItemValues = {
       isResubmitted,
       formattedResubmissionDetails,
