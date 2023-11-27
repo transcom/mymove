@@ -243,6 +243,19 @@ const ShipmentForm = (props) => {
     //* PPM Shipment *//
     if (isPPM) {
       const ppmShipmentBody = formatPpmShipmentForAPI(formValues);
+
+      // Allow blank values to be entered into Pro Gear input fields
+      if (
+        ppmShipmentBody.ppmShipment.hasProGear &&
+        ppmShipmentBody.ppmShipment.spouseProGearWeight >= 0 &&
+        ppmShipmentBody.ppmShipment.proGearWeight === undefined
+      ) {
+        ppmShipmentBody.ppmShipment.proGearWeight = 0;
+      }
+      if (ppmShipmentBody.ppmShipment.hasProGear && ppmShipmentBody.ppmShipment.spouseProGearWeight === undefined) {
+        ppmShipmentBody.ppmShipment.spouseProGearWeight = 0;
+      }
+
       // Add a PPM shipment
       if (isCreatePage) {
         const body = { ...ppmShipmentBody, moveTaskOrderID };
@@ -470,6 +483,7 @@ const ShipmentForm = (props) => {
     >
       {({ values, isValid, isSubmitting, setValues, handleSubmit, errors }) => {
         const { hasDeliveryAddress, hasSecondaryPickup, hasSecondaryDelivery } = values;
+
         const handleUseCurrentResidenceChange = (e) => {
           const { checked } = e.target;
           if (checked) {
@@ -584,7 +598,7 @@ const ShipmentForm = (props) => {
               </SectionWrapper>
 
               <Form className={formStyles.form}>
-                {isTOO && !isHHG && <ShipmentVendor />}
+                {isTOO && !isHHG && !isPPM && <ShipmentVendor />}
 
                 {isNTSR && <ShipmentWeightInput userRole={userRole} />}
 

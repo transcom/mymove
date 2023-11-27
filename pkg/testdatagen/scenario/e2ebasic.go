@@ -858,7 +858,7 @@ func serviceMemberWithPPMMoveWithPaymentRequested01(appCtx appcontext.AppContext
 		Order: models.Order{
 			OrdersNumber:        models.StringPointer("12345"),
 			OrdersTypeDetail:    &typeDetail,
-			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			DepartmentIndicator: models.StringPointer("AIR_AND_SPACE_FORCE"),
 			TAC:                 models.StringPointer("E19A"),
 		},
 		Move: move,
@@ -938,7 +938,7 @@ func serviceMemberWithPPMMoveWithPaymentRequested02(appCtx appcontext.AppContext
 		Order: models.Order{
 			OrdersNumber:        models.StringPointer("12345"),
 			OrdersTypeDetail:    &moveTypeDetail,
-			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			DepartmentIndicator: models.StringPointer("AIR_AND_SPACE_FORCE"),
 			TAC:                 models.StringPointer("E19A"),
 		},
 		Move: move,
@@ -1510,7 +1510,7 @@ func serviceMemberWithPPMReadyToRequestPayment01(appCtx appcontext.AppContext, u
 		Order: models.Order{
 			OrdersNumber:        models.StringPointer("62149"),
 			OrdersTypeDetail:    &typeDetail,
-			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			DepartmentIndicator: models.StringPointer("AIR_AND_SPACE_FORCE"),
 			TAC:                 models.StringPointer("E19A"),
 		},
 		Move: move,
@@ -1583,7 +1583,7 @@ func serviceMemberWithPPMReadyToRequestPayment02(appCtx appcontext.AppContext, u
 		Order: models.Order{
 			OrdersNumber:        models.StringPointer("62149"),
 			OrdersTypeDetail:    &typeDetail,
-			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			DepartmentIndicator: models.StringPointer("AIR_AND_SPACE_FORCE"),
 			TAC:                 models.StringPointer("E19A"),
 		},
 		Move: move,
@@ -1656,7 +1656,7 @@ func serviceMemberWithPPMReadyToRequestPayment03(appCtx appcontext.AppContext, u
 		Order: models.Order{
 			OrdersNumber:        models.StringPointer("62341"),
 			OrdersTypeDetail:    &typeDetail,
-			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			DepartmentIndicator: models.StringPointer("AIR_AND_SPACE_FORCE"),
 			TAC:                 models.StringPointer("E19A"),
 		},
 		Move: move,
@@ -1730,7 +1730,7 @@ func serviceMemberWithPPMApprovedNotInProgress(appCtx appcontext.AppContext, use
 		Order: models.Order{
 			OrdersNumber:        models.StringPointer("12345"),
 			OrdersTypeDetail:    &typeDetails,
-			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			DepartmentIndicator: models.StringPointer("AIR_AND_SPACE_FORCE"),
 			TAC:                 models.StringPointer("E19A"),
 		},
 		Move: move,

@@ -50,6 +50,9 @@ type Upload struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id"`
 
+	// is weight ticket
+	IsWeightTicket bool `json:"isWeightTicket,omitempty"`
+
 	// status
 	// Read Only: true
 	// Enum: [INFECTED CLEAN PROCESSING]

@@ -1741,7 +1741,7 @@ export const reviewWeightsQuery = {
       },
       customerID: '25cd44a2-eb40-473f-b6c9-e99e25387a54',
       date_issued: '2018-03-15',
-      department_indicator: 'AIR_FORCE',
+      department_indicator: 'AIR_AND_SPACE_FORCE',
       destinationDutyLocation: {
         address: {
           city: 'Fort Gordon',
@@ -2197,7 +2197,7 @@ export const reviewWeightsNoProGearQuery = {
       },
       customerID: '25cd44a2-eb40-473f-b6c9-e99e25387a54',
       date_issued: '2018-03-15',
-      department_indicator: 'AIR_FORCE',
+      department_indicator: 'AIR_AND_SPACE_FORCE',
       destinationDutyLocation: {
         address: {
           city: 'Fort Gordon',
@@ -2845,4 +2845,50 @@ export const multiplePaymentRequests = {
     },
   ],
   order,
+};
+
+export const moveHistoryTestData = {
+  isLoading: false,
+  isError: false,
+  queueResult: {
+    totalCount: 2,
+    data: [
+      {
+        action: 'UPDATE',
+        actionTstampClk: '2022-03-09T15:33:38.623Z',
+        actionTstampStm: '2022-03-09T15:33:38.622Z',
+        actionTstampTx: '2022-03-09T15:33:38.579Z',
+        changedValues: { available_to_prime_at: '2022-04-11T19:31:18.482947+00:00', status: 'APPROVED' },
+        clientQuery:
+          'UPDATE "moves" AS moves SET "available_to_prime_at" = $1, "billable_weights_reviewed_at" = $2, "cancel_reason" = $3, "contractor_id" = $4, "excess_weight_acknowledged_at" = $5, "excess_weight_qualified_at" = $6, "excess_weight_upload_id" = $7, "financial_review_flag" = $8, "financial_review_flag_set_at" = $9, "financial_review_remarks" = $10, "locator" = $11, "orders_id" = $12, "ppm_estimated_weight" = $13, "ppm_type" = $14, "reference_id" = $15, "selected_move_type" = $16, "service_counseling_completed_at" = $17, "show" = $18, "status" = $19, "submitted_at" = $20, "tio_remarks" = $21, "updated_at" = $22 WHERE moves.id = $23',
+        eventName: 'updateMTOServiceItem',
+        id: '6f5a4601-edde-4df1-aca9-0d3b58c11b59',
+        objectId: '3efc84ca-d5a8-4f5f-b9b8-6deca1188e11',
+        oldValues: {
+          available_to_prime_at: '',
+          billable_weights_reviewed_at: '',
+          cancel_reason: '',
+          contractor_id: '5db13bb4-6d29-4bdb-bc81-262f4513ecf6',
+          excess_weight_acknowledged_at: '',
+          excess_weight_qualified_at: '',
+          excess_weight_upload_id: '',
+          financial_review_flag: '',
+          financial_review_flag_set_at: '',
+          financial_review_remarks: '',
+          id: '3efc84ca-d5a8-4f5f-b9b8-6deca1188e11',
+          locator: 'YRHCWH',
+          orders_id: 'e76cd7b9-689e-439e-a7d3-553b7eefe413',
+          ppm_estimated_weight: '',
+          ppm_type: 'PARTIAL',
+          reference_id: '1895-7770',
+          selected_move_type: 'PPM',
+          service_counseling_completed_at: '2022-04-11T19:28:00.832092+00:00',
+          show: '',
+          status: 'REJECTED',
+          submitted_at: '2021-09-11T19:36:00.871143',
+          tio_remarks: '',
+        },
+      },
+    ],
+  },
 };
