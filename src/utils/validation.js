@@ -16,6 +16,8 @@ export const ZIP_CODE_REGEX = /^(\d{5}([-]\d{4})?)$/;
 
 export const ZIP5_CODE_REGEX = /^(\d{5})$/;
 
+export const PHONE_NUMBER_REGEX = /^[2-9]\d{2}-\d{3}-\d{4}$/;
+
 // eslint-disable-next-line import/prefer-default-export
 export function validateDate(value) {
   let error;
@@ -73,8 +75,8 @@ export const addressSchema = Yup.object().shape({
   postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code'),
 });
 
-export const phoneSchema = Yup.string().min(
-  12,
+export const phoneSchema = Yup.string().matches(
+  PHONE_NUMBER_REGEX,
   'Please enter a valid phone number. Phone numbers must be entered as ###-###-####.',
 ); // min 12 includes hyphens
 
