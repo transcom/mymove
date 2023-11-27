@@ -187,7 +187,7 @@ func GetTraitDefaultOrdersDutyLocation() []Customization {
 			},
 		},
 		{
-			// Update the DutyLocationAddress (but not TO address) to Augusta, Georgia
+			// Update the DutyLocationAddress (but not TO address) to Fort Eisenhower, Georgia
 			Type: &Addresses.DutyLocationAddress,
 			Model: models.Address{
 				City:       "Fort Eisenhower",
