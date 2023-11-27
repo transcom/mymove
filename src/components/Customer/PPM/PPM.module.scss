@@ -57,7 +57,8 @@
     }
   }
 
-  :global(.usa-label), :global(.usa-checkbox__label) {
+  :global(.usa-label),
+  :global(.usa-checkbox__label) {
     @include u-margin-top(2);
   }
 
