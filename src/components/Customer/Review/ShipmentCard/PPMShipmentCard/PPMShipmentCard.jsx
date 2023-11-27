@@ -5,13 +5,15 @@ import { generatePath } from 'react-router-dom';
 
 import styles from 'components/Customer/Review/ShipmentCard/ShipmentCard.module.scss';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
+import IncompleteShipmentToolTip from 'components/Customer/Review/IncompleteShipmentToolTip/IncompleteShipmentToolTip';
 import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatCustomerDate, formatWeight } from 'utils/formatters';
-import { getShipmentTypeLabel, isArmyOrAirForce } from 'utils/shipmentDisplay';
+import { getShipmentTypeLabel, isArmyOrAirForce, getMoveCodeLabel } from 'utils/shipmentDisplay';
 import affiliations from 'content/serviceMemberAgencies';
 import { MoveShape } from 'types/customerShapes';
+import { isPPMShipmentComplete } from 'utils/shipments';
 
 const PPMShipmentCard = ({
   move,
@@ -21,6 +23,7 @@ const PPMShipmentCard = ({
   showEditAndDeleteBtn,
   onEditClick,
   onDeleteClick,
+  onIncompleteClick,
 }) => {
   const { moveTaskOrderID, id, shipmentType } = shipment;
   const {
@@ -50,15 +53,25 @@ const PPMShipmentCard = ({
     closeoutOffice = move.closeout_office.name;
   }
 
+  const shipmentLabel = `${getShipmentTypeLabel(shipmentType)} ${shipmentNumber}`;
+  const moveCodeLabel = getMoveCodeLabel(shipment.id);
+  const shipmentIsIncomplete = !isPPMShipmentComplete(shipment);
+
   return (
     <div className={styles.ShipmentCard}>
       <ShipmentContainer className={styles.container} shipmentType={SHIPMENT_OPTIONS.PPM}>
+        {shipmentIsIncomplete && (
+          <IncompleteShipmentToolTip
+            onClick={onIncompleteClick}
+            shipmentLabel={shipmentLabel}
+            moveCodeLabel={moveCodeLabel}
+            shipmentTypeLabel={shipmentType}
+          />
+        )}
         <div className={styles.ShipmentCardHeader}>
           <div className={styles.shipmentTypeNumber}>
-            <h3 data-testid="ShipmentCardNumber">
-              {getShipmentTypeLabel(shipmentType)} {shipmentNumber}
-            </h3>
-            <p>#{id.substring(0, 8).toUpperCase()}</p>
+            <h3 data-testid="ShipmentCardNumber">{shipmentLabel}</h3>
+            <p>#{moveCodeLabel}</p>
           </div>
           {showEditAndDeleteBtn && (
             <div className={styles.btnContainer}>
@@ -142,6 +155,7 @@ PPMShipmentCard.propTypes = {
   onDeleteClick: func,
   move: MoveShape,
   affiliation: oneOf(Object.values(affiliations)),
+  onIncompleteClick: func,
 };
 
 PPMShipmentCard.defaultProps = {
@@ -150,6 +164,7 @@ PPMShipmentCard.defaultProps = {
   onDeleteClick: undefined,
   move: undefined,
   affiliation: undefined,
+  onIncompleteClick: undefined,
 };
 
 export default PPMShipmentCard;
