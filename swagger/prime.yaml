@@ -69,11 +69,18 @@ tags:
       The contractor submits a **paymentRequest** to the TIO for approval in
       order to be reimbursed for 1 or more
 
-      **mtoServiceItems** on a **moveTaskOrder**.
+      **mtoServiceItems** on a **moveTaskOrder**. A service item can be on
+      multiple payment requests if necessary.
 
 
       Proof of service documentation may be uploaded for each **mtoServiceItem**
-      in a **paymentRequest**.
+      in a **paymentRequest** after the payment
+
+      request is created via the endpoint
+      [createUpload](#operation/createUpload).
+
+
+      All weight entered should be in *pounds* and no other unit of measurement.
   - name: sitAddressUpdate
     description: >
       A **sitAddressUpdate** is submitted when the prime or office user wishes
@@ -1268,9 +1275,8 @@ paths:
     post:
       summary: createPaymentRequest
       description: >
-        Creates a new instance of a paymentRequest.
-
-        A newly created payment request is assigned the status `PENDING`.
+        Creates a new instance of a paymentRequest and is assigned the status
+        `PENDING`.
 
         A move task order can have multiple payment requests, and
 
@@ -1285,27 +1291,182 @@ paths:
 
 
         **NOTE**: In order to create a payment request for most service items,
+        the shipment *must*
 
-        the shipment *must* be updated with the `PrimeActualWeight` value via
+        be updated with the `PrimeActualWeight` value via
         [updateMTOShipment](#operation/updateMTOShipment).
 
-        **Fuel Surcharge** service items require `ActualPickupDate` to be
 
+        **FSC - Fuel Surcharge** service items require `ActualPickupDate` to be
         updated on the shipment.
 
 
-        To create a paymentRequest for a SIT Destination Additional Days
-        mtoServiceItem, the SITPaymentRequestStart and
-
-        SITPaymentRequestEnd dates must not overlap previously requested SIT
-        dates.
+        A service item can be on several payment requests in the case of partial
+        payment requests and payments.
 
 
-        To create a paymentRequest for a SIT Delivery mtoServiceItem, the item
-        must
+        In the request, if no params are necessary, then just the `serviceItem`
+        `id` is required. For example:
 
-        first have a final address set via
-        [updateMTOServiceItem](#operation/updateMTOServiceItem).
+        ```json
+
+        {
+          "isFinal": false,
+          "moveTaskOrderID": "uuid",
+          "serviceItems": [
+            {
+              "id": "uuid",
+            },
+            {
+              "id": "uuid",
+              "params": [
+                {
+                  "key": "Service Item Parameter Name",
+                  "value": "Service Item Parameter Value"
+                }
+              ]
+            }
+          ],
+          "pointOfContact": "string"
+        }
+
+        ```
+
+
+        SIT Service Items & Accepted Payment Request Parameters:
+
+        ---
+
+        If `WeightBilled` is not provided then the full shipment weight
+        (`PrimeActualWeight`) will be considered in the calculation.
+
+
+        **DOFSIT - Domestic origin 1st day SIT**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
+        **DOASIT - Domestic origin add'l SIT** *(SITPaymentRequestStart &
+        SITPaymentRequestEnd are **REQUIRED**)*
+
+        *To create a paymentRequest for this service item, the
+        `SITPaymentRequestStart` and `SITPaymentRequestEnd` dates must not
+        overlap previously requested SIT dates.*
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            },
+            {
+              "key": "SITPaymentRequestStart",
+              "value": "date"
+            },
+            {
+              "key": "SITPaymentRequestEnd",
+              "value": "date"
+            }
+          ]
+        ```
+
+
+        **DOPSIT - Domestic origin SIT pickup**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
+        **DOSHUT - Domestic origin shuttle service**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
+        **DDFSIT - Domestic destination 1st day SIT**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
+        **DDASIT - Domestic destination add'l SIT** *(SITPaymentRequestStart &
+        SITPaymentRequestEnd are **REQUIRED**)*
+
+        *To create a paymentRequest for this service item, the
+        `SITPaymentRequestStart` and `SITPaymentRequestEnd` dates must not
+        overlap previously requested SIT dates.*
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            },
+            {
+              "key": "SITPaymentRequestStart",
+              "value": "date"
+            },
+            {
+              "key": "SITPaymentRequestEnd",
+              "value": "date"
+            }
+          ]
+        ```
+
+
+        **DDDSIT - Domestic destination SIT delivery**
+
+        *To create a paymentRequest for this service item, it must first have a
+        final address set via
+        [updateMTOServiceItem](#operation/updateMTOServiceItem).*
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+
+        **DDSHUT - Domestic destination shuttle service**
+
+        ```json
+          "params": [
+            {
+              "key": "WeightBilled",
+              "value": "integer"
+            }
+          ]
+        ```
+
+        ---
       operationId: createPaymentRequest
       tags:
         - paymentRequest
