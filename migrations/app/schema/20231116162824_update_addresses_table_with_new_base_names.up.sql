@@ -5,7 +5,7 @@ UPDATE addresses SET city = 'Fort Liberty' WHERE city in ('Fort Bragg', 'FORT BR
 UPDATE addresses SET city = 'Fort Johnson' WHERE city in ('Fort Polk South', 'Fort Polk') and postal_code = '71459';
 UPDATE addresses SET city = 'Fort Moore' WHERE city IN ('Fort Benning', 'FORT BENNING') AND postal_code IN ('31905', '31995');
 UPDATE addresses SET city = 'Fort Gregg-Adams' WHERE city in ('Fort Lee', 'FORT LEE') AND postal_code = '23801';
-UPDATE addresses SET city = 'Fort Eisenhower' WHERE city in ('Fort Gordon', 'Augusta') AND postal_code = '30813';
+UPDATE addresses SET city = 'Fort Eisenhower' WHERE city = 'Fort Gordon' AND postal_code = '30813';
 
 -- add row into duty_location_names for fort barfoot
 INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at)
@@ -23,6 +23,3 @@ DELETE FROM duty_locations WHERE name = 'Fort Walker, GA 31995';
 -- update the duty_location_names value 'Ft Benning' to 'Ft Walker' because it is tied to the Fort Walker, VA 22427 duty location
 -- fort benning should not be associated with fort walker
 UPDATE duty_location_names SET name = 'Ft Walker' WHERE name = 'Ft Benning';
-
--- update fort gordon duty_location to fort eisenhower
--- UPDATE duty_locations SET name = 'Fort Eisenhower' WHERE name = 'Fort Gordon';
