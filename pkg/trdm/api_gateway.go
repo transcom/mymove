@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -53,7 +54,7 @@ func (gs GatewayService) gatewayLastTableUpdate(request models.LastTableUpdateRe
 	}
 
 	// Generate a SHA256 hash for signing
-	hash := generateSHA256Hash(requestBody)
+	hexHash := generateHexedSHA256Hash(requestBody)
 
 	// Put it into a new request
 	req, err := http.NewRequest("POST", gs.gatewayURL+LastTableUpdateEndpoint, bytes.NewBuffer(requestBody))
@@ -64,7 +65,7 @@ func (gs GatewayService) gatewayLastTableUpdate(request models.LastTableUpdateRe
 	req.Header.Set("Content-Type", "application/json")
 
 	// Sign request, this will update req in place
-	err = signRequest(req, gs.stsCreds, string(hash), gs.region, gs.logger)
+	err = signRequest(req, gs.stsCreds, hexHash, gs.region, gs.logger)
 	if err != nil {
 		gs.logger.Error("signing lastTableUpdate request", zap.Error(err))
 		return nil, err
@@ -76,7 +77,7 @@ func (gs GatewayService) gatewayLastTableUpdate(request models.LastTableUpdateRe
 		gs.logger.Error("error sending request to API Gateway", zap.Error(err))
 		return nil, err
 	}
-	defer resp.Body.Close()
+	// Resp body closing comes from the function calling this
 
 	return resp, nil
 }
@@ -90,7 +91,7 @@ func (gs GatewayService) gatewayGetTable(request models.GetTableRequest) (*http.
 	}
 
 	// Generate a SHA256 hash for signing
-	hash := generateSHA256Hash(requestBody)
+	hexHash := generateHexedSHA256Hash(requestBody)
 
 	// Put it into a new request
 	req, err := http.NewRequest("POST", gs.gatewayURL+GetTableEndpoint, bytes.NewBuffer(requestBody))
@@ -101,7 +102,7 @@ func (gs GatewayService) gatewayGetTable(request models.GetTableRequest) (*http.
 	req.Header.Set("Content-Type", "application/json")
 
 	// Sign request, this will update req in place
-	err = signRequest(req, gs.stsCreds, string(hash), gs.region, gs.logger)
+	err = signRequest(req, gs.stsCreds, hexHash, gs.region, gs.logger)
 	if err != nil {
 		gs.logger.Error("signing getTable request", zap.Error(err))
 		return nil, err
@@ -113,20 +114,18 @@ func (gs GatewayService) gatewayGetTable(request models.GetTableRequest) (*http.
 		gs.logger.Error("error sending request to API Gateway", zap.Error(err))
 		return nil, err
 	}
-	if resp.Body != nil {
-		defer resp.Body.Close()
-	}
+	// Resp body closing comes from the function calling this
 
 	return resp, nil
 }
 
-func generateSHA256Hash(data []byte) []byte {
+func generateHexedSHA256Hash(data []byte) string {
 	hasher := sha256.New()
 	hasher.Write(data)
-	return hasher.Sum(nil)
+	return hex.EncodeToString(hasher.Sum(nil))
 }
 
-func signRequest(req *http.Request, stsCreds AssumeRoleProvider, hash string, region string, logger *zap.Logger) error {
+func signRequest(req *http.Request, stsCreds AssumeRoleProvider, hexHash string, region string, logger *zap.Logger) error {
 	// V4 signing is used for request auth (AKA using IAM auth from Go as a client)
 	signer := v4.NewSigner()
 
@@ -137,7 +136,7 @@ func signRequest(req *http.Request, stsCreds AssumeRoleProvider, hash string, re
 		return err
 	}
 	// Provide execute-api service as we're going through the gateway for this request
-	err = signer.SignHTTP(context.Background(), creds, req, hash, "execute-api", region, time.Now())
+	err = signer.SignHTTP(context.Background(), creds, req, hexHash, "execute-api", region, time.Now())
 	if err != nil {
 		logger.Error("error signing http request", zap.Error(err))
 		return err

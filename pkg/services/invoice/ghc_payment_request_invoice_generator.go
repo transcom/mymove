@@ -613,7 +613,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(appCtx appcontext.A
 		}
 	}
 
-	affiliation := models.ServiceMemberAffiliation(*orders.DepartmentIndicator)
+	affiliation := models.ServiceMemberAffiliation(*orders.ServiceMember.Affiliation)
 	agencyQualifierCode, found := edisegment.AffiliationToAgency[affiliation]
 
 	if !found {
