@@ -26,7 +26,7 @@ func (suite *TRDMSuite) TestTGETLOADataOutOfDate() {
 	newTime := time.Now().Add(1 * time.Hour)
 
 	// There are no LOAs in the DB older than an hour ahead of now
-	exists, err := trdm.TGETLOADataOutOfDate(suite.AppContextForTest(), newTime)
+	exists, _, err := trdm.TGETLOADataOutOfDate(suite.AppContextForTest(), newTime)
 	suite.NoError(err)
 	suite.False(exists) // No outdated data yet
 
@@ -36,7 +36,7 @@ func (suite *TRDMSuite) TestTGETLOADataOutOfDate() {
 	suite.NoError(err)
 
 	// Ensure that it finds the new LOA
-	exists, err = trdm.TGETLOADataOutOfDate(suite.AppContextForTest(), newTime)
+	exists, _, err = trdm.TGETLOADataOutOfDate(suite.AppContextForTest(), newTime)
 	suite.NoError(err)
 	suite.True(exists)
 }
@@ -45,7 +45,7 @@ func (suite *TRDMSuite) TestTGETTACDataOutOfDate() {
 	newTime := time.Now().Add(1 * time.Hour)
 
 	// There are no TACs in the DB older than an hour ahead of now
-	exists, err := trdm.TGETTACDataOutOfDate(suite.AppContextForTest(), newTime)
+	exists, _, err := trdm.TGETTACDataOutOfDate(suite.AppContextForTest(), newTime)
 	suite.NoError(err)
 	suite.False(exists) // No outdated data yet
 
@@ -55,7 +55,7 @@ func (suite *TRDMSuite) TestTGETTACDataOutOfDate() {
 	suite.NoError(err)
 
 	// Ensure that it finds the new TAC
-	exists, err = trdm.TGETTACDataOutOfDate(suite.AppContextForTest(), newTime)
+	exists, _, err = trdm.TGETTACDataOutOfDate(suite.AppContextForTest(), newTime)
 	suite.NoError(err)
 	suite.True(exists)
 }
