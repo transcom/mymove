@@ -1,0 +1,16 @@
+@import 'shared/styles/colors';
+
+.oktaLogoutBanner {
+  font-size: 1rem;
+  background-color: $info-light;
+  padding-bottom: 0.8rem;
+  padding-top: 0.8rem;
+  padding-left: 1.6rem;
+  padding-right: 1.6rem;
+  line-height: 20px;
+  & > a,
+  a:visited {
+    color: black;
+    text-decoration: underline;
+  }
+}

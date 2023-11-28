@@ -707,6 +707,25 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// if the user is still signed into okta and has an active session
+	// but is being forced to authenticate from MilMove, we need to handle logout to kill the okta session
+	// so they can re-use their authenticator (CAC)
+	errDescription := r.URL.Query().Get("error_description")
+	if errDescription == "The resource owner or authorization server denied the request." {
+		provider, providerErr := okta.GetOktaProviderForRequest(r)
+		if providerErr != nil {
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+		appCtx.Logger().Error("Access denied from Okta, likely due to okta session still being active - logging user out of Okta")
+		oktaLogoutURL, logoutErr := logoutOktaUserURL(provider, appCtx.Session().IDToken, landingURL.String())
+		if oktaLogoutURL == "" || logoutErr != nil {
+			appCtx.Logger().Error("failed to get Okta Logout URL")
+		}
+		http.Redirect(w, r, oktaLogoutURL, http.StatusTemporaryRedirect)
+		return
+	}
+
 	if err := r.URL.Query().Get("error"); len(err) > 0 {
 		landingQuery := landingURL.Query()
 		switch err {

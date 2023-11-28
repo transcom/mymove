@@ -7,6 +7,7 @@ import { GetLoggedInUser } from 'utils/api';
 // Logger
 import { milmoveLogger } from 'utils/milmoveLog';
 import { retryPageLoading } from 'utils/retryPageLoading';
+import OktaLogoutBanner from 'components/OktaLogoutBanner';
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
@@ -16,6 +17,7 @@ class AdminWrapper extends Component {
     super(props);
     this.state = {
       isLoggedIn: false,
+      oktaLoggedOut: undefined,
     };
   }
 
@@ -23,6 +25,19 @@ class AdminWrapper extends Component {
     GetLoggedInUser()
       .then(() => this.setState({ isLoggedIn: true }))
       .catch(() => this.setState({ isLoggedIn: false }));
+    // We need to check if the user was redirected back from Okta after logging out
+    // This can occur when they click "sign out" or if they try to access MM
+    // while still logged into Okta which will force a redirect to logout
+    const currentUrl = new URL(window.location.href);
+    const oktaLoggedOutParam = currentUrl.searchParams.get('okta_logged_out');
+
+    // If the params "okta_logged_out=true" are in the url, we will change some state
+    // so a banner will display
+    if (oktaLoggedOutParam === 'true') {
+      this.setState({
+        oktaLoggedOut: true,
+      });
+    }
   }
 
   componentDidCatch(error, info) {
@@ -32,9 +47,11 @@ class AdminWrapper extends Component {
   }
 
   render() {
+    const { oktaLoggedOut } = this.state;
     return (
       <>
         <div id="app-root">
+          {oktaLoggedOut && <OktaLogoutBanner />}
           <Routes>
             {/* no auth */}
             <Route path="/sign-in" element={<SignIn />} />
