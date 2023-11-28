@@ -20,6 +20,7 @@ export const TIOOfficeUserType = 'TIO office';
 export const QAECSROfficeUserType = 'QAE/CSR office';
 export const ServicesCounselorOfficeUserType = 'Services Counselor office';
 export const PrimeSimulatorUserType = 'Prime Simulator office';
+export const MultiRoleOfficeUserType = 'Multi role office';
 
 export const DEPARTMENT_INDICATOR_OPTIONS = {
   AIR_AND_SPACE_FORCE: '57 Air Force and Space Force',
@@ -72,6 +73,14 @@ export class OfficePage extends BaseTestPage {
   async signInAsNewServicesCounselorUser() {
     await this.signInAsNewUser(ServicesCounselorOfficeUserType);
     await this.page.getByRole('heading', { name: 'Moves' }).waitFor();
+  }
+
+  /**
+   * Use devlocal auth to sign in as new Multi-role User
+   */
+  async signInAsNewMultiRoleUser() {
+    await this.signInAsNewUser(MultiRoleOfficeUserType);
+    await this.page.getByText('Change user role').waitFor();
   }
 
   /**
