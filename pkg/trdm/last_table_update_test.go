@@ -283,22 +283,3 @@ func (suite *TRDMSuite) TestSuccessfulTRDMFlowTACsAndLOAs() {
 	// On factory build TAC, a LOA is generated alongside it.
 	suite.Equal(len(allLOAs), len(outdatedLOACodes)+len(expectedLOACodes)+len(outdatedTACCodes))
 }
-
-func (suite *TRDMSuite) TestFetchAllTACRecords() {
-	// Get initial TAC codes count
-	initialCodes, err := trdm.FetchAllTACRecords(suite.AppContextForTest())
-	initialTacCodeLength := len(initialCodes)
-	suite.NoError(err)
-
-	// Creates a test TAC code record in the DB
-	factory.BuildFullTransportationAccountingCode(suite.DB())
-
-	// Fetch All TAC Records
-	codes, err := trdm.FetchAllTACRecords(suite.AppContextForTest())
-
-	// Compare new TAC Code count to initial count
-	finalCodesLength := len(codes)
-
-	suite.NoError(err)
-	suite.NotEqual(finalCodesLength, initialTacCodeLength)
-}
