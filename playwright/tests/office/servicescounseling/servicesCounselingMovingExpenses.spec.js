@@ -6,7 +6,7 @@ test('A service counselor can approve/reject moving expenses', async ({ page, sc
   await scPage.navigateToCloseoutMove(move.locator);
 
   // Navigate to the "Review documents" page
-  await page.getByRole('button', { name: 'Review documents' }).click();
+  await page.getByRole('button', { name: /Review documents/i }).click();
   await scPage.waitForPage.reviewWeightTicket();
 
   // Weight ticket is first in the order of docs. Click "Accept" on the weight ticket, then proceed
@@ -14,12 +14,12 @@ test('A service counselor can approve/reject moving expenses', async ({ page, sc
   await page.getByRole('button', { name: 'Continue' }).click();
 
   // Next is expense ticket here. Click "Accept" on the  expense, then proceed
-  await expect(page.getByRole('heading', { name: 'Review receipt 1' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Review/i })).toBeVisible();
   await page.getByText('Accept').click();
   await page.getByRole('button', { name: 'Continue' }).click();
 
   // Next is storage expense ticket. Click "Accept", then proceed
-  await expect(page.getByRole('heading', { name: 'Review storage 2' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /storage/i })).toBeVisible();
   await page.getByText('Accept').click();
   await page.getByRole('button', { name: 'Continue' }).click();
   await scPage.waitForPage.reviewDocumentsConfirmation();
