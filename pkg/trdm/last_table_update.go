@@ -37,18 +37,6 @@ type AssumeRoleProvider interface {
 	Retrieve(ctx context.Context) (aws.Credentials, error)
 }
 
-// FetchAllTACRecords queries and fetches all transportation_accounting_codes
-func FetchAllTACRecords(appcontext appcontext.AppContext) ([]models.TransportationAccountingCode, error) {
-	var tacCodes []models.TransportationAccountingCode
-	query := `SELECT * FROM transportation_accounting_codes`
-	err := appcontext.DB().RawQuery(query).All(&tacCodes)
-	if err != nil {
-		return tacCodes, errors.Wrap(err, "Fetch line items query failed")
-	}
-
-	return tacCodes, nil
-}
-
 // This is the start of the cron job. When called, it will immediately trigger the TRDM flow. After that, it will trigger again every 24 hours.
 func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.Viper, appCtx appcontext.AppContext, provider AssumeRoleProvider, client HTTPClient) error {
 
@@ -107,9 +95,9 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 						PhysicalName:                LineOfAccounting,
 						ContentUpdatedSinceDateTime: lastTableUpdateResponse.LastUpdate,
 						ReturnContent:               true,
-					}, *service, appCtx)
+					}, *service, appCtx, logger)
 					if caseErr != nil {
-						logger.Fatal("failed to retrieve latest line of accounting TGET data", zap.String("responseBody", string(body)), zap.Error(err))
+						logger.Fatal("failed to retrieve latest line of accounting TGET data", zap.Error(err))
 					} else {
 						logger.Info("successfully retrieved latest line of accounting TGET data")
 					}
@@ -128,9 +116,9 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 						PhysicalName:                TransportationAccountingCode,
 						ContentUpdatedSinceDateTime: lastTableUpdateResponse.LastUpdate,
 						ReturnContent:               true,
-					}, *service, appCtx)
+					}, *service, appCtx, logger)
 					if caseErr != nil {
-						logger.Fatal("failed to retrieve latest transportation accounting TGET data", zap.String("responseBody", string(body)), zap.Error(err))
+						logger.Fatal("failed to retrieve latest transportation accounting TGET data", zap.Error(err))
 					} else {
 						logger.Info("successfully retrieved latest transportation accounting TGET data")
 					}
@@ -141,10 +129,10 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 				return
 			}
 		case FailureStatusCode:
-			logger.Error("trdm api gateway request failed, please inspect the trdm gateway logs", zap.String("responseBody", string(body)), zap.Error(err))
+			logger.Error("trdm api gateway request failed, please inspect the trdm gateway logs", zap.Error(err))
 			return
 		default:
-			logger.Error("unexpected api gateway request failure response, please inspect the trdm gateway logs", zap.String("responseBody", string(body)), zap.Error(err))
+			logger.Error("unexpected api gateway request failure response, please inspect the trdm gateway logs", zap.Error(err))
 			return
 		}
 	}
