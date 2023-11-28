@@ -7,10 +7,6 @@ UPDATE addresses SET city = 'Fort Moore' WHERE UPPER(city) = 'FORT BENNING' AND 
 UPDATE addresses SET city = 'Fort Gregg-Adams' WHERE UPPER(city) = 'FORT LEE' AND postal_code = '23801';
 UPDATE addresses SET city = 'Fort Eisenhower' WHERE city = 'Fort Gordon' AND postal_code = '30813';
 
--- add row into duty_location_names for fort barfoot
-INSERT INTO duty_location_names (id, name, duty_location_id, created_at, updated_at)
-VALUES ('5e9393e5-38d6-496a-ab97-bb1dffcc4ce1', 'Fort Barfoot', 'b5f565fd-92ca-41c8-a7f6-91d7ce1d73fc', now(), now());
-
 -- update row in duty_locations from blackstone, va to include a reference to fort barfoot which will appear in the search bar
 UPDATE duty_locations SET name = 'Fort Barfoot' WHERE name = 'Blackstone, VA 23824';
 
