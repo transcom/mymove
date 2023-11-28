@@ -291,7 +291,7 @@ test.describe('Services counselor user', () => {
     await scPage.navigateToCloseoutMove(move.locator);
 
     // Navigate to the "Review documents" page
-    await expect(page.getByRole('button', { name: 'Review documents' })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Review documents/i })).toBeVisible();
     await page.getByRole('button', { name: 'Review documents' }).click();
 
     await scPage.waitForPage.reviewWeightTicket();

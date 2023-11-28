@@ -102,7 +102,9 @@ export default function ReviewExpense({
 
   const titleCase = (input) => input.charAt(0).toUpperCase() + input.slice(1);
   const allCase = (input) => input?.split(' ').map(titleCase).join(' ') ?? '';
-  const expenseName = initialValues.movingExpenseType.toLowerCase().replace('_', ' ');
+  const formatMovingType = (input) => allCase(input?.trim().toLowerCase().replace('_', ' '));
+  const expenseName = formatMovingType(initialValues.movingExpenseType);
+  
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
       <Formik
@@ -162,9 +164,9 @@ export default function ReviewExpense({
                 </>
               )}
               <h3 className={styles.reviewHeader}>
-                Review {allCase(expenseName)} #{categoryIndex}
+                Review {expenseName} #{categoryIndex}
               </h3>
-              <p>Add a review for this {allCase(expenseName)}</p>
+              <p>Add a review for this {expenseName}</p>
               <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
               <Fieldset className={styles.statusOptions}>
                 <div
