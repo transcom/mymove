@@ -128,7 +128,12 @@ const CreatePaymentRequestForm = ({
                               />
                             </>
                           )}
-                          {(mtoServiceItem.reServiceCode === 'DOFSIT' ||
+                          {(mtoServiceItem.reServiceCode === 'DLH' ||
+                            mtoServiceItem.reServiceCode === 'DSH' ||
+                            mtoServiceItem.reServiceCode === 'FSC' ||
+                            mtoServiceItem.reServiceCode === 'DUPK' ||
+                            mtoServiceItem.reServiceCode === 'DNPK' ||
+                            mtoServiceItem.reServiceCode === 'DOFSIT' ||
                             mtoServiceItem.reServiceCode === 'DOPSIT' ||
                             mtoServiceItem.reServiceCode === 'DOSHUT' ||
                             mtoServiceItem.reServiceCode === 'DDFSIT' ||
