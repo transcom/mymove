@@ -26,7 +26,7 @@ func init() {
     "description": "The GHC API is a RESTful API that enables the Office application for MilMove.\n\nAll endpoints are located under ` + "`" + `/ghc/v1` + "`" + `.\n",
     "title": "MilMove GHC API",
     "contact": {
-      "email": "dp3@truss.works"
+      "email": "milmove-developers@caci.com"
     },
     "license": {
       "name": "MIT",
@@ -4915,6 +4915,7 @@ func init() {
         "MARINES",
         "AIR_FORCE",
         "COAST_GUARD",
+        "SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -4923,7 +4924,8 @@ func init() {
         "COAST_GUARD": "Coast Guard",
         "MARINES": "Marine Corps",
         "NAVY": "Navy",
-        "OTHER": "OTHER"
+        "OTHER": "OTHER",
+        "SPACE_FORCE": "Space Force"
       },
       "x-nullable": true
     },
@@ -5586,14 +5588,18 @@ func init() {
       "enum": [
         "NAVY_AND_MARINES",
         "ARMY",
-        "AIR_FORCE",
-        "COAST_GUARD"
+        "ARMY_CORPS_OF_ENGINEERS",
+        "AIR_AND_SPACE_FORCE",
+        "COAST_GUARD",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE"
       ],
       "x-display-value": {
-        "AIR_FORCE": "57 Air Force",
+        "AIR_AND_SPACE_FORCE": "57 Air Force and Space Force",
         "ARMY": "21 Army",
+        "ARMY_CORPS_OF_ENGINEERS": "96 Army Corps of Engineers",
         "COAST_GUARD": "70 Coast Guard",
-        "NAVY_AND_MARINES": "17 Navy and Marine Corps"
+        "NAVY_AND_MARINES": "17 Navy and Marine Corps",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE": "97 Office of the Secretary of Defense"
       },
       "x-nullable": true
     },
@@ -10167,7 +10173,7 @@ func init() {
     "description": "The GHC API is a RESTful API that enables the Office application for MilMove.\n\nAll endpoints are located under ` + "`" + `/ghc/v1` + "`" + `.\n",
     "title": "MilMove GHC API",
     "contact": {
-      "email": "dp3@truss.works"
+      "email": "milmove-developers@caci.com"
     },
     "license": {
       "name": "MIT",
@@ -16337,6 +16343,7 @@ func init() {
         "MARINES",
         "AIR_FORCE",
         "COAST_GUARD",
+        "SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -16345,7 +16352,8 @@ func init() {
         "COAST_GUARD": "Coast Guard",
         "MARINES": "Marine Corps",
         "NAVY": "Navy",
-        "OTHER": "OTHER"
+        "OTHER": "OTHER",
+        "SPACE_FORCE": "Space Force"
       },
       "x-nullable": true
     },
@@ -17012,14 +17020,18 @@ func init() {
       "enum": [
         "NAVY_AND_MARINES",
         "ARMY",
-        "AIR_FORCE",
-        "COAST_GUARD"
+        "ARMY_CORPS_OF_ENGINEERS",
+        "AIR_AND_SPACE_FORCE",
+        "COAST_GUARD",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE"
       ],
       "x-display-value": {
-        "AIR_FORCE": "57 Air Force",
+        "AIR_AND_SPACE_FORCE": "57 Air Force and Space Force",
         "ARMY": "21 Army",
+        "ARMY_CORPS_OF_ENGINEERS": "96 Army Corps of Engineers",
         "COAST_GUARD": "70 Coast Guard",
-        "NAVY_AND_MARINES": "17 Navy and Marine Corps"
+        "NAVY_AND_MARINES": "17 Navy and Marine Corps",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE": "97 Office of the Secretary of Defense"
       },
       "x-nullable": true
     },
