@@ -38,14 +38,14 @@ func GetTGETData(getTableRequest models.GetTableRequest, service GatewayService,
 	// Parse it into getTableResponse model
 	err = json.Unmarshal(body, &getTableResponse)
 	if err != nil {
-		logger.Error("faield to unmarshal response body into getTableResponse type", zap.Error(err))
+		logger.Error("failed to unmarshal response body into getTableResponse type", zap.Error(err))
 		return err
 	}
 
 	// Parse the attachment, this will also store it in the DB if all goes well
 	err = parseGetTableResponse(appCtx, getTableResponse.Attachment, getTableRequest.PhysicalName)
 	if err != nil {
-		logger.Error("faield to parseGetTableResponse and store it into the database", zap.Error(err))
+		logger.Error("failed to parseGetTableResponse and store it into the database", zap.Error(err))
 		return err
 	}
 
