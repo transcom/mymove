@@ -52,6 +52,12 @@ var (
 		models.ReServiceCodeDDFSIT: {
 			models.ServiceItemParamNameWeightBilled,
 		},
+		models.ReServiceCodeDOP: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeDDP: {
+			models.ServiceItemParamNameWeightBilled,
+		},
 	}
 )
 

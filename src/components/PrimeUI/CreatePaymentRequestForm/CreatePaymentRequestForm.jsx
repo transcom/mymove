@@ -138,6 +138,8 @@ const CreatePaymentRequestForm = ({
                             mtoServiceItem.reServiceCode === 'DOSHUT' ||
                             mtoServiceItem.reServiceCode === 'DDFSIT' ||
                             mtoServiceItem.reServiceCode === 'DDDSIT' ||
+                            mtoServiceItem.reServiceCode === 'DOP' ||
+                            mtoServiceItem.reServiceCode === 'DDP' ||
                             mtoServiceItem.reServiceCode === 'DDSHUT') && (
                             <TextField
                               id={`${mtoServiceItem.id}-billedWeight`}
