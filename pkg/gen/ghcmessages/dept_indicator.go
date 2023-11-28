@@ -36,11 +36,17 @@ const (
 	// DeptIndicatorARMY captures enum value "ARMY"
 	DeptIndicatorARMY DeptIndicator = "ARMY"
 
-	// DeptIndicatorAIRFORCE captures enum value "AIR_FORCE"
-	DeptIndicatorAIRFORCE DeptIndicator = "AIR_FORCE"
+	// DeptIndicatorARMYCORPSOFENGINEERS captures enum value "ARMY_CORPS_OF_ENGINEERS"
+	DeptIndicatorARMYCORPSOFENGINEERS DeptIndicator = "ARMY_CORPS_OF_ENGINEERS"
+
+	// DeptIndicatorAIRANDSPACEFORCE captures enum value "AIR_AND_SPACE_FORCE"
+	DeptIndicatorAIRANDSPACEFORCE DeptIndicator = "AIR_AND_SPACE_FORCE"
 
 	// DeptIndicatorCOASTGUARD captures enum value "COAST_GUARD"
 	DeptIndicatorCOASTGUARD DeptIndicator = "COAST_GUARD"
+
+	// DeptIndicatorOFFICEOFSECRETARYOFDEFENSE captures enum value "OFFICE_OF_SECRETARY_OF_DEFENSE"
+	DeptIndicatorOFFICEOFSECRETARYOFDEFENSE DeptIndicator = "OFFICE_OF_SECRETARY_OF_DEFENSE"
 )
 
 // for schema
@@ -48,7 +54,7 @@ var deptIndicatorEnum []interface{}
 
 func init() {
 	var res []DeptIndicator
-	if err := json.Unmarshal([]byte(`["NAVY_AND_MARINES","ARMY","AIR_FORCE","COAST_GUARD"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NAVY_AND_MARINES","ARMY","ARMY_CORPS_OF_ENGINEERS","AIR_AND_SPACE_FORCE","COAST_GUARD","OFFICE_OF_SECRETARY_OF_DEFENSE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

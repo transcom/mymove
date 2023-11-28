@@ -4866,7 +4866,7 @@ func MakeHHGMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.Sh
 			Model: models.Address{
 				StreetAddress1: "7 Q st",
 				StreetAddress2: models.StringPointer("Apt 1"),
-				City:           "Fort Gordon",
+				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     "30813",
 			},
@@ -5039,7 +5039,7 @@ func MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx appcont
 			Model: models.Address{
 				StreetAddress1: "7 Q st",
 				StreetAddress2: models.StringPointer("Apt 1"),
-				City:           "Fort Gordon",
+				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     "30813",
 			},

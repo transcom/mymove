@@ -153,6 +153,7 @@ const branchOfService = createReactTableColumn('Branch', 'branch_of_service', {
       <option value="MARINES">Marines</option>
       <option value="AIR_FORCE">Air Force</option>
       <option value="COAST_GUARD">Coast Guard</option>
+      <option value="SPACE_FORCE">Space Force</option>
     </select>
   ),
   filterMethod: (filter, row) => {

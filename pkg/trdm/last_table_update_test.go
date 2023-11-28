@@ -22,43 +22,42 @@ const (
 	gatewayURL string = "https://test.gateway.url.amazon.com"
 )
 
-func (suite *TRDMSuite) TestFetchLOARecordsByTime() {
-	// Get initial TAC codes count
-	initialCodes, err := trdm.FetchLOARecordsByTime(suite.AppContextForTest(), time.Now())
-	suite.NoError(err)
-	intialLoaCodesLength := len(initialCodes)
+func (suite *TRDMSuite) TestTGETLOADataOutOfDate() {
+	newTime := time.Now().Add(1 * time.Hour)
 
-	// Creates a test TAC code record in the DB
-	factory.BuildDefaultLineOfAccounting(suite.DB())
-
-	// Fetch All TAC Records
-	// !! A second time.Now() statement is intentional based on the SQL query.
-	codes, err := trdm.FetchLOARecordsByTime(suite.AppContextForTest(), time.Now())
+	// There are no LOAs in the DB older than an hour ahead of now
+	exists, err := trdm.TGETLOADataOutOfDate(suite.AppContextForTest(), newTime)
 	suite.NoError(err)
-	// Compare new TAC Code count to initial count
-	finalCodesLength := len(codes)
+	suite.False(exists) // No outdated data yet
 
+	// Put a LOA inside the DB
+	loa := factory.BuildDefaultLineOfAccounting(suite.DB())
+	err = suite.DB().Update(&loa)
 	suite.NoError(err)
-	suite.NotEqual(finalCodesLength, intialLoaCodesLength)
+
+	// Ensure that it finds the new LOA
+	exists, err = trdm.TGETLOADataOutOfDate(suite.AppContextForTest(), newTime)
+	suite.NoError(err)
+	suite.True(exists)
 }
 
-func (suite *TRDMSuite) TestFetchTACRecordsByTime() {
-	// Get initial TAC codes count
-	initialCodes, err := trdm.FetchTACRecordsByTime(suite.AppContextForTest(), time.Now())
+func (suite *TRDMSuite) TestTGETTACDataOutOfDate() {
+	newTime := time.Now().Add(1 * time.Hour)
+
+	// There are no TACs in the DB older than an hour ahead of now
+	exists, err := trdm.TGETTACDataOutOfDate(suite.AppContextForTest(), newTime)
 	suite.NoError(err)
-	initialTacCodeLength := len(initialCodes)
+	suite.False(exists) // No outdated data yet
 
-	// Creates a test TAC code record in the DB
-	factory.BuildDefaultTransportationAccountingCode(suite.DB())
-
-	// Fetch All TAC Records
-	codes, err := trdm.FetchTACRecordsByTime(suite.AppContextForTest(), time.Now())
+	// Put a TAC inside the DB
+	tac := factory.BuildDefaultTransportationAccountingCode(suite.DB())
+	err = suite.DB().Update(&tac)
 	suite.NoError(err)
 
-	// Compare new TAC Code count to initial count
-	finalCodesLength := len(codes)
-
-	suite.NotEqual(finalCodesLength, initialTacCodeLength)
+	// Ensure that it finds the new TAC
+	exists, err = trdm.TGETTACDataOutOfDate(suite.AppContextForTest(), newTime)
+	suite.NoError(err)
+	suite.True(exists)
 }
 
 // Mock provider to inject our own dummy creds
@@ -283,23 +282,4 @@ func (suite *TRDMSuite) TestSuccessfulTRDMFlowTACsAndLOAs() {
 	// Also include the TAC length in the LOA calculation.
 	// On factory build TAC, a LOA is generated alongside it.
 	suite.Equal(len(allLOAs), len(outdatedLOACodes)+len(expectedLOACodes)+len(outdatedTACCodes))
-}
-
-func (suite *TRDMSuite) TestFetchAllTACRecords() {
-	// Get initial TAC codes count
-	initialCodes, err := trdm.FetchAllTACRecords(suite.AppContextForTest())
-	initialTacCodeLength := len(initialCodes)
-	suite.NoError(err)
-
-	// Creates a test TAC code record in the DB
-	factory.BuildFullTransportationAccountingCode(suite.DB())
-
-	// Fetch All TAC Records
-	codes, err := trdm.FetchAllTACRecords(suite.AppContextForTest())
-
-	// Compare new TAC Code count to initial count
-	finalCodesLength := len(codes)
-
-	suite.NoError(err)
-	suite.NotEqual(finalCodesLength, initialTacCodeLength)
 }

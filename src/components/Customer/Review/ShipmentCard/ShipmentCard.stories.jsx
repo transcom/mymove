@@ -6,6 +6,7 @@ import PPMShipmentCard from 'components/Customer/Review/ShipmentCard/PPMShipment
 import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipmentCard/NTSShipmentCard';
 import NTSRShipmentCard from 'components/Customer/Review/ShipmentCard/NTSRShipmentCard/NTSRShipmentCard';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { shipmentStatuses } from 'constants/shipments';
 
 export default {
   title: 'Customer Components / ShipmentCard',
@@ -122,6 +123,7 @@ const ppmDefaultProps = {
   showEditAndDeleteBtn: true,
   onEditClick: noop,
   onDeleteClick: noop,
+  onIncompleteClick: noop,
 };
 
 const ppmShipmentSecondaryZIPProps = {
@@ -171,6 +173,7 @@ const ppmShipmentIncompleteProps = {
       destinationPostalCode: '11111',
       expectedDepartureDate: new Date('01/01/2020').toISOString(),
     },
+    status: shipmentStatuses.DRAFT,
   },
 };
 
@@ -241,11 +244,17 @@ NTSRShipmentWithSecondaryDestinationAddress.args = {
 const PPMTemplate = (args) => <PPMShipmentCard {...args} />;
 export const PPMShipment = PPMTemplate.bind({});
 PPMShipment.args = ppmDefaultProps;
+PPMShipment.parameters = {
+  happo: false,
+};
 
 export const PPMShipmentWithSecondaryPostalCodes = PPMTemplate.bind({});
 PPMShipmentWithSecondaryPostalCodes.args = {
   ...ppmDefaultProps,
   ...ppmShipmentSecondaryZIPProps,
+};
+PPMShipmentWithSecondaryPostalCodes.parameters = {
+  happo: false,
 };
 
 export const PPMShipmentWithProGear = PPMTemplate.bind({});
@@ -253,11 +262,17 @@ PPMShipmentWithProGear.args = {
   ...ppmDefaultProps,
   ...ppmShipmentProGearProps,
 };
+PPMShipmentWithProGear.parameters = {
+  happo: false,
+};
 
 export const PPMShipmentIncomplete = PPMTemplate.bind({});
 PPMShipmentIncomplete.args = {
   ...ppmDefaultProps,
   ...ppmShipmentIncompleteProps,
+};
+PPMShipmentIncomplete.parameters = {
+  happo: false,
 };
 
 export const WithBlankRemarks = () => (
@@ -268,3 +283,6 @@ export const WithBlankRemarks = () => (
     <NTSRShipmentCard {...ntsrDefaultProps} remarks="" />
   </>
 );
+WithBlankRemarks.parameters = {
+  happo: false,
+};

@@ -34,7 +34,7 @@ jest.mock('hooks/queries', () => ({
               phone: '555-555-5555',
               userID: 'c4d59e2b-bff0-4fce-a31f-26a19b1ad34a',
             },
-            departmentIndicator: 'AIR_FORCE',
+            departmentIndicator: 'AIR_AND_SPACE_FORCE',
             id: 'a2c34dba-015f-4f96-a38b-0c0b9272e208',
             locator: 'R993T7',
             moveID: '5d4b25bb-eb04-4c03-9a81-ee0398cb779e',

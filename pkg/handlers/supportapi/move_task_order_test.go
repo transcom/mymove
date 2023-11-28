@@ -234,7 +234,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		issueDate := models.TimePointer(time.Now())
 		reportByDate := models.TimePointer(time.Now().AddDate(0, 0, -1))
 		ordersTypedetail := supportmessages.OrdersTypeDetailHHGPERMITTED
-		deptIndicator := supportmessages.DeptIndicatorAIRFORCE
+		deptIndicator := supportmessages.DeptIndicatorAIRANDSPACEFORCE
 
 		rank := (supportmessages.Rank)("E_6")
 		mtoPayload := &supportmessages.MoveTaskOrder{
