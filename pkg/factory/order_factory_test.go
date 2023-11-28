@@ -12,7 +12,7 @@ import (
 func (suite *FactorySuite) TestBuildOrder() {
 	defaultOrdersNumber := "ORDER3"
 	defaultTACNumber := "F8E1"
-	defaultDepartmentIndicator := "AIR_FORCE"
+	defaultDepartmentIndicator := "AIR_AND_SPACE_FORCE"
 	defaultGrade := "E_1"
 	defaultHasDependents := false
 	defaultSpouseHasProGear := false
@@ -63,7 +63,7 @@ func (suite *FactorySuite) TestBuildOrder() {
 		suite.Equal(order.ServiceMember.DutyLocation.Name, order.OriginDutyLocation.Name)
 
 		// uses the default orders NewDutyLocation
-		suite.Equal(order.NewDutyLocation.Name, "Fort Gordon")
+		suite.Equal(order.NewDutyLocation.Name, "Fort Eisenhower, GA 30813")
 
 		dutyLocationCountInDB, err := suite.DB().Count(models.DutyLocation{})
 		suite.NoError(err)

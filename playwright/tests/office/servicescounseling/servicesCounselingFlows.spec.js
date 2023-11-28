@@ -5,6 +5,8 @@
  */
 
 // @ts-check
+import { DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
+
 import { test, expect } from './servicesCounselingTestFixture';
 
 test.describe('Services counselor user', () => {
@@ -110,6 +112,16 @@ test.describe('Services counselor user', () => {
 
       // Check for link that allows counselor to download the PDF for copy/paste functionality
       await expect(page.locator('p[class*="DocumentViewer_downloadLink"] > a > span')).toHaveText('Download file');
+
+      // Check for department indicators
+      await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.AIR_AND_SPACE_FORCE);
+      await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.ARMY);
+      await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.ARMY_CORPS_OF_ENGINEERS);
+      await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.COAST_GUARD);
+      await page.getByLabel('Department indicator').selectOption(DEPARTMENT_INDICATOR_OPTIONS.NAVY_AND_MARINES);
+      await page
+        .getByLabel('Department indicator')
+        .selectOption(DEPARTMENT_INDICATOR_OPTIONS.OFFICE_OF_SECRETARY_OF_DEFENSE);
     });
   });
 

@@ -212,8 +212,8 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	newDutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 		{
 			Model: models.Address{
-				StreetAddress1: "Fort Gordon",
-				City:           "Augusta",
+				StreetAddress1: "Fort Eisenhower",
+				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     "77777",
 				Country:        models.StringPointer("United States"),
