@@ -1,4 +1,4 @@
-import { test, expect } from './servicesCounselingTestFixture';
+import { test } from './servicesCounselingTestFixture';
 
 test('A service counselor can approve/reject moving expenses', async ({ page, scPage }) => {
   // Create a move with TestHarness, and then navigate to the move details page for it
