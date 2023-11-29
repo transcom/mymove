@@ -4,10 +4,8 @@ import (
 	"database/sql"
 	"errors"
 
-	pop "github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
-	errors0 "github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -117,45 +115,25 @@ func (f *sitAddressUpdateRequestApprover) approveSITAddressUpdateRequest(appCtx 
 		}
 
 		//Update SIT Destination Fuel Charge to the correct ZIP
-		relatedDestinationSITFuelCharge, err := models.FetchRelatedDestinationSITFuelCharge(txnAppCtx.DB(), serviceItem.ID)
-		if err != nil {
-			if !errors.Is(err, sql.ErrNoRows) {
-				return err
+		relatedDestinationSITFuelCharge, fscErr := models.FetchRelatedDestinationSITFuelCharge(txnAppCtx.DB(), serviceItem.ID)
+		relatedDestinationFSCAvailable := true
+		if fscErr != nil {
+			if errors.Is(fscErr, sql.ErrNoRows) {
+				relatedDestinationFSCAvailable = false
+				txnAppCtx.Logger().Error("When attempting to update the SIT Destination Fuel Service Charge, no associated FSC was found.")
+			} else {
+				return fscErr
 			}
-
-			txnAppCtx.Logger().Error("When attempting to update the SIT Destination Fuel Service Charge, no associated FSC was found.")
-		} else {
-			serviceItemFSC, fscErr := func() (models.MTOServiceItem, error) {
-				var (
-					db            *pop.Connection = txnAppCtx.DB()
-					serviceItemID uuid.UUID       = relatedDestinationSITFuelCharge.ID
-				)
-				var serviceItem models.MTOServiceItem
-				err = db.Eager("SITDestinationOriginalAddress", "SITDestinationFinalAddress", "SITAddressUpdates.NewAddress", "ReService", "SITAddressUpdates.OldAddress", "CustomerContacts").Where("id = ?", serviceItemID).First(&serviceItem)
-				if err != nil {
-					if errors0.Cause(err).Error() == models.RecordNotFoundErrorString {
-						return models.MTOServiceItem{}, models.ErrFetchNotFound
-					}
-					return models.MTOServiceItem{}, err
-				}
-				return serviceItem, nil
-			}()
+		}
+		if relatedDestinationFSCAvailable {
+			serviceItemFSC, fscErr := models.FetchServiceItem(txnAppCtx.DB(), relatedDestinationSITFuelCharge.ID)
 			if fscErr != nil {
 				return fscErr
 			}
-			_, err = f.updateServiceItemFinalAddress(txnAppCtx, serviceItemFSC, sitAddressUpdateRequest)
-			if err != nil {
-				return err
+			_, fscErr = f.updateServiceItemFinalAddress(txnAppCtx, serviceItemFSC, sitAddressUpdateRequest)
+			if fscErr != nil {
+				return fscErr
 			}
-		}
-		serviceItemFSC, err := models.FetchServiceItem(txnAppCtx.DB(), relatedDestinationSITFuelCharge.ID)
-		if err != nil {
-			return err
-		}
-
-		_, err = f.updateServiceItemFinalAddress(txnAppCtx, serviceItemFSC, sitAddressUpdateRequest)
-		if err != nil {
-			return err
 		}
 
 		// Clear APPROVALS_REQUESTED status on move
