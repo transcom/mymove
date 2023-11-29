@@ -88,7 +88,7 @@ export class WaitForOfficePage extends WaitForPage {
   async reviewProGear() {
     await base.expect(this.page.getByRole('heading', { name: 'Review pro-gear 1', level: 3 })).toBeVisible();
   }
-
+  
   /**
    * @returns {Promise<void>}
    */
@@ -107,7 +107,24 @@ export class WaitForOfficePage extends WaitForPage {
    * @returns {Promise<void>}
    */
   async reviewWeightTicket() {
-    await base.expect(this.page.getByRole('heading', { name: 'Review trip 1', level: 3 })).toBeVisible();
+    await base.expect(this.page.getByRole('heading', { name: /Review trip 1/i, level: 3 })).toBeVisible();
+  }
+
+  /**
+   * @param {string} expense name of the expense
+   * @param {number}receiptNumber the receipt index number
+   * @param {number} expenseIndex the index of the expense
+   * @example reveiewExpenseTicket('packing materials', 1, 1);
+   * @returns {Promise<void>}
+   */
+  async reviewExpenseTicket(expense, receiptNumber, expenseIndex) {
+    const receiptCheck = `Receipt ${receiptNumber}`;
+    const receiptElement = await this.page.getByRole('heading', { name: receiptCheck, level: 3 });
+
+    const expenseCheck = `Review ${expense} #${expenseIndex}`;
+    const expenseElement = await this.page.getByRole('heading', { name: expenseCheck, level: 3 });
+    await base.expect(receiptElement).toBeVisible();
+    await base.expect(expenseElement).toBeVisible();
   }
 }
 

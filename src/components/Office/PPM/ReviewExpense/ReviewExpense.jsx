@@ -104,7 +104,6 @@ export default function ReviewExpense({
   const allCase = (input) => input?.split(' ').map(titleCase).join(' ') ?? '';
   const formatMovingType = (input) => allCase(input?.trim().toLowerCase().replace('_', ' '));
   const expenseName = formatMovingType(initialValues.movingExpenseType);
-  
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
       <Formik

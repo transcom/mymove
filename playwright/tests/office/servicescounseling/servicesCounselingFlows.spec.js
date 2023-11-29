@@ -316,8 +316,13 @@ test.describe('Services counselor user', () => {
     await expect(page.getByLabel('Accept')).toBeVisible();
     await page.getByLabel('Accept').dispatchEvent('click');
     await page.getByRole('button', { name: 'Continue' }).click();
+    
+    await scPage.waitForPage.reviewProGear();
+    await expect(page.getByLabel('Accept')).toBeVisible();
+    await page.getByLabel('Accept').dispatchEvent('click');
+    await page.getByRole('button', { name: 'Continue' }).click();
 
-    await scPage.waitForPage.reviewReceipt();
+    await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
     await expect(page.getByLabel('Accept')).toBeVisible();
     await page.getByLabel('Accept').dispatchEvent('click');
     await page.getByRole('button', { name: 'Continue' }).click();
