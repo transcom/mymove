@@ -244,7 +244,7 @@ type MissingWeek struct {
 
 // This func won't inherently check from our DB but it will receive the latest update from a table within that DB to compare to TRDM
 // It will allow us to split a request that would be 1 request of 1 month+ of data into 4 requests at 1 week each
-func FetchWeeksOfMissingData(ourLastUpdate time.Time, trdmLastUpdate time.Time) ([]MissingWeek, error) {
+func FetchWeeksOfMissingTime(ourLastUpdate time.Time, trdmLastUpdate time.Time) ([]MissingWeek, error) {
 	if trdmLastUpdate.Before(ourLastUpdate) {
 		return nil, errors.New("the provided parameters are out of order")
 	}
