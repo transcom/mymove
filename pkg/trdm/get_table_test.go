@@ -49,7 +49,7 @@ func (suite *TRDMSuite) TestSuccessfulGetTGETDataLOA() {
 	service := trdm.NewGatewayService(mockClient, suite.logger, "us-gov-west-1", "mockRole", "https://test.gateway.url.amazon.com", mockProvider)
 
 	// GetTable for Line of Accounting, parse it, and then store it in the database
-	err = trdm.GetTGETData(getTableRequest, *service, suite.AppContextForTest(), suite.logger)
+	err = trdm.GetTGETData(getTableRequest, getTableRequest.ContentUpdatedSinceDateTime.AddDate(0, 0, 7), *service, suite.AppContextForTest(), suite.logger)
 	suite.NoError(err)
 
 	// Load our test file
@@ -105,7 +105,7 @@ func (suite *TRDMSuite) TestSuccessfulGetTGETDataTAC() {
 	service := trdm.NewGatewayService(mockClient, suite.logger, "us-gov-west-1", "mockRole", "https://test.gateway.url.amazon.com", mockProvider)
 
 	// GetTable for Line of Accounting, parse it, and then store it in the database
-	err = trdm.GetTGETData(getTableRequest, *service, suite.AppContextForTest(), suite.logger)
+	err = trdm.GetTGETData(getTableRequest, getTableRequest.ContentUpdatedSinceDateTime.AddDate(0, 0, 7), *service, suite.AppContextForTest(), suite.logger)
 	suite.NoError(err)
 
 	// Load our test file
@@ -147,7 +147,7 @@ func (suite *TRDMSuite) TestGetTGETDataNilResponseBody() {
 		ReturnContent:               true,
 	}
 
-	err := trdm.GetTGETData(getTableRequest, *service, suite.AppContextForTest(), suite.logger)
+	err := trdm.GetTGETData(getTableRequest, time.Now(), *service, suite.AppContextForTest(), suite.logger)
 	suite.Error(err)
 }
 
@@ -166,7 +166,7 @@ func (suite *TRDMSuite) TestGetTGETDataNilRequestBody() {
 
 	getTableRequest := models.GetTableRequest{}
 
-	err := trdm.GetTGETData(getTableRequest, *service, suite.AppContextForTest(), suite.logger)
+	err := trdm.GetTGETData(getTableRequest, getTableRequest.ContentUpdatedSinceDateTime.AddDate(0, 0, 7), *service, suite.AppContextForTest(), suite.logger)
 	suite.Error(err)
 }
 
@@ -199,7 +199,7 @@ func (suite *TRDMSuite) TestGetTGETDataBadPhysicalName() {
 		ReturnContent:               true,
 	}
 
-	err = trdm.GetTGETData(getTableRequest, *service, suite.AppContextForTest(), suite.logger)
+	err = trdm.GetTGETData(getTableRequest, getTableRequest.ContentUpdatedSinceDateTime.AddDate(0, 0, 7), *service, suite.AppContextForTest(), suite.logger)
 	suite.Error(err)
 }
 
@@ -232,6 +232,6 @@ func (suite *TRDMSuite) TestGetTGETDataBadAttachmentResponse() {
 		ReturnContent:               true,
 	}
 
-	err = trdm.GetTGETData(getTableRequest, *service, suite.AppContextForTest(), suite.logger)
+	err = trdm.GetTGETData(getTableRequest, getTableRequest.ContentUpdatedSinceDateTime.AddDate(0, 0, 7), *service, suite.AppContextForTest(), suite.logger)
 	suite.Error(err)
 }

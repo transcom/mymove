@@ -100,7 +100,7 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 						PhysicalName:                LineOfAccounting,
 						ContentUpdatedSinceDateTime: *ourLastUpdate,
 						ReturnContent:               true,
-					}, *service, appCtx, logger)
+					}, lastTableUpdateResponse.LastUpdate, *service, appCtx, logger)
 					if caseErr != nil {
 						logger.Fatal("failed to retrieve latest line of accounting TGET data", zap.Error(err))
 					} else {
@@ -125,7 +125,7 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 						PhysicalName:                TransportationAccountingCode,
 						ContentUpdatedSinceDateTime: *ourLastUpdate,
 						ReturnContent:               true,
-					}, *service, appCtx, logger)
+					}, lastTableUpdateResponse.LastUpdate, *service, appCtx, logger)
 					if caseErr != nil {
 						logger.Fatal("failed to retrieve latest transportation accounting TGET data", zap.Error(err))
 					} else {
