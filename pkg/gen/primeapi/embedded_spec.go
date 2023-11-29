@@ -26,7 +26,7 @@ func init() {
     "description": "The Prime API is a RESTful API that enables the Prime contractor to request\ninformation about upcoming moves, update the details and status of those moves,\nand make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `/prime/v1/` + "`" + `.\n",
     "title": "MilMove Prime API",
     "contact": {
-      "email": "dp3@truss.works"
+      "email": "milmove-developers@caci.com"
     },
     "license": {
       "name": "MIT",
@@ -1202,7 +1202,7 @@ func init() {
     },
     "/payment-requests": {
       "post": {
-        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items,\nthe shipment *must* be updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n**Fuel Surcharge** service items require ` + "`" + `ActualPickupDate` + "`" + ` to be\nupdated on the shipment.\n\nTo create a paymentRequest for a SIT Destination Additional Days mtoServiceItem, the SITPaymentRequestStart and\nSITPaymentRequestEnd dates must not overlap previously requested SIT dates.\n\nTo create a paymentRequest for a SIT Delivery mtoServiceItem, the item must\nfirst have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).\n",
+        "description": "Creates a new instance of a paymentRequest and is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items, the shipment *must*\nbe updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n\n**FSC - Fuel Surcharge** service items require ` + "`" + `ActualPickupDate` + "`" + ` to be updated on the shipment.\n\nA service item can be on several payment requests in the case of partial payment requests and payments.\n\nIn the request, if no params are necessary, then just the ` + "`" + `serviceItem` + "`" + ` ` + "`" + `id` + "`" + ` is required. For example:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"isFinal\": false,\n  \"moveTaskOrderID\": \"uuid\",\n  \"serviceItems\": [\n    {\n      \"id\": \"uuid\",\n    },\n    {\n      \"id\": \"uuid\",\n      \"params\": [\n        {\n          \"key\": \"Service Item Parameter Name\",\n          \"value\": \"Service Item Parameter Value\"\n        }\n      ]\n    }\n  ],\n  \"pointOfContact\": \"string\"\n}\n` + "`" + `` + "`" + `` + "`" + `\n\nSIT Service Items \u0026 Accepted Payment Request Parameters:\n---\nIf ` + "`" + `WeightBilled` + "`" + ` is not provided then the full shipment weight (` + "`" + `PrimeActualWeight` + "`" + `) will be considered in the calculation.\n\n**DOFSIT - Domestic origin 1st day SIT**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOASIT - Domestic origin add'l SIT** *(SITPaymentRequestStart \u0026 SITPaymentRequestEnd are **REQUIRED**)*\n*To create a paymentRequest for this service item, the ` + "`" + `SITPaymentRequestStart` + "`" + ` and ` + "`" + `SITPaymentRequestEnd` + "`" + ` dates must not overlap previously requested SIT dates.*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    },\n    {\n      \"key\": \"SITPaymentRequestStart\",\n      \"value\": \"date\"\n    },\n    {\n      \"key\": \"SITPaymentRequestEnd\",\n      \"value\": \"date\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOPSIT - Domestic origin SIT pickup**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOSHUT - Domestic origin shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDFSIT - Domestic destination 1st day SIT**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDASIT - Domestic destination add'l SIT** *(SITPaymentRequestStart \u0026 SITPaymentRequestEnd are **REQUIRED**)*\n*To create a paymentRequest for this service item, the ` + "`" + `SITPaymentRequestStart` + "`" + ` and ` + "`" + `SITPaymentRequestEnd` + "`" + ` dates must not overlap previously requested SIT dates.*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    },\n    {\n      \"key\": \"SITPaymentRequestStart\",\n      \"value\": \"date\"\n    },\n    {\n      \"key\": \"SITPaymentRequestEnd\",\n      \"value\": \"date\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDDSIT - Domestic destination SIT delivery**\n*To create a paymentRequest for this service item, it must first have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDSHUT - Domestic destination shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n---\n",
         "consumes": [
           "application/json"
         ],
@@ -1259,7 +1259,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/uploads": {
       "post": {
-        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
+        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nOptional key of **isWeightTicket** indicates if the document is a weight ticket or not.\nThis will be used for partial and full deliveries and makes it easier for the Transportation Invoicing Officers to locate and review service item documents.\nIf left empty, it will assume it is NOT a weight ticket.\n\nThe formdata in the body of the POST request that is sent should look like this if it IS a weight ticket being attached to an existing payment request:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": true\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n  If the proof of service doc is NOT a weight ticket, it will look like this - or you can leave it empty:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": false\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
         "consumes": [
           "multipart/form-data"
         ],
@@ -1285,6 +1285,12 @@ func init() {
             "name": "file",
             "in": "formData",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "Indicates whether the file is a weight ticket.",
+            "name": "isWeightTicket",
+            "in": "formData"
           }
         ],
         "responses": {
@@ -4570,7 +4576,7 @@ func init() {
       "name": "mtoServiceItem"
     },
     {
-      "description": "The contractor submits a **paymentRequest** to the TIO for approval in order to be reimbursed for 1 or more\n**mtoServiceItems** on a **moveTaskOrder**.\n\nProof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest**.\n",
+      "description": "The contractor submits a **paymentRequest** to the TIO for approval in order to be reimbursed for 1 or more\n**mtoServiceItems** on a **moveTaskOrder**. A service item can be on multiple payment requests if necessary.\n\nProof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest** after the payment\nrequest is created via the endpoint [createUpload](#operation/createUpload).\n\nAll weight entered should be in *pounds* and no other unit of measurement.\n",
       "name": "paymentRequest"
     },
     {
@@ -4600,7 +4606,7 @@ func init() {
     "description": "The Prime API is a RESTful API that enables the Prime contractor to request\ninformation about upcoming moves, update the details and status of those moves,\nand make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `/prime/v1/` + "`" + `.\n",
     "title": "MilMove Prime API",
     "contact": {
-      "email": "dp3@truss.works"
+      "email": "milmove-developers@caci.com"
     },
     "license": {
       "name": "MIT",
@@ -6134,7 +6140,7 @@ func init() {
     },
     "/payment-requests": {
       "post": {
-        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items,\nthe shipment *must* be updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n**Fuel Surcharge** service items require ` + "`" + `ActualPickupDate` + "`" + ` to be\nupdated on the shipment.\n\nTo create a paymentRequest for a SIT Destination Additional Days mtoServiceItem, the SITPaymentRequestStart and\nSITPaymentRequestEnd dates must not overlap previously requested SIT dates.\n\nTo create a paymentRequest for a SIT Delivery mtoServiceItem, the item must\nfirst have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).\n",
+        "description": "Creates a new instance of a paymentRequest and is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items, the shipment *must*\nbe updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n\n**FSC - Fuel Surcharge** service items require ` + "`" + `ActualPickupDate` + "`" + ` to be updated on the shipment.\n\nA service item can be on several payment requests in the case of partial payment requests and payments.\n\nIn the request, if no params are necessary, then just the ` + "`" + `serviceItem` + "`" + ` ` + "`" + `id` + "`" + ` is required. For example:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"isFinal\": false,\n  \"moveTaskOrderID\": \"uuid\",\n  \"serviceItems\": [\n    {\n      \"id\": \"uuid\",\n    },\n    {\n      \"id\": \"uuid\",\n      \"params\": [\n        {\n          \"key\": \"Service Item Parameter Name\",\n          \"value\": \"Service Item Parameter Value\"\n        }\n      ]\n    }\n  ],\n  \"pointOfContact\": \"string\"\n}\n` + "`" + `` + "`" + `` + "`" + `\n\nSIT Service Items \u0026 Accepted Payment Request Parameters:\n---\nIf ` + "`" + `WeightBilled` + "`" + ` is not provided then the full shipment weight (` + "`" + `PrimeActualWeight` + "`" + `) will be considered in the calculation.\n\n**DOFSIT - Domestic origin 1st day SIT**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOASIT - Domestic origin add'l SIT** *(SITPaymentRequestStart \u0026 SITPaymentRequestEnd are **REQUIRED**)*\n*To create a paymentRequest for this service item, the ` + "`" + `SITPaymentRequestStart` + "`" + ` and ` + "`" + `SITPaymentRequestEnd` + "`" + ` dates must not overlap previously requested SIT dates.*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    },\n    {\n      \"key\": \"SITPaymentRequestStart\",\n      \"value\": \"date\"\n    },\n    {\n      \"key\": \"SITPaymentRequestEnd\",\n      \"value\": \"date\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOPSIT - Domestic origin SIT pickup**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOSHUT - Domestic origin shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDFSIT - Domestic destination 1st day SIT**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDASIT - Domestic destination add'l SIT** *(SITPaymentRequestStart \u0026 SITPaymentRequestEnd are **REQUIRED**)*\n*To create a paymentRequest for this service item, the ` + "`" + `SITPaymentRequestStart` + "`" + ` and ` + "`" + `SITPaymentRequestEnd` + "`" + ` dates must not overlap previously requested SIT dates.*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    },\n    {\n      \"key\": \"SITPaymentRequestStart\",\n      \"value\": \"date\"\n    },\n    {\n      \"key\": \"SITPaymentRequestEnd\",\n      \"value\": \"date\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDDSIT - Domestic destination SIT delivery**\n*To create a paymentRequest for this service item, it must first have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDSHUT - Domestic destination shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n---\n",
         "consumes": [
           "application/json"
         ],
@@ -6209,7 +6215,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/uploads": {
       "post": {
-        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
+        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nOptional key of **isWeightTicket** indicates if the document is a weight ticket or not.\nThis will be used for partial and full deliveries and makes it easier for the Transportation Invoicing Officers to locate and review service item documents.\nIf left empty, it will assume it is NOT a weight ticket.\n\nThe formdata in the body of the POST request that is sent should look like this if it IS a weight ticket being attached to an existing payment request:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": true\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n  If the proof of service doc is NOT a weight ticket, it will look like this - or you can leave it empty:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": false\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
         "consumes": [
           "multipart/form-data"
         ],
@@ -6235,6 +6241,12 @@ func init() {
             "name": "file",
             "in": "formData",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "Indicates whether the file is a weight ticket.",
+            "name": "isWeightTicket",
+            "in": "formData"
           }
         ],
         "responses": {
@@ -9562,7 +9574,7 @@ func init() {
       "name": "mtoServiceItem"
     },
     {
-      "description": "The contractor submits a **paymentRequest** to the TIO for approval in order to be reimbursed for 1 or more\n**mtoServiceItems** on a **moveTaskOrder**.\n\nProof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest**.\n",
+      "description": "The contractor submits a **paymentRequest** to the TIO for approval in order to be reimbursed for 1 or more\n**mtoServiceItems** on a **moveTaskOrder**. A service item can be on multiple payment requests if necessary.\n\nProof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest** after the payment\nrequest is created via the endpoint [createUpload](#operation/createUpload).\n\nAll weight entered should be in *pounds* and no other unit of measurement.\n",
       "name": "paymentRequest"
     },
     {

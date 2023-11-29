@@ -90,18 +90,13 @@ const ServiceItemsTable = ({
   const getNewestHistoryDataForServiceItem = (historyDataForMove, serviceItemId) => {
     if (historyDataForMove) {
       let newestHistoryData = historyDataForMove[0];
-      historyDataForMove.map((obj) => {
-        let newestEventInAuditHistory = historyDataForMove[0].actionTstampTx;
-        // object id of the audit history entry should match the id of the service item
-        if (obj.objectId === serviceItemId) {
-          // if time of curr obj is newer than the curr newestEventInAuditHistory
-          if (obj.actionTstampTx > newestEventInAuditHistory) {
-            newestEventInAuditHistory = obj.actionTstampTx;
-            newestHistoryData = obj;
-          }
+      for (let i = 0; i < historyDataForMove.length; i += 1) {
+        // find the first event in the move history for a given serviceItemId
+        if (historyDataForMove[i].objectId === serviceItemId) {
+          newestHistoryData = historyDataForMove[i];
+          break;
         }
-        return null;
-      });
+      }
       return newestHistoryData;
     }
     return null;
@@ -124,14 +119,16 @@ const ServiceItemsTable = ({
   }
 
   function generateResubmissionDetailsText(details) {
-    const keys = Object.keys(details.changedValues);
     let resultStringToDisplay = '';
-    keys.forEach((key) => {
-      const formattedKeyString = formatKeyStringsForToolTip(key);
-      const newValue = details.changedValues[key];
-      const oldValue = details.oldValues[key];
-      resultStringToDisplay += `${formattedKeyString}\nNew: ${newValue} \nPrevious: ${oldValue}\n\n`;
-    });
+    if (details) {
+      const keys = Object.keys(details.changedValues);
+      keys.forEach((key) => {
+        const formattedKeyString = formatKeyStringsForToolTip(key);
+        const newValue = details.changedValues[key];
+        const oldValue = details.oldValues[key];
+        resultStringToDisplay += `${formattedKeyString}\nNew: ${newValue} \nPrevious: ${oldValue}\n\n`;
+      });
+    }
     return resultStringToDisplay;
   }
 
@@ -140,18 +137,15 @@ const ServiceItemsTable = ({
     const historyDataForMove = history.queueResult.data;
     const historyDataForServiceItem = getNewestHistoryDataForServiceItem(historyDataForMove, serviceItemId);
     const isResubmitted = getResubmissionStatus(historyDataForServiceItem);
+    let formattedResubmissionDetails = '';
     if (isResubmitted) {
-      return (
-        <ToolTip
-          data-testid="toolTipResubmission"
-          key={serviceItemId}
-          text={generateResubmissionDetailsText(historyDataForServiceItem)}
-          position="bottom"
-          color="#0050d8"
-        />
-      );
+      formattedResubmissionDetails = generateResubmissionDetailsText(historyDataForServiceItem);
     }
-    return null;
+    const resubmittedServiceItemValues = {
+      isResubmitted,
+      formattedResubmissionDetails,
+    };
+    return resubmittedServiceItemValues;
   };
 
   const tableRows = serviceItems.map((serviceItem, index) => {
@@ -163,6 +157,7 @@ const ServiceItemsTable = ({
     if (serviceItemInPaymentRequests && ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code)) {
       hasPaymentRequestBeenMade = isServiceItemFoundInPaymentRequests(id);
     }
+    const resubmittedToolTip = renderToolTipWithOldDataIfResubmission(id);
 
     return (
       <React.Fragment key={`sit-alert-${id}`}>
@@ -188,7 +183,15 @@ const ServiceItemsTable = ({
           <td className={styles.nameAndDate}>
             <div className={styles.codeName}>
               {serviceItem.serviceItem}{' '}
-              {ALLOWED_RESUBMISSION_SI_CODES.includes(code) && renderToolTipWithOldDataIfResubmission(id)}
+              {ALLOWED_RESUBMISSION_SI_CODES.includes(code) && resubmittedToolTip.isResubmitted ? (
+                <ToolTip
+                  data-testid="toolTipResubmission"
+                  key={id}
+                  text={resubmittedToolTip.formattedResubmissionDetails}
+                  position="bottom"
+                  color="#0050d8"
+                />
+              ) : null}
               {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) && hasPaymentRequestBeenMade ? (
                 <ToolTip
                   text="This cannot be changed due to a payment request existing for this service item."

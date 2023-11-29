@@ -8,6 +8,7 @@ enum: &AFFILIATION
   - MARINES
   - AIR_FORCE
   - COAST_GUARD
+  - SPACE_FORCE
   - OTHER
 x-display-value:
   ARMY: Army
@@ -15,4 +16,5 @@ x-display-value:
   MARINES: Marine Corps
   AIR_FORCE: Air Force
   COAST_GUARD: Coast Guard
+  SPACE_FORCE: Space Force
   OTHER: OTHER
