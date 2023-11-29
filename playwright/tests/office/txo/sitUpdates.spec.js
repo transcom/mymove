@@ -130,7 +130,7 @@ test.describe('TOO user', () => {
 
 test.describe('During ZIP update test', () => {
   test('the TIO was able to verify the correct ZIP', async ({ officePage }) => {
-    const move = await officePage.testHarness.buildHHGMoveInSIT();
+    const move = await officePage.testHarness.buildHHGMoveInSITNoExcessWeight();
 
     // TOO Approves Address Update in updated SIT item
     await officePage.signInAsNewMultiRoleUser();
@@ -206,35 +206,7 @@ test.describe('During ZIP update test', () => {
       await officePage.page.getByTestId('locator-0').click();
     }
     await officePage.page.locator(`a[href="/moves/${move.locator}/payment-requests"]`).click();
-    const reviewButton = await officePage.page.getByTestId('reviewBtn');
-    if (await reviewButton.isDisabled()) {
-      const reviewWeightsButton = await officePage.page
-        .locator('button[class="usa-button"]')
-        .getByText('Review weights');
-      await reviewWeightsButton.click();
-      await officePage.page.getByRole('button').getByText('Review shipment weights').click();
-      const editButton = await officePage.page.getByRole('button').getByText('Edit');
-      await editButton.click();
-      const estimatedWeight = await officePage.page
-        .locator('div[class="ShipmentCard_weights__TobbB"]')
-        .getByTestId('estimatedWeightContainer')
-        .locator('strong')
-        .textContent();
-      await officePage.page
-        .locator('fieldset[class="usa-fieldset EditBillableWeight_fieldset__VATbs"]')
-        .locator('div[class="usa-form-group"]')
-        .locator('input[class="usa-input EditBillableWeight_maxBillableWeight__hV+1b"]')
-        .fill(estimatedWeight);
-      const shipmentWeightsRemarks = await officePage.page
-        .locator('fieldset[class="usa-fieldset EditBillableWeight_fieldset__VATbs"]')
-        .locator('div')
-        .locator('textarea[data-testid="remarks"]');
-      await shipmentWeightsRemarks.fill('test remarks about weight');
-      await shipmentWeightsRemarks.blur();
-      await officePage.page.getByTestId('button').getByText('Save changes').click();
-      await officePage.page.locator(`a[href="/moves/${move.locator}/payment-requests"]`).click();
-    }
-    await reviewButton.click();
+    await officePage.page.getByTestId('reviewBtn').click();
     await officePage.page.locator('h2').getByText('Review service items').waitFor();
     const itemNumHeader = await officePage.page
       .locator('div[data-testid="ReviewServiceItems"]')

@@ -163,6 +163,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build a move with an hhg shipment in SIT without excess weight
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveInSITNoExcessWeight() {
+    return this.buildDefault('HHGMoveInSITNoExcessWeight');
+  }
+
+  /**
    * Use testharness to build a move with an hhg shipment in SIT and a pending SIT extension
    * @returns {Promise<Move>}
    */
