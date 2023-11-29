@@ -2,6 +2,7 @@ package trdm
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -35,18 +36,6 @@ const (
 // mimicking
 type AssumeRoleProvider interface {
 	Retrieve(ctx context.Context) (aws.Credentials, error)
-}
-
-// FetchAllTACRecords queries and fetches all transportation_accounting_codes
-func FetchAllTACRecords(appcontext appcontext.AppContext) ([]models.TransportationAccountingCode, error) {
-	var tacCodes []models.TransportationAccountingCode
-	query := `SELECT * FROM transportation_accounting_codes`
-	err := appcontext.DB().RawQuery(query).All(&tacCodes)
-	if err != nil {
-		return tacCodes, errors.Wrap(err, "Fetch line items query failed")
-	}
-
-	return tacCodes, nil
 }
 
 // This is the start of the cron job. When called, it will immediately trigger the TRDM flow. After that, it will trigger again every 24 hours.
@@ -95,9 +84,13 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 		case SuccessfulStatusCode:
 			switch physicalName {
 			case LineOfAccounting:
-				loaDataOutOfDate, caseErr := TGETLOADataOutOfDate(appCtx, lastTableUpdateResponse.LastUpdate)
+				loaDataOutOfDate, ourLastUpdate, caseErr := TGETLOADataOutOfDate(appCtx, lastTableUpdateResponse.LastUpdate)
 				if caseErr != nil {
 					logger.Error("fetching loa records by time", zap.Error(err))
+					return
+				}
+				if ourLastUpdate == nil {
+					logger.Fatal("our last update appears to be nil and no errors were returned")
 					return
 				}
 				// Check if loas are out of date
@@ -105,20 +98,24 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 					// Trigger Get TGET data and GetTable call
 					caseErr := GetTGETData(models.GetTableRequest{
 						PhysicalName:                LineOfAccounting,
-						ContentUpdatedSinceDateTime: lastTableUpdateResponse.LastUpdate,
+						ContentUpdatedSinceDateTime: *ourLastUpdate,
 						ReturnContent:               true,
-					}, *service, appCtx)
+					}, *service, appCtx, logger)
 					if caseErr != nil {
-						logger.Fatal("failed to retrieve latest line of accounting TGET data", zap.String("responseBody", string(body)), zap.Error(err))
+						logger.Fatal("failed to retrieve latest line of accounting TGET data", zap.Error(err))
 					} else {
 						logger.Info("successfully retrieved latest line of accounting TGET data")
 					}
 					return
 				}
 			case TransportationAccountingCode:
-				tacDataOutOfDate, caseErr := TGETTACDataOutOfDate(appCtx, lastTableUpdateResponse.LastUpdate)
+				tacDataOutOfDate, ourLastUpdate, caseErr := TGETTACDataOutOfDate(appCtx, lastTableUpdateResponse.LastUpdate)
 				if caseErr != nil {
 					logger.Error("fetching tac records by time", zap.Error(err))
+					return
+				}
+				if ourLastUpdate == nil {
+					logger.Fatal("our last update appears to be nil and no errors were returned")
 					return
 				}
 				// Check if tacs are out of date
@@ -126,11 +123,11 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 					// Trigger Get TGET data and GetTable call
 					caseErr := GetTGETData(models.GetTableRequest{
 						PhysicalName:                TransportationAccountingCode,
-						ContentUpdatedSinceDateTime: lastTableUpdateResponse.LastUpdate,
+						ContentUpdatedSinceDateTime: *ourLastUpdate,
 						ReturnContent:               true,
-					}, *service, appCtx)
+					}, *service, appCtx, logger)
 					if caseErr != nil {
-						logger.Fatal("failed to retrieve latest transportation accounting TGET data", zap.String("responseBody", string(body)), zap.Error(err))
+						logger.Fatal("failed to retrieve latest transportation accounting TGET data", zap.Error(err))
 					} else {
 						logger.Info("successfully retrieved latest transportation accounting TGET data")
 					}
@@ -141,10 +138,10 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 				return
 			}
 		case FailureStatusCode:
-			logger.Error("trdm api gateway request failed, please inspect the trdm gateway logs", zap.String("responseBody", string(body)), zap.Error(err))
+			logger.Error("trdm api gateway request failed, please inspect the trdm gateway logs", zap.Error(err))
 			return
 		default:
-			logger.Error("unexpected api gateway request failure response, please inspect the trdm gateway logs", zap.String("responseBody", string(body)), zap.Error(err))
+			logger.Error("unexpected api gateway request failure response, please inspect the trdm gateway logs", zap.Error(err))
 			return
 		}
 	}
@@ -171,17 +168,33 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 //
 // Because updated_at is before LastTableUpdate the DB will return true because this means out TGET data is out of date
 //
-//	returns bool, error
-func TGETTACDataOutOfDate(appcontext appcontext.AppContext, time time.Time) (bool, error) {
-	exists, err := appcontext.DB().
-		Where("updated_at < ?", time).
-		Exists(new(models.TransportationAccountingCode))
+//	returns bool, latestUpdateTime, error
+func TGETTACDataOutOfDate(appcontext appcontext.AppContext, timeToCheck time.Time) (bool, *time.Time, error) {
+	var tac models.TransportationAccountingCode
+
+	// Get the most recent TAC record
+	err := appcontext.DB().
+		Order("updated_at DESC").
+		First(&tac)
 
 	if err != nil {
-		return false, errors.Wrap(err, "TGETTACDataOutOfDate query failed")
+		// Check if it just so happens that our DB is empty (Such as if we're in a brand new environment)
+		if err == sql.ErrNoRows {
+			tenYearsAgo := time.Now().AddDate(-10, 0, 0)
+			// Return TGET data out of date and gather 10 years of TGET data
+			return true, &tenYearsAgo, nil
+		}
+		// Else, our error is not because the DB is empty. It's because the query failed.
+		return false, nil, errors.Wrap(err, "db query for TAC failed")
 	}
 
-	return exists, nil
+	// Compare the latest update time with the provided time. If our latest TAC entry has
+	// an updated at value less than the provided time, that means our TGET data is out of date.
+	// Otherwise, if the update at value is equal to or newer than the provided time then our data is
+	// up to date.
+	isOutOfDate := tac.UpdatedAt.Before(timeToCheck)
+
+	return isOutOfDate, &tac.UpdatedAt, nil
 }
 
 // Fetching all LOA records by time to check if our LOA data is out of date is incredibly inefficient. So instead we will check if a record
@@ -193,15 +206,31 @@ func TGETTACDataOutOfDate(appcontext appcontext.AppContext, time time.Time) (boo
 //
 // Because updated_at is before LastTableUpdate the DB will return true because this means out TGET data is out of date
 //
-//	returns bool, error
-func TGETLOADataOutOfDate(appcontext appcontext.AppContext, time time.Time) (bool, error) {
-	exists, err := appcontext.DB().
-		Where("updated_at < ?", time).
-		Exists(new(models.LineOfAccounting))
+//	returns bool, latestUpdatedAt, error
+func TGETLOADataOutOfDate(appcontext appcontext.AppContext, timeToCheck time.Time) (bool, *time.Time, error) {
+	var loa models.LineOfAccounting
+
+	// Get the most recent LOA record
+	err := appcontext.DB().
+		Order("updated_at DESC").
+		First(&loa)
 
 	if err != nil {
-		return false, errors.Wrap(err, "TGETTACDataOutOfDate query failed")
+		// Check if it just so happens that our DB is empty (Such as if we're in a brand new environment)
+		if err == sql.ErrNoRows {
+			tenYearsAgo := time.Now().AddDate(-10, 0, 0)
+			// Return TGET data out of date and gather 10 years of TGET data
+			return true, &tenYearsAgo, nil
+		}
+		// Else, our error is not because the DB is empty. It's because the query failed.
+		return false, nil, errors.Wrap(err, "db query for LOA failed")
 	}
 
-	return exists, nil
+	// Compare the latest update time with the provided time. If our latest LOA entry has
+	// an updated at value less than the provided time, that means our TGET data is out of date.
+	// Otherwise, if the update at value is equal to or newer than the provided time then our data is
+	// up to date.
+	isOutOfDate := loa.UpdatedAt.Before(timeToCheck)
+
+	return isOutOfDate, &loa.UpdatedAt, nil
 }
