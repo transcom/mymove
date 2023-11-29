@@ -235,3 +235,42 @@ func (suite *TRDMSuite) TestGetTGETDataBadAttachmentResponse() {
 	err = trdm.GetTGETData(getTableRequest, getTableRequest.ContentUpdatedSinceDateTime.AddDate(0, 0, 7), *service, suite.AppContextForTest(), suite.logger)
 	suite.Error(err)
 }
+
+func (suite *TRDMSuite) TestGetTGETDataOver2Weeks() {
+
+	// Mock a successful attachment return from GetTable
+	file, err := os.ReadFile("../parser/loa/fixtures/Line Of Accounting.txt")
+	suite.NoError(err)
+
+	getTableResponse := models.GetTableResponse{
+		RowCount:   7,
+		StatusCode: trdm.SuccessfulStatusCode,
+		DateTime:   time.Now(),
+		Attachment: file,
+	}
+
+	responseBody, err := json.Marshal(getTableResponse)
+	suite.NoError(err)
+
+	mockClient := &MockHTTPClient{
+		DoFunc: func(req *http.Request) (*http.Response, error) {
+			return &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(bytes.NewReader(responseBody)),
+			}, nil
+		}}
+
+	mockProvider := &mockAssumeRoleProvider{creds: suite.creds}
+
+	service := trdm.NewGatewayService(mockClient, suite.logger, "us-gov-west-1", "mockRole", "https://test.gateway.url.amazon.com", mockProvider)
+
+	getTableRequest := models.GetTableRequest{
+		PhysicalName:                trdm.LineOfAccounting,
+		ContentUpdatedSinceDateTime: time.Now(),
+		ReturnContent:               true,
+	}
+
+	// GetTable for Line of Accounting data that is over 2 weeks worth of data, parse it, and then store it in the database
+	err = trdm.GetTGETData(getTableRequest, getTableRequest.ContentUpdatedSinceDateTime.AddDate(0, 0, 15), *service, suite.AppContextForTest(), suite.logger)
+	suite.NoError(err)
+}
