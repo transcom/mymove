@@ -153,7 +153,6 @@ test.describe('During ZIP update test', () => {
     await officePage.page.getByTestId('officeRemarks').fill('approved the address change');
     expect(await officePage.page.getByRole('button').getByText('Save').isEnabled());
     await officePage.page.getByRole('button').getByText('Save').click();
-    await officePage.page.getByTestId('modal').getByTestId('modalCloseButton').click();
 
     // Prime user submits payment request
     await officePage.page.getByText('Change user role').click();
