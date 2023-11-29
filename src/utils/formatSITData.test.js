@@ -29,6 +29,16 @@ describe('formatSITData', () => {
     ],
   };
 
+  const nullAddress = {
+    context: [
+      {
+        sit_destination_address_final: '',
+        sit_destination_address_initial: '',
+      },
+    ],
+    eventName: o.rejectSITAddressUpdate,
+  };
+
   const status = {
     changedValues: {
       status: SIT_ADDRESS_UPDATE_STATUS.REJECTED,
@@ -40,6 +50,14 @@ describe('formatSITData', () => {
     ],
     eventName: o.rejectSITAddressUpdate,
   };
+
+  it('handles an empty object', () => {
+    expect(formatSITData({})).toEqual({});
+  });
+
+  it('handles and object with null or empty data', () => {
+    expect(formatSITData(nullAddress)).toEqual({});
+  });
 
   it('formats JSON into a readable address', () => {
     expect(formatSITData(address)).toEqual({
