@@ -130,10 +130,10 @@ export default function ReviewExpense({
             <Form className={classnames(formStyles.form, styles.ReviewExpense)}>
               <PPMHeaderSummary ppmShipment={ppmShipment} ppmNumber={ppmNumber} />
               <hr />
-              <h3 className={styles.tripNumber}>Receipt {tripNumber}</h3>
+              <h3 className={styles.tripNumber}>{`Receipt ${tripNumber}`}</h3>
               <legend className={classnames('usa-label', styles.label)}>Expense Type</legend>
               <div className={styles.displayValue}>
-                {allCase(expenseTypeLabels[movingExpenseType])} #{categoryIndex}
+                {`${allCase(expenseTypeLabels[movingExpenseType])} #${categoryIndex}`}
               </div>
               <legend className={classnames('usa-label', styles.label)}>Description</legend>
               <div className={styles.displayValue}>{description}</div>
@@ -163,9 +163,9 @@ export default function ReviewExpense({
                 </>
               )}
               <h3 className={styles.reviewHeader}>
-                Review {expenseName} #{categoryIndex}
+                {`Review ${allCase(expenseTypeLabels[movingExpenseType])} #${categoryIndex}`}
               </h3>
-              <p>Add a review for this {expenseName}</p>
+              <p>Add a review for this {allCase(expenseName)}</p>
               <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
               <Fieldset className={styles.statusOptions}>
                 <div

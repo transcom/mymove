@@ -8,18 +8,17 @@ test('A service counselor can approve/reject moving expenses', async ({ page, sc
   // Navigate to the "Review documents" page
   await page.getByRole('button', { name: /Review documents/i }).click();
   await scPage.waitForPage.reviewWeightTicket();
-
   // Weight ticket is first in the order of docs. Click "Accept" on the weight ticket, then proceed
   await page.getByText('Accept').click();
   await page.getByRole('button', { name: 'Continue' }).click();
 
-  // Next is expense ticket here. Click "Accept" on the  expense, then proceed
-  await expect(page.getByRole('heading', { name: /Review trip 1/i })).toBeVisible();
+  // Next is packing materials expense ticket here. Click "Accept" on the expense, then proceed
+  await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
   await page.getByText('Accept').click();
   await page.getByRole('button', { name: 'Continue' }).click();
 
   // Next is storage expense ticket. Click "Accept", then proceed
-  await scPage.waitForPage.reviewExpenseTicket('Storage', 1, 1);
+  await scPage.waitForPage.reviewExpenseTicket('Storage', 2, 1);
   await page.getByText('Accept').click();
   await page.getByRole('button', { name: 'Continue' }).click();
   await scPage.waitForPage.reviewDocumentsConfirmation();
