@@ -14,8 +14,7 @@ test('A service counselor can approve/reject moving expenses', async ({ page, sc
   await page.getByRole('button', { name: 'Continue' }).click();
 
   // Next is expense ticket here. Click "Accept" on the  expense, then proceed
-  
-  await expect(page.getByRole('heading', { name: /Review trip 1/i,})).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Review trip 1/i })).toBeVisible();
   await page.getByText('Accept').click();
   await page.getByRole('button', { name: 'Continue' }).click();
 

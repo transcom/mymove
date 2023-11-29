@@ -88,7 +88,7 @@ export class WaitForOfficePage extends WaitForPage {
   async reviewProGear() {
     await base.expect(this.page.getByRole('heading', { name: 'Review pro-gear 1', level: 3 })).toBeVisible();
   }
-  
+
   /**
    * @returns {Promise<void>}
    */
