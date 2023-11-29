@@ -26,7 +26,7 @@ func (suite *TelemetrySuite) TestInitConfigDisabled() {
 	}
 	Init(suite.Logger(), config)
 
-	suite.Equal(trace.NewNoopTracerProvider(), otel.GetTracerProvider())
+	suite.Equal(sdktrace.NewTracerProvider(), otel.GetTracerProvider())
 	suite.Equal(noop.NewMeterProvider(), otel.GetMeterProvider())
 }
 

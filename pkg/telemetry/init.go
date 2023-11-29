@@ -23,7 +23,6 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
-	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/telemetry/metrictest"
@@ -55,7 +54,7 @@ func Init(logger *zap.Logger, config *Config) (func(), sdktrace.SpanExporter, sd
 
 	logger.Info("Configuring tracing", zap.Any("TelemetryConfig", config))
 	if !config.Enabled {
-		tp := trace.NewNoopTracerProvider()
+		tp := sdktrace.NewTracerProvider()
 		otel.SetTracerProvider(tp)
 		otel.SetMeterProvider(noop.NewMeterProvider())
 		logger.Info("opentelemetry not enabled")
