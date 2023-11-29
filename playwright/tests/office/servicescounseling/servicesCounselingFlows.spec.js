@@ -307,7 +307,6 @@ test.describe('Services counselor user', () => {
     await page.getByRole('button', { name: 'Review documents' }).click();
 
     await scPage.waitForPage.reviewWeightTicket();
-
     await expect(page.getByLabel('Accept')).toBeVisible();
     await page.getByLabel('Accept').dispatchEvent('click');
     await page.getByRole('button', { name: 'Continue' }).click();
