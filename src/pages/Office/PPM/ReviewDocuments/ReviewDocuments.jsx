@@ -50,53 +50,76 @@ export const ReviewDocuments = () => {
     setMoveHasExcessWeight(moveWeightTotal > order.entitlement.totalWeight);
   }, [moveWeightTotal, order.entitlement.totalWeight]);
 
-  if (weightTickets.length > 0) {
-    weightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+  const chronologicalComparatorProperty = (input) => input.createdAt;
+  const compareChronologically = (itemA, itemB) =>
+    chronologicalComparatorProperty(itemA) < chronologicalComparatorProperty(itemB) ? -1 : 1;
 
-    documentSets = documentSets.concat(
-      weightTickets.map((weightTicket, index) => {
-        return {
-          documentSetType: DOCUMENT_TYPES.WEIGHT_TICKET,
-          documentSet: weightTicket,
-          uploads: [
-            ...weightTicket.emptyDocument.uploads,
-            ...weightTicket.fullDocument.uploads,
-            ...weightTicket.proofOfTrailerOwnershipDocument.uploads,
-          ],
-          tripNumber: index + 1,
-        };
-      }),
-    );
+  const constructWeightTicket = (weightTicket, tripNumber) => ({
+    documentSetType: DOCUMENT_TYPES.WEIGHT_TICKET,
+    documentSet: weightTicket,
+    uploads: [
+      ...weightTicket.emptyDocument.uploads,
+      ...weightTicket.fullDocument.uploads,
+      ...weightTicket.proofOfTrailerOwnershipDocument.uploads,
+    ],
+    tripNumber,
+  });
+
+  if (weightTickets.length > 0) {
+    weightTickets.sort(compareChronologically);
+
+    documentSets = documentSets.concat(weightTickets.map(constructWeightTicket));
   }
 
-  if (proGearWeightTickets.length > 0) {
-    proGearWeightTickets.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+  const constructProGearWeightTicket = (weightTicket, tripNumber) => ({
+    documentSetType: DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET,
+    documentSet: weightTicket,
+    uploads: weightTicket.document.uploads,
+    tripNumber,
+  });
 
-    documentSets = documentSets.concat(
-      proGearWeightTickets.map((proGearWeightTicket, index) => {
-        return {
-          documentSetType: DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET,
-          documentSet: proGearWeightTicket,
-          uploads: proGearWeightTicket.document.uploads,
-          tripNumber: index + 1,
-        };
-      }),
-    );
+  if (proGearWeightTickets.length > 0) {
+    proGearWeightTickets.sort(compareChronologically);
+
+    documentSets = documentSets.concat(proGearWeightTickets.map(constructProGearWeightTicket));
   }
 
   if (movingExpenses.length > 0) {
-    movingExpenses.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+    // index individual input set elements by categorical type and chronological index.
+    const accumulateMovingExpensesCategoricallyIndexed = (input) => {
+      const constructExpenseCategoricallyIndexed = (movingExpense, categoryIndex) => ({
+        documentSetType: DOCUMENT_TYPES.MOVING_EXPENSE,
+        documentSet: movingExpense,
+        uploads: movingExpense.document.uploads,
+        categoryIndex,
+      });
 
-    documentSets = documentSets.concat(
-      movingExpenses.map((movingExpense, index) => {
-        return {
-          documentSetType: DOCUMENT_TYPES.MOVING_EXPENSE,
-          documentSet: movingExpense,
-          uploads: movingExpense.document.uploads,
-          tripNumber: index + 1,
-        };
-      }),
-    );
+      const addFlattenedIndexToExpense = (expenseView, index) => ({ ...expenseView, tripNumber: index });
+      // safari's dev team hasn't caught up to the chromium javascript ecma version, so there is no cross-browser availability for Object.groupBy
+      const groupByFix = (iterable, key) => {
+        const groupByResult = iterable.reduce((accumulator, item) => {
+          (accumulator[key(item)] ??= []).push(item);
+          return accumulator;
+        }, {});
+        return groupByResult;
+      };
+      const groupResult = groupByFix(input, ({ movingExpenseType }) => movingExpenseType);
+      const assignDiscreetIndexesPerGroupElements = Object.values(groupResult).map((grp) =>
+        grp.map(constructExpenseCategoricallyIndexed),
+      );
+      const flattenedGroupsWithUnifiedIndex = assignDiscreetIndexesPerGroupElements
+        .flat()
+        // even though the initial set was ordered, we have to adjust the order again. (Maintaining the index of chronological existence)
+        .sort((itemA, itemB) => compareChronologically(itemA.documentSet, itemB.documentSet))
+        .map(addFlattenedIndexToExpense);
+      return flattenedGroupsWithUnifiedIndex;
+    };
+
+    // sort expenses by occurrence
+    const sortedExpenses = [...movingExpenses].sort(compareChronologically);
+    const resultSet = accumulateMovingExpensesCategoricallyIndexed(sortedExpenses);
+
+    documentSets = documentSets.concat(resultSet);
   }
 
   const navigate = useNavigate();
@@ -167,8 +190,13 @@ export const ReviewDocuments = () => {
 
   const reviewShipmentWeightsLink = <a href={reviewShipmentWeightsURL}>Review shipment weights</a>;
 
+  const currentTripNumber = currentDocumentSet.tripNumber + 1;
+  const currentDocumentCategoryIndex = currentDocumentSet.categoryIndex + 1;
+
+  const formatDocumentSetDisplay = documentSetIndex + 1;
+
   return (
-    <div data-testid="ReviewDocuments" className={styles.ReviewDocuments}>
+    <div data-testid="ReviewDocuments test" className={styles.ReviewDocuments}>
       <div className={styles.embed}>
         <DocumentViewer files={showOverview ? getAllUploads() : currentDocumentSet.uploads} allowDownload />
       </div>
@@ -177,7 +205,7 @@ export const ReviewDocuments = () => {
         onClose={onClose}
         className={styles.sidebar}
         supertitle={
-          showOverview ? 'All Document Sets' : `${documentSetIndex + 1} of ${documentSets.length} Document Sets`
+          showOverview ? 'All Document Sets' : `${formatDocumentSetDisplay} of ${documentSets.length} Document Sets`
         }
         defaultH3
         hyperlink={reviewShipmentWeightsLink}
@@ -209,7 +237,7 @@ export const ReviewDocuments = () => {
                   <ReviewWeightTicket
                     weightTicket={currentDocumentSet.documentSet}
                     ppmNumber={1}
-                    tripNumber={currentDocumentSet.tripNumber}
+                    tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
                     order={order}
                     mtoShipments={mtoShipments}
@@ -222,7 +250,7 @@ export const ReviewDocuments = () => {
                   <ReviewProGear
                     proGear={currentDocumentSet.documentSet}
                     ppmNumber={1}
-                    tripNumber={currentDocumentSet.tripNumber}
+                    tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
                     onError={onError}
                     onSuccess={onSuccess}
@@ -232,8 +260,9 @@ export const ReviewDocuments = () => {
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && (
                   <ReviewExpense
                     expense={currentDocumentSet.documentSet}
+                    categoryIndex={currentDocumentCategoryIndex}
                     ppmNumber={1}
-                    tripNumber={currentDocumentSet.tripNumber}
+                    tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
                     onError={onError}
                     onSuccess={onSuccess}

@@ -15,7 +15,6 @@ import { ExpenseShape, PPMShipmentShape, ProGearTicketShape, WeightTicketShape }
 import formStyles from 'styles/form.module.scss';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
 import PPMDocumentsStatus from 'constants/ppms';
-import { expenseTypes } from 'constants/ppmExpenseTypes';
 
 export default function ReviewDocumentsSidePanel({
   ppmShipment,
@@ -29,8 +28,6 @@ export default function ReviewDocumentsSidePanel({
 }) {
   let status;
   let showReason;
-  let storageNumber = 0;
-  let receiptNumber = 0;
 
   const { mutate: patchDocumentsSetStatusMutation } = useMutation(patchPPMDocumentsSetStatus, {
     onSuccess,
@@ -72,6 +69,24 @@ export default function ReviewDocumentsSidePanel({
     return status;
   };
 
+  const expenseSetProjection = (expenses) => {
+    const process = expenses.reduce((accumulator, item, index) => {
+      accumulator[item.movingExpenseType] ??= [];
+      const expenseSet = accumulator[item.movingExpenseType];
+
+      expenseSet.push({ ...item, receiptIndex: index + 1, groupIndex: expenseSet.length + 1 });
+      return accumulator;
+    }, {});
+
+    const compareReceiptIndex = (itemA, itemB) => itemA.receiptIndex >= itemB.receiptIndex;
+
+    return Object.values(process).flat().sort(compareReceiptIndex);
+  };
+
+  const titleCase = (input) => input.charAt(0).toUpperCase() + input.slice(1);
+  const allCase = (input) => input.split(' ').map(titleCase).join(' ');
+  const formatMovingType = (input) => allCase(input?.trim().toLowerCase().replace('_', ' ') ?? '');
+
   return (
     <Formik initialValues innerRef={formRef} onSubmit={handleSubmit}>
       <div className={classnames(styles.container, 'container--accent--ppm')}>
@@ -108,19 +123,14 @@ export default function ReviewDocumentsSidePanel({
                   })
                 : null}
               {expenseTickets.length > 0
-                ? expenseTickets.map((exp, index) => {
-                    const isStorage = exp.movingExpenseType === expenseTypes.STORAGE;
-                    if (isStorage) {
-                      storageNumber += 1;
-                    } else {
-                      receiptNumber += 1;
-                    }
+                ? expenseSetProjection(expenseTickets).map((exp) => {
                     return (
-                      <li className={styles.rowContainer} key={index}>
+                      <li className={styles.rowContainer} key={exp.receiptIndex}>
                         <div className={styles.row}>
                           <h3 className={styles.tripNumber}>
-                            {isStorage ? 'Storage' : 'Receipt'}
-                            &nbsp;{isStorage ? storageNumber : receiptNumber}
+                            Receipt&nbsp;{exp.receiptIndex}
+                            <br />
+                            {formatMovingType(exp.movingExpenseType)}&nbsp;#{exp.groupIndex}
                           </h3>
                           {statusWithIcon(exp)}
                         </div>
