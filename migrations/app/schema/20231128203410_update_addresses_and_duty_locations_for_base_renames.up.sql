@@ -11,6 +11,24 @@ UPDATE addresses SET city = 'Fort Eisenhower' WHERE city = 'Fort Gordon' AND pos
 UPDATE duty_locations SET name = 'Fort Barfoot' WHERE name = 'Blackstone, VA 23824';
 
 -- postal codes 31905 and 31995 should have name of fort moore, ga rather than fort walker, ga
+-- update the orders table to use the correct duty_locations for origin_duty_location_id and new_duty_location_id
+UPDATE orders
+SET origin_duty_location_id = (SELECT id FROM duty_locations WHERE name = 'Fort Moore, GA 31905')
+WHERE origin_duty_location_id = (SELECT id FROM duty_locations WHERE name = 'Fort Walker, GA 31905');
+
+UPDATE orders
+SET new_duty_location_id = (SELECT id FROM duty_locations WHERE name = 'Fort Moore, GA 31905')
+WHERE new_duty_location_id = (SELECT id FROM duty_locations WHERE name = 'Fort Walker, GA 31905');
+
+UPDATE orders
+SET origin_duty_location_id = (SELECT id FROM duty_locations WHERE name = 'Fort Moore, GA 31995')
+WHERE origin_duty_location_id = (SELECT id FROM duty_locations WHERE name = 'Fort Walker, GA 31995');
+
+UPDATE orders
+SET new_duty_location_id = (SELECT id FROM duty_locations WHERE name = 'Fort Moore, GA 31995')
+WHERE new_duty_location_id = (SELECT id FROM duty_locations WHERE name = 'Fort Walker, GA 31995');
+
+-- postal codes 31905 and 31995 should have name of fort moore, ga rather than fort walker, ga
 -- a valid entry already exists for Fort Moore, GA 31905 so delete Fort Walker, GA 31905
 -- a valid entry already exists for Fort Moore, GA 31995 so delete Fort Walker, GA 31995
 DELETE FROM duty_locations WHERE name = 'Fort Walker, GA 31905';
