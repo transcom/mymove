@@ -172,13 +172,6 @@ const MoveDetails = ({ setFlashMessage }) => {
                                   {serviceItem.reServiceCode} - {serviceItem.reServiceName}
                                 </h3>
                                 <div className={styles.uploadBtn}>
-                                  <Link
-                                    to={`../mto-service-items/${serviceItem.id}/upload`}
-                                    relative="path"
-                                    className="usa-button usa-button-secondary"
-                                  >
-                                    Upload Document for {serviceItem.reServiceName}
-                                  </Link>
                                   {serviceItem.modelType === 'MTOServiceItemDestSIT' ||
                                   serviceItem.modelType === 'MTOServiceItemOriginSIT' ? (
                                     <Link
@@ -189,6 +182,13 @@ const MoveDetails = ({ setFlashMessage }) => {
                                       Edit
                                     </Link>
                                   ) : null}
+                                  <Link
+                                    to={`../mto-service-items/${serviceItem.id}/upload`}
+                                    relative="path"
+                                    className="usa-button usa-button-secondary"
+                                  >
+                                    Upload Document for {serviceItem.reServiceName}
+                                  </Link>
                                 </div>
                               </div>
                             );

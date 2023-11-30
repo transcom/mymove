@@ -31,7 +31,6 @@ const PrimeUIUpdateOriginSITForm = ({ initialValues, onSubmit }) => {
               <strong>SIT Customer Contacted</strong> fields can be updated.
             </SectionWrapper>
             <SectionWrapper className={formStyles.formSection}>
-              <h2 style={{ textAlign: 'center' }}>Update Origin SIT Service Item</h2>
               <div style={{ display: 'flex', justifyContent: 'space-around' }}>
                 <DatePickerInput name="sitDepartureDate" label="SIT Departure Date" />
                 <DatePickerInput name="sitRequestedDelivery" label="SIT Requested Delivery" />
