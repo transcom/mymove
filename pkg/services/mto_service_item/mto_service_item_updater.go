@@ -123,6 +123,7 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 			err := apperror.NewInvalidInputError(serviceItem.ID, nil, verrs, "Invalid input found in the request.")
 			return nil, err
 		}
+
 		serviceItem.RejectionReason = rejectionReason
 		serviceItem.RejectedAt = &now
 		// clear field if previously accepted

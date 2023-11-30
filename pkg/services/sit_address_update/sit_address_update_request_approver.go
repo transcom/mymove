@@ -2,6 +2,7 @@ package sitaddressupdate
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -111,6 +112,28 @@ func (f *sitAddressUpdateRequestApprover) approveSITAddressUpdateRequest(appCtx 
 		updatedServiceItem, err := f.updateServiceItemFinalAddress(txnAppCtx, serviceItem, sitAddressUpdateRequest)
 		if err != nil {
 			return err
+		}
+
+		//Update SIT Destination Fuel Charge to the correct ZIP
+		relatedDestinationSITFuelCharge, fscErr := models.FetchRelatedDestinationSITFuelCharge(txnAppCtx.DB(), serviceItem.ID)
+		relatedDestinationFSCAvailable := true
+		if fscErr != nil {
+			if errors.Is(fscErr, sql.ErrNoRows) {
+				relatedDestinationFSCAvailable = false
+				txnAppCtx.Logger().Error("When attempting to update the SIT Destination Fuel Service Charge, no associated FSC was found.")
+			} else {
+				return fscErr
+			}
+		}
+		if relatedDestinationFSCAvailable {
+			serviceItemFSC, fscErr := models.FetchServiceItem(txnAppCtx.DB(), relatedDestinationSITFuelCharge.ID)
+			if fscErr != nil {
+				return fscErr
+			}
+			_, fscErr = f.updateServiceItemFinalAddress(txnAppCtx, serviceItemFSC, sitAddressUpdateRequest)
+			if fscErr != nil {
+				return fscErr
+			}
 		}
 
 		// Clear APPROVALS_REQUESTED status on move
