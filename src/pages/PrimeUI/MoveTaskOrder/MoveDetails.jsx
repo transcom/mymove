@@ -164,17 +164,32 @@ const MoveDetails = ({ setFlashMessage }) => {
                           </Link>
                         </div>
                         {moveTaskOrder.mtoServiceItems?.map((serviceItem) => {
+                          // console.log(serviceItem);
                           if (serviceItem.mtoShipmentID === mtoShipment.id) {
                             return (
                               <div className={styles.paymentRequestRows} key={serviceItem.id}>
-                                <h3>{serviceItem.reServiceName}</h3>
-                                <Link
-                                  to={`../mto-service-items/${serviceItem.id}/upload`}
-                                  relative="path"
-                                  className="usa-button usa-button-secondary"
-                                >
-                                  Upload Document for {serviceItem.reServiceName}
-                                </Link>
+                                <h3 className={styles.serviceItemHeading}>
+                                  {serviceItem.reServiceCode} - {serviceItem.reServiceName}
+                                </h3>
+                                <div className={styles.uploadBtn}>
+                                  <Link
+                                    to={`../mto-service-items/${serviceItem.id}/upload`}
+                                    relative="path"
+                                    className="usa-button usa-button-secondary"
+                                  >
+                                    Upload Document for {serviceItem.reServiceName}
+                                  </Link>
+                                  {serviceItem.modelType === 'MTOServiceItemDestSIT' ||
+                                  serviceItem.modelType === 'MTOServiceItemOriginSIT' ? (
+                                    <Link
+                                      className="usa-button usa-button--outline"
+                                      to={`../mto-service-items/${serviceItem.id}/update`}
+                                      relative="path"
+                                    >
+                                      Edit
+                                    </Link>
+                                  ) : null}
+                                </div>
                               </div>
                             );
                           }
