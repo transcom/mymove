@@ -410,8 +410,10 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 	newMTOServiceItem.SITEntryDate = services.SetOptionalDateTimeField(
 		v.updatedServiceItem.SITEntryDate, newMTOServiceItem.SITEntryDate)
 
-	newMTOServiceItem.SITDepartureDate = services.SetOptionalDateTimeField(
-		v.updatedServiceItem.SITDepartureDate, newMTOServiceItem.SITDepartureDate)
+	if v.updatedServiceItem.SITDepartureDate != nil {
+		newMTOServiceItem.SITDepartureDate = services.SetOptionalDateTimeField(
+			v.updatedServiceItem.SITDepartureDate, newMTOServiceItem.SITDepartureDate)
+	}
 
 	newMTOServiceItem.SITCustomerContacted = services.SetOptionalDateTimeField(v.updatedServiceItem.SITCustomerContacted, newMTOServiceItem.SITCustomerContacted)
 	newMTOServiceItem.SITRequestedDelivery = services.SetOptionalDateTimeField(v.updatedServiceItem.SITRequestedDelivery, newMTOServiceItem.SITRequestedDelivery)
