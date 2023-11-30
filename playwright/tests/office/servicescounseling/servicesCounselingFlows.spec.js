@@ -303,11 +303,10 @@ test.describe('Services counselor user', () => {
     await scPage.navigateToCloseoutMove(move.locator);
 
     // Navigate to the "Review documents" page
-    await expect(page.getByRole('button', { name: 'Review documents' })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Review documents/i })).toBeVisible();
     await page.getByRole('button', { name: 'Review documents' }).click();
 
     await scPage.waitForPage.reviewWeightTicket();
-
     await expect(page.getByLabel('Accept')).toBeVisible();
     await page.getByLabel('Accept').dispatchEvent('click');
     await page.getByRole('button', { name: 'Continue' }).click();
@@ -317,7 +316,7 @@ test.describe('Services counselor user', () => {
     await page.getByLabel('Accept').dispatchEvent('click');
     await page.getByRole('button', { name: 'Continue' }).click();
 
-    await scPage.waitForPage.reviewReceipt();
+    await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
     await expect(page.getByLabel('Accept')).toBeVisible();
     await page.getByLabel('Accept').dispatchEvent('click');
     await page.getByRole('button', { name: 'Continue' }).click();

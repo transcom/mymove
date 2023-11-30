@@ -14,4 +14,5 @@ export default {
   service_members: 'service_members',
   user_uploads: 'user_uploads',
   backup_contacts: 'backup_contacts',
+  sit_address_updates: 'sit_address_updates',
 };
