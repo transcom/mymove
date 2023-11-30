@@ -157,7 +157,7 @@ func FetchRelatedDestinationSITFuelCharge(tx *pop.Connection, mtoServiceItemID u
 		`SELECT msi.id
             FROM mto_service_items msi
             INNER JOIN re_services res ON msi.re_service_id = res.id
-            WHERE res.code IN (?) AND res.mto_shipment_id IN (
-                SELECT mto_shipment_id FROM mto_service_items WHERE id = ?)`, ReServiceCodeDDSFSC, mtoServiceItemID).First(&serviceItem)
+            WHERE res.code IN (?) AND mso.mto_shipment_id IN (
+                SELECT mso.mto_shipment_id FROM mto_service_items WHERE id = ?)`, ReServiceCodeDDSFSC, mtoServiceItemID).First(&serviceItem)
 	return serviceItem, err
 }
