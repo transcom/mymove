@@ -64,6 +64,9 @@ var (
 		models.ReServiceCodeDDSFSC: {
 			models.ServiceItemParamNameWeightBilled,
 		},
+		models.ReServiceCodeDOSFSC: {
+			models.ServiceItemParamNameWeightBilled,
+		},
 	}
 )
 
