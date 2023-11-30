@@ -25,10 +25,10 @@ const (
 func (suite *TRDMSuite) TestTGETLOADataOutOfDate() {
 	newTime := time.Now().Add(1 * time.Hour)
 
-	// There are no LOAs in the DB older than an hour ahead of now
-	exists, err := trdm.TGETLOADataOutOfDate(suite.AppContextForTest(), newTime)
+	// We will have no LOA data yet, forcing us to immediately be out of date
+	exists, _, err := trdm.TGETLOADataOutOfDate(suite.AppContextForTest(), newTime)
 	suite.NoError(err)
-	suite.False(exists) // No outdated data yet
+	suite.True(exists)
 
 	// Put a LOA inside the DB
 	loa := factory.BuildDefaultLineOfAccounting(suite.DB())
@@ -36,7 +36,7 @@ func (suite *TRDMSuite) TestTGETLOADataOutOfDate() {
 	suite.NoError(err)
 
 	// Ensure that it finds the new LOA
-	exists, err = trdm.TGETLOADataOutOfDate(suite.AppContextForTest(), newTime)
+	exists, _, err = trdm.TGETLOADataOutOfDate(suite.AppContextForTest(), newTime)
 	suite.NoError(err)
 	suite.True(exists)
 }
@@ -44,10 +44,10 @@ func (suite *TRDMSuite) TestTGETLOADataOutOfDate() {
 func (suite *TRDMSuite) TestTGETTACDataOutOfDate() {
 	newTime := time.Now().Add(1 * time.Hour)
 
-	// There are no TACs in the DB older than an hour ahead of now
-	exists, err := trdm.TGETTACDataOutOfDate(suite.AppContextForTest(), newTime)
+	// We will have no TAC data yet, forcing us to immediately be out of date
+	exists, _, err := trdm.TGETTACDataOutOfDate(suite.AppContextForTest(), newTime)
 	suite.NoError(err)
-	suite.False(exists) // No outdated data yet
+	suite.True(exists)
 
 	// Put a TAC inside the DB
 	tac := factory.BuildDefaultTransportationAccountingCode(suite.DB())
@@ -55,7 +55,7 @@ func (suite *TRDMSuite) TestTGETTACDataOutOfDate() {
 	suite.NoError(err)
 
 	// Ensure that it finds the new TAC
-	exists, err = trdm.TGETTACDataOutOfDate(suite.AppContextForTest(), newTime)
+	exists, _, err = trdm.TGETTACDataOutOfDate(suite.AppContextForTest(), newTime)
 	suite.NoError(err)
 	suite.True(exists)
 }
@@ -83,36 +83,6 @@ type MockHTTPClient struct {
 
 func (m *MockHTTPClient) Do(req *http.Request) (*http.Response, error) {
 	return m.DoFunc(req)
-}
-
-func (suite *TRDMSuite) TestLastTableUpdate() {
-
-	mockProvider := &mockAssumeRoleProvider{creds: suite.creds}
-
-	lastUpdateResponse := models.LastTableUpdateResponse{
-		StatusCode: trdm.SuccessfulStatusCode,
-		DateTime:   time.Now(),
-		LastUpdate: time.Now().Add(-24 * time.Hour),
-	}
-
-	responseBody, err := json.Marshal(lastUpdateResponse)
-	suite.NoError(err)
-
-	mockHTTPClient := &MockHTTPClient{
-		DoFunc: func(req *http.Request) (*http.Response, error) {
-			return &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader(responseBody)),
-			}, nil
-		},
-	}
-	// Set the configuration for the test
-	suite.viper.Set(trdm.TrdmIamRoleFlag, "mockRole")
-	suite.viper.Set(trdm.TrdmGatewayRegionFlag, "us-gov-west-1") // TODO: Possibly switch to var that itself is pulled from viper
-	suite.viper.Set(trdm.GatewayURLFlag, gatewayURL)
-
-	err = trdm.BeginTGETFlow(suite.viper, suite.AppContextForTest(), mockProvider, mockHTTPClient)
-	suite.NoError(err)
 }
 
 // This is a rather large test. It will test lastTableUpdate triggering the need to retrieve
