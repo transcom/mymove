@@ -180,7 +180,11 @@ func (v *updateMTOServiceItemData) checkForSITItemChanges(serviceItemData *updat
 			return nil
 		}
 
-		if updatedServiceItem.SITRequestedDelivery != nil && updatedServiceItem.SITRequestedDelivery.UTC() != oldServiceItem.SITRequestedDelivery.UTC() {
+		if updatedServiceItem.SITRequestedDelivery != nil && oldServiceItem.SITRequestedDelivery != nil {
+			if updatedServiceItem.SITRequestedDelivery.UTC() != oldServiceItem.SITRequestedDelivery.UTC() {
+				return nil
+			}
+		} else if updatedServiceItem.SITRequestedDelivery != nil && oldServiceItem.SITRequestedDelivery == nil {
 			return nil
 		}
 
