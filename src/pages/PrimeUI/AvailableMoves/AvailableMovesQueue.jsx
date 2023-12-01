@@ -55,7 +55,9 @@ const columnHeaders = () => [
 
 const PrimeSimulatorAvailableMoves = () => {
   const navigate = useNavigate();
-  const [dateSelected, setDateSelected] = useState('2023-11-28');
+
+  const todayDate = new Date();
+  const [dateSelected, setDateSelected] = useState(todayDate.toISOString().split('T')[0]);
   const { data = {}, ...primeSimulatorAvailableMovesQuery } = useQuery(
     [PRIME_SIMULATOR_AVAILABLE_MOVES, { date: `${dateSelected}` }],
     ({ queryKey: [key, { ...date }] }) => {
@@ -87,22 +89,41 @@ const PrimeSimulatorAvailableMoves = () => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  const setFilterByDate = () => {
+    const filterDate = document.getElementById('filterDate').value;
+    const dateRegex = /\d{4}-\d{2}-\d{2}$/;
+
+    if (dateRegex.exec(filterDate)) {
+      setDateSelected(filterDate);
+      apiQuery();
+    }
+  };
+
   return (
-    <TableQueue
-      title="Moves available to Prime"
-      columns={columnHeaders()}
-      useQueries={apiQuery}
-      handleClick={(row) => {
-        navigate(`/simulator/moves/${row.id}/details`);
-      }}
-      defaultSortedColumns={[{ id: 'availableToPrimeAt', desc: false }]}
-      defaultHiddenColumns={['eTag']}
-      defaultCanSort
-      disableSortBy={false}
-      showFilters
-      showPagination
-      manualFilters={false}
-    />
+    <>
+      <div>
+        <p>Select Filter from Date: (YYYY-MM-DD)</p>
+        <input type="text" id="filterDate" defaultValue={dateSelected} />
+        <button type="button" onClick={setFilterByDate}>
+          Filter
+        </button>
+      </div>
+      <TableQueue
+        title="Moves available to Prime"
+        columns={columnHeaders()}
+        useQueries={apiQuery}
+        handleClick={(row) => {
+          navigate(`/simulator/moves/${row.id}/details`);
+        }}
+        defaultSortedColumns={[{ id: 'availableToPrimeAt', desc: false }]}
+        defaultHiddenColumns={['eTag']}
+        defaultCanSort
+        disableSortBy={false}
+        showFilters
+        showPagination
+        manualFilters={false}
+      />
+    </>
   );
 };
 
