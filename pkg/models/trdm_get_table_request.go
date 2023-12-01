@@ -5,9 +5,8 @@ import "time"
 // The first and second date time filters are used to specifically request a range of data. If not provided,
 // it will pull data with no filter. This allows us to specifically gather identified date ranges of data.
 type GetTableRequest struct {
-	PhysicalName                string     `json:"physicalName"`
-	ContentUpdatedSinceDateTime time.Time  `json:"contentUpdatedSinceDateTime"`
-	ReturnContent               bool       `json:"returnContent"`
-	FirstDateTimeFilter         *time.Time `json:"firstDateTimeFilter"`  // Optional
-	SecondDateTimeFilter        *time.Time `json:"secondDateTimeFIlter"` // Optional
+	PhysicalName                     string     `json:"physicalName"`
+	ContentUpdatedSinceDateTime      time.Time  `json:"contentUpdatedSinceDateTime"`
+	ReturnContent                    bool       `json:"returnContent"`
+	ContentUpdatedOnOrBeforeDateTime *time.Time `json:"contentUpdatedOnOrBeforeDateTime"` // Optional
 }
