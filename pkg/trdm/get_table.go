@@ -33,8 +33,8 @@ func GetTGETData(getTableRequest models.GetTableRequest, lastTableUpdateResponse
 			weekRequest := getTableRequest
 			// Add the first and second datetime filters based on the missing week
 			// These are not provided inside of getTableRequest.
-			weekRequest.FirstDateTimeFilter = &week.StartOfWeek
-			weekRequest.SecondDateTimeFilter = &week.EndOfWeek
+			weekRequest.ContentUpdatedSinceDateTime = week.StartOfWeek
+			weekRequest.ContentUpdatedOnOrBeforeDateTime = &week.EndOfWeek
 
 			// Fire off this weeks request
 			resp, err := service.gatewayGetTable(weekRequest)
