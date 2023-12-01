@@ -562,12 +562,16 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 	switch mtoServiceItem.ModelType() {
 	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemSIT:
 		sit := mtoServiceItem.(*primemessages.UpdateMTOServiceItemSIT)
-		model.SITDepartureDate = models.TimePointer(time.Time(sit.SitDepartureDate))
 		model.ReService.Code = models.ReServiceCode(sit.ReServiceCode)
 		model.SITDestinationFinalAddress = AddressModel(sit.SitDestinationFinalAddress)
 		model.SITRequestedDelivery = (*time.Time)(sit.SitRequestedDelivery)
 		model.Status = models.MTOServiceItemStatusSubmitted
 		model.Reason = sit.UpdateReason
+
+		var zeroDate strfmt.Date
+		if sit.SitDepartureDate != zeroDate {
+			model.SITDepartureDate = models.TimePointer(time.Time(sit.SitDepartureDate))
+		}
 
 		if sit.SitEntryDate != nil {
 			model.SITEntryDate = (*time.Time)(sit.SitEntryDate)
