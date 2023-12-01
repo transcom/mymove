@@ -766,13 +766,11 @@ export const useMoveDetailsQueries = (moveCode) => {
   };
 };
 
-const usePrimeSimulatorAvailableMovesQueries = (dateValue) => {
+const usePrimeSimulatorAvailableMovesQueries = () => {
   const { data = {}, ...primeSimulatorAvailableMovesQuery } = useQuery(
     // [PRIME_SIMULATOR_AVAILABLE_MOVES, {}],
-    [PRIME_SIMULATOR_AVAILABLE_MOVES, `${dateValue}`],
-    ({ queryKey: [key, date] }) => {
-      return getPrimeSimulatorAvailableMoves(key);
-    },
+    [PRIME_SIMULATOR_AVAILABLE_MOVES, {}],
+    ({ queryKey }) => getPrimeSimulatorAvailableMoves(...queryKey),
   );
   const { isLoading, isError, isSuccess } = getQueriesStatus([primeSimulatorAvailableMovesQuery]);
   // README: This queueResult is being artificially constructed rather than

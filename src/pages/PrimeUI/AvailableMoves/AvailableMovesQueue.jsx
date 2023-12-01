@@ -91,7 +91,7 @@ const PrimeSimulatorAvailableMoves = () => {
 
   const setFilterByDate = () => {
     const filterDate = document.getElementById('filterDate').value;
-    const dateRegex = /\d{4}-\d{2}-\d{2}$/;
+    const dateRegex = /^\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/;
 
     if (dateRegex.exec(filterDate)) {
       setDateSelected(filterDate);
