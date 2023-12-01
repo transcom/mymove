@@ -64,13 +64,30 @@ const EditSitEntryDateModal = ({ onClose, onSubmit, serviceItem }) => {
   const initialValues = {
     sitEntryDate: formatDateForDatePicker(moment(serviceItem.sitEntryDate, swaggerDateFormat)),
     prevSitEntryDate: formatDateForDatePicker(moment(serviceItem.sitEntryDate, swaggerDateFormat)),
-    officeRemarks: '',
   };
   // right now the office remarks are just for show
   // TODO add change of SIT entry date to audit logs? Could be an enhancement
   // TODO I'm going to leave this here just in case
   const editSitEntryDateModalSchema = Yup.object().shape({
     officeRemarks: Yup.string().required('Required'),
+    sitEntryDate: Yup.date()
+      .transform((sitEntryDate) => {
+        // in order to make sure the new value isn't the old value, we have to format it and check
+        // this is because it is a Date value, but the prev value is formatted
+        const formattedDate = formatDateForDatePicker(moment(sitEntryDate, swaggerDateFormat));
+        if (formattedDate === initialValues.prevSitEntryDate) {
+          throw new Yup.ValidationError(
+            'New SIT entry date cannot be the same as the previous SIT entry date.',
+            sitEntryDate,
+            'sitEntryDate',
+          );
+        }
+
+        // Return the formatted date if validation passes, or return an error message
+        return sitEntryDate;
+      })
+      .notOneOf([Yup.ref('prevSitEntryDate')], 'SIT entry date cannot be the same as the previous entry date')
+      .required('Required'),
   });
 
   return (
@@ -85,10 +102,14 @@ const EditSitEntryDateModal = ({ onClose, onSubmit, serviceItem }) => {
           <div>
             <Formik
               onSubmit={(values) => onSubmit(serviceItem.id, values.sitEntryDate)}
-              initialValues={{ ...initialValues, officeRemarks: '' }}
+              initialValues={{ ...initialValues }}
               validationSchema={editSitEntryDateModalSchema}
+              initialTouched={{
+                sitEntryDate: false,
+                officeRemarks: true,
+              }}
             >
-              {({ isValid }) => {
+              {({ isValid, setTouched, touched }) => {
                 return (
                   <Form>
                     <DataTableWrapper
@@ -106,7 +127,15 @@ const EditSitEntryDateModal = ({ onClose, onSubmit, serviceItem }) => {
                       id="officeRemarks"
                     />
                     <ModalActions>
-                      <Button type="submit" disabled={!isValid}>
+                      <Button
+                        type="submit"
+                        disabled={
+                          (!isValid && (touched.sitEntryDate || touched.officeRemarks)) ||
+                          !touched.sitEntryDate ||
+                          !touched.officeRemarks
+                        }
+                        onClick={() => setTouched({ sitEntryDate: true, officeRemarks: true })}
+                      >
                         Save
                       </Button>
                       <Button

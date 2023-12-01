@@ -105,11 +105,11 @@ describe('ReviewDocumentsSidePanel', () => {
     expect(listItems[5]).toHaveTextContent(/We don't cover that expense./);
 
     // moving expense 3 - storage 1
-    expect(listItems[6]).toHaveTextContent(/Storage 1/);
+    expect(listItems[6]).toHaveTextContent(/Storage #1/);
     expect(listItems[6]).toHaveTextContent(/Accept/);
 
     // moving expense 4 - storage 2
-    expect(listItems[7]).toHaveTextContent(/Storage 2/);
+    expect(listItems[7]).toHaveTextContent(/Storage #2/);
     expect(listItems[1]).toHaveTextContent(/Reject/);
     expect(listItems[7]).toHaveTextContent(/Invalid storage/);
   });

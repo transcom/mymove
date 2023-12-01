@@ -1,44 +1,45 @@
 .tooltipContainer {
-    position: relative;
-    display: inline-block;
+  position: relative;
+  display: inline-block;
 
-    .tooltipTextTop,
-    .tooltipTextRight,
-    .tooltipTextLeft,
-    .tooltipTextBottom {
-      position: absolute;
-      background-color: rgba($color: #000000, $alpha: 0.8);
-      color: white;
-      padding: 10px;
-      border-radius: 4px;
-      width: 200px;
-      white-space: normal;
-      overflow: auto;
-      height: 80px;
-      z-index: 1;
-      text-align: center;
+  .tooltipTextTop,
+  .tooltipTextRight,
+  .tooltipTextLeft,
+  .tooltipTextBottom {
+    position: absolute;
+    background-color: rgba($color: #000000, $alpha: 0.8);
+    color: white;
+    padding: 10px;
+    border-radius: 4px;
+    width: 200px;
+    text-align: center;
+    white-space: pre-wrap;
+    overflow: auto;
+    height: 80px;
+    z-index: 1;
+    text-align: center;
 
-      &.tooltipTextTop {
-        top: calc(-100% - 65px);
-        transform: translateX(-50%);
-      }
+    &.tooltipTextTop {
+      top: calc(-100% - 65px);
+      transform: translateX(-50%);
+    }
 
-      &.tooltipTextRight {
-        top: 50%;
-        left: calc(100% + 10px);
-        transform: translateY(-50%);
-      }
+    &.tooltipTextRight {
+      top: 50%;
+      left: calc(100% + 10px);
+      transform: translateY(-50%);
+    }
 
-      &.tooltipTextLeft {
-        top: 50%;
-        right: calc(100% + 10px);
-        transform: translateY(-50%);
-      }
+    &.tooltipTextLeft {
+      top: 50%;
+      right: calc(100% + 10px);
+      transform: translateY(-50%);
+    }
 
-      &.tooltipTextBottom {
-        top: calc(100% + 6px);
-        left: 50%;
-        transform: translateX(-50%);
-      }
+    &.tooltipTextBottom {
+      top: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
     }
   }
+}

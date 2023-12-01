@@ -35,9 +35,14 @@ export default {
   updatePaymentRequestStatus: 'updatePaymentRequestStatus',
   updateReweigh: 'updateReweigh',
   updateServiceItemStatus: 'updateMTOServiceItemStatus',
+  updateServiceItemSitEntryDate: 'updateServiceItemSitEntryDate', // ghc.yaml
   uploadAmendedOrders: 'uploadAmendedOrders', // internal.yaml
   patchServiceMember: 'patchServiceMember', // internal.yaml
   createServiceMember: 'createServiceMember', // internal.yaml
   createServiceMemberBackupContact: 'createServiceMemberBackupContact', // internal.yaml
   updateServiceMemberBackupContact: 'updateServiceMemberBackupContact', // internal.yaml
+  createSITAddressUpdateRequest: 'createSITAddressUpdateRequest', // prime.yaml
+  approveSITAddressUpdate: 'approveSITAddressUpdate', // ghc.yaml
+  rejectSITAddressUpdate: 'rejectSITAddressUpdate', // ghc.yaml
+  createSITAddressUpdate: 'createSITAddressUpdate', // ghc.yaml
 };

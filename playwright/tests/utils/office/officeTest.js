@@ -10,6 +10,8 @@ import { BaseTestPage } from '../baseTest';
 
 import WaitForOfficePage from './waitForOfficePage';
 
+export const { expect } = base;
+
 /**
  * devlocal auth user types
  */
@@ -18,6 +20,16 @@ export const TIOOfficeUserType = 'TIO office';
 export const QAECSROfficeUserType = 'QAE/CSR office';
 export const ServicesCounselorOfficeUserType = 'Services Counselor office';
 export const PrimeSimulatorUserType = 'Prime Simulator office';
+export const MultiRoleOfficeUserType = 'Multi role office';
+
+export const DEPARTMENT_INDICATOR_OPTIONS = {
+  AIR_AND_SPACE_FORCE: '57 Air Force and Space Force',
+  ARMY: '21 Army',
+  ARMY_CORPS_OF_ENGINEERS: '96 Army Corps of Engineers',
+  COAST_GUARD: '70 Coast Guard',
+  NAVY_AND_MARINES: '17 Navy and Marine Corps',
+  OFFICE_OF_SECRETARY_OF_DEFENSE: '97 Office of the Secretary of Defense',
+};
 
 /**
  * office test fixture for playwright
@@ -64,6 +76,14 @@ export class OfficePage extends BaseTestPage {
   }
 
   /**
+   * Use devlocal auth to sign in as new Multi-role User
+   */
+  async signInAsNewMultiRoleUser() {
+    await this.signInAsNewUser(MultiRoleOfficeUserType);
+    await this.page.getByText('Change user role').waitFor();
+  }
+
+  /**
    * Use devlocal auth to sign in as new TIO
    */
   async signInAsNewTIOUser() {
@@ -102,6 +122,20 @@ export class OfficePage extends BaseTestPage {
   async signInAsNewQAECSRUser() {
     await this.signInAsNewUser(QAECSROfficeUserType);
     await this.page.getByRole('heading', { name: 'Search for a move' }).waitFor();
+  }
+
+  /**
+   * search for and navigate to move (Prime Simulator role)
+   * @param {string} moveLocator
+   */
+  async primeSimulatorNavigateToMove(moveLocator) {
+    await this.page.locator('input[name="moveCode"]').type(moveLocator);
+    await this.page.locator('input[name="moveCode"]').blur();
+
+    // Click the first returned row
+    await this.page.getByTestId('locator-0').click();
+    await this.waitForPage.moveDetails();
+    await expect(this.page.getByText(moveLocator)).toBeVisible();
   }
 
   /**
@@ -164,7 +198,5 @@ const officeFixtures = {
 };
 
 export const test = base.test.extend(officeFixtures);
-
-export const { expect } = base;
 
 export default test;

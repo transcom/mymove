@@ -96,7 +96,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOPSIT,
+					Code: models.ReServiceCodeDOFSIT,
 				},
 			},
 			{
@@ -259,7 +259,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOPSIT,
+					Code: models.ReServiceCodeDOFSIT,
 				},
 			},
 			{
@@ -411,7 +411,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDDDSIT,
+					Code: models.ReServiceCodeDDFSIT,
 				},
 			},
 			{
@@ -584,7 +584,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOPSIT,
+					Code: models.ReServiceCodeDOFSIT,
 				},
 			},
 			{
@@ -734,7 +734,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDDDSIT,
+					Code: models.ReServiceCodeDDFSIT,
 				},
 			},
 			{

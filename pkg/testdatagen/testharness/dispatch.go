@@ -53,6 +53,9 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveInSIT": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveInSIT(appCtx)
 	},
+	"HHGMoveInSITNoExcessWeight": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveInSITNoExcessWeight(appCtx)
+	},
 	"HHGMoveInSITWithPendingExtension": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveInSITWithPendingExtension(appCtx)
 	},
@@ -85,6 +88,12 @@ var actionDispatcher = map[string]actionFunc{
 	},
 	"MoveWithNTSShipmentsForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeMoveWithNTSShipmentsForTOO(appCtx)
+	},
+	"HHGMoveWithPPMShipmentsReadyForCloseout": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithPPMShipmentsForTOO(appCtx, true)
+	},
+	"HHGMoveWithPPMShipmentsReadyForCounseling": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithPPMShipmentsForTOO(appCtx, false)
 	},
 	"HHGMoveWithExternalNTSShipmentsForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithExternalNTSShipmentsForTOO(appCtx)

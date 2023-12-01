@@ -47,6 +47,10 @@ const ShipmentDetailsMain = ({
   const {
     requestedPickupDate,
     scheduledPickupDate,
+    actualPickupDate,
+    requestedDeliveryDate,
+    scheduledDeliveryDate,
+    actualDeliveryDate,
     requiredDeliveryDate,
     pickupAddress,
     destinationAddress,
@@ -64,14 +68,17 @@ const ShipmentDetailsMain = ({
 
   const [isReviewSITExtensionModalVisible, setIsReviewSITExtensionModalVisible] = useState(false);
   const [isSubmitITExtensionModalVisible, setIsSubmitITExtensionModalVisible] = useState(false);
+  const [, setSubmittedChangeTime] = useState(Date.now());
 
   const reviewSITExtension = (sitExtensionID, formValues) => {
     setIsReviewSITExtensionModalVisible(false);
     handleReviewSITExtension(sitExtensionID, formValues, shipment);
+    setSubmittedChangeTime(Date.now());
   };
   const submitSITExtension = (formValues) => {
     setIsSubmitITExtensionModalVisible(false);
     handleSubmitSITExtension(formValues, shipment);
+    setSubmittedChangeTime(Date.now());
   };
 
   const pendingSITExtension = sitExtensions?.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
@@ -146,8 +153,12 @@ const ShipmentDetailsMain = ({
         />
       )}
       <ImportantShipmentDates
-        requestedPickupDate={formatDate(requestedPickupDate)}
+        requestedPickupDate={requestedPickupDate ? formatDate(requestedPickupDate) : null}
         scheduledPickupDate={scheduledPickupDate ? formatDate(scheduledPickupDate) : null}
+        actualPickupDate={actualPickupDate ? formatDate(actualPickupDate) : null}
+        requestedDeliveryDate={requestedDeliveryDate ? formatDate(requestedDeliveryDate) : null}
+        scheduledDeliveryDate={scheduledDeliveryDate ? formatDate(scheduledDeliveryDate) : null}
+        actualDeliveryDate={actualDeliveryDate ? formatDate(actualDeliveryDate) : null}
         requiredDeliveryDate={requiredDeliveryDate ? formatDate(requiredDeliveryDate) : null}
       />
       <ShipmentAddresses
@@ -165,7 +176,7 @@ const ShipmentDetailsMain = ({
       />
       <ShipmentWeightDetails
         estimatedWeight={primeEstimatedWeight}
-        actualWeight={primeActualWeight}
+        initialWeight={primeActualWeight}
         shipmentInfo={{
           shipmentID: shipment.id,
           ifMatchEtag: shipment.eTag,

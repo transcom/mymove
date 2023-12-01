@@ -1,11 +1,14 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { mount } from 'enzyme';
 
 import ShipmentWeightDetails from './ShipmentWeightDetails';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
+
+const emDash = '\u2014';
 
 const shipmentInfoReweighRequested = {
   shipmentID: 'shipment1',
@@ -36,28 +39,31 @@ describe('ShipmentWeightDetails', () => {
       <MockProviders permissions={[permissionTypes.createReweighRequest]}>
         <ShipmentWeightDetails
           estimatedWeight={4500}
-          actualWeight={5000}
+          initialWeight={5000}
           shipmentInfo={shipmentInfoNoReweigh}
           handleRequestReweighModal={handleRequestReweighModal}
         />
       </MockProviders>,
     );
 
-    const estWeight = await screen.findByText('Estimated weight');
-    expect(estWeight).toBeTruthy();
+    const estimatedWeight = await screen.findByText('Estimated weight');
+    expect(estimatedWeight).toBeTruthy();
 
-    const shipWeight = await screen.findByText('Shipment weight');
-    expect(shipWeight).toBeTruthy();
+    const initialWeight = await screen.findByText('Initial weight');
+    expect(initialWeight).toBeTruthy();
 
     const reweighButton = await screen.findByText('Request reweigh');
     expect(reweighButton).toBeTruthy();
+
+    const actualWeight = await screen.findByText('Actual shipment weight');
+    expect(actualWeight).toBeTruthy();
   });
 
   it('renders with estimated weight if not an NTSR', async () => {
     render(
       <ShipmentWeightDetails
         estimatedWeight={11000}
-        actualWeight={12000}
+        initialWeight={12000}
         shipmentInfo={shipmentInfoReweighRequested}
         handleRequestReweighModal={handleRequestReweighModal}
       />,
@@ -68,29 +74,29 @@ describe('ShipmentWeightDetails', () => {
   });
 
   it('renders without estimated weight if an NTSR', async () => {
-    render(
+    const wrapper = mount(
       <ShipmentWeightDetails
         estimatedWeight={null}
-        actualWeight={12000}
+        initialWeight={12000}
         shipmentInfo={{ ...shipmentInfoReweighRequested, shipmentType: SHIPMENT_OPTIONS.NTSR }}
         handleRequestReweighModal={handleRequestReweighModal}
       />,
     );
 
-    expect(screen.queryByText('Estimated weight')).not.toBeInTheDocument();
+    expect(wrapper.find('td').at(0).text()).toEqual(emDash);
   });
 
   it('renders with shipment weight', async () => {
     render(
       <ShipmentWeightDetails
         estimatedWeight={11000}
-        actualWeight={12000}
+        initialWeight={12000}
         shipmentInfo={shipmentInfoReweighRequested}
         handleRequestReweighModal={handleRequestReweighModal}
       />,
     );
 
-    const shipWeight = await screen.findByText('12,000 lbs');
+    const shipWeight = await screen.findAllByText('12,000 lbs');
     expect(shipWeight).toBeTruthy();
   });
 
@@ -99,7 +105,7 @@ describe('ShipmentWeightDetails', () => {
       <MockProviders permissions={[permissionTypes.createReweighRequest]}>
         <ShipmentWeightDetails
           estimatedWeight={11000}
-          actualWeight={12000}
+          initialWeight={12000}
           shipmentInfo={shipmentInfoNoReweigh}
           handleRequestReweighModal={handleRequestReweighModal}
         />
@@ -115,7 +121,7 @@ describe('ShipmentWeightDetails', () => {
       <MockProviders permissions={[permissionTypes.createReweighRequest]}>
         <ShipmentWeightDetails
           estimatedWeight={11000}
-          actualWeight={12000}
+          initialWeight={12000}
           shipmentInfo={shipmentInfoReweighRequested}
           handleRequestReweighModal={handleRequestReweighModal}
         />
@@ -135,7 +141,7 @@ describe('ShipmentWeightDetails', () => {
     render(
       <ShipmentWeightDetails
         estimatedWeight={11000}
-        actualWeight={12000}
+        initialWeight={12000}
         shipmentInfo={shipmentInfoNoReweigh}
         handleRequestReweighModal={handleRequestReweighModal}
       />,
@@ -149,7 +155,7 @@ describe('ShipmentWeightDetails', () => {
     render(
       <ShipmentWeightDetails
         estimatedWeight={11000}
-        actualWeight={12000}
+        initialWeight={12000}
         shipmentInfo={shipmentInfoReweigh}
         handleRequestReweighModal={handleRequestReweighModal}
       />,
@@ -163,15 +169,15 @@ describe('ShipmentWeightDetails', () => {
   });
 
   it('renders the lowest of either reweight or actual weight', async () => {
-    render(
+    const wrapper = mount(
       <ShipmentWeightDetails
         estimatedWeight={11000}
-        actualWeight={12000}
+        initialWeight={12000}
         shipmentInfo={shipmentInfoReweigh}
         handleRequestReweighModal={handleRequestReweighModal}
       />,
     );
 
-    expect(screen.getByText('1,000 lbs')).toBeInTheDocument();
+    expect(wrapper.find('td').at(2).text()).toEqual('1,000 lbs');
   });
 });

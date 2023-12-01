@@ -101,6 +101,20 @@ export class TestHarness {
   /**
    * @returns {Promise<Move>}
    */
+  async buildPartialPPMMoveReadyForCloseout() {
+    return this.buildDefault('HHGMoveWithPPMShipmentsReadyForCloseout');
+  }
+
+  /**
+   * @returns {Promise<Move>}
+   */
+  async buildPartialPPMMoveReadyForCounseling() {
+    return this.buildDefault('HHGMoveWithPPMShipmentsReadyForCounseling');
+  }
+
+  /**
+   * @returns {Promise<Move>}
+   */
   async buildPPMInProgressMove() {
     return this.buildDefault('PPMInProgressMove');
   }
@@ -146,6 +160,14 @@ export class TestHarness {
    */
   async buildHHGMoveInSIT() {
     return this.buildDefault('HHGMoveInSIT');
+  }
+
+  /**
+   * Use testharness to build a move with an hhg shipment in SIT without excess weight
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveInSITNoExcessWeight() {
+    return this.buildDefault('HHGMoveInSITNoExcessWeight');
   }
 
   /**

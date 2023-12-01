@@ -1,10 +1,10 @@
 /* eslint-disable import/prefer-default-export */
 import MOVE_STATUSES from 'constants/moves';
 import { shipmentStatuses } from 'constants/shipments';
-import SERVICE_ITEM_STATUS from 'constants/serviceItems';
+import { SERVICE_ITEM_STATUSES } from 'constants/serviceItems';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { SIT_ADDRESS_UPDATE_STATUS } from 'constants/sitUpdates';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SERVICE_ITEM_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
 import { SITStatusOrigin } from 'components/Office/ShipmentSITDisplay/ShipmentSITDisplayTestParams';
 
 export const unapprovedMTOQuery = {
@@ -1741,7 +1741,7 @@ export const reviewWeightsQuery = {
       },
       customerID: '25cd44a2-eb40-473f-b6c9-e99e25387a54',
       date_issued: '2018-03-15',
-      department_indicator: 'AIR_FORCE',
+      department_indicator: 'AIR_AND_SPACE_FORCE',
       destinationDutyLocation: {
         address: {
           city: 'Fort Gordon',
@@ -2197,7 +2197,7 @@ export const reviewWeightsNoProGearQuery = {
       },
       customerID: '25cd44a2-eb40-473f-b6c9-e99e25387a54',
       date_issued: '2018-03-15',
-      department_indicator: 'AIR_FORCE',
+      department_indicator: 'AIR_AND_SPACE_FORCE',
       destinationDutyLocation: {
         address: {
           city: 'Fort Gordon',
@@ -2637,4 +2637,258 @@ export const unapprovedSITAddressUpdates = {
       ],
     },
   ],
+};
+
+const move = {
+  id: '1',
+  contractor: {
+    contractNumber: 'HTC-123-3456',
+  },
+  orders: {
+    sac: '1234456',
+    tac: '1213',
+  },
+  billableWeightsReviewedAt: '2021-06-01',
+};
+
+const order = {
+  orders_type: 'PERMANENT_CHANGE_OF_STATION',
+  has_dependents: false,
+  issue_date: '2020-08-11',
+  grade: 'RANK',
+  moves: ['123'],
+  origin_duty_location: {
+    name: 'Test Duty Location',
+    address: {
+      postalCode: '123456',
+    },
+  },
+  new_duty_location: {
+    name: 'New Test Duty Location',
+    address: {
+      postalCode: '123456',
+    },
+  },
+  report_by_date: '2020-08-31',
+  service_member_id: '666',
+  spouse_has_pro_gear: false,
+  status: MOVE_STATUSES.SUBMITTED,
+  uploaded_orders: {
+    uploads: [],
+  },
+  entitlement: {
+    authorizedWeight: 8000,
+    dependentsAuthorized: true,
+    eTag: 'MjAyMS0wOC0yNFQxODoyNDo0MC45NzIzMTha',
+    id: '188842d1-cf88-49ec-bd2f-dfa98da44bb2',
+    nonTemporaryStorage: true,
+    organizationalClothingAndIndividualEquipment: true,
+    privatelyOwnedVehicle: true,
+    proGearWeight: 2000,
+    proGearWeightSpouse: 500,
+    requiredMedicalEquipmentWeight: 1000,
+    storageInTransit: 2,
+    totalDependents: 1,
+    totalWeight: 8000,
+  },
+};
+
+export const multiplePaymentRequests = {
+  paymentRequests: [
+    {
+      id: '09474c6a-69b6-4501-8e08-670a12512e5f',
+      createdAt: '2020-12-01T00:00:00.000Z',
+      paymentRequestNumber: '1843-9061-1',
+      status: 'REVIEWED',
+      moveTaskOrderID: '1',
+      moveTaskOrder: move,
+      serviceItems: [
+        {
+          id: '09474c6a-69b6-4501-8e08-670a12512a5f',
+          createdAt: '2020-12-01T00:00:00.000Z',
+          mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+          priceCents: 2000001,
+          status: 'APPROVED',
+        },
+        {
+          id: '39474c6a-69b6-4501-8e08-670a12512a5f',
+          createdAt: '2020-12-01T00:00:00.000Z',
+          mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+          priceCents: 4000001,
+          status: 'DENIED',
+          rejectionReason: 'Requested amount exceeds guideline',
+        },
+      ],
+      reviewedAt: '2020-12-01T00:00:00.000Z',
+    },
+    {
+      id: '29474c6a-69b6-4501-8e08-670a12512e5f',
+      createdAt: '2020-12-01T00:00:00.000Z',
+      paymentRequestNumber: '1843-9061-2',
+      status: 'PENDING',
+      moveTaskOrderID: '1',
+      moveTaskOrder: move,
+      serviceItems: [
+        {
+          id: '09474c6a-69b6-4501-8e08-670a12512a5f',
+          createdAt: '2020-12-01T00:00:00.000Z',
+          mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+          priceCents: 2000001,
+          status: 'REQUESTED',
+        },
+        {
+          id: '39474c6a-69b6-4501-8e08-670a12512a5f',
+          createdAt: '2020-12-01T00:00:00.000Z',
+          mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+          priceCents: 4000001,
+          status: 'REQUESTED',
+        },
+      ],
+    },
+  ],
+  mtoShipments: [
+    {
+      shipmentType: 'HHG',
+      id: '2',
+      moveTaskOrderID: '1',
+      status: shipmentStatuses.APPROVED,
+      scheduledPickupDate: '2020-01-09T00:00:00.000Z',
+      destinationAddress: { city: 'Princeton', state: 'NJ', postalCode: '08540' },
+      pickupAddress: { city: 'Boston', state: 'MA', postalCode: '02101' },
+      calculatedBillableWeight: 9000,
+      primeActualWeight: 500,
+      reweigh: {
+        id: 'reweighID1',
+        weight: 100,
+      },
+      mtoServiceItems: [
+        {
+          id: '5',
+          mtoShipmentID: '2',
+          status: SERVICE_ITEM_STATUSES.APPROVED,
+        },
+        {
+          id: '6',
+          status: SERVICE_ITEM_STATUSES.REJECTED,
+          mtoShipmentID: '2',
+        },
+        {
+          id: '7',
+          status: SERVICE_ITEM_STATUSES.SUBMITTED,
+          mtoShipmentID: '2',
+        },
+      ],
+    },
+    {
+      shipmentType: 'HHG',
+      id: '3',
+      moveTaskOrderID: '1',
+      status: shipmentStatuses.APPROVED,
+      scheduledPickupDate: '2020-01-10T00:00:00.000Z',
+      destinationAddress: { city: 'Princeton', state: 'NJ', postalCode: '08540' },
+      pickupAddress: { city: 'Boston', state: 'MA', postalCode: '02101' },
+      calculatedBillableWeight: 1000,
+      primeActualWeight: 5000,
+      reweigh: {
+        id: 'reweighID2',
+        weight: 600,
+      },
+      mtoServiceItems: [
+        {
+          id: '9',
+          mtoShipmentID: '3',
+          status: SERVICE_ITEM_STATUSES.APPROVED,
+        },
+        {
+          id: '10',
+          status: SERVICE_ITEM_STATUSES.REJECTED,
+          mtoShipmentID: '3',
+        },
+        {
+          id: '11',
+          status: SERVICE_ITEM_STATUSES.SUBMITTED,
+          mtoShipmentID: '3',
+        },
+      ],
+    },
+    {
+      shipmentType: 'HHG',
+      id: '4',
+      moveTaskOrderID: '1',
+      status: shipmentStatuses.SUBMITTED,
+      scheduledPickupDate: '2020-01-11T00:00:00.000Z',
+      destinationAddress: { city: 'Princeton', state: 'NJ', postalCode: '08540' },
+      pickupAddress: { city: 'Boston', state: 'MA', postalCode: '02101' },
+      calculatedBillableWeight: 2000,
+      primeActualWeight: 300,
+      reweigh: {
+        id: 'reweighID3',
+        weight: 900,
+      },
+      mtoServiceItems: [
+        {
+          id: '12',
+          mtoShipmentID: '4',
+          status: SERVICE_ITEM_STATUSES.APPROVED,
+        },
+        {
+          id: '13',
+          status: SERVICE_ITEM_STATUSES.REJECTED,
+          mtoShipmentID: '4',
+        },
+        {
+          id: '14',
+          status: SERVICE_ITEM_STATUSES.SUBMITTED,
+          mtoShipmentID: '4',
+        },
+      ],
+    },
+  ],
+  order,
+};
+
+export const moveHistoryTestData = {
+  isLoading: false,
+  isError: false,
+  queueResult: {
+    totalCount: 2,
+    data: [
+      {
+        action: 'UPDATE',
+        actionTstampClk: '2022-03-09T15:33:38.623Z',
+        actionTstampStm: '2022-03-09T15:33:38.622Z',
+        actionTstampTx: '2022-03-09T15:33:38.579Z',
+        changedValues: { available_to_prime_at: '2022-04-11T19:31:18.482947+00:00', status: 'APPROVED' },
+        clientQuery:
+          'UPDATE "moves" AS moves SET "available_to_prime_at" = $1, "billable_weights_reviewed_at" = $2, "cancel_reason" = $3, "contractor_id" = $4, "excess_weight_acknowledged_at" = $5, "excess_weight_qualified_at" = $6, "excess_weight_upload_id" = $7, "financial_review_flag" = $8, "financial_review_flag_set_at" = $9, "financial_review_remarks" = $10, "locator" = $11, "orders_id" = $12, "ppm_estimated_weight" = $13, "ppm_type" = $14, "reference_id" = $15, "selected_move_type" = $16, "service_counseling_completed_at" = $17, "show" = $18, "status" = $19, "submitted_at" = $20, "tio_remarks" = $21, "updated_at" = $22 WHERE moves.id = $23',
+        eventName: 'updateMTOServiceItem',
+        id: '6f5a4601-edde-4df1-aca9-0d3b58c11b59',
+        objectId: '3efc84ca-d5a8-4f5f-b9b8-6deca1188e11',
+        oldValues: {
+          available_to_prime_at: '',
+          billable_weights_reviewed_at: '',
+          cancel_reason: '',
+          contractor_id: '5db13bb4-6d29-4bdb-bc81-262f4513ecf6',
+          excess_weight_acknowledged_at: '',
+          excess_weight_qualified_at: '',
+          excess_weight_upload_id: '',
+          financial_review_flag: '',
+          financial_review_flag_set_at: '',
+          financial_review_remarks: '',
+          id: '3efc84ca-d5a8-4f5f-b9b8-6deca1188e11',
+          locator: 'YRHCWH',
+          orders_id: 'e76cd7b9-689e-439e-a7d3-553b7eefe413',
+          ppm_estimated_weight: '',
+          ppm_type: 'PARTIAL',
+          reference_id: '1895-7770',
+          selected_move_type: 'PPM',
+          service_counseling_completed_at: '2022-04-11T19:28:00.832092+00:00',
+          show: '',
+          status: 'REJECTED',
+          submitted_at: '2021-09-11T19:36:00.871143',
+          tio_remarks: '',
+        },
+      },
+    ],
+  },
 };
