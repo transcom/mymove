@@ -64,7 +64,8 @@ const PrimeSimulatorAvailableMoves = () => {
       return getPrimeSimulatorAvailableMoves(key, date);
     },
   );
-
+  
+  // eslint-disable-next-line no-use-before-define
   const apiQuery = (...items) => {
     const { isLoading, isError, isSuccess } = getQueriesStatus([primeSimulatorAvailableMovesQuery]);
     // README: This queueResult is being artificially constructed rather than
