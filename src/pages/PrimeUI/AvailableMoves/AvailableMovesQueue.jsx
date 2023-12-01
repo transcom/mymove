@@ -1,18 +1,21 @@
+import { useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { createHeader } from 'components/Table/utils';
 import TableQueue from 'components/Table/TableQueue';
-import { usePrimeSimulatorAvailableMovesQueries } from 'hooks/queries';
+import { createHeader } from 'components/Table/utils';
+import { PRIME_SIMULATOR_AVAILABLE_MOVES } from 'constants/queryKeys';
 // TODO: This is very clunky. There are shared/formatters and util/formatters
 // that determine dates. This way is a way to do it now, but this should be
 // refactored as part of TRA work to be done differently across the app.
 // For now though, I'm going to be using the `formatDateFromIso` function and
 // then leverage a constant for how the date should be formatted.
-import { formatDateFromIso } from 'utils/formatters';
-import { DATE_TIME_FORMAT_STRING } from 'shared/constants';
+import { getPrimeSimulatorAvailableMoves } from 'services/primeApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { DATE_TIME_FORMAT_STRING } from 'shared/constants';
+import { getQueriesStatus } from 'utils/api';
+import { formatDateFromIso } from 'utils/formatters';
 
 const columnHeaders = () => [
   createHeader('Move ID', 'id', {
@@ -53,7 +56,34 @@ const columnHeaders = () => [
 const PrimeSimulatorAvailableMoves = () => {
   const navigate = useNavigate();
   const [dateSelected, setDateSelected] = useState('2023-11-28');
-  const { isLoading, isError } = usePrimeSimulatorAvailableMovesQueries(dateSelected);
+  const { data = {}, ...primeSimulatorAvailableMovesQuery } = useQuery(
+    [PRIME_SIMULATOR_AVAILABLE_MOVES, { date: `${dateSelected}` }],
+    ({ queryKey: [key, { ...date }] }) => {
+      return getPrimeSimulatorAvailableMoves(key, date);
+    },
+  );
+
+  const apiQuery = (...items) => {
+    const { isLoading, isError, isSuccess } = getQueriesStatus([primeSimulatorAvailableMovesQuery]);
+    // README: This queueResult is being artificially constructed rather than
+    // created using the `..dataProp` destructering of other functions because
+    // the Prime API does not return an Object that the TableQueue component can
+    // consume. So the queueResult mimics that Objects properties since `data` in
+    // this case is a simple Array of Prime Available Moves.
+    const queueResult = {
+      data,
+      page: 1,
+      perPage: data.length,
+      totalCount: data.length,
+    };
+    return {
+      queueResult,
+      isLoading,
+      isError,
+      isSuccess,
+    };
+  };
+  const { isLoading, isError } = apiQuery();
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -61,7 +91,7 @@ const PrimeSimulatorAvailableMoves = () => {
     <TableQueue
       title="Moves available to Prime"
       columns={columnHeaders()}
-      useQueries={usePrimeSimulatorAvailableMovesQueries}
+      useQueries={apiQuery}
       handleClick={(row) => {
         navigate(`/simulator/moves/${row.id}/details`);
       }}

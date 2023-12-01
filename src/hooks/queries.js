@@ -766,11 +766,13 @@ export const useMoveDetailsQueries = (moveCode) => {
   };
 };
 
-export const usePrimeSimulatorAvailableMovesQueries = (date) => {
+const usePrimeSimulatorAvailableMovesQueries = (dateValue) => {
   const { data = {}, ...primeSimulatorAvailableMovesQuery } = useQuery(
-    [PRIME_SIMULATOR_AVAILABLE_MOVES, {}],
-    // [PRIME_SIMULATOR_AVAILABLE_MOVES, { date }],
-    ({ queryKey }) => getPrimeSimulatorAvailableMoves(...queryKey),
+    // [PRIME_SIMULATOR_AVAILABLE_MOVES, {}],
+    [PRIME_SIMULATOR_AVAILABLE_MOVES, `${dateValue}`],
+    ({ queryKey: [key, date] }) => {
+      return getPrimeSimulatorAvailableMoves(key);
+    },
   );
   const { isLoading, isError, isSuccess } = getQueriesStatus([primeSimulatorAvailableMovesQuery]);
   // README: This queueResult is being artificially constructed rather than
@@ -784,7 +786,6 @@ export const usePrimeSimulatorAvailableMovesQueries = (date) => {
     perPage: data.length,
     totalCount: data.length,
   };
-
   return {
     queueResult,
     isLoading,
@@ -800,7 +801,6 @@ export const usePrimeSimulatorGetMove = (moveCode) => {
   );
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([primeSimulatorGetMoveQuery]);
-
   return {
     moveTaskOrder,
     isLoading,

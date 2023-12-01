@@ -21,13 +21,12 @@ export async function makePrimeSimulatorRequest(operationPath, params = {}, opti
   return makeSwaggerRequest(client, operationPath, params, options);
 }
 
-export async function getPrimeSimulatorAvailableMoves(key, date) {
+export async function getPrimeSimulatorAvailableMoves(key, { date }) {
   const operationPath = 'moveTaskOrder.listMoves';
-
   return makePrimeSimulatorRequest(
     operationPath,
     // { since: `${date.date !== undefined ? String(date.date) : '2023-11-28'}T00:00:00.000Z` },
-    { since: '2023-11-28T00:00:00.000Z' },
+    { since: `${date}T00:00:00.000Z` },
     { schemaKey: 'listMoves', normalize: false },
   );
 }
