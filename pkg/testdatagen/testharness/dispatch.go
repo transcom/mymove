@@ -53,6 +53,9 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveInSIT": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveInSIT(appCtx)
 	},
+	"HHGMoveInSITNoExcessWeight": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveInSITNoExcessWeight(appCtx)
+	},
 	"HHGMoveInSITWithPendingExtension": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveInSITWithPendingExtension(appCtx)
 	},

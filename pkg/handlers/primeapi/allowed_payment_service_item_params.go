@@ -12,10 +12,60 @@ var (
 		models.ReServiceCodeDOASIT: {
 			models.ServiceItemParamNameSITPaymentRequestStart,
 			models.ServiceItemParamNameSITPaymentRequestEnd,
+			models.ServiceItemParamNameWeightBilled,
 		},
 		models.ReServiceCodeDDASIT: {
 			models.ServiceItemParamNameSITPaymentRequestStart,
 			models.ServiceItemParamNameSITPaymentRequestEnd,
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeDOFSIT: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeDLH: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeFSC: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeDSH: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeDUPK: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeDNPK: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeDOPSIT: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeDDDSIT: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeDDSHUT: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeDOSHUT: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeDDFSIT: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeDOP: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeDDP: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeDPK: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeDDSFSC: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeDOSFSC: {
+			models.ServiceItemParamNameWeightBilled,
 		},
 	}
 )

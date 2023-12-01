@@ -21,7 +21,7 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 	})
 	suite.Run("test fetch stubbed orders duty location", func() {
 		dutyLocation := FetchOrBuildOrdersDutyLocation(nil)
-		suite.Equal("Fort Gordon", dutyLocation.Name)
+		suite.Equal("Fort Eisenhower, GA 30813", dutyLocation.Name)
 	})
 	suite.Run("Successful creation of default duty location", func() {
 		// Under test:      BuildDutyLocation
@@ -252,7 +252,7 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 		suite.Equal(affiliation, *dutyLocation.Affiliation)
 	})
 
-	suite.Run("Successful creation of Fort Gordon DutyLocation", func() {
+	suite.Run("Successful creation of Fort Eisenhower DutyLocation", func() {
 		// Under test:       FetchOrMakeDefaultNewOrdersDutyLocation
 		// Set up:           Count how many dutylocations and transportation office records we have
 		//                   Call the function twice.
@@ -274,13 +274,13 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 		countTO, err := suite.DB().Count(&models.TransportationOffice{})
 		suite.NoError(err)
 		suite.Equal(precountTO+1, countTO)
-		suite.Equal("Fort Gordon", dutyLocation.Name)
+		suite.Equal("Fort Eisenhower, GA 30813", dutyLocation.Name)
 
 		// Calling the function again
 		dutyLocation2 := FetchOrBuildOrdersDutyLocation(suite.DB())
 
 		// We should get the same record we created before
-		suite.Equal("Fort Gordon", dutyLocation2.Name)
+		suite.Equal("Fort Eisenhower, GA 30813", dutyLocation2.Name)
 		suite.Equal(dutyLocation.ID, dutyLocation2.ID)
 		// There should still only be one more of each record than we had at the start of the test.
 		countDL, err = suite.DB().Count(&models.DutyLocation{})

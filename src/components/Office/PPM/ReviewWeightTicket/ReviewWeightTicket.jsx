@@ -253,7 +253,7 @@ export default function ReviewWeightTicket({
                 </FormGroup>
               )}
               <h3 className={styles.reviewHeader}>Review trip {tripNumber}</h3>
-              <p>Add a review for this weight ticket</p>
+              <p>Add a review for this Weight Ticket</p>
               <ErrorMessage display={!!errors?.status && !!touched?.status}>{errors.status}</ErrorMessage>
               <Fieldset className={styles.statusOptions}>
                 <div
