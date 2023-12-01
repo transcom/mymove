@@ -814,8 +814,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	// Gather TRDM TGET data
 	trdmEnabledEnvironments := []string{
-		cli.EnvironmentStg,
-		cli.EnvironmentPrd,
+		"temporarily-disabled",
 	}
 	logger.Info("checking if trdm environment is valid..")
 	if environment := v.GetString(cli.EnvironmentFlag); stringSliceContains(trdmEnabledEnvironments, environment) {
