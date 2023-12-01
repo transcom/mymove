@@ -86,6 +86,7 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
     eTag: serviceItem.eTag,
   };
 
+  // sending the data submitted in the destination SIT form to the API
   const destSitOnSubmit = (values) => {
     const { address, sitCustomerContacted, sitDepartureDate, sitRequestedDelivery, mtoServiceItemID, eTag } = values;
 
@@ -107,6 +108,7 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
     createUpdateSITServiceItemRequestMutation({ mtoServiceItemID, eTag, body });
   };
 
+  // sending the data submitted in the origin SIT form to the API
   const originSitOnSubmit = (values) => {
     const { sitCustomerContacted, sitDepartureDate, sitRequestedDelivery, mtoServiceItemID, eTag } = values;
 
