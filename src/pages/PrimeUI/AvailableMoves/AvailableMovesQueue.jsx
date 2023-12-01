@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { createHeader } from 'components/Table/utils';
@@ -52,7 +52,8 @@ const columnHeaders = () => [
 
 const PrimeSimulatorAvailableMoves = () => {
   const navigate = useNavigate();
-  const { isLoading, isError } = usePrimeSimulatorAvailableMovesQueries();
+  const [dateSelected, setDateSelected] = useState('2023-11-28');
+  const { isLoading, isError } = usePrimeSimulatorAvailableMovesQueries(dateSelected);
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -69,6 +70,7 @@ const PrimeSimulatorAvailableMoves = () => {
       defaultCanSort
       disableSortBy={false}
       showFilters
+      showPagination
       manualFilters={false}
     />
   );
