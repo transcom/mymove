@@ -100,6 +100,14 @@ export function createServiceItem({ body }) {
   return makePrimeSimulatorRequest('mtoServiceItem.createMTOServiceItem', { body: { ...body } }, { normalize: false });
 }
 
+export function updateMTOServiceItem({ mtoServiceItemID, eTag, body }) {
+  return makePrimeSimulatorRequest(
+    'mtoServiceItem.updateMTOServiceItem',
+    { mtoServiceItemID, 'If-Match': eTag, body: { ...body } },
+    { normalize: false },
+  );
+}
+
 export function createSITAddressUpdateRequest({ body }) {
   return makePrimeSimulatorRequest(
     'sitAddressUpdate.createSITAddressUpdateRequest',

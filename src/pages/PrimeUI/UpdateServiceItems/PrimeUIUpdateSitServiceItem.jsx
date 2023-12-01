@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import PrimeUIUpdateOriginSITForm from './PrimeUIUpdateOriginSITForm';
 import PrimeUIUpdateDestSITForm from './PrimeUIUpdateDestSITForm';
 
-import { createSITAddressUpdateRequest } from 'services/primeApi';
+import { updateMTOServiceItem } from 'services/primeApi';
 import { fromPrimeAPIAddressFormat } from 'utils/formatters';
 import scrollToTop from 'shared/scrollToTop';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
@@ -24,7 +24,7 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
   const navigate = useNavigate();
   const { moveCodeOrID, mtoServiceItemId } = useParams();
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
-  const { mutate: createAdressUpdateRequestMutation } = useMutation(createSITAddressUpdateRequest, {
+  const { mutate: createUpdateSITServiceItemRequestMutation } = useMutation(updateMTOServiceItem, {
     onSuccess: () => {
       setFlashMessage(
         `MSG_CREATE_ADDRESS_UPDATE_REQUEST_SUCCESS${moveCodeOrID}`,
@@ -75,6 +75,7 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
     sitRequestedDelivery: formatDate(serviceItem.sitRequestedDelivery, 'YYYY-MM-DD', 'DD MMM YYYY'),
     sitCustomerContacted: formatDate(serviceItem.sitCustomerContacted, 'YYYY-MM-DD', 'DD MMM YYYY'),
     mtoServiceItemID: serviceItem.id,
+    eTag: serviceItem.eTag,
   };
 
   const originSitInitialValues = {
@@ -82,10 +83,11 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
     sitRequestedDelivery: formatDate(serviceItem.sitRequestedDelivery, 'YYYY-MM-DD', 'DD MMM YYYY'),
     sitCustomerContacted: formatDate(serviceItem.sitCustomerContacted, 'YYYY-MM-DD', 'DD MMM YYYY'),
     mtoServiceItemID: serviceItem.id,
+    eTag: serviceItem.eTag,
   };
 
   const destSitOnSubmit = (values) => {
-    const { address, sitCustomerContacted, sitDepartureDate, sitRequestedDelivery, mtoServiceItemID } = values;
+    const { address, sitCustomerContacted, sitDepartureDate, sitRequestedDelivery, mtoServiceItemID, eTag } = values;
 
     const body = {
       newAddress: {
@@ -99,23 +101,23 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
       sitDepartureDate: formatDateForSwagger(sitDepartureDate),
       sitRequestedDelivery: formatDateForSwagger(sitRequestedDelivery),
       sitCustomerContacted: formatDateForSwagger(sitCustomerContacted),
-      mtoServiceItemID,
+      modelType: 'UpdateMTOServiceItemSIT',
     };
 
-    createAdressUpdateRequestMutation({ body });
+    createUpdateSITServiceItemRequestMutation({ mtoServiceItemID, eTag, body });
   };
 
   const originSitOnSubmit = (values) => {
-    const { sitCustomerContacted, sitDepartureDate, sitRequestedDelivery, mtoServiceItemID } = values;
+    const { sitCustomerContacted, sitDepartureDate, sitRequestedDelivery, mtoServiceItemID, eTag } = values;
 
     const body = {
       sitDepartureDate: formatDateForSwagger(sitDepartureDate),
       sitRequestedDelivery: formatDateForSwagger(sitRequestedDelivery),
       sitCustomerContacted: formatDateForSwagger(sitCustomerContacted),
-      mtoServiceItemID,
+      modelType: 'UpdateMTOServiceItemSIT',
     };
 
-    createAdressUpdateRequestMutation({ body });
+    createUpdateSITServiceItemRequestMutation({ mtoServiceItemID, eTag, body });
   };
 
   return (
