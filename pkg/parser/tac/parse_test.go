@@ -51,10 +51,10 @@ func (suite *TacParserSuite) TestParsing() {
 
 	// Create expected TransportationAccountingCode
 	expected := models.TransportationAccountingCode{
-		TacSysID:           models.IntPointer(1234567884),
-		LoaSysID:           models.IntPointer(12345678),
+		TacSysID:           models.StringPointer("1234567884"),
+		LoaSysID:           models.StringPointer("12345678"),
 		TAC:                "0003",
-		TacFyTxt:           models.IntPointer(2022),
+		TacFyTxt:           models.StringPointer("2022"),
 		TacFnBlModCd:       models.StringPointer("3"),
 		OrgGrpDfasCd:       models.StringPointer("DF"),
 		TacMvtDsgID:        models.StringPointer(""),

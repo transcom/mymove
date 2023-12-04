@@ -17,9 +17,9 @@ type TransportationAccountingCode struct {
 	TAC                string            `json:"tac" db:"tac"`
 	LoaID              *uuid.UUID        `json:"loa_id" db:"loa_id"`
 	LineOfAccounting   *LineOfAccounting `belongs_to:"lines_of_accounting" fk_id:"loa_id"`
-	TacSysID           *int              `json:"tac_sys_id" db:"tac_sys_id"`
-	LoaSysID           *int              `json:"loa_sys_id" db:"loa_sys_id"`
-	TacFyTxt           *int              `json:"tac_fy_txt" db:"tac_fy_txt"`
+	TacSysID           *string           `json:"tac_sys_id" db:"tac_sys_id"`
+	LoaSysID           *string           `json:"loa_sys_id" db:"loa_sys_id"`
+	TacFyTxt           *string           `json:"tac_fy_txt" db:"tac_fy_txt"`
 	TacFnBlModCd       *string           `json:"tac_fn_bl_mod_cd" db:"tac_fn_bl_mod_cd"`
 	OrgGrpDfasCd       *string           `json:"org_grp_dfas_cd" db:"org_grp_dfas_cd"`
 	TacMvtDsgID        *string           `json:"tac_mvt_dsg_id" db:"tac_mvt_dsg_id"`
