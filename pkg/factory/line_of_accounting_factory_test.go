@@ -77,7 +77,7 @@ func (suite *FactorySuite) TestBuildLineOfAccounting() {
 		loa := BuildLineOfAccounting(suite.DB(), []Customization{
 			{
 				Model: models.LineOfAccounting{
-					LoaSysID: models.IntPointer(4321),
+					LoaSysID: models.StringPointer("4321"),
 				},
 			},
 		}, nil)
