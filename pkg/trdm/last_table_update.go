@@ -146,9 +146,6 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 		}
 	}
 
-	// Run the task immediately
-	cronTask()
-
 	// Schedule the task to run every 24 hours
 	res, err := cron.AddFunc("@every 24h00m00s", cronTask)
 	if err != nil {
