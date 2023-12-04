@@ -96,6 +96,10 @@ const PrimeSimulatorAvailableMoves = () => {
     if (dateRegex.exec(filterDate)) {
       setDateSelected(filterDate);
       apiQuery();
+
+      document.getElementById('error').innerHTML = '&nbsp;';
+    } else {
+      document.getElementById('error').innerHTML = 'Enter a valid date.';
     }
   };
 
@@ -103,7 +107,8 @@ const PrimeSimulatorAvailableMoves = () => {
     <>
       <div>
         <p>Select Filter from Date: (YYYY-MM-DD)</p>
-        <input type="text" id="filterDate" defaultValue={dateSelected} />
+        <p id="error">&nbsp;</p>
+        <input type="text" id="filterDate" defaultValue={dateSelected} data-testid="primedatefilter" />
         <button type="button" onClick={setFilterByDate}>
           Filter
         </button>
