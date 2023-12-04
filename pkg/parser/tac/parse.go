@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
@@ -136,9 +135,6 @@ func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models
 	// Scan every line and parse into Transportation Accounting Codes
 	for scanner.Scan() {
 		line := scanner.Text()
-		var tacFyTxt int
-		var tacSysID int
-		var loaSysID int
 		var err error
 
 		// This check will skip the last line of the file.
@@ -157,30 +153,6 @@ func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models
 			continue
 		}
 
-		// If TacSysID is not empty, convert to int
-		if values[0] != "" {
-			tacSysID, err = strconv.Atoi(values[0])
-			if err != nil {
-				return nil, errors.New("malformed tac_sys_id in the provided tac file: " + line)
-			}
-		}
-
-		// If LoaSysId is not empty, convert to int
-		if values[1] != "" {
-			loaSysID, err = strconv.Atoi(values[1])
-			if err != nil {
-				return nil, errors.New("malformed loa_sys_id in the provided tac file: " + line)
-			}
-		}
-
-		// Check if fiscal year text is not empty, convert to int
-		if values[3] != "" {
-			tacFyTxt, err = strconv.Atoi(values[3])
-			if err != nil {
-				return nil, fmt.Errorf("malformed tac_fy_txt in the provided tac file: %s", err)
-			}
-		}
-
 		effectiveDate, err := time.Parse("2006-01-02 15:04:05", values[16])
 		if err != nil {
 			return nil, fmt.Errorf("malformed effective date in the provided tac file: %s", err)
@@ -192,10 +164,10 @@ func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models
 		}
 
 		code := models.TransportationAccountingCode{
-			TacSysID:           &tacSysID,
-			LoaSysID:           &loaSysID,
+			TacSysID:           &values[0],
+			LoaSysID:           &values[1],
 			TAC:                values[2],
-			TacFyTxt:           &tacFyTxt,
+			TacFyTxt:           &values[3],
 			TacFnBlModCd:       &values[4],
 			OrgGrpDfasCd:       &values[5],
 			TacMvtDsgID:        &values[6],
