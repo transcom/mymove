@@ -108,7 +108,7 @@ const PrimeSimulatorAvailableMoves = () => {
       <div>
         <p>Select Filter from Date: (YYYY-MM-DD)</p>
         <p id="error">&nbsp;</p>
-        <input type="text" id="filterDate" defaultValue={dateSelected} data-testid="primedatefilter" />
+        <input type="text" id="filterDate" defaultValue={dateSelected} data-testid="prime-date-filter" />
         <button type="button" onClick={setFilterByDate}>
           Filter
         </button>
