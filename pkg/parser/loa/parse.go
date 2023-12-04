@@ -110,11 +110,6 @@ func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models
 			return nil, errors.New("malformed line in the provided loa file: " + line)
 		}
 
-		loaSysID, err := strconv.Atoi(values[0])
-		if err != nil {
-			return nil, errors.New("malformed line in the provided loa file: " + line)
-		}
-
 		// Check if beginning date and expired date are not blank. If not blank, run time conversion, if not, leave empty.
 		if values[27] != "" && values[28] != "" {
 			// Parse values[27], this is the beginning date
@@ -146,7 +141,7 @@ func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models
 		}
 
 		code := models.LineOfAccounting{
-			LoaSysID:               &loaSysID,
+			LoaSysID:               &values[0],
 			LoaDptID:               &values[1],
 			LoaTnsfrDptNm:          &values[2],
 			LoaBafID:               &values[3],

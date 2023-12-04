@@ -1796,7 +1796,7 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 			},
 			{
 				Model: models.LineOfAccounting{
-					LoaSysID:               models.IntPointer(123456),
+					LoaSysID:               models.StringPointer("123456"),
 					LoaDptID:               models.StringPointer("12"),           // A1
 					LoaTnsfrDptNm:          models.StringPointer("1234"),         // A2
 					LoaBafID:               models.StringPointer("1234"),         // A4
@@ -1868,7 +1868,7 @@ func (suite *GHCInvoiceSuite) TestFA2s() {
 			},
 			{
 				Model: models.LineOfAccounting{
-					LoaSysID:               models.IntPointer(123456),
+					LoaSysID:               models.StringPointer("123456"),
 					LoaDptID:               models.StringPointer("12"),           // A1
 					LoaTnsfrDptNm:          models.StringPointer("1234"),         // A2
 					LoaBafID:               models.StringPointer("1234"),         // A4
