@@ -27,7 +27,7 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
   const { mutate: createUpdateSITServiceItemRequestMutation } = useMutation(updateMTOServiceItem, {
     onSuccess: () => {
       setFlashMessage(
-        `MSG_CREATE_ADDRESS_UPDATE_REQUEST_SUCCESS${moveCodeOrID}`,
+        `UPDATE_SIT_SERVICE_ITEM_REQUEST_SUCCESS${moveCodeOrID}`,
         'success',
         'Successfully updated SIT service item',
         '',
@@ -87,6 +87,7 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
   };
 
   // sending the data submitted in the destination SIT form to the API
+  // if any of the dates are skipped or not filled with values, we'll just make them null
   const destSitOnSubmit = (values) => {
     const { address, sitCustomerContacted, sitDepartureDate, sitRequestedDelivery, mtoServiceItemID, eTag } = values;
 
@@ -99,9 +100,9 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
         state: address.state,
         postalCode: address.postalCode,
       },
-      sitDepartureDate: formatDateForSwagger(sitDepartureDate),
-      sitRequestedDelivery: formatDateForSwagger(sitRequestedDelivery),
-      sitCustomerContacted: formatDateForSwagger(sitCustomerContacted),
+      sitDepartureDate: sitDepartureDate === 'Invalid date' ? null : formatDateForSwagger(sitDepartureDate),
+      sitRequestedDelivery: sitRequestedDelivery === 'Invalid date' ? null : formatDateForSwagger(sitRequestedDelivery),
+      sitCustomerContacted: sitCustomerContacted === 'Invalid date' ? null : formatDateForSwagger(sitCustomerContacted),
       modelType: 'UpdateMTOServiceItemSIT',
     };
 
@@ -109,13 +110,14 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
   };
 
   // sending the data submitted in the origin SIT form to the API
+  // if any of the dates are skipped or not filled with values, we'll just make them null
   const originSitOnSubmit = (values) => {
     const { sitCustomerContacted, sitDepartureDate, sitRequestedDelivery, mtoServiceItemID, eTag } = values;
 
     const body = {
-      sitDepartureDate: formatDateForSwagger(sitDepartureDate),
-      sitRequestedDelivery: formatDateForSwagger(sitRequestedDelivery),
-      sitCustomerContacted: formatDateForSwagger(sitCustomerContacted),
+      sitDepartureDate: sitDepartureDate === 'Invalid date' ? null : formatDateForSwagger(sitDepartureDate),
+      sitRequestedDelivery: sitRequestedDelivery === 'Invalid date' ? null : formatDateForSwagger(sitRequestedDelivery),
+      sitCustomerContacted: sitCustomerContacted === 'Invalid date' ? null : formatDateForSwagger(sitCustomerContacted),
       modelType: 'UpdateMTOServiceItemSIT',
     };
 
