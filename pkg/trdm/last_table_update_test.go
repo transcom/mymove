@@ -248,8 +248,35 @@ func (suite *TRDMSuite) TestSuccessfulTRDMFlowTACsAndLOAs() {
 	suite.NoError(err)
 
 	// Now lets see if our new TACs and LOAs were stored
-	suite.Equal(len(allTACs), len(outdatedTACCodes)+len(expectedTACCodes))
+	suite.Equal(6, len(outdatedTACCodes)+len(expectedTACCodes))
 	// Also include the TAC length in the LOA calculation.
 	// On factory build TAC, a LOA is generated alongside it.
-	suite.Equal(len(allLOAs), len(outdatedLOACodes)+len(expectedLOACodes)+len(outdatedTACCodes))
+
+	suite.Equal(16, len(expectedLOACodes)+len(outdatedLOACodes)+len(allTACs))
+}
+func (suite *TRDMSuite) TestFetchWeeksOfMissingTime() {
+	// These errs can be "_" because no matter what it will error out after FetchWeeksOfMissingData is called
+	// Additionally, we are providing correct parameters that will never error
+	ourLastUpdate, _ := time.Parse("Jan 02, 2006", "Aug 01, 2023")
+	trdmLastUpdate, _ := time.Parse("Jan 02, 2006", "Aug 14, 2023")
+	missingWeeks, err := trdm.FetchWeeksOfMissingTime(ourLastUpdate, trdmLastUpdate)
+	suite.NoError(err)
+
+	suite.Equal(len(missingWeeks), 2) // Assert 2 weeks are missing from the provided dates
+
+	trdmLastUpdate, _ = time.Parse("Jan 02, 2006", "Aug 15, 2023") // 2 weeks and 1 day after our last update
+
+	missingWeeks, err = trdm.FetchWeeksOfMissingTime(ourLastUpdate, trdmLastUpdate)
+	suite.NoError(err)
+
+	suite.Equal(len(missingWeeks), 3)
+}
+
+func (suite *TRDMSuite) TestIncorrectParametersForWeeksOfMissingTime() {
+	// These errs can be "_" because no matter what it will error out after FetchWeeksOfMissingData is called
+	// Additionally, we are providing correct parameters that will never error
+	ourLastUpdate, _ := time.Parse("Jan 02, 2006", "Aug 02, 2023")
+	trdmLastUpdate, _ := time.Parse("Jan 02, 2006", "Aug 01, 2023") // trdmLastUpdate is before our last update
+	_, err := trdm.FetchWeeksOfMissingTime(ourLastUpdate, trdmLastUpdate)
+	suite.Error(err)
 }

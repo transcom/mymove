@@ -164,7 +164,11 @@ func (v *updateMTOServiceItemData) checkForSITItemChanges(serviceItemData *updat
 			return nil
 		}
 
-		if !updatedServiceItem.SITDepartureDate.IsZero() && updatedServiceItem.SITDepartureDate.UTC() != oldServiceItem.SITDepartureDate.UTC() {
+		if updatedServiceItem.SITDepartureDate != nil && oldServiceItem.SITDepartureDate != nil {
+			if updatedServiceItem.SITDepartureDate.UTC() != oldServiceItem.SITDepartureDate.UTC() {
+				return nil
+			}
+		} else if updatedServiceItem.SITDepartureDate != nil && oldServiceItem.SITDepartureDate == nil {
 			return nil
 		}
 
@@ -176,7 +180,11 @@ func (v *updateMTOServiceItemData) checkForSITItemChanges(serviceItemData *updat
 			return nil
 		}
 
-		if updatedServiceItem.SITRequestedDelivery != nil && updatedServiceItem.SITRequestedDelivery.UTC() != oldServiceItem.SITRequestedDelivery.UTC() {
+		if updatedServiceItem.SITRequestedDelivery != nil && oldServiceItem.SITRequestedDelivery != nil {
+			if updatedServiceItem.SITRequestedDelivery.UTC() != oldServiceItem.SITRequestedDelivery.UTC() {
+				return nil
+			}
+		} else if updatedServiceItem.SITRequestedDelivery != nil && oldServiceItem.SITRequestedDelivery == nil {
 			return nil
 		}
 
@@ -410,8 +418,10 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 	newMTOServiceItem.SITEntryDate = services.SetOptionalDateTimeField(
 		v.updatedServiceItem.SITEntryDate, newMTOServiceItem.SITEntryDate)
 
-	newMTOServiceItem.SITDepartureDate = services.SetOptionalDateTimeField(
-		v.updatedServiceItem.SITDepartureDate, newMTOServiceItem.SITDepartureDate)
+	if v.updatedServiceItem.SITDepartureDate != nil {
+		newMTOServiceItem.SITDepartureDate = services.SetOptionalDateTimeField(
+			v.updatedServiceItem.SITDepartureDate, newMTOServiceItem.SITDepartureDate)
+	}
 
 	newMTOServiceItem.SITCustomerContacted = services.SetOptionalDateTimeField(v.updatedServiceItem.SITCustomerContacted, newMTOServiceItem.SITCustomerContacted)
 	newMTOServiceItem.SITRequestedDelivery = services.SetOptionalDateTimeField(v.updatedServiceItem.SITRequestedDelivery, newMTOServiceItem.SITRequestedDelivery)

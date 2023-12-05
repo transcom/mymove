@@ -100,7 +100,7 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 						PhysicalName:                LineOfAccounting,
 						ContentUpdatedSinceDateTime: *ourLastUpdate,
 						ReturnContent:               true,
-					}, *service, appCtx, logger)
+					}, lastTableUpdateResponse.LastUpdate, *service, appCtx, logger)
 					if caseErr != nil {
 						logger.Fatal("failed to retrieve latest line of accounting TGET data", zap.Error(err))
 					} else {
@@ -125,7 +125,7 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 						PhysicalName:                TransportationAccountingCode,
 						ContentUpdatedSinceDateTime: *ourLastUpdate,
 						ReturnContent:               true,
-					}, *service, appCtx, logger)
+					}, lastTableUpdateResponse.LastUpdate, *service, appCtx, logger)
 					if caseErr != nil {
 						logger.Fatal("failed to retrieve latest transportation accounting TGET data", zap.Error(err))
 					} else {
@@ -145,9 +145,6 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 			return
 		}
 	}
-
-	// Run the task immediately
-	cronTask()
 
 	// Schedule the task to run every 24 hours
 	res, err := cron.AddFunc("@every 24h00m00s", cronTask)
@@ -233,4 +230,41 @@ func TGETLOADataOutOfDate(appcontext appcontext.AppContext, timeToCheck time.Tim
 	isOutOfDate := loa.UpdatedAt.Before(timeToCheck)
 
 	return isOutOfDate, &loa.UpdatedAt, nil
+}
+
+// This type should be used as an array
+type MissingWeek struct {
+	// Matching dates should not occur because that would mean our data is up to date and the function using this type should never be called
+	StartOfWeek time.Time // Example: AUG 01 OR AUG 05 OR AUG 01 (Read these top down)
+	EndOfWeek   time.Time // Example: AUG 07 OR AUG 07 OR NOV 01 (Read these top down)
+}
+
+// This func won't inherently check from our DB but it will receive the latest update from a table within that DB to compare to TRDM
+// It will allow us to split a request that would be 1 request of 1 month+ of data into 4 requests at 1 week each
+func FetchWeeksOfMissingTime(ourLastUpdate time.Time, trdmLastUpdate time.Time) ([]MissingWeek, error) {
+	if trdmLastUpdate.Before(ourLastUpdate) {
+		return nil, errors.New("the provided parameters are out of order")
+	}
+	// Matching dates should not occur because that would mean our data is up to date and the function using this type should never be called
+	var missingWeeks []MissingWeek // Individual start and end dates of each week to be used in the TRDM filter so we can grab 1 week at a time
+
+	// Create a startOfWeek for each loop iteration.
+	// If that start of week is not after the last update in TRDM then there are still weeks or days in between ourLastUpdate and trdmLastUpdate
+	// Then set the new startOfWeek to the end of that week and run the loop again.
+	// This loop will run every time until the startOfWeek finally matches trdmLastUpdate, meaning we have found all missing weeks
+	// This loop can be modified to be startOfWeek.Before(trdmLastUpdate) to specifically find only the weeks, but we want individual days too
+	for startOfWeek := ourLastUpdate; !startOfWeek.After(trdmLastUpdate); startOfWeek = startOfWeek.AddDate(0, 0, 7) {
+		endOfWeek := startOfWeek.AddDate(0, 0, 6) // Add 6 days because it's already a day. 1 + 6 = 7, and 7 days are in a week
+		// Set endOfWeek to the last second of the last day so it is truly the end of the week
+		endOfWeek = endOfWeek.Truncate(24 * time.Hour).Add(24*time.Hour - time.Nanosecond)
+
+		if endOfWeek.After(trdmLastUpdate) {
+			// If it is the last week, set to the last second of trdmLastUpdate instead of trying to pull data that doesn't exist yet
+			endOfWeek = trdmLastUpdate.Truncate(24 * time.Hour).Add(24*time.Hour - time.Nanosecond)
+		}
+
+		missingWeeks = append(missingWeeks, MissingWeek{StartOfWeek: startOfWeek, EndOfWeek: endOfWeek}) // Not always full weeks, sometimes split in half
+	}
+
+	return missingWeeks, nil
 }
