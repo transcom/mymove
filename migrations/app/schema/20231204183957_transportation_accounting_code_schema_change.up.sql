@@ -1,4 +1,6 @@
 -- These type migrations are necessary because they do not align with TRDM data
+-- It is going from int(4) to varchar (20) so there is no risk of the integer number being too large for varchar 20
+-- This is for all three column modifications
 
 -- Cast tac_sys_id from int to varchar
 ALTER TABLE transportation_accounting_codes
