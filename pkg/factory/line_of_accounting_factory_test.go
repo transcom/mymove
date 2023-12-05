@@ -83,7 +83,7 @@ func (suite *FactorySuite) TestBuildLineOfAccounting() {
 		}, nil)
 
 		// VALIDATE RESULTS
-		suite.Equal(4321, *loa.LoaSysID)
+		suite.Equal("4321", *loa.LoaSysID)
 	})
 
 	suite.Run("Successful creation of a fully-filled Line of Accounting", func() {

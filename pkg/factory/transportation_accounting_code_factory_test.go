@@ -122,7 +122,7 @@ func (suite *FactorySuite) TestBuildTransportationAccountingCode() {
 
 		// VALIDATE RESULTS
 		suite.Equal("1234", tac.TAC)
-		suite.Equal(4321, *tac.LineOfAccounting.LoaSysID)
+		suite.Equal("4321", *tac.LineOfAccounting.LoaSysID)
 	})
 
 	suite.Run("Successful creation of a fully-filled TAC", func() {

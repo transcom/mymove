@@ -51,7 +51,7 @@ func (suite *LoaParserSuite) TestParsing() {
 
 	// Do a hard coded check to the first line of data to ensure a 1:1 match to what is expected.
 	firstCode := codes[0]
-	suite.Equal(124641, *firstCode.LoaSysID)
+	suite.Equal("124641", *firstCode.LoaSysID)
 	suite.Equal("97", *firstCode.LoaDptID)
 	suite.Equal("", *firstCode.LoaTnsfrDptNm)
 	suite.Equal("4930", *firstCode.LoaBafID)
