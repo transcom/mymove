@@ -12,12 +12,12 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-var expectedColumnNames = []string{"TAC_SYS_ID", "LOA_SYS_ID", "TRNSPRTN_ACNT_CD", "TAC_FY_TXT", "TAC_FN_BL_MOD_CD", "ORG_GRP_DFAS_CD", "TAC_MVT_DSG_ID", "TAC_TY_CD", "TAC_USE_CD", "TAC_MAJ_CLMT_ID", "TAC_BILL_ACT_TXT", "TAC_COST_CTR_NM", "BUIC", "TAC_HIST_CD", "TAC_STAT_CD", "TRNSPRTN_ACNT_TX", "TRNSPRTN_ACNT_BGN_DT", "TRNSPRTN_ACNT_END_DT", "DD_ACTVTY_ADRS_ID", "TAC_BLLD_ADD_FRST_LN_TX", "TAC_BLLD_ADD_SCND_LN_TX", "TAC_BLLD_ADD_THRD_LN_TX", "TAC_BLLD_ADD_FRTH_LN_TX", "TAC_FNCT_POC_NM"}
+var expectedColumnNames = []string{"TAC_SYS_ID", "LOA_SYS_ID", "TRNSPRTN_ACNT_CD", "TAC_FY_TXT", "TAC_FN_BL_MOD_CD", "ORG_GRP_DFAS_CD", "TAC_MVT_DSG_ID", "TAC_TY_CD", "TAC_USE_CD", "TAC_MAJ_CLMT_ID", "TAC_BILL_ACT_TXT", "TAC_COST_CTR_NM", "BUIC", "TAC_HIST_CD", "TAC_STAT_CD", "TRNSPRTN_ACNT_TX", "TRNSPRTN_ACNT_BGN_DT", "TRNSPRTN_ACNT_END_DT", "DD_ACTVTY_ADRS_ID", "TAC_BLLD_ADD_FRST_LN_TX", "TAC_BLLD_ADD_SCND_LN_TX", "TAC_BLLD_ADD_THRD_LN_TX", "TAC_BLLD_ADD_FRTH_LN_TX", "TAC_FNCT_POC_NM", "ROW_STS_CD"}
 
 // Parse the pipe delimited .txt file with the following assumptions:
 // 1. The first and last lines are the security classification.
 // 2. The second line of the file are the columns that will be a 1:1 match to the TransportationAccountingCodeTrdmFileRecord struct in pipe delimited format.
-// 3. There are 23 values per line, excluding the security classification. Again, to know what these values are refer to note #2.
+// 3. There are 25 values per line, excluding the security classification. Again, to know what these values are refer to note #2.
 // 4. All values are in pipe delimited format.
 // 5. Null values will be present, but are not acceptable for TRNSPRTN_ACNT_CD.
 func Parse(file io.Reader) ([]models.TransportationAccountingCode, error) {
@@ -61,7 +61,7 @@ func ensureFileStructMatchesColumnNames(columnNames []string) error {
 		return errors.New("column names were not parsed properly from the second line of the tac file")
 	}
 
-	if !reflect.DeepEqual(expectedColumnNames, expectedColumnNames) {
+	if !reflect.DeepEqual(columnNames, expectedColumnNames) {
 		return errors.New("column names parsed do not match the expected format of tac file records")
 	}
 	return nil
@@ -150,6 +150,12 @@ func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models
 
 		// Skip the entry if the TAC value is empty
 		if values[2] == "" {
+			continue
+		}
+
+		// Skip the line if a deleted entry found its way in
+		// ROW_STS_CD can be either 'ACTV' or 'DLT'
+		if values[24] == "DLT" {
 			continue
 		}
 
