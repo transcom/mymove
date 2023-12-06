@@ -12,6 +12,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
@@ -32,6 +33,14 @@ type ListMovesParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
+	/*requested page of results
+	  In: query
+	*/
+	Page *int64
+	/*results per page
+	  In: query
+	*/
+	PerPage *int64
 	/*Only return moves updated since this time. Formatted like "2021-07-23T18:30:47.116Z"
 	  In: query
 	*/
@@ -49,6 +58,16 @@ func (o *ListMovesParams) BindRequest(r *http.Request, route *middleware.Matched
 
 	qs := runtime.Values(r.URL.Query())
 
+	qPage, qhkPage, _ := qs.GetOK("page")
+	if err := o.bindPage(qPage, qhkPage, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qPerPage, qhkPerPage, _ := qs.GetOK("perPage")
+	if err := o.bindPerPage(qPerPage, qhkPerPage, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	qSince, qhkSince, _ := qs.GetOK("since")
 	if err := o.bindSince(qSince, qhkSince, route.Formats); err != nil {
 		res = append(res, err)
@@ -56,6 +75,52 @@ func (o *ListMovesParams) BindRequest(r *http.Request, route *middleware.Matched
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// bindPage binds and validates parameter Page from query.
+func (o *ListMovesParams) bindPage(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	value, err := swag.ConvertInt64(raw)
+	if err != nil {
+		return errors.InvalidType("page", "query", "int64", raw)
+	}
+	o.Page = &value
+
+	return nil
+}
+
+// bindPerPage binds and validates parameter PerPage from query.
+func (o *ListMovesParams) bindPerPage(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	value, err := swag.ConvertInt64(raw)
+	if err != nil {
+		return errors.InvalidType("perPage", "query", "int64", raw)
+	}
+	o.PerPage = &value
+
 	return nil
 }
 

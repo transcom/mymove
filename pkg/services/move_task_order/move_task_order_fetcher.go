@@ -277,6 +277,9 @@ func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppConte
 	var moveTaskOrders models.Moves
 	var err error
 
+	// query := appCtx.DB().Q().All(&moveTaskOrders)
+	// query.Error()
+
 	sql := `SELECT moves.*
             FROM moves INNER JOIN orders ON moves.orders_id = orders.id
             WHERE moves.available_to_prime_at IS NOT NULL AND moves.show = TRUE`

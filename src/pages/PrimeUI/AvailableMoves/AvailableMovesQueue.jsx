@@ -100,31 +100,21 @@ const PrimeSimulatorAvailableMoves = ({ moves }) => {
   };
 
   return (
-    <>
-      <div>
-        <p>Select Filter from Date: (YYYY-MM-DD)</p>
-        <p id="error">&nbsp;</p>
-        <input type="text" id="filterDate" defaultValue={dateSelected} data-testid="prime-date-filter-input" />
-        <button type="button" onClick={setFilterByDate} data-testid="prime-date-filter-button">
-          Filter
-        </button>
-      </div>
-      <TableQueue
-        title="Moves available to Prime"
-        columns={columnHeaders()}
-        useQueries={moves === undefined ? apiQuery : usePrimeSimulatorAvailableMovesQueries}
-        handleClick={(row) => {
-          navigate(`/simulator/moves/${row.id}/details`);
-        }}
-        defaultSortedColumns={[{ id: 'availableToPrimeAt', desc: false }]}
-        defaultHiddenColumns={['eTag']}
-        defaultCanSort
-        disableSortBy={false}
-        showFilters
-        showPagination
-        manualFilters={false}
-      />
-    </>
+    <TableQueue
+      title="Moves available to Prime"
+      columns={columnHeaders()}
+      useQueries={usePrimeSimulatorAvailableMovesQueries}
+      handleClick={(row) => {
+        navigate(`/simulator/moves/${row.id}/details`);
+      }}
+      defaultSortedColumns={[{ id: 'availableToPrimeAt', desc: false }]}
+      defaultHiddenColumns={['eTag']}
+      defaultCanSort
+      disableSortBy={false}
+      disableMultiSort
+      showFilters
+      showPagination
+    />
   );
 };
 

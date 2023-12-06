@@ -11,11 +11,14 @@ import (
 	golangswaggerpaths "path"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // ListMovesURL generates an URL for the list moves operation
 type ListMovesURL struct {
-	Since *strfmt.DateTime
+	Page    *int64
+	PerPage *int64
+	Since   *strfmt.DateTime
 
 	_basePath string
 	// avoid unkeyed usage
@@ -50,6 +53,22 @@ func (o *ListMovesURL) Build() (*url.URL, error) {
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 
 	qs := make(url.Values)
+
+	var pageQ string
+	if o.Page != nil {
+		pageQ = swag.FormatInt64(*o.Page)
+	}
+	if pageQ != "" {
+		qs.Set("page", pageQ)
+	}
+
+	var perPageQ string
+	if o.PerPage != nil {
+		perPageQ = swag.FormatInt64(*o.PerPage)
+	}
+	if perPageQ != "" {
+		qs.Set("perPage", perPageQ)
+	}
 
 	var sinceQ string
 	if o.Since != nil {

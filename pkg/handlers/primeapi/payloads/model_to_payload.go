@@ -87,13 +87,12 @@ func ListMove(move *models.Move) *primemessages.ListMove {
 
 // ListMoves payload
 func ListMoves(moves *models.Moves) []*primemessages.ListMove {
-	payload := make(primemessages.ListMoves, len(*moves))
+	listMoves := make(primemessages.ListMoves, len(*moves))
 
-	for i, m := range *moves {
-		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
-		payload[i] = ListMove(&copyOfM)
+	for i, move := range *moves {
+		listMoves[i] = ListMove(&move)
 	}
-	return payload
+	return listMoves
 }
 
 // Customer payload

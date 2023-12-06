@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
@@ -28,10 +29,23 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			var searchParams services.MoveTaskOrderFetcherParams
+			searchParams := services.MoveTaskOrderFetcherParams{
+				Page:    params.Page,
+				PerPage: params.PerPage,
+			}
 			if params.Since != nil {
 				since := handlers.FmtDateTimePtrToPop(params.Since)
 				searchParams.Since = &since
+			}
+
+			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
+			// for perPage.
+			if params.Page == nil {
+				searchParams.Page = models.Int64Pointer(1)
+			}
+			// Same for perPage
+			if params.PerPage == nil {
+				searchParams.PerPage = models.Int64Pointer(20)
 			}
 
 			mtos, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrders(appCtx, &searchParams)
@@ -41,9 +55,16 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 				return movetaskorderops.NewListMovesInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
-			payload := payloads.ListMoves(&mtos)
+			queueMoves := payloads.ListMoves(&mtos)
 
-			return movetaskorderops.NewListMovesOK().WithPayload(payload), nil
+			result := primemessages.ListMovesResult{
+				Page:       *searchParams.Page,
+				PerPage:    *searchParams.PerPage,
+				TotalCount: int64(len(queueMoves)),
+				QueueMoves: queueMoves,
+			}
+
+			return movetaskorderops.NewListMovesOK().WithPayload(&result), nil
 		})
 }
 

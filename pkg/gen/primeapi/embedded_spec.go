@@ -211,13 +211,25 @@ func init() {
             "description": "Only return moves updated since this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
             "name": "since",
             "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "requested page of results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "results per page",
+            "name": "perPage",
+            "in": "query"
           }
         ],
         "responses": {
           "200": {
             "description": "Successfully retrieved moves. A successful fetch might still return zero moves.",
             "schema": {
-              "$ref": "#/definitions/ListMoves"
+              "$ref": "#/definitions/ListMovesResult"
             }
           },
           "401": {
@@ -2114,6 +2126,23 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/ListMove"
+      }
+    },
+    "ListMovesResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "queueMoves": {
+          "$ref": "#/definitions/ListMoves"
+        },
+        "totalCount": {
+          "type": "integer"
+        }
       }
     },
     "MTOAgent": {
@@ -4843,13 +4872,25 @@ func init() {
             "description": "Only return moves updated since this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
             "name": "since",
             "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "requested page of results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "results per page",
+            "name": "perPage",
+            "in": "query"
           }
         ],
         "responses": {
           "200": {
             "description": "Successfully retrieved moves. A successful fetch might still return zero moves.",
             "schema": {
-              "$ref": "#/definitions/ListMoves"
+              "$ref": "#/definitions/ListMovesResult"
             }
           },
           "401": {
@@ -7109,6 +7150,23 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/ListMove"
+      }
+    },
+    "ListMovesResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "queueMoves": {
+          "$ref": "#/definitions/ListMoves"
+        },
+        "totalCount": {
+          "type": "integer"
+        }
       }
     },
     "MTOAgent": {

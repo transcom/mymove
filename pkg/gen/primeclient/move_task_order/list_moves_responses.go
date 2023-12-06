@@ -63,7 +63,7 @@ ListMovesOK describes a response with status code 200, with default header value
 Successfully retrieved moves. A successful fetch might still return zero moves.
 */
 type ListMovesOK struct {
-	Payload primemessages.ListMoves
+	Payload *primemessages.ListMovesResult
 }
 
 // IsSuccess returns true when this list moves o k response has a 2xx status code
@@ -104,14 +104,16 @@ func (o *ListMovesOK) String() string {
 	return fmt.Sprintf("[GET /moves][%d] listMovesOK  %+v", 200, o.Payload)
 }
 
-func (o *ListMovesOK) GetPayload() primemessages.ListMoves {
+func (o *ListMovesOK) GetPayload() *primemessages.ListMovesResult {
 	return o.Payload
 }
 
 func (o *ListMovesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.ListMovesResult)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
