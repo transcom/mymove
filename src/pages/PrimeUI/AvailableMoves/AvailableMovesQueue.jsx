@@ -1,20 +1,16 @@
-import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import TableQueue from 'components/Table/TableQueue';
 import { createHeader } from 'components/Table/utils';
-import { PRIME_SIMULATOR_AVAILABLE_MOVES } from 'constants/queryKeys';
 // TODO: This is very clunky. There are shared/formatters and util/formatters
 // that determine dates. This way is a way to do it now, but this should be
 // refactored as part of TRA work to be done differently across the app.
 // For now though, I'm going to be using the `formatDateFromIso` function and
 // then leverage a constant for how the date should be formatted.
-import { getPrimeSimulatorAvailableMoves } from 'services/primeApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { DATE_TIME_FORMAT_STRING } from 'shared/constants';
-import { getQueriesStatus } from 'utils/api';
 import { formatDateFromIso } from 'utils/formatters';
 import { usePrimeSimulatorAvailableMovesQueries, useUserQueries } from 'hooks/queries';
 
