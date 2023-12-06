@@ -17,18 +17,26 @@ import (
 
 type TacParserSuite struct {
 	*testingsuite.PopTestSuite
-	txtFilename string
-	txtContent  []byte
+	txtFilename    string
+	txtBadFilename string
+	txtContent     []byte
+	txtBadContent  []byte
 }
 
 func TestTacParserSuite(t *testing.T) {
 	hs := &TacParserSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
-		txtFilename:  "./fixtures/Transportation Account.txt",
+		PopTestSuite:   testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		txtFilename:    "./fixtures/Transportation Account.txt",
+		txtBadFilename: "./fixtures/Bad Transportation Account.txt",
 	}
 
 	var err error
 	hs.txtContent, err = os.ReadFile(hs.txtFilename)
+	if err != nil {
+		hs.Logger().Panic("could not read text file", zap.Error(err))
+	}
+
+	hs.txtBadContent, err = os.ReadFile(hs.txtBadFilename)
 	if err != nil {
 		hs.Logger().Panic("could not read text file", zap.Error(err))
 	}
@@ -51,10 +59,10 @@ func (suite *TacParserSuite) TestParsing() {
 
 	// Create expected TransportationAccountingCode
 	expected := models.TransportationAccountingCode{
-		TacSysID:           models.IntPointer(1234567884),
-		LoaSysID:           models.IntPointer(12345678),
+		TacSysID:           models.StringPointer("1234567884"),
+		LoaSysID:           models.StringPointer("12345678"),
 		TAC:                "0003",
-		TacFyTxt:           models.IntPointer(2022),
+		TacFyTxt:           models.StringPointer("2022"),
 		TacFnBlModCd:       models.StringPointer("3"),
 		OrgGrpDfasCd:       models.StringPointer("DF"),
 		TacMvtDsgID:        models.StringPointer(""),
@@ -190,4 +198,18 @@ func (suite *TacParserSuite) TestDuplicateTACsWithDifferentValuesAndDifferentExp
 	*expectedConsolidatedTAC.TrnsprtnAcntTx = *tac1.TrnsprtnAcntTx + *tac2.TrnsprtnAcntTx
 
 	suite.Contains(consolidatedTACs, expectedConsolidatedTAC)
+}
+
+func (suite *TacParserSuite) TestDltRowCode() {
+	reader := bytes.NewReader(suite.txtBadContent)
+
+	// Parse the text file content
+	codes, err := tac.Parse(reader)
+	suite.NoError(err)
+
+	// Assuming the txt file has at least one record
+	suite.NotEmpty(codes)
+
+	// There are 2 rows but the "DLT" row should've been skipped
+	suite.Equal(1, len(codes))
 }

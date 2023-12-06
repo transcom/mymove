@@ -77,13 +77,13 @@ func (suite *FactorySuite) TestBuildLineOfAccounting() {
 		loa := BuildLineOfAccounting(suite.DB(), []Customization{
 			{
 				Model: models.LineOfAccounting{
-					LoaSysID: models.IntPointer(4321),
+					LoaSysID: models.StringPointer("4321"),
 				},
 			},
 		}, nil)
 
 		// VALIDATE RESULTS
-		suite.Equal(4321, *loa.LoaSysID)
+		suite.Equal("4321", *loa.LoaSysID)
 	})
 
 	suite.Run("Successful creation of a fully-filled Line of Accounting", func() {
