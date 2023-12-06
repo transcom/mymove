@@ -67,11 +67,6 @@ const PrimeSimulatorAvailableMoves = () => {
 
   const apiQuery = () => {
     const { isLoading, isError, isSuccess } = getQueriesStatus([primeSimulatorAvailableMovesQuery]);
-    // README: This queueResult is being artificially constructed rather than
-    // created using the `..dataProp` destructering of other functions because
-    // the Prime API does not return an Object that the TableQueue component can
-    // consume. So the queueResult mimics that Objects properties since `data` in
-    // this case is a simple Array of Prime Available Moves.
     const queueResult = {
       data,
       page: 1,
@@ -108,8 +103,8 @@ const PrimeSimulatorAvailableMoves = () => {
       <div>
         <p>Select Filter from Date: (YYYY-MM-DD)</p>
         <p id="error">&nbsp;</p>
-        <input type="text" id="filterDate" defaultValue={dateSelected} data-testid="prime-date-filter" />
-        <button type="button" onClick={setFilterByDate}>
+        <input type="text" id="filterDate" defaultValue={dateSelected} data-testid="prime-date-filter-input" />
+        <button type="button" onClick={setFilterByDate} data-testid="prime-date-filter-button">
           Filter
         </button>
       </div>
