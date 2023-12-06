@@ -90,7 +90,9 @@ func ListMoves(moves *models.Moves) []*primemessages.ListMove {
 	listMoves := make(primemessages.ListMoves, len(*moves))
 
 	for i, move := range *moves {
-		listMoves[i] = ListMove(&move)
+		// Create a local copy of the loop variable
+		moveCopy := move
+		listMoves[i] = ListMove(&moveCopy)
 	}
 	return listMoves
 }
