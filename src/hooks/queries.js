@@ -767,14 +767,17 @@ export const useMoveDetailsQueries = (moveCode) => {
   };
 };
 
-export const usePrimeSimulatorAvailableMovesQueries = () => {
+export const usePrimeSimulatorAvailableMovesQueries = ({
+  currentPage = PAGINATION_PAGE_DEFAULT,
+  currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+}) => {
   const { data = {}, ...primeSimulatorAvailableMovesQuery } = useQuery(
-    [PRIME_SIMULATOR_AVAILABLE_MOVES],
+    [PRIME_SIMULATOR_AVAILABLE_MOVES, { currentPage, currentPageSize }],
     ({ queryKey }) => getPrimeSimulatorAvailableMoves(...queryKey),
   );
   const { isLoading, isError, isSuccess } = primeSimulatorAvailableMovesQuery;
   const { queueMoves, ...dataProps } = data;
-  console.log(data);
+  console.log('queries', data);
   // README: This queueResult is being artificially constructed rather than
   // created using the `..dataProp` destructering of other functions because
   // the Prime API does not return an Object that the TableQueue component can

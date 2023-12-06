@@ -16,7 +16,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { DATE_TIME_FORMAT_STRING } from 'shared/constants';
 import { getQueriesStatus } from 'utils/api';
 import { formatDateFromIso } from 'utils/formatters';
-import { usePrimeSimulatorAvailableMovesQueries } from 'hooks/queries';
+import { usePrimeSimulatorAvailableMovesQueries, useUserQueries } from 'hooks/queries';
 
 const columnHeaders = () => [
   createHeader('Move ID', 'id', {
@@ -57,18 +57,20 @@ const columnHeaders = () => [
 const PrimeSimulatorAvailableMoves = () => {
   const navigate = useNavigate();
 
-  const { isLoading, isError } = usePrimeSimulatorAvailableMovesQueries();
+  const { isLoading, isError } = useUserQueries();
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
+
+  const handleClick = (values) => {
+    navigate(`/simulator/moves/${values.id}/details`);
+  };
 
   return (
     <TableQueue
       title="Moves available to Prime"
       columns={columnHeaders()}
       useQueries={usePrimeSimulatorAvailableMovesQueries}
-      handleClick={(row) => {
-        navigate(`/simulator/moves/${row.id}/details`);
-      }}
+      handleClick={handleClick}
       defaultSortedColumns={[{ id: 'availableToPrimeAt', desc: false }]}
       defaultHiddenColumns={['eTag']}
       defaultCanSort

@@ -21,7 +21,8 @@ export async function makePrimeSimulatorRequest(operationPath, params = {}, opti
   return makeSwaggerRequest(client, operationPath, params, options);
 }
 
-export async function getPrimeSimulatorAvailableMoves({ currentPage = 1, currentPageSize = 20 }) {
+export async function getPrimeSimulatorAvailableMoves(key, { currentPage = 1, currentPageSize = 20 }) {
+  console.log('api', currentPage, currentPageSize);
   const operationPath = 'moveTaskOrder.listMoves';
   return makePrimeSimulatorRequest(
     operationPath,
