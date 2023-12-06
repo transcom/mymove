@@ -440,6 +440,7 @@ export const useMovesQueueQueries = ({
   );
   const { isLoading, isError, isSuccess } = movesQueueQuery;
   const { queueMoves, ...dataProps } = data;
+  console.log(data);
   return {
     queueResult: { data: queueMoves, ...dataProps },
     isLoading,
@@ -773,6 +774,7 @@ export const usePrimeSimulatorAvailableMovesQueries = () => {
   );
   const { isLoading, isError, isSuccess } = primeSimulatorAvailableMovesQuery;
   const { queueMoves, ...dataProps } = data;
+  console.log(data);
   // README: This queueResult is being artificially constructed rather than
   // created using the `..dataProp` destructering of other functions because
   // the Prime API does not return an Object that the TableQueue component can

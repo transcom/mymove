@@ -57,29 +57,7 @@ const columnHeaders = () => [
 const PrimeSimulatorAvailableMoves = () => {
   const navigate = useNavigate();
 
-  const { data = {}, ...primeSimulatorAvailableMovesQuery } = useQuery(
-    [PRIME_SIMULATOR_AVAILABLE_MOVES],
-    ({ queryKey: [key, { ...date }] }) => {
-      return getPrimeSimulatorAvailableMoves(key, date);
-    },
-  );
-
-  const apiQuery = () => {
-    const { isLoading, isError, isSuccess } = getQueriesStatus([primeSimulatorAvailableMovesQuery]);
-    const queueResult = {
-      data,
-      page: 1,
-      perPage: data.length,
-      totalCount: data.length,
-    };
-    return {
-      queueResult,
-      isLoading,
-      isError,
-      isSuccess,
-    };
-  };
-  const { isLoading, isError } = apiQuery();
+  const { isLoading, isError } = usePrimeSimulatorAvailableMovesQueries();
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 

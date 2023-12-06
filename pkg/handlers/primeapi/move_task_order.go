@@ -48,7 +48,7 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 				searchParams.PerPage = models.Int64Pointer(20)
 			}
 
-			mtos, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrders(appCtx, &searchParams)
+			mtos, count, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrders(appCtx, &searchParams)
 
 			if err != nil {
 				appCtx.Logger().Error("Unexpected error while fetching moves:", zap.Error(err))
@@ -60,7 +60,7 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 			result := primemessages.ListMovesResult{
 				Page:       *searchParams.Page,
 				PerPage:    *searchParams.PerPage,
-				TotalCount: int64(len(queueMoves)),
+				TotalCount: int64(count),
 				QueueMoves: queueMoves,
 			}
 
