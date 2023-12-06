@@ -30,7 +30,7 @@ import {
   getServicesCounselingPPMQueue,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
-import { getPrimeSimulatorMove } from 'services/primeApi';
+import { getPrimeSimulatorAvailableMoves, getPrimeSimulatorMove } from 'services/primeApi';
 import { getQueriesStatus } from 'utils/api';
 import {
   PAYMENT_REQUESTS,
@@ -57,6 +57,7 @@ import {
   REPORT_VIOLATIONS,
   MTO_SHIPMENT,
   DOCUMENTS,
+  PRIME_SIMULATOR_AVAILABLE_MOVES,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -759,6 +760,32 @@ export const useMoveDetailsQueries = (moveCode) => {
     closeoutOffice,
     mtoShipments,
     mtoServiceItems,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const usePrimeSimulatorAvailableMovesQueries = () => {
+  const { data = {}, ...primeSimulatorAvailableMovesQuery } = useQuery(
+    [PRIME_SIMULATOR_AVAILABLE_MOVES, {}],
+    ({ queryKey }) => getPrimeSimulatorAvailableMoves(...queryKey),
+  );
+  const { isLoading, isError, isSuccess } = getQueriesStatus([primeSimulatorAvailableMovesQuery]);
+  // README: This queueResult is being artificially constructed rather than
+  // created using the `..dataProp` destructering of other functions because
+  // the Prime API does not return an Object that the TableQueue component can
+  // consume. So the queueResult mimics that Objects properties since `data` in
+  // this case is a simple Array of Prime Available Moves.
+  const queueResult = {
+    data,
+    page: 1,
+    perPage: data.length,
+    totalCount: data.length,
+  };
+
+  return {
+    queueResult,
     isLoading,
     isError,
     isSuccess,

@@ -16,6 +16,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { DATE_TIME_FORMAT_STRING } from 'shared/constants';
 import { getQueriesStatus } from 'utils/api';
 import { formatDateFromIso } from 'utils/formatters';
+import { usePrimeSimulatorAvailableMovesQueries } from 'hooks/queries';
 
 const columnHeaders = () => [
   createHeader('Move ID', 'id', {
@@ -53,7 +54,7 @@ const columnHeaders = () => [
   ),
 ];
 
-const PrimeSimulatorAvailableMoves = () => {
+const PrimeSimulatorAvailableMoves = ({ moves }) => {
   const navigate = useNavigate();
 
   const todayDate = new Date();
@@ -111,7 +112,7 @@ const PrimeSimulatorAvailableMoves = () => {
       <TableQueue
         title="Moves available to Prime"
         columns={columnHeaders()}
-        useQueries={apiQuery}
+        useQueries={moves === undefined ? apiQuery : usePrimeSimulatorAvailableMovesQueries}
         handleClick={(row) => {
           navigate(`/simulator/moves/${row.id}/details`);
         }}
