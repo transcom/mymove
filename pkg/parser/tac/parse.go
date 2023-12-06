@@ -48,12 +48,8 @@ func Parse(file io.Reader) ([]models.TransportationAccountingCode, error) {
 
 	columnNameAndLocation := make(map[string]int)
 
-	for i := 0; i < len(expectedColumnNames); i++ {
-		for j := 0; j < len(columnHeaders); j++ {
-			if i == j {
-				columnNameAndLocation[columnHeaders[i]] = i
-			}
-		}
+	for i := 0; i < len(columnHeaders); i++ {
+		columnNameAndLocation[columnHeaders[i]] = i
 	}
 
 	// Process the lines of the .txt file into modeled codes
