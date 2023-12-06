@@ -49,8 +49,14 @@ func Parse(file io.Reader) ([]models.LineOfAccounting, error) {
 		}
 	}
 
+	columnNameAndLocation := make(map[string]int)
+
+	for i := 0; i < len(columnHeaders); i++ {
+		columnNameAndLocation[columnHeaders[i]] = i
+	}
+
 	// Process the lines of the .txt file into modeled codes
-	codes, err := processLines(scanner, columnHeaders, codes)
+	codes, err := processLines(scanner, columnNameAndLocation, codes)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +91,7 @@ func PruneEmptyHhgCodes(codes []models.LineOfAccounting) []models.LineOfAccounti
 }
 
 // This function handles the heavy lifting for the main parse function. It processes every line from the .txt file into a proper struct
-func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models.LineOfAccounting) ([]models.LineOfAccounting, error) {
+func processLines(scanner *bufio.Scanner, columnHeaders map[string]int, codes []models.LineOfAccounting) ([]models.LineOfAccounting, error) {
 	// Scan every line and parse into the desired Line of Accounting codes
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -106,26 +112,24 @@ func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models
 		}
 
 		// Check that the LOA sys id is not empty
-		if values[0] == "" {
+		if values[columnHeaders["LOA_SYS_ID"]] == "" {
 			return nil, errors.New("malformed line in the provided loa file: " + line)
 		}
 
 		// Skip the line if it's deleted
-		if values[57] == "DLT" {
+		if values[columnHeaders["ROW_STS_CD"]] == "DLT" {
 			continue
 		}
 
 		// Check if beginning date and expired date are not blank. If not blank, run time conversion, if not, leave empty.
-		if values[27] != "" && values[28] != "" {
-			// Parse values[27], this is the beginning date
-			parsedDate, parseError := time.Parse(timeConversionMethod, values[27])
+		if values[columnHeaders["LOA_BGN_DT"]] != "" && values[columnHeaders["LOA_END_DT"]] != "" {
+			parsedDate, parseError := time.Parse(timeConversionMethod, values[columnHeaders["LOA_BGN_DT"]])
 			if parseError != nil {
 				return nil, fmt.Errorf("malformed effective date in the provided loa file: %s", parseError)
 			}
 			beginningDate = parsedDate
 
-			// Parse values[28], this is the ending date
-			parsedDate, parseError = time.Parse(timeConversionMethod, values[28])
+			parsedDate, parseError = time.Parse(timeConversionMethod, values[columnHeaders["LOA_END_DT"]])
 			if parseError != nil {
 				return nil, fmt.Errorf("malformed effective date in the provided loa file: %s", parseError)
 			}
@@ -133,76 +137,76 @@ func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models
 		}
 
 		// Check if beginning and ending fiscal years are not blank. If not blank, run str to int conversion, if not, leave empty.
-		if values[54] != "" && values[55] != "" {
-			endingFY, err = strconv.Atoi(values[54])
+		if values[columnHeaders["LOA_END_FY_TX"]] != "" && values[columnHeaders["LOA_BG_FY_TX"]] != "" {
+			endingFY, err = strconv.Atoi(values[columnHeaders["LOA_END_FY_TX"]])
 			if err != nil {
 				return nil, fmt.Errorf("malformed ending fiscal year int in the provided loa file: %s", err)
 			}
 
-			beginningFY, err = strconv.Atoi(values[55])
+			beginningFY, err = strconv.Atoi(values[columnHeaders["LOA_BG_FY_TX"]])
 			if err != nil {
 				return nil, fmt.Errorf("malformed beginning fiscal year int in the provided loa file: %s", err)
 			}
 		}
 
 		code := models.LineOfAccounting{
-			LoaSysID:               &values[0],
-			LoaDptID:               &values[1],
-			LoaTnsfrDptNm:          &values[2],
-			LoaBafID:               &values[3],
-			LoaTrsySfxTx:           &values[4],
-			LoaMajClmNm:            &values[5],
-			LoaOpAgncyID:           &values[6],
-			LoaAlltSnID:            &values[7],
-			LoaPgmElmntID:          &values[8],
-			LoaTskBdgtSblnTx:       &values[9],
-			LoaDfAgncyAlctnRcpntID: &values[10],
-			LoaJbOrdNm:             &values[11],
-			LoaSbaltmtRcpntID:      &values[12],
-			LoaWkCntrRcpntNm:       &values[13],
-			LoaMajRmbsmtSrcID:      &values[14],
-			LoaDtlRmbsmtSrcID:      &values[15],
-			LoaCustNm:              &values[16],
-			LoaObjClsID:            &values[17],
-			LoaSrvSrcID:            &values[18],
-			LoaSpclIntrID:          &values[19],
-			LoaBdgtAcntClsNm:       &values[20],
-			LoaDocID:               &values[21],
-			LoaClsRefID:            &values[22],
-			LoaInstlAcntgActID:     &values[23],
-			LoaLclInstlID:          &values[24],
-			LoaFmsTrnsactnID:       &values[25],
-			LoaDscTx:               &values[26],
+			LoaSysID:               &values[columnHeaders["LOA_SYS_ID"]],
+			LoaDptID:               &values[columnHeaders["LOA_DPT_ID"]],
+			LoaTnsfrDptNm:          &values[columnHeaders["LOA_TNSFR_DPT_NM"]],
+			LoaBafID:               &values[columnHeaders["LOA_BAF_ID"]],
+			LoaTrsySfxTx:           &values[columnHeaders["LOA_TRSY_SFX_TX"]],
+			LoaMajClmNm:            &values[columnHeaders["LOA_MAJ_CLM_NM"]],
+			LoaOpAgncyID:           &values[columnHeaders["LOA_OP_AGNCY_ID"]],
+			LoaAlltSnID:            &values[columnHeaders["LOA_ALLT_SN_ID"]],
+			LoaPgmElmntID:          &values[columnHeaders["LOA_PGM_ELMNT_ID"]],
+			LoaTskBdgtSblnTx:       &values[columnHeaders["LOA_TSK_BDGT_SBLN_TX"]],
+			LoaDfAgncyAlctnRcpntID: &values[columnHeaders["LOA_DF_AGNCY_ALCTN_RCPNT_ID"]],
+			LoaJbOrdNm:             &values[columnHeaders["LOA_JB_ORD_NM"]],
+			LoaSbaltmtRcpntID:      &values[columnHeaders["LOA_SBALTMT_RCPNT_ID"]],
+			LoaWkCntrRcpntNm:       &values[columnHeaders["LOA_WK_CNTR_RCPNT_NM"]],
+			LoaMajRmbsmtSrcID:      &values[columnHeaders["LOA_MAJ_RMBSMT_SRC_ID"]],
+			LoaDtlRmbsmtSrcID:      &values[columnHeaders["LOA_DTL_RMBSMT_SRC_ID"]],
+			LoaCustNm:              &values[columnHeaders["LOA_CUST_NM"]],
+			LoaObjClsID:            &values[columnHeaders["LOA_OBJ_CLS_ID"]],
+			LoaSrvSrcID:            &values[columnHeaders["LOA_SRV_SRC_ID"]],
+			LoaSpclIntrID:          &values[columnHeaders["LOA_SPCL_INTR_ID"]],
+			LoaBdgtAcntClsNm:       &values[columnHeaders["LOA_BDGT_ACNT_CLS_NM"]],
+			LoaDocID:               &values[columnHeaders["LOA_DOC_ID"]],
+			LoaClsRefID:            &values[columnHeaders["LOA_CLS_REF_ID"]],
+			LoaInstlAcntgActID:     &values[columnHeaders["LOA_INSTL_ACNTG_ACT_ID"]],
+			LoaLclInstlID:          &values[columnHeaders["LOA_LCL_INSTL_ID"]],
+			LoaFmsTrnsactnID:       &values[columnHeaders["LOA_FMS_TRNSACTN_ID"]],
+			LoaDscTx:               &values[columnHeaders["LOA_DSC_TX"]],
 			LoaBgnDt:               &beginningDate,
 			LoaEndDt:               &endingDate,
-			LoaFnctPrsNm:           &values[29],
-			LoaStatCd:              &values[30],
-			LoaHistStatCd:          &values[31],
-			LoaHsGdsCd:             &values[32],
-			OrgGrpDfasCd:           &values[33],
-			LoaUic:                 &values[34],
-			LoaTrnsnID:             &values[35],
-			LoaSubAcntID:           &values[36],
-			LoaBetCd:               &values[37],
-			LoaFndTyFgCd:           &values[38],
-			LoaBgtLnItmID:          &values[39],
-			LoaScrtyCoopImplAgncCd: &values[40],
-			LoaScrtyCoopDsgntrCd:   &values[41],
-			LoaScrtyCoopLnItmID:    &values[42],
-			LoaAgncDsbrCd:          &values[43],
-			LoaAgncAcntngCd:        &values[44],
-			LoaFndCntrID:           &values[45],
-			LoaCstCntrID:           &values[46],
-			LoaPrjID:               &values[47],
-			LoaActvtyID:            &values[48],
-			LoaCstCd:               &values[49],
-			LoaWrkOrdID:            &values[50],
-			LoaFnclArID:            &values[51],
-			LoaScrtyCoopCustCd:     &values[52],
-			LoaEndFyTx:             &endingFY,
-			LoaBgFyTx:              &beginningFY,
-			LoaBgtRstrCd:           &values[55],
-			LoaBgtSubActCd:         &values[56],
+			LoaFnctPrsNm:           &values[columnHeaders["LOA_FNCT_PRS_NM"]],
+			LoaStatCd:              &values[columnHeaders["LOA_STAT_CD"]],
+			LoaHistStatCd:          &values[columnHeaders["LOA_HIST_STAT_CD"]],
+			LoaHsGdsCd:             &values[columnHeaders["LOA_HS_GDS_CD"]],
+			OrgGrpDfasCd:           &values[columnHeaders["ORG_GRP_DFAS_CD"]],
+			LoaUic:                 &values[columnHeaders["LOA_UIC"]],
+			LoaTrnsnID:             &values[columnHeaders["LOA_TRNSN_ID"]],
+			LoaSubAcntID:           &values[columnHeaders["LOA_SUB_ACNT_ID"]],
+			LoaBetCd:               &values[columnHeaders["LOA_BET_CD"]],
+			LoaFndTyFgCd:           &values[columnHeaders["LOA_FND_TY_FG_CD"]],
+			LoaBgtLnItmID:          &values[columnHeaders["LOA_BGT_LN_ITM_ID"]],
+			LoaScrtyCoopImplAgncCd: &values[columnHeaders["LOA_SCRTY_COOP_IMPL_AGNC_CD"]],
+			LoaScrtyCoopDsgntrCd:   &values[columnHeaders["LOA_SCRTY_COOP_DSGNTR_CD"]],
+			LoaScrtyCoopLnItmID:    &values[columnHeaders["LOA_SCRTY_COOP_LN_ITM_ID"]],
+			LoaAgncDsbrCd:          &values[columnHeaders["LOA_AGNC_DSBR_CD"]],
+			LoaAgncAcntngCd:        &values[columnHeaders["LOA_AGNC_ACNTNG_CD"]],
+			LoaFndCntrID:           &values[columnHeaders["LOA_FND_CNTR_ID"]],
+			LoaCstCntrID:           &values[columnHeaders["LOA_CST_CNTR_ID"]],
+			LoaPrjID:               &values[columnHeaders["LOA_PRJ_ID"]],
+			LoaActvtyID:            &values[columnHeaders["LOA_ACTVTY_ID"]],
+			LoaCstCd:               &values[columnHeaders["LOA_CST_CD"]],
+			LoaWrkOrdID:            &values[columnHeaders["LOA_WRK_ORD_ID"]],
+			LoaFnclArID:            &values[columnHeaders["LOA_FNCL_AR_ID"]],
+			LoaScrtyCoopCustCd:     &values[columnHeaders["LOA_SCRTY_COOP_CUST_CD"]],
+			LoaEndFyTx:             &beginningFY,
+			LoaBgFyTx:              &endingFY,
+			LoaBgtRstrCd:           &values[columnHeaders["LOA_BGT_RSTR_CD"]],
+			LoaBgtSubActCd:         &values[columnHeaders["LOA_BGT_SUB_ACT_CD"]],
 		}
 
 		codes = append(codes, code)
