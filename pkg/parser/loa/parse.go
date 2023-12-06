@@ -51,8 +51,8 @@ func Parse(file io.Reader) ([]models.LineOfAccounting, error) {
 
 	columnNameAndLocation := make(map[string]int)
 
-	for i := 0; i < len(columnHeaders); i++ {
-		columnNameAndLocation[columnHeaders[i]] = i
+	for i, columnHeader := range columnHeaders {
+		columnNameAndLocation[columnHeader] = i
 	}
 
 	// Process the lines of the .txt file into modeled codes
