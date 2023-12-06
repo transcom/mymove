@@ -47,11 +47,11 @@ type LineOfAccounting struct {
 	LoaBgnDt               *time.Time `json:"loa_bgn_dt" db:"loa_bgn_dt" pipe:"LOA_BGN_DT"`
 	LoaEndDt               *time.Time `json:"loa_end_dt" db:"loa_end_dt" pipe:"LOA_END_DT"`
 	LoaFnctPrsNm           *string    `json:"loa_fnct_prs_nm" db:"loa_fnct_prs_nm" pipe:"LOA_FNCT_PRS_NM"`
-	LoaStatCd              *string    `json:"loa_stat_cd" db:"loa_stat_cd" pipe:"loa_stat_cd"`
-	LoaHistStatCd          *string    `json:"loa_hist_stat_cd" db:"loa_hist_stat_cd" pipe:"loa_hist_stat_cd"`
-	LoaHsGdsCd             *string    `json:"loa_hs_gds_cd" db:"loa_hs_gds_cd" pipe:"loa_hs_gds_cd"`
-	OrgGrpDfasCd           *string    `json:"org_grp_dfas_cd" db:"org_grp_dfas_cd" pipe:"org_grp_dfas_cd"`
-	LoaUic                 *string    `json:"loa_uic" db:"loa_uic" pipe:"loa_uic"`
+	LoaStatCd              *string    `json:"loa_stat_cd" db:"loa_stat_cd" pipe:"LOA_STAT_CD"`
+	LoaHistStatCd          *string    `json:"loa_hist_stat_cd" db:"loa_hist_stat_cd" pipe:"LOA_HIST_STAT_CD"`
+	LoaHsGdsCd             *string    `json:"loa_hs_gds_cd" db:"loa_hs_gds_cd" pipe:"LOA_HS_GDS_CD"`
+	OrgGrpDfasCd           *string    `json:"org_grp_dfas_cd" db:"org_grp_dfas_cd" pipe:"ORG_GRP_DFAS_CD"`
+	LoaUic                 *string    `json:"loa_uic" db:"loa_uic" pipe:"LOA_UIC"`
 	LoaTrnsnID             *string    `json:"loa_trnsn_id" db:"loa_trnsn_id" pipe:"LOA_TRNSN_ID"`
 	LoaSubAcntID           *string    `json:"loa_sub_acnt_id" db:"loa_sub_acnt_id" pipe:"LOA_SUB_ACNT_ID"`
 	LoaBetCd               *string    `json:"loa_bet_cd" db:"loa_bet_cd" pipe:"LOA_BET_CD"`
