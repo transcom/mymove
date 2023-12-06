@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import TableQueue from 'components/Table/TableQueue';
@@ -54,13 +54,11 @@ const columnHeaders = () => [
   ),
 ];
 
-const PrimeSimulatorAvailableMoves = ({ moves }) => {
+const PrimeSimulatorAvailableMoves = () => {
   const navigate = useNavigate();
 
-  const todayDate = new Date();
-  const [dateSelected, setDateSelected] = useState(todayDate.toISOString().split('T')[0]);
   const { data = {}, ...primeSimulatorAvailableMovesQuery } = useQuery(
-    [PRIME_SIMULATOR_AVAILABLE_MOVES, { date: `${dateSelected}` }],
+    [PRIME_SIMULATOR_AVAILABLE_MOVES],
     ({ queryKey: [key, { ...date }] }) => {
       return getPrimeSimulatorAvailableMoves(key, date);
     },
@@ -84,20 +82,6 @@ const PrimeSimulatorAvailableMoves = ({ moves }) => {
   const { isLoading, isError } = apiQuery();
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
-
-  const setFilterByDate = () => {
-    const filterDate = document.getElementById('filterDate').value;
-    const dateRegex = /^\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/;
-
-    if (dateRegex.exec(filterDate)) {
-      setDateSelected(filterDate);
-      apiQuery();
-
-      document.getElementById('error').innerHTML = '&nbsp;';
-    } else {
-      document.getElementById('error').innerHTML = 'Enter a valid date.';
-    }
-  };
 
   return (
     <TableQueue
