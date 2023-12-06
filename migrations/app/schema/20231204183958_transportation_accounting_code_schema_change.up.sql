@@ -3,10 +3,10 @@
 -- This is for all three column modifications
 
 -- Set temp timeout due to large file modification
--- Time is 3 minutes in milliseconds
-SET statement_timeout = 180000;
-SET lock_timeout = 180000;
-SET idle_in_transaction_session_timeout = 180000;
+-- Time is 5 minutes in milliseconds
+SET statement_timeout = 300000;
+SET lock_timeout = 300000;
+SET idle_in_transaction_session_timeout = 300000;
 
 -- Cast tac_sys_id from int to varchar
 ALTER TABLE transportation_accounting_codes
