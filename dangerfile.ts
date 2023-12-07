@@ -20,6 +20,12 @@ const githubChecks = () => {
     if (danger.github.pr.body.length < 10) {
       warn('Please include a description of your PR changes.');
     }
+    // PRs should have a Jira ID in the title
+    jiraIssue({
+      key: 'MB',
+      url: 'https://dp3.atlassian.net/browse',
+      location: 'title',
+    });
   }
 };
 

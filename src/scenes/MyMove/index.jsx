@@ -94,12 +94,6 @@ export class CustomerApp extends Component {
     loadUser();
     initOnboarding();
     document.title = generatePageTitle('Sign In');
-    const script = document.createElement('script');
-
-    script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
-    script.async = true;
-
-    document.body.appendChild(script);
   }
 
   componentDidCatch(error, info) {
