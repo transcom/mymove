@@ -35,7 +35,7 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 				Page:     params.Page,
 				PerPage:  params.PerPage,
 				MoveCode: params.MoveCode,
-				Id:       params.ID,
+				ID:       params.ID,
 			}
 			if params.Since != nil {
 				since := handlers.FmtDateTimePtrToPop(params.Since)

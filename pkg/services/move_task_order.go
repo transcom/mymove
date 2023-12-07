@@ -72,7 +72,7 @@ type MoveTaskOrderFetcherParams struct {
 	MoveTaskOrderID          uuid.UUID  // ID of the move task order
 	Locator                  string     // the locator is a unique string that identifies the move
 	MoveCode                 *string    // moveCode that is passed in when searching through prime moves
-	Id                       *string    // id of the move that is sent in when searching through prime moves
+	ID                       *string    // id of the move that is sent in when searching through prime moves
 	ExcludeExternalShipments bool       // indicates if external vendor shipments should be returned
 	Page                     *int64
 	PerPage                  *int64

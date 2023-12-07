@@ -288,8 +288,8 @@ func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppConte
 	if searchParams.MoveCode != nil {
 		query.Where("moves.locator = ?", strings.ToUpper(*searchParams.MoveCode))
 	}
-	if searchParams.Id != nil {
-		query.Where("moves.id = ?", searchParams.Id)
+	if searchParams.ID != nil {
+		query.Where("moves.id = ?", searchParams.ID)
 	}
 	// if there is an error returned we will just return no moves
 	if err != nil {
