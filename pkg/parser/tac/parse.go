@@ -46,8 +46,14 @@ func Parse(file io.Reader) ([]models.TransportationAccountingCode, error) {
 		}
 	}
 
+	columnNameAndLocation := make(map[string]int)
+
+	for i, columnHeader := range columnHeaders {
+		columnNameAndLocation[columnHeader] = i
+	}
+
 	// Process the lines of the .txt file into modeled codes
-	codes, err := processLines(scanner, columnHeaders, codes)
+	codes, err := processLines(scanner, columnNameAndLocation, codes)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +137,7 @@ func overwriteDuplicateCode(existingCode models.TransportationAccountingCode, ne
 }
 
 // This function handles the heavy lifting for the main parse function. It handles the scanning of every line and conversion into the TransportationAccountingCode model.
-func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models.TransportationAccountingCode) ([]models.TransportationAccountingCode, error) {
+func processLines(scanner *bufio.Scanner, columnHeaders map[string]int, codes []models.TransportationAccountingCode) ([]models.TransportationAccountingCode, error) {
 	// Scan every line and parse into Transportation Accounting Codes
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -149,51 +155,51 @@ func processLines(scanner *bufio.Scanner, columnHeaders []string, codes []models
 		}
 
 		// Skip the entry if the TAC value is empty
-		if values[2] == "" {
+		if values[columnHeaders["TRNSPRTN_ACNT_CD"]] == "" {
 			continue
 		}
 
 		// Skip the line if a deleted entry found its way in
 		// ROW_STS_CD can be either 'ACTV' or 'DLT'
-		if values[24] == "DLT" {
+		if values[columnHeaders["ROW_STS_CD"]] == "DLT" {
 			continue
 		}
 
-		effectiveDate, err := time.Parse("2006-01-02 15:04:05", values[16])
+		effectiveDate, err := time.Parse("2006-01-02 15:04:05", values[columnHeaders["TRNSPRTN_ACNT_BGN_DT"]])
 		if err != nil {
 			return nil, fmt.Errorf("malformed effective date in the provided tac file: %s", err)
 		}
 
-		expiredDate, err := time.Parse("2006-01-02 15:04:05", values[17])
+		expiredDate, err := time.Parse("2006-01-02 15:04:05", values[columnHeaders["TRNSPRTN_ACNT_END_DT"]])
 		if err != nil {
 			return nil, fmt.Errorf("malformed expiration date in the provided tac file: %s", err)
 		}
 
 		code := models.TransportationAccountingCode{
-			TacSysID:           &values[0],
-			LoaSysID:           &values[1],
-			TAC:                values[2],
-			TacFyTxt:           &values[3],
-			TacFnBlModCd:       &values[4],
-			OrgGrpDfasCd:       &values[5],
-			TacMvtDsgID:        &values[6],
-			TacTyCd:            &values[7],
-			TacUseCd:           &values[8],
-			TacMajClmtID:       &values[9],
-			TacBillActTxt:      &values[10],
-			TacCostCtrNm:       &values[11],
-			Buic:               &values[12],
-			TacHistCd:          &values[13],
-			TacStatCd:          &values[14],
-			TrnsprtnAcntTx:     &values[15],
+			TacSysID:           &values[columnHeaders["TAC_SYS_ID"]],
+			LoaSysID:           &values[columnHeaders["LOA_SYS_ID"]],
+			TAC:                values[columnHeaders["TRNSPRTN_ACNT_CD"]],
+			TacFyTxt:           &values[columnHeaders["TAC_FY_TXT"]],
+			TacFnBlModCd:       &values[columnHeaders["TAC_FN_BL_MOD_CD"]],
+			OrgGrpDfasCd:       &values[columnHeaders["ORG_GRP_DFAS_CD"]],
+			TacMvtDsgID:        &values[columnHeaders["TAC_MVT_DSG_ID"]],
+			TacTyCd:            &values[columnHeaders["TAC_TY_CD"]],
+			TacUseCd:           &values[columnHeaders["TAC_USE_CD"]],
+			TacMajClmtID:       &values[columnHeaders["TAC_MAJ_CLMT_ID"]],
+			TacBillActTxt:      &values[columnHeaders["TAC_BILL_ACT_TXT"]],
+			TacCostCtrNm:       &values[columnHeaders["TAC_COST_CTR_NM"]],
+			Buic:               &values[columnHeaders["BUIC"]],
+			TacHistCd:          &values[columnHeaders["TAC_HIST_CD"]],
+			TacStatCd:          &values[columnHeaders["TAC_STAT_CD"]],
+			TrnsprtnAcntTx:     &values[columnHeaders["TRNSPRTN_ACNT_TX"]],
 			TrnsprtnAcntBgnDt:  &effectiveDate,
 			TrnsprtnAcntEndDt:  &expiredDate,
-			DdActvtyAdrsID:     &values[18],
-			TacBlldAddFrstLnTx: &values[19],
-			TacBlldAddScndLnTx: &values[20],
-			TacBlldAddThrdLnTx: &values[21],
-			TacBlldAddFrthLnTx: &values[22],
-			TacFnctPocNm:       &values[23],
+			DdActvtyAdrsID:     &values[columnHeaders["DD_ACTVTY_ADRS_ID"]],
+			TacBlldAddFrstLnTx: &values[columnHeaders["TAC_BLLD_ADD_FRST_LN_TX"]],
+			TacBlldAddScndLnTx: &values[columnHeaders["TAC_BLLD_ADD_SCND_LN_TX"]],
+			TacBlldAddThrdLnTx: &values[columnHeaders["TAC_BLLD_ADD_THRD_LN_TX"]],
+			TacBlldAddFrthLnTx: &values[columnHeaders["TAC_BLLD_ADD_FRTH_LN_TX"]],
+			TacFnctPocNm:       &values[columnHeaders["TAC_FNCT_POC_NM"]],
 		}
 
 		codes = append(codes, code)
