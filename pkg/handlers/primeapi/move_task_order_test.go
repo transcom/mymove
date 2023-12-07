@@ -64,7 +64,7 @@ func (suite *HandlerSuite) TestListMovesHandlerReturnsUpdated() {
 	// Validate outgoing payload
 	suite.NoError(movesList.Validate(strfmt.Default))
 
-	suite.Equal(1, len(movesList))
+	suite.Equal(2, len(movesList))
 	suite.Equal(move.ID.String(), movesList[0].ID.String())
 }
 
