@@ -621,7 +621,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
 	searchParams := services.MoveTaskOrderFetcherParams{}
 
 	// Run the fetcher without `since` to get all Prime moves:
-	primeMoves, err := fetcher.ListPrimeMoveTaskOrders(suite.AppContextForTest(), &searchParams)
+	primeMoves, count, err := fetcher.ListPrimeMoveTaskOrders(suite.AppContextForTest(), &searchParams)
 	suite.NoError(err)
 	suite.Len(primeMoves, 4)
 
@@ -636,9 +636,11 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
 	// Run the fetcher with `since` to get primeMove2, primeMove3 (because of the shipment), and primeMove4 (because of the reweigh)
 	since := now.Add(-5 * time.Second)
 	searchParams.Since = &since
-	sinceMoves, err := fetcher.ListPrimeMoveTaskOrders(suite.AppContextForTest(), &searchParams)
+	sinceMoves, count, err := fetcher.ListPrimeMoveTaskOrders(suite.AppContextForTest(), &searchParams)
 	suite.NoError(err)
 	suite.Len(sinceMoves, 3)
+
+	suite.Assert().Equal(count, 3)
 
 	sinceMoveIDs := []uuid.UUID{sinceMoves[0].ID, sinceMoves[1].ID, sinceMoves[2].ID}
 	suite.Contains(sinceMoveIDs, primeMove2.ID)
