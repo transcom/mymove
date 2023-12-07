@@ -618,7 +618,9 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
 		now.Add(-10*time.Second), shipmentForPrimeMove4.ID).Exec())
 
 	fetcher := NewMoveTaskOrderFetcher()
-	searchParams := services.MoveTaskOrderFetcherParams{}
+	page := int64(1)
+	perPage := int64(20)
+	searchParams := services.MoveTaskOrderFetcherParams{Page: &page, PerPage: &perPage, MoveCode: nil, Id: nil}
 
 	// Run the fetcher without `since` to get all Prime moves:
 	primeMoves, count, err := fetcher.ListPrimeMoveTaskOrders(suite.AppContextForTest(), &searchParams)
