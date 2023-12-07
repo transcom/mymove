@@ -223,6 +223,16 @@ func init() {
             "description": "results per page",
             "name": "perPage",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "moveCode",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4883,6 +4893,16 @@ func init() {
             "type": "integer",
             "description": "results per page",
             "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "moveCode",
             "in": "query"
           }
         ],

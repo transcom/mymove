@@ -16,9 +16,11 @@ import (
 
 // ListMovesURL generates an URL for the list moves operation
 type ListMovesURL struct {
-	Page    *int64
-	PerPage *int64
-	Since   *strfmt.DateTime
+	ID       *string
+	MoveCode *string
+	Page     *int64
+	PerPage  *int64
+	Since    *strfmt.DateTime
 
 	_basePath string
 	// avoid unkeyed usage
@@ -53,6 +55,22 @@ func (o *ListMovesURL) Build() (*url.URL, error) {
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 
 	qs := make(url.Values)
+
+	var idQ string
+	if o.ID != nil {
+		idQ = *o.ID
+	}
+	if idQ != "" {
+		qs.Set("id", idQ)
+	}
+
+	var moveCodeQ string
+	if o.MoveCode != nil {
+		moveCodeQ = *o.MoveCode
+	}
+	if moveCodeQ != "" {
+		qs.Set("moveCode", moveCodeQ)
+	}
 
 	var pageQ string
 	if o.Page != nil {

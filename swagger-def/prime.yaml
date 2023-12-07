@@ -78,6 +78,12 @@ paths:
           name: perPage
           type: integer
           description: results per page
+        - in: query
+          name: id
+          type: string
+        - in: query
+          name: moveCode
+          type: string
       responses:
         '200':
           description: Successfully retrieved moves. A successful fetch might still return zero moves.

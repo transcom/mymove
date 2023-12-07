@@ -767,11 +767,12 @@ export const useMoveDetailsQueries = (moveCode) => {
 };
 
 export const usePrimeSimulatorAvailableMovesQueries = ({
+  filters = [],
   currentPage = PAGINATION_PAGE_DEFAULT,
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
 }) => {
   const { data = {}, ...primeSimulatorAvailableMovesQuery } = useQuery(
-    [PRIME_SIMULATOR_AVAILABLE_MOVES, { currentPage, currentPageSize }],
+    [PRIME_SIMULATOR_AVAILABLE_MOVES, { filters, currentPage, currentPageSize }],
     ({ queryKey }) => getPrimeSimulatorAvailableMoves(...queryKey),
   );
   const { isLoading, isError, isSuccess } = primeSimulatorAvailableMovesQuery;

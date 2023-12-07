@@ -62,6 +62,12 @@ ListMovesParams contains all the parameters to send to the API endpoint
 */
 type ListMovesParams struct {
 
+	// ID.
+	ID *string
+
+	// MoveCode.
+	MoveCode *string
+
 	/* Page.
 
 	   requested page of results
@@ -135,6 +141,28 @@ func (o *ListMovesParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithID adds the id to the list moves params
+func (o *ListMovesParams) WithID(id *string) *ListMovesParams {
+	o.SetID(id)
+	return o
+}
+
+// SetID adds the id to the list moves params
+func (o *ListMovesParams) SetID(id *string) {
+	o.ID = id
+}
+
+// WithMoveCode adds the moveCode to the list moves params
+func (o *ListMovesParams) WithMoveCode(moveCode *string) *ListMovesParams {
+	o.SetMoveCode(moveCode)
+	return o
+}
+
+// SetMoveCode adds the moveCode to the list moves params
+func (o *ListMovesParams) SetMoveCode(moveCode *string) {
+	o.MoveCode = moveCode
+}
+
 // WithPage adds the page to the list moves params
 func (o *ListMovesParams) WithPage(page *int64) *ListMovesParams {
 	o.SetPage(page)
@@ -175,6 +203,40 @@ func (o *ListMovesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Reg
 		return err
 	}
 	var res []error
+
+	if o.ID != nil {
+
+		// query param id
+		var qrID string
+
+		if o.ID != nil {
+			qrID = *o.ID
+		}
+		qID := qrID
+		if qID != "" {
+
+			if err := r.SetQueryParam("id", qID); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.MoveCode != nil {
+
+		// query param moveCode
+		var qrMoveCode string
+
+		if o.MoveCode != nil {
+			qrMoveCode = *o.MoveCode
+		}
+		qMoveCode := qrMoveCode
+		if qMoveCode != "" {
+
+			if err := r.SetQueryParam("moveCode", qMoveCode); err != nil {
+				return err
+			}
+		}
+	}
 
 	if o.Page != nil {
 
