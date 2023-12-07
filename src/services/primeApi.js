@@ -21,11 +21,15 @@ export async function makePrimeSimulatorRequest(operationPath, params = {}, opti
   return makeSwaggerRequest(client, operationPath, params, options);
 }
 
-export async function getPrimeSimulatorAvailableMoves(key, { currentPage = 1, currentPageSize = 20 }) {
+export async function getPrimeSimulatorAvailableMoves(key, { filters = [], currentPage = 1, currentPageSize = 20 }) {
   const operationPath = 'moveTaskOrder.listMoves';
+  const paramFilters = {};
+  filters.forEach((filter) => {
+    paramFilters[`${filter.id}`] = filter.value;
+  });
   return makePrimeSimulatorRequest(
     operationPath,
-    { page: currentPage, perPage: currentPageSize },
+    { page: currentPage, perPage: currentPageSize, ...paramFilters },
     { schemaKey: 'listMoves', normalize: false },
   );
 }

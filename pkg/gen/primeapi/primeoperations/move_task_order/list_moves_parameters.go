@@ -33,6 +33,14 @@ type ListMovesParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
+	/*
+	  In: query
+	*/
+	ID *string
+	/*
+	  In: query
+	*/
+	MoveCode *string
 	/*requested page of results
 	  In: query
 	*/
@@ -58,6 +66,16 @@ func (o *ListMovesParams) BindRequest(r *http.Request, route *middleware.Matched
 
 	qs := runtime.Values(r.URL.Query())
 
+	qID, qhkID, _ := qs.GetOK("id")
+	if err := o.bindID(qID, qhkID, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qMoveCode, qhkMoveCode, _ := qs.GetOK("moveCode")
+	if err := o.bindMoveCode(qMoveCode, qhkMoveCode, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	qPage, qhkPage, _ := qs.GetOK("page")
 	if err := o.bindPage(qPage, qhkPage, route.Formats); err != nil {
 		res = append(res, err)
@@ -75,6 +93,42 @@ func (o *ListMovesParams) BindRequest(r *http.Request, route *middleware.Matched
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// bindID binds and validates parameter ID from query.
+func (o *ListMovesParams) bindID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.ID = &raw
+
+	return nil
+}
+
+// bindMoveCode binds and validates parameter MoveCode from query.
+func (o *ListMovesParams) bindMoveCode(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.MoveCode = &raw
+
 	return nil
 }
 

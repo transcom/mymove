@@ -29,9 +29,13 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
+			// adding in moveCode and Id params that are sent in from the UI
+			// we will use these params to refine the search in the service object
 			searchParams := services.MoveTaskOrderFetcherParams{
-				Page:    params.Page,
-				PerPage: params.PerPage,
+				Page:     params.Page,
+				PerPage:  params.PerPage,
+				MoveCode: params.MoveCode,
+				Id:       params.ID,
 			}
 			if params.Since != nil {
 				since := handlers.FmtDateTimePtrToPop(params.Since)

@@ -3,6 +3,7 @@ package movetaskorder
 import (
 	"database/sql"
 	"errors"
+	"strings"
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
@@ -277,10 +278,29 @@ func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppConte
 	var moveTaskOrders models.Moves
 	var err error
 
+	// setting up query
+	// getting all moves that are available to the prime and aren't null
 	query := appCtx.DB().Select("moves.*").
 		InnerJoin("orders", "moves.orders_id = orders.id").
 		Where("moves.available_to_prime_at IS NOT NULL AND moves.show = TRUE")
+	// now we will see if the user is searching for move code or id
+	// change the moveCode to upper case since that is what's in the DB
+	if searchParams.MoveCode != nil {
+		query.Where("moves.locator = ?", strings.ToUpper(*searchParams.MoveCode))
+	}
+	if searchParams.Id != nil {
+		query.Where("moves.id = ?", searchParams.Id)
+	}
+	// if there is an error returned we will just return no moves
+	if err != nil {
+		return []models.Move{}, 0, err
+	}
+	// adding pagination and all moves returned with built query
+	// if there are no moves then it will return.. no moves
 	err = query.Paginate(int(*searchParams.Page), int(*searchParams.PerPage)).All(&moveTaskOrders)
+	if err != nil {
+		return []models.Move{}, 0, err
+	}
 	count := query.Paginator.TotalEntriesSize
 
 	// this was the previous sql query that utilized raw sql
@@ -314,6 +334,7 @@ func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppConte
 	}
 	*/
 
+	// catch all error here
 	if err != nil {
 		return models.Moves{}, 0, apperror.NewQueryError("MoveTaskOrder", err, "Unexpected error while querying db.")
 	}
