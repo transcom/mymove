@@ -9,10 +9,11 @@ import AddressFields from 'components/form/AddressFields/AddressFields';
 import formStyles from 'styles/form.module.scss';
 import { Form } from 'components/form/Form';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
+import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { primeSimulatorRoutes } from 'constants/routes';
 import { DatePickerInput } from 'components/form/fields';
 
-const PrimeUIUpdateDestSITForm = ({ name, initialValues, onSubmit }) => {
+const PrimeUIUpdateDestSITForm = ({ name, initialValues, onSubmit, serviceItem }) => {
   const { moveCodeOrID } = useParams();
   const navigate = useNavigate();
 
@@ -33,6 +34,27 @@ const PrimeUIUpdateDestSITForm = ({ name, initialValues, onSubmit }) => {
               <strong>SIT Customer Contacted</strong> fields can be updated.
             </SectionWrapper>
             <SectionWrapper className={formStyles.formSection}>
+              <h3 style={{ textAlign: 'center' }}>
+                {serviceItem.reServiceCode} - {serviceItem.reServiceName}
+              </h3>
+              <dl className={descriptionListStyles.descriptionList}>
+                <div className={descriptionListStyles.row}>
+                  <dt>ID:</dt>
+                  <dd>{serviceItem.id}</dd>
+                </div>
+                <div className={descriptionListStyles.row}>
+                  <dt>MTO ID:</dt>
+                  <dd>{serviceItem.moveTaskOrderID}</dd>
+                </div>
+                <div className={descriptionListStyles.row}>
+                  <dt>Shipment ID:</dt>
+                  <dd>{serviceItem.mtoShipmentID}</dd>
+                </div>
+                <div className={descriptionListStyles.row}>
+                  <dt>Status:</dt>
+                  <dd>{serviceItem.status}</dd>
+                </div>
+              </dl>
               <h3 style={{ textAlign: 'center', marginBottom: '-8px' }}>SIT Destination Final Address</h3>
               <AddressFields name={name} />
               <div style={{ display: 'flex', justifyContent: 'space-around' }}>

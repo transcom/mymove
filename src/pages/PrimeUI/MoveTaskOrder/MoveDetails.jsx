@@ -101,6 +101,11 @@ const MoveDetails = ({ setFlashMessage }) => {
 
   const { mtoShipments, paymentRequests } = moveTaskOrder;
 
+  // checking to see if the mto contains a destination SIT delivery
+  const destinationServiceItem = moveTaskOrder?.mtoServiceItems.find(
+    (serviceItem) => serviceItem?.reServiceCode === 'DDDSIT',
+  );
+
   return (
     <div>
       <div className={classnames('grid-container-desktop-lg', 'usa-prose', styles.MoveDetails)}>
@@ -156,13 +161,15 @@ const MoveDetails = ({ setFlashMessage }) => {
                         <Shipment shipment={mtoShipment} moveId={moveTaskOrder.id} onDelete={handleDeleteShipment} />
                         <div className={styles.serviceItemHeader}>
                           {moveTaskOrder.mtoServiceItems?.length > 0 && <h2>Service Items</h2>}
-                          <Link
-                            to="../mto-service-items/update"
-                            relative="path"
-                            className="usa-button usa-button-secondary"
-                          >
-                            Update Service Items
-                          </Link>
+                          {destinationServiceItem ? (
+                            <Link
+                              to="../mto-service-items/update"
+                              relative="path"
+                              className="usa-button usa-button-secondary"
+                            >
+                              Request Destination SIT Address Change
+                            </Link>
+                          ) : null}
                         </div>
                         {moveTaskOrder.mtoServiceItems?.map((serviceItem) => {
                           if (serviceItem.mtoShipmentID === mtoShipment.id) {

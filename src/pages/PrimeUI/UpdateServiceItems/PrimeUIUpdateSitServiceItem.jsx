@@ -141,13 +141,14 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
               {modelType === 'MTOServiceItemDestSIT' ? (
                 <PrimeUIUpdateDestSITForm
                   name="address"
+                  serviceItem={serviceItem}
                   initialValues={destSitInitialValues}
                   onSubmit={destSitOnSubmit}
                 />
               ) : null}
               {modelType === 'MTOServiceItemOriginSIT' ? (
                 <PrimeUIUpdateOriginSITForm
-                  name="address"
+                  serviceItem={serviceItem}
                   initialValues={originSitInitialValues}
                   onSubmit={originSitOnSubmit}
                 />
