@@ -277,11 +277,58 @@ func (f moveTaskOrderFetcher) GetMove(appCtx appcontext.AppContext, searchParams
 func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, int, error) {
 	var moveTaskOrders models.Moves
 	var err error
+	var count int
 
-	// retaining old query with since argument for prime
-	count := 0
+	// setting up query
+	// getting all moves that are available to the prime and aren't null
+	query := appCtx.DB().Select("moves.*").
+		InnerJoin("orders", "moves.orders_id = orders.id").
+		Where("moves.available_to_prime_at IS NOT NULL AND moves.show = TRUE")
+
 	if searchParams.Since != nil {
-		sql := `SELECT moves.*
+		query.Where("moves.updated_at >= ?", searchParams.Since).
+			Where("orders.updated_at >= ?", searchParams.Since).
+			Where("(moves.id IN (SELECT mto_shipments.move_id FROM mto_shipments WHERE mto_shipments.updated_at >= ? "+
+				"UNION SELECT mto_service_items.move_id FROM mto_service_items WHERE mto_service_items.updated_at >= ? "+
+				"UNION SELECT payment_requests.move_id FROM payment_requests WHERE payment_requests.updated_at >= ? "+
+				"UNION SELECT mto_shipments.move_id FROM mto_shipments INNER JOIN reweighs ON reweighs.shipment_id = mto_shipments.id "+
+				"WHERE reweighs.updated_at >= ?))", searchParams.Since, searchParams.Since, searchParams.Since, searchParams.Since)
+		// if there is an error returned we will just return no moves
+		err = query.All(&moveTaskOrders)
+		count = len(moveTaskOrders)
+		if err != nil {
+			return []models.Move{}, 0, err
+		}
+	} else {
+		// now we will see if the user is searching for move code or id
+		// change the moveCode to upper case since that is what's in the DB
+		if searchParams.MoveCode != nil {
+			query.Where("moves.locator ILIKE ?", "%"+strings.ToUpper(*searchParams.MoveCode)+"%")
+		}
+		if searchParams.ID != nil {
+			query.Where("moves.id = ?", *searchParams.ID)
+		}
+		// if there is an error returned we will just return no moves
+		if err != nil {
+			return []models.Move{}, 0, err
+		}
+		// adding pagination and all moves returned with built query
+		// if there are no moves then it will return.. no moves
+		err = query.Paginate(int(*searchParams.Page), int(*searchParams.PerPage)).All(&moveTaskOrders)
+		if err != nil {
+			return []models.Move{}, 0, err
+		}
+		count = query.Paginator.TotalEntriesSize
+		// catch all error here
+		if err != nil {
+			return models.Moves{}, 0, apperror.NewQueryError("MoveTaskOrder", err, "Unexpected error while querying db.")
+		}
+	}
+
+	// this was the previous sql query that utilized raw sql
+	// the below code was changed to the above code to utilize more modern pop
+	// leaving here for reference (but can be deleted if it isn't needed)
+	/* sql := `SELECT moves.*
 	        FROM moves INNER JOIN orders ON moves.orders_id = orders.id
 	        WHERE moves.available_to_prime_at IS NOT NULL AND moves.show = TRUE`
 

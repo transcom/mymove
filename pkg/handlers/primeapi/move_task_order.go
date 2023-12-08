@@ -61,6 +61,15 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 
 			queueMoves := payloads.ListMoves(&mtos)
 
+			// if the since parameter is passed in, we don't need to return the additional values since that's only used in the UI
+			if params.Since != nil {
+				result := primemessages.ListMovesResult{
+					QueueMoves: queueMoves,
+				}
+
+				return movetaskorderops.NewListMovesOK().WithPayload(&result), nil
+			}
+
 			result := primemessages.ListMovesResult{
 				Page:       *searchParams.Page,
 				PerPage:    *searchParams.PerPage,
@@ -69,6 +78,7 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 			}
 
 			return movetaskorderops.NewListMovesOK().WithPayload(&result), nil
+
 		})
 }
 
