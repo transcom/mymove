@@ -103,7 +103,7 @@ export function createServiceItem({ body }) {
 export function updateMTOServiceItem({ mtoServiceItemID, eTag, body }) {
   return makePrimeSimulatorRequest(
     'mtoServiceItem.updateMTOServiceItem',
-    { mtoServiceItemID, 'If-Match': eTag, body: { ...body } },
+    { mtoServiceItemID, 'If-Match': eTag, body },
     { normalize: false },
   );
 }

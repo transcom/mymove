@@ -21,6 +21,7 @@ import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { completeCounseling, deleteShipment } from 'services/primeApi';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import scrollToTop from 'shared/scrollToTop';
+import { SIT_SERVICE_ITEMS_ALLOWED_UPDATE } from 'constants/serviceItems';
 
 const MoveDetails = ({ setFlashMessage }) => {
   const { moveCodeOrID } = useParams();
@@ -164,7 +165,6 @@ const MoveDetails = ({ setFlashMessage }) => {
                           </Link>
                         </div>
                         {moveTaskOrder.mtoServiceItems?.map((serviceItem) => {
-                          // console.log(serviceItem);
                           if (serviceItem.mtoShipmentID === mtoShipment.id) {
                             return (
                               <div className={styles.paymentRequestRows} key={serviceItem.id}>
@@ -172,8 +172,7 @@ const MoveDetails = ({ setFlashMessage }) => {
                                   {serviceItem.reServiceCode} - {serviceItem.reServiceName}
                                 </h3>
                                 <div className={styles.uploadBtn}>
-                                  {serviceItem.modelType === 'MTOServiceItemDestSIT' ||
-                                  serviceItem.modelType === 'MTOServiceItemOriginSIT' ? (
+                                  {SIT_SERVICE_ITEMS_ALLOWED_UPDATE.includes(serviceItem.reServiceCode) ? (
                                     <Link
                                       className="usa-button usa-button--outline"
                                       to={`../mto-service-items/${serviceItem.id}/update`}
