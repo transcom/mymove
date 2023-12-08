@@ -369,6 +369,22 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   if (isError) return <SomethingWentWrong />;
 
   const handleShowCancellationModal = () => {
+    // check if servicemember pro gear is less than the allowances set by the service counselor
+
+    for (let i = 0; i < mtoShipments.length; i += 1) {
+      if (mtoShipments[i].ppmShipment.hasProGear) {
+        const ppm = mtoShipments[i].ppmShipment;
+
+        if (
+          ppm.proGearWeight > order.entitlement.proGearWeight ||
+          ppm.proGearWeightSpouse > order.entitlement.proGearWeightSpouse
+        ) {
+          // alert('Progear weight is greater than entitlement.');
+          return;
+        }
+      }
+    }
+
     setIsSubmitModalVisible(true);
   };
 
