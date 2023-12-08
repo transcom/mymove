@@ -57,6 +57,16 @@ func SortShipmentSITs(shipment models.MTOShipment, today time.Time) SortedShipme
 	return shipmentSITs
 }
 
+// Private function for clamping inclusively between 2 ints
+func clamp(input int, min int, max int) int {
+	if input < min {
+		return min
+	} else if input > max {
+		return max
+	}
+	return input
+}
+
 // CalculateShipmentSITStatus creates a SIT Status for payload to be used in
 // multiple handlers in the `ghcapi` package for the MTOShipment handlers.
 func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*services.SITStatus, error) {
@@ -83,7 +93,8 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 	if err != nil {
 		return nil, err
 	}
-	shipmentSITStatus.TotalSITDaysUsed = CalculateTotalDaysInSIT(shipmentSITs, today)
+
+	shipmentSITStatus.TotalSITDaysUsed = clamp(CalculateTotalDaysInSIT(shipmentSITs, today), 0, totalSITAllowance)
 	shipmentSITStatus.TotalDaysRemaining = totalSITAllowance - shipmentSITStatus.TotalSITDaysUsed
 	shipmentSITStatus.PastSITs = shipmentSITs.pastSITs
 
@@ -110,6 +121,8 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 			SITRequestedDelivery: sitRequestedDelivery,
 		}
 	}
+
+	// clamp total SIT days used between 0 and the totalSITAllowance
 
 	return &shipmentSITStatus, nil
 }
