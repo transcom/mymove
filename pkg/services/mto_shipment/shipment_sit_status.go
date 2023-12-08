@@ -122,8 +122,6 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		}
 	}
 
-	// clamp total SIT days used between 0 and the totalSITAllowance
-
 	return &shipmentSITStatus, nil
 }
 
