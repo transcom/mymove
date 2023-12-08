@@ -109,6 +109,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MtoShipmentUpdateReweighHandler: mto_shipment.UpdateReweighHandlerFunc(func(params mto_shipment.UpdateReweighParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.UpdateReweigh has not yet been implemented")
 		}),
+		MtoShipmentUpdateSITDeliveryRequestHandler: mto_shipment.UpdateSITDeliveryRequestHandlerFunc(func(params mto_shipment.UpdateSITDeliveryRequestParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.UpdateSITDeliveryRequest has not yet been implemented")
+		}),
 	}
 }
 
@@ -194,6 +197,8 @@ type MymoveAPI struct {
 	MtoShipmentUpdateMTOShipmentStatusHandler mto_shipment.UpdateMTOShipmentStatusHandler
 	// MtoShipmentUpdateReweighHandler sets the operation handler for the update reweigh operation
 	MtoShipmentUpdateReweighHandler mto_shipment.UpdateReweighHandler
+	// MtoShipmentUpdateSITDeliveryRequestHandler sets the operation handler for the update s i t delivery request operation
+	MtoShipmentUpdateSITDeliveryRequestHandler mto_shipment.UpdateSITDeliveryRequestHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -333,6 +338,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MtoShipmentUpdateReweighHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.UpdateReweighHandler")
+	}
+	if o.MtoShipmentUpdateSITDeliveryRequestHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.UpdateSITDeliveryRequestHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -504,6 +512,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/mto-shipments/{mtoShipmentID}/reweighs/{reweighID}"] = mto_shipment.NewUpdateReweigh(o.context, o.MtoShipmentUpdateReweighHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/mto-shipments/{mtoShipmentID}/sit-delivery"] = mto_shipment.NewUpdateSITDeliveryRequest(o.context, o.MtoShipmentUpdateSITDeliveryRequestHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

@@ -311,3 +311,18 @@ func (h UpdateMTOShipmentStatusHandler) Handle(params mtoshipmentops.UpdateMTOSh
 			return mtoshipmentops.NewUpdateMTOShipmentStatusOK().WithPayload(payloads.MTOShipment(shipment)), nil
 		})
 }
+
+type UpdateSITDeliveryRequestHandler struct {
+	handlers.HandlerConfig
+	shipmentStatus services.ShipmentSITStatus
+}
+
+// Handle handler that updates a mto shipment's authorized end date and required deliver date
+func (h UpdateSITDeliveryRequestHandler) Handle(params mtoshipmentops.UpdateSITDeliveryRequestParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			//shipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
+
+			return nil, nil
+		})
+}
