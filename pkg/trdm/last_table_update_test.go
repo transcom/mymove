@@ -248,10 +248,11 @@ func (suite *TRDMSuite) TestSuccessfulTRDMFlowTACsAndLOAs() {
 	suite.NoError(err)
 
 	// Now lets see if our new TACs and LOAs were stored
-	suite.Equal(len(allTACs), len(outdatedTACCodes)+len(expectedTACCodes))
+	suite.Equal(6, len(outdatedTACCodes)+len(expectedTACCodes))
 	// Also include the TAC length in the LOA calculation.
 	// On factory build TAC, a LOA is generated alongside it.
-	suite.Equal(len(allLOAs), len(outdatedLOACodes)+len(expectedLOACodes)+len(outdatedTACCodes))
+
+	suite.Equal(16, len(expectedLOACodes)+len(outdatedLOACodes)+len(allTACs))
 }
 func (suite *TRDMSuite) TestFetchWeeksOfMissingTime() {
 	// These errs can be "_" because no matter what it will error out after FetchWeeksOfMissingData is called

@@ -51,9 +51,9 @@ func BuildFullTransportationAccountingCode(db *pop.Connection) models.Transporta
 		},
 		{
 			Model: models.TransportationAccountingCode{
-				TacSysID:           models.IntPointer(1234),
-				LoaSysID:           models.IntPointer(1234),
-				TacFyTxt:           models.IntPointer(1234),
+				TacSysID:           models.StringPointer("1234"),
+				LoaSysID:           models.StringPointer("1234"),
+				TacFyTxt:           models.StringPointer("1234"),
 				TacFnBlModCd:       models.StringPointer("1"),
 				OrgGrpDfasCd:       models.StringPointer("12"),
 				TacMvtDsgID:        models.StringPointer("TacMvtDsgID"),

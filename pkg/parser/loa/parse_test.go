@@ -17,20 +17,28 @@ import (
 
 type LoaParserSuite struct {
 	*testingsuite.PopTestSuite
-	txtFilename string
-	txtContent  []byte
+	txtFilename    string
+	txtBadFilename string
+	txtContent     []byte
+	txtBadContent  []byte
 }
 
 func TestLoaParserSuite(t *testing.T) {
 	hs := &LoaParserSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
-		txtFilename:  "./fixtures/Line Of Accounting.txt",
+		PopTestSuite:   testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		txtFilename:    "./fixtures/Line Of Accounting.txt",
+		txtBadFilename: "./fixtures/Bad Line Of Accounting.txt",
 	}
 
 	var err error
 	hs.txtContent, err = os.ReadFile(hs.txtFilename)
 	if err != nil {
 		hs.Logger().Panic("could not read text file", zap.Error(err))
+	}
+
+	hs.txtBadContent, err = os.ReadFile(hs.txtBadFilename)
+	if err != nil {
+		hs.Logger().Panic("could not read bad text file", zap.Error(err))
 	}
 
 	suite.Run(t, hs)
@@ -51,7 +59,7 @@ func (suite *LoaParserSuite) TestParsing() {
 
 	// Do a hard coded check to the first line of data to ensure a 1:1 match to what is expected.
 	firstCode := codes[0]
-	suite.Equal(124641, *firstCode.LoaSysID)
+	suite.Equal("124641", *firstCode.LoaSysID)
 	suite.Equal("97", *firstCode.LoaDptID)
 	suite.Equal("", *firstCode.LoaTnsfrDptNm)
 	suite.Equal("4930", *firstCode.LoaBafID)
@@ -167,4 +175,18 @@ func (suite *LoaParserSuite) TestPruningEmptyHhgCodes() {
 
 	// Check that the expired LOA was properly removed
 	suite.NotContains(prunedLOAs, dummyLoa)
+}
+
+func (suite *LoaParserSuite) TestDltRowCode() {
+	reader := bytes.NewReader(suite.txtBadContent)
+
+	// Parse the text file content
+	codes, err := loa.Parse(reader)
+	suite.NoError(err)
+
+	// Assuming the txt file has at least one record
+	suite.NotEmpty(codes)
+
+	// There are 2 rows but the "DLT" row should've been skipped
+	suite.Equal(1, len(codes))
 }

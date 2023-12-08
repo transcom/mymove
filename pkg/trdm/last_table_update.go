@@ -146,13 +146,16 @@ func startLastTableUpdateCron(physicalName string, logger *zap.Logger, v *viper.
 		}
 	}
 
-	// Run the task immediately
-	cronTask()
-
-	// Schedule the task to run every 24 hours
-	res, err := cron.AddFunc("@every 24h00m00s", cronTask)
+	// Schedule the task to run every day at midnight
+	res, err := cron.AddFunc("0 0 * * *", cronTask)
 	if err != nil {
-		return fmt.Errorf("error adding cron task: %s, %v", err.Error(), res)
+		return fmt.Errorf("error adding midnight cron task: %s, %v", err.Error(), res)
+	}
+
+	// Schedule the task to run every day at 4:30 AM
+	res, err = cron.AddFunc("30 4 * * *", cronTask)
+	if err != nil {
+		return fmt.Errorf("error adding 430am cron task: %s, %v", err.Error(), res)
 	}
 
 	cron.Start()
