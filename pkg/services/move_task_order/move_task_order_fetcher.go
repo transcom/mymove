@@ -286,10 +286,10 @@ func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppConte
 	// now we will see if the user is searching for move code or id
 	// change the moveCode to upper case since that is what's in the DB
 	if searchParams.MoveCode != nil {
-		query.Where("moves.locator = ?", strings.ToUpper(*searchParams.MoveCode))
+		query.Where("moves.locator ILIKE ?", "%"+strings.ToUpper(*searchParams.MoveCode)+"%")
 	}
 	if searchParams.ID != nil {
-		query.Where("moves.id = ?", searchParams.ID)
+		query.Where("moves.id = ?", *searchParams.ID)
 	}
 	// if there is an error returned we will just return no moves
 	if err != nil {
