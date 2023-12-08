@@ -357,34 +357,7 @@ func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppConte
 			sql = sql + `;`
 			err = appCtx.DB().RawQuery(sql).All(&moveTaskOrders)
 		}
-
-		count = len(moveTaskOrders)
-	} else {
-		// setting up query
-		// getting all moves that are available to the prime and aren't null
-		query := appCtx.DB().Select("moves.*").
-			InnerJoin("orders", "moves.orders_id = orders.id").
-			Where("moves.available_to_prime_at IS NOT NULL AND moves.show = TRUE")
-		// now we will see if the user is searching for move code or id
-		// change the moveCode to upper case since that is what's in the DB
-		if searchParams.MoveCode != nil {
-			query.Where("moves.locator ILIKE ?", "%"+strings.ToUpper(*searchParams.MoveCode)+"%")
-		}
-		if searchParams.ID != nil {
-			query.Where("moves.id = ?", *searchParams.ID)
-		}
-		// if there is an error returned we will just return no moves
-		if err != nil {
-			return []models.Move{}, 0, err
-		}
-		// adding pagination and all moves returned with built query
-		// if there are no moves then it will return.. no moves
-		err = query.Paginate(int(*searchParams.Page), int(*searchParams.PerPage)).All(&moveTaskOrders)
-		if err != nil {
-			return []models.Move{}, 0, err
-		}
-		count = query.Paginator.TotalEntriesSize
-	}
+	*/
 
 	// catch all error here
 	if err != nil {
