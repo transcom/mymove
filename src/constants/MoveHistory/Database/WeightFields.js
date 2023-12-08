@@ -9,6 +9,7 @@ export default {
   required_medical_equipment_weight: 'required_medical_equipment_weight',
   reweigh_weight: 'reweigh_weight',
   max_billable_weight: 'max_billable_weight',
+  actual_weight: 'actual_weight',
   estimated_weight: 'estimated_weight',
   sit_estimated_weight: 'sit_estimated_weight',
 };
