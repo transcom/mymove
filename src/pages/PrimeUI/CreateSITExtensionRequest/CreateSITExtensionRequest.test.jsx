@@ -12,10 +12,10 @@ jest.mock('hooks/queries', () => ({
 
 jest.mock('services/primeApi', () => ({
   ...jest.requireActual('services/primeApi'),
-  createServiceItem: jest.fn(),
+  createSITExtensionRequest: jest.fn(),
 }));
 
-describe('CreateServiceItem page', () => {
+describe('CreateSITExtensionRequest page', () => {
   describe('check loading and error component states', () => {
     const loadingReturnValue = {
       moveTaskOrder: undefined,
