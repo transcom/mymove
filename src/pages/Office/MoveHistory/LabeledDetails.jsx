@@ -2,6 +2,7 @@ import React from 'react';
 
 import styles from './LabeledDetails.module.scss';
 
+import booleanFields from 'constants/MoveHistory/Database/BooleanFields';
 import dateFields from 'constants/MoveHistory/Database/DateFields';
 import fieldMappings from 'constants/MoveHistory/Database/FieldMappings';
 import weightFields from 'constants/MoveHistory/Database/WeightFields';
@@ -24,7 +25,7 @@ const retrieveTextToDisplay = (fieldName, value) => {
     displayValue = optionFields[displayValue];
   } else if (dateFields[fieldName]) {
     displayValue = formatCustomerDate(displayValue);
-  } else if (displayName === fieldMappings.dependents_authorized || displayName === fieldMappings.has_dependents) {
+  } else if (booleanFields[fieldName]) {
     displayValue = formatYesNoMoveHistoryValue(displayValue);
   }
 
