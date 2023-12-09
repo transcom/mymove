@@ -12,7 +12,7 @@ set -eux -o pipefail
 ##Integration test for Prime API
 ##Return moves from the list-moves endpoint where is_available_for_prime is true
 function prime_api_client () {
-    bin/prime-api-client \
+    cmd/prime-api-client \
     --certpath config/tls/devlocal-mtls.cer \
     --keypath config/tls/devlocal-mtls.key \
     --insecure \
@@ -36,7 +36,7 @@ prime_api_client --wait 5m list-moves
 # is NOT NULL
 moves=$(prime_api_client list-moves)
 #Returns move IDs from the list-moves response (this would fail if API returns 500/400)
-moveID=$(echo "$moves" | jq '.[0] | .id')
+moveID=$(echo "$moves" | jq '.queueMoves | .[0] | .id')
 echo "$moveID"
 
 #Integration test/health check for Support API
