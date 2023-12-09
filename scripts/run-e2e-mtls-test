@@ -12,7 +12,7 @@ set -eux -o pipefail
 ##Integration test for Prime API
 ##Return moves from the list-moves endpoint where is_available_for_prime is true
 function prime_api_client () {
-    cmd/prime-api-client \
+    bin/prime-api-client \
     --certpath config/tls/devlocal-mtls.cer \
     --keypath config/tls/devlocal-mtls.key \
     --insecure \
