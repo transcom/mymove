@@ -93,7 +93,7 @@ UpdateSITDeliveryRequestOK describes a response with status code 200, with defau
 Successfully updated the shipment's authorized end date.
 */
 type UpdateSITDeliveryRequestOK struct {
-	Payload *primemessages.MTOShipment
+	Payload *primemessages.SITStatus
 }
 
 // IsSuccess returns true when this update s i t delivery request o k response has a 2xx status code
@@ -134,13 +134,13 @@ func (o *UpdateSITDeliveryRequestOK) String() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/sit-delivery][%d] updateSITDeliveryRequestOK  %+v", 200, o.Payload)
 }
 
-func (o *UpdateSITDeliveryRequestOK) GetPayload() *primemessages.MTOShipment {
+func (o *UpdateSITDeliveryRequestOK) GetPayload() *primemessages.SITStatus {
 	return o.Payload
 }
 
 func (o *UpdateSITDeliveryRequestOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.MTOShipment)
+	o.Payload = new(primemessages.SITStatus)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

@@ -1099,7 +1099,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateMTOShipmentStatus"
+              "$ref": "#/definitions/SITDeliveryUpdate"
             }
           }
         ],
@@ -1107,7 +1107,7 @@ func init() {
           "200": {
             "description": "Successfully updated the shipment's authorized end date.",
             "schema": {
-              "$ref": "#/definitions/MTOShipment"
+              "$ref": "#/definitions/SITStatus"
             }
           },
           "400": {
@@ -3658,6 +3658,20 @@ func init() {
         "TOO"
       ]
     },
+    "SITDeliveryUpdate": {
+      "properties": {
+        "sitCustomerContacted": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitRequestedDelivery": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        }
+      }
+    },
     "SITExtension": {
       "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
       "type": "object",
@@ -3747,6 +3761,55 @@ func init() {
         "ORIGIN",
         "DESTINATION"
       ]
+    },
+    "SITStatus": {
+      "properties": {
+        "currentSIT": {
+          "type": "object",
+          "properties": {
+            "daysInSIT": {
+              "type": "integer"
+            },
+            "location": {
+              "enum": [
+                "ORIGIN",
+                "DESTINATION"
+              ]
+            },
+            "sitAllowanceEndDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitCustomerContacted": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitDepartureDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitEntryDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitRequestedDelivery": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            }
+          }
+        },
+        "totalDaysRemaining": {
+          "type": "integer"
+        },
+        "totalSITDaysUsed": {
+          "type": "integer"
+        }
+      }
     },
     "ServiceItem": {
       "type": "object",
@@ -6061,7 +6124,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateMTOShipmentStatus"
+              "$ref": "#/definitions/SITDeliveryUpdate"
             }
           }
         ],
@@ -6069,7 +6132,7 @@ func init() {
           "200": {
             "description": "Successfully updated the shipment's authorized end date.",
             "schema": {
-              "$ref": "#/definitions/MTOShipment"
+              "$ref": "#/definitions/SITStatus"
             }
           },
           "400": {
@@ -8750,6 +8813,20 @@ func init() {
         "TOO"
       ]
     },
+    "SITDeliveryUpdate": {
+      "properties": {
+        "sitCustomerContacted": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitRequestedDelivery": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        }
+      }
+    },
     "SITExtension": {
       "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
       "type": "object",
@@ -8839,6 +8916,98 @@ func init() {
         "ORIGIN",
         "DESTINATION"
       ]
+    },
+    "SITStatus": {
+      "properties": {
+        "currentSIT": {
+          "type": "object",
+          "properties": {
+            "daysInSIT": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "location": {
+              "enum": [
+                "ORIGIN",
+                "DESTINATION"
+              ]
+            },
+            "sitAllowanceEndDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitCustomerContacted": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitDepartureDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitEntryDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitRequestedDelivery": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            }
+          }
+        },
+        "totalDaysRemaining": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "totalSITDaysUsed": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "SITStatusCurrentSIT": {
+      "type": "object",
+      "properties": {
+        "daysInSIT": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "location": {
+          "enum": [
+            "ORIGIN",
+            "DESTINATION"
+          ]
+        },
+        "sitAllowanceEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitCustomerContacted": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitRequestedDelivery": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        }
+      }
     },
     "ServiceItem": {
       "type": "object",

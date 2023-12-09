@@ -931,12 +931,12 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/UpdateMTOShipmentStatus'
+            $ref: '#/definitions/SITDeliveryUpdate'
       responses:
         '200':
           description: Successfully updated the shipment's authorized end date.
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: '#/definitions/SITStatus'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -4346,6 +4346,54 @@ definitions:
                 type: string
         required:
           - invalidFields
+  SITDeliveryUpdate:
+    properties:
+      sitCustomerContacted:
+        type: string
+        format: date
+        x-nullable: true
+      sitRequestedDelivery:
+        type: string
+        format: date
+        x-nullable: true
+  SITStatus:
+    properties:
+      totalSITDaysUsed:
+        type: integer
+        minimum: 0
+      totalDaysRemaining:
+        type: integer
+        minimum: 0
+      currentSIT:
+        type: object
+        properties:
+          location:
+            enum:
+              - ORIGIN
+              - DESTINATION
+          daysInSIT:
+            type: integer
+            minimum: 0
+          sitEntryDate:
+            type: string
+            format: date
+            x-nullable: true
+          sitDepartureDate:
+            type: string
+            format: date
+            x-nullable: true
+          sitAllowanceEndDate:
+            type: string
+            format: date
+            x-nullable: true
+          sitCustomerContacted:
+            type: string
+            format: date
+            x-nullable: true
+          sitRequestedDelivery:
+            type: string
+            format: date
+            x-nullable: true
   SitAddressUpdateStatus:
     description: >-
       The status of a SIT address update, indicating where it is in the TOO's

@@ -45,7 +45,7 @@ type UpdateSITDeliveryRequestParams struct {
 	  Required: true
 	  In: body
 	*/
-	Body *primemessages.UpdateMTOShipmentStatus
+	Body *primemessages.SITDeliveryUpdate
 	/*UUID of the shipment associated with the agent
 	  Required: true
 	  In: path
@@ -68,7 +68,7 @@ func (o *UpdateSITDeliveryRequestParams) BindRequest(r *http.Request, route *mid
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body primemessages.UpdateMTOShipmentStatus
+		var body primemessages.SITDeliveryUpdate
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("body", "body", ""))

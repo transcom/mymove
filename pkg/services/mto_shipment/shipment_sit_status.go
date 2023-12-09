@@ -225,3 +225,16 @@ func fetchEntitlement(appCtx appcontext.AppContext, mtoShipment models.MTOShipme
 
 	return move.Orders.Entitlement, nil
 }
+
+func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext.AppContext, shipment models.MTOShipment) (*services.SITStatus, error) {
+
+	shipmentSITStatus, err := f.CalculateShipmentSITStatus(appCtx, shipment)
+
+	if err != nil {
+		return nil, nil
+	}
+
+	//TODO: calculate allowance date and required delivery date based on customer contact and customer request dates
+
+	return shipmentSITStatus, err
+}

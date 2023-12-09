@@ -26,7 +26,7 @@ type UpdateSITDeliveryRequestOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.MTOShipment `json:"body,omitempty"`
+	Payload *primemessages.SITStatus `json:"body,omitempty"`
 }
 
 // NewUpdateSITDeliveryRequestOK creates UpdateSITDeliveryRequestOK with default headers values
@@ -36,13 +36,13 @@ func NewUpdateSITDeliveryRequestOK() *UpdateSITDeliveryRequestOK {
 }
 
 // WithPayload adds the payload to the update s i t delivery request o k response
-func (o *UpdateSITDeliveryRequestOK) WithPayload(payload *primemessages.MTOShipment) *UpdateSITDeliveryRequestOK {
+func (o *UpdateSITDeliveryRequestOK) WithPayload(payload *primemessages.SITStatus) *UpdateSITDeliveryRequestOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update s i t delivery request o k response
-func (o *UpdateSITDeliveryRequestOK) SetPayload(payload *primemessages.MTOShipment) {
+func (o *UpdateSITDeliveryRequestOK) SetPayload(payload *primemessages.SITStatus) {
 	o.Payload = payload
 }
 

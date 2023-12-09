@@ -2,6 +2,7 @@ package primeapi
 
 import (
 	"fmt"
+	_ "fmt"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
@@ -321,7 +322,50 @@ type UpdateSITDeliveryRequestHandler struct {
 func (h UpdateSITDeliveryRequestHandler) Handle(params mtoshipmentops.UpdateSITDeliveryRequestParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			//shipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
+
+			eagerAssociations := []string{"MoveTaskOrder",
+				"PickupAddress",
+				"DestinationAddress",
+				"SecondaryPickupAddress",
+				"SecondaryDeliveryAddress",
+				"MTOServiceItems.ReService",
+				"StorageFacility.Address",
+				"PPMShipment"}
+
+			shipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
+			shipment, err := mtoshipment.NewMTOShipmentFetcher().GetShipment(appCtx, shipmentID, eagerAssociations...)
+
+			if err != nil {
+				//TODO: UPDATE THIS TO USE THIS HANDLERS PAYLOAD AND ERROR MESSAGE
+				// appCtx.Logger().Error("primeapi.UpdateSITDeliveryRequestHandler error - MTO shipment not found", zap.Error(err))
+				// switch e := err.(type) {
+				// case apperror.NotFoundError:
+				// 	return mtoshipmentops.NewUpdateMTOShipmentStatusNotFound().WithPayload(
+				// 		payloads.ClientError(handlers.NotFoundMessage, e.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				// default:
+				// 	return mtoshipmentops.NewUpdateMTOShipmentStatusInternalServerError().WithPayload(
+				// 		payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				// }
+			}
+
+			shipmentSITStatus, err := h.shipmentStatus.CalculateSITAllowanceRequestedDates(appCtx, *shipment)
+			_ = shipmentSITStatus //TODO REMOVE THIS!!!
+			if err != nil {
+				//TODO: UPDATE THIS TO USE THIS HANDLERS PAYLOAD AND ERROR MESSAGE
+				// appCtx.Logger().Error("primeapi.UpdateSITDeliveryRequestHandler error - MTO shipment not found", zap.Error(err))
+				// switch e := err.(type) {
+				// case apperror.NotFoundError:
+				// 	return mtoshipmentops.NewUpdateMTOShipmentStatusNotFound().WithPayload(
+				// 		payloads.ClientError(handlers.NotFoundMessage, e.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				// default:
+				// 	return mtoshipmentops.NewUpdateMTOShipmentStatusInternalServerError().WithPayload(
+				// 		payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				// }
+			}
+
+			// sitStatusPayload := payloads.SITStatus(shipmentSITStatus, h.FileStorer())
+			// sitStatusPayload.TotalDaysRemaining = sitStatusPayload.TotalDaysRemaining
+			// return mtoshipmentops.NewUpdateSITDeliveryRequest().WithPayload(sitStatusPayload), nil
 
 			return nil, nil
 		})

@@ -71,7 +71,7 @@ type UpdateSITDeliveryRequestParams struct {
 	IfMatch string
 
 	// Body.
-	Body *primemessages.UpdateMTOShipmentStatus
+	Body *primemessages.SITDeliveryUpdate
 
 	/* MtoShipmentID.
 
@@ -146,13 +146,13 @@ func (o *UpdateSITDeliveryRequestParams) SetIfMatch(ifMatch string) {
 }
 
 // WithBody adds the body to the update s i t delivery request params
-func (o *UpdateSITDeliveryRequestParams) WithBody(body *primemessages.UpdateMTOShipmentStatus) *UpdateSITDeliveryRequestParams {
+func (o *UpdateSITDeliveryRequestParams) WithBody(body *primemessages.SITDeliveryUpdate) *UpdateSITDeliveryRequestParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the update s i t delivery request params
-func (o *UpdateSITDeliveryRequestParams) SetBody(body *primemessages.UpdateMTOShipmentStatus) {
+func (o *UpdateSITDeliveryRequestParams) SetBody(body *primemessages.SITDeliveryUpdate) {
 	o.Body = body
 }
 

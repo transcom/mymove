@@ -792,12 +792,12 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/UpdateMTOShipmentStatus'
+            $ref: 'definitions/prime/SITDeliveryUpdate.yaml'
       responses:
         '200':
           description: Successfully updated the shipment's authorized end date.
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: 'definitions/prime/SITStatus.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
