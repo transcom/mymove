@@ -30,6 +30,7 @@ const validationSchema = Yup.object().shape({
         ? schema.min(emptyWeight + 1, 'The full weight must be greater than the empty weight')
         : schema;
     }),
+  allowableWeight: Yup.number().required('Required').min(0, 'Allowable weight must be at least 0'),
   trailerMeetsCriteria: Yup.string().when('ownsTrailer', {
     is: 'true',
     then: (schema) => schema.required('Required'),
@@ -79,6 +80,7 @@ export default function ReviewWeightTicket({
       trailerMeetsCriteria,
       reason: values.status === ppmDocumentStatus.APPROVED ? null : values.rejectionReason,
       status: values.status,
+      allowableWeight: parseInt(values.allowableWeight, 10),
     };
     patchWeightTicketMutation({
       ppmShipmentId: weightTicket.ppmShipmentId,
@@ -113,6 +115,7 @@ export default function ReviewWeightTicket({
   const initialValues = {
     emptyWeight: emptyWeight ? `${emptyWeight}` : '',
     fullWeight: fullWeight ? `${fullWeight}` : '',
+    allowableWeight: weightAllowance ? `${weightAllowance}` : '',
     ownsTrailer: ownsTrailer ? 'true' : 'false',
     trailerMeetsCriteria: isTrailerClaimable,
     status: status || '',
@@ -185,6 +188,20 @@ export default function ReviewWeightTicket({
                 id="fullWeight"
                 mask={Number}
                 description={missingFullWeightTicket ? 'Constructed weight' : 'Weight tickets'}
+                scale={0} // digits after point, 0 for integers
+                signed={false} // disallow negative
+                thousandsSeparator=","
+                lazy={false} // immediate masking evaluation
+                suffix="lbs"
+              />
+
+              <MaskedTextField
+                defaultValue="0"
+                name="allowableWeight"
+                label="Allowable weight"
+                id="allowableWeight"
+                mask={Number}
+                description="Reimbursable weight"
                 scale={0} // digits after point, 0 for integers
                 signed={false} // disallow negative
                 thousandsSeparator=","

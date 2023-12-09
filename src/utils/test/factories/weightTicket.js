@@ -31,6 +31,7 @@ const createBaseWeightTicket = ({ serviceMemberId, creationDate = new Date() } =
     createdAt: weightTicketCreatedAtDate,
     updatedAt: weightTicketCreatedAtDate,
     eTag: window.btoa(weightTicketCreatedAtDate),
+    allowableWeight: 0,
     ...fieldOverrides,
   };
 };
@@ -40,6 +41,7 @@ const createCompleteWeightTicket = ({ serviceMemberId, creationDate } = {}, fiel
     vehicleDescription: '2022 Honda CR-V Hybrid',
     emptyWeight: 14500,
     fullWeight: 18500,
+    allowableWeight: 20000,
     ownsTrailer: false,
     trailerMeetsCriteria: false,
     ...fieldOverrides,

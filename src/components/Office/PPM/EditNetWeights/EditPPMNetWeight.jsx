@@ -238,9 +238,6 @@ const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments }) => {
                   <p className={styles.remarks}>{weightTicket.netWeightRemarks}</p>
                 </>
               )}
-              <Button onClick={toggleEditForm} className={styles.editButton}>
-                Edit
-              </Button>
             </div>
           ) : (
             <EditPPMNetWeightForm
