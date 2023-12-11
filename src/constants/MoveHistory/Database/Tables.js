@@ -15,4 +15,5 @@ export default {
   user_uploads: 'user_uploads',
   backup_contacts: 'backup_contacts',
   sit_address_updates: 'sit_address_updates',
+  ppm_shipments: 'ppm_shipments',
 };
