@@ -201,7 +201,7 @@ export default function ReviewWeightTicket({
                 label="Reimbursable weight"
                 id="reimbursableWeight"
                 mask={Number}
-                description="Reimbursable weight"
+                description="Maximum allowable weight"
                 scale={0} // digits after point, 0 for integers
                 signed={false} // disallow negative
                 thousandsSeparator=","
