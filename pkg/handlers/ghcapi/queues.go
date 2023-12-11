@@ -107,10 +107,6 @@ func (h ListPrimeMovesHandler) Handle(params queues.ListPrimeMovesParams) middle
 				MoveCode: params.MoveCode,
 				ID:       params.ID,
 			}
-			if params.Since != nil {
-				since := handlers.FmtDateTimePtrToPop(params.Since)
-				searchParams.Since = &since
-			}
 
 			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
 			// for perPage.
@@ -130,15 +126,6 @@ func (h ListPrimeMovesHandler) Handle(params queues.ListPrimeMovesParams) middle
 			}
 
 			queueMoves := payloads.ListMoves(&mtos)
-
-			// if the since parameter is passed in, we don't need to return the additional values since that's only used in the UI
-			if params.Since != nil {
-				result := ghcmessages.ListPrimeMovesResult{
-					QueueMoves: queueMoves,
-				}
-
-				return queues.NewListPrimeMovesOK().WithPayload(&result), nil
-			}
 
 			result := ghcmessages.ListPrimeMovesResult{
 				Page:       *searchParams.Page,
