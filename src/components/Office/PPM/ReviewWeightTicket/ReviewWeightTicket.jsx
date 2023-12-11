@@ -30,7 +30,7 @@ const validationSchema = Yup.object().shape({
         ? schema.min(emptyWeight + 1, 'The full weight must be greater than the empty weight')
         : schema;
     }),
-  allowableWeight: Yup.number().required('Required').min(0, 'Allowable weight must be at least 0'),
+  reimbursableWeight: Yup.number().required('Required').min(0, 'reimbursable weight must be at least 0'),
   trailerMeetsCriteria: Yup.string().when('ownsTrailer', {
     is: 'true',
     then: (schema) => schema.required('Required'),
@@ -80,7 +80,7 @@ export default function ReviewWeightTicket({
       trailerMeetsCriteria,
       reason: values.status === ppmDocumentStatus.APPROVED ? null : values.rejectionReason,
       status: values.status,
-      allowableWeight: parseInt(values.allowableWeight, 10),
+      reimbursableWeight: parseInt(values.reimbursableWeight, 10),
     };
     patchWeightTicketMutation({
       ppmShipmentId: weightTicket.ppmShipmentId,
@@ -115,7 +115,7 @@ export default function ReviewWeightTicket({
   const initialValues = {
     emptyWeight: emptyWeight ? `${emptyWeight}` : '',
     fullWeight: fullWeight ? `${fullWeight}` : '',
-    allowableWeight: weightAllowance ? `${weightAllowance}` : '',
+    reimbursableWeight: weightAllowance ? `${weightAllowance}` : '',
     ownsTrailer: ownsTrailer ? 'true' : 'false',
     trailerMeetsCriteria: isTrailerClaimable,
     status: status || '',
@@ -197,9 +197,9 @@ export default function ReviewWeightTicket({
 
               <MaskedTextField
                 defaultValue="0"
-                name="allowableWeight"
-                label="Allowable weight"
-                id="allowableWeight"
+                name="reimbursableWeight"
+                label="Reimbursable weight"
+                id="reimbursableWeight"
                 mask={Number}
                 description="Reimbursable weight"
                 scale={0} // digits after point, 0 for integers

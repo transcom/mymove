@@ -83,7 +83,7 @@ describe('ReviewWeightTicket component', () => {
       expect(screen.getByText('Vehicle description')).toBeInTheDocument();
       expect(screen.getByLabelText('Full weight')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByText('Net weight')).toBeInTheDocument();
-      expect(screen.getByText('Allowable weight')).toBeInTheDocument();
+      expect(screen.getByText('Reimbursable weight')).toBeInTheDocument();
       expect(screen.getByText('Did they use a trailer they owned?')).toBeInTheDocument();
       expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
