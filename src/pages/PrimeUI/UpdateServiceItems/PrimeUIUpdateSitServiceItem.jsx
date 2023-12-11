@@ -16,7 +16,7 @@ import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import { primeSimulatorRoutes } from 'constants/routes';
-import { formatDate, formatDateForSwagger } from 'shared/dates';
+import { formatDateForSwagger, formatDateWithUTC } from 'shared/dates';
 
 const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
   const [errorMessage, setErrorMessage] = useState();
@@ -77,18 +77,18 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
       state: serviceItem?.sitDestinationFinalAddress?.state || '',
       postalCode: serviceItem?.sitDestinationFinalAddress?.postalCode || '',
     },
-    sitDepartureDate: formatDate(serviceItem.sitDepartureDate, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
-    sitRequestedDelivery: formatDate(serviceItem.sitRequestedDelivery, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
-    sitCustomerContacted: formatDate(serviceItem.sitCustomerContacted, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
+    sitDepartureDate: formatDateWithUTC(serviceItem.sitDepartureDate, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
+    sitRequestedDelivery: formatDateWithUTC(serviceItem.sitRequestedDelivery, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
+    sitCustomerContacted: formatDateWithUTC(serviceItem.sitCustomerContacted, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
     mtoServiceItemID: serviceItem.id,
     reServiceCode: serviceItem.reServiceCode,
     eTag: serviceItem.eTag,
   };
 
   const originSitInitialValues = {
-    sitDepartureDate: formatDate(serviceItem.sitDepartureDate, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
-    sitRequestedDelivery: formatDate(serviceItem.sitRequestedDelivery, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
-    sitCustomerContacted: formatDate(serviceItem.sitCustomerContacted, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
+    sitDepartureDate: formatDateWithUTC(serviceItem.sitDepartureDate, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
+    sitRequestedDelivery: formatDateWithUTC(serviceItem.sitRequestedDelivery, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
+    sitCustomerContacted: formatDateWithUTC(serviceItem.sitCustomerContacted, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
     mtoServiceItemID: serviceItem.id,
     reServiceCode: serviceItem.reServiceCode,
     eTag: serviceItem.eTag,
