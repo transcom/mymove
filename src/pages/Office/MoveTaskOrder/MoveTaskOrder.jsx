@@ -565,7 +565,10 @@ export const MoveTaskOrder = (props) => {
         shipmentID: shipment.id,
         sitExtensionID,
         ifMatchETag: shipment.eTag,
-        body: { officeRemarks: formValues.officeRemarks },
+        body: {
+          officeRemarks: formValues.officeRemarks,
+          convertToCustomerExpense: formValues.convertToCustomerExpense,
+        },
       });
     }
     setSubmittedChangeTime(Date.now());

@@ -4782,6 +4782,11 @@ definitions:
         type: string
         example: Denied this extension as it does not match the criteria
         x-nullable: true
+      convertToMembersExpense:
+        description: Whether or not to convert to members expense once SIT extension is denied.
+        type: boolean
+        example: false
+        x-nullable: false
   CreateApprovedSITDurationUpdate:
     properties:
       requestReason:

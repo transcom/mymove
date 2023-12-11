@@ -26,7 +26,7 @@ func NewSITExtensionDenier(moveRouter services.MoveRouter) services.SITExtension
 }
 
 // DenySITExtension denies the SIT Extension
-func (f *sitExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, shipmentID uuid.UUID, sitExtensionID uuid.UUID, officeRemarks *string, eTag string) (*models.MTOShipment, error) {
+func (f *sitExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, shipmentID uuid.UUID, sitExtensionID uuid.UUID, officeRemarks *string, convertToMembersExpense bool, eTag string) (*models.MTOShipment, error) {
 	shipment, err := mtoshipment.FindShipment(appCtx, shipmentID, "MoveTaskOrder")
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (f *sitExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, ship
 	// err = appCtx.DB().Q().Find(&updatedShipment, shipmentID)
 	// return &updatedShipment, err
 
-	return f.denySITExtension(appCtx, *shipment, *sitExtension, officeRemarks)
+	return f.denySITExtension(appCtx, *shipment, *sitExtension, officeRemarks, convertToMembersExpense)
 }
 
 func (f *sitExtensionDenier) findSITExtension(appCtx appcontext.AppContext, sitExtensionID uuid.UUID) (*models.SITDurationUpdate, error) {
@@ -69,11 +69,11 @@ func (f *sitExtensionDenier) findSITExtension(appCtx appcontext.AppContext, sitE
 	return &sitExtension, nil
 }
 
-func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, shipment models.MTOShipment, sitExtension models.SITDurationUpdate, officeRemarks *string) (*models.MTOShipment, error) {
+func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, shipment models.MTOShipment, sitExtension models.SITDurationUpdate, officeRemarks *string, convertToMembersExpense bool) (*models.MTOShipment, error) {
 	var returnedShipment models.MTOShipment
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		if err := f.updateSITExtension(txnAppCtx, sitExtension, officeRemarks); err != nil {
+		if err := f.updateSITExtension(txnAppCtx, sitExtension, officeRemarks, convertToMembersExpense); err != nil {
 			return err
 		}
 
@@ -100,10 +100,11 @@ func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, ship
 	return &returnedShipment, nil
 }
 
-func (f *sitExtensionDenier) updateSITExtension(appCtx appcontext.AppContext, sitExtension models.SITDurationUpdate, officeRemarks *string) error {
+func (f *sitExtensionDenier) updateSITExtension(appCtx appcontext.AppContext, sitExtension models.SITDurationUpdate, officeRemarks *string, convertToMembersExpense bool) error {
 	if officeRemarks != nil {
 		sitExtension.OfficeRemarks = officeRemarks
 	}
+	sitExtension.MembersExpense = convertToMembersExpense
 	sitExtension.Status = models.SITExtensionStatusDenied
 	now := time.Now()
 	sitExtension.DecisionDate = &now
