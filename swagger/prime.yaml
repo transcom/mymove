@@ -2354,6 +2354,8 @@ definitions:
       corresponding to the service item type.
         * DDDSIT - UpdateMTOServiceItemSIT
         * DOPSIT - UpdateMTOServiceItemSIT
+        * DOASIT - UpdateMTOServiceItemSIT
+        * DOFSIT - UpdateMTOServiceItemSIT
         * DDSHUT - UpdateMTOServiceItemShuttle
         * DOSHUT - UpdateMTOServiceItemShuttle
 
@@ -2408,6 +2410,8 @@ definitions:
             enum:
               - DDDSIT
               - DOPSIT
+              - DOASIT
+              - DOFSIT
           sitDepartureDate:
             format: date
             type: string
