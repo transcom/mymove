@@ -133,27 +133,13 @@ paths:
           description: >-
             Only return moves updated since this time. Formatted like
             "2021-07-23T18:30:47.116Z"
-        - in: query
-          name: page
-          type: integer
-          description: requested page of results
-        - in: query
-          name: perPage
-          type: integer
-          description: results per page
-        - in: query
-          name: id
-          type: string
-        - in: query
-          name: moveCode
-          type: string
       responses:
         '200':
           description: >-
             Successfully retrieved moves. A successful fetch might still return
             zero moves.
           schema:
-            $ref: '#/definitions/ListMovesResult'
+            $ref: '#/definitions/ListMoves'
         '401':
           $ref: '#/responses/PermissionDenied'
         '403':
@@ -1946,17 +1932,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/ListMove'
-  ListMovesResult:
-    type: object
-    properties:
-      page:
-        type: integer
-      perPage:
-        type: integer
-      totalCount:
-        type: integer
-      queueMoves:
-        $ref: '#/definitions/ListMoves'
   MoveTaskOrder:
     type: object
     required:

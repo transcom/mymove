@@ -39,7 +39,8 @@ type MoveTaskOrderCreator interface {
 type MoveTaskOrderFetcher interface {
 	FetchMoveTaskOrder(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (*models.Move, error)
 	ListAllMoveTaskOrders(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, error)
-	ListPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, int, error)
+	ListPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, error)
+	ListNewPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams) (models.Moves, int, error)
 	GetMove(appCtx appcontext.AppContext, searchParams *MoveTaskOrderFetcherParams, eagerAssociations ...string) (*models.Move, error)
 }
 

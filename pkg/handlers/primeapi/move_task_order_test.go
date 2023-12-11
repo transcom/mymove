@@ -59,7 +59,7 @@ func (suite *HandlerSuite) TestListMovesHandlerReturnsUpdated() {
 
 	suite.IsNotErrResponse(response)
 	listMovesResponse := response.(*movetaskorderops.ListMovesOK)
-	movesList := listMovesResponse.Payload.QueueMoves
+	movesList := listMovesResponse.Payload
 
 	// Validate outgoing payload
 	suite.NoError(movesList.Validate(strfmt.Default))

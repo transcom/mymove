@@ -28,9 +28,10 @@ import {
   getReportViolationsByReportID,
   getMTOShipmentByID,
   getServicesCounselingPPMQueue,
+  getPrimeSimulatorAvailableMoves,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
-import { getPrimeSimulatorAvailableMoves, getPrimeSimulatorMove } from 'services/primeApi';
+import { getPrimeSimulatorMove } from 'services/primeApi';
 import { getQueriesStatus } from 'utils/api';
 import {
   PAYMENT_REQUESTS,

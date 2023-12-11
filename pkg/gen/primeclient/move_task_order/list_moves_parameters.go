@@ -14,7 +14,6 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 )
 
 // NewListMovesParams creates a new ListMovesParams object,
@@ -61,24 +60,6 @@ ListMovesParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListMovesParams struct {
-
-	// ID.
-	ID *string
-
-	// MoveCode.
-	MoveCode *string
-
-	/* Page.
-
-	   requested page of results
-	*/
-	Page *int64
-
-	/* PerPage.
-
-	   results per page
-	*/
-	PerPage *int64
 
 	/* Since.
 
@@ -141,50 +122,6 @@ func (o *ListMovesParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithID adds the id to the list moves params
-func (o *ListMovesParams) WithID(id *string) *ListMovesParams {
-	o.SetID(id)
-	return o
-}
-
-// SetID adds the id to the list moves params
-func (o *ListMovesParams) SetID(id *string) {
-	o.ID = id
-}
-
-// WithMoveCode adds the moveCode to the list moves params
-func (o *ListMovesParams) WithMoveCode(moveCode *string) *ListMovesParams {
-	o.SetMoveCode(moveCode)
-	return o
-}
-
-// SetMoveCode adds the moveCode to the list moves params
-func (o *ListMovesParams) SetMoveCode(moveCode *string) {
-	o.MoveCode = moveCode
-}
-
-// WithPage adds the page to the list moves params
-func (o *ListMovesParams) WithPage(page *int64) *ListMovesParams {
-	o.SetPage(page)
-	return o
-}
-
-// SetPage adds the page to the list moves params
-func (o *ListMovesParams) SetPage(page *int64) {
-	o.Page = page
-}
-
-// WithPerPage adds the perPage to the list moves params
-func (o *ListMovesParams) WithPerPage(perPage *int64) *ListMovesParams {
-	o.SetPerPage(perPage)
-	return o
-}
-
-// SetPerPage adds the perPage to the list moves params
-func (o *ListMovesParams) SetPerPage(perPage *int64) {
-	o.PerPage = perPage
-}
-
 // WithSince adds the since to the list moves params
 func (o *ListMovesParams) WithSince(since *strfmt.DateTime) *ListMovesParams {
 	o.SetSince(since)
@@ -203,74 +140,6 @@ func (o *ListMovesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Reg
 		return err
 	}
 	var res []error
-
-	if o.ID != nil {
-
-		// query param id
-		var qrID string
-
-		if o.ID != nil {
-			qrID = *o.ID
-		}
-		qID := qrID
-		if qID != "" {
-
-			if err := r.SetQueryParam("id", qID); err != nil {
-				return err
-			}
-		}
-	}
-
-	if o.MoveCode != nil {
-
-		// query param moveCode
-		var qrMoveCode string
-
-		if o.MoveCode != nil {
-			qrMoveCode = *o.MoveCode
-		}
-		qMoveCode := qrMoveCode
-		if qMoveCode != "" {
-
-			if err := r.SetQueryParam("moveCode", qMoveCode); err != nil {
-				return err
-			}
-		}
-	}
-
-	if o.Page != nil {
-
-		// query param page
-		var qrPage int64
-
-		if o.Page != nil {
-			qrPage = *o.Page
-		}
-		qPage := swag.FormatInt64(qrPage)
-		if qPage != "" {
-
-			if err := r.SetQueryParam("page", qPage); err != nil {
-				return err
-			}
-		}
-	}
-
-	if o.PerPage != nil {
-
-		// query param perPage
-		var qrPerPage int64
-
-		if o.PerPage != nil {
-			qrPerPage = *o.PerPage
-		}
-		qPerPage := swag.FormatInt64(qrPerPage)
-		if qPerPage != "" {
-
-			if err := r.SetQueryParam("perPage", qPerPage); err != nil {
-				return err
-			}
-		}
-	}
 
 	if o.Since != nil {
 

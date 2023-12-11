@@ -36,7 +36,7 @@ prime_api_client --wait 5m list-moves
 # is NOT NULL
 moves=$(prime_api_client list-moves)
 #Returns move IDs from the list-moves response (this would fail if API returns 500/400)
-moveID=$(echo "$moves" | jq '.queueMoves | .[0] | .id')
+moveID=$(echo "$moves" | jq '.[0] | .id')
 echo "$moveID"
 
 #Integration test/health check for Support API

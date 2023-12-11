@@ -11,7 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
-	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
@@ -29,56 +28,22 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			// adding in moveCode and Id params that are sent in from the UI
-			// we will use these params to refine the search in the service object
-			searchParams := services.MoveTaskOrderFetcherParams{
-				Page:     params.Page,
-				PerPage:  params.PerPage,
-				MoveCode: params.MoveCode,
-				ID:       params.ID,
-			}
+			var searchParams services.MoveTaskOrderFetcherParams
 			if params.Since != nil {
 				since := handlers.FmtDateTimePtrToPop(params.Since)
 				searchParams.Since = &since
 			}
 
-			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
-			// for perPage.
-			if params.Page == nil {
-				searchParams.Page = models.Int64Pointer(1)
-			}
-			// Same for perPage
-			if params.PerPage == nil {
-				searchParams.PerPage = models.Int64Pointer(20)
-			}
-
-			mtos, count, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrders(appCtx, &searchParams)
+			mtos, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrders(appCtx, &searchParams)
 
 			if err != nil {
 				appCtx.Logger().Error("Unexpected error while fetching moves:", zap.Error(err))
 				return movetaskorderops.NewListMovesInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
-			queueMoves := payloads.ListMoves(&mtos)
+			payload := payloads.ListMoves(&mtos)
 
-			// if the since parameter is passed in, we don't need to return the additional values since that's only used in the UI
-			if params.Since != nil {
-				result := primemessages.ListMovesResult{
-					QueueMoves: queueMoves,
-				}
-
-				return movetaskorderops.NewListMovesOK().WithPayload(&result), nil
-			}
-
-			result := primemessages.ListMovesResult{
-				Page:       *searchParams.Page,
-				PerPage:    *searchParams.PerPage,
-				TotalCount: int64(count),
-				QueueMoves: queueMoves,
-			}
-
-			return movetaskorderops.NewListMovesOK().WithPayload(&result), nil
-
+			return movetaskorderops.NewListMovesOK().WithPayload(payload), nil
 		})
 }
 

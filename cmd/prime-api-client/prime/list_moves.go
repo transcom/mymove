@@ -82,7 +82,7 @@ func ListMoves(cmd *cobra.Command, args []string) error {
 	// commands, so start with list moves for now
 	wait := v.GetDuration(utils.WaitFlag)
 	params.SetTimeout(wait)
-	var payload *primemessages.ListMovesResult
+	var payload primemessages.ListMoves
 	// loop until we either time out or get a successful response
 	for {
 		resp, err := primeGateway.MoveTaskOrder.ListMoves(&params)

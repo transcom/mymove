@@ -26,7 +26,7 @@ type ListMovesOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.ListMovesResult `json:"body,omitempty"`
+	Payload primemessages.ListMoves `json:"body,omitempty"`
 }
 
 // NewListMovesOK creates ListMovesOK with default headers values
@@ -36,13 +36,13 @@ func NewListMovesOK() *ListMovesOK {
 }
 
 // WithPayload adds the payload to the list moves o k response
-func (o *ListMovesOK) WithPayload(payload *primemessages.ListMovesResult) *ListMovesOK {
+func (o *ListMovesOK) WithPayload(payload primemessages.ListMoves) *ListMovesOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the list moves o k response
-func (o *ListMovesOK) SetPayload(payload *primemessages.ListMovesResult) {
+func (o *ListMovesOK) SetPayload(payload primemessages.ListMoves) {
 	o.Payload = payload
 }
 
@@ -50,11 +50,14 @@ func (o *ListMovesOK) SetPayload(payload *primemessages.ListMovesResult) {
 func (o *ListMovesOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(200)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if payload == nil {
+		// return empty array
+		payload = primemessages.ListMoves{}
+	}
+
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
 
