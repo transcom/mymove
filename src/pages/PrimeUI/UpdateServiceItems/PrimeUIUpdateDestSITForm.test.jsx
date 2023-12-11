@@ -17,14 +17,20 @@ const shipmentAddress = {
   postalCode: '90210',
 };
 
+const serviceItem = {
+  reServiceCode: 'DDDSIT',
+  reServiceName: 'Domestic destination SIT delivery',
+};
+
 const reformatPrimeApiSITDestinationAddress = fromPrimeAPIAddressFormat(shipmentAddress);
 
 const destSitInitialValues = {
-  address: reformatPrimeApiSITDestinationAddress,
+  sitDestinationFinalAddress: reformatPrimeApiSITDestinationAddress,
   sitDepartureDate: '01 Nov 2023',
   sitRequestedDelivery: '01 Dec 2023',
   sitCustomerContacted: '15 Oct 2023',
   mtoServiceItemID: '45fe9475-d592-48f5-896a-45d4d6eb7e76',
+  reServiceCode: 'DDDSIT',
 };
 
 // Mock the react-router-dom functions
@@ -38,10 +44,18 @@ jest.mock('react-router-dom', () => ({
 describe('PrimeUIRequestSITDestAddressChangeForm', () => {
   it('renders the address change request form', async () => {
     renderWithProviders(
-      <PrimeUIUpdateDestSITForm name="address" initialValues={destSitInitialValues} onSubmit={jest.fn()} />,
+      <PrimeUIUpdateDestSITForm
+        name="sitDestinationFinalAddress"
+        initialValues={destSitInitialValues}
+        serviceItem={serviceItem}
+        onSubmit={jest.fn()}
+      />,
     );
 
     expect(screen.getByRole('heading', { name: 'Update Destination SIT Service Item', level: 2 })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'DDDSIT - Domestic destination SIT delivery', level: 3 }),
+    ).toBeInTheDocument();
     expect(screen.getByLabelText('Address 1')).toBeInTheDocument();
     expect(screen.getByLabelText(/Address 2/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Address 3/)).toBeInTheDocument();
@@ -57,7 +71,12 @@ describe('PrimeUIRequestSITDestAddressChangeForm', () => {
 
   it('directs the user back to the move page when cancel button is clicked', async () => {
     renderWithProviders(
-      <PrimeUIUpdateDestSITForm name="address" initialValues={destSitInitialValues} onSubmit={jest.fn()} />,
+      <PrimeUIUpdateDestSITForm
+        name="sitDestinationFinalAddress"
+        initialValues={destSitInitialValues}
+        serviceItem={serviceItem}
+        onSubmit={jest.fn()}
+      />,
     );
 
     const cancelButton = await screen.findByRole('button', { name: 'Cancel' });

@@ -12,6 +12,12 @@ const originSitInitialValues = {
   sitRequestedDelivery: '01 Dec 2023',
   sitCustomerContacted: '15 Oct 2023',
   mtoServiceItemID: '45fe9475-d592-48f5-896a-45d4d6eb7e76',
+  reServiceCode: 'DOPSIT',
+};
+
+const serviceItem = {
+  reServiceCode: 'DOPSIT',
+  reServiceName: 'Domestic origin SIT pickup',
 };
 
 // Mock the react-router-dom functions
@@ -24,9 +30,16 @@ jest.mock('react-router-dom', () => ({
 
 describe('PrimeUIRequestSITDestAddressChangeForm', () => {
   it('renders the address change request form', async () => {
-    renderWithProviders(<PrimeUIUpdateOriginSITForm initialValues={originSitInitialValues} onSubmit={jest.fn()} />);
+    renderWithProviders(
+      <PrimeUIUpdateOriginSITForm
+        initialValues={originSitInitialValues}
+        serviceItem={serviceItem}
+        onSubmit={jest.fn()}
+      />,
+    );
 
     expect(screen.getByRole('heading', { name: 'Update Origin SIT Service Item', level: 2 })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'DOPSIT - Domestic origin SIT pickup', level: 3 })).toBeInTheDocument();
     expect(await screen.findByLabelText('SIT Departure Date')).toHaveValue('01 Nov 2023');
     expect(await screen.findByLabelText('SIT Requested Delivery')).toHaveValue('01 Dec 2023');
     expect(await screen.findByLabelText('SIT Customer Contacted')).toHaveValue('15 Oct 2023');
@@ -35,7 +48,13 @@ describe('PrimeUIRequestSITDestAddressChangeForm', () => {
   });
 
   it('directs the user back to the move page when cancel button is clicked', async () => {
-    renderWithProviders(<PrimeUIUpdateOriginSITForm initialValues={originSitInitialValues} onSubmit={jest.fn()} />);
+    renderWithProviders(
+      <PrimeUIUpdateOriginSITForm
+        initialValues={originSitInitialValues}
+        serviceItem={serviceItem}
+        onSubmit={jest.fn()}
+      />,
+    );
 
     const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
 

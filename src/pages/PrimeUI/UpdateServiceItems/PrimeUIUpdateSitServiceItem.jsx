@@ -70,11 +70,12 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
   const reformatPrimeApiSITAddress = fromPrimeAPIAddressFormat(serviceItem.sitDestinationFinalAddress);
 
   const destSitInitialValues = {
-    address: reformatPrimeApiSITAddress,
+    sitDestinationFinalAddress: reformatPrimeApiSITAddress,
     sitDepartureDate: formatDate(serviceItem.sitDepartureDate, 'YYYY-MM-DD', 'DD MMM YYYY'),
     sitRequestedDelivery: formatDate(serviceItem.sitRequestedDelivery, 'YYYY-MM-DD', 'DD MMM YYYY'),
     sitCustomerContacted: formatDate(serviceItem.sitCustomerContacted, 'YYYY-MM-DD', 'DD MMM YYYY'),
     mtoServiceItemID: serviceItem.id,
+    reServiceCode: serviceItem.reServiceCode,
     eTag: serviceItem.eTag,
   };
 
@@ -83,26 +84,36 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
     sitRequestedDelivery: formatDate(serviceItem.sitRequestedDelivery, 'YYYY-MM-DD', 'DD MMM YYYY'),
     sitCustomerContacted: formatDate(serviceItem.sitCustomerContacted, 'YYYY-MM-DD', 'DD MMM YYYY'),
     mtoServiceItemID: serviceItem.id,
+    reServiceCode: serviceItem.reServiceCode,
     eTag: serviceItem.eTag,
   };
 
   // sending the data submitted in the destination SIT form to the API
   // if any of the dates are skipped or not filled with values, we'll just make them null
   const destSitOnSubmit = (values) => {
-    const { address, sitCustomerContacted, sitDepartureDate, sitRequestedDelivery, mtoServiceItemID, eTag } = values;
+    const {
+      sitDestinationFinalAddress,
+      sitCustomerContacted,
+      sitDepartureDate,
+      sitRequestedDelivery,
+      mtoServiceItemID,
+      reServiceCode,
+      eTag,
+    } = values;
 
     const body = {
-      newAddress: {
-        streetAddress1: address.streetAddress1,
-        streetAddress2: address.streetAddress2,
-        streetAddress3: address.streetAddress3,
-        city: address.city,
-        state: address.state,
-        postalCode: address.postalCode,
+      sitDestinationFinalAddress: {
+        streetAddress1: sitDestinationFinalAddress.streetAddress1,
+        streetAddress2: sitDestinationFinalAddress.streetAddress2,
+        streetAddress3: sitDestinationFinalAddress.streetAddress3,
+        city: sitDestinationFinalAddress.city,
+        state: sitDestinationFinalAddress.state,
+        postalCode: sitDestinationFinalAddress.postalCode,
       },
       sitDepartureDate: sitDepartureDate === 'Invalid date' ? null : formatDateForSwagger(sitDepartureDate),
       sitRequestedDelivery: sitRequestedDelivery === 'Invalid date' ? null : formatDateForSwagger(sitRequestedDelivery),
       sitCustomerContacted: sitCustomerContacted === 'Invalid date' ? null : formatDateForSwagger(sitCustomerContacted),
+      reServiceCode,
       modelType: 'UpdateMTOServiceItemSIT',
     };
 
@@ -112,12 +123,14 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
   // sending the data submitted in the origin SIT form to the API
   // if any of the dates are skipped or not filled with values, we'll just make them null
   const originSitOnSubmit = (values) => {
-    const { sitCustomerContacted, sitDepartureDate, sitRequestedDelivery, mtoServiceItemID, eTag } = values;
+    const { sitCustomerContacted, sitDepartureDate, sitRequestedDelivery, mtoServiceItemID, reServiceCode, eTag } =
+      values;
 
     const body = {
       sitDepartureDate: sitDepartureDate === 'Invalid date' ? null : formatDateForSwagger(sitDepartureDate),
       sitRequestedDelivery: sitRequestedDelivery === 'Invalid date' ? null : formatDateForSwagger(sitRequestedDelivery),
       sitCustomerContacted: sitCustomerContacted === 'Invalid date' ? null : formatDateForSwagger(sitCustomerContacted),
+      reServiceCode,
       modelType: 'UpdateMTOServiceItemSIT',
     };
 
@@ -140,7 +153,7 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
               )}
               {modelType === 'MTOServiceItemDestSIT' ? (
                 <PrimeUIUpdateDestSITForm
-                  name="address"
+                  name="sitDestinationFinalAddress"
                   serviceItem={serviceItem}
                   initialValues={destSitInitialValues}
                   onSubmit={destSitOnSubmit}

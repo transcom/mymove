@@ -4,6 +4,8 @@ import { useNavigate, useParams, generatePath } from 'react-router-dom';
 import { FormGroup } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
+import styles from './PrimeUIUpdateSITForms.module.scss';
+
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import AddressFields from 'components/form/AddressFields/AddressFields';
 import formStyles from 'styles/form.module.scss';
@@ -26,51 +28,60 @@ const PrimeUIUpdateDestSITForm = ({ name, initialValues, onSubmit, serviceItem }
       {({ handleSubmit }) => (
         <Form className={classnames(formStyles.form)}>
           <FormGroup>
-            <h2 style={{ textAlign: 'center' }}>Update Destination SIT Service Item</h2>
-            <SectionWrapper className={formStyles.formSection}>
-              Here you can update specific fields for a destination SIT service item.
-              <br /> At this time, only the <strong>Destination Final Address</strong>,{' '}
-              <strong>SIT Departure Date</strong>, <strong>SIT Requested Delivery</strong>, and{' '}
-              <strong>SIT Customer Contacted</strong> fields can be updated.
-            </SectionWrapper>
-            <SectionWrapper className={formStyles.formSection}>
-              <h3 style={{ textAlign: 'center' }}>
-                {serviceItem.reServiceCode} - {serviceItem.reServiceName}
-              </h3>
-              <dl className={descriptionListStyles.descriptionList}>
-                <div className={descriptionListStyles.row}>
-                  <dt>ID:</dt>
-                  <dd>{serviceItem.id}</dd>
+            <div className={styles.Sit}>
+              <h2 className={styles.sitHeader}>Update Destination SIT Service Item</h2>
+              <SectionWrapper className={formStyles.formSection}>
+                <div className={styles.sitHeader}>
+                  Here you can update specific fields for a destination SIT service item. <br />
+                  At this time, only the following values can be updated: <br />{' '}
+                  <strong>
+                    SIT Destination Final Address <br />
+                    SIT Departure Date <br />
+                    SIT Requested Delivery <br />
+                    SIT Customer Contacted <br />
+                  </strong>
+                  <br />
                 </div>
-                <div className={descriptionListStyles.row}>
-                  <dt>MTO ID:</dt>
-                  <dd>{serviceItem.moveTaskOrderID}</dd>
+              </SectionWrapper>
+              <SectionWrapper className={formStyles.formSection}>
+                <h3 className={styles.sitHeader}>
+                  {serviceItem.reServiceCode} - {serviceItem.reServiceName}
+                </h3>
+                <dl className={descriptionListStyles.descriptionList}>
+                  <div className={descriptionListStyles.row}>
+                    <dt>ID:</dt>
+                    <dd>{serviceItem.id}</dd>
+                  </div>
+                  <div className={descriptionListStyles.row}>
+                    <dt>MTO ID:</dt>
+                    <dd>{serviceItem.moveTaskOrderID}</dd>
+                  </div>
+                  <div className={descriptionListStyles.row}>
+                    <dt>Shipment ID:</dt>
+                    <dd>{serviceItem.mtoShipmentID}</dd>
+                  </div>
+                  <div className={descriptionListStyles.row}>
+                    <dt>Status:</dt>
+                    <dd>{serviceItem.status}</dd>
+                  </div>
+                </dl>
+                <h3 className={styles.sitDestAddressHeader}>SIT Destination Final Address</h3>
+                <AddressFields name={name} />
+                <div className={styles.sitDatePickerRow}>
+                  <DatePickerInput name="sitDepartureDate" label="SIT Departure Date" />
+                  <DatePickerInput name="sitRequestedDelivery" label="SIT Requested Delivery" />
+                  <DatePickerInput name="sitCustomerContacted" label="SIT Customer Contacted" />
                 </div>
-                <div className={descriptionListStyles.row}>
-                  <dt>Shipment ID:</dt>
-                  <dd>{serviceItem.mtoShipmentID}</dd>
-                </div>
-                <div className={descriptionListStyles.row}>
-                  <dt>Status:</dt>
-                  <dd>{serviceItem.status}</dd>
-                </div>
-              </dl>
-              <h3 style={{ textAlign: 'center', marginBottom: '-8px' }}>SIT Destination Final Address</h3>
-              <AddressFields name={name} />
-              <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-                <DatePickerInput name="sitDepartureDate" label="SIT Departure Date" />
-                <DatePickerInput name="sitRequestedDelivery" label="SIT Requested Delivery" />
-                <DatePickerInput name="sitCustomerContacted" label="SIT Customer Contacted" />
-              </div>
-            </SectionWrapper>
-            <WizardNavigation
-              editMode
-              className={formStyles.formActions}
-              aria-label="Update SIT Service Item"
-              type="submit"
-              onCancelClick={handleClose}
-              onNextClick={handleSubmit}
-            />
+              </SectionWrapper>
+              <WizardNavigation
+                editMode
+                className={formStyles.formActions}
+                aria-label="Update SIT Service Item"
+                type="submit"
+                onCancelClick={handleClose}
+                onNextClick={handleSubmit}
+              />
+            </div>
           </FormGroup>
         </Form>
       )}
