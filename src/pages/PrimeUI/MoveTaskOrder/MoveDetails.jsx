@@ -99,7 +99,7 @@ const MoveDetails = ({ setFlashMessage }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const { mtoShipments, paymentRequests } = moveTaskOrder;
+  const { mtoShipments, paymentRequests, mtoServiceItems } = moveTaskOrder;
 
   // checking to see if the mto contains a destination SIT delivery
   const destinationServiceItem = moveTaskOrder?.mtoServiceItems.find(
@@ -158,7 +158,12 @@ const MoveDetails = ({ setFlashMessage }) => {
                   {mtoShipments?.map((mtoShipment) => {
                     return (
                       <div key={mtoShipment.id}>
-                        <Shipment shipment={mtoShipment} moveId={moveTaskOrder.id} onDelete={handleDeleteShipment} />
+                        <Shipment
+                          shipment={mtoShipment}
+                          moveId={moveTaskOrder.id}
+                          onDelete={handleDeleteShipment}
+                          mtoServiceItems={mtoServiceItems}
+                        />
                         <div className={styles.serviceItemHeader}>
                           {moveTaskOrder.mtoServiceItems?.length > 0 && <h2>Service Items</h2>}
                           {destinationServiceItem ? (

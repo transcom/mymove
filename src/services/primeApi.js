@@ -183,3 +183,16 @@ export function updatePrimeMTOShipmentStatus({
     { schemaKey, normalize },
   );
 }
+
+// Sends api request for SIT Extension Request from Prime Sim
+export function createSITExtensionRequest({ mtoShipmentID, normalize = false, schemaKey = 'mtoShipment', body }) {
+  const operationPath = 'mtoShipment.createSITExtension';
+  return makePrimeSimulatorRequest(
+    operationPath,
+    {
+      mtoShipmentID,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
