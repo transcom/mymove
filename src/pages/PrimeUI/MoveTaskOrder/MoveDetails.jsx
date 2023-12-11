@@ -98,7 +98,7 @@ const MoveDetails = ({ setFlashMessage }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const { mtoShipments, paymentRequests } = moveTaskOrder;
+  const { mtoShipments, paymentRequests, mtoServiceItems } = moveTaskOrder;
 
   return (
     <div>
@@ -152,7 +152,12 @@ const MoveDetails = ({ setFlashMessage }) => {
                   {mtoShipments?.map((mtoShipment) => {
                     return (
                       <div key={mtoShipment.id}>
-                        <Shipment shipment={mtoShipment} moveId={moveTaskOrder.id} onDelete={handleDeleteShipment} />
+                        <Shipment
+                          shipment={mtoShipment}
+                          moveId={moveTaskOrder.id}
+                          onDelete={handleDeleteShipment}
+                          mtoServiceItems={mtoServiceItems}
+                        />
                         <div className={styles.serviceItemHeader}>
                           {moveTaskOrder.mtoServiceItems?.length > 0 && <h2>Service Items</h2>}
                           <Link
