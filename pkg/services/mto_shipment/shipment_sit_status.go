@@ -226,15 +226,52 @@ func fetchEntitlement(appCtx appcontext.AppContext, mtoShipment models.MTOShipme
 	return move.Orders.Entitlement, nil
 }
 
-func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext.AppContext, shipment models.MTOShipment) (*services.SITStatus, error) {
+func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext.AppContext, shipment models.MTOShipment,
+	sitCustomerContacted *time.Time, sitRequestedDelivery *time.Time) (*services.SITStatus, error) {
 
-	shipmentSITStatus, err := f.CalculateShipmentSITStatus(appCtx, shipment)
-
-	if err != nil {
+	if shipment.MTOServiceItems == nil || len(shipment.MTOServiceItems) == 0 {
 		return nil, nil
 	}
 
-	//TODO: calculate allowance date and required delivery date based on customer contact and customer request dates
+	var shipmentSITStatus services.SITStatus
 
-	return shipmentSITStatus, err
+	year, month, day := time.Now().Date()
+	today := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+
+	shipmentSITs := SortShipmentSITs(shipment, today)
+
+	currentSIT := getCurrentSIT(shipmentSITs)
+
+	// There were no relevant SIT service items for this shipment
+	if currentSIT == nil && len(shipmentSITs.pastSITs) == 0 {
+		return nil, nil
+	}
+
+	shipmentSITStatus.ShipmentID = shipment.ID
+	if currentSIT != nil {
+		location := DestinationSITLocation
+
+		if currentSIT.ReService.Code == models.ReServiceCodeDOFSIT {
+			location = OriginSITLocation
+		}
+
+		daysInSIT := daysInSIT(*currentSIT, today)
+		sitEntryDate := *currentSIT.SITEntryDate
+		sitDepartureDate := currentSIT.SITDepartureDate
+
+		//TODO: B-17854 calculate allowance end date and required delivery date based on customer dates
+		sitAllowanceEndDate := CalculateSITAllowanceEndDate(shipmentSITStatus.TotalDaysRemaining, sitEntryDate, today)
+
+		shipmentSITStatus.CurrentSIT = &services.CurrentSIT{
+			Location:             location,
+			DaysInSIT:            daysInSIT,
+			SITEntryDate:         sitEntryDate,
+			SITDepartureDate:     sitDepartureDate,
+			SITAllowanceEndDate:  sitAllowanceEndDate,
+			SITCustomerContacted: sitCustomerContacted,
+			SITRequestedDelivery: sitRequestedDelivery,
+		}
+	}
+
+	return &shipmentSITStatus, nil
 }
