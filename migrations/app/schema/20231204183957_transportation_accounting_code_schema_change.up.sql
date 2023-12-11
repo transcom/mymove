@@ -1,12 +1,4 @@
 -- These type migrations are necessary because they do not align with TRDM data
--- It is going from int(4) to varchar (20) so there is no risk of the integer number being too large for varchar 20
--- This is for all three column modifications
-
--- Set temp timeout due to large file modification
--- Time is 3 minutes in milliseconds
-SET statement_timeout = 180000;
-SET lock_timeout = 180000;
-SET idle_in_transaction_session_timeout = 180000;
 
 -- Cast tac_sys_id from int to varchar
 ALTER TABLE transportation_accounting_codes

@@ -2,10 +2,10 @@
 -- It is going from int(4) to varchar (20) so there is no risk of the integer number being too large for varchar 20
 
 -- Set temp timeout due to large file modification
--- Time is 5 minutes in milliseconds
-SET statement_timeout = 300000;
-SET lock_timeout = 300000;
-SET idle_in_transaction_session_timeout = 300000;
+-- Time is 3 minutes in milliseconds
+SET statement_timeout = 180000;
+SET lock_timeout = 180000;
+SET idle_in_transaction_session_timeout = 180000;
 
 -- Cast loa_sys_id from int to varchar
 ALTER TABLE lines_of_accounting
