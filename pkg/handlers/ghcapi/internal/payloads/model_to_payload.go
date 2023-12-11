@@ -71,6 +71,45 @@ func Move(move *models.Move) *ghcmessages.Move {
 	return payload
 }
 
+// ListMove payload
+func ListMove(move *models.Move) *ghcmessages.ListPrimeMove {
+	if move == nil {
+		return nil
+	}
+	payload := &ghcmessages.ListPrimeMove{
+		ID:                 strfmt.UUID(move.ID.String()),
+		MoveCode:           move.Locator,
+		CreatedAt:          strfmt.DateTime(move.CreatedAt),
+		AvailableToPrimeAt: handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
+		OrderID:            strfmt.UUID(move.OrdersID.String()),
+		ReferenceID:        *move.ReferenceID,
+		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
+		ETag:               etag.GenerateEtag(move.UpdatedAt),
+	}
+
+	if move.PPMEstimatedWeight != nil {
+		payload.PpmEstimatedWeight = int64(*move.PPMEstimatedWeight)
+	}
+
+	if move.PPMType != nil {
+		payload.PpmType = *move.PPMType
+	}
+
+	return payload
+}
+
+// ListMoves payload
+func ListMoves(moves *models.Moves) []*ghcmessages.ListPrimeMove {
+	listMoves := make(ghcmessages.ListPrimeMoves, len(*moves))
+
+	for i, move := range *moves {
+		// Create a local copy of the loop variable
+		moveCopy := move
+		listMoves[i] = ListMove(&moveCopy)
+	}
+	return listMoves
+}
+
 // CustomerSupportRemark payload
 func CustomerSupportRemark(customerSupportRemark *models.CustomerSupportRemark) *ghcmessages.CustomerSupportRemark {
 	if customerSupportRemark == nil {
