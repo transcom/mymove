@@ -12,4 +12,7 @@ export default {
   second_available_delivery_date: 'second_available_delivery_date',
   retirement_date: 'retirement_date',
   separation_date: 'separation_date',
+  expected_departure_date: 'expected_departure_date',
+  sit_estimated_departure_date: 'sit_estimated_departure_date',
+  sit_estimated_entry_date: 'sit_estimated_entry_date',
 };
