@@ -127,6 +127,51 @@ func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 
 		suite.Equal(mtoShipment.ID.String(), updatedShipment.ID.String())
 		suite.Equal(officeRemarks, *sitExtensionInDB.OfficeRemarks)
+		suite.Equal(convertToMembersExpense, sitExtensionInDB.MembersExpense)
+		suite.Equal(models.SITExtensionStatusDenied, sitExtensionInDB.Status)
+		suite.Equal(models.MoveStatusAPPROVED, shipmentInDB.MoveTaskOrder.Status)
+	})
+
+	suite.Run("Updates the SIT extension's status to DENIED and updates members_expense to TRUE when 'Convert to Member's Expense' is chosen.", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					SITDaysAllowance: models.IntPointer(20),
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		sitExtension := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+		}, nil)
+		officeRemarks := "office remarks"
+		convertToMembersExpense := true
+		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+
+		updatedShipment, err := sitExtensionDenier.DenySITExtension(session, mtoShipment.ID, sitExtension.ID, &officeRemarks, convertToMembersExpense, eTag)
+		suite.NoError(err)
+
+		var shipmentInDB models.MTOShipment
+		err = suite.DB().EagerPreload("MoveTaskOrder").Find(&shipmentInDB, mtoShipment.ID)
+		suite.NoError(err)
+		var sitExtensionInDB models.SITDurationUpdate
+		err = suite.DB().Find(&sitExtensionInDB, sitExtension.ID)
+		suite.NoError(err)
+
+		suite.Equal(mtoShipment.ID.String(), updatedShipment.ID.String())
+		suite.Equal(officeRemarks, *sitExtensionInDB.OfficeRemarks)
+		suite.Equal(convertToMembersExpense, sitExtensionInDB.MembersExpense)
 		suite.Equal(models.SITExtensionStatusDenied, sitExtensionInDB.Status)
 		suite.Equal(models.MoveStatusAPPROVED, shipmentInDB.MoveTaskOrder.Status)
 	})
