@@ -8,7 +8,6 @@ import PrimeUIUpdateOriginSITForm from './PrimeUIUpdateOriginSITForm';
 import PrimeUIUpdateDestSITForm from './PrimeUIUpdateDestSITForm';
 
 import { updateMTOServiceItem } from 'services/primeApi';
-import { fromPrimeAPIAddressFormat } from 'utils/formatters';
 import scrollToTop from 'shared/scrollToTop';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -67,10 +66,17 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
 
   const serviceItem = moveTaskOrder?.mtoServiceItems.find((s) => s?.id === mtoServiceItemId);
   const { modelType } = serviceItem;
-  const reformatPrimeApiSITAddress = fromPrimeAPIAddressFormat(serviceItem.sitDestinationFinalAddress);
 
   const destSitInitialValues = {
-    sitDestinationFinalAddress: reformatPrimeApiSITAddress,
+    sitDestinationFinalAddress: {
+      id: serviceItem.sitDestinationFinalAddress.id,
+      streetAddress1: serviceItem.sitDestinationFinalAddress.streetAddress1,
+      streetAddress2: serviceItem.sitDestinationFinalAddress.streetAddress2,
+      streetAddress3: serviceItem.sitDestinationFinalAddress.streetAddress3,
+      city: serviceItem.sitDestinationFinalAddress.city,
+      state: serviceItem.sitDestinationFinalAddress.state,
+      postalCode: serviceItem.sitDestinationFinalAddress.postalCode,
+    },
     sitDepartureDate: formatDate(serviceItem.sitDepartureDate, 'YYYY-MM-DD', 'DD MMM YYYY'),
     sitRequestedDelivery: formatDate(serviceItem.sitRequestedDelivery, 'YYYY-MM-DD', 'DD MMM YYYY'),
     sitCustomerContacted: formatDate(serviceItem.sitCustomerContacted, 'YYYY-MM-DD', 'DD MMM YYYY'),
@@ -103,6 +109,7 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
 
     const body = {
       sitDestinationFinalAddress: {
+        id: sitDestinationFinalAddress.id,
         streetAddress1: sitDestinationFinalAddress.streetAddress1,
         streetAddress2: sitDestinationFinalAddress.streetAddress2,
         streetAddress3: sitDestinationFinalAddress.streetAddress3,
