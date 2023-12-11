@@ -103,6 +103,24 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   let numberOfErrorIfMissingForAllShipments = 0;
   let numberOfWarnIfMissingForAllShipments = 0;
 
+  const [hasInvalidProGearAllowances, setHasInvalidProGearAllowances] = useState(false);
+
+  // check if invalid progear weight allowances
+  const checkProGearAllowances = () => {
+    mtoShipments?.forEach((mto) => {
+      if (
+        mto?.ppmShipment?.proGearWeight > order.entitlement.proGearWeight ||
+        mto?.ppmShipment?.proGearWeightSpouse > order.entitlement.proGearWeightSpouse
+      ) {
+        setHasInvalidProGearAllowances(true);
+      }
+    });
+  };
+
+  useEffect(() => {
+    checkProGearAllowances();
+  });
+
   // for now we are only showing dest type on retiree and separatee orders
   const isRetirementOrSeparation =
     order.order_type === ORDERS_TYPE.RETIREMENT || order.order_type === ORDERS_TYPE.SEPARATION;
@@ -369,22 +387,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   if (isError) return <SomethingWentWrong />;
 
   const handleShowCancellationModal = () => {
-    // check if servicemember pro gear is less than the allowances set by the service counselor
-
-    for (let i = 0; i < mtoShipments.length; i += 1) {
-      if (mtoShipments[i].ppmShipment.hasProGear) {
-        const ppm = mtoShipments[i].ppmShipment;
-
-        if (
-          ppm.proGearWeight > order.entitlement.proGearWeight ||
-          ppm.proGearWeightSpouse > order.entitlement.proGearWeightSpouse
-        ) {
-          // alert('Progear weight is greater than entitlement.');
-          return;
-        }
-      }
-    }
-
+    checkProGearAllowances();
     setIsSubmitModalVisible(true);
   };
 
@@ -467,7 +470,11 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                 {(counselorCanEdit || counselorCanEditNonPPM) && (
                   <Button
                     disabled={
-                      !mtoShipments.length || allShipmentsDeleted || disableSubmit || disableSubmitDueToMissingOrderInfo
+                      !mtoShipments.length ||
+                      allShipmentsDeleted ||
+                      disableSubmit ||
+                      disableSubmitDueToMissingOrderInfo ||
+                      hasInvalidProGearAllowances
                     }
                     type="button"
                     onClick={handleShowCancellationModal}
@@ -478,6 +485,12 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
               </Grid>
             )}
           </Grid>
+
+          {hasInvalidProGearAllowances ? (
+            <div className="progearAllowanceError">
+              Pro Gear weight allowances are less than the weights entered in move.
+            </div>
+          ) : null}
 
           <div className={styles.section} id="shipments">
             <DetailsPanel
