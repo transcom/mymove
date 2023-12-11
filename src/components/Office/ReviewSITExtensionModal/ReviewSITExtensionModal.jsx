@@ -13,7 +13,7 @@ import styles from './ReviewSITExtensionModal.module.scss';
 import DataTableWrapper from 'components/DataTableWrapper/index';
 import DataTable from 'components/DataTable/index';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
-import { DropdownInput, DatePickerInput } from 'components/form/fields';
+import { DropdownInput, DatePickerInput, CheckboxField } from 'components/form/fields';
 import { dropdownInputOptions } from 'utils/formatters';
 import { Form } from 'components/form';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
@@ -304,6 +304,15 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
                             label="Reason for edit"
                             name="requestReason"
                             options={dropdownInputOptions(sitExtensionReasons)}
+                          />
+                        </div>
+                      )}
+                      {values.acceptExtension === 'no' && (
+                        <div className={styles.convertRadio}>
+                          <CheckboxField
+                            id="convertToCustomerExpense"
+                            label="Convert to Member's Expense"
+                            name="convertToCustomerExpense"
                           />
                         </div>
                       )}
