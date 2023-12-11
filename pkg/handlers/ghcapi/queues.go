@@ -88,6 +88,70 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		})
 }
 
+// ListMovesHandler lists moves with the option to filter since a particular date. Optimized ver.
+type ListPrimeMovesHandler struct {
+	handlers.HandlerConfig
+	services.MoveTaskOrderFetcher
+}
+
+// Handle fetches all moves with the option to filter since a particular date. Optimized version.
+func (h ListPrimeMovesHandler) Handle(params queues.ListPrimeMovesParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			// adding in moveCode and Id params that are sent in from the UI
+			// we will use these params to refine the search in the service object
+			searchParams := services.MoveTaskOrderFetcherParams{
+				Page:     params.Page,
+				PerPage:  params.PerPage,
+				MoveCode: params.MoveCode,
+				ID:       params.ID,
+			}
+			if params.Since != nil {
+				since := handlers.FmtDateTimePtrToPop(params.Since)
+				searchParams.Since = &since
+			}
+
+			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
+			// for perPage.
+			if params.Page == nil {
+				searchParams.Page = models.Int64Pointer(1)
+			}
+			// Same for perPage
+			if params.PerPage == nil {
+				searchParams.PerPage = models.Int64Pointer(20)
+			}
+
+			mtos, count, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrders(appCtx, &searchParams)
+
+			if err != nil {
+				appCtx.Logger().Error("Unexpected error while fetching moves:", zap.Error(err))
+				return queues.NewListPrimeMovesInternalServerError(), err
+			}
+
+			queueMoves := payloads.ListMoves(&mtos)
+
+			// if the since parameter is passed in, we don't need to return the additional values since that's only used in the UI
+			if params.Since != nil {
+				result := ghcmessages.ListPrimeMovesResult{
+					QueueMoves: queueMoves,
+				}
+
+				return queues.NewListPrimeMovesOK().WithPayload(&result), nil
+			}
+
+			result := ghcmessages.ListPrimeMovesResult{
+				Page:       *searchParams.Page,
+				PerPage:    *searchParams.PerPage,
+				TotalCount: int64(count),
+				QueueMoves: queueMoves,
+			}
+
+			return queues.NewListPrimeMovesOK().WithPayload(&result), nil
+
+		})
+}
+
 // GetPaymentRequestsQueueHandler returns the payment requests for the TIO queue user via GET /queues/payment-requests
 type GetPaymentRequestsQueueHandler struct {
 	handlers.HandlerConfig
