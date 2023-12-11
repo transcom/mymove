@@ -247,8 +247,8 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext
 		return nil, nil
 	}
 
-	shipmentSITStatus.ShipmentID = shipment.ID
 	if currentSIT != nil {
+		shipmentSITStatus.ShipmentID = shipment.ID
 		location := DestinationSITLocation
 
 		if currentSIT.ReService.Code == models.ReServiceCodeDOFSIT {
@@ -260,7 +260,6 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext
 		sitDepartureDate := currentSIT.SITDepartureDate
 
 		//TODO: B-17854 calculate allowance end date and required delivery date based on customer dates
-		//      instead of using this method
 		sitAllowanceEndDate := CalculateSITAllowanceEndDate(shipmentSITStatus.TotalDaysRemaining, sitEntryDate, today)
 
 		shipmentSITStatus.CurrentSIT = &services.CurrentSIT{
