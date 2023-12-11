@@ -17,6 +17,10 @@ import (
 // swagger:model DenySITExtension
 type DenySITExtension struct {
 
+	// Whether or not to convert to members expense once SIT extension is denied.
+	// Example: false
+	ConvertToMembersExpense bool `json:"convertToMembersExpense,omitempty"`
+
 	// Remarks from TOO about SIT denial
 	// Example: Denied this extension as it does not match the criteria
 	OfficeRemarks *string `json:"officeRemarks,omitempty"`
