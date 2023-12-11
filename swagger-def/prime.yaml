@@ -1688,9 +1688,9 @@ definitions:
         type: string
         readOnly: true
   ListMoves:
+    type: array
     items:
       $ref: '#/definitions/ListMove'
-    type: array
   MoveTaskOrder:
     $ref: 'definitions/prime/MoveTaskOrder.yaml'
   MTOServiceItemBasic: # spectral oas2-unused-definition is OK here due to polymorphism
