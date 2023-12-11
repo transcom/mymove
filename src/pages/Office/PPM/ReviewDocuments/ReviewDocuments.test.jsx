@@ -222,6 +222,11 @@ describe('ReviewDocuments', () => {
       await userEvent.clear(fullWeightInput);
       await userEvent.type(fullWeightInput, newFullWeight.toString());
 
+      const newAllowableWeight = 20000;
+      const emptyllowableInput = screen.getByRole('textbox', { name: 'Allowable weight' });
+      await userEvent.clear(emptyllowableInput);
+      await userEvent.type(emptyllowableInput, newAllowableWeight.toString());
+
       const netWeightDisplay = screen.getByTestId('net-weight-display');
       expect(netWeightDisplay).toHaveTextContent('4,000 lbs');
 
@@ -251,6 +256,7 @@ describe('ReviewDocuments', () => {
           ppmShipmentId: mtoShipmentWithOneWeightTicket.ppmShipment.id,
           vehicleDescription: weightTicket.vehicleDescription,
           emptyWeight: newEmptyWeight,
+          allowableWeight: newAllowableWeight,
           missingEmptyWeightTicket: weightTicket.missingEmptyWeightTicket,
           fullWeight: newFullWeight,
           missingFullWeightTicket: weightTicket.missingFullWeightTicket,
