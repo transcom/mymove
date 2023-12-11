@@ -4832,6 +4832,9 @@ definitions:
         type: boolean
         example: false
         x-nullable: false
+    required:
+      - officeRemarks
+      - convertToMembersExpense
   CreateApprovedSITDurationUpdate:
     properties:
       requestReason:
