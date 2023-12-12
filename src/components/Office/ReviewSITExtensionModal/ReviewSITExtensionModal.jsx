@@ -212,7 +212,11 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
   const reviewSITExtensionSchema = Yup.object().shape({
     acceptExtension: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     requestReason: Yup.string().required('Required'),
-    officeRemarks: Yup.string().nullable(),
+    officeRemarks: Yup.string().when('acceptExtension', {
+      is: 'no',
+      then: () => Yup.string().required('Required'),
+      otherwise: () => Yup.string().nullable(),
+    }),
     daysApproved: Yup.number().when('acceptExtension', {
       is: 'yes',
       then: () =>
