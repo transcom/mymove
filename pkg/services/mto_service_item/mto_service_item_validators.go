@@ -271,9 +271,6 @@ func (v *updateMTOServiceItemData) checkOldServiceItemStatus(_ appcontext.AppCon
 			if serviceItemData.updatedServiceItem.SITDepartureDate != nil {
 				return nil
 			}
-			if serviceItemData.updatedServiceItem.SITDestinationFinalAddress != nil {
-				return nil
-			}
 			if serviceItemData.updatedServiceItem.SITRequestedDelivery != nil {
 				return nil
 			}
