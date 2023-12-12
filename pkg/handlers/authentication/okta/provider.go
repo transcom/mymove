@@ -280,6 +280,12 @@ func (op *Provider) GetOpenIDConfigURL() string {
 func (op *Provider) GetUserURL(oktaUserID string) string {
 	return op.orgURL + "/api/v1/users/" + oktaUserID
 }
+func (op *Provider) GetUserURLWithToken() string {
+	return op.orgURL + "/api/v1/users/me"
+}
+func (op *Provider) ClearUserSessionsURL(oktaUserID string) string {
+	return op.orgURL + "/api/v1/users/" + oktaUserID + "/sessions"
+}
 
 // TokenURL returns a full URL to retrieve a user token from okta.mil
 func (op Provider) TokenURL(r *http.Request) string {

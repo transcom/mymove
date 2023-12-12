@@ -708,7 +708,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// if the user is still signed into okta and has an active session
-	// but is being forced to authenticate from MilMove, we need to handle logout to kill the okta session
+	// but is being forced to authenticate from MilMove, we need to handle logout to kill the okta sessions
 	// so they can re-use their authenticator (CAC)
 	errDescription := r.URL.Query().Get("error_description")
 	if errDescription == "The resource owner or authorization server denied the request." {
@@ -717,12 +717,21 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
-		appCtx.Logger().Error("Access denied from Okta, likely due to okta session still being active - logging user out of Okta")
-		oktaLogoutURL, logoutErr := logoutOktaUserURL(provider, appCtx.Session().IDToken, landingURL.String())
-		if oktaLogoutURL == "" || logoutErr != nil {
-			appCtx.Logger().Error("failed to get Okta Logout URL")
+		if appCtx.Session().IDToken != "" {
+			oktaLogoutURL, logoutErr := logoutOktaUserURL(provider, appCtx.Session().IDToken, landingURL.String())
+			if oktaLogoutURL == "" || logoutErr != nil {
+				appCtx.Logger().Error("failed to get Okta Logout URL")
+			}
+			http.Redirect(w, r, oktaLogoutURL, http.StatusTemporaryRedirect)
+			return
 		}
-		http.Redirect(w, r, oktaLogoutURL, http.StatusTemporaryRedirect)
+		returnMessage, _ := clearOktaUserSessions(appCtx, r, *provider, h.HTTPClient)
+		if returnMessage == "error" {
+			appCtx.Logger().Error("There was an error clearing the user's okta sessions")
+			http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
+		}
+		redirectURL := landingURL.String() + "sign-in" + "?okta_logged_out=true"
+		http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -798,13 +807,11 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	provider, err := okta.GetOktaProviderForRequest(r)
-	if err != nil {
-		appCtx.Logger().Error("get provider", zap.Error(err))
+	provider, providerErr := okta.GetOktaProviderForRequest(r)
+	if providerErr != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
-
 	// Exchange code received from login for access token. This is used during the grant_type auth flow
 	exchange, err := exchangeCode(r.URL.Query().Get("code"), r, appCtx, *provider, h.HTTPClient)
 	// Double error check
