@@ -69,6 +69,23 @@ describe('PrimeUIRequestSITDestAddressChangeForm', () => {
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeEnabled();
   });
 
+  it('fires off onSubmit function when save button is clicked', async () => {
+    const onSubmitMock = jest.fn();
+    renderWithProviders(
+      <PrimeUIUpdateDestSITForm
+        initialValues={destSitInitialValues}
+        serviceItem={serviceItem}
+        onSubmit={onSubmitMock}
+      />,
+    );
+
+    const saveButton = await screen.findByRole('button', { name: 'Save' });
+
+    await userEvent.click(saveButton);
+
+    expect(onSubmitMock).toHaveBeenCalled();
+  });
+
   it('directs the user back to the move page when cancel button is clicked', async () => {
     renderWithProviders(
       <PrimeUIUpdateDestSITForm

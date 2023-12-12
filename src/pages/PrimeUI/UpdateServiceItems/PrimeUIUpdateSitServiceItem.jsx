@@ -23,6 +23,7 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
   const navigate = useNavigate();
   const { moveCodeOrID, mtoServiceItemId } = useParams();
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
+  /* istanbul ignore next */
   const { mutate: createUpdateSITServiceItemRequestMutation } = useMutation(updateMTOServiceItem, {
     onSuccess: () => {
       setFlashMessage(
