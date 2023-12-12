@@ -1,0 +1,23 @@
+@import 'shared/styles/basics';
+@import 'shared/styles/colors';
+
+.Sit {
+
+  .sitHeader {
+    text-align: center;
+  }
+
+  .sitDestAddressHeader {
+    text-align: center;
+    @include u-margin-bottom(-2);
+  }
+
+  .sitDatePickerRow {
+    @include u-margin-top(-4);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  @include u-margin-bottom(4);
+
+}

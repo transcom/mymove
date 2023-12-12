@@ -1845,7 +1845,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 }
 
 func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
-	suite.Run("Successful DownloadMoveOrder - verify OK", func() {
+	suite.Run("Successful DownloadMoveOrder - 200", func() {
 		mockMoveSearcher := mocks.MoveSearcher{}
 		mockOrderFetcher := mocks.OrderFetcher{}
 
@@ -1940,7 +1940,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderNotFound{}, downloadMoveOrderResponse)
 	})
 
-	suite.Run("DownloadMoveOrder: move did not request counseling - return invalid request", func() {
+	suite.Run("DownloadMoveOrder: move did not request counseling  - 422", func() {
 		mockMoveSearcher := mocks.MoveSearcher{}
 		mockOrderFetcher := mocks.OrderFetcher{}
 
@@ -1977,7 +1977,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderUnprocessableEntity{}, downloadMoveOrderResponse)
 	})
 
-	suite.Run("DownloadMoveOrder: move requires counseling but origin duty location does have GOV counseling,  Prime counseling is not needed", func() {
+	suite.Run("DownloadMoveOrder: move requires counseling but origin duty location does have GOV counseling,  Prime counseling is not needed - 422", func() {
 		mockMoveSearcher := mocks.MoveSearcher{}
 		mockOrderFetcher := mocks.OrderFetcher{}
 
@@ -2017,7 +2017,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderUnprocessableEntity{}, downloadMoveOrderResponse)
 	})
 
-	suite.Run("DownloadMoveOrder: handles internal errors for search move", func() {
+	suite.Run("DownloadMoveOrder: handles internal errors for search move - 500", func() {
 		mockMoveSearcher := mocks.MoveSearcher{}
 		mockOrderFetcher := mocks.OrderFetcher{}
 

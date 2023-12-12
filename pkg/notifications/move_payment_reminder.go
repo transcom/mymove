@@ -30,11 +30,11 @@ type PaymentReminder struct {
 	textTemplate  *text.Template
 }
 
-// NewPaymentReminder returns a new payment reminder notification
+// NewPaymentReminder returns a new payment reminder notification 14 days after actual move in date
 func NewPaymentReminder() (*PaymentReminder, error) {
 
 	return &PaymentReminder{
-		emailAfter:    "10 DAYS",
+		emailAfter:    "14 DAYS",
 		noEmailBefore: "2019-06-01",
 		htmlTemplate:  paymentReminderHTMLTemplate,
 		textTemplate:  paymentReminderTextTemplate,
@@ -65,7 +65,7 @@ func (m PaymentReminder) GetEmailInfo(appCtx appcontext.AppContext) (PaymentRemi
 	COALESCE(ppm.weight_estimate, 0) AS weight_estimate,
 	COALESCE(ppm.incentive_estimate_min, 0) AS incentive_estimate_min,
 	COALESCE(ppm.incentive_estimate_max, 0) AS incentive_estimate_max,
-	ppm.original_move_date as move_date,
+	ppm.actual_move_date as move_date,
 	dln.name AS new_duty_location_name,
 	tos.name AS transportation_office_name,
 	opl.number AS transportation_office_phone,
@@ -84,8 +84,8 @@ FROM personally_procured_moves ppm
 		LIMIT 1
 	)
 	LEFT JOIN notifications n ON sm.id = n.service_member_id
-	WHERE ppm.original_move_date <= now() - ($1)::INTERVAL
-	AND ppm.original_move_date >= $2
+	WHERE ppm.actual_move_date <= now() - ($1)::INTERVAL
+	AND ppm.actual_move_date >= $2
 	AND ppm.status = 'APPROVED'
 	AND (notification_type != 'MOVE_PAYMENT_REMINDER_EMAIL' OR n.service_member_id IS NULL)
 	AND m.status = 'APPROVED'

@@ -205,7 +205,7 @@ type DownloadMoveOrderHandler struct {
 	services.OrderFetcher
 }
 
-// Handle is the handler for downloading an evaluation report by ID as a PDF
+// Handler for downloading move order by locator as a PDF
 func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrderParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {

@@ -390,6 +390,35 @@ WITH move AS (
 		GROUP BY
 			move_addresses.shipment_id, move_addresses.service_member_id, audit_history.id
 	),
+	ppms (ppm_id, shipment_type, shipment_id) AS (
+		SELECT
+			audit_history.object_id,
+			move_shipments.shipment_type,
+			move_shipments.id
+		FROM
+			audit_history
+		JOIN ppm_shipments ON audit_history.object_id = ppm_shipments.id
+		JOIN move_shipments ON move_shipments.id = ppm_shipments.shipment_id
+	),
+	ppm_logs AS (
+		SELECT
+			audit_history.*,
+			jsonb_agg(
+				jsonb_strip_nulls(
+					jsonb_build_object(
+						'shipment_type', ppms.shipment_type,
+						'shipment_id_abbr', (CASE WHEN ppms.shipment_id IS NOT NULL THEN LEFT(ppms.shipment_id::TEXT, 5) ELSE NULL END)
+					)
+				)
+			)::TEXT AS context,
+			COALESCE(ppms.shipment_id::TEXT, NULL)::TEXT AS context_id
+		FROM
+			audit_history
+		JOIN ppms ON ppms.ppm_id = audit_history.object_id
+		WHERE audit_history.table_name = 'ppm_shipments'
+		GROUP BY
+			ppms.shipment_id, audit_history.id
+	),
 	move_sits (sit_address_updates_id, address_id, service_name, shipment_type, shipment_id, original_address_id, office_remarks, contractor_remarks)  AS (
 		SELECT
 			audit_history.object_id,
@@ -495,6 +524,11 @@ WITH move AS (
 			*
 		FROM
 			sit_logs
+		UNION
+		SELECT
+			*
+		FROM
+			ppm_logs
 		UNION
 		SELECT
 			*

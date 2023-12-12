@@ -1964,9 +1964,9 @@ definitions:
         type: string
         readOnly: true
   ListMoves:
+    type: array
     items:
       $ref: '#/definitions/ListMove'
-    type: array
   MoveTaskOrder:
     type: object
     required:
@@ -2228,6 +2228,18 @@ definitions:
             $ref: '#/definitions/Address'
           requestApprovalsRequestedStatus:
             type: boolean
+          sitRequestedDelivery:
+            format: date
+            type: string
+            description: Date when the customer has requested delivery out of SIT.
+            x-nullable: true
+          sitCustomerContacted:
+            format: date
+            type: string
+            description: >-
+              Date when the customer contacted the prime for a delivery out of
+              SIT.
+            x-nullable: true
         required:
           - reServiceCode
           - reason
@@ -2377,6 +2389,8 @@ definitions:
       corresponding to the service item type.
         * DDDSIT - UpdateMTOServiceItemSIT
         * DOPSIT - UpdateMTOServiceItemSIT
+        * DOASIT - UpdateMTOServiceItemSIT
+        * DOFSIT - UpdateMTOServiceItemSIT
         * DDSHUT - UpdateMTOServiceItemShuttle
         * DOSHUT - UpdateMTOServiceItemShuttle
 
@@ -2431,6 +2445,8 @@ definitions:
             enum:
               - DDDSIT
               - DOPSIT
+              - DOASIT
+              - DOFSIT
           sitDepartureDate:
             format: date
             type: string
