@@ -309,6 +309,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
                         <div className={styles.convertRadio}>
                           <CheckboxField
                             id="convertToMembersExpense"
+                            data-testid="convertToMembersExpense"
                             label="Convert to Member's Expense"
                             name="convertToMembersExpense"
                           />

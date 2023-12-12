@@ -121,6 +121,28 @@ test.describe('TOO user', () => {
       await expect(page.getByRole('heading', { name: 'Review additional days requested' })).toBeVisible();
       await page.getByText('No', { exact: true }).click();
       await page.getByTestId('officeRemarks').fill('extension request denied');
+      await page.getByTestId('convertToMembersExpense');
+      await page.getByTestId('form').getByTestId('button').click();
+
+      // assert that there is no pending SIT extension request and the days authorization is still 90
+      await expect(page.getByText('Additional days requested')).toBeHidden();
+      await expect(page.getByTestId('sitStatusTable').getByText('90', { exact: true }).first()).toBeVisible();
+    });
+
+    test("is able to deny the SIT extension request AND convert to member's expense", async ({ page }) => {
+      // navigate to MTO tab
+      await page.getByTestId('MoveTaskOrder-Tab').click();
+      await tooFlowPage.waitForPage.moveTaskOrder();
+
+      // assert that there is a pending SIT extension request
+      await expect(page.getByText('Additional days requested')).toBeVisible();
+
+      // deny SIT extension
+      await page.getByTestId('sitExtensions').getByTestId('button').click();
+      await expect(page.getByRole('heading', { name: 'Review additional days requested' })).toBeVisible();
+      await page.getByText('No', { exact: true }).click();
+      await page.getByTestId('officeRemarks').fill('extension request denied');
+      await page.getByTestId('convertToMembersExpense').check();
       await page.getByTestId('form').getByTestId('button').click();
 
       // assert that there is no pending SIT extension request and the days authorization is still 90
