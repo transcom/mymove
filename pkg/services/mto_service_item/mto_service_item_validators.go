@@ -242,7 +242,7 @@ func (v *updateMTOServiceItemData) checkOldServiceItemStatus(_ appcontext.AppCon
 			invalidFieldChange := false
 			// Fields that are not allowed to change when status is approved
 
-			if serviceItemData.updatedServiceItem.ReService.Code.String() != "" {
+			if serviceItemData.updatedServiceItem.ReService.Code.String() != "" && serviceItemData.updatedServiceItem.ReService.Code.String() != serviceItemData.oldServiceItem.ReService.Code.String() {
 				invalidFieldChange = true
 			}
 
