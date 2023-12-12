@@ -226,7 +226,7 @@ const newMoveDetailsQuery = {
       nonTemporaryStorage: true,
       privatelyOwnedVehicle: true,
       proGearWeight: 2000,
-      proGearWeightSpouse: 500,
+      proGearWeightSpouse: 1,
       storageInTransit: 2,
       totalDependents: 1,
       totalWeight: 8000,
@@ -588,6 +588,13 @@ describe('MoveDetails page', () => {
       // In this case, we would expect 6 shipment concerns since 3 shipments are missing counselor remarks,
       // 2 shipments are missing advance status, and the move has excess weight
       expect(await screen.findByTestId('requestedShipmentsTag')).toHaveTextContent('6');
+    });
+
+    it('renders the allowances error message when allowances are less than moves values', async () => {
+      useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
+      renderComponent();
+      const allowanceError = screen.getByTestId('allowanceError');
+      expect(allowanceError).toBeInTheDocument();
     });
 
     it('renders shipments info even if destination address is missing', async () => {

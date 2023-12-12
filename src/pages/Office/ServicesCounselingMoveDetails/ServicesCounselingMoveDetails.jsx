@@ -104,13 +104,24 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   let numberOfWarnIfMissingForAllShipments = 0;
 
   const [hasInvalidProGearAllowances, setHasInvalidProGearAllowances] = useState(false);
+  const allowanceErrorStyle = {
+    marginLeft: '2.4rem',
+    borderLeftColor: '#b50909',
+    borderLeftStyle: 'solid',
+    borderLeftWidth: '.267rem',
+    paddingLeft: '.5rem',
+    fontSize: '1.5rem',
+  };
 
   // check if invalid progear weight allowances
   const checkProGearAllowances = () => {
     mtoShipments?.forEach((mto) => {
+      if (!order.entitlement.proGearWeight) order.entitlement.proGearWeight = 0;
+      if (!order.entitlement.proGearWeightSpouse) order.entitlement.proGearWeightSpouse = 0;
+
       if (
         mto?.ppmShipment?.proGearWeight > order.entitlement.proGearWeight ||
-        mto?.ppmShipment?.proGearWeightSpouse > order.entitlement.proGearWeightSpouse
+        mto?.ppmShipment?.spouseProGearWeight > order.entitlement.proGearWeightSpouse
       ) {
         setHasInvalidProGearAllowances(true);
       }
@@ -487,7 +498,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
           </Grid>
 
           {hasInvalidProGearAllowances ? (
-            <div className="progearAllowanceError">
+            <div style={allowanceErrorStyle} data-testid="allowanceError">
               Pro Gear weight allowances are less than the weights entered in move.
             </div>
           ) : null}
