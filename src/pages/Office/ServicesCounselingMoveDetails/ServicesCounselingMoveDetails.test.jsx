@@ -225,7 +225,7 @@ const newMoveDetailsQuery = {
       id: 'e0fefe58-0710-40db-917b-5b96567bc2a8',
       nonTemporaryStorage: true,
       privatelyOwnedVehicle: true,
-      proGearWeight: 2000,
+      proGearWeight: 1,
       proGearWeightSpouse: 500,
       storageInTransit: 2,
       totalDependents: 1,
