@@ -2,7 +2,6 @@ package primeapi
 
 import (
 	"fmt"
-	_ "fmt"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
