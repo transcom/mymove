@@ -57,6 +57,14 @@ func SortShipmentSITs(shipment models.MTOShipment, today time.Time) SortedShipme
 	return shipmentSITs
 }
 
+// Returns the lowest number between 2 numbers
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
 // CalculateShipmentSITStatus creates a SIT Status for payload to be used in
 // multiple handlers in the `ghcapi` package for the MTOShipment handlers.
 func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*services.SITStatus, error) {
@@ -82,6 +90,9 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 	totalSITAllowance, err := f.CalculateShipmentSITAllowance(appCtx, shipment)
 	if err != nil {
 		return nil, err
+	}
+	if totalSITAllowance < shipmentSITStatus.TotalSITDaysUsed {
+		totalSITAllowance = shipmentSITStatus.TotalSITDaysUsed
 	}
 	shipmentSITStatus.TotalSITDaysUsed = CalculateTotalDaysInSIT(shipmentSITs, today)
 	shipmentSITStatus.TotalDaysRemaining = totalSITAllowance - shipmentSITStatus.TotalSITDaysUsed
@@ -145,24 +156,30 @@ func getCurrentSIT(shipmentSITs SortedShipmentSITs) *models.MTOServiceItem {
 	return nil
 }
 
-// Private function daysInSIT is used to calculate the number of days an item
-// is in SIT using a serviceItem and the current day.
-//
-// If the service item has a departure date and SIT entry date is in the past,
-// then the return value is the SITDepartureDate - SITEntryDate.
-//
-// If there is no departure date and the SIT entry date in the past, then the
-// return value is Today - SITEntryDate.
+/*
+Private function daysInSIT is used to calculate the number of used
+days (which have been approved) an item is in SIT using a serviceItem
+and the current day.
+*/
 func daysInSIT(serviceItem models.MTOServiceItem, today time.Time) int {
+	a := 0
+	b := *serviceItem.MTOShipment.SITDaysAllowance
 	if serviceItem.SITDepartureDate != nil && serviceItem.SITDepartureDate.Before(today) {
-		return int(serviceItem.SITDepartureDate.Sub(*serviceItem.SITEntryDate).Hours()) / 24
+		// Sit duration (in days)
+		a = int(serviceItem.SITDepartureDate.Sub(*serviceItem.SITEntryDate).Hours()) / 24
 	} else if serviceItem.SITEntryDate.Before(today) {
-		return int(today.Sub(*serviceItem.SITEntryDate).Hours()) / 24
+		// Sit duration (in days)
+		a = int(today.Sub(*serviceItem.SITEntryDate).Hours()) / 24
 	}
-
-	return 0
+	// return the lower number
+	return min(a, b)
 }
 
+/*
+Returns the total number of used days (which have been approved) an item is in SIT.
+Uses the private function daysInSIT(...) to return the total number of
+approved SIT days that were used in all SIT items
+*/
 func CalculateTotalDaysInSIT(shipmentSITs SortedShipmentSITs, today time.Time) int {
 	totalDays := 0
 	for _, serviceItem := range shipmentSITs.pastSITs {
