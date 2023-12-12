@@ -21,6 +21,7 @@
 //	  - multipart/form-data
 //
 //	Produces:
+//	  - application/pdf
 //	  - application/json
 //
 // swagger:meta

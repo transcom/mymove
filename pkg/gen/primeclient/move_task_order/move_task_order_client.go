@@ -7,6 +7,7 @@ package move_task_order
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
@@ -31,6 +32,8 @@ type ClientOption func(*runtime.ClientOperation)
 // ClientService is the interface for Client methods
 type ClientService interface {
 	CreateExcessWeightRecord(params *CreateExcessWeightRecordParams, opts ...ClientOption) (*CreateExcessWeightRecordCreated, error)
+
+	DownloadMoveOrder(params *DownloadMoveOrderParams, writer io.Writer, opts ...ClientOption) (*DownloadMoveOrderOK, error)
 
 	GetMoveTaskOrder(params *GetMoveTaskOrderParams, opts ...ClientOption) (*GetMoveTaskOrderOK, error)
 
@@ -78,6 +81,46 @@ func (a *Client) CreateExcessWeightRecord(params *CreateExcessWeightRecordParams
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for createExcessWeightRecord: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+DownloadMoveOrder downloads move order as a p d f
+
+Downloads move order as a PDF
+*/
+func (a *Client) DownloadMoveOrder(params *DownloadMoveOrderParams, writer io.Writer, opts ...ClientOption) (*DownloadMoveOrderOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewDownloadMoveOrderParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "downloadMoveOrder",
+		Method:             "GET",
+		PathPattern:        "/moves/{locator}/order/download",
+		ProducesMediaTypes: []string{"application/pdf"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &DownloadMoveOrderReader{formats: a.formats, writer: writer},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*DownloadMoveOrderOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for downloadMoveOrder: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

@@ -1376,6 +1376,41 @@ paths:
           $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
+  /moves/{locator}/order/download:
+    parameters:
+      - description: the locator code for move order to be downloaded
+        in: path
+        name: locator
+        required: true
+        type: string
+    get:
+      summary: Downloads move order as a PDF
+      description: Downloads move order as a PDF
+      operationId: downloadMoveOrder
+      tags:
+        - moveTaskOrder
+      produces:
+        - application/pdf
+      responses:
+        '200':
+          headers:
+            Content-Disposition:
+              type: string
+              description: File name to download
+          description: Move Order PDF
+          schema:
+            format: binary
+            type: file
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
 definitions:
   CreateMTOShipment:
     type: object
