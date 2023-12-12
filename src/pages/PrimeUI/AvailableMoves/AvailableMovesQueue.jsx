@@ -1,18 +1,18 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { createHeader } from 'components/Table/utils';
 import TableQueue from 'components/Table/TableQueue';
-import { usePrimeSimulatorAvailableMovesQueries } from 'hooks/queries';
+import { createHeader } from 'components/Table/utils';
 // TODO: This is very clunky. There are shared/formatters and util/formatters
 // that determine dates. This way is a way to do it now, but this should be
 // refactored as part of TRA work to be done differently across the app.
 // For now though, I'm going to be using the `formatDateFromIso` function and
 // then leverage a constant for how the date should be formatted.
-import { formatDateFromIso } from 'utils/formatters';
-import { DATE_TIME_FORMAT_STRING } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { DATE_TIME_FORMAT_STRING } from 'shared/constants';
+import { formatDateFromIso } from 'utils/formatters';
+import { usePrimeSimulatorAvailableMovesQueries, useUserQueries } from 'hooks/queries';
 
 const columnHeaders = () => [
   createHeader('Move ID', 'id', {
@@ -52,24 +52,28 @@ const columnHeaders = () => [
 
 const PrimeSimulatorAvailableMoves = () => {
   const navigate = useNavigate();
-  const { isLoading, isError } = usePrimeSimulatorAvailableMovesQueries();
+
+  const { isLoading, isError } = useUserQueries();
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
+
+  const handleClick = (values) => {
+    navigate(`/simulator/moves/${values.id}/details`);
+  };
 
   return (
     <TableQueue
       title="Moves available to Prime"
       columns={columnHeaders()}
       useQueries={usePrimeSimulatorAvailableMovesQueries}
-      handleClick={(row) => {
-        navigate(`/simulator/moves/${row.id}/details`);
-      }}
+      handleClick={handleClick}
       defaultSortedColumns={[{ id: 'availableToPrimeAt', desc: false }]}
       defaultHiddenColumns={['eTag']}
       defaultCanSort
       disableSortBy={false}
+      disableMultiSort
       showFilters
-      manualFilters={false}
+      showPagination
     />
   );
 };

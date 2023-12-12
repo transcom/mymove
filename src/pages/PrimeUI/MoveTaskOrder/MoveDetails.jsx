@@ -21,6 +21,7 @@ import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { completeCounseling, deleteShipment } from 'services/primeApi';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import scrollToTop from 'shared/scrollToTop';
+import { SIT_SERVICE_ITEMS_ALLOWED_UPDATE } from 'constants/serviceItems';
 
 const MoveDetails = ({ setFlashMessage }) => {
   const { moveCodeOrID } = useParams();
@@ -98,7 +99,12 @@ const MoveDetails = ({ setFlashMessage }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const { mtoShipments, paymentRequests } = moveTaskOrder;
+  const { mtoShipments, paymentRequests, mtoServiceItems } = moveTaskOrder;
+
+  // checking to see if the mto contains a destination SIT delivery
+  const destinationServiceItem = moveTaskOrder?.mtoServiceItems.find(
+    (serviceItem) => serviceItem?.reServiceCode === 'DDDSIT',
+  );
 
   return (
     <div>
@@ -152,29 +158,49 @@ const MoveDetails = ({ setFlashMessage }) => {
                   {mtoShipments?.map((mtoShipment) => {
                     return (
                       <div key={mtoShipment.id}>
-                        <Shipment shipment={mtoShipment} moveId={moveTaskOrder.id} onDelete={handleDeleteShipment} />
+                        <Shipment
+                          shipment={mtoShipment}
+                          moveId={moveTaskOrder.id}
+                          onDelete={handleDeleteShipment}
+                          mtoServiceItems={mtoServiceItems}
+                        />
                         <div className={styles.serviceItemHeader}>
                           {moveTaskOrder.mtoServiceItems?.length > 0 && <h2>Service Items</h2>}
-                          <Link
-                            to="../mto-service-items/update"
-                            relative="path"
-                            className="usa-button usa-button-secondary"
-                          >
-                            Update Service Items
-                          </Link>
+                          {destinationServiceItem ? (
+                            <Link
+                              to="../mto-service-items/update"
+                              relative="path"
+                              className="usa-button usa-button-secondary"
+                            >
+                              Request Destination SIT Address Change
+                            </Link>
+                          ) : null}
                         </div>
                         {moveTaskOrder.mtoServiceItems?.map((serviceItem) => {
                           if (serviceItem.mtoShipmentID === mtoShipment.id) {
                             return (
                               <div className={styles.paymentRequestRows} key={serviceItem.id}>
-                                <h3>{serviceItem.reServiceName}</h3>
-                                <Link
-                                  to={`../mto-service-items/${serviceItem.id}/upload`}
-                                  relative="path"
-                                  className="usa-button usa-button-secondary"
-                                >
-                                  Upload Document for {serviceItem.reServiceName}
-                                </Link>
+                                <h3 className={styles.serviceItemHeading}>
+                                  {serviceItem.reServiceCode} - {serviceItem.reServiceName}
+                                </h3>
+                                <div className={styles.uploadBtn}>
+                                  {SIT_SERVICE_ITEMS_ALLOWED_UPDATE.includes(serviceItem.reServiceCode) ? (
+                                    <Link
+                                      className="usa-button usa-button--outline"
+                                      to={`../mto-service-items/${serviceItem.id}/update`}
+                                      relative="path"
+                                    >
+                                      Edit
+                                    </Link>
+                                  ) : null}
+                                  <Link
+                                    to={`../mto-service-items/${serviceItem.id}/upload`}
+                                    relative="path"
+                                    className="usa-button usa-button-secondary"
+                                  >
+                                    Upload Document for {serviceItem.reServiceName}
+                                  </Link>
+                                </div>
                               </div>
                             );
                           }

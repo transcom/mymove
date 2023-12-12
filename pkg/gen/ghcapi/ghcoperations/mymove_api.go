@@ -198,6 +198,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MtoShipmentListMTOShipmentsHandler: mto_shipment.ListMTOShipmentsHandlerFunc(func(params mto_shipment.ListMTOShipmentsParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.ListMTOShipments has not yet been implemented")
 		}),
+		QueuesListPrimeMovesHandler: queues.ListPrimeMovesHandlerFunc(func(params queues.ListPrimeMovesParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.ListPrimeMoves has not yet been implemented")
+		}),
 		MtoServiceItemRejectSITAddressUpdateHandler: mto_service_item.RejectSITAddressUpdateHandlerFunc(func(params mto_service_item.RejectSITAddressUpdateParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.RejectSITAddressUpdate has not yet been implemented")
 		}),
@@ -424,6 +427,8 @@ type MymoveAPI struct {
 	MtoServiceItemListMTOServiceItemsHandler mto_service_item.ListMTOServiceItemsHandler
 	// MtoShipmentListMTOShipmentsHandler sets the operation handler for the list m t o shipments operation
 	MtoShipmentListMTOShipmentsHandler mto_shipment.ListMTOShipmentsHandler
+	// QueuesListPrimeMovesHandler sets the operation handler for the list prime moves operation
+	QueuesListPrimeMovesHandler queues.ListPrimeMovesHandler
 	// MtoServiceItemRejectSITAddressUpdateHandler sets the operation handler for the reject s i t address update operation
 	MtoServiceItemRejectSITAddressUpdateHandler mto_service_item.RejectSITAddressUpdateHandler
 	// ShipmentRejectShipmentHandler sets the operation handler for the reject shipment operation
@@ -700,6 +705,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MtoShipmentListMTOShipmentsHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.ListMTOShipmentsHandler")
+	}
+	if o.QueuesListPrimeMovesHandler == nil {
+		unregistered = append(unregistered, "queues.ListPrimeMovesHandler")
 	}
 	if o.MtoServiceItemRejectSITAddressUpdateHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.RejectSITAddressUpdateHandler")
@@ -1064,6 +1072,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move_task_orders/{moveTaskOrderID}/mto_shipments"] = mto_shipment.NewListMTOShipments(o.context, o.MtoShipmentListMTOShipmentsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/queues/prime-moves"] = queues.NewListPrimeMoves(o.context, o.QueuesListPrimeMovesHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
