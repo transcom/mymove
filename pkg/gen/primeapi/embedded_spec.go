@@ -2495,6 +2495,12 @@ func init() {
             "requestApprovalsRequestedStatus": {
               "type": "boolean"
             },
+            "sitCustomerContacted": {
+              "description": "Date when the customer contacted the prime for a delivery out of SIT.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
               "type": "string",
@@ -2517,6 +2523,12 @@ func init() {
               "format": "zip",
               "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
               "example": "90210"
+            },
+            "sitRequestedDelivery": {
+              "description": "Date when the customer has requested delivery out of SIT.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
             }
           }
         }
@@ -4025,7 +4037,7 @@ func init() {
       "discriminator": "modelType"
     },
     "UpdateMTOServiceItemModelType": {
-      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "UpdateMTOServiceItemSIT",
@@ -4070,7 +4082,9 @@ func init() {
               "type": "string",
               "enum": [
                 "DDDSIT",
-                "DOPSIT"
+                "DOPSIT",
+                "DOASIT",
+                "DOFSIT"
               ]
             },
             "requestApprovalsRequestedStatus": {
@@ -7490,6 +7504,12 @@ func init() {
             "requestApprovalsRequestedStatus": {
               "type": "boolean"
             },
+            "sitCustomerContacted": {
+              "description": "Date when the customer contacted the prime for a delivery out of SIT.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
               "type": "string",
@@ -7512,6 +7532,12 @@ func init() {
               "format": "zip",
               "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
               "example": "90210"
+            },
+            "sitRequestedDelivery": {
+              "description": "Date when the customer has requested delivery out of SIT.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
             }
           }
         }
@@ -9023,7 +9049,7 @@ func init() {
       "discriminator": "modelType"
     },
     "UpdateMTOServiceItemModelType": {
-      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "UpdateMTOServiceItemSIT",
@@ -9068,7 +9094,9 @@ func init() {
               "type": "string",
               "enum": [
                 "DDDSIT",
-                "DOPSIT"
+                "DOPSIT",
+                "DOASIT",
+                "DOFSIT"
               ]
             },
             "requestApprovalsRequestedStatus": {
