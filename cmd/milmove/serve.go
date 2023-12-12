@@ -17,9 +17,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
-	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gomodule/redigo/redis"
@@ -50,7 +47,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/invoice"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/telemetry"
-	"github.com/transcom/mymove/pkg/trdm"
 )
 
 // initServeFlags - Order matters!
@@ -73,9 +69,6 @@ func initServeFlags(flag *pflag.FlagSet) {
 
 	// Certs
 	cli.InitCertFlags(flag)
-
-	// TRDM
-	cli.InitTRDMFlags(flag)
 
 	// Ports to listen to
 	cli.InitPortFlags(flag)
@@ -160,10 +153,6 @@ func checkServeConfig(v *viper.Viper, logger *zap.Logger) error {
 	}
 
 	if err := cli.CheckCert(v); err != nil {
-		return err
-	}
-
-	if err := cli.CheckTRDM(v); err != nil {
 		return err
 	}
 
@@ -810,47 +799,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			logger.Fatal("error creating mutual-tls server", zap.Error(err))
 		}
 		go startListener(mutualTLSServer, logger, true)
-	}
-
-	// Gather TRDM TGET data
-	trdmEnabledEnvironments := []string{
-		cli.EnvironmentStg,
-		cli.EnvironmentPrd,
-	}
-	logger.Info("checking if trdm environment is valid..")
-	if environment := v.GetString(cli.EnvironmentFlag); stringSliceContains(trdmEnabledEnvironments, environment) {
-		logger.Info("environment is valid for trdm. proceeding..")
-		// Get the AWS configuration so we can build a session
-		cfg, err := config.LoadDefaultConfig(context.Background(),
-			config.WithRegion(v.GetString(cli.AWSRegionFlag)),
-		)
-		if err != nil {
-			logger.Fatal("error loading default aws config", zap.Error(err))
-			return err
-		}
-
-		// Create an Amazon STS client
-		stsClient := sts.NewFromConfig(cfg)
-
-		// Obtain creds for signing
-		trdmIamRole := v.GetString(trdm.TrdmIamRoleFlag)
-		stsProvider := stscreds.NewAssumeRoleProvider(stsClient, trdmIamRole)
-
-		// Setup client
-		tr := &http.Transport{}
-		httpClient := &http.Client{Transport: tr, Timeout: time.Duration(10) * time.Minute}
-
-		// Begin the TRDM cron job now (Referred to as the TGET flow as well). This will
-		// send a REST call to the lastTableUpdate endpoint within the trdm soap proxy api gateway,
-		// then if new data is discovered it will call getTable to retreive, parse, and store within the database.
-		// This will run immediately when the server turns on as well as every day at midnight.
-		err = trdm.BeginTGETFlow(v, appCtx, stsProvider, httpClient)
-		if err != nil {
-			logger.Fatal("unable to retrieve latest TGET data from TRDM", zap.Error(err))
-			return err
-		}
-	} else {
-		logger.Info("environment not valid for trdm. proceeding..")
 	}
 
 	// make sure we flush any pending startup messages
