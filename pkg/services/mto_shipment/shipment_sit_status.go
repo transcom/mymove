@@ -226,8 +226,8 @@ func fetchEntitlement(appCtx appcontext.AppContext, mtoShipment models.MTOShipme
 	return move.Orders.Entitlement, nil
 }
 
-func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext.AppContext, shipment models.MTOShipment,
-	sitCustomerContacted *time.Time, sitRequestedDelivery *time.Time) (*services.SITStatus, error) {
+func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(shipment models.MTOShipment, sitCustomerContacted *time.Time,
+	sitRequestedDelivery *time.Time) (*services.SITStatus, error) {
 
 	if shipment.MTOServiceItems == nil || len(shipment.MTOServiceItems) == 0 {
 		return nil, nil

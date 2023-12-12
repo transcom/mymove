@@ -349,7 +349,7 @@ func (h UpdateSITDeliveryRequestHandler) Handle(params mtoshipmentops.UpdateSITD
 			var sitCustomerContacted = (*time.Time)(params.Body.SitCustomerContacted)
 			var sitRequestedDelivery = (*time.Time)(params.Body.SitRequestedDelivery)
 
-			shipmentSITStatus, err := h.shipmentStatus.CalculateSITAllowanceRequestedDates(appCtx, *shipment, sitCustomerContacted, sitRequestedDelivery)
+			shipmentSITStatus, err := h.shipmentStatus.CalculateSITAllowanceRequestedDates(*shipment, sitCustomerContacted, sitRequestedDelivery)
 
 			if err != nil {
 				appCtx.Logger().Error("primeapi.UpdateSITDeliveryRequestHandler error - failed to update dates", zap.Error(err))
@@ -363,7 +363,7 @@ func (h UpdateSITDeliveryRequestHandler) Handle(params mtoshipmentops.UpdateSITD
 				}
 			}
 
-			sitStatusPayload := payloads.SITStatus(shipmentSITStatus, h.FileStorer())
+			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
 			return mtoshipmentops.NewUpdateSITDeliveryRequestOK().WithPayload(sitStatusPayload), nil
 		})
 }

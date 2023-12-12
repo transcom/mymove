@@ -970,7 +970,7 @@ func GetCustomerContact(customerContacts models.MTOServiceItemCustomerContacts, 
 }
 
 // SITStatus payload
-func SITStatus(shipmentSITStatuses *services.SITStatus, storer storage.FileStorer) *primemessages.SITStatus {
+func SITStatus(shipmentSITStatuses *services.SITStatus) *primemessages.SITStatus {
 	if shipmentSITStatuses == nil {
 		return nil
 	}
