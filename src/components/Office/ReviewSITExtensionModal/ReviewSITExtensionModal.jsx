@@ -82,7 +82,7 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
       return daysRemaining;
     }
     // SIT in has started
-    if (sitStatus && daysRemaining > 0) {
+    if (sitStatus && daysRemaining > 1) {
       return daysRemaining - 1;
     }
     return 'Expired';

@@ -109,7 +109,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
   const totalSITDaysUsed = sitStatus.totalSITDaysUsed || 0;
   const totalDaysRemaining = () => {
     const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
-    if (daysRemaining >= 0) {
+    if (daysRemaining > 0) {
       return daysRemaining;
     }
     return 'Expired';
