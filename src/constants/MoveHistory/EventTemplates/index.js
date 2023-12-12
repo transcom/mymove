@@ -61,3 +61,4 @@ export { default as createDestinationSITUpdateRequest } from './CreateSITRequest
 export { default as approveSITAddressUpdate } from './UpdateSITAddress/ApproveSITAddressUpdate';
 export { default as rejectSITAddressUpdate } from './UpdateSITAddress/RejectSITAddressUpdate';
 export { default as createSITAddressUpdate } from './UpdateSITAddress/CreateSITAddressUpdate';
+export { default as updateMTOShipmentPPMDetails } from './UpdateMTOShipment/UpdateMTOShipmentPPMDetails';
