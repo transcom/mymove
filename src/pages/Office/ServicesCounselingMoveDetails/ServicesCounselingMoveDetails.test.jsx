@@ -590,6 +590,13 @@ describe('MoveDetails page', () => {
       expect(await screen.findByTestId('requestedShipmentsTag')).toHaveTextContent('6');
     });
 
+    it('renders the allowances error message when allowances are less than moves values', async () => {
+      useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
+      renderComponent();
+      const allowanceError = screen.getByTestId('allowanceError');
+      expect(allowanceError).toBeInTheDocument();
+    });
+
     it('renders shipments info even if destination address is missing', async () => {
       const moveDetailsQuery = {
         ...newMoveDetailsQuery,
