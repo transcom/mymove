@@ -261,6 +261,7 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 
 			// TEMP: For now return empty PDF file
 			// TODO: wire up PDF service to generate real PDF file. For now return empty PDF file.
+			// https://www13.v1host.com/USTRANSCOM38/Epic.mvc/Summary?oidToken=Epic%3A864544
 			buf := new(bytes.Buffer)
 			payload := io.NopCloser(buf)
 			filename := fmt.Sprintf("inline; filename=\"%s QA-%s %s.pdf\"", "MOCK", locator, time.Now().Format("01-02-2006"))
