@@ -38,48 +38,48 @@ func cutoffDate() time.Time {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
-	date10DaysAgo := offsetDate(-10)
+	date14DaysAgo := offsetDate(-14)
 	date9DaysAgo := offsetDate(-9)
 
 	moves := []testdatagen.Assertions{
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusAPPROVED},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{ActualMoveDate: &date14DaysAgo, Status: models.PPMStatusAPPROVED},
 			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "abc123"},
 		},
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{ActualMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
 			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "abc456"},
 		},
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusAPPROVED},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{ActualMoveDate: &date14DaysAgo, Status: models.PPMStatusAPPROVED},
 			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "abc789"},
 		},
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{ActualMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
 			Move:                   models.Move{Status: models.MoveStatusDRAFT, Locator: "def123"},
 		},
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{ActualMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
 			Move:                   models.Move{Show: models.BoolPointer(false), Locator: "def456"},
 		},
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusDRAFT},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{ActualMoveDate: &date14DaysAgo, Status: models.PPMStatusDRAFT},
 			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "111111"},
 		},
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusSUBMITTED},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{ActualMoveDate: &date14DaysAgo, Status: models.PPMStatusSUBMITTED},
 			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "222222"},
 		},
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusPAYMENTREQUESTED},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{ActualMoveDate: &date14DaysAgo, Status: models.PPMStatusPAYMENTREQUESTED},
 			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "333333"},
 		},
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusCOMPLETED},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{ActualMoveDate: &date14DaysAgo, Status: models.PPMStatusCOMPLETED},
 			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "444444"},
 		},
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusCANCELED},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{ActualMoveDate: &date14DaysAgo, Status: models.PPMStatusCANCELED},
 			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "555555"},
 		},
 	}
@@ -140,16 +140,16 @@ func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
-	date10DaysAgo := offsetDate(-10)
+	date14DaysAgo := offsetDate(-14)
 	dateTooOld := cutoffDate()
 
 	moves := []testdatagen.Assertions{
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusAPPROVED},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{ActualMoveDate: &date14DaysAgo, Status: models.PPMStatusAPPROVED},
 			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
 		},
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &dateTooOld, Status: models.PPMStatusAPPROVED},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{ActualMoveDate: &dateTooOld, Status: models.PPMStatusAPPROVED},
 			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
 		},
 	}
