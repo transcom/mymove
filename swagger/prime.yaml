@@ -1984,9 +1984,9 @@ definitions:
         type: string
         readOnly: true
   ListMoves:
+    type: array
     items:
       $ref: '#/definitions/ListMove'
-    type: array
   MoveTaskOrder:
     type: object
     required:

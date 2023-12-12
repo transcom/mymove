@@ -3,6 +3,7 @@ package movetaskorder
 import (
 	"database/sql"
 	"errors"
+	"strings"
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
@@ -272,7 +273,6 @@ func (f moveTaskOrderFetcher) GetMove(appCtx appcontext.AppContext, searchParams
 	return move, nil
 }
 
-// ListPrimeMoveTaskOrders performs an optimized fetch for moves specifically targeting the Prime API.
 func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
 	var moveTaskOrders models.Moves
 	var err error
@@ -309,6 +309,50 @@ func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppConte
 	}
 
 	return moveTaskOrders, nil
+}
+
+// ListPrimeMoveTaskOrders performs an optimized fetch for moves specifically targeting the Prime API.
+func (f moveTaskOrderFetcher) ListNewPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, int, error) {
+	var moveTaskOrders models.Moves
+	var err error
+	var count int
+
+	// setting up query
+	// getting all moves that are available to the prime and aren't null
+	query := appCtx.DB().Select("moves.*").
+		InnerJoin("orders", "moves.orders_id = orders.id").
+		Where("moves.available_to_prime_at IS NOT NULL AND moves.show = TRUE")
+
+	// now we will see if the user is searching for move code or id
+	// change the moveCode to upper case since that is what's in the DB
+	if searchParams.MoveCode != nil {
+		query.Where("moves.locator ILIKE ?", "%"+strings.ToUpper(*searchParams.MoveCode)+"%")
+	}
+	if searchParams.ID != nil {
+		query.Where("moves.id = ?", *searchParams.ID)
+	}
+	// if there is an error returned we will just return no moves
+	if err != nil {
+		return []models.Move{}, 0, err
+	}
+	// adding pagination and all moves returned with built query
+	// if there are no moves then it will return.. no moves
+	err = query.Paginate(int(*searchParams.Page), int(*searchParams.PerPage)).All(&moveTaskOrders)
+	if err != nil {
+		return []models.Move{}, 0, err
+	}
+	count = query.Paginator.TotalEntriesSize
+	// catch all error here
+	if err != nil {
+		return models.Moves{}, 0, apperror.NewQueryError("MoveTaskOrder", err, "Unexpected error while querying db.")
+	}
+
+	// catch all error here
+	if err != nil {
+		return models.Moves{}, 0, apperror.NewQueryError("MoveTaskOrder", err, "Unexpected error while querying db.")
+	}
+
+	return moveTaskOrders, count, nil
 }
 
 func setMTOQueryFilters(query *pop.Query, searchParams *services.MoveTaskOrderFetcherParams) {
