@@ -39,13 +39,19 @@ export const ReviewDocuments = () => {
 
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
   const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
+  const [shipmentWeightUpdated, setShipmentWeightUpdated] = useState(false);
 
   let documentSets = [];
   const weightTickets = documents?.WeightTickets ?? [];
   const proGearWeightTickets = documents?.ProGearWeightTickets ?? [];
   const movingExpenses = documents?.MovingExpenses ?? [];
 
-  const moveWeightTotal = calculateWeightRequested(mtoShipments);
+  let moveWeightTotal = calculateWeightRequested(mtoShipments);
+
+  useRef(() => {
+    moveWeightTotal = calculateWeightRequested(mtoShipments);
+  }, [shipmentWeightUpdated]);
+
   useEffect(() => {
     setMoveHasExcessWeight(moveWeightTotal > order.entitlement.totalWeight);
   }, [moveWeightTotal, order.entitlement.totalWeight]);
@@ -244,6 +250,7 @@ export const ReviewDocuments = () => {
                     onError={onError}
                     onSuccess={onSuccess}
                     formRef={formRef}
+                    flagShipmentUpdateToParent={setShipmentWeightUpdated}
                   />
                 )}
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (

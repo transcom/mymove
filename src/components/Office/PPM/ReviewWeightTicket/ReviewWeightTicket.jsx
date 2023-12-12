@@ -20,6 +20,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import formStyles from 'styles/form.module.scss';
 import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import ppmDocumentStatus from 'constants/ppms';
+import { getReimbursableWeight } from 'utils/shipmentWeights';
 
 const validationSchema = Yup.object().shape({
   emptyWeight: Yup.number().required('Enter the empty weight'),
@@ -52,6 +53,7 @@ export default function ReviewWeightTicket({
   onError,
   onSuccess,
   formRef,
+  flagShipmentUpdateToParent,
 }) {
   const [canEditRejection, setCanEditRejection] = useState(true);
 
@@ -96,6 +98,7 @@ export default function ReviewWeightTicket({
     missingFullWeightTicket,
     emptyWeight,
     fullWeight,
+    reimbursableWeight = getReimbursableWeight(weightTicket),
     ownsTrailer,
     proofOfTrailerOwnershipDocument,
     trailerMeetsCriteria,
@@ -104,7 +107,6 @@ export default function ReviewWeightTicket({
   } = weightTicket || {};
 
   const hasProofOfTrailerOwnershipDocument = proofOfTrailerOwnershipDocument?.uploads.length > 0;
-
   let isTrailerClaimable;
   if (ownsTrailer) {
     isTrailerClaimable = trailerMeetsCriteria ? 'true' : 'false';
@@ -115,7 +117,7 @@ export default function ReviewWeightTicket({
   const initialValues = {
     emptyWeight: emptyWeight ? `${emptyWeight}` : '',
     fullWeight: fullWeight ? `${fullWeight}` : '',
-    reimbursableWeight: weightAllowance ? `${weightAllowance}` : '',
+    reimbursableWeight: reimbursableWeight ? `${reimbursableWeight}` : '',
     ownsTrailer: ownsTrailer ? 'true' : 'false',
     trailerMeetsCriteria: isTrailerClaimable,
     status: status || '',
@@ -144,7 +146,10 @@ export default function ReviewWeightTicket({
             handleChange(event);
             setCanEditRejection(true);
           };
-
+          const handleFieldValueChange = (event) => {
+            handleChange(event);
+            flagShipmentUpdateToParent(!flagShipmentUpdateToParent);
+          };
           const handleTrailerOwnedChange = (event) => {
             handleChange(event);
             setFieldValue('trailerMeetsCriteria', '');
@@ -179,6 +184,7 @@ export default function ReviewWeightTicket({
                 thousandsSeparator=","
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
+                onChange={handleFieldValueChange}
               />
 
               <MaskedTextField
@@ -193,6 +199,7 @@ export default function ReviewWeightTicket({
                 thousandsSeparator=","
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
+                onChange={handleFieldValueChange}
               />
 
               <MaskedTextField
@@ -207,6 +214,7 @@ export default function ReviewWeightTicket({
                 thousandsSeparator=","
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
+                onChange={handleFieldValueChange}
               />
 
               <EditPPMNetWeight
