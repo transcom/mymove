@@ -56,12 +56,6 @@ describe('PrimeUIRequestSITDestAddressChangeForm', () => {
     expect(
       screen.getByRole('heading', { name: 'DDDSIT - Domestic destination SIT delivery', level: 3 }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText('Address 1')).toBeInTheDocument();
-    expect(screen.getByLabelText(/Address 2/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Address 3/)).toBeInTheDocument();
-    expect(screen.getByLabelText('City')).toBeInTheDocument();
-    expect(screen.getByLabelText('State')).toBeInTheDocument();
-    expect(screen.getByLabelText('ZIP')).toBeInTheDocument();
     expect(await screen.findByLabelText('SIT Departure Date')).toHaveValue('01 Nov 2023');
     expect(await screen.findByLabelText('SIT Requested Delivery')).toHaveValue('01 Dec 2023');
     expect(await screen.findByLabelText('SIT Customer Contacted')).toHaveValue('15 Oct 2023');

@@ -68,16 +68,7 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
   const serviceItem = moveTaskOrder?.mtoServiceItems.find((s) => s?.id === mtoServiceItemId);
   const { modelType } = serviceItem;
 
-  const destSitInitialValues = {
-    sitDestinationFinalAddress: {
-      id: serviceItem?.sitDestinationFinalAddress?.id || '',
-      streetAddress1: serviceItem?.sitDestinationFinalAddress?.streetAddress1 || '',
-      streetAddress2: serviceItem?.sitDestinationFinalAddress?.streetAddress2 || '',
-      streetAddress3: serviceItem?.sitDestinationFinalAddress?.streetAddress3 || '',
-      city: serviceItem?.sitDestinationFinalAddress?.city || '',
-      state: serviceItem?.sitDestinationFinalAddress?.state || '',
-      postalCode: serviceItem?.sitDestinationFinalAddress?.postalCode || '',
-    },
+  const initialValues = {
     sitDepartureDate: formatDateWithUTC(serviceItem.sitDepartureDate, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
     sitRequestedDelivery: formatDateWithUTC(serviceItem.sitRequestedDelivery, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
     sitCustomerContacted: formatDateWithUTC(serviceItem.sitCustomerContacted, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
@@ -86,51 +77,9 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
     eTag: serviceItem.eTag,
   };
 
-  const originSitInitialValues = {
-    sitDepartureDate: formatDateWithUTC(serviceItem.sitDepartureDate, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
-    sitRequestedDelivery: formatDateWithUTC(serviceItem.sitRequestedDelivery, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
-    sitCustomerContacted: formatDateWithUTC(serviceItem.sitCustomerContacted, 'YYYY-MM-DD', 'DD MMM YYYY') || '',
-    mtoServiceItemID: serviceItem.id,
-    reServiceCode: serviceItem.reServiceCode,
-    eTag: serviceItem.eTag,
-  };
-
-  // sending the data submitted in the destination SIT form to the API
+  // sending the data submitted in the form to the API
   // if any of the dates are skipped or not filled with values, we'll just make them null
-  const destSitOnSubmit = (values) => {
-    const {
-      sitDestinationFinalAddress,
-      sitCustomerContacted,
-      sitDepartureDate,
-      sitRequestedDelivery,
-      mtoServiceItemID,
-      reServiceCode,
-      eTag,
-    } = values;
-
-    const body = {
-      sitDestinationFinalAddress: {
-        id: sitDestinationFinalAddress.id,
-        streetAddress1: sitDestinationFinalAddress.streetAddress1,
-        streetAddress2: sitDestinationFinalAddress.streetAddress2,
-        streetAddress3: sitDestinationFinalAddress.streetAddress3,
-        city: sitDestinationFinalAddress.city,
-        state: sitDestinationFinalAddress.state,
-        postalCode: sitDestinationFinalAddress.postalCode,
-      },
-      sitDepartureDate: sitDepartureDate === 'Invalid date' ? null : formatDateForSwagger(sitDepartureDate),
-      sitRequestedDelivery: sitRequestedDelivery === 'Invalid date' ? null : formatDateForSwagger(sitRequestedDelivery),
-      sitCustomerContacted: sitCustomerContacted === 'Invalid date' ? null : formatDateForSwagger(sitCustomerContacted),
-      reServiceCode,
-      modelType: 'UpdateMTOServiceItemSIT',
-    };
-
-    createUpdateSITServiceItemRequestMutation({ mtoServiceItemID, eTag, body });
-  };
-
-  // sending the data submitted in the origin SIT form to the API
-  // if any of the dates are skipped or not filled with values, we'll just make them null
-  const originSitOnSubmit = (values) => {
+  const onSubmit = (values) => {
     const { sitCustomerContacted, sitDepartureDate, sitRequestedDelivery, mtoServiceItemID, reServiceCode, eTag } =
       values;
 
@@ -163,15 +112,15 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
                 <PrimeUIUpdateDestSITForm
                   name="sitDestinationFinalAddress"
                   serviceItem={serviceItem}
-                  initialValues={destSitInitialValues}
-                  onSubmit={destSitOnSubmit}
+                  initialValues={initialValues}
+                  onSubmit={onSubmit}
                 />
               ) : null}
               {modelType === 'MTOServiceItemOriginSIT' ? (
                 <PrimeUIUpdateOriginSITForm
                   serviceItem={serviceItem}
-                  initialValues={originSitInitialValues}
-                  onSubmit={originSitOnSubmit}
+                  initialValues={initialValues}
+                  onSubmit={onSubmit}
                 />
               ) : null}
             </Grid>

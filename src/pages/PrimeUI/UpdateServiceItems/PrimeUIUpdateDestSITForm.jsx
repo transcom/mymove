@@ -7,7 +7,6 @@ import classnames from 'classnames';
 import styles from './PrimeUIUpdateSITForms.module.scss';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import AddressFields from 'components/form/AddressFields/AddressFields';
 import formStyles from 'styles/form.module.scss';
 import { Form } from 'components/form/Form';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
@@ -15,7 +14,7 @@ import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { primeSimulatorRoutes } from 'constants/routes';
 import { DatePickerInput } from 'components/form/fields';
 
-const PrimeUIUpdateDestSITForm = ({ name, initialValues, onSubmit, serviceItem }) => {
+const PrimeUIUpdateDestSITForm = ({ initialValues, onSubmit, serviceItem }) => {
   const { moveCodeOrID } = useParams();
   const navigate = useNavigate();
 
@@ -35,7 +34,6 @@ const PrimeUIUpdateDestSITForm = ({ name, initialValues, onSubmit, serviceItem }
                   Here you can update specific fields for a destination SIT service item. <br />
                   At this time, only the following values can be updated: <br />{' '}
                   <strong>
-                    SIT Destination Final Address <br />
                     SIT Departure Date <br />
                     SIT Requested Delivery <br />
                     SIT Customer Contacted <br />
@@ -65,8 +63,6 @@ const PrimeUIUpdateDestSITForm = ({ name, initialValues, onSubmit, serviceItem }
                     <dd>{serviceItem.status}</dd>
                   </div>
                 </dl>
-                <h3 className={styles.sitDestAddressHeader}>SIT Destination Final Address</h3>
-                <AddressFields name={name} />
                 <div className={styles.sitDatePickerRow}>
                   <DatePickerInput name="sitDepartureDate" label="SIT Departure Date" />
                   <DatePickerInput name="sitRequestedDelivery" label="SIT Requested Delivery" />

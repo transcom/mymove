@@ -68,7 +68,6 @@ describe('PrimeUIUpdateSitServiceItems page', () => {
     renderComponent();
 
     expect(screen.getByRole('heading', { name: 'Update Destination SIT Service Item', level: 2 })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'SIT Destination Final Address', level: 3 })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'SIT Departure Date' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'SIT Requested Delivery' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'SIT Customer Contacted' })).toBeInTheDocument();
