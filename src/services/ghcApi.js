@@ -91,6 +91,19 @@ export async function getMove(key, locator) {
   return makeGHCRequest('move.getMove', { locator }, { normalize: false });
 }
 
+export async function getPrimeSimulatorAvailableMoves(key, { filters = [], currentPage = 1, currentPageSize = 20 }) {
+  const operationPath = 'queues.listPrimeMoves';
+  const paramFilters = {};
+  filters.forEach((filter) => {
+    paramFilters[`${filter.id}`] = filter.value;
+  });
+  return makeGHCRequest(
+    operationPath,
+    { page: currentPage, perPage: currentPageSize, ...paramFilters },
+    { schemaKey: 'listMoves', normalize: false },
+  );
+}
+
 export async function getCustomerSupportRemarksForMove(key, locator) {
   return makeGHCRequest('customerSupportRemarks.getCustomerSupportRemarksForMove', { locator }, { normalize: false });
 }
