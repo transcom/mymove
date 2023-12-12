@@ -140,16 +140,16 @@ func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
-	date10DaysAgo := offsetDate(-10)
+	date14DaysAgo := offsetDate(-14)
 	dateTooOld := cutoffDate()
 
 	moves := []testdatagen.Assertions{
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusAPPROVED},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{ActualMoveDate: &date14DaysAgo, Status: models.PPMStatusAPPROVED},
 			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
 		},
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &dateTooOld, Status: models.PPMStatusAPPROVED},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{ActualMoveDate: &dateTooOld, Status: models.PPMStatusAPPROVED},
 			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
 		},
 	}
