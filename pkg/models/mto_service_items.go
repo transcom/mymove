@@ -91,6 +91,7 @@ type MTOServiceItemSingle struct {
 	SITDestinationOriginalAddressID *uuid.UUID           `db:"sit_destination_original_address_id"`
 	SITCustomerContacted            *time.Time           `db:"sit_customer_contacted"`
 	SITRequestedDelivery            *time.Time           `db:"sit_requested_delivery"`
+	MembersExpense                  bool                 `db:"members_expense"`
 }
 
 // TableName overrides the table name used by Pop.
