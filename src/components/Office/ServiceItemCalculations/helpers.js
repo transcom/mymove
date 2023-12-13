@@ -1,6 +1,6 @@
 import { SERVICE_ITEM_CALCULATION_LABELS, SERVICE_ITEM_CODES, SERVICE_ITEM_PARAM_KEYS } from 'constants/serviceItems';
 import { LONGHAUL_MIN_DISTANCE } from 'constants/shipments';
-import { formatDate } from 'shared/dates';
+import { formatDateWithUTC } from 'shared/dates';
 import {
   formatCents,
   formatWeight,
@@ -62,18 +62,18 @@ const requestedPickupDateLabel = (shipmentType) => {
 const referenceDate = (params, shipmentType) => {
   const label = requestedPickupDateLabel(shipmentType);
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.ReferenceDate, params);
-  return `${label}: ${formatDate(value, 'DD MMM YYYY')}`;
+  return `${label}: ${formatDateWithUTC(value, 'DD MMM YYYY')}`;
 };
 
 const cratingDate = (params) => {
-  return `${SERVICE_ITEM_CALCULATION_LABELS.CratingDate}: ${formatDate(
+  return `${SERVICE_ITEM_CALCULATION_LABELS.CratingDate}: ${formatDateWithUTC(
     getParamValue(SERVICE_ITEM_PARAM_KEYS.ReferenceDate, params),
     'DD MMM YYYY',
   )}`;
 };
 
 const unCratingDate = (params) => {
-  return `${SERVICE_ITEM_CALCULATION_LABELS.UncratingDate}: ${formatDate(
+  return `${SERVICE_ITEM_CALCULATION_LABELS.UncratingDate}: ${formatDateWithUTC(
     getParamValue(SERVICE_ITEM_PARAM_KEYS.ReferenceDate, params),
     'DD MMM YYYY',
   )}`;
@@ -297,7 +297,7 @@ const shuttleOriginPriceDomestic = (params) => {
     params,
   )}`;
 
-  const pickupDate = `${SERVICE_ITEM_CALCULATION_LABELS.PickupDate}: ${formatDate(
+  const pickupDate = `${SERVICE_ITEM_CALCULATION_LABELS.PickupDate}: ${formatDateWithUTC(
     getParamValue(SERVICE_ITEM_PARAM_KEYS.ReferenceDate, params),
     'DD MMM YYYY',
   )}`;
@@ -335,7 +335,7 @@ const shuttleDestinationPriceDomestic = (params) => {
     params,
   )}`;
 
-  const deliveryDate = `${SERVICE_ITEM_CALCULATION_LABELS.DeliveryDate}: ${formatDate(
+  const deliveryDate = `${SERVICE_ITEM_CALCULATION_LABELS.DeliveryDate}: ${formatDateWithUTC(
     getParamValue(SERVICE_ITEM_PARAM_KEYS.ReferenceDate, params),
     'DD MMM YYYY',
   )}`;
@@ -408,10 +408,9 @@ const fuelSurchargePrice = (params, itemCode) => {
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]
   }: ${getParamValue(SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier, params)}`;
 
-  const actualPickupDate = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ActualPickupDate]}: ${formatDate(
-    getParamValue(SERVICE_ITEM_PARAM_KEYS.ActualPickupDate, params),
-    'DD MMM YYYY',
-  )}`;
+  const actualPickupDate = `${
+    SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.ActualPickupDate]
+  }: ${formatDateWithUTC(getParamValue(SERVICE_ITEM_PARAM_KEYS.ActualPickupDate, params), 'DD MMM YYYY')}`;
 
   return calculation(
     value,
