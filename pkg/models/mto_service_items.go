@@ -62,6 +62,7 @@ type MTOServiceItem struct {
 	ApprovedAt                        *time.Time                     `db:"approved_at"`
 	RejectedAt                        *time.Time                     `db:"rejected_at"`
 	RequestedApprovalsRequestedStatus *bool                          `db:"requested_approvals_requested_status"`
+	MembersExpense                    bool                           `db:"members_expense"`
 }
 
 // MTOServiceItemSingle is an object representing a single column in the service items table
