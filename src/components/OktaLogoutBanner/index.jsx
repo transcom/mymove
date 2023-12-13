@@ -11,20 +11,21 @@ const OktaLogoutBanner = () => {
 
   return (
     <div className={styles.oktaLogoutBanner} data-testid="okta-logout-banner">
-      You have been logged out of Okta. If you need to sign in again, you can do so by clicking <strong>Sign in</strong>
-      . If you have any other issues logging in or authenticating with Okta, please refer to our troubleshooting page
-      here:{' '}
+      You have been logged out of Okta. <br />
+      If you need to sign in again, you can do so by clicking <strong>Sign in</strong> below. <br />
+      If you have any other issues logging in or authenticating with Okta, please refer to our{' '}
       <a
         className={styles.link}
         href="https://transcom.github.io/mymove-docs/docs/getting-started/okta/okta-troubleshooting"
       >
-        <strong>Okta Troubleshooting Guide</strong>
+        <strong>troubleshooting page</strong>
       </a>
-      . If you need to log out of the Okta Dashboard to completely clear your session, you can do so{' '}
+      . <br />
+      If you continue to have issues authenticating, please go{' '}
       <a className={styles.link} href={oktaURL}>
         <strong>here</strong>
-      </a>
-      .
+      </a>{' '}
+      and sign completely out of Okta and try logging into MilMove again.
     </div>
   );
 };
