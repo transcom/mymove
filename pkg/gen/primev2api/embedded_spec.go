@@ -817,6 +817,12 @@ func init() {
             "requestApprovalsRequestedStatus": {
               "type": "boolean"
             },
+            "sitCustomerContacted": {
+              "description": "Date when the customer contacted the prime for a delivery out of SIT.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
               "type": "string",
@@ -839,6 +845,12 @@ func init() {
               "format": "zip",
               "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
               "example": "90210"
+            },
+            "sitRequestedDelivery": {
+              "description": "Date when the customer has requested delivery out of SIT.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
             }
           }
         }
@@ -3197,6 +3209,12 @@ func init() {
             "requestApprovalsRequestedStatus": {
               "type": "boolean"
             },
+            "sitCustomerContacted": {
+              "description": "Date when the customer contacted the prime for a delivery out of SIT.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
               "type": "string",
@@ -3219,6 +3237,12 @@ func init() {
               "format": "zip",
               "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
               "example": "90210"
+            },
+            "sitRequestedDelivery": {
+              "description": "Date when the customer has requested delivery out of SIT.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
             }
           }
         }
