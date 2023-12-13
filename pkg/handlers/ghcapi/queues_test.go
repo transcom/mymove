@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	order "github.com/transcom/mymove/pkg/services/order"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 )
@@ -95,6 +96,31 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	suite.Equal(order.OriginDutyLocation.ID.String(), result.OriginDutyLocation.ID.String())
 	suite.Equal(hhgMove.Locator, result.Locator)
 	suite.Equal(int64(1), result.ShipmentsCount)
+}
+
+func (suite *HandlerSuite) TestListPrimeMovesHandler() {
+	// Default Origin Duty Location GBLOC is KKFA
+	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+	request := httptest.NewRequest("GET", "/queues/listPrimeMoves", nil)
+	params := queues.ListPrimeMovesParams{
+		HTTPRequest: request,
+	}
+	handlerConfig := suite.HandlerConfig()
+	handler := ListPrimeMovesHandler{
+		handlerConfig,
+		movetaskorder.NewMoveTaskOrderFetcher(),
+	}
+
+	// Validate incoming payload: no body to validate
+
+	response := handler.Handle(params)
+	suite.IsNotErrResponse(response)
+
+	movesList := response.(*queues.ListPrimeMovesOK).Payload.QueueMoves
+
+	suite.Equal(1, len(movesList))
+	suite.Equal(move.ID.String(), movesList[0].ID.String())
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {

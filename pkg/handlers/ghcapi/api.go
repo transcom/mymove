@@ -429,6 +429,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		order.NewOrderFetcher(),
 	}
 
+	ghcAPI.QueuesListPrimeMovesHandler = ListPrimeMovesHandler{
+		handlerConfig,
+		movetaskorder.NewMoveTaskOrderFetcher(),
+	}
+
 	ghcAPI.QueuesGetPaymentRequestsQueueHandler = GetPaymentRequestsQueueHandler{
 		handlerConfig,
 		paymentrequest.NewPaymentRequestListFetcher(),

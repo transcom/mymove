@@ -562,12 +562,16 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 	switch mtoServiceItem.ModelType() {
 	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemSIT:
 		sit := mtoServiceItem.(*primemessages.UpdateMTOServiceItemSIT)
-		model.SITDepartureDate = models.TimePointer(time.Time(sit.SitDepartureDate))
 		model.ReService.Code = models.ReServiceCode(sit.ReServiceCode)
 		model.SITDestinationFinalAddress = AddressModel(sit.SitDestinationFinalAddress)
 		model.SITRequestedDelivery = (*time.Time)(sit.SitRequestedDelivery)
 		model.Status = models.MTOServiceItemStatusSubmitted
 		model.Reason = sit.UpdateReason
+
+		var zeroDate strfmt.Date
+		if sit.SitDepartureDate != zeroDate {
+			model.SITDepartureDate = models.TimePointer(time.Time(sit.SitDepartureDate))
+		}
 
 		if sit.SitEntryDate != nil {
 			model.SITEntryDate = (*time.Time)(sit.SitEntryDate)
@@ -580,6 +584,14 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 
 		if model.SITDestinationFinalAddress != nil {
 			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
+		}
+
+		if sit.SitCustomerContacted != nil {
+			model.SITCustomerContacted = handlers.FmtDatePtrToPopPtr(sit.SitCustomerContacted)
+		}
+
+		if sit.SitRequestedDelivery != nil {
+			model.SITRequestedDelivery = handlers.FmtDatePtrToPopPtr(sit.SitRequestedDelivery)
 		}
 
 		// If the request params have a have the RequestApprovalsRequestedStatus set the model RequestApprovalsRequestedStatus value to the incoming value

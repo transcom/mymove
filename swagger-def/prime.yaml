@@ -1639,9 +1639,9 @@ definitions:
         type: string
         readOnly: true
   ListMoves:
+    type: array
     items:
       $ref: '#/definitions/ListMove'
-    type: array
   MoveTaskOrder:
     $ref: 'definitions/prime/MoveTaskOrder.yaml'
   MTOServiceItemBasic: # spectral oas2-unused-definition is OK here due to polymorphism
@@ -1743,6 +1743,8 @@ definitions:
       Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.
         * DDDSIT - UpdateMTOServiceItemSIT
         * DOPSIT - UpdateMTOServiceItemSIT
+        * DOASIT - UpdateMTOServiceItemSIT
+        * DOFSIT - UpdateMTOServiceItemSIT
         * DDSHUT - UpdateMTOServiceItemShuttle
         * DOSHUT - UpdateMTOServiceItemShuttle
 
@@ -1789,6 +1791,8 @@ definitions:
             enum:
               - DDDSIT # Domestic Destination SIT Delivery
               - DOPSIT # Domestic Origin SIT Pickup
+              - DOASIT # Domestic Origin Add'l Days SIT
+              - DOFSIT # Domestic Origin 1st Day SIT
           sitDepartureDate:
             format: date
             type: string
