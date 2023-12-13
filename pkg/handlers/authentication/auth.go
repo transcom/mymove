@@ -707,16 +707,19 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// if the user is still signed into okta and has an active session
-	// but is being forced to authenticate from MilMove, we need to handle logout to kill the okta sessions
+	// if the user is still signed into okta and has an active session in the browser
+	// but is being forced to authenticate/re-authenticate from MilMove, we need to handle logout to kill the okta sessions
 	// so they can re-use their authenticator (CAC)
 	errDescription := r.URL.Query().Get("error_description")
+	// this is the description okta sends when the user has used all of their authenticators
 	if errDescription == "The resource owner or authorization server denied the request." {
 		provider, providerErr := okta.GetOktaProviderForRequest(r)
 		if providerErr != nil {
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
+		// if the user just closed their tab and is logging in again then they'll still have appCtx data
+		// MM will still have the active IDToken and we can use that to log them out
 		if appCtx.Session().IDToken != "" {
 			oktaLogoutURL, logoutErr := logoutOktaUserURL(provider, appCtx.Session().IDToken, landingURL.String())
 			if oktaLogoutURL == "" || logoutErr != nil {
@@ -725,8 +728,11 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, oktaLogoutURL, http.StatusTemporaryRedirect)
 			return
 		}
+		// if appCtx has expired or is empty, we will need to use the session token stored in cookies
+		// to find the user and then log them out by clearing their session
 		returnMessage, _ := clearOktaUserSessions(appCtx, r, *provider, h.HTTPClient)
-		if returnMessage == "error" {
+		// if we get an error back then that means some okta calls weren't successful, so we'll just send them back
+		if returnMessage != "success" {
 			appCtx.Logger().Error("There was an error clearing the user's okta sessions")
 			http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
 		}

@@ -83,9 +83,9 @@ type OktaProfile struct {
 	ID string `json:"id,omitempty"`
 }
 
+// if the user makes it here that means they have an existing okta session and MM is no longer storing it
+// Okta should still have the session token saved as a cookie, which will find and clear all user sessions
 func clearOktaUserSessions(appCtx appcontext.AppContext, r *http.Request, provider okta.Provider, client HTTPClient) (string, error) {
-	// if the user makes it here that means they have an existing okta session and MM is no longer storing it
-	// Okta should still have the cookie saved as a cookie, which will find and clear all user sessions
 	var oktaSessionToken string
 	for _, c := range r.Cookies() {
 		if c.Name == "office_okta_state" {
@@ -93,7 +93,6 @@ func clearOktaUserSessions(appCtx appcontext.AppContext, r *http.Request, provid
 			break
 		}
 	}
-	appCtx.Logger().Info(oktaSessionToken)
 
 	// setting viper so we can access the api key in the env vars
 	v := viper.New()
@@ -102,10 +101,10 @@ func clearOktaUserSessions(appCtx appcontext.AppContext, r *http.Request, provid
 	apiKey := v.GetString(cli.OktaAPIKeyFlag)
 
 	// getting the api call url from provider.go
+	// we need to find the user ID using the session token
+	// https://developer.okta.com/docs/reference/api/users/#get-user
 	getUserURL := provider.GetUserURLWithToken()
 
-	// we need to know the user's okta ID so we can clear the sessions
-	// https://developer.okta.com/docs/reference/api/users/#get-user
 	req, _ := http.NewRequest("GET", getUserURL, bytes.NewReader([]byte("")))
 	h := req.Header
 	h.Add("Authorization", "SSWS "+apiKey)
@@ -155,6 +154,7 @@ func clearOktaUserSessions(appCtx appcontext.AppContext, r *http.Request, provid
 	}
 	defer resp2.Body.Close()
 
+	// okta sends back a 204 when the session has been successfully cleared
 	if resp2.StatusCode == http.StatusNoContent {
 		appCtx.Logger().Info("Response has no content (204 No Content)")
 		return "success", nil
