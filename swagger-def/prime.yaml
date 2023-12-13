@@ -1385,7 +1385,13 @@ paths:
         type: string
     get:
       summary: Downloads move order as a PDF
-      description: Downloads move order as a PDF
+      description: |
+        ### Functionality
+        This endpoint downloads all uploaded move order documentations into one download file by locator.
+
+        ### Errors
+        * The move must be in need counseling state.
+        * The move client's origin duty location must not currently have gov counseling.
       operationId: downloadMoveOrder
       tags:
         - moveTaskOrder

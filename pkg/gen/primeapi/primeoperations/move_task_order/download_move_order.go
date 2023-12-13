@@ -34,7 +34,12 @@ func NewDownloadMoveOrder(ctx *middleware.Context, handler DownloadMoveOrderHand
 
 # Downloads move order as a PDF
 
-Downloads move order as a PDF
+### Functionality
+This endpoint downloads all uploaded move order documentations into one download file by locator.
+
+### Errors
+* The move must be in need counseling state.
+* The move client's origin duty location must not currently have gov counseling.
 */
 type DownloadMoveOrder struct {
 	Context *middleware.Context

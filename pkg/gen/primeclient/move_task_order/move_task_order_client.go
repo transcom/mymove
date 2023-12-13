@@ -85,9 +85,15 @@ func (a *Client) CreateExcessWeightRecord(params *CreateExcessWeightRecordParams
 }
 
 /*
-DownloadMoveOrder downloads move order as a p d f
+	DownloadMoveOrder downloads move order as a p d f
 
-Downloads move order as a PDF
+	### Functionality
+
+This endpoint downloads all uploaded move order documentations into one download file by locator.
+
+### Errors
+* The move must be in need counseling state.
+* The move client's origin duty location must not currently have gov counseling.
 */
 func (a *Client) DownloadMoveOrder(params *DownloadMoveOrderParams, writer io.Writer, opts ...ClientOption) (*DownloadMoveOrderOK, error) {
 	// TODO: Validate the params before sending

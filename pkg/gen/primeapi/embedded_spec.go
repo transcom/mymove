@@ -234,7 +234,7 @@ func init() {
     },
     "/moves/{locator}/order/download": {
       "get": {
-        "description": "Downloads move order as a PDF",
+        "description": "### Functionality\nThis endpoint downloads all uploaded move order documentations into one download file by locator.\n\n### Errors\n* The move must be in need counseling state.\n* The move client's origin duty location must not currently have gov counseling.\n",
         "produces": [
           "application/pdf"
         ],
@@ -4941,7 +4941,7 @@ func init() {
     },
     "/moves/{locator}/order/download": {
       "get": {
-        "description": "Downloads move order as a PDF",
+        "description": "### Functionality\nThis endpoint downloads all uploaded move order documentations into one download file by locator.\n\n### Errors\n* The move must be in need counseling state.\n* The move client's origin duty location must not currently have gov counseling.\n",
         "produces": [
           "application/pdf"
         ],
