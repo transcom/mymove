@@ -142,6 +142,12 @@ describe('Office App', () => {
         expect(wrapper.find('SomethingWentWrong')).toHaveLength(1);
       });
     });
+    describe('if redirected from okta', () => {
+      it('renders the okta banner', () => {
+        wrapper.setState({ oktaLoggedOut: true });
+        expect(wrapper.find('OktaLogoutBanner')).toHaveLength(1);
+      });
+    });
   });
 
   describe('logged out routing', () => {
