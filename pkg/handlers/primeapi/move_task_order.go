@@ -238,7 +238,7 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 			}
 
 			for _, move := range moves {
-				var errMessage string = ""
+				var errMessage string
 				// Check if move has requested counseling
 				if move.Status != models.MoveStatusNeedsServiceCounseling {
 					errMessage = fmt.Sprintf("Move is not in 'needs counseling state', locator: %s ", locator)
@@ -246,7 +246,7 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 
 				// Note: OriginDutyLocation.ProvidesServicesCounseling == True means location has government based counseling.
 				// FALSE indicates the location requires PRIME/GHC counseling.
-				if move.Orders.OriginDutyLocation.ProvidesServicesCounseling == true {
+				if move.Orders.OriginDutyLocation.ProvidesServicesCounseling {
 					errMessage = fmt.Sprintf("Duty location of client's move currently does not have Prime counseling enabled, locator: %s", locator)
 				}
 
