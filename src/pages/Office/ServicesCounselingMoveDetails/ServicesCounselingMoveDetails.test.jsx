@@ -12,7 +12,7 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import { permissionTypes } from 'constants/permissions';
 import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { useMoveDetailsQueries } from 'hooks/queries';
-import { formatDate } from 'shared/dates';
+import { formatDateWithUTC } from 'shared/dates';
 import { MockProviders } from 'testUtils';
 import { updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
 
@@ -505,7 +505,7 @@ describe('MoveDetails page', () => {
 
       for (let i = 0; i < moveDateTerms.length; i += 1) {
         expect(moveDateTerms[i].nextElementSibling.textContent).toBe(
-          formatDate(newMoveDetailsQuery.mtoShipments[i].requestedPickupDate, 'DD MMM YYYY'),
+          formatDateWithUTC(newMoveDetailsQuery.mtoShipments[i].requestedPickupDate, 'DD MMM YYYY'),
         );
       }
 
