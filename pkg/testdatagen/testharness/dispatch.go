@@ -206,6 +206,9 @@ var actionDispatcher = map[string]actionFunc{
 	"MakeCoastGuardMoveReadyForEDI": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeCoastGuardMoveReadyForEDI(appCtx)
 	},
+	"HHGMoveInSITNoDestinationAddress": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveInSITNoDestinationAddress(appCtx)
+	},
 }
 
 func Actions() []string {

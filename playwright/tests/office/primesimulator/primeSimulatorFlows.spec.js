@@ -191,4 +191,14 @@ test.describe('Prime simulator user', () => {
     await expect(page.getByText('Successfully created SIT extension request')).toBeVisible({ timeout: 10000 });
     expect(page.url()).toContain(`/simulator/moves/${moveID}/details`);
   });
+
+  test('is able submit payment request on SIT without destination address', async ({ page, officePage }) => {
+    const move = await officePage.testHarness.buildHHGMoveInSITNoDestinationAddress();
+    const moveLocator = move.locator;
+
+    await officePage.signInAsNewPrimeSimulatorUser();
+    // const moveID = move.id;
+    await page.locator('#moveCode').fill(moveLocator);
+    await page.locator('#moveCode').press('Enter');
+  });
 });

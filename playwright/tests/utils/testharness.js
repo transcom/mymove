@@ -488,5 +488,13 @@ export class TestHarness {
   async bulidHHGMoveWithAddressChangeRequest() {
     return this.buildDefault('HHGMoveWithAddressChangeRequest');
   }
+  /**
+   *    * Use testharness to build a move with an hhg shipment in SIT without destination address
+   * @returns {Promise<Move>}
+   */
+
+  async buildHHGMoveInSITNoDestinationAddress() {
+    return this.buildDefault('HHGMoveInSITNoDestinationAddress');
+  }
 }
 export default TestHarness;
