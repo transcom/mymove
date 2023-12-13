@@ -12,10 +12,10 @@ RETURNS TRIGGER AS $body$
 DECLARE re_service_code VARCHAR(20);
 BEGIN
   re_service_code := (SELECT code FROM re_services WHERE re_services.id =  NEW.re_service_id); -- Get the service code for the service item.
-  IF re_service_code != 'DOFSIT' THEN -- If not a domestic origin SIT 1st day, then members_expense isn't a valid option.
-    SET members_expense = FALSE;
+  IF re_service_code != 'DOFSIT' THEN -- If not a domestic origin SIT 1st day, then members_expense isn't a valid option and must be false.
+    NEW.members_expense := FALSE;
   END IF;
-  RETURN NULL;
+  RETURN NEW;
 END;
 
 $body$
