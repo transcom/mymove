@@ -12,17 +12,20 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/address"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
 type sitExtensionDenier struct {
-	moveRouter services.MoveRouter
+	moveRouter         services.MoveRouter
+	serviceItemUpdater services.MTOServiceItemUpdater // update members_expense for the corresponding item in the mto_service_items table when a sit_extension is converted to member's expense
 }
 
 // NewSITExtensionDenier creates a new struct with the service dependencies
 func NewSITExtensionDenier(moveRouter services.MoveRouter) services.SITExtensionDenier {
-	return &sitExtensionDenier{moveRouter}
+	return &sitExtensionDenier{moveRouter, mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moveRouter, mtoshipment.NewMTOShipmentFetcher(), address.NewAddressCreator())}
 }
 
 // DenySITExtension denies the SIT Extension
@@ -90,6 +93,14 @@ func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, ship
 			}
 		}
 
+		// Since we aren't implementing an undo function, only update members_expense in the mto_service_items table if it's true.
+		if convertToMembersExpense {
+			updateSITErr := f.updateSITServiceItem(appCtx, shipment, convertToMembersExpense)
+			if updateSITErr != nil {
+				return updateSITErr
+			}
+		}
+
 		return nil
 	})
 
@@ -111,6 +122,33 @@ func (f *sitExtensionDenier) updateSITExtension(appCtx appcontext.AppContext, si
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&sitExtension)
 	return f.handleError(sitExtension.ID, verrs, err)
+}
+
+// Updates the corresponding DOFSIT service item to have the members_expense flag set to true.
+func (f *sitExtensionDenier) updateSITServiceItem(appCtx appcontext.AppContext, shipment models.MTOShipment, convertToMembersExpense bool) error {
+	var DOFSITCodeID uuid.UUID
+	reServiceErr := appCtx.DB().RawQuery(`SELECT id FROM re_services WHERE code = 'DOFSIT'`).First(&DOFSITCodeID) // First get uuid for DOFSIT service code
+	if reServiceErr != nil {
+		return reServiceErr
+	}
+
+	// Now get the DOFSIT service item associated with the current mto_shipment
+	var SITItem *models.MTOServiceItem
+	getSITItemErr := appCtx.DB().RawQuery(`SELECT id FROM mto_service_items WHERE code = ? AND mto_shipment_id = ?`, DOFSITCodeID, shipment.ID).First(&SITItem)
+	if getSITItemErr != nil {
+		return getSITItemErr
+	} else if SITItem == nil {
+		return apperror.NewNotFoundError(shipment.ID, "while looking for SITExtension's shipment ID")
+	}
+
+	// Finally, update the mto_service_item with the members_expense flag set to TRUE
+	SITItem.MembersExpense = &convertToMembersExpense
+	_, err := f.serviceItemUpdater.UpdateMTOServiceItemBasic(appCtx, SITItem, etag.GenerateEtag(SITItem.UpdatedAt))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (f *sitExtensionDenier) handleError(modelID uuid.UUID, verrs *validate.Errors, err error) error {
