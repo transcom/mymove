@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/go-openapi/runtime"
@@ -209,10 +210,10 @@ type DownloadMoveOrderHandler struct {
 func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrderParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			locator := params.Locator
+			locator := strings.TrimSpace(params.Locator)
 
 			if len(locator) == 0 {
-				err := apperror.NewBadDataError("DownloadMoveOrder: missing required URI parameter: locator")
+				err := apperror.NewBadDataError("missing/empty required URI parameter: locator")
 				appCtx.Logger().Error(err.Error())
 				return movetaskorderops.NewDownloadMoveOrderBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
 					err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
@@ -223,13 +224,13 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 			}
 			moves, totalCount, err := h.MoveSearcher.SearchMoves(appCtx, &searchMovesParams)
 			if err != nil {
-				appCtx.Logger().Error("Unexepcted DownloadMoveOrder error", zap.Error(err))
+				appCtx.Logger().Error("Unexpected server error", zap.Error(err))
 				return movetaskorderops.NewDownloadMoveOrderInternalServerError().WithPayload(
 					payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
 			if totalCount == 0 {
-				errMessage := fmt.Sprintf("Move locator: %s not found.", locator)
+				errMessage := fmt.Sprintf("Move not found, locator: %s.", locator)
 				err := apperror.NewNotFoundError(uuid.Nil, errMessage)
 				appCtx.Logger().Error(err.Error())
 				return movetaskorderops.NewDownloadMoveOrderNotFound().WithPayload(
@@ -238,16 +239,15 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 
 			for _, move := range moves {
 				var errMessage string = ""
-				// check if move has requested counseling
+				// Check if move has requested counseling
 				if move.Status != models.MoveStatusNeedsServiceCounseling {
-					errMessage = fmt.Sprintf("Move locator: %s does not need Prime counseling.", locator)
+					errMessage = fmt.Sprintf("Move is not in 'needs counseling state', locator: %s ", locator)
 				}
 
-				// Check if move's origin duty location provides gov counseling.
-				// Note: OriginDutyLocation.ProvidesServicesCounseling == True means location has government based counseling. FALSE
-				// indicates the location does not have counseling and PRIME/GHC counseling is needed.
+				// Note: OriginDutyLocation.ProvidesServicesCounseling == True means location has government based counseling.
+				// FALSE indicates the location requires PRIME/GHC counseling.
 				if move.Orders.OriginDutyLocation.ProvidesServicesCounseling == true {
-					errMessage = fmt.Sprintf("Prime counseling is not applicable for this move locator: %s", locator)
+					errMessage = fmt.Sprintf("Duty location of client's move currently does not have Prime counseling enabled, locator: %s", locator)
 				}
 
 				if len(errMessage) > 0 {
@@ -259,7 +259,6 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 				}
 			}
 
-			// TEMP: For now return empty PDF file
 			// TODO: wire up PDF service to generate real PDF file. For now return empty PDF file.
 			// https://www13.v1host.com/USTRANSCOM38/Epic.mvc/Summary?oidToken=Epic%3A864544
 			buf := new(bytes.Buffer)
