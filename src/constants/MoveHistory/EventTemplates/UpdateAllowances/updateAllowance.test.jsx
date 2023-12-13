@@ -27,8 +27,8 @@ describe('When a service counselor updates shipping allowances', () => {
       ['Authorized weight', ': 4,000 lbs'],
       ['Storage in transit (SIT)', ': 80 days'],
       ['Dependents', ': Yes'],
-      ['Pro-gear', ': 10 lbs'],
-      ['Spouse pro-gear', ': 80 lbs'],
+      ['Pro-gear weight', ': 10 lbs'],
+      ['Spouse pro-gear weight', ': 80 lbs'],
       ['Required medical equipment', ': 100 lbs'],
     ])('displays the correct details value for %s', async (label, value) => {
       const result = getTemplate(item);
