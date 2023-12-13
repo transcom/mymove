@@ -104,14 +104,6 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   let numberOfWarnIfMissingForAllShipments = 0;
 
   const [hasInvalidProGearAllowances, setHasInvalidProGearAllowances] = useState(false);
-  const allowanceErrorStyle = {
-    marginLeft: '2.4rem',
-    borderLeftColor: '#b50909',
-    borderLeftStyle: 'solid',
-    borderLeftWidth: '.267rem',
-    paddingLeft: '.5rem',
-    fontSize: '1.5rem',
-  };
 
   // check if invalid progear weight allowances
   const checkProGearAllowances = () => {
@@ -497,7 +489,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
           </Grid>
 
           {hasInvalidProGearAllowances ? (
-            <div style={allowanceErrorStyle} data-testid="allowanceError">
+            <div className={scMoveDetailsStyles.allowanceErrorStyle} data-testid="allowanceError">
               Pro Gear weight allowances are less than the weights entered in move.
             </div>
           ) : null}
