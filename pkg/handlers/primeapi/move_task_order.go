@@ -260,7 +260,7 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 			}
 
 			// For now return mock empty PDF file for 200 response.
-			// TODO: (B-18027) - https://www13.v1host.com/USTRANSCOM38/Epic.mvc/Summary?oidToken=Epic%3A864544
+			// TODO: (B-18027) - https://www13.v1host.com/USTRANSCOM38/story.mvc/Summary?oidToken=Story%3A870406
 			// - Retrieve all uploaded move order docs
 			// - Create new PDF service layer to merge all uploaded docs in one payload
 			// - Wire up PDF service to generate response PDF payload
