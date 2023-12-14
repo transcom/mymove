@@ -728,10 +728,11 @@ func SITStatus(shipmentSITStatuses *services.SITStatus, storer storage.FileStore
 		return nil
 	}
 	payload := &ghcmessages.SITStatus{
-		PastSITServiceItems: MTOServiceItemModels(shipmentSITStatuses.PastSITs, storer),
-		TotalSITDaysUsed:    handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalSITDaysUsed),
-		TotalDaysRemaining:  handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalDaysRemaining),
-		CurrentSIT:          currentSIT(shipmentSITStatuses.CurrentSIT),
+		PastSITServiceItems:      MTOServiceItemModels(shipmentSITStatuses.PastSITs, storer),
+		TotalSITDaysUsed:         handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalSITDaysUsed),
+		TotalDaysRemaining:       handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalDaysRemaining),
+		CalculatedTotalDaysInSIT: handlers.FmtIntPtrToInt64(&shipmentSITStatuses.CalculatedTotalDaysInSIT),
+		CurrentSIT:               currentSIT(shipmentSITStatuses.CurrentSIT),
 	}
 
 	return payload

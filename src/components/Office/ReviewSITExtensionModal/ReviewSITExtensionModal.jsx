@@ -167,13 +167,14 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
           ]}
         />
       </div>
-      <div className={styles.tableContainer}>
+      <div className={styles.tableContainer} data-testid="sitStartAndEndTable">
         {/* Sit Start and End table */}
         <p className={styles.sitHeader}>Current location: {currentLocation}</p>
         <DataTable
           columnHeaders={[
             `SIT start date`,
             <SITHistoryItemHeader title="SIT authorized end date" value={approvedAndRequestedDatesCombined} />,
+            'Calculated total SIT days',
           ]}
           dataRow={[
             currentDateEnteredSit,
@@ -182,6 +183,7 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
                 handleSitEndDateChange(value);
               }}
             />,
+            sitStatus.calculatedTotalDaysInSIT,
           ]}
           custClass={styles.currentLocation}
         />

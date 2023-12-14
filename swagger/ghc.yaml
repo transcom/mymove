@@ -6448,6 +6448,9 @@ definitions:
       totalDaysRemaining:
         type: integer
         minimum: 0
+      calculatedTotalDaysInSIT:
+        type: integer
+        minimum: 0
       currentSIT:
         type: object
         properties:
