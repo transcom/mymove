@@ -6493,7 +6493,7 @@ func MakeCoastGuardMoveReadyForEDI(appCtx appcontext.AppContext) models.Move {
 	return *newmove
 }
 
-func MakeHHGMoveInSITNoDestinationAddress(appCtx appcontext.AppContext) models.Move {
+func MakeHHGMoveInSITNoDestinationSITOutDate(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
 	userInfo := newUserInfo("customer")
 
@@ -6563,7 +6563,6 @@ func MakeHHGMoveInSITNoDestinationAddress(appCtx appcontext.AppContext) models.M
 
 	requestedPickupDate := now.AddDate(0, 3, 0)
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
-	// pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
@@ -6601,13 +6600,7 @@ func MakeHHGMoveInSITNoDestinationAddress(appCtx appcontext.AppContext) models.M
 	twoMonthsAgo := now.AddDate(0, -2, 0)
 	oneMonthAgo := now.AddDate(0, -1, 0)
 	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
-	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
-	shipment.DestinationAddress = nil
-	shipment.DestinationAddressID = nil
-	err1 := appCtx.DB().Update(shipment)
-	if err1 != nil {
-		log.Panic(fmt.Errorf("failed to remove dest address %w", err1))
-	}
+	destSITItems := factory.BuildDestSITServiceItemsNoSITDepartureDate(appCtx.DB(), move, shipment, &oneMonthAgo)
 	err := appCtx.DB().Update(&destSITItems)
 	if err != nil {
 		log.Panic(fmt.Errorf("failed to update sit service item: %w", err))

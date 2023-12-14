@@ -55,7 +55,9 @@ test.describe('Prime simulator user', () => {
 
     // wait for the the available moves page to load
     // select the move from the list
-    await page.getByText(moveLocator).click();
+    await page.locator('#moveCode').fill(moveLocator);
+    await page.locator('#moveCode').press('Enter');
+    await page.getByTestId('moveCode-0').click();
     await officePage.waitForLoading();
     await expect(page.getByText(moveLocator)).toBeVisible();
     expect(page.url()).toContain(`/simulator/moves/${moveID}/details`);
@@ -150,7 +152,9 @@ test.describe('Prime simulator user', () => {
     const moveLocator = move.locator;
     const moveID = move.id;
 
-    await page.getByText(moveLocator).click();
+    await page.locator('#moveCode').fill(moveLocator);
+    await page.locator('#moveCode').press('Enter');
+    await page.getByTestId('moveCode-0').click();
     await officePage.waitForLoading();
     await expect(page.getByText(moveLocator)).toBeVisible();
     expect(page.url()).toContain(`/simulator/moves/${moveID}/details`);
@@ -192,13 +196,21 @@ test.describe('Prime simulator user', () => {
     expect(page.url()).toContain(`/simulator/moves/${moveID}/details`);
   });
 
-  test('is able submit payment request on SIT without destination address', async ({ page, officePage }) => {
-    const move = await officePage.testHarness.buildHHGMoveInSITNoDestinationAddress();
+  test('is able submit payment request on SIT without destination SIT Out Date', async ({ page, officePage }) => {
+    const move = await officePage.testHarness.buildHHGMoveInSITNoDestinationSITOutDate();
     const moveLocator = move.locator;
-
+    const moveID = move.id;
+    const serviceItems = move.MTOServiceItems;
     await officePage.signInAsNewPrimeSimulatorUser();
-    // const moveID = move.id;
+
     await page.locator('#moveCode').fill(moveLocator);
     await page.locator('#moveCode').press('Enter');
+    await page.getByTestId('moveCode-0').click();
+    await page.getByRole('link', { name: 'Create Payment Request' }).click();
+
+    const serviceItemCount = serviceItems.length;
+    expect(serviceItemCount).toBeGreaterThan(0);
+
+    expect(page.url()).toContain(`/simulator/moves/${moveID}/payment-requests/new`);
   });
 });

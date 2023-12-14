@@ -30,6 +30,14 @@ export class TestHarness {
    * @property {string} Orders.ServiceMember.user_id
    * @property {Object} CloseoutOffice
    * @property {string} CloseoutOffice.name
+   * @property {Array.<Object>} MTOShipments
+   * @property {string} MTOShipments.ID
+   * @property {Array.<Object>} MTOServiceItems
+   * @property {string} MTOServiceItems.ID
+   * @property {Object} MTOServiceItems.ReService
+   * @property {string} MTOServiceItems.ReService.ID
+   * @property {string} MTOServiceItems.ReService.Code
+   *
    */
 
   /**
@@ -160,6 +168,15 @@ export class TestHarness {
    */
   async buildHHGMoveInSIT() {
     return this.buildDefault('HHGMoveInSIT');
+  }
+
+  /**
+   *    * Use testharness to build a move with an hhg shipment in SIT without destination address
+   * @returns {Promise<Move>}
+   */
+
+  async buildHHGMoveInSITNoDestinationSITOutDate() {
+    return this.buildDefault('HHGMoveInSITNoDestinationSITOutDate');
   }
 
   /**
@@ -487,14 +504,6 @@ export class TestHarness {
 
   async bulidHHGMoveWithAddressChangeRequest() {
     return this.buildDefault('HHGMoveWithAddressChangeRequest');
-  }
-  /**
-   *    * Use testharness to build a move with an hhg shipment in SIT without destination address
-   * @returns {Promise<Move>}
-   */
-
-  async buildHHGMoveInSITNoDestinationAddress() {
-    return this.buildDefault('HHGMoveInSITNoDestinationAddress');
   }
 }
 export default TestHarness;

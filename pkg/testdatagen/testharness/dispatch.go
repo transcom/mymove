@@ -53,6 +53,9 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveInSIT": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveInSIT(appCtx)
 	},
+	"HHGMoveInSITNoDestinationSITOutDate": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveInSITNoDestinationSITOutDate(appCtx)
+	},
 	"HHGMoveInSITNoExcessWeight": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveInSITNoExcessWeight(appCtx)
 	},
@@ -205,9 +208,6 @@ var actionDispatcher = map[string]actionFunc{
 	},
 	"MakeCoastGuardMoveReadyForEDI": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeCoastGuardMoveReadyForEDI(appCtx)
-	},
-	"HHGMoveInSITNoDestinationAddress": func(appCtx appcontext.AppContext) testHarnessResponse {
-		return MakeHHGMoveInSITNoDestinationAddress(appCtx)
 	},
 }
 
