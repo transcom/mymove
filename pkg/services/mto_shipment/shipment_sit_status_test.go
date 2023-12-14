@@ -3,6 +3,7 @@ package mtoshipment
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
@@ -161,53 +162,6 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		suite.Nil(sitStatus.CurrentSIT.SITDepartureDate)
 		suite.Equal(approvedShipment.ID.String(), sitStatus.ShipmentID.String())
 		suite.Len(sitStatus.PastSITs, 0)
-	})
-
-	suite.Run("calculates allowance end date and requested delivery date for a shipment currently in SIT", func() {
-		shipmentSITAllowance := int(90)
-		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status:           models.MTOShipmentStatusApproved,
-					SITDaysAllowance: &shipmentSITAllowance,
-				},
-			},
-		}, nil)
-
-		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
-		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		dofsit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model:    approvedShipment,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOServiceItem{
-					SITEntryDate: &aMonthAgo,
-					Status:       models.MTOServiceItemStatusApproved,
-				},
-			},
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDOFSIT,
-				},
-			},
-		}, nil)
-
-		approvedShipment.MTOServiceItems = models.MTOServiceItems{dofsit}
-
-		year, month, day = time.Now().Add(time.Hour * 24 * -15).Date()
-		sitCustomerContacted := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		year, month, day = time.Now().Add(time.Hour * 24 * 15).Date()
-		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		eTag := etag.GenerateEtag(approvedShipment.UpdatedAt)
-
-		sitStatus, err := sitStatusService.CalculateSITAllowanceRequestedDates(approvedShipment, &sitCustomerContacted, &sitRequestedDelivery, eTag)
-		suite.NoError(err)
-		suite.NotNil(sitStatus)
-
-		suite.Equal(&sitCustomerContacted, sitStatus.CurrentSIT.SITCustomerContacted)
-		suite.Equal(&sitRequestedDelivery, sitStatus.CurrentSIT.SITRequestedDelivery)
 	})
 
 	suite.Run("combines SIT days sum for shipment with past and current SIT", func() {
@@ -485,4 +439,104 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		suite.NoError(err)
 		suite.Nil(sitStatus)
 	})
+
+	type localSubtestData struct {
+		shipment             models.MTOShipment
+		sitCustomerContacted time.Time
+		sitRequestedDelivery time.Time
+		eTag                 string
+	}
+
+	makeSubtestData := func(addService bool, serviceCode models.ReServiceCode) (subtestData *localSubtestData) {
+		subtestData = &localSubtestData{}
+
+		shipmentSITAllowance := int(90)
+		subtestData.shipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
+			},
+		}, nil)
+
+		if addService {
+			year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
+			aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+			dofsit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+				{
+					Model:    subtestData.shipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOServiceItem{
+						SITEntryDate: &aMonthAgo,
+						Status:       models.MTOServiceItemStatusApproved,
+					},
+				},
+				{
+					Model: models.ReService{
+						Code: serviceCode,
+					},
+				},
+			}, nil)
+
+			subtestData.shipment.MTOServiceItems = models.MTOServiceItems{dofsit}
+		}
+
+		year, month, day := time.Now().Add(time.Hour * 24 * -15).Date()
+		subtestData.sitCustomerContacted = time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		year, month, day = time.Now().Add(time.Hour * 24 * 15).Date()
+		subtestData.sitRequestedDelivery = time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		subtestData.eTag = etag.GenerateEtag(subtestData.shipment.UpdatedAt)
+
+		return subtestData
+	}
+
+	suite.Run("calculates allowance end date and requested delivery date for a shipment currently in SIT", func() {
+		subtestData := makeSubtestData(true, models.ReServiceCodeDOFSIT)
+
+		sitStatus, err := sitStatusService.CalculateSITAllowanceRequestedDates(subtestData.shipment, &subtestData.sitCustomerContacted,
+			&subtestData.sitRequestedDelivery, subtestData.eTag)
+		suite.NoError(err)
+		suite.NotNil(sitStatus)
+
+		suite.Equal(&subtestData.sitCustomerContacted, sitStatus.CurrentSIT.SITCustomerContacted)
+		suite.Equal(&subtestData.sitRequestedDelivery, sitStatus.CurrentSIT.SITRequestedDelivery)
+	})
+
+	suite.Run("failure test for calculate allowance with stale etag", func() {
+		subtestData := makeSubtestData(false, models.ReServiceCodeDOFSIT)
+		year, month, day := time.Now().Add(time.Hour * 24 * -15).Date()
+		oldDate := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		subtestData.eTag = etag.GenerateEtag(oldDate)
+
+		sitStatus, err := sitStatusService.CalculateSITAllowanceRequestedDates(subtestData.shipment, &subtestData.sitCustomerContacted,
+			&subtestData.sitRequestedDelivery, subtestData.eTag)
+
+		suite.Error(err)
+		suite.Nil(sitStatus)
+		suite.IsType(apperror.PreconditionFailedError{}, err)
+	})
+
+	suite.Run("failure test for calculate allowance with no service items", func() {
+		subtestData := makeSubtestData(false, models.ReServiceCodeDOFSIT)
+		sitStatus, err := sitStatusService.CalculateSITAllowanceRequestedDates(subtestData.shipment, &subtestData.sitCustomerContacted,
+			&subtestData.sitRequestedDelivery, subtestData.eTag)
+
+		suite.Error(err)
+		suite.Nil(sitStatus)
+		suite.IsType(apperror.NotFoundError{}, err)
+	})
+
+	suite.Run("failure test for calculate allowance with no current SIT", func() {
+		subtestData := makeSubtestData(false, models.ReServiceCodeCS)
+		sitStatus, err := sitStatusService.CalculateSITAllowanceRequestedDates(subtestData.shipment, &subtestData.sitCustomerContacted,
+			&subtestData.sitRequestedDelivery, subtestData.eTag)
+
+		suite.Error(err)
+		suite.Nil(sitStatus)
+		suite.IsType(apperror.NotFoundError{}, err)
+	})
+
 }

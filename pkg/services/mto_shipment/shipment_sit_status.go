@@ -231,6 +231,7 @@ func fetchEntitlement(appCtx appcontext.AppContext, mtoShipment models.MTOShipme
 func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(shipment models.MTOShipment, sitCustomerContacted *time.Time,
 	sitRequestedDelivery *time.Time, eTag string) (*services.SITStatus, error) {
 	existingETag := etag.GenerateEtag(shipment.UpdatedAt)
+
 	if existingETag != eTag {
 		return nil, apperror.NewPreconditionFailedError(shipment.ID, errors.New("The If-Match header value did not match the eTag for this record."))
 	}
