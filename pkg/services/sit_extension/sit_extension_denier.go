@@ -133,17 +133,20 @@ func (f *sitExtensionDenier) updateSITServiceItem(appCtx appcontext.AppContext, 
 	}
 
 	// Now get the DOFSIT service item associated with the current mto_shipment
-	var SITItem *models.MTOServiceItem
-	getSITItemErr := appCtx.DB().RawQuery(`SELECT id FROM mto_service_items WHERE code = ? AND mto_shipment_id = ?`, DOFSITCodeID, shipment.ID).First(&SITItem)
+	var SITItem models.MTOServiceItem
+	getSITItemErr := appCtx.DB().RawQuery(`SELECT * FROM mto_service_items WHERE re_service_id = ? AND mto_shipment_id = ?`, DOFSITCodeID, shipment.ID).First(&SITItem)
 	if getSITItemErr != nil {
-		return getSITItemErr
-	} else if SITItem == nil {
-		return apperror.NewNotFoundError(shipment.ID, "while looking for SITExtension's shipment ID")
+		switch getSITItemErr {
+		case sql.ErrNoRows:
+			return apperror.NewNotFoundError(shipment.ID, "for MTO Service Item")
+		default:
+			return getSITItemErr
+		}
 	}
 
 	// Finally, update the mto_service_item with the members_expense flag set to TRUE
 	SITItem.MembersExpense = &convertToMembersExpense
-	_, err := f.serviceItemUpdater.UpdateMTOServiceItemBasic(appCtx, SITItem, etag.GenerateEtag(SITItem.UpdatedAt))
+	_, err := f.serviceItemUpdater.ConvertItemToMembersExpense(appCtx, SITItem.ID, *SITItem.MembersExpense, etag.GenerateEtag(SITItem.UpdatedAt))
 	if err != nil {
 		return err
 	}

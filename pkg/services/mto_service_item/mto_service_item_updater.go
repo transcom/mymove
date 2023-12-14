@@ -56,6 +56,20 @@ func (p *mtoServiceItemUpdater) ApproveOrRejectServiceItem(
 	return p.approveOrRejectServiceItem(appCtx, *mtoServiceItem, status, rejectionReason, eTag, checkMoveStatus(), checkETag())
 }
 
+func (p *mtoServiceItemUpdater) ConvertItemToMembersExpense(
+	appCtx appcontext.AppContext,
+	mtoServiceItemID uuid.UUID,
+	convertToMembersExpense bool,
+	eTag string,
+) (*models.MTOServiceItem, error) {
+	mtoServiceItem, err := p.findServiceItem(appCtx, mtoServiceItemID)
+	if err != nil {
+		return &models.MTOServiceItem{}, err
+	}
+
+	return p.convertItemToMembersExpense(appCtx, *mtoServiceItem, convertToMembersExpense, eTag, checkETag())
+}
+
 func (p *mtoServiceItemUpdater) findServiceItem(appCtx appcontext.AppContext, serviceItemID uuid.UUID) (*models.MTOServiceItem, error) {
 	var serviceItem models.MTOServiceItem
 	err := appCtx.DB().Q().EagerPreload(
@@ -180,6 +194,31 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&serviceItem)
 	if e := handleError(serviceItem.ID, verrs, err); e != nil {
 		return nil, e
+	}
+
+	return &serviceItem, nil
+}
+
+func (p *mtoServiceItemUpdater) convertItemToMembersExpense(
+	appCtx appcontext.AppContext,
+	serviceItem models.MTOServiceItem,
+	convertToMembersExpense bool,
+	eTag string,
+	checks ...validator,
+) (*models.MTOServiceItem, error) {
+	if verr := validateServiceItem(appCtx, &serviceItem, eTag, checks...); verr != nil {
+		return nil, verr
+	}
+
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		serviceItem.MembersExpense = &convertToMembersExpense
+		verrs, err := appCtx.DB().ValidateAndUpdate(&serviceItem)
+		e := handleError(serviceItem.ID, verrs, err)
+		return e
+	})
+
+	if transactionError != nil {
+		return nil, transactionError
 	}
 
 	return &serviceItem, nil
