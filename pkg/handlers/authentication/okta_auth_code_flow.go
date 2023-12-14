@@ -88,7 +88,7 @@ type OktaProfile struct {
 func clearOktaUserSessions(appCtx appcontext.AppContext, r *http.Request, provider okta.Provider, client HTTPClient) (string, error) {
 	var oktaSessionToken string
 	for _, c := range r.Cookies() {
-		if c.Name == "office_okta_state" {
+		if c.Name == "okta_oauth_state" {
 			oktaSessionToken = c.Value
 			break
 		}
@@ -107,7 +107,6 @@ func clearOktaUserSessions(appCtx appcontext.AppContext, r *http.Request, provid
 
 	req, _ := http.NewRequest("GET", getUserURL, bytes.NewReader([]byte("")))
 	h := req.Header
-	h.Add("Authorization", "SSWS "+apiKey)
 	h.Add("Accept", "application/json")
 	h.Add("Content-Type", "application/json")
 	h.Add("Cookie", oktaSessionToken)
