@@ -57,6 +57,14 @@ func SortShipmentSITs(shipment models.MTOShipment, today time.Time) SortedShipme
 	return shipmentSITs
 }
 
+// Returns the lower number between a or b
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
 // CalculateShipmentSITStatus creates a SIT Status for payload to be used in
 // multiple handlers in the `ghcapi` package for the MTOShipment handlers.
 func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*services.SITStatus, error) {
@@ -83,7 +91,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 	if err != nil {
 		return nil, err
 	}
-	shipmentSITStatus.TotalSITDaysUsed = CalculateTotalDaysInSIT(shipmentSITs, today)
+	shipmentSITStatus.TotalSITDaysUsed = min(CalculateTotalDaysInSIT(shipmentSITs, today), *shipment.SITDaysAllowance)
 	shipmentSITStatus.CalculatedTotalDaysInSIT = CalculateTotalDaysInSIT(shipmentSITs, today)
 	shipmentSITStatus.TotalDaysRemaining = totalSITAllowance - shipmentSITStatus.TotalSITDaysUsed
 	shipmentSITStatus.PastSITs = shipmentSITs.pastSITs

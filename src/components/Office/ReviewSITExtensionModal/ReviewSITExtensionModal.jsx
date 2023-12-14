@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import classnames from 'classnames';
 import { Formik, Field, useField } from 'formik';
 import PropTypes from 'prop-types';
@@ -65,7 +65,7 @@ const SITHistoryItemHeader = ({ title, value }) => {
 };
 
 const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
-  const { totalSITDaysUsed } = sitStatus;
+  const [totalSITDaysUsed, setTotalSITDaysUsed] = useState(sitStatus.totalSITDaysUsed);
   const { daysInSIT, location } = sitStatus.currentSIT;
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
@@ -75,7 +75,7 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
    * @description This function calculates the total remaining days. If the SIT entry date has started, a day is subtracted from the days remaining to account for the current day.
    * @returns {number|string} - The number of days remaming or 'expired' if there are no more days left.
    */
-  const totalDaysRemaining = () => {
+  const [totalDaysRemaining, setTotalDaysRemaining] = useState(() => {
     const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
     // SIT not started
     if (!sitStatus && daysRemaining > 0) {
@@ -86,7 +86,7 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
       return daysRemaining - 1;
     }
     return 'Expired';
-  };
+  });
 
   const approvedAndRequestedDaysCombined = shipment.sitDaysAllowance + sitExtension.requestedDays;
   const approvedAndRequestedDatesCombined = formatDateForDatePicker(
@@ -124,6 +124,13 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
     // Update form values
     endDateHelper.setValue(endDate);
     sitAllowanceHelper.setValue(String(calculatedSitDaysAllowance));
+    if (calculatedSitDaysAllowance < totalSITDaysUsed) {
+      setTotalSITDaysUsed(calculatedSitDaysAllowance);
+      setTotalDaysRemaining('Expired');
+    } else {
+      setTotalSITDaysUsed(sitStatus.totalSITDaysUsed);
+      setTotalDaysRemaining(calculatedSitDaysAllowance - sitStatus.totalSITDaysUsed);
+    }
   };
 
   /**
@@ -143,6 +150,13 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
     const calculatedSitEndDate = formatDateForDatePicker(sitEntryDate.add(daysApproved - daysInPreviousSIT, 'days'));
     endDateHelper.setTouched(true);
     endDateHelper.setValue(calculatedSitEndDate);
+    if (daysApproved < totalSITDaysUsed) {
+      setTotalSITDaysUsed(daysApproved);
+      setTotalDaysRemaining('Expired');
+    } else {
+      setTotalSITDaysUsed(sitStatus.totalSITDaysUsed);
+      setTotalDaysRemaining(daysApproved - sitStatus.totalSITDaysUsed);
+    }
   };
 
   return (

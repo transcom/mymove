@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import classnames from 'classnames';
 import { Formik, Field, useField } from 'formik';
 import PropTypes from 'prop-types';
@@ -41,7 +41,7 @@ const SitEndDateForm = ({ onChange }) => (
 );
 
 const SitStatusTables = ({ sitStatus, shipment }) => {
-  const { totalSITDaysUsed } = sitStatus;
+  const [totalSITDaysUsed, setTotalSITDaysUsed] = useState(sitStatus.totalSITDaysUsed);
   const { daysInSIT } = sitStatus.currentSIT;
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
@@ -53,13 +53,13 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
 
   const currentDaysInSit = <p>{daysInSIT}</p>;
   const currentDateEnteredSit = <p>{formatDateForDatePicker(sitEntryDate)}</p>;
-  const totalDaysRemaining = () => {
+  const [totalDaysRemaining, setTotalDaysRemaining] = useState(() => {
     const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
     if (daysRemaining > 0) {
       return daysRemaining;
     }
     return 'Expired';
-  };
+  });
 
   /**
    * @function
@@ -82,6 +82,13 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
     // Update form values
     endDateHelper.setValue(endDate);
     sitAllowanceHelper.setValue(String(calculatedSitDaysAllowance));
+    if (calculatedSitDaysAllowance < totalSITDaysUsed) {
+      setTotalSITDaysUsed(calculatedSitDaysAllowance);
+      setTotalDaysRemaining('Expired');
+    } else {
+      setTotalSITDaysUsed(sitStatus.totalSITDaysUsed);
+      setTotalDaysRemaining(calculatedSitDaysAllowance - sitStatus.totalSITDaysUsed);
+    }
   };
 
   /**
@@ -101,6 +108,13 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
     const calculatedSitEndDate = formatDateForDatePicker(sitEntryDate.add(daysApproved - daysInPreviousSIT, 'days'));
     endDateHelper.setTouched(true);
     endDateHelper.setValue(calculatedSitEndDate);
+    if (daysApproved < totalSITDaysUsed) {
+      setTotalSITDaysUsed(daysApproved);
+      setTotalDaysRemaining('Expired');
+    } else {
+      setTotalSITDaysUsed(sitStatus.totalSITDaysUsed);
+      setTotalDaysRemaining(daysApproved - sitStatus.totalSITDaysUsed);
+    }
   };
 
   return (
@@ -115,8 +129,8 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
           columnHeaders={['Total days of SIT approved', 'Total days used', 'Total days remaining']}
           dataRow={[
             <SitDaysAllowanceForm onChange={(e) => handleDaysAllowanceChange(e.target.value)} />,
-            sitStatus.totalSITDaysUsed,
-            totalDaysRemaining(),
+            totalSITDaysUsed,
+            totalDaysRemaining,
           ]}
         />
       </div>
