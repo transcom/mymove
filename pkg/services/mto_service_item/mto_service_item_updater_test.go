@@ -984,4 +984,48 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 		suite.Contains(err.Error(), serviceItem.ID.String())
 	})
+
+	// suite.Run("When TOO rejects a DOFSIT service item and converts it to the member's expense", func() {
+	// 	move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+	// 	serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+	// 		{
+	// 			Model:    move,
+	// 			LinkOnly: true,
+	// 		},
+	// 		{
+	// 			Model: models.ReService{
+	// 				Code: models.ReServiceCodeDOFSIT,
+	// 			},
+	// 		},
+	// 		{
+	// 			Model: models.MTOServiceItem{
+	// 				Status: models.MTOServiceItemStatusApproved,
+	// 			},
+	// 		},
+	// 	}, nil)
+
+	// 	eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+
+	// 	updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
+	// 		suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+	// 	suite.NoError(err)
+
+	// 	// ApproveOrRejectServiceItem doesn't return the service item with the updated move
+	// 	// get move from the db to check the updated status
+	// 	err = suite.DB().Find(&move, move.ID)
+	// 	suite.NoError(err)
+	// 	suite.Equal(models.MoveStatusAPPROVED, move.Status)
+
+	// 	suite.Equal(models.MTOServiceItemStatusApproved, updatedServiceItem.Status)
+	// 	suite.NotNil(updatedServiceItem.ApprovedAt)
+	// 	suite.Nil(updatedServiceItem.RejectionReason)
+	// 	suite.Nil(updatedServiceItem.RejectedAt)
+	// 	suite.NotNil(updatedServiceItem)
+
+	// 	destinationAddress := serviceItem.MTOShipment.DestinationAddress
+	// 	suite.Equal(destinationAddress.StreetAddress1, updatedServiceItem.SITDestinationOriginalAddress.StreetAddress1)
+	// 	suite.Equal(destinationAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
+	// 	suite.Equal(destinationAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
+	// 	suite.Equal(destinationAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
+	// })
 }
