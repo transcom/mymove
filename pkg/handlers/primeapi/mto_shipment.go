@@ -338,15 +338,10 @@ func (h UpdateSITDeliveryRequestHandler) Handle(params mtoshipmentops.UpdateSITD
 
 			if err != nil {
 				appCtx.Logger().Error("primeapi.UpdateSITDeliveryRequestHandler error - MTO shipment not found", zap.Error(err))
-				switch e := err.(type) {
-				case apperror.NotFoundError:
-					return mtoshipmentops.NewUpdateSITDeliveryRequestNotFound().WithPayload(
-						payloads.ClientError(handlers.NotFoundMessage, e.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
-				default:
-					return mtoshipmentops.NewUpdateSITDeliveryRequestInternalServerError().WithPayload(
-						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
-				}
+				return mtoshipmentops.NewUpdateSITDeliveryRequestNotFound().WithPayload(
+					payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
+
 			var sitCustomerContacted = (*time.Time)(params.Body.SitCustomerContacted)
 			var sitRequestedDelivery = (*time.Time)(params.Body.SitRequestedDelivery)
 
@@ -361,9 +356,6 @@ func (h UpdateSITDeliveryRequestHandler) Handle(params mtoshipmentops.UpdateSITD
 				case apperror.PreconditionFailedError:
 					return mtoshipmentops.NewUpdateSITDeliveryRequestPreconditionFailed().WithPayload(
 						payloads.ClientError(handlers.PreconditionErrMessage, e.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
-				default:
-					return mtoshipmentops.NewUpdateSITDeliveryRequestInternalServerError().WithPayload(
-						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
 			}
 
