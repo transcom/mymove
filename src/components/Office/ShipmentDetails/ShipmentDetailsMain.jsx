@@ -67,6 +67,7 @@ const ShipmentDetailsMain = ({
   const { originDutyLocationAddress, destinationDutyLocationAddress } = dutyLocationAddresses;
 
   const [isReviewSITExtensionModalVisible, setIsReviewSITExtensionModalVisible] = useState(false);
+  const [isConvertSITExtensionModalVisible, setIsConvertSITExtensionModalVisible] = useState(false);
   const [isSubmitITExtensionModalVisible, setIsSubmitITExtensionModalVisible] = useState(false);
   const [, setSubmittedChangeTime] = useState(Date.now());
 
@@ -75,6 +76,13 @@ const ShipmentDetailsMain = ({
     handleReviewSITExtension(sitExtensionID, formValues, shipment);
     setSubmittedChangeTime(Date.now());
   };
+
+  const convertSITExtension = (formValues) => {
+    setIsConvertSITExtensionModalVisible(false);
+    handleSubmitSITExtension(formValues, shipment);
+    setSubmittedChangeTime(Date.now());
+  };
+
   const submitSITExtension = (formValues) => {
     setIsSubmitITExtensionModalVisible(false);
     handleSubmitSITExtension(formValues, shipment);
@@ -109,7 +117,6 @@ const ShipmentDetailsMain = ({
       permission={permissionTypes.updateSITExtension}
       onClick={setIsSubmitITExtensionModalVisible}
       title="Convert to customer expense"
-      className={styles.submitSITEXtensionLink}
     />
   );
 
@@ -142,6 +149,15 @@ const ShipmentDetailsMain = ({
           onSubmit={reviewSITExtension}
           shipment={shipment}
           sitExtension={pendingSITExtension}
+          sitStatus={sitStatus}
+        />
+      )}
+      {isConvertSITExtensionModalVisible && (
+        <SubmitSITExtensionModal
+          onClose={() => setIsConvertSITExtensionModalVisible(false)}
+          onSubmit={convertSITExtension}
+          shipment={shipment}
+          sitExtensions={sitExtensions}
           sitStatus={sitStatus}
         />
       )}

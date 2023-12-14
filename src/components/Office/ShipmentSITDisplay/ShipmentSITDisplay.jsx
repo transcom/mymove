@@ -128,6 +128,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
       <div className={styles.title}>
         <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Additional Days Requested</Tag>}</p>
         {sitStatus.currentSIT && !pendingSITExtension && openConvertModalButton}
+        {sitStatus.currentSIT && !pendingSITExtension && <p>|</p>}
         {sitStatus.currentSIT && openModalButton}
       </div>
       <div className={styles.tableContainer} data-testid="sitStatusTable">
