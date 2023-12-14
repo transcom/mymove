@@ -11,6 +11,7 @@ import EditPPMNetWeight from '../EditNetWeights/EditPPMNetWeight';
 
 import styles from './ReviewWeightTicket.module.scss';
 
+import { removeCommas } from 'utils/formatters';
 import { ErrorMessage, Form } from 'components/form';
 import { patchWeightTicket } from 'services/ghcApi';
 import { ShipmentShape, WeightTicketShape } from 'types/shipment';
@@ -147,29 +148,30 @@ export default function ReviewWeightTicket({
           };
           const handleFieldValueChange = (event) => {
             handleChange(event);
-            const mtoShipmentIndex = mtoShipments.findIndex((index) => index.id === mtoShipment.id);
-            const updatedWeightTicket = {
-              ...weightTicket,
-              emptyWeight: parseInt(values.emptyWeight, 10),
-              fullWeight: parseInt(values.fullWeight, 10),
-              reimbursableWeight: parseInt(values.reimbursableWeight, 10),
-            };
-            const updatedPPMShipment = {
-              ...mtoShipments[mtoShipmentIndex].ppmShipment,
-            };
-            const weightTicketIndex = updatedPPMShipment.weightTickets.findIndex(
-              (ticket) => ticket.id === updatedWeightTicket.id,
-            );
-            updatedPPMShipment.weightTickets[weightTicketIndex] = updatedWeightTicket;
-            const updatedMtoShipment = {
-              ...mtoShipment,
-              ppmShipment: updatedPPMShipment,
-            };
-            const updatedMtoShipments = mtoShipments;
-            updatedMtoShipments[mtoShipmentIndex] = updatedMtoShipment;
-            const updatedWeight = calculateWeightRequested(updatedMtoShipments);
-            updateTotalWeight(updatedWeight);
-            handleChange(event);
+            if (mtoShipments !== undefined && mtoShipments.length > 0) {
+              const mtoShipmentIndex = mtoShipments.findIndex((index) => index.id === mtoShipment.id);
+              const updatedWeightTicket = {
+                ...weightTicket,
+                emptyWeight: parseInt(removeCommas(values.emptyWeight), 10),
+                fullWeight: parseInt(removeCommas(values.fullWeight), 10),
+                reimbursableWeight: parseInt(removeCommas(values.reimbursableWeight), 10),
+              };
+              const updatedPPMShipment = {
+                ...mtoShipments[mtoShipmentIndex].ppmShipment,
+              };
+              const weightTicketIndex = updatedPPMShipment.weightTickets.findIndex(
+                (ticket) => ticket.id === updatedWeightTicket.id,
+              );
+              updatedPPMShipment.weightTickets[weightTicketIndex] = updatedWeightTicket;
+              const updatedMtoShipment = {
+                ...mtoShipment,
+                ppmShipment: updatedPPMShipment,
+              };
+              const updatedMtoShipments = mtoShipments;
+              updatedMtoShipments[mtoShipmentIndex] = updatedMtoShipment;
+              const updatedWeight = calculateWeightRequested(updatedMtoShipments);
+              updateTotalWeight(updatedWeight);
+            }
           };
           const handleTrailerOwnedChange = (event) => {
             handleChange(event);
@@ -206,7 +208,7 @@ export default function ReviewWeightTicket({
                 thousandsSeparator=","
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
-                onChange={handleFieldValueChange}
+                onBlur={handleFieldValueChange}
               />
 
               <MaskedTextField
@@ -222,7 +224,7 @@ export default function ReviewWeightTicket({
                 thousandsSeparator=","
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
-                onChange={handleFieldValueChange}
+                onBlur={handleFieldValueChange}
               />
 
               <MaskedTextField
@@ -238,7 +240,7 @@ export default function ReviewWeightTicket({
                 thousandsSeparator=","
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
-                onChange={handleFieldValueChange}
+                onBlur={handleFieldValueChange}
               />
 
               <EditPPMNetWeight
