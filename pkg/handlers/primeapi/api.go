@@ -18,6 +18,7 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/orchestrators/shipment"
+	order "github.com/transcom/mymove/pkg/services/order"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -194,6 +195,12 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	primeAPI.SitAddressUpdateCreateSITAddressUpdateRequestHandler = CreateSITAddressUpdateRequestHandler{
 		handlerConfig,
 		sitaddressupdate.NewSITAddressUpdateRequestCreator(handlerConfig.HHGPlanner(), addressCreator, serviceItemUpdater, moveRouter),
+	}
+
+	primeAPI.MoveTaskOrderDownloadMoveOrderHandler = DownloadMoveOrderHandler{
+		handlerConfig,
+		move.NewMoveSearcher(),
+		order.NewOrderFetcher(),
 	}
 
 	primeAPI.MtoShipmentUpdateSITDeliveryRequestHandler = UpdateSITDeliveryRequestHandler{

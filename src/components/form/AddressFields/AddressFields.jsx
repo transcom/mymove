@@ -133,6 +133,13 @@ export const AddressFields = ({
             validate={validators?.streetAddress2}
           />
           <TextField
+            label="Address 3"
+            labelHint="Optional"
+            id={`mailingAddress3_${addressFieldsUUID.current}`}
+            name={`${name}.streetAddress3`}
+            validate={validators?.streetAddress3}
+          />
+          <TextField
             label="City"
             id={`city_${addressFieldsUUID.current}`}
             name={`${name}.city`}

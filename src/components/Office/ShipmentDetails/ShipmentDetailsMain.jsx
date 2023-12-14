@@ -5,7 +5,7 @@ import { Button } from '@trussworks/react-uswds';
 import styles from './ShipmentDetails.module.scss';
 
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
-import { formatDate } from 'shared/dates';
+import { formatDateWithUTC } from 'shared/dates';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape } from 'types';
 import { ShipmentShape } from 'types/shipment';
@@ -153,13 +153,13 @@ const ShipmentDetailsMain = ({
         />
       )}
       <ImportantShipmentDates
-        requestedPickupDate={requestedPickupDate ? formatDate(requestedPickupDate) : null}
-        scheduledPickupDate={scheduledPickupDate ? formatDate(scheduledPickupDate) : null}
-        actualPickupDate={actualPickupDate ? formatDate(actualPickupDate) : null}
-        requestedDeliveryDate={requestedDeliveryDate ? formatDate(requestedDeliveryDate) : null}
-        scheduledDeliveryDate={scheduledDeliveryDate ? formatDate(scheduledDeliveryDate) : null}
-        actualDeliveryDate={actualDeliveryDate ? formatDate(actualDeliveryDate) : null}
-        requiredDeliveryDate={requiredDeliveryDate ? formatDate(requiredDeliveryDate) : null}
+        requestedPickupDate={requestedPickupDate ? formatDateWithUTC(requestedPickupDate) : null}
+        scheduledPickupDate={scheduledPickupDate ? formatDateWithUTC(scheduledPickupDate) : null}
+        actualPickupDate={actualPickupDate ? formatDateWithUTC(actualPickupDate) : null}
+        requestedDeliveryDate={requestedDeliveryDate ? formatDateWithUTC(requestedDeliveryDate) : null}
+        scheduledDeliveryDate={scheduledDeliveryDate ? formatDateWithUTC(scheduledDeliveryDate) : null}
+        actualDeliveryDate={actualDeliveryDate ? formatDateWithUTC(actualDeliveryDate) : null}
+        requiredDeliveryDate={requiredDeliveryDate ? formatDateWithUTC(requiredDeliveryDate) : null}
       />
       <ShipmentAddresses
         pickupAddress={displayedPickupAddress}

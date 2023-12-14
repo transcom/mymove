@@ -1415,6 +1415,47 @@ paths:
           $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
+  /moves/{locator}/order/download:
+    parameters:
+      - description: the locator code for move order to be downloaded
+        in: path
+        name: locator
+        required: true
+        type: string
+    get:
+      summary: Downloads move order as a PDF
+      description: |
+        ### Functionality
+        This endpoint downloads all uploaded move order documentations into one download file by locator.
+
+        ### Errors
+        * The move must be in need counseling state.
+        * The move client's origin duty location must not currently have gov counseling.
+      operationId: downloadMoveOrder
+      tags:
+        - moveTaskOrder
+      produces:
+        - application/pdf
+      responses:
+        '200':
+          headers:
+            Content-Disposition:
+              type: string
+              description: File name to download
+          description: Move Order PDF
+          schema:
+            format: binary
+            type: file
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
 definitions:
   CreateMTOShipment:
     type: object
@@ -1782,6 +1823,8 @@ definitions:
       Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.
         * DDDSIT - UpdateMTOServiceItemSIT
         * DOPSIT - UpdateMTOServiceItemSIT
+        * DOASIT - UpdateMTOServiceItemSIT
+        * DOFSIT - UpdateMTOServiceItemSIT
         * DDSHUT - UpdateMTOServiceItemShuttle
         * DOSHUT - UpdateMTOServiceItemShuttle
 
@@ -1828,6 +1871,8 @@ definitions:
             enum:
               - DDDSIT # Domestic Destination SIT Delivery
               - DOPSIT # Domestic Origin SIT Pickup
+              - DOASIT # Domestic Origin Add'l Days SIT
+              - DOFSIT # Domestic Origin 1st Day SIT
           sitDepartureDate:
             format: date
             type: string

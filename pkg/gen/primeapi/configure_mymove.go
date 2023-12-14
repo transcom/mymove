@@ -41,6 +41,7 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	api.JSONConsumer = runtime.JSONConsumer()
 	api.MultipartformConsumer = runtime.DiscardConsumer
 
+	api.BinProducer = runtime.ByteStreamProducer()
 	api.JSONProducer = runtime.JSONProducer()
 
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
@@ -103,6 +104,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	if api.MtoShipmentDeleteMTOShipmentHandler == nil {
 		api.MtoShipmentDeleteMTOShipmentHandler = mto_shipment.DeleteMTOShipmentHandlerFunc(func(params mto_shipment.DeleteMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.DeleteMTOShipment has not yet been implemented")
+		})
+	}
+	if api.MoveTaskOrderDownloadMoveOrderHandler == nil {
+		api.MoveTaskOrderDownloadMoveOrderHandler = move_task_order.DownloadMoveOrderHandlerFunc(func(params move_task_order.DownloadMoveOrderParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.DownloadMoveOrder has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderGetMoveTaskOrderHandler == nil {
