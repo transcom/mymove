@@ -305,11 +305,6 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 		})
 }
 
-// ShowMoveDatesSummaryHandler returns a summary of the dates in the move process given a move date and move ID.
-type ShowMoveDatesSummaryHandler struct {
-	handlers.HandlerConfig
-}
-
 // ShowShipmentSummaryWorksheetHandler returns a Shipment Summary Worksheet PDF
 type ShowShipmentSummaryWorksheetHandler struct {
 	handlers.HandlerConfig
