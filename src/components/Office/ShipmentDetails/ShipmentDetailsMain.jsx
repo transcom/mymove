@@ -101,6 +101,18 @@ const ShipmentDetailsMain = ({
     />
   );
 
+  /**
+   * Displays button to open the modal on the SIT Display component to open with Convert to customer expense modal.
+   */
+  const openConvertModalButton = (
+    <OpenModalButton
+      permission={permissionTypes.updateSITExtension}
+      onClick={setIsSubmitITExtensionModalVisible}
+      title="Convert to customer expense"
+      className={styles.submitSITEXtensionLink}
+    />
+  );
+
   let displayedPickupAddress;
   let displayedDeliveryAddress;
 
@@ -150,6 +162,7 @@ const ShipmentDetailsMain = ({
           shipment={shipment}
           className={styles.shipmentSITSummary}
           openModalButton={openModalButton}
+          openConvertModalButton={openConvertModalButton}
         />
       )}
       <ImportantShipmentDates

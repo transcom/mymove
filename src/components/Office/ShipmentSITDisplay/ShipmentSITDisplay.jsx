@@ -70,7 +70,7 @@ const SitHistoryList = ({ sitHistory, dayAllowance }) => {
   );
 };
 
-const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }) => {
+const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, openConvertModalButton }) => {
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
   const currentDaysInSIT = sitStatus.currentSIT?.daysInSIT || 0;
   const currentDaysInSITElement = <p>{currentDaysInSIT}</p>;
@@ -127,6 +127,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
     <>
       <div className={styles.title}>
         <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Additional Days Requested</Tag>}</p>
+        {sitStatus.currentSIT && !pendingSITExtension && openConvertModalButton}
         {sitStatus.currentSIT && openModalButton}
       </div>
       <div className={styles.tableContainer} data-testid="sitStatusTable">
@@ -177,7 +178,14 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
   );
 };
 
-const ShipmentSITDisplay = ({ sitExtensions, sitStatus, shipment, className, openModalButton }) => {
+const ShipmentSITDisplay = ({
+  sitExtensions,
+  sitStatus,
+  shipment,
+  className,
+  openModalButton,
+  openConvertModalButton,
+}) => {
   const sitHistory = React.useMemo(
     () => sitExtensions.filter((sitItem) => sitItem.status !== SIT_EXTENSION_STATUS.PENDING),
     [sitExtensions],
@@ -189,6 +197,7 @@ const ShipmentSITDisplay = ({ sitExtensions, sitStatus, shipment, className, ope
       testID="sitExtensions"
     >
       <SitStatusTables
+        openConvertModalButton={openConvertModalButton}
         openModalButton={openModalButton}
         shipment={shipment}
         sitStatus={sitStatus}
@@ -206,6 +215,7 @@ ShipmentSITDisplay.propTypes = {
   sitExtensions: PropTypes.arrayOf(SITExtensionShape),
   sitStatus: SitStatusShape,
   shipment: ShipmentShape.isRequired,
+  openConvertModalButton: PropTypes.element,
   openModalButton: PropTypes.element,
   className: PropTypes.string,
 };
@@ -213,6 +223,7 @@ ShipmentSITDisplay.propTypes = {
 ShipmentSITDisplay.defaultProps = {
   sitExtensions: [],
   sitStatus: undefined,
+  openConvertModalButton: undefined,
   openModalButton: undefined,
   className: '',
 };
