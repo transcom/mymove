@@ -2736,24 +2736,35 @@ func (suite *HandlerSuite) TestUpdateSITDeliveryRequestHandler() {
 		suite.Equal(subtestData.params.Body.SitRequestedDelivery, okResponse.Payload.CurrentSIT.SitRequestedDelivery)
 	})
 
-	// suite.Run("500 FAIL - Server Error", func() {
-	// 	subtestData := makeSubtestData()
+	suite.Run("500 FAIL - Server Error", func() {
+		subtestData := makeSubtestData()
+		shipmentSITAllowance := int(90)
+		factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
+			},
+		}, nil)
 
-	// 	// Validate incoming payload
-	// 	suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+		subtestData.params.MtoShipmentID = strfmt.UUID(mtoShipment.ID.String())
 
-	// 	err := errors.New("ServerError")
-	// 	mockUpdater := mocks.ShipmentSITStatus{}
-	// 	mockUpdater.On("UpdateSITDeliveryRequest",
-	// 		mock.AnythingOfType("*appcontext.appContext"),
-	// 		mock.Anything,
-	// 		mock.Anything,
-	// 	).Return(nil, err)
+		// Validate incoming payload
+		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
 
-	// 	// Run handler and check response
-	// 	response := subtestData.handler.Handle(subtestData.params)
-	// 	suite.IsType(&mtoshipmentops.UpdateSITDeliveryRequestInternalServerError{}, response)
-	// })
+		mockUpdater := mocks.ShipmentSITStatus{}
+		mockUpdater.On("CalculateSITAllowanceRequestedDates",
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, apperror.NewInternalServerError("mock"))
+
+		// Run handler and check response
+		response := subtestData.handler.Handle(subtestData.params)
+		suite.IsType(&mtoshipmentops.UpdateSITDeliveryRequestNotFound{}, response)
+	})
 
 	suite.Run("404 FAIL - Bad shipment ID", func() {
 		subtestData := makeSubtestData()
