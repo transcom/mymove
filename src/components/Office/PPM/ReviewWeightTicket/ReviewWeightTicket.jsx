@@ -21,6 +21,7 @@ import formStyles from 'styles/form.module.scss';
 import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import ppmDocumentStatus from 'constants/ppms';
 import { getReimbursableWeight } from 'utils/shipmentWeights';
+import { calculateWeightRequested } from 'hooks/custom';
 
 const validationSchema = Yup.object().shape({
   emptyWeight: Yup.number().required('Enter the empty weight'),
@@ -53,36 +54,34 @@ export default function ReviewWeightTicket({
   onError,
   onSuccess,
   formRef,
-  flagShipmentUpdateToParent,
+  updateTotalWeight,
 }) {
   const [canEditRejection, setCanEditRejection] = useState(true);
-
   const { mutate: patchWeightTicketMutation } = useMutation({
     mutationFn: patchWeightTicket,
     onSuccess,
     onError,
   });
-
   const ppmShipment = mtoShipment?.ppmShipment;
 
   const weightAllowance = order.entitlement?.totalWeight;
 
-  const handleSubmit = (values) => {
-    const ownsTrailer = values.ownsTrailer === 'true';
-    const trailerMeetsCriteria = ownsTrailer ? values.trailerMeetsCriteria === 'true' : false;
+  const handleSubmit = (formValues) => {
+    const ownsTrailer = formValues.ownsTrailer === 'true';
+    const trailerMeetsCriteria = ownsTrailer ? formValues.trailerMeetsCriteria === 'true' : false;
     const payload = {
       ppmShipmentId: weightTicket.ppmShipmentId,
       vehicleDescription: weightTicket.vehicleDescription,
-      emptyWeight: parseInt(values.emptyWeight, 10),
+      emptyWeight: parseInt(formValues.emptyWeight, 10),
       missingEmptyWeightTicket: weightTicket.missingEmptyWeightTicket,
-      fullWeight: parseInt(values.fullWeight, 10),
+      fullWeight: parseInt(formValues.fullWeight, 10),
       missingFullWeightTicket: weightTicket.missingFullWeightTicket,
       netWeightRemarks: weightTicket.netWeightRemarks,
       ownsTrailer,
       trailerMeetsCriteria,
-      reason: values.status === ppmDocumentStatus.APPROVED ? null : values.rejectionReason,
-      status: values.status,
-      reimbursableWeight: parseInt(values.reimbursableWeight, 10),
+      reason: formValues.status === ppmDocumentStatus.APPROVED ? null : formValues.rejectionReason,
+      status: formValues.status,
+      reimbursableWeight: parseInt(formValues.reimbursableWeight, 10),
     };
     patchWeightTicketMutation({
       ppmShipmentId: weightTicket.ppmShipmentId,
@@ -148,7 +147,29 @@ export default function ReviewWeightTicket({
           };
           const handleFieldValueChange = (event) => {
             handleChange(event);
-            flagShipmentUpdateToParent(!flagShipmentUpdateToParent);
+            const mtoShipmentIndex = mtoShipments.findIndex((index) => index.id === mtoShipment.id);
+            const updatedWeightTicket = {
+              ...weightTicket,
+              emptyWeight: parseInt(values.emptyWeight, 10),
+              fullWeight: parseInt(values.fullWeight, 10),
+              reimbursableWeight: parseInt(values.reimbursableWeight, 10),
+            };
+            const updatedPPMShipment = {
+              ...mtoShipments[mtoShipmentIndex].ppmShipment,
+            };
+            const weightTicketIndex = updatedPPMShipment.weightTickets.findIndex(
+              (ticket) => ticket.id === updatedWeightTicket.id,
+            );
+            updatedPPMShipment.weightTickets[weightTicketIndex] = updatedWeightTicket;
+            const updatedMtoShipment = {
+              ...mtoShipment,
+              ppmShipment: updatedPPMShipment,
+            };
+            const updatedMtoShipments = mtoShipments;
+            updatedMtoShipments[mtoShipmentIndex] = updatedMtoShipment;
+            const updatedWeight = calculateWeightRequested(updatedMtoShipments);
+            updateTotalWeight(updatedWeight);
+            handleChange(event);
           };
           const handleTrailerOwnedChange = (event) => {
             handleChange(event);
@@ -177,6 +198,7 @@ export default function ReviewWeightTicket({
                 name="emptyWeight"
                 label="Empty weight"
                 id="emptyWeight"
+                inputTestId="emptyWeight"
                 mask={Number}
                 description={missingEmptyWeightTicket ? 'Vehicle weight' : 'Weight tickets'}
                 scale={0} // digits after point, 0 for integers
@@ -192,6 +214,7 @@ export default function ReviewWeightTicket({
                 name="fullWeight"
                 label="Full weight"
                 id="fullWeight"
+                inputTestId="fullWeight"
                 mask={Number}
                 description={missingFullWeightTicket ? 'Constructed weight' : 'Weight tickets'}
                 scale={0} // digits after point, 0 for integers
@@ -207,6 +230,7 @@ export default function ReviewWeightTicket({
                 name="reimbursableWeight"
                 label="Reimbursable weight"
                 id="reimbursableWeight"
+                inputTestId="reimbursableWeight"
                 mask={Number}
                 description="Maximum allowable weight"
                 scale={0} // digits after point, 0 for integers

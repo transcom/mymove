@@ -56,6 +56,7 @@ const config = {
       use: {
         baseURL: process.env.PLAYWRIGHT_ADMIN_URL || 'http://adminlocal:3000',
         ...devices['Desktop Chrome'],
+        channel: 'chrome',
       },
     },
 
@@ -66,6 +67,7 @@ const config = {
       use: {
         baseURL: process.env.PLAYWRIGHT_MY_URL || 'http://milmovelocal:3000',
         ...devices['Desktop Chrome'],
+        channel: 'chrome',
       },
     },
     {
@@ -75,6 +77,7 @@ const config = {
       use: {
         baseURL: process.env.PLAYWRIGHT_OFFICE_URL || 'http://officelocal:3000',
         ...devices['Desktop Chrome'],
+        channel: 'chrome',
       },
     },
     // ahobson 2022-12-08: leave examples for later
