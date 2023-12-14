@@ -2736,36 +2736,6 @@ func (suite *HandlerSuite) TestUpdateSITDeliveryRequestHandler() {
 		suite.Equal(subtestData.params.Body.SitRequestedDelivery, okResponse.Payload.CurrentSIT.SitRequestedDelivery)
 	})
 
-	suite.Run("500 FAIL - Server Error", func() {
-		subtestData := makeSubtestData()
-		shipmentSITAllowance := int(90)
-		factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status:           models.MTOShipmentStatusApproved,
-					SITDaysAllowance: &shipmentSITAllowance,
-				},
-			},
-		}, nil)
-
-		subtestData.params.MtoShipmentID = strfmt.UUID(mtoShipment.ID.String())
-
-		// Validate incoming payload
-		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
-
-		mockUpdater := mocks.ShipmentSITStatus{}
-		mockUpdater.On("CalculateSITAllowanceRequestedDates",
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-		).Return(nil, apperror.NewInternalServerError("mock"))
-
-		// Run handler and check response
-		response := subtestData.handler.Handle(subtestData.params)
-		suite.IsType(&mtoshipmentops.UpdateSITDeliveryRequestNotFound{}, response)
-	})
-
 	suite.Run("404 FAIL - Bad shipment ID", func() {
 		subtestData := makeSubtestData()
 		subtestData.params.MtoShipmentID = strfmt.UUID("0")
@@ -2792,6 +2762,7 @@ func (suite *HandlerSuite) TestUpdateSITDeliveryRequestHandler() {
 		}, nil)
 
 		subtestData.params.MtoShipmentID = strfmt.UUID(mtoShipment.ID.String())
+		subtestData.params.IfMatch = etag.GenerateEtag(mtoShipment.UpdatedAt)
 
 		// Validate incoming payload
 		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
@@ -2815,6 +2786,7 @@ func (suite *HandlerSuite) TestUpdateSITDeliveryRequestHandler() {
 		}, nil)
 
 		subtestData.params.MtoShipmentID = strfmt.UUID(mtoShipment.ID.String())
+		subtestData.params.IfMatch = etag.GenerateEtag(mtoShipment.UpdatedAt)
 		today := time.Now()
 		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -2836,6 +2808,51 @@ func (suite *HandlerSuite) TestUpdateSITDeliveryRequestHandler() {
 
 		// Validate incoming payload
 		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := subtestData.handler.Handle(subtestData.params)
+		suite.IsType(&mtoshipmentops.UpdateSITDeliveryRequestNotFound{}, response)
+	})
+	suite.Run("412 FAIL - Stale etag", func() {
+		subtestData := makeSubtestData()
+		year, month, day := time.Now().Add(time.Hour * 24 * -15).Date()
+		oldDate := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		subtestData.params.IfMatch = etag.GenerateEtag(oldDate)
+
+		// Validate incoming payload
+		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := subtestData.handler.Handle(subtestData.params)
+		suite.IsType(&mtoshipmentops.UpdateSITDeliveryRequestPreconditionFailed{}, response)
+	})
+
+	suite.Run("500 FAIL - Server Error", func() {
+		subtestData := makeSubtestData()
+		shipmentSITAllowance := int(90)
+		factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
+			},
+		}, nil)
+
+		subtestData.params.MtoShipmentID = strfmt.UUID(mtoShipment.ID.String())
+		subtestData.params.IfMatch = etag.GenerateEtag(mtoShipment.UpdatedAt)
+
+		// Validate incoming payload
+		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
+		mockUpdater := mocks.ShipmentSITStatus{}
+		mockUpdater.On("CalculateSITAllowanceRequestedDates",
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, apperror.NewInternalServerError("mock"))
 
 		// Run handler and check response
 		response := subtestData.handler.Handle(subtestData.params)

@@ -148,5 +148,6 @@ type ShipmentSITStatus interface {
 	CalculateShipmentsSITStatuses(appCtx appcontext.AppContext, shipments []models.MTOShipment) map[string]SITStatus
 	CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*SITStatus, error)
 	CalculateShipmentSITAllowance(appCtx appcontext.AppContext, shipment models.MTOShipment) (int, error)
-	CalculateSITAllowanceRequestedDates(shipment models.MTOShipment, sitCustomerContacted *time.Time, sitRequestedDelivery *time.Time) (*SITStatus, error)
+	CalculateSITAllowanceRequestedDates(shipment models.MTOShipment, sitCustomerContacted *time.Time,
+		sitRequestedDelivery *time.Time, eTag string) (*SITStatus, error)
 }

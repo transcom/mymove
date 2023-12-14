@@ -3,6 +3,7 @@ package mtoshipment
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -199,8 +200,9 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		sitCustomerContacted := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		year, month, day = time.Now().Add(time.Hour * 24 * 15).Date()
 		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		eTag := etag.GenerateEtag(approvedShipment.UpdatedAt)
 
-		sitStatus, err := sitStatusService.CalculateSITAllowanceRequestedDates(approvedShipment, &sitCustomerContacted, &sitRequestedDelivery)
+		sitStatus, err := sitStatusService.CalculateSITAllowanceRequestedDates(approvedShipment, &sitCustomerContacted, &sitRequestedDelivery, eTag)
 		suite.NoError(err)
 		suite.NotNil(sitStatus)
 

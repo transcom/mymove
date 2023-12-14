@@ -148,6 +148,51 @@ func (o *UpdateSITDeliveryRequestNotFound) WriteResponse(rw http.ResponseWriter,
 	}
 }
 
+// UpdateSITDeliveryRequestPreconditionFailedCode is the HTTP code returned for type UpdateSITDeliveryRequestPreconditionFailed
+const UpdateSITDeliveryRequestPreconditionFailedCode int = 412
+
+/*
+UpdateSITDeliveryRequestPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
+
+swagger:response updateSITDeliveryRequestPreconditionFailed
+*/
+type UpdateSITDeliveryRequestPreconditionFailed struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *primemessages.ClientError `json:"body,omitempty"`
+}
+
+// NewUpdateSITDeliveryRequestPreconditionFailed creates UpdateSITDeliveryRequestPreconditionFailed with default headers values
+func NewUpdateSITDeliveryRequestPreconditionFailed() *UpdateSITDeliveryRequestPreconditionFailed {
+
+	return &UpdateSITDeliveryRequestPreconditionFailed{}
+}
+
+// WithPayload adds the payload to the update s i t delivery request precondition failed response
+func (o *UpdateSITDeliveryRequestPreconditionFailed) WithPayload(payload *primemessages.ClientError) *UpdateSITDeliveryRequestPreconditionFailed {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update s i t delivery request precondition failed response
+func (o *UpdateSITDeliveryRequestPreconditionFailed) SetPayload(payload *primemessages.ClientError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateSITDeliveryRequestPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(412)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // UpdateSITDeliveryRequestInternalServerErrorCode is the HTTP code returned for type UpdateSITDeliveryRequestInternalServerError
 const UpdateSITDeliveryRequestInternalServerErrorCode int = 500
 

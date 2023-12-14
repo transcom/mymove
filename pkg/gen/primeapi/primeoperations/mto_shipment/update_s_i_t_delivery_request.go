@@ -32,7 +32,7 @@ func NewUpdateSITDeliveryRequest(ctx *middleware.Context, handler UpdateSITDeliv
 /*
 	UpdateSITDeliveryRequest swagger:route PATCH /mto-shipments/{mtoShipmentID}/sit-delivery mtoShipment updateSITDeliveryRequest
 
-updateSITDeliveryRequest
+# Update the SIT Customer Contact and SIT Requested Delivery Dates for a service item currently in SIT
 
 ### Functionality
 This endpoint can be used to update the Authorized End Date for shipments in Origin or Destination SIT and the Required

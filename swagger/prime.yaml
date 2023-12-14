@@ -900,7 +900,9 @@ paths:
           $ref: '#/responses/ServerError'
   /mto-shipments/{mtoShipmentID}/sit-delivery:
     patch:
-      summary: updateSITDeliveryRequest
+      summary: >-
+        Update the SIT Customer Contact and SIT Requested Delivery Dates for a
+        service item currently in SIT
       description: >
         ### Functionality
 
@@ -941,6 +943,8 @@ paths:
           $ref: '#/responses/InvalidRequest'
         '404':
           $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
         '500':
           $ref: '#/responses/ServerError'
   /mto-shipments/{mtoShipmentID}/sit-extensions:

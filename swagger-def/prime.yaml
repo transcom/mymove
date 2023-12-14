@@ -767,7 +767,7 @@ paths:
           $ref: '#/responses/ServerError'
   /mto-shipments/{mtoShipmentID}/sit-delivery:
     patch:
-      summary: updateSITDeliveryRequest
+      summary: Update the SIT Customer Contact and SIT Requested Delivery Dates for a service item currently in SIT
       description: |
         ### Functionality
         This endpoint can be used to update the Authorized End Date for shipments in Origin or Destination SIT and the Required
@@ -802,6 +802,8 @@ paths:
           $ref: '#/responses/InvalidRequest'
         '404':
           $ref: 'responses/NotFound.yaml'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
         '500':
           $ref: '#/responses/ServerError'
   /mto-shipments/{mtoShipmentID}/sit-extensions:

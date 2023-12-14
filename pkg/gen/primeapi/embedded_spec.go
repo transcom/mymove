@@ -1080,7 +1080,7 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "updateSITDeliveryRequest",
+        "summary": "Update the SIT Customer Contact and SIT Requested Delivery Dates for a service item currently in SIT",
         "operationId": "updateSITDeliveryRequest",
         "parameters": [
           {
@@ -1115,6 +1115,9 @@ func init() {
           },
           "404": {
             "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
           },
           "500": {
             "$ref": "#/responses/ServerError"
@@ -6086,7 +6089,7 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "updateSITDeliveryRequest",
+        "summary": "Update the SIT Customer Contact and SIT Requested Delivery Dates for a service item currently in SIT",
         "operationId": "updateSITDeliveryRequest",
         "parameters": [
           {
@@ -6128,6 +6131,12 @@ func init() {
           },
           "404": {
             "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }

@@ -18,25 +18,25 @@ type ShipmentSITStatus struct {
 	mock.Mock
 }
 
-// CalculateSITAllowanceRequestedDates provides a mock function with given fields: shipment, sitCustomerContacted, sitRequestedDelivery
-func (_m *ShipmentSITStatus) CalculateSITAllowanceRequestedDates(shipment models.MTOShipment, sitCustomerContacted *time.Time, sitRequestedDelivery *time.Time) (*services.SITStatus, error) {
-	ret := _m.Called(shipment, sitCustomerContacted, sitRequestedDelivery)
+// CalculateSITAllowanceRequestedDates provides a mock function with given fields: shipment, sitCustomerContacted, sitRequestedDelivery, eTag
+func (_m *ShipmentSITStatus) CalculateSITAllowanceRequestedDates(shipment models.MTOShipment, sitCustomerContacted *time.Time, sitRequestedDelivery *time.Time, eTag string) (*services.SITStatus, error) {
+	ret := _m.Called(shipment, sitCustomerContacted, sitRequestedDelivery, eTag)
 
 	var r0 *services.SITStatus
 	var r1 error
-	if rf, ok := ret.Get(0).(func(models.MTOShipment, *time.Time, *time.Time) (*services.SITStatus, error)); ok {
-		return rf(shipment, sitCustomerContacted, sitRequestedDelivery)
+	if rf, ok := ret.Get(0).(func(models.MTOShipment, *time.Time, *time.Time, string) (*services.SITStatus, error)); ok {
+		return rf(shipment, sitCustomerContacted, sitRequestedDelivery, eTag)
 	}
-	if rf, ok := ret.Get(0).(func(models.MTOShipment, *time.Time, *time.Time) *services.SITStatus); ok {
-		r0 = rf(shipment, sitCustomerContacted, sitRequestedDelivery)
+	if rf, ok := ret.Get(0).(func(models.MTOShipment, *time.Time, *time.Time, string) *services.SITStatus); ok {
+		r0 = rf(shipment, sitCustomerContacted, sitRequestedDelivery, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*services.SITStatus)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(models.MTOShipment, *time.Time, *time.Time) error); ok {
-		r1 = rf(shipment, sitCustomerContacted, sitRequestedDelivery)
+	if rf, ok := ret.Get(1).(func(models.MTOShipment, *time.Time, *time.Time, string) error); ok {
+		r1 = rf(shipment, sitCustomerContacted, sitRequestedDelivery, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}

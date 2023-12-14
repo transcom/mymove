@@ -333,6 +333,7 @@ func (h UpdateSITDeliveryRequestHandler) Handle(params mtoshipmentops.UpdateSITD
 				"PPMShipment"}
 
 			shipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
+			eTag := params.IfMatch
 			shipment, err := mtoshipment.NewMTOShipmentFetcher().GetShipment(appCtx, shipmentID, eagerAssociations...)
 
 			if err != nil {
@@ -349,7 +350,7 @@ func (h UpdateSITDeliveryRequestHandler) Handle(params mtoshipmentops.UpdateSITD
 			var sitCustomerContacted = (*time.Time)(params.Body.SitCustomerContacted)
 			var sitRequestedDelivery = (*time.Time)(params.Body.SitRequestedDelivery)
 
-			shipmentSITStatus, err := h.shipmentStatus.CalculateSITAllowanceRequestedDates(*shipment, sitCustomerContacted, sitRequestedDelivery)
+			shipmentSITStatus, err := h.shipmentStatus.CalculateSITAllowanceRequestedDates(*shipment, sitCustomerContacted, sitRequestedDelivery, eTag)
 
 			if err != nil {
 				appCtx.Logger().Error("primeapi.UpdateSITDeliveryRequestHandler error - failed to update dates", zap.Error(err))
@@ -357,6 +358,9 @@ func (h UpdateSITDeliveryRequestHandler) Handle(params mtoshipmentops.UpdateSITD
 				case apperror.NotFoundError:
 					return mtoshipmentops.NewUpdateSITDeliveryRequestNotFound().WithPayload(
 						payloads.ClientError(handlers.NotFoundMessage, e.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.PreconditionFailedError:
+					return mtoshipmentops.NewUpdateSITDeliveryRequestPreconditionFailed().WithPayload(
+						payloads.ClientError(handlers.PreconditionErrMessage, e.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				default:
 					return mtoshipmentops.NewUpdateSITDeliveryRequestInternalServerError().WithPayload(
 						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err

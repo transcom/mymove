@@ -41,6 +41,12 @@ func (o *UpdateSITDeliveryRequestReader) ReadResponse(response runtime.ClientRes
 			return nil, err
 		}
 		return nil, result
+	case 412:
+		result := NewUpdateSITDeliveryRequestPreconditionFailed()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 500:
 		result := NewUpdateSITDeliveryRequestInternalServerError()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -245,6 +251,74 @@ func (o *UpdateSITDeliveryRequestNotFound) GetPayload() *primemessages.ClientErr
 }
 
 func (o *UpdateSITDeliveryRequestNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(primemessages.ClientError)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewUpdateSITDeliveryRequestPreconditionFailed creates a UpdateSITDeliveryRequestPreconditionFailed with default headers values
+func NewUpdateSITDeliveryRequestPreconditionFailed() *UpdateSITDeliveryRequestPreconditionFailed {
+	return &UpdateSITDeliveryRequestPreconditionFailed{}
+}
+
+/*
+UpdateSITDeliveryRequestPreconditionFailed describes a response with status code 412, with default header values.
+
+Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
+*/
+type UpdateSITDeliveryRequestPreconditionFailed struct {
+	Payload *primemessages.ClientError
+}
+
+// IsSuccess returns true when this update s i t delivery request precondition failed response has a 2xx status code
+func (o *UpdateSITDeliveryRequestPreconditionFailed) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update s i t delivery request precondition failed response has a 3xx status code
+func (o *UpdateSITDeliveryRequestPreconditionFailed) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update s i t delivery request precondition failed response has a 4xx status code
+func (o *UpdateSITDeliveryRequestPreconditionFailed) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update s i t delivery request precondition failed response has a 5xx status code
+func (o *UpdateSITDeliveryRequestPreconditionFailed) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update s i t delivery request precondition failed response a status code equal to that given
+func (o *UpdateSITDeliveryRequestPreconditionFailed) IsCode(code int) bool {
+	return code == 412
+}
+
+// Code gets the status code for the update s i t delivery request precondition failed response
+func (o *UpdateSITDeliveryRequestPreconditionFailed) Code() int {
+	return 412
+}
+
+func (o *UpdateSITDeliveryRequestPreconditionFailed) Error() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/sit-delivery][%d] updateSITDeliveryRequestPreconditionFailed  %+v", 412, o.Payload)
+}
+
+func (o *UpdateSITDeliveryRequestPreconditionFailed) String() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/sit-delivery][%d] updateSITDeliveryRequestPreconditionFailed  %+v", 412, o.Payload)
+}
+
+func (o *UpdateSITDeliveryRequestPreconditionFailed) GetPayload() *primemessages.ClientError {
+	return o.Payload
+}
+
+func (o *UpdateSITDeliveryRequestPreconditionFailed) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(primemessages.ClientError)
 

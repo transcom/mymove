@@ -3,8 +3,10 @@ package mtoshipment
 import (
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -227,7 +229,11 @@ func fetchEntitlement(appCtx appcontext.AppContext, mtoShipment models.MTOShipme
 }
 
 func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(shipment models.MTOShipment, sitCustomerContacted *time.Time,
-	sitRequestedDelivery *time.Time) (*services.SITStatus, error) {
+	sitRequestedDelivery *time.Time, eTag string) (*services.SITStatus, error) {
+	existingETag := etag.GenerateEtag(shipment.UpdatedAt)
+	if existingETag != eTag {
+		return nil, apperror.NewPreconditionFailedError(shipment.ID, errors.New("The If-Match header value did not match the eTag for this record."))
+	}
 
 	if shipment.MTOServiceItems == nil || len(shipment.MTOServiceItems) == 0 {
 		return nil, apperror.NewNotFoundError(shipment.ID, "shipment is missing MTO Service Items")

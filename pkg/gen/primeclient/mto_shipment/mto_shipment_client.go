@@ -540,7 +540,7 @@ func (a *Client) UpdateReweigh(params *UpdateReweighParams, opts ...ClientOption
 }
 
 /*
-	UpdateSITDeliveryRequest updates s i t delivery request
+	UpdateSITDeliveryRequest updates the s i t customer contact and s i t requested delivery dates for a service item currently in s i t
 
 	### Functionality
 
