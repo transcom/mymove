@@ -230,7 +230,7 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(shipment models.M
 	sitRequestedDelivery *time.Time) (*services.SITStatus, error) {
 
 	if shipment.MTOServiceItems == nil || len(shipment.MTOServiceItems) == 0 {
-		return nil, nil
+		return nil, apperror.NewNotFoundError(shipment.ID, "shipment is missing MTO Service Items")
 	}
 
 	var shipmentSITStatus services.SITStatus
@@ -244,7 +244,7 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(shipment models.M
 
 	// There were no relevant SIT service items for this shipment
 	if currentSIT == nil && len(shipmentSITs.pastSITs) == 0 {
-		return nil, nil
+		return nil, apperror.NewNotFoundError(shipment.ID, "shipment is missing current SIT")
 	}
 
 	if currentSIT != nil {

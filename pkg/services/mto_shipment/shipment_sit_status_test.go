@@ -162,6 +162,52 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		suite.Len(sitStatus.PastSITs, 0)
 	})
 
+	suite.Run("calculates allowance end date and requested delivery date for a shipment currently in SIT", func() {
+		shipmentSITAllowance := int(90)
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
+			},
+		}, nil)
+
+		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
+		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		dofsit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &aMonthAgo,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
+			},
+		}, nil)
+
+		approvedShipment.MTOServiceItems = models.MTOServiceItems{dofsit}
+
+		year, month, day = time.Now().Add(time.Hour * 24 * -15).Date()
+		sitCustomerContacted := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		year, month, day = time.Now().Add(time.Hour * 24 * 15).Date()
+		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+
+		sitStatus, err := sitStatusService.CalculateSITAllowanceRequestedDates(approvedShipment, &sitCustomerContacted, &sitRequestedDelivery)
+		suite.NoError(err)
+		suite.NotNil(sitStatus)
+
+		suite.Equal(&sitCustomerContacted, sitStatus.CurrentSIT.SITCustomerContacted)
+		suite.Equal(&sitRequestedDelivery, sitStatus.CurrentSIT.SITRequestedDelivery)
+	})
+
 	suite.Run("combines SIT days sum for shipment with past and current SIT", func() {
 		shipmentSITAllowance := int(90)
 		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
