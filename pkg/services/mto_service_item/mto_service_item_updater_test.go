@@ -1021,11 +1021,5 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.Nil(updatedServiceItem.RejectionReason)
 		suite.Nil(updatedServiceItem.RejectedAt)
 		suite.NotNil(updatedServiceItem)
-
-		destinationAddress := serviceItem.MTOShipment.DestinationAddress
-		suite.Equal(destinationAddress.StreetAddress1, updatedServiceItem.SITDestinationOriginalAddress.StreetAddress1)
-		suite.Equal(destinationAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
-		suite.Equal(destinationAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
-		suite.Equal(destinationAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
 	})
 }

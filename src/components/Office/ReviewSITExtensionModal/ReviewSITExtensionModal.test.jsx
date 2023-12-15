@@ -115,6 +115,7 @@ describe('ReviewSITExtensionModal', () => {
         sitExt.id,
         expect.objectContaining({
           acceptExtension: 'no',
+          convertToCustomersExpense: false,
           officeRemarks: 'Denied!',
         }),
       );
