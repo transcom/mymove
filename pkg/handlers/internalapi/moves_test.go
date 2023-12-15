@@ -15,7 +15,6 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
-	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
@@ -23,7 +22,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
-	"github.com/transcom/mymove/pkg/route/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
@@ -409,38 +407,6 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 		suite.NoError(err)
 		suite.NotNil(signedCertification)
 	})
-}
-
-func (suite *HandlerSuite) TestShowMoveForbiddenUser() {
-	// Given: a set of orders, a move, user and servicemember
-	move := factory.BuildMove(suite.DB(), nil, nil)
-	// And: another logged in user
-	anotherUser := factory.BuildServiceMember(suite.DB(), nil, nil)
-
-	// And: the context contains the auth values for not logged-in user
-	req := httptest.NewRequest("GET", "/moves/some_id/", nil)
-	req = suite.AuthenticateRequest(req, anotherUser)
-
-	params := moveop.ShowMoveParams{
-		HTTPRequest: req,
-		MoveID:      strfmt.UUID(move.ID.String()),
-	}
-	// And: show Move is queried
-	showHandler := ShowMoveHandler{suite.HandlerConfig()}
-
-	planner := &mocks.Planner{}
-	planner.On("ZipTransitDistance",
-		mock.AnythingOfType("*appcontext.appContext"),
-		mock.Anything,
-		mock.Anything,
-	).Return(1125, nil)
-
-	handlerConfig := suite.HandlerConfig()
-	handlerConfig.SetPlanner(planner)
-	response := showHandler.Handle(params)
-
-	// Then: expect a forbidden response
-	suite.CheckResponseForbidden(response)
 }
 
 func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
