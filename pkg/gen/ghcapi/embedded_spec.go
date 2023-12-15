@@ -5581,7 +5581,6 @@ func init() {
         "convertToMembersExpense": {
           "description": "Whether or not to convert to members expense once SIT extension is denied.",
           "type": "boolean",
-          "x-nullable": false,
           "example": false
         },
         "officeRemarks": {
@@ -17023,7 +17022,6 @@ func init() {
         "convertToMembersExpense": {
           "description": "Whether or not to convert to members expense once SIT extension is denied.",
           "type": "boolean",
-          "x-nullable": false,
           "example": false
         },
         "officeRemarks": {

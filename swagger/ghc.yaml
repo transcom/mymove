@@ -4959,7 +4959,6 @@ definitions:
           denied.
         type: boolean
         example: false
-        x-nullable: false
     required:
       - officeRemarks
       - convertToMembersExpense

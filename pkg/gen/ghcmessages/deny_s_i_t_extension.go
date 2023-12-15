@@ -22,7 +22,7 @@ type DenySITExtension struct {
 	// Whether or not to convert to members expense once SIT extension is denied.
 	// Example: false
 	// Required: true
-	ConvertToMembersExpense bool `json:"convertToMembersExpense"`
+	ConvertToMembersExpense *bool `json:"convertToMembersExpense"`
 
 	// Remarks from TOO about SIT denial
 	// Example: Denied this extension as it does not match the criteria
@@ -50,7 +50,7 @@ func (m *DenySITExtension) Validate(formats strfmt.Registry) error {
 
 func (m *DenySITExtension) validateConvertToMembersExpense(formats strfmt.Registry) error {
 
-	if err := validate.Required("convertToMembersExpense", "body", bool(m.ConvertToMembersExpense)); err != nil {
+	if err := validate.Required("convertToMembersExpense", "body", m.ConvertToMembersExpense); err != nil {
 		return err
 	}
 
