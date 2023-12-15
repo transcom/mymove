@@ -594,6 +594,28 @@ export const MoveTaskOrder = (props) => {
     );
   };
 
+  const handleConvertSITExtension = (formValues, shipment) => {
+    mutateSubmitSITExtension(
+      {
+        shipmentID: shipment.id,
+        ifMatchETag: shipment.eTag,
+        body: {
+          requestReason: formValues.requestReason,
+          officeRemarks: formValues.officeRemarks,
+          approvedDays: parseInt(formValues.daysApproved, 10) - shipment.sitDaysAllowance,
+          sitEntryDate: formatDateForSwagger(formValues.sitEntryDate),
+          moveID: shipment.moveTaskOrderID,
+        },
+      },
+      {
+        onSuccess: () => {
+          setIsSuccessAlertVisible(true);
+          setSubmittedChangeTime(Date.now());
+        },
+      },
+    );
+  };
+
   /* istanbul ignore next */
   const handleDivertShipment = (mtoShipmentID, eTag) => {
     mutateMTOShipmentStatus(
@@ -1318,6 +1340,7 @@ export const MoveTaskOrder = (props) => {
                   handleRequestReweighModal={handleRequestReweighModal}
                   handleReviewSITExtension={handleReviewSITExtension}
                   handleSubmitSITExtension={handleSubmitSITExtension}
+                  handleConvertSITExtension={handleConvertSITExtension}
                   handleEditFacilityInfo={handleEditFacilityInfo}
                   handleEditServiceOrderNumber={handleEditServiceOrderNumber}
                   handleEditAccountingCodes={handleEditAccountingCodes}
