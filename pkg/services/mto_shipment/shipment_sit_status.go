@@ -92,7 +92,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 	if err != nil {
 		return nil, err
 	}
-	shipmentSITStatus.TotalSITDaysUsed = clamp(CalculateTotalDaysInSIT(shipmentSITs, today), 0, *shipment.SITDaysAllowance)
+	shipmentSITStatus.TotalSITDaysUsed = clamp(CalculateTotalDaysInSIT(shipmentSITs, today), 0, totalSITAllowance)
 	shipmentSITStatus.CalculatedTotalDaysInSIT = CalculateTotalDaysInSIT(shipmentSITs, today)
 	shipmentSITStatus.TotalDaysRemaining = totalSITAllowance - shipmentSITStatus.TotalSITDaysUsed
 	shipmentSITStatus.PastSITs = shipmentSITs.pastSITs
