@@ -8801,6 +8801,9 @@ func init() {
     },
     "SITStatus": {
       "properties": {
+        "calculatedTotalDaysInSIT": {
+          "type": "integer"
+        },
         "currentSIT": {
           "type": "object",
           "properties": {
@@ -20377,6 +20380,10 @@ func init() {
     },
     "SITStatus": {
       "properties": {
+        "calculatedTotalDaysInSIT": {
+          "type": "integer",
+          "minimum": 0
+        },
         "currentSIT": {
           "type": "object",
           "properties": {

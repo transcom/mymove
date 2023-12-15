@@ -111,6 +111,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		suite.Equal(dofsit.ID.String(), sitStatus.PastSITs[0].ID.String())
 
 		suite.Equal(15, sitStatus.TotalSITDaysUsed)
+		suite.Equal(15, sitStatus.CalculatedTotalDaysInSIT)
 		suite.Equal(75, sitStatus.TotalDaysRemaining)
 		suite.Nil(sitStatus.CurrentSIT) // No current SIT since all SIT items have departed status
 	})
@@ -154,6 +155,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		suite.Equal(OriginSITLocation, sitStatus.CurrentSIT.Location)
 		suite.Equal(30, sitStatus.TotalSITDaysUsed)
+		suite.Equal(30, sitStatus.CalculatedTotalDaysInSIT)
 		suite.Equal(60, sitStatus.TotalDaysRemaining)
 		suite.Equal(30, sitStatus.CurrentSIT.DaysInSIT)
 		suite.Equal(aMonthAgo.String(), sitStatus.CurrentSIT.SITEntryDate.String())
@@ -224,6 +226,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		suite.Equal(OriginSITLocation, sitStatus.CurrentSIT.Location)
 		suite.Equal(22, sitStatus.TotalSITDaysUsed) // 15 days from previous SIT, 7 days from the current
+		suite.Equal(22, sitStatus.CalculatedTotalDaysInSIT)
 		suite.Equal(68, sitStatus.TotalDaysRemaining)
 		suite.Equal(7, sitStatus.CurrentSIT.DaysInSIT)
 		suite.Equal(aWeekAgo.String(), sitStatus.CurrentSIT.SITEntryDate.String())
@@ -296,6 +299,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		suite.Equal(DestinationSITLocation, sitStatus.CurrentSIT.Location)
 		suite.Equal(22, sitStatus.TotalSITDaysUsed) // 15 days from previous SIT, 7 days from the current
+		suite.Equal(22, sitStatus.CalculatedTotalDaysInSIT)
 		suite.Equal(68, sitStatus.TotalDaysRemaining)
 		suite.Equal(7, sitStatus.CurrentSIT.DaysInSIT)
 		suite.Equal(aWeekAgo.String(), sitStatus.CurrentSIT.SITEntryDate.String())
@@ -368,6 +372,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 		suite.Equal(DestinationSITLocation, sitStatus.CurrentSIT.Location)
 		suite.Equal(97, sitStatus.TotalSITDaysUsed) // 15 days from previous SIT, 7 days from the current
+		suite.Equal(97, sitStatus.CalculatedTotalDaysInSIT)
 		suite.Equal(-7, sitStatus.TotalDaysRemaining)
 		suite.Equal(7, sitStatus.CurrentSIT.DaysInSIT)
 		suite.Equal(aWeekAgo.String(), sitStatus.CurrentSIT.SITEntryDate.String())
