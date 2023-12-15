@@ -233,7 +233,7 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(shipment models.M
 	existingETag := etag.GenerateEtag(shipment.UpdatedAt)
 
 	if existingETag != eTag {
-		return nil, apperror.NewPreconditionFailedError(shipment.ID, errors.New("The If-Match header value did not match the eTag for this record."))
+		return nil, apperror.NewPreconditionFailedError(shipment.ID, errors.New("the if-match header value did not match the etag for this record"))
 	}
 
 	if shipment.MTOServiceItems == nil || len(shipment.MTOServiceItems) == 0 {
