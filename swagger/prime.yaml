@@ -945,6 +945,8 @@ paths:
           $ref: '#/responses/NotFound'
         '412':
           $ref: '#/responses/PreconditionFailed'
+        '500':
+          $ref: '#/responses/ServerError'
   /mto-shipments/{mtoShipmentID}/sit-extensions:
     post:
       summary: createSITExtension

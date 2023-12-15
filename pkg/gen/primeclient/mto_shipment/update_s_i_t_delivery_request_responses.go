@@ -47,6 +47,12 @@ func (o *UpdateSITDeliveryRequestReader) ReadResponse(response runtime.ClientRes
 			return nil, err
 		}
 		return nil, result
+	case 500:
+		result := NewUpdateSITDeliveryRequestInternalServerError()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	default:
 		return nil, runtime.NewAPIError("[PATCH /mto-shipments/{mtoShipmentID}/sit-delivery] updateSITDeliveryRequest", response, response.Code())
 	}
@@ -315,6 +321,74 @@ func (o *UpdateSITDeliveryRequestPreconditionFailed) GetPayload() *primemessages
 func (o *UpdateSITDeliveryRequestPreconditionFailed) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(primemessages.ClientError)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewUpdateSITDeliveryRequestInternalServerError creates a UpdateSITDeliveryRequestInternalServerError with default headers values
+func NewUpdateSITDeliveryRequestInternalServerError() *UpdateSITDeliveryRequestInternalServerError {
+	return &UpdateSITDeliveryRequestInternalServerError{}
+}
+
+/*
+UpdateSITDeliveryRequestInternalServerError describes a response with status code 500, with default header values.
+
+A server error occurred.
+*/
+type UpdateSITDeliveryRequestInternalServerError struct {
+	Payload *primemessages.Error
+}
+
+// IsSuccess returns true when this update s i t delivery request internal server error response has a 2xx status code
+func (o *UpdateSITDeliveryRequestInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update s i t delivery request internal server error response has a 3xx status code
+func (o *UpdateSITDeliveryRequestInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update s i t delivery request internal server error response has a 4xx status code
+func (o *UpdateSITDeliveryRequestInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this update s i t delivery request internal server error response has a 5xx status code
+func (o *UpdateSITDeliveryRequestInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this update s i t delivery request internal server error response a status code equal to that given
+func (o *UpdateSITDeliveryRequestInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
+// Code gets the status code for the update s i t delivery request internal server error response
+func (o *UpdateSITDeliveryRequestInternalServerError) Code() int {
+	return 500
+}
+
+func (o *UpdateSITDeliveryRequestInternalServerError) Error() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/sit-delivery][%d] updateSITDeliveryRequestInternalServerError  %+v", 500, o.Payload)
+}
+
+func (o *UpdateSITDeliveryRequestInternalServerError) String() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/sit-delivery][%d] updateSITDeliveryRequestInternalServerError  %+v", 500, o.Payload)
+}
+
+func (o *UpdateSITDeliveryRequestInternalServerError) GetPayload() *primemessages.Error {
+	return o.Payload
+}
+
+func (o *UpdateSITDeliveryRequestInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(primemessages.Error)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

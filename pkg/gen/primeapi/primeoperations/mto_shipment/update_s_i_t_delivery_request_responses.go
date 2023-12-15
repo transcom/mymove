@@ -192,3 +192,48 @@ func (o *UpdateSITDeliveryRequestPreconditionFailed) WriteResponse(rw http.Respo
 		}
 	}
 }
+
+// UpdateSITDeliveryRequestInternalServerErrorCode is the HTTP code returned for type UpdateSITDeliveryRequestInternalServerError
+const UpdateSITDeliveryRequestInternalServerErrorCode int = 500
+
+/*
+UpdateSITDeliveryRequestInternalServerError A server error occurred.
+
+swagger:response updateSITDeliveryRequestInternalServerError
+*/
+type UpdateSITDeliveryRequestInternalServerError struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *primemessages.Error `json:"body,omitempty"`
+}
+
+// NewUpdateSITDeliveryRequestInternalServerError creates UpdateSITDeliveryRequestInternalServerError with default headers values
+func NewUpdateSITDeliveryRequestInternalServerError() *UpdateSITDeliveryRequestInternalServerError {
+
+	return &UpdateSITDeliveryRequestInternalServerError{}
+}
+
+// WithPayload adds the payload to the update s i t delivery request internal server error response
+func (o *UpdateSITDeliveryRequestInternalServerError) WithPayload(payload *primemessages.Error) *UpdateSITDeliveryRequestInternalServerError {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update s i t delivery request internal server error response
+func (o *UpdateSITDeliveryRequestInternalServerError) SetPayload(payload *primemessages.Error) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateSITDeliveryRequestInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(500)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
