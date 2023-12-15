@@ -64,7 +64,8 @@ const MoveDetails = ({
   const [alertType, setAlertType] = useState('success');
   const navigate = useNavigate();
 
-  const { move, order, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
+  const { move, order, closeoutOffice, mtoShipments, mtoServiceItems, isLoading, isError } =
+    useMoveDetailsQueries(moveCode);
 
   // for now we are only showing dest type on retiree and separatee orders
   let isRetirementOrSeparation = false;
@@ -137,7 +138,6 @@ const MoveDetails = ({
   const handleCancelFinancialReviewModal = () => {
     setIsFinancialModalVisible(false);
   };
-
   const submittedShipments = mtoShipments?.filter(
     (shipment) => shipment.status === shipmentStatuses.SUBMITTED && !shipment.deletedAt,
   );
@@ -377,6 +377,7 @@ const MoveDetails = ({
             <div className={styles.section} id="requested-shipments">
               <SubmittedRequestedShipments
                 mtoShipments={submittedShipments}
+                closeoutOffice={closeoutOffice}
                 ordersInfo={ordersInfo}
                 allowancesInfo={allowancesInfo}
                 customerInfo={customerInfo}
@@ -396,6 +397,7 @@ const MoveDetails = ({
             <div className={styles.section} id="approved-shipments">
               <ApprovedRequestedShipments
                 mtoShipments={approvedOrCanceledShipments}
+                closeoutOffice={closeoutOffice}
                 ordersInfo={ordersInfo}
                 mtoServiceItems={mtoServiceItems}
                 moveCode={moveCode}

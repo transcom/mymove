@@ -1568,6 +1568,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 			{
 				Model: models.MTOServiceItem{
 					SITEntryDate: models.TimePointer(time.Now()),
+					Status:       models.MTOServiceItemStatusRejected,
 				},
 			},
 			{
