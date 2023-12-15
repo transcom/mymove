@@ -55,7 +55,7 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
   const currentDateEnteredSit = <p>{formatDateForDatePicker(sitEntryDate)}</p>;
   const totalDaysRemaining = () => {
     const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
-    if (daysRemaining > 0) {
+    if (daysRemaining >= 0) {
       return daysRemaining;
     }
     return 'Expired';

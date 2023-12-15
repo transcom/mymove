@@ -102,16 +102,14 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
     return <p key={pastSITItem.id}>{text}</p>;
   });
 
-  const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
-
   // Currently active SIT
   const currentLocation =
     sitStatus.currentSIT?.location === LOCATION_TYPES.DESTINATION ? 'destination SIT' : 'origin SIT';
 
-  const totalSITDaysUsed = clamp(sitStatus.totalSITDaysUsed || 0, 0, shipment.sitDaysAllowance);
+  const totalSITDaysUsed = sitStatus.totalSITDaysUsed || 0;
   const totalDaysRemaining = () => {
     const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
-    if (daysRemaining > 0) {
+    if (daysRemaining >= 0) {
       return daysRemaining;
     }
     return 'Expired';
