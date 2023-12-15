@@ -113,7 +113,13 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
       setTotalDaysRemaining('Expired');
     } else {
       setTotalSITDaysUsed(sitStatus.totalSITDaysUsed);
-      setTotalDaysRemaining(daysApproved - sitStatus.totalSITDaysUsed);
+      const remaining = () => {
+        if (daysApproved - sitStatus.calculatedTotalDaysInSIT <= 0) {
+          return 'Expired';
+        }
+        return daysApproved - sitStatus.calculatedTotalDaysInSIT;
+      };
+      setTotalDaysRemaining(remaining);
     }
   };
 
