@@ -4831,7 +4831,6 @@ definitions:
         description: Whether or not to convert to members expense once SIT extension is denied.
         type: boolean
         example: false
-        x-nullable: false
     required:
       - officeRemarks
       - convertToMembersExpense
