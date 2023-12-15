@@ -18,7 +18,7 @@ func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 	suite.Run("Returns an error when shipment is not found", func() {
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 		officeRemarks := "office remarks"
-		convertToMembersExpense := false
+		convertToMembersExpense := models.BoolPointer(false)
 		eTag := ""
 		session := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
@@ -34,7 +34,7 @@ func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		officeRemarks := "office remarks"
-		convertToMembersExpense := false
+		convertToMembersExpense := models.BoolPointer(false)
 		eTag := ""
 		session := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
@@ -50,7 +50,7 @@ func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 		sitExtension := factory.BuildSITDurationUpdate(suite.DB(), nil, nil)
 		mtoShipment := sitExtension.MTOShipment
 		officeRemarks := "office remarks"
-		convertToMembersExpense := false
+		convertToMembersExpense := models.BoolPointer(false)
 		eTag := ""
 		session := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
@@ -74,7 +74,7 @@ func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 			},
 		}, nil)
 		officeRemarks := "office remarks"
-		convertToMembersExpense := false
+		convertToMembersExpense := models.BoolPointer(false)
 		eTag := ""
 		session := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
@@ -108,7 +108,7 @@ func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 			},
 		}, nil)
 		officeRemarks := "office remarks"
-		convertToMembersExpense := false
+		convertToMembersExpense := models.BoolPointer(false)
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		session := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
@@ -152,7 +152,7 @@ func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 			},
 		}, nil)
 		officeRemarks := "office remarks"
-		convertToMembersExpense := true
+		convertToMembersExpense := models.BoolPointer(true)
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		session := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
@@ -161,6 +161,7 @@ func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 
 		updatedShipment, err := sitExtensionDenier.DenySITExtension(session, mtoShipment.ID, sitExtension.ID, &officeRemarks, convertToMembersExpense, eTag)
 		suite.NoError(err)
+		suite.NotNil(updatedShipment)
 
 		var shipmentInDB models.MTOShipment
 		err = suite.DB().EagerPreload("MoveTaskOrder").Find(&shipmentInDB, mtoShipment.ID)
@@ -203,7 +204,7 @@ func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 			},
 		}, nil)
 		officeRemarks := "office remarks"
-		convertToMembersExpense := false
+		convertToMembersExpense := models.BoolPointer(false)
 		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 		session := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
