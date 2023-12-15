@@ -4976,9 +4976,11 @@ func createHHGWithPaymentServiceItems(
 		}
 	}
 
-	_, updateErr := serviceItemUpdater.ApproveOrRejectServiceItem(appCtx, originPickupSIT.ID, models.MTOServiceItemStatusRejected, nil, etag.GenerateEtag(originPickupSIT.UpdatedAt))
-	if updateErr != nil {
-		logger.Fatal("Error rejecting SIT service item", zap.Error(updateErr))
+	for _, createdServiceItem := range []models.MTOServiceItem{originFirstDaySIT, originAdditionalDaySIT, originPickupSIT, originSITFSC} {
+		_, updateErr := serviceItemUpdater.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusRejected, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
+		if updateErr != nil {
+			logger.Fatal("Error rejecting SIT service item", zap.Error(updateErr))
+		}
 	}
 
 	originDepartureDate := originEntryDate.Add(15 * 24 * time.Hour)
