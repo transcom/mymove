@@ -337,7 +337,7 @@ func (h UpdateSITDeliveryRequestHandler) Handle(params mtoshipmentops.UpdateSITD
 			shipment, err := mtoshipment.NewMTOShipmentFetcher().GetShipment(appCtx, shipmentID, eagerAssociations...)
 
 			if err != nil {
-				appCtx.Logger().Error("primeapi.UpdateSITDeliveryRequestHandler error - MTO shipment not found", zap.Error(err))
+				appCtx.Logger().Error("primeapi.UpdateSITDeliveryRequestHandler error - failed to get MTO shipment", zap.Error(err))
 				switch e := err.(type) {
 				case apperror.NotFoundError:
 					return mtoshipmentops.NewUpdateSITDeliveryRequestNotFound().WithPayload(
