@@ -112,7 +112,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
   const totalDaysRemaining = () => {
     const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
     if (daysRemaining > 0) {
-      return daysRemaining;
+      return String(daysRemaining);
     }
     return 'Expired';
   };
@@ -133,7 +133,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
         {/* Sit Total days table */}
         <DataTable
           columnHeaders={['Total days of SIT approved', 'Total days used', 'Total days remaining']}
-          dataRow={[shipment.sitDaysAllowance, totalSITDaysUsed, totalDaysRemaining]}
+          dataRow={[shipment.sitDaysAllowance, totalSITDaysUsed, totalDaysRemaining()]}
         />
       </div>
 

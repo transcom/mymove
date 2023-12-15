@@ -1,5 +1,7 @@
 // @ts-check
 
+import * as moment from 'moment';
+
 import { test, expect } from '../../utils/office/officeTest';
 
 import { TooFlowPage } from './tooTestFixture';
@@ -127,6 +129,7 @@ test.describe('TOO user', () => {
       await expect(page.getByText('Additional days requested')).toBeHidden();
       await expect(page.getByTestId('sitStatusTable').getByText('90', { exact: true }).first()).toBeVisible();
     });
+
     test('is showing correct labels', async ({ page }) => {
       // navigate to MTO tab
       await page.getByTestId('MoveTaskOrder-Tab').click();
@@ -138,6 +141,45 @@ test.describe('TOO user', () => {
       await expect(page.getByText('SIT start date')).toBeVisible();
       await expect(page.getByText('	SIT authorized end date')).toBeVisible();
       await expect(page.getByText('Calculated total SIT days')).toBeVisible();
+    });
+
+    test('is showing correct calculations', async ({ page, officePage }) => {
+      // created a HHG move in SIT
+      const move = await officePage.testHarness.buildHHGMoveInSIT();
+
+      // sign in as TOO
+      await officePage.signInAsNewTOOUser();
+      tooFlowPage = new TooFlowPage(officePage, move);
+
+      // navigate to move
+      await officePage.tooNavigateToMove(move.locator);
+
+      // navigate to MTO tab
+      await page.getByTestId('MoveTaskOrder-Tab').click();
+      await tooFlowPage.waitForPage.moveTaskOrder();
+
+      // capture initial data
+      await page
+        .locator('button[class="usa-button usa-button--unstyled ShipmentDetails_submitSITEXtensionLink__eozWh"]')
+        .getByText('Edit')
+        .click();
+      await expect(
+        page.locator('div[class="SubmitSITExtensionModal_title__IaNGF"]').getByText('(STORAGE IN TRANSIT)'),
+      ).toBeVisible();
+      const approvedDaysCapture = parseInt((await page.getByTestId('daysApproved').inputValue()).toString(), 10);
+      const endDateCapture = (await page.locator('input[placeholder="DD MMM YYYY"]').inputValue()).toString();
+      const expectedNewDate = moment(endDateCapture, 'DD MMM YYYY')
+        .add(approvedDaysCapture + 10, 'days')
+        .format('DD MMM YYYY')
+        .toString();
+
+      // add 10 days
+      await page.getByTestId('daysApproved').clear();
+      await page.getByTestId('daysApproved').fill(`${approvedDaysCapture + 10}`);
+      await page.getByTestId('daysApproved').blur();
+
+      // new sit end date should reflect 10 days into the future
+      expect((await page.locator('input[placeholder="DD MMM YYYY"]').inputValue()).toString()).toEqual(expectedNewDate);
     });
   });
 });
