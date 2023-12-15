@@ -39,6 +39,7 @@ import {
   denySITExtension,
   patchMTOServiceItemStatus,
   submitSITExtension,
+  convertSITExtension,
   updateBillableWeight,
   updateFinancialFlag,
   updateMTOShipment,
@@ -339,6 +340,21 @@ export const MoveTaskOrder = (props) => {
   });
 
   /* istanbul ignore next */
+  const { mutate: mutateConvertSITExtension } = useMutation({
+    mutationFn: convertSITExtension,
+    onSuccess: (data, variables) => {
+      const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
+      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+      queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID] });
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLogger.error(errorMsg);
+    },
+  });
+
+  /* istanbul ignore next */
   const { mutate: mutateFinancialReview } = useMutation({
     mutationFn: updateFinancialFlag,
     onSuccess: (data) => {
@@ -595,15 +611,12 @@ export const MoveTaskOrder = (props) => {
   };
 
   const handleConvertSITExtension = (formValues, shipment) => {
-    mutateSubmitSITExtension(
+    mutateConvertSITExtension(
       {
         shipmentID: shipment.id,
         ifMatchETag: shipment.eTag,
         body: {
-          requestReason: formValues.requestReason,
           officeRemarks: formValues.officeRemarks,
-          approvedDays: parseInt(formValues.daysApproved, 10) - shipment.sitDaysAllowance,
-          sitEntryDate: formatDateForSwagger(formValues.sitEntryDate),
           moveID: shipment.moveTaskOrderID,
         },
       },
