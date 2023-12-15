@@ -82,7 +82,7 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
       return daysRemaining;
     }
     // SIT in has started
-    if (sitStatus && daysRemaining > 1) {
+    if (sitStatus && daysRemaining > 0) {
       return daysRemaining - 1;
     }
     return 'Expired';
@@ -92,7 +92,7 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
   const approvedAndRequestedDatesCombined = formatDateForDatePicker(
     moment()
       .add(sitExtension.requestedDays, 'days')
-      .add(Number.isInteger(totalDaysRemaining()) ? totalDaysRemaining() - 1 : 0, 'days'),
+      .add(Number.isInteger(totalDaysRemaining) ? totalDaysRemaining - 1 : 0, 'days'),
   );
 
   const sitAllowanceHelper = useField({ name: 'daysApproved', id: 'daysApproved' })[2];
@@ -177,7 +177,7 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
           dataRow={[
             <SitDaysAllowanceForm onChange={(e) => handleDaysAllowanceChange(e.target.value)} />,
             sitStatus.totalSITDaysUsed,
-            totalDaysRemaining(),
+            totalDaysRemaining,
           ]}
         />
       </div>
