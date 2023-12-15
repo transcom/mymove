@@ -58,16 +58,36 @@ func (p *mtoServiceItemUpdater) ApproveOrRejectServiceItem(
 
 func (p *mtoServiceItemUpdater) ConvertItemToMembersExpense(
 	appCtx appcontext.AppContext,
-	mtoServiceItemID uuid.UUID,
-	convertToMembersExpense bool,
-	eTag string,
+	shipment *models.MTOShipment,
 ) (*models.MTOServiceItem, error) {
-	mtoServiceItem, err := p.findServiceItem(appCtx, mtoServiceItemID)
+	var DOFSITCodeID uuid.UUID
+	reServiceErr := appCtx.DB().RawQuery(`SELECT id FROM re_services WHERE code = 'DOFSIT'`).First(&DOFSITCodeID) // First get uuid for DOFSIT service code
+	if reServiceErr != nil {
+		return nil, reServiceErr
+	}
+
+	// Now get the DOFSIT service item associated with the current mto_shipment
+	var SITItem models.MTOServiceItem
+	getSITItemErr := appCtx.DB().RawQuery(`SELECT * FROM mto_service_items WHERE re_service_id = ? AND mto_shipment_id = ?`, DOFSITCodeID, shipment.ID).First(&SITItem)
+	if getSITItemErr != nil {
+		switch getSITItemErr {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(shipment.ID, "for MTO Service Item")
+		default:
+			return nil, getSITItemErr
+		}
+	}
+
+	eTag := etag.GenerateEtag(SITItem.UpdatedAt)
+
+	// Finally, update the mto_service_item with the members_expense flag set to TRUE
+	SITItem.MembersExpense = models.BoolPointer(true)
+	mtoServiceItem, err := p.findServiceItem(appCtx, SITItem.ID)
 	if err != nil {
 		return &models.MTOServiceItem{}, err
 	}
 
-	return p.convertItemToMembersExpense(appCtx, *mtoServiceItem, convertToMembersExpense, eTag, checkETag())
+	return p.convertItemToMembersExpense(appCtx, *mtoServiceItem, eTag, checkETag())
 }
 
 func (p *mtoServiceItemUpdater) findServiceItem(appCtx appcontext.AppContext, serviceItemID uuid.UUID) (*models.MTOServiceItem, error) {
@@ -202,7 +222,6 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 func (p *mtoServiceItemUpdater) convertItemToMembersExpense(
 	appCtx appcontext.AppContext,
 	serviceItem models.MTOServiceItem,
-	convertToMembersExpense bool,
 	eTag string,
 	checks ...validator,
 ) (*models.MTOServiceItem, error) {
@@ -211,7 +230,7 @@ func (p *mtoServiceItemUpdater) convertItemToMembersExpense(
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		serviceItem.MembersExpense = &convertToMembersExpense
+		serviceItem.MembersExpense = models.BoolPointer(true)
 		verrs, err := appCtx.DB().ValidateAndUpdate(&serviceItem)
 		e := handleError(serviceItem.ID, verrs, err)
 		return e
