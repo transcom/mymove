@@ -4946,6 +4946,7 @@ func createHHGWithPaymentServiceItems(
 				SITEntryDate:     &destEntryDate,
 				SITDepartureDate: &destDepDate,
 				SITPostalCode:    models.StringPointer("90210"),
+				Status:           models.MTOServiceItemStatusRejected,
 			},
 		},
 	}, nil)
