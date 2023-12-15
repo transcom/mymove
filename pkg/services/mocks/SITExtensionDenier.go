@@ -17,15 +17,15 @@ type SITExtensionDenier struct {
 }
 
 // DenySITExtension provides a mock function with given fields: appCtx, shipmentID, sitExtensionID, officeRemarks, convertToMembersExpense, eTag
-func (_m *SITExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, shipmentID uuid.UUID, sitExtensionID uuid.UUID, officeRemarks *string, convertToMembersExpense bool, eTag string) (*models.MTOShipment, error) {
+func (_m *SITExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, shipmentID uuid.UUID, sitExtensionID uuid.UUID, officeRemarks *string, convertToMembersExpense *bool, eTag string) (*models.MTOShipment, error) {
 	ret := _m.Called(appCtx, shipmentID, sitExtensionID, officeRemarks, convertToMembersExpense, eTag)
 
 	var r0 *models.MTOShipment
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, *string, bool, string) (*models.MTOShipment, error)); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, *string, *bool, string) (*models.MTOShipment, error)); ok {
 		return rf(appCtx, shipmentID, sitExtensionID, officeRemarks, convertToMembersExpense, eTag)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, *string, bool, string) *models.MTOShipment); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, *string, *bool, string) *models.MTOShipment); ok {
 		r0 = rf(appCtx, shipmentID, sitExtensionID, officeRemarks, convertToMembersExpense, eTag)
 	} else {
 		if ret.Get(0) != nil {
@@ -33,7 +33,7 @@ func (_m *SITExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, shi
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, *string, bool, string) error); ok {
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, *string, *bool, string) error); ok {
 		r1 = rf(appCtx, shipmentID, sitExtensionID, officeRemarks, convertToMembersExpense, eTag)
 	} else {
 		r1 = ret.Error(1)
