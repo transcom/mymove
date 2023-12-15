@@ -1,0 +1,9 @@
+properties:
+  sitCustomerContacted:
+    type: string
+    format: date
+    x-nullable: true
+  sitRequestedDelivery:
+    type: string
+    format: date
+    x-nullable: true

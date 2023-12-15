@@ -46,6 +46,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
 	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator)
+	shipmentSITStatus := mtoshipment.NewShipmentSITStatus()
 
 	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
 		paymentrequest.NewPaymentRequestCreator(
@@ -201,5 +202,11 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 		move.NewMoveSearcher(),
 		order.NewOrderFetcher(),
 	}
+
+	primeAPI.MtoShipmentUpdateSITDeliveryRequestHandler = UpdateSITDeliveryRequestHandler{
+		handlerConfig,
+		shipmentSITStatus,
+	}
+
 	return primeAPI
 }
