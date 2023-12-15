@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
@@ -157,6 +158,18 @@ func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 		session := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
 			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+
+		// Test data needed to ensure that conversion sets the correct flags in both sit_extensions and mto_service_items table.
+		testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{ReService: models.ReService{Code: "DOFSIT"}})
+		testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDOFSIT,
+			},
+			MTOServiceItem: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
+			MTOShipment: mtoShipment,
 		})
 
 		updatedShipment, err := sitExtensionDenier.DenySITExtension(session, mtoShipment.ID, sitExtension.ID, &officeRemarks, convertToMembersExpense, eTag)
