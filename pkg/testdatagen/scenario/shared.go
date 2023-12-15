@@ -4976,16 +4976,18 @@ func createHHGWithPaymentServiceItems(
 		}
 	}
 
+	// Cannot update this serviceItem while it is in a submitted status
 	originDepartureDate := originEntryDate.Add(15 * 24 * time.Hour)
 	originPickupSIT.SITDepartureDate = &originDepartureDate
 
-	updatedDOPSIT, updateOriginErr := serviceItemUpdater.UpdateMTOServiceItemPrime(appCtx, &originPickupSIT, etag.GenerateEtag(originPickupSIT.UpdatedAt))
+	// updatedDOPSIT, updateOriginErr := serviceItemUpdater.UpdateMTOServiceItemPrime(appCtx, &originPickupSIT, etag.GenerateEtag(originPickupSIT.UpdatedAt))
 
-	if updateOriginErr != nil {
-		logger.Fatal(fmt.Sprintf("Error updating %s with departure date", models.ReServiceCodeDOPSIT))
-	}
+	// if updateOriginErr != nil {
+	// 	logger.Fatal(fmt.Sprintf("Error updating %s with departure date", models.ReServiceCodeDOPSIT))
+	// }
 
-	originPickupSIT = *updatedDOPSIT
+	// originPickupSIT = *updatedDOPSIT
+	// originPickupSIT = originPickupSIT
 
 	for _, createdServiceItem := range []models.MTOServiceItem{originFirstDaySIT, originAdditionalDaySIT, originPickupSIT, originSITFSC} {
 		_, updateErr := serviceItemUpdater.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
