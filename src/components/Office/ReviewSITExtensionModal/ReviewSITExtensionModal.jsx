@@ -205,29 +205,13 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
 const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, onSubmit }) => {
   const [checkBoxChecked, setCheckBoxChecked] = useState(false);
   const [showConfirmCustomerExpenseModal, setShowConfirmCustomerExpenseModal] = useState(false);
-  const handleConfirmYes = ({ setTouched }) => {
+  const handleConfirmYes = () => {
     setShowConfirmCustomerExpenseModal(false);
     setCheckBoxChecked(true);
-    setTouched({
-      acceptExtension: true,
-      convertToMembersExpense: true,
-      daysApproved: true,
-      requestReason: true,
-      officeRemarks: true,
-      sitEndDate: true,
-    });
   };
-  const handleConfirmNo = ({ setTouched }) => {
+  const handleConfirmNo = () => {
     setShowConfirmCustomerExpenseModal(false);
     setCheckBoxChecked(false);
-    setTouched({
-      acceptExtension: true,
-      convertToMembersExpense: true,
-      daysApproved: true,
-      requestReason: true,
-      officeRemarks: true,
-      sitEndDate: true,
-    });
   };
   const [initialValues, setInitialValues] = useState({
     acceptExtension: '',
