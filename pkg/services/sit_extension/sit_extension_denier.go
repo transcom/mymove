@@ -84,7 +84,7 @@ func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, ship
 			return err
 		}
 
-		if e := txnAppCtx.DB().Q().EagerPreload("SITDurationUpdates").Find(&returnedShipment, shipment.ID); e != nil {
+		if e := txnAppCtx.DB().Q().EagerPreload("SITDurationUpdates", "MTOServiceItems", "MTOServiceItems.ReService.Code").Find(&returnedShipment, shipment.ID); e != nil {
 			switch e {
 			case sql.ErrNoRows:
 				return apperror.NewNotFoundError(shipment.ID, "looking for MTOShipment")
@@ -95,7 +95,7 @@ func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, ship
 
 		// Since we aren't implementing an undo function, only update members_expense in the mto_service_items table if it's true.
 		if *convertToMembersExpense {
-			_, convertErr := f.serviceItemUpdater.ConvertItemToMembersExpense(appCtx, &shipment)
+			_, convertErr := f.serviceItemUpdater.ConvertItemToMembersExpense(appCtx, &returnedShipment)
 			if convertErr != nil {
 				return convertErr
 			}

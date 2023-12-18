@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/services/query"
+	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 )
 
 type mtoServiceItemQueryBuilder interface {
@@ -60,15 +61,27 @@ func (p *mtoServiceItemUpdater) ConvertItemToMembersExpense(
 	appCtx appcontext.AppContext,
 	shipment *models.MTOShipment,
 ) (*models.MTOServiceItem, error) {
-	var DOFSITCodeID uuid.UUID
-	reServiceErr := appCtx.DB().RawQuery(`SELECT id FROM re_services WHERE code = 'DOFSIT'`).First(&DOFSITCodeID) // First get uuid for DOFSIT service code
-	if reServiceErr != nil {
+	var DOFSITCodeID, DDFSITCodeID uuid.UUID
+	DOFSITServiceErr := appCtx.DB().RawQuery(`SELECT id FROM re_services WHERE code = 'DOFSIT'`).First(&DOFSITCodeID) // First get uuid for DOFSIT service code
+	if DOFSITServiceErr != nil {
 		return nil, apperror.NewNotFoundError(uuid.Nil, "Couldn't find entry for DOFSIT ReService code in re_services table.")
 	}
+	DDFSITServiceErr := appCtx.DB().RawQuery(`SELECT id FROM re_services WHERE code = 'DOFSIT'`).First(&DDFSITCodeID)
+	if DDFSITServiceErr != nil {
+		return nil, apperror.NewNotFoundError(uuid.Nil, "Couldn't find entry for DDFSIT ReService code in re_services table.")
+	}
 
-	// Now get the DOFSIT service item associated with the current mto_shipment
+	sitStatusService := sitstatus.NewShipmentSITStatus()
+	shipmentSITStatus, err := sitStatusService.CalculateShipmentSITStatus(appCtx, *shipment)
+	if err != nil {
+		return nil, err
+	} else if shipmentSITStatus == nil {
+		return nil, apperror.NewNotFoundError(shipment.ID, "for current SIT MTO Service Item.")
+	}
+
+	// Now get the service item associated with the current mto_shipment
 	var SITItem models.MTOServiceItem
-	getSITItemErr := appCtx.DB().RawQuery(`SELECT * FROM mto_service_items WHERE re_service_id = ? AND mto_shipment_id = ?`, DOFSITCodeID, shipment.ID).First(&SITItem)
+	getSITItemErr := appCtx.DB().RawQuery(`SELECT * FROM mto_service_items WHERE id = ?`, shipmentSITStatus.CurrentSIT.ServiceItemID).First(&SITItem)
 	if getSITItemErr != nil {
 		switch getSITItemErr {
 		case sql.ErrNoRows:

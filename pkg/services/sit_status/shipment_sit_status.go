@@ -1,4 +1,4 @@
-package mtoshipment
+package sitstatus
 
 import (
 	"time"
@@ -102,6 +102,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		sitRequestedDelivery = currentSIT.SITRequestedDelivery
 
 		shipmentSITStatus.CurrentSIT = &services.CurrentSIT{
+			ServiceItemID:        currentSIT.ID,
 			Location:             location,
 			DaysInSIT:            daysInSIT,
 			SITEntryDate:         sitEntryDate,

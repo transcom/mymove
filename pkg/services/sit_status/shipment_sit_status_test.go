@@ -1,4 +1,4 @@
-package mtoshipment
+package sitstatus
 
 import (
 	"time"
@@ -7,7 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
+func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 	sitStatusService := NewShipmentSITStatus()
 
 	suite.Run("returns nil when the shipment has no service items", func() {
