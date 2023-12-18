@@ -159,7 +159,6 @@ const ShipmentDetailsMain = ({
           onClose={() => setIsConvertSITExtensionModalVisible(false)}
           onSubmit={convertSITExtension}
           shipment={shipment}
-          sitExtensions={sitExtensions}
           sitStatus={sitStatus}
         />
       )}
