@@ -1,6 +1,8 @@
 package sitextension
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -160,6 +162,8 @@ func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 			OfficeUserID:    uuid.Must(uuid.NewV4()),
 		})
 
+		today := time.Now()
+
 		// Test data needed to ensure that conversion sets the correct flags in both sit_extensions and mto_service_items table.
 		testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{ReService: models.ReService{Code: "DOFSIT"}})
 		testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
@@ -167,7 +171,8 @@ func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 				Code: models.ReServiceCodeDOFSIT,
 			},
 			MTOServiceItem: models.MTOServiceItem{
-				Status: models.MTOServiceItemStatusApproved,
+				Status:       models.MTOServiceItemStatusApproved,
+				SITEntryDate: &today,
 			},
 			MTOShipment: mtoShipment,
 		})
