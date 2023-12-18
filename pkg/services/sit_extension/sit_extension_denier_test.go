@@ -190,6 +190,39 @@ func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 		suite.Equal(models.MoveStatusAPPROVED, shipmentInDB.MoveTaskOrder.Status)
 	})
 
+	suite.Run("Returns an error if MTO Shipment related to SIT extension request cannot be found.", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					SITDaysAllowance: models.IntPointer(20),
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		sitExtension := factory.BuildSITDurationUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+		}, nil)
+		officeRemarks := "office remarks"
+		convertToMembersExpense := models.BoolPointer(true)
+		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
+		session := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			OfficeUserID:    uuid.Must(uuid.NewV4()),
+		})
+
+		updatedShipment, err := sitExtensionDenier.DenySITExtension(session, mtoShipment.ID, sitExtension.ID, &officeRemarks, convertToMembersExpense, eTag)
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Nil(updatedShipment)
+	})
+
 	suite.Run("Sets move to approvals requested if there are remaining pending SIT extensions", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{

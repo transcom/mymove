@@ -63,7 +63,7 @@ func (p *mtoServiceItemUpdater) ConvertItemToMembersExpense(
 	var DOFSITCodeID uuid.UUID
 	reServiceErr := appCtx.DB().RawQuery(`SELECT id FROM re_services WHERE code = 'DOFSIT'`).First(&DOFSITCodeID) // First get uuid for DOFSIT service code
 	if reServiceErr != nil {
-		return nil, reServiceErr
+		return nil, apperror.NewNotFoundError(uuid.Nil, "Couldn't find entry for DOFSIT ReService code in re_services table.")
 	}
 
 	// Now get the DOFSIT service item associated with the current mto_shipment
