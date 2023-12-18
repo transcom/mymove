@@ -9,7 +9,7 @@ import moment from 'moment';
 import { SITExtensionShape } from '../../../types/sitExtensions';
 
 import styles from './ReviewSITExtensionModal.module.scss';
-import ConfirmCustomerExpenseModal from './ConfirmCustomerExpenseModal/ConfirmCustomerExpenseModal';
+import ConfirmMembersExpenseModal from './ConfirmMembersExpenseModal/ConfirmMembersExpenseModal';
 
 import DataTableWrapper from 'components/DataTableWrapper/index';
 import DataTable from 'components/DataTable/index';
@@ -204,13 +204,13 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
  */
 const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, onSubmit }) => {
   const [checkBoxChecked, setCheckBoxChecked] = useState(false);
-  const [showConfirmCustomerExpenseModal, setShowConfirmCustomerExpenseModal] = useState(false);
+  const [showConfirmMembersExpenseModal, setShowConfirmMembersExpenseModal] = useState(false);
   const handleConfirmYes = () => {
-    setShowConfirmCustomerExpenseModal(false);
+    setShowConfirmMembersExpenseModal(false);
     setCheckBoxChecked(true);
   };
   const handleConfirmNo = () => {
-    setShowConfirmCustomerExpenseModal(false);
+    setShowConfirmMembersExpenseModal(false);
     setCheckBoxChecked(false);
   };
   const [initialValues, setInitialValues] = useState({
@@ -249,7 +249,7 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
     <div>
       <Overlay />
       <ModalContainer>
-        {!showConfirmCustomerExpenseModal && (
+        {!showConfirmMembersExpenseModal && (
           <Modal className={styles.ReviewSITExtensionModal}>
             <ModalClose handleClick={() => onClose()} />
             <ModalTitle>
@@ -283,7 +283,7 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
                       convertToMembersExpense: checkBoxChecked,
                     });
                     setInitialValues(values);
-                    setShowConfirmCustomerExpenseModal(true);
+                    setShowConfirmMembersExpenseModal(true);
                   };
                   return (
                     <Form>
@@ -382,8 +382,8 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
             </div>
           </Modal>
         )}
-        {showConfirmCustomerExpenseModal && (
-          <ConfirmCustomerExpenseModal onSubmit={handleConfirmYes} onClose={handleConfirmNo} />
+        {showConfirmMembersExpenseModal && (
+          <ConfirmMembersExpenseModal onSubmit={handleConfirmYes} onClose={handleConfirmNo} />
         )}
       </ModalContainer>
     </div>
