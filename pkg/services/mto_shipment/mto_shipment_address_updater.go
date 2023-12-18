@@ -60,7 +60,8 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 	if mustBeAvailableToPrime {
 		query.Where("uses_external_vendor = FALSE")
 	}
-	err := query.Scope(utilities.ExcludeDeletedScope()).Find(&mtoShipment, mtoShipmentID)
+
+	err := query.Scope(utilities.ExcludeDeletedScope()).Eager("MTOServiceItems", "MTOServiceItems.ReService").Find(&mtoShipment, mtoShipmentID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -110,6 +111,37 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 	} else if err != nil {
 		// If the error is something else (this is unexpected), we create a QueryError
 		return nil, apperror.NewQueryError("Address", err, "")
+	}
+
+	// Change the address ID of destination SIT service items to match the address of the shipment address ID
+	mtoServiceItems := mtoShipment.MTOServiceItems
+	for _, s := range mtoServiceItems {
+		serviceItem := s
+		reServiceCode := serviceItem.ReService.Code
+		if reServiceCode == models.ReServiceCodeDDDSIT ||
+			reServiceCode == models.ReServiceCodeDDFSIT ||
+			reServiceCode == models.ReServiceCodeDDASIT ||
+			reServiceCode == models.ReServiceCodeDDSFSC {
+
+			serviceItem.SITDestinationFinalAddressID = &newAddress.ID
+
+			transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
+				// update service item final destination address ID to match shipment address ID
+				verrs, err = txnCtx.DB().ValidateAndUpdate(&serviceItem)
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(newAddress.ID, err, verrs, "invalid input found while updating final destination address of service item")
+				} else if err != nil {
+					return apperror.NewQueryError("Service item", err, "")
+				}
+
+				return nil
+			})
+
+			// if there was a transaction error, we'll return nothing but the error
+			if transactionError != nil {
+				return nil, transactionError
+			}
+		}
 	}
 
 	// Get the updated address and return
