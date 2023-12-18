@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, within, fireEvent } from '@testing-library/react';
+import { screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { ReviewDocuments } from './ReviewDocuments';
@@ -214,43 +214,41 @@ describe('ReviewDocuments', () => {
 
       const weightTicket = mtoShipmentWithOneWeightTicket.ppmShipment.weightTickets[0];
 
-      const newEmptyWeight = 14500;
-      const emptyWeightInput = screen.getByRole('textbox', { name: 'Empty weight' });
+      const newEmptyWeight = '14500';
+      const emptyWeightInput = screen.getByTestId('emptyWeight');
       await userEvent.clear(emptyWeightInput);
-      await userEvent.type(emptyWeightInput, newEmptyWeight.toString());
+      await userEvent.type(emptyWeightInput, newEmptyWeight);
 
-      const newFullWeight = 18500;
-      const fullWeightInput = screen.getByRole('textbox', { name: 'Full weight' });
+      const newFullWeight = '18500';
+      const fullWeightInput = screen.getByTestId('fullWeight');
       await userEvent.clear(fullWeightInput);
-      await userEvent.type(fullWeightInput, newFullWeight.toString());
+      await userEvent.type(fullWeightInput, newFullWeight);
 
-      const newReimbursableWeight = 20000;
+      const newReimbursableWeight = '20000';
       const reimbursableInput = screen.getByTestId('reimbursableWeight');
       await userEvent.clear(reimbursableInput);
-      await userEvent.type(reimbursableInput, newReimbursableWeight.toString());
+      await userEvent.type(reimbursableInput, newReimbursableWeight);
 
       const netWeightDisplay = screen.getByTestId('net-weight-display');
       expect(netWeightDisplay).toHaveTextContent('4,000 lbs');
 
-      expect(await screen.findByLabelText('Accept')).toBeInTheDocument();
+      const acceptOption = screen.getByTestId('approveRadio');
+      expect(acceptOption).toBeInTheDocument();
 
       const rejectOption = screen.getByTestId('rejectRadio');
       expect(rejectOption).toBeInTheDocument();
-      await fireEvent.click(rejectOption);
-
-      expect(screen.getByLabelText('Reason for rejection')).toBeInTheDocument();
+      await userEvent.click(rejectOption);
 
       const rejectionReason = 'Not legible';
-      fireEvent.change(screen.getByLabelText('Reason for rejection'), {
-        target: { value: 'Not legible' },
-      });
+      const reasonTextBox = screen.getByLabelText('Reason');
+      expect(reasonTextBox).toBeInTheDocument();
+      await userEvent.type(reasonTextBox, rejectionReason);
 
       const continueButton = screen.getByTestId('reviewDocumentsContinueButton');
       expect(continueButton).toBeInTheDocument();
+      await userEvent.click(continueButton);
 
-      await fireEvent.click(continueButton);
-
-      // expect(screen.queryByText('Reviewing this weight ticket is required')).not.toBeInTheDocument();
+      expect(screen.queryByText('Reviewing this weight ticket is required')).not.toBeInTheDocument();
 
       const expectedPayload = {
         ppmShipmentId: mtoShipmentWithOneWeightTicket.ppmShipment.id,
@@ -270,8 +268,10 @@ describe('ReviewDocuments', () => {
           reason: rejectionReason,
         },
       };
-      expect(mockPatchWeightTicket).toHaveBeenCalledWith(expectedPayload);
-      /*
+      await waitFor(() => {
+        expect(mockPatchWeightTicket).toHaveBeenCalledWith(expectedPayload);
+      });
+
       expect(await screen.findByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
 
       await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
@@ -280,7 +280,7 @@ describe('ReviewDocuments', () => {
         eTag: mtoShipmentWithOneWeightTicket.ppmShipment.eTag,
       };
       expect(mockPatchPPMDocumentsSetStatus).toHaveBeenCalledWith(confirmPayload);
-      expect(mockNavigate).toHaveBeenCalled(); */
+      expect(mockNavigate).toHaveBeenCalled();
     });
 
     it('renders and handles the Close button', async () => {
