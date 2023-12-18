@@ -36,7 +36,13 @@ const errorIfMissing = [
   },
 ];
 
-const ApprovedRequestedShipments = ({ mtoShipments, ordersInfo, mtoServiceItems, displayDestinationType }) => {
+const ApprovedRequestedShipments = ({
+  mtoShipments,
+  closeoutOffice,
+  ordersInfo,
+  mtoServiceItems,
+  displayDestinationType,
+}) => {
   const ordersLOA = {
     tac: ordersInfo.tacMDC,
     sac: ordersInfo.sacSDN,
@@ -55,6 +61,7 @@ const ApprovedRequestedShipments = ({ mtoShipments, ordersInfo, mtoServiceItems,
       destinationAddress: shipment.destinationAddress || dutyLocationPostal,
       destinationType: destType,
       displayDestinationType,
+      closeoutOffice,
     };
   };
 

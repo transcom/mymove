@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor, screen, act, fireEvent } from '@testing-library/react';
+import { render, waitFor, screen, act, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import moment from 'moment';
 
@@ -11,6 +11,7 @@ const defaultValues = {
   sitStatus: {
     totalDaysRemaining: 210,
     totalSITDaysUsed: 60,
+    calculatedTotalDaysInSIT: 60,
     currentSIT: {
       location: 'DESTINATION',
       daysInSIT: 60,
@@ -109,5 +110,9 @@ describe('SubmitSITExtensionModal', () => {
     await waitFor(() => {
       expect(screen.getByText('SIT (STORAGE IN TRANSIT)')).toBeInTheDocument();
     });
+    const sitStartAndEndTable = await screen.findByTestId('sitStartAndEndTable');
+    expect(sitStartAndEndTable).toBeInTheDocument();
+    expect(within(sitStartAndEndTable).getByText('Calculated total SIT days')).toBeInTheDocument();
+    expect(within(sitStartAndEndTable).getByText('60')).toBeInTheDocument();
   });
 });
