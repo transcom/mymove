@@ -284,7 +284,7 @@ export const ReviewDocuments = () => {
           <Button className="usa-button--secondary" onClick={onBack} disabled={disableBackButton}>
             Back
           </Button>
-          <Button type="submit" onClick={onContinue}>
+          <Button type="submit" onClick={onContinue} data-testid="reviewDocumentsContinueButton">
             {showOverview ? 'Confirm' : 'Continue'}
           </Button>
         </DocumentViewerSidebar.Footer>

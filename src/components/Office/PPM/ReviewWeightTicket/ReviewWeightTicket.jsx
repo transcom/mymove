@@ -23,6 +23,7 @@ import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import ppmDocumentStatus from 'constants/ppms';
 import { getReimbursableWeight } from 'utils/shipmentWeights';
 import { calculateWeightRequested } from 'hooks/custom';
+import { isNullUndefinedOrWhitespace } from 'shared/utils';
 
 const validationSchema = Yup.object().shape({
   emptyWeight: Yup.number().required('Enter the empty weight'),
@@ -73,16 +74,16 @@ export default function ReviewWeightTicket({
     const payload = {
       ppmShipmentId: weightTicket.ppmShipmentId,
       vehicleDescription: weightTicket.vehicleDescription,
-      emptyWeight: parseInt(formValues.emptyWeight, 10),
+      emptyWeight: parseInt(removeCommas(formValues.emptyWeight), 10),
       missingEmptyWeightTicket: weightTicket.missingEmptyWeightTicket,
-      fullWeight: parseInt(formValues.fullWeight, 10),
+      fullWeight: parseInt(removeCommas(formValues.fullWeight), 10),
       missingFullWeightTicket: weightTicket.missingFullWeightTicket,
       netWeightRemarks: weightTicket.netWeightRemarks,
       ownsTrailer,
       trailerMeetsCriteria,
-      reason: formValues.status === ppmDocumentStatus.APPROVED ? null : formValues.rejectionReason,
+      reason: formValues.rejectionReason,
       status: formValues.status,
-      reimbursableWeight: parseInt(formValues.reimbursableWeight, 10),
+      reimbursableWeight: parseInt(removeCommas(formValues.reimbursableWeight), 10),
     };
     patchWeightTicketMutation({
       ppmShipmentId: weightTicket.ppmShipmentId,
@@ -114,6 +115,34 @@ export default function ReviewWeightTicket({
     isTrailerClaimable = '';
   }
 
+  const updateMtoShipmentsWithNewWeightValues = (currentMtoShipments, values) => {
+    const mtoShipmentIndex = currentMtoShipments.findIndex((index) => index.id === mtoShipment.id);
+    const updatedWeightTicket = {
+      ...weightTicket,
+      emptyWeight: parseInt(removeCommas(values.emptyWeight), 10),
+      fullWeight: parseInt(removeCommas(values.fullWeight), 10),
+      reimbursableWeight: parseInt(removeCommas(values.reimbursableWeight), 10),
+    };
+    const updatedPPMShipment = {
+      ...currentMtoShipments[mtoShipmentIndex].ppmShipment,
+    };
+    const weightTicketIndex = updatedPPMShipment.weightTickets.findIndex(
+      (ticket) => ticket.id === updatedWeightTicket.id,
+    );
+    updatedPPMShipment.weightTickets[weightTicketIndex] = updatedWeightTicket;
+    const updatedMtoShipment = {
+      ...mtoShipment,
+      ppmShipment: updatedPPMShipment,
+    };
+    const updatedMtoShipments = currentMtoShipments;
+    updatedMtoShipments[mtoShipmentIndex] = updatedMtoShipment;
+    return updatedMtoShipments;
+  };
+  const getNewNetWeightCalculation = (currentMtoShipments, updatedFormValues) => {
+    const newMtoShipments = updateMtoShipmentsWithNewWeightValues(currentMtoShipments, updatedFormValues);
+    return calculateWeightRequested(newMtoShipments);
+  };
+
   const initialValues = {
     emptyWeight: emptyWeight ? `${emptyWeight}` : '',
     fullWeight: fullWeight ? `${fullWeight}` : '',
@@ -143,34 +172,22 @@ export default function ReviewWeightTicket({
       >
         {({ handleChange, errors, setFieldError, setFieldTouched, setFieldValue, touched, values }) => {
           const handleApprovalChange = (event) => {
+            const updatedValue = event.target.value;
+            const newApprovalState =
+              updatedValue === ppmDocumentStatus.APPROVED && !isNullUndefinedOrWhitespace(updatedValue);
+            if (newApprovalState === false) {
+              setCanEditRejection(true);
+              setFieldValue('rejectionReason', '');
+            }
             handleChange(event);
-            setCanEditRejection(true);
+          };
+          const handleRejectionReasonChange = (event) => {
+            handleChange(event);
           };
           const handleFieldValueChange = (event) => {
             handleChange(event);
             if (mtoShipments !== undefined && mtoShipments.length > 0) {
-              const mtoShipmentIndex = mtoShipments.findIndex((index) => index.id === mtoShipment.id);
-              const updatedWeightTicket = {
-                ...weightTicket,
-                emptyWeight: parseInt(removeCommas(values.emptyWeight), 10),
-                fullWeight: parseInt(removeCommas(values.fullWeight), 10),
-                reimbursableWeight: parseInt(removeCommas(values.reimbursableWeight), 10),
-              };
-              const updatedPPMShipment = {
-                ...mtoShipments[mtoShipmentIndex].ppmShipment,
-              };
-              const weightTicketIndex = updatedPPMShipment.weightTickets.findIndex(
-                (ticket) => ticket.id === updatedWeightTicket.id,
-              );
-              updatedPPMShipment.weightTickets[weightTicketIndex] = updatedWeightTicket;
-              const updatedMtoShipment = {
-                ...mtoShipment,
-                ppmShipment: updatedPPMShipment,
-              };
-              const updatedMtoShipments = mtoShipments;
-              updatedMtoShipments[mtoShipmentIndex] = updatedMtoShipment;
-              const updatedWeight = calculateWeightRequested(updatedMtoShipments);
-              updateTotalWeight(updatedWeight);
+              updateTotalWeight(getNewNetWeightCalculation(mtoShipments, values));
             }
           };
           const handleTrailerOwnedChange = (event) => {
@@ -334,13 +351,13 @@ export default function ReviewWeightTicket({
                     value={ppmDocumentStatus.REJECTED}
                     name="status"
                     label="Reject"
-                    onChange={handleChange}
+                    onChange={handleApprovalChange}
                     data-testid="rejectRadio"
                   />
 
                   {values.status === ppmDocumentStatus.REJECTED && (
                     <FormGroup className={styles.reason}>
-                      <Label htmlFor={`rejectReason-${weightTicket?.id}`}>Reason</Label>
+                      <Label htmlFor={`rejectReason-${weightTicket?.id}`}>Reason for rejection</Label>
                       {!canEditRejection && (
                         <p data-testid="rejectionReasonReadOnly">{weightTicket?.reason || values.rejectionReason}</p>
                       )}
@@ -352,8 +369,9 @@ export default function ReviewWeightTicket({
                           </ErrorMessage>
                           <Textarea
                             id={`rejectReason-${weightTicket?.id}`}
+                            data-testid="rejectionReasonText"
                             name="rejectionReason"
-                            onChange={handleChange}
+                            onChange={handleRejectionReasonChange}
                             error={touched.rejectionReason ? errors.rejectionReason : null}
                             value={values.rejectionReason}
                             placeholder="Type something"
