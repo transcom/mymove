@@ -35,6 +35,15 @@
     }
   }
 
+  .allowanceErrorStyle {
+    margin-left: 2.4rem;
+    border-left-color: #b50909;
+    border-left-style: solid;
+    border-left-width: .267rem;
+    padding-left: .5rem;
+    font-size: 1.5rem;
+  }
+
   .noPaddingBottom {
     @include u-padding-bottom(0)
   }

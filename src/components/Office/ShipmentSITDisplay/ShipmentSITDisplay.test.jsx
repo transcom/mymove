@@ -58,6 +58,10 @@ describe('ShipmentSITDisplay', () => {
     expect(screen.getByText('Current location: destination SIT')).toBeInTheDocument();
     expect(screen.getByText('Total days in destination SIT')).toBeInTheDocument();
     expect(screen.getByText('15')).toBeInTheDocument();
+    const sitStartAndEndTable = await screen.findByTestId('sitStartAndEndTable');
+    expect(sitStartAndEndTable).toBeInTheDocument();
+    expect(within(sitStartAndEndTable).getByText('Calculated total SIT days')).toBeInTheDocument();
+    expect(within(sitStartAndEndTable).getByText('45')).toBeInTheDocument();
   });
 
   it('renders the Shipment SIT at Destination, with customer delivery info', async () => {
@@ -122,6 +126,7 @@ describe('ShipmentSITDisplay', () => {
     expect(screen.queryByText('Current location')).not.toBeInTheDocument();
     expect(screen.queryByText('SIT start date')).not.toBeInTheDocument();
     expect(screen.queryByText('SIT authorized end date')).not.toBeInTheDocument();
+    expect(screen.queryByText('Calculated total SIT days')).not.toBeInTheDocument();
 
     expect(screen.getByText('Previously used SIT')).toBeInTheDocument();
     expect(screen.getByText(`30 days at origin (24 Jul 2021 - 23 Aug 2021)`)).toBeInTheDocument();
@@ -208,6 +213,8 @@ describe('ShipmentSITDisplay', () => {
     expect(within(sitStartAndEndTable).queryByText('Current location')).not.toBeInTheDocument();
     expect(within(sitStartAndEndTable).getByText('SIT start date')).toBeInTheDocument();
     expect(within(sitStartAndEndTable).getByText('SIT authorized end date')).toBeInTheDocument();
+    expect(within(sitStartAndEndTable).getByText('Calculated total SIT days')).toBeInTheDocument();
+    expect(within(sitStartAndEndTable).getByText('0')).toBeInTheDocument();
     const sitDaysAtCurrentLocation = await screen.findByTestId('sitDaysAtCurrentLocation');
     expect(sitDaysAtCurrentLocation).toBeInTheDocument();
     expect(within(sitDaysAtCurrentLocation).getByText('Total days in origin SIT')).toBeInTheDocument();
