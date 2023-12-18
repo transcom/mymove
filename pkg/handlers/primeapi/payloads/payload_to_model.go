@@ -586,6 +586,14 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
 		}
 
+		if sit.SitCustomerContacted != nil {
+			model.SITCustomerContacted = handlers.FmtDatePtrToPopPtr(sit.SitCustomerContacted)
+		}
+
+		if sit.SitRequestedDelivery != nil {
+			model.SITRequestedDelivery = handlers.FmtDatePtrToPopPtr(sit.SitRequestedDelivery)
+		}
+
 		// If the request params have a have the RequestApprovalsRequestedStatus set the model RequestApprovalsRequestedStatus value to the incoming value
 		if sit.RequestApprovalsRequestedStatus != nil {
 			pointerValue := *sit.RequestApprovalsRequestedStatus

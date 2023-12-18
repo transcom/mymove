@@ -38,4 +38,12 @@
     @include u-border-left('error');
     @include u-font-weight(bold);
   }
+  .serviceItemHeading {
+    @include u-margin-bottom(neg-1px);
+  }
+  .uploadBtn {
+    display: flex;
+    flex-direction: row;
+    @include u-margin-bottom(2);
+  }
 }

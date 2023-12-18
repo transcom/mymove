@@ -103,6 +103,27 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   let numberOfErrorIfMissingForAllShipments = 0;
   let numberOfWarnIfMissingForAllShipments = 0;
 
+  const [hasInvalidProGearAllowances, setHasInvalidProGearAllowances] = useState(false);
+
+  // check if invalid progear weight allowances
+  const checkProGearAllowances = () => {
+    mtoShipments?.forEach((mto) => {
+      if (!order.entitlement.proGearWeight) order.entitlement.proGearWeight = 0;
+      if (!order.entitlement.proGearWeightSpouse) order.entitlement.proGearWeightSpouse = 0;
+
+      if (
+        mto?.ppmShipment?.proGearWeight > order.entitlement.proGearWeight ||
+        mto?.ppmShipment?.spouseProGearWeight > order.entitlement.proGearWeightSpouse
+      ) {
+        setHasInvalidProGearAllowances(true);
+      }
+    });
+  };
+
+  useEffect(() => {
+    checkProGearAllowances();
+  });
+
   // for now we are only showing dest type on retiree and separatee orders
   const isRetirementOrSeparation =
     order.order_type === ORDERS_TYPE.RETIREMENT || order.order_type === ORDERS_TYPE.SEPARATION;
@@ -451,7 +472,11 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                 {(counselorCanEdit || counselorCanEditNonPPM) && (
                   <Button
                     disabled={
-                      !mtoShipments.length || allShipmentsDeleted || disableSubmit || disableSubmitDueToMissingOrderInfo
+                      !mtoShipments.length ||
+                      allShipmentsDeleted ||
+                      disableSubmit ||
+                      disableSubmitDueToMissingOrderInfo ||
+                      hasInvalidProGearAllowances
                     }
                     type="button"
                     onClick={handleShowCancellationModal}
@@ -462,6 +487,12 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
               </Grid>
             )}
           </Grid>
+
+          {hasInvalidProGearAllowances ? (
+            <div className={scMoveDetailsStyles.allowanceErrorStyle} data-testid="allowanceError">
+              Pro Gear weight allowances are less than the weights entered in move.
+            </div>
+          ) : null}
 
           <div className={styles.section} id="shipments">
             <DetailsPanel

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import moment from 'moment';
 import React from 'react';
@@ -18,6 +18,7 @@ describe('ReviewSITExtensionModal', () => {
   const sitStatus = {
     totalDaysRemaining: 30,
     totalSITDaysUsed: 15,
+    calculatedTotalDaysInSIT: 15,
     currentSIT: {
       daysInSIT: 15,
       sitEntryDate: moment().subtract(15, 'days').format(swaggerDateFormat),
@@ -206,5 +207,9 @@ describe('ReviewSITExtensionModal', () => {
     await waitFor(() => {
       expect(screen.getByText('SIT (STORAGE IN TRANSIT)')).toBeInTheDocument();
     });
+    const sitStartAndEndTable = await screen.findByTestId('sitStartAndEndTable');
+    expect(sitStartAndEndTable).toBeInTheDocument();
+    expect(within(sitStartAndEndTable).getByText('Calculated total SIT days')).toBeInTheDocument();
+    expect(within(sitStartAndEndTable).getByText('15')).toBeInTheDocument();
   });
 });

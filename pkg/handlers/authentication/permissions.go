@@ -37,6 +37,7 @@ var TOO = RolePermissions{
 		"update.SITExtension",
 		"update.MTOServiceItem",
 		"update.excessWeightRisk",
+		"view.closeoutOffice",
 	},
 }
 
@@ -80,6 +81,7 @@ var QAECSR = RolePermissions{
 		"read.paymentRequest",
 		"update.evaluationReport",
 		"delete.evaluationReport",
+		"view.closeoutOffice",
 	},
 }
 

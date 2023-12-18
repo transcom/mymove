@@ -7,7 +7,7 @@ import { trimFileName } from '../../../utils/serviceItems';
 
 import styles from './ServiceItemDetails.module.scss';
 
-import { formatDate, formatDateWithUTC } from 'shared/dates';
+import { formatDateWithUTC } from 'shared/dates';
 import { formatWeight, convertFromThousandthInchToInch } from 'utils/formatters';
 
 function generateDetailText(details, id, className) {
@@ -41,7 +41,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
         {code === 'DDDSIT'
           ? generateDetailText({
               'SIT departure date': details.sitDepartureDate
-                ? formatDate(details.sitDepartureDate, 'DD MMM YYYY')
+                ? formatDateWithUTC(details.sitDepartureDate, 'DD MMM YYYY')
                 : '-',
             })
           : null}
@@ -58,11 +58,11 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                   {
                     [`First available delivery date ${index + 1}`]:
                       contact && contact.firstAvailableDeliveryDate
-                        ? formatDate(contact.firstAvailableDeliveryDate, 'DD MMM YYYY')
+                        ? formatDateWithUTC(contact.firstAvailableDeliveryDate, 'DD MMM YYYY')
                         : '-',
                     [`Customer contact attempt ${index + 1}`]:
                       contact && contact.dateOfContact && contact.timeMilitary
-                        ? `${formatDate(contact.dateOfContact, 'DD MMM YYYY')}, ${contact.timeMilitary}`
+                        ? `${formatDateWithUTC(contact.dateOfContact, 'DD MMM YYYY')}, ${contact.timeMilitary}`
                         : '-',
                   },
                   id,
