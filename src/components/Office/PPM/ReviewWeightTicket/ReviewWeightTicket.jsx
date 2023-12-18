@@ -74,16 +74,15 @@ export default function ReviewWeightTicket({
     const payload = {
       ppmShipmentId: weightTicket.ppmShipmentId,
       vehicleDescription: weightTicket.vehicleDescription,
-      emptyWeight: parseInt(removeCommas(formValues.emptyWeight), 10),
+      emptyWeight: removeCommas(formValues.emptyWeight),
       missingEmptyWeightTicket: weightTicket.missingEmptyWeightTicket,
-      fullWeight: parseInt(removeCommas(formValues.fullWeight), 10),
+      fullWeight: removeCommas(formValues.fullWeight),
       missingFullWeightTicket: weightTicket.missingFullWeightTicket,
-      netWeightRemarks: weightTicket.netWeightRemarks,
       ownsTrailer,
       trailerMeetsCriteria,
       reason: formValues.rejectionReason,
       status: formValues.status,
-      reimbursableWeight: parseInt(removeCommas(formValues.reimbursableWeight), 10),
+      reimbursableWeight: removeCommas(formValues.reimbursableWeight),
     };
     patchWeightTicketMutation({
       ppmShipmentId: weightTicket.ppmShipmentId,
@@ -185,7 +184,7 @@ export default function ReviewWeightTicket({
             handleChange(event);
           };
           const handleFieldValueChange = (event) => {
-            handleChange(event);
+            setFieldValue(event.target.name, removeCommas(event.target.value));
             if (mtoShipments !== undefined && mtoShipments.length > 0) {
               updateTotalWeight(getNewNetWeightCalculation(mtoShipments, values));
             }
@@ -357,7 +356,7 @@ export default function ReviewWeightTicket({
 
                   {values.status === ppmDocumentStatus.REJECTED && (
                     <FormGroup className={styles.reason}>
-                      <Label htmlFor={`rejectReason-${weightTicket?.id}`}>Reason for rejection</Label>
+                      <Label htmlFor={`rejectReason-${weightTicket?.id}`}>Reason</Label>
                       {!canEditRejection && (
                         <p data-testid="rejectionReasonReadOnly">{weightTicket?.reason || values.rejectionReason}</p>
                       )}
