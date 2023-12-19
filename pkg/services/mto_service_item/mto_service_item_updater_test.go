@@ -1024,16 +1024,16 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	})
 
 	suite.Run("Returns a not found error if the updater can't find the ReService code for DOFSIT in the DB.", func() {
-		_, err := updater.ConvertItemToMembersExpense(
+		_, err := updater.ConvertItemToCustomersExpense(
 			suite.AppContextForTest(), &models.MTOShipment{})
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.Run("Returns a not found error if the updater can't find the MTO Shipment in the DB.", func() {
-		// Create ReService in DB so that ConvertItemToMembersExpense makes it to the MTO Shipment check.
+		// Create ReService in DB so that ConvertItemToCustomersExpense makes it to the MTO Shipment check.
 		testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{ReService: models.ReService{Code: "DOFSIT"}})
-		_, err := updater.ConvertItemToMembersExpense(
+		_, err := updater.ConvertItemToCustomersExpense(
 			suite.AppContextForTest(), &models.MTOShipment{})
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)

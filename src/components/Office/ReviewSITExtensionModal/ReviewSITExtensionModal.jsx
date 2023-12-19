@@ -204,7 +204,7 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
 const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, sitStatus }) => {
   const initialValues = {
     acceptExtension: '',
-    convertToMembersExpense: false,
+    convertToCustomersExpense: false,
     daysApproved: String(shipment.sitDaysAllowance),
     requestReason: sitExtension.requestReason,
     officeRemarks: '',
@@ -214,7 +214,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const reviewSITExtensionSchema = Yup.object().shape({
     acceptExtension: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
-    convertToMembersExpense: Yup.boolean().default(false),
+    convertToCustomersExpense: Yup.boolean().default(false),
     requestReason: Yup.string().required('Required'),
     officeRemarks: Yup.string().when('acceptExtension', {
       is: 'no',
@@ -263,7 +263,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
                     setValues({
                       ...values,
                       acceptExtension: 'yes',
-                      convertToMembersExpense: false,
+                      convertToCustomersExpense: false,
                     });
                   }
                 };
@@ -324,11 +324,11 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
                         </div>
                       )}
                       {values.acceptExtension === 'no' && (
-                        <div className={styles.convertRadio} data-testid="convertToMembersExpense">
+                        <div className={styles.convertRadio} data-testid="convertToCustomersExpense">
                           <CheckboxField
-                            id="convertToMembersExpense"
+                            id="convertToCustomersExpense"
                             label="Convert to Member's Expense"
-                            name="convertToMembersExpense"
+                            name="convertToCustomersExpense"
                           />
                         </div>
                       )}

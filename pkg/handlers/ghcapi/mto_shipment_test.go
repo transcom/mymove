@@ -2782,8 +2782,8 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 			HTTPRequest: req,
 			IfMatch:     eTag,
 			Body: &ghcmessages.DenySITExtension{
-				OfficeRemarks:           &officeRemarks,
-				ConvertToMembersExpense: models.BoolPointer(false),
+				OfficeRemarks:             &officeRemarks,
+				ConvertToCustomersExpense: models.BoolPointer(false),
 			},
 			ShipmentID:     *handlers.FmtUUID(mtoShipment.ID),
 			SitExtensionID: *handlers.FmtUUID(sitExtension.ID),
