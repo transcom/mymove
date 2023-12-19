@@ -35,6 +35,10 @@
     @include u-border('1px');
     @include u-radius('05');
     @include u-padding(3);
+
+    .convertRadio {
+      @include u-margin-top(3);
+    }
   }
 
   .summarySITComponent {
