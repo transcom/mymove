@@ -143,9 +143,15 @@ describe('Office App', () => {
       });
     });
     describe('if redirected from okta', () => {
-      it('renders the okta banner', () => {
+      it('renders the okta banner following log out', () => {
         wrapper.setState({ oktaLoggedOut: true });
-        expect(wrapper.find('OktaLogoutBanner')).toHaveLength(1);
+        expect(wrapper.find('OktaLoggedOutBanner')).toHaveLength(1);
+      });
+    });
+    describe('if redirected from okta', () => {
+      it('renders the okta banner when not logged out', () => {
+        wrapper.setState({ oktaNeedsLoggedOut: true });
+        expect(wrapper.find('OktaNeedsLoggedOutBanner')).toHaveLength(1);
       });
     });
   });
