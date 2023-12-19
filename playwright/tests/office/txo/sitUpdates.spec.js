@@ -54,6 +54,39 @@ test.describe('TOO user', () => {
       await expect(page.getByTestId('sitStatusTable').getByText('80', { exact: true }).first()).toBeVisible();
     });
 
+    test('is able to see appropriate results for 90 days approved and 90 days used', async ({ page }) => {
+      await page.getByTestId('MoveTaskOrder-Tab').click();
+      await tooFlowPage.waitForPage.moveTaskOrder();
+      const daysApprovedCapture = await page
+        .getByTestId('sitStatusTable')
+        .locator('[class="DataTable_dataTable__TGt9M table--data-point"]')
+        .locator('tbody')
+        .locator('tr')
+        .locator('span')
+        .nth(0)
+        .textContent();
+      const daysUsedCapture = await page
+        .getByTestId('sitStatusTable')
+        .locator('[class="DataTable_dataTable__TGt9M table--data-point"]')
+        .locator('tbody')
+        .locator('tr')
+        .locator('span')
+        .nth(1)
+        .textContent();
+      const daysLeftCapture = await page
+        .getByTestId('sitStatusTable')
+        .locator('[class="DataTable_dataTable__TGt9M table--data-point"]')
+        .locator('tbody')
+        .locator('tr')
+        .locator('span')
+        .nth(2)
+        .textContent();
+
+      expect(daysApprovedCapture).toEqual('90');
+      expect(daysUsedCapture).toEqual('90');
+      expect(daysLeftCapture).toEqual('Expired');
+    });
+
     test('is unable to decrease the SIT authorization below the number of days already used', async ({ page }) => {
       // navigate to MTO tab
       await page.getByTestId('MoveTaskOrder-Tab').click();
