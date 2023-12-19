@@ -1,7 +1,11 @@
 package primeapi
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"strings"
+	"time"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
@@ -192,5 +196,78 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 			}
 			mtoPayload := payloads.MoveTaskOrder(mto)
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationOK().WithPayload(mtoPayload), nil
+		})
+}
+
+// DownloadMoveOrderHandler is the struct to download all move orders by locator as a PDF
+type DownloadMoveOrderHandler struct {
+	handlers.HandlerConfig
+	services.MoveSearcher
+	services.OrderFetcher
+}
+
+// Handler for downloading move order by locator as a PDF
+func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrderParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			locator := strings.TrimSpace(params.Locator)
+
+			if len(locator) == 0 {
+				err := apperror.NewBadDataError("missing/empty required URI parameter: locator")
+				appCtx.Logger().Error(err.Error())
+				return movetaskorderops.NewDownloadMoveOrderBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
+					err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+
+			searchMovesParams := services.SearchMovesParams{
+				Locator: &locator,
+			}
+			moves, totalCount, err := h.MoveSearcher.SearchMoves(appCtx, &searchMovesParams)
+			if err != nil {
+				appCtx.Logger().Error("Unexpected server error", zap.Error(err))
+				return movetaskorderops.NewDownloadMoveOrderInternalServerError().WithPayload(
+					payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+
+			if totalCount == 0 {
+				errMessage := fmt.Sprintf("Move not found, locator: %s.", locator)
+				err := apperror.NewNotFoundError(uuid.Nil, errMessage)
+				appCtx.Logger().Error(err.Error())
+				return movetaskorderops.NewDownloadMoveOrderNotFound().WithPayload(
+					payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+
+			for _, move := range moves {
+				var errMessage string
+				// Check if move has requested counseling
+				if move.Status != models.MoveStatusNeedsServiceCounseling {
+					errMessage = fmt.Sprintf("Move is not in 'needs counseling state', locator: %s ", locator)
+				}
+
+				// Note: OriginDutyLocation.ProvidesServicesCounseling == True means location has government based counseling.
+				// FALSE indicates the location requires PRIME/GHC counseling.
+				if move.Orders.OriginDutyLocation.ProvidesServicesCounseling {
+					errMessage = fmt.Sprintf("Duty location of client's move currently does not have Prime counseling enabled, locator: %s", locator)
+				}
+
+				if len(errMessage) > 0 {
+					unprocessableErr := apperror.NewUnprocessableEntityError(errMessage)
+					appCtx.Logger().Info(unprocessableErr.Error())
+					payload := payloads.ValidationError(unprocessableErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
+					return movetaskorderops.NewDownloadMoveOrderUnprocessableEntity().
+						WithPayload(payload), unprocessableErr
+				}
+			}
+
+			// For now return mock empty PDF file for 200 response.
+			// TODO: (B-18027) - https://www13.v1host.com/USTRANSCOM38/story.mvc/Summary?oidToken=Story%3A870406
+			// - Retrieve all uploaded move order docs
+			// - Create new PDF service layer to merge all uploaded docs in one payload
+			// - Wire up PDF service to generate response PDF payload
+			buf := new(bytes.Buffer)
+			payload := io.NopCloser(buf)
+			filename := fmt.Sprintf("inline; filename=\"%s QA-%s %s.pdf\"", "MOCK", locator, time.Now().Format("01-02-2006"))
+
+			return movetaskorderops.NewDownloadMoveOrderOK().WithContentDisposition(filename).WithPayload(payload), nil
 		})
 }
