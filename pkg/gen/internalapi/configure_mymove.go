@@ -307,11 +307,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation moves.ShowMove has not yet been implemented")
 		})
 	}
-	if api.MovesShowMoveDatesSummaryHandler == nil {
-		api.MovesShowMoveDatesSummaryHandler = moves.ShowMoveDatesSummaryHandlerFunc(func(params moves.ShowMoveDatesSummaryParams) middleware.Responder {
-			return middleware.NotImplemented("operation moves.ShowMoveDatesSummary has not yet been implemented")
-		})
-	}
 	if api.OfficeShowOfficeOrdersHandler == nil {
 		api.OfficeShowOfficeOrdersHandler = office.ShowOfficeOrdersHandlerFunc(func(params office.ShowOfficeOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ShowOfficeOrders has not yet been implemented")
