@@ -6602,6 +6602,7 @@ func MakeHHGMoveInSITNoDestinationSITOutDate(appCtx appcontext.AppContext) model
 	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
 	destSITItems := factory.BuildDestSITServiceItemsNoSITDepartureDate(appCtx.DB(), move, shipment, &oneMonthAgo)
 	err := appCtx.DB().Update(&destSITItems)
+	move.MTOServiceItems = destSITItems
 	if err != nil {
 		log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
 	}

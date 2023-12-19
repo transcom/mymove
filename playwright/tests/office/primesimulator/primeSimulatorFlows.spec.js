@@ -200,17 +200,27 @@ test.describe('Prime simulator user', () => {
     const move = await officePage.testHarness.buildHHGMoveInSITNoDestinationSITOutDate();
     const moveLocator = move.locator;
     const moveID = move.id;
-    const serviceItems = move.MTOServiceItems;
-    await officePage.signInAsNewPrimeSimulatorUser();
+    const items = move.MTOServiceItems;
+    const weight = '500';
+    let serviceItemID;
 
+    await officePage.signInAsNewPrimeSimulatorUser();
     await page.locator('#moveCode').fill(moveLocator);
     await page.locator('#moveCode').press('Enter');
     await page.getByTestId('moveCode-0').click();
     await page.getByRole('link', { name: 'Create Payment Request' }).click();
 
-    const serviceItemCount = serviceItems.length;
+    const serviceItemCount = items.length;
     expect(serviceItemCount).toBeGreaterThan(0);
+    for (let i = 0; i < serviceItemCount; i += 1) {
+      const dddsitIt = items.find((items) => items.ReService.code === 'DDDSIT');
+      serviceItemID = dddsitIt.ID;
+    }
 
-    expect(page.url()).toContain(`/simulator/moves/${moveID}/payment-requests/new`);
+    await page.locator(`[id="${serviceItemID}-div"] > .usa-checkbox`).click();
+    await page.locator(`input[name="params\\.${serviceItemID}.WeightBilled"]`).fill(weight);
+    await page.getByText('Submit Payment Request').click();
+    await expect(page.getByText('Successfully created payment request')).toBeVisible({ timeout: 10000 });
+    expect(page.url()).toContain(`/simulator/moves/${moveID}/details`);
   });
 });
