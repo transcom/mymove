@@ -154,7 +154,7 @@ test.describe('TOO user', () => {
       await expect(page.getByRole('heading', { name: 'Review additional days requested' })).toBeVisible();
       await page.getByText('No', { exact: true }).click();
       await page.getByTestId('officeRemarks').fill('extension request denied');
-      await page.getByTestId('convertToCustomerExpense');
+      await page.getByTestId('convertToCustomersExpense');
       await page.getByTestId('form').getByTestId('button').click();
 
       // assert that there is no pending SIT extension request and the days authorization is still 90

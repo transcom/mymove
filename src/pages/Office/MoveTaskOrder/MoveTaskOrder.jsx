@@ -567,7 +567,7 @@ export const MoveTaskOrder = (props) => {
         ifMatchETag: shipment.eTag,
         body: {
           officeRemarks: formValues.officeRemarks,
-          convertToCustomerExpense: formValues.convertToCustomerExpense,
+          convertToCustomersExpense: formValues.convertToCustomersExpense,
         },
       });
     }

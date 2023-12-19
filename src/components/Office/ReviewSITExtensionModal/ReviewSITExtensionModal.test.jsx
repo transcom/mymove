@@ -82,7 +82,7 @@ describe('ReviewSITExtensionModal', () => {
       expect(mockOnSubmit).toHaveBeenCalled();
       expect(mockOnSubmit).toHaveBeenCalledWith(sitExt.id, {
         acceptExtension: 'yes',
-        convertToCustomerExpense: false,
+        convertToCustomersExpense: false,
         requestReason: 'SERIOUS_ILLNESS_MEMBER',
         officeRemarks: 'Approved!',
         daysApproved: '90',
@@ -116,7 +116,7 @@ describe('ReviewSITExtensionModal', () => {
         sitExt.id,
         expect.objectContaining({
           acceptExtension: 'no',
-          convertToCustomerExpense: false,
+          convertToCustomersExpense: false,
           officeRemarks: 'Denied!',
         }),
       );
