@@ -283,7 +283,12 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
                       convertToCustomerExpense: checkBoxChecked,
                     });
                     setInitialValues(values);
-                    setShowConfirmCustomerExpenseModal(checkBoxChecked);
+                    if (checkBoxChecked === false) {
+                      setCheckBoxChecked(true);
+                      setShowConfirmCustomerExpenseModal(true);
+                    } else {
+                      setCheckBoxChecked(false);
+                    }
                   };
                   return (
                     <Form>

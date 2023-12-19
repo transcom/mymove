@@ -79,7 +79,7 @@ describe('ReviewSITExtensionModal', () => {
     const expectedEndDate = formatDateForDatePicker(moment().add(75, 'days'));
 
     await waitFor(() => {
-      expect(mockOnSubmit).toHaveBeenCalled();
+      // expect(mockOnSubmit).toHaveBeenCalled();
       expect(mockOnSubmit).toHaveBeenCalledWith(sitExt.id, {
         acceptExtension: 'yes',
         convertToCustomersExpense: false,
