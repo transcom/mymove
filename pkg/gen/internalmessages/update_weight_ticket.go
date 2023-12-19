@@ -23,6 +23,10 @@ type UpdateWeightTicket struct {
 	// Minimum: 0
 	AdjustedNetWeight *int64 `json:"adjustedNetWeight,omitempty"`
 
+	// Indicates the maximum reimbursable weight of the shipment
+	// Minimum: 0
+	AllowableWeight *int64 `json:"allowableWeight,omitempty"`
+
 	// Weight of the vehicle when empty.
 	// Minimum: 0
 	EmptyWeight *int64 `json:"emptyWeight,omitempty"`
@@ -43,10 +47,6 @@ type UpdateWeightTicket struct {
 	// Indicates if the customer used a trailer they own for the move.
 	OwnsTrailer bool `json:"ownsTrailer,omitempty"`
 
-	// Indicates the maximum reimbursable weight of the shipment
-	// Minimum: 0
-	ReimbursableWeight *int64 `json:"reimbursableWeight,omitempty"`
-
 	// Indicates if the trailer that the customer used meets all the criteria to be claimable.
 	TrailerMeetsCriteria bool `json:"trailerMeetsCriteria,omitempty"`
 
@@ -62,15 +62,15 @@ func (m *UpdateWeightTicket) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateAllowableWeight(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateEmptyWeight(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateFullWeight(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateReimbursableWeight(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -86,6 +86,18 @@ func (m *UpdateWeightTicket) validateAdjustedNetWeight(formats strfmt.Registry) 
 	}
 
 	if err := validate.MinimumInt("adjustedNetWeight", "body", *m.AdjustedNetWeight, 0, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateWeightTicket) validateAllowableWeight(formats strfmt.Registry) error {
+	if swag.IsZero(m.AllowableWeight) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("allowableWeight", "body", *m.AllowableWeight, 0, false); err != nil {
 		return err
 	}
 
@@ -110,18 +122,6 @@ func (m *UpdateWeightTicket) validateFullWeight(formats strfmt.Registry) error {
 	}
 
 	if err := validate.MinimumInt("fullWeight", "body", *m.FullWeight, 0, false); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateWeightTicket) validateReimbursableWeight(formats strfmt.Registry) error {
-	if swag.IsZero(m.ReimbursableWeight) { // not required
-		return nil
-	}
-
-	if err := validate.MinimumInt("reimbursableWeight", "body", *m.ReimbursableWeight, 0, false); err != nil {
 		return err
 	}
 

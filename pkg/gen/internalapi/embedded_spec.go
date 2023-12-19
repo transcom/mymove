@@ -8050,6 +8050,10 @@ func init() {
           "description": "Indicates the adjusted net weight of the vehicle",
           "type": "integer"
         },
+        "allowableWeight": {
+          "description": "Indicates the maximum reimbursable weight of the shipment",
+          "type": "integer"
+        },
         "emptyWeight": {
           "description": "Weight of the vehicle when empty.",
           "type": "integer"
@@ -8073,10 +8077,6 @@ func init() {
         "ownsTrailer": {
           "description": "Indicates if the customer used a trailer they own for the move.",
           "type": "boolean"
-        },
-        "reimbursableWeight": {
-          "description": "Indicates the maximum reimbursable weight of the shipment",
-          "type": "integer"
         },
         "trailerMeetsCriteria": {
           "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
@@ -17014,6 +17014,11 @@ func init() {
           "type": "integer",
           "minimum": 0
         },
+        "allowableWeight": {
+          "description": "Indicates the maximum reimbursable weight of the shipment",
+          "type": "integer",
+          "minimum": 0
+        },
         "emptyWeight": {
           "description": "Weight of the vehicle when empty.",
           "type": "integer",
@@ -17039,11 +17044,6 @@ func init() {
         "ownsTrailer": {
           "description": "Indicates if the customer used a trailer they own for the move.",
           "type": "boolean"
-        },
-        "reimbursableWeight": {
-          "description": "Indicates the maximum reimbursable weight of the shipment",
-          "type": "integer",
-          "minimum": 0
         },
         "trailerMeetsCriteria": {
           "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",

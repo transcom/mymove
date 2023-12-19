@@ -9757,6 +9757,10 @@ func init() {
           "description": "Indicates the adjusted net weight of the vehicle",
           "type": "integer"
         },
+        "allowableWeight": {
+          "description": "Indicates the maximum reimbursable weight of the shipment",
+          "type": "integer"
+        },
         "emptyWeight": {
           "description": "Weight of the vehicle when empty.",
           "type": "integer"
@@ -21237,6 +21241,11 @@ func init() {
       "properties": {
         "adjustedNetWeight": {
           "description": "Indicates the adjusted net weight of the vehicle",
+          "type": "integer",
+          "minimum": 0
+        },
+        "allowableWeight": {
+          "description": "Indicates the maximum reimbursable weight of the shipment",
           "type": "integer",
           "minimum": 0
         },
