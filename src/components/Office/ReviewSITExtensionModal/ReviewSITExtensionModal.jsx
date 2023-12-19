@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import classnames from 'classnames';
 import { Formik, Field, useField } from 'formik';
 import PropTypes from 'prop-types';
@@ -9,6 +9,7 @@ import moment from 'moment';
 import { SITExtensionShape } from '../../../types/sitExtensions';
 
 import styles from './ReviewSITExtensionModal.module.scss';
+import ConfirmCustomerExpenseModal from './ConfirmCustomerExpenseModal/ConfirmCustomerExpenseModal';
 
 import DataTableWrapper from 'components/DataTableWrapper/index';
 import DataTable from 'components/DataTable/index';
@@ -201,15 +202,25 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
  * Display on the MTO page when the Prime submits a SIT Extension for review of
  * the TOO.
  */
-const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, sitStatus }) => {
-  const initialValues = {
+const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, onSubmit }) => {
+  const [checkBoxChecked, setCheckBoxChecked] = useState(false);
+  const [showConfirmCustomerExpenseModal, setShowConfirmCustomerExpenseModal] = useState(false);
+  const handleConfirmYes = () => {
+    setShowConfirmCustomerExpenseModal(false);
+    setCheckBoxChecked(true);
+  };
+  const handleConfirmNo = () => {
+    setShowConfirmCustomerExpenseModal(false);
+    setCheckBoxChecked(false);
+  };
+  const [initialValues, setInitialValues] = useState({
     acceptExtension: '',
     convertToCustomersExpense: false,
     daysApproved: String(shipment.sitDaysAllowance),
     requestReason: sitExtension.requestReason,
     officeRemarks: '',
     sitEndDate: formatDateForDatePicker(moment(sitStatus.currentSIT.sitAllowanceEndDate, swaggerDateFormat)),
-  };
+  });
   const minimumDaysAllowed = shipment.sitDaysAllowance + 1;
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const reviewSITExtensionSchema = Yup.object().shape({
@@ -238,129 +249,142 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
     <div>
       <Overlay />
       <ModalContainer>
-        <Modal className={styles.ReviewSITExtensionModal}>
-          <ModalClose handleClick={() => onClose()} />
-          <ModalTitle>
-            <h2>Review additional days requested</h2>
-          </ModalTitle>
-          <div>
-            <Formik
-              validationSchema={reviewSITExtensionSchema}
-              onSubmit={(e) => onSubmit(sitExtension.id, e)}
-              initialValues={initialValues}
-            >
-              {({ isValid, values, setValues }) => {
-                const handleNoSelection = (e) => {
-                  if (e.target.value === 'no') {
+        {!showConfirmCustomerExpenseModal && (
+          <Modal className={styles.ReviewSITExtensionModal}>
+            <ModalClose handleClick={() => onClose()} />
+            <ModalTitle>
+              <h2>Review additional days requested</h2>
+            </ModalTitle>
+            <div>
+              <Formik
+                validationSchema={reviewSITExtensionSchema}
+                onSubmit={(e) => onSubmit(sitExtension.id, e)}
+                initialValues={initialValues}
+              >
+                {({ isValid, values, setValues }) => {
+                  const handleRadioSelection = (e) => {
+                    if (e.target.value === 'yes') {
+                      setCheckBoxChecked(false);
+                      setValues({
+                        ...values,
+                        acceptExtension: 'yes',
+                        convertToCustomerExpense: false,
+                      });
+                    } else if (e.target.value === 'no') {
+                      setValues({
+                        ...values,
+                        acceptExtension: 'no',
+                      });
+                    }
+                  };
+                  const handleCheckBoxClick = () => {
                     setValues({
                       ...values,
-                      acceptExtension: 'no',
+                      convertToCustomerExpense: checkBoxChecked,
                     });
-                  }
-                };
-                const handleYesSelection = (e) => {
-                  if (e.target.value === 'yes') {
-                    setValues({
-                      ...values,
-                      acceptExtension: 'yes',
-                      convertToCustomersExpense: false,
-                    });
-                  }
-                };
-                return (
-                  <Form>
-                    <DataTableWrapper
-                      className={classnames('maxw-tablet', styles.sitDisplayForm)}
-                      testID="sitExtensions"
-                    >
-                      <SitStatusTables sitStatus={sitStatus} sitExtension={sitExtension} shipment={shipment} />
-                    </DataTableWrapper>
-                    <div className={styles.ModalPanel}>
-                      <dl className={styles.SITSummary}>
-                        <div>
-                          <dt>Additional days requested:</dt>
-                          <dd>{sitExtension.requestedDays}</dd>
-                        </div>
-                        <div>
-                          <dt>Reason:</dt>
-                          <dd>{sitExtensionReasons[sitExtension.requestReason]}</dd>
-                        </div>
-                        <div>
-                          <dt>Contractor remarks:</dt>
-                          <dd>{sitExtension.contractorRemarks}</dd>
-                        </div>
-                      </dl>
-                      <FormGroup>
-                        <Fieldset legend="Accept request for extension?">
-                          <Field
-                            as={Radio}
-                            label="Yes"
-                            id="acceptExtension"
-                            name="acceptExtension"
-                            value="yes"
-                            title="Yes, accept extension"
-                            type="radio"
-                            onChange={handleYesSelection}
-                          />
-                          <Field
-                            as={Radio}
-                            label="No"
-                            id="denyExtension"
-                            name="acceptExtension"
-                            value="no"
-                            title="No, deny extension"
-                            type="radio"
-                            onChange={handleNoSelection}
-                          />
-                        </Fieldset>
-                      </FormGroup>
-                      {values.acceptExtension === 'yes' && (
-                        <div className={styles.reasonDropdown}>
-                          <DropdownInput
-                            label="Reason for edit"
-                            name="requestReason"
-                            options={dropdownInputOptions(sitExtensionReasons)}
-                          />
-                        </div>
-                      )}
-                      {values.acceptExtension === 'no' && (
-                        <div className={styles.convertRadio} data-testid="convertToCustomersExpense">
-                          <CheckboxField
-                            id="convertToCustomersExpense"
-                            label="Convert to Customer Expense"
-                            name="convertToCustomersExpense"
-                          />
-                        </div>
-                      )}
-                      <Label htmlFor="officeRemarks">Office remarks</Label>
-                      <Field
-                        as={Textarea}
-                        data-testid="officeRemarks"
-                        label="No"
-                        name="officeRemarks"
-                        id="officeRemarks"
-                      />
-                      <ModalActions>
-                        <Button type="submit" disabled={!isValid}>
-                          Save
-                        </Button>
-                        <Button
-                          type="button"
-                          onClick={() => onClose()}
-                          data-testid="modalCancelButton"
-                          outline
-                          className={styles.CancelButton}
-                        >
-                          Cancel
-                        </Button>
-                      </ModalActions>
-                    </div>
-                  </Form>
-                );
-              }}
-            </Formik>
-          </div>
-        </Modal>
+                    setInitialValues(values);
+                    setShowConfirmCustomerExpenseModal(checkBoxChecked);
+                  };
+                  return (
+                    <Form>
+                      <DataTableWrapper
+                        className={classnames('maxw-tablet', styles.sitDisplayForm)}
+                        testID="sitExtensions"
+                      >
+                        <SitStatusTables sitStatus={sitStatus} sitExtension={sitExtension} shipment={shipment} />
+                      </DataTableWrapper>
+                      <div className={styles.ModalPanel}>
+                        <dl className={styles.SITSummary}>
+                          <div>
+                            <dt>Additional days requested:</dt>
+                            <dd>{sitExtension.requestedDays}</dd>
+                          </div>
+                          <div>
+                            <dt>Reason:</dt>
+                            <dd>{sitExtensionReasons[sitExtension.requestReason]}</dd>
+                          </div>
+                          <div>
+                            <dt>Contractor remarks:</dt>
+                            <dd>{sitExtension.contractorRemarks}</dd>
+                          </div>
+                        </dl>
+                        <FormGroup>
+                          <Fieldset legend="Accept request for extension?">
+                            <Field
+                              as={Radio}
+                              label="Yes"
+                              id="acceptExtension"
+                              name="acceptExtension"
+                              value="yes"
+                              title="Yes, accept extension"
+                              type="radio"
+                              onChange={handleRadioSelection}
+                            />
+                            <Field
+                              as={Radio}
+                              label="No"
+                              id="denyExtension"
+                              name="acceptExtension"
+                              value="no"
+                              title="No, deny extension"
+                              type="radio"
+                              onChange={handleRadioSelection}
+                            />
+                          </Fieldset>
+                        </FormGroup>
+                        {values.acceptExtension === 'yes' && (
+                          <div className={styles.reasonDropdown}>
+                            <DropdownInput
+                              label="Reason for edit"
+                              name="requestReason"
+                              options={dropdownInputOptions(sitExtensionReasons)}
+                            />
+                          </div>
+                        )}
+                        {values.acceptExtension === 'no' && (
+                          <div className={styles.convertRadio} data-testid="convertToCustomerExpense">
+                            <CheckboxField
+                              id="convertToCustomerExpense"
+                              label="Convert to Customer Expense"
+                              name="convertToCustomerExpense"
+                              checked={checkBoxChecked}
+                              onChange={handleCheckBoxClick}
+                            />
+                          </div>
+                        )}
+                        <Label htmlFor="officeRemarks">Office remarks</Label>
+                        <Field
+                          as={Textarea}
+                          data-testid="officeRemarks"
+                          label="No"
+                          name="officeRemarks"
+                          id="officeRemarks"
+                        />
+                        <ModalActions>
+                          <Button type="submit" disabled={!isValid}>
+                            Save
+                          </Button>
+                          <Button
+                            type="button"
+                            onClick={() => onClose()}
+                            data-testid="modalCancelButton"
+                            outline
+                            className={styles.CancelButton}
+                          >
+                            Cancel
+                          </Button>
+                        </ModalActions>
+                      </div>
+                    </Form>
+                  );
+                }}
+              </Formik>
+            </div>
+          </Modal>
+        )}
+        {showConfirmCustomerExpenseModal && (
+          <ConfirmCustomerExpenseModal onSubmit={handleConfirmYes} onClose={handleConfirmNo} />
+        )}
       </ModalContainer>
     </div>
   );
