@@ -210,9 +210,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MovesShowMoveHandler: moves.ShowMoveHandlerFunc(func(params moves.ShowMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation moves.ShowMove has not yet been implemented")
 		}),
-		MovesShowMoveDatesSummaryHandler: moves.ShowMoveDatesSummaryHandlerFunc(func(params moves.ShowMoveDatesSummaryParams) middleware.Responder {
-			return middleware.NotImplemented("operation moves.ShowMoveDatesSummary has not yet been implemented")
-		}),
 		OfficeShowOfficeOrdersHandler: office.ShowOfficeOrdersHandlerFunc(func(params office.ShowOfficeOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ShowOfficeOrders has not yet been implemented")
 		}),
@@ -440,8 +437,6 @@ type MymoveAPI struct {
 	UsersShowLoggedInUserHandler users.ShowLoggedInUserHandler
 	// MovesShowMoveHandler sets the operation handler for the show move operation
 	MovesShowMoveHandler moves.ShowMoveHandler
-	// MovesShowMoveDatesSummaryHandler sets the operation handler for the show move dates summary operation
-	MovesShowMoveDatesSummaryHandler moves.ShowMoveDatesSummaryHandler
 	// OfficeShowOfficeOrdersHandler sets the operation handler for the show office orders operation
 	OfficeShowOfficeOrdersHandler office.ShowOfficeOrdersHandler
 	// OktaProfileShowOktaInfoHandler sets the operation handler for the show okta info operation
@@ -724,9 +719,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MovesShowMoveHandler == nil {
 		unregistered = append(unregistered, "moves.ShowMoveHandler")
-	}
-	if o.MovesShowMoveDatesSummaryHandler == nil {
-		unregistered = append(unregistered, "moves.ShowMoveDatesSummaryHandler")
 	}
 	if o.OfficeShowOfficeOrdersHandler == nil {
 		unregistered = append(unregistered, "office.ShowOfficeOrdersHandler")
@@ -1096,10 +1088,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves/{moveId}"] = moves.NewShowMove(o.context, o.MovesShowMoveHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/moves/{moveId}/move_dates_summary"] = moves.NewShowMoveDatesSummary(o.context, o.MovesShowMoveDatesSummaryHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

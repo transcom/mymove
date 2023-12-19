@@ -41,10 +41,6 @@ export function loadMove(moveId, label = loadMoveLabel) {
   return swaggerRequest(getClient, 'moves.showMove', { moveId }, { label });
 }
 
-export function getMoveDatesSummary(moveId, moveDate, label = getMoveDatesSummaryLabel) {
-  return swaggerRequest(getClient, 'moves.showMoveDatesSummary', { moveId, moveDate }, { label });
-}
-
 export function approveBasics(moveId, label = approveBasicsLabel) {
   const swaggerTag = 'office.approveMove';
   return swaggerRequest(getClient, swaggerTag, { moveId }, { label });
