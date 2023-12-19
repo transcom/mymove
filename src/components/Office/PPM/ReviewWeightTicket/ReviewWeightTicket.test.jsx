@@ -134,11 +134,11 @@ describe('ReviewWeightTicket component', () => {
       await act(async () => {
         await fireEvent.click(screen.getByLabelText('Reject'));
       });
-      expect(screen.getByLabelText('Reason for rejection')).toBeInstanceOf(HTMLTextAreaElement);
+      expect(screen.getByLabelText('Reason')).toBeInstanceOf(HTMLTextAreaElement);
       await act(async () => {
         await fireEvent.click(screen.getByLabelText('Accept'));
       });
-      expect(screen.queryByLabelText('Reason for rejection')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Reason')).not.toBeInTheDocument();
     });
 
     it('notifies the user when a trailer is claimable, and disables approval', async () => {
