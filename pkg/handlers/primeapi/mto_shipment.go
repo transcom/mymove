@@ -342,9 +342,6 @@ func (h UpdateSITDeliveryRequestHandler) Handle(params mtoshipmentops.UpdateSITD
 				case apperror.NotFoundError:
 					return mtoshipmentops.NewUpdateSITDeliveryRequestNotFound().WithPayload(
 						payloads.ClientError(handlers.NotFoundMessage, e.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
-				case apperror.QueryError:
-					return mtoshipmentops.NewUpdateSITDeliveryRequestInternalServerError().WithPayload(
-						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				default:
 					return mtoshipmentops.NewUpdateSITDeliveryRequestInternalServerError().WithPayload(
 						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
