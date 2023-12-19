@@ -502,7 +502,7 @@ export function convertSITToCustomerExpense({
   schemaKey = 'mtoShipment',
   body,
 }) {
-  const operationPath = 'shipment.createSITExtensionUpdate';
+  const operationPath = 'shipment.createConvertSITToCustomerExpenseUpdate';
   return makeGHCRequest(
     operationPath,
     {

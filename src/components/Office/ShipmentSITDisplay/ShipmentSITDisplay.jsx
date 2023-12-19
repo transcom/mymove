@@ -109,13 +109,15 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
     sitStatus.currentSIT?.location === LOCATION_TYPES.DESTINATION ? 'destination SIT' : 'origin SIT';
 
   const totalSITDaysUsed = clamp(sitStatus.totalSITDaysUsed || 0, 0, shipment.sitDaysAllowance);
+  const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
   const totalDaysRemaining = () => {
-    const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
     if (daysRemaining > 0) {
       return daysRemaining;
     }
     return 'Expired';
   };
+
+  const showConvertToCustomerExpense = daysRemaining <= 30;
 
   // Customer delivery request
   const isDestination = sitStatus.currentSIT?.location === LOCATION_TYPES.DESTINATION;
@@ -127,8 +129,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
     <>
       <div className={styles.title}>
         <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Additional Days Requested</Tag>}</p>
-        {sitStatus.currentSIT && !pendingSITExtension && openConvertModalButton}
-        {sitStatus.currentSIT && !pendingSITExtension && <p>|</p>}
+        {sitStatus.currentSIT && !pendingSITExtension && showConvertToCustomerExpense && openConvertModalButton}
         {sitStatus.currentSIT && openModalButton}
       </div>
       <div className={styles.tableContainer} data-testid="sitStatusTable">

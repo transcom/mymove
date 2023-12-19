@@ -92,7 +92,7 @@ const ConvertSITToCustomerExpenseModal = ({ shipment, sitStatus, onClose, onSubm
         <Modal className={styles.ConvertSITToCustomerExpenseModal}>
           <ModalClose handleClick={() => onClose()} />
           <ModalTitle>
-            <h2>Convert SIT To Customer&apos;s Expense</h2>
+            <h2>Convert SIT To Customer Expense</h2>
           </ModalTitle>
           <Formik
             validationSchema={convertSITToCustomerExpenseSchema}
