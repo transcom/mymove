@@ -78,11 +78,11 @@ const ConvertSITExtensionModal = ({ shipment, sitStatus, onClose, onSubmit }) =>
 
   const initialValues = {
     officeRemarks: '',
-    convertToMembersExpense: true,
+    convertToCustomersExpense: true,
   };
   const convertSITExtensionSchema = Yup.object().shape({
     officeRemarks: Yup.string().required('Required'),
-    convertToMembersExpense: Yup.boolean().required('Required'),
+    convertToCustomersExpense: Yup.boolean().required('Required'),
   });
 
   return (
@@ -92,7 +92,7 @@ const ConvertSITExtensionModal = ({ shipment, sitStatus, onClose, onSubmit }) =>
         <Modal className={styles.ConvertSITExtensionModal}>
           <ModalClose handleClick={() => onClose()} />
           <ModalTitle>
-            <h2>Convert SIT To Customer Expense</h2>
+            <h2>Convert SIT To Customer&apos;s Expense</h2>
           </ModalTitle>
           <Formik
             validationSchema={convertSITExtensionSchema}
