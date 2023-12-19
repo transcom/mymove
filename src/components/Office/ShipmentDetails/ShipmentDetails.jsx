@@ -15,7 +15,7 @@ const ShipmentDetails = ({
   handleRequestReweighModal,
   handleReviewSITExtension,
   handleSubmitSITExtension,
-  handleConvertSITExtension,
+  handleConvertSITToCustomerExpense,
   handleEditFacilityInfo,
   handleEditServiceOrderNumber,
   handleEditAccountingCodes,
@@ -42,7 +42,7 @@ const ShipmentDetails = ({
         }}
         handleReviewSITExtension={handleReviewSITExtension}
         handleSubmitSITExtension={handleSubmitSITExtension}
-        handleConvertSITExtension={handleConvertSITExtension}
+        handleConvertSITToCustomerExpense={handleConvertSITToCustomerExpense}
       />
       <ShipmentDetailsSidebar
         className={styles.ShipmentDetailsSidebar}
@@ -63,7 +63,7 @@ ShipmentDetails.propTypes = {
   handleRequestReweighModal: PropTypes.func.isRequired,
   handleReviewSITExtension: PropTypes.func.isRequired,
   handleSubmitSITExtension: PropTypes.func.isRequired,
-  handleConvertSITExtension: PropTypes.func.isRequired,
+  handleConvertSITToCustomerExpense: PropTypes.func.isRequired,
   handleEditFacilityInfo: PropTypes.func.isRequired,
   handleEditServiceOrderNumber: PropTypes.func.isRequired,
   handleEditAccountingCodes: PropTypes.func.isRequired,

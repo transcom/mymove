@@ -3,7 +3,7 @@ import { render, waitFor, screen, act, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import moment from 'moment';
 
-import ConvertSITExtensionModal from './ConvertSITExtensionModal';
+import ConvertSITToCustomerExpenseModal from './ConvertSITToCustomerExpenseModal';
 
 import { formatDateForDatePicker, utcDateFormat } from 'shared/dates';
 
@@ -22,10 +22,10 @@ const defaultValues = {
   },
 };
 
-describe('ConvertSITExtensionModal', () => {
+describe('ConvertSITToCustomerExpenseModal', () => {
   it('calls onSubmit prop on approval with form values when validations pass', async () => {
     const mockOnSubmit = jest.fn();
-    await render(<ConvertSITExtensionModal onSubmit={mockOnSubmit} onClose={() => {}} {...defaultValues} />);
+    await render(<ConvertSITToCustomerExpenseModal onSubmit={mockOnSubmit} onClose={() => {}} {...defaultValues} />);
     const reasonInput = screen.getByLabelText('Reason for edit');
     const daysApprovedInput = screen.getByTestId('daysApproved');
     const officeRemarksInput = screen.getByLabelText('Office remarks');
@@ -51,7 +51,7 @@ describe('ConvertSITExtensionModal', () => {
 
   it('does not allow submission of 0 approved days', async () => {
     const mockOnSubmit = jest.fn();
-    await render(<ConvertSITExtensionModal onSubmit={mockOnSubmit} onClose={() => {}} {...defaultValues} />);
+    await render(<ConvertSITToCustomerExpenseModal onSubmit={mockOnSubmit} onClose={() => {}} {...defaultValues} />);
     const reasonInput = screen.getByLabelText('Reason for edit');
     const daysApprovedInput = screen.getByTestId('daysApproved');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
@@ -66,7 +66,7 @@ describe('ConvertSITExtensionModal', () => {
 
   it('changes the end date when the total days of SIT approved is changed', async () => {
     const mockOnSubmit = jest.fn();
-    await render(<ConvertSITExtensionModal onSubmit={mockOnSubmit} onClose={() => {}} {...defaultValues} />);
+    await render(<ConvertSITToCustomerExpenseModal onSubmit={mockOnSubmit} onClose={() => {}} {...defaultValues} />);
     const reasonInput = screen.getByLabelText('Reason for edit');
     const daysApprovedInput = screen.getByTestId('daysApproved');
     const sitEndDateInput = screen.getByPlaceholderText('DD MMM YYYY');
@@ -81,7 +81,7 @@ describe('ConvertSITExtensionModal', () => {
 
   it('changes the total days of SIT approved when end date is changed', async () => {
     const mockOnSubmit = jest.fn();
-    await render(<ConvertSITExtensionModal onSubmit={mockOnSubmit} onClose={() => {}} {...defaultValues} />);
+    await render(<ConvertSITToCustomerExpenseModal onSubmit={mockOnSubmit} onClose={() => {}} {...defaultValues} />);
     const sitEndDateInput = screen.getByPlaceholderText('DD MMM YYYY');
     await act(() => userEvent.clear(sitEndDateInput));
     const newEndDate = formatDateForDatePicker(moment().add(220, 'days'));
@@ -93,7 +93,7 @@ describe('ConvertSITExtensionModal', () => {
 
   it('calls onclose prop on modal close', async () => {
     const mockClose = jest.fn();
-    await render(<ConvertSITExtensionModal onSubmit={() => {}} onClose={mockClose} {...defaultValues} />);
+    await render(<ConvertSITToCustomerExpenseModal onSubmit={() => {}} onClose={mockClose} {...defaultValues} />);
     const closeBtn = screen.getByRole('button', { name: 'Cancel' });
 
     await act(() => userEvent.click(closeBtn));
@@ -104,7 +104,7 @@ describe('ConvertSITExtensionModal', () => {
   });
 
   it('renders the summary SIT component', async () => {
-    await render(<ConvertSITExtensionModal onSubmit={jest.fn()} onClose={jest.fn()} {...defaultValues} />);
+    await render(<ConvertSITToCustomerExpenseModal onSubmit={jest.fn()} onClose={jest.fn()} {...defaultValues} />);
 
     await waitFor(() => {
       expect(screen.getByText('SIT (STORAGE IN TRANSIT)')).toBeInTheDocument();

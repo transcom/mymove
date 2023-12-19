@@ -6,7 +6,7 @@ import * as Yup from 'yup';
 import { Button, Label, Textarea } from '@trussworks/react-uswds';
 import moment from 'moment';
 
-import styles from './ConvertSITExtensionModal.module.scss';
+import styles from './ConvertSITToCustomerExpenseModal.module.scss';
 
 import DataTableWrapper from 'components/DataTableWrapper/index';
 import DataTable from 'components/DataTable/index';
@@ -65,7 +65,7 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
   );
 };
 
-const ConvertSITExtensionModal = ({ shipment, sitStatus, onClose, onSubmit }) => {
+const ConvertSITToCustomerExpenseModal = ({ shipment, sitStatus, onClose, onSubmit }) => {
   let sitStartDate = sitStatus?.sitEntryDate;
   if (!sitStartDate) {
     sitStartDate = shipment.mtoServiceItems?.reduce((item, acc) => {
@@ -80,7 +80,7 @@ const ConvertSITExtensionModal = ({ shipment, sitStatus, onClose, onSubmit }) =>
     officeRemarks: '',
     convertToCustomersExpense: true,
   };
-  const convertSITExtensionSchema = Yup.object().shape({
+  const convertSITToCustomerExpenseSchema = Yup.object().shape({
     officeRemarks: Yup.string().required('Required'),
     convertToCustomersExpense: Yup.boolean().required('Required'),
   });
@@ -89,13 +89,13 @@ const ConvertSITExtensionModal = ({ shipment, sitStatus, onClose, onSubmit }) =>
     <div>
       <Overlay />
       <ModalContainer>
-        <Modal className={styles.ConvertSITExtensionModal}>
+        <Modal className={styles.ConvertSITToCustomerExpenseModal}>
           <ModalClose handleClick={() => onClose()} />
           <ModalTitle>
             <h2>Convert SIT To Customer&apos;s Expense</h2>
           </ModalTitle>
           <Formik
-            validationSchema={convertSITExtensionSchema}
+            validationSchema={convertSITToCustomerExpenseSchema}
             onSubmit={(e) => onSubmit(e)}
             initialValues={initialValues}
             validateOnMount
@@ -139,8 +139,8 @@ const ConvertSITExtensionModal = ({ shipment, sitStatus, onClose, onSubmit }) =>
   );
 };
 
-ConvertSITExtensionModal.propTypes = {
+ConvertSITToCustomerExpenseModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
 };
-export default ConvertSITExtensionModal;
+export default ConvertSITToCustomerExpenseModal;

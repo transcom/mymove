@@ -495,7 +495,13 @@ export function submitSITExtension({ shipmentID, ifMatchETag, normalize = true, 
   );
 }
 
-export function convertSITExtension({ shipmentID, ifMatchETag, normalize = true, schemaKey = 'mtoShipment', body }) {
+export function convertSITToCustomerExpense({
+  shipmentID,
+  ifMatchETag,
+  normalize = true,
+  schemaKey = 'mtoShipment',
+  body,
+}) {
   const operationPath = 'shipment.createSITExtensionUpdate';
   return makeGHCRequest(
     operationPath,

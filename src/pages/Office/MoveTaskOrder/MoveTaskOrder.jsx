@@ -39,7 +39,7 @@ import {
   denySITExtension,
   patchMTOServiceItemStatus,
   submitSITExtension,
-  convertSITExtension,
+  convertSITToCustomerExpense,
   updateBillableWeight,
   updateFinancialFlag,
   updateMTOShipment,
@@ -340,8 +340,8 @@ export const MoveTaskOrder = (props) => {
   });
 
   /* istanbul ignore next */
-  const { mutate: mutateConvertSITExtension } = useMutation({
-    mutationFn: convertSITExtension,
+  const { mutate: mutateConvertSITToCustomerExpense } = useMutation({
+    mutationFn: convertSITToCustomerExpense,
     onSuccess: (data, variables) => {
       const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
@@ -610,8 +610,8 @@ export const MoveTaskOrder = (props) => {
     );
   };
 
-  const handleConvertSITExtension = (formValues, shipment) => {
-    mutateConvertSITExtension(
+  const handleConvertSITToCustomerExpense = (formValues, shipment) => {
+    mutateConvertSITToCustomerExpense(
       {
         shipmentID: shipment.id,
         ifMatchETag: shipment.eTag,
@@ -1353,7 +1353,7 @@ export const MoveTaskOrder = (props) => {
                   handleRequestReweighModal={handleRequestReweighModal}
                   handleReviewSITExtension={handleReviewSITExtension}
                   handleSubmitSITExtension={handleSubmitSITExtension}
-                  handleConvertSITExtension={handleConvertSITExtension}
+                  handleConvertSITToCustomerExpense={handleConvertSITToCustomerExpense}
                   handleEditFacilityInfo={handleEditFacilityInfo}
                   handleEditServiceOrderNumber={handleEditServiceOrderNumber}
                   handleEditAccountingCodes={handleEditAccountingCodes}
