@@ -70,6 +70,28 @@ export const SITStatusOrigin = {
   },
 };
 
+export const SITStatusShowConvert = {
+  totalSITDaysUsed: 45,
+  totalDaysRemaining: 30,
+  currentSIT: {
+    location: LOCATION_VALUES.ORIGIN,
+    daysInSIT: 15,
+    sitEntryDate: '2021-08-13',
+    sitAllowanceEndDate: '2021-08-28',
+  },
+};
+
+export const SITStatusDontShowConvert = {
+  totalSITDaysUsed: 45,
+  totalDaysRemaining: 60,
+  currentSIT: {
+    location: LOCATION_VALUES.ORIGIN,
+    daysInSIT: 15,
+    sitEntryDate: '2021-08-13',
+    sitAllowanceEndDate: '2021-08-28',
+  },
+};
+
 export const SITStatusDestination = {
   totalSITDaysUsed: 45,
   totalDaysRemaining: 60,

@@ -12,7 +12,6 @@ const defaultValues = {
     totalDaysRemaining: 210,
     totalSITDaysUsed: 60,
     currentSIT: {
-      location: 'DESTINATION',
       daysInSIT: 60,
       sitEntryDate: moment().subtract(60, 'days').format(utcDateFormat),
     },

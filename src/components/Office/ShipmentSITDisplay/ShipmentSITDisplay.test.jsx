@@ -18,6 +18,8 @@ import {
   SITExtensionPending,
   SITExtensionDenied,
   SITStatusExpired,
+  SITStatusShowConvert,
+  SITStatusDontShowConvert,
 } from './ShipmentSITDisplayTestParams';
 
 import { MockProviders } from 'testUtils';
@@ -239,6 +241,52 @@ describe('ShipmentSITDisplay', () => {
     await waitFor(() => {
       expect(onClick).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it('show convert SIT To Customer Expense callback when show convert is true', async () => {
+    const onClick = jest.fn();
+    const OpenConvertModalButton = (
+      <button type="button" onClick={() => onClick()}>
+        Convert to customer expense
+      </button>
+    );
+    render(
+      <MockProviders permissions={[permissionTypes.updateSITExtension]}>
+        <ShipmentSITDisplay
+          sitStatus={SITStatusShowConvert}
+          shipment={SITShipment}
+          openConvertModalButton={OpenConvertModalButton}
+        />
+      </MockProviders>,
+    );
+
+    const convertButton = screen.getByRole('button', { name: 'Convert to customer expense' });
+
+    await userEvent.click(convertButton);
+
+    await waitFor(() => {
+      expect(onClick).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('hide convert SIT To Customer Expense button when show button is false', async () => {
+    const onClick = jest.fn();
+    const OpenConvertModalButton = (
+      <button type="button" onClick={() => onClick()}>
+        Convert to customer expense
+      </button>
+    );
+    render(
+      <MockProviders permissions={[permissionTypes.updateSITExtension]}>
+        <ShipmentSITDisplay
+          sitStatus={SITStatusDontShowConvert}
+          shipment={SITShipment}
+          openConvertModalButton={OpenConvertModalButton}
+        />
+      </MockProviders>,
+    );
+
+    expect(screen.queryByRole('button', { name: 'Convert to customer expense' })).not.toBeInTheDocument();
   });
 
   it('hides review pending SIT Extension button when hide prop is true', async () => {
