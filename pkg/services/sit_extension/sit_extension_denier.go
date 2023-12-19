@@ -20,7 +20,7 @@ import (
 
 type sitExtensionDenier struct {
 	moveRouter         services.MoveRouter
-	serviceItemUpdater services.MTOServiceItemUpdater // update members_expense for the corresponding item in the mto_service_items table when a sit_extension is converted to member's expense
+	serviceItemUpdater services.MTOServiceItemUpdater // update members_expense for the corresponding item in the mto_service_items table when a sit_extension is converted to customer expense
 }
 
 // NewSITExtensionDenier creates a new struct with the service dependencies

@@ -129,7 +129,7 @@ test.describe('TOO user', () => {
       await expect(page.getByTestId('sitStatusTable').getByText('90', { exact: true }).first()).toBeVisible();
     });
 
-    test("is able to deny the SIT extension request AND convert to member's expense", async ({ page }) => {
+    test('is able to deny the SIT extension request AND convert to customer expense', async ({ page }) => {
       // navigate to MTO tab
       await page.getByTestId('MoveTaskOrder-Tab').click();
       await tooFlowPage.waitForPage.moveTaskOrder();

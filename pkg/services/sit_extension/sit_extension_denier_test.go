@@ -135,7 +135,7 @@ func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 		suite.Equal(models.MoveStatusAPPROVED, shipmentInDB.MoveTaskOrder.Status)
 	})
 
-	suite.Run("Updates the SIT extension's status to DENIED and updates members_expense to TRUE when 'Convert to Member's Expense' is chosen.", func() {
+	suite.Run("Updates the SIT extension's status to DENIED and updates members_expense to TRUE when 'Convert to customer expense' is chosen.", func() {
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
