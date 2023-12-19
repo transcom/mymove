@@ -117,7 +117,7 @@ const ConvertSITToCustomerExpenseModal = ({ shipment, sitStatus, onClose, onSubm
                   />
                   <ModalActions>
                     <Button type="submit" disabled={!isValid}>
-                      Submit
+                      Save
                     </Button>
                     <Button
                       type="button"
