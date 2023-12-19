@@ -6,20 +6,20 @@ import styles from '../ReviewSITExtensionModal.module.scss';
 
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 
-const ConfirmMembersExpenseModal = ({ onClose, onSubmit }) => {
+const ConfirmCustomersExpenseModal = ({ onClose, onSubmit }) => {
   return (
     <Modal>
       <ModalClose handleClick={onClose} />
       <ModalTitle>
-        <h2>Convert to Member&apos;s Expense</h2>
+        <h2>Convert to Customer&apos;s Expense</h2>
       </ModalTitle>
       <div className={styles.ModalPanel}>
-        <p>Are you sure that you would like to convert to Member&apos;s Expense?</p>
+        <p>Are you sure that you would like to convert to Customer&apos;s Expense?</p>
         <ModalActions>
-          <Button data-testid="convertToMembersExpenseConfirmationYes" onClick={onSubmit}>
+          <Button data-testid="convertToCustomersExpenseConfirmationYes" onClick={onSubmit}>
             Yes
           </Button>
-          <Button data-testid="convertToMembersExpenseConfirmationNo" onClick={onClose}>
+          <Button data-testid="convertToCustomersExpenseConfirmationNo" onClick={onClose}>
             No
           </Button>
         </ModalActions>
@@ -28,8 +28,8 @@ const ConfirmMembersExpenseModal = ({ onClose, onSubmit }) => {
   );
 };
 
-ConfirmMembersExpenseModal.propTypes = {
+ConfirmCustomersExpenseModal.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
 };
-export default ConfirmMembersExpenseModal;
+export default ConfirmCustomersExpenseModal;

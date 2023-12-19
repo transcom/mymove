@@ -42,8 +42,8 @@ func (_m *MTOServiceItemUpdater) ApproveOrRejectServiceItem(appCtx appcontext.Ap
 	return r0, r1
 }
 
-// ConvertItemToMembersExpense provides a mock function with given fields: appCtx, shipment
-func (_m *MTOServiceItemUpdater) ConvertItemToMembersExpense(appCtx appcontext.AppContext, shipment *models.MTOShipment) (*models.MTOServiceItem, error) {
+// ConvertItemToCustomersExpense provides a mock function with given fields: appCtx, shipment
+func (_m *MTOServiceItemUpdater) ConvertItemToCustomersExpense(appCtx appcontext.AppContext, shipment *models.MTOShipment) (*models.MTOServiceItem, error) {
 	ret := _m.Called(appCtx, shipment)
 
 	var r0 *models.MTOServiceItem

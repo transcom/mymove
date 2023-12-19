@@ -985,7 +985,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.Contains(err.Error(), serviceItem.ID.String())
 	})
 
-	suite.Run("When TOO rejects a DOFSIT service item and converts it to the member's expense", func() {
+	suite.Run("When TOO rejects a DOFSIT service item and converts it to the customer's expense", func() {
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{

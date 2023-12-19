@@ -121,7 +121,7 @@ test.describe('TOO user', () => {
       await expect(page.getByRole('heading', { name: 'Review additional days requested' })).toBeVisible();
       await page.getByText('No', { exact: true }).click();
       await page.getByTestId('officeRemarks').fill('extension request denied');
-      await page.getByTestId('convertToMembersExpense');
+      await page.getByTestId('convertToCustomersExpense');
       await page.getByTestId('form').getByTestId('button').click();
 
       // assert that there is no pending SIT extension request and the days authorization is still 90
@@ -129,7 +129,7 @@ test.describe('TOO user', () => {
       await expect(page.getByTestId('sitStatusTable').getByText('90', { exact: true }).first()).toBeVisible();
     });
 
-    test("is able to deny the SIT extension request AND convert to member's expense", async ({ page }) => {
+    test("is able to deny the SIT extension request AND convert to customer's expense", async ({ page }) => {
       // navigate to MTO tab
       await page.getByTestId('MoveTaskOrder-Tab').click();
       await tooFlowPage.waitForPage.moveTaskOrder();
@@ -142,9 +142,9 @@ test.describe('TOO user', () => {
       await expect(page.getByRole('heading', { name: 'Review additional days requested' })).toBeVisible();
       await page.getByText('No', { exact: true }).click();
       await page.getByTestId('officeRemarks').fill('extension request denied');
-      await page.getByTestId('convertToMembersExpense').click();
-      await expect(page.getByText("Are you sure that you would like to convert to Member's Expense?")).toBeVisible();
-      await page.getByTestId('convertToMembersExpenseConfirmationYes').click();
+      await page.getByTestId('convertToCustomersExpense').click();
+      await expect(page.getByText("Are you sure that you would like to convert to Customer's Expense?")).toBeVisible();
+      await page.getByTestId('convertToCustomersExpenseConfirmationYes').click();
       await expect(page.getByRole('heading', { name: 'Review additional days requested' })).toBeVisible();
       await page.getByTestId('form').getByTestId('button').click();
 

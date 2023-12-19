@@ -16,17 +16,17 @@ type SITExtensionDenier struct {
 	mock.Mock
 }
 
-// DenySITExtension provides a mock function with given fields: appCtx, shipmentID, sitExtensionID, officeRemarks, convertToMembersExpense, eTag
-func (_m *SITExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, shipmentID uuid.UUID, sitExtensionID uuid.UUID, officeRemarks *string, convertToMembersExpense *bool, eTag string) (*models.MTOShipment, error) {
-	ret := _m.Called(appCtx, shipmentID, sitExtensionID, officeRemarks, convertToMembersExpense, eTag)
+// DenySITExtension provides a mock function with given fields: appCtx, shipmentID, sitExtensionID, officeRemarks, convertToCustomersExpense, eTag
+func (_m *SITExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, shipmentID uuid.UUID, sitExtensionID uuid.UUID, officeRemarks *string, convertToCustomersExpense *bool, eTag string) (*models.MTOShipment, error) {
+	ret := _m.Called(appCtx, shipmentID, sitExtensionID, officeRemarks, convertToCustomersExpense, eTag)
 
 	var r0 *models.MTOShipment
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, *string, *bool, string) (*models.MTOShipment, error)); ok {
-		return rf(appCtx, shipmentID, sitExtensionID, officeRemarks, convertToMembersExpense, eTag)
+		return rf(appCtx, shipmentID, sitExtensionID, officeRemarks, convertToCustomersExpense, eTag)
 	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, *string, *bool, string) *models.MTOShipment); ok {
-		r0 = rf(appCtx, shipmentID, sitExtensionID, officeRemarks, convertToMembersExpense, eTag)
+		r0 = rf(appCtx, shipmentID, sitExtensionID, officeRemarks, convertToCustomersExpense, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOShipment)
@@ -34,7 +34,7 @@ func (_m *SITExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, shi
 	}
 
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, *string, *bool, string) error); ok {
-		r1 = rf(appCtx, shipmentID, sitExtensionID, officeRemarks, convertToMembersExpense, eTag)
+		r1 = rf(appCtx, shipmentID, sitExtensionID, officeRemarks, convertToCustomersExpense, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}
