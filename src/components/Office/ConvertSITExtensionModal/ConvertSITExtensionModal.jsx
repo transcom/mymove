@@ -98,6 +98,7 @@ const ConvertSITExtensionModal = ({ shipment, sitStatus, onClose, onSubmit }) =>
             validationSchema={convertSITExtensionSchema}
             onSubmit={(e) => onSubmit(e)}
             initialValues={initialValues}
+            validateOnMount
           >
             {({ isValid }) => {
               return (
