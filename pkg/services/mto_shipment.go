@@ -134,6 +134,7 @@ type SITStatus struct {
 }
 
 type CurrentSIT struct {
+	ServiceItemID        uuid.UUID
 	Location             string
 	DaysInSIT            int
 	SITEntryDate         time.Time

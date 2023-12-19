@@ -4911,6 +4911,7 @@ func createHHGWithPaymentServiceItems(
 				Reason:        models.StringPointer("Holiday break"),
 				SITEntryDate:  &originEntryDate,
 				SITPostalCode: &originSITAddress.PostalCode,
+				Status:        models.MTOServiceItemStatusRejected,
 			},
 		},
 	}, nil)
@@ -4977,14 +4978,6 @@ func createHHGWithPaymentServiceItems(
 
 	originDepartureDate := originEntryDate.Add(15 * 24 * time.Hour)
 	originPickupSIT.SITDepartureDate = &originDepartureDate
-
-	updatedDOPSIT, updateOriginErr := serviceItemUpdater.UpdateMTOServiceItemPrime(appCtx, &originPickupSIT, etag.GenerateEtag(originPickupSIT.UpdatedAt))
-
-	if updateOriginErr != nil {
-		logger.Fatal(fmt.Sprintf("Error updating %s with departure date", models.ReServiceCodeDOPSIT))
-	}
-
-	originPickupSIT = *updatedDOPSIT
 
 	for _, createdServiceItem := range []models.MTOServiceItem{originFirstDaySIT, originAdditionalDaySIT, originPickupSIT, originSITFSC} {
 		_, updateErr := serviceItemUpdater.ApproveOrRejectServiceItem(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))

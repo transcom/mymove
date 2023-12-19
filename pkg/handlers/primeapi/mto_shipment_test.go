@@ -34,6 +34,7 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -2695,7 +2696,7 @@ func (suite *HandlerSuite) TestUpdateSITDeliveryRequestHandler() {
 
 		subtestData.handler = UpdateSITDeliveryRequestHandler{
 			suite.HandlerConfig(),
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 
 		sitCustomerContacted, _ := time.Parse("2006-01-02", "2023-12-10")

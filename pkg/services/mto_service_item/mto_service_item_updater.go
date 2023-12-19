@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/services/query"
+	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 )
 
 type mtoServiceItemQueryBuilder interface {
@@ -54,6 +55,52 @@ func (p *mtoServiceItemUpdater) ApproveOrRejectServiceItem(
 	}
 
 	return p.approveOrRejectServiceItem(appCtx, *mtoServiceItem, status, rejectionReason, eTag, checkMoveStatus(), checkETag())
+}
+
+func (p *mtoServiceItemUpdater) ConvertItemToCustomersExpense(
+	appCtx appcontext.AppContext,
+	shipment *models.MTOShipment,
+) (*models.MTOServiceItem, error) {
+	var DOFSITCodeID, DDFSITCodeID uuid.UUID
+	DOFSITServiceErr := appCtx.DB().RawQuery(`SELECT id FROM re_services WHERE code = 'DOFSIT'`).First(&DOFSITCodeID) // First get uuid for DOFSIT service code
+	if DOFSITServiceErr != nil {
+		return nil, apperror.NewNotFoundError(uuid.Nil, "Couldn't find entry for DOFSIT ReService code in re_services table.")
+	}
+	DDFSITServiceErr := appCtx.DB().RawQuery(`SELECT id FROM re_services WHERE code = 'DOFSIT'`).First(&DDFSITCodeID)
+	if DDFSITServiceErr != nil {
+		return nil, apperror.NewNotFoundError(uuid.Nil, "Couldn't find entry for DDFSIT ReService code in re_services table.")
+	}
+
+	sitStatusService := sitstatus.NewShipmentSITStatus()
+	shipmentSITStatus, err := sitStatusService.CalculateShipmentSITStatus(appCtx, *shipment)
+	if err != nil {
+		return nil, err
+	} else if shipmentSITStatus == nil {
+		return nil, apperror.NewNotFoundError(shipment.ID, "for current SIT MTO Service Item.")
+	}
+
+	// Now get the service item associated with the current mto_shipment
+	var SITItem models.MTOServiceItem
+	getSITItemErr := appCtx.DB().RawQuery(`SELECT * FROM mto_service_items WHERE id = ?`, shipmentSITStatus.CurrentSIT.ServiceItemID).First(&SITItem)
+	if getSITItemErr != nil {
+		switch getSITItemErr {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(shipment.ID, "for MTO Service Item")
+		default:
+			return nil, getSITItemErr
+		}
+	}
+
+	eTag := etag.GenerateEtag(SITItem.UpdatedAt)
+
+	// Finally, update the mto_service_item with the members_expense flag set to TRUE
+	SITItem.CustomersExpense = models.BoolPointer(true)
+	mtoServiceItem, err := p.findServiceItem(appCtx, SITItem.ID)
+	if err != nil {
+		return &models.MTOServiceItem{}, err
+	}
+
+	return p.convertItemToCustomersExpense(appCtx, *mtoServiceItem, eTag, checkETag())
 }
 
 func (p *mtoServiceItemUpdater) findServiceItem(appCtx appcontext.AppContext, serviceItemID uuid.UUID) (*models.MTOServiceItem, error) {
@@ -180,6 +227,30 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&serviceItem)
 	if e := handleError(serviceItem.ID, verrs, err); e != nil {
 		return nil, e
+	}
+
+	return &serviceItem, nil
+}
+
+func (p *mtoServiceItemUpdater) convertItemToCustomersExpense(
+	appCtx appcontext.AppContext,
+	serviceItem models.MTOServiceItem,
+	eTag string,
+	checks ...validator,
+) (*models.MTOServiceItem, error) {
+	if verr := validateServiceItem(appCtx, &serviceItem, eTag, checks...); verr != nil {
+		return nil, verr
+	}
+
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		serviceItem.CustomersExpense = models.BoolPointer(true)
+		verrs, err := appCtx.DB().ValidateAndUpdate(&serviceItem)
+		e := handleError(serviceItem.ID, verrs, err)
+		return e
+	})
+
+	if transactionError != nil {
+		return nil, transactionError
 	}
 
 	return &serviceItem, nil
