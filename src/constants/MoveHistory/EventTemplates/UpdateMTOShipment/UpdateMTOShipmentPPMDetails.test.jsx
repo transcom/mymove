@@ -49,6 +49,23 @@ describe('when given a PPM shipment update', () => {
     ],
   };
 
+  const advanceRecord = {
+    action: a.UPDATE,
+    eventName: o.updateMTOShipment,
+    tableName: t.ppm_shipments,
+    changedValues: {
+      advance_amount_requested: 598600,
+      advance_status: 'APPROVED',
+      has_requested_advance: true,
+    },
+    context: [
+      {
+        shipment_type: 'PPM',
+        shipment_id_abbr: '12992',
+      },
+    ],
+  };
+
   it('correctly matches the the event', () => {
     const result = getTemplate(historyRecord);
     expect(result).toMatchObject(e);
@@ -86,6 +103,18 @@ describe('when given a PPM shipment update', () => {
     ])('displays the correct details value for %s', async (label, value) => {
       const result = getTemplate(weightRecord);
       render(result.getDetails(weightRecord));
+      expect(screen.getByText(label)).toBeInTheDocument();
+      expect(screen.getByText(value)).toBeInTheDocument();
+    });
+  });
+  describe('it correctly renders the advance details', () => {
+    it.each([
+      ['Advance amount requested', ': $5,986.00'],
+      ['Advance requested', ': Yes'],
+      ['Advance status', ': APPROVED'],
+    ])('displays the correct details value for %s', async (label, value) => {
+      const result = getTemplate(advanceRecord);
+      render(result.getDetails(advanceRecord));
       expect(screen.getByText(label)).toBeInTheDocument();
       expect(screen.getByText(value)).toBeInTheDocument();
     });
