@@ -470,6 +470,9 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		if addService {
 			year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
 			aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+			year, month, day = time.Now().Add(time.Hour * 24 * 3).Date()
+			threeDays := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+
 			dofsit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 				{
 					Model:    subtestData.shipment,
@@ -477,8 +480,9 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 				},
 				{
 					Model: models.MTOServiceItem{
-						SITEntryDate: &aMonthAgo,
-						Status:       models.MTOServiceItemStatusApproved,
+						SITEntryDate:     &aMonthAgo,
+						Status:           models.MTOServiceItemStatusApproved,
+						SITDepartureDate: &threeDays,
 					},
 				},
 				{
@@ -547,6 +551,6 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
-	//TODO: ADD TESTS FOR FAILURES ZIPTRANSITDISTANCE AND GHC TRANSIT TIME QUERY AND 422 DON'T PASS IN CUSTOMER CONTACT DATE AND REQUEST DATE
+	//TODO: ADD TESTS FOR FAILURES ZIPTRANSITDISTANCE AND GHC TRANSIT TIME QUERY
 
 }

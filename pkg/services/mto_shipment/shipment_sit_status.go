@@ -320,6 +320,8 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext
 		// Calculate sitAllowanceEndDate and required delivery date based on sitCustomerContacted and sitRequestedDelivery
 		// using the below business logic.
 		var sitDepartureDateInterface interface{}
+		tempSitDepartureDate := sitCustomerContacted.AddDate(0, 0, -3) //TODO: REMOVE THIS
+		sitDepartureDate = &tempSitDepartureDate
 		sitDepartureDateInterface = sitDepartureDate
 		sitAllowanceEndDate := sitDepartureDate
 
@@ -332,13 +334,17 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext
 				sitAllowanceEndDate = &calculatedAllowanceEndDate
 			}
 
-			requiredDeliveryDate, err := calculateOriginSITRequiredDeliveryDate(appCtx, shipment, planner, sitCustomerContacted, sitRequestedDelivery, sitDepartureDate)
+			if reflect.ValueOf(sitDepartureDateInterface).IsValid() && !reflect.ValueOf(sitDepartureDateInterface).IsNil() {
+				requiredDeliveryDate, err := calculateOriginSITRequiredDeliveryDate(appCtx, shipment, planner, sitCustomerContacted, sitRequestedDelivery, sitDepartureDate)
 
-			if err != nil {
-				return nil, err
+				if err != nil {
+					return nil, err
+				}
+
+				shipment.RequiredDeliveryDate = requiredDeliveryDate
+			} else {
+				//TODO: THROW ERROR FOR sitDepartureDate BEING NIL
 			}
-
-			shipment.RequiredDeliveryDate = requiredDeliveryDate
 
 		} else if location == DestinationSITLocation {
 			// Destination SIT: sitAllowanceEndDate should be 5 days after sitRequestedDelivery or the sitDepartureDate whichever is earlier.
