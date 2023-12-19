@@ -26,6 +26,7 @@ import (
 	shipmentaddressupdate "github.com/transcom/mymove/pkg/services/shipment_address_update"
 	sitaddressupdate "github.com/transcom/mymove/pkg/services/sit_address_update"
 	sitextension "github.com/transcom/mymove/pkg/services/sit_extension"
+	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 	"github.com/transcom/mymove/pkg/services/upload"
 )
 
@@ -46,7 +47,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
 	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator)
-	shipmentSITStatus := mtoshipment.NewShipmentSITStatus()
+	shipmentSITStatus := sitstatus.NewShipmentSITStatus()
 
 	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
 		paymentrequest.NewPaymentRequestCreator(
