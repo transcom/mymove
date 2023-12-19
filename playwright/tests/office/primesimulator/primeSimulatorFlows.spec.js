@@ -221,6 +221,18 @@ test.describe('Prime simulator user', () => {
     await page.locator(`input[name="params\\.${serviceItemID}.WeightBilled"]`).fill(weight);
     await page.getByText('Submit Payment Request').click();
     await expect(page.getByText('Successfully created payment request')).toBeVisible({ timeout: 10000 });
+
+    await page.getByRole('link', { name: 'Create Payment Request' }).click();
+    for (let i = 0; i < serviceItemCount; i += 1) {
+      const ddsfsc = items.find((items) => items.ReService.code === 'DDSFSC');
+      serviceItemID = ddsfsc.ID;
+    }
+
+    await page.locator(`[id="${serviceItemID}-div"] > .usa-checkbox`).click();
+    await page.locator(`input[name="params\\.${serviceItemID}.WeightBilled"]`).fill(weight);
+    await page.getByText('Submit Payment Request').click();
+    await expect(page.getByText('Successfully created payment request')).toBeVisible({ timeout: 10000 });
+
     expect(page.url()).toContain(`/simulator/moves/${moveID}/details`);
   });
 });
