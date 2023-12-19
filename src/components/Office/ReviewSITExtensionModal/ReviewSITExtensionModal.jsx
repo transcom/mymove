@@ -9,7 +9,7 @@ import moment from 'moment';
 import { SITExtensionShape } from '../../../types/sitExtensions';
 
 import styles from './ReviewSITExtensionModal.module.scss';
-import ConfirmCustomersExpenseModal from './ConfirmCustomersExpenseModal/ConfirmCustomersExpenseModal';
+import ConfirmCustomerExpenseModal from './ConfirmCustomerExpenseModal/ConfirmCustomerExpenseModal';
 
 import DataTableWrapper from 'components/DataTableWrapper/index';
 import DataTable from 'components/DataTable/index';
@@ -204,18 +204,18 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
  */
 const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, onSubmit }) => {
   const [checkBoxChecked, setCheckBoxChecked] = useState(false);
-  const [showConfirmCustomersExpenseModal, setShowConfirmCustomersExpenseModal] = useState(false);
+  const [showConfirmCustomerExpenseModal, setShowConfirmCustomerExpenseModal] = useState(false);
   const handleConfirmYes = () => {
-    setShowConfirmCustomersExpenseModal(false);
+    setShowConfirmCustomerExpenseModal(false);
     setCheckBoxChecked(true);
   };
   const handleConfirmNo = () => {
-    setShowConfirmCustomersExpenseModal(false);
+    setShowConfirmCustomerExpenseModal(false);
     setCheckBoxChecked(false);
   };
   const [initialValues, setInitialValues] = useState({
     acceptExtension: '',
-    convertToCustomersExpense: false,
+    convertToCustomerExpense: false,
     daysApproved: String(shipment.sitDaysAllowance),
     requestReason: sitExtension.requestReason,
     officeRemarks: '',
@@ -225,7 +225,7 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const reviewSITExtensionSchema = Yup.object().shape({
     acceptExtension: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
-    convertToCustomersExpense: Yup.boolean().default(false),
+    convertToCustomerExpense: Yup.boolean().default(false),
     requestReason: Yup.string().required('Required'),
     officeRemarks: Yup.string().when('acceptExtension', {
       is: 'no',
@@ -249,7 +249,7 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
     <div>
       <Overlay />
       <ModalContainer>
-        {!showConfirmCustomersExpenseModal && (
+        {!showConfirmCustomerExpenseModal && (
           <Modal className={styles.ReviewSITExtensionModal}>
             <ModalClose handleClick={() => onClose()} />
             <ModalTitle>
@@ -268,7 +268,7 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
                       setValues({
                         ...values,
                         acceptExtension: 'yes',
-                        convertToCustomersExpense: false,
+                        convertToCustomerExpense: false,
                       });
                     } else if (e.target.value === 'no') {
                       setValues({
@@ -280,10 +280,10 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
                   const handleCheckBoxClick = () => {
                     setValues({
                       ...values,
-                      convertToCustomersExpense: checkBoxChecked,
+                      convertToCustomerExpense: checkBoxChecked,
                     });
                     setInitialValues(values);
-                    setShowConfirmCustomersExpenseModal(true);
+                    setShowConfirmCustomerExpenseModal(true);
                   };
                   return (
                     <Form>
@@ -342,11 +342,11 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
                           </div>
                         )}
                         {values.acceptExtension === 'no' && (
-                          <div className={styles.convertRadio} data-testid="convertToCustomersExpense">
+                          <div className={styles.convertRadio} data-testid="convertToCustomerExpense">
                             <CheckboxField
-                              id="convertToCustomersExpense"
-                              label="Convert to Customer's Expense"
-                              name="convertToCustomersExpense"
+                              id="convertToCustomerExpense"
+                              label="Convert to Customer Expense"
+                              name="convertToCustomerExpense"
                               checked={checkBoxChecked}
                               onChange={handleCheckBoxClick}
                             />
@@ -382,8 +382,8 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
             </div>
           </Modal>
         )}
-        {showConfirmCustomersExpenseModal && (
-          <ConfirmCustomersExpenseModal onSubmit={handleConfirmYes} onClose={handleConfirmNo} />
+        {showConfirmCustomerExpenseModal && (
+          <ConfirmCustomerExpenseModal onSubmit={handleConfirmYes} onClose={handleConfirmNo} />
         )}
       </ModalContainer>
     </div>
