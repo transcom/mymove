@@ -37,7 +37,7 @@ type WeightTicket struct {
 	Reason                            *string            `json:"reason" db:"reason"`
 	AdjustedNetWeight                 *unit.Pound        `json:"adjusted_net_weight" db:"adjusted_net_weight"`
 	NetWeightRemarks                  *string            `json:"net_weight_remarks" db:"net_weight_remarks"`
-	AllowableWeight                   *unit.Pound        `json:"reimbursable_weight" db:"reimbursable_weight"`
+	AllowableWeight                   *unit.Pound        `json:"allowable_weight" db:"allowable_weight"`
 }
 
 // TableName overrides the table name used by Pop.
