@@ -980,8 +980,6 @@ func mockAndActivateOktaEndpoints(tioOfficeUser models.OfficeUser, provider *okt
 	jwksURL := provider.GetJWKSURL()
 	openIDConfigURL := provider.GetOpenIDConfigURL()
 	userInfoURL := provider.GetUserInfoURL()
-	getUserURL := provider.GetUserURLWithToken()
-	clearSessionURL := provider.ClearUserSessionsURL("fakeOktaID")
 
 	httpmock.RegisterResponder("GET", openIDConfigURL,
 		httpmock.NewStringResponder(200, fmt.Sprintf(`{
@@ -1013,12 +1011,6 @@ func mockAndActivateOktaEndpoints(tioOfficeUser models.OfficeUser, provider *okt
 		"name": "name",
 		"email": "name@okta.com"
 	}`, tioOfficeOktaUserID)))
-
-	httpmock.RegisterResponder("GET", getUserURL,
-		httpmock.NewStringResponder(200, `{"id": "fakeOktaID"}`))
-
-	httpmock.RegisterResponder("DELETE", clearSessionURL,
-		httpmock.NewStringResponder(204, `{""}`))
 
 	httpmock.Activate()
 }
