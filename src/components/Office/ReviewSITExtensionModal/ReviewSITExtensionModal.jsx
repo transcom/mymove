@@ -13,7 +13,7 @@ import styles from './ReviewSITExtensionModal.module.scss';
 import DataTableWrapper from 'components/DataTableWrapper/index';
 import DataTable from 'components/DataTable/index';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
-import { DropdownInput, DatePickerInput } from 'components/form/fields';
+import { DropdownInput, DatePickerInput, CheckboxField } from 'components/form/fields';
 import { dropdownInputOptions } from 'utils/formatters';
 import { Form } from 'components/form';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
@@ -204,6 +204,7 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
 const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, sitStatus }) => {
   const initialValues = {
     acceptExtension: '',
+    convertToCustomersExpense: false,
     daysApproved: String(shipment.sitDaysAllowance),
     requestReason: sitExtension.requestReason,
     officeRemarks: '',
@@ -213,8 +214,13 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const reviewSITExtensionSchema = Yup.object().shape({
     acceptExtension: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
+    convertToCustomersExpense: Yup.boolean().default(false),
     requestReason: Yup.string().required('Required'),
-    officeRemarks: Yup.string().nullable(),
+    officeRemarks: Yup.string().when('acceptExtension', {
+      is: 'no',
+      then: () => Yup.string().required('Required'),
+      otherwise: () => Yup.string().nullable(),
+    }),
     daysApproved: Yup.number().when('acceptExtension', {
       is: 'yes',
       then: () =>
@@ -252,6 +258,15 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
                     });
                   }
                 };
+                const handleYesSelection = (e) => {
+                  if (e.target.value === 'yes') {
+                    setValues({
+                      ...values,
+                      acceptExtension: 'yes',
+                      convertToCustomersExpense: false,
+                    });
+                  }
+                };
                 return (
                   <Form>
                     <DataTableWrapper
@@ -285,6 +300,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
                             value="yes"
                             title="Yes, accept extension"
                             type="radio"
+                            onChange={handleYesSelection}
                           />
                           <Field
                             as={Radio}
@@ -304,6 +320,15 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
                             label="Reason for edit"
                             name="requestReason"
                             options={dropdownInputOptions(sitExtensionReasons)}
+                          />
+                        </div>
+                      )}
+                      {values.acceptExtension === 'no' && (
+                        <div className={styles.convertRadio} data-testid="convertToCustomersExpense">
+                          <CheckboxField
+                            id="convertToCustomersExpense"
+                            label="Convert to Customer Expense"
+                            name="convertToCustomersExpense"
                           />
                         </div>
                       )}
