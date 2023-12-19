@@ -74,15 +74,15 @@ export default function ReviewWeightTicket({
     const payload = {
       ppmShipmentId: weightTicket.ppmShipmentId,
       vehicleDescription: weightTicket.vehicleDescription,
-      emptyWeight: removeCommas(formValues.emptyWeight),
+      emptyWeight: parseInt(removeCommas(formValues.emptyWeight), 10),
       missingEmptyWeightTicket: weightTicket.missingEmptyWeightTicket,
-      fullWeight: removeCommas(formValues.fullWeight),
+      fullWeight: parseInt(removeCommas(formValues.fullWeight), 10),
       missingFullWeightTicket: weightTicket.missingFullWeightTicket,
       ownsTrailer,
       trailerMeetsCriteria,
       reason: formValues.rejectionReason,
       status: formValues.status,
-      reimbursableWeight: removeCommas(formValues.reimbursableWeight),
+      reimbursableWeight: parseInt(removeCommas(formValues.reimbursableWeight), 10),
     };
     patchWeightTicketMutation({
       ppmShipmentId: weightTicket.ppmShipmentId,

@@ -214,20 +214,20 @@ describe('ReviewDocuments', () => {
 
       const weightTicket = mtoShipmentWithOneWeightTicket.ppmShipment.weightTickets[0];
 
-      const newEmptyWeight = '14500';
+      const newEmptyWeight = 14500;
       const emptyWeightInput = screen.getByTestId('emptyWeight');
       await userEvent.clear(emptyWeightInput);
-      await userEvent.type(emptyWeightInput, newEmptyWeight);
+      await userEvent.type(emptyWeightInput, newEmptyWeight.toString());
 
-      const newFullWeight = '18500';
+      const newFullWeight = 18500;
       const fullWeightInput = screen.getByTestId('fullWeight');
       await userEvent.clear(fullWeightInput);
-      await userEvent.type(fullWeightInput, newFullWeight);
+      await userEvent.type(fullWeightInput, newFullWeight.toString());
 
-      const newReimbursableWeight = '20000';
+      const newReimbursableWeight = 20000;
       const reimbursableInput = screen.getByTestId('reimbursableWeight');
       await userEvent.clear(reimbursableInput);
-      await userEvent.type(reimbursableInput, newReimbursableWeight);
+      await userEvent.type(reimbursableInput, newReimbursableWeight.toString());
 
       const netWeightDisplay = screen.getByTestId('net-weight-display');
       expect(netWeightDisplay).toHaveTextContent('4,000 lbs');
