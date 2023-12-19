@@ -21,7 +21,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import formStyles from 'styles/form.module.scss';
 import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import ppmDocumentStatus from 'constants/ppms';
-import { getAllowableWeight } from 'utils/shipmentWeights';
+import { getWeightTicketNetWeight } from 'utils/shipmentWeights';
 import { calculateWeightRequested } from 'hooks/custom';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 
@@ -98,7 +98,7 @@ export default function ReviewWeightTicket({
     missingFullWeightTicket,
     emptyWeight,
     fullWeight,
-    allowableWeight = getAllowableWeight(weightTicket),
+    allowableWeight,
     ownsTrailer,
     proofOfTrailerOwnershipDocument,
     trailerMeetsCriteria,
@@ -141,11 +141,11 @@ export default function ReviewWeightTicket({
     const newMtoShipments = updateMtoShipmentsWithNewWeightValues(currentMtoShipments, updatedFormValues);
     return calculateWeightRequested(newMtoShipments);
   };
-
+  // Allowable weight should default to the net weight if there isn't already an allowable weight defined.
   const initialValues = {
     emptyWeight: emptyWeight ? `${emptyWeight}` : '',
     fullWeight: fullWeight ? `${fullWeight}` : '',
-    allowableWeight: allowableWeight ? `${allowableWeight}` : '',
+    allowableWeight: allowableWeight ? `${allowableWeight}` : `${getWeightTicketNetWeight(weightTicket)}`,
     ownsTrailer: ownsTrailer ? 'true' : 'false',
     trailerMeetsCriteria: isTrailerClaimable,
     status: status || '',
