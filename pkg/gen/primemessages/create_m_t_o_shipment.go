@@ -47,9 +47,15 @@ type CreateMTOShipment struct {
 		Address
 	} `json:"destinationAddress,omitempty"`
 
-	// This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.
+	// This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion. When this boolean is true, you can link it to a parent shipment with the divertedFromShipmentId parameter.
 	//
 	Diversion bool `json:"diversion,omitempty"`
+
+	// The ID of the shipment this is a diversion from. Aka the "Parent" shipment. The diversion boolean must be true if this parameter is supplied in the request. If provided, if the diverted from shipment is also a diversion, it must also have a parent ID.
+	//
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+	// Format: uuid
+	DivertedFromShipmentID strfmt.UUID `json:"divertedFromShipmentId,omitempty"`
 
 	// The ID of the move this new shipment is for.
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -112,6 +118,8 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 
 		Diversion bool `json:"diversion,omitempty"`
 
+		DivertedFromShipmentID strfmt.UUID `json:"divertedFromShipmentId,omitempty"`
+
 		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
 		MtoServiceItems json.RawMessage `json:"mtoServiceItems"`
@@ -164,6 +172,9 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 	// diversion
 	result.Diversion = data.Diversion
 
+	// divertedFromShipmentId
+	result.DivertedFromShipmentID = data.DivertedFromShipmentID
+
 	// moveTaskOrderID
 	result.MoveTaskOrderID = data.MoveTaskOrderID
 
@@ -210,6 +221,8 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 
 		Diversion bool `json:"diversion,omitempty"`
 
+		DivertedFromShipmentID strfmt.UUID `json:"divertedFromShipmentId,omitempty"`
+
 		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
 		PickupAddress struct {
@@ -236,6 +249,8 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 		DestinationAddress: m.DestinationAddress,
 
 		Diversion: m.Diversion,
+
+		DivertedFromShipmentID: m.DivertedFromShipmentID,
 
 		MoveTaskOrderID: m.MoveTaskOrderID,
 
@@ -276,6 +291,10 @@ func (m *CreateMTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDestinationAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDivertedFromShipmentID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -333,6 +352,18 @@ func (m *CreateMTOShipment) validateAgents(formats strfmt.Registry) error {
 func (m *CreateMTOShipment) validateDestinationAddress(formats strfmt.Registry) error {
 	if swag.IsZero(m.DestinationAddress) { // not required
 		return nil
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) validateDivertedFromShipmentID(formats strfmt.Registry) error {
+	if swag.IsZero(m.DivertedFromShipmentID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("divertedFromShipmentId", "body", "uuid", m.DivertedFromShipmentID.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

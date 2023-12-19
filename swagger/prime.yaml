@@ -1746,8 +1746,18 @@ definitions:
         description: >
           This value indicates whether or not this shipment is part of a
           diversion. If yes, the shipment can be either the starting or ending
-          segment of the diversion.
+          segment of the diversion. When this boolean is true, you can link it
+          to a parent shipment with the divertedFromShipmentId parameter.
         type: boolean
+      divertedFromShipmentId:
+        description: >
+          The ID of the shipment this is a diversion from. Aka the "Parent"
+          shipment. The diversion boolean must be true if this parameter is
+          supplied in the request. If provided, if the diverted from shipment is
+          also a diversion, it must also have a parent ID.
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
       pointOfContact:
         type: string
         description: >

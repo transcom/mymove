@@ -255,3 +255,46 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 		return verrs
 	})
 }
+
+// Checks if diversion parameters are valid
+func checkDiversionValid() validator {
+	var verrs *validate.Errors
+	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
+		// Ensure that diversion is true if a diverted from shipment ID parameter is passed in
+		if !newer.Diversion && newer.DivertedFromShipmentID != nil {
+			return apperror.NewInvalidInputError(newer.ID, nil, verrs, "The diversion parameter must be true if a DivertedFromShipmentID is provided")
+		}
+		// Ensure that the "DivertedFromShipmentID" exists if it is provided
+		if newer.Diversion && newer.DivertedFromShipmentID != nil {
+			exists, err := appCtx.DB().Q().
+				Where("id = ?", *newer.DivertedFromShipmentID).
+				Exists(&models.MTOShipment{})
+			if err != nil {
+				return apperror.NewQueryError("Move", err, "Unexpected error")
+			}
+			if !exists {
+				return apperror.NewNotFoundError(newer.ID, "DivertedFromShipmentID shipment not found")
+			}
+		}
+		// Ensure that if "DivertedFromShipmentID" exists, and it is found to be a diversion as well, that it has a parent ID
+		if newer.DivertedFromShipmentID != nil {
+			var parentShipment models.MTOShipment
+			err := appCtx.DB().Q().
+				Where("id = ?", *newer.DivertedFromShipmentID).
+				First(&parentShipment)
+			if err != nil {
+				return apperror.NewQueryError("Move", err, "Unexpected error")
+			}
+
+			// Ensure that the provided divertedFromShipmentID is valid if it is a diversion as well
+			if parentShipment.Diversion && parentShipment.DivertedFromShipmentID == nil {
+				return apperror.NewInvalidInputError(newer.ID, nil, verrs, "The diverted shipment must have a DivertedFromShipmentID if it is a diversion")
+			}
+		}
+		// Ensure that the diverted from ID is not equal to itself
+		if newer.Diversion && newer.DivertedFromShipmentID == &newer.ID {
+			return apperror.NewInvalidInputError(newer.ID, nil, verrs, "The DivertedFromShipmentID parameter can not be equal to the current shipment ID")
+		}
+		return nil
+	})
+}
