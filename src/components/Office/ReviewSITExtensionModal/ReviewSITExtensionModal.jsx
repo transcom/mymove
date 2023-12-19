@@ -215,7 +215,7 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
   };
   const [initialValues, setInitialValues] = useState({
     acceptExtension: '',
-    convertToCustomersExpense: false,
+    convertToCustomerExpense: false,
     daysApproved: String(shipment.sitDaysAllowance),
     requestReason: sitExtension.requestReason,
     officeRemarks: '',
@@ -225,7 +225,7 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const reviewSITExtensionSchema = Yup.object().shape({
     acceptExtension: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
-    convertToCustomersExpense: Yup.boolean().default(false),
+    convertToCustomerExpense: Yup.boolean().default(false),
     requestReason: Yup.string().required('Required'),
     officeRemarks: Yup.string().when('acceptExtension', {
       is: 'no',
