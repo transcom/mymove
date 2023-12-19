@@ -1171,6 +1171,9 @@ func init() {
           "412": {
             "$ref": "#/responses/PreconditionFailed"
           },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
           "500": {
             "$ref": "#/responses/ServerError"
           }
@@ -3711,16 +3714,18 @@ func init() {
       ]
     },
     "SITDeliveryUpdate": {
+      "required": [
+        "sitCustomerContacted",
+        "sitRequestedDelivery"
+      ],
       "properties": {
         "sitCustomerContacted": {
           "type": "string",
-          "format": "date",
-          "x-nullable": true
+          "format": "date"
         },
         "sitRequestedDelivery": {
           "type": "string",
-          "format": "date",
-          "x-nullable": true
+          "format": "date"
         }
       }
     },
@@ -6274,6 +6279,12 @@ func init() {
               "$ref": "#/definitions/ClientError"
             }
           },
+          "422": {
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
           "500": {
             "description": "A server error occurred.",
             "schema": {
@@ -8923,16 +8934,18 @@ func init() {
       ]
     },
     "SITDeliveryUpdate": {
+      "required": [
+        "sitCustomerContacted",
+        "sitRequestedDelivery"
+      ],
       "properties": {
         "sitCustomerContacted": {
           "type": "string",
-          "format": "date",
-          "x-nullable": true
+          "format": "date"
         },
         "sitRequestedDelivery": {
           "type": "string",
-          "format": "date",
-          "x-nullable": true
+          "format": "date"
         }
       }
     },

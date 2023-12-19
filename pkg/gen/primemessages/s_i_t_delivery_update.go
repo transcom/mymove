@@ -20,12 +20,14 @@ import (
 type SITDeliveryUpdate struct {
 
 	// sit customer contacted
+	// Required: true
 	// Format: date
-	SitCustomerContacted *strfmt.Date `json:"sitCustomerContacted,omitempty"`
+	SitCustomerContacted *strfmt.Date `json:"sitCustomerContacted"`
 
 	// sit requested delivery
+	// Required: true
 	// Format: date
-	SitRequestedDelivery *strfmt.Date `json:"sitRequestedDelivery,omitempty"`
+	SitRequestedDelivery *strfmt.Date `json:"sitRequestedDelivery"`
 }
 
 // Validate validates this s i t delivery update
@@ -47,8 +49,9 @@ func (m *SITDeliveryUpdate) Validate(formats strfmt.Registry) error {
 }
 
 func (m *SITDeliveryUpdate) validateSitCustomerContacted(formats strfmt.Registry) error {
-	if swag.IsZero(m.SitCustomerContacted) { // not required
-		return nil
+
+	if err := validate.Required("sitCustomerContacted", "body", m.SitCustomerContacted); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("sitCustomerContacted", "body", "date", m.SitCustomerContacted.String(), formats); err != nil {
@@ -59,8 +62,9 @@ func (m *SITDeliveryUpdate) validateSitCustomerContacted(formats strfmt.Registry
 }
 
 func (m *SITDeliveryUpdate) validateSitRequestedDelivery(formats strfmt.Registry) error {
-	if swag.IsZero(m.SitRequestedDelivery) { // not required
-		return nil
+
+	if err := validate.Required("sitRequestedDelivery", "body", m.SitRequestedDelivery); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("sitRequestedDelivery", "body", "date", m.SitRequestedDelivery.String(), formats); err != nil {

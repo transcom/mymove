@@ -2827,6 +2827,19 @@ func (suite *HandlerSuite) TestUpdateSITDeliveryRequestHandler() {
 		response := subtestData.handler.Handle(subtestData.params)
 		suite.IsType(&mtoshipmentops.UpdateSITDeliveryRequestPreconditionFailed{}, response)
 	})
+
+	//TODO: ADD TESTS FOR FAILURES ZIPTRANSITDISTANCE AND GHC TRANSIT TIME QUERY AND 422 DON'T PASS IN CUSTOMER CONTACT DATE AND REQUEST DATE
+	suite.Run("422 FAIL - Missing body parameter", func() {
+		subtestData := makeSubtestData(false, models.ReServiceCodeDOFSIT)
+		subtestData.params.Body.SitCustomerContacted = nil
+
+		// Validate incoming payload
+		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := subtestData.handler.Handle(subtestData.params)
+		suite.IsType(&mtoshipmentops.UpdateSITDeliveryRequestNotFound{}, response)
+	})
 }
 
 func getFakeAddress() struct{ primemessages.Address } {

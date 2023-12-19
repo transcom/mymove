@@ -7,6 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route/mocks"
 )
 
 func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
@@ -450,6 +451,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		sitCustomerContacted time.Time
 		sitRequestedDelivery time.Time
 		eTag                 string
+		planner              *mocks.Planner
 	}
 
 	makeSubtestData := func(addService bool, serviceCode models.ReServiceCode) (subtestData *localSubtestData) {
@@ -494,6 +496,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		year, month, day = time.Now().Add(time.Hour * 24 * 15).Date()
 		subtestData.sitRequestedDelivery = time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		subtestData.eTag = etag.GenerateEtag(subtestData.shipment.UpdatedAt)
+		subtestData.planner = &mocks.Planner{}
 
 		return subtestData
 	}
@@ -501,8 +504,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 	suite.Run("calculates allowance end date and requested delivery date for a shipment currently in SIT", func() {
 		subtestData := makeSubtestData(true, models.ReServiceCodeDOFSIT)
 
-		sitStatus, err := sitStatusService.CalculateSITAllowanceRequestedDates(subtestData.shipment, &subtestData.sitCustomerContacted,
-			&subtestData.sitRequestedDelivery, subtestData.eTag)
+		sitStatus, err := sitStatusService.CalculateSITAllowanceRequestedDates(suite.AppContextForTest(), subtestData.shipment, subtestData.planner,
+			&subtestData.sitCustomerContacted, &subtestData.sitRequestedDelivery, subtestData.eTag)
 		suite.NoError(err)
 		suite.NotNil(sitStatus)
 
@@ -516,8 +519,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 		oldDate := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		subtestData.eTag = etag.GenerateEtag(oldDate)
 
-		sitStatus, err := sitStatusService.CalculateSITAllowanceRequestedDates(subtestData.shipment, &subtestData.sitCustomerContacted,
-			&subtestData.sitRequestedDelivery, subtestData.eTag)
+		sitStatus, err := sitStatusService.CalculateSITAllowanceRequestedDates(suite.AppContextForTest(), subtestData.shipment, subtestData.planner,
+			&subtestData.sitCustomerContacted, &subtestData.sitRequestedDelivery, subtestData.eTag)
 
 		suite.Error(err)
 		suite.Nil(sitStatus)
@@ -526,8 +529,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 	suite.Run("failure test for calculate allowance with no service items", func() {
 		subtestData := makeSubtestData(false, models.ReServiceCodeDOFSIT)
-		sitStatus, err := sitStatusService.CalculateSITAllowanceRequestedDates(subtestData.shipment, &subtestData.sitCustomerContacted,
-			&subtestData.sitRequestedDelivery, subtestData.eTag)
+		sitStatus, err := sitStatusService.CalculateSITAllowanceRequestedDates(suite.AppContextForTest(), subtestData.shipment, subtestData.planner,
+			&subtestData.sitCustomerContacted, &subtestData.sitRequestedDelivery, subtestData.eTag)
 
 		suite.Error(err)
 		suite.Nil(sitStatus)
@@ -536,12 +539,14 @@ func (suite *MTOShipmentServiceSuite) TestShipmentSITStatus() {
 
 	suite.Run("failure test for calculate allowance with no current SIT", func() {
 		subtestData := makeSubtestData(false, models.ReServiceCodeCS)
-		sitStatus, err := sitStatusService.CalculateSITAllowanceRequestedDates(subtestData.shipment, &subtestData.sitCustomerContacted,
-			&subtestData.sitRequestedDelivery, subtestData.eTag)
+		sitStatus, err := sitStatusService.CalculateSITAllowanceRequestedDates(suite.AppContextForTest(), subtestData.shipment, subtestData.planner,
+			&subtestData.sitCustomerContacted, &subtestData.sitRequestedDelivery, subtestData.eTag)
 
 		suite.Error(err)
 		suite.Nil(sitStatus)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
+
+	//TODO: ADD TESTS FOR FAILURES ZIPTRANSITDISTANCE AND GHC TRANSIT TIME QUERY AND 422 DON'T PASS IN CUSTOMER CONTACT DATE AND REQUEST DATE
 
 }

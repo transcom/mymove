@@ -354,7 +354,8 @@ func (h UpdateSITDeliveryRequestHandler) Handle(params mtoshipmentops.UpdateSITD
 			var sitCustomerContacted = (*time.Time)(params.Body.SitCustomerContacted)
 			var sitRequestedDelivery = (*time.Time)(params.Body.SitRequestedDelivery)
 
-			shipmentSITStatus, err := h.shipmentStatus.CalculateSITAllowanceRequestedDates(*shipment, sitCustomerContacted, sitRequestedDelivery, eTag)
+			shipmentSITStatus, err := h.shipmentStatus.CalculateSITAllowanceRequestedDates(appCtx, *shipment, h.HandlerConfig.HHGPlanner(),
+				sitCustomerContacted, sitRequestedDelivery, eTag)
 
 			if err != nil {
 				appCtx.Logger().Error("primeapi.UpdateSITDeliveryRequestHandler error - failed to update dates", zap.Error(err))
@@ -365,6 +366,12 @@ func (h UpdateSITDeliveryRequestHandler) Handle(params mtoshipmentops.UpdateSITD
 				case apperror.PreconditionFailedError:
 					return mtoshipmentops.NewUpdateSITDeliveryRequestPreconditionFailed().WithPayload(
 						payloads.ClientError(handlers.PreconditionErrMessage, e.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.QueryError:
+					return mtoshipmentops.NewUpdateSITDeliveryRequestInternalServerError().WithPayload(
+						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.UnprocessableEntityError:
+					return mtoshipmentops.NewUpdateSITDeliveryRequestUnprocessableEntity().WithPayload(
+						payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)), err
 				default:
 					return mtoshipmentops.NewUpdateSITDeliveryRequestInternalServerError().WithPayload(
 						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err

@@ -1,6 +1,8 @@
 package mtoshipment
 
 import (
+	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/pkg/errors"
@@ -9,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -17,6 +20,9 @@ const OriginSITLocation = "ORIGIN"
 
 // DestinationSITLocation is the constant representing when the shipment in storage occurs at the destination
 const DestinationSITLocation = "DESTINATION"
+
+// Number of days of grace period after customer contacts prime for delivery out of SIT
+const GracePeriodDays = 5
 
 type shipmentSITStatus struct {
 }
@@ -230,8 +236,51 @@ func fetchEntitlement(appCtx appcontext.AppContext, mtoShipment models.MTOShipme
 	return move.Orders.Entitlement, nil
 }
 
-func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(shipment models.MTOShipment, sitCustomerContacted *time.Time,
-	sitRequestedDelivery *time.Time, eTag string) (*services.SITStatus, error) {
+// Calculate Required Delivery Date(RDD) from customer contact and requested delivery dates
+func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipment models.MTOShipment, planner route.Planner,
+	sitCustomerContacted *time.Time, sitRequestedDelivery *time.Time, sitDepartureDate *time.Time) (*time.Time, error) {
+	//TODO: WRITE TEST FOR THIS FAILURE
+	// Get a distance calculation between pickup and destination addresses.
+	distance, err := planner.ZipTransitDistance(appCtx, shipment.PickupAddress.PostalCode, shipment.DestinationAddress.PostalCode)
+
+	if err != nil {
+		return nil, apperror.NewUnprocessableEntityError("cannot calculate distance between pickup and destination addresses")
+	}
+
+	weight := shipment.PrimeEstimatedWeight
+
+	if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+		weight = shipment.NTSRecordedWeight
+	}
+
+	//TODO: ADD TEST CASE FOR THIS QUERY TO FAIL
+	// Query the ghc_domestic_transit_times table for the max transit time
+	var ghcDomesticTransitTime models.GHCDomesticTransitTime
+	err = appCtx.DB().Where("distance_miles_lower <= ? "+
+		"AND distance_miles_upper >= ? "+
+		"AND weight_lbs_lower <= ? "+
+		"AND (weight_lbs_upper >= ? OR weight_lbs_upper = 0)",
+		distance, distance, weight, weight).First(&ghcDomesticTransitTime)
+
+	if err != nil {
+		return nil, apperror.NewQueryError("CalculateSITAllowanceRequestedDates", err,
+			fmt.Sprintf("failed to find transit time for shipment of %d lbs weight and %d mile distance", weight, distance))
+	}
+
+	var requiredDeliveryDate time.Time
+	customerContactDatePlusFive := sitCustomerContacted.AddDate(0, 0, GracePeriodDays)
+
+	if sitDepartureDate.Before(customerContactDatePlusFive) {
+		requiredDeliveryDate = sitDepartureDate.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime)
+	} else if sitDepartureDate.After(customerContactDatePlusFive) || sitDepartureDate.Equal(customerContactDatePlusFive) {
+		requiredDeliveryDate = sitCustomerContacted.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime+GracePeriodDays)
+	}
+
+	return &requiredDeliveryDate, nil
+}
+
+func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext.AppContext, shipment models.MTOShipment, planner route.Planner,
+	sitCustomerContacted *time.Time, sitRequestedDelivery *time.Time, eTag string) (*services.SITStatus, error) {
 	existingETag := etag.GenerateEtag(shipment.UpdatedAt)
 
 	if existingETag != eTag {
@@ -268,15 +317,45 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(shipment models.M
 		sitEntryDate := *currentSIT.SITEntryDate
 		sitDepartureDate := currentSIT.SITDepartureDate
 
-		//TODO: B-17854 calculate allowance end date and required delivery date based on customer dates
-		sitAllowanceEndDate := CalculateSITAllowanceEndDate(shipmentSITStatus.TotalDaysRemaining, sitEntryDate, today)
+		// Calculate sitAllowanceEndDate and required delivery date based on sitCustomerContacted and sitRequestedDelivery
+		// using the below business logic.
+		var sitDepartureDateInterface interface{}
+		sitDepartureDateInterface = sitDepartureDate
+		sitAllowanceEndDate := sitDepartureDate
+
+		if location == OriginSITLocation {
+			// Origin SIT: sitAllowanceEndDate should be 5 days after sitCustomerContacted or the sitDepartureDate whichever is earlier.
+			calculatedAllowanceEndDate := sitCustomerContacted.AddDate(0, 0, 5)
+
+			if (reflect.ValueOf(sitDepartureDateInterface).IsValid() && reflect.ValueOf(sitDepartureDateInterface).IsNil()) ||
+				calculatedAllowanceEndDate.Before(*sitDepartureDate) {
+				sitAllowanceEndDate = &calculatedAllowanceEndDate
+			}
+
+			requiredDeliveryDate, err := calculateOriginSITRequiredDeliveryDate(appCtx, shipment, planner, sitCustomerContacted, sitRequestedDelivery, sitDepartureDate)
+
+			if err != nil {
+				return nil, err
+			}
+
+			shipment.RequiredDeliveryDate = requiredDeliveryDate
+
+		} else if location == DestinationSITLocation {
+			// Destination SIT: sitAllowanceEndDate should be 5 days after sitRequestedDelivery or the sitDepartureDate whichever is earlier.
+			calculatedAllowanceEndDate := sitRequestedDelivery.AddDate(0, 0, 5)
+
+			if (reflect.ValueOf(sitDepartureDateInterface).IsValid() && reflect.ValueOf(sitDepartureDateInterface).IsNil()) ||
+				calculatedAllowanceEndDate.Before(*sitDepartureDate) {
+				sitAllowanceEndDate = &calculatedAllowanceEndDate
+			}
+		}
 
 		shipmentSITStatus.CurrentSIT = &services.CurrentSIT{
 			Location:             location,
 			DaysInSIT:            daysInSIT,
 			SITEntryDate:         sitEntryDate,
 			SITDepartureDate:     sitDepartureDate,
-			SITAllowanceEndDate:  sitAllowanceEndDate,
+			SITAllowanceEndDate:  *sitAllowanceEndDate,
 			SITCustomerContacted: sitCustomerContacted,
 			SITRequestedDelivery: sitRequestedDelivery,
 		}
