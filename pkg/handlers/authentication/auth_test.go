@@ -819,7 +819,7 @@ func (suite *AuthSuite) TestRedirectFromOktaForValidUser() {
 		rr.Result().Header.Get("Location"))
 }
 
-func (suite *AuthSuite) TestCallbackThatRequiresSessionClearing() {
+func (suite *AuthSuite) TestCallbackThatRequiresOktaParamsRedirect() {
 	// build a real office user
 	tioOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(),
 		[]roles.RoleType{roles.RoleTypeTIO})
@@ -870,7 +870,7 @@ func (suite *AuthSuite) TestCallbackThatRequiresSessionClearing() {
 		&MockHTTPClient{
 			Response: &http.Response{
 				StatusCode: 200,
-				Body:       io.NopCloser(bytes.NewReader([]byte("success"))),
+				Body:       io.NopCloser(bytes.NewReader([]byte(""))),
 			},
 			Err: nil,
 		},
@@ -882,7 +882,7 @@ func (suite *AuthSuite) TestCallbackThatRequiresSessionClearing() {
 	suite.Equal(http.StatusTemporaryRedirect, rr.Code)
 
 	// this should clear the user's okta sessions and redirect them back to MM
-	suite.Equal(suite.urlForHost(appnames.OfficeServername).String()+"sign-in"+"?okta_logged_out=true",
+	suite.Equal(suite.urlForHost(appnames.OfficeServername).String()+"sign-in"+"?okta_logged_out=false",
 		rr.Result().Header.Get("Location"))
 }
 
@@ -929,7 +929,7 @@ func (suite *AuthSuite) TestCallbackThatLogsUserOutOfOkta() {
 		&MockHTTPClient{
 			Response: &http.Response{
 				StatusCode: 200,
-				Body:       io.NopCloser(bytes.NewReader([]byte("success"))),
+				Body:       io.NopCloser(bytes.NewReader([]byte(""))),
 			},
 			Err: nil,
 		},

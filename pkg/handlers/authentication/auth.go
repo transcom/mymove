@@ -708,7 +708,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// if the user is still signed into okta and has an active session in the browser
-	// but is being forced to authenticate/re-authenticate from MilMove, we need to handle logout to kill the okta sessions
+	// but is being forced to authenticate/re-authenticate from MilMove, we need to handle logout or let the user know they need to log out
 	// so they can re-use their authenticator (CAC)
 	errDescription := r.URL.Query().Get("error_description")
 	// this is the description okta sends when the user has used all of their authenticators
@@ -718,8 +718,8 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
-		// if the user just closed their tab and is logging in again then they'll still have appCtx data
-		// MM will still have the active IDToken and we can use that to log them out
+		// if the user just closed their tab and appCtx is still holding the ID token, we can use it
+		// MM will still have the active IDToken and we can use that to log them out and clear their session
 		if appCtx.Session().IDToken != "" {
 			oktaLogoutURL, logoutErr := logoutOktaUserURL(provider, appCtx.Session().IDToken, landingURL.String())
 			if oktaLogoutURL == "" || logoutErr != nil {
@@ -728,15 +728,8 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, oktaLogoutURL, http.StatusTemporaryRedirect)
 			return
 		}
-		// if appCtx has expired or is empty, we will need to use the session token stored in cookies
-		// to find the user and then log them out by clearing their session
-		returnMessage, _ := clearOktaUserSessions(appCtx, r, *provider, h.HTTPClient)
-		// if we get an error back then that means some okta calls weren't successful, so we'll just send them back
-		if returnMessage != "success" {
-			appCtx.Logger().Error("There was an error clearing the user's okta sessions")
-			http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
-		}
-		redirectURL := landingURL.String() + "sign-in" + "?okta_logged_out=true"
+		// if not, we will need the user to go to okta and sign out, adding these params will display a UI info banner
+		redirectURL := landingURL.String() + "sign-in" + "?okta_logged_out=false"
 		http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 		return
 	}

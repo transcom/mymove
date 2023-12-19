@@ -40,7 +40,7 @@ import { servicesCounselingRoutes, primeSimulatorRoutes, tooRoutes, qaeCSRRoutes
 import PrimeBanner from 'pages/PrimeUI/PrimeBanner/PrimeBanner';
 import PermissionProvider from 'components/Restricted/PermissionProvider';
 import withRouter from 'utils/routing';
-import OktaLogoutBanner from 'components/OktaLogoutBanner';
+import { OktaLoggedOutBanner, OktaNeedsLoggedOutBanner } from 'components/OktaLogoutBanner';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -98,6 +98,7 @@ export class OfficeApp extends Component {
       error: undefined,
       info: undefined,
       oktaLoggedOut: undefined,
+      oktaNeedsLoggedOut: undefined,
     };
   }
 
@@ -118,6 +119,10 @@ export class OfficeApp extends Component {
     if (oktaLoggedOutParam === 'true') {
       this.setState({
         oktaLoggedOut: true,
+      });
+    } else if (oktaLoggedOutParam === 'false') {
+      this.setState({
+        oktaNeedsLoggedOut: true,
       });
     }
 
@@ -141,7 +146,7 @@ export class OfficeApp extends Component {
   }
 
   render() {
-    const { hasError, error, info, oktaLoggedOut } = this.state;
+    const { hasError, error, info, oktaLoggedOut, oktaNeedsLoggedOut } = this.state;
     const {
       activeRole,
       officeUserId,
@@ -203,7 +208,8 @@ export class OfficeApp extends Component {
                   and give them this code: <strong>{traceId}</strong>
                 </SystemError>
               )}
-              {oktaLoggedOut && <OktaLogoutBanner />}
+              {oktaLoggedOut && <OktaLoggedOutBanner />}
+              {oktaNeedsLoggedOut && <OktaNeedsLoggedOutBanner />}
               {hasError && <SomethingWentWrong error={error} info={info} hasError={hasError} />}
 
               <Suspense fallback={<LoadingPlaceholder />}>

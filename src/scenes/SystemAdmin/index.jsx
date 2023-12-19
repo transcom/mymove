@@ -7,7 +7,7 @@ import { GetLoggedInUser } from 'utils/api';
 // Logger
 import { milmoveLogger } from 'utils/milmoveLog';
 import { retryPageLoading } from 'utils/retryPageLoading';
-import OktaLogoutBanner from 'components/OktaLogoutBanner';
+import { OktaLoggedOutBanner, OktaNeedsLoggedOutBanner } from 'components/OktaLogoutBanner';
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
@@ -18,6 +18,7 @@ class AdminWrapper extends Component {
     this.state = {
       isLoggedIn: false,
       oktaLoggedOut: undefined,
+      oktaNeedsLoggedOut: undefined,
     };
   }
 
@@ -37,6 +38,10 @@ class AdminWrapper extends Component {
       this.setState({
         oktaLoggedOut: true,
       });
+    } else if (oktaLoggedOutParam === 'false') {
+      this.setState({
+        oktaNeedsLoggedOut: true,
+      });
     }
     const script = document.createElement('script');
 
@@ -53,11 +58,12 @@ class AdminWrapper extends Component {
   }
 
   render() {
-    const { oktaLoggedOut } = this.state;
+    const { oktaLoggedOut, oktaNeedsLoggedOut } = this.state;
     return (
       <>
         <div id="app-root">
-          {oktaLoggedOut && <OktaLogoutBanner />}
+          {oktaLoggedOut && <OktaLoggedOutBanner />}
+          {oktaNeedsLoggedOut && <OktaNeedsLoggedOutBanner />}
           <Routes>
             {/* no auth */}
             <Route path="/sign-in" element={<SignIn />} />

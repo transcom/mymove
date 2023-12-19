@@ -8,14 +8,11 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 
 	verifier "github.com/okta/okta-jwt-verifier-golang"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -77,89 +74,6 @@ func verifyToken(t string, nonce string, provider okta.Provider) (*verifier.Jwt,
 	}
 
 	return nil, fmt.Errorf("token could not be verified: %s", "")
-}
-
-type OktaProfile struct {
-	ID string `json:"id,omitempty"`
-}
-
-// if the user makes it here that means they have an existing okta session and MM is no longer storing it
-// Okta should still have the session token saved as a cookie, which will find and clear all user sessions
-func clearOktaUserSessions(appCtx appcontext.AppContext, r *http.Request, provider okta.Provider, client HTTPClient) (string, error) {
-	var oktaSessionToken string
-	for _, c := range r.Cookies() {
-		if c.Name == "okta_oauth_state" {
-			oktaSessionToken = c.Value
-			break
-		}
-	}
-
-	// setting viper so we can access the api key in the env vars
-	v := viper.New()
-	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-	v.AutomaticEnv()
-	apiKey := v.GetString(cli.OktaAPIKeyFlag)
-
-	// getting the api call url from provider.go
-	// we need to find the user ID using the session token
-	// https://developer.okta.com/docs/reference/api/users/#get-user
-	getUserURL := provider.GetUserURLWithToken()
-
-	req, _ := http.NewRequest("GET", getUserURL, bytes.NewReader([]byte("")))
-	h := req.Header
-	h.Add("Accept", "application/json")
-	h.Add("Content-Type", "application/json")
-	h.Add("Cookie", oktaSessionToken)
-
-	// make the request and snag the okta ID
-	resp, err := client.Do(req)
-	if err != nil {
-		appCtx.Logger().Error("Error making http response", zap.Error(err))
-		return "error", err
-	}
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		appCtx.Logger().Error("Error reading response body", zap.Error(err))
-		return "error", err
-	}
-	defer resp.Body.Close()
-	var profile OktaProfile
-	err = json.Unmarshal(body, &profile)
-	if err != nil {
-		appCtx.Logger().Error("JSON unmarshal error", zap.Error(err))
-		return "error", err
-	}
-
-	if profile.ID == "" {
-		if err != nil {
-			appCtx.Logger().Error("Okta profile ID not found or returned from Okta", zap.Error(err))
-			return "error", err
-		}
-	}
-
-	// now we will clear all the user's sessions with the DELETE endpoint using the Okta ID
-	// https://developer.okta.com/docs/reference/api/users/#user-sessions
-	clearSessionURL := provider.ClearUserSessionsURL(profile.ID)
-	req2, _ := http.NewRequest("DELETE", clearSessionURL, bytes.NewReader([]byte("")))
-	headers := req2.Header
-	headers.Add("Accept", "application/json")
-	headers.Add("Content-Type", "application/json")
-	headers.Add("Authorization", "SSWS "+apiKey)
-
-	resp2, err := client.Do(req2)
-	if err != nil {
-		appCtx.Logger().Error("Error clearing okta user session", zap.Error(err))
-		return "error", err
-	}
-	defer resp2.Body.Close()
-
-	// okta sends back a 204 when the session has been successfully cleared
-	if resp2.StatusCode == http.StatusNoContent {
-		appCtx.Logger().Info("Response has no content (204 No Content)")
-		return "success", nil
-	}
-
-	return "error", err
 }
 
 func exchangeCode(code string, r *http.Request, appCtx appcontext.AppContext, provider okta.Provider, client HTTPClient) (Exchange, error) {
