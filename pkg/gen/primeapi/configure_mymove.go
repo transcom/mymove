@@ -156,6 +156,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation mto_shipment.UpdateReweigh has not yet been implemented")
 		})
 	}
+	if api.MtoShipmentUpdateSITDeliveryRequestHandler == nil {
+		api.MtoShipmentUpdateSITDeliveryRequestHandler = mto_shipment.UpdateSITDeliveryRequestHandlerFunc(func(params mto_shipment.UpdateSITDeliveryRequestParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.UpdateSITDeliveryRequest has not yet been implemented")
+		})
+	}
 
 	api.PreServerShutdown = func() {}
 
