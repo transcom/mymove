@@ -2656,6 +2656,7 @@ func (suite *HandlerSuite) TestUpdateSITDeliveryRequestHandler() {
 		reqPayload *primemessages.SITDeliveryUpdate
 		params     mtoshipmentops.UpdateSITDeliveryRequestParams
 		shipment   models.MTOShipment
+		planner    *routemocks.Planner
 	}
 
 	makeSubtestData := func(addService bool, serviceCode models.ReServiceCode, estimatedWeight unit.Pound) (subtestData *localSubtestData) {
@@ -2674,35 +2675,39 @@ func (suite *HandlerSuite) TestUpdateSITDeliveryRequestHandler() {
 			},
 		}, nil)
 
-		// Add service items to our shipment
-		// Create a service item in the db, associate with the shipment
-		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
-		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		sitCustomerContacted := time.Now()
 		sitRequestedDelivery := sitCustomerContacted.AddDate(0, 0, 7)
-		customerContactDatePlusFive := sitCustomerContacted.AddDate(0, 0, 5)
 
-		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model:    subtestData.shipment,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOServiceItem{
-					SITEntryDate:     &aMonthAgo,
-					Status:           models.MTOServiceItemStatusApproved,
-					SITDepartureDate: &customerContactDatePlusFive,
-				},
-			},
-			{
-				Model: models.ReService{
-					Code: serviceCode,
-				},
-			},
-		}, nil)
+		if addService {
+			// Add service items to our shipment
+			// Create a service item in the db, associate with the shipment
+			year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
+			aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 
-		planner := &routemocks.Planner{}
-		planner.On("ZipTransitDistance",
+			customerContactDatePlusFive := sitCustomerContacted.AddDate(0, 0, 5)
+
+			factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+				{
+					Model:    subtestData.shipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOServiceItem{
+						SITEntryDate:     &aMonthAgo,
+						Status:           models.MTOServiceItemStatusApproved,
+						SITDepartureDate: &customerContactDatePlusFive,
+					},
+				},
+				{
+					Model: models.ReService{
+						Code: serviceCode,
+					},
+				},
+			}, nil)
+		}
+
+		subtestData.planner = &routemocks.Planner{}
+		subtestData.planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
@@ -2716,7 +2721,7 @@ func (suite *HandlerSuite) TestUpdateSITDeliveryRequestHandler() {
 		}
 		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 		handlerConfig := suite.HandlerConfig()
-		handlerConfig.SetHHGPlanner(planner)
+		handlerConfig.SetHHGPlanner(subtestData.planner)
 		subtestData.handler = UpdateSITDeliveryRequestHandler{
 			handlerConfig,
 			sitstatus.NewShipmentSITStatus(),
@@ -2771,19 +2776,6 @@ func (suite *HandlerSuite) TestUpdateSITDeliveryRequestHandler() {
 
 	suite.Run("404 FAIL - No MTO Service Item", func() {
 		subtestData := makeSubtestData(false, models.ReServiceCodeDOFSIT, unit.Pound(1400))
-		shipmentSITAllowance := int(90)
-		factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status:           models.MTOShipmentStatusApproved,
-					SITDaysAllowance: &shipmentSITAllowance,
-				},
-			},
-		}, nil)
-
-		subtestData.params.MtoShipmentID = strfmt.UUID(mtoShipment.ID.String())
-		subtestData.params.IfMatch = etag.GenerateEtag(mtoShipment.UpdatedAt)
 
 		// Validate incoming payload
 		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
@@ -2842,8 +2834,32 @@ func (suite *HandlerSuite) TestUpdateSITDeliveryRequestHandler() {
 		suite.IsType(&mtoshipmentops.UpdateSITDeliveryRequestPreconditionFailed{}, response)
 	})
 
+	suite.Run("422 FAIL - ZipTransitDistance unprocessable error", func() {
+		subtestData := makeSubtestData(true, models.ReServiceCodeDOFSIT, unit.Pound(1400))
+		subtestData.planner = &routemocks.Planner{}
+		subtestData.planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(1234, apperror.UnprocessableEntityError{})
+
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetHHGPlanner(subtestData.planner)
+		subtestData.handler = UpdateSITDeliveryRequestHandler{
+			handlerConfig,
+			sitstatus.NewShipmentSITStatus(),
+		}
+
+		// Validate incoming payload
+		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := subtestData.handler.Handle(subtestData.params)
+		suite.IsType(&mtoshipmentops.UpdateSITDeliveryRequestUnprocessableEntity{}, response)
+	})
+
 	suite.Run("500 FAIL - Transit Query Failed", func() {
-		subtestData := makeSubtestData(false, models.ReServiceCodeDOFSIT, unit.Pound(20000))
+		subtestData := makeSubtestData(true, models.ReServiceCodeDOFSIT, unit.Pound(20000))
 
 		// Validate incoming payload
 		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
@@ -2852,8 +2868,6 @@ func (suite *HandlerSuite) TestUpdateSITDeliveryRequestHandler() {
 		response := subtestData.handler.Handle(subtestData.params)
 		suite.IsType(&mtoshipmentops.UpdateSITDeliveryRequestInternalServerError{}, response)
 	})
-
-	//TODO: ADD TESTS FOR FAILURES ZIPTRANSITDISTANCE
 }
 
 func getFakeAddress() struct{ primemessages.Address } {
