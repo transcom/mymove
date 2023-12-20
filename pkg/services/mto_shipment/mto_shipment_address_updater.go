@@ -43,6 +43,42 @@ func isAddressOnShipment(address *models.Address, mtoShipment *models.MTOShipmen
 	return false
 }
 
+func UpdateSITServiceItemDestinationAddressToMTOShipmentAddress(mtoServiceItems *models.MTOServiceItems, newAddress *models.Address, appCtx appcontext.AppContext) (*models.MTOServiceItems, error) {
+	// Change the address ID of destination SIT service items to match the address of the shipment address ID
+	serviceItems := mtoServiceItems
+	var updatedMtoServiceItems models.MTOServiceItems
+	for _, s := range *serviceItems {
+		serviceItem := s
+		reServiceCode := serviceItem.ReService.Code
+		if reServiceCode == models.ReServiceCodeDDDSIT ||
+			reServiceCode == models.ReServiceCodeDDFSIT ||
+			reServiceCode == models.ReServiceCodeDDASIT ||
+			reServiceCode == models.ReServiceCodeDDSFSC {
+
+			serviceItem.SITDestinationFinalAddressID = &newAddress.ID
+			updatedMtoServiceItems = append(updatedMtoServiceItems, serviceItem)
+			transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
+				// update service item final destination address ID to match shipment address ID
+				verrs, err := txnCtx.DB().ValidateAndUpdate(&serviceItem)
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(newAddress.ID, err, verrs, "invalid input found while updating final destination address of service item")
+				} else if err != nil {
+					return apperror.NewQueryError("Service item", err, "")
+				}
+
+				return nil
+			})
+
+			// if there was a transaction error, we'll return nothing but the error
+			if transactionError != nil {
+				return nil, transactionError
+			}
+		}
+	}
+
+	return &updatedMtoServiceItems, nil
+}
+
 // UpdateMTOShipmentAddress updates an address on an MTO shipment.
 // Since address records have no parent id, caller must supply the mtoShipmentID associated with this address.
 // Function will check that the etag matches before making the update.
@@ -112,36 +148,7 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 		return nil, apperror.NewQueryError("Address", err, "")
 	}
 
-	// Change the address ID of destination SIT service items to match the address of the shipment address ID
-	mtoServiceItems := mtoShipment.MTOServiceItems
-	for _, s := range mtoServiceItems {
-		serviceItem := s
-		reServiceCode := serviceItem.ReService.Code
-		if reServiceCode == models.ReServiceCodeDDDSIT ||
-			reServiceCode == models.ReServiceCodeDDFSIT ||
-			reServiceCode == models.ReServiceCodeDDASIT ||
-			reServiceCode == models.ReServiceCodeDDSFSC {
-
-			serviceItem.SITDestinationFinalAddressID = &newAddress.ID
-
-			transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
-				// update service item final destination address ID to match shipment address ID
-				verrs, err = txnCtx.DB().ValidateAndUpdate(&serviceItem)
-				if verrs != nil && verrs.HasAny() {
-					return apperror.NewInvalidInputError(newAddress.ID, err, verrs, "invalid input found while updating final destination address of service item")
-				} else if err != nil {
-					return apperror.NewQueryError("Service item", err, "")
-				}
-
-				return nil
-			})
-
-			// if there was a transaction error, we'll return nothing but the error
-			if transactionError != nil {
-				return nil, transactionError
-			}
-		}
-	}
+	UpdateSITServiceItemDestinationAddressToMTOShipmentAddress(&mtoShipment.MTOServiceItems, newAddress, appCtx)
 
 	// Get the updated address and return
 	updatedAddress := models.Address{}
