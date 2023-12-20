@@ -249,7 +249,6 @@ func fetchEntitlement(appCtx appcontext.AppContext, mtoShipment models.MTOShipme
 // Calculate Required Delivery Date(RDD) from customer contact and requested delivery dates
 func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipment models.MTOShipment, planner route.Planner,
 	sitCustomerContacted *time.Time, sitRequestedDelivery *time.Time, sitDepartureDate *time.Time) (*time.Time, error) {
-	//TODO: WRITE TEST FOR THIS FAILURE
 	// Get a distance calculation between pickup and destination addresses.
 	distance, err := planner.ZipTransitDistance(appCtx, shipment.PickupAddress.PostalCode, shipment.DestinationAddress.PostalCode)
 
@@ -263,7 +262,6 @@ func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipme
 		weight = shipment.NTSRecordedWeight
 	}
 
-	//TODO: ADD TEST CASE FOR THIS QUERY TO FAIL
 	// Query the ghc_domestic_transit_times table for the max transit time
 	var ghcDomesticTransitTime models.GHCDomesticTransitTime
 	err = appCtx.DB().Where("distance_miles_lower <= ? "+
@@ -274,7 +272,7 @@ func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipme
 
 	if err != nil {
 		return nil, apperror.NewQueryError("CalculateSITAllowanceRequestedDates", err,
-			fmt.Sprintf("failed to find transit time for shipment of %d lbs weight and %d mile distance", weight, distance))
+			fmt.Sprintf("failed to find transit time for shipment of %d lbs weight and %d mile distance", weight.Int(), distance))
 	}
 
 	var requiredDeliveryDate time.Time
@@ -311,70 +309,64 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext
 	currentSIT := getCurrentSIT(shipmentSITs)
 
 	// There were no relevant SIT service items for this shipment
-	if currentSIT == nil && len(shipmentSITs.pastSITs) == 0 {
+	if reflect.ValueOf(currentSIT).IsValid() && reflect.ValueOf(currentSIT).IsNil() {
 		return nil, apperror.NewNotFoundError(shipment.ID, "shipment is missing current SIT")
 	}
 
-	if currentSIT != nil {
-		shipmentSITStatus.ShipmentID = shipment.ID
-		location := DestinationSITLocation
+	shipmentSITStatus.ShipmentID = shipment.ID
+	location := DestinationSITLocation
 
-		if currentSIT.ReService.Code == models.ReServiceCodeDOFSIT {
-			location = OriginSITLocation
+	if currentSIT.ReService.Code == models.ReServiceCodeDOFSIT {
+		location = OriginSITLocation
+	}
+
+	daysInSIT := daysInSIT(*currentSIT, today)
+	sitEntryDate := *currentSIT.SITEntryDate
+	sitDepartureDate := currentSIT.SITDepartureDate
+
+	// Calculate sitAllowanceEndDate and required delivery date based on sitCustomerContacted and sitRequestedDelivery
+	// using the below business logic.
+	sitAllowanceEndDate := sitDepartureDate
+
+	if location == OriginSITLocation {
+		// Origin SIT: sitAllowanceEndDate should be GracePeriodDays days after sitCustomerContacted or the sitDepartureDate whichever is earlier.
+		calculatedAllowanceEndDate := sitCustomerContacted.AddDate(0, 0, GracePeriodDays)
+
+		if (reflect.ValueOf(sitDepartureDate).IsValid() && reflect.ValueOf(sitDepartureDate).IsNil()) ||
+			calculatedAllowanceEndDate.Before(*sitDepartureDate) {
+			sitAllowanceEndDate = &calculatedAllowanceEndDate
 		}
 
-		daysInSIT := daysInSIT(*currentSIT, today)
-		sitEntryDate := *currentSIT.SITEntryDate
-		sitDepartureDate := currentSIT.SITDepartureDate
+		if reflect.ValueOf(sitDepartureDate).IsValid() && !reflect.ValueOf(sitDepartureDate).IsNil() {
+			requiredDeliveryDate, err := calculateOriginSITRequiredDeliveryDate(appCtx, shipment, planner, sitCustomerContacted, sitRequestedDelivery, sitDepartureDate)
 
-		// Calculate sitAllowanceEndDate and required delivery date based on sitCustomerContacted and sitRequestedDelivery
-		// using the below business logic.
-		var sitDepartureDateInterface interface{}
-		tempSitDepartureDate := sitCustomerContacted.AddDate(0, 0, -3) //TODO: REMOVE THIS
-		sitDepartureDate = &tempSitDepartureDate
-		sitDepartureDateInterface = sitDepartureDate
-		sitAllowanceEndDate := sitDepartureDate
-
-		if location == OriginSITLocation {
-			// Origin SIT: sitAllowanceEndDate should be 5 days after sitCustomerContacted or the sitDepartureDate whichever is earlier.
-			calculatedAllowanceEndDate := sitCustomerContacted.AddDate(0, 0, 5)
-
-			if (reflect.ValueOf(sitDepartureDateInterface).IsValid() && reflect.ValueOf(sitDepartureDateInterface).IsNil()) ||
-				calculatedAllowanceEndDate.Before(*sitDepartureDate) {
-				sitAllowanceEndDate = &calculatedAllowanceEndDate
+			if err != nil {
+				return nil, err
 			}
 
-			if reflect.ValueOf(sitDepartureDateInterface).IsValid() && !reflect.ValueOf(sitDepartureDateInterface).IsNil() {
-				requiredDeliveryDate, err := calculateOriginSITRequiredDeliveryDate(appCtx, shipment, planner, sitCustomerContacted, sitRequestedDelivery, sitDepartureDate)
-
-				if err != nil {
-					return nil, err
-				}
-
-				shipment.RequiredDeliveryDate = requiredDeliveryDate
-			} else {
-				//TODO: THROW ERROR FOR sitDepartureDate BEING NIL
-			}
-
-		} else if location == DestinationSITLocation {
-			// Destination SIT: sitAllowanceEndDate should be 5 days after sitRequestedDelivery or the sitDepartureDate whichever is earlier.
-			calculatedAllowanceEndDate := sitRequestedDelivery.AddDate(0, 0, 5)
-
-			if (reflect.ValueOf(sitDepartureDateInterface).IsValid() && reflect.ValueOf(sitDepartureDateInterface).IsNil()) ||
-				calculatedAllowanceEndDate.Before(*sitDepartureDate) {
-				sitAllowanceEndDate = &calculatedAllowanceEndDate
-			}
+			shipment.RequiredDeliveryDate = requiredDeliveryDate
+		} else {
+			return nil, apperror.NewNotFoundError(shipment.ID, "sit departure date not found")
 		}
 
-		shipmentSITStatus.CurrentSIT = &services.CurrentSIT{
-			Location:             location,
-			DaysInSIT:            daysInSIT,
-			SITEntryDate:         sitEntryDate,
-			SITDepartureDate:     sitDepartureDate,
-			SITAllowanceEndDate:  *sitAllowanceEndDate,
-			SITCustomerContacted: sitCustomerContacted,
-			SITRequestedDelivery: sitRequestedDelivery,
+	} else if location == DestinationSITLocation {
+		// Destination SIT: sitAllowanceEndDate should be GracePeriodDays days after sitRequestedDelivery or the sitDepartureDate whichever is earlier.
+		calculatedAllowanceEndDate := sitRequestedDelivery.AddDate(0, 0, GracePeriodDays)
+
+		if (reflect.ValueOf(sitDepartureDate).IsValid() && reflect.ValueOf(sitDepartureDate).IsNil()) ||
+			calculatedAllowanceEndDate.Before(*sitDepartureDate) {
+			sitAllowanceEndDate = &calculatedAllowanceEndDate
 		}
+	}
+
+	shipmentSITStatus.CurrentSIT = &services.CurrentSIT{
+		Location:             location,
+		DaysInSIT:            daysInSIT,
+		SITEntryDate:         sitEntryDate,
+		SITDepartureDate:     sitDepartureDate,
+		SITAllowanceEndDate:  *sitAllowanceEndDate,
+		SITCustomerContacted: sitCustomerContacted,
+		SITRequestedDelivery: sitRequestedDelivery,
 	}
 
 	return &shipmentSITStatus, nil
