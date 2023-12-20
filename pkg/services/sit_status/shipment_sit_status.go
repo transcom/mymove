@@ -312,6 +312,8 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext
 		return nil, apperror.NewNotFoundError(shipment.ID, "shipment is missing current SIT")
 	}
 
+	currentSIT.SITCustomerContacted = sitCustomerContacted
+	currentSIT.SITRequestedDelivery = sitRequestedDelivery
 	shipmentSITStatus.ShipmentID = shipment.ID
 	location := DestinationSITLocation
 
@@ -321,7 +323,9 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext
 
 	daysInSIT := daysInSIT(*currentSIT, today)
 	sitEntryDate := *currentSIT.SITEntryDate
-	sitDepartureDate := currentSIT.SITDepartureDate
+	//sitDepartureDate := currentSIT.SITDepartureDate
+
+	sitDepartureDate := sitCustomerContacted.AddDate(0, 0, GracePeriodDays)
 
 	// Calculate sitAllowanceEndDate and required delivery date based on sitCustomerContacted and sitRequestedDelivery
 	// using the below business logic.
@@ -331,12 +335,12 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext
 		// Origin SIT: sitAllowanceEndDate should be GracePeriodDays days after sitCustomerContacted or the sitDepartureDate whichever is earlier.
 		calculatedAllowanceEndDate := sitCustomerContacted.AddDate(0, 0, GracePeriodDays)
 
-		if sitDepartureDate == nil || calculatedAllowanceEndDate.Before(*sitDepartureDate) {
-			sitAllowanceEndDate = &calculatedAllowanceEndDate
+		if &sitDepartureDate == nil || calculatedAllowanceEndDate.Before(sitDepartureDate) {
+			sitAllowanceEndDate = calculatedAllowanceEndDate
 		}
 
-		if sitDepartureDate != nil {
-			requiredDeliveryDate, err := calculateOriginSITRequiredDeliveryDate(appCtx, shipment, planner, sitCustomerContacted, sitRequestedDelivery, sitDepartureDate)
+		if &sitDepartureDate != nil {
+			requiredDeliveryDate, err := calculateOriginSITRequiredDeliveryDate(appCtx, shipment, planner, sitCustomerContacted, sitRequestedDelivery, &sitDepartureDate)
 
 			if err != nil {
 				return nil, err
@@ -351,8 +355,8 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext
 		// Destination SIT: sitAllowanceEndDate should be GracePeriodDays days after sitRequestedDelivery or the sitDepartureDate whichever is earlier.
 		calculatedAllowanceEndDate := sitRequestedDelivery.AddDate(0, 0, GracePeriodDays)
 
-		if sitDepartureDate == nil || calculatedAllowanceEndDate.Before(*sitDepartureDate) {
-			sitAllowanceEndDate = &calculatedAllowanceEndDate
+		if &sitDepartureDate == nil || calculatedAllowanceEndDate.Before(sitDepartureDate) {
+			sitAllowanceEndDate = calculatedAllowanceEndDate
 		}
 	}
 
@@ -360,11 +364,14 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext
 		Location:             location,
 		DaysInSIT:            daysInSIT,
 		SITEntryDate:         sitEntryDate,
-		SITDepartureDate:     sitDepartureDate,
-		SITAllowanceEndDate:  *sitAllowanceEndDate,
+		SITDepartureDate:     &sitDepartureDate,
+		SITAllowanceEndDate:  sitAllowanceEndDate,
 		SITCustomerContacted: sitCustomerContacted,
 		SITRequestedDelivery: sitRequestedDelivery,
 	}
+
+	appCtx.DB().ValidateAndUpdate(&shipment)
+	//appCtx.DB().ValidateAndUpdate(&currentSIT)
 
 	return &shipmentSITStatus, nil
 }
