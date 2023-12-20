@@ -1051,8 +1051,8 @@ func (h DenySITExtensionHandler) Handle(params shipmentops.DenySITExtensionParam
 			shipmentID := uuid.FromStringOrNil(string(params.ShipmentID))
 			sitExtensionID := uuid.FromStringOrNil(string(params.SitExtensionID))
 			officeRemarks := params.Body.OfficeRemarks
-			convertToCustomersExpense := params.Body.ConvertToCustomersExpense
-			updatedShipment, err := h.SITExtensionDenier.DenySITExtension(appCtx, shipmentID, sitExtensionID, officeRemarks, convertToCustomersExpense, params.IfMatch)
+			convertToCustomerExpense := params.Body.ConvertToCustomerExpense
+			updatedShipment, err := h.SITExtensionDenier.DenySITExtension(appCtx, shipmentID, sitExtensionID, officeRemarks, convertToCustomerExpense, params.IfMatch)
 			if err != nil {
 				return handleError(err)
 			}

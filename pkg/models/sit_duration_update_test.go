@@ -30,7 +30,7 @@ func (suite *ModelSuite) TestSITDurationUpdateCreation() {
 			ApprovedDays:      &approvedDays,
 			DecisionDate:      &decisionDate,
 			OfficeRemarks:     &officeRemarks,
-			CustomersExpense:  models.BoolPointer(false),
+			CustomerExpense:   models.BoolPointer(false),
 		}
 
 		suite.MustSave(&validSITExtension)
@@ -77,7 +77,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 			ApprovedDays:      &approvedDays,
 			DecisionDate:      &decisionDate,
 			OfficeRemarks:     &officeRemarks,
-			CustomersExpense:  models.BoolPointer(false),
+			CustomerExpense:   models.BoolPointer(false),
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validSITExtension, expErrors)
@@ -97,7 +97,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 			ApprovedDays:      &approvedDays,
 			DecisionDate:      &decisionDate,
 			OfficeRemarks:     &officeRemarks,
-			CustomersExpense:  models.BoolPointer(false),
+			CustomerExpense:   models.BoolPointer(false),
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validSITExtension, expErrors)
