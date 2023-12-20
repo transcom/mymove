@@ -10,7 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
+	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primev2api/primev2operations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapi"
 	"github.com/transcom/mymove/pkg/handlers/primeapiv2/payloads"
@@ -39,7 +39,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 
 			for _, mtoServiceItem := range params.Body.MtoServiceItems() {
 				// restrict creation to a list
-				if _, ok := primeapi.CreateableServiceItemMap[mtoServiceItem.ModelType()]; !ok {
+				if _, ok := CreateableServiceItemMap[mtoServiceItem.ModelType()]; !ok {
 					// throw error if modelType() not on the list
 					mapKeys := primeapi.GetMapKeys(primeapi.CreateableServiceItemMap)
 					detailErr := fmt.Sprintf("MTOServiceItem modelType() not allowed: %s ", mtoServiceItem.ModelType())

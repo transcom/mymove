@@ -2,23 +2,19 @@ package primeapiv2
 
 import (
 	"errors"
-	"fmt"
 	"net/http/httptest"
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
-	fakedata "github.com/transcom/mymove/pkg/fakedata_approved"
-	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
-	"github.com/transcom/mymove/pkg/gen/primemessages"
+	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primev2api/primev2operations/mto_shipment"
+	"github.com/transcom/mymove/pkg/gen/primev2messages"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
+	"github.com/transcom/mymove/pkg/handlers/primeapiv2/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -50,8 +46,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
 	mockCreator := mocks.ShipmentCreator{}
 
-	var pickupAddress primemessages.Address
-	var destinationAddress primemessages.Address
+	var pickupAddress primev2messages.Address
+	var destinationAddress primev2messages.Address
 
 	setupTestData := func() (CreateMTOShipmentHandler, models.Move) {
 
@@ -70,7 +66,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				},
 			},
 		}, nil)
-		pickupAddress = primemessages.Address{
+		pickupAddress = primev2messages.Address{
 			City:           &newAddress.City,
 			Country:        newAddress.Country,
 			PostalCode:     &newAddress.PostalCode,
@@ -80,7 +76,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			StreetAddress3: newAddress.StreetAddress3,
 		}
 		newAddress = factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
-		destinationAddress = primemessages.Address{
+		destinationAddress = primev2messages.Address{
 			City:           &newAddress.City,
 			Country:        newAddress.Country,
 			PostalCode:     &newAddress.PostalCode,
@@ -102,16 +98,16 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
-			Body: &primemessages.CreateMTOShipment{
+			Body: &primev2messages.CreateMTOShipment{
 				MoveTaskOrderID:      handlers.FmtUUID(move.ID),
 				Agents:               nil,
 				CustomerRemarks:      nil,
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
 				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
-				ShipmentType:         primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
-				PickupAddress:        struct{ primemessages.Address }{pickupAddress},
-				DestinationAddress:   struct{ primemessages.Address }{destinationAddress},
+				ShipmentType:         primev2messages.NewMTOShipmentType(primev2messages.MTOShipmentTypeHHG),
+				PickupAddress:        struct{ primev2messages.Address }{pickupAddress},
+				DestinationAddress:   struct{ primev2messages.Address }{destinationAddress},
 			},
 		}
 
@@ -127,7 +123,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.NoError(createMTOShipmentPayload.Validate(strfmt.Default))
 
 		// check that the mto shipment status is Submitted
-		suite.Require().Equal(createMTOShipmentPayload.Status, primemessages.MTOShipmentWithoutServiceItemsStatusSUBMITTED, "MTO Shipment should have been submitted")
+		suite.Require().Equal(createMTOShipmentPayload.Status, primev2messages.MTOShipmentWithoutServiceItemsStatusSUBMITTED, "MTO Shipment should have been submitted")
 		suite.Require().Equal(createMTOShipmentPayload.PrimeEstimatedWeight, params.Body.PrimeEstimatedWeight)
 	})
 
@@ -145,7 +141,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		destinationPostalCode := "29212"
 		secondaryDestinationPostalCode := "29201"
 		sitExpected := true
-		sitLocation := primemessages.SITLocationTypeDESTINATION
+		sitLocation := primev2messages.SITLocationTypeDESTINATION
 		sitEstimatedWeight := unit.Pound(1500)
 		sitEstimatedEntryDate := expectedDepartureDate.AddDate(0, 0, 5)
 		sitEstimatedDepartureDate := sitEstimatedEntryDate.AddDate(0, 0, 20)
@@ -158,11 +154,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
-			Body: &primemessages.CreateMTOShipment{
+			Body: &primev2messages.CreateMTOShipment{
 				MoveTaskOrderID:  handlers.FmtUUID(move.ID),
-				ShipmentType:     primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypePPM),
+				ShipmentType:     primev2messages.NewMTOShipmentType(primev2messages.MTOShipmentTypePPM),
 				CounselorRemarks: &counselorRemarks,
-				PpmShipment: &primemessages.CreatePPMShipment{
+				PpmShipment: &primev2messages.CreatePPMShipment{
 					ExpectedDepartureDate:          handlers.FmtDate(expectedDepartureDate),
 					PickupPostalCode:               &pickupPostalCode,
 					SecondaryPickupPostalCode:      &secondaryPickupPostalCode,
@@ -201,12 +197,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		createdPPM := createdShipment.PpmShipment
 
 		suite.Equal(move.ID.String(), createdShipment.MoveTaskOrderID.String())
-		suite.Equal(primemessages.MTOShipmentTypePPM, createdShipment.ShipmentType)
-		suite.Equal(primemessages.MTOShipmentWithoutServiceItemsStatusSUBMITTED, createdShipment.Status)
+		suite.Equal(primev2messages.MTOShipmentTypePPM, createdShipment.ShipmentType)
+		suite.Equal(primev2messages.MTOShipmentWithoutServiceItemsStatusSUBMITTED, createdShipment.Status)
 		suite.Equal(&counselorRemarks, createdShipment.CounselorRemarks)
 
 		suite.Equal(createdShipment.ID.String(), createdPPM.ShipmentID.String())
-		suite.Equal(primemessages.PPMShipmentStatusSUBMITTED, createdPPM.Status)
+		suite.Equal(primev2messages.PPMShipmentStatusSUBMITTED, createdPPM.Status)
 		suite.Equal(handlers.FmtDatePtr(&expectedDepartureDate), createdPPM.ExpectedDepartureDate)
 		suite.Equal(&pickupPostalCode, createdPPM.PickupPostalCode)
 		suite.Equal(&secondaryPickupPostalCode, createdPPM.SecondaryPickupPostalCode)
@@ -252,15 +248,15 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
-			Body: &primemessages.CreateMTOShipment{
+			Body: &primev2messages.CreateMTOShipment{
 				MoveTaskOrderID:     handlers.FmtUUID(move.ID),
 				Agents:              nil,
 				CustomerRemarks:     nil,
 				PointOfContact:      "John Doe",
 				RequestedPickupDate: handlers.FmtDatePtr(models.TimePointer(time.Now())),
-				ShipmentType:        primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
-				PickupAddress:       struct{ primemessages.Address }{pickupAddress},
-				DestinationAddress:  struct{ primemessages.Address }{destinationAddress},
+				ShipmentType:        primev2messages.NewMTOShipmentType(primev2messages.MTOShipmentTypeHHG),
+				PickupAddress:       struct{ primev2messages.Address }{pickupAddress},
+				DestinationAddress:  struct{ primev2messages.Address }{destinationAddress},
 			},
 		}
 
@@ -279,7 +275,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.NoError(createMTOShipmentPayload.Validate(strfmt.Default))
 
 		// check that the mto shipment status is Submitted
-		suite.Require().Equal(createMTOShipmentPayload.Status, primemessages.MTOShipmentWithoutServiceItemsStatusSUBMITTED, "MTO Shipment should have been submitted")
+		suite.Require().Equal(createMTOShipmentPayload.Status, primev2messages.MTOShipmentWithoutServiceItemsStatusSUBMITTED, "MTO Shipment should have been submitted")
 	})
 
 	suite.Run("POST failure - 500", func() {
@@ -302,14 +298,14 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
-			Body: &primemessages.CreateMTOShipment{
+			Body: &primev2messages.CreateMTOShipment{
 				MoveTaskOrderID:      handlers.FmtUUID(move.ID),
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
 				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
-				ShipmentType:         primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
-				PickupAddress:        struct{ primemessages.Address }{pickupAddress},
-				DestinationAddress:   struct{ primemessages.Address }{destinationAddress},
+				ShipmentType:         primev2messages.NewMTOShipmentType(primev2messages.MTOShipmentTypeHHG),
+				PickupAddress:        struct{ primev2messages.Address }{pickupAddress},
+				DestinationAddress:   struct{ primev2messages.Address }{destinationAddress},
 			},
 		}
 
@@ -335,22 +331,22 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
 		badID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
-		agent := &primemessages.MTOAgent{
+		agent := &primev2messages.MTOAgent{
 			ID:            badID,
 			MtoShipmentID: badID,
 			FirstName:     handlers.FmtString("Mary"),
 		}
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
-			Body: &primemessages.CreateMTOShipment{
+			Body: &primev2messages.CreateMTOShipment{
 				MoveTaskOrderID:      handlers.FmtUUID(move.ID),
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
-				Agents:               primemessages.MTOAgents{agent},
+				Agents:               primev2messages.MTOAgents{agent},
 				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
-				ShipmentType:         primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
-				PickupAddress:        struct{ primemessages.Address }{pickupAddress},
-				DestinationAddress:   struct{ primemessages.Address }{destinationAddress},
+				ShipmentType:         primev2messages.NewMTOShipmentType(primev2messages.MTOShipmentTypeHHG),
+				PickupAddress:        struct{ primev2messages.Address }{pickupAddress},
+				DestinationAddress:   struct{ primev2messages.Address }{destinationAddress},
 			},
 		}
 
@@ -379,14 +375,14 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
-			Body: &primemessages.CreateMTOShipment{
+			Body: &primev2messages.CreateMTOShipment{
 				MoveTaskOrderID:      handlers.FmtUUID(move.ID),
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
 				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
-				ShipmentType:         primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
-				PickupAddress:        struct{ primemessages.Address }{pickupAddress},
-				DestinationAddress:   struct{ primemessages.Address }{destinationAddress},
+				ShipmentType:         primev2messages.NewMTOShipmentType(primev2messages.MTOShipmentTypeHHG),
+				PickupAddress:        struct{ primev2messages.Address }{pickupAddress},
+				DestinationAddress:   struct{ primev2messages.Address }{destinationAddress},
 			},
 		}
 		params.Body.PickupAddress.Address.StreetAddress1 = nil
@@ -419,14 +415,14 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		badID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
-			Body: &primemessages.CreateMTOShipment{
+			Body: &primev2messages.CreateMTOShipment{
 				MoveTaskOrderID:      &badID,
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
 				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
-				ShipmentType:         primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
-				PickupAddress:        struct{ primemessages.Address }{pickupAddress},
-				DestinationAddress:   struct{ primemessages.Address }{destinationAddress},
+				ShipmentType:         primev2messages.NewMTOShipmentType(primev2messages.MTOShipmentTypeHHG),
+				PickupAddress:        struct{ primev2messages.Address }{pickupAddress},
+				DestinationAddress:   struct{ primev2messages.Address }{destinationAddress},
 			},
 		}
 
@@ -474,14 +470,14 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		unavailableMove := factory.BuildMove(suite.DB(), nil, nil)
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
-			Body: &primemessages.CreateMTOShipment{
+			Body: &primev2messages.CreateMTOShipment{
 				MoveTaskOrderID:      handlers.FmtUUID(unavailableMove.ID),
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
 				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
-				ShipmentType:         primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
-				PickupAddress:        struct{ primemessages.Address }{pickupAddress},
-				DestinationAddress:   struct{ primemessages.Address }{destinationAddress},
+				ShipmentType:         primev2messages.NewMTOShipmentType(primev2messages.MTOShipmentTypeHHG),
+				PickupAddress:        struct{ primev2messages.Address }{pickupAddress},
+				DestinationAddress:   struct{ primev2messages.Address }{destinationAddress},
 			},
 		}
 
@@ -528,12 +524,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
-			Body: &primemessages.CreateMTOShipment{
+			Body: &primev2messages.CreateMTOShipment{
 				MoveTaskOrderID:      handlers.FmtUUID(move.ID),
 				PointOfContact:       "John Doe",
 				PrimeEstimatedWeight: handlers.FmtInt64(1200),
 				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
-				ShipmentType:         primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
+				ShipmentType:         primev2messages.NewMTOShipmentType(primev2messages.MTOShipmentTypeHHG),
 			},
 		}
 
@@ -551,175 +547,4 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		suite.Contains(*typedResponse.Payload.Detail, "MTOServiceItem modelType() not allowed")
 	})
-}
-
-func (suite *HandlerSuite) TestCreateNonSITAddressUpdateRequestHandler() {
-	req := httptest.NewRequest("POST", "/mto-shipments/{mtoShipmentID}/shipment-address-updates", nil)
-
-	makeSubtestData := func() mtoshipmentops.CreateNonSITAddressUpdateRequestParams {
-		contractorRemark := "This is a contractor remark"
-		body := primemessages.CreateNonSITAddressUpdateRequest{
-			ContractorRemarks: &contractorRemark,
-			NewAddress: &primemessages.Address{
-				City:           swag.String("Beverly Hills"),
-				PostalCode:     swag.String("90210"),
-				State:          swag.String("CA"),
-				StreetAddress1: swag.String("1234 N. 1st Street"),
-			},
-		}
-
-		params := mtoshipmentops.CreateNonSITAddressUpdateRequestParams{
-			HTTPRequest: req,
-			Body:        &body,
-		}
-
-		return params
-
-	}
-	suite.Run("POST failure - 422 Unprocessable Entity Error", func() {
-		subtestData := makeSubtestData()
-		mockCreator := mocks.ShipmentAddressUpdateRequester{}
-		handler := CreateNonSITAddressUpdateRequestHandler{
-			suite.HandlerConfig(),
-			&mockCreator,
-		}
-		// InvalidInputError should generate an UnprocessableEntity response error
-		// Need verrs incorporated to satisfy swagger validation
-		verrs := validate.NewErrors()
-		verrs.Add("some key", "some value")
-		err := apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "unable to create ShipmentAddressUpdate")
-
-		mockCreator.On("RequestShipmentDeliveryAddressUpdate",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("uuid.UUID"),
-			mock.AnythingOfType("models.Address"),
-			mock.AnythingOfType("string"),
-			mock.AnythingOfType("string"),
-		).Return(nil, err)
-
-		// Validate incoming payload
-		suite.NoError(subtestData.Body.Validate(strfmt.Default))
-
-		response := handler.Handle(subtestData)
-		suite.IsType(&mtoshipmentops.CreateNonSITAddressUpdateRequestUnprocessableEntity{}, response)
-		errResponse := response.(*mtoshipmentops.CreateNonSITAddressUpdateRequestUnprocessableEntity)
-
-		// Validate outgoing payload
-		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
-	})
-
-	suite.Run("POST failure - 409 Request conflict reponse Error", func() {
-		subtestData := makeSubtestData()
-		mockCreator := mocks.ShipmentAddressUpdateRequester{}
-		handler := CreateNonSITAddressUpdateRequestHandler{
-			suite.HandlerConfig(),
-			&mockCreator,
-		}
-		// NewConflictError should generate a RequestConflict response error
-		err := apperror.NewConflictError(uuid.Nil, "unable to create ShipmentAddressUpdate")
-
-		mockCreator.On("RequestShipmentDeliveryAddressUpdate",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("uuid.UUID"),
-			mock.AnythingOfType("models.Address"),
-			mock.AnythingOfType("string"),
-			mock.AnythingOfType("string"),
-		).Return(nil, err)
-
-		// Validate incoming payload
-		suite.NoError(subtestData.Body.Validate(strfmt.Default))
-
-		response := handler.Handle(subtestData)
-		suite.IsType(&mtoshipmentops.CreateNonSITAddressUpdateRequestConflict{}, response)
-		errResponse := response.(*mtoshipmentops.CreateNonSITAddressUpdateRequestConflict)
-
-		// Validate outgoing payload
-		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
-	})
-
-	suite.Run("POST failure - 404 Not Found response error", func() {
-
-		subtestData := makeSubtestData()
-		mockCreator := mocks.ShipmentAddressUpdateRequester{}
-		handler := CreateNonSITAddressUpdateRequestHandler{
-			suite.HandlerConfig(),
-			&mockCreator,
-		}
-		// NewNotFoundError should generate a RequestNotFound response error
-		err := apperror.NewNotFoundError(uuid.Nil, "unable to create ShipmentAddressUpdate")
-
-		mockCreator.On("RequestShipmentDeliveryAddressUpdate",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("uuid.UUID"),
-			mock.AnythingOfType("models.Address"),
-			mock.AnythingOfType("string"),
-			mock.AnythingOfType("string"),
-		).Return(nil, err)
-
-		// Validate incoming payload
-		suite.NoError(subtestData.Body.Validate(strfmt.Default))
-
-		response := handler.Handle(subtestData)
-		suite.IsType(&mtoshipmentops.CreateNonSITAddressUpdateRequestNotFound{}, response)
-		errResponse := response.(*mtoshipmentops.CreateNonSITAddressUpdateRequestNotFound)
-
-		// Validate outgoing payload
-		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
-	})
-
-	suite.Run("500 server error", func() {
-
-		subtestData := makeSubtestData()
-		mockCreator := mocks.ShipmentAddressUpdateRequester{}
-		handler := CreateNonSITAddressUpdateRequestHandler{
-			suite.HandlerConfig(),
-			&mockCreator,
-		}
-		// NewQueryError should generate an InternalServerError response error
-		err := apperror.NewQueryError("", nil, "unable to reach database")
-
-		mockCreator.On("RequestShipmentDeliveryAddressUpdate",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("uuid.UUID"),
-			mock.AnythingOfType("models.Address"),
-			mock.AnythingOfType("string"),
-			mock.AnythingOfType("string"),
-		).Return(nil, err)
-
-		// Validate incoming payload
-		suite.NoError(subtestData.Body.Validate(strfmt.Default))
-
-		response := handler.Handle(subtestData)
-		suite.IsType(&mtoshipmentops.CreateNonSITAddressUpdateRequestInternalServerError{}, response)
-		errResponse := response.(*mtoshipmentops.CreateNonSITAddressUpdateRequestInternalServerError)
-
-		// Validate outgoing payload
-		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
-	})
-
-}
-
-func getFakeAddress() struct{ primemessages.Address } {
-	// Use UUID to generate truly random address string
-	streetAddr := fmt.Sprintf("%s %s", uuid.Must(uuid.NewV4()).String(), fakedata.RandomStreetAddress())
-	// Using same zip so not a good helper for tests testing zip calculations
-	return struct{ primemessages.Address }{
-		Address: primemessages.Address{
-			City:           models.StringPointer("San Diego"),
-			PostalCode:     models.StringPointer("92102"),
-			State:          models.StringPointer("CA"),
-			StreetAddress1: &streetAddr,
-		},
-	}
-}
-
-func (suite *HandlerSuite) refreshFromDB(id uuid.UUID) models.MTOShipment {
-	var dbShipment models.MTOShipment
-	err := suite.DB().EagerPreload("PickupAddress",
-		"DestinationAddress",
-		"SecondaryPickupAddress",
-		"SecondaryDeliveryAddress",
-		"MTOAgents").Find(&dbShipment, id)
-	suite.Nil(err)
-	return dbShipment
 }

@@ -810,6 +810,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			clearedDivertedParentShipment := clearShipmentIDFields(&divertedParentShipment)
 
 			createdDivertedParentShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedDivertedParentShipment)
+			suite.NoError(err)
 
 			// Create a new shipment, diverting from the parent
 			// ! This one is different because it is a diversion
