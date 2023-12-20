@@ -2,8 +2,11 @@ properties:
   sitCustomerContacted:
     type: string
     format: date
-    x-nullable: true
+    example: '2020-01-01' 
   sitRequestedDelivery:
     type: string
     format: date
-    x-nullable: true
+    example: '2020-01-01' 
+required:
+  - sitCustomerContacted
+  - sitRequestedDelivery

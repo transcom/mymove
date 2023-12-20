@@ -3711,16 +3711,20 @@ func init() {
       ]
     },
     "SITDeliveryUpdate": {
+      "required": [
+        "sitCustomerContacted",
+        "sitRequestedDelivery"
+      ],
       "properties": {
         "sitCustomerContacted": {
           "type": "string",
           "format": "date",
-          "x-nullable": true
+          "example": "2020-01-01"
         },
         "sitRequestedDelivery": {
           "type": "string",
           "format": "date",
-          "x-nullable": true
+          "example": "2020-01-01"
         }
       }
     },
@@ -8923,16 +8927,20 @@ func init() {
       ]
     },
     "SITDeliveryUpdate": {
+      "required": [
+        "sitCustomerContacted",
+        "sitRequestedDelivery"
+      ],
       "properties": {
         "sitCustomerContacted": {
           "type": "string",
           "format": "date",
-          "x-nullable": true
+          "example": "2020-01-01"
         },
         "sitRequestedDelivery": {
           "type": "string",
           "format": "date",
-          "x-nullable": true
+          "example": "2020-01-01"
         }
       }
     },
