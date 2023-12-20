@@ -6,20 +6,35 @@ import styles from '../ReviewSITExtensionModal.module.scss';
 
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 
-const ConfirmCustomerExpenseModal = ({ onClose, onSubmit }) => {
+const ConfirmCustomerExpenseModal = ({ setShowConfirmModal, values, setValues }) => {
+  const handleConfirmYes = () => {
+    setValues({
+      ...values,
+      convertToCustomerExpense: true,
+    });
+    setShowConfirmModal(false);
+  };
+  const handleConfirmNo = () => {
+    setValues({
+      ...values,
+      convertToCustomerExpense: false,
+    });
+    setShowConfirmModal(false);
+  };
+
   return (
     <Modal>
-      <ModalClose handleClick={onClose} />
+      <ModalClose handleClick={handleConfirmNo} />
       <ModalTitle>
         <h2>Convert to Customer Expense</h2>
       </ModalTitle>
       <div className={styles.ModalPanel}>
         <p>Are you sure that you would like to convert to Customer Expense?</p>
         <ModalActions>
-          <Button data-testid="convertToCustomerExpenseConfirmationYes" onClick={onSubmit}>
+          <Button type="button" data-testid="convertToCustomerExpenseConfirmationYes" onClick={handleConfirmYes}>
             Yes
           </Button>
-          <Button data-testid="convertToCustomerExpenseConfirmationNo" onClick={onClose}>
+          <Button type="button" data-testid="convertToCustomerExpenseConfirmationNo" onClick={handleConfirmNo}>
             No
           </Button>
         </ModalActions>
@@ -29,7 +44,8 @@ const ConfirmCustomerExpenseModal = ({ onClose, onSubmit }) => {
 };
 
 ConfirmCustomerExpenseModal.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-  onClose: PropTypes.func.isRequired,
+  setShowConfirmModal: PropTypes.func.isRequired,
+  values: PropTypes.object.isRequired,
+  setValues: PropTypes.func.isRequired,
 };
 export default ConfirmCustomerExpenseModal;

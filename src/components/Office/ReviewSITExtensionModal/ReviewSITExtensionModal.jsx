@@ -203,16 +203,7 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
  * the TOO.
  */
 const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, onSubmit }) => {
-  const [checkBoxChecked, setCheckBoxChecked] = useState(false);
   const [showConfirmCustomerExpenseModal, setShowConfirmCustomerExpenseModal] = useState(false);
-  const handleConfirmYes = () => {
-    setShowConfirmCustomerExpenseModal(false);
-    setCheckBoxChecked(true);
-  };
-  const handleConfirmNo = () => {
-    setShowConfirmCustomerExpenseModal(false);
-    setCheckBoxChecked(false);
-  };
   const initialValues = {
     acceptExtension: '',
     convertToCustomerExpense: false,
@@ -263,7 +254,6 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
               {({ isValid, values, setValues }) => {
                 const handleRadioSelection = (e) => {
                   if (e.target.value === 'yes') {
-                    setCheckBoxChecked(false);
                     setValues({
                       ...values,
                       acceptExtension: 'yes',
@@ -276,16 +266,14 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
                     });
                   }
                 };
-                const handleCheckBoxClick = () => {
-                  setValues({
-                    ...values,
-                    convertToCustomerExpense: !checkBoxChecked,
-                  });
-                  if (checkBoxChecked === false) {
-                    setCheckBoxChecked(true);
+                const handleCheckBoxClick = (e) => {
+                  if (e.target.value === 'false') {
                     setShowConfirmCustomerExpenseModal(true);
                   } else {
-                    setCheckBoxChecked(false);
+                    setValues({
+                      ...values,
+                      convertToCustomerExpense: false,
+                    });
                   }
                 };
                 return (
@@ -350,7 +338,6 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
                             id="convertToCustomerExpense"
                             label="Convert to Customer Expense"
                             name="convertToCustomerExpense"
-                            checked={checkBoxChecked}
                             onChange={handleCheckBoxClick}
                           />
                         </div>
@@ -377,6 +364,18 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
                           Cancel
                         </Button>
                       </ModalActions>
+                      {showConfirmCustomerExpenseModal && (
+                        <>
+                          <Overlay />
+                          <ModalContainer>
+                            <ConfirmCustomerExpenseModal
+                              setShowConfirmModal={setShowConfirmCustomerExpenseModal}
+                              values={values}
+                              setValues={setValues}
+                            />
+                          </ModalContainer>
+                        </>
+                      )}
                     </div>
                   </Form>
                 );
@@ -385,16 +384,6 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
           </div>
         </Modal>
       </ModalContainer>
-      <div>
-        {showConfirmCustomerExpenseModal && (
-          <>
-            <Overlay />
-            <ModalContainer>
-              <ConfirmCustomerExpenseModal onSubmit={handleConfirmYes} onClose={handleConfirmNo} />
-            </ModalContainer>
-          </>
-        )}
-      </div>
     </div>
   );
 };
