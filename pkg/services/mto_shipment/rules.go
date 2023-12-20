@@ -260,6 +260,10 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 func checkDiversionValid() validator {
 	var verrs *validate.Errors
 	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
+		// Ensure that if diversion is true that DivertedFromShipmentID is provided
+		if newer.Diversion && newer.DivertedFromShipmentID == nil {
+			return apperror.NewInvalidInputError(newer.ID, nil, verrs, "The divertedFromShipmentId parameter must be provided if you're creating a new diversion")
+		}
 		// Ensure that diversion is true if a diverted from shipment ID parameter is passed in
 		if !newer.Diversion && newer.DivertedFromShipmentID != nil {
 			return apperror.NewInvalidInputError(newer.ID, nil, verrs, "The diversion parameter must be true if a DivertedFromShipmentID is provided")

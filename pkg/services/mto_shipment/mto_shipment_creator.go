@@ -24,14 +24,28 @@ type mtoShipmentCreator struct {
 	builder createMTOShipmentQueryBuilder
 	services.Fetcher
 	moveRouter services.MoveRouter
+	checks     []validator
 }
 
-// NewMTOShipmentCreator creates a new struct with the service dependencies
-func NewMTOShipmentCreator(builder createMTOShipmentQueryBuilder, fetcher services.Fetcher, moveRouter services.MoveRouter) services.MTOShipmentCreator {
+// NewMTOShipmentCreatorV1 creates a new struct with the service dependencies
+// This is utilized in Prime API V1
+func NewMTOShipmentCreatorV1(builder createMTOShipmentQueryBuilder, fetcher services.Fetcher, moveRouter services.MoveRouter) services.MTOShipmentCreator {
 	return &mtoShipmentCreator{
 		builder,
 		fetcher,
 		moveRouter,
+		nil,
+	}
+}
+
+// NewMTOShipmentCreator creates a new struct with the service dependencies
+// This is utilized in Prime API V2
+func NewMTOShipmentCreatorV2(builder createMTOShipmentQueryBuilder, fetcher services.Fetcher, moveRouter services.MoveRouter) services.MTOShipmentCreator {
+	return &mtoShipmentCreator{
+		builder,
+		fetcher,
+		moveRouter,
+		[]validator{checkDiversionValid()},
 	}
 }
 

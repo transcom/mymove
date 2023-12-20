@@ -248,7 +248,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		moveTaskOrderUpdater,
 	}
 
-	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(
+	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreatorV1(
 		queryBuilder,
 		fetch.NewFetcher(queryBuilder),
 		moveRouter,
