@@ -149,7 +149,7 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 
 	_, err = UpdateSITServiceItemDestinationAddressToMTOShipmentAddress(&mtoShipment.MTOServiceItems, newAddress, appCtx)
 	if err != nil {
-		return nil, apperror.NewQueryError("No updated service items on shipmetn address change", err, "")
+		return nil, apperror.NewQueryError("No updated service items on shipment address change", err, "")
 	}
 
 	// Get the updated address and return
