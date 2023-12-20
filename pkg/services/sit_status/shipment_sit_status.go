@@ -371,7 +371,7 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext
 	}
 
 	appCtx.DB().ValidateAndUpdate(&shipment)
-	//appCtx.DB().ValidateAndUpdate(&currentSIT)
+	appCtx.DB().ValidateAndUpdate(currentSIT)
 
 	return &shipmentSITStatus, nil
 }
