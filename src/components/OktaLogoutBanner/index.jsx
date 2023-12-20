@@ -15,7 +15,7 @@ export const OktaNeedsLoggedOutBanner = () => {
       completely.
       <br />
       <a className={styles.link} href={oktaURL} target="_blank" rel="noreferrer">
-        You can access your Okta dashboard by following <strong>this link</strong>.
+        <strong>You can access your Okta dashboard by following this link.</strong>
       </a>{' '}
       <br />
       In the top-right corner, you can click the drop down where it displays your name and select &apos;Sign Out&apos;.{' '}
@@ -59,7 +59,7 @@ export const OktaLoggedOutBanner = () => {
       . <br />
       If you continue to have issues authenticating, please go{' '}
       <a className={styles.link} href={oktaURL} target="_blank" rel="noreferrer">
-        <strong>here</strong>
+        <strong>Okta dashboard</strong>
       </a>{' '}
       and sign completely out of Okta and try logging into MilMove again.
     </div>
