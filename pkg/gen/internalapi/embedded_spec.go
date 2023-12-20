@@ -945,54 +945,6 @@ func init() {
         }
       }
     },
-    "/moves/{moveId}/move_dates_summary": {
-      "get": {
-        "description": "Returns projected move-related dates for a given move date",
-        "tags": [
-          "moves"
-        ],
-        "summary": "Returns projected move-related dates for a given move date",
-        "operationId": "showMoveDatesSummary",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "date",
-            "description": "The chosen move date",
-            "name": "moveDate",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of projected move-related dates",
-            "schema": {
-              "$ref": "#/definitions/MoveDatesSummary"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      }
-    },
     "/moves/{moveId}/move_documents": {
       "get": {
         "description": "Returns a list of all Move Documents associated with this move",
@@ -9471,54 +9423,6 @@ func init() {
           },
           "500": {
             "description": "server error"
-          }
-        }
-      }
-    },
-    "/moves/{moveId}/move_dates_summary": {
-      "get": {
-        "description": "Returns projected move-related dates for a given move date",
-        "tags": [
-          "moves"
-        ],
-        "summary": "Returns projected move-related dates for a given move date",
-        "operationId": "showMoveDatesSummary",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "date",
-            "description": "The chosen move date",
-            "name": "moveDate",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of projected move-related dates",
-            "schema": {
-              "$ref": "#/definitions/MoveDatesSummary"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "500": {
-            "description": "internal server error"
           }
         }
       }

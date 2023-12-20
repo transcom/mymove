@@ -883,4 +883,5 @@
 20231204195439_line_of_accounting_schema_change.up.sql
 20231208184124_create_ppm_shipments_trigger.up.sql
 20231208213618_update_pws_violations_qae.up.sql
+20231211202108_add_member_expense_flags.up.sql
 20231211213232_add_allowable_weight.up.sql
