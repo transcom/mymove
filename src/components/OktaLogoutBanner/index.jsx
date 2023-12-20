@@ -14,7 +14,7 @@ export const OktaNeedsLoggedOutBanner = () => {
       You have an existing Okta session. Due to application & authentication security, you need to log out of Okta
       completely.
       <br />
-      <a className={styles.link} href={oktaURL}>
+      <a className={styles.link} href={oktaURL} target="_blank" rel="noreferrer">
         You can access your Okta dashboard by following <strong>this link</strong>.
       </a>{' '}
       <br />
@@ -58,7 +58,7 @@ export const OktaLoggedOutBanner = () => {
       </a>
       . <br />
       If you continue to have issues authenticating, please go{' '}
-      <a className={styles.link} href={oktaURL}>
+      <a className={styles.link} href={oktaURL} target="_blank" rel="noreferrer">
         <strong>here</strong>
       </a>{' '}
       and sign completely out of Okta and try logging into MilMove again.
