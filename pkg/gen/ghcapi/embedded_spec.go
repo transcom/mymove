@@ -5633,10 +5633,10 @@ func init() {
     "DenySITExtension": {
       "required": [
         "officeRemarks",
-        "convertToCustomersExpense"
+        "convertToCustomerExpense"
       ],
       "properties": {
-        "convertToCustomersExpense": {
+        "convertToCustomerExpense": {
           "description": "Whether or not to convert to members expense once SIT extension is denied.",
           "type": "boolean",
           "example": false
@@ -17219,10 +17219,10 @@ func init() {
     "DenySITExtension": {
       "required": [
         "officeRemarks",
-        "convertToCustomersExpense"
+        "convertToCustomerExpense"
       ],
       "properties": {
-        "convertToCustomersExpense": {
+        "convertToCustomerExpense": {
           "description": "Whether or not to convert to members expense once SIT extension is denied.",
           "type": "boolean",
           "example": false
