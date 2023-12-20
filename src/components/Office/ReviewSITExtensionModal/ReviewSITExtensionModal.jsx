@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import classnames from 'classnames';
 import { Formik, Field, useField } from 'formik';
 import PropTypes from 'prop-types';
@@ -9,6 +9,7 @@ import moment from 'moment';
 import { SITExtensionShape } from '../../../types/sitExtensions';
 
 import styles from './ReviewSITExtensionModal.module.scss';
+import ConfirmCustomerExpenseModal from './ConfirmCustomerExpenseModal/ConfirmCustomerExpenseModal';
 
 import DataTableWrapper from 'components/DataTableWrapper/index';
 import DataTable from 'components/DataTable/index';
@@ -201,10 +202,11 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
  * Display on the MTO page when the Prime submits a SIT Extension for review of
  * the TOO.
  */
-const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, sitStatus }) => {
+const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, onSubmit }) => {
+  const [showConfirmCustomerExpenseModal, setShowConfirmCustomerExpenseModal] = useState(false);
   const initialValues = {
     acceptExtension: '',
-    convertToCustomersExpense: false,
+    convertToCustomerExpense: false,
     daysApproved: String(shipment.sitDaysAllowance),
     requestReason: sitExtension.requestReason,
     officeRemarks: '',
@@ -214,7 +216,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const reviewSITExtensionSchema = Yup.object().shape({
     acceptExtension: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
-    convertToCustomersExpense: Yup.boolean().default(false),
+    convertToCustomerExpense: Yup.boolean().default(false),
     requestReason: Yup.string().required('Required'),
     officeRemarks: Yup.string().when('acceptExtension', {
       is: 'no',
@@ -250,20 +252,27 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
               initialValues={initialValues}
             >
               {({ isValid, values, setValues }) => {
-                const handleNoSelection = (e) => {
-                  if (e.target.value === 'no') {
+                const handleRadioSelection = (e) => {
+                  if (e.target.value === 'yes') {
+                    setValues({
+                      ...values,
+                      acceptExtension: 'yes',
+                      convertToCustomerExpense: false,
+                    });
+                  } else if (e.target.value === 'no') {
                     setValues({
                       ...values,
                       acceptExtension: 'no',
                     });
                   }
                 };
-                const handleYesSelection = (e) => {
-                  if (e.target.value === 'yes') {
+                const handleCheckBoxClick = (e) => {
+                  if (e.target.value === 'false') {
+                    setShowConfirmCustomerExpenseModal(true);
+                  } else {
                     setValues({
                       ...values,
-                      acceptExtension: 'yes',
-                      convertToCustomersExpense: false,
+                      convertToCustomerExpense: false,
                     });
                   }
                 };
@@ -300,7 +309,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
                             value="yes"
                             title="Yes, accept extension"
                             type="radio"
-                            onChange={handleYesSelection}
+                            onChange={handleRadioSelection}
                           />
                           <Field
                             as={Radio}
@@ -310,7 +319,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
                             value="no"
                             title="No, deny extension"
                             type="radio"
-                            onChange={handleNoSelection}
+                            onChange={handleRadioSelection}
                           />
                         </Fieldset>
                       </FormGroup>
@@ -324,11 +333,12 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
                         </div>
                       )}
                       {values.acceptExtension === 'no' && (
-                        <div className={styles.convertRadio} data-testid="convertToCustomersExpense">
+                        <div className={styles.convertRadio} data-testid="convertToCustomerExpense">
                           <CheckboxField
-                            id="convertToCustomersExpense"
+                            id="convertToCustomerExpense"
                             label="Convert to Customer Expense"
-                            name="convertToCustomersExpense"
+                            name="convertToCustomerExpense"
+                            onChange={handleCheckBoxClick}
                           />
                         </div>
                       )}
@@ -354,6 +364,18 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
                           Cancel
                         </Button>
                       </ModalActions>
+                      {showConfirmCustomerExpenseModal && (
+                        <>
+                          <Overlay />
+                          <ModalContainer>
+                            <ConfirmCustomerExpenseModal
+                              setShowConfirmModal={setShowConfirmCustomerExpenseModal}
+                              values={values}
+                              setValues={setValues}
+                            />
+                          </ModalContainer>
+                        </>
+                      )}
                     </div>
                   </Form>
                 );
