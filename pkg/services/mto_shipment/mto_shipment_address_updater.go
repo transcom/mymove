@@ -45,9 +45,8 @@ func isAddressOnShipment(address *models.Address, mtoShipment *models.MTOShipmen
 
 func UpdateSITServiceItemDestinationAddressToMTOShipmentAddress(mtoServiceItems *models.MTOServiceItems, newAddress *models.Address, appCtx appcontext.AppContext) (*models.MTOServiceItems, error) {
 	// Change the address ID of destination SIT service items to match the address of the shipment address ID
-	serviceItems := mtoServiceItems
 	var updatedMtoServiceItems models.MTOServiceItems
-	for _, s := range *serviceItems {
+	for _, s := range *mtoServiceItems {
 		serviceItem := s
 		reServiceCode := serviceItem.ReService.Code
 		if reServiceCode == models.ReServiceCodeDDDSIT ||
