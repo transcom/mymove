@@ -425,3 +425,5 @@ export const serviceItemsCS = [
 export const serviceItemsEmpty = [];
 
 export const moveTaskOrders = [{}, { serviceCounselingCompletedAt: '2020-10-02T19:20:08.481139Z' }];
+
+export const closeoutOffice = 'Office of Closeout';

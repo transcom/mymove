@@ -232,12 +232,60 @@ func (v *updateMTOServiceItemData) checkLinkedIDs() error {
 func (v *updateMTOServiceItemData) checkOldServiceItemStatus(_ appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error {
 
 	// Only apply this check to the service items in this list
-	reServiceCodesAllowed := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT}
+	reServiceCodesAllowed := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT}
 
-	// Rejects the update if the original SIT does not have a REJECTED status
-	if serviceItemData.oldServiceItem.Status != models.MTOServiceItemStatusRejected && (slices.Contains(reServiceCodesAllowed, serviceItemData.oldServiceItem.ReService.Code)) {
-		return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
-			"- this SIT service item cannot be updated because the status is not in an editable state.")
+	if slices.Contains(reServiceCodesAllowed, serviceItemData.oldServiceItem.ReService.Code) {
+		if serviceItemData.oldServiceItem.Status == models.MTOServiceItemStatusRejected {
+			return nil
+		} else if serviceItemData.oldServiceItem.Status == models.MTOServiceItemStatusApproved {
+
+			invalidFieldChange := false
+			// Fields that are not allowed to change when status is approved
+
+			if serviceItemData.updatedServiceItem.ReService.Code.String() != "" && serviceItemData.updatedServiceItem.ReService.Code.String() != serviceItemData.oldServiceItem.ReService.Code.String() {
+				invalidFieldChange = true
+			}
+
+			if serviceItemData.updatedServiceItem.SITEntryDate != nil {
+				invalidFieldChange = true
+			}
+
+			if serviceItemData.updatedServiceItem.Reason != nil {
+				invalidFieldChange = true
+			}
+
+			if serviceItemData.updatedServiceItem.SITPostalCode != nil {
+				invalidFieldChange = true
+			}
+
+			if serviceItemData.updatedServiceItem.RequestedApprovalsRequestedStatus != nil {
+				invalidFieldChange = true
+			}
+
+			if invalidFieldChange {
+				return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
+					"- one or more fields is not allowed to be updated when the SIT service item has an approved status.")
+			}
+
+			// Fields allowed to changed when status is approved
+			if serviceItemData.updatedServiceItem.SITDepartureDate != nil {
+				return nil
+			}
+			if serviceItemData.updatedServiceItem.SITRequestedDelivery != nil {
+				return nil
+			}
+			if serviceItemData.updatedServiceItem.SITCustomerContacted != nil {
+				return nil
+			}
+
+			return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
+				"- unknown field or fields attempting to be updated.")
+
+		} else {
+			// Rejects the update if the original SIT does not have a REJECTED status
+			return apperror.NewConflictError(serviceItemData.oldServiceItem.ID,
+				"- this SIT service item cannot be updated because the status is not in an editable state.")
+		}
 	}
 
 	return nil

@@ -55,7 +55,7 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
   const currentDateEnteredSit = <p>{formatDateForDatePicker(sitEntryDate)}</p>;
   const totalDaysRemaining = () => {
     const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
-    if (daysRemaining >= 0) {
+    if (daysRemaining > 0) {
       return daysRemaining;
     }
     return 'Expired';
@@ -120,11 +120,11 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
           ]}
         />
       </div>
-      <div className={styles.tableContainer}>
+      <div className={styles.tableContainer} data-testid="sitStartAndEndTable">
         {/* Sit Start and End table */}
         <p className={styles.sitHeader}>Current location: {currentLocation}</p>
         <DataTable
-          columnHeaders={[`SIT start date`, 'SIT authorized end date']}
+          columnHeaders={[`SIT start date`, 'SIT authorized end date', 'Calculated total SIT days']}
           dataRow={[
             currentDateEnteredSit,
             <SitEndDateForm
@@ -132,6 +132,7 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
                 handleSitEndDateChange(value);
               }}
             />,
+            sitStatus.calculatedTotalDaysInSIT,
           ]}
           custClass={styles.currentLocation}
         />

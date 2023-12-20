@@ -1637,6 +1637,53 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /moves/{locator}/order/download:
+    parameters:
+      - description: the locator code for move order to be downloaded
+        in: path
+        name: locator
+        required: true
+        type: string
+    get:
+      summary: Downloads move order as a PDF
+      description: >
+        ### Functionality
+
+        This endpoint downloads all uploaded move order documentations into one
+        download file by locator.
+
+
+        ### Errors
+
+        * The move must be in need counseling state.
+
+        * The move client's origin duty location must not currently have gov
+        counseling.
+      operationId: downloadMoveOrder
+      tags:
+        - moveTaskOrder
+      produces:
+        - application/pdf
+      responses:
+        '200':
+          headers:
+            Content-Disposition:
+              type: string
+              description: File name to download
+          description: Move Order PDF
+          schema:
+            format: binary
+            type: file
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
 definitions:
   CreateMTOShipment:
     type: object
@@ -1929,9 +1976,9 @@ definitions:
         type: string
         readOnly: true
   ListMoves:
+    type: array
     items:
       $ref: '#/definitions/ListMove'
-    type: array
   MoveTaskOrder:
     type: object
     required:
@@ -2193,6 +2240,18 @@ definitions:
             $ref: '#/definitions/Address'
           requestApprovalsRequestedStatus:
             type: boolean
+          sitRequestedDelivery:
+            format: date
+            type: string
+            description: Date when the customer has requested delivery out of SIT.
+            x-nullable: true
+          sitCustomerContacted:
+            format: date
+            type: string
+            description: >-
+              Date when the customer contacted the prime for a delivery out of
+              SIT.
+            x-nullable: true
         required:
           - reServiceCode
           - reason
@@ -2342,6 +2401,8 @@ definitions:
       corresponding to the service item type.
         * DDDSIT - UpdateMTOServiceItemSIT
         * DOPSIT - UpdateMTOServiceItemSIT
+        * DOASIT - UpdateMTOServiceItemSIT
+        * DOFSIT - UpdateMTOServiceItemSIT
         * DDSHUT - UpdateMTOServiceItemShuttle
         * DOSHUT - UpdateMTOServiceItemShuttle
 
@@ -2396,6 +2457,8 @@ definitions:
             enum:
               - DDDSIT
               - DOPSIT
+              - DOASIT
+              - DOFSIT
           sitDepartureDate:
             format: date
             type: string

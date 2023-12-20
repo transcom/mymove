@@ -100,6 +100,14 @@ export function createServiceItem({ body }) {
   return makePrimeSimulatorRequest('mtoServiceItem.createMTOServiceItem', { body: { ...body } }, { normalize: false });
 }
 
+export function updateMTOServiceItem({ mtoServiceItemID, eTag, body }) {
+  return makePrimeSimulatorRequest(
+    'mtoServiceItem.updateMTOServiceItem',
+    { mtoServiceItemID, 'If-Match': eTag, body },
+    { normalize: false },
+  );
+}
+
 export function createSITAddressUpdateRequest({ body }) {
   return makePrimeSimulatorRequest(
     'sitAddressUpdate.createSITAddressUpdateRequest',
@@ -170,6 +178,19 @@ export function updatePrimeMTOShipmentStatus({
     {
       mtoShipmentID,
       'If-Match': ifMatchETag,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
+
+// Sends api request for SIT Extension Request from Prime Sim
+export function createSITExtensionRequest({ mtoShipmentID, normalize = false, schemaKey = 'mtoShipment', body }) {
+  const operationPath = 'mtoShipment.createSITExtension';
+  return makePrimeSimulatorRequest(
+    operationPath,
+    {
+      mtoShipmentID,
       body,
     },
     { schemaKey, normalize },
