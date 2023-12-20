@@ -57,11 +57,11 @@ export const OktaLoggedOutBanner = () => {
         <strong>troubleshooting page</strong>
       </a>
       . <br />
-      If you continue to have issues authenticating, please go{' '}
+      If you continue to have issues authenticating, please go to your{' '}
       <a className={styles.link} href={oktaURL} target="_blank" rel="noreferrer">
         <strong>Okta dashboard</strong>
       </a>{' '}
-      and sign completely out of Okta and try logging into MilMove again.
+      and sign completely out, then try logging into MilMove again.
     </div>
   );
 };
