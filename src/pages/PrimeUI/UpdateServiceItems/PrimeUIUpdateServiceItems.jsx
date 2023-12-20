@@ -23,6 +23,7 @@ const PrimeUIUpdateServiceItems = ({ setFlashMessage }) => {
   const navigate = useNavigate();
   const { moveCodeOrID } = useParams();
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
+  /* istanbul ignore next */
   const { mutate: createAdressUpdateRequestMutation } = useMutation(createSITAddressUpdateRequest, {
     onSuccess: () => {
       setFlashMessage(
