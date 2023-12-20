@@ -1,6 +1,7 @@
 package sitstatus
 
 import (
+	"reflect"
 	"time"
 
 	"github.com/pkg/errors"
@@ -262,7 +263,7 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(shipment models.M
 	currentSIT := getCurrentSIT(shipmentSITs)
 
 	// There were no relevant SIT service items for this shipment
-	if currentSIT == nil && len(shipmentSITs.pastSITs) == 0 {
+	if reflect.ValueOf(currentSIT).IsNil() {
 		return nil, apperror.NewNotFoundError(shipment.ID, "shipment is missing current SIT")
 	}
 
