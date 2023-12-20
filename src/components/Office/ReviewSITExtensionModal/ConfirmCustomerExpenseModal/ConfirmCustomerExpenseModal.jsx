@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
-import styles from './ConfirmCustomerExpenseModal.module.scss';
+import styles from '../ReviewSITExtensionModal.module.scss';
 
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 
