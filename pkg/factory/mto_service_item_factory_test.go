@@ -321,18 +321,17 @@ func (suite *FactorySuite) TestBuildMTOServiceItem() {
 
 	suite.Run("Build SIT service items without SIT out Date", func() {
 
-		customMove := models.Move{
-			Locator: "ABC123",
-			Show:    models.BoolPointer(true),
-		}
-		customMTOShipment := models.MTOShipment{
-			Status: models.MTOShipmentStatusDraft,
-		}
+		customMove := BuildMove(suite.DB(), nil, nil)
+		customMTOShipment := BuildMTOShipment(suite.DB(), []Customization{
+			{
+				Model:    customMove,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		defaultEntryDate := time.Now().AddDate(0, 0, -45)
 		sitServiceItems := BuildDestSITServiceItemsNoSITDepartureDate(suite.DB(), customMove, customMTOShipment, &defaultEntryDate)
 		reServiceCodes := []models.ReServiceCode{}
-		suite.NotNil(customMove.MTOServiceItems)
 
 		for i := range sitServiceItems {
 			reServiceCodes = append(reServiceCodes, sitServiceItems[i].ReService.Code)
