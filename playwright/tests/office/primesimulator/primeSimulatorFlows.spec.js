@@ -142,4 +142,53 @@ test.describe('Prime simulator user', () => {
     await officePage.signInAsNewPrimeSimulatorUser();
     await officePage.primeSimulatorNavigateToMove(partialPpmCloseoutLocator);
   });
+
+  test('is able to submit a SIT extension request', async ({ page, officePage }) => {
+    const move = await officePage.testHarness.buildHHGMoveInSIT();
+
+    await officePage.signInAsNewPrimeSimulatorUser();
+    const moveLocator = move.locator;
+    const moveID = move.id;
+
+    await page.getByText(moveLocator).click();
+    await officePage.waitForLoading();
+    await expect(page.getByText(moveLocator)).toBeVisible();
+    expect(page.url()).toContain(`/simulator/moves/${moveID}/details`);
+
+    // Go to Request SIT extension page
+    await page.getByText('Request SIT Extension').click();
+    expect(page.url()).toContain(`/simulator/moves/${moveID}/shipments`);
+
+    // Check labels and fill out the form
+    await expect(page.getByText(`Request Reason`)).toBeVisible();
+    await page.locator('select[name="requestReason"]');
+
+    // Expected values for Request Reason
+    const expectedValues = [
+      'SERIOUS_ILLNESS_MEMBER',
+      'SERIOUS_ILLNESS_DEPENDENT',
+      'IMPENDING_ASSIGNEMENT',
+      'DIRECTED_TEMPORARY_DUTY',
+      'NONAVAILABILITY_OF_CIVILIAN_HOUSING',
+      'AWAITING_COMPLETION_OF_RESIDENCE',
+      'OTHER',
+    ];
+
+    // Check each option
+    for (const option of expectedValues) {
+      await page.locator('select[name="requestReason"]').selectOption({ value: option });
+    }
+
+    await expect(page.getByText(`Requested Days`)).toBeVisible();
+    await page.locator('input[name="requestedDays"]').type('12');
+    await expect(page.getByText(`Contractor Remarks`)).toBeVisible();
+    await page.locator('textarea[name="contractorRemarks"]').type('Testing contractor remarks');
+
+    // Submit the form
+    await page.getByText('Request SIT Extension').click();
+
+    // Get success message
+    await expect(page.getByText('Successfully created SIT extension request')).toBeVisible({ timeout: 10000 });
+    expect(page.url()).toContain(`/simulator/moves/${moveID}/details`);
+  });
 });

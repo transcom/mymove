@@ -7,6 +7,7 @@ import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
+import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
 
 /**
  * Formats number into a dollar string. Eg. $1,234.12
@@ -285,6 +286,7 @@ export function formatReviewShipmentWeightsDate(date) {
 }
 // Format dates for customer app (ex. 25 Dec 2020)
 export function formatCustomerDate(date) {
+  if (!date) return DEFAULT_EMPTY_VALUE;
   return moment(date).format('DD MMM YYYY');
 }
 // Format dates for customer remarks in the office app (ex. 25 Dec 2020 8:00)

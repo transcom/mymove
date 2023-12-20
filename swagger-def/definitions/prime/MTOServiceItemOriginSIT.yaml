@@ -33,6 +33,16 @@ allOf:
         $ref: '../Address.yaml'
       requestApprovalsRequestedStatus:
         type: boolean
+      sitRequestedDelivery:
+        format: date
+        type: string
+        description: Date when the customer has requested delivery out of SIT.
+        x-nullable: true
+      sitCustomerContacted:
+        format: date
+        type: string
+        description: Date when the customer contacted the prime for a delivery out of SIT.
+        x-nullable: true
     required:
       - reServiceCode
       - reason
