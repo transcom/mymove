@@ -4408,11 +4408,9 @@ definitions:
       sitCustomerContacted:
         type: string
         format: date
-        example: '2020-01-01'
       sitRequestedDelivery:
         type: string
         format: date
-        example: '2020-01-01'
     required:
       - sitCustomerContacted
       - sitRequestedDelivery

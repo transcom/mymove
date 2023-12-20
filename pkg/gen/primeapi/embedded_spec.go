@@ -3718,13 +3718,11 @@ func init() {
       "properties": {
         "sitCustomerContacted": {
           "type": "string",
-          "format": "date",
-          "example": "2020-01-01"
+          "format": "date"
         },
         "sitRequestedDelivery": {
           "type": "string",
-          "format": "date",
-          "example": "2020-01-01"
+          "format": "date"
         }
       }
     },
@@ -8934,13 +8932,11 @@ func init() {
       "properties": {
         "sitCustomerContacted": {
           "type": "string",
-          "format": "date",
-          "example": "2020-01-01"
+          "format": "date"
         },
         "sitRequestedDelivery": {
           "type": "string",
-          "format": "date",
-          "example": "2020-01-01"
+          "format": "date"
         }
       }
     },

@@ -20,13 +20,11 @@ import (
 type SITDeliveryUpdate struct {
 
 	// sit customer contacted
-	// Example: 2020-01-01
 	// Required: true
 	// Format: date
 	SitCustomerContacted *strfmt.Date `json:"sitCustomerContacted"`
 
 	// sit requested delivery
-	// Example: 2020-01-01
 	// Required: true
 	// Format: date
 	SitRequestedDelivery *strfmt.Date `json:"sitRequestedDelivery"`
