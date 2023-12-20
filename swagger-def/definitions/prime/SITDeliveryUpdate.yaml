@@ -1,0 +1,10 @@
+properties:
+  sitCustomerContacted:
+    type: string
+    format: date
+  sitRequestedDelivery:
+    type: string
+    format: date
+required:
+  - sitCustomerContacted
+  - sitRequestedDelivery
