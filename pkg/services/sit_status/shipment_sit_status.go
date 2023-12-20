@@ -267,30 +267,28 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(shipment models.M
 		return nil, apperror.NewNotFoundError(shipment.ID, "shipment is missing current SIT")
 	}
 
-	if currentSIT != nil {
-		shipmentSITStatus.ShipmentID = shipment.ID
-		location := DestinationSITLocation
+	shipmentSITStatus.ShipmentID = shipment.ID
+	location := DestinationSITLocation
 
-		if currentSIT.ReService.Code == models.ReServiceCodeDOFSIT {
-			location = OriginSITLocation
-		}
+	if currentSIT.ReService.Code == models.ReServiceCodeDOFSIT {
+		location = OriginSITLocation
+	}
 
-		daysInSIT := daysInSIT(*currentSIT, today)
-		sitEntryDate := *currentSIT.SITEntryDate
-		sitDepartureDate := currentSIT.SITDepartureDate
+	daysInSIT := daysInSIT(*currentSIT, today)
+	sitEntryDate := *currentSIT.SITEntryDate
+	sitDepartureDate := currentSIT.SITDepartureDate
 
-		//TODO: B-17854 calculate allowance end date and required delivery date based on customer dates
-		sitAllowanceEndDate := CalculateSITAllowanceEndDate(shipmentSITStatus.TotalDaysRemaining, sitEntryDate, today)
+	//TODO: B-17854 calculate allowance end date and required delivery date based on customer dates
+	sitAllowanceEndDate := CalculateSITAllowanceEndDate(shipmentSITStatus.TotalDaysRemaining, sitEntryDate, today)
 
-		shipmentSITStatus.CurrentSIT = &services.CurrentSIT{
-			Location:             location,
-			DaysInSIT:            daysInSIT,
-			SITEntryDate:         sitEntryDate,
-			SITDepartureDate:     sitDepartureDate,
-			SITAllowanceEndDate:  sitAllowanceEndDate,
-			SITCustomerContacted: sitCustomerContacted,
-			SITRequestedDelivery: sitRequestedDelivery,
-		}
+	shipmentSITStatus.CurrentSIT = &services.CurrentSIT{
+		Location:             location,
+		DaysInSIT:            daysInSIT,
+		SITEntryDate:         sitEntryDate,
+		SITDepartureDate:     sitDepartureDate,
+		SITAllowanceEndDate:  sitAllowanceEndDate,
+		SITCustomerContacted: sitCustomerContacted,
+		SITRequestedDelivery: sitRequestedDelivery,
 	}
 
 	return &shipmentSITStatus, nil
