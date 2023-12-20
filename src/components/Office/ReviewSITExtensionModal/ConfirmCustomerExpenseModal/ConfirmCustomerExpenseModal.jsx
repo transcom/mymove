@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
-import styles from '../ReviewSITExtensionModal.module.scss';
+import styles from './ConfirmCustomerExpenseModal.module.scss';
 
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 
@@ -28,7 +28,7 @@ const ConfirmCustomerExpenseModal = ({ setShowConfirmModal, values, setValues })
       <ModalTitle>
         <h2>Convert to Customer Expense</h2>
       </ModalTitle>
-      <div className={styles.ModalPanel}>
+      <div className={styles.ModalPanelNoBorder}>
         <p>Are you sure that you would like to convert to Customer Expense?</p>
         <ModalActions>
           <Button type="button" data-testid="convertToCustomerExpenseConfirmationYes" onClick={handleConfirmYes}>
