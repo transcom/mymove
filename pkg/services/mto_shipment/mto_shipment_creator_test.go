@@ -629,6 +629,302 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			suite.Equal(models.DefaultServiceMemberSITDaysAllowance, *createdShipment.SITDaysAllowance, tt.desc)
 		}
 	})
+
+	suite.Run("Test successful diversion from non-diverted parent shipment", func() {
+		subtestData := suite.createSubtestData(nil)
+		creator := subtestData.shipmentCreator
+
+		testCases := []struct {
+			desc         string
+			shipmentType models.MTOShipmentType
+		}{
+			{"HHG", models.MTOShipmentTypeHHG},
+			{"INTERNATIONAL_HHG", models.MTOShipmentTypeInternationalHHG},
+			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
+			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
+			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
+			{"MOTORHOME", models.MTOShipmentTypeMotorhome},
+			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
+			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
+			{"PPM", models.MTOShipmentTypePPM},
+		}
+
+		for _, tt := range testCases {
+			tt := tt
+			var err error
+			parentShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+				{
+					Model:    subtestData.move,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOShipment{
+						ShipmentType: tt.shipmentType,
+					},
+				},
+			}, nil)
+
+			clearedParentShipment := clearShipmentIDFields(&parentShipment)
+
+			createdParentShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedParentShipment)
+			suite.NoError(err)
+
+			// Create a new shipment, diverting from the parent
+			childShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+				{
+					Model:    subtestData.move,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOShipment{
+						ShipmentType:           tt.shipmentType,
+						Diversion:              true,
+						DivertedFromShipmentID: &createdParentShipment.ID,
+					},
+				},
+			}, nil)
+
+			clearedChildShipment := clearShipmentIDFields(&childShipment)
+
+			_, err = creator.CreateMTOShipment(suite.AppContextForTest(), clearedChildShipment)
+			suite.NoError(err)
+		}
+	})
+
+	suite.Run("Test successful diversion from parent shipment that itself is a diversion as well", func() {
+		subtestData := suite.createSubtestData(nil)
+		creator := subtestData.shipmentCreator
+
+		testCases := []struct {
+			desc         string
+			shipmentType models.MTOShipmentType
+		}{
+			{"HHG", models.MTOShipmentTypeHHG},
+			{"INTERNATIONAL_HHG", models.MTOShipmentTypeInternationalHHG},
+			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
+			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
+			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
+			{"MOTORHOME", models.MTOShipmentTypeMotorhome},
+			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
+			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
+			{"PPM", models.MTOShipmentTypePPM},
+		}
+
+		for _, tt := range testCases {
+			tt := tt
+			var err error
+			unDivertedParentShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+				{
+					Model:    subtestData.move,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOShipment{
+						ShipmentType: tt.shipmentType,
+					},
+				},
+			}, nil)
+
+			clearedUndivertedParentShipment := clearShipmentIDFields(&unDivertedParentShipment)
+
+			createdUndivertedParentShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedUndivertedParentShipment)
+			suite.NoError(err)
+
+			// Create a new shipment, diverting from the parent
+			childFromParentDivertedShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+				{
+					Model:    subtestData.move,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOShipment{
+						ShipmentType:           tt.shipmentType,
+						Diversion:              true,
+						DivertedFromShipmentID: &createdUndivertedParentShipment.ID,
+					},
+				},
+			}, nil)
+
+			clearedChildFromParentDivertedShipment := clearShipmentIDFields(&childFromParentDivertedShipment)
+
+			createdChildFromParentDivertedShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedChildFromParentDivertedShipment)
+			suite.NoError(err)
+
+			// Create a new shipment, diverting from the parent
+			childOfDivertedShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+				{
+					Model:    subtestData.move,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOShipment{
+						ShipmentType:           tt.shipmentType,
+						Diversion:              true,
+						DivertedFromShipmentID: &createdChildFromParentDivertedShipment.ID,
+					},
+				},
+			}, nil)
+
+			clearedChildOfDivertedShipment := clearShipmentIDFields(&childOfDivertedShipment)
+
+			_, err = creator.CreateMTOShipment(suite.AppContextForTest(), clearedChildOfDivertedShipment)
+			suite.NoError(err)
+		}
+	})
+
+	suite.Run("Test unsuccessful diversion from shipment that itself is a diversion as well but without the DivertedFromShipmentID", func() {
+		subtestData := suite.createSubtestData(nil)
+		creator := subtestData.shipmentCreator
+
+		testCases := []struct {
+			desc         string
+			shipmentType models.MTOShipmentType
+		}{
+			{"HHG", models.MTOShipmentTypeHHG},
+			{"INTERNATIONAL_HHG", models.MTOShipmentTypeInternationalHHG},
+			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
+			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
+			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
+			{"MOTORHOME", models.MTOShipmentTypeMotorhome},
+			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
+			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
+			{"PPM", models.MTOShipmentTypePPM},
+		}
+
+		for _, tt := range testCases {
+			tt := tt
+			var err error
+			divertedParentShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+				{
+					Model:    subtestData.move,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOShipment{
+						ShipmentType: tt.shipmentType,
+						Diversion:    true,
+					},
+				},
+			}, nil)
+
+			clearedDivertedParentShipment := clearShipmentIDFields(&divertedParentShipment)
+
+			createdDivertedParentShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedDivertedParentShipment)
+
+			// Create a new shipment, diverting from the parent
+			// ! This one is different because it is a diversion
+			// ! BUT, it is a diversion without a DivertedFromShipmentID
+			// ! So, if a diversion is made off of this one and it tries to
+			// ! specify a DivertedFromShipmentID, it should fail
+			// ! It should fail because a DivertedFromShipmentID can only come from a diversion
+			// ! that itself already has a DivertedFromShipmentID. Otherwise, DivertedFromShipmentID should not be provided
+			childFromParentDivertedShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+				{
+					Model:    subtestData.move,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOShipment{
+						ShipmentType:           tt.shipmentType,
+						Diversion:              true,
+						DivertedFromShipmentID: &createdDivertedParentShipment.ID,
+					},
+				},
+			}, nil)
+
+			clearedChildFromParentDivertedShipment := clearShipmentIDFields(&childFromParentDivertedShipment)
+
+			_, err = creator.CreateMTOShipment(suite.AppContextForTest(), clearedChildFromParentDivertedShipment)
+			suite.Error(err)
+		}
+	})
+
+	suite.Run("If DivertedFromShipmentID doesn't exist", func() {
+		subtestData := suite.createSubtestData(nil)
+		creator := subtestData.shipmentCreator
+
+		testCases := []struct {
+			desc         string
+			shipmentType models.MTOShipmentType
+		}{
+			{"HHG", models.MTOShipmentTypeHHG},
+			{"INTERNATIONAL_HHG", models.MTOShipmentTypeInternationalHHG},
+			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
+			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
+			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
+			{"MOTORHOME", models.MTOShipmentTypeMotorhome},
+			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
+			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
+			{"PPM", models.MTOShipmentTypePPM},
+		}
+
+		for _, tt := range testCases {
+			tt := tt
+			uuid, _ := uuid.NewV4()
+			parentShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+				{
+					Model:    subtestData.move,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOShipment{
+						ShipmentType:           tt.shipmentType,
+						Diversion:              true,
+						DivertedFromShipmentID: &uuid,
+					},
+				},
+			}, nil)
+
+			clearedParentShipment := clearShipmentIDFields(&parentShipment)
+
+			_, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedParentShipment)
+			suite.Error(err)
+		}
+	})
+
+	suite.Run("If DivertedFromShipmentID is provided without the Diversion boolean", func() {
+		subtestData := suite.createSubtestData(nil)
+		creator := subtestData.shipmentCreator
+
+		testCases := []struct {
+			desc         string
+			shipmentType models.MTOShipmentType
+		}{
+			{"HHG", models.MTOShipmentTypeHHG},
+			{"INTERNATIONAL_HHG", models.MTOShipmentTypeInternationalHHG},
+			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
+			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
+			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
+			{"MOTORHOME", models.MTOShipmentTypeMotorhome},
+			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
+			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
+			{"PPM", models.MTOShipmentTypePPM},
+		}
+
+		for _, tt := range testCases {
+			tt := tt
+			uuid, _ := uuid.NewV4()
+			parentShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+				{
+					Model:    subtestData.move,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOShipment{
+						ShipmentType:           tt.shipmentType,
+						Diversion:              false,
+						DivertedFromShipmentID: &uuid,
+					},
+				},
+			}, nil)
+
+			clearedParentShipment := clearShipmentIDFields(&parentShipment)
+
+			_, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedParentShipment)
+			suite.Error(err)
+		}
+	})
+
 }
 
 // Clears all the ID fields that we need to be null for a new shipment to get created:
