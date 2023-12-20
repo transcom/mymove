@@ -2,7 +2,6 @@ package sitstatus
 
 import (
 	"fmt"
-	"reflect"
 	"time"
 
 	"github.com/pkg/errors"
@@ -309,7 +308,7 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext
 	currentSIT := getCurrentSIT(shipmentSITs)
 
 	// There were no relevant SIT service items for this shipment
-	if reflect.ValueOf(currentSIT).IsValid() && reflect.ValueOf(currentSIT).IsNil() {
+	if currentSIT == nil {
 		return nil, apperror.NewNotFoundError(shipment.ID, "shipment is missing current SIT")
 	}
 
@@ -332,12 +331,11 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext
 		// Origin SIT: sitAllowanceEndDate should be GracePeriodDays days after sitCustomerContacted or the sitDepartureDate whichever is earlier.
 		calculatedAllowanceEndDate := sitCustomerContacted.AddDate(0, 0, GracePeriodDays)
 
-		if (reflect.ValueOf(sitDepartureDate).IsValid() && reflect.ValueOf(sitDepartureDate).IsNil()) ||
-			calculatedAllowanceEndDate.Before(*sitDepartureDate) {
+		if sitDepartureDate == nil || calculatedAllowanceEndDate.Before(*sitDepartureDate) {
 			sitAllowanceEndDate = &calculatedAllowanceEndDate
 		}
 
-		if reflect.ValueOf(sitDepartureDate).IsValid() && !reflect.ValueOf(sitDepartureDate).IsNil() {
+		if sitDepartureDate != nil {
 			requiredDeliveryDate, err := calculateOriginSITRequiredDeliveryDate(appCtx, shipment, planner, sitCustomerContacted, sitRequestedDelivery, sitDepartureDate)
 
 			if err != nil {
@@ -353,8 +351,7 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext
 		// Destination SIT: sitAllowanceEndDate should be GracePeriodDays days after sitRequestedDelivery or the sitDepartureDate whichever is earlier.
 		calculatedAllowanceEndDate := sitRequestedDelivery.AddDate(0, 0, GracePeriodDays)
 
-		if (reflect.ValueOf(sitDepartureDate).IsValid() && reflect.ValueOf(sitDepartureDate).IsNil()) ||
-			calculatedAllowanceEndDate.Before(*sitDepartureDate) {
+		if sitDepartureDate == nil || calculatedAllowanceEndDate.Before(*sitDepartureDate) {
 			sitAllowanceEndDate = &calculatedAllowanceEndDate
 		}
 	}

@@ -2771,9 +2771,19 @@ func (suite *HandlerSuite) TestUpdateSITDeliveryRequestHandler() {
 
 	suite.Run("404 FAIL - No MTO Service Item", func() {
 		subtestData := makeSubtestData(false, models.ReServiceCodeDOFSIT, unit.Pound(1400))
+		shipmentSITAllowance := int(90)
+		factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
+			},
+		}, nil)
 
-		subtestData.params.MtoShipmentID = strfmt.UUID(subtestData.shipment.ID.String())
-		subtestData.params.IfMatch = etag.GenerateEtag(subtestData.shipment.UpdatedAt)
+		subtestData.params.MtoShipmentID = strfmt.UUID(mtoShipment.ID.String())
+		subtestData.params.IfMatch = etag.GenerateEtag(mtoShipment.UpdatedAt)
 
 		// Validate incoming payload
 		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
@@ -2784,11 +2794,13 @@ func (suite *HandlerSuite) TestUpdateSITDeliveryRequestHandler() {
 	})
 
 	suite.Run("404 FAIL - No current MTO Service Item in SIT", func() {
-		subtestData := makeSubtestData(true, models.ReServiceCodeCS, unit.Pound(1400))
+		subtestData := makeSubtestData(false, models.ReServiceCodeCS, unit.Pound(1400))
 
 		subtestData.params.MtoShipmentID = strfmt.UUID(subtestData.shipment.ID.String())
 		subtestData.params.IfMatch = etag.GenerateEtag(subtestData.shipment.UpdatedAt)
 		today := time.Now()
+		customerContactDatePlusFive := time.Now().AddDate(0, 0, 5)
+
 		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
 				Model:    subtestData.shipment,
@@ -2796,8 +2808,9 @@ func (suite *HandlerSuite) TestUpdateSITDeliveryRequestHandler() {
 			},
 			{
 				Model: models.MTOServiceItem{
-					SITEntryDate: &today,
-					Status:       models.MTOServiceItemStatusApproved,
+					SITEntryDate:     &today,
+					Status:           models.MTOServiceItemStatusApproved,
+					SITDepartureDate: &customerContactDatePlusFive,
 				},
 			},
 			{
