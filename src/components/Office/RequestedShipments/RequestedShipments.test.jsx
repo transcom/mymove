@@ -14,6 +14,7 @@ import {
   serviceItemsCS,
   serviceItemsEmpty,
   ppmOnlyShipments,
+  closeoutOffice,
 } from './RequestedShipmentsTestData';
 import ApprovedRequestedShipments from './ApprovedRequestedShipments';
 import SubmittedRequestedShipments from './SubmittedRequestedShipments';
@@ -50,6 +51,7 @@ const submittedRequestedShipmentsComponent = (
     allowancesInfo={allowancesInfo}
     moveCode="TE5TC0DE"
     mtoShipments={shipments}
+    closeoutOffice={closeoutOffice}
     customerInfo={customerInfo}
     ordersInfo={ordersInfo}
     approveMTO={approveMTO}
@@ -63,6 +65,7 @@ const submittedRequestedShipmentsComponentWithPermission = (
       allowancesInfo={allowancesInfo}
       customerInfo={customerInfo}
       mtoShipments={shipments}
+      closeoutOffice={closeoutOffice}
       approveMTO={approveMTO}
       moveCode="TE5TC0DE"
     />
@@ -76,6 +79,7 @@ const submittedRequestedExternalVendorShipmentsComponent = (
       allowancesInfo={allowancesInfo}
       customerInfo={customerInfo}
       mtoShipments={ntsExternalVendorShipments}
+      closeoutOffice={closeoutOffice}
       approveMTO={approveMTO}
       moveCode="TE5TC0DE"
     />
@@ -89,6 +93,7 @@ const submittedRequestedShipmentsComponentAvailableToPrimeAt = (
       allowancesInfo={allowancesInfo}
       customerInfo={customerInfo}
       mtoShipments={shipments}
+      closeoutOffice={closeoutOffice}
       approveMTO={approveMTO}
       moveTaskOrder={moveTaskOrderAvailableToPrimeAt}
       moveCode="TE5TC0DE"
@@ -102,6 +107,7 @@ const submittedRequestedShipmentsComponentServicesCounselingCompleted = (
     allowancesInfo={allowancesInfo}
     customerInfo={customerInfo}
     mtoShipments={shipments}
+    closeoutOffice={closeoutOffice}
     approveMTO={approveMTO}
     moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
     moveCode="TE5TC0DE"
@@ -115,6 +121,7 @@ const submittedRequestedShipmentsComponentMissingRequiredInfo = (
       allowancesInfo={allowancesInfo}
       customerInfo={customerInfo}
       mtoShipments={shipments}
+      closeoutOffice={closeoutOffice}
       approveMTO={approveMTO}
       missingRequiredOrdersInfo
       moveCode="TE5TC0DE"
@@ -285,6 +292,7 @@ describe('RequestedShipments', () => {
         <ApprovedRequestedShipments
           ordersInfo={ordersInfo}
           mtoShipments={shipments}
+          closeoutOffice={closeoutOffice}
           mtoServiceItems={serviceItemsMSandCS}
           moveCode="TE5TC0DE"
         />,
