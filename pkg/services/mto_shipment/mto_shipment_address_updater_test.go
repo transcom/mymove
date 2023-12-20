@@ -57,7 +57,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 		suite.Equal(updatedAddress.StreetAddress1, returnAddress.StreetAddress1)
 	})
 
-	suite.Run("Test update service item destination address on shipment address change", func() {
+	suite.Run("Test updating service item destination address on shipment address change", func() {
 		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		address := factory.BuildAddress(suite.DB(), nil, nil)
 
@@ -82,12 +82,9 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 
 		threeMonthsAgo := time.Now().AddDate(0, -3, 0)
 		twoMonthsAgo := threeMonthsAgo.AddDate(0, 1, 0)
-		// sitServiceItems := factory.BuildOriginSITServiceItems(suite.DB(), availableToPrimeMove, externalShipment, &threeMonthsAgo, &twoMonthsAgo)
-		// sitServiceItems = append(sitServiceItems, factory.BuildDestSITServiceItems(suite.DB(), availableToPrimeMove, externalShipment, &twoMonthsAgo, nil)...)
-		sitServiceItems := factory.BuildDestSITServiceItems(suite.DB(), availableToPrimeMove, externalShipment, &twoMonthsAgo, nil)
-
-		//suite.Equal(8, len(sitServiceItems))
-		suite.Equal(4, len(sitServiceItems))
+		sitServiceItems := factory.BuildOriginSITServiceItems(suite.DB(), availableToPrimeMove, externalShipment, &threeMonthsAgo, &twoMonthsAgo)
+		sitServiceItems = append(sitServiceItems, factory.BuildDestSITServiceItems(suite.DB(), availableToPrimeMove, externalShipment, &twoMonthsAgo, nil)...)
+		suite.Equal(8, len(sitServiceItems))
 
 		eTag := etag.GenerateEtag(address.UpdatedAt)
 
@@ -108,16 +105,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 		mtoServiceItems, _ := UpdateSITServiceItemDestinationAddressToMTOShipmentAddress(&sitServiceItems, &updatedAddress, suite.AppContextForTest())
 		suite.Equal(4, len(*mtoServiceItems))
 		for _, mtoServiceItem := range *mtoServiceItems {
-			suite.Equal(externalShipment.DestinationAddressID, mtoServiceItem.SITDestinationFinalAddressID)
-			if (mtoServiceItem.SITDestinationFinalAddressID) != nil {
-				// do something
-				suite.Equal(externalShipment.DestinationAddressID, mtoServiceItem.SITDestinationFinalAddressID)
-			}
-		}
-		//suite.NotEmpty(mtoServiceItems) // failing
-		mtoServiceItemsList := *mtoServiceItems
-		//suite.NotEmpty(mtoServiceItemsList) // failing
-		for _, mtoServiceItem := range mtoServiceItemsList {
 			suite.Equal(externalShipment.DestinationAddressID, mtoServiceItem.SITDestinationFinalAddressID)
 		}
 	})
