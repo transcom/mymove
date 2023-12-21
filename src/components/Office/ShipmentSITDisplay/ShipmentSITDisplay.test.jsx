@@ -10,6 +10,7 @@ import {
   SITStatusOrigin,
   SITStatusDestination,
   SITStatusDestinationWithoutCustomerDeliveryInfo,
+  SITStatusOriginWithoutCustomerDeliveryInfo,
   SITShipment,
   SITStatusWithPastSITOriginServiceItem,
   SITStatusWithPastSITServiceItems,
@@ -64,6 +65,20 @@ describe('ShipmentSITDisplay', () => {
     expect(within(sitStartAndEndTable).getByText('45')).toBeInTheDocument();
   });
 
+  it('renders the Shipment SIT at Origin, with customer delivery info', async () => {
+    render(
+      <MockProviders>
+        <ShipmentSITDisplay sitStatus={SITStatusOrigin} shipment={SITShipment} />
+      </MockProviders>,
+    );
+
+    expect(screen.getByText('Customer delivery request')).toBeInTheDocument();
+    expect(screen.getByText('Customer contact date')).toBeInTheDocument();
+    expect(screen.getByText('26 Aug 2021')).toBeInTheDocument();
+    expect(screen.getByText('Requested delivery date')).toBeInTheDocument();
+    expect(screen.getByText('30 Aug 2021')).toBeInTheDocument();
+  });
+
   it('renders the Shipment SIT at Destination, with customer delivery info', async () => {
     render(
       <MockProviders>
@@ -82,6 +97,19 @@ describe('ShipmentSITDisplay', () => {
     render(
       <MockProviders>
         <ShipmentSITDisplay sitStatus={SITStatusDestinationWithoutCustomerDeliveryInfo} shipment={SITShipment} />
+      </MockProviders>,
+    );
+
+    expect(screen.getByText('Customer delivery request')).toBeInTheDocument();
+    expect(screen.getByText('Customer contact date')).toBeInTheDocument();
+    expect(screen.getByText('Requested delivery date')).toBeInTheDocument();
+    expect(screen.getAllByText('—')).toHaveLength(2);
+  });
+
+  it('renders the Shipment SIT at Origin, without customer delivery info', async () => {
+    render(
+      <MockProviders>
+        <ShipmentSITDisplay sitStatus={SITStatusOriginWithoutCustomerDeliveryInfo} shipment={SITShipment} />
       </MockProviders>,
     );
 

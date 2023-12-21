@@ -61,7 +61,6 @@ var servicesToEntryPoints = map[string][]string{
 		fmt.Sprintf("%s process-edis", binMilMoveTasks),
 		fmt.Sprintf("%s save-ghc-fuel-price-data", binMilMoveTasks),
 		fmt.Sprintf("%s send-payment-reminder", binMilMoveTasks),
-		fmt.Sprintf("%s send-post-move-survey", binMilMoveTasks),
 	},
 	"app-webhook-client": {
 		fmt.Sprintf("%s webhook-notify", binWebhookClient),

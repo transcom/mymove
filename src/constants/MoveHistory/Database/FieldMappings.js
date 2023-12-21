@@ -100,4 +100,7 @@ export default {
   destination_postal_code: 'Destination postal code',
   secondary_pickup_postal_code: 'Secondary pickup postal code',
   secondary_destination_postal_code: 'Secondary destination postal code',
+  advance_status: 'Advance status',
+  advance_amount_requested: 'Advance amount requested',
+  has_requested_advance: 'Advance requested',
 };

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"log"
 	"os"
+	"time"
 
 	"github.com/gofrs/uuid"
 
@@ -314,6 +315,33 @@ func (suite *FactorySuite) TestBuildMTOServiceItem() {
 		expectedCodes := []models.ReServiceCode{
 			models.ReServiceCodeDPK,
 			models.ReServiceCodeDOP,
+		}
+		suite.Equal(expectedCodes, reServiceCodes)
+	})
+
+	suite.Run("Build SIT service items without SIT out Date", func() {
+
+		customMove := BuildMove(suite.DB(), nil, nil)
+		customMTOShipment := BuildMTOShipment(suite.DB(), []Customization{
+			{
+				Model:    customMove,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		defaultEntryDate := time.Now().AddDate(0, 0, -45)
+		sitServiceItems := BuildDestSITServiceItemsNoSITDepartureDate(suite.DB(), customMove, customMTOShipment, &defaultEntryDate)
+		reServiceCodes := []models.ReServiceCode{}
+
+		for i := range sitServiceItems {
+			reServiceCodes = append(reServiceCodes, sitServiceItems[i].ReService.Code)
+			suite.Nil(sitServiceItems[i].SITDepartureDate)
+		}
+		expectedCodes := []models.ReServiceCode{
+			models.ReServiceCodeDDFSIT,
+			models.ReServiceCodeDDASIT,
+			models.ReServiceCodeDDDSIT,
+			models.ReServiceCodeDDSFSC,
 		}
 		suite.Equal(expectedCodes, reServiceCodes)
 	})

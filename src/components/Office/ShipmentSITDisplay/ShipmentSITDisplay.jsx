@@ -102,13 +102,11 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
     return <p key={pastSITItem.id}>{text}</p>;
   });
 
-  const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
-
   // Currently active SIT
   const currentLocation =
     sitStatus.currentSIT?.location === LOCATION_TYPES.DESTINATION ? 'destination SIT' : 'origin SIT';
 
-  const totalSITDaysUsed = clamp(sitStatus.totalSITDaysUsed || 0, 0, shipment.sitDaysAllowance);
+  const totalSITDaysUsed = sitStatus.totalSITDaysUsed || 0;
   const totalDaysRemaining = () => {
     const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
     if (daysRemaining > 0) {
@@ -118,7 +116,6 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
   };
 
   // Customer delivery request
-  const isDestination = sitStatus.currentSIT?.location === LOCATION_TYPES.DESTINATION;
   const customerContactDate =
     formatDate(sitStatus?.currentSIT?.sitCustomerContacted, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE;
   const sitRequestedDelivery =
@@ -162,17 +159,14 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
           <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
         </div>
       )}
-
-      {isDestination && (
-        <div className={styles.tableContainer}>
-          <p className={styles.sitHeader}>Customer delivery request</p>
-          <DataTable
-            columnHeaders={['Customer contact date', 'Requested delivery date']}
-            dataRow={[customerContactDate, sitRequestedDelivery]}
-            custClass={styles.currentLocation}
-          />
-        </div>
-      )}
+      <div className={styles.tableContainer}>
+        <p className={styles.sitHeader}>Customer delivery request</p>
+        <DataTable
+          columnHeaders={['Customer contact date', 'Requested delivery date']}
+          dataRow={[customerContactDate, sitRequestedDelivery]}
+          custClass={styles.currentLocation}
+        />
+      </div>
     </>
   );
 };

@@ -984,4 +984,58 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 		suite.Contains(err.Error(), serviceItem.ID.String())
 	})
+
+	suite.Run("When TOO rejects a DOFSIT service item and converts it to the customer expense", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
+			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+		suite.NoError(err)
+
+		// ApproveOrRejectServiceItem doesn't return the service item with the updated move
+		// get move from the db to check the updated status
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+
+		suite.Equal(models.MTOServiceItemStatusApproved, updatedServiceItem.Status)
+		suite.NotNil(updatedServiceItem.ApprovedAt)
+		suite.Nil(updatedServiceItem.RejectionReason)
+		suite.Nil(updatedServiceItem.RejectedAt)
+		suite.NotNil(updatedServiceItem)
+	})
+
+	suite.Run("Returns a not found error if the updater can't find the ReService code for DOFSIT in the DB.", func() {
+		_, err := updater.ConvertItemToCustomerExpense(
+			suite.AppContextForTest(), &models.MTOShipment{})
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
+	})
+
+	suite.Run("Returns a not found error if the updater can't find the MTO Shipment in the DB.", func() {
+		// Create ReService in DB so that ConvertItemToCustomerExpense makes it to the MTO Shipment check.
+		testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{ReService: models.ReService{Code: "DOFSIT"}})
+		_, err := updater.ConvertItemToCustomerExpense(
+			suite.AppContextForTest(), &models.MTOShipment{})
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
+	})
 }
