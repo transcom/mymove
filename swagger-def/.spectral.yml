@@ -53,16 +53,18 @@ rules:
         functionOptions:
           values:
             - application/json
+            - application/pdf
 
   produces-allowed-types:
     #message: "{{error}}"
-    description: Allowable types for produces are [application/json]
+    description: Allowable types for produces are [application/json, application/pdf]
     given: $.paths[*][?( @property !== 'parameters' )].produces.*
     then:
       - function: enumeration
         functionOptions:
           values:
             - application/json
+            - application/pdf
 
   endpoint-requires-consumes:
     description: Endpoints that [POST,PUT,PATCH] methods must include consumes property

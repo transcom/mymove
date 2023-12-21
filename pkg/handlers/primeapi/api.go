@@ -18,6 +18,7 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/orchestrators/shipment"
+	order "github.com/transcom/mymove/pkg/services/order"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -25,6 +26,7 @@ import (
 	shipmentaddressupdate "github.com/transcom/mymove/pkg/services/shipment_address_update"
 	sitaddressupdate "github.com/transcom/mymove/pkg/services/sit_address_update"
 	sitextension "github.com/transcom/mymove/pkg/services/sit_extension"
+	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 	"github.com/transcom/mymove/pkg/services/upload"
 )
 
@@ -45,6 +47,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
 	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator)
+	shipmentSITStatus := sitstatus.NewShipmentSITStatus()
 
 	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
 		paymentrequest.NewPaymentRequestCreator(
@@ -194,5 +197,17 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 		handlerConfig,
 		sitaddressupdate.NewSITAddressUpdateRequestCreator(handlerConfig.HHGPlanner(), addressCreator, serviceItemUpdater, moveRouter),
 	}
+
+	primeAPI.MoveTaskOrderDownloadMoveOrderHandler = DownloadMoveOrderHandler{
+		handlerConfig,
+		move.NewMoveSearcher(),
+		order.NewOrderFetcher(),
+	}
+
+	primeAPI.MtoShipmentUpdateSITDeliveryRequestHandler = UpdateSITDeliveryRequestHandler{
+		handlerConfig,
+		shipmentSITStatus,
+	}
+
 	return primeAPI
 }

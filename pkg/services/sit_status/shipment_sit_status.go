@@ -1,10 +1,13 @@
-package mtoshipment
+package sitstatus
 
 import (
 	"time"
 
+	"github.com/pkg/errors"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -57,6 +60,15 @@ func SortShipmentSITs(shipment models.MTOShipment, today time.Time) SortedShipme
 	return shipmentSITs
 }
 
+func clamp(input, min, max int) int {
+	if input < min {
+		return min
+	} else if input > max {
+		return max
+	}
+	return input
+}
+
 // CalculateShipmentSITStatus creates a SIT Status for payload to be used in
 // multiple handlers in the `ghcapi` package for the MTOShipment handlers.
 func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*services.SITStatus, error) {
@@ -83,7 +95,8 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 	if err != nil {
 		return nil, err
 	}
-	shipmentSITStatus.TotalSITDaysUsed = CalculateTotalDaysInSIT(shipmentSITs, today)
+	shipmentSITStatus.TotalSITDaysUsed = clamp(CalculateTotalDaysInSIT(shipmentSITs, today), 0, totalSITAllowance)
+	shipmentSITStatus.CalculatedTotalDaysInSIT = CalculateTotalDaysInSIT(shipmentSITs, today)
 	shipmentSITStatus.TotalDaysRemaining = totalSITAllowance - shipmentSITStatus.TotalSITDaysUsed
 	shipmentSITStatus.PastSITs = shipmentSITs.pastSITs
 
@@ -101,6 +114,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		sitRequestedDelivery = currentSIT.SITRequestedDelivery
 
 		shipmentSITStatus.CurrentSIT = &services.CurrentSIT{
+			ServiceItemID:        currentSIT.ID,
 			Location:             location,
 			DaysInSIT:            daysInSIT,
 			SITEntryDate:         sitEntryDate,
@@ -224,4 +238,56 @@ func fetchEntitlement(appCtx appcontext.AppContext, mtoShipment models.MTOShipme
 	}
 
 	return move.Orders.Entitlement, nil
+}
+
+func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(shipment models.MTOShipment, sitCustomerContacted *time.Time,
+	sitRequestedDelivery *time.Time, eTag string) (*services.SITStatus, error) {
+	existingETag := etag.GenerateEtag(shipment.UpdatedAt)
+
+	if existingETag != eTag {
+		return nil, apperror.NewPreconditionFailedError(shipment.ID, errors.New("the if-match header value did not match the etag for this record"))
+	}
+
+	if shipment.MTOServiceItems == nil || len(shipment.MTOServiceItems) == 0 {
+		return nil, apperror.NewNotFoundError(shipment.ID, "shipment is missing MTO Service Items")
+	}
+
+	year, month, day := time.Now().Date()
+	today := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+
+	shipmentSITs := SortShipmentSITs(shipment, today)
+
+	currentSIT := getCurrentSIT(shipmentSITs)
+
+	// There were no relevant SIT service items for this shipment
+	if currentSIT == nil {
+		return nil, apperror.NewNotFoundError(shipment.ID, "shipment is missing current SIT")
+	}
+
+	var shipmentSITStatus services.SITStatus
+	shipmentSITStatus.ShipmentID = shipment.ID
+	location := DestinationSITLocation
+
+	if currentSIT.ReService.Code == models.ReServiceCodeDOFSIT {
+		location = OriginSITLocation
+	}
+
+	daysInSIT := daysInSIT(*currentSIT, today)
+	sitEntryDate := *currentSIT.SITEntryDate
+	sitDepartureDate := currentSIT.SITDepartureDate
+
+	//TODO: B-17854 calculate allowance end date and required delivery date based on customer dates
+	sitAllowanceEndDate := CalculateSITAllowanceEndDate(shipmentSITStatus.TotalDaysRemaining, sitEntryDate, today)
+
+	shipmentSITStatus.CurrentSIT = &services.CurrentSIT{
+		Location:             location,
+		DaysInSIT:            daysInSIT,
+		SITEntryDate:         sitEntryDate,
+		SITDepartureDate:     sitDepartureDate,
+		SITAllowanceEndDate:  sitAllowanceEndDate,
+		SITCustomerContacted: sitCustomerContacted,
+		SITRequestedDelivery: sitRequestedDelivery,
+	}
+
+	return &shipmentSITStatus, nil
 }

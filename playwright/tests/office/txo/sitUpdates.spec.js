@@ -54,6 +54,39 @@ test.describe('TOO user', () => {
       await expect(page.getByTestId('sitStatusTable').getByText('80', { exact: true }).first()).toBeVisible();
     });
 
+    test('is able to see appropriate results for 90 days approved and 90 days used', async ({ page }) => {
+      await page.getByTestId('MoveTaskOrder-Tab').click();
+      await tooFlowPage.waitForPage.moveTaskOrder();
+      const daysApprovedCapture = await page
+        .getByTestId('sitStatusTable')
+        .locator('[class="DataTable_dataTable__TGt9M table--data-point"]')
+        .locator('tbody')
+        .locator('tr')
+        .locator('span')
+        .nth(0)
+        .textContent();
+      const daysUsedCapture = await page
+        .getByTestId('sitStatusTable')
+        .locator('[class="DataTable_dataTable__TGt9M table--data-point"]')
+        .locator('tbody')
+        .locator('tr')
+        .locator('span')
+        .nth(1)
+        .textContent();
+      const daysLeftCapture = await page
+        .getByTestId('sitStatusTable')
+        .locator('[class="DataTable_dataTable__TGt9M table--data-point"]')
+        .locator('tbody')
+        .locator('tr')
+        .locator('span')
+        .nth(2)
+        .textContent();
+
+      expect(daysApprovedCapture).toEqual('90');
+      expect(daysUsedCapture).toEqual('90');
+      expect(daysLeftCapture).toEqual('Expired');
+    });
+
     test('is unable to decrease the SIT authorization below the number of days already used', async ({ page }) => {
       // navigate to MTO tab
       await page.getByTestId('MoveTaskOrder-Tab').click();
@@ -121,11 +154,46 @@ test.describe('TOO user', () => {
       await expect(page.getByRole('heading', { name: 'Review additional days requested' })).toBeVisible();
       await page.getByText('No', { exact: true }).click();
       await page.getByTestId('officeRemarks').fill('extension request denied');
+      await page.getByTestId('convertToCustomerExpense');
       await page.getByTestId('form').getByTestId('button').click();
 
       // assert that there is no pending SIT extension request and the days authorization is still 90
       await expect(page.getByText('Additional days requested')).toBeHidden();
       await expect(page.getByTestId('sitStatusTable').getByText('90', { exact: true }).first()).toBeVisible();
+    });
+
+    test('is able to deny the SIT extension request AND convert to customer expense', async ({ page }) => {
+      // navigate to MTO tab
+      await page.getByTestId('MoveTaskOrder-Tab').click();
+      await tooFlowPage.waitForPage.moveTaskOrder();
+
+      // assert that there is a pending SIT extension request
+      await expect(page.getByText('Additional days requested')).toBeVisible();
+
+      // deny SIT extension
+      await page.getByTestId('sitExtensions').getByTestId('button').click();
+      await expect(page.getByRole('heading', { name: 'Review additional days requested' })).toBeVisible();
+      await page.getByText('No', { exact: true }).click();
+      await page.getByTestId('officeRemarks').fill('extension request denied');
+      await page.getByTestId('convertToCustomerExpense').click();
+      await page.getByTestId('convertToCustomerExpenseConfirmationYes').click();
+      await page.getByTestId('form').getByTestId('button').click();
+
+      // assert that there is no pending SIT extension request and the days authorization is still 90
+      await expect(page.getByText('Additional days requested')).toBeHidden();
+      await expect(page.getByTestId('sitStatusTable').getByText('90', { exact: true }).first()).toBeVisible();
+    });
+    test('is showing correct labels', async ({ page }) => {
+      // navigate to MTO tab
+      await page.getByTestId('MoveTaskOrder-Tab').click();
+      await tooFlowPage.waitForPage.moveTaskOrder();
+
+      await expect(page.getByText('Total days of SIT approved')).toBeVisible();
+      await expect(page.getByText('Total days used')).toBeVisible();
+      await expect(page.getByText('Total days remaining')).toBeVisible();
+      await expect(page.getByText('SIT start date')).toBeVisible();
+      await expect(page.getByText('	SIT authorized end date')).toBeVisible();
+      await expect(page.getByText('Calculated total SIT days')).toBeVisible();
     });
   });
 });
