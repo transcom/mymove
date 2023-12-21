@@ -706,3 +706,43 @@ func (suite *PayloadsSuite) TestMTOServiceItemDDSHUT() {
 
 	suite.True(ok)
 }
+
+func (suite *PayloadsSuite) TestStorageFacilityPayload() {
+	phone := "555"
+	email := "email"
+	facility := "facility"
+	lot := "lot"
+
+	storage := &models.StorageFacility{
+		ID:           uuid.Must(uuid.NewV4()),
+		Address:      models.Address{},
+		UpdatedAt:    time.Now(),
+		Email:        &email,
+		FacilityName: facility,
+		LotNumber:    &lot,
+		Phone:        &phone,
+	}
+
+	suite.NotNil(storage)
+}
+
+func (suite *PayloadsSuite) TestMTOAgentPayload() {
+	firstName := "John"
+	lastName := "Doe"
+	phone := "555"
+	email := "email"
+	mtoAgent := &models.MTOAgent{
+		ID:            uuid.Must(uuid.NewV4()),
+		MTOAgentType:  models.MTOAgentReceiving,
+		FirstName:     &firstName,
+		LastName:      &lastName,
+		Phone:         &phone,
+		Email:         &email,
+		MTOShipmentID: uuid.Must(uuid.NewV4()),
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
+	}
+
+	payload := MTOAgent(mtoAgent)
+	suite.NotNil(payload)
+}
