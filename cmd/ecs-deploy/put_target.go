@@ -34,7 +34,6 @@ var names = []string{
 	"process-edis",
 	"save-ghc-fuel-price-data",
 	"send-payment-reminder",
-	// "send-post-move-survey", // REMOVED PER E-04686 in Agility
 }
 
 type errInvalidName struct {

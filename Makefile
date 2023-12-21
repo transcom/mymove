@@ -834,23 +834,6 @@ tasks_save_ghc_fuel_price_data: tasks_build_linux_docker ## Run save-ghc-fuel-pr
 		$(TASKS_DOCKER_CONTAINER):latest \
 		milmove-tasks save-ghc-fuel-price-data
 
-# REMOVED PER E-04686 in Agility
-# tasks_send_post_move_survey: tasks_build_linux_docker ## Run send-post-move-survey from inside docker container
-# 	@echo "sending post move survey with docker command..."
-# 	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
-# 	docker run \
-# 		-t \
-# 		-e DB_HOST="database" \
-# 		-e DB_NAME \
-# 		-e DB_PORT \
-# 		-e DB_USER \
-# 		-e DB_PASSWORD \
-# 		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
-# 		--rm \
-# 		$(TASKS_DOCKER_CONTAINER):latest \
-# 		milmove-tasks send-post-move-survey
-
-
 tasks_send_payment_reminder: tasks_build_linux_docker ## Run send-payment-reminder from inside docker container
 	@echo "sending payment reminder with docker command..."
 	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
