@@ -57,7 +57,7 @@ func (p *mtoServiceItemUpdater) ApproveOrRejectServiceItem(
 	return p.approveOrRejectServiceItem(appCtx, *mtoServiceItem, status, rejectionReason, eTag, checkMoveStatus(), checkETag())
 }
 
-func (p *mtoServiceItemUpdater) ConvertItemToCustomersExpense(
+func (p *mtoServiceItemUpdater) ConvertItemToCustomerExpense(
 	appCtx appcontext.AppContext,
 	shipment *models.MTOShipment,
 ) (*models.MTOServiceItem, error) {
@@ -94,13 +94,13 @@ func (p *mtoServiceItemUpdater) ConvertItemToCustomersExpense(
 	eTag := etag.GenerateEtag(SITItem.UpdatedAt)
 
 	// Finally, update the mto_service_item with the members_expense flag set to TRUE
-	SITItem.CustomersExpense = models.BoolPointer(true)
+	SITItem.CustomerExpense = models.BoolPointer(true)
 	mtoServiceItem, err := p.findServiceItem(appCtx, SITItem.ID)
 	if err != nil {
 		return &models.MTOServiceItem{}, err
 	}
 
-	return p.convertItemToCustomersExpense(appCtx, *mtoServiceItem, eTag, checkETag())
+	return p.convertItemToCustomerExpense(appCtx, *mtoServiceItem, eTag, checkETag())
 }
 
 func (p *mtoServiceItemUpdater) findServiceItem(appCtx appcontext.AppContext, serviceItemID uuid.UUID) (*models.MTOServiceItem, error) {
@@ -232,7 +232,7 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 	return &serviceItem, nil
 }
 
-func (p *mtoServiceItemUpdater) convertItemToCustomersExpense(
+func (p *mtoServiceItemUpdater) convertItemToCustomerExpense(
 	appCtx appcontext.AppContext,
 	serviceItem models.MTOServiceItem,
 	eTag string,
@@ -243,7 +243,7 @@ func (p *mtoServiceItemUpdater) convertItemToCustomersExpense(
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		serviceItem.CustomersExpense = models.BoolPointer(true)
+		serviceItem.CustomerExpense = models.BoolPointer(true)
 		verrs, err := appCtx.DB().ValidateAndUpdate(&serviceItem)
 		e := handleError(serviceItem.ID, verrs, err)
 		return e

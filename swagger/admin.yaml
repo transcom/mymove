@@ -611,7 +611,6 @@ definitions:
       notificationType:
         type: string
         enum:
-          - MOVE_REVIEWED_EMAIL
           - MOVE_PAYMENT_REMINDER_EMAIL
       createdAt:
         type: string

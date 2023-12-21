@@ -29,7 +29,7 @@ func NewSITExtensionDenier(moveRouter services.MoveRouter) services.SITExtension
 }
 
 // DenySITExtension denies the SIT Extension
-func (f *sitExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, shipmentID uuid.UUID, sitExtensionID uuid.UUID, officeRemarks *string, convertToCustomersExpense *bool, eTag string) (*models.MTOShipment, error) {
+func (f *sitExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, shipmentID uuid.UUID, sitExtensionID uuid.UUID, officeRemarks *string, convertToCustomerExpense *bool, eTag string) (*models.MTOShipment, error) {
 	shipment, err := mtoshipment.FindShipment(appCtx, shipmentID, "MoveTaskOrder")
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func (f *sitExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, ship
 	// err = appCtx.DB().Q().Find(&updatedShipment, shipmentID)
 	// return &updatedShipment, err
 
-	return f.denySITExtension(appCtx, *shipment, *sitExtension, officeRemarks, convertToCustomersExpense)
+	return f.denySITExtension(appCtx, *shipment, *sitExtension, officeRemarks, convertToCustomerExpense)
 }
 
 func (f *sitExtensionDenier) findSITExtension(appCtx appcontext.AppContext, sitExtensionID uuid.UUID) (*models.SITDurationUpdate, error) {
@@ -72,11 +72,11 @@ func (f *sitExtensionDenier) findSITExtension(appCtx appcontext.AppContext, sitE
 	return &sitExtension, nil
 }
 
-func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, shipment models.MTOShipment, sitExtension models.SITDurationUpdate, officeRemarks *string, convertToCustomersExpense *bool) (*models.MTOShipment, error) {
+func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, shipment models.MTOShipment, sitExtension models.SITDurationUpdate, officeRemarks *string, convertToCustomerExpense *bool) (*models.MTOShipment, error) {
 	var returnedShipment models.MTOShipment
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		if err := f.updateSITExtension(txnAppCtx, sitExtension, officeRemarks, convertToCustomersExpense); err != nil {
+		if err := f.updateSITExtension(txnAppCtx, sitExtension, officeRemarks, convertToCustomerExpense); err != nil {
 			return err
 		}
 
@@ -94,8 +94,8 @@ func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, ship
 		}
 
 		// Since we aren't implementing an undo function, only update members_expense in the mto_service_items table if it's true.
-		if *convertToCustomersExpense {
-			_, convertErr := f.serviceItemUpdater.ConvertItemToCustomersExpense(appCtx, &returnedShipment)
+		if *convertToCustomerExpense {
+			_, convertErr := f.serviceItemUpdater.ConvertItemToCustomerExpense(appCtx, &returnedShipment)
 			if convertErr != nil {
 				return convertErr
 			}
@@ -111,11 +111,11 @@ func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, ship
 	return &returnedShipment, nil
 }
 
-func (f *sitExtensionDenier) updateSITExtension(appCtx appcontext.AppContext, sitExtension models.SITDurationUpdate, officeRemarks *string, convertToCustomersExpense *bool) error {
+func (f *sitExtensionDenier) updateSITExtension(appCtx appcontext.AppContext, sitExtension models.SITDurationUpdate, officeRemarks *string, convertToCustomerExpense *bool) error {
 	if officeRemarks != nil {
 		sitExtension.OfficeRemarks = officeRemarks
 	}
-	sitExtension.CustomersExpense = convertToCustomersExpense
+	sitExtension.CustomerExpense = convertToCustomerExpense
 	sitExtension.Status = models.SITExtensionStatusDenied
 	now := time.Now()
 	sitExtension.DecisionDate = &now

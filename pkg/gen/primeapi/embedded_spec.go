@@ -758,7 +758,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/addresses/{addressID}": {
       "put": {
-        "description": "### Functionality\nThis endpoint is used to **update** the pickup and secondary addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
+        "description": "### Functionality\nThis endpoint is used to **update** the pickup, secondary, and destination addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\nWhen a destination address on a shipment is updated, the destination SIT service items address ID will also be updated so that shipment and service item final destinations match.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
         "consumes": [
           "application/json"
         ],
@@ -1113,6 +1113,63 @@ func init() {
           },
           "422": {
             "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/mto-shipments/{mtoShipmentID}/sit-delivery": {
+      "patch": {
+        "description": "### Functionality\nThis endpoint can be used to update the Authorized End Date for shipments in Origin or Destination SIT and the Required\nDelivery Date for shipments in Origin SIT. The provided Customer Contact Date and the Customer Requested Delivery Date are\nused to calculate the new Authorized End Date and Required Delivery Date.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "Update the SIT Customer Contact and SIT Requested Delivery Dates for a service item currently in SIT",
+        "operationId": "updateSITDeliveryRequest",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the agent",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/ifMatch"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SITDeliveryUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the shipment's authorized end date.",
+            "schema": {
+              "$ref": "#/definitions/SITStatus"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
           },
           "500": {
             "$ref": "#/responses/ServerError"
@@ -3653,6 +3710,22 @@ func init() {
         "TOO"
       ]
     },
+    "SITDeliveryUpdate": {
+      "required": [
+        "sitCustomerContacted",
+        "sitRequestedDelivery"
+      ],
+      "properties": {
+        "sitCustomerContacted": {
+          "type": "string",
+          "format": "date"
+        },
+        "sitRequestedDelivery": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
     "SITExtension": {
       "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
       "type": "object",
@@ -3742,6 +3815,55 @@ func init() {
         "ORIGIN",
         "DESTINATION"
       ]
+    },
+    "SITStatus": {
+      "properties": {
+        "currentSIT": {
+          "type": "object",
+          "properties": {
+            "daysInSIT": {
+              "type": "integer"
+            },
+            "location": {
+              "enum": [
+                "ORIGIN",
+                "DESTINATION"
+              ]
+            },
+            "sitAllowanceEndDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitCustomerContacted": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitDepartureDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitEntryDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitRequestedDelivery": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            }
+          }
+        },
+        "totalDaysRemaining": {
+          "type": "integer"
+        },
+        "totalSITDaysUsed": {
+          "type": "integer"
+        }
+      }
     },
     "ServiceItem": {
       "type": "object",
@@ -5602,7 +5724,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/addresses/{addressID}": {
       "put": {
-        "description": "### Functionality\nThis endpoint is used to **update** the pickup and secondary addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
+        "description": "### Functionality\nThis endpoint is used to **update** the pickup, secondary, and destination addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\nWhen a destination address on a shipment is updated, the destination SIT service items address ID will also be updated so that shipment and service item final destinations match.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
         "consumes": [
           "application/json"
         ],
@@ -6079,6 +6201,79 @@ func init() {
             "description": "The request was unprocessable, likely due to bad input from the requester.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/mto-shipments/{mtoShipmentID}/sit-delivery": {
+      "patch": {
+        "description": "### Functionality\nThis endpoint can be used to update the Authorized End Date for shipments in Origin or Destination SIT and the Required\nDelivery Date for shipments in Origin SIT. The provided Customer Contact Date and the Customer Requested Delivery Date are\nused to calculate the new Authorized End Date and Required Delivery Date.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "Update the SIT Customer Contact and SIT Requested Delivery Dates for a service item currently in SIT",
+        "operationId": "updateSITDeliveryRequest",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the agent",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SITDeliveryUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the shipment's authorized end date.",
+            "schema": {
+              "$ref": "#/definitions/SITStatus"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
             }
           },
           "500": {
@@ -8729,6 +8924,22 @@ func init() {
         "TOO"
       ]
     },
+    "SITDeliveryUpdate": {
+      "required": [
+        "sitCustomerContacted",
+        "sitRequestedDelivery"
+      ],
+      "properties": {
+        "sitCustomerContacted": {
+          "type": "string",
+          "format": "date"
+        },
+        "sitRequestedDelivery": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
     "SITExtension": {
       "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
       "type": "object",
@@ -8818,6 +9029,98 @@ func init() {
         "ORIGIN",
         "DESTINATION"
       ]
+    },
+    "SITStatus": {
+      "properties": {
+        "currentSIT": {
+          "type": "object",
+          "properties": {
+            "daysInSIT": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "location": {
+              "enum": [
+                "ORIGIN",
+                "DESTINATION"
+              ]
+            },
+            "sitAllowanceEndDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitCustomerContacted": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitDepartureDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitEntryDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitRequestedDelivery": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            }
+          }
+        },
+        "totalDaysRemaining": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "totalSITDaysUsed": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "SITStatusCurrentSIT": {
+      "type": "object",
+      "properties": {
+        "daysInSIT": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "location": {
+          "enum": [
+            "ORIGIN",
+            "DESTINATION"
+          ]
+        },
+        "sitAllowanceEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitCustomerContacted": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitRequestedDelivery": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        }
+      }
     },
     "ServiceItem": {
       "type": "object",
