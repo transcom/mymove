@@ -178,6 +178,7 @@ const PrimeUIShipmentCreateForm = () => {
             />
             {isChecked && (
               <TextField
+                data-testid="divertedFromShipmentIdInput"
                 label="Diverted from Shipment ID"
                 id="divertedFromShipmentIdInput"
                 name="divertedFromShipmentId"
