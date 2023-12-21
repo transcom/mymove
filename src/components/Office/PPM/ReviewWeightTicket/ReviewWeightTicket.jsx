@@ -59,6 +59,8 @@ export default function ReviewWeightTicket({
   updateTotalWeight,
 }) {
   const [canEditRejection, setCanEditRejection] = useState(true);
+  const [currentWeightTicket, setCurrentWeightTicket] = useState(weightTicket);
+  const [currentMtoShipments, setCurrentMtoShipments] = useState(mtoShipments);
   const { mutate: patchWeightTicketMutation } = useMutation({
     mutationFn: patchWeightTicket,
     onSuccess,
@@ -113,17 +115,19 @@ export default function ReviewWeightTicket({
   } else {
     isTrailerClaimable = '';
   }
-
-  const updateMtoShipmentsWithNewWeightValues = (currentMtoShipments, values) => {
-    const mtoShipmentIndex = currentMtoShipments.findIndex((index) => index.id === mtoShipment.id);
+  const createUpdatedWeightTicketWithUpdatedValues = (updatedFormValues) => {
     const updatedWeightTicket = {
       ...weightTicket,
-      emptyWeight: parseInt(removeCommas(values.emptyWeight), 10),
-      fullWeight: parseInt(removeCommas(values.fullWeight), 10),
-      allowableWeight: parseInt(removeCommas(values.allowableWeight), 10),
+      emptyWeight: parseInt(removeCommas(updatedFormValues.emptyWeight), 10),
+      fullWeight: parseInt(removeCommas(updatedFormValues.fullWeight), 10),
+      allowableWeight: parseInt(removeCommas(updatedFormValues.allowableWeight), 10),
     };
+    return updatedWeightTicket;
+  };
+  const updateMtoShipmentsWithNewWeightValues = (MtoShipmentsToUpdate, updatedWeightTicket) => {
+    const mtoShipmentIndex = MtoShipmentsToUpdate.findIndex((index) => index.id === mtoShipment.id);
     const updatedPPMShipment = {
-      ...currentMtoShipments[mtoShipmentIndex].ppmShipment,
+      ...MtoShipmentsToUpdate[mtoShipmentIndex].ppmShipment,
     };
     const weightTicketIndex = updatedPPMShipment.weightTickets.findIndex(
       (ticket) => ticket.id === updatedWeightTicket.id,
@@ -133,13 +137,17 @@ export default function ReviewWeightTicket({
       ...mtoShipment,
       ppmShipment: updatedPPMShipment,
     };
-    const updatedMtoShipments = currentMtoShipments;
+    const updatedMtoShipments = MtoShipmentsToUpdate;
     updatedMtoShipments[mtoShipmentIndex] = updatedMtoShipment;
     return updatedMtoShipments;
   };
-  const getNewNetWeightCalculation = (currentMtoShipments, updatedFormValues) => {
-    const newMtoShipments = updateMtoShipmentsWithNewWeightValues(currentMtoShipments, updatedFormValues);
-    return calculateWeightRequested(newMtoShipments);
+  const getNewNetWeightCalculation = (MtoShipmentsToUpdate, updatedFormValues) => {
+    const updatedWeightTicket = createUpdatedWeightTicketWithUpdatedValues(updatedFormValues);
+    const newMtoShipments = updateMtoShipmentsWithNewWeightValues(MtoShipmentsToUpdate, updatedWeightTicket);
+    const newWeightTotal = calculateWeightRequested(newMtoShipments);
+    setCurrentWeightTicket(updatedWeightTicket);
+    setCurrentMtoShipments(newMtoShipments);
+    updateTotalWeight(newWeightTotal);
   };
   // Allowable weight should default to the net weight if there isn't already an allowable weight defined.
   const initialValues = {
@@ -157,7 +165,7 @@ export default function ReviewWeightTicket({
       formRef.current.resetForm();
       formRef.current.validateForm();
     }
-  }, [formRef, weightTicket]);
+  }, [formRef, weightTicket, currentMtoShipments]);
 
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
@@ -186,7 +194,7 @@ export default function ReviewWeightTicket({
           const handleFieldValueChange = (event) => {
             setFieldValue(event.target.name, removeCommas(event.target.value));
             if (mtoShipments !== undefined && mtoShipments.length > 0) {
-              updateTotalWeight(getNewNetWeightCalculation(mtoShipments, values));
+              getNewNetWeightCalculation(mtoShipments, values);
             }
           };
           const handleTrailerOwnedChange = (event) => {
@@ -258,11 +266,10 @@ export default function ReviewWeightTicket({
                 suffix="lbs"
                 onBlur={handleFieldValueChange}
               />
-
               <EditPPMNetWeight
-                weightTicket={weightTicket}
+                weightTicket={currentWeightTicket}
                 weightAllowance={weightAllowance}
-                shipments={mtoShipments}
+                shipments={currentMtoShipments}
               />
 
               <FormGroup>
