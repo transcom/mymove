@@ -248,7 +248,7 @@ func fetchEntitlement(appCtx appcontext.AppContext, mtoShipment models.MTOShipme
 
 // Calculate Required Delivery Date(RDD) from customer contact and requested delivery dates
 func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipment models.MTOShipment, planner route.Planner,
-	sitCustomerContacted *time.Time, sitRequestedDelivery *time.Time, sitDepartureDate *time.Time) (*time.Time, error) {
+	sitCustomerContacted *time.Time, sitDepartureDate *time.Time) (*time.Time, error) {
 	// Get a distance calculation between pickup and destination addresses.
 	distance, err := planner.ZipTransitDistance(appCtx, shipment.PickupAddress.PostalCode, shipment.DestinationAddress.PostalCode)
 
@@ -346,7 +346,7 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext
 		}
 
 		if sitDepartureDate != nil {
-			requiredDeliveryDate, err := calculateOriginSITRequiredDeliveryDate(appCtx, shipment, planner, sitCustomerContacted, sitRequestedDelivery, sitDepartureDate)
+			requiredDeliveryDate, err := calculateOriginSITRequiredDeliveryDate(appCtx, shipment, planner, sitCustomerContacted, sitDepartureDate)
 
 			if err != nil {
 				return nil, err
@@ -376,8 +376,21 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext
 		SITRequestedDelivery: sitRequestedDelivery,
 	}
 
-	appCtx.DB().ValidateAndUpdate(&shipment)
-	appCtx.DB().ValidateAndUpdate(currentSIT)
+	verrs, err := appCtx.DB().ValidateAndUpdate(&shipment)
+
+	if verrs != nil && verrs.HasAny() {
+		return nil, apperror.NewInvalidInputError(shipment.ID, err, verrs, "invalid input found while updating dates of shipment")
+	} else if err != nil {
+		return nil, apperror.NewQueryError("Shipment", err, "")
+	}
+
+	verrs, err = appCtx.DB().ValidateAndUpdate(currentSIT)
+
+	if verrs != nil && verrs.HasAny() {
+		return nil, apperror.NewInvalidInputError(currentSIT.ID, err, verrs, "invalid input found while updating current sit service item")
+	} else if err != nil {
+		return nil, apperror.NewQueryError("Service item", err, "")
+	}
 
 	return &shipmentSITStatus, nil
 }

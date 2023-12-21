@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/mock"
+
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
@@ -387,18 +388,22 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 		subtestData = &localSubtestData{}
 
 		shipmentSITAllowance := int(90)
+		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
+		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		subtestData.shipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
 					Status:               models.MTOShipmentStatusApproved,
 					SITDaysAllowance:     &shipmentSITAllowance,
 					PrimeEstimatedWeight: &estimatedWeight,
+					RequiredDeliveryDate: &aMonthAgo,
+					UpdatedAt:            aMonthAgo,
 				},
 			},
 		}, nil)
 
 		subtestData.sitCustomerContacted = time.Now()
-		year, month, day := time.Now().Add(time.Hour * 24 * 7).Date()
+		year, month, day = time.Now().Add(time.Hour * 24 * 7).Date()
 		subtestData.sitRequestedDelivery = time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		subtestData.eTag = etag.GenerateEtag(subtestData.shipment.UpdatedAt)
 		subtestData.planner = &mocks.Planner{}
@@ -432,6 +437,7 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 						SITEntryDate:     &aMonthAgo,
 						Status:           models.MTOServiceItemStatusApproved,
 						SITDepartureDate: &customerContactDatePlusFive,
+						UpdatedAt:        aMonthAgo,
 					},
 				},
 				{
@@ -449,6 +455,8 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 
 	suite.Run("calculates allowance end date and requested delivery date for a shipment currently in SIT", func() {
 		subtestData := makeSubtestData(true, models.ReServiceCodeDOFSIT, unit.Pound(1400))
+		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
+		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 
 		sitStatus, err := sitStatusService.CalculateSITAllowanceRequestedDates(suite.AppContextForTest(), subtestData.shipment, subtestData.planner,
 			&subtestData.sitCustomerContacted, &subtestData.sitRequestedDelivery, subtestData.eTag)
@@ -457,6 +465,8 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 
 		suite.Equal(&subtestData.sitCustomerContacted, sitStatus.CurrentSIT.SITCustomerContacted)
 		suite.Equal(&subtestData.sitRequestedDelivery, sitStatus.CurrentSIT.SITRequestedDelivery)
+		suite.NotEqual(&subtestData.shipment.UpdatedAt, aMonthAgo)
+		suite.NotEqual(&subtestData.shipment.MTOServiceItems[0].UpdatedAt, aMonthAgo)
 	})
 
 	suite.Run("calculate requested delivery date with sitDepartureDate before customer contact date plus grade period", func() {
@@ -475,6 +485,7 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 					SITEntryDate:     &aMonthAgo,
 					Status:           models.MTOServiceItemStatusApproved,
 					SITDepartureDate: &customerContactDatePlusThree,
+					UpdatedAt:        aMonthAgo,
 				},
 			},
 			{
@@ -492,6 +503,8 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 
 		suite.Equal(&subtestData.sitCustomerContacted, sitStatus.CurrentSIT.SITCustomerContacted)
 		suite.Equal(&subtestData.sitRequestedDelivery, sitStatus.CurrentSIT.SITRequestedDelivery)
+		suite.NotEqual(&subtestData.shipment.UpdatedAt, aMonthAgo)
+		suite.NotEqual(&subtestData.shipment.MTOServiceItems[0].UpdatedAt, aMonthAgo)
 	})
 
 	suite.Run("failure test for calculate allowance with stale etag", func() {
@@ -553,4 +566,5 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 		suite.Nil(sitStatus)
 		suite.IsType(apperror.UnprocessableEntityError{}, err)
 	})
+
 }
