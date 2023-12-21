@@ -117,7 +117,6 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
   const showConvertToCustomerExpense = daysRemaining <= 30;
 
   // Customer delivery request
-  const isDestination = sitStatus.currentSIT?.location === LOCATION_TYPES.DESTINATION;
   const customerContactDate =
     formatDate(sitStatus?.currentSIT?.sitCustomerContacted, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE;
   const sitRequestedDelivery =
@@ -162,17 +161,14 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
           <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
         </div>
       )}
-
-      {isDestination && (
-        <div className={styles.tableContainer}>
-          <p className={styles.sitHeader}>Customer delivery request</p>
-          <DataTable
-            columnHeaders={['Customer contact date', 'Requested delivery date']}
-            dataRow={[customerContactDate, sitRequestedDelivery]}
-            custClass={styles.currentLocation}
-          />
-        </div>
-      )}
+      <div className={styles.tableContainer}>
+        <p className={styles.sitHeader}>Customer delivery request</p>
+        <DataTable
+          columnHeaders={['Customer contact date', 'Requested delivery date']}
+          dataRow={[customerContactDate, sitRequestedDelivery]}
+          custClass={styles.currentLocation}
+        />
+      </div>
     </>
   );
 };
