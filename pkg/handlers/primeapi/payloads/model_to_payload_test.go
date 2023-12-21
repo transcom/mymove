@@ -746,3 +746,31 @@ func (suite *PayloadsSuite) TestMTOAgentPayload() {
 	payload := MTOAgent(mtoAgent)
 	suite.NotNil(payload)
 }
+
+func (suite *PayloadsSuite) TestStorageFacility() {
+	storageFacilityID := uuid.Must(uuid.NewV4())
+	updatedAt := time.Now()
+	dummy := "dummy"
+	email := "dummy@example.com"
+	facilityName := "dummy"
+	lotNumber := "dummy"
+	phone := "dummy"
+	storage := &models.StorageFacility{
+		ID: storageFacilityID,
+		Address: models.Address{
+			StreetAddress1: dummy,
+			City:           dummy,
+			State:          dummy,
+			PostalCode:     dummy,
+			Country:        &dummy,
+		},
+		Email:        &email,
+		FacilityName: facilityName,
+		LotNumber:    &lotNumber,
+		Phone:        &phone,
+		UpdatedAt:    updatedAt,
+	}
+
+	result := StorageFacility(storage)
+	suite.NotNil(result)
+}
