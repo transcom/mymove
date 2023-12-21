@@ -68,7 +68,7 @@ COMMENT ON COLUMN orders.entitlement_id IS 'A foreign key that points to the ent
 COMMENT ON TABLE notifications IS 'Holds information about the notifications (emails) sent to customers';
 COMMENT ON COLUMN notifications.service_member_id IS 'A foreign key that points to the service_members table';
 COMMENT ON COLUMN notifications.ses_message_id IS 'Uuid returned after a successful sent email message';
-COMMENT ON COLUMN notifications.notification_type IS 'The type of notification sent to the customer including: move approved, move canceled, move reviewed, move submitted, and payment reminder';
+COMMENT ON COLUMN notifications.notification_type IS 'The type of notification sent to the customer including: move approved, move canceled, move submitted, and payment reminder';
 COMMENT ON COLUMN notifications.created_at IS 'Date & time the notification was created';
 
 -- personally_procured_moves
