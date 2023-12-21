@@ -442,19 +442,6 @@ export async function calculatePPMEstimate(moveDate, originZip, originDutyLocati
   );
 }
 
-export async function persistPPMEstimate(moveId, ppmId) {
-  return makeInternalRequest(
-    'ppm.updatePersonallyProcuredMoveEstimate',
-    {
-      moveId,
-      personallyProcuredMoveId: ppmId,
-    },
-    {
-      normalize: false,
-    },
-  );
-}
-
 export async function calculatePPMSITEstimate(ppmId, moveDate, sitDays, originZip, ordersId, weightEstimate) {
   return makeInternalRequest(
     'ppm.showPPMSitEstimate',

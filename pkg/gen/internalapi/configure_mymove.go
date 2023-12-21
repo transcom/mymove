@@ -327,11 +327,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.ShowPPMSitEstimate has not yet been implemented")
 		})
 	}
-	if api.PpmShowPersonallyProcuredMoveHandler == nil {
-		api.PpmShowPersonallyProcuredMoveHandler = ppm.ShowPersonallyProcuredMoveHandlerFunc(func(params ppm.ShowPersonallyProcuredMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.ShowPersonallyProcuredMove has not yet been implemented")
-		})
-	}
 	if api.QueuesShowQueueHandler == nil {
 		api.QueuesShowQueueHandler = queues.ShowQueueHandlerFunc(func(params queues.ShowQueueParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.ShowQueue has not yet been implemented")
@@ -400,11 +395,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.OrdersUpdateOrdersHandler == nil {
 		api.OrdersUpdateOrdersHandler = orders.UpdateOrdersHandlerFunc(func(params orders.UpdateOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.UpdateOrders has not yet been implemented")
-		})
-	}
-	if api.PpmUpdatePersonallyProcuredMoveHandler == nil {
-		api.PpmUpdatePersonallyProcuredMoveHandler = ppm.UpdatePersonallyProcuredMoveHandlerFunc(func(params ppm.UpdatePersonallyProcuredMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.UpdatePersonallyProcuredMove has not yet been implemented")
 		})
 	}
 	if api.PpmUpdateProGearWeightTicketHandler == nil {
