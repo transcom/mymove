@@ -30,7 +30,7 @@ func (suite *FactorySuite) TestBuildNotification() {
 		serviceMember := BuildServiceMember(suite.DB(), nil, nil)
 		customNotification := models.Notification{
 			SESMessageID:     "123",
-			NotificationType: models.MoveReviewedEmail,
+			NotificationType: models.MovePaymentReminderEmail,
 		}
 		notification := BuildNotification(suite.DB(), []Customization{
 			{

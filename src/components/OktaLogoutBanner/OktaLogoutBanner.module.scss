@@ -1,0 +1,23 @@
+@import 'shared/styles/colors';
+
+@mixin oktaBannerStyles($background-color) {
+  font-size: 1rem;
+  background-color: $background-color;
+  padding: 0.8rem 1.6rem;
+  line-height: 20px;
+  text-align: center;
+
+  & > a,
+  a:visited {
+    color: black;
+    text-decoration: underline;
+  }
+}
+
+.oktaLoggedOutBanner {
+  @include oktaBannerStyles($info-light);
+}
+
+.oktaNeedsLoggedOutBanner {
+  @include oktaBannerStyles($warning-light);
+}
