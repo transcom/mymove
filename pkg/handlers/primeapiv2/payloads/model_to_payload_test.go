@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -12,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primev2messages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *PayloadsSuite) TestMoveTaskOrder() {
@@ -363,4 +365,78 @@ func (suite *PayloadsSuite) TestSITAddressUpdate() {
 		suite.Equal(strfmt.DateTime(payload.UpdatedAt).String(), strfmt.DateTime(sitAddressUpdate.UpdatedAt).String())
 		suite.Equal(strfmt.DateTime(payload.CreatedAt).String(), strfmt.DateTime(sitAddressUpdate.CreatedAt).String())
 	})
+}
+
+func (suite *PayloadsSuite) TestValidationError() {
+	instanceID, _ := uuid.NewV4()
+	detail := "Err"
+
+	noValidationErrors := ValidationError(detail, instanceID, nil)
+	suite.Equal(handlers.ValidationErrMessage, *noValidationErrors.ClientError.Title)
+	suite.Equal(detail, *noValidationErrors.ClientError.Detail)
+	suite.Equal(instanceID.String(), noValidationErrors.ClientError.Instance.String())
+	suite.Nil(noValidationErrors.InvalidFields)
+
+	valErrors := validate.NewErrors()
+	valErrors.Add("Field1", "dummy")
+	valErrors.Add("Field2", "dummy")
+
+	withValidationErrors := ValidationError(detail, instanceID, valErrors)
+	suite.Equal(handlers.ValidationErrMessage, *withValidationErrors.ClientError.Title)
+	suite.Equal(detail, *withValidationErrors.ClientError.Detail)
+	suite.Equal(instanceID.String(), withValidationErrors.ClientError.Instance.String())
+	suite.NotNil(withValidationErrors.InvalidFields)
+	suite.Equal(2, len(withValidationErrors.InvalidFields))
+}
+
+func (suite *PayloadsSuite) TestMTOShipment() {
+	mtoShipment := &models.MTOShipment{}
+
+	mtoShipment.MTOServiceItems = nil
+	payload := MTOShipment(mtoShipment)
+	suite.NotNil(payload)
+	suite.Empty(payload.MtoServiceItems())
+
+	mtoShipment.MTOServiceItems = models.MTOServiceItems{
+		models.MTOServiceItem{},
+	}
+	payload = MTOShipment(mtoShipment)
+	suite.NotNil(payload)
+	suite.NotEmpty(payload.MtoServiceItems())
+}
+
+func (suite *PayloadsSuite) TestInternalServerError() {
+	traceID, _ := uuid.NewV4()
+	detail := "Err"
+
+	noDetailError := InternalServerError(nil, traceID)
+	suite.Equal(handlers.InternalServerErrMessage, *noDetailError.Title)
+	suite.Equal(handlers.InternalServerErrDetail, *noDetailError.Detail)
+	suite.Equal(traceID.String(), noDetailError.Instance.String())
+
+	detailError := InternalServerError(&detail, traceID)
+	suite.Equal(handlers.InternalServerErrMessage, *detailError.Title)
+	suite.Equal(detail, *detailError.Detail)
+	suite.Equal(traceID.String(), detailError.Instance.String())
+}
+
+func (suite *PayloadsSuite) TestGetDimension() {
+	dimensionType := models.DimensionTypeItem
+	dimensions := models.MTOServiceItemDimensions{
+		models.MTOServiceItemDimension{
+			Type:   dimensionType,
+			Length: unit.ThousandthInches(100),
+		},
+		models.MTOServiceItemDimension{
+			Type:   models.DimensionTypeCrate,
+			Length: unit.ThousandthInches(200),
+		},
+	}
+
+	resultDimension := GetDimension(dimensions, dimensionType)
+	suite.Equal(dimensionType, resultDimension.Type)
+	suite.Equal(unit.ThousandthInches(100), resultDimension.Length)
+
+	emptyResultDimension := GetDimension(models.MTOServiceItemDimensions{}, dimensionType)
+	suite.Equal(models.MTOServiceItemDimension{}, emptyResultDimension)
 }
