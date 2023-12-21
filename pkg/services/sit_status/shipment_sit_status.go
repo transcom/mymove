@@ -281,7 +281,7 @@ func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipme
 	if sitDepartureDate.Before(customerContactDatePlusFive) {
 		requiredDeliveryDate = sitDepartureDate.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime)
 	} else if sitDepartureDate.After(customerContactDatePlusFive) || sitDepartureDate.Equal(customerContactDatePlusFive) {
-		requiredDeliveryDate = sitCustomerContacted.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime+GracePeriodDays)
+		requiredDeliveryDate = customerContactDatePlusFive.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime)
 	}
 
 	// Weekends and holidays are not allowable dates, find the next available workday
