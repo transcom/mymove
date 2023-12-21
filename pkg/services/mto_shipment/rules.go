@@ -257,6 +257,7 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 }
 
 // Checks if diversion parameters are valid
+// This is a Prime V2 rule
 func checkDiversionValid() validator {
 	var verrs *validate.Errors
 	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
