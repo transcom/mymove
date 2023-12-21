@@ -4831,13 +4831,13 @@ definitions:
         type: string
         example: Denied this extension as it does not match the criteria
         x-nullable: true
-      convertToCustomersExpense:
+      convertToCustomerExpense:
         description: Whether or not to convert to members expense once SIT extension is denied.
         type: boolean
         example: false
     required:
       - officeRemarks
-      - convertToCustomersExpense
+      - convertToCustomerExpense
   CreateApprovedSITDurationUpdate:
     properties:
       requestReason:

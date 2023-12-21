@@ -79,10 +79,10 @@ describe('ReviewSITExtensionModal', () => {
     const expectedEndDate = formatDateForDatePicker(moment().add(75, 'days'));
 
     await waitFor(() => {
-      expect(mockOnSubmit).toHaveBeenCalled();
+      // expect(mockOnSubmit).toHaveBeenCalled();
       expect(mockOnSubmit).toHaveBeenCalledWith(sitExt.id, {
         acceptExtension: 'yes',
-        convertToCustomersExpense: false,
+        convertToCustomerExpense: false,
         requestReason: 'SERIOUS_ILLNESS_MEMBER',
         officeRemarks: 'Approved!',
         daysApproved: '90',
@@ -116,7 +116,7 @@ describe('ReviewSITExtensionModal', () => {
         sitExt.id,
         expect.objectContaining({
           acceptExtension: 'no',
-          convertToCustomersExpense: false,
+          convertToCustomerExpense: false,
           officeRemarks: 'Denied!',
         }),
       );
