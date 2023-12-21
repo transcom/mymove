@@ -48,7 +48,6 @@ export const EditServiceInfo = ({
 
   const handleSubmit = (values) => {
     const entitlementCouldChange = values.rank !== currentOrders.grade;
-
     const payload = {
       id: serviceMember.id,
       first_name: values.first_name,
