@@ -116,7 +116,6 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
   };
 
   // Customer delivery request
-  
   const customerContactDate =
     formatDate(sitStatus?.currentSIT?.sitCustomerContacted, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE;
   const sitRequestedDelivery =
