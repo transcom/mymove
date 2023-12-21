@@ -36,6 +36,21 @@ func (suite *MTOShipmentServiceSuite) createSubtestData(customs []factory.Custom
 	return subtestData
 }
 
+// This func is for the PrimeAPI V2 subtest data tests for createMTOShipment
+func (suite *MTOShipmentServiceSuite) createSubtestDataV2(customs []factory.Customization) (subtestData *createShipmentSubtestData) {
+	subtestData = &createShipmentSubtestData{}
+
+	subtestData.move = factory.BuildMove(suite.DB(), customs, nil)
+
+	builder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
+	fetcher := fetch.NewFetcher(builder)
+
+	subtestData.shipmentCreator = NewMTOShipmentCreatorV2(builder, fetcher, moveRouter)
+
+	return subtestData
+}
+
 func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	// Invalid ID fields set
 	suite.Run("invalid IDs found", func() {
@@ -631,7 +646,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	})
 
 	suite.Run("Test successful diversion from non-diverted parent shipment", func() {
-		subtestData := suite.createSubtestData(nil)
+		subtestData := suite.createSubtestDataV2(nil)
 		creator := subtestData.shipmentCreator
 
 		testCases := []struct {
@@ -692,7 +707,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	})
 
 	suite.Run("Test successful diversion from parent shipment that itself is a diversion as well", func() {
-		subtestData := suite.createSubtestData(nil)
+		subtestData := suite.createSubtestDataV2(nil)
 		creator := subtestData.shipmentCreator
 
 		testCases := []struct {
@@ -772,9 +787,11 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		}
 	})
 
-	suite.Run("Test unsuccessful diversion from shipment that itself is a diversion as well but without the DivertedFromShipmentID", func() {
-		subtestData := suite.createSubtestData(nil)
-		creator := subtestData.shipmentCreator
+	suite.Run("Test unsuccessful prime v2 shipment diversion from prime v1 diverted shipment", func() {
+		primeV1SubtestData := suite.createSubtestData(nil)
+		primeV2SubtestData := suite.createSubtestDataV2(nil)
+		primeV1Creator := primeV1SubtestData.shipmentCreator
+		primeV2Creator := primeV2SubtestData.shipmentCreator
 
 		testCases := []struct {
 			desc         string
@@ -794,9 +811,10 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		for _, tt := range testCases {
 			tt := tt
 			var err error
+			// The divertedParentShipment is assumed to be created from V1 because it has no DivertedFromShipmentID
 			divertedParentShipment := factory.BuildMTOShipment(nil, []factory.Customization{
 				{
-					Model:    subtestData.move,
+					Model:    primeV1SubtestData.move,
 					LinkOnly: true,
 				},
 				{
@@ -809,7 +827,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 			clearedDivertedParentShipment := clearShipmentIDFields(&divertedParentShipment)
 
-			createdDivertedParentShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedDivertedParentShipment)
+			createdDivertedParentShipment, err := primeV1Creator.CreateMTOShipment(suite.AppContextForTest(), clearedDivertedParentShipment)
 			suite.NoError(err)
 
 			// Create a new shipment, diverting from the parent
@@ -821,7 +839,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			// ! that itself already has a DivertedFromShipmentID. Otherwise, DivertedFromShipmentID should not be provided
 			childFromParentDivertedShipment := factory.BuildMTOShipment(nil, []factory.Customization{
 				{
-					Model:    subtestData.move,
+					Model:    primeV2SubtestData.move,
 					LinkOnly: true,
 				},
 				{
@@ -835,13 +853,13 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 			clearedChildFromParentDivertedShipment := clearShipmentIDFields(&childFromParentDivertedShipment)
 
-			_, err = creator.CreateMTOShipment(suite.AppContextForTest(), clearedChildFromParentDivertedShipment)
+			_, err = primeV2Creator.CreateMTOShipment(suite.AppContextForTest(), clearedChildFromParentDivertedShipment)
 			suite.Error(err)
 		}
 	})
 
 	suite.Run("If DivertedFromShipmentID doesn't exist", func() {
-		subtestData := suite.createSubtestData(nil)
+		subtestData := suite.createSubtestDataV2(nil)
 		creator := subtestData.shipmentCreator
 
 		testCases := []struct {
@@ -884,7 +902,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	})
 
 	suite.Run("If DivertedFromShipmentID is provided without the Diversion boolean", func() {
-		subtestData := suite.createSubtestData(nil)
+		subtestData := suite.createSubtestDataV2(nil)
 		creator := subtestData.shipmentCreator
 
 		testCases := []struct {
