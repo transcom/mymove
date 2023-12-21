@@ -8,6 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
@@ -281,6 +282,14 @@ func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipme
 		requiredDeliveryDate = sitDepartureDate.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime)
 	} else if sitDepartureDate.After(customerContactDatePlusFive) || sitDepartureDate.Equal(customerContactDatePlusFive) {
 		requiredDeliveryDate = sitCustomerContacted.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime+GracePeriodDays)
+	}
+
+	// Weekends and holidays are not allowable dates, find the next available workday
+	var calendar = dates.NewUSCalendar()
+	actual, observed, _ := calendar.IsHoliday(requiredDeliveryDate)
+
+	if actual || observed || !calendar.IsWorkday(requiredDeliveryDate) {
+		requiredDeliveryDate = dates.NextWorkday(*calendar, requiredDeliveryDate)
 	}
 
 	return &requiredDeliveryDate, nil
