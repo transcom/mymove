@@ -4946,54 +4946,6 @@ paths:
           description: user is not authorized
         '500':
           description: internal server error
-  /personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments:
-    post:
-      summary: Creates PPM attachments PDF
-      description: Creates a PPM attachments PDF
-      operationId: createPPMAttachments
-      tags:
-        - ppm
-      parameters:
-        - in: path
-          name: personallyProcuredMoveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the PPM to create an attachments PDF for
-        - name: docTypes
-          in: query
-          type: array
-          required: true
-          items:
-            type: string
-            enum:
-              - OTHER
-              - WEIGHT_TICKET
-              - STORAGE_EXPENSE
-              - SHIPMENT_SUMMARY
-              - EXPENSE
-              - WEIGHT_TICKET_SET
-          collectionFormat: csv
-          description: Restrict the list to documents with matching docType.
-      responses:
-        '200':
-          description: returns a PPM attachments upload
-          schema:
-            $ref: '#/definitions/Upload'
-        '400':
-          description: invalid request
-        '401':
-          description: must be authenticated to use this endpoint
-        '403':
-          description: not authorized to perform this action
-        '413':
-          description: payload is too large
-        '422':
-          description: malformed PDF contained in uploads
-        '424':
-          description: no files to be processed into attachments PDF
-        '500':
-          description: server error
   /personally_procured_moves/{personallyProcuredMoveId}/approve:
     post:
       summary: Approves the PPM

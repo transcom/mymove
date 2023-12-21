@@ -100,9 +100,6 @@ const InternalShowMoveDatesSummaryEndpointKey = "Internal.ShowMoveDatesSummary"
 // InternalShowShipmentSummaryWorksheetEndpointKey is the key for the showShipmentSummaryWorksheet endpoint in internal
 const InternalShowShipmentSummaryWorksheetEndpointKey = "Internal.ShowShipmentSummaryWorksheet"
 
-// InternalCreatePPMAttachmentsEndpointKey is the key for the createPPMAttachments endpoint in internal
-const InternalCreatePPMAttachmentsEndpointKey = "Internal.CreatePPMAttachments"
-
 // InternalApprovePPMEndpointKey is the key for the approvePPM endpoint in internal
 const InternalApprovePPMEndpointKey = "Internal.ApprovePPM"
 
@@ -306,10 +303,6 @@ var internalEndpoints = EndpointMapType{
 	InternalShowShipmentSummaryWorksheetEndpointKey: {
 		APIName:     InternalAPIName,
 		OperationID: "showShipmentSummaryWorksheet",
-	},
-	InternalCreatePPMAttachmentsEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "createPPMAttachments",
 	},
 	InternalApprovePPMEndpointKey: {
 		APIName:     InternalAPIName,

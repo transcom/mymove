@@ -117,11 +117,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation orders.CreateOrders has not yet been implemented")
 		})
 	}
-	if api.PpmCreatePPMAttachmentsHandler == nil {
-		api.PpmCreatePPMAttachmentsHandler = ppm.CreatePPMAttachmentsHandlerFunc(func(params ppm.CreatePPMAttachmentsParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.CreatePPMAttachments has not yet been implemented")
-		})
-	}
 	if api.PpmCreatePPMUploadHandler == nil {
 		api.PpmCreatePPMUploadHandler = ppm.CreatePPMUploadHandlerFunc(func(params ppm.CreatePPMUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.CreatePPMUpload has not yet been implemented")

@@ -96,9 +96,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrdersCreateOrdersHandler: orders.CreateOrdersHandlerFunc(func(params orders.CreateOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.CreateOrders has not yet been implemented")
 		}),
-		PpmCreatePPMAttachmentsHandler: ppm.CreatePPMAttachmentsHandlerFunc(func(params ppm.CreatePPMAttachmentsParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.CreatePPMAttachments has not yet been implemented")
-		}),
 		PpmCreatePPMUploadHandler: ppm.CreatePPMUploadHandlerFunc(func(params ppm.CreatePPMUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.CreatePPMUpload has not yet been implemented")
 		}),
@@ -361,8 +358,6 @@ type MymoveAPI struct {
 	PpmCreateMovingExpenseHandler ppm.CreateMovingExpenseHandler
 	// OrdersCreateOrdersHandler sets the operation handler for the create orders operation
 	OrdersCreateOrdersHandler orders.CreateOrdersHandler
-	// PpmCreatePPMAttachmentsHandler sets the operation handler for the create p p m attachments operation
-	PpmCreatePPMAttachmentsHandler ppm.CreatePPMAttachmentsHandler
 	// PpmCreatePPMUploadHandler sets the operation handler for the create p p m upload operation
 	PpmCreatePPMUploadHandler ppm.CreatePPMUploadHandler
 	// PpmCreatePersonallyProcuredMoveHandler sets the operation handler for the create personally procured move operation
@@ -605,9 +600,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.OrdersCreateOrdersHandler == nil {
 		unregistered = append(unregistered, "orders.CreateOrdersHandler")
-	}
-	if o.PpmCreatePPMAttachmentsHandler == nil {
-		unregistered = append(unregistered, "ppm.CreatePPMAttachmentsHandler")
 	}
 	if o.PpmCreatePPMUploadHandler == nil {
 		unregistered = append(unregistered, "ppm.CreatePPMUploadHandler")
@@ -936,10 +928,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/orders"] = orders.NewCreateOrders(o.context, o.OrdersCreateOrdersHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments"] = ppm.NewCreatePPMAttachments(o.context, o.PpmCreatePPMAttachmentsHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
