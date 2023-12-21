@@ -43,6 +43,41 @@ func isAddressOnShipment(address *models.Address, mtoShipment *models.MTOShipmen
 	return false
 }
 
+func UpdateSITServiceItemDestinationAddressToMTOShipmentAddress(mtoServiceItems *models.MTOServiceItems, newAddress *models.Address, appCtx appcontext.AppContext) (*models.MTOServiceItems, error) {
+	// Change the address ID of destination SIT service items to match the address of the shipment address ID
+	var updatedMtoServiceItems models.MTOServiceItems
+	for _, s := range *mtoServiceItems {
+		serviceItem := s
+		reServiceCode := serviceItem.ReService.Code
+		if reServiceCode == models.ReServiceCodeDDDSIT ||
+			reServiceCode == models.ReServiceCodeDDFSIT ||
+			reServiceCode == models.ReServiceCodeDDASIT ||
+			reServiceCode == models.ReServiceCodeDDSFSC {
+
+			serviceItem.SITDestinationFinalAddressID = &newAddress.ID
+			updatedMtoServiceItems = append(updatedMtoServiceItems, serviceItem)
+			transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
+				// update service item final destination address ID to match shipment address ID
+				verrs, err := txnCtx.DB().ValidateAndUpdate(&serviceItem)
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(newAddress.ID, err, verrs, "invalid input found while updating final destination address of service item")
+				} else if err != nil {
+					return apperror.NewQueryError("Service item", err, "")
+				}
+
+				return nil
+			})
+
+			// if there was a transaction error, we'll return nothing but the error
+			if transactionError != nil {
+				return nil, transactionError
+			}
+		}
+	}
+
+	return &updatedMtoServiceItems, nil
+}
+
 // UpdateMTOShipmentAddress updates an address on an MTO shipment.
 // Since address records have no parent id, caller must supply the mtoShipmentID associated with this address.
 // Function will check that the etag matches before making the update.
@@ -60,7 +95,7 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 	if mustBeAvailableToPrime {
 		query.Where("uses_external_vendor = FALSE")
 	}
-	err := query.Scope(utilities.ExcludeDeletedScope()).Find(&mtoShipment, mtoShipmentID)
+	err := query.Scope(utilities.ExcludeDeletedScope()).Eager("MTOServiceItems", "MTOServiceItems.ReService").Find(&mtoShipment, mtoShipmentID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -110,6 +145,11 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 	} else if err != nil {
 		// If the error is something else (this is unexpected), we create a QueryError
 		return nil, apperror.NewQueryError("Address", err, "")
+	}
+
+	_, err = UpdateSITServiceItemDestinationAddressToMTOShipmentAddress(&mtoShipment.MTOServiceItems, newAddress, appCtx)
+	if err != nil {
+		return nil, apperror.NewQueryError("No updated service items on shipment address change", err, "")
 	}
 
 	// Get the updated address and return
