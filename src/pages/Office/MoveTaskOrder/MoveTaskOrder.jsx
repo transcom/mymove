@@ -39,7 +39,6 @@ import {
   denySITExtension,
   patchMTOServiceItemStatus,
   submitSITExtension,
-  convertSITToCustomerExpense,
   updateBillableWeight,
   updateFinancialFlag,
   updateMTOShipment,
@@ -340,21 +339,6 @@ export const MoveTaskOrder = (props) => {
   });
 
   /* istanbul ignore next */
-  const { mutate: mutateConvertSITToCustomerExpense } = useMutation({
-    mutationFn: convertSITToCustomerExpense,
-    onSuccess: (data, variables) => {
-      const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
-      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
-      queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
-      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID] });
-    },
-    onError: (error) => {
-      const errorMsg = error?.response?.body;
-      milmoveLogger.error(errorMsg);
-    },
-  });
-
-  /* istanbul ignore next */
   const { mutate: mutateFinancialReview } = useMutation({
     mutationFn: updateFinancialFlag,
     onSuccess: (data) => {
@@ -601,25 +585,6 @@ export const MoveTaskOrder = (props) => {
           officeRemarks: formValues.officeRemarks,
           approvedDays: parseInt(formValues.daysApproved, 10) - shipment.sitDaysAllowance,
           sitEntryDate: formatDateForSwagger(formValues.sitEntryDate),
-          moveID: shipment.moveTaskOrderID,
-        },
-      },
-      {
-        onSuccess: () => {
-          setIsSuccessAlertVisible(true);
-          setSubmittedChangeTime(Date.now());
-        },
-      },
-    );
-  };
-
-  const handleConvertSITToCustomerExpense = (formValues, shipment) => {
-    mutateConvertSITToCustomerExpense(
-      {
-        shipmentID: shipment.id,
-        ifMatchETag: shipment.eTag,
-        body: {
-          officeRemarks: formValues.officeRemarks,
           moveID: shipment.moveTaskOrderID,
         },
       },
@@ -1356,7 +1321,6 @@ export const MoveTaskOrder = (props) => {
                   handleRequestReweighModal={handleRequestReweighModal}
                   handleReviewSITExtension={handleReviewSITExtension}
                   handleSubmitSITExtension={handleSubmitSITExtension}
-                  handleConvertSITToCustomerExpense={handleConvertSITToCustomerExpense}
                   handleEditFacilityInfo={handleEditFacilityInfo}
                   handleEditServiceOrderNumber={handleEditServiceOrderNumber}
                   handleEditAccountingCodes={handleEditAccountingCodes}

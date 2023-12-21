@@ -44,7 +44,6 @@ const ShipmentDetailsMain = ({
   handleRequestReweighModal,
   handleReviewSITExtension,
   handleSubmitSITExtension,
-  handleConvertSITToCustomerExpense,
 }) => {
   const {
     requestedPickupDate,
@@ -85,9 +84,8 @@ const ShipmentDetailsMain = ({
     setSubmittedChangeTime(Date.now());
   };
 
-  const convertSITToCustomerExpense = (formValues) => {
+  const convertSITToCustomerExpense = () => {
     setIsConvertSITToCustomerExpenseModalVisible(false);
-    handleConvertSITToCustomerExpense(formValues, shipment);
     setSubmittedChangeTime(Date.now());
   };
 
@@ -233,7 +231,6 @@ ShipmentDetailsMain.propTypes = {
   handleRequestReweighModal: PropTypes.func.isRequired,
   handleReviewSITExtension: PropTypes.func.isRequired,
   handleSubmitSITExtension: PropTypes.func.isRequired,
-  handleConvertSITToCustomerExpense: PropTypes.func.isRequired,
 };
 
 ShipmentDetailsMain.defaultProps = {
