@@ -97,7 +97,6 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		handlerConfig,
 		moveRouter,
 	}
-	internalAPI.MovesShowMoveDatesSummaryHandler = ShowMoveDatesSummaryHandler{handlerConfig}
 
 	internalAPI.OktaProfileShowOktaInfoHandler = GetOktaProfileHandler{handlerConfig}
 	internalAPI.OktaProfileUpdateOktaInfoHandler = UpdateOktaProfileHandler{handlerConfig}

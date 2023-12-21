@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import classnames from 'classnames';
 import { Formik, Field, useField } from 'formik';
 import PropTypes from 'prop-types';
@@ -9,11 +9,12 @@ import moment from 'moment';
 import { SITExtensionShape } from '../../../types/sitExtensions';
 
 import styles from './ReviewSITExtensionModal.module.scss';
+import ConfirmCustomerExpenseModal from './ConfirmCustomerExpenseModal/ConfirmCustomerExpenseModal';
 
 import DataTableWrapper from 'components/DataTableWrapper/index';
 import DataTable from 'components/DataTable/index';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
-import { DropdownInput, DatePickerInput } from 'components/form/fields';
+import { DropdownInput, DatePickerInput, CheckboxField } from 'components/form/fields';
 import { dropdownInputOptions } from 'utils/formatters';
 import { Form } from 'components/form';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
@@ -201,9 +202,11 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
  * Display on the MTO page when the Prime submits a SIT Extension for review of
  * the TOO.
  */
-const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, sitStatus }) => {
+const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, onSubmit }) => {
+  const [showConfirmCustomerExpenseModal, setShowConfirmCustomerExpenseModal] = useState(false);
   const initialValues = {
     acceptExtension: '',
+    convertToCustomerExpense: false,
     daysApproved: String(shipment.sitDaysAllowance),
     requestReason: sitExtension.requestReason,
     officeRemarks: '',
@@ -213,8 +216,13 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const reviewSITExtensionSchema = Yup.object().shape({
     acceptExtension: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
+    convertToCustomerExpense: Yup.boolean().default(false),
     requestReason: Yup.string().required('Required'),
-    officeRemarks: Yup.string().nullable(),
+    officeRemarks: Yup.string().when('acceptExtension', {
+      is: 'no',
+      then: () => Yup.string().required('Required'),
+      otherwise: () => Yup.string().nullable(),
+    }),
     daysApproved: Yup.number().when('acceptExtension', {
       is: 'yes',
       then: () =>
@@ -244,11 +252,27 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
               initialValues={initialValues}
             >
               {({ isValid, values, setValues }) => {
-                const handleNoSelection = (e) => {
-                  if (e.target.value === 'no') {
+                const handleRadioSelection = (e) => {
+                  if (e.target.value === 'yes') {
+                    setValues({
+                      ...values,
+                      acceptExtension: 'yes',
+                      convertToCustomerExpense: false,
+                    });
+                  } else if (e.target.value === 'no') {
                     setValues({
                       ...values,
                       acceptExtension: 'no',
+                    });
+                  }
+                };
+                const handleCheckBoxClick = (e) => {
+                  if (e.target.value === 'false') {
+                    setShowConfirmCustomerExpenseModal(true);
+                  } else {
+                    setValues({
+                      ...values,
+                      convertToCustomerExpense: false,
                     });
                   }
                 };
@@ -285,6 +309,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
                             value="yes"
                             title="Yes, accept extension"
                             type="radio"
+                            onChange={handleRadioSelection}
                           />
                           <Field
                             as={Radio}
@@ -294,7 +319,7 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
                             value="no"
                             title="No, deny extension"
                             type="radio"
-                            onChange={handleNoSelection}
+                            onChange={handleRadioSelection}
                           />
                         </Fieldset>
                       </FormGroup>
@@ -304,6 +329,16 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
                             label="Reason for edit"
                             name="requestReason"
                             options={dropdownInputOptions(sitExtensionReasons)}
+                          />
+                        </div>
+                      )}
+                      {values.acceptExtension === 'no' && (
+                        <div className={styles.convertRadio} data-testid="convertToCustomerExpense">
+                          <CheckboxField
+                            id="convertToCustomerExpense"
+                            label="Convert to Customer Expense"
+                            name="convertToCustomerExpense"
+                            onChange={handleCheckBoxClick}
                           />
                         </div>
                       )}
@@ -329,6 +364,18 @@ const ReviewSITExtensionsModal = ({ onClose, onSubmit, sitExtension, shipment, s
                           Cancel
                         </Button>
                       </ModalActions>
+                      {showConfirmCustomerExpenseModal && (
+                        <>
+                          <Overlay />
+                          <ModalContainer>
+                            <ConfirmCustomerExpenseModal
+                              setShowConfirmModal={setShowConfirmCustomerExpenseModal}
+                              values={values}
+                              setValues={setValues}
+                            />
+                          </ModalContainer>
+                        </>
+                      )}
                     </div>
                   </Form>
                 );
