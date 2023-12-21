@@ -492,3 +492,139 @@ func (suite *PayloadsSuite) TestGetDimension() {
 	emptyResultDimension := GetDimension(models.MTOServiceItemDimensions{}, dimensionType)
 	suite.Equal(models.MTOServiceItemDimension{}, emptyResultDimension)
 }
+
+func (suite *PayloadsSuite) TestProofOfServiceDoc() {
+	proofOfServiceDoc := models.ProofOfServiceDoc{
+		PrimeUploads: []models.PrimeUpload{
+			{Upload: models.Upload{ID: uuid.Must(uuid.NewV4())}},
+		},
+	}
+
+	result := ProofOfServiceDoc(proofOfServiceDoc)
+
+	suite.NotNil(result)
+	suite.Equal(len(proofOfServiceDoc.PrimeUploads), len(result.Uploads))
+}
+
+func (suite *PayloadsSuite) TestPaymentRequest() {
+	paymentRequest := models.PaymentRequest{
+		ID: uuid.Must(uuid.NewV4()),
+	}
+
+	result := PaymentRequest(&paymentRequest)
+
+	suite.NotNil(result)
+	suite.Equal(strfmt.UUID(paymentRequest.ID.String()), result.ID)
+}
+
+func (suite *PayloadsSuite) TestPaymentRequests() {
+	paymentRequests := models.PaymentRequests{
+		models.PaymentRequest{ID: uuid.Must(uuid.NewV4())},
+	}
+
+	result := PaymentRequests(&paymentRequests)
+
+	suite.NotNil(result)
+	suite.Equal(len(paymentRequests), len(*result))
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItem() {
+	paymentServiceItem := models.PaymentServiceItem{
+		ID: uuid.Must(uuid.NewV4()),
+	}
+
+	result := PaymentServiceItem(&paymentServiceItem)
+
+	suite.NotNil(result)
+	suite.Equal(strfmt.UUID(paymentServiceItem.ID.String()), result.ID)
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItems() {
+	paymentServiceItems := models.PaymentServiceItems{
+		models.PaymentServiceItem{ID: uuid.Must(uuid.NewV4())},
+	}
+
+	result := PaymentServiceItems(&paymentServiceItems)
+
+	suite.NotNil(result)
+	suite.Equal(len(paymentServiceItems), len(*result))
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItemParam() {
+	paymentServiceItemParam := models.PaymentServiceItemParam{
+		ID: uuid.Must(uuid.NewV4()),
+	}
+
+	result := PaymentServiceItemParam(&paymentServiceItemParam)
+
+	suite.NotNil(result)
+	suite.Equal(strfmt.UUID(paymentServiceItemParam.ID.String()), result.ID)
+}
+
+func (suite *PayloadsSuite) TestPaymentServiceItemParams() {
+	paymentServiceItemParams := models.PaymentServiceItemParams{
+		models.PaymentServiceItemParam{ID: uuid.Must(uuid.NewV4())},
+	}
+
+	result := PaymentServiceItemParams(&paymentServiceItemParams)
+
+	suite.NotNil(result)
+	suite.Equal(len(paymentServiceItemParams), len(*result))
+}
+
+func (suite *PayloadsSuite) TestServiceRequestDocument() {
+	serviceRequestDocument := models.ServiceRequestDocument{
+		ServiceRequestDocumentUploads: []models.ServiceRequestDocumentUpload{
+			{Upload: models.Upload{ID: uuid.Must(uuid.NewV4())}},
+		},
+	}
+
+	result := ServiceRequestDocument(serviceRequestDocument)
+
+	suite.NotNil(result)
+	suite.Equal(len(serviceRequestDocument.ServiceRequestDocumentUploads), len(result.Uploads))
+}
+
+func (suite *PayloadsSuite) TestPPMShipment() {
+	ppmShipment := &models.PPMShipment{
+		ID: uuid.Must(uuid.NewV4()),
+	}
+
+	result := PPMShipment(ppmShipment)
+
+	suite.NotNil(result)
+	suite.Equal(strfmt.UUID(ppmShipment.ID.String()), result.ID)
+}
+
+func (suite *PayloadsSuite) TestGetCustomerContact() {
+	customerContacts := models.MTOServiceItemCustomerContacts{
+		models.MTOServiceItemCustomerContact{Type: models.CustomerContactTypeFirst},
+	}
+	contactType := models.CustomerContactTypeFirst
+
+	result := GetCustomerContact(customerContacts, contactType)
+
+	suite.Equal(models.CustomerContactTypeFirst, result.Type)
+}
+
+func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
+	shipmentAddressUpdate := &models.ShipmentAddressUpdate{
+		ID: uuid.Must(uuid.NewV4()),
+	}
+
+	result := ShipmentAddressUpdate(shipmentAddressUpdate)
+
+	suite.NotNil(result)
+	suite.Equal(strfmt.UUID(shipmentAddressUpdate.ID.String()), result.ID)
+}
+
+func (suite *PayloadsSuite) TestSITAddressUpdates() {
+	sitAddressUpdates := models.SITAddressUpdates{
+		models.SITAddressUpdate{ID: uuid.Must(uuid.NewV4())},
+	}
+
+	result := SITAddressUpdates(sitAddressUpdates)
+
+	suite.NotNil(result)
+	suite.Equal(len(sitAddressUpdates), len(result))
+}
