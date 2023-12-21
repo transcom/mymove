@@ -286,6 +286,7 @@ func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipme
 
 	// Weekends and holidays are not allowable dates, find the next available workday
 	var calendar = dates.NewUSCalendar()
+
 	actual, observed, _ := calendar.IsHoliday(requiredDeliveryDate)
 
 	if actual || observed || !calendar.IsWorkday(requiredDeliveryDate) {
