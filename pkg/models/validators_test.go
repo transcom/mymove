@@ -11,6 +11,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
+	"github.com/transcom/mymove/pkg/gen/primev2messages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -692,6 +693,88 @@ func Test_ItemCanFitInsideCrate_IsValid(t *testing.T) {
 			},
 			NameCompared: "Crate",
 			Crate: &primemessages.MTOServiceItemDimension{
+				Height: makeInt32(0),
+				Length: makeInt32(0),
+				Width:  makeInt32(0),
+			},
+		}
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+		if errs.Count() == 0 {
+			t.Errorf("got no errors when should be invalid")
+		}
+	})
+}
+
+func Test_ItemCanFitInsideCrate_IsValid_V2(t *testing.T) {
+	makeInt32 := func(i int) *int32 {
+		val := int32(i)
+		return &val
+	}
+
+	item := primev2messages.MTOServiceItemDimension{
+		Height: makeInt32(10000),
+		Length: makeInt32(10000),
+		Width:  makeInt32(10000),
+	}
+	crate := primev2messages.MTOServiceItemDimension{
+		Height: makeInt32(20000),
+		Length: makeInt32(20000),
+		Width:  makeInt32(20000),
+	}
+
+	t.Run("item and crate both have values succeeds", func(t *testing.T) {
+		v := models.ItemCanFitInsideCrateV2{
+			Name:         "Item",
+			Item:         &item,
+			NameCompared: "Crate",
+			Crate:        &crate,
+		}
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+		if errs.Count() != 0 {
+			t.Errorf("got errors when should be valid: %v", errs)
+		}
+	})
+
+	t.Run("item and crate both nil fails", func(t *testing.T) {
+		v := models.ItemCanFitInsideCrateV2{
+			Name:         "Item",
+			Item:         nil,
+			NameCompared: "Crate",
+			Crate:        nil,
+		}
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+		if errs.Count() == 0 {
+			t.Errorf("got no errors when should be invalid")
+		}
+	})
+
+	t.Run("item and crate dimension nil values fails", func(t *testing.T) {
+		v := models.ItemCanFitInsideCrateV2{
+			Name:         "Item",
+			Item:         &primev2messages.MTOServiceItemDimension{},
+			NameCompared: "Crate",
+			Crate:        &primev2messages.MTOServiceItemDimension{},
+		}
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+		if errs.Count() == 0 {
+			t.Errorf("got no errors when should be invalid")
+		}
+	})
+
+	t.Run("item dimensions greater than or equal to crate dimensions fails", func(t *testing.T) {
+		v := models.ItemCanFitInsideCrateV2{
+			Name: "Item",
+			Item: &primev2messages.MTOServiceItemDimension{
+				Height: makeInt32(0),
+				Length: makeInt32(0),
+				Width:  makeInt32(0),
+			},
+			NameCompared: "Crate",
+			Crate: &primev2messages.MTOServiceItemDimension{
 				Height: makeInt32(0),
 				Length: makeInt32(0),
 				Width:  makeInt32(0),
