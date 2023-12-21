@@ -54,6 +54,19 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 	var verrs *validate.Errors
 	var err error
 
+	for _, check := range f.checks {
+		if err = check.Validate(appCtx, shipment, nil); err != nil {
+			switch e := err.(type) {
+			case *validate.Errors:
+				// Accumulate all validation errors
+				verrs.Append(e)
+			default:
+				// Non-validation errors have priority and short-circuit doing any further checks
+				return nil, err
+			}
+		}
+	}
+
 	serviceItems := shipment.MTOServiceItems
 	err = checkShipmentIDFields(shipment, serviceItems)
 
