@@ -103,11 +103,6 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		}
 	}
 
-	// Diversion validation
-	if err = checkDiversionValid().Validate(appCtx, shipment, nil); err != nil {
-		return nil, err
-	}
-
 	if serviceItems != nil {
 		serviceItemsList := make(models.MTOServiceItems, 0, len(serviceItems))
 
