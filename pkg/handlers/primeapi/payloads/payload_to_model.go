@@ -126,18 +126,10 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 		return nil
 	}
 
-	var divertedFromShipmentID *uuid.UUID
-	if mtoShipment.DivertedFromShipmentID != "" {
-		// Create the UUID in memory so it can be referenced
-		uuid := uuid.FromStringOrNil(mtoShipment.DivertedFromShipmentID.String())
-		divertedFromShipmentID = &uuid
-	}
-
 	model := &models.MTOShipment{
 		MoveTaskOrderID:             uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
 		CustomerRemarks:             mtoShipment.CustomerRemarks,
 		Diversion:                   mtoShipment.Diversion,
-		DivertedFromShipmentID:      divertedFromShipmentID,
 		CounselorRemarks:            mtoShipment.CounselorRemarks,
 		HasSecondaryPickupAddress:   handlers.FmtBool(false),
 		HasSecondaryDeliveryAddress: handlers.FmtBool(false),
