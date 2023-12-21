@@ -102,9 +102,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmCreatePPMUploadHandler: ppm.CreatePPMUploadHandlerFunc(func(params ppm.CreatePPMUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.CreatePPMUpload has not yet been implemented")
 		}),
-		PpmCreatePersonallyProcuredMoveHandler: ppm.CreatePersonallyProcuredMoveHandlerFunc(func(params ppm.CreatePersonallyProcuredMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.CreatePersonallyProcuredMove has not yet been implemented")
-		}),
 		PpmCreateProGearWeightTicketHandler: ppm.CreateProGearWeightTicketHandlerFunc(func(params ppm.CreateProGearWeightTicketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.CreateProGearWeightTicket has not yet been implemented")
 		}),
@@ -155,9 +152,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MoveDocsIndexMoveDocumentsHandler: move_docs.IndexMoveDocumentsHandlerFunc(func(params move_docs.IndexMoveDocumentsParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_docs.IndexMoveDocuments has not yet been implemented")
-		}),
-		PpmIndexPersonallyProcuredMovesHandler: ppm.IndexPersonallyProcuredMovesHandlerFunc(func(params ppm.IndexPersonallyProcuredMovesParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.IndexPersonallyProcuredMoves has not yet been implemented")
 		}),
 		BackupContactsIndexServiceMemberBackupContactsHandler: backup_contacts.IndexServiceMemberBackupContactsHandlerFunc(func(params backup_contacts.IndexServiceMemberBackupContactsParams) middleware.Responder {
 			return middleware.NotImplemented("operation backup_contacts.IndexServiceMemberBackupContacts has not yet been implemented")
@@ -365,8 +359,6 @@ type MymoveAPI struct {
 	PpmCreatePPMAttachmentsHandler ppm.CreatePPMAttachmentsHandler
 	// PpmCreatePPMUploadHandler sets the operation handler for the create p p m upload operation
 	PpmCreatePPMUploadHandler ppm.CreatePPMUploadHandler
-	// PpmCreatePersonallyProcuredMoveHandler sets the operation handler for the create personally procured move operation
-	PpmCreatePersonallyProcuredMoveHandler ppm.CreatePersonallyProcuredMoveHandler
 	// PpmCreateProGearWeightTicketHandler sets the operation handler for the create pro gear weight ticket operation
 	PpmCreateProGearWeightTicketHandler ppm.CreateProGearWeightTicketHandler
 	// ServiceMembersCreateServiceMemberHandler sets the operation handler for the create service member operation
@@ -401,8 +393,6 @@ type MymoveAPI struct {
 	EntitlementsIndexEntitlementsHandler entitlements.IndexEntitlementsHandler
 	// MoveDocsIndexMoveDocumentsHandler sets the operation handler for the index move documents operation
 	MoveDocsIndexMoveDocumentsHandler move_docs.IndexMoveDocumentsHandler
-	// PpmIndexPersonallyProcuredMovesHandler sets the operation handler for the index personally procured moves operation
-	PpmIndexPersonallyProcuredMovesHandler ppm.IndexPersonallyProcuredMovesHandler
 	// BackupContactsIndexServiceMemberBackupContactsHandler sets the operation handler for the index service member backup contacts operation
 	BackupContactsIndexServiceMemberBackupContactsHandler backup_contacts.IndexServiceMemberBackupContactsHandler
 	// CertificationIndexSignedCertificationHandler sets the operation handler for the index signed certification operation
@@ -612,9 +602,6 @@ func (o *MymoveAPI) Validate() error {
 	if o.PpmCreatePPMUploadHandler == nil {
 		unregistered = append(unregistered, "ppm.CreatePPMUploadHandler")
 	}
-	if o.PpmCreatePersonallyProcuredMoveHandler == nil {
-		unregistered = append(unregistered, "ppm.CreatePersonallyProcuredMoveHandler")
-	}
 	if o.PpmCreateProGearWeightTicketHandler == nil {
 		unregistered = append(unregistered, "ppm.CreateProGearWeightTicketHandler")
 	}
@@ -665,9 +652,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MoveDocsIndexMoveDocumentsHandler == nil {
 		unregistered = append(unregistered, "move_docs.IndexMoveDocumentsHandler")
-	}
-	if o.PpmIndexPersonallyProcuredMovesHandler == nil {
-		unregistered = append(unregistered, "ppm.IndexPersonallyProcuredMovesHandler")
 	}
 	if o.BackupContactsIndexServiceMemberBackupContactsHandler == nil {
 		unregistered = append(unregistered, "backup_contacts.IndexServiceMemberBackupContactsHandler")
@@ -947,10 +931,6 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/moves/{moveId}/personally_procured_move"] = ppm.NewCreatePersonallyProcuredMove(o.context, o.PpmCreatePersonallyProcuredMoveHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
 	o.handlers["POST"]["/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets"] = ppm.NewCreateProGearWeightTicket(o.context, o.PpmCreateProGearWeightTicketHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -1016,10 +996,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves/{moveId}/move_documents"] = move_docs.NewIndexMoveDocuments(o.context, o.MoveDocsIndexMoveDocumentsHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/moves/{moveId}/personally_procured_move"] = ppm.NewIndexPersonallyProcuredMoves(o.context, o.PpmIndexPersonallyProcuredMovesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

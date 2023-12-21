@@ -127,11 +127,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.CreatePPMUpload has not yet been implemented")
 		})
 	}
-	if api.PpmCreatePersonallyProcuredMoveHandler == nil {
-		api.PpmCreatePersonallyProcuredMoveHandler = ppm.CreatePersonallyProcuredMoveHandlerFunc(func(params ppm.CreatePersonallyProcuredMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.CreatePersonallyProcuredMove has not yet been implemented")
-		})
-	}
 	if api.PpmCreateProGearWeightTicketHandler == nil {
 		api.PpmCreateProGearWeightTicketHandler = ppm.CreateProGearWeightTicketHandlerFunc(func(params ppm.CreateProGearWeightTicketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.CreateProGearWeightTicket has not yet been implemented")
@@ -215,11 +210,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.MoveDocsIndexMoveDocumentsHandler == nil {
 		api.MoveDocsIndexMoveDocumentsHandler = move_docs.IndexMoveDocumentsHandlerFunc(func(params move_docs.IndexMoveDocumentsParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_docs.IndexMoveDocuments has not yet been implemented")
-		})
-	}
-	if api.PpmIndexPersonallyProcuredMovesHandler == nil {
-		api.PpmIndexPersonallyProcuredMovesHandler = ppm.IndexPersonallyProcuredMovesHandlerFunc(func(params ppm.IndexPersonallyProcuredMovesParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.IndexPersonallyProcuredMoves has not yet been implemented")
 		})
 	}
 	if api.BackupContactsIndexServiceMemberBackupContactsHandler == nil {

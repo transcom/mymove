@@ -412,31 +412,6 @@ export async function deleteProGearWeightTicket(ppmShipmentId, proGearWeightTick
 }
 
 /** PPMS */
-export async function getPPMsForMove(moveId) {
-  return makeInternalRequest(
-    'ppm.indexPersonallyProcuredMoves',
-    {
-      moveId,
-    },
-    {
-      normalize: false,
-    },
-  );
-}
-
-export async function createPPMForMove(moveId, ppm) {
-  return makeInternalRequest(
-    'ppm.createPersonallyProcuredMove',
-    {
-      moveId,
-      createPersonallyProcuredMovePayload: ppm,
-    },
-    {
-      normalize: false,
-    },
-  );
-}
-
 export async function patchPPM(moveId, ppm) {
   return makeInternalRequest(
     'ppm.patchPersonallyProcuredMove',

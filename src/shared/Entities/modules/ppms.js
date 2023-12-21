@@ -27,11 +27,6 @@ export function approvePPM(personallyProcuredMoveId, personallyProcuredMoveAppro
   );
 }
 
-export function loadPPMs(moveId, label = loadPPMsLabel) {
-  const swaggerTag = 'ppm.indexPersonallyProcuredMoves';
-  return swaggerRequest(getClient, swaggerTag, { moveId }, { label });
-}
-
 export function updatePPM(
   moveId,
   personallyProcuredMoveId,
