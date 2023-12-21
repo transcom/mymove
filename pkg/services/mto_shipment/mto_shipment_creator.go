@@ -34,7 +34,7 @@ func NewMTOShipmentCreatorV1(builder createMTOShipmentQueryBuilder, fetcher serv
 		builder,
 		fetcher,
 		moveRouter,
-		nil,
+		[]validator{protectV1Diversion()},
 	}
 }
 

@@ -944,6 +944,47 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		}
 	})
 
+	suite.Run("If DivertedFromShipmentID is provided to the V1 endpoint it should fail", func() {
+		subtestData := suite.createSubtestData(nil)
+		creator := subtestData.shipmentCreator
+
+		testCases := []struct {
+			desc         string
+			shipmentType models.MTOShipmentType
+		}{
+			{"HHG", models.MTOShipmentTypeHHG},
+			{"INTERNATIONAL_HHG", models.MTOShipmentTypeInternationalHHG},
+			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
+			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
+			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
+			{"MOTORHOME", models.MTOShipmentTypeMotorhome},
+			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
+			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
+			{"PPM", models.MTOShipmentTypePPM},
+		}
+
+		for _, tt := range testCases {
+			tt := tt
+			uuid, _ := uuid.NewV4()
+			parentShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+				{
+					Model:    subtestData.move,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOShipment{
+						ShipmentType:           tt.shipmentType,
+						DivertedFromShipmentID: &uuid,
+					},
+				},
+			}, nil)
+
+			clearedParentShipment := clearShipmentIDFields(&parentShipment)
+
+			_, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedParentShipment)
+			suite.Error(err)
+		}
+	})
 }
 
 // Clears all the ID fields that we need to be null for a new shipment to get created:
