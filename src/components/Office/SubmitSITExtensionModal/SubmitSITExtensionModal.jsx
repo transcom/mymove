@@ -43,6 +43,7 @@ const SitEndDateForm = ({ onChange }) => (
 const SitStatusTables = ({ sitStatus, shipment }) => {
   const { totalSITDaysUsed } = sitStatus;
   const { daysInSIT } = sitStatus.currentSIT;
+  const sitDepartureDate = sitStatus.currentSIT?.sitDepartureDate || `-`;
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
 
@@ -139,7 +140,11 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
       </div>
       <div className={styles.tableContainer}>
         {/* Total days at current location */}
-        <DataTable columnHeaders={[`Total days in ${currentLocation}`]} dataRow={[currentDaysInSit]} />
+        <DataTable
+          testID="currentSITDateData"
+          columnHeaders={[`Total days in ${currentLocation}`, `SIT Departure Date`]}
+          dataRow={[currentDaysInSit, sitDepartureDate]}
+        />
       </div>
     </>
   );

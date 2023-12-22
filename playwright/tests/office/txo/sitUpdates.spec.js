@@ -139,6 +139,15 @@ test.describe('TOO user', () => {
       await expect(page.getByText('	SIT authorized end date')).toBeVisible();
       await expect(page.getByText('Calculated total SIT days')).toBeVisible();
     });
+    test('is showing the SIT Departure Date section', async ({ page }) => {
+      // navigate to MTO tab
+      await page.getByTestId('MoveTaskOrder-Tab').click();
+      await tooFlowPage.waitForPage.moveTaskOrder();
+
+      await expect(
+        page.locator('table[class="DataTable_dataTable__TGt9M table--data-point"]').getByText('SIT Departure Date'),
+      ).toBeVisible();
+    });
   });
 });
 

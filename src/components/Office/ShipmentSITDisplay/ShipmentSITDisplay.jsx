@@ -73,6 +73,7 @@ const SitHistoryList = ({ sitHistory, dayAllowance }) => {
 const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }) => {
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
   const currentDaysInSIT = sitStatus.currentSIT?.daysInSIT || 0;
+  const sitDepartureDate = sitStatus.currentSIT?.sitDepartureDate || `-`;
   const currentDaysInSITElement = <p>{currentDaysInSIT}</p>;
   let sitEntryDate = sitStatus.currentSIT?.sitEntryDate;
   if (!sitEntryDate) {
@@ -107,7 +108,6 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
   // Currently active SIT
   const currentLocation =
     sitStatus.currentSIT?.location === LOCATION_TYPES.DESTINATION ? 'destination SIT' : 'origin SIT';
-
   const totalSITDaysUsed = clamp(sitStatus.totalSITDaysUsed || 0, 0, shipment.sitDaysAllowance);
   const totalDaysRemaining = () => {
     const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
@@ -151,7 +151,11 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
           </div>
           <div className={styles.tableContainer} data-testid="sitDaysAtCurrentLocation">
             {/* Total days at current location */}
-            <DataTable columnHeaders={[`Total days in ${currentLocation}`]} dataRow={[currentDaysInSITElement]} />
+            <DataTable
+              testID="currentSITDateData"
+              columnHeaders={[`Total days in ${currentLocation}`, `SIT Departure Date`]}
+              dataRow={[currentDaysInSITElement, sitDepartureDate]}
+            />
           </div>
         </>
       )}
