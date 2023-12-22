@@ -1,6 +1,7 @@
 package sitstatus
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -272,8 +273,13 @@ func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipme
 		distance, distance, weight, weight).First(&ghcDomesticTransitTime)
 
 	if err != nil {
-		return nil, apperror.NewQueryError("CalculateSITAllowanceRequestedDates", err,
-			fmt.Sprintf("failed to find transit time for shipment of %d lbs weight and %d mile distance", weight.Int(), distance))
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(shipment.ID, fmt.Sprintf(
+				"failed to find transit time for shipment of %d lbs weight and %d mile distance", weight.Int(), distance))
+		default:
+			return nil, apperror.NewQueryError("CalculateSITAllowanceRequestedDates", err, "failed to query for transit time")
+		}
 	}
 
 	var requiredDeliveryDate time.Time

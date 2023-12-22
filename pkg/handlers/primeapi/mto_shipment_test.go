@@ -2858,7 +2858,7 @@ func (suite *HandlerSuite) TestUpdateSITDeliveryRequestHandler() {
 		suite.IsType(&mtoshipmentops.UpdateSITDeliveryRequestUnprocessableEntity{}, response)
 	})
 
-	suite.Run("500 FAIL - Transit Query Failed", func() {
+	suite.Run("404 FAIL - Transit Query Failed", func() {
 		subtestData := makeSubtestData(true, models.ReServiceCodeDOFSIT, unit.Pound(20000))
 
 		// Validate incoming payload
@@ -2866,7 +2866,7 @@ func (suite *HandlerSuite) TestUpdateSITDeliveryRequestHandler() {
 
 		// Run handler and check response
 		response := subtestData.handler.Handle(subtestData.params)
-		suite.IsType(&mtoshipmentops.UpdateSITDeliveryRequestInternalServerError{}, response)
+		suite.IsType(&mtoshipmentops.UpdateSITDeliveryRequestNotFound{}, response)
 	})
 }
 

@@ -563,7 +563,7 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 			&subtestData.sitCustomerContacted, &subtestData.sitRequestedDelivery, subtestData.eTag)
 		suite.Error(err)
 		suite.Nil(sitStatus)
-		suite.IsType(apperror.QueryError{}, err)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.Run("failure test for ZipTransitDistance", func() {
