@@ -269,3 +269,183 @@ func (suite *PayloadsSuite) TestSITAddressUpdateModel() {
 		suite.Equal(*model.ContractorRemarks, *sitAddressUpdate.ContractorRemarks)
 	})
 }
+
+func (suite *PayloadsSuite) TestMTOAgentModel() {
+	suite.Run("success", func() {
+		mtoAgentMsg := &primemessages.MTOAgent{
+			ID: strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
+		}
+
+		mtoAgentModel := MTOAgentModel(mtoAgentMsg)
+
+		suite.NotNil(mtoAgentModel)
+	})
+
+	suite.Run("unsuccessful", func() {
+		mtoAgentModel := MTOAgentModel(nil)
+		suite.Nil(mtoAgentModel)
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOAgentsModel() {
+	suite.Run("success", func() {
+		mtoAgentsMsg := &primemessages.MTOAgents{
+			{
+				ID: strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
+			},
+			{
+				ID: strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
+			},
+		}
+
+		mtoAgentsModel := MTOAgentsModel(mtoAgentsMsg)
+
+		suite.NotNil(mtoAgentsModel)
+		suite.Len(*mtoAgentsModel, len(*mtoAgentsMsg))
+
+		for i, agentModel := range *mtoAgentsModel {
+			agentMsg := (*mtoAgentsMsg)[i]
+			suite.Equal(agentMsg.ID.String(), agentModel.ID.String())
+		}
+	})
+
+	suite.Run("unsuccessful", func() {
+		mtoAgentsModel := MTOAgentsModel(nil)
+		suite.Nil(mtoAgentsModel)
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemModelListFromCreate() {
+	suite.Run("successful", func() {
+		mtoShipment := &primemessages.CreateMTOShipment{}
+
+		serviceItemsList, verrs := MTOServiceItemModelListFromCreate(mtoShipment)
+
+		suite.Nil(verrs)
+		suite.NotNil(serviceItemsList)
+		suite.Len(serviceItemsList, len(mtoShipment.MtoServiceItems()))
+	})
+
+	suite.Run("successful multiple items", func() {
+		mtoShipment := &primemessages.CreateMTOShipment{}
+
+		serviceItemsList, verrs := MTOServiceItemModelListFromCreate(mtoShipment)
+
+		suite.Nil(verrs)
+		suite.NotNil(serviceItemsList)
+		suite.Len(serviceItemsList, len(mtoShipment.MtoServiceItems()))
+	})
+
+	suite.Run("unsuccessful", func() {
+		serviceItemsList, verrs := MTOServiceItemModelListFromCreate(nil)
+		suite.Nil(verrs)
+		suite.Nil(serviceItemsList)
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOShipmentModelFromUpdate() {
+	suite.Run("nil", func() {
+		model := MTOShipmentModelFromUpdate(nil, strfmt.UUID(uuid.Must(uuid.NewV4()).String()))
+		suite.Nil(model)
+	})
+
+	suite.Run("notnil", func() {
+		mtoShipment := &primemessages.UpdateMTOShipment{}
+		mtoShipmentID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+		model := MTOShipmentModelFromUpdate(mtoShipment, mtoShipmentID)
+
+		suite.NotNil(model)
+	})
+
+	suite.Run("weight", func() {
+		actualWeight := int64(1000)
+		ntsRecordedWeight := int64(2000)
+		estimatedWeight := int64(1500)
+		mtoShipment := &primemessages.UpdateMTOShipment{
+			PrimeActualWeight:    &actualWeight,
+			NtsRecordedWeight:    &ntsRecordedWeight,
+			PrimeEstimatedWeight: &estimatedWeight,
+		}
+		mtoShipmentID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+		model := MTOShipmentModelFromUpdate(mtoShipment, mtoShipmentID)
+
+		suite.NotNil(model.PrimeActualWeight)
+		suite.NotNil(model.NTSRecordedWeight)
+		suite.NotNil(model.PrimeEstimatedWeight)
+	})
+
+	suite.Run("ppm", func() {
+		mtoShipment := &primemessages.UpdateMTOShipment{
+			PpmShipment: &primemessages.UpdatePPMShipment{},
+		}
+		mtoShipmentID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+		model := MTOShipmentModelFromUpdate(mtoShipment, mtoShipmentID)
+
+		suite.NotNil(model.PPMShipment)
+	})
+}
+
+func (suite *PayloadsSuite) TestServiceRequestDocumentUploadModel() {
+	upload := models.Upload{
+		Bytes:       0,
+		ContentType: "",
+		Filename:    "",
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	result := ServiceRequestDocumentUploadModel(upload)
+
+	suite.Equal(upload.Bytes, *result.Bytes)
+	suite.Equal(upload.ContentType, *result.ContentType)
+	suite.Equal(upload.Filename, *result.Filename)
+	suite.Equal((strfmt.DateTime)(upload.CreatedAt), result.CreatedAt)
+	suite.Equal((strfmt.DateTime)(upload.UpdatedAt), result.UpdatedAt)
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemModelFromUpdate() {
+	suite.Run("DDDSIT", func() {
+		mtoServiceItemID := uuid.Must(uuid.NewV4()).String()
+		reServiceCode := string(models.ReServiceCodeDDDSIT)
+		updateMTOServiceItemSIT := primemessages.UpdateMTOServiceItemSIT{
+			ReServiceCode: reServiceCode,
+		}
+
+		model, _ := MTOServiceItemModelFromUpdate(mtoServiceItemID, &updateMTOServiceItemSIT)
+
+		suite.NotNil(model)
+	})
+
+	suite.Run("weight", func() {
+		mtoServiceItemID := uuid.Must(uuid.NewV4()).String()
+		estimatedWeight := int64(5000)
+		actualWeight := int64(4500)
+		updateMTOServiceItemShuttle := primemessages.UpdateMTOServiceItemShuttle{
+			EstimatedWeight: &estimatedWeight,
+			ActualWeight:    &actualWeight,
+		}
+
+		model, _ := MTOServiceItemModelFromUpdate(mtoServiceItemID, &updateMTOServiceItemShuttle)
+
+		suite.NotNil(model)
+	})
+}
+
+func (suite *PayloadsSuite) TestValidateReasonOriginSIT() {
+	suite.Run("Reason provided", func() {
+		reason := "reason"
+		mtoServiceItemOriginSIT := primemessages.MTOServiceItemOriginSIT{
+			Reason: &reason,
+		}
+
+		verrs := validateReasonOriginSIT(mtoServiceItemOriginSIT)
+		suite.False(verrs.HasAny())
+	})
+
+	suite.Run("No reason provided", func() {
+		mtoServiceItemOriginSIT := primemessages.MTOServiceItemOriginSIT{}
+
+		verrs := validateReasonOriginSIT(mtoServiceItemOriginSIT)
+		suite.True(verrs.HasAny())
+	})
+}
