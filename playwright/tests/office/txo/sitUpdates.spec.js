@@ -23,7 +23,7 @@ test.describe('TOO user', () => {
       await tooFlowPage.waitForPage.moveTaskOrder();
 
       // increase SIT authorization to 100 days
-      await page.getByTestId('sitExtensions').getByTestId('button').click();
+      await page.getByTestId('sitExtensions').getByRole('button', { name: 'Edit' }).click();
       await expect(page.getByRole('heading', { name: 'Edit SIT authorization' })).toBeVisible();
       await page.getByTestId('daysApproved').clear();
       await page.getByTestId('daysApproved').fill('100');
@@ -42,7 +42,7 @@ test.describe('TOO user', () => {
       await tooFlowPage.waitForPage.moveTaskOrder();
 
       // decrease SIT authorization to 80 days
-      await page.getByTestId('sitExtensions').getByTestId('button').click();
+      await page.getByTestId('sitExtensions').getByRole('button', { name: 'Edit' }).click();
       await expect(page.getByRole('heading', { name: 'Edit SIT authorization' })).toBeVisible();
       await page.getByTestId('daysApproved').clear();
       await page.getByTestId('daysApproved').fill('80');
@@ -93,7 +93,7 @@ test.describe('TOO user', () => {
       await tooFlowPage.waitForPage.moveTaskOrder();
 
       // try to decrease SIT authorization to 1 day
-      await page.getByTestId('sitExtensions').getByTestId('button').click();
+      await page.getByTestId('sitExtensions').getByRole('button', { name: 'Edit' }).click();
       await expect(page.getByRole('heading', { name: 'Edit SIT authorization' })).toBeVisible();
       await page.getByTestId('daysApproved').clear();
       await page.getByTestId('daysApproved').fill('1');
@@ -154,7 +154,7 @@ test.describe('TOO user', () => {
       await expect(page.getByRole('heading', { name: 'Review additional days requested' })).toBeVisible();
       await page.getByText('No', { exact: true }).click();
       await page.getByTestId('officeRemarks').fill('extension request denied');
-      await page.getByTestId('convertToCustomersExpense');
+      await page.getByTestId('convertToCustomerExpense');
       await page.getByTestId('form').getByTestId('button').click();
 
       // assert that there is no pending SIT extension request and the days authorization is still 90
@@ -175,7 +175,8 @@ test.describe('TOO user', () => {
       await expect(page.getByRole('heading', { name: 'Review additional days requested' })).toBeVisible();
       await page.getByText('No', { exact: true }).click();
       await page.getByTestId('officeRemarks').fill('extension request denied');
-      await page.getByTestId('convertToCustomersExpense').click();
+      await page.getByTestId('convertToCustomerExpense').click();
+      await page.getByTestId('convertToCustomerExpenseConfirmationYes').click();
       await page.getByTestId('form').getByTestId('button').click();
 
       // assert that there is no pending SIT extension request and the days authorization is still 90

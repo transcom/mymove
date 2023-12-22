@@ -32,7 +32,7 @@ type MTOServiceItemUpdater interface {
 	UpdateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, eTag string, validator string) (*models.MTOServiceItem, error)
 	UpdateMTOServiceItemBasic(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error)
 	UpdateMTOServiceItemPrime(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error)
-	ConvertItemToCustomersExpense(appCtx appcontext.AppContext, shipment *models.MTOShipment) (*models.MTOServiceItem, error)
+	ConvertItemToCustomerExpense(appCtx appcontext.AppContext, shipment *models.MTOShipment) (*models.MTOServiceItem, error)
 }
 
 // serviceRequestDocumentUploadCreator is the exported interface for creating a mto service item request upload

@@ -77,7 +77,7 @@ const CreatePaymentRequestForm = ({
                           key={`shipmentServiceItems${mtoServiceItem.id}`}
                           className={formStyles.formSection}
                         >
-                          <div className={styles.serviceItemInputGroup}>
+                          <div className={styles.serviceItemInputGroup} id={`${mtoServiceItem.id}-div`}>
                             <Label htmlFor={mtoServiceItem.id}>Add to payment request</Label>
                             <Field
                               as={Checkbox}
