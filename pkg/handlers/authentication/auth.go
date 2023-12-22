@@ -216,7 +216,6 @@ var allowedRoutes = map[string]bool{
 	"orders.showOrders":                           true,
 	"orders.updateOrders":                         true,
 	"postal_codes.validatePostalCodeWithRateData": true,
-	"ppm.requestPPMExpenseSummary":                true,
 	"ppm.showPPMEstimate":                         true,
 	"ppm.showPPMIncentive":                        true,
 	"ppm.showPPMSitEstimate":                      true,

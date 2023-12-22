@@ -61,9 +61,6 @@ const InternalShowPersonallyProcuredMoveEndpointKey = "Internal.ShowPersonallyPr
 // InternalSubmitPersonallyProcuredMoveEndpointKey is the key for the submitPersonallyProcuredMove endpoint in internal
 const InternalSubmitPersonallyProcuredMoveEndpointKey = "Internal.SubmitPersonallyProcuredMove"
 
-// InternalRequestPPMExpenseSummaryEndpointKey is the key for the requestPPMExpenseSummary endpoint in internal
-const InternalRequestPPMExpenseSummaryEndpointKey = "Internal.RequestPPMExpenseSummary"
-
 // InternalRequestPPMPaymentEndpointKey is the key for the requestPPMPayment endpoint in internal
 const InternalRequestPPMPaymentEndpointKey = "Internal.RequestPPMPayment"
 
@@ -251,10 +248,6 @@ var internalEndpoints = EndpointMapType{
 	InternalSubmitPersonallyProcuredMoveEndpointKey: {
 		APIName:     InternalAPIName,
 		OperationID: "submitPersonallyProcuredMove",
-	},
-	InternalRequestPPMExpenseSummaryEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "requestPPMExpenseSummary",
 	},
 	InternalRequestPPMPaymentEndpointKey: {
 		APIName:     InternalAPIName,

@@ -252,11 +252,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation service_members.PatchServiceMember has not yet been implemented")
 		})
 	}
-	if api.PpmRequestPPMExpenseSummaryHandler == nil {
-		api.PpmRequestPPMExpenseSummaryHandler = ppm.RequestPPMExpenseSummaryHandlerFunc(func(params ppm.RequestPPMExpenseSummaryParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.RequestPPMExpenseSummary has not yet been implemented")
-		})
-	}
 	if api.PpmRequestPPMPaymentHandler == nil {
 		api.PpmRequestPPMPaymentHandler = ppm.RequestPPMPaymentHandlerFunc(func(params ppm.RequestPPMPaymentParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.RequestPPMPayment has not yet been implemented")
