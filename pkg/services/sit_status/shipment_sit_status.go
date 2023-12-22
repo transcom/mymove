@@ -249,6 +249,9 @@ func fetchEntitlement(appCtx appcontext.AppContext, mtoShipment models.MTOShipme
 }
 
 // Calculate Required Delivery Date(RDD) from customer contact and requested delivery dates
+// The RDD is calculated using the following business logic:
+// If the SIT Departure Date is the same day or after the Customer Contact Date + GracePeriodDays then the RDD is Customer Contact Date + GracePeriodDays + GHC Transit Time
+// If however the SIT Departure Date is before the Customer Contact Date + GracePeriodDays then the RDD is SIT Departure Date + GHC Transit Time
 func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipment models.MTOShipment, planner route.Planner,
 	sitCustomerContacted *time.Time, sitDepartureDate *time.Time) (*time.Time, error) {
 	// Get a distance calculation between pickup and destination addresses.
@@ -264,7 +267,8 @@ func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipme
 		weight = shipment.NTSRecordedWeight
 	}
 
-	// Query the ghc_domestic_transit_times table for the max transit time
+	// Query the ghc_domestic_transit_times table for the max transit time using the distance between location
+	// and the weight to determine the number of days for transit
 	var ghcDomesticTransitTime models.GHCDomesticTransitTime
 	err = appCtx.DB().Where("distance_miles_lower <= ? "+
 		"AND distance_miles_upper >= ? "+
@@ -285,6 +289,7 @@ func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipme
 	var requiredDeliveryDate time.Time
 	customerContactDatePlusFive := sitCustomerContacted.AddDate(0, 0, GracePeriodDays)
 
+	// we calculate required delivery date here using customer contact date and transit time
 	if sitDepartureDate.Before(customerContactDatePlusFive) {
 		requiredDeliveryDate = sitDepartureDate.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime)
 	} else if sitDepartureDate.After(customerContactDatePlusFive) || sitDepartureDate.Equal(customerContactDatePlusFive) {
