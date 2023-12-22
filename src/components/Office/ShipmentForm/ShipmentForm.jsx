@@ -321,7 +321,6 @@ const ShipmentForm = (props) => {
         shipmentId: mtoShipment.id,
       });
       const SCMoveViewPath = generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode });
-      const TOOMoveViewPath = generatePath(tooRoutes.BASE_MOVE_VIEW_PATH, { moveCode });
 
       submitHandler(updatePPMPayload, {
         onSuccess: () => {
@@ -359,7 +358,7 @@ const ShipmentForm = (props) => {
             onUpdate('success');
           } else {
             // If we are a TOO, we redirect to the TOO move path.
-            navigate(TOOMoveViewPath);
+            navigate(advancePath);
             onUpdate('success');
           }
         },
