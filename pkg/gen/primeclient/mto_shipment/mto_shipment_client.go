@@ -50,6 +50,8 @@ type ClientService interface {
 
 	UpdateReweigh(params *UpdateReweighParams, opts ...ClientOption) (*UpdateReweighOK, error)
 
+	UpdateSITDeliveryRequest(params *UpdateSITDeliveryRequestParams, opts ...ClientOption) (*UpdateSITDeliveryRequestOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -398,8 +400,9 @@ func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams, opts ...Clie
 
 	### Functionality
 
-This endpoint is used to **update** the pickup and secondary addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.
+This endpoint is used to **update** the pickup, secondary, and destination addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.
 Therefore a complete address should be sent in the request.
+When a destination address on a shipment is updated, the destination SIT service items address ID will also be updated so that shipment and service item final destinations match.
 
 This endpoint **cannot create** an address.
 To create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.
@@ -534,6 +537,50 @@ func (a *Client) UpdateReweigh(params *UpdateReweighParams, opts ...ClientOption
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for updateReweigh: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+	UpdateSITDeliveryRequest updates the s i t customer contact and s i t requested delivery dates for a service item currently in s i t
+
+	### Functionality
+
+This endpoint can be used to update the Authorized End Date for shipments in Origin or Destination SIT and the Required
+Delivery Date for shipments in Origin SIT. The provided Customer Contact Date and the Customer Requested Delivery Date are
+used to calculate the new Authorized End Date and Required Delivery Date.
+*/
+func (a *Client) UpdateSITDeliveryRequest(params *UpdateSITDeliveryRequestParams, opts ...ClientOption) (*UpdateSITDeliveryRequestOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUpdateSITDeliveryRequestParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "updateSITDeliveryRequest",
+		Method:             "PATCH",
+		PathPattern:        "/mto-shipments/{mtoShipmentID}/sit-delivery",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &UpdateSITDeliveryRequestReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*UpdateSITDeliveryRequestOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for updateSITDeliveryRequest: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

@@ -40,6 +40,7 @@ import { servicesCounselingRoutes, primeSimulatorRoutes, tooRoutes, qaeCSRRoutes
 import PrimeBanner from 'pages/PrimeUI/PrimeBanner/PrimeBanner';
 import PermissionProvider from 'components/Restricted/PermissionProvider';
 import withRouter from 'utils/routing';
+import { OktaLoggedOutBanner, OktaNeedsLoggedOutBanner } from 'components/OktaLogoutBanner';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -96,6 +97,8 @@ export class OfficeApp extends Component {
       hasError: false,
       error: undefined,
       info: undefined,
+      oktaLoggedOut: undefined,
+      oktaNeedsLoggedOut: undefined,
     };
   }
 
@@ -105,6 +108,24 @@ export class OfficeApp extends Component {
     loadInternalSchema();
     loadPublicSchema();
     loadUser();
+    // We need to check if the user was redirected back from Okta after logging out
+    // This can occur when they click "sign out" or if they try to access MM
+    // while still logged into Okta which will force a redirect to logout
+    const currentUrl = new URL(window.location.href);
+    const oktaLoggedOutParam = currentUrl.searchParams.get('okta_logged_out');
+
+    // If the params "okta_logged_out=true" are in the url, we will change some state
+    // so a banner will display
+    if (oktaLoggedOutParam === 'true') {
+      this.setState({
+        oktaLoggedOut: true,
+      });
+    } else if (oktaLoggedOutParam === 'false') {
+      this.setState({
+        oktaNeedsLoggedOut: true,
+      });
+    }
+
     const script = document.createElement('script');
 
     script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
@@ -125,7 +146,7 @@ export class OfficeApp extends Component {
   }
 
   render() {
-    const { hasError, error, info } = this.state;
+    const { hasError, error, info, oktaLoggedOut, oktaNeedsLoggedOut } = this.state;
     const {
       activeRole,
       officeUserId,
@@ -187,6 +208,8 @@ export class OfficeApp extends Component {
                   and give them this code: <strong>{traceId}</strong>
                 </SystemError>
               )}
+              {oktaLoggedOut && <OktaLoggedOutBanner />}
+              {oktaNeedsLoggedOut && <OktaNeedsLoggedOutBanner />}
               {hasError && <SomethingWentWrong error={error} info={info} hasError={hasError} />}
 
               <Suspense fallback={<LoadingPlaceholder />}>

@@ -34,6 +34,7 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -2646,6 +2647,186 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 
 		// Validate outgoing payload
 		suite.NoError(responsePayload.Validate(strfmt.Default))
+	})
+}
+
+func (suite *HandlerSuite) TestUpdateSITDeliveryRequestHandler() {
+	type localSubtestData struct {
+		handler    UpdateSITDeliveryRequestHandler
+		reqPayload *primemessages.SITDeliveryUpdate
+		params     mtoshipmentops.UpdateSITDeliveryRequestParams
+	}
+
+	makeSubtestData := func(addService bool, serviceCode models.ReServiceCode) (subtestData *localSubtestData) {
+		subtestData = &localSubtestData{}
+
+		// Create an available shipment in DB
+		shipmentSITAllowance := int(90)
+		factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
+			},
+		}, nil)
+
+		// Add service items to our shipment
+		// Create a service item in the db, associate with the shipment
+		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
+		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &aMonthAgo,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: serviceCode,
+				},
+			},
+		}, nil)
+
+		subtestData.handler = UpdateSITDeliveryRequestHandler{
+			suite.HandlerConfig(),
+			sitstatus.NewShipmentSITStatus(),
+		}
+
+		sitCustomerContacted, _ := time.Parse("2006-01-02", "2023-12-10")
+		sitRequestedDelivery, _ := time.Parse("2006-01-02", "2023-12-22")
+
+		subtestData.reqPayload = &primemessages.SITDeliveryUpdate{
+			SitCustomerContacted: handlers.FmtDatePtr(&sitCustomerContacted),
+			SitRequestedDelivery: handlers.FmtDatePtr(&sitRequestedDelivery),
+		}
+
+		req := httptest.NewRequest("PATCH", "/mto-shipments/{mtoShipmentID}/sit-delivery", nil)
+		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
+		subtestData.params = mtoshipmentops.UpdateSITDeliveryRequestParams{
+			HTTPRequest:   req,
+			Body:          subtestData.reqPayload,
+			IfMatch:       eTag,
+			MtoShipmentID: strfmt.UUID(mtoShipment.ID.String()),
+		}
+
+		return subtestData
+	}
+
+	suite.Run("200 SUCCESS - Updated Customer Contact and Requested Delivery Dates", func() {
+		subtestData := makeSubtestData(true, models.ReServiceCodeDOFSIT)
+
+		// Validate incoming payload
+		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := subtestData.handler.Handle(subtestData.params)
+		suite.IsType(&mtoshipmentops.UpdateSITDeliveryRequestOK{}, response)
+		okResponse := response.(*mtoshipmentops.UpdateSITDeliveryRequestOK)
+
+		// Validate outgoing payload
+		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+
+		suite.Equal(subtestData.params.Body.SitCustomerContacted, okResponse.Payload.CurrentSIT.SitCustomerContacted)
+		suite.Equal(subtestData.params.Body.SitRequestedDelivery, okResponse.Payload.CurrentSIT.SitRequestedDelivery)
+	})
+
+	suite.Run("404 FAIL - Bad shipment ID", func() {
+		subtestData := makeSubtestData(false, models.ReServiceCodeDOFSIT)
+		subtestData.params.MtoShipmentID = strfmt.UUID("0")
+
+		// Validate incoming payload
+		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := subtestData.handler.Handle(subtestData.params)
+		suite.IsType(&mtoshipmentops.UpdateSITDeliveryRequestNotFound{}, response)
+	})
+
+	suite.Run("404 FAIL - No MTO Service Item", func() {
+		subtestData := makeSubtestData(false, models.ReServiceCodeDOFSIT)
+		shipmentSITAllowance := int(90)
+		factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
+			},
+		}, nil)
+
+		subtestData.params.MtoShipmentID = strfmt.UUID(mtoShipment.ID.String())
+		subtestData.params.IfMatch = etag.GenerateEtag(mtoShipment.UpdatedAt)
+
+		// Validate incoming payload
+		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := subtestData.handler.Handle(subtestData.params)
+		suite.IsType(&mtoshipmentops.UpdateSITDeliveryRequestNotFound{}, response)
+	})
+
+	suite.Run("404 FAIL - No current MTO Service Item in SIT", func() {
+		subtestData := makeSubtestData(true, models.ReServiceCodeCS)
+		shipmentSITAllowance := int(90)
+		factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
+			},
+		}, nil)
+
+		subtestData.params.MtoShipmentID = strfmt.UUID(mtoShipment.ID.String())
+		subtestData.params.IfMatch = etag.GenerateEtag(mtoShipment.UpdatedAt)
+		today := time.Now()
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &today,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeCS,
+				},
+			},
+		}, nil)
+
+		// Validate incoming payload
+		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := subtestData.handler.Handle(subtestData.params)
+		suite.IsType(&mtoshipmentops.UpdateSITDeliveryRequestNotFound{}, response)
+	})
+
+	suite.Run("412 FAIL - Stale etag", func() {
+		subtestData := makeSubtestData(false, models.ReServiceCodeDOFSIT)
+		year, month, day := time.Now().Add(time.Hour * 24 * -15).Date()
+		oldDate := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		subtestData.params.IfMatch = etag.GenerateEtag(oldDate)
+
+		// Validate incoming payload
+		suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := subtestData.handler.Handle(subtestData.params)
+		suite.IsType(&mtoshipmentops.UpdateSITDeliveryRequestPreconditionFailed{}, response)
 	})
 }
 

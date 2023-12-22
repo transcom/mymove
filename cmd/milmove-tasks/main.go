@@ -37,16 +37,6 @@ func main() {
 	initSaveGHCFuelPriceFlags(saveGHCFuelPriceDataCommand.Flags())
 	root.AddCommand(saveGHCFuelPriceDataCommand)
 
-	sendPostMoveSurveyCommand := &cobra.Command{
-		Use:          "send-post-move-survey",
-		Short:        "sends post move survey email",
-		Long:         "sends post move survey email",
-		RunE:         sendPostMoveSurvey,
-		SilenceUsage: true,
-	}
-	initPostMoveSurveyFlags(sendPostMoveSurveyCommand.Flags())
-	root.AddCommand(sendPostMoveSurveyCommand)
-
 	sendPaymentReminderCommand := &cobra.Command{
 		Use:          "send-payment-reminder",
 		Short:        "sends payment reminder email",

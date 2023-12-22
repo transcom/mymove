@@ -70,7 +70,7 @@ const SitHistoryList = ({ sitHistory, dayAllowance }) => {
   );
 };
 
-const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }) => {
+const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, openConvertModalButton }) => {
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
   const currentDaysInSIT = sitStatus.currentSIT?.daysInSIT || 0;
   const sitDepartureDate = sitStatus.currentSIT?.sitDepartureDate || `-`;
@@ -103,22 +103,21 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
     return <p key={pastSITItem.id}>{text}</p>;
   });
 
-  const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
-
   // Currently active SIT
   const currentLocation =
     sitStatus.currentSIT?.location === LOCATION_TYPES.DESTINATION ? 'destination SIT' : 'origin SIT';
   const totalSITDaysUsed = clamp(sitStatus.totalSITDaysUsed || 0, 0, shipment.sitDaysAllowance);
+  const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
   const totalDaysRemaining = () => {
-    const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
     if (daysRemaining > 0) {
       return daysRemaining;
     }
     return 'Expired';
   };
 
+  const showConvertToCustomerExpense = daysRemaining <= 30;
+
   // Customer delivery request
-  const isDestination = sitStatus.currentSIT?.location === LOCATION_TYPES.DESTINATION;
   const customerContactDate =
     formatDate(sitStatus?.currentSIT?.sitCustomerContacted, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE;
   const sitRequestedDelivery =
@@ -127,6 +126,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
     <>
       <div className={styles.title}>
         <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Additional Days Requested</Tag>}</p>
+        {sitStatus.currentSIT && !pendingSITExtension && showConvertToCustomerExpense && openConvertModalButton}
         {sitStatus.currentSIT && openModalButton}
       </div>
       <div className={styles.tableContainer} data-testid="sitStatusTable">
@@ -166,22 +166,26 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton }
           <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
         </div>
       )}
-
-      {isDestination && (
-        <div className={styles.tableContainer}>
-          <p className={styles.sitHeader}>Customer delivery request</p>
-          <DataTable
-            columnHeaders={['Customer contact date', 'Requested delivery date']}
-            dataRow={[customerContactDate, sitRequestedDelivery]}
-            custClass={styles.currentLocation}
-          />
-        </div>
-      )}
+      <div className={styles.tableContainer}>
+        <p className={styles.sitHeader}>Customer delivery request</p>
+        <DataTable
+          columnHeaders={['Customer contact date', 'Requested delivery date']}
+          dataRow={[customerContactDate, sitRequestedDelivery]}
+          custClass={styles.currentLocation}
+        />
+      </div>
     </>
   );
 };
 
-const ShipmentSITDisplay = ({ sitExtensions, sitStatus, shipment, className, openModalButton }) => {
+const ShipmentSITDisplay = ({
+  sitExtensions,
+  sitStatus,
+  shipment,
+  className,
+  openModalButton,
+  openConvertModalButton,
+}) => {
   const sitHistory = React.useMemo(
     () => sitExtensions.filter((sitItem) => sitItem.status !== SIT_EXTENSION_STATUS.PENDING),
     [sitExtensions],
@@ -193,6 +197,7 @@ const ShipmentSITDisplay = ({ sitExtensions, sitStatus, shipment, className, ope
       testID="sitExtensions"
     >
       <SitStatusTables
+        openConvertModalButton={openConvertModalButton}
         openModalButton={openModalButton}
         shipment={shipment}
         sitStatus={sitStatus}
@@ -210,6 +215,7 @@ ShipmentSITDisplay.propTypes = {
   sitExtensions: PropTypes.arrayOf(SITExtensionShape),
   sitStatus: SitStatusShape,
   shipment: ShipmentShape.isRequired,
+  openConvertModalButton: PropTypes.element,
   openModalButton: PropTypes.element,
   className: PropTypes.string,
 };
@@ -217,6 +223,7 @@ ShipmentSITDisplay.propTypes = {
 ShipmentSITDisplay.defaultProps = {
   sitExtensions: [],
   sitStatus: undefined,
+  openConvertModalButton: undefined,
   openModalButton: undefined,
   className: '',
 };

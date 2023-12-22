@@ -707,6 +707,33 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// if the user is still signed into okta and has an active session in the browser
+	// but is being forced to authenticate/re-authenticate from MilMove, we need to handle logout or let the user know they need to log out
+	// so they can re-use their authenticator (CAC)
+	errDescription := r.URL.Query().Get("error_description")
+	// this is the description okta sends when the user has used all of their authenticators
+	if errDescription == "The resource owner or authorization server denied the request." {
+		provider, providerErr := okta.GetOktaProviderForRequest(r)
+		if providerErr != nil {
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+		// if the user just closed their tab and appCtx is still holding the ID token, we can use it
+		// MM will still have the active IDToken and we can use that to log them out and clear their session
+		if appCtx.Session().IDToken != "" {
+			oktaLogoutURL, logoutErr := logoutOktaUserURL(provider, appCtx.Session().IDToken, landingURL.String())
+			if oktaLogoutURL == "" || logoutErr != nil {
+				appCtx.Logger().Error("failed to get Okta Logout URL")
+			}
+			http.Redirect(w, r, oktaLogoutURL, http.StatusTemporaryRedirect)
+			return
+		}
+		// if not, we will need the user to go to okta and sign out, adding these params will display a UI info banner
+		redirectURL := landingURL.String() + "sign-in" + "?okta_logged_out=false"
+		http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
+		return
+	}
+
 	if err := r.URL.Query().Get("error"); len(err) > 0 {
 		landingQuery := landingURL.Query()
 		switch err {
@@ -779,13 +806,11 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	provider, err := okta.GetOktaProviderForRequest(r)
-	if err != nil {
-		appCtx.Logger().Error("get provider", zap.Error(err))
+	provider, providerErr := okta.GetOktaProviderForRequest(r)
+	if providerErr != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
-
 	// Exchange code received from login for access token. This is used during the grant_type auth flow
 	exchange, err := exchangeCode(r.URL.Query().Get("code"), r, appCtx, *provider, h.HTTPClient)
 	// Double error check
