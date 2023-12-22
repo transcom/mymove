@@ -8,7 +8,6 @@ import { formatDateForSwagger } from 'shared/dates';
 
 const approvePpmLabel = 'PPMs.approvePPM';
 export const downloadPPMAttachmentsLabel = 'PPMs.downloadAttachments';
-const loadPPMsLabel = 'office.loadPPMs';
 const updatePPMLabel = 'office.updatePPM';
 const approveReimbursementLabel = 'office.approveReimbursement';
 
