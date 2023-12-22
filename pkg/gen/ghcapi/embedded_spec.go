@@ -6299,7 +6299,8 @@ func init() {
         "moveTaskOrderID",
         "reServiceID",
         "reServiceCode",
-        "reServiceName"
+        "reServiceName",
+        "convertToCustomerExpense"
       ],
       "properties": {
         "SITPostalCode": {
@@ -6310,6 +6311,10 @@ func init() {
         "approvedAt": {
           "type": "string",
           "format": "date-time",
+          "x-nullable": true
+        },
+        "convertToCustomerExpense": {
+          "format": "boolean",
           "x-nullable": true
         },
         "createdAt": {
@@ -6534,6 +6539,11 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "convertToCustomerExpense": {
+          "format": "boolean",
+          "x-nullable": true,
+          "example": true
         },
         "createdAt": {
           "type": "string",
@@ -17885,7 +17895,8 @@ func init() {
         "moveTaskOrderID",
         "reServiceID",
         "reServiceCode",
-        "reServiceName"
+        "reServiceName",
+        "convertToCustomerExpense"
       ],
       "properties": {
         "SITPostalCode": {
@@ -17896,6 +17907,10 @@ func init() {
         "approvedAt": {
           "type": "string",
           "format": "date-time",
+          "x-nullable": true
+        },
+        "convertToCustomerExpense": {
+          "format": "boolean",
           "x-nullable": true
         },
         "createdAt": {
@@ -18120,6 +18135,11 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "convertToCustomerExpense": {
+          "format": "boolean",
+          "x-nullable": true,
+          "example": true
         },
         "createdAt": {
           "type": "string",

@@ -79,6 +79,24 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	serviceItem.ReServiceID = reService.ID
 	serviceItem.ReService.Name = reService.Name
 
+	// get if service item is customer expense
+	var customerExpense models.MTOServiceItemSingle
+	convertToCustomerExpense := serviceItem.CustomerExpense
+	queryFilters = []services.QueryFilter{
+		query.NewQueryFilter("customer_expense", "=", convertToCustomerExpense),
+	}
+	err = o.builder.FetchOne(appCtx, &reService, queryFilters)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, nil, apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service item customerExpense: %b", convertToCustomerExpense))
+		default:
+			return nil, nil, apperror.NewQueryError("CustomerExpense", err, "")
+		}
+	}
+	// set if service is customer expense
+	serviceItem.CustomerExpense = customerExpense.CustomerExpense
+
 	// We can have two service items that come in from a MTO approval that do not have an MTOShipmentID
 	// they are MTO level service items. This should capture that and create them accordingly, they are thankfully
 	// also rather basic.
