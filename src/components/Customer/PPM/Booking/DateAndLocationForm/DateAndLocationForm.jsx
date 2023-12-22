@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { func } from 'prop-types';
 import * as Yup from 'yup';
 import { Formik, Field } from 'formik';
-import { Button, Form, Radio, FormGroup } from '@trussworks/react-uswds';
+import { Button, Form, Checkbox, Radio, FormGroup } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
@@ -18,6 +18,9 @@ import { ShipmentShape } from 'types/shipment';
 import { UnsupportedZipCodePPMErrorMsg, ZIP5_CODE_REGEX, InvalidZIPTypeError } from 'utils/validation';
 import { searchTransportationOffices } from 'services/internalApi';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
+import { AddressFields } from 'components/form/AddressFields/AddressFields';
+
+export const residentialAddressName = 'residential_address';
 
 const validationShape = {
   pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
@@ -67,6 +70,7 @@ const DateAndLocationForm = ({
     sitExpected: mtoShipment?.ppmShipment?.sitExpected ? 'true' : 'false',
     expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
     closeoutOffice: move?.closeout_office,
+    [residentialAddressName]: serviceMember?.residential_address,
   };
 
   const residentialAddressPostalCode = serviceMember?.residential_address?.postalCode;
@@ -115,13 +119,85 @@ const DateAndLocationForm = ({
 
   return (
     <Formik initialValues={initialValues} validationSchema={Yup.object().shape(validationShape)} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit, setFieldValue, values }) => {
+      {({ isValid, isSubmitting, handleSubmit, setValues, values }) => {
+        const handleUseCurrentResidenceChange = (e) => {
+          const { checked } = e.target;
+          if (checked) {
+            // use current residence
+            setValues({
+              ...values,
+              pickup: {
+                ...values.pickup,
+                address: currentResidence,
+              },
+            });
+          } else {
+            // Revert address
+            setValues({
+              ...values,
+              pickup: {
+                ...values.pickup,
+                address: {
+                  streetAddress1: '',
+                  streetAddress2: '',
+                  city: '',
+                  state: '',
+                  postalCode: '',
+                },
+              },
+            });
+          }
+        };
         return (
           <div className={ppmStyles.formContainer}>
             <Form className={(formStyles.form, ppmStyles.form)}>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection, 'origin')}>
                 <h2>Origin</h2>
-                <TextField
+                <AddressFields
+                  name={residentialAddressName}
+                  render={(fields) => (
+                    <>
+                      <p>What address are the movers picking up from?</p>
+                      <Checkbox
+                        data-testid="useCurrentResidence"
+                        label="Use current address"
+                        name="useCurrentResidence"
+                        onChange={handleUseCurrentResidenceChange}
+                        id="useCurrentResidenceCheckbox"
+                      />
+                      {fields}
+                      <h4>Second pickup location</h4>
+                      <FormGroup>
+                        <p>Do you want movers to pick up any belongings from a second address?</p>
+                        <div className={formStyles.radioGroup}>
+                          <Field
+                            as={Radio}
+                            id="has-secondary-pickup"
+                            data-testid="has-secondary-pickup"
+                            label="Yes"
+                            name="hasSecondaryPickup"
+                            value="yes"
+                            title="Yes, I have a second pickup location"
+                            checked={hasSecondaryPickup === 'yes'}
+                          />
+                          <Field
+                            as={Radio}
+                            id="no-secondary-pickup"
+                            data-testid="no-secondary-pickup"
+                            label="No"
+                            name="hasSecondaryPickup"
+                            value="no"
+                            title="No, I do not have a second pickup location"
+                            checked={hasSecondaryPickup !== 'yes'}
+                          />
+                        </div>
+                      </FormGroup>
+                      {hasSecondaryPickup === 'yes' && <AddressFields name="secondaryPickup.address" />}
+                    </>
+                  )}
+                />
+
+                {/* <TextField
                   label="ZIP"
                   id="pickupPostalCode"
                   name="pickupPostalCode"
@@ -137,13 +213,13 @@ const DateAndLocationForm = ({
                     );
                   }}
                   validate={(value) => postalCodeValidate(value, 'origin', 'pickupPostalCode')}
-                />
-                <CheckboxField
+                /> */}
+                {/* <CheckboxField
                   id="useResidentialAddressZIP"
                   name="useResidentialAddressZIP"
                   label={`Use my current ZIP (${residentialAddressPostalCode})`}
                   onChange={() =>
-                    setZip(
+                    setValue(
                       setFieldValue,
                       'pickupPostalCode',
                       residentialAddressPostalCode,
@@ -151,7 +227,7 @@ const DateAndLocationForm = ({
                       'useResidentialAddressZIP',
                     )
                   }
-                />
+                /> */}
                 <FormGroup>
                   <Fieldset>
                     <legend className="usa-label">
@@ -385,3 +461,4 @@ DateAndLocationForm.defaultProps = {
 };
 
 export default DateAndLocationForm;
+
