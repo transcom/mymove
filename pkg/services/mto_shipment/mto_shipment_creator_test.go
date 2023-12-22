@@ -1024,3 +1024,49 @@ func clearShipmentIDFields(shipment *models.MTOShipment) *models.MTOShipment {
 
 	return shipment
 }
+
+// func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentWithMTOAgents() {
+// 	suite.Run("Fail to create MTOAgents with same MTOAgentType", func() {
+// 		subtestData := suite.createSubtestData(nil)
+// 		creator := subtestData.shipmentCreator
+
+// 		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+// 			{
+// 				Model:    subtestData.move,
+// 				LinkOnly: true,
+// 			},
+// 		}, nil)
+
+// 		firstName := ""
+// 		lastName := ""
+// 		email := ""
+// 		phone := ""
+
+// 		// Set up two agents of the same type
+// 		agentType := models.MTOAgentReleasing
+// 		mtoShipment.MTOAgents = models.MTOAgents{
+// 			models.MTOAgent{
+// 				MTOAgentType: agentType,
+// 				FirstName:    &firstName,
+// 				LastName:     &lastName,
+// 				Email:        &email,
+// 				Phone:        &phone,
+// 			},
+// 			models.MTOAgent{
+// 				MTOAgentType: agentType,
+// 				FirstName:    &firstName,
+// 				LastName:     &lastName,
+// 				Email:        &email,
+// 				Phone:        &phone,
+// 			},
+// 		}
+
+// 		createdShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), &mtoShipment)
+
+// 		suite.Nil(createdShipment)
+// 		suite.Error(err)
+// 		suite.IsType(apperror.InvalidInputError{}, err)
+// 		invalidErr := err.(apperror.InvalidInputError)
+// 		suite.Contains(invalidErr.Error(), "MTOAgents can only contain one agent of each type")
+// 	})
+// }
