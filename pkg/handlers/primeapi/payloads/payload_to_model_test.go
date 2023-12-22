@@ -449,3 +449,64 @@ func (suite *PayloadsSuite) TestValidateReasonOriginSIT() {
 		suite.True(verrs.HasAny())
 	})
 }
+
+func (suite *PayloadsSuite) TestShipmentAddressUpdateModel() {
+	shipmentID := uuid.Must(uuid.NewV4())
+	contractorRemarks := ""
+	newAddress := primemessages.Address{
+		City:           handlers.FmtString(""),
+		State:          handlers.FmtString(""),
+		PostalCode:     handlers.FmtString(""),
+		StreetAddress1: handlers.FmtString(""),
+	}
+
+	nonSITAddressUpdate := primemessages.CreateNonSITAddressUpdateRequest{
+		ContractorRemarks: &contractorRemarks,
+		NewAddress:        &newAddress,
+	}
+
+	model := ShipmentAddressUpdateModel(&nonSITAddressUpdate, shipmentID)
+
+	suite.Equal(shipmentID, model.ShipmentID)
+	suite.Equal(contractorRemarks, model.ContractorRemarks)
+	suite.NotNil(model.NewAddress)
+	suite.Equal(*newAddress.City, model.NewAddress.City)
+	suite.Equal(*newAddress.State, model.NewAddress.State)
+	suite.Equal(*newAddress.PostalCode, model.NewAddress.PostalCode)
+	suite.Equal(*newAddress.StreetAddress1, model.NewAddress.StreetAddress1)
+}
+
+func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
+	time := time.Now()
+	expectedDepartureDate := handlers.FmtDatePtr(&time)
+	pickupPostalCode := ""
+	destinationPostalCode := ""
+	sitExpected := true
+	estimatedWeight := int64(5000)
+	hasProGear := true
+	proGearWeight := int64(500)
+	spouseProGearWeight := int64(50)
+
+	ppmShipment := primemessages.CreatePPMShipment{
+		ExpectedDepartureDate: expectedDepartureDate,
+		PickupPostalCode:      &pickupPostalCode,
+		DestinationPostalCode: &destinationPostalCode,
+		SitExpected:           &sitExpected,
+		EstimatedWeight:       &estimatedWeight,
+		HasProGear:            &hasProGear,
+		ProGearWeight:         &proGearWeight,
+		SpouseProGearWeight:   &spouseProGearWeight,
+	}
+
+	model := PPMShipmentModelFromCreate(&ppmShipment)
+
+	suite.NotNil(model)
+	suite.Equal(models.PPMShipmentStatusSubmitted, model.Status)
+	suite.True(*model.SITExpected)
+	suite.Equal(unit.Pound(estimatedWeight), *model.EstimatedWeight)
+	suite.True(*model.HasProGear)
+	suite.Equal(unit.Pound(proGearWeight), *model.ProGearWeight)
+	suite.Equal(unit.Pound(spouseProGearWeight), *model.SpouseProGearWeight)
+	suite.Equal(pickupPostalCode, model.PickupPostalCode)
+	suite.Equal(destinationPostalCode, model.DestinationPostalCode)
+}
