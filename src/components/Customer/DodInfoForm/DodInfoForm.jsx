@@ -49,7 +49,7 @@ const DodInfoForm = ({ initialValues, onSubmit, onBack }) => {
                 inputMode="numeric"
                 pattern="[0-9]{10}"
               />
-              <DropdownInput label="Rank" name="rank" id="rank" required options={rankOptions} />
+              <DropdownInput label="Pay Grade" name="rank" id="rank" required options={rankOptions} />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
