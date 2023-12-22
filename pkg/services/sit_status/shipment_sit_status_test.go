@@ -453,7 +453,22 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 		return subtestData
 	}
 
-	suite.Run("calculates allowance end date and requested delivery date for a shipment currently in SIT", func() {
+	suite.Run("calculates allowance end date for a shipment currently in Destination SIT", func() {
+		subtestData := makeSubtestData(true, models.ReServiceCodeDDFSIT, unit.Pound(1400))
+		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
+		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+
+		sitStatus, err := sitStatusService.CalculateSITAllowanceRequestedDates(suite.AppContextForTest(), subtestData.shipment, subtestData.planner,
+			&subtestData.sitCustomerContacted, &subtestData.sitRequestedDelivery, subtestData.eTag)
+		suite.NoError(err)
+		suite.NotNil(sitStatus)
+
+		suite.Equal(&subtestData.sitCustomerContacted, sitStatus.CurrentSIT.SITCustomerContacted)
+		suite.Equal(&subtestData.sitRequestedDelivery, sitStatus.CurrentSIT.SITRequestedDelivery)
+		suite.NotEqual(&subtestData.shipment.MTOServiceItems[0].UpdatedAt, aMonthAgo)
+	})
+
+	suite.Run("calculates allowance end date and requested delivery date for a shipment currently in Origin SIT", func() {
 		subtestData := makeSubtestData(true, models.ReServiceCodeDOFSIT, unit.Pound(1400))
 		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
 		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)

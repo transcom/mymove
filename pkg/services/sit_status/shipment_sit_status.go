@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gobuffalo/validate/v3"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -376,12 +377,17 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext
 		SITRequestedDelivery: sitRequestedDelivery,
 	}
 
-	verrs, err := appCtx.DB().ValidateAndUpdate(&shipment)
+	var verrs *validate.Errors
+	var err error
 
-	if verrs != nil && verrs.HasAny() {
-		return nil, apperror.NewInvalidInputError(shipment.ID, err, verrs, "invalid input found while updating dates of shipment")
-	} else if err != nil {
-		return nil, apperror.NewQueryError("Shipment", err, "")
+	if location == OriginSITLocation {
+		verrs, err = appCtx.DB().ValidateAndUpdate(&shipment)
+
+		if verrs != nil && verrs.HasAny() {
+			return nil, apperror.NewInvalidInputError(shipment.ID, err, verrs, "invalid input found while updating dates of shipment")
+		} else if err != nil {
+			return nil, apperror.NewQueryError("Shipment", err, "")
+		}
 	}
 
 	verrs, err = appCtx.DB().ValidateAndUpdate(currentSIT)
