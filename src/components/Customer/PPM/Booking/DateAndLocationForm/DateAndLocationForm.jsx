@@ -20,7 +20,7 @@ import { searchTransportationOffices } from 'services/internalApi';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 
-export const residentialAddressName = 'residential_address';
+// export const residentialAddressName = 'residential_address';
 
 const validationShape = {
   pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
@@ -70,9 +70,10 @@ const DateAndLocationForm = ({
     sitExpected: mtoShipment?.ppmShipment?.sitExpected ? 'true' : 'false',
     expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
     closeoutOffice: move?.closeout_office,
-    [residentialAddressName]: serviceMember?.residential_address,
+    // [residentialAddressName]: serviceMember?.residential_address,
   };
 
+  const residentialAddress = serviceMember?.residential_address;
   const residentialAddressPostalCode = serviceMember?.residential_address?.postalCode;
   const destinationDutyLocationPostalCode = destinationDutyLocation?.address?.postalCode;
 
@@ -119,25 +120,25 @@ const DateAndLocationForm = ({
 
   return (
     <Formik initialValues={initialValues} validationSchema={Yup.object().shape(validationShape)} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit, setValues, values }) => {
+      {({ isValid, isSubmitting, handleSubmit, setFieldValue, setValues, values }) => {
         const handleUseCurrentResidenceChange = (e) => {
           const { checked } = e.target;
           if (checked) {
             // use current residence
             setValues({
               ...values,
-              pickup: {
-                ...values.pickup,
-                address: currentResidence,
+              serviceMember: {
+                ...values.serviceMember,
+                residential_address: residentialAddress,
               },
             });
           } else {
             // Revert address
             setValues({
               ...values,
-              pickup: {
-                ...values.pickup,
-                address: {
+              serviceMember: {
+                ...values.serviceMember,
+                residential_address: {
                   streetAddress1: '',
                   streetAddress2: '',
                   city: '',
@@ -152,9 +153,9 @@ const DateAndLocationForm = ({
           <div className={ppmStyles.formContainer}>
             <Form className={(formStyles.form, ppmStyles.form)}>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection, 'origin')}>
-                <h2>Origin</h2>
                 <AddressFields
-                  name={residentialAddressName}
+                  name="residentialAddress"
+                  legend="Origin"
                   render={(fields) => (
                     <>
                       <p>What address are the movers picking up from?</p>
@@ -166,9 +167,9 @@ const DateAndLocationForm = ({
                         id="useCurrentResidenceCheckbox"
                       />
                       {fields}
-                      <h4>Second pickup location</h4>
+                      {/* <h4>Second Origin Address</h4>
                       <FormGroup>
-                        <p>Do you want movers to pick up any belongings from a second address?</p>
+                        <p>Will you add items to your PPM from a different address?</p>
                         <div className={formStyles.radioGroup}>
                           <Field
                             as={Radio}
@@ -192,7 +193,7 @@ const DateAndLocationForm = ({
                           />
                         </div>
                       </FormGroup>
-                      {hasSecondaryPickup === 'yes' && <AddressFields name="secondaryPickup.address" />}
+                      {hasSecondaryPickup === 'yes' && <AddressFields name="secondaryPickup.address" />} */}
                     </>
                   )}
                 />
@@ -461,4 +462,3 @@ DateAndLocationForm.defaultProps = {
 };
 
 export default DateAndLocationForm;
-
