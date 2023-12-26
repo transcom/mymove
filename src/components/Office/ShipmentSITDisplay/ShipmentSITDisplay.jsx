@@ -18,17 +18,6 @@ import { ShipmentShape } from 'types/shipment';
 import { SitStatusShape, LOCATION_TYPES } from 'types/sitStatusShape';
 import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
 
-const clamp = (input, min, max) => {
-  let result = input;
-  if (input < min) {
-    result = min;
-  }
-  if (input > max) {
-    result = max;
-  }
-  return result;
-};
-
 const SITHistoryItem = ({ sitItem }) => (
   <dl data-testid="sitHistoryItem">
     <div>
@@ -117,7 +106,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
   // Currently active SIT
   const currentLocation =
     sitStatus.currentSIT?.location === LOCATION_TYPES.DESTINATION ? 'destination SIT' : 'origin SIT';
-  const totalSITDaysUsed = clamp(sitStatus.totalSITDaysUsed || 0, 0, shipment.sitDaysAllowance);
+  const totalSITDaysUsed = sitStatus.totalSITDaysUsed || 0;
   const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
   const totalDaysRemaining = () => {
     if (daysRemaining > 0) {
