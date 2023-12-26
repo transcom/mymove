@@ -39,6 +39,13 @@ export const useCalculatedTotalBillableWeight = (mtoShipments) => {
   }, [mtoShipments]);
 };
 
+const getLowestShipmentNetWeight = (shipments) => {
+  return shipments.reduce((lowest, shipment) => {
+    const currentNetWeight = calculateShipmentNetWeight(shipment);
+    return currentNetWeight < lowest ? currentNetWeight : lowest;
+  }, Number.MAX_SAFE_INTEGER);
+};
+
 /**
  * This function calculates the weight requested of a move,
  * by adding up all of the net weights of all shipments with the required statuses.
@@ -51,13 +58,25 @@ export const useCalculatedTotalBillableWeight = (mtoShipments) => {
  */
 export const calculateWeightRequested = (mtoShipments) => {
   if (mtoShipments?.some((s) => includedStatusesForCalculatingWeights(s.status) && calculateShipmentNetWeight(s))) {
-    return (
-      mtoShipments
-        ?.filter((s) => includedStatusesForCalculatingWeights(s.status))
-        .reduce((prev, current) => {
-          return prev + (calculateShipmentNetWeight(current) || 0);
-        }, 0) || null
+    // Separate diverted shipments and other eligible shipments for weight calculations
+    // This is done because a diverted shipment only has one true weight, but when it gets diverted
+    // it is entered as a whole new shipment. This causes the sum to be counted twice for its weight,
+    // we filter to include only the lowest weight from the diverted shipments here to prevent that.
+    const divertedEligibleShipments = mtoShipments.filter(
+      (s) => s.diversion && includedStatusesForCalculatingWeights(s.status) && calculateShipmentNetWeight(s),
     );
+    const otherEligibleShipments = mtoShipments.filter(
+      (s) => !s.diversion && includedStatusesForCalculatingWeights(s.status) && calculateShipmentNetWeight(s),
+    );
+
+    const lowestDivertedWeight =
+      divertedEligibleShipments.length > 0 ? getLowestShipmentNetWeight(divertedEligibleShipments) : 0;
+
+    const sumOtherEligibleWeights = otherEligibleShipments.reduce((total, current) => {
+      return total + (calculateShipmentNetWeight(current) || 0);
+    }, 0);
+
+    return sumOtherEligibleWeights + lowestDivertedWeight > 0 ? sumOtherEligibleWeights + lowestDivertedWeight : 0;
   }
   return null;
 };
