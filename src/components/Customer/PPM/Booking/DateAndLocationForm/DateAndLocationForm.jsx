@@ -24,7 +24,7 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 
 const validationShape = {
   pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
-  useResidentialAddressZIP: Yup.boolean(),
+  useCurrentResidence: Yup.boolean(),
   hasSecondaryPickupPostalCode: Yup.boolean().required('Required'),
   secondaryPickupPostalCode: Yup.string().when('hasSecondaryPickupPostalCode', {
     is: true,
@@ -60,7 +60,7 @@ const DateAndLocationForm = ({
 
   const initialValues = {
     pickupPostalCode: mtoShipment?.ppmShipment?.pickupPostalCode || '',
-    useResidentialAddressZIP: false,
+    useCurrentResidence: false,
     hasSecondaryPickupPostalCode: mtoShipment?.ppmShipment?.secondaryPickupPostalCode ? 'true' : 'false',
     secondaryPickupPostalCode: mtoShipment?.ppmShipment?.secondaryPickupPostalCode || '',
     useDestinationDutyLocationZIP: false,
@@ -154,7 +154,7 @@ const DateAndLocationForm = ({
             <Form className={(formStyles.form, ppmStyles.form)}>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection, 'origin')}>
                 <AddressFields
-                  name="residentialAddress"
+                  name="serviceMember.residential_address"
                   legend="Origin"
                   render={(fields) => (
                     <>
@@ -162,9 +162,9 @@ const DateAndLocationForm = ({
                       <Checkbox
                         data-testid="useCurrentResidence"
                         label="Use current address"
-                        name="useCurrentResidence"
+                        name="serviceMember.residential_address"
                         onChange={handleUseCurrentResidenceChange}
-                        id="useCurrentResidenceCheckbox"
+                        id="useCurrentResidence"
                       />
                       {fields}
                       {/* <h4>Second Origin Address</h4>
