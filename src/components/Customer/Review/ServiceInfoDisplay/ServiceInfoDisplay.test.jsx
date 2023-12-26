@@ -36,7 +36,7 @@ describe('ServiceInfoDisplay component', () => {
 
     expect(branch.nextElementSibling.textContent).toBe(testProps.affiliation);
 
-    const payGrade = screen.getByText('Pay Grade');
+    const payGrade = screen.getByText('Pay grade');
 
     expect(payGrade).toBeInTheDocument();
 
