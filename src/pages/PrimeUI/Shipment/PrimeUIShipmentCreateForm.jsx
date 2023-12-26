@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Label, Textarea } from '@trussworks/react-uswds';
-import { Field, useFormikContext } from 'formik';
+import { Field, useField, useFormikContext } from 'formik';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { CheckboxField, DatePickerInput, DropdownInput } from 'components/form/fields';
@@ -19,9 +19,33 @@ const PrimeUIShipmentCreateForm = () => {
   const { values } = useFormikContext();
   const { shipmentType } = values;
   const { sitExpected, hasProGear } = values.ppmShipment;
+  const [, , checkBoxHelperProps] = useField('diversion');
+  const [isChecked, setIsChecked] = useState(false);
 
   const hasShipmentType = !!shipmentType;
   const isPPM = shipmentType === SHIPMENT_OPTIONS.PPM;
+
+  // if a shipment is a diversion, then the parent shipment id will be required for input
+  const toggleParentShipmentIdTextBox = (checkboxValue) => {
+    if (checkboxValue) {
+      checkBoxHelperProps.setValue(true);
+      setIsChecked(true);
+    } else {
+      checkBoxHelperProps.setValue('');
+      setIsChecked(false);
+    }
+  };
+
+  // validates the uuid - if it ain't no good, then an error message displays
+  const validateUUID = (value) => {
+    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
+    if (!uuidRegex.test(value)) {
+      return 'Invalid UUID format';
+    }
+
+    return undefined;
+  };
 
   return (
     <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
@@ -146,7 +170,22 @@ const PrimeUIShipmentCreateForm = () => {
             <DatePickerInput name="requestedPickupDate" label="Requested pickup" />
 
             <h2 className={styles.sectionHeader}>Diversion</h2>
-            <CheckboxField id="diversion" name="diversion" label="Diversion" />
+            <CheckboxField
+              id="diversion"
+              name="diversion"
+              label="Diversion"
+              onChange={(e) => toggleParentShipmentIdTextBox(e.target.checked)}
+            />
+            {isChecked && (
+              <TextField
+                data-testid="divertedFromShipmentIdInput"
+                label="Diverted from Shipment ID"
+                id="divertedFromShipmentIdInput"
+                name="divertedFromShipmentId"
+                labelHint="Required if diversion box is checked"
+                validate={(value) => validateUUID(value)}
+              />
+            )}
 
             <h2 className={styles.sectionHeader}>Shipment Weights</h2>
 
