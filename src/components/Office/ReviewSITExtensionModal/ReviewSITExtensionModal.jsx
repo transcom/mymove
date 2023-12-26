@@ -69,7 +69,7 @@ const SITHistoryItemHeader = ({ title, value }) => {
 const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
   const { totalSITDaysUsed } = sitStatus;
   const { daysInSIT, location } = sitStatus.currentSIT;
-  const sitDepartureDate = sitStatus.currentSIT?.sitDepartureDate || DEFAULT_EMPTY_VALUE;
+  const sitDepartureDate = moment(sitStatus.currentSIT?.sitDepartureDate, swaggerDateFormat) || DEFAULT_EMPTY_VALUE;
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
 
