@@ -7578,7 +7578,6 @@ definitions:
         readOnly: true
       convertToCustomerExpense:
         format: boolean
-        x-nullable: true
         example: true
       deletedAt:
         format: date
