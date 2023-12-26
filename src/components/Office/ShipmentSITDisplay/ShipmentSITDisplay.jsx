@@ -89,7 +89,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
   sitEntryDate = moment(sitEntryDate, swaggerDateFormat);
   const sitStartDateElement = <p>{formatDate(sitEntryDate, swaggerDateFormat, 'DD MMM YYYY')}</p>;
   const sitEndDate = moment(sitStatus.currentSIT?.sitAllowanceEndDate, swaggerDateFormat);
-  const sitEndDateString = sitEndDate.isValid() ? formatDateForDatePicker(sitEndDate) : '-';
+  const sitEndDateString = sitEndDate.isValid() ? formatDateForDatePicker(sitEndDate) : '\u2014';
 
   // Previous SIT calculations and date ranges
   const previousDaysUsed = sitStatus.pastSITServiceItems?.map((pastSITItem) => {
