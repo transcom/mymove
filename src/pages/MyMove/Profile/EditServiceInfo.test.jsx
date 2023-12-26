@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import { EditServiceInfo } from './EditServiceInfo';
 
-import { patchServiceMember } from 'services/internalApi';
+import { patchServiceMember, patchOrders } from 'services/internalApi';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -15,6 +15,7 @@ jest.mock('react-router-dom', () => ({
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   patchServiceMember: jest.fn(),
+  patchOrders: jest.fn(),
 }));
 
 beforeEach(() => {
@@ -76,6 +77,7 @@ describe('EditServiceInfo page', () => {
     };
 
     patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValues));
+    patchOrders.mockImplementation(() => Promise.resolve(testServiceMemberValues));
 
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
     render(
@@ -96,6 +98,7 @@ describe('EditServiceInfo page', () => {
 
     await waitFor(() => {
       expect(patchServiceMember).toHaveBeenCalled();
+      expect(patchOrders).toHaveBeenCalled();
     });
 
     expect(testProps.updateServiceMember).toHaveBeenCalledWith(testServiceMemberValues);
@@ -171,6 +174,7 @@ describe('EditServiceInfo page', () => {
     };
 
     patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValuesResponse));
+    patchOrders.mockImplementation(() => Promise.resolve(testServiceMemberValuesResponse));
 
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
     render(
@@ -194,6 +198,7 @@ describe('EditServiceInfo page', () => {
 
     await waitFor(() => {
       expect(patchServiceMember).toHaveBeenCalled();
+      expect(patchOrders).toHaveBeenCalled();
     });
 
     expect(testProps.updateServiceMember).toHaveBeenCalledWith(testServiceMemberValuesResponse);
@@ -269,6 +274,7 @@ describe('EditServiceInfo page', () => {
 
     await waitFor(() => {
       expect(patchServiceMember).toHaveBeenCalled();
+      expect(patchOrders).toHaveBeenCalled();
     });
 
     expect(await screen.findByText('A server error occurred saving the service member')).toBeInTheDocument();
