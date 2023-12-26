@@ -46,7 +46,7 @@ const ServiceInfoDisplay = ({
           </div>
 
           <div className={descriptionListStyles.row}>
-            <dt>Rank</dt>
+            <dt>Pay grade</dt>
             <dd>{rank}</dd>
           </div>
 
