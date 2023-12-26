@@ -136,4 +136,48 @@ describe('for all shipments that are approved, have a cancellation requested, or
 
     expect(result.current).toBe(8000);
   });
+  it('useCalculatedTotalEstimatedWeight with diversions present', () => {
+    // Two approved shipments are now present with an estimated weight of 3500 and 4000
+    // Since they are diversions, it should only take the lowest weight
+    let mtoShipments = [
+      {
+        primeEstimatedWeight: 1000,
+        calculatedBillableWeight: 10,
+        status: shipmentStatuses.DRAFT,
+      },
+      {
+        primeEstimatedWeight: 3500,
+        calculatedBillableWeight: 500,
+        status: shipmentStatuses.APPROVED,
+        diversion: true,
+      },
+      {
+        primeEstimatedWeight: 4000,
+        calculatedBillableWeight: 500,
+        status: shipmentStatuses.APPROVED,
+        diversion: true,
+      },
+      {
+        primeEstimatedWeight: 1000,
+        calculatedBillableWeight: 200,
+        status: shipmentStatuses.CANCELLATION_REQUESTED,
+      },
+      {
+        primeEstimatedWeight: 1000,
+        calculatedBillableWeight: 300,
+        status: shipmentStatuses.DIVERSION_REQUESTED,
+      },
+    ];
+
+    const { result, rerender } = renderHook(() => useCalculatedEstimatedWeight(mtoShipments));
+
+    expect(result.current).toBe(5500);
+
+    mtoShipments = mtoShipments.concat([
+      { primeEstimatedWeight: 2000, calculatedBillableWeight: 100, status: shipmentStatuses.APPROVED },
+    ]);
+    rerender();
+
+    expect(result.current).toBe(7500);
+  });
 });

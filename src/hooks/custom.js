@@ -68,13 +68,34 @@ export const useCalculatedWeightRequested = (mtoShipments) => {
   }, [mtoShipments]);
 };
 
+const getLowestShipmentWeight = (shipments) => {
+  return shipments.reduce((lowest, shipment) => {
+    const estimatedWeight = getShipmentEstimatedWeight(shipment);
+    return estimatedWeight < lowest ? estimatedWeight : lowest;
+  }, Number.MAX_SAFE_INTEGER);
+};
+
 export const calculateEstimatedWeight = (mtoShipments) => {
   if (mtoShipments?.some((s) => includedStatusesForCalculatingWeights(s.status) && getShipmentEstimatedWeight(s))) {
-    return mtoShipments
-      ?.filter((s) => includedStatusesForCalculatingWeights(s.status) && getShipmentEstimatedWeight(s))
-      .reduce((prev, current) => {
-        return prev + getShipmentEstimatedWeight(current);
-      }, 0);
+    // Separate diverted shipments and other eligible shipments for weight calculations
+    // This is done because a diverted shipment only has one true weight, but when it gets diverted
+    // it is entered as a whole new shipment. This causes the sum to be counted twice for its weight,
+    // we filter to include only the lowest weight from the diverted shipments here to prevent that.
+    const divertedEligibleShipments = mtoShipments.filter(
+      (s) => s.diversion && includedStatusesForCalculatingWeights(s.status) && getShipmentEstimatedWeight(s),
+    );
+    const otherEligibleShipments = mtoShipments.filter(
+      (s) => !s.diversion && includedStatusesForCalculatingWeights(s.status) && getShipmentEstimatedWeight(s),
+    );
+
+    // After separating, calculate accordingly. Remember, diversions are calculated uniquely.
+    const lowestDivertedWeight =
+      divertedEligibleShipments.length > 0 ? getLowestShipmentWeight(divertedEligibleShipments) : 0;
+    const sumOtherEligibleWeights = otherEligibleShipments.reduce((total, shipment) => {
+      return total + getShipmentEstimatedWeight(shipment);
+    }, 0);
+
+    return sumOtherEligibleWeights + lowestDivertedWeight > 0 ? sumOtherEligibleWeights + lowestDivertedWeight : null;
   }
   return null;
 };
