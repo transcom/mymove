@@ -93,6 +93,7 @@ describe('ShipmentSITDisplay', () => {
     expect(screen.getByText('26 Aug 2021')).toBeInTheDocument();
     expect(screen.getByText('Requested delivery date')).toBeInTheDocument();
     expect(screen.getByText('30 Aug 2021')).toBeInTheDocument();
+    expect(screen.getByText('SIT Departure Date')).toBeInTheDocument();
   });
 
   it('renders the Shipment SIT at Destination, without customer delivery info', async () => {

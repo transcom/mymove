@@ -12,6 +12,15 @@ import (
 func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 	sitStatusService := NewShipmentSITStatus()
 
+	suite.Run("returns the clamped values", func() {
+		lowNum := 3
+		highNum := 99
+		clampedNumber, err := Clamp(1, lowNum, highNum)
+
+		suite.NoError(err)
+		suite.NotNil(clampedNumber)
+	})
+
 	suite.Run("returns nil when the shipment has no service items", func() {
 		submittedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 
