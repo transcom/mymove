@@ -91,6 +91,7 @@ export const MTOServiceItemCustomerContactShape = PropTypes.shape({
 export const MTOServiceItemShape = PropTypes.shape({
   approvedAt: PropTypes.string,
   createdAt: PropTypes.string,
+  customerExpense: PropTypes.bool,
   customerContacts: PropTypes.arrayOf(MTOServiceItemCustomerContactShape),
   deletedAt: PropTypes.string,
   dimensions: PropTypes.arrayOf(MTOServiceItemDimensionShape),

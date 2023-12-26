@@ -1298,22 +1298,23 @@ func ServiceRequestDoc(serviceRequest models.ServiceRequestDocument, storer stor
 // MTOServiceItemSingleModel payload
 func MTOServiceItemSingleModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItemSingle {
 	return &ghcmessages.MTOServiceItemSingle{
-		SitPostalCode:        handlers.FmtStringPtr(s.SITPostalCode),
-		ApprovedAt:           handlers.FmtDateTimePtr(s.ApprovedAt),
-		CreatedAt:            *handlers.FmtDateTime(s.CreatedAt),
-		ID:                   *handlers.FmtUUID(s.ID),
-		MoveTaskOrderID:      *handlers.FmtUUID(s.MoveTaskOrderID),
-		MtoShipmentID:        handlers.FmtUUID(*s.MTOShipmentID),
-		PickupPostalCode:     handlers.FmtStringPtr(s.PickupPostalCode),
-		ReServiceID:          *handlers.FmtUUID(s.ReServiceID),
-		RejectedAt:           handlers.FmtDateTimePtr(s.RejectedAt),
-		RejectionReason:      handlers.FmtStringPtr(s.RejectionReason),
-		SitCustomerContacted: handlers.FmtDatePtr(s.SITCustomerContacted),
-		SitDepartureDate:     handlers.FmtDateTimePtr(s.SITDepartureDate),
-		SitEntryDate:         handlers.FmtDateTimePtr(s.SITEntryDate),
-		SitRequestedDelivery: handlers.FmtDatePtr(s.SITRequestedDelivery),
-		Status:               handlers.FmtString(string(s.Status)),
-		UpdatedAt:            *handlers.FmtDateTime(s.UpdatedAt),
+		SitPostalCode:            handlers.FmtStringPtr(s.SITPostalCode),
+		ApprovedAt:               handlers.FmtDateTimePtr(s.ApprovedAt),
+		CreatedAt:                *handlers.FmtDateTime(s.CreatedAt),
+		ID:                       *handlers.FmtUUID(s.ID),
+		MoveTaskOrderID:          *handlers.FmtUUID(s.MoveTaskOrderID),
+		MtoShipmentID:            handlers.FmtUUID(*s.MTOShipmentID),
+		PickupPostalCode:         handlers.FmtStringPtr(s.PickupPostalCode),
+		ReServiceID:              *handlers.FmtUUID(s.ReServiceID),
+		RejectedAt:               handlers.FmtDateTimePtr(s.RejectedAt),
+		RejectionReason:          handlers.FmtStringPtr(s.RejectionReason),
+		SitCustomerContacted:     handlers.FmtDatePtr(s.SITCustomerContacted),
+		SitDepartureDate:         handlers.FmtDateTimePtr(s.SITDepartureDate),
+		SitEntryDate:             handlers.FmtDateTimePtr(s.SITEntryDate),
+		SitRequestedDelivery:     handlers.FmtDatePtr(s.SITRequestedDelivery),
+		Status:                   handlers.FmtString(string(s.Status)),
+		UpdatedAt:                *handlers.FmtDateTime(s.UpdatedAt),
+		ConvertToCustomerExpense: handlers.FmtBool(*s.CustomerExpense),
 	}
 }
 
@@ -1363,6 +1364,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		RejectedAt:                    handlers.FmtDateTimePtr(s.RejectedAt),
 		ETag:                          etag.GenerateEtag(s.UpdatedAt),
 		ServiceRequestDocuments:       serviceRequestDocs,
+		ConvertToCustomerExpense:      handlers.FmtBool(*s.CustomerExpense),
 	}
 }
 
