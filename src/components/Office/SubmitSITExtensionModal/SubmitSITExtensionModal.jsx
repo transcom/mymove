@@ -19,6 +19,7 @@ import { dropdownInputOptions } from 'utils/formatters';
 import { sitExtensionReasons } from 'constants/sitExtensions';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
 import { formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
+import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
 
 const SitDaysAllowanceForm = ({ onChange }) => (
   <MaskedTextField
@@ -43,7 +44,7 @@ const SitEndDateForm = ({ onChange }) => (
 const SitStatusTables = ({ sitStatus, shipment }) => {
   const { totalSITDaysUsed } = sitStatus;
   const { daysInSIT } = sitStatus.currentSIT;
-  const sitDepartureDate = sitStatus.currentSIT?.sitDepartureDate || `-`;
+  const sitDepartureDate = sitStatus.currentSIT?.sitDepartureDate || DEFAULT_EMPTY_VALUE;
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
 
