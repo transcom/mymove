@@ -316,11 +316,16 @@ const ShipmentForm = (props) => {
         moveETag: move.eTag,
       };
 
+      const tooAdvancePath = generatePath(tooRoutes.BASE_SHIPMENT_ADVANCE_PATH_TOO, {
+        moveCode,
+        shipmentId: mtoShipment.id,
+      });
       const advancePath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_ADVANCE_PATH, {
         moveCode,
         shipmentId: mtoShipment.id,
       });
       const SCMoveViewPath = generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode });
+      const tooMoveViewPath = generatePath(tooRoutes.BASE_MOVE_VIEW_PATH, { moveCode });
 
       submitHandler(updatePPMPayload, {
         onSuccess: () => {
@@ -356,9 +361,12 @@ const ShipmentForm = (props) => {
             // If we are on the second page as an SC, we submit and redirect to the SC move view path.
             navigate(SCMoveViewPath);
             onUpdate('success');
+          } else if (!isAdvancePage && isTOO) {
+            actions.setSubmitting(false);
+            navigate(tooMoveViewPath);
+            onUpdate('success');
           } else {
-            // If we are a TOO, we redirect to the TOO move path.
-            navigate(advancePath);
+            navigate(tooAdvancePath);
             onUpdate('success');
           }
         },
