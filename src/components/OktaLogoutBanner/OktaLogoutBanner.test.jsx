@@ -48,7 +48,7 @@ describe('OktaNeedsLoggedOutBanner component', () => {
       'You have an existing Okta session. Please log out of Okta completely.',
     );
     expect(oktaLogoutBannerElement).toHaveTextContent(
-      "You can access your Okta dashboard by following this link. In the top-right corner, you can click the drop down where it displays your name and select 'Sign Out'. Once you sign out of Okta, you should be able to sign into MilMove.If you have issues logging in or authenticating with Okta, please refer to our troubleshooting page",
+      "You can access your Okta dashboard by following this link. In the top-right corner, you can click the drop down where it displays your name and select 'Sign Out'. Once you sign out of Okta, you should be able to sign into MilMove.If you have issues logging in or authenticating with Okta, please refer to our troubleshooting page.",
     );
 
     // Check the presence of links
