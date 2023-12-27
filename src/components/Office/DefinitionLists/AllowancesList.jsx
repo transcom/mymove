@@ -17,7 +17,7 @@ const AllowancesList = ({ info, showVisualCues }) => {
     <div className={styles.OfficeDefinitionLists}>
       <dl className={descriptionListStyles.descriptionList}>
         <div className={descriptionListStyles.row}>
-          <dt>Branch, rank</dt>
+          <dt>Branch, pay grade</dt>
           <dd data-testid="branchRank">{friendlyBranchRank(info.branch, info.rank)}</dd>
         </div>
         <div className={descriptionListStyles.row}>

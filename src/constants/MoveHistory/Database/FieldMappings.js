@@ -81,7 +81,7 @@ export default {
   secondary_email: 'Secondary email',
   secondary_telephone: 'Secondary telephone',
   telephone: 'Telephone',
-  residential_address: 'Current pickup address',
+  residential_address: 'Current address',
   backup_address: 'Backup address',
   current_duty_location_name: 'Current duty location name',
   financial_review_remarks: 'Financial review remarks',

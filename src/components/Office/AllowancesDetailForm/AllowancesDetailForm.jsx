@@ -74,7 +74,7 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
       <DropdownInput
         data-testid="rankInput"
         name="grade"
-        label="Rank"
+        label="Pay grade"
         options={rankOptions}
         showDropdownPlaceholderText={false}
         isDisabled={formIsDisabled}
