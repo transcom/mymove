@@ -991,32 +991,7 @@ describe('ShipmentForm component', () => {
     });
   });
 
-  describe('editing an already existing PPM shipment', () => {
-    it('renders the PPM shipment form with pre-filled values', async () => {
-      renderWithRouter(
-        <ShipmentForm
-          {...defaultProps}
-          isCreatePage={false}
-          shipmentType={SHIPMENT_OPTIONS.PPM}
-          mtoShipment={mockPPMShipment}
-        />,
-      );
-
-      expect(await screen.getByLabelText('Planned departure date')).toHaveValue('01 Apr 2022');
-      await userEvent.click(screen.getByLabelText('Use current ZIP'));
-      expect(await screen.getByLabelText('Origin ZIP')).toHaveValue(defaultProps.originDutyLocationAddress.postalCode);
-      await userEvent.click(screen.getByLabelText('Use ZIP for new duty location'));
-
-      expect(await screen.getByLabelText('Destination ZIP')).toHaveValue(
-        defaultProps.newDutyLocationAddress.postalCode,
-      );
-      expect(screen.getAllByLabelText('Yes')[0]).not.toBeChecked();
-      expect(screen.getAllByLabelText('No')[0]).toBeChecked();
-      expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('4,999');
-      expect(screen.getAllByLabelText('Yes')[1]).not.toBeChecked();
-      expect(screen.getAllByLabelText('No')[1]).toBeChecked();
-    });
-
+  describe('TOO editing an already existing PPM shipment', () => {
     it('renders the PPM shipment form with pre-filled values as TOO', async () => {
       renderWithRouter(
         <ShipmentForm
@@ -1042,7 +1017,8 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByLabelText('Yes')[1]).not.toBeChecked();
       expect(screen.getAllByLabelText('No')[1]).toBeChecked();
     });
-    it('renders the PPM shipment form with pre-filled requested values for Advance Page', async () => {
+
+    it('renders the PPM shipment form with pre-filled requested values for Advance Page for TOO', async () => {
       renderWithRouter(
         <ShipmentForm
           {...defaultProps}
@@ -1050,6 +1026,7 @@ describe('ShipmentForm component', () => {
           isAdvancePage
           shipmentType={SHIPMENT_OPTIONS.PPM}
           mtoShipment={mockPPMShipment}
+          userRole={roleTypes.TOO}
         />,
       );
 
@@ -1060,7 +1037,6 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('Amount requested')).toHaveValue('4,875');
       expect((await screen.findByText('Maximum advance: $7,407')).toBeInTheDocument);
       expect(screen.getByLabelText('Approve')).toBeChecked();
-      expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
 
       await userEvent.click(screen.getByRole('button', { name: 'Save and Continue' }));
 
@@ -1082,8 +1058,35 @@ describe('ShipmentForm component', () => {
         );
       });
     });
+    describe('editing an already existing PPM shipment', () => {
+      it('renders the PPM shipment form with pre-filled values', async () => {
+        renderWithRouter(
+          <ShipmentForm
+            {...defaultProps}
+            isCreatePage={false}
+            shipmentType={SHIPMENT_OPTIONS.PPM}
+            mtoShipment={mockPPMShipment}
+          />,
+        );
 
-    it('renders the PPM shipment form with pre-filled requested values for Advance Page for TOO', async () => {
+        expect(await screen.getByLabelText('Planned departure date')).toHaveValue('01 Apr 2022');
+        await userEvent.click(screen.getByLabelText('Use current ZIP'));
+        expect(await screen.getByLabelText('Origin ZIP')).toHaveValue(
+          defaultProps.originDutyLocationAddress.postalCode,
+        );
+        await userEvent.click(screen.getByLabelText('Use ZIP for new duty location'));
+
+        expect(await screen.getByLabelText('Destination ZIP')).toHaveValue(
+          defaultProps.newDutyLocationAddress.postalCode,
+        );
+        expect(screen.getAllByLabelText('Yes')[0]).not.toBeChecked();
+        expect(screen.getAllByLabelText('No')[0]).toBeChecked();
+        expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('4,999');
+        expect(screen.getAllByLabelText('Yes')[1]).not.toBeChecked();
+        expect(screen.getAllByLabelText('No')[1]).toBeChecked();
+      });
+    });
+    it('renders the PPM shipment form with pre-filled requested values for Advance Page', async () => {
       renderWithRouter(
         <ShipmentForm
           {...defaultProps}
@@ -1091,7 +1094,6 @@ describe('ShipmentForm component', () => {
           isAdvancePage
           shipmentType={SHIPMENT_OPTIONS.PPM}
           mtoShipment={mockPPMShipment}
-          userRole={roleTypes.TOO}
         />,
       );
 
@@ -1102,6 +1104,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('Amount requested')).toHaveValue('4,875');
       expect((await screen.findByText('Maximum advance: $7,407')).toBeInTheDocument);
       expect(screen.getByLabelText('Approve')).toBeChecked();
+      expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
 
       await userEvent.click(screen.getByRole('button', { name: 'Save and Continue' }));
 
