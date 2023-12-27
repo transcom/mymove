@@ -11,8 +11,7 @@ export const OktaNeedsLoggedOutBanner = () => {
 
   return (
     <div className={styles.oktaNeedsLoggedOutBanner} data-testid="okta-logout-banner">
-      You have an existing Okta session. Due to application & authentication security, you need to log out of Okta
-      completely.
+      You have an existing Okta session. Please log out of Okta completely.
       <br />
       <a className={styles.link} href={oktaURL} target="_blank" rel="noreferrer">
         <strong>You can access your Okta dashboard by following this link.</strong>
@@ -45,9 +44,8 @@ export const OktaLoggedOutBanner = () => {
 
   return (
     <div className={styles.oktaLoggedOutBanner} data-testid="okta-logout-banner">
-      You have been logged out of Okta. <br />
-      If you need to sign in again, you can do so by clicking <strong>Sign in</strong> below. <br />
-      If you have any other issues logging in or authenticating with Okta, please refer to our{' '}
+      You have been logged out of Okta. To sign in again, click <strong>Sign in</strong> below. <br />
+      If you have any other issues please refer to our{' '}
       <a
         className={styles.link}
         target="_blank"
@@ -57,7 +55,7 @@ export const OktaLoggedOutBanner = () => {
         <strong>troubleshooting page</strong>
       </a>
       . <br />
-      If you continue to have issues authenticating, please go to your{' '}
+      If you continue to have issues, please go to your{' '}
       <a className={styles.link} href={oktaURL} target="_blank" rel="noreferrer">
         <strong>Okta dashboard</strong>
       </a>{' '}
