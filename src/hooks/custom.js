@@ -17,6 +17,56 @@ export const includedStatusesForCalculatingWeights = (status) => {
   );
 };
 
+const addressesMatch = (address1, address2) => {
+  return (
+    address1.city === address2.city &&
+    address1.postalCode === address2.postalCode &&
+    address1.state === address2.state &&
+    address1.streetAddress1 === address2.streetAddress1
+  );
+};
+
+// This allows us to take all shipments and identify the next one in the diversion chain easily
+// A child diversion's pickup address is the destination address of the parent
+const findChildShipmentByAddress = (currentShipment, allShipments) => {
+  // Find a shipment whose pickup address matches the current shipment's destination address
+  return allShipments.find(
+    (shipment) => addressesMatch(shipment.pickupAddress, currentShipment.destinationAddress) && shipment.diversion,
+  );
+};
+
+// This allows us to group diverted shipments
+// For example, if there are 2 shipments in an order that the
+// TOO decided to mark for diversion, each of these shipments will now have
+// their own child shipments. This allows us to split them up into their
+// respective chains for processing.
+const groupDivertedShipmentsByAddress = (shipments) => {
+  const chains = [];
+  const remainingUnchainedShipments = new Set(shipments.map((s) => s.id));
+  const shipmentMap = new Map(shipments.map((s) => [s.id, s]));
+
+  // Create each chain
+  shipments.forEach((shipment) => {
+    if (shipment.diversion && remainingUnchainedShipments.has(shipment.id)) {
+      const chain = [];
+      let currentShipment = shipment;
+      // Loop over the shipments inside of the remainingUnchainedShipments
+      // Keep identifying the next child shipment in the chain and pushing it accordingly
+      // Stop looping when it can no longer find child shipment by address or if
+      // the shipment found is not incide of the remianing unchained shipments
+      while (currentShipment && remainingUnchainedShipments.has(currentShipment.id)) {
+        chain.push(currentShipment);
+        remainingUnchainedShipments.delete(currentShipment.id);
+        currentShipment = findChildShipmentByAddress(currentShipment, Array.from(shipmentMap.values()));
+      }
+      if (chain.length > 0) {
+        chains.push(chain);
+      }
+    }
+  });
+  return chains;
+};
+
 /**
  * This function calculates the total Billable Weight of the move,
  * by adding up all of the calculatedBillableWeight fields of all shipments with the required statuses.
@@ -87,7 +137,7 @@ export const useCalculatedWeightRequested = (mtoShipments) => {
   }, [mtoShipments]);
 };
 
-const getLowestShipmentWeight = (shipments) => {
+const getEstimatedLowestShipmentWeight = (shipments) => {
   return shipments.reduce((lowest, shipment) => {
     const estimatedWeight = getShipmentEstimatedWeight(shipment);
     return estimatedWeight < lowest ? estimatedWeight : lowest;
@@ -107,15 +157,23 @@ export const calculateEstimatedWeight = (mtoShipments) => {
       (s) => !s.diversion && includedStatusesForCalculatingWeights(s.status) && getShipmentEstimatedWeight(s),
     );
 
-    // After separating, calculate accordingly. Remember, diversions are calculated uniquely.
-    const lowestDivertedWeight =
-      divertedEligibleShipments.length > 0 ? getLowestShipmentWeight(divertedEligibleShipments) : 0;
-    const sumOtherEligibleWeights = otherEligibleShipments.reduce((total, shipment) => {
-      return total + getShipmentEstimatedWeight(shipment);
-    }, 0);
+    // In order to properly sum the lowest weight of the diverted shipments, we must first put them into
+    // their correct "chains". Please see comments for groupDivertedShipments for more details.
+    const chains = groupDivertedShipmentsByAddress(divertedEligibleShipments);
+    // Grab the lowest weight from each chain
+    const chainWeights = chains.map((chain) => getEstimatedLowestShipmentWeight(chain));
+    // Now that we have the lowest weight from each chain, get the sum
+    const sumChainWeights = chainWeights.reduce((total, weight) => total + weight, 0);
 
-    return sumOtherEligibleWeights + lowestDivertedWeight > 0 ? sumOtherEligibleWeights + lowestDivertedWeight : null;
+    // Sum non diverted shipments
+    const sumOtherEligibleWeights = otherEligibleShipments.reduce(
+      (total, shipment) => total + getShipmentEstimatedWeight(shipment),
+      0,
+    );
+
+    return sumOtherEligibleWeights + sumChainWeights > 0 ? sumOtherEligibleWeights + sumChainWeights : null;
   }
+
   return null;
 };
 

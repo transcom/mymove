@@ -191,25 +191,11 @@ describe('for all shipments that are approved, have a cancellation requested, or
     expect(result.current).toBe(8000);
   });
   it('useCalculatedTotalEstimatedWeight with diversions present', () => {
-    // Two approved shipments are now present with an estimated weight of 3500 and 4000
-    // Since they are diversions, it should only take the lowest weight
-    let mtoShipments = [
+    const mtoShipments = [
       {
         primeEstimatedWeight: 1000,
         calculatedBillableWeight: 10,
         status: shipmentStatuses.DRAFT,
-      },
-      {
-        primeEstimatedWeight: 3500,
-        calculatedBillableWeight: 500,
-        status: shipmentStatuses.APPROVED,
-        diversion: true,
-      },
-      {
-        primeEstimatedWeight: 4000,
-        calculatedBillableWeight: 500,
-        status: shipmentStatuses.APPROVED,
-        diversion: true,
       },
       {
         primeEstimatedWeight: 1000,
@@ -217,21 +203,91 @@ describe('for all shipments that are approved, have a cancellation requested, or
         status: shipmentStatuses.CANCELLATION_REQUESTED,
       },
       {
+        id: 'parent',
         primeEstimatedWeight: 1000,
         calculatedBillableWeight: 300,
+        pickupAddress: { city: 'CityA' },
+        destinationAddress: { city: 'CityB' },
+        diversion: true,
         status: shipmentStatuses.DIVERSION_REQUESTED,
+      },
+      {
+        id: 'child',
+        primeEstimatedWeight: 1500,
+        calculatedBillableWeight: 300,
+        pickupAddress: { city: 'CityB' },
+        destinationAddress: { city: 'CityC' },
+        diversion: true,
+        status: shipmentStatuses.APPROVED,
       },
     ];
 
-    const { result, rerender } = renderHook(() => useCalculatedEstimatedWeight(mtoShipments));
+    const { result } = renderHook(() => useCalculatedEstimatedWeight(mtoShipments));
 
-    expect(result.current).toBe(5500);
+    expect(result.current).toBe(1000 + 1000);
+  });
+  it('calculates the lowest weight of shipments with 2 parent diversions', () => {
+    const mtoShipments = [
+      {
+        id: 'parent1',
+        primeEstimatedWeight: 3000,
+        status: shipmentStatuses.APPROVED,
+        diversion: true,
+        pickupAddress: { city: 'CityA' },
+        destinationAddress: { city: 'CityB' },
+      },
+      {
+        id: 'child1',
+        primeEstimatedWeight: 2500,
+        status: shipmentStatuses.APPROVED,
+        diversion: true,
+        pickupAddress: { city: 'CityB' },
+        destinationAddress: { city: 'CityC' },
+      },
+      {
+        id: 'parent2',
+        primeEstimatedWeight: 2000,
+        status: shipmentStatuses.APPROVED,
+        diversion: true,
+        pickupAddress: { city: 'City1' },
+        destinationAddress: { city: 'City2' },
+      },
+      {
+        id: 'child2',
+        primeEstimatedWeight: 1500,
+        status: shipmentStatuses.APPROVED,
+        diversion: true,
+        pickupAddress: { city: 'City2' },
+        destinationAddress: { city: 'City3' },
+      },
+    ];
 
-    mtoShipments = mtoShipments.concat([
-      { primeEstimatedWeight: 2000, calculatedBillableWeight: 100, status: shipmentStatuses.APPROVED },
-    ]);
-    rerender();
+    const { result } = renderHook(() => useCalculatedEstimatedWeight(mtoShipments));
 
-    expect(result.current).toBe(7500);
+    expect(result.current).toBe(2500 + 1500);
+  });
+  it('calculates the lowest weight of shipments with 1 parent diversion', () => {
+    const mtoShipments = [
+      {
+        id: 'parent1',
+        primeEstimatedWeight: 3000,
+        status: shipmentStatuses.APPROVED,
+        diversion: true,
+        pickupAddress: { city: 'CityA' },
+        destinationAddress: { city: 'CityB' },
+      },
+      {
+        id: 'child1',
+        primeEstimatedWeight: 2500,
+        status: shipmentStatuses.APPROVED,
+        diversion: true,
+        pickupAddress: { city: 'CityB' },
+        destinationAddress: { city: 'CityC' },
+      },
+    ];
+
+    const { result } = renderHook(() => useCalculatedEstimatedWeight(mtoShipments));
+
+    expect(result.current).toBe(2500);
   });
 });
