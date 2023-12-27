@@ -12,4 +12,7 @@ export default {
   actual_weight: 'actual_weight',
   estimated_weight: 'estimated_weight',
   sit_estimated_weight: 'sit_estimated_weight',
+  adjusted_net_weight: 'adjusted_net_weight',
+  empty_weight: 'empty_weight',
+  full_weight: 'full_weight',
 };
