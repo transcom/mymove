@@ -43,20 +43,8 @@ const InternalCreateSignedCertificationEndpointKey = "Internal.CreateSignedCerti
 // InternalIndexSignedCertificationEndpointKey is the key for the indexSignedCertification endpoint in internal
 const InternalIndexSignedCertificationEndpointKey = "Internal.IndexSignedCertification"
 
-// InternalCreatePersonallyProcuredMoveEndpointKey is the key for the createPersonallyProcuredMove endpoint in internal
-const InternalCreatePersonallyProcuredMoveEndpointKey = "Internal.CreatePersonallyProcuredMove"
-
-// InternalIndexPersonallyProcuredMovesEndpointKey is the key for the indexPersonallyProcuredMoves endpoint in internal
-const InternalIndexPersonallyProcuredMovesEndpointKey = "Internal.IndexPersonallyProcuredMoves"
-
-// InternalUpdatePersonallyProcuredMoveEndpointKey is the key for the updatePersonallyProcuredMove endpoint in internal
-const InternalUpdatePersonallyProcuredMoveEndpointKey = "Internal.UpdatePersonallyProcuredMove"
-
 // InternalPatchPersonallyProcuredMoveEndpointKey is the key for the patchPersonallyProcuredMove endpoint in internal
 const InternalPatchPersonallyProcuredMoveEndpointKey = "Internal.PatchPersonallyProcuredMove"
-
-// InternalShowPersonallyProcuredMoveEndpointKey is the key for the showPersonallyProcuredMove endpoint in internal
-const InternalShowPersonallyProcuredMoveEndpointKey = "Internal.ShowPersonallyProcuredMove"
 
 // InternalSubmitPersonallyProcuredMoveEndpointKey is the key for the submitPersonallyProcuredMove endpoint in internal
 const InternalSubmitPersonallyProcuredMoveEndpointKey = "Internal.SubmitPersonallyProcuredMove"
@@ -225,25 +213,9 @@ var internalEndpoints = EndpointMapType{
 		APIName:     InternalAPIName,
 		OperationID: "indexSignedCertification",
 	},
-	InternalCreatePersonallyProcuredMoveEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "createPersonallyProcuredMove",
-	},
-	InternalIndexPersonallyProcuredMovesEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "indexPersonallyProcuredMoves",
-	},
-	InternalUpdatePersonallyProcuredMoveEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "updatePersonallyProcuredMove",
-	},
 	InternalPatchPersonallyProcuredMoveEndpointKey: {
 		APIName:     InternalAPIName,
 		OperationID: "patchPersonallyProcuredMove",
-	},
-	InternalShowPersonallyProcuredMoveEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "showPersonallyProcuredMove",
 	},
 	InternalSubmitPersonallyProcuredMoveEndpointKey: {
 		APIName:     InternalAPIName,

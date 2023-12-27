@@ -219,8 +219,6 @@ var allowedRoutes = map[string]bool{
 	"ppm.showPPMEstimate":                         true,
 	"ppm.showPPMIncentive":                        true,
 	"ppm.showPPMSitEstimate":                      true,
-	"ppm.showPersonallyProcuredMove":              true,
-	"ppm.updatePersonallyProcuredMove":            true,
 	"queues.showQueue":                            true,
 	"uploads.deleteUpload":                        true,
 	"users.showLoggedInUser":                      true,
