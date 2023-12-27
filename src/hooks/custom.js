@@ -119,14 +119,19 @@ export const calculateWeightRequested = (mtoShipments) => {
       (s) => !s.diversion && includedStatusesForCalculatingWeights(s.status) && calculateShipmentNetWeight(s),
     );
 
-    const lowestDivertedWeight =
-      divertedEligibleShipments.length > 0 ? getLowestShipmentNetWeight(divertedEligibleShipments) : 0;
+    // In order to properly sum the lowest weight of the diverted shipments, we must first put them into
+    // their correct "chains". Please see comments for groupDivertedShipments for more details.
+    const chains = groupDivertedShipmentsByAddress(divertedEligibleShipments);
+    // Grab the lowest weight from each chain
+    const chainWeights = chains.map((chain) => getLowestShipmentNetWeight(chain));
+    // Now that we have the lowest weight from each chain, get the sum
+    const sumChainWeights = chainWeights.reduce((total, weight) => total + weight, 0);
 
     const sumOtherEligibleWeights = otherEligibleShipments.reduce((total, current) => {
       return total + (calculateShipmentNetWeight(current) || 0);
     }, 0);
 
-    return sumOtherEligibleWeights + lowestDivertedWeight > 0 ? sumOtherEligibleWeights + lowestDivertedWeight : 0;
+    return sumOtherEligibleWeights + sumChainWeights > 0 ? sumOtherEligibleWeights + sumChainWeights : 0;
   }
   return null;
 };
