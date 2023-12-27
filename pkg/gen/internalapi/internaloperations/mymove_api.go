@@ -96,9 +96,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrdersCreateOrdersHandler: orders.CreateOrdersHandlerFunc(func(params orders.CreateOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation orders.CreateOrders has not yet been implemented")
 		}),
-		PpmCreatePPMAttachmentsHandler: ppm.CreatePPMAttachmentsHandlerFunc(func(params ppm.CreatePPMAttachmentsParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.CreatePPMAttachments has not yet been implemented")
-		}),
 		PpmCreatePPMUploadHandler: ppm.CreatePPMUploadHandlerFunc(func(params ppm.CreatePPMUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.CreatePPMUpload has not yet been implemented")
 		}),
@@ -173,9 +170,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		ServiceMembersPatchServiceMemberHandler: service_members.PatchServiceMemberHandlerFunc(func(params service_members.PatchServiceMemberParams) middleware.Responder {
 			return middleware.NotImplemented("operation service_members.PatchServiceMember has not yet been implemented")
-		}),
-		PpmRequestPPMExpenseSummaryHandler: ppm.RequestPPMExpenseSummaryHandlerFunc(func(params ppm.RequestPPMExpenseSummaryParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.RequestPPMExpenseSummary has not yet been implemented")
 		}),
 		PpmRequestPPMPaymentHandler: ppm.RequestPPMPaymentHandlerFunc(func(params ppm.RequestPPMPaymentParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.RequestPPMPayment has not yet been implemented")
@@ -349,8 +343,6 @@ type MymoveAPI struct {
 	PpmCreateMovingExpenseHandler ppm.CreateMovingExpenseHandler
 	// OrdersCreateOrdersHandler sets the operation handler for the create orders operation
 	OrdersCreateOrdersHandler orders.CreateOrdersHandler
-	// PpmCreatePPMAttachmentsHandler sets the operation handler for the create p p m attachments operation
-	PpmCreatePPMAttachmentsHandler ppm.CreatePPMAttachmentsHandler
 	// PpmCreatePPMUploadHandler sets the operation handler for the create p p m upload operation
 	PpmCreatePPMUploadHandler ppm.CreatePPMUploadHandler
 	// PpmCreateProGearWeightTicketHandler sets the operation handler for the create pro gear weight ticket operation
@@ -401,8 +393,6 @@ type MymoveAPI struct {
 	PpmPatchPersonallyProcuredMoveHandler ppm.PatchPersonallyProcuredMoveHandler
 	// ServiceMembersPatchServiceMemberHandler sets the operation handler for the patch service member operation
 	ServiceMembersPatchServiceMemberHandler service_members.PatchServiceMemberHandler
-	// PpmRequestPPMExpenseSummaryHandler sets the operation handler for the request p p m expense summary operation
-	PpmRequestPPMExpenseSummaryHandler ppm.RequestPPMExpenseSummaryHandler
 	// PpmRequestPPMPaymentHandler sets the operation handler for the request p p m payment operation
 	PpmRequestPPMPaymentHandler ppm.RequestPPMPaymentHandler
 	// PpmResubmitPPMShipmentDocumentationHandler sets the operation handler for the resubmit p p m shipment documentation operation
@@ -586,9 +576,6 @@ func (o *MymoveAPI) Validate() error {
 	if o.OrdersCreateOrdersHandler == nil {
 		unregistered = append(unregistered, "orders.CreateOrdersHandler")
 	}
-	if o.PpmCreatePPMAttachmentsHandler == nil {
-		unregistered = append(unregistered, "ppm.CreatePPMAttachmentsHandler")
-	}
 	if o.PpmCreatePPMUploadHandler == nil {
 		unregistered = append(unregistered, "ppm.CreatePPMUploadHandler")
 	}
@@ -663,9 +650,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ServiceMembersPatchServiceMemberHandler == nil {
 		unregistered = append(unregistered, "service_members.PatchServiceMemberHandler")
-	}
-	if o.PpmRequestPPMExpenseSummaryHandler == nil {
-		unregistered = append(unregistered, "ppm.RequestPPMExpenseSummaryHandler")
 	}
 	if o.PpmRequestPPMPaymentHandler == nil {
 		unregistered = append(unregistered, "ppm.RequestPPMPaymentHandler")
@@ -907,10 +891,6 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments"] = ppm.NewCreatePPMAttachments(o.context, o.PpmCreatePPMAttachmentsHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
 	o.handlers["POST"]["/ppm-shipments/{ppmShipmentId}/uploads"] = ppm.NewCreatePPMUpload(o.context, o.PpmCreatePPMUploadHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -1008,10 +988,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/service_members/{serviceMemberId}"] = service_members.NewPatchServiceMember(o.context, o.ServiceMembersPatchServiceMemberHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/personally_procured_move/{personallyProcuredMoveId}/expense_summary"] = ppm.NewRequestPPMExpenseSummary(o.context, o.PpmRequestPPMExpenseSummaryHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
