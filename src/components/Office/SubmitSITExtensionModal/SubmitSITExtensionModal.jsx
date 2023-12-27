@@ -42,7 +42,7 @@ const SitEndDateForm = ({ onChange }) => (
 );
 
 const SitStatusTables = ({ sitStatus, shipment }) => {
-  const { totalSITDaysUsed } = sitStatus;
+  const { totalSITDaysUsed, calculatedTotalDaysInSIT } = sitStatus;
   const { daysInSIT } = sitStatus.currentSIT;
   const sitDepartureDate = moment(sitStatus.currentSIT?.sitDepartureDate, swaggerDateFormat) || DEFAULT_EMPTY_VALUE;
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
@@ -100,7 +100,9 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
     // Sit days allowance
     sitAllowanceHelper.setValue(daysApproved);
     // // // Sit End date
-    const calculatedSitEndDate = formatDateForDatePicker(sitEntryDate.add(daysApproved - daysInPreviousSIT, 'days'));
+    const calculatedSitEndDate = formatDateForDatePicker(
+      sitEntryDate.add(daysApproved - (calculatedTotalDaysInSIT - daysInSIT), 'days'),
+    );
     endDateHelper.setTouched(true);
     endDateHelper.setValue(calculatedSitEndDate);
   };
@@ -168,7 +170,7 @@ const SubmitSITExtensionModal = ({ shipment, sitStatus, onClose, onSubmit }) => 
     daysApproved: String(shipment.sitDaysAllowance),
     sitEndDate: formatDateForDatePicker(moment(sitStatus.currentSIT.sitAllowanceEndDate, swaggerDateFormat)),
   };
-  const minimumDaysAllowed = sitStatus.totalSITDaysUsed - sitStatus.currentSIT.daysInSIT + 1;
+  const minimumDaysAllowed = sitStatus.calculatedTotalDaysInSIT - sitStatus.currentSIT.daysInSIT + 1;
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const reviewSITExtensionSchema = Yup.object().shape({
     requestReason: Yup.string().required('Required'),
