@@ -308,7 +308,7 @@ func checkDiversionValid() validator {
 
 			// Ensure that the provided divertedFromShipmentID is valid if it is a diversion as well
 			if parentShipment.Diversion && parentShipment.DivertedFromShipmentID == nil {
-				return apperror.NewInvalidInputError(newer.ID, nil, verrs, "The diverted shipment must have a DivertedFromShipmentID if it is a diversion")
+				return apperror.NewInvalidInputError(newer.ID, nil, verrs, "The new shipment must have a DivertedFromShipmentID parameter referencing the parent")
 			}
 		}
 		// Ensure that the diverted from ID is not equal to itself
