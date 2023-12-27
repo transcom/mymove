@@ -1058,6 +1058,47 @@ describe('ShipmentForm component', () => {
       });
     });
 
+    it('renders the PPM shipment form with pre-filled requested values for Advance Page for TOO', async () => {
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          isAdvancePage
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={mockPPMShipment}
+          userRole={roleTypes.TOO}
+        />,
+      );
+
+      expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('Incentive & advance');
+      expect(await screen.getByLabelText('No')).not.toBeChecked();
+      expect(screen.getByLabelText('Yes')).toBeChecked();
+      expect(screen.findByText('Estimated incentive: $12,345').toBeInTheDocument);
+      expect(screen.getByLabelText('Amount requested')).toHaveValue('4,875');
+      expect((await screen.findByText('Maximum advance: $7,407')).toBeInTheDocument);
+      expect(screen.getByLabelText('Approve')).toBeChecked();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Save and Continue' }));
+
+      await waitFor(() => {
+        expect(defaultProps.submitHandler).toHaveBeenCalledWith(
+          expect.objectContaining({
+            body: expect.objectContaining({
+              counselorRemarks: 'mock counselor remarks',
+              ppmShipment: expect.objectContaining({
+                hasRequestedAdvance: true,
+                advanceAmountRequested: 487500,
+                advanceStatus: 'APPROVED',
+              }),
+            }),
+          }),
+          expect.objectContaining({
+            onSuccess: expect.any(Function),
+          }),
+        );
+      });
+    });
+
     it('validates the Advance Page making counselor remarks required when `Advance Requested?` is changed from Yes to No', async () => {
       const ppmShipmentWithoutRemarks = {
         ...mockPPMShipment,
