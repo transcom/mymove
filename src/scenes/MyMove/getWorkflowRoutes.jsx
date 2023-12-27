@@ -6,7 +6,7 @@ import { generalRoutes, customerRoutes } from 'constants/routes';
 import WizardPage from 'shared/WizardPage';
 import generatePath from 'shared/WizardPage/generatePath';
 import { no_op } from 'shared/utils';
-import { NULL_UUID, SHIPMENT_OPTIONS, CONUS_STATUS } from 'shared/constants';
+import { NULL_UUID, CONUS_STATUS } from 'shared/constants';
 import BackupContact from 'pages/MyMove/Profile/BackupContact';
 import ProfileReview from 'scenes/Review/ProfileReview';
 import Home from 'pages/MyMove/Home';
@@ -18,8 +18,6 @@ import ContactInfo from 'pages/MyMove/Profile/ContactInfo';
 import Orders from 'pages/MyMove/Orders';
 import UploadOrders from 'pages/MyMove/UploadOrders';
 import SelectShipmentType from 'pages/MyMove/SelectShipmentType';
-import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
-import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import BackupAddress from 'pages/MyMove/Profile/BackupAddress';
 import ResidentialAddress from 'pages/MyMove/Profile/ResidentialAddress';
 import Review from 'pages/MyMove/Review/Review';
@@ -62,9 +60,6 @@ const never = () => false;
 // Todo: update this when moves can be completed
 const myFirstRodeo = (props) => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = (props) => props.lastMoveIsCanceled;
-const hasPPM = ({ move }) => {
-  return Boolean(move?.mtoShipments?.some((mtoShipment) => mtoShipment.shipmentType === SHIPMENT_OPTIONS.PPM));
-};
 const inGhcFlow = (props) => props.context.flags.ghcFlow;
 const isCurrentMoveSubmitted = ({ move }) => {
   return get(move, 'status', 'DRAFT') === 'SUBMITTED';
@@ -167,19 +162,6 @@ const pages = {
     isInFlow: always,
     isComplete: ({ sm, orders, move }) => get(move, 'mtoShipments', []).length > 0,
     render: () => <SelectShipmentType />,
-  },
-  '/moves/:moveId/ppm-start': {
-    isInFlow: hasPPM,
-    isComplete: ({ sm, orders, move, ppm }) => {
-      return ppm && every([ppm.original_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
-    },
-    render: (key, pages) => <PpmDateAndLocations pages={pages} pageKey={key} />,
-  },
-  '/moves/:moveId/ppm-incentive': {
-    isInFlow: hasPPM,
-    isComplete: ({ sm, orders, move, ppm }) =>
-      get(ppm, 'weight_estimate', null) && get(ppm, 'weight_estimate', 0) !== 0,
-    render: (key, pages) => <PpmWeight pages={pages} pageKey={key} />,
   },
   [customerRoutes.MOVE_REVIEW_PATH]: {
     isInFlow: always,
