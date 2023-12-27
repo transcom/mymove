@@ -262,7 +262,7 @@ describe('Office App', () => {
       ['Services Counseling Queue', '/', roleTypes.SERVICES_COUNSELOR],
       ['QAE CSR Move Search', '/', roleTypes.QAE_CSR],
       ['Prime Simulator Available Moves Queue', '/', roleTypes.PRIME_SIMULATOR],
-      ['Services Counseling Move Info', '/moves/move123/shipments/:shipmentId/advance', roleTypes.TOO],
+      ['TOO view PPM advance shipment info', '/moves/move123/shipments/:shipmentId/advance', roleTypes.TOO],
     ])('renders the %s component at %s as a %s with sufficient permissions', async (component, path, role) => {
       renderOfficeAppAtRoute(path, role);
 
