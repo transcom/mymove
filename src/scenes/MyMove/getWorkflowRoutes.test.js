@@ -40,8 +40,6 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/info',
           '/orders/upload',
           '/moves/:moveId/shipment-type',
-          '/moves/:moveId/ppm-start',
-          '/moves/:moveId/ppm-incentive',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
         ]);
@@ -60,8 +58,6 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/info',
           '/orders/upload',
           '/moves/:moveId/shipment-type',
-          '/moves/:moveId/ppm-start',
-          '/moves/:moveId/ppm-incentive',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
         ]);
@@ -135,8 +131,6 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/info',
           '/orders/upload',
           '/moves/:moveId/shipment-type',
-          '/moves/:moveId/ppm-start',
-          '/moves/:moveId/ppm-incentive',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
         ]);
@@ -505,7 +499,7 @@ describe('when getting the next incomplete page', () => {
           },
           context: ppmContext,
         });
-        expect(result).toEqual('/moves/bar/ppm-incentive');
+        expect(result).toEqual('/moves/bar/review');
       });
     });
     describe('when ppm incentive is complete', () => {
