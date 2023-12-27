@@ -591,20 +591,6 @@ definitions:
     required:
       - gcc
       - incentive_percentage
-  ExpenseSummaryPayload:
-    type: object
-    properties:
-      categories:
-        type: array
-        items:
-          $ref: '#/definitions/CategoryExpenseSummary'
-      grand_total:
-        type: object
-        properties:
-          payment_method_totals:
-            $ref: '#/definitions/PaymentMethodsTotals'
-          total:
-            type: integer
   CategoryExpenseSummary:
     type: object
     properties:
@@ -3103,102 +3089,7 @@ paths:
           description: move not found
         '500':
           description: internal server error
-  /moves/{moveId}/personally_procured_move:
-    post:
-      summary: Creates a new PPM for the given move
-      description: Create an instance of personally_procured_move tied to the move ID
-      operationId: createPersonallyProcuredMove
-      tags:
-        - ppm
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move this PPM is associated with
-        - in: body
-          name: createPersonallyProcuredMovePayload
-          required: true
-          schema:
-            $ref: '#/definitions/CreatePersonallyProcuredMovePayload'
-      responses:
-        '201':
-          description: created instance of personally_procured_move
-          schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '404':
-          description: move not found
-        '500':
-          description: server error
-    get:
-      summary: Returns a list of all PPMs associated with this move
-      description: Returns a list of all PPMs associated with this move
-      operationId: indexPersonallyProcuredMoves
-      tags:
-        - ppm
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move these PPMs are associated with
-      responses:
-        '200':
-          description: returns list of personally_procured_move
-          schema:
-            $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
   /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}:
-    put:
-      summary: Updates the PPM
-      description: This replaces the current version of the PPM with the version sent.
-      operationId: updatePersonallyProcuredMove
-      tags:
-        - ppm
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
-        - in: path
-          name: personallyProcuredMoveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the PPM being updated
-        - in: body
-          name: updatePersonallyProcuredMovePayload
-          required: true
-          schema:
-            $ref: '#/definitions/UpdatePersonallyProcuredMovePayload'
-      responses:
-        '200':
-          description: updated instance of personally_procured_move
-          schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '500':
-          description: internal server error
     patch:
       summary: Patches the PPM
       description: Any fields sent in this request will be set on the PPM referenced
@@ -3240,36 +3131,6 @@ paths:
           description: cannot process request with given information
         '500':
           description: internal server error
-    get:
-      summary: Returns the given PPM
-      description: Returns the given PPM
-      operationId: showPersonallyProcuredMove
-      tags:
-        - ppm
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move being signed for
-        - in: path
-          name: personallyProcuredMoveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the PPM
-      responses:
-        '200':
-          description: the instance of personally_procured_move
-          schema:
-            $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
   /personally_procured_move/{personallyProcuredMoveId}/submit:
     post:
       summary: Submits a PPM for approval
@@ -3304,35 +3165,6 @@ paths:
           description: ppm is not found
         '500':
           description: internal server error
-  /personally_procured_move/{personallyProcuredMoveId}/expense_summary:
-    get:
-      summary: Returns an expense summary organized by expense type
-      description: Calculates and returns an expense summary organized by expense type
-      operationId: requestPPMExpenseSummary
-      tags:
-        - ppm
-      parameters:
-        - in: path
-          name: personallyProcuredMoveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the PPM
-      responses:
-        '200':
-          description: Successfully calculated expense summary
-          schema:
-            $ref: '#/definitions/ExpenseSummaryPayload'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '404':
-          description: personally procured move not found
-        '500':
-          description: server error
   /personally_procured_move/{personallyProcuredMoveId}/request_payment:
     post:
       summary: Moves the PPM and the move into the PAYMENT_REQUESTED state
@@ -3709,48 +3541,6 @@ paths:
           description: user is not authorized
         '500':
           description: internal server error
-  /personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments:
-    post:
-      summary: Creates PPM attachments PDF
-      description: Creates a PPM attachments PDF
-      operationId: createPPMAttachments
-      tags:
-        - ppm
-      parameters:
-        - in: path
-          name: personallyProcuredMoveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the PPM to create an attachments PDF for
-        - name: docTypes
-          in: query
-          type: array
-          required: true
-          items:
-            type: string
-            enum: *MOVEDOCUMENTTYPE
-          collectionFormat: csv
-          description: Restrict the list to documents with matching docType.
-      responses:
-        '200':
-          description: returns a PPM attachments upload
-          schema:
-            $ref: 'definitions/Upload.yaml'
-        '400':
-          description: invalid request
-        '401':
-          description: must be authenticated to use this endpoint
-        '403':
-          description: not authorized to perform this action
-        '413':
-          description: payload is too large
-        '422':
-          description: malformed PDF contained in uploads
-        '424':
-          description: no files to be processed into attachments PDF
-        '500':
-          description: server error
   /personally_procured_moves/{personallyProcuredMoveId}/approve:
     post:
       summary: Approves the PPM
