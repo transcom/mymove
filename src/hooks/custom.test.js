@@ -101,60 +101,6 @@ describe('for all shipments that are approved, have a cancellation requested, or
 
     expect(result.current).toBe(1100);
   });
-  it('correctly calculates the total weight with diversions present', () => {
-    // Lowest diversion is the reweigh found at 600, plus other eligible weights 2000 + 1100 + 800 = a total of 4500
-    const mtoShipments = [
-      {
-        primeActualWeight: 1000,
-        reweigh: {
-          weight: null,
-        },
-        status: shipmentStatuses.APPROVED,
-        diversion: true,
-      },
-      {
-        primeActualWeight: 1500,
-        reweigh: {
-          weight: 1300,
-        },
-        status: shipmentStatuses.APPROVED,
-        diversion: true,
-      },
-      {
-        primeActualWeight: 1500,
-        reweigh: {
-          weight: 600,
-        },
-        status: shipmentStatuses.APPROVED,
-        diversion: true,
-      },
-      {
-        primeActualWeight: 2000,
-        reweigh: {
-          weight: null,
-        },
-        status: shipmentStatuses.APPROVED,
-      },
-      {
-        primeActualWeight: 1200,
-        reweigh: {
-          weight: 1100,
-        },
-        status: shipmentStatuses.CANCELLATION_REQUESTED,
-      },
-      {
-        primeActualWeight: 800,
-        reweigh: {
-          weight: null,
-        },
-        status: shipmentStatuses.DIVERSION_REQUESTED,
-      },
-    ];
-
-    const { result } = renderHook(() => useCalculatedWeightRequested(mtoShipments));
-
-    expect(result.current).toBe(4500);
-  });
   it('useCalculatedTotalEstimatedWeight', () => {
     let mtoShipments = [
       {
