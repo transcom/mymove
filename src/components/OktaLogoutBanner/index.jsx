@@ -44,8 +44,7 @@ export const OktaLoggedOutBanner = () => {
 
   return (
     <div className={styles.oktaLoggedOutBanner} data-testid="okta-logout-banner">
-      You have been logged out of Okta. <br />
-      To sign in again, click <strong>Sign in</strong> below. <br />
+      You have been logged out of Okta. To sign in again, click <strong>Sign in</strong> below. <br />
       If you have any other issues please refer to our{' '}
       <a
         className={styles.link}
