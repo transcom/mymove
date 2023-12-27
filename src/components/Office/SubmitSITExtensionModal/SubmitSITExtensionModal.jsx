@@ -44,7 +44,7 @@ const SitEndDateForm = ({ onChange }) => (
 const SitStatusTables = ({ sitStatus, shipment }) => {
   const { totalSITDaysUsed, calculatedTotalDaysInSIT } = sitStatus;
   const { daysInSIT } = sitStatus.currentSIT;
-  const sitDepartureDate = moment(sitStatus.currentSIT?.sitDepartureDate, swaggerDateFormat) || DEFAULT_EMPTY_VALUE;
+  const sitDepartureDate = sitStatus.currentSIT?.sitDepartureDate || DEFAULT_EMPTY_VALUE;
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
 
