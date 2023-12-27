@@ -15,7 +15,7 @@ test('A customer can go through onboarding', async ({ page, customerPage }) => {
   await page.getByRole('combobox', { name: 'Branch of service' }).selectOption({ label: 'Space Force' });
   await page.getByRole('combobox', { name: 'Branch of service' }).selectOption({ label: 'Army' });
   await page.getByTestId('textInput').fill('1231231234');
-  await page.getByRole('combobox', { name: 'Rank' }).selectOption({ label: 'E-7' });
+  await page.getByRole('combobox', { name: 'Pay grade' }).selectOption({ label: 'E-7' });
   await customerPage.navigateForward();
 
   // Name secton
@@ -62,7 +62,7 @@ test('A customer can go through onboarding', async ({ page, customerPage }) => {
   await page.getByRole('mark').nth(0).click();
   await customerPage.navigateForward();
 
-  // Current pickup address section
+  // Current address section
   await customerPage.waitForPage.onboardingCurrentAddress();
   await page.getByLabel('Address 1').fill('7 Q St');
   await page.getByLabel('City').fill('Atco');
