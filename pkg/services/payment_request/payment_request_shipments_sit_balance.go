@@ -153,6 +153,13 @@ func calculatePendingSITBalance(appCtx appcontext.AppContext, paymentServiceItem
 		if err != nil {
 			return err
 		}
+		// sort the SIT service items into past, current and future to aid in the upcoming calculations
+		shipmentSITs := sitstatus.SortShipmentSITs(shipment, today)
+		totalSITAllowance, err := sitstatus.NewShipmentSITStatus().CalculateShipmentSITAllowance(appCtx, shipment)
+		if err != nil {
+			return err
+		}
+		calculateTotalDaysInSIT := sitstatus.CalculateTotalDaysInSIT(shipmentSITs, today)
 
 		if shipmentSITBalance, ok := shipmentsSITBalances[shipment.ID.String()]; ok {
 			shipmentSITBalance.PendingSITDaysInvoiced = daysInSIT
@@ -164,7 +171,7 @@ func calculatePendingSITBalance(appCtx appcontext.AppContext, paymentServiceItem
 
 			// Even though these have been set before, we should do these calculations again in order to recalculate the
 			// totalSITEndDate using this service item's entry date.
-			totalSITEndDate := sitstatus.CalculateSITAllowanceEndDate(shipmentSITBalance.TotalSITDaysRemaining, *paymentServiceItem.MTOServiceItem.SITEntryDate, today)
+			totalSITEndDate := sitstatus.CalculateSITAllowanceEndDate(totalSITAllowance, daysInSIT, *paymentServiceItem.MTOServiceItem.SITEntryDate, calculateTotalDaysInSIT)
 
 			shipmentSITBalance.TotalSITEndDate = totalSITEndDate
 			shipmentsSITBalances[shipment.ID.String()] = shipmentSITBalance
@@ -175,10 +182,6 @@ func calculatePendingSITBalance(appCtx appcontext.AppContext, paymentServiceItem
 				PendingBilledStartDate: start,
 				PendingBilledEndDate:   end,
 			}
-
-			// sort the SIT service items into past, current and future to aid in the upcoming calculations
-			shipmentSITs := sitstatus.SortShipmentSITs(shipment, today)
-
 			totalSITDaysAuthorized, err := sitstatus.NewShipmentSITStatus().CalculateShipmentSITAllowance(appCtx, shipment)
 			if err != nil {
 				return err
@@ -186,7 +189,7 @@ func calculatePendingSITBalance(appCtx appcontext.AppContext, paymentServiceItem
 			totalSITDaysUsed := sitstatus.CalculateTotalDaysInSIT(shipmentSITs, today)
 			totalSITDaysRemaining := totalSITDaysAuthorized - totalSITDaysUsed
 
-			totalSITEndDate := sitstatus.CalculateSITAllowanceEndDate(totalSITDaysRemaining, *paymentServiceItem.MTOServiceItem.SITEntryDate, today)
+			totalSITEndDate := sitstatus.CalculateSITAllowanceEndDate(totalSITAllowance, daysInSIT, *paymentServiceItem.MTOServiceItem.SITEntryDate, calculateTotalDaysInSIT)
 
 			shipmentSITBalance.TotalSITDaysAuthorized = totalSITDaysAuthorized
 			shipmentSITBalance.TotalSITDaysRemaining = totalSITDaysRemaining

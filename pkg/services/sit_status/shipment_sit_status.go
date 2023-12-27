@@ -108,7 +108,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		daysInSIT := daysInSIT(*currentSIT, today)
 		sitEntryDate := *currentSIT.SITEntryDate
 		sitDepartureDate := currentSIT.SITDepartureDate
-		sitAllowanceEndDate := CalculateSITAllowanceEndDate(shipmentSITStatus.TotalDaysRemaining, sitEntryDate, today)
+		sitAllowanceEndDate := CalculateSITAllowanceEndDate(totalSITAllowance, daysInSIT, sitEntryDate, shipmentSITStatus.CalculatedTotalDaysInSIT)
 		var sitCustomerContacted, sitRequestedDelivery *time.Time
 		sitCustomerContacted = currentSIT.SITCustomerContacted
 		sitRequestedDelivery = currentSIT.SITRequestedDelivery
@@ -188,13 +188,17 @@ func CalculateTotalDaysInSIT(shipmentSITs SortedShipmentSITs, today time.Time) i
 	return totalDays
 }
 
-func CalculateSITAllowanceEndDate(totalDaysRemaining int, sitEntryDate time.Time, today time.Time) time.Time {
-	//current SIT
-	if sitEntryDate.Before(today) {
-		return today.AddDate(0, 0, totalDaysRemaining)
+// adds up all the days from pastSITs
+func CalculateTotalPastDaysInSIT(shipmentSITs SortedShipmentSITs, today time.Time) int {
+	totalDays := 0
+	for _, serviceItem := range shipmentSITs.pastSITs {
+		totalDays += daysInSIT(serviceItem, today)
 	}
-	// future SIT
-	return sitEntryDate.AddDate(0, 0, totalDaysRemaining)
+	return totalDays
+}
+
+func CalculateSITAllowanceEndDate(totalSITAllowance int, currentDaysInSIT int, sitEntryDate time.Time, calculatedTotalDaysInSIT int) time.Time {
+	return sitEntryDate.AddDate(0, 0, (totalSITAllowance - (calculatedTotalDaysInSIT - currentDaysInSIT)))
 }
 
 func (f shipmentSITStatus) CalculateShipmentsSITStatuses(appCtx appcontext.AppContext, shipments []models.MTOShipment) map[string]services.SITStatus {
@@ -240,7 +244,7 @@ func fetchEntitlement(appCtx appcontext.AppContext, mtoShipment models.MTOShipme
 	return move.Orders.Entitlement, nil
 }
 
-func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(shipment models.MTOShipment, sitCustomerContacted *time.Time,
+func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext.AppContext, shipment models.MTOShipment, sitCustomerContacted *time.Time,
 	sitRequestedDelivery *time.Time, eTag string) (*services.SITStatus, error) {
 	existingETag := etag.GenerateEtag(shipment.UpdatedAt)
 
@@ -275,9 +279,14 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(shipment models.M
 	daysInSIT := daysInSIT(*currentSIT, today)
 	sitEntryDate := *currentSIT.SITEntryDate
 	sitDepartureDate := currentSIT.SITDepartureDate
+	totalSITAllowance, err := f.CalculateShipmentSITAllowance(appCtx, shipment)
+	if err != nil {
+		return nil, err
+	}
+	calculateTotalDaysInSIT := CalculateTotalDaysInSIT(shipmentSITs, today)
 
 	//TODO: B-17854 calculate allowance end date and required delivery date based on customer dates
-	sitAllowanceEndDate := CalculateSITAllowanceEndDate(shipmentSITStatus.TotalDaysRemaining, sitEntryDate, today)
+	sitAllowanceEndDate := CalculateSITAllowanceEndDate(totalSITAllowance, daysInSIT, sitEntryDate, calculateTotalDaysInSIT)
 
 	shipmentSITStatus.CurrentSIT = &services.CurrentSIT{
 		Location:             location,
