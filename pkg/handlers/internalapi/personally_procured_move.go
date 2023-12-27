@@ -291,8 +291,3 @@ func (h RequestPPMPaymentHandler) Handle(params ppmop.RequestPPMPaymentParams) m
 			return ppmop.NewRequestPPMPaymentOK().WithPayload(ppmPayload), nil
 		})
 }
-
-// RequestPPMExpenseSummaryHandler requests
-type RequestPPMExpenseSummaryHandler struct {
-	handlers.HandlerConfig
-}

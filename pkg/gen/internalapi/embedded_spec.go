@@ -1911,49 +1911,6 @@ func init() {
         }
       }
     },
-    "/personally_procured_move/{personallyProcuredMoveId}/expense_summary": {
-      "get": {
-        "description": "Calculates and returns an expense summary organized by expense type",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Returns an expense summary organized by expense type",
-        "operationId": "requestPPMExpenseSummary",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the PPM",
-            "name": "personallyProcuredMoveId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully calculated expense summary",
-            "schema": {
-              "$ref": "#/definitions/ExpenseSummaryPayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "404": {
-            "description": "personally procured move not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/personally_procured_move/{personallyProcuredMoveId}/request_payment": {
       "post": {
         "description": "Moves the PPM and the move into the PAYMENT_REQUESTED state",
@@ -2163,74 +2120,6 @@ func init() {
           },
           "500": {
             "description": "internal server error"
-          }
-        }
-      }
-    },
-    "/personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments": {
-      "post": {
-        "description": "Creates a PPM attachments PDF",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Creates PPM attachments PDF",
-        "operationId": "createPPMAttachments",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the PPM to create an attachments PDF for",
-            "name": "personallyProcuredMoveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "array",
-            "items": {
-              "enum": [
-                "OTHER",
-                "WEIGHT_TICKET",
-                "STORAGE_EXPENSE",
-                "SHIPMENT_SUMMARY",
-                "EXPENSE",
-                "WEIGHT_TICKET_SET"
-              ],
-              "type": "string"
-            },
-            "collectionFormat": "csv",
-            "description": "Restrict the list to documents with matching docType.",
-            "name": "docTypes",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "returns a PPM attachments upload",
-            "schema": {
-              "$ref": "#/definitions/Upload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "must be authenticated to use this endpoint"
-          },
-          "403": {
-            "description": "not authorized to perform this action"
-          },
-          "413": {
-            "description": "payload is too large"
-          },
-          "422": {
-            "description": "malformed PDF contained in uploads"
-          },
-          "424": {
-            "description": "no files to be processed into attachments PDF"
-          },
-          "500": {
-            "description": "server error"
           }
         }
       }
@@ -4535,28 +4424,6 @@ func init() {
         },
         "title": {
           "type": "string"
-        }
-      }
-    },
-    "ExpenseSummaryPayload": {
-      "type": "object",
-      "properties": {
-        "categories": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/CategoryExpenseSummary"
-          }
-        },
-        "grand_total": {
-          "type": "object",
-          "properties": {
-            "payment_method_totals": {
-              "$ref": "#/definitions/PaymentMethodsTotals"
-            },
-            "total": {
-              "type": "integer"
-            }
-          }
         }
       }
     },
@@ -10272,49 +10139,6 @@ func init() {
         }
       }
     },
-    "/personally_procured_move/{personallyProcuredMoveId}/expense_summary": {
-      "get": {
-        "description": "Calculates and returns an expense summary organized by expense type",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Returns an expense summary organized by expense type",
-        "operationId": "requestPPMExpenseSummary",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the PPM",
-            "name": "personallyProcuredMoveId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully calculated expense summary",
-            "schema": {
-              "$ref": "#/definitions/ExpenseSummaryPayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "404": {
-            "description": "personally procured move not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/personally_procured_move/{personallyProcuredMoveId}/request_payment": {
       "post": {
         "description": "Moves the PPM and the move into the PAYMENT_REQUESTED state",
@@ -10524,74 +10348,6 @@ func init() {
           },
           "500": {
             "description": "internal server error"
-          }
-        }
-      }
-    },
-    "/personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments": {
-      "post": {
-        "description": "Creates a PPM attachments PDF",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Creates PPM attachments PDF",
-        "operationId": "createPPMAttachments",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the PPM to create an attachments PDF for",
-            "name": "personallyProcuredMoveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "array",
-            "items": {
-              "enum": [
-                "OTHER",
-                "WEIGHT_TICKET",
-                "STORAGE_EXPENSE",
-                "SHIPMENT_SUMMARY",
-                "EXPENSE",
-                "WEIGHT_TICKET_SET"
-              ],
-              "type": "string"
-            },
-            "collectionFormat": "csv",
-            "description": "Restrict the list to documents with matching docType.",
-            "name": "docTypes",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "returns a PPM attachments upload",
-            "schema": {
-              "$ref": "#/definitions/Upload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "must be authenticated to use this endpoint"
-          },
-          "403": {
-            "description": "not authorized to perform this action"
-          },
-          "413": {
-            "description": "payload is too large"
-          },
-          "422": {
-            "description": "malformed PDF contained in uploads"
-          },
-          "424": {
-            "description": "no files to be processed into attachments PDF"
-          },
-          "500": {
-            "description": "server error"
           }
         }
       }
@@ -13241,39 +12997,6 @@ func init() {
         },
         "title": {
           "type": "string"
-        }
-      }
-    },
-    "ExpenseSummaryPayload": {
-      "type": "object",
-      "properties": {
-        "categories": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/CategoryExpenseSummary"
-          }
-        },
-        "grand_total": {
-          "type": "object",
-          "properties": {
-            "payment_method_totals": {
-              "$ref": "#/definitions/PaymentMethodsTotals"
-            },
-            "total": {
-              "type": "integer"
-            }
-          }
-        }
-      }
-    },
-    "ExpenseSummaryPayloadGrandTotal": {
-      "type": "object",
-      "properties": {
-        "payment_method_totals": {
-          "$ref": "#/definitions/PaymentMethodsTotals"
-        },
-        "total": {
-          "type": "integer"
         }
       }
     },

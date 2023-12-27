@@ -47,12 +47,6 @@ export function updatePPM(
   );
 }
 
-export function downloadPPMAttachments(ppmId, docTypes, label = downloadPPMAttachmentsLabel) {
-  const swaggerTag = 'ppm.createPPMAttachments';
-  const payload = { personallyProcuredMoveId: ppmId, docTypes };
-  return swaggerRequest(getClient, swaggerTag, payload, { label });
-}
-
 export function approveReimbursement(reimbursementId, label = approveReimbursementLabel) {
   const swaggerTag = 'office.approveReimbursement';
   return swaggerRequest(getClient, swaggerTag, { reimbursementId }, { label });

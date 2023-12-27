@@ -1,7 +1,7 @@
 import { get, filter } from 'lodash';
 import reduceReducers from 'reduce-reducers';
 
-import { GetPpmIncentive, GetExpenseSummary } from './api.js';
+import { GetPpmIncentive } from './api.js';
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { MOVE_DOC_STATUS } from 'shared/constants';
@@ -12,8 +12,6 @@ const CLEAR_PPM_INCENTIVE = 'CLEAR_PPM_INCENTIVE';
 export const getIncentiveActionType = ReduxHelpers.generateAsyncActionTypes(GET_PPM_INCENTIVE);
 export const getPpmIncentive = ReduxHelpers.generateAsyncActionCreator(GET_PPM_INCENTIVE, GetPpmIncentive);
 
-export const getExpenseSummaryActionType = ReduxHelpers.generateAsyncActionTypes(GET_PPM_EXPENSE_SUMMARY);
-export const getPpmExpenseSummary = ReduxHelpers.generateAsyncActionCreator(GET_PPM_EXPENSE_SUMMARY, GetExpenseSummary);
 const summaryReducer = ReduxHelpers.generateAsyncReducer(GET_PPM_EXPENSE_SUMMARY, (v) => {
   return {
     summary: { ...v },
