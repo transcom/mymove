@@ -92,14 +92,4 @@ describe('When given a updated weight', () => {
     expect(screen.getByText('Full weight')).toBeInTheDocument();
     expect(screen.getByText(': 7,999 lbs')).toBeInTheDocument();
   });
-
-  //   it('displays trailer details', () => {
-  //     const template = getTemplate(trailerRecord);
-
-  //     render(template.getDetails(trailerRecord));
-  //     expect(screen.getByText('Trailer meets criteria')).toBeInTheDocument();
-  //     expect(screen.getByText(': 1,000 lbs')).toBeInTheDocument();
-  //     expect(screen.getByText('Full weight')).toBeInTheDocument();
-  //     expect(screen.getByText(': 7,999 lbs')).toBeInTheDocument();
-  //   });
 });
