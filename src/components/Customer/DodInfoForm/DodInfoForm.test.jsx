@@ -21,8 +21,8 @@ describe('DodInfoForm component', () => {
       expect(getByLabelText('DOD ID number')).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText('DOD ID number')).toBeRequired();
 
-      expect(getByLabelText('Rank')).toBeInstanceOf(HTMLSelectElement);
-      expect(getByLabelText('Rank')).toBeRequired();
+      expect(getByLabelText('Pay grade')).toBeInstanceOf(HTMLSelectElement);
+      expect(getByLabelText('Pay grade')).toBeRequired();
     });
   });
 
@@ -41,7 +41,7 @@ describe('DodInfoForm component', () => {
   it('shows an error message if trying to submit an invalid form', async () => {
     const { getByRole, getAllByText, getByLabelText } = render(<DodInfoForm {...testProps} />);
     await userEvent.click(getByLabelText('Branch of service'));
-    await userEvent.click(getByLabelText('Rank'));
+    await userEvent.click(getByLabelText('Pay grade'));
     await userEvent.click(getByLabelText('DOD ID number'));
 
     const submitBtn = getByRole('button', { name: 'Next' });
@@ -60,7 +60,7 @@ describe('DodInfoForm component', () => {
 
     await userEvent.selectOptions(getByLabelText('Branch of service'), ['NAVY']);
     await userEvent.type(getByLabelText('DOD ID number'), '1234567890');
-    await userEvent.selectOptions(getByLabelText('Rank'), ['E_5']);
+    await userEvent.selectOptions(getByLabelText('Pay grade'), ['E_5']);
 
     await userEvent.click(submitBtn);
 
