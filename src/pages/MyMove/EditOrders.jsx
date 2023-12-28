@@ -54,6 +54,7 @@ export const EditOrders = ({
     move_status: currentMove.status,
   };
 
+  console.log(currentOrders);
   // Only allow PCS unless feature flag is on
   const showAllOrdersTypes = context.flags?.allOrdersTypes;
   const allowedOrdersTypes = showAllOrdersTypes
@@ -93,6 +94,7 @@ export const EditOrders = ({
     const hasDependents = fieldValues.has_dependents === 'yes';
     const entitlementCouldChange = hasDependents !== currentOrders.has_dependents;
     const newDutyLocationId = fieldValues.new_duty_location.id;
+    console.log(fieldValues);
 
     return patchOrders({
       ...fieldValues,

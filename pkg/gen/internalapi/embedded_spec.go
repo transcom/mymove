@@ -4160,6 +4160,10 @@ func init() {
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
+        "grade": {
+          "title": "Pay Grade",
+          "$ref": "#/definitions/ServiceMemberRank"
+        },
         "has_dependents": {
           "type": "boolean",
           "title": "Are dependents included in your orders?"
@@ -12730,6 +12734,10 @@ func init() {
       "properties": {
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "grade": {
+          "title": "Pay Grade",
+          "$ref": "#/definitions/ServiceMemberRank"
         },
         "has_dependents": {
           "type": "boolean",

@@ -29,7 +29,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
     edipi: Yup.string()
       .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
       .required('Required'),
-    rank: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
+    grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
     current_location: Yup.object().required('Required'),
   });
 
@@ -72,7 +72,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
 
               <Grid row gap>
                 <Grid mobileLg={{ col: 6 }}>
-                  <DropdownInput label="Pay grade" name="rank" id="payGrade" required options={payGradeOptions} />
+                  <DropdownInput label="Pay grade" name="grade" id="grade" required options={payGradeOptions} />
                 </Grid>
               </Grid>
 

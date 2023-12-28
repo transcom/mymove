@@ -1942,6 +1942,9 @@ definitions:
         x-nullable: true
       department_indicator:
         $ref: '#/definitions/DeptIndicator'
+      grade:
+        $ref: '#/definitions/ServiceMemberRank'
+        title: Pay Grade
     required:
       - service_member_id
       - issue_date

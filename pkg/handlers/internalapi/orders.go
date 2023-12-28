@@ -310,6 +310,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			order.NewDutyLocation = dutyLocation
 			order.TAC = payload.Tac
 			order.SAC = payload.Sac
+			order.Grade = (*string)(payload.Grade)
 
 			if payload.DepartmentIndicator != nil {
 				order.DepartmentIndicator = handlers.FmtString(string(*payload.DepartmentIndicator))

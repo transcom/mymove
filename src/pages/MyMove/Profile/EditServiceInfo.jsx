@@ -47,13 +47,15 @@ export const EditServiceInfo = ({
     suffix: serviceMember?.suffix || '',
     affiliation: serviceMember?.affiliation || '',
     edipi: serviceMember?.edipi || '',
-    rank: currentOrders?.grade || '',
+    grade: currentOrders?.grade || '',
     current_location: currentOrders?.origin_duty_location || {},
     orders_type: currentOrders?.orders_type || '',
+    departmentIndicator: currentOrders?.department_indicator,
   };
 
   const handleSubmit = (values) => {
-    const entitlementCouldChange = values.rank !== currentOrders.grade;
+    console.log(values);
+    const entitlementCouldChange = values.grade !== currentOrders.grade;
     const payload = {
       id: serviceMember.id,
       first_name: values.first_name,
@@ -62,43 +64,47 @@ export const EditServiceInfo = ({
       suffix: values.suffix,
       affiliation: values.affiliation,
       edipi: values.edipi,
-      rank: values.rank,
+      rank: values.grade,
       current_location_id: values.current_location.id,
     };
 
-    patchServiceMember(payload)
-      .then((response) => {
-        updateServiceMember(response);
-        if (entitlementCouldChange) {
-          const weightAllowance = currentOrders?.has_dependents
-            ? response.weight_allotment.total_weight_self_plus_dependents
-            : response.weight_allotment.total_weight_self;
-          setFlashMessage(
-            'EDIT_SERVICE_INFO_SUCCESS',
-            'info',
-            `Your weight entitlement is now ${formatWeight(weightAllowance)}.`,
-            'Your changes have been saved. Note that the entitlement has also changed.',
-          );
-        } else {
-          setFlashMessage('EDIT_SERVICE_INFO_SUCCESS', 'success', '', 'Your changes have been saved.');
-        }
+    // patchServiceMember(payload)
+    //   .then((response) => {
+    //     updateServiceMember(response);
+    //     if (entitlementCouldChange) {
+    //       const weightAllowance = currentOrders?.has_dependents
+    //         ? response.weight_allotment.total_weight_self_plus_dependents
+    //         : response.weight_allotment.total_weight_self;
+    //       setFlashMessage(
+    //         'EDIT_SERVICE_INFO_SUCCESS',
+    //         'info',
+    //         `Your weight entitlement is now ${formatWeight(weightAllowance)}.`,
+    //         'Your changes have been saved. Note that the entitlement has also changed.',
+    //       );
+    //     } else {
+    //       setFlashMessage('EDIT_SERVICE_INFO_SUCCESS', 'success', '', 'Your changes have been saved.');
+    //     }
 
-        navigate(customerRoutes.PROFILE_PATH);
-      })
-      .catch((e) => {
-        // TODO - error handling - below is rudimentary error handling to approximate existing UX
-        // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
-        const { response } = e;
-        const errorMessage = getResponseError(response, 'failed to update service member due to server error');
-        setServerError(errorMessage);
-      });
+    //     navigate(customerRoutes.PROFILE_PATH);
+    //   })
+    //   .catch((e) => {
+    //     // TODO - error handling - below is rudimentary error handling to approximate existing UX
+    //     // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
+    //     const { response } = e;
+    //     const errorMessage = getResponseError(response, 'failed to update service member due to server error');
+    //     setServerError(errorMessage);
+    //   });
+    console.log(currentOrders);
 
     const ordersPayload = {
-      grade: values.rank,
+      grade: values.grade,
       origin_duty_location_id: values.current_location.id,
       service_member_id: serviceMember.id,
       id: currentOrders.id,
-      new_duty_location_id: currentOrders.new_duty_location_id,
+      new_duty_location_id: currentOrders.new_duty_location.id,
+      new_duty_location: currentOrders.new_duty_location,
+      uploaded_orders: currentOrders.uploaded_orders,
+      move_status: currentOrders.status,
       has_dependents: currentOrders.has_dependents,
       issue_date: formatDateForSwagger(currentOrders.issue_date),
       report_by_date: formatDateForSwagger(currentOrders.report_by_date),
@@ -107,11 +113,12 @@ export const EditServiceInfo = ({
     };
     patchOrders(ordersPayload)
       .then((response) => {
+        console.log('response', response);
         updateOrders(response);
         if (entitlementCouldChange) {
           const weightAllowance = currentOrders?.has_dependents
-            ? response.weight_allotment.total_weight_self_plus_dependents
-            : response.weight_allotment.total_weight_self;
+            ? serviceMember.weight_allotment.total_weight_self_plus_dependents
+            : serviceMember.weight_allotment.total_weight_self;
           setFlashMessage(
             'EDIT_SERVICE_INFO_SUCCESS',
             'info',
