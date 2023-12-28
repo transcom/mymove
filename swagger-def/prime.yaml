@@ -808,6 +808,8 @@ paths:
           $ref: 'responses/NotFound.yaml'
         '412':
           $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: 'responses/UnprocessableEntity.yaml'
         '500':
           $ref: '#/responses/ServerError'
   /mto-shipments/{mtoShipmentID}/sit-extensions:
