@@ -278,7 +278,7 @@ export class OfficeApp extends Component {
                       key="servicesCounselingMoveInfoRoute"
                       path={`${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`}
                       element={
-                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR || roleTypes.TOO]}>
+                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
                           <ServicesCounselingMoveInfo />
                         </PrivateRoute>
                       }
