@@ -295,6 +295,15 @@ export class OfficeApp extends Component {
                         </PrivateRoute>
                       }
                     />
+                    <Route
+                      key="tooCounselingMoveInfoRoute"
+                      path={`${tooRoutes.BASE_SHIPMENT_ADVANCE_PATH_TOO}/*`}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                          <ServicesCounselingMoveInfo />
+                        </PrivateRoute>
+                      }
+                    />
                     {/* PRIME SIMULATOR */}
                     <Route
                       key="primeSimulatorMovePath"
