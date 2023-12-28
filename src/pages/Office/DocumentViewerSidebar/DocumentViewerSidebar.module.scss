@@ -6,7 +6,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  width: 400px;
+  width: 500px;
 
   h1,
   h2,
@@ -49,9 +49,11 @@
     .closeButton {
       @include u-height(2);
       @include u-padding(0);
+
       svg {
         @include u-width(2);
         @include u-height(2);
+
         path {
           fill: $primary;
         }

@@ -1,0 +1,37 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
+
+.HeaderSection {
+  color: $base-darker;
+  @include u-margin-top(2);
+  display: flex;
+  flex-wrap: wrap;
+
+  h4 {
+    @include u-margin-y(2.5);
+  }
+}
+
+.Details {
+  display: block;
+
+  div {
+    display: grid;
+    grid-template-columns: 300px 200px;
+    @include u-margin-y(1);
+  }
+}
+
+.toggleDrawer {
+  @include u-display(flex);
+  flex: 1;
+  justify-content: flex-end;
+
+  svg {
+    margin-right: 0.5em;
+  }
+
+  button {
+    @include u-padding-x(0);
+  }
+}
