@@ -68,13 +68,17 @@ func SortShipmentSITs(shipment models.MTOShipment, today time.Time) SortedShipme
 	return shipmentSITs
 }
 
-func clamp(input, min, max int) int {
+func Clamp(input, min, max int) (int, error) {
+	result := input
 	if input < min {
-		return min
+		result = min
 	} else if input > max {
-		return max
+		result = max
 	}
-	return input
+	if result < min || result > max {
+		return result, errors.New("Clamp input is out of scope")
+	}
+	return result, nil
 }
 
 // CalculateShipmentSITStatus creates a SIT Status for payload to be used in
@@ -103,7 +107,11 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 	if err != nil {
 		return nil, err
 	}
-	shipmentSITStatus.TotalSITDaysUsed = clamp(CalculateTotalDaysInSIT(shipmentSITs, today), 0, totalSITAllowance)
+	totalSITDaysUsedClampedResult, totalDaysUsedErr := Clamp(CalculateTotalDaysInSIT(shipmentSITs, today), 0, totalSITAllowance)
+	if totalDaysUsedErr != nil {
+		return nil, err
+	}
+	shipmentSITStatus.TotalSITDaysUsed = totalSITDaysUsedClampedResult
 	shipmentSITStatus.CalculatedTotalDaysInSIT = CalculateTotalDaysInSIT(shipmentSITs, today)
 	shipmentSITStatus.TotalDaysRemaining = totalSITAllowance - shipmentSITStatus.TotalSITDaysUsed
 	shipmentSITStatus.PastSITs = shipmentSITs.pastSITs

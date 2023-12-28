@@ -33,6 +33,7 @@ const initialValues = {
   pickupAddress: {},
   destinationAddress: {},
   diversion: '',
+  divertedFromShipmentId: '',
 };
 
 function renderShipmentCreateForm(props) {
@@ -151,4 +152,27 @@ describe('PrimeUIShipmentCreateForm', () => {
       expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('');
     },
   );
+
+  it('renders the HHG form and displays the shipment id text input when diversion box is checked', async () => {
+    renderShipmentCreateForm();
+
+    const shipmentTypeInput = await screen.findByLabelText('Shipment type');
+    expect(shipmentTypeInput).toBeInTheDocument();
+
+    // Make it a HHG move
+    await userEvent.selectOptions(shipmentTypeInput, ['HHG']);
+
+    expect(await screen.findByRole('heading', { name: 'Diversion', level: 2 })).toBeInTheDocument();
+    expect(await screen.findByLabelText('Diversion')).not.toBeChecked();
+
+    // Checking to make sure the text box isn't shown prior to clicking the box
+    expect(screen.queryByTestId('divertedFromShipmentIdInput')).toBeNull();
+
+    // Check the diversion box
+    const diversionCheckbox = await screen.findByLabelText('Diversion');
+    await userEvent.click(diversionCheckbox);
+
+    // now the text input should be visible
+    expect(await screen.findByTestId('divertedFromShipmentIdInput')).toBeInTheDocument();
+  });
 });
