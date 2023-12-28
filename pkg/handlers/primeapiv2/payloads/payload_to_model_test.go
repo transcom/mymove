@@ -7,7 +7,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/gen/primemessages"
+	"github.com/transcom/mymove/pkg/gen/primev2messages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -19,8 +19,8 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	mtoShipmentIDString := handlers.FmtUUID(mtoShipmentIDField)
 
 	// Basic Service Item
-	basicServiceItem := &primemessages.MTOServiceItemBasic{
-		ReServiceCode: primemessages.NewReServiceCode(primemessages.ReServiceCode(models.ReServiceCodeFSC)),
+	basicServiceItem := &primev2messages.MTOServiceItemBasic{
+		ReServiceCode: primev2messages.NewReServiceCode(primev2messages.ReServiceCode(models.ReServiceCodeFSC)),
 	}
 
 	basicServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
@@ -33,19 +33,19 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	reason := "Reason"
 	description := "Description"
 
-	item := &primemessages.MTOServiceItemDimension{
+	item := &primev2messages.MTOServiceItemDimension{
 		Height: &itemMeasurement,
 		Width:  &itemMeasurement,
 		Length: &itemMeasurement,
 	}
 
-	crate := &primemessages.MTOServiceItemDimension{
+	crate := &primev2messages.MTOServiceItemDimension{
 		Height: &crateMeasurement,
 		Width:  &crateMeasurement,
 		Length: &crateMeasurement,
 	}
 
-	DCRTServiceItem := &primemessages.MTOServiceItemDomesticCrating{
+	DCRTServiceItem := &primev2messages.MTOServiceItemDomesticCrating{
 		ReServiceCode: &dcrtCode,
 		Reason:        &reason,
 		Description:   &description,
@@ -63,13 +63,13 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	destCity := "Beverly Hills"
 	destPostalCode := "90210"
 	destStreet := "123 Rodeo Dr."
-	sitFinalDestAddress := primemessages.Address{
+	sitFinalDestAddress := primev2messages.Address{
 		City:           &destCity,
 		PostalCode:     &destPostalCode,
 		StreetAddress1: &destStreet,
 	}
 
-	destServiceItem := &primemessages.MTOServiceItemDestSIT{
+	destServiceItem := &primev2messages.MTOServiceItemDestSIT{
 		ReServiceCode:               &destServiceCode,
 		FirstAvailableDeliveryDate1: &destDate,
 		FirstAvailableDeliveryDate2: &destDate,
@@ -117,13 +117,13 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 
 	suite.Run("Fail -  Returns error for DCRT service item because of validation error", func() {
 		badCrateMeasurement := int32(200)
-		badCrate := &primemessages.MTOServiceItemDimension{
+		badCrate := &primev2messages.MTOServiceItemDimension{
 			Height: &badCrateMeasurement,
 			Width:  &badCrateMeasurement,
 			Length: &badCrateMeasurement,
 		}
 
-		badDCRTServiceItem := &primemessages.MTOServiceItemDomesticCrating{
+		badDCRTServiceItem := &primev2messages.MTOServiceItemDomesticCrating{
 			ReServiceCode: &dcrtCode,
 			Reason:        &reason,
 			Description:   &description,
@@ -142,7 +142,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	})
 
 	suite.Run("Success - Returns SIT destination service item model", func() {
-		destSITServiceItem := &primemessages.MTOServiceItemDestSIT{
+		destSITServiceItem := &primev2messages.MTOServiceItemDestSIT{
 			ReServiceCode:               &destServiceCode,
 			FirstAvailableDeliveryDate1: &destDate,
 			FirstAvailableDeliveryDate2: &destDate,
@@ -167,7 +167,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	})
 
 	suite.Run("Success - Returns SIT destination service item model without customer contact fields", func() {
-		destSITServiceItem := &primemessages.MTOServiceItemDestSIT{
+		destSITServiceItem := &primev2messages.MTOServiceItemDestSIT{
 			ReServiceCode:              &destServiceCode,
 			SitDestinationFinalAddress: &sitFinalDestAddress,
 			Reason:                     &destReason,
@@ -197,7 +197,7 @@ func (suite *PayloadsSuite) TestReweighModelFromUpdate() {
 	verificationReason := "Because I said so"
 	weight := int64(2000)
 
-	reweigh := &primemessages.UpdateReweigh{
+	reweigh := &primev2messages.UpdateReweigh{
 		VerificationReason: &verificationReason,
 		Weight:             &weight,
 	}
@@ -221,7 +221,7 @@ func (suite *PayloadsSuite) TestSITExtensionModel() {
 	remarks := "We need an extension"
 	reason := "AWAITING_COMPLETION_OF_RESIDENCE"
 
-	sitExtension := &primemessages.CreateSITExtension{
+	sitExtension := &primev2messages.CreateSITExtension{
 		RequestedDays:     &daysRequested,
 		ContractorRemarks: &remarks,
 		RequestReason:     &reason,
@@ -244,7 +244,7 @@ func (suite *PayloadsSuite) TestSITAddressUpdateModel() {
 	state := "CA"
 	postalCode := "90210"
 	street := "123 Rodeo Dr."
-	newAddress := primemessages.Address{
+	newAddress := primev2messages.Address{
 		City:           &city,
 		State:          &state,
 		PostalCode:     &postalCode,
@@ -252,7 +252,7 @@ func (suite *PayloadsSuite) TestSITAddressUpdateModel() {
 	}
 
 	suite.Run("Success - Returns a SITAddressUpdate model as expected", func() {
-		sitAddressUpdate := primemessages.CreateSITAddressUpdateRequest{
+		sitAddressUpdate := primev2messages.CreateSITAddressUpdateRequest{
 			MtoServiceItemID:  strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
 			NewAddress:        &newAddress,
 			ContractorRemarks: &contractorRemark,
@@ -272,7 +272,7 @@ func (suite *PayloadsSuite) TestSITAddressUpdateModel() {
 
 func (suite *PayloadsSuite) TestMTOAgentModel() {
 	suite.Run("success", func() {
-		mtoAgentMsg := &primemessages.MTOAgent{
+		mtoAgentMsg := &primev2messages.MTOAgent{
 			ID: strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
 		}
 
@@ -289,7 +289,7 @@ func (suite *PayloadsSuite) TestMTOAgentModel() {
 
 func (suite *PayloadsSuite) TestMTOAgentsModel() {
 	suite.Run("success", func() {
-		mtoAgentsMsg := &primemessages.MTOAgents{
+		mtoAgentsMsg := &primev2messages.MTOAgents{
 			{
 				ID: strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
 			},
@@ -317,7 +317,7 @@ func (suite *PayloadsSuite) TestMTOAgentsModel() {
 
 func (suite *PayloadsSuite) TestMTOServiceItemModelListFromCreate() {
 	suite.Run("successful", func() {
-		mtoShipment := &primemessages.CreateMTOShipment{}
+		mtoShipment := &primev2messages.CreateMTOShipment{}
 
 		serviceItemsList, verrs := MTOServiceItemModelListFromCreate(mtoShipment)
 
@@ -327,7 +327,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModelListFromCreate() {
 	})
 
 	suite.Run("successful multiple items", func() {
-		mtoShipment := &primemessages.CreateMTOShipment{}
+		mtoShipment := &primev2messages.CreateMTOShipment{}
 
 		serviceItemsList, verrs := MTOServiceItemModelListFromCreate(mtoShipment)
 
@@ -350,7 +350,7 @@ func (suite *PayloadsSuite) TestMTOShipmentModelFromUpdate() {
 	})
 
 	suite.Run("notnil", func() {
-		mtoShipment := &primemessages.UpdateMTOShipment{}
+		mtoShipment := &primev2messages.UpdateMTOShipment{}
 		mtoShipmentID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 		model := MTOShipmentModelFromUpdate(mtoShipment, mtoShipmentID)
 
@@ -361,7 +361,7 @@ func (suite *PayloadsSuite) TestMTOShipmentModelFromUpdate() {
 		actualWeight := int64(1000)
 		ntsRecordedWeight := int64(2000)
 		estimatedWeight := int64(1500)
-		mtoShipment := &primemessages.UpdateMTOShipment{
+		mtoShipment := &primev2messages.UpdateMTOShipment{
 			PrimeActualWeight:    &actualWeight,
 			NtsRecordedWeight:    &ntsRecordedWeight,
 			PrimeEstimatedWeight: &estimatedWeight,
@@ -375,8 +375,8 @@ func (suite *PayloadsSuite) TestMTOShipmentModelFromUpdate() {
 	})
 
 	suite.Run("ppm", func() {
-		mtoShipment := &primemessages.UpdateMTOShipment{
-			PpmShipment: &primemessages.UpdatePPMShipment{},
+		mtoShipment := &primev2messages.UpdateMTOShipment{
+			PpmShipment: &primev2messages.UpdatePPMShipment{},
 		}
 		mtoShipmentID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 		model := MTOShipmentModelFromUpdate(mtoShipment, mtoShipmentID)
@@ -407,7 +407,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModelFromUpdate() {
 	suite.Run("DDDSIT", func() {
 		mtoServiceItemID := uuid.Must(uuid.NewV4()).String()
 		reServiceCode := string(models.ReServiceCodeDDDSIT)
-		updateMTOServiceItemSIT := primemessages.UpdateMTOServiceItemSIT{
+		updateMTOServiceItemSIT := primev2messages.UpdateMTOServiceItemSIT{
 			ReServiceCode: reServiceCode,
 		}
 
@@ -420,7 +420,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModelFromUpdate() {
 		mtoServiceItemID := uuid.Must(uuid.NewV4()).String()
 		estimatedWeight := int64(5000)
 		actualWeight := int64(4500)
-		updateMTOServiceItemShuttle := primemessages.UpdateMTOServiceItemShuttle{
+		updateMTOServiceItemShuttle := primev2messages.UpdateMTOServiceItemShuttle{
 			EstimatedWeight: &estimatedWeight,
 			ActualWeight:    &actualWeight,
 		}
@@ -434,7 +434,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModelFromUpdate() {
 func (suite *PayloadsSuite) TestValidateReasonOriginSIT() {
 	suite.Run("Reason provided", func() {
 		reason := "reason"
-		mtoServiceItemOriginSIT := primemessages.MTOServiceItemOriginSIT{
+		mtoServiceItemOriginSIT := primev2messages.MTOServiceItemOriginSIT{
 			Reason: &reason,
 		}
 
@@ -443,7 +443,7 @@ func (suite *PayloadsSuite) TestValidateReasonOriginSIT() {
 	})
 
 	suite.Run("No reason provided", func() {
-		mtoServiceItemOriginSIT := primemessages.MTOServiceItemOriginSIT{}
+		mtoServiceItemOriginSIT := primev2messages.MTOServiceItemOriginSIT{}
 
 		verrs := validateReasonOriginSIT(mtoServiceItemOriginSIT)
 		suite.True(verrs.HasAny())
@@ -453,14 +453,14 @@ func (suite *PayloadsSuite) TestValidateReasonOriginSIT() {
 func (suite *PayloadsSuite) TestShipmentAddressUpdateModel() {
 	shipmentID := uuid.Must(uuid.NewV4())
 	contractorRemarks := ""
-	newAddress := primemessages.Address{
+	newAddress := primev2messages.Address{
 		City:           handlers.FmtString(""),
 		State:          handlers.FmtString(""),
 		PostalCode:     handlers.FmtString(""),
 		StreetAddress1: handlers.FmtString(""),
 	}
 
-	nonSITAddressUpdate := primemessages.CreateNonSITAddressUpdateRequest{
+	nonSITAddressUpdate := primev2messages.CreateNonSITAddressUpdateRequest{
 		ContractorRemarks: &contractorRemarks,
 		NewAddress:        &newAddress,
 	}
@@ -487,7 +487,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	proGearWeight := int64(500)
 	spouseProGearWeight := int64(50)
 
-	ppmShipment := primemessages.CreatePPMShipment{
+	ppmShipment := primev2messages.CreatePPMShipment{
 		ExpectedDepartureDate: expectedDepartureDate,
 		PickupPostalCode:      &pickupPostalCode,
 		DestinationPostalCode: &destinationPostalCode,
