@@ -47,6 +47,12 @@ func (o *UpdateSITDeliveryRequestReader) ReadResponse(response runtime.ClientRes
 			return nil, err
 		}
 		return nil, result
+	case 422:
+		result := NewUpdateSITDeliveryRequestUnprocessableEntity()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 500:
 		result := NewUpdateSITDeliveryRequestInternalServerError()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -321,6 +327,74 @@ func (o *UpdateSITDeliveryRequestPreconditionFailed) GetPayload() *primemessages
 func (o *UpdateSITDeliveryRequestPreconditionFailed) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(primemessages.ClientError)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewUpdateSITDeliveryRequestUnprocessableEntity creates a UpdateSITDeliveryRequestUnprocessableEntity with default headers values
+func NewUpdateSITDeliveryRequestUnprocessableEntity() *UpdateSITDeliveryRequestUnprocessableEntity {
+	return &UpdateSITDeliveryRequestUnprocessableEntity{}
+}
+
+/*
+UpdateSITDeliveryRequestUnprocessableEntity describes a response with status code 422, with default header values.
+
+The request was unprocessable, likely due to bad input from the requester.
+*/
+type UpdateSITDeliveryRequestUnprocessableEntity struct {
+	Payload *primemessages.ValidationError
+}
+
+// IsSuccess returns true when this update s i t delivery request unprocessable entity response has a 2xx status code
+func (o *UpdateSITDeliveryRequestUnprocessableEntity) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this update s i t delivery request unprocessable entity response has a 3xx status code
+func (o *UpdateSITDeliveryRequestUnprocessableEntity) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update s i t delivery request unprocessable entity response has a 4xx status code
+func (o *UpdateSITDeliveryRequestUnprocessableEntity) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this update s i t delivery request unprocessable entity response has a 5xx status code
+func (o *UpdateSITDeliveryRequestUnprocessableEntity) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update s i t delivery request unprocessable entity response a status code equal to that given
+func (o *UpdateSITDeliveryRequestUnprocessableEntity) IsCode(code int) bool {
+	return code == 422
+}
+
+// Code gets the status code for the update s i t delivery request unprocessable entity response
+func (o *UpdateSITDeliveryRequestUnprocessableEntity) Code() int {
+	return 422
+}
+
+func (o *UpdateSITDeliveryRequestUnprocessableEntity) Error() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/sit-delivery][%d] updateSITDeliveryRequestUnprocessableEntity  %+v", 422, o.Payload)
+}
+
+func (o *UpdateSITDeliveryRequestUnprocessableEntity) String() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/sit-delivery][%d] updateSITDeliveryRequestUnprocessableEntity  %+v", 422, o.Payload)
+}
+
+func (o *UpdateSITDeliveryRequestUnprocessableEntity) GetPayload() *primemessages.ValidationError {
+	return o.Payload
+}
+
+func (o *UpdateSITDeliveryRequestUnprocessableEntity) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(primemessages.ValidationError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

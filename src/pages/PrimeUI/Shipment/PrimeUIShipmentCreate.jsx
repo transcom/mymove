@@ -119,7 +119,14 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         },
       };
     } else {
-      const { requestedPickupDate, estimatedWeight, pickupAddress, destinationAddress, diversion } = values;
+      const {
+        requestedPickupDate,
+        estimatedWeight,
+        pickupAddress,
+        destinationAddress,
+        diversion,
+        divertedFromShipmentId,
+      } = values;
 
       body = {
         moveTaskOrderID: moveCodeOrID,
@@ -129,6 +136,7 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         pickupAddress: isEmpty(pickupAddress) ? null : formatAddressForPrimeAPI(pickupAddress),
         destinationAddress: isEmpty(destinationAddress) ? null : formatAddressForPrimeAPI(destinationAddress),
         diversion: diversion || null,
+        divertedFromShipmentId: divertedFromShipmentId || null,
       };
     }
 
@@ -165,6 +173,7 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
     pickupAddress: {},
     destinationAddress: {},
     diversion: '',
+    divertedFromShipmentId: '',
   };
 
   const validationSchema = Yup.object().shape({
