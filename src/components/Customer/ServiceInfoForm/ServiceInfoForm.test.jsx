@@ -167,9 +167,9 @@ describe('ServiceInfoForm', () => {
     expect(dodInput).toBeInstanceOf(HTMLInputElement);
     expect(dodInput).toBeRequired();
 
-    const rankInput = await screen.findByLabelText('Pay grade');
-    expect(rankInput).toBeInstanceOf(HTMLSelectElement);
-    expect(rankInput).toBeRequired();
+    const payGradeInput = await screen.findByLabelText('Pay grade');
+    expect(payGradeInput).toBeInstanceOf(HTMLSelectElement);
+    expect(payGradeInput).toBeRequired();
 
     expect(await screen.findByLabelText('Current duty location')).toBeInstanceOf(HTMLInputElement);
   });

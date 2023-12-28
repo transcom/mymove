@@ -75,7 +75,7 @@ let EditProfileForm = (props) => {
                   originTransportationOfficeName={transportationOfficeName}
                   originTransportationOfficePhone={transportationOfficePhone}
                   affiliation={initialValues.affiliation}
-                  rank={initialValues.rank}
+                  payGrade={initialValues.rank}
                   edipi={initialValues.edipi}
                   isEditable={false}
                 />
@@ -184,7 +184,7 @@ class EditProfile extends Component {
     const { errorMessage } = this.state;
     const initialValues = {
       ...serviceMember,
-      rank: currentOrders.grade,
+      payGrade: currentOrders.grade,
       current_location: currentOrders.origin_duty_location,
     };
     return (

@@ -18,7 +18,7 @@ import { DutyLocationShape } from 'types/dutyLocation';
 
 const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
-  const rankOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
+  const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
   const validationSchema = Yup.object().shape({
     first_name: Yup.string().required('Required'),
@@ -72,7 +72,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
 
               <Grid row gap>
                 <Grid mobileLg={{ col: 6 }}>
-                  <DropdownInput label="Pay grade" name="rank" id="rank" required options={rankOptions} />
+                  <DropdownInput label="Pay grade" name="rank" id="payGrade" required options={payGradeOptions} />
                 </Grid>
               </Grid>
 

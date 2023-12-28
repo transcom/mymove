@@ -15,7 +15,7 @@ import formStyles from 'styles/form.module.scss';
 
 const DodInfoForm = ({ initialValues, onSubmit, onBack }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
-  const rankOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
+  const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
   const validationSchema = Yup.object().shape({
     affiliation: Yup.mixed().oneOf(Object.keys(SERVICE_MEMBER_AGENCY_LABELS)).required('Required'),
@@ -49,7 +49,7 @@ const DodInfoForm = ({ initialValues, onSubmit, onBack }) => {
                 inputMode="numeric"
                 pattern="[0-9]{10}"
               />
-              <DropdownInput label="Pay grade" name="rank" id="rank" required options={rankOptions} />
+              <DropdownInput label="Pay grade" name="rank" id="payGrade" required options={payGradeOptions} />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
