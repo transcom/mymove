@@ -17,6 +17,25 @@ test.describe('TOO user', () => {
       await officePage.tooNavigateToMove(move.locator);
     });
 
+    test('is able to see the SIT Departure Date', async ({ page }) => {
+      // navigate to MTO tab
+      await page.getByTestId('MoveTaskOrder-Tab').click();
+      await tooFlowPage.waitForPage.moveTaskOrder();
+
+      const target = await page
+        .getByTestId('sitDaysAtCurrentLocation')
+        .locator('table[class="DataTable_dataTable__TGt9M table--data-point"]')
+        .locator('tbody')
+        .locator('td')
+        .nth(1)
+        .locator('div')
+        .locator('span')
+        .textContent();
+      const pattern = /(—|\d{2} \w{3} \d{4})/;
+
+      expect(pattern.test(target)).toBeTruthy();
+    });
+
     test('is able to increase a SIT authorization', async ({ page }) => {
       // navigate to MTO tab
       await page.getByTestId('MoveTaskOrder-Tab').click();
