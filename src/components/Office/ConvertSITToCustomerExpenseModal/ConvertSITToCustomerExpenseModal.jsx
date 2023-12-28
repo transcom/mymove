@@ -25,7 +25,7 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
   const currentDaysInSit = <p>{daysInSIT}</p>;
   const currentDateEnteredSit = <p>{formatDateForDatePicker(sitEntryDate)}</p>;
   const sitEndDate = moment(sitStatus.currentSIT?.sitAllowanceEndDate, swaggerDateFormat);
-  const sitEndDateString = sitEndDate.isValid() ? formatDateForDatePicker(sitEndDate) : '-';
+  const sitEndDateString = sitEndDate.isValid() ? formatDateForDatePicker(sitEndDate) : '—';
 
   const totalDaysRemaining = () => {
     const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
