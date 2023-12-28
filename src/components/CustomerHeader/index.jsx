@@ -5,7 +5,7 @@ import styles from './index.module.scss';
 
 import { OrderShape, CustomerShape } from 'types/order';
 import { formatCustomerDate, formatLabelReportByDate } from 'utils/formatters';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders.js';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders.js';
 
 const CustomerHeader = ({ customer, order, moveCode }) => {
   // eslint-disable-next-line camelcase
@@ -33,7 +33,7 @@ const CustomerHeader = ({ customer, order, moveCode }) => {
         <div>
           <p>
             <span data-testid="deptRank" className={styles.details}>
-              {ORDERS_BRANCH_OPTIONS[`${order.agency}`]} {ORDERS_RANK_OPTIONS[`${order.grade}`]}
+              {ORDERS_BRANCH_OPTIONS[`${order.agency}`]} {ORDERS_PAY_GRADE_OPTIONS[`${order.grade}`]}
             </span>
             <span className={styles.verticalBar}>|</span>
             <span data-testid="dodId" className={styles.details}>

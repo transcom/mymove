@@ -19,7 +19,7 @@ import ServiceInfoDisplay from 'components/Customer/Review/ServiceInfoDisplay/Se
 import OktaInfoDisplay from 'components/Customer/Profile/OktaInfoDisplay/OktaInfoDisplay';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import formStyles from 'styles/form.module.scss';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { OktaUserInfoShape } from 'types/user';
 
 const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsInDraft, oktaUser }) => {
@@ -71,7 +71,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               originTransportationOfficeName={originDutyLocation?.transportation_office?.name || ''}
               originTransportationOfficePhone={transportationOfficePhone}
               affiliation={ORDERS_BRANCH_OPTIONS[serviceMember?.affiliation] || ''}
-              payGrade={ORDERS_RANK_OPTIONS[payGrade] || ''}
+              payGrade={ORDERS_PAY_GRADE_OPTIONS[payGrade] || ''}
               edipi={serviceMember?.edipi || ''}
               editURL={customerRoutes.SERVICE_INFO_EDIT_PATH}
               isEditable={moveIsInDraft}

@@ -16,13 +16,13 @@ import { updateAllowance } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useOrdersDocumentQueries } from 'hooks/queries';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { dropdownInputOptions } from 'utils/formatters';
 import { ORDERS } from 'constants/queryKeys';
 import { permissionTypes } from 'constants/permissions';
 import Restricted from 'components/Restricted/Restricted';
 
-const rankDropdownOptions = dropdownInputOptions(ORDERS_RANK_OPTIONS);
+const rankDropdownOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
 const branchDropdownOption = dropdownInputOptions(ORDERS_BRANCH_OPTIONS);
 

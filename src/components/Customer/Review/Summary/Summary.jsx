@@ -18,7 +18,7 @@ import NTSRShipmentCard from 'components/Customer/Review/ShipmentCard/NTSRShipme
 import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipmentCard/NTSShipmentCard';
 import PPMShipmentCard from 'components/Customer/Review/ShipmentCard/PPMShipmentCard/PPMShipmentCard';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { customerRoutes } from 'constants/routes';
 import { deleteMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
@@ -291,7 +291,7 @@ export class Summary extends Component {
             onEditClick={this.handleEditClick}
             lastName={serviceMember.last_name}
             postalCode={serviceMember.residential_address.postalCode}
-            rank={ORDERS_RANK_OPTIONS[serviceMember?.rank] || ''}
+            rank={ORDERS_PAY_GRADE_OPTIONS[serviceMember?.rank] || ''}
             state={serviceMember.residential_address.state}
             streetAddress1={serviceMember.residential_address.streetAddress1}
             streetAddress2={serviceMember.residential_address.streetAddress2}

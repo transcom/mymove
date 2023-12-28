@@ -189,8 +189,8 @@ describe('EditServiceInfo page', () => {
       />,
     );
 
-    const rankInput = await screen.findByLabelText('Pay grade');
-    await userEvent.selectOptions(rankInput, ['E_2']);
+    const payGradeInput = await screen.findByLabelText('Pay grade');
+    await userEvent.selectOptions(payGradeInput, ['E_2']);
 
     const submitButton = await screen.findByText('Save');
     expect(submitButton).toBeInTheDocument();

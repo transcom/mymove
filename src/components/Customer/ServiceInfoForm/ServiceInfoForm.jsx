@@ -4,7 +4,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { Grid } from '@trussworks/react-uswds';
 
-import { ORDERS_RANK_OPTIONS } from 'constants/orders';
+import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 import { Form } from 'components/form/Form';
 import TextField from 'components/form/fields/TextField/TextField';
@@ -18,7 +18,7 @@ import { DutyLocationShape } from 'types/dutyLocation';
 
 const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
-  const rankOptions = dropdownInputOptions(ORDERS_RANK_OPTIONS);
+  const rankOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
   const validationSchema = Yup.object().shape({
     first_name: Yup.string().required('Required'),
@@ -29,7 +29,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
     edipi: Yup.string()
       .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
       .required('Required'),
-    rank: Yup.mixed().oneOf(Object.keys(ORDERS_RANK_OPTIONS)).required('Required'),
+    rank: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
     current_location: Yup.object().required('Required'),
   });
 
