@@ -255,3 +255,51 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 		return verrs
 	})
 }
+
+// This func helps protect against accidental V2 intended endpoint creation hitting V1
+// Eg: Somebody is testing the V2 endpoint for diversion false, divertedShipmentID true
+// That example test would pass which we do not want
+// ! Prime V1 rule
+func protectV1Diversion() validator {
+	var verrs *validate.Errors
+	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
+		// Ensure that if DivertedFromShipmentID is provided that we kick back an invalid input response
+		if newer.DivertedFromShipmentID != nil {
+			return apperror.NewInvalidInputError(newer.ID, nil, verrs, "The divertedFromShipmentId parameter is meant for the V2 endpoint. You are currently using the V1 endpoint.")
+		}
+		return nil
+	})
+}
+
+// Checks if diversion parameters are valid
+// ! This is a Prime V2 rule
+func checkDiversionValid() validator {
+	var verrs *validate.Errors
+	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
+		// Ensure that if diversion is true that DivertedFromShipmentID is provided
+		if newer.Diversion && newer.DivertedFromShipmentID == nil {
+			return apperror.NewInvalidInputError(newer.ID, nil, verrs, "The divertedFromShipmentId parameter must be provided if you're creating a new diversion")
+		}
+		// Ensure that diversion is true if a diverted from shipment ID parameter is passed in
+		if !newer.Diversion && newer.DivertedFromShipmentID != nil {
+			return apperror.NewInvalidInputError(newer.ID, nil, verrs, "The diversion parameter must be true if a DivertedFromShipmentID is provided")
+		}
+		// Ensure that the "DivertedFromShipmentID" exists if it is provided
+		if newer.Diversion && newer.DivertedFromShipmentID != nil {
+			exists, err := appCtx.DB().Q().
+				Where("id = ?", *newer.DivertedFromShipmentID).
+				Exists(&models.MTOShipment{})
+			if err != nil {
+				return apperror.NewQueryError("Move", err, "Unexpected error")
+			}
+			if !exists {
+				return apperror.NewNotFoundError(newer.ID, "DivertedFromShipmentID shipment not found")
+			}
+		}
+		// Ensure that the diverted from ID is not equal to itself
+		if newer.Diversion && newer.DivertedFromShipmentID == &newer.ID {
+			return apperror.NewInvalidInputError(newer.ID, nil, verrs, "The DivertedFromShipmentID parameter can not be equal to the current shipment ID")
+		}
+		return nil
+	})
+}
