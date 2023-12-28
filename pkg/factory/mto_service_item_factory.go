@@ -37,6 +37,7 @@ func buildMTOServiceItemWithBuildType(db *pop.Connection, customs []Customizatio
 	var mtoShipmentID *uuid.UUID
 	var mtoShipment models.MTOShipment
 	var move models.Move
+	var isCustomerExpense = true
 	if buildType == mtoServiceItemBuildExtended {
 		// BuildMTOShipment creates a move as necessary
 		mtoShipment = BuildMTOShipment(db, customs, traits)
@@ -65,6 +66,7 @@ func buildMTOServiceItemWithBuildType(db *pop.Connection, customs []Customizatio
 		ReServiceID:                       reService.ID,
 		Status:                            models.MTOServiceItemStatusSubmitted,
 		RequestedApprovalsRequestedStatus: &requestedApprovalsRequestedStatus,
+		CustomerExpense:                   &isCustomerExpense,
 	}
 
 	// only set SITOriginHHGOriginalAddress if a customization is provided
