@@ -5,7 +5,7 @@ import classnames from 'classnames';
 
 import styles from './HeaderSection.module.scss';
 
-import { formatDate, formatCentsTruncateWhole } from 'utils/formatters';
+import { formatDate, formatCents, formatWeight } from 'utils/formatters';
 
 export const sectionTypes = {
   incentives: 'incentives',
@@ -22,138 +22,140 @@ const getSectionTitle = (sectionInfo) => {
     case sectionTypes.gcc:
       return `GCC Factors`;
     default:
-      return `Error getting section title!`;
+      return <Alert>`Error getting section title!`</Alert>;
   }
 };
 
 // Returns the markup needed for a specific section
 const getSectionMarkup = (sectionInfo) => {
   switch (sectionInfo.type) {
-    case sectionTypes.incentives:
-      return (
-        <div className={classnames(styles.Details)}>
-          <div>
-            <Label className={styles.headerLabel}>Gross Incentive</Label>
-            <span className={styles.light}>{sectionInfo.grossIncentive ?? `TEST VAL`}</span>
-          </div>
-          <div>
-            <Label className={styles.headerLabel}>Government Constructive Cost (GCC)</Label>
-            <span className={styles.light}>{sectionInfo.gcc ?? `TEST VAL`}</span>
-          </div>
-          <div>
-            <Label className={styles.headerLabel}>Advanced Operating Allowance</Label>
-            <span className={styles.light}>{sectionInfo.aoa ?? `TEST VAL`}</span>
-          </div>
-          <div>
-            <Label className={styles.headerLabel}>Remaining Reimbursement Owed to Customer</Label>
-            <span className={styles.light}>{sectionInfo.remainingReimbursement ?? `TEST VAL`}</span>
-          </div>
-        </div>
-      );
     case sectionTypes.shipmentInfo:
       return (
         <div className={classnames(styles.Details)}>
           <div>
-            <Label className={styles.headerLabel}>Planned Move Start Date</Label>
+            <Label>Planned Move Start Date</Label>
             <span className={styles.light}>
-              {sectionInfo.plannedMoveDate ? formatDate(sectionInfo.plannedMoveDate, null, 'DD-MMM-YYYY') : `TEST DATE`}
+              {sectionInfo.expectedDepartureDate
+                ? formatDate(sectionInfo.expectedDepartureDate, null, 'DD-MMM-YYYY')
+                : `TEST DATE`}
             </span>
           </div>
           <div>
-            <Label className={styles.headerLabel}>Actual Move Start Date</Label>
+            <Label>Actual Move Start Date</Label>
             <span className={styles.light}>{formatDate(sectionInfo.actualMoveDate, null, 'DD-MMM-YYYY')}</span>
           </div>
           <div>
-            <Label className={styles.headerLabel}>Starting ZIP</Label>
+            <Label>Starting ZIP</Label>
             <span className={styles.light}>{sectionInfo.actualPickupPostalCode}</span>
           </div>
           <div>
-            <Label className={styles.headerLabel}>Ending ZIP</Label>
+            <Label>Ending ZIP</Label>
             <span className={styles.light}>{sectionInfo.actualDestinationPostalCode}</span>
           </div>
           <div>
-            <Label className={styles.headerLabel}>Miles</Label>
+            <Label>Miles</Label>
             <span className={styles.light}>{sectionInfo.miles ?? `TEST VAL`}</span>
           </div>
           <div>
-            <Label className={styles.headerLabel}>Estimated Net Weight</Label>
-            <span className={styles.light}>{sectionInfo.estimatedNetWeight ?? `TEST VAL`}</span>
+            <Label>Estimated Net Weight</Label>
+            <span className={styles.light}>{formatWeight(sectionInfo.estimatedWeight)}</span>
           </div>
           <div>
-            <Label className={styles.headerLabel}>Actual Net Weight</Label>
-            <span className={styles.light}>{sectionInfo.actualNetWeight ?? `TEST VAL`}</span>
+            <Label>Actual Net Weight</Label>
+            <span className={styles.light}>{formatWeight(sectionInfo.actualWeight) ?? `TEST VAL`}</span>
           </div>
           <div>
-            <Label className={styles.headerLabel}>Advance received</Label>
+            <Label>Advance received</Label>
             <span className={styles.light}>
               {sectionInfo.hasReceivedAdvance
-                ? `Yes, $${formatCentsTruncateWhole(sectionInfo.advanceAmountReceived)}`
-                : 'No'}
+                ? `$${formatCents(sectionInfo.advanceAmountReceived)}`
+                : 'Not requested/received.'}
             </span>
           </div>
         </div>
       );
+
+    case sectionTypes.incentives:
+      return (
+        <div className={classnames(styles.Details)}>
+          <div>
+            <Label>Gross Incentive</Label>
+            {/** TODO: Is estimatedIncentive (sent from ppmShipment in PPMHeaderSummary) actually the correct value? */}
+            <span className={styles.light}>${formatCents(sectionInfo.estimatedIncentive)}</span>
+          </div>
+          <div>
+            <Label>Government Constructive Cost (GCC)</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.gcc) ?? `TEST VAL`}</span>
+          </div>
+          <div>
+            <Label>Remaining Reimbursement Owed to Customer</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.remainingReimbursement) ?? `TEST VAL`}</span>
+          </div>
+        </div>
+      );
+
     case sectionTypes.gcc:
       return (
         <div className={classnames(styles.Details)}>
           <div>
-            <Label className={styles.headerLabel}>Base Linehaul</Label>
-            <span className={styles.light}>{sectionInfo.baseLinehaul ?? `TEST VAL`}</span>
+            <Label>Base Linehaul</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.baseLinehaul) ?? `TEST VAL`}</span>
           </div>
           <div>
-            <Label className={styles.headerLabel}>Origin Linehaul Factor</Label>
-            <span className={styles.light}>{sectionInfo.originLinehaulFactor ?? `TEST VAL`}</span>
+            <Label>Origin Linehaul Factor</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.originLinehaulFactor) ?? `TEST VAL`}</span>
           </div>
           <div>
-            <Label className={styles.headerLabel}>Destination Linehaul Factor</Label>
-            <span className={styles.light}>{sectionInfo.destinationLinehaulFactor ?? `TEST VAL`}</span>
+            <Label>Destination Linehaul Factor</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.destinationLinehaulFactor) ?? `TEST VAL`}</span>
           </div>
           <div>
-            <Label className={styles.headerLabel}>Linehaul Adjustment</Label>
-            <span className={styles.light}>{sectionInfo.linehaulAdjustment ?? `TEST VAL`}</span>
+            <Label>Linehaul Adjustment</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.linehaulAdjustment) ?? `TEST VAL`}</span>
           </div>
           <div>
-            <Label className={styles.headerLabel}>ShortHaul Charge</Label>
-            <span className={styles.light}>{sectionInfo.shorthaulCharge ?? `TEST VAL`}</span>
+            <Label>ShortHaul Charge</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.shorthaulCharge) ?? `TEST VAL`}</span>
           </div>
           <div>
-            <Label className={styles.headerLabel}>Transportation Cost</Label>
-            <span className={styles.light}>{sectionInfo.transportationCost ?? `TEST VAL`}</span>
+            <Label>Transportation Cost</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.transportationCost) ?? `TEST VAL`}</span>
           </div>
           <div>
-            <Label className={styles.headerLabel}>Linehaul Fuel Surcharge</Label>
-            <span className={styles.light}>{sectionInfo.linehaulFuelSurcharge ?? `TEST VAL`}</span>
+            <Label>Linehaul Fuel Surcharge</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.linehaulFuelSurcharge) ?? `TEST VAL`}</span>
           </div>
           <div>
-            <Label className={styles.headerLabel}>Fuel Surcharge Percent</Label>
-            <span className={styles.light}>{sectionInfo.fuelSurchargePercent ?? `TEST VAL`}</span>
+            <Label>Fuel Surcharge Percent</Label>
+            <span className={styles.light}>{sectionInfo.fuelSurchargePercent ?? `TEST VAL`}%</span>
           </div>
           <div>
-            <Label className={styles.headerLabel}>Origin Service Area Fee</Label>
-            <span className={styles.light}>{sectionInfo.originServiceAreaFee ?? `TEST VAL`}</span>
+            <Label>Origin Service Area Fee</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.originServiceAreaFee) ?? `TEST VAL`}</span>
           </div>
           <div>
-            <Label className={styles.headerLabel}>Origin Factor</Label>
-            <span className={styles.light}>{sectionInfo.originFactor ?? `TEST VAL`}</span>
+            <Label>Origin Factor</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.originFactor) ?? `TEST VAL`}</span>
           </div>
           <div>
-            <Label className={styles.headerLabel}>Destination Service Area Fee</Label>
-            <span className={styles.light}>{sectionInfo.destinationServiceAreaFee ?? `TEST VAL`}</span>
+            <Label>Destination Service Area Fee</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.destinationServiceAreaFee) ?? `TEST VAL`}</span>
           </div>
           <div>
-            <Label className={styles.headerLabel}>Destination Factor</Label>
-            <span className={styles.light}>{sectionInfo.destinationFactor ?? `TEST VAL`}</span>
+            <Label>Destination Factor</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.destinationFactor) ?? `TEST VAL`}</span>
           </div>
           <div>
-            <Label className={styles.headerLabel}>Full Pack/Unpack Charge</Label>
-            <span className={styles.light}>{sectionInfo.fullPackUnpackCharge ?? `TEST VAL`}</span>
+            <Label>Full Pack/Unpack Charge</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.fullPackUnpackCharge) ?? `TEST VAL`}</span>
           </div>
           <div>
-            <Label className={styles.headerLabel}>PPM Factor</Label>
-            <span className={styles.light}>{sectionInfo.ppmFactor ?? `TEST VAL`}</span>
+            <Label>PPM Factor</Label>
+            <span className={styles.light}>{sectionInfo.ppmFactor ?? `TEST VAL`}%</span>
           </div>
         </div>
       );
+
     default:
       return <Alert>An error occured while getting section markup!</Alert>;
   }

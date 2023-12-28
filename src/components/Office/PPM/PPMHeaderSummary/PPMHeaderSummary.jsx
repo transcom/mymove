@@ -1,5 +1,5 @@
 import React from 'react';
-import { number } from 'prop-types';
+import { number, bool } from 'prop-types';
 import classnames from 'classnames';
 
 import HeaderSection, { sectionTypes } from './HeaderSection';
@@ -8,8 +8,6 @@ import styles from './PPMHeaderSummary.module.scss';
 import { PPMShipmentShape } from 'types/shipment';
 
 export default function PPMHeaderSummary({ ppmShipment, ppmNumber, showAllFields }) {
-  const { actualPickupPostalCode, actualDestinationPostalCode, actualMoveDate } = ppmShipment || {};
-
   return (
     <header className={classnames(styles.PPMHeaderSummary)}>
       <div className={styles.header}>
@@ -18,18 +16,25 @@ export default function PPMHeaderSummary({ ppmShipment, ppmNumber, showAllFields
           <HeaderSection
             sectionInfo={{
               type: sectionTypes.shipmentInfo,
-              actualPickupPostalCode,
-              actualMoveDate,
-              actualDestinationPostalCode,
+              ...ppmShipment,
             }}
           />
         </section>
         <hr />
         {showAllFields && (
           <>
-            <HeaderSection sectionInfo={{ type: sectionTypes.incentives }} />
+            <HeaderSection
+              sectionInfo={{
+                type: sectionTypes.incentives,
+                estimatedIncentive: ppmShipment.estimatedIncentive,
+                hasRequestedAdvance: ppmShipment.hasRequestedAdvance,
+                hasReceivedAdvance: ppmShipment.hasReceivedAdvance,
+                advanceAmountReceived: ppmShipment.advanceAmountReceived,
+                ...ppmShipment.incentives,
+              }}
+            />
             <hr />
-            <HeaderSection sectionInfo={{ type: sectionTypes.gcc }} />
+            <HeaderSection sectionInfo={{ type: sectionTypes.gcc, ...ppmShipment.gcc }} />
           </>
         )}
       </div>
@@ -40,8 +45,11 @@ export default function PPMHeaderSummary({ ppmShipment, ppmNumber, showAllFields
 PPMHeaderSummary.propTypes = {
   ppmShipment: PPMShipmentShape,
   ppmNumber: number.isRequired,
+  showAllFields: bool.isRequired,
 };
 
 PPMHeaderSummary.defaultProps = {
   ppmShipment: undefined,
 };
+
+// TODO: Add shape/propType/defaults for incentives and GCC components here.
