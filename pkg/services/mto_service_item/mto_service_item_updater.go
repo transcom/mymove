@@ -188,7 +188,9 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 		// updates the address fields if the service item is of DDDSIT or
 		// DDSFSC.
 		if (serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
-			serviceItem.ReService.Code == models.ReServiceCodeDDSFSC) &&
+			serviceItem.ReService.Code == models.ReServiceCodeDDSFSC ||
+			serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
+			serviceItem.ReService.Code == models.ReServiceCodeDDFSIT) &&
 			serviceItem.SITDestinationOriginalAddressID == nil {
 
 			// Get the shipment destination address
