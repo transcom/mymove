@@ -1171,6 +1171,9 @@ func init() {
           "412": {
             "$ref": "#/responses/PreconditionFailed"
           },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
           "500": {
             "$ref": "#/responses/ServerError"
           }
@@ -6274,6 +6277,12 @@ func init() {
             "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
             "schema": {
               "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
