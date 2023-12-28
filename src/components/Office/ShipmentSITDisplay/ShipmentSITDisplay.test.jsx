@@ -93,6 +93,7 @@ describe('ShipmentSITDisplay', () => {
     expect(screen.getByText('26 Aug 2021')).toBeInTheDocument();
     expect(screen.getByText('Requested delivery date')).toBeInTheDocument();
     expect(screen.getByText('30 Aug 2021')).toBeInTheDocument();
+    expect(screen.getByText('SIT Departure Date')).toBeInTheDocument();
   });
 
   it('renders the Shipment SIT at Destination, without customer delivery info', async () => {
@@ -105,7 +106,7 @@ describe('ShipmentSITDisplay', () => {
     expect(screen.getByText('Customer delivery request')).toBeInTheDocument();
     expect(screen.getByText('Customer contact date')).toBeInTheDocument();
     expect(screen.getByText('Requested delivery date')).toBeInTheDocument();
-    expect(screen.getAllByText('—')).toHaveLength(2);
+    expect(screen.getAllByText('—')).toHaveLength(3);
   });
 
   it('renders the Shipment SIT at Origin, without customer delivery info', async () => {
@@ -118,7 +119,7 @@ describe('ShipmentSITDisplay', () => {
     expect(screen.getByText('Customer delivery request')).toBeInTheDocument();
     expect(screen.getByText('Customer contact date')).toBeInTheDocument();
     expect(screen.getByText('Requested delivery date')).toBeInTheDocument();
-    expect(screen.getAllByText('—')).toHaveLength(2);
+    expect(screen.getAllByText('—')).toHaveLength(3);
   });
 
   it('renders the Shipment SIT at Destination, previous destination SIT', async () => {

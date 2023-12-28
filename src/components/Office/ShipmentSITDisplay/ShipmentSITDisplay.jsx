@@ -12,7 +12,7 @@ import styles from './ShipmentSITDisplay.module.scss';
 
 import { sitExtensionReasons, SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { formatDateFromIso, formatDate } from 'utils/formatters';
-import { formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
+import { swaggerDateFormat } from 'shared/dates';
 import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import { ShipmentShape } from 'types/shipment';
 import { SitStatusShape, LOCATION_TYPES } from 'types/sitStatusShape';
@@ -73,6 +73,8 @@ const SitHistoryList = ({ sitHistory, dayAllowance }) => {
 const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, openConvertModalButton }) => {
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
   const currentDaysInSIT = sitStatus.currentSIT?.daysInSIT || 0;
+  const sitDepartureDate =
+    formatDate(sitStatus.currentSIT?.sitDepartureDate, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE;
   const currentDaysInSITElement = <p>{currentDaysInSIT}</p>;
   let sitEntryDate = sitStatus.currentSIT?.sitEntryDate;
   if (!sitEntryDate) {
@@ -87,8 +89,8 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
 
   sitEntryDate = moment(sitEntryDate, swaggerDateFormat);
   const sitStartDateElement = <p>{formatDate(sitEntryDate, swaggerDateFormat, 'DD MMM YYYY')}</p>;
-  const sitEndDate = moment(sitStatus.currentSIT?.sitAllowanceEndDate, swaggerDateFormat);
-  const sitEndDateString = sitEndDate.isValid() ? formatDateForDatePicker(sitEndDate) : '-';
+  const sitEndDate =
+    formatDate(sitStatus.currentSIT?.sitAllowanceEndDate, swaggerDateFormat, 'DD MMM YYYY') || '\u2014';
 
   // Previous SIT calculations and date ranges
   const previousDaysUsed = sitStatus.pastSITServiceItems?.map((pastSITItem) => {
@@ -144,13 +146,17 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
             {currentDaysInSIT > 0 && <p className={styles.sitHeader}>Current location: {currentLocation}</p>}
             <DataTable
               columnHeaders={[`SIT start date`, 'SIT authorized end date', 'Calculated total SIT days']}
-              dataRow={[sitStartDateElement, sitEndDateString, sitStatus.calculatedTotalDaysInSIT]}
+              dataRow={[sitStartDateElement, sitEndDate, sitStatus.calculatedTotalDaysInSIT]}
               custClass={styles.currentLocation}
             />
           </div>
           <div className={styles.tableContainer} data-testid="sitDaysAtCurrentLocation">
             {/* Total days at current location */}
-            <DataTable columnHeaders={[`Total days in ${currentLocation}`]} dataRow={[currentDaysInSITElement]} />
+            <DataTable
+              testID="currentSITDateData"
+              columnHeaders={[`Total days in ${currentLocation}`, `SIT Departure Date`]}
+              dataRow={[currentDaysInSITElement, sitDepartureDate]}
+            />
           </div>
         </>
       )}

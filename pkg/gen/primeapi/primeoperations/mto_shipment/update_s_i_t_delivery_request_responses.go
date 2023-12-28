@@ -193,6 +193,51 @@ func (o *UpdateSITDeliveryRequestPreconditionFailed) WriteResponse(rw http.Respo
 	}
 }
 
+// UpdateSITDeliveryRequestUnprocessableEntityCode is the HTTP code returned for type UpdateSITDeliveryRequestUnprocessableEntity
+const UpdateSITDeliveryRequestUnprocessableEntityCode int = 422
+
+/*
+UpdateSITDeliveryRequestUnprocessableEntity The request was unprocessable, likely due to bad input from the requester.
+
+swagger:response updateSITDeliveryRequestUnprocessableEntity
+*/
+type UpdateSITDeliveryRequestUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *primemessages.ValidationError `json:"body,omitempty"`
+}
+
+// NewUpdateSITDeliveryRequestUnprocessableEntity creates UpdateSITDeliveryRequestUnprocessableEntity with default headers values
+func NewUpdateSITDeliveryRequestUnprocessableEntity() *UpdateSITDeliveryRequestUnprocessableEntity {
+
+	return &UpdateSITDeliveryRequestUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the update s i t delivery request unprocessable entity response
+func (o *UpdateSITDeliveryRequestUnprocessableEntity) WithPayload(payload *primemessages.ValidationError) *UpdateSITDeliveryRequestUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update s i t delivery request unprocessable entity response
+func (o *UpdateSITDeliveryRequestUnprocessableEntity) SetPayload(payload *primemessages.ValidationError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateSITDeliveryRequestUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(422)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // UpdateSITDeliveryRequestInternalServerErrorCode is the HTTP code returned for type UpdateSITDeliveryRequestInternalServerError
 const UpdateSITDeliveryRequestInternalServerErrorCode int = 500
 

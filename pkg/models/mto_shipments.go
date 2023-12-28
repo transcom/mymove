@@ -131,6 +131,7 @@ type MTOShipment struct {
 	ShipmentType                     MTOShipmentType        `db:"shipment_type"`
 	Status                           MTOShipmentStatus      `db:"status"`
 	Diversion                        bool                   `db:"diversion"`
+	DivertedFromShipmentID           *uuid.UUID             `db:"diverted_from_shipment_id"`
 	RejectionReason                  *string                `db:"rejection_reason"`
 	Distance                         *unit.Miles            `db:"distance"`
 	Reweigh                          *Reweigh               `has_one:"reweighs" fk_id:"shipment_id"`
