@@ -348,11 +348,6 @@ func (f shipmentSITStatus) CalculateSITAllowanceRequestedDates(appCtx appcontext
 	daysInSIT := daysInSIT(*currentSIT, today)
 	sitEntryDate := *currentSIT.SITEntryDate
 	sitDepartureDate := currentSIT.SITDepartureDate
-	totalSITAllowance, err := f.CalculateShipmentSITAllowance(appCtx, shipment)
-	if err != nil {
-		return nil, err
-	}
-	calculateTotalDaysInSIT := CalculateTotalDaysInSIT(shipmentSITs, today)
 
 	// Calculate sitAllowanceEndDate and required delivery date based on sitCustomerContacted and sitRequestedDelivery
 	// using the below business logic.
