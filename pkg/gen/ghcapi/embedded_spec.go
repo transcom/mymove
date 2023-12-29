@@ -6314,7 +6314,7 @@ func init() {
         },
         "convertToCustomerExpense": {
           "type": "boolean",
-          "x-nullable": true,
+          "x-omitempty": false,
           "example": false
         },
         "createdAt": {
@@ -6542,7 +6542,7 @@ func init() {
         },
         "convertToCustomerExpense": {
           "type": "boolean",
-          "x-nullable": true,
+          "x-omitempty": false,
           "example": false
         },
         "createdAt": {
@@ -17910,7 +17910,7 @@ func init() {
         },
         "convertToCustomerExpense": {
           "type": "boolean",
-          "x-nullable": true,
+          "x-omitempty": false,
           "example": false
         },
         "createdAt": {
@@ -18138,7 +18138,7 @@ func init() {
         },
         "convertToCustomerExpense": {
           "type": "boolean",
-          "x-nullable": true,
+          "x-omitempty": false,
           "example": false
         },
         "createdAt": {

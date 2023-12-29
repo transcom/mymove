@@ -25,7 +25,7 @@ type MTOServiceItemSingle struct {
 
 	// convert to customer expense
 	// Example: false
-	ConvertToCustomerExpense *bool `json:"convertToCustomerExpense,omitempty"`
+	ConvertToCustomerExpense bool `json:"convertToCustomerExpense"`
 
 	// created at
 	// Read Only: true

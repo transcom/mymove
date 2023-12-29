@@ -29,7 +29,7 @@ properties:
   convertToCustomerExpense:
     type: boolean
     example: false
-    x-nullable: true
+    x-omitempty: false
   customerContacts:
     $ref: 'MTOServiceItemCustomerContacts.yaml'
   deletedAt:

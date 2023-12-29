@@ -24,7 +24,7 @@
       convertToCustomerExpense:
         type: boolean
         example: false
-        x-nullable: true
+        x-omitempty: false
       deletedAt:
         format: date
         type: string
