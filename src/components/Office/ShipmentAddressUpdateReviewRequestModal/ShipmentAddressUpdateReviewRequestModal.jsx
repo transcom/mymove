@@ -43,6 +43,12 @@ export const ShipmentAddressUpdateReviewRequestModal = ({
     </Button>
   );
 
+  // checking to see if the shipment contains destination SIT service items
+  // storying them in an array so we can have the count
+  const destSitServiceItems = shipment.mtoServiceItems.filter((s) =>
+    ['DDDSIT', 'DDASIT', 'DDFSIT', 'DDSFSC'].includes(s.reServiceCode),
+  );
+
   return (
     <Modal>
       <ModalClose handleClick={() => onClose()} />
@@ -68,6 +74,7 @@ export const ShipmentAddressUpdateReviewRequestModal = ({
                 <AddressUpdatePreview
                   deliveryAddressUpdate={shipment.deliveryAddressUpdate}
                   shipmentType={shipment.shipmentType}
+                  destSitServiceItems={destSitServiceItems}
                 />
                 <FormGroup className={styles.formGroup}>
                   <h4>Review Request</h4>
