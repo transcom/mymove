@@ -220,8 +220,9 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 		sitServiceItem := suite.buildValidDDFSITServiceItemWithValidMove()
 		sitMove := sitServiceItem.MoveTaskOrder
-		sitDestinationFinalAddress := sitServiceItem.SITDestinationFinalAddress
-		sitDestinationFinalAddressID := sitServiceItem.SITDestinationFinalAddressID
+		sitShipment := sitServiceItem.MTOShipment
+		// sitDestinationFinalAddress := sitServiceItem.SITDestinationFinalAddress
+		// sitDestinationFinalAddressID := sitServiceItem.SITDestinationFinalAddressID
 
 		createdServiceItems, verrs, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &sitServiceItem)
 		suite.NoError(err)
@@ -242,8 +243,9 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		numDDSFSCFound := 0
 
 		for _, createdServiceItem := range createdServiceItemList {
-			suite.Equal(sitDestinationFinalAddress.StreetAddress1, createdServiceItem.SITDestinationFinalAddress.StreetAddress1)
-			suite.Equal(sitDestinationFinalAddressID, createdServiceItem.SITDestinationFinalAddressID)
+			// checking that the service item final destination address equals the shipment's final destination address
+			suite.Equal(sitShipment.DestinationAddress.StreetAddress1, createdServiceItem.SITDestinationFinalAddress.StreetAddress1)
+			suite.Equal(sitShipment.DestinationAddressID, createdServiceItem.SITDestinationFinalAddressID)
 
 			switch createdServiceItem.ReService.Code {
 			case models.ReServiceCodeDDFSIT:
