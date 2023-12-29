@@ -66,7 +66,7 @@ func buildMTOServiceItemWithBuildType(db *pop.Connection, customs []Customizatio
 		ReServiceID:                       reService.ID,
 		Status:                            models.MTOServiceItemStatusSubmitted,
 		RequestedApprovalsRequestedStatus: &requestedApprovalsRequestedStatus,
-		CustomerExpense:                   &isCustomerExpense,
+		CustomerExpense:                   isCustomerExpense,
 	}
 
 	// only set SITOriginHHGOriginalAddress if a customization is provided

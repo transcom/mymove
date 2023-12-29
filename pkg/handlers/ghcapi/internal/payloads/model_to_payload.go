@@ -1314,7 +1314,7 @@ func MTOServiceItemSingleModel(s *models.MTOServiceItem) *ghcmessages.MTOService
 		SitRequestedDelivery:     handlers.FmtDatePtr(s.SITRequestedDelivery),
 		Status:                   handlers.FmtString(string(s.Status)),
 		UpdatedAt:                *handlers.FmtDateTime(s.UpdatedAt),
-		ConvertToCustomerExpense: *handlers.FmtBool(*s.CustomerExpense),
+		ConvertToCustomerExpense: *handlers.FmtBool(s.CustomerExpense),
 	}
 }
 
@@ -1364,7 +1364,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		RejectedAt:                    handlers.FmtDateTimePtr(s.RejectedAt),
 		ETag:                          etag.GenerateEtag(s.UpdatedAt),
 		ServiceRequestDocuments:       serviceRequestDocs,
-		ConvertToCustomerExpense:      *handlers.FmtBool(*s.CustomerExpense),
+		ConvertToCustomerExpense:      *handlers.FmtBool(s.CustomerExpense),
 	}
 }
 
