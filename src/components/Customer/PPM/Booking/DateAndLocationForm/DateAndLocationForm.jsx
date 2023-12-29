@@ -62,6 +62,7 @@ const DateAndLocationForm = ({
   const initialValues = {
     pickupPostalCode: mtoShipment?.ppmShipment?.pickupPostalCode || '',
     useCurrentResidence: false,
+    secondaryPickupAddress: mtoShipment?.ppmShipment?.secondaryPickupAddress || '',
     hasSecondaryPickup: mtoShipment?.ppmShipment?.hasSecondaryPickup ? 'true' : 'false',
     secondaryPickupPostalCode: mtoShipment?.ppmShipment?.secondaryPickupPostalCode || '',
     useCurrentDestinationAddress: false,
@@ -152,7 +153,7 @@ const DateAndLocationForm = ({
           }
         };
 
-        const handleUsePostalAddressChange = (e) => {
+        const handleUseDestinationAddress = (e) => {
           const { checked } = e.target;
           if (checked) {
             // use current residence
@@ -287,7 +288,7 @@ const DateAndLocationForm = ({
                 </FormGroup>
                 {values.hasSecondaryPickup === 'true' && (
                   <>
-                    <AddressFields name="serviceMember.backup_mailing_address" />
+                    <AddressFields name="mtoShipment.secondaryPickupAddress" />
                     <Hint className={ppmStyles.hint}>
                       <p>A second origin address could mean that your final incentive is lower than your estimate.</p>
                       <p>
@@ -309,7 +310,7 @@ const DateAndLocationForm = ({
                         data-testid="useCurrentDestinationAddress"
                         label="Use destination address"
                         name="serviceMember.destination_address"
-                        onChange={handleUsePostalAddressChange}
+                        onChange={handleUseDestinationAddress}
                         id="useCurrentDestinationAddress"
                       />
                       {fields}
@@ -376,13 +377,14 @@ const DateAndLocationForm = ({
                 </FormGroup>
                 {values.hasSecondaryDestinationPostalCode === 'true' && (
                   <>
-                    <TextField
+                    <AddressFields name="serviceMember.backup_mailing_address" />
+                    {/* <TextField
                       label="Second ZIP"
                       id="secondaryDestinationPostalCode"
                       name="secondaryDestinationPostalCode"
                       maxLength={5}
                       validate={(value) => postalCodeValidate(value, 'destination', 'secondaryDestinationPostalCode')}
-                    />
+                    /> */}
                     <Hint className={ppmStyles.hint}>
                       <p>A second destination ZIP could mean that your final incentive is lower than your estimate.</p>
                       <p>
