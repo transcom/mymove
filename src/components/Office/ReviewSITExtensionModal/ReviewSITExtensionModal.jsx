@@ -23,6 +23,7 @@ import { sitExtensionReasons } from 'constants/sitExtensions';
 import { formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
 import { SitStatusShape, LOCATION_TYPES } from 'types/sitStatusShape';
 import { ShipmentShape } from 'types';
+import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
 
 const SitDaysAllowanceForm = ({ onChange }) => (
   <MaskedTextField
@@ -68,6 +69,7 @@ const SITHistoryItemHeader = ({ title, value }) => {
 const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
   const { totalSITDaysUsed } = sitStatus;
   const { daysInSIT, location } = sitStatus.currentSIT;
+  const sitDepartureDate = sitStatus.currentSIT?.sitDepartureDate || DEFAULT_EMPTY_VALUE;
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
 
@@ -191,7 +193,11 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
       </div>
       <div className={styles.tableContainer}>
         {/* Total days at current location */}
-        <DataTable columnHeaders={[`Total days in ${currentLocation}`]} dataRow={[currentDaysInSit]} />
+        <DataTable
+          testID="currentSITDateData"
+          columnHeaders={[`Total days in ${currentLocation}`, `SIT Departure Date`]}
+          dataRow={[currentDaysInSit, sitDepartureDate]}
+        />
       </div>
     </>
   );

@@ -19,6 +19,7 @@ import { dropdownInputOptions } from 'utils/formatters';
 import { sitExtensionReasons } from 'constants/sitExtensions';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
 import { formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
+import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
 
 const SitDaysAllowanceForm = ({ onChange }) => (
   <MaskedTextField
@@ -43,6 +44,7 @@ const SitEndDateForm = ({ onChange }) => (
 const SitStatusTables = ({ sitStatus, shipment }) => {
   const { totalSITDaysUsed, calculatedTotalDaysInSIT } = sitStatus;
   const { daysInSIT } = sitStatus.currentSIT;
+  const sitDepartureDate = sitStatus.currentSIT?.sitDepartureDate || DEFAULT_EMPTY_VALUE;
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
 
@@ -141,7 +143,11 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
       </div>
       <div className={styles.tableContainer}>
         {/* Total days at current location */}
-        <DataTable columnHeaders={[`Total days in ${currentLocation}`]} dataRow={[currentDaysInSit]} />
+        <DataTable
+          testID="currentSITDateData"
+          columnHeaders={[`Total days in ${currentLocation}`, `SIT Departure Date`]}
+          dataRow={[currentDaysInSit, sitDepartureDate]}
+        />
       </div>
     </>
   );

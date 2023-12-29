@@ -173,7 +173,7 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
         <dd>
           {shipmentDestinationTypes[shipment.destinationType]
             ? shipmentDestinationTypes[shipment.destinationType]
-            : '-'}
+            : '—'}
         </dd>
       </div>
       <div className={descriptionListStyles.row}>
