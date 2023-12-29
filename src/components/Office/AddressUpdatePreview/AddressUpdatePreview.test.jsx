@@ -27,9 +27,91 @@ const mockDeliveryAddressUpdate = {
   status: 'REQUESTED',
 };
 
+const destSitServiceItemsNone = [];
+
+const destSitServiceItemsSeveral = [
+  {
+    approvedAt: '2023-12-29T15:31:57.041Z',
+    createdAt: '2023-12-29T15:27:55.909Z',
+    deletedAt: '0001-01-01',
+    eTag: 'MjAyMy0xMi0yOVQxNTozMTo1Ny4wNTUxMTNa',
+    id: '447c4919-3311-4d3d-9067-a5585ba692ad',
+    moveTaskOrderID: 'aa8dfe13-266a-4956-ac60-01c2355c06d3',
+    mtoShipmentID: 'be3349f4-333d-4633-8708-d9c1147cd407',
+    reServiceCode: 'DDASIT',
+    reServiceID: 'a0ead168-7469-4cb6-bc5b-2ebef5a38f92',
+    reServiceName: "Domestic destination add'l SIT",
+    reason: 'LET THE PEOPLE KNOW',
+    sitDepartureDate: '2024-01-06T00:00:00.000Z',
+    sitEntryDate: '2024-01-05T00:00:00.000Z',
+    status: 'APPROVED',
+    submittedAt: '0001-01-01',
+    updatedAt: '0001-01-01T00:00:00.000Z',
+  },
+  {
+    approvedAt: '2023-12-29T15:31:57.912Z',
+    createdAt: '2023-12-29T15:27:55.920Z',
+    deletedAt: '0001-01-01',
+    eTag: 'MjAyMy0xMi0yOVQxNTozMTo1Ny45MjA3Njla',
+    id: '0163ae1a-d6b8-468d-9ec5-49f289796819',
+    moveTaskOrderID: 'aa8dfe13-266a-4956-ac60-01c2355c06d3',
+    mtoShipmentID: 'be3349f4-333d-4633-8708-d9c1147cd407',
+    reServiceCode: 'DDDSIT',
+    reServiceID: '5c80f3b5-548e-4077-9b8e-8d0390e73668',
+    reServiceName: 'Domestic destination SIT delivery',
+    reason: 'LET THE PEOPLE KNOW',
+    sitDepartureDate: '2024-01-06T00:00:00.000Z',
+    sitEntryDate: '2024-01-05T00:00:00.000Z',
+    status: 'APPROVED',
+    submittedAt: '0001-01-01',
+    updatedAt: '0001-01-01T00:00:00.000Z',
+  },
+  {
+    approvedAt: '2023-12-29T15:31:58.538Z',
+    createdAt: '2023-12-29T15:27:55.928Z',
+    deletedAt: '0001-01-01',
+    eTag: 'MjAyMy0xMi0yOVQxNTozMTo1OC41NDQ0NTJa',
+    id: 'b582cc4c-23ae-4529-be20-608b305d9dc7',
+    moveTaskOrderID: 'aa8dfe13-266a-4956-ac60-01c2355c06d3',
+    mtoShipmentID: 'be3349f4-333d-4633-8708-d9c1147cd407',
+    reServiceCode: 'DDSFSC',
+    reServiceID: 'b208e0af-3176-4c8a-97ea-bd247c18f43d',
+    reServiceName: 'Domestic destination SIT fuel surcharge',
+    reason: 'LET THE PEOPLE KNOW',
+    sitDepartureDate: '2024-01-06T00:00:00.000Z',
+    sitEntryDate: '2024-01-05T00:00:00.000Z',
+    status: 'APPROVED',
+    submittedAt: '0001-01-01',
+    updatedAt: '0001-01-01T00:00:00.000Z',
+  },
+  {
+    approvedAt: '2023-12-29T15:31:59.239Z',
+    createdAt: '2023-12-29T15:27:55.837Z',
+    deletedAt: '0001-01-01',
+    eTag: 'MjAyMy0xMi0yOVQxNTozMTo1OS4yNDU0MDRa',
+    id: 'a69e8cb9-5e46-43a5-92e6-27f1f073d92e',
+    moveTaskOrderID: 'aa8dfe13-266a-4956-ac60-01c2355c06d3',
+    mtoShipmentID: 'be3349f4-333d-4633-8708-d9c1147cd407',
+    reServiceCode: 'DDFSIT',
+    reServiceID: 'd0561c49-e1a9-40b8-a739-3e639a9d77af',
+    reServiceName: 'Domestic destination 1st day SIT',
+    reason: 'LET THE PEOPLE KNOW',
+    sitDepartureDate: '2024-01-06T00:00:00.000Z',
+    sitEntryDate: '2024-01-05T00:00:00.000Z',
+    status: 'APPROVED',
+    submittedAt: '0001-01-01',
+    updatedAt: '0001-01-01T00:00:00.000Z',
+  },
+];
+
 describe('AddressUpdatePreview', () => {
   it('renders all of the address preview information', () => {
-    render(<AddressUpdatePreview deliveryAddressUpdate={mockDeliveryAddressUpdate} />);
+    render(
+      <AddressUpdatePreview
+        deliveryAddressUpdate={mockDeliveryAddressUpdate}
+        destSitServiceItems={destSitServiceItemsNone}
+      />,
+    );
 
     // Heading and alert present
     expect(screen.getByRole('heading', { name: 'Delivery location' })).toBeInTheDocument();
@@ -41,6 +123,9 @@ describe('AddressUpdatePreview', () => {
         'ZIP3 resulting in Domestic Shorthaul (DSH) changing to Domestic Linehaul (DLH) or vice versa.' +
         'Approvals will result in updated pricing for this shipment. Customer may be subject to excess costs.',
     );
+
+    // since there are no destination service items in this shipment, this alert should not show up
+    expect(screen.queryByTestId('destSitAlert')).toBeNull();
 
     // Address change information
     const addressChangePreview = screen.getByTestId('address-change-preview');
@@ -62,5 +147,23 @@ describe('AddressUpdatePreview', () => {
     // Request details (contractor remarks)
     expect(addressChangePreview).toHaveTextContent('Update request details');
     expect(addressChangePreview).toHaveTextContent('Contractor remarks: Test Contractor Remark');
+  });
+
+  it('renders the destination SIT alert when shipment contains dest SIT service items', () => {
+    render(
+      <AddressUpdatePreview
+        deliveryAddressUpdate={mockDeliveryAddressUpdate}
+        destSitServiceItems={destSitServiceItemsSeveral}
+      />,
+    );
+
+    // Heading and alert present
+    expect(screen.getByRole('heading', { name: 'Delivery location' })).toBeInTheDocument();
+    expect(screen.getByTestId('destSitAlert')).toBeInTheDocument();
+    expect(screen.getByTestId('destSitAlert')).toHaveTextContent(
+      'This shipment contains 4 destination SIT service items. If approved, this could change the following: ' +
+        'SIT Delivery out over 50 miles or under 50 miles' +
+        'Approvals will result in updated pricing for the service item. Customer may be subject to excess costs.',
+    );
   });
 });

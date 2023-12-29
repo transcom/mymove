@@ -27,8 +27,8 @@ const AddressUpdatePreview = ({ deliveryAddressUpdate, destSitServiceItems }) =>
           Approvals will result in updated pricing for this shipment. Customer may be subject to excess costs.
         </span>
       </Alert>
-      {destSitServiceItems.length > 0 ?? (
-        <Alert type="info" className={styles.alert}>
+      {destSitServiceItems.length > 0 ? (
+        <Alert type="info" className={styles.alert} id="destSitAlert" data-testid="destSitAlert">
           <span className={styles.alertContent}>
             This shipment contains {destSitServiceItems.length} destination SIT service items. If approved, this could
             change the following:{' '}
@@ -38,7 +38,7 @@ const AddressUpdatePreview = ({ deliveryAddressUpdate, destSitServiceItems }) =>
             Approvals will result in updated pricing for the service item. Customer may be subject to excess costs.
           </span>
         </Alert>
-      )}
+      ) : null}
 
       <DataTableWrapper
         className={classnames('maxw-tablet', 'table--data-point-group', styles.reviewAddressChange)}
