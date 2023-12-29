@@ -221,8 +221,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		sitServiceItem := suite.buildValidDDFSITServiceItemWithValidMove()
 		sitMove := sitServiceItem.MoveTaskOrder
 		sitShipment := sitServiceItem.MTOShipment
-		// sitDestinationFinalAddress := sitServiceItem.SITDestinationFinalAddress
-		// sitDestinationFinalAddressID := sitServiceItem.SITDestinationFinalAddressID
 
 		createdServiceItems, verrs, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &sitServiceItem)
 		suite.NoError(err)
