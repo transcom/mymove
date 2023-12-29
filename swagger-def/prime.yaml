@@ -723,7 +723,7 @@ paths:
         A reweigh can be triggered automatically, or requested by the customer or transportation office. Not all shipments are reweighed,
         so not all shipments will have a reweigh weight.
 
-        **NOTE**: If you reweight a diverted shipment, the new reweigh weight will apply for all shipments in the chain. Diversions are handled uniquely. calcuation for payment requests without a `WeightBilled` parameter.
+        **NOTE**: If you reweigh a diverted shipment, the new reweigh weight will apply for all shipments in the chain. Diversions are handled uniquely. calcuation for payment requests without a `WeightBilled` parameter.
 
       operationId: updateReweigh
       tags:

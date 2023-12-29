@@ -972,7 +972,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/reweighs/{reweighID}": {
       "patch": {
-        "description": "### Functionality\nThis endpoint can be used to update a reweigh with a new weight or to provide the reason why a reweigh did not occur.\nOnly one of weight or verificationReason should be sent in the request body.\n\nA reweigh is the second recorded weight for a shipment, as validated by certified weight tickets. Applies to one shipment.\nA reweigh can be triggered automatically, or requested by the customer or transportation office. Not all shipments are reweighed,\nso not all shipments will have a reweigh weight.\n\n**NOTE**: If you reweight a diverted shipment, the new reweigh weight will apply for all shipments in the chain. Diversions are handled uniquely. calcuation for payment requests without a ` + "`" + `WeightBilled` + "`" + ` parameter.\n",
+        "description": "### Functionality\nThis endpoint can be used to update a reweigh with a new weight or to provide the reason why a reweigh did not occur.\nOnly one of weight or verificationReason should be sent in the request body.\n\nA reweigh is the second recorded weight for a shipment, as validated by certified weight tickets. Applies to one shipment.\nA reweigh can be triggered automatically, or requested by the customer or transportation office. Not all shipments are reweighed,\nso not all shipments will have a reweigh weight.\n\n**NOTE**: If you reweigh a diverted shipment, the new reweigh weight will apply for all shipments in the chain. Diversions are handled uniquely. calcuation for payment requests without a ` + "`" + `WeightBilled` + "`" + ` parameter.\n",
         "consumes": [
           "application/json"
         ],
@@ -6012,7 +6012,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/reweighs/{reweighID}": {
       "patch": {
-        "description": "### Functionality\nThis endpoint can be used to update a reweigh with a new weight or to provide the reason why a reweigh did not occur.\nOnly one of weight or verificationReason should be sent in the request body.\n\nA reweigh is the second recorded weight for a shipment, as validated by certified weight tickets. Applies to one shipment.\nA reweigh can be triggered automatically, or requested by the customer or transportation office. Not all shipments are reweighed,\nso not all shipments will have a reweigh weight.\n\n**NOTE**: If you reweight a diverted shipment, the new reweigh weight will apply for all shipments in the chain. Diversions are handled uniquely. calcuation for payment requests without a ` + "`" + `WeightBilled` + "`" + ` parameter.\n",
+        "description": "### Functionality\nThis endpoint can be used to update a reweigh with a new weight or to provide the reason why a reweigh did not occur.\nOnly one of weight or verificationReason should be sent in the request body.\n\nA reweigh is the second recorded weight for a shipment, as validated by certified weight tickets. Applies to one shipment.\nA reweigh can be triggered automatically, or requested by the customer or transportation office. Not all shipments are reweighed,\nso not all shipments will have a reweigh weight.\n\n**NOTE**: If you reweigh a diverted shipment, the new reweigh weight will apply for all shipments in the chain. Diversions are handled uniquely. calcuation for payment requests without a ` + "`" + `WeightBilled` + "`" + ` parameter.\n",
         "consumes": [
           "application/json"
         ],

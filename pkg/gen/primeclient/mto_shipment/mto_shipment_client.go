@@ -508,7 +508,7 @@ A reweigh is the second recorded weight for a shipment, as validated by certifie
 A reweigh can be triggered automatically, or requested by the customer or transportation office. Not all shipments are reweighed,
 so not all shipments will have a reweigh weight.
 
-**NOTE**: If you reweight a diverted shipment, the new reweigh weight will apply for all shipments in the chain. Diversions are handled uniquely. calcuation for payment requests without a `WeightBilled` parameter.
+**NOTE**: If you reweigh a diverted shipment, the new reweigh weight will apply for all shipments in the chain. Diversions are handled uniquely. calcuation for payment requests without a `WeightBilled` parameter.
 */
 func (a *Client) UpdateReweigh(params *UpdateReweighParams, opts ...ClientOption) (*UpdateReweighOK, error) {
 	// TODO: Validate the params before sending
