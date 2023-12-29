@@ -80,7 +80,7 @@ const DestinationSITServiceItemForm = ({ shipment, submission }) => {
         <input type="hidden" name="mtoShipmentID" />
         <input type="hidden" name="modelType" />
         <input type="hidden" name="reServiceCode" />
-        <TextField label="Reason" name="reason" />
+        <TextField label="Reason" name="reason" id="reason" />
         <DatePickerInput
           label="First available delivery date"
           name="firstAvailableDeliveryDate1"
@@ -101,7 +101,7 @@ const DestinationSITServiceItemForm = ({ shipment, submission }) => {
         />
         <DatePickerInput label="Second date of attempted contact" name="dateOfContact2" id="dateOfContact2" />
         <MaskedTextField
-          id="timeMilitary1"
+          id="timeMilitary2"
           name="timeMilitary2"
           label="Second time of attempted contact"
           mask="0000{Z}"
