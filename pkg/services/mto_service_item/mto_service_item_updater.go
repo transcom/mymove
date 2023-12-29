@@ -60,6 +60,8 @@ func (p *mtoServiceItemUpdater) ApproveOrRejectServiceItem(
 func (p *mtoServiceItemUpdater) ConvertItemToCustomerExpense(
 	appCtx appcontext.AppContext,
 	shipment *models.MTOShipment,
+	customerExpenseReason *string,
+	convertToCustomerExpense *bool,
 ) (*models.MTOServiceItem, error) {
 	var DOFSITCodeID, DDFSITCodeID uuid.UUID
 	DOFSITServiceErr := appCtx.DB().RawQuery(`SELECT id FROM re_services WHERE code = 'DOFSIT'`).First(&DOFSITCodeID) // First get uuid for DOFSIT service code
@@ -100,7 +102,7 @@ func (p *mtoServiceItemUpdater) ConvertItemToCustomerExpense(
 		return &models.MTOServiceItem{}, err
 	}
 
-	return p.convertItemToCustomerExpense(appCtx, *mtoServiceItem, eTag, checkETag())
+	return p.convertItemToCustomerExpense(appCtx, *mtoServiceItem, customerExpenseReason, convertToCustomerExpense, eTag, checkETag())
 }
 
 func (p *mtoServiceItemUpdater) findServiceItem(appCtx appcontext.AppContext, serviceItemID uuid.UUID) (*models.MTOServiceItem, error) {
@@ -235,6 +237,8 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 func (p *mtoServiceItemUpdater) convertItemToCustomerExpense(
 	appCtx appcontext.AppContext,
 	serviceItem models.MTOServiceItem,
+	customerExpenseReason *string,
+	convertToCustomerExpense *bool,
 	eTag string,
 	checks ...validator,
 ) (*models.MTOServiceItem, error) {
@@ -243,7 +247,8 @@ func (p *mtoServiceItemUpdater) convertItemToCustomerExpense(
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		serviceItem.CustomerExpense = models.BoolPointer(true)
+		serviceItem.CustomerExpense = convertToCustomerExpense
+		serviceItem.CustomerExpenseReason = customerExpenseReason
 		verrs, err := appCtx.DB().ValidateAndUpdate(&serviceItem)
 		e := handleError(serviceItem.ID, verrs, err)
 		return e

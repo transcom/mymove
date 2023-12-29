@@ -495,6 +495,24 @@ export function submitSITExtension({ shipmentID, ifMatchETag, normalize = true, 
   );
 }
 
+export function updateSITServiceItemCustomerExpense({
+  shipmentID,
+  ifMatchETag,
+  normalize = true,
+  convertToCustomerExpense,
+  customerExpenseReason,
+}) {
+  return makeGHCRequest(
+    'shipment.updateSITServiceItemCustomerExpense',
+    {
+      shipmentID,
+      'If-Match': ifMatchETag,
+      body: { convertToCustomerExpense, customerExpenseReason },
+    },
+    { schemaKey: 'mtoShipment', normalize },
+  );
+}
+
 export function deleteShipment({ shipmentID, normalize = false, schemaKey = 'shipment' }) {
   const operationPath = 'shipment.deleteShipment';
   return makeGHCRequest(

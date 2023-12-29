@@ -48,6 +48,7 @@ import {
   approveSitAddressUpdate,
   rejectSitAddressUpdate,
   updateServiceItemSITEntryDate,
+  updateSITServiceItemCustomerExpense,
 } from 'services/ghcApi';
 import { MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -200,6 +201,21 @@ export const MoveTaskOrder = (props) => {
       queryClient.setQueryData([MTO_SERVICE_ITEMS, variables.moveId, false], mtoServiceItems);
       queryClient.invalidateQueries({ queryKey: [MTO_SERVICE_ITEMS, variables.moveId] });
       queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS] });
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLogger.error(errorMsg);
+    },
+  });
+
+  /* istanbul ignore next */
+  const { mutate: mutateSITServiceItemCustomerExpense } = useMutation({
+    mutationFn: updateSITServiceItemCustomerExpense,
+    onSuccess: (data, variables) => {
+      const updatedMTOShipment = data.mtoShipments[variables.shipmentID];
+      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+      queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID] });
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -706,6 +722,35 @@ export const MoveTaskOrder = (props) => {
         onSuccess: () => {
           setIsModalVisible(false);
           setSelectedServiceItem({});
+        },
+      },
+    );
+  };
+
+  /* istanbul ignore next */
+  const handleUpdateSITServiceItemCustomerExpense = (
+    mtoShipmentID,
+    convertToCustomerExpense,
+    customerExpenseReason,
+    eTag,
+  ) => {
+    mutateSITServiceItemCustomerExpense(
+      {
+        shipmentID: mtoShipmentID,
+        convertToCustomerExpense,
+        customerExpenseReason,
+        ifMatchETag: eTag,
+        onSuccessFlashMsg: `SIT successfully converted to customer expense`,
+      },
+      {
+        onSuccess: (data, variables) => {
+          setMessage(
+            `MSG_CONVERT_TO_CUSTOMER_EXPENSE_SUCCESS_${variables.shipmentID}`,
+            'success',
+            variables.onSuccessFlashMsg,
+            '',
+            true,
+          );
         },
       },
     );
@@ -1321,6 +1366,7 @@ export const MoveTaskOrder = (props) => {
                   handleRequestReweighModal={handleRequestReweighModal}
                   handleReviewSITExtension={handleReviewSITExtension}
                   handleSubmitSITExtension={handleSubmitSITExtension}
+                  handleUpdateSITServiceItemCustomerExpense={handleUpdateSITServiceItemCustomerExpense}
                   handleEditFacilityInfo={handleEditFacilityInfo}
                   handleEditServiceOrderNumber={handleEditServiceOrderNumber}
                   handleEditAccountingCodes={handleEditAccountingCodes}

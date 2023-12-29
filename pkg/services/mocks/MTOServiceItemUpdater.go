@@ -42,25 +42,25 @@ func (_m *MTOServiceItemUpdater) ApproveOrRejectServiceItem(appCtx appcontext.Ap
 	return r0, r1
 }
 
-// ConvertItemToCustomerExpense provides a mock function with given fields: appCtx, shipment
-func (_m *MTOServiceItemUpdater) ConvertItemToCustomerExpense(appCtx appcontext.AppContext, shipment *models.MTOShipment) (*models.MTOServiceItem, error) {
-	ret := _m.Called(appCtx, shipment)
+// ConvertItemToCustomerExpense provides a mock function with given fields: appCtx, shipment, customerExpenseReason, convertToCustomerExpense
+func (_m *MTOServiceItemUpdater) ConvertItemToCustomerExpense(appCtx appcontext.AppContext, shipment *models.MTOShipment, customerExpenseReason *string, convertToCustomerExpense *bool) (*models.MTOServiceItem, error) {
+	ret := _m.Called(appCtx, shipment, customerExpenseReason, convertToCustomerExpense)
 
 	var r0 *models.MTOServiceItem
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) (*models.MTOServiceItem, error)); ok {
-		return rf(appCtx, shipment)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, *string, *bool) (*models.MTOServiceItem, error)); ok {
+		return rf(appCtx, shipment, customerExpenseReason, convertToCustomerExpense)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) *models.MTOServiceItem); ok {
-		r0 = rf(appCtx, shipment)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, *string, *bool) *models.MTOServiceItem); ok {
+		r0 = rf(appCtx, shipment, customerExpenseReason, convertToCustomerExpense)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOServiceItem)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipment) error); ok {
-		r1 = rf(appCtx, shipment)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipment, *string, *bool) error); ok {
+		r1 = rf(appCtx, shipment, customerExpenseReason, convertToCustomerExpense)
 	} else {
 		r1 = ret.Error(1)
 	}
