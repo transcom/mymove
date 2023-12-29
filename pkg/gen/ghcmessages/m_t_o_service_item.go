@@ -29,8 +29,8 @@ type MTOServiceItem struct {
 	ApprovedAt *strfmt.DateTime `json:"approvedAt,omitempty"`
 
 	// convert to customer expense
-	// Required: true
-	ConvertToCustomerExpense *bool `json:"convertToCustomerExpense"`
+	// Example: false
+	ConvertToCustomerExpense *bool `json:"convertToCustomerExpense,omitempty"`
 
 	// created at
 	// Format: date-time
@@ -38,6 +38,9 @@ type MTOServiceItem struct {
 
 	// customer contacts
 	CustomerContacts MTOServiceItemCustomerContacts `json:"customerContacts,omitempty"`
+
+	// Reason for converting a SIT to customer expense.
+	CustomerExpenseReason string `json:"customerExpenseReason,omitempty"`
 
 	// deleted at
 	// Format: date
@@ -164,10 +167,6 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateConvertToCustomerExpense(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -272,15 +271,6 @@ func (m *MTOServiceItem) validateApprovedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("approvedAt", "body", "date-time", m.ApprovedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItem) validateConvertToCustomerExpense(formats strfmt.Registry) error {
-
-	if err := validate.Required("convertToCustomerExpense", "body", m.ConvertToCustomerExpense); err != nil {
 		return err
 	}
 

@@ -6299,8 +6299,7 @@ func init() {
         "moveTaskOrderID",
         "reServiceID",
         "reServiceCode",
-        "reServiceName",
-        "convertToCustomerExpense"
+        "reServiceName"
       ],
       "properties": {
         "SITPostalCode": {
@@ -6314,8 +6313,9 @@ func init() {
           "x-nullable": true
         },
         "convertToCustomerExpense": {
-          "format": "boolean",
-          "x-nullable": true
+          "type": "boolean",
+          "x-nullable": true,
+          "example": false
         },
         "createdAt": {
           "type": "string",
@@ -6323,6 +6323,10 @@ func init() {
         },
         "customerContacts": {
           "$ref": "#/definitions/MTOServiceItemCustomerContacts"
+        },
+        "customerExpenseReason": {
+          "description": "Reason for converting a SIT to customer expense.",
+          "type": "string"
         },
         "deletedAt": {
           "type": "string",
@@ -6541,14 +6545,19 @@ func init() {
           "x-nullable": true
         },
         "convertToCustomerExpense": {
-          "format": "boolean",
+          "type": "boolean",
           "x-nullable": true,
-          "example": true
+          "example": false
         },
         "createdAt": {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "customerExpenseReason": {
+          "description": "Reason for converting a SIT to customer expense.",
+          "type": "string",
+          "x-nullable": true
         },
         "deletedAt": {
           "type": "string",
@@ -17895,8 +17904,7 @@ func init() {
         "moveTaskOrderID",
         "reServiceID",
         "reServiceCode",
-        "reServiceName",
-        "convertToCustomerExpense"
+        "reServiceName"
       ],
       "properties": {
         "SITPostalCode": {
@@ -17910,8 +17918,9 @@ func init() {
           "x-nullable": true
         },
         "convertToCustomerExpense": {
-          "format": "boolean",
-          "x-nullable": true
+          "type": "boolean",
+          "x-nullable": true,
+          "example": false
         },
         "createdAt": {
           "type": "string",
@@ -17919,6 +17928,10 @@ func init() {
         },
         "customerContacts": {
           "$ref": "#/definitions/MTOServiceItemCustomerContacts"
+        },
+        "customerExpenseReason": {
+          "description": "Reason for converting a SIT to customer expense.",
+          "type": "string"
         },
         "deletedAt": {
           "type": "string",
@@ -18137,14 +18150,19 @@ func init() {
           "x-nullable": true
         },
         "convertToCustomerExpense": {
-          "format": "boolean",
+          "type": "boolean",
           "x-nullable": true,
-          "example": true
+          "example": false
         },
         "createdAt": {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "customerExpenseReason": {
+          "description": "Reason for converting a SIT to customer expense.",
+          "type": "string",
+          "x-nullable": true
         },
         "deletedAt": {
           "type": "string",

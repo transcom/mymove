@@ -6096,7 +6096,6 @@ definitions:
       - reServiceID
       - reServiceCode
       - reServiceName
-      - convertToCustomerExpense
     properties:
       moveTaskOrderID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -6119,8 +6118,12 @@ definitions:
         format: date-time
         type: string
       convertToCustomerExpense:
-        format: boolean
+        type: boolean
+        example: false
         x-nullable: true
+      customerExpenseReason:
+        type: string
+        description: Reason for converting a SIT to customer expense.
       customerContacts:
         $ref: '#/definitions/MTOServiceItemCustomerContacts'
       deletedAt:
@@ -7577,8 +7580,13 @@ definitions:
         type: string
         readOnly: true
       convertToCustomerExpense:
-        format: boolean
-        example: true
+        type: boolean
+        example: false
+        x-nullable: true
+      customerExpenseReason:
+        type: string
+        description: Reason for converting a SIT to customer expense.
+        x-nullable: true
       deletedAt:
         format: date
         type: string

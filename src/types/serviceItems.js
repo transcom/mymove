@@ -37,7 +37,7 @@ export const ServiceItemDetailsShape = PropTypes.shape({
   id: PropTypes.string,
   mtoShipmentID: PropTypes.string,
   createdAt: PropTypes.string,
-  customerExpense: PropTypes.bool,
+  convertToCustomerExpense: PropTypes.bool,
   submittedAt: PropTypes.string,
   approvedAt: PropTypes.string,
   rejectedAt: PropTypes.string,
