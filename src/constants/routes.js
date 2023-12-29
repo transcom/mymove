@@ -122,7 +122,6 @@ export const primeSimulatorRoutes = {
   UPDATE_SHIPMENT_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId`,
   CREATE_PAYMENT_REQUEST_PATH: `${BASE_PRIME_SIMULATOR_PATH}/payment-requests/new`,
   CREATE_SERVICE_ITEM_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/service-items/new`,
-  UPDATE_SERVICE_ITEMS_PATH: `${BASE_PRIME_SIMULATOR_PATH}/mto-service-items/update`,
   UPDATE_SIT_SERVICE_ITEM_PATH: `${BASE_PRIME_SIMULATOR_PATH}/mto-service-items/:mtoServiceItemId/update`,
   UPLOAD_DOCUMENTS_PATH: `${BASE_PRIME_SIMULATOR_PATH}/payment-requests/:paymentRequestId/upload`,
   UPLOAD_SERVICE_REQUEST_DOCUMENTS_PATH: `${BASE_PRIME_SIMULATOR_PATH}/mto-service-items/:mtoServiceItemId/upload`,

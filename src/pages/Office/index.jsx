@@ -75,9 +75,6 @@ const PrimeSimulatorUploadServiceRequestDocuments = lazy(() =>
   import('pages/PrimeUI/UploadServiceRequestDocuments/UploadServiceRequestDocuments'),
 );
 const PrimeSimulatorCreateServiceItem = lazy(() => import('pages/PrimeUI/CreateServiceItem/CreateServiceItem'));
-const PrimeSimulatorUpdateServiceItems = lazy(() =>
-  import('pages/PrimeUI/UpdateServiceItems/PrimeUIUpdateServiceItems'),
-);
 const PrimeSimulatorUpdateSitServiceItem = lazy(() =>
   import('pages/PrimeUI/UpdateServiceItems/PrimeUIUpdateSitServiceItem'),
 );
@@ -376,15 +373,6 @@ export class OfficeApp extends Component {
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
                           <PrimeSimulatorCreateServiceItem />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      key="primeSimulatorUpdateServiceItems"
-                      path={primeSimulatorRoutes.UPDATE_SERVICE_ITEMS_PATH}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
-                          <PrimeSimulatorUpdateServiceItems />
                         </PrivateRoute>
                       }
                     />
