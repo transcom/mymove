@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/pdfcpu/pdfcpu/pkg/api"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/validate"
 	"github.com/spf13/afero"
 
@@ -84,6 +85,11 @@ func (suite *PaperworkSuite) setupOrdersDocument() (*Generator, models.Order) {
 	return generator, order
 }
 
+func emptyDigestImage(img model.Image, isInline bool, index int) error {
+	// This function does nothing and always returns nil
+	return nil
+}
+
 func (suite *PaperworkSuite) TestPDFFromImages() {
 	generator, newGeneratorErr := NewGenerator(suite.userUploader.Uploader())
 	suite.FatalNil(newGeneratorErr)
@@ -114,7 +120,8 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 	suite.FatalNil(err)
 	err = os.WriteFile(f.Name(), file, os.ModePerm)
 	suite.FatalNil(err)
-	err = api.ExtractImages(f, tmpDir, []string{"-2"}, generator.pdfConfig)
+	err = api.ExtractImages(f, []string{"-2"}, emptyDigestImage, generator.pdfConfig)
+	// Todo: this used to dump image contents in older versions, add this function to emptyDigestImage
 	suite.FatalNil(err)
 	err = os.Remove(f.Name())
 	suite.FatalNil(err)
