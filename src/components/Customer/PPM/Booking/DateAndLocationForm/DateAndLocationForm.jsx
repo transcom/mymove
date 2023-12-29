@@ -25,8 +25,9 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 const validationShape = {
   pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
   useCurrentResidence: Yup.boolean(),
-  hasSecondaryPickupPostalCode: Yup.boolean().required('Required'),
-  secondaryPickupPostalCode: Yup.string().when('hasSecondaryPickupPostalCode', {
+  hasSecondaryPickup: Yup.boolean(),
+  useCurrentDestinationAddress: Yup.boolean(),
+  secondaryPickupPostalCode: Yup.string().when('hasSecondaryPickup', {
     is: true,
     then: (schema) => schema.matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
   }),
@@ -61,9 +62,9 @@ const DateAndLocationForm = ({
   const initialValues = {
     pickupPostalCode: mtoShipment?.ppmShipment?.pickupPostalCode || '',
     useCurrentResidence: false,
-    hasSecondaryPickupPostalCode: mtoShipment?.ppmShipment?.secondaryPickupPostalCode ? 'true' : 'false',
+    hasSecondaryPickup: mtoShipment?.ppmShipment?.hasSecondaryPickup ? 'true' : 'false',
     secondaryPickupPostalCode: mtoShipment?.ppmShipment?.secondaryPickupPostalCode || '',
-    useDestinationDutyLocationZIP: false,
+    useCurrentDestinationAddress: false,
     destinationPostalCode: mtoShipment?.ppmShipment?.destinationPostalCode || '',
     hasSecondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode ? 'true' : 'false',
     secondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode || '',
@@ -74,8 +75,9 @@ const DateAndLocationForm = ({
   };
 
   const residentialAddress = serviceMember?.residential_address;
-  const residentialAddressPostalCode = serviceMember?.residential_address?.postalCode;
-  const destinationDutyLocationPostalCode = destinationDutyLocation?.address?.postalCode;
+  const destinationAddress = destinationDutyLocation?.address;
+  // const residentialAddressPostalCode = serviceMember?.residential_address?.postalCode;
+  // const destinationDutyLocationPostalCode = destinationDutyLocation?.address?.postalCode;
 
   const postalCodeValidate = async (value, location, name) => {
     if (value?.length !== 5) {
@@ -149,13 +151,42 @@ const DateAndLocationForm = ({
             });
           }
         };
+
+        const handleUsePostalAddressChange = (e) => {
+          const { checked } = e.target;
+          if (checked) {
+            // use current residence
+            setValues({
+              ...values,
+              serviceMember: {
+                ...values.serviceMember,
+                destination_address: destinationAddress,
+              },
+            });
+          } else {
+            // Revert address
+            setValues({
+              ...values,
+              serviceMember: {
+                ...values.serviceMember,
+                destination_address: {
+                  streetAddress1: '',
+                  streetAddress2: '',
+                  city: '',
+                  state: '',
+                  postalCode: '',
+                },
+              },
+            });
+          }
+        };
         return (
           <div className={ppmStyles.formContainer}>
             <Form className={(formStyles.form, ppmStyles.form)}>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection, 'origin')}>
+                <h2>Origin</h2>
                 <AddressFields
                   name="serviceMember.residential_address"
-                  legend="Origin"
                   render={(fields) => (
                     <>
                       <p>What address are the movers picking up from?</p>
@@ -239,32 +270,26 @@ const DateAndLocationForm = ({
                       data-testid="yes-secondary-pickup-postal-code"
                       id="yes-secondary-pickup-postal-code"
                       label="Yes"
-                      name="hasSecondaryPickupPostalCode"
+                      name="hasSecondaryPickup"
                       value="true"
-                      checked={values.hasSecondaryPickupPostalCode === 'true'}
+                      checked={values.hasSecondaryPickup === 'true'}
                     />
                     <Field
                       as={Radio}
                       data-testid="no-secondary-pickup-postal-code"
                       id="no-secondary-pickup-postal-code"
                       label="No"
-                      name="hasSecondaryPickupPostalCode"
+                      name="hasSecondaryPickup"
                       value="false"
-                      checked={values.hasSecondaryPickupPostalCode === 'false'}
+                      checked={values.hasSecondaryPickup === 'false'}
                     />
                   </Fieldset>
                 </FormGroup>
-                {values.hasSecondaryPickupPostalCode === 'true' && (
+                {values.hasSecondaryPickup === 'true' && (
                   <>
-                    <TextField
-                      label="Second ZIP"
-                      id="secondaryPickupPostalCode"
-                      name="secondaryPickupPostalCode"
-                      maxLength={5}
-                      validate={(value) => postalCodeValidate(value, 'origin', 'secondaryPickupPostalCode')}
-                    />
+                    <AddressFields name="serviceMember.backup_mailing_address" />
                     <Hint className={ppmStyles.hint}>
-                      <p>A second origin ZIP could mean that your final incentive is lower than your estimate.</p>
+                      <p>A second origin address could mean that your final incentive is lower than your estimate.</p>
                       <p>
                         Get separate weight tickets for each leg of the trip to show how the weight changes. Talk to
                         your move counselor for more detailed information.
@@ -275,7 +300,20 @@ const DateAndLocationForm = ({
               </SectionWrapper>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Destination</h2>
-                <TextField
+                <AddressFields
+                  name="serviceMember.destination_address"
+                  render={(fields) => (
+                    <>
+                      <p>Please input Delivery Address</p>
+                      <Checkbox
+                        data-testid="useCurrentDestinationAddress"
+                        label="Use destination address"
+                        name="serviceMember.destination_address"
+                        onChange={handleUsePostalAddressChange}
+                        id="useCurrentDestinationAddress"
+                      />
+                      {fields}
+                      {/* <TextField
                   label="ZIP"
                   id="destinationPostalCode"
                   name="destinationPostalCode"
@@ -291,8 +329,11 @@ const DateAndLocationForm = ({
                     );
                   }}
                   validate={(value) => postalCodeValidate(value, 'destination', 'destinationPostalCode')}
+                /> */}
+                    </>
+                  )}
                 />
-                <CheckboxField
+                {/* <CheckboxField
                   id="useDestinationDutyLocationZIP"
                   name="useDestinationDutyLocationZIP"
                   label={`Use the ZIP for my new duty location (${destinationDutyLocationPostalCode})`}
@@ -305,11 +346,11 @@ const DateAndLocationForm = ({
                       'useDestinationDutyLocationZIP',
                     )
                   }
-                />
-                <Hint className={ppmStyles.hint}>
+                /> */}
+                {/* <Hint className={ppmStyles.hint}>
                   Use the ZIP for your new address if you know it. Use the ZIP for your new duty location if you
                   don&apos;t have a new address yet.
-                </Hint>
+                </Hint> */}
                 <FormGroup>
                   <Fieldset>
                     <legend className="usa-label">
