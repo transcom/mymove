@@ -51,7 +51,7 @@ type pdfCPUWrapper struct {
 func (pcw pdfCPUWrapper) Merge(files []io.ReadSeeker, w io.Writer) error {
 	var rscs []io.ReadSeeker
 	rscs = append(rscs, files...)
-	return api.Merge(rscs, w, pcw.Configuration)
+	return api.MergeRaw(rscs, w, false, pcw.Configuration) // Todo: False refers to a divider page. Find out what this does
 }
 
 // Validate validates the api configuration
