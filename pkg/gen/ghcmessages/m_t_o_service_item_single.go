@@ -32,9 +32,6 @@ type MTOServiceItemSingle struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
-	// Reason for converting a SIT to customer expense.
-	CustomerExpenseReason *string `json:"customerExpenseReason,omitempty"`
-
 	// deleted at
 	// Format: date
 	DeletedAt strfmt.Date `json:"deletedAt,omitempty"`

@@ -6121,9 +6121,6 @@ definitions:
         type: boolean
         example: false
         x-nullable: true
-      customerExpenseReason:
-        type: string
-        description: Reason for converting a SIT to customer expense.
       customerContacts:
         $ref: '#/definitions/MTOServiceItemCustomerContacts'
       deletedAt:
@@ -7582,10 +7579,6 @@ definitions:
       convertToCustomerExpense:
         type: boolean
         example: false
-        x-nullable: true
-      customerExpenseReason:
-        type: string
-        description: Reason for converting a SIT to customer expense.
         x-nullable: true
       deletedAt:
         format: date

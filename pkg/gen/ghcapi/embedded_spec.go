@@ -6324,10 +6324,6 @@ func init() {
         "customerContacts": {
           "$ref": "#/definitions/MTOServiceItemCustomerContacts"
         },
-        "customerExpenseReason": {
-          "description": "Reason for converting a SIT to customer expense.",
-          "type": "string"
-        },
         "deletedAt": {
           "type": "string",
           "format": "date"
@@ -6553,11 +6549,6 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
-        },
-        "customerExpenseReason": {
-          "description": "Reason for converting a SIT to customer expense.",
-          "type": "string",
-          "x-nullable": true
         },
         "deletedAt": {
           "type": "string",
@@ -17929,10 +17920,6 @@ func init() {
         "customerContacts": {
           "$ref": "#/definitions/MTOServiceItemCustomerContacts"
         },
-        "customerExpenseReason": {
-          "description": "Reason for converting a SIT to customer expense.",
-          "type": "string"
-        },
         "deletedAt": {
           "type": "string",
           "format": "date"
@@ -18158,11 +18145,6 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
-        },
-        "customerExpenseReason": {
-          "description": "Reason for converting a SIT to customer expense.",
-          "type": "string",
-          "x-nullable": true
         },
         "deletedAt": {
           "type": "string",

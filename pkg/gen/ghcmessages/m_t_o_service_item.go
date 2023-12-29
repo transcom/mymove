@@ -39,9 +39,6 @@ type MTOServiceItem struct {
 	// customer contacts
 	CustomerContacts MTOServiceItemCustomerContacts `json:"customerContacts,omitempty"`
 
-	// Reason for converting a SIT to customer expense.
-	CustomerExpenseReason string `json:"customerExpenseReason,omitempty"`
-
 	// deleted at
 	// Format: date
 	DeletedAt strfmt.Date `json:"deletedAt,omitempty"`
