@@ -72,7 +72,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
 
               <Grid row gap>
                 <Grid mobileLg={{ col: 6 }}>
-                  <DropdownInput label="Rank" name="rank" id="rank" required options={rankOptions} />
+                  <DropdownInput label="Pay grade" name="rank" id="rank" required options={rankOptions} />
                 </Grid>
               </Grid>
 
