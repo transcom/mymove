@@ -2,26 +2,6 @@ import { getClient, checkResponse } from 'shared/Swagger/api';
 import { formatPayload } from 'shared/utils';
 import { formatDateForSwagger } from 'shared/dates';
 
-export async function GetPpm(moveId) {
-  const client = await getClient();
-  const response = await client.apis.ppm.indexPersonallyProcuredMoves({
-    moveId,
-  });
-  checkResponse(response, 'failed to get ppm due to server error');
-  return response.body;
-}
-
-export async function CreatePpm(moveId, payload /* shape: {size, weightEstimate, estimatedIncentive} */) {
-  const client = await getClient();
-  const payloadDef = client.spec.definitions.CreatePersonallyProcuredMovePayload;
-  const response = await client.apis.ppm.createPersonallyProcuredMove({
-    moveId,
-    createPersonallyProcuredMovePayload: formatPayload(payload, payloadDef),
-  });
-  checkResponse(response, 'failed to create ppm due to server error');
-  return response.body;
-}
-
 export async function UpdatePpm(
   moveId,
   personallyProcuredMoveId,

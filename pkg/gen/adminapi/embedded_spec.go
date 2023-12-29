@@ -2305,7 +2305,6 @@ func init() {
         "notificationType": {
           "type": "string",
           "enum": [
-            "MOVE_REVIEWED_EMAIL",
             "MOVE_PAYMENT_REMINDER_EMAIL"
           ]
         },
@@ -5307,7 +5306,6 @@ func init() {
         "notificationType": {
           "type": "string",
           "enum": [
-            "MOVE_REVIEWED_EMAIL",
             "MOVE_PAYMENT_REMINDER_EMAIL"
           ]
         },

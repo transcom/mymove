@@ -17,6 +17,7 @@ import { MTOServiceItemShape } from 'types';
 import ServiceItem from 'components/PrimeUI/ServiceItem/ServiceItem';
 import Shipment from 'components/PrimeUI/Shipment/Shipment';
 import { DatePickerInput } from 'components/form/fields';
+import TextField from 'components/form/fields/TextField/TextField';
 
 const CreatePaymentRequestForm = ({
   initialValues,
@@ -27,8 +28,8 @@ const CreatePaymentRequestForm = ({
   mtoShipments,
   groupedServiceItems,
 }) => (
-  <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={createPaymentRequestSchema}>
-    {({ isValid, isSubmitting, errors, values, setValues, setFieldError, setFieldTouched }) => (
+  <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={createPaymentRequestSchema} on>
+    {({ isValid, errors, values, setValues, setFieldError, setFieldTouched }) => (
       <Form className={classnames(styles.CreatePaymentRequestForm, formStyles.form)}>
         <FormGroup error={errors != null && errors.serviceItems}>
           {errors != null && errors.serviceItems && (
@@ -76,7 +77,7 @@ const CreatePaymentRequestForm = ({
                           key={`shipmentServiceItems${mtoServiceItem.id}`}
                           className={formStyles.formSection}
                         >
-                          <div className={styles.serviceItemInputGroup}>
+                          <div className={styles.serviceItemInputGroup} id={`${mtoServiceItem.id}-div`}>
                             <Label htmlFor={mtoServiceItem.id}>Add to payment request</Label>
                             <Field
                               as={Checkbox}
@@ -86,9 +87,15 @@ const CreatePaymentRequestForm = ({
                               id={mtoServiceItem.id}
                             />
                           </div>
-                          <ServiceItem serviceItem={mtoServiceItem} />
+                          <ServiceItem serviceItem={mtoServiceItem} mtoShipment={mtoShipment} />
                           {(mtoServiceItem.reServiceCode === 'DDASIT' || mtoServiceItem.reServiceCode === 'DOASIT') && (
                             <>
+                              <TextField
+                                id={`${mtoServiceItem.id}-billedWeight`}
+                                label="Weight Billed (if different from shipment weight)"
+                                name={`params.${mtoServiceItem.id}.WeightBilled`}
+                                className={styles.shipmentWeightTextField}
+                              />
                               <DatePickerInput
                                 label="Payment start date"
                                 id={`paymentStart-${mtoServiceItem.id}`}
@@ -121,6 +128,29 @@ const CreatePaymentRequestForm = ({
                               />
                             </>
                           )}
+                          {(mtoServiceItem.reServiceCode === 'DLH' ||
+                            mtoServiceItem.reServiceCode === 'DSH' ||
+                            mtoServiceItem.reServiceCode === 'FSC' ||
+                            mtoServiceItem.reServiceCode === 'DUPK' ||
+                            mtoServiceItem.reServiceCode === 'DNPK' ||
+                            mtoServiceItem.reServiceCode === 'DOFSIT' ||
+                            mtoServiceItem.reServiceCode === 'DOPSIT' ||
+                            mtoServiceItem.reServiceCode === 'DOSHUT' ||
+                            mtoServiceItem.reServiceCode === 'DDFSIT' ||
+                            mtoServiceItem.reServiceCode === 'DDDSIT' ||
+                            mtoServiceItem.reServiceCode === 'DOP' ||
+                            mtoServiceItem.reServiceCode === 'DDP' ||
+                            mtoServiceItem.reServiceCode === 'DPK' ||
+                            mtoServiceItem.reServiceCode === 'DDSFSC' ||
+                            mtoServiceItem.reServiceCode === 'DOSFSC' ||
+                            mtoServiceItem.reServiceCode === 'DDSHUT') && (
+                            <TextField
+                              id={`${mtoServiceItem.id}-billedWeight`}
+                              label="Weight Billed (if different from shipment weight)"
+                              name={`params.${mtoServiceItem.id}.WeightBilled`}
+                              className={styles.shipmentWeightTextField}
+                            />
+                          )}
                         </SectionWrapper>
                       );
                     })}
@@ -131,7 +161,7 @@ const CreatePaymentRequestForm = ({
             <Button
               aria-label="Submit Payment Request"
               type="submit"
-              disabled={values.serviceItems?.length === 0 || isSubmitting || !isValid}
+              disabled={values.serviceItems?.length === 0 || !isValid}
             >
               Submit Payment Request
             </Button>

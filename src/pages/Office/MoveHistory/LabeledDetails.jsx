@@ -2,13 +2,21 @@ import React from 'react';
 
 import styles from './LabeledDetails.module.scss';
 
+import booleanFields from 'constants/MoveHistory/Database/BooleanFields';
 import dateFields from 'constants/MoveHistory/Database/DateFields';
 import fieldMappings from 'constants/MoveHistory/Database/FieldMappings';
 import weightFields from 'constants/MoveHistory/Database/WeightFields';
+import monetaryFields from 'constants/MoveHistory/Database/MonetaryFields';
 import { shipmentTypes } from 'constants/shipments';
 import { HistoryLogRecordShape } from 'constants/MoveHistory/UIDisplay/HistoryLogShape';
 import optionFields from 'constants/MoveHistory/Database/OptionFields';
-import { formatCustomerDate, formatWeight, formatYesNoMoveHistoryValue } from 'utils/formatters';
+import {
+  formatCents,
+  formatCustomerDate,
+  formatWeight,
+  formatYesNoMoveHistoryValue,
+  toDollarString,
+} from 'utils/formatters';
 
 const retrieveTextToDisplay = (fieldName, value) => {
   const emptyValue = '—';
@@ -24,8 +32,10 @@ const retrieveTextToDisplay = (fieldName, value) => {
     displayValue = optionFields[displayValue];
   } else if (dateFields[fieldName]) {
     displayValue = formatCustomerDate(displayValue);
-  } else if (displayName === fieldMappings.dependents_authorized || displayName === fieldMappings.has_dependents) {
+  } else if (booleanFields[fieldName]) {
     displayValue = formatYesNoMoveHistoryValue(displayValue);
+  } else if (monetaryFields[fieldName]) {
+    displayValue = toDollarString(formatCents(displayValue));
   }
 
   if (!displayValue) {

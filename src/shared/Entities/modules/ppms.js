@@ -8,7 +8,6 @@ import { formatDateForSwagger } from 'shared/dates';
 
 const approvePpmLabel = 'PPMs.approvePPM';
 export const downloadPPMAttachmentsLabel = 'PPMs.downloadAttachments';
-const loadPPMsLabel = 'office.loadPPMs';
 const updatePPMLabel = 'office.updatePPM';
 const approveReimbursementLabel = 'office.approveReimbursement';
 
@@ -25,11 +24,6 @@ export function approvePPM(personallyProcuredMoveId, personallyProcuredMoveAppro
     },
     { label },
   );
-}
-
-export function loadPPMs(moveId, label = loadPPMsLabel) {
-  const swaggerTag = 'ppm.indexPersonallyProcuredMoves';
-  return swaggerRequest(getClient, swaggerTag, { moveId }, { label });
 }
 
 export function updatePPM(
@@ -51,12 +45,6 @@ export function updatePPM(
     },
     { label },
   );
-}
-
-export function downloadPPMAttachments(ppmId, docTypes, label = downloadPPMAttachmentsLabel) {
-  const swaggerTag = 'ppm.createPPMAttachments';
-  const payload = { personallyProcuredMoveId: ppmId, docTypes };
-  return swaggerRequest(getClient, swaggerTag, payload, { label });
 }
 
 export function approveReimbursement(reimbursementId, label = approveReimbursementLabel) {

@@ -30,6 +30,14 @@ export class TestHarness {
    * @property {string} Orders.ServiceMember.user_id
    * @property {Object} CloseoutOffice
    * @property {string} CloseoutOffice.name
+   * @property {Array.<Object>} MTOShipments
+   * @property {string} MTOShipments.ID
+   * @property {Array.<Object>} MTOServiceItems
+   * @property {string} MTOServiceItems.ID
+   * @property {Object} MTOServiceItems.ReService
+   * @property {string} MTOServiceItems.ReService.ID
+   * @property {string} MTOServiceItems.ReService.Code
+   *
    */
 
   /**
@@ -101,6 +109,20 @@ export class TestHarness {
   /**
    * @returns {Promise<Move>}
    */
+  async buildPartialPPMMoveReadyForCloseout() {
+    return this.buildDefault('HHGMoveWithPPMShipmentsReadyForCloseout');
+  }
+
+  /**
+   * @returns {Promise<Move>}
+   */
+  async buildPartialPPMMoveReadyForCounseling() {
+    return this.buildDefault('HHGMoveWithPPMShipmentsReadyForCounseling');
+  }
+
+  /**
+   * @returns {Promise<Move>}
+   */
   async buildPPMInProgressMove() {
     return this.buildDefault('PPMInProgressMove');
   }
@@ -146,6 +168,23 @@ export class TestHarness {
    */
   async buildHHGMoveInSIT() {
     return this.buildDefault('HHGMoveInSIT');
+  }
+
+  /**
+   *    * Use testharness to build a move with an hhg shipment in SIT without destination address
+   * @returns {Promise<Move>}
+   */
+
+  async buildHHGMoveInSITNoDestinationSITOutDate() {
+    return this.buildDefault('HHGMoveInSITNoDestinationSITOutDate');
+  }
+
+  /**
+   * Use testharness to build a move with an hhg shipment in SIT without excess weight
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveInSITNoExcessWeight() {
+    return this.buildDefault('HHGMoveInSITNoExcessWeight');
   }
 
   /**

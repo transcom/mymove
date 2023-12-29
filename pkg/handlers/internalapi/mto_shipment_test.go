@@ -25,6 +25,8 @@ import (
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	shipmentorchestrator "github.com/transcom/mymove/pkg/services/orchestrators/shipment"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
@@ -57,17 +59,22 @@ func (suite *HandlerSuite) setUpMTOShipmentObjects() *mtoShipmentObjects {
 // CREATE
 //
 
-func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
+func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	// Setup in this area should only be for objects that can be created once for all the sub-tests. Any model data,
 	// mocks, or objects that can be modified in subtests should instead be set up in makeCreateSubtestData.
 	testMTOShipmentObjects := suite.setUpMTOShipmentObjects()
 
-	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreator(testMTOShipmentObjects.builder, testMTOShipmentObjects.fetcher, testMTOShipmentObjects.moveRouter)
+	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreatorV1(testMTOShipmentObjects.builder, testMTOShipmentObjects.fetcher, testMTOShipmentObjects.moveRouter)
 	ppmEstimator := mocks.PPMEstimator{}
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 
 	shipmentRouter := mtoshipment.NewShipmentRouter()
-	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, shipmentRouter)
+	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
+		testMTOShipmentObjects.builder,
+		mtoserviceitem.NewMTOServiceItemCreator(testMTOShipmentObjects.builder, testMTOShipmentObjects.moveRouter),
+		testMTOShipmentObjects.moveRouter,
+	)
+	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
 
 	type mtoCreateSubtestData struct {
 		serviceMember models.ServiceMember

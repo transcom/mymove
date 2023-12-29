@@ -62,6 +62,31 @@ export const SITExtensionDenied = [
 export const SITStatusOrigin = {
   totalSITDaysUsed: 45,
   totalDaysRemaining: 60,
+  calculatedTotalDaysInSIT: 45,
+  currentSIT: {
+    location: LOCATION_VALUES.ORIGIN,
+    daysInSIT: 15,
+    sitEntryDate: '2021-08-13',
+    sitAllowanceEndDate: '2021-08-28',
+    sitCustomerContacted: '2021-08-26',
+    sitRequestedDelivery: '2021-08-30',
+  },
+};
+
+export const SITStatusShowConvert = {
+  totalSITDaysUsed: 45,
+  totalDaysRemaining: 30,
+  currentSIT: {
+    location: LOCATION_VALUES.ORIGIN,
+    daysInSIT: 15,
+    sitEntryDate: '2021-08-13',
+    sitAllowanceEndDate: '2021-08-28',
+  },
+};
+
+export const SITStatusDontShowConvert = {
+  totalSITDaysUsed: 45,
+  totalDaysRemaining: 60,
   currentSIT: {
     location: LOCATION_VALUES.ORIGIN,
     daysInSIT: 15,
@@ -73,6 +98,7 @@ export const SITStatusOrigin = {
 export const SITStatusDestination = {
   totalSITDaysUsed: 45,
   totalDaysRemaining: 60,
+  calculatedTotalDaysInSIT: 45,
   currentSIT: {
     location: LOCATION_VALUES.DESTINATION,
     daysInSIT: 15,
@@ -86,8 +112,20 @@ export const SITStatusDestination = {
 export const SITStatusDestinationWithoutCustomerDeliveryInfo = {
   totalSITDaysUsed: 45,
   totalDaysRemaining: 60,
+  calculatedTotalDaysInSIT: 45,
   currentSIT: {
     location: LOCATION_VALUES.DESTINATION,
+    daysInSIT: 15,
+    sitEntryDate: '2021-08-13',
+    sitAllowanceEndDate: '2021-08-28',
+  },
+};
+export const SITStatusOriginWithoutCustomerDeliveryInfo = {
+  totalSITDaysUsed: 45,
+  totalDaysRemaining: 60,
+  calculatedTotalDaysInSIT: 45,
+  currentSIT: {
+    location: LOCATION_VALUES.ORIGIN,
     daysInSIT: 15,
     sitEntryDate: '2021-08-13',
     sitAllowanceEndDate: '2021-08-28',
@@ -97,6 +135,7 @@ export const SITStatusDestinationWithoutCustomerDeliveryInfo = {
 export const futureSITStatus = {
   totalDaysRemaining: 365,
   totalSITDaysUsed: 0,
+  calculatedTotalDaysInSIT: 0,
   currentSIT: {
     location: LOCATION_VALUES.ORIGIN,
     daysInSIT: 0,
@@ -111,6 +150,7 @@ export const SITStatusWithPastSITOriginServiceItem = {
   sitEntryDate: '2021-08-23',
   totalDaysRemaining: 210,
   totalSITDaysUsed: 60,
+  calculatedTotalDaysInSIT: 60,
   pastSITServiceItems: [
     {
       SITPostalCode: '90210',
@@ -141,6 +181,7 @@ export const SITStatusWithPastSITServiceItems = {
   sitEntryDate: '2021-08-23',
   totalDaysRemaining: 210,
   totalSITDaysUsed: 60,
+  calculatedTotalDaysInSIT: 60,
   pastSITServiceItems: [
     {
       SITPostalCode: '90210',
@@ -188,6 +229,7 @@ export const SITStatusWithPastSITServiceItems = {
 export const SITStatusWithPastSITServiceItemsDeparted = {
   totalDaysRemaining: 210,
   totalSITDaysUsed: 60,
+  calculatedTotalDaysInSIT: 60,
   pastSITServiceItems: [
     {
       SITPostalCode: '90210',
@@ -389,6 +431,7 @@ export const SITShipment = {
     sitEntryDate: '2023-04-24',
     totalDaysRemaining: 210,
     totalSITDaysUsed: 270,
+    calculatedTotalDaysInSIT: 270,
   },
   sitDaysAllowance: 270,
   mtoServiceItems: mtoServiceItemsWithSIT,
@@ -404,6 +447,7 @@ export const futureSITShipment = {
 export const SITStatusExpired = {
   totalSITDaysUsed: 270,
   totalDaysRemaining: -2,
+  calculatedTotalDaysInSIT: 270,
   currentSIT: {
     location: LOCATION_VALUES.DESTINATION,
     daysInSIT: 15,

@@ -64,7 +64,8 @@ const MoveDetails = ({
   const [alertType, setAlertType] = useState('success');
   const navigate = useNavigate();
 
-  const { move, order, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
+  const { move, order, closeoutOffice, mtoShipments, mtoServiceItems, isLoading, isError } =
+    useMoveDetailsQueries(moveCode);
 
   // for now we are only showing dest type on retiree and separatee orders
   let isRetirementOrSeparation = false;
@@ -137,7 +138,6 @@ const MoveDetails = ({
   const handleCancelFinancialReviewModal = () => {
     setIsFinancialModalVisible(false);
   };
-
   const submittedShipments = mtoShipments?.filter(
     (shipment) => shipment.status === shipmentStatuses.SUBMITTED && !shipment.deletedAt,
   );
@@ -208,13 +208,18 @@ const MoveDetails = ({
   }, [move?.excess_weight_acknowledged_at, mtoShipments, order?.entitlement.totalWeight, setExcessWeightRiskCount]);
 
   useEffect(() => {
-    let unapprovedSITExtensionCount = 0;
-    mtoShipments?.forEach((mtoShipment) => {
-      if (mtoShipment.sitExtensions?.find((sitEx) => sitEx.status === SIT_EXTENSION_STATUS.PENDING)) {
-        unapprovedSITExtensionCount += 1;
-      }
-    });
-    setUnapprovedSITExtensionCount(unapprovedSITExtensionCount);
+    const checkShipmentsForUnapprovedSITExtensions = (shipmentsWithStatus) => {
+      let unapprovedSITExtensionCount = 0;
+      shipmentsWithStatus?.forEach((mtoShipment) => {
+        const unapprovedSITExtItems =
+          mtoShipment.sitExtensions?.filter((sitEx) => sitEx.status === SIT_EXTENSION_STATUS.PENDING) ?? [];
+        const unapprovedSITCount = unapprovedSITExtItems.length;
+        unapprovedSITExtensionCount += unapprovedSITCount; // Top bar Label
+      });
+      return { count: unapprovedSITExtensionCount };
+    };
+    const { count } = checkShipmentsForUnapprovedSITExtensions(mtoShipments);
+    setUnapprovedSITExtensionCount(count);
   }, [mtoShipments, setUnapprovedSITExtensionCount]);
 
   useEffect(() => {
@@ -372,6 +377,7 @@ const MoveDetails = ({
             <div className={styles.section} id="requested-shipments">
               <SubmittedRequestedShipments
                 mtoShipments={submittedShipments}
+                closeoutOffice={closeoutOffice}
                 ordersInfo={ordersInfo}
                 allowancesInfo={allowancesInfo}
                 customerInfo={customerInfo}
@@ -391,6 +397,7 @@ const MoveDetails = ({
             <div className={styles.section} id="approved-shipments">
               <ApprovedRequestedShipments
                 mtoShipments={approvedOrCanceledShipments}
+                closeoutOffice={closeoutOffice}
                 ordersInfo={ordersInfo}
                 mtoServiceItems={mtoServiceItems}
                 moveCode={moveCode}

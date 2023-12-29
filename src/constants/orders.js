@@ -70,5 +70,15 @@ export const ORDERS_BRANCH_OPTIONS = {
   MARINES: 'Marine Corps',
   AIR_FORCE: 'Air Force',
   COAST_GUARD: 'Coast Guard',
+  SPACE_FORCE: 'Space Force',
   OTHER: 'Other',
+};
+
+export const ORDERS_DEPARTMENT_INDICATOR = {
+  NAVY_AND_MARINES: 'Navy and Marine Corps',
+  ARMY: 'Army',
+  ARMY_CORPS_OF_ENGINEERS: 'Army Corps of Engineers',
+  AIR_AND_SPACE_FORCE: 'Air Force and Space Force',
+  COAST_GUARD: 'Coast Guard',
+  OFFICE_OF_SECRETARY_OF_DEFENSE: 'Office of the Secretary of Defense',
 };

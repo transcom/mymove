@@ -36,6 +36,7 @@ const showWhenCollapsedWithGHCPrime = {
 
 const SubmittedRequestedShipments = ({
   mtoShipments,
+  closeoutOffice,
   moveTaskOrder,
   allowancesInfo,
   ordersInfo,
@@ -75,6 +76,7 @@ const SubmittedRequestedShipments = ({
       destinationAddress: shipment.destinationAddress || dutyLocationPostal,
       destinationType: destType,
       displayDestinationType,
+      closeoutOffice,
     };
   };
 

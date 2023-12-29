@@ -33,7 +33,7 @@ func TestLogoutOktaUserURL(t *testing.T) {
 
 	// Check post_logout_redirect_uri parameter
 	postLogoutRedirectURI := parsedURL.Query().Get("post_logout_redirect_uri")
-	expectedRedirectURL := redirectURL + "sign-in"
+	expectedRedirectURL := redirectURL + "sign-in" + "?okta_logged_out=true"
 	if postLogoutRedirectURI != expectedRedirectURL {
 		t.Errorf("Expected post_logout_redirect_uri parameter to be '%s', got '%s'", expectedRedirectURL, postLogoutRedirectURI)
 	}

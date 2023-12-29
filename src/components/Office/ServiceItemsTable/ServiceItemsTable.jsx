@@ -10,13 +10,17 @@ import { ServiceItemDetailsShape } from '../../../types/serviceItems';
 import styles from './ServiceItemsTable.module.scss';
 
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
-import { ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES, SIT_ADDRESS_UPDATE_STATUS } from 'constants/sitUpdates';
+import {
+  ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES,
+  SIT_ADDRESS_UPDATE_STATUS,
+  ALLOWED_RESUBMISSION_SI_CODES,
+} from 'constants/sitUpdates';
 import { formatDateFromIso } from 'utils/formatters';
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import { selectDateFieldByStatus, selectDatePrefixByStatus } from 'utils/dates';
-import { useMovePaymentRequestsQueries } from 'hooks/queries';
+import { useGHCGetMoveHistory, useMovePaymentRequestsQueries } from 'hooks/queries';
 import ToolTip from 'shared/ToolTip/ToolTip';
 
 const ServiceItemsTable = ({
@@ -68,6 +72,82 @@ const ServiceItemsTable = ({
     });
   };
 
+  const getResubmissionStatus = (historyRecordOfServiceItem) => {
+    let isResubmitted = false;
+    if (historyRecordOfServiceItem) {
+      if (
+        historyRecordOfServiceItem.action === 'UPDATE' &&
+        historyRecordOfServiceItem.oldValues.status === 'REJECTED' &&
+        historyRecordOfServiceItem.eventName === 'updateMTOServiceItem' &&
+        statusForTableType === SERVICE_ITEM_STATUS.SUBMITTED
+      ) {
+        isResubmitted = true;
+      }
+    }
+    return isResubmitted;
+  };
+
+  const getNewestHistoryDataForServiceItem = (historyDataForMove, serviceItemId) => {
+    if (historyDataForMove) {
+      let newestHistoryData = historyDataForMove[0];
+      for (let i = 0; i < historyDataForMove.length; i += 1) {
+        // find the first event in the move history for a given serviceItemId
+        if (historyDataForMove[i].objectId === serviceItemId) {
+          newestHistoryData = historyDataForMove[i];
+          break;
+        }
+      }
+      return newestHistoryData;
+    }
+    return null;
+  };
+
+  function formatKeyStringsForToolTip(key) {
+    // replace _ with ' ' and capitalize first letters of each word
+    let changedKey = key.replace(/(^|_)./g, (index) => index.toUpperCase().replace('_', ' '));
+    if (changedKey.indexOf('Sit') === 0) {
+      const replacement = 'SIT';
+      // Replace the first three characters with 'SIT'
+      changedKey = replacement + changedKey.slice(3);
+    }
+    if (changedKey.indexOf('Id') === 0) {
+      const replacement = 'ID';
+      // Replace the first two characters with 'ID'
+      changedKey = replacement + changedKey.slice(2);
+    }
+    return changedKey;
+  }
+
+  function generateResubmissionDetailsText(details) {
+    let resultStringToDisplay = '';
+    if (details) {
+      const keys = Object.keys(details.changedValues);
+      keys.forEach((key) => {
+        const formattedKeyString = formatKeyStringsForToolTip(key);
+        const newValue = details.changedValues[key];
+        const oldValue = details.oldValues[key];
+        resultStringToDisplay += `${formattedKeyString}\nNew: ${newValue} \nPrevious: ${oldValue}\n\n`;
+      });
+    }
+    return resultStringToDisplay;
+  }
+
+  const history = useGHCGetMoveHistory({ moveCode });
+  const renderToolTipWithOldDataIfResubmission = (serviceItemId) => {
+    const historyDataForMove = history.queueResult.data;
+    const historyDataForServiceItem = getNewestHistoryDataForServiceItem(historyDataForMove, serviceItemId);
+    const isResubmitted = getResubmissionStatus(historyDataForServiceItem);
+    let formattedResubmissionDetails = '';
+    if (isResubmitted) {
+      formattedResubmissionDetails = generateResubmissionDetailsText(historyDataForServiceItem);
+    }
+    const resubmittedServiceItemValues = {
+      isResubmitted,
+      formattedResubmissionDetails,
+    };
+    return resubmittedServiceItemValues;
+  };
+
   const tableRows = serviceItems.map((serviceItem, index) => {
     const { id, code, details, mtoShipmentID, sitAddressUpdates, serviceRequestDocuments, ...item } = serviceItem;
     const { makeVisible, alertType, alertMessage } = serviceItemAddressUpdateAlert;
@@ -77,6 +157,7 @@ const ServiceItemsTable = ({
     if (serviceItemInPaymentRequests && ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code)) {
       hasPaymentRequestBeenMade = isServiceItemFoundInPaymentRequests(id);
     }
+    const resubmittedToolTip = renderToolTipWithOldDataIfResubmission(id);
 
     return (
       <React.Fragment key={`sit-alert-${id}`}>
@@ -100,8 +181,17 @@ const ServiceItemsTable = ({
         )}
         <tr key={id}>
           <td className={styles.nameAndDate}>
-            <p className={styles.codeName}>
+            <div className={styles.codeName}>
               {serviceItem.serviceItem}{' '}
+              {ALLOWED_RESUBMISSION_SI_CODES.includes(code) && resubmittedToolTip.isResubmitted ? (
+                <ToolTip
+                  data-testid="toolTipResubmission"
+                  key={id}
+                  text={resubmittedToolTip.formattedResubmissionDetails}
+                  position="bottom"
+                  color="#0050d8"
+                />
+              ) : null}
               {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) && hasPaymentRequestBeenMade ? (
                 <ToolTip
                   text="This cannot be changed due to a payment request existing for this service item."
@@ -109,7 +199,7 @@ const ServiceItemsTable = ({
                   icon="circle-exclamation"
                 />
               ) : null}
-            </p>
+            </div>
             <p>{getServiceItemDisplayDate(item)}</p>
           </td>
           <td className={styles.detail}>

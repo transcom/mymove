@@ -130,6 +130,7 @@ export const MoveTaskOrder = (props) => {
   const [externalVendorShipmentCount, setExternalVendorShipmentCount] = useState(0);
   /* ------------------ Miscellaneous ------------------------- */
   const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
+  const [, setSubmittedChangeTime] = useState(Date.now());
 
   const nonShipmentSections = useMemo(() => {
     return ['move-weights'];
@@ -299,6 +300,7 @@ export const MoveTaskOrder = (props) => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID] });
+      setSubmittedChangeTime(Date.now());
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -563,9 +565,13 @@ export const MoveTaskOrder = (props) => {
         shipmentID: shipment.id,
         sitExtensionID,
         ifMatchETag: shipment.eTag,
-        body: { officeRemarks: formValues.officeRemarks },
+        body: {
+          officeRemarks: formValues.officeRemarks,
+          convertToCustomerExpense: formValues.convertToCustomerExpense,
+        },
       });
     }
+    setSubmittedChangeTime(Date.now());
   };
 
   /* istanbul ignore next */
@@ -583,7 +589,10 @@ export const MoveTaskOrder = (props) => {
         },
       },
       {
-        onSuccess: () => setIsSuccessAlertVisible(true),
+        onSuccess: () => {
+          setIsSuccessAlertVisible(true);
+          setSubmittedChangeTime(Date.now());
+        },
       },
     );
   };
@@ -895,7 +904,7 @@ export const MoveTaskOrder = (props) => {
     setUnapprovedServiceItemCount(serviceItemCount);
     setUnapprovedServiceItemsForShipment(serviceItemsCountForShipment);
 
-    setIsSITAddressUpdateAlertVisible(Boolean(sitAddressUpdateServiceItemCount > 0));
+    setIsSITAddressUpdateAlertVisible(Boolean(sitAddressUpdateServiceItemCount !== 0));
     setUnapprovedSITAddressUpdateCount(sitAddressUpdateServiceItemCount);
     setUnapprovedSITAddressUpdatesForServiceItems(sitAddressUpdateServiceItems);
   }, [mtoShipments, shipmentServiceItems, setUnapprovedServiceItemCount, setUnapprovedSITAddressUpdateCount]);
@@ -955,15 +964,28 @@ export const MoveTaskOrder = (props) => {
 
   /* ------------------ Update SIT extension counts ------------------------- */
   useEffect(() => {
-    let unapprovedSITExtensionCount = 0;
-    mtoShipments?.forEach((mtoShipment) => {
-      if (mtoShipment.sitExtensions?.find((sitEx) => sitEx.status === SIT_EXTENSION_STATUS.PENDING)) {
-        unapprovedSITExtensionCount += 1;
-        unapprovedSITExtensionForShipment[`${mtoShipment.id}`] = 1;
-        setUnApprovedSITExtensionForShipment(unapprovedSITExtensionForShipment);
-      }
-    });
-    setUnapprovedSITExtensionCount(unapprovedSITExtensionCount);
+    const copyItemsFromTempArrayToSourceArray = (temp, target) => {
+      Object.keys(temp).forEach((item) => {
+        const targetArray = target;
+        targetArray[item] = temp[item];
+      });
+    };
+    const checkShipmentsForUnapprovedSITExtensions = (shipmentsWithStatus) => {
+      const unapprovedSITExtensionShipmentItems = [];
+      let unapprovedSITExtensionCount = 0;
+      shipmentsWithStatus?.forEach((mtoShipment) => {
+        const unapprovedSITExtItems =
+          mtoShipment.sitExtensions?.filter((sitEx) => sitEx.status === SIT_EXTENSION_STATUS.PENDING) ?? [];
+        const unapprovedSITCount = unapprovedSITExtItems.length;
+        unapprovedSITExtensionCount += unapprovedSITCount; // Top bar Label
+        unapprovedSITExtensionShipmentItems[`${mtoShipment.id}`] = unapprovedSITCount; // Nav bar Label
+      });
+      return { count: unapprovedSITExtensionCount, items: unapprovedSITExtensionShipmentItems };
+    };
+    const { count, items } = checkShipmentsForUnapprovedSITExtensions(mtoShipments);
+    setUnapprovedSITExtensionCount(count);
+    copyItemsFromTempArrayToSourceArray(items, unapprovedSITExtensionForShipment);
+    setUnApprovedSITExtensionForShipment(unapprovedSITExtensionForShipment);
   }, [
     mtoShipments,
     setUnapprovedSITExtensionCount,

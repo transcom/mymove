@@ -50,8 +50,12 @@ export async function deleteShipment({ mtoShipmentID }) {
   return makePrimeSimulatorRequest('mtoShipment.deleteMTOShipment', { mtoShipmentID }, { normalize: false });
 }
 
-export async function createUpload({ paymentRequestID, file }) {
-  return makePrimeSimulatorRequest('paymentRequest.createUpload', { paymentRequestID, file }, { normalize: false });
+export async function createUpload({ paymentRequestID, file, isWeightTicket }) {
+  return makePrimeSimulatorRequest(
+    'paymentRequest.createUpload',
+    { paymentRequestID, file, isWeightTicket },
+    { normalize: false },
+  );
 }
 
 export async function createServiceRequestDocumentUpload({ mtoServiceItemID, file }) {
@@ -94,6 +98,14 @@ export function updatePrimeMTOShipment({
 
 export function createServiceItem({ body }) {
   return makePrimeSimulatorRequest('mtoServiceItem.createMTOServiceItem', { body: { ...body } }, { normalize: false });
+}
+
+export function updateMTOServiceItem({ mtoServiceItemID, eTag, body }) {
+  return makePrimeSimulatorRequest(
+    'mtoServiceItem.updateMTOServiceItem',
+    { mtoServiceItemID, 'If-Match': eTag, body },
+    { normalize: false },
+  );
 }
 
 export function createSITAddressUpdateRequest({ body }) {
@@ -166,6 +178,19 @@ export function updatePrimeMTOShipmentStatus({
     {
       mtoShipmentID,
       'If-Match': ifMatchETag,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
+
+// Sends api request for SIT Extension Request from Prime Sim
+export function createSITExtensionRequest({ mtoShipmentID, normalize = false, schemaKey = 'mtoShipment', body }) {
+  const operationPath = 'mtoShipment.createSITExtension';
+  return makePrimeSimulatorRequest(
+    operationPath,
+    {
+      mtoShipmentID,
       body,
     },
     { schemaKey, normalize },

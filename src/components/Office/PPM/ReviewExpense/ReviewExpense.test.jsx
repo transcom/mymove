@@ -23,6 +23,7 @@ const defaultProps = {
   },
   tripNumber: 1,
   ppmNumber: 1,
+  categoryIndex: 1,
 };
 
 const expenseRequiredProps = {
@@ -62,13 +63,13 @@ describe('ReviewExpenseForm component', () => {
         expect(screen.getByRole('heading', { level: 3, name: 'Receipt 1' })).toBeInTheDocument();
       });
 
-      expect(screen.getByText('Expense type')).toBeInTheDocument();
+      expect(screen.getByText('Expense Type')).toBeInTheDocument();
       expect(screen.getByText('Description')).toBeInTheDocument();
       expect(screen.getByLabelText('Amount')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByRole('heading', { level: 3, name: 'Review receipt 1' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 3, name: `Review #1` })).toBeInTheDocument();
 
-      expect(screen.getByText('Add a review for this receipt')).toBeInTheDocument();
+      expect(screen.getByText('Add a review for this')).toBeInTheDocument();
 
       expect(screen.getByLabelText('Accept')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('Exclude')).toBeInstanceOf(HTMLInputElement);
@@ -79,10 +80,10 @@ describe('ReviewExpenseForm component', () => {
       render(<ReviewExpense {...defaultProps} {...expenseRequiredProps} />, { wrapper: MockProviders });
 
       await waitFor(() => {
-        expect(screen.getByText('Packing materials')).toBeInTheDocument();
+        expect(screen.getByText('Expense Type')).toBeInTheDocument();
       });
+      expect(screen.getByText('Packing Materials #1')).toBeInTheDocument();
       expect(screen.getByText('boxes, tape, bubble wrap')).toBeInTheDocument();
-
       expect(screen.getByLabelText('Amount')).toHaveDisplayValue('1,234.56');
     });
 

@@ -26,6 +26,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	shipmentorchestrator "github.com/transcom/mymove/pkg/services/orchestrators/shipment"
@@ -33,6 +34,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	sitextension "github.com/transcom/mymove/pkg/services/sit_extension"
+	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 	"github.com/transcom/mymove/pkg/swagger/nullable"
 	"github.com/transcom/mymove/pkg/trace"
 	"github.com/transcom/mymove/pkg/unit"
@@ -209,7 +211,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		handler := ListMTOShipmentsHandler{
 			suite.HandlerConfig(),
 			mtoshipment.NewMTOShipmentFetcher(),
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 
 		// Validate incoming payload: no body to validate
@@ -237,10 +239,11 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.Nil(payloadShipment2.StorageFacility)
 
 		suite.Equal(int64(190), *payloadShipment.SitDaysAllowance)
-		suite.Equal(mtoshipment.OriginSITLocation, payloadShipment.SitStatus.CurrentSIT.Location)
+		suite.Equal(sitstatus.OriginSITLocation, payloadShipment.SitStatus.CurrentSIT.Location)
 		suite.Equal(int64(7), *payloadShipment.SitStatus.CurrentSIT.DaysInSIT)
 		suite.Equal(int64(176), *payloadShipment.SitStatus.TotalDaysRemaining)
 		suite.Equal(int64(14), *payloadShipment.SitStatus.TotalSITDaysUsed) // 7 from the previous SIT and 7 from the current
+		suite.Equal(int64(14), *payloadShipment.SitStatus.CalculatedTotalDaysInSIT)
 		suite.Equal(subtestData.sit.SITEntryDate.Format("2006-01-02"), payloadShipment.SitStatus.CurrentSIT.SitEntryDate.String())
 		suite.Equal(subtestData.sit.SITDepartureDate.Format("2006-01-02"), payloadShipment.SitStatus.CurrentSIT.SitDepartureDate.String())
 
@@ -267,7 +270,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		handler := ListMTOShipmentsHandler{
 			suite.HandlerConfig(),
 			mockMTOShipmentFetcher,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 
 		mockMTOShipmentFetcher.On("ListMTOShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, apperror.NewQueryError("MTOShipment", errors.New("query error"), ""))
@@ -291,7 +294,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		handler := ListMTOShipmentsHandler{
 			suite.HandlerConfig(),
 			mockMTOShipmentFetcher,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 
 		mockMTOShipmentFetcher.On("ListMTOShipments", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, apperror.NewNotFoundError(uuid.FromStringOrNil(params.MoveTaskOrderID.String()), "move not found"))
@@ -621,7 +624,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		handler := ApproveShipmentHandler{
 			handlerConfig,
 			approver,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 
 		approveParams := shipmentops.ApproveShipmentParams{
@@ -656,7 +659,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		handler := ApproveShipmentHandler{
 			handlerConfig,
 			approver,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -695,7 +698,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		handler := ApproveShipmentHandler{
 			handlerConfig,
 			approver,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -734,7 +737,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		handler := ApproveShipmentHandler{
 			handlerConfig,
 			approver,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -773,7 +776,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		handler := ApproveShipmentHandler{
 			handlerConfig,
 			approver,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -812,7 +815,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		handler := ApproveShipmentHandler{
 			handlerConfig,
 			approver,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -851,7 +854,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		handler := ApproveShipmentHandler{
 			handlerConfig,
 			approver,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
@@ -902,7 +905,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		handler := RequestShipmentDiversionHandler{
 			handlerConfig,
 			requester,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 
 		approveParams := shipmentops.RequestShipmentDiversionParams{
@@ -937,7 +940,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		handler := RequestShipmentDiversionHandler{
 			handlerConfig,
 			requester,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentDiversionParams{
 			HTTPRequest: req,
@@ -976,7 +979,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		handler := RequestShipmentDiversionHandler{
 			handlerConfig,
 			requester,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentDiversionParams{
 			HTTPRequest: req,
@@ -1015,7 +1018,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		handler := RequestShipmentDiversionHandler{
 			handlerConfig,
 			requester,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentDiversionParams{
 			HTTPRequest: req,
@@ -1054,7 +1057,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		handler := RequestShipmentDiversionHandler{
 			handlerConfig,
 			requester,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentDiversionParams{
 			HTTPRequest: req,
@@ -1093,7 +1096,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		handler := RequestShipmentDiversionHandler{
 			handlerConfig,
 			requester,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentDiversionParams{
 			HTTPRequest: req,
@@ -1132,7 +1135,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		handler := RequestShipmentDiversionHandler{
 			handlerConfig,
 			requester,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentDiversionParams{
 			HTTPRequest: req,
@@ -1185,7 +1188,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		handler := ApproveShipmentDiversionHandler{
 			handlerConfig,
 			approver,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 
 		approveParams := shipmentops.ApproveShipmentDiversionParams{
@@ -1220,7 +1223,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		handler := ApproveShipmentDiversionHandler{
 			handlerConfig,
 			approver,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentDiversionParams{
 			HTTPRequest: req,
@@ -1259,7 +1262,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		handler := ApproveShipmentDiversionHandler{
 			handlerConfig,
 			approver,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentDiversionParams{
 			HTTPRequest: req,
@@ -1298,7 +1301,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		handler := ApproveShipmentDiversionHandler{
 			handlerConfig,
 			approver,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentDiversionParams{
 			HTTPRequest: req,
@@ -1337,7 +1340,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		handler := ApproveShipmentDiversionHandler{
 			handlerConfig,
 			approver,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentDiversionParams{
 			HTTPRequest: req,
@@ -1376,7 +1379,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		handler := ApproveShipmentDiversionHandler{
 			handlerConfig,
 			approver,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentDiversionParams{
 			HTTPRequest: req,
@@ -1415,7 +1418,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		handler := ApproveShipmentDiversionHandler{
 			handlerConfig,
 			approver,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.ApproveShipmentDiversionParams{
 			HTTPRequest: req,
@@ -1807,7 +1810,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		handler := RequestShipmentCancellationHandler{
 			handlerConfig,
 			canceler,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 
 		approveParams := shipmentops.RequestShipmentCancellationParams{
@@ -1842,7 +1845,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		handler := RequestShipmentCancellationHandler{
 			handlerConfig,
 			canceler,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentCancellationParams{
 			HTTPRequest: req,
@@ -1881,7 +1884,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		handler := RequestShipmentCancellationHandler{
 			handlerConfig,
 			canceler,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentCancellationParams{
 			HTTPRequest: req,
@@ -1920,7 +1923,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		handler := RequestShipmentCancellationHandler{
 			handlerConfig,
 			canceler,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentCancellationParams{
 			HTTPRequest: req,
@@ -1959,7 +1962,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		handler := RequestShipmentCancellationHandler{
 			handlerConfig,
 			canceler,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentCancellationParams{
 			HTTPRequest: req,
@@ -1998,7 +2001,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		handler := RequestShipmentCancellationHandler{
 			handlerConfig,
 			canceler,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentCancellationParams{
 			HTTPRequest: req,
@@ -2037,7 +2040,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		handler := RequestShipmentCancellationHandler{
 			handlerConfig,
 			canceler,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approveParams := shipmentops.RequestShipmentCancellationParams{
 			HTTPRequest: req,
@@ -2106,7 +2109,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		handler := RequestShipmentReweighHandler{
 			handlerConfig,
 			reweighRequester,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 			updater,
 		}
 
@@ -2164,7 +2167,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		handler := RequestShipmentReweighHandler{
 			handlerConfig,
 			reweighRequester,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 			updater,
 		}
 		approveParams := shipmentops.RequestShipmentReweighParams{
@@ -2219,7 +2222,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		handler := RequestShipmentReweighHandler{
 			handlerConfig,
 			reweighRequester,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 			updater,
 		}
 		params := shipmentops.RequestShipmentReweighParams{
@@ -2275,7 +2278,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		handler := RequestShipmentReweighHandler{
 			handlerConfig,
 			reweighRequester,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 			updater,
 		}
 		params := shipmentops.RequestShipmentReweighParams{
@@ -2332,7 +2335,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		handler := RequestShipmentReweighHandler{
 			handlerConfig,
 			reweighRequester,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 			updater,
 		}
 		params := shipmentops.RequestShipmentReweighParams{
@@ -2388,7 +2391,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		handler := RequestShipmentReweighHandler{
 			handlerConfig,
 			reweighRequester,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 			updater,
 		}
 		params := shipmentops.RequestShipmentReweighParams{
@@ -2704,7 +2707,7 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 		handler := ApproveSITExtensionHandler{
 			handlerConfig,
 			sitExtensionApprover,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approvedDays := int64(10)
 		requestReason := "AWAITING_COMPLETION_OF_RESIDENCE"
@@ -2772,14 +2775,15 @@ func (suite *HandlerSuite) TestDenySITExtensionHandler() {
 		handler := DenySITExtensionHandler{
 			handlerConfig,
 			sitExtensionDenier,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		officeRemarks := "new office remarks on denial of extension"
 		denyParams := shipmentops.DenySITExtensionParams{
 			HTTPRequest: req,
 			IfMatch:     eTag,
 			Body: &ghcmessages.DenySITExtension{
-				OfficeRemarks: &officeRemarks,
+				OfficeRemarks:            &officeRemarks,
+				ConvertToCustomerExpense: models.BoolPointer(false),
 			},
 			ShipmentID:     *handlers.FmtUUID(mtoShipment.ID),
 			SitExtensionID: *handlers.FmtUUID(sitExtension.ID),
@@ -2814,7 +2818,7 @@ func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 		handler := CreateApprovedSITDurationUpdateHandler{
 			handlerConfig,
 			approvedSITDurationUpdateCreator,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approvedDays := int64(10)
 		officeRemarks := "new office remarks"
@@ -2867,7 +2871,7 @@ func (suite *HandlerSuite) CreateApprovedSITDurationUpdate() {
 		handler := CreateApprovedSITDurationUpdateHandler{
 			handlerConfig,
 			approvedSITDurationUpdateCreator,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 		approvedDays := int64(10)
 		officeRemarks := "new office remarks"
@@ -2977,12 +2981,17 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		params := subtestData.params
 
 		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
+		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter)
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
-		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, shipmentRouter)
-		sitStatus := mtoshipment.NewShipmentSITStatus()
+		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
+			builder,
+			mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
+			moveRouter,
+		)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, shipmentRouter, moveTaskOrderUpdater)
+		sitStatus := sitstatus.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
 			shipmentCreator,
@@ -3014,7 +3023,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		params := subtestData.params
 
 		shipmentCreator := mocks.ShipmentCreator{}
-		sitStatus := mtoshipment.NewShipmentSITStatus()
+		sitStatus := sitstatus.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
 			&shipmentCreator,
@@ -3048,12 +3057,17 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		params := subtestData.params
 
 		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
+		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter)
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
-		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, shipmentRouter)
-		sitStatus := mtoshipment.NewShipmentSITStatus()
+		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
+			builder,
+			mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
+			moveRouter,
+		)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, shipmentRouter, moveTaskOrderUpdater)
+		sitStatus := sitstatus.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
 			shipmentCreator,
@@ -3091,12 +3105,17 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		params := subtestData.params
 
 		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
+		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter)
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
-		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, shipmentRouter)
-		sitStatus := mtoshipment.NewShipmentSITStatus()
+		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
+			builder,
+			mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
+			moveRouter,
+		)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, shipmentRouter, moveTaskOrderUpdater)
+		sitStatus := sitstatus.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
 			shipmentCreator,
@@ -3130,12 +3149,17 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		params := subtestData.params
 
 		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
+		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter)
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
-		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, shipmentRouter)
-		sitStatus := mtoshipment.NewShipmentSITStatus()
+		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
+			builder,
+			mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
+			moveRouter,
+		)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, shipmentRouter, moveTaskOrderUpdater)
+		sitStatus := sitstatus.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
 			shipmentCreator,
@@ -3164,12 +3188,17 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		builder := subtestData.builder
 
 		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
+		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter)
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
-		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, shipmentRouter)
-		sitStatus := mtoshipment.NewShipmentSITStatus()
+		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
+			builder,
+			mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
+			moveRouter,
+		)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, shipmentRouter, moveTaskOrderUpdater)
+		sitStatus := sitstatus.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
 			shipmentCreator,
@@ -3208,12 +3237,17 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		handlerConfig := suite.HandlerConfig()
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveservices.NewMoveRouter())
+		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveservices.NewMoveRouter())
 		ppmEstimator := mocks.PPMEstimator{}
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
-		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, shipmentRouter)
-		sitStatus := mtoshipment.NewShipmentSITStatus()
+		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
+			builder,
+			mtoserviceitem.NewMTOServiceItemCreator(builder, moveservices.NewMoveRouter()),
+			moveservices.NewMoveRouter(),
+		)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, shipmentRouter, moveTaskOrderUpdater)
+		sitStatus := sitstatus.NewShipmentSITStatus()
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
 			shipmentCreator,
@@ -3329,14 +3363,19 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		handlerConfig := suite.HandlerConfig()
 		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveservices.NewMoveRouter())
+		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveservices.NewMoveRouter())
 		ppmEstimator := mocks.PPMEstimator{}
 		shipmentRouter := mtoshipment.NewShipmentRouter()
-		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmshipment.NewPPMShipmentCreator(&ppmEstimator), shipmentRouter)
+		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
+			builder,
+			mtoserviceitem.NewMTOServiceItemCreator(builder, moveservices.NewMoveRouter()),
+			moveservices.NewMoveRouter(),
+		)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmshipment.NewPPMShipmentCreator(&ppmEstimator), shipmentRouter, moveTaskOrderUpdater)
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
 			shipmentCreator,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 
 		shipmentType := ghcmessages.MTOShipmentTypePPM
@@ -3509,7 +3548,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 
 		hhgLOAType := models.LOATypeHHG
@@ -3573,7 +3612,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 
 		hasProGear := true
@@ -3678,7 +3717,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 
 		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -3716,7 +3755,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 
 		uuidString := handlers.FmtUUID(uuid.FromStringOrNil("d874d002-5582-4a91-97d3-786e8f66c763"))
@@ -3756,7 +3795,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 
 		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -3795,7 +3834,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 
 		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -3825,7 +3864,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
 			&mockUpdater,
-			mtoshipment.NewShipmentSITStatus(),
+			sitstatus.NewShipmentSITStatus(),
 		}
 
 		err := errors.New("ServerError")

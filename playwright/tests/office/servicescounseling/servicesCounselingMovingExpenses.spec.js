@@ -1,4 +1,4 @@
-import { test, expect } from './servicesCounselingTestFixture';
+import { test } from './servicesCounselingTestFixture';
 
 test('A service counselor can approve/reject moving expenses', async ({ page, scPage }) => {
   // Create a move with TestHarness, and then navigate to the move details page for it
@@ -6,20 +6,19 @@ test('A service counselor can approve/reject moving expenses', async ({ page, sc
   await scPage.navigateToCloseoutMove(move.locator);
 
   // Navigate to the "Review documents" page
-  await page.getByRole('button', { name: 'Review documents' }).click();
+  await page.getByRole('button', { name: /Review documents/i }).click();
   await scPage.waitForPage.reviewWeightTicket();
-
   // Weight ticket is first in the order of docs. Click "Accept" on the weight ticket, then proceed
   await page.getByText('Accept').click();
   await page.getByRole('button', { name: 'Continue' }).click();
 
-  // Next is expense ticket here. Click "Accept" on the  expense, then proceed
-  await expect(page.getByRole('heading', { name: 'Review receipt 1' })).toBeVisible();
+  // Next is packing materials expense ticket here. Click "Accept" on the expense, then proceed
+  await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
   await page.getByText('Accept').click();
   await page.getByRole('button', { name: 'Continue' }).click();
 
   // Next is storage expense ticket. Click "Accept", then proceed
-  await expect(page.getByRole('heading', { name: 'Review storage 2' })).toBeVisible();
+  await scPage.waitForPage.reviewExpenseTicket('Storage', 2, 1);
   await page.getByText('Accept').click();
   await page.getByRole('button', { name: 'Continue' }).click();
   await scPage.waitForPage.reviewDocumentsConfirmation();

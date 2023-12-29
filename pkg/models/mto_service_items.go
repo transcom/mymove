@@ -62,6 +62,7 @@ type MTOServiceItem struct {
 	ApprovedAt                        *time.Time                     `db:"approved_at"`
 	RejectedAt                        *time.Time                     `db:"rejected_at"`
 	RequestedApprovalsRequestedStatus *bool                          `db:"requested_approvals_requested_status"`
+	CustomerExpense                   *bool                          `db:"customer_expense"`
 }
 
 // MTOServiceItemSingle is an object representing a single column in the service items table
@@ -90,6 +91,7 @@ type MTOServiceItemSingle struct {
 	SITDestinationOriginalAddressID *uuid.UUID           `db:"sit_destination_original_address_id"`
 	SITCustomerContacted            *time.Time           `db:"sit_customer_contacted"`
 	SITRequestedDelivery            *time.Time           `db:"sit_requested_delivery"`
+	CustomerExpense                 *bool                `db:"customer_expense"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -149,4 +151,15 @@ func FetchServiceItem(db *pop.Connection, serviceItemID uuid.UUID) (MTOServiceIt
 	}
 
 	return serviceItem, nil
+}
+
+func FetchRelatedDestinationSITFuelCharge(tx *pop.Connection, mtoServiceItemID uuid.UUID) (MTOServiceItem, error) {
+	var serviceItem MTOServiceItem
+	err := tx.RawQuery(
+		`SELECT msi.id
+            FROM mto_service_items msi
+            INNER JOIN re_services res ON msi.re_service_id = res.id
+            WHERE res.code IN (?) AND msi.mto_shipment_id IN (
+                SELECT mto_shipment_id FROM mto_service_items WHERE id = ?)`, ReServiceCodeDDSFSC, mtoServiceItemID).First(&serviceItem)
+	return serviceItem, err
 }

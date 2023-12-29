@@ -42,6 +42,32 @@ func (_m *MTOServiceItemUpdater) ApproveOrRejectServiceItem(appCtx appcontext.Ap
 	return r0, r1
 }
 
+// ConvertItemToCustomerExpense provides a mock function with given fields: appCtx, shipment
+func (_m *MTOServiceItemUpdater) ConvertItemToCustomerExpense(appCtx appcontext.AppContext, shipment *models.MTOShipment) (*models.MTOServiceItem, error) {
+	ret := _m.Called(appCtx, shipment)
+
+	var r0 *models.MTOServiceItem
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) (*models.MTOServiceItem, error)); ok {
+		return rf(appCtx, shipment)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) *models.MTOServiceItem); ok {
+		r0 = rf(appCtx, shipment)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.MTOServiceItem)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipment) error); ok {
+		r1 = rf(appCtx, shipment)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // UpdateMTOServiceItem provides a mock function with given fields: appCtx, serviceItem, eTag, validator
 func (_m *MTOServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, eTag string, validator string) (*models.MTOServiceItem, error) {
 	ret := _m.Called(appCtx, serviceItem, eTag, validator)

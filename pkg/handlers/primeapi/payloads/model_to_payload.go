@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -582,6 +583,8 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			SitHHGActualOrigin:              Address(mtoServiceItem.SITOriginHHGActualAddress),
 			SitHHGOriginalOrigin:            Address(mtoServiceItem.SITOriginHHGOriginalAddress),
 			RequestApprovalsRequestedStatus: *mtoServiceItem.RequestedApprovalsRequestedStatus,
+			SitCustomerContacted:            handlers.FmtDatePtr(mtoServiceItem.SITCustomerContacted),
+			SitRequestedDelivery:            handlers.FmtDatePtr(mtoServiceItem.SITRequestedDelivery),
 		}
 	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDSFSC:
 		var sitDepartureDate, firstAvailableDeliveryDate1, firstAvailableDeliveryDate2, dateOfContact1, dateOfContact2 time.Time
@@ -966,4 +969,34 @@ func GetCustomerContact(customerContacts models.MTOServiceItemCustomerContacts, 
 	}
 
 	return models.MTOServiceItemCustomerContact{}
+}
+
+// SITStatus payload
+func SITStatus(shipmentSITStatuses *services.SITStatus) *primemessages.SITStatus {
+	if shipmentSITStatuses == nil {
+		return nil
+	}
+	payload := &primemessages.SITStatus{
+		TotalSITDaysUsed:   handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalSITDaysUsed),
+		TotalDaysRemaining: handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalDaysRemaining),
+		CurrentSIT:         currentSIT(shipmentSITStatuses.CurrentSIT),
+	}
+
+	return payload
+}
+
+func currentSIT(currentSIT *services.CurrentSIT) *primemessages.SITStatusCurrentSIT {
+	if currentSIT == nil {
+		return nil
+	}
+
+	return &primemessages.SITStatusCurrentSIT{
+		Location:             currentSIT.Location,
+		DaysInSIT:            handlers.FmtIntPtrToInt64(&currentSIT.DaysInSIT),
+		SitEntryDate:         handlers.FmtDate(currentSIT.SITEntryDate),
+		SitDepartureDate:     handlers.FmtDatePtr(currentSIT.SITDepartureDate),
+		SitAllowanceEndDate:  handlers.FmtDate(currentSIT.SITAllowanceEndDate),
+		SitCustomerContacted: handlers.FmtDatePtr(currentSIT.SITCustomerContacted),
+		SitRequestedDelivery: handlers.FmtDatePtr(currentSIT.SITRequestedDelivery),
+	}
 }

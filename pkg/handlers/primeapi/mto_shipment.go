@@ -2,6 +2,7 @@ package primeapi
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
@@ -309,5 +310,72 @@ func (h UpdateMTOShipmentStatusHandler) Handle(params mtoshipmentops.UpdateMTOSh
 			}
 
 			return mtoshipmentops.NewUpdateMTOShipmentStatusOK().WithPayload(payloads.MTOShipment(shipment)), nil
+		})
+}
+
+type UpdateSITDeliveryRequestHandler struct {
+	handlers.HandlerConfig
+	shipmentStatus services.ShipmentSITStatus
+}
+
+// Handle handler that updates a mto shipment's authorized end date and required deliver date
+func (h UpdateSITDeliveryRequestHandler) Handle(params mtoshipmentops.UpdateSITDeliveryRequestParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			eagerAssociations := []string{"MoveTaskOrder",
+				"PickupAddress",
+				"DestinationAddress",
+				"SecondaryPickupAddress",
+				"SecondaryDeliveryAddress",
+				"MTOServiceItems.ReService",
+				"StorageFacility.Address",
+				"PPMShipment"}
+
+			shipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
+			eTag := params.IfMatch
+			shipment, err := mtoshipment.NewMTOShipmentFetcher().GetShipment(appCtx, shipmentID, eagerAssociations...)
+
+			if err != nil {
+				appCtx.Logger().Error("primeapi.UpdateSITDeliveryRequestHandler error - failed to get MTO shipment", zap.Error(err))
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return mtoshipmentops.NewUpdateSITDeliveryRequestNotFound().WithPayload(
+						payloads.ClientError(handlers.NotFoundMessage, e.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				default:
+					return mtoshipmentops.NewUpdateSITDeliveryRequestInternalServerError().WithPayload(
+						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				}
+			}
+
+			var sitCustomerContacted = (*time.Time)(params.Body.SitCustomerContacted)
+			var sitRequestedDelivery = (*time.Time)(params.Body.SitRequestedDelivery)
+
+			shipmentSITStatus, err := h.shipmentStatus.CalculateSITAllowanceRequestedDates(appCtx, *shipment, h.HandlerConfig.HHGPlanner(),
+				sitCustomerContacted, sitRequestedDelivery, eTag)
+
+			if err != nil {
+				appCtx.Logger().Error("primeapi.UpdateSITDeliveryRequestHandler error - failed to update dates", zap.Error(err))
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return mtoshipmentops.NewUpdateSITDeliveryRequestNotFound().WithPayload(
+						payloads.ClientError(handlers.NotFoundMessage, e.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.PreconditionFailedError:
+					return mtoshipmentops.NewUpdateSITDeliveryRequestPreconditionFailed().WithPayload(
+						payloads.ClientError(handlers.PreconditionErrMessage, e.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.QueryError:
+					return mtoshipmentops.NewUpdateSITDeliveryRequestInternalServerError().WithPayload(
+						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.UnprocessableEntityError:
+					return mtoshipmentops.NewUpdateSITDeliveryRequestUnprocessableEntity().WithPayload(
+						payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)), err
+				default:
+					return mtoshipmentops.NewUpdateSITDeliveryRequestInternalServerError().WithPayload(
+						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				}
+			}
+
+			sitStatusPayload := payloads.SITStatus(shipmentSITStatus)
+			return mtoshipmentops.NewUpdateSITDeliveryRequestOK().WithPayload(sitStatusPayload), nil
 		})
 }

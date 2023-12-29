@@ -14,13 +14,14 @@
 //	BasePath: /prime/v1
 //	Version: 0.0.1
 //	License: MIT https://opensource.org/licenses/MIT
-//	Contact: <dp3@truss.works>
+//	Contact: <milmove-developers@caci.com>
 //
 //	Consumes:
 //	  - application/json
 //	  - multipart/form-data
 //
 //	Produces:
+//	  - application/pdf
 //	  - application/json
 //
 // swagger:meta

@@ -41,6 +41,7 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	api.JSONConsumer = runtime.JSONConsumer()
 	api.MultipartformConsumer = runtime.DiscardConsumer
 
+	api.BinProducer = runtime.ByteStreamProducer()
 	api.JSONProducer = runtime.JSONProducer()
 
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
@@ -105,6 +106,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation mto_shipment.DeleteMTOShipment has not yet been implemented")
 		})
 	}
+	if api.MoveTaskOrderDownloadMoveOrderHandler == nil {
+		api.MoveTaskOrderDownloadMoveOrderHandler = move_task_order.DownloadMoveOrderHandlerFunc(func(params move_task_order.DownloadMoveOrderParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.DownloadMoveOrder has not yet been implemented")
+		})
+	}
 	if api.MoveTaskOrderGetMoveTaskOrderHandler == nil {
 		api.MoveTaskOrderGetMoveTaskOrderHandler = move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
@@ -148,6 +154,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	if api.MtoShipmentUpdateReweighHandler == nil {
 		api.MtoShipmentUpdateReweighHandler = mto_shipment.UpdateReweighHandlerFunc(func(params mto_shipment.UpdateReweighParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.UpdateReweigh has not yet been implemented")
+		})
+	}
+	if api.MtoShipmentUpdateSITDeliveryRequestHandler == nil {
+		api.MtoShipmentUpdateSITDeliveryRequestHandler = mto_shipment.UpdateSITDeliveryRequestHandlerFunc(func(params mto_shipment.UpdateSITDeliveryRequestParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.UpdateSITDeliveryRequest has not yet been implemented")
 		})
 	}
 

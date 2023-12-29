@@ -61,7 +61,7 @@ jobs:
 
       - name: Set up node
         if: steps.cache-bundle-stats.outputs.cache-hit != 'true'
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           cache: 'yarn'
           node-version-file: '.tool-versions'
@@ -88,7 +88,7 @@ jobs:
           cp ./build/bundle-stats-${{ github.event.pull_request.head.sha }}.json ./build/bundle-stats.json
 
       - name: Upload stats.json
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pr-stats
           path: ./build/bundle-stats.json
@@ -117,7 +117,7 @@ jobs:
 
       - name: Set up node
         if: steps.cache-bundle-stats.outputs.cache-hit != 'true'
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           cache: 'yarn'
           node-version-file: '.tool-versions'
@@ -144,7 +144,7 @@ jobs:
           cp ./build/bundle-stats-${{ github.event.pull_request.base.sha }}.json ./build/bundle-stats.json
 
       - name: Upload stats.json
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: base-stats
           path: ./build/bundle-stats.json
@@ -161,7 +161,7 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
       - uses: github/webpack-bundlesize-compare-action@v1.8.2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

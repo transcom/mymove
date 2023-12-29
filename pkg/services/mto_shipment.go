@@ -7,6 +7,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -124,14 +125,16 @@ type ShipmentRouter interface {
 
 // SITStatus is the summary of the current SIT service item days in storage remaining balance and dates
 type SITStatus struct {
-	ShipmentID         uuid.UUID
-	TotalSITDaysUsed   int
-	TotalDaysRemaining int
-	CurrentSIT         *CurrentSIT
-	PastSITs           []models.MTOServiceItem
+	ShipmentID               uuid.UUID
+	TotalSITDaysUsed         int
+	TotalDaysRemaining       int
+	CalculatedTotalDaysInSIT int
+	CurrentSIT               *CurrentSIT
+	PastSITs                 []models.MTOServiceItem
 }
 
 type CurrentSIT struct {
+	ServiceItemID        uuid.UUID
 	Location             string
 	DaysInSIT            int
 	SITEntryDate         time.Time
@@ -148,4 +151,6 @@ type ShipmentSITStatus interface {
 	CalculateShipmentsSITStatuses(appCtx appcontext.AppContext, shipments []models.MTOShipment) map[string]SITStatus
 	CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*SITStatus, error)
 	CalculateShipmentSITAllowance(appCtx appcontext.AppContext, shipment models.MTOShipment) (int, error)
+	CalculateSITAllowanceRequestedDates(appCtx appcontext.AppContext, shipment models.MTOShipment, planner route.Planner,
+		sitCustomerContacted *time.Time, sitRequestedDelivery *time.Time, eTag string) (*SITStatus, error)
 }
