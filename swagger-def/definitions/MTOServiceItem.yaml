@@ -30,9 +30,6 @@ properties:
     type: boolean
     example: false
     x-nullable: true
-  customerExpenseReason:
-    type: string
-    description: Reason for converting a SIT to customer expense.
   customerContacts:
     $ref: 'MTOServiceItemCustomerContacts.yaml'
   deletedAt:
