@@ -1,10 +1,10 @@
 package paperwork
 
 import (
-	// "strings"
+	"strings"
 	"time"
 
-	// "github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -74,51 +74,51 @@ func (suite *PaperworkSuite) TestFormatValuesInspectionInformation() {
 	})
 }
 
-// func (suite *PaperworkSuite) TestFormatValuesShipment() { // Current failing test AGM
-// 	suite.Run("storage facility with phone and email", func() {
-// 		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
-// 		shipment := factory.BuildNTSShipment(suite.DB(), []factory.Customization{
-// 			{
-// 				Model:    storageFacility,
-// 				LinkOnly: true,
-// 			},
-// 		}, nil)
+func (suite *PaperworkSuite) TestFormatValuesShipment() {
+	suite.Run("storage facility with phone and email", func() {
+		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
+		shipment := factory.BuildNTSShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+		}, nil)
 
-// 		shipmentValues := FormatValuesShipment(shipment)
-// 		expectedContactInfo := strings.Join([]string{*storageFacility.Phone, *storageFacility.Email}, "\n")
-// 		suite.Equal(expectedContactInfo, shipmentValues.StorageFacility)
-// 	})
+		shipmentValues := FormatValuesShipment(shipment)
+		expectedContactInfo := strings.Join([]string{*storageFacility.Phone, *storageFacility.Email}, "\n")
+		suite.Equal(expectedContactInfo, shipmentValues.StorageFacility)
+	})
 
-// 	suite.Run("storage facility with no phone number should not panic", func() {
-// 		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
-// 		storageFacility.Phone = nil
-// 		suite.MustSave(&storageFacility)
-// 		shipment := factory.BuildNTSShipment(suite.DB(), []factory.Customization{
-// 			{
-// 				Model:    storageFacility,
-// 				LinkOnly: true,
-// 			},
-// 		}, nil)
+	suite.Run("storage facility with no phone number should not panic", func() {
+		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
+		storageFacility.Phone = nil
+		suite.MustSave(&storageFacility)
+		shipment := factory.BuildNTSShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+		}, nil)
 
-// 		shipmentValues := FormatValuesShipment(shipment)
-// 		suite.Equal(*storageFacility.Email, shipmentValues.StorageFacility)
-// 	})
+		shipmentValues := FormatValuesShipment(shipment)
+		suite.Equal(*storageFacility.Email, shipmentValues.StorageFacility)
+	})
 
-// 	suite.Run("storage facility with no email should not panic", func() {
-// 		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
-// 		storageFacility.Email = nil
-// 		suite.MustSave(&storageFacility)
-// 		shipment := factory.BuildNTSShipment(suite.DB(), []factory.Customization{
-// 			{
-// 				Model:    storageFacility,
-// 				LinkOnly: true,
-// 			},
-// 		}, nil)
+	suite.Run("storage facility with no email should not panic", func() {
+		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
+		storageFacility.Email = nil
+		suite.MustSave(&storageFacility)
+		shipment := factory.BuildNTSShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+		}, nil)
 
-// 		shipmentValues := FormatValuesShipment(shipment)
-// 		suite.Equal(*storageFacility.Phone, shipmentValues.StorageFacility)
-// 	})
-// }
+		shipmentValues := FormatValuesShipment(shipment)
+		suite.Equal(*storageFacility.Phone, shipmentValues.StorageFacility)
+	})
+}
 
 func (suite *PaperworkSuite) TestPickShipmentCardLayout() {
 	suite.Run("HHG", func() {
