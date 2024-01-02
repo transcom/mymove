@@ -23,6 +23,10 @@ type MTOServiceItemSingle struct {
 	// Format: date-time
 	ApprovedAt *strfmt.DateTime `json:"approvedAt,omitempty"`
 
+	// convert to customer expense
+	// Example: false
+	ConvertToCustomerExpense bool `json:"convertToCustomerExpense"`
+
 	// created at
 	// Read Only: true
 	// Format: date-time
