@@ -63,3 +63,4 @@ export { default as rejectSITAddressUpdate } from './UpdateSITAddress/RejectSITA
 export { default as createSITAddressUpdate } from './UpdateSITAddress/CreateSITAddressUpdate';
 export { default as updateMTOShipmentPPMDetails } from './UpdateMTOShipment/UpdateMTOShipmentPPMDetails';
 export { default as updateWeightTicket } from './UpdateWeightTicket/UpdateWeightTicket';
+export { default as updateMovingExpense } from './UpdateMovingExpense/UpdateMovingExpense';
