@@ -15,7 +15,7 @@ import TextField from 'components/form/fields/TextField/TextField';
 const PrimeUIShipmentUpdateDestinationAddressForm = ({
   initialValues,
   onSubmit,
-  updateShipmentAddressSchema,
+  updateDestinationAddressSchema,
   name,
 }) => {
   const { moveCodeOrID } = useParams();
@@ -26,25 +26,26 @@ const PrimeUIShipmentUpdateDestinationAddressForm = ({
   };
 
   return (
-    <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={updateShipmentAddressSchema}>
+    <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={updateDestinationAddressSchema}>
       {({ isValid, isSubmitting, handleSubmit, errors }) => (
         <Form className={classnames(formStyles.form)}>
           <FormGroup error={errors != null && Object.keys(errors).length > 0 ? 1 : 0}>
             <SectionWrapper className={formStyles.formSection}>
               <h2>Update Shipment Destination Address</h2>
               <SectionWrapper className={formStyles.formSection}>
-                <div>
-                  This is used to update the destination address on an <strong>already approved</strong> shipment.{' '}
+                <div data-testid="destination-form-details">
+                  This is used to <strong>update</strong> the destination address on an{' '}
+                  <strong>already approved</strong> shipment. <br />
+                  This also updates the final destination address for destination SIT service items in the shipment.
                   <br />
-                  This also updates the final destination address for destination SIT service items on the shipment.
                   <br />
-                  <br />
-                  The address update will be automatically approved unless it changes:
+                  The address update will be automatically approved unless it changes any of the following:
                   <br />
                   <strong>
                     - the service area <br />
                     - mileage bracket for direct delivery <br />
-                    - domestic short haul to domestic line haul or vice versa <br />- SIT delivery out over 50 miles or
+                    - domestic short haul to domestic line haul or vice versa <br />- SIT delivery out over 50 miles{' '}
+                    <em>or </em>
                     back under 50 miles
                   </strong>
                   <br />

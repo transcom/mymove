@@ -20,10 +20,11 @@ import { fromPrimeAPIAddressFormat } from 'utils/formatters';
 import { setFlashMessage } from 'store/flash/actions';
 
 const updateDestinationAddressSchema = Yup.object().shape({
-  addressID: Yup.string(),
-  destinationAddress: Yup.object().shape({
+  mtoShipmentID: Yup.string(),
+  newAddress: Yup.object().shape({
     address: addressSchema,
   }),
+  contractorRemarks: Yup.string().required('Contractor remarks are required to make these changes'),
   eTag: Yup.string(),
 });
 
@@ -39,6 +40,7 @@ const PrimeUIShipmentUpdateDestinationAddress = () => {
     navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
   };
 
+  /* istanbul ignore next */
   const { mutate: updateShipmentDestinationAddress } = useMutation(createNonSITAddressUpdateRequest, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((mtoShipment) => mtoShipment.id === updatedMTOShipment.id)] =
@@ -130,7 +132,7 @@ const PrimeUIShipmentUpdateDestinationAddress = () => {
                 <PrimeUIShipmentUpdateDestinationAddressForm
                   initialValues={initialValuesDestinationAddress}
                   onSubmit={onSubmit}
-                  updateShipmentAddressSchema={updateDestinationAddressSchema}
+                  updateDestinationAddressSchema={updateDestinationAddressSchema}
                   name="newAddress.address"
                 />
               )}
