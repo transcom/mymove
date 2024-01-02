@@ -517,7 +517,7 @@ WITH move AS (
 	-- document_review_items grabs historical data for weight ticket, pro-gear
 	-- weight tickets, and moving expense tickets
 	document_review_items (doc_id, shipment_type, shipment_id, moving_expense_type) AS (
-		select COALESCE(wt.id, pwt.id, me.id),
+		SELECT COALESCE(wt.id, pwt.id, me.id),
 			ppms.shipment_type,
 			ppms.shipment_id,
 			me.moving_expense_type
@@ -633,9 +633,9 @@ WITH move AS (
 		FROM
 			backup_contacts_logs
 		UNION
-		select
+		SELECT
 			*
-		from
+		FROM
 			document_review_logs
 
 
