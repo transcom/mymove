@@ -486,6 +486,7 @@ test.describe('TOO user', () => {
 
     await expect(page.getByText('Update request details')).not.toBeVisible();
     await expect(page.getByText('Review required')).not.toBeVisible();
+    await page.getByRole('button', { name: 'Cancel' }).click();
     await expect(page.getByTestId('destinationAddress')).toHaveText(
       '123 Any Street, P.O. Box 12345, Beverly Hills, CA 90210',
     );
