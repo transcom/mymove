@@ -94,7 +94,7 @@ func (p *mtoServiceItemUpdater) ConvertItemToCustomerExpense(
 	eTag := etag.GenerateEtag(SITItem.UpdatedAt)
 
 	// Finally, update the mto_service_item with the members_expense flag set to TRUE
-	SITItem.CustomerExpense = models.BoolPointer(true)
+	SITItem.CustomerExpense = true
 	mtoServiceItem, err := p.findServiceItem(appCtx, SITItem.ID)
 	if err != nil {
 		return &models.MTOServiceItem{}, err
@@ -243,7 +243,7 @@ func (p *mtoServiceItemUpdater) convertItemToCustomerExpense(
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		serviceItem.CustomerExpense = models.BoolPointer(true)
+		serviceItem.CustomerExpense = true
 		verrs, err := appCtx.DB().ValidateAndUpdate(&serviceItem)
 		e := handleError(serviceItem.ID, verrs, err)
 		return e

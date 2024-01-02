@@ -77,11 +77,11 @@ const ConvertSITToCustomerExpenseModal = ({ shipment, sitStatus, onClose, onSubm
   }
 
   const initialValues = {
-    officeRemarks: '',
+    remarks: '',
     convertToCustomersExpense: true,
   };
   const convertSITToCustomerExpenseSchema = Yup.object().shape({
-    officeRemarks: Yup.string().required('Required'),
+    remarks: Yup.string().required('Required'),
     convertToCustomersExpense: Yup.boolean().required('Required'),
   });
 
@@ -106,15 +106,8 @@ const ConvertSITToCustomerExpenseModal = ({ shipment, sitStatus, onClose, onSubm
                   <DataTableWrapper className={classnames('maxw-tablet', styles.sitDisplayForm)} testID="sitExtensions">
                     <SitStatusTables sitStatus={sitStatus} shipment={shipment} />
                   </DataTableWrapper>
-                  <Label htmlFor="officeRemarks">Office remarks</Label>
-                  <Field
-                    as={Textarea}
-                    data-testid="officeRemarks"
-                    label="No"
-                    name="officeRemarks"
-                    id="officeRemarks"
-                    required
-                  />
+                  <Label htmlFor="remarks">Remarks</Label>
+                  <Field as={Textarea} data-testid="remarks" label="No" name="remarks" id="remarks" required />
                   <ModalActions>
                     <Button type="submit" disabled={!isValid}>
                       Save
