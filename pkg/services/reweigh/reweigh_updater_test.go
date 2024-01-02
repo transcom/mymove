@@ -104,4 +104,56 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
+	suite.Run("Update a diverted parent shipment reweigh and its child", func() {
+		parentShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &currentTime,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					Diversion:              true,
+					DivertedFromShipmentID: nil,
+				},
+			},
+		}, nil)
+		childShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &currentTime,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					UsesExternalVendor:     true,
+					Diversion:              true,
+					DivertedFromShipmentID: &parentShipment.ID,
+				},
+			},
+		}, nil)
+		oldParentReweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+			MTOShipment: parentShipment,
+		})
+		eTag := etag.GenerateEtag(oldParentReweigh.UpdatedAt)
+
+		// Update Parent
+		newReweigh := oldParentReweigh
+		newWeight := unit.Pound(200)
+		newReweigh.Weight = &newWeight
+		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(suite.AppContextForTest(), &newReweigh, eTag)
+		suite.NoError(err)
+		suite.NotNil(updatedReweigh)
+		suite.Equal(newWeight, *updatedReweigh.Weight)
+		// Check that the child shipment now also has a reweigh as well since the parent just got updated
+		reweighFetcher := NewReweighFetcher()
+		reweighMap, err := reweighFetcher.ListReweighsByShipmentIDs(suite.AppContextForTest(), []uuid.UUID{childShipment.ID})
+		suite.NotNil(reweighMap)
+		suite.NoError(err)
+		childReweigh := reweighMap[childShipment.ID]
+		suite.Equal(childReweigh.ShipmentID, childShipment.ID)
+	})
+	suite.Run("Existing reweigh chains don't go wonky (Those created prior to 'chaning' logic)", func() {
+		// TODO
+	})
 }
