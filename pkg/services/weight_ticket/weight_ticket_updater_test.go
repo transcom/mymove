@@ -186,6 +186,7 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 			OwnsTrailer:              models.BoolPointer(false),
 			TrailerMeetsCriteria:     models.BoolPointer(false),
 			AdjustedNetWeight:        models.PoundPointer(1200),
+			AllowableWeight:          models.PoundPointer(1200),
 			NetWeightRemarks:         models.StringPointer("Weight has been adjusted"),
 		}
 

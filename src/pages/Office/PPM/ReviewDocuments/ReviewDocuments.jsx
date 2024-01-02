@@ -37,6 +37,7 @@ export const ReviewDocuments = () => {
   const { mtoShipment, documents, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
   const order = Object.values(orders)?.[0];
+  const [currentTotalWeight, setCurrentTotalWeight] = useState(0);
 
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
   const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
@@ -46,10 +47,16 @@ export const ReviewDocuments = () => {
   const proGearWeightTickets = documents?.ProGearWeightTickets ?? [];
   const movingExpenses = documents?.MovingExpenses ?? [];
 
-  const moveWeightTotal = calculateWeightRequested(mtoShipments);
+  const updateTotalWeight = (newWeight) => {
+    setCurrentTotalWeight(newWeight);
+  };
+
   useEffect(() => {
-    setMoveHasExcessWeight(moveWeightTotal > order.entitlement.totalWeight);
-  }, [moveWeightTotal, order.entitlement.totalWeight]);
+    updateTotalWeight(calculateWeightRequested(mtoShipments));
+  }, [mtoShipments]);
+  useEffect(() => {
+    setMoveHasExcessWeight(currentTotalWeight > order.entitlement.totalWeight);
+  }, [currentTotalWeight, order.entitlement.totalWeight]);
 
   const chronologicalComparatorProperty = (input) => input.createdAt;
   const compareChronologically = (itemA, itemB) =>
@@ -252,6 +259,7 @@ export const ReviewDocuments = () => {
                     onError={onError}
                     onSuccess={onSuccess}
                     formRef={formRef}
+                    updateTotalWeight={updateTotalWeight}
                   />
                 )}
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (
@@ -284,7 +292,7 @@ export const ReviewDocuments = () => {
           <Button className="usa-button--secondary" onClick={onBack} disabled={disableBackButton}>
             Back
           </Button>
-          <Button type="submit" onClick={onContinue}>
+          <Button type="submit" onClick={onContinue} data-testid="reviewDocumentsContinueButton">
             {showOverview ? 'Confirm' : 'Continue'}
           </Button>
         </DocumentViewerSidebar.Footer>
