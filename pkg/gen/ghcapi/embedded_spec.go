@@ -6312,6 +6312,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "convertToCustomerExpense": {
+          "type": "boolean",
+          "x-omitempty": false,
+          "example": false
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time"
@@ -6534,6 +6539,11 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "convertToCustomerExpense": {
+          "type": "boolean",
+          "x-omitempty": false,
+          "example": false
         },
         "createdAt": {
           "type": "string",
@@ -17898,6 +17908,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "convertToCustomerExpense": {
+          "type": "boolean",
+          "x-omitempty": false,
+          "example": false
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time"
@@ -18120,6 +18135,11 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "convertToCustomerExpense": {
+          "type": "boolean",
+          "x-omitempty": false,
+          "example": false
         },
         "createdAt": {
           "type": "string",
