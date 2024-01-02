@@ -508,6 +508,7 @@ func WeightTicketModelFromUpdate(weightTicket *ghcmessages.UpdateWeightTicket) *
 		Reason:               handlers.FmtString(weightTicket.Reason),
 		AdjustedNetWeight:    handlers.PoundPtrFromInt64Ptr(weightTicket.AdjustedNetWeight),
 		NetWeightRemarks:     handlers.FmtString(weightTicket.NetWeightRemarks),
+		AllowableWeight:      handlers.PoundPtrFromInt64Ptr(weightTicket.AllowableWeight),
 	}
 	return model
 }
