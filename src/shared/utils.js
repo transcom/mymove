@@ -168,3 +168,6 @@ export function isEmpty(obj) {
   });
   return empty;
 }
+export function isNullUndefinedOrWhitespace(value) {
+  return value == null || value === undefined || value.trim() === '';
+}

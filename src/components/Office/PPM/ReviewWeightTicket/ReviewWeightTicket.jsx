@@ -11,6 +11,7 @@ import EditPPMNetWeight from '../EditNetWeights/EditPPMNetWeight';
 
 import styles from './ReviewWeightTicket.module.scss';
 
+import { removeCommas } from 'utils/formatters';
 import { ErrorMessage, Form } from 'components/form';
 import { patchWeightTicket } from 'services/ghcApi';
 import { ShipmentShape, WeightTicketShape } from 'types/shipment';
@@ -20,6 +21,9 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import formStyles from 'styles/form.module.scss';
 import approveRejectStyles from 'styles/approveRejectControls.module.scss';
 import ppmDocumentStatus from 'constants/ppms';
+import { getWeightTicketNetWeight } from 'utils/shipmentWeights';
+import { calculateWeightRequested } from 'hooks/custom';
+import { isNullUndefinedOrWhitespace } from 'shared/utils';
 
 const validationSchema = Yup.object().shape({
   emptyWeight: Yup.number().required('Enter the empty weight'),
@@ -30,6 +34,7 @@ const validationSchema = Yup.object().shape({
         ? schema.min(emptyWeight + 1, 'The full weight must be greater than the empty weight')
         : schema;
     }),
+  allowableWeight: Yup.number().required('Required').min(0, 'reimbursable weight must be at least 0'),
   trailerMeetsCriteria: Yup.string().when('ownsTrailer', {
     is: 'true',
     then: (schema) => schema.required('Required'),
@@ -51,34 +56,35 @@ export default function ReviewWeightTicket({
   onError,
   onSuccess,
   formRef,
+  updateTotalWeight,
 }) {
   const [canEditRejection, setCanEditRejection] = useState(true);
-
+  const [currentWeightTicket, setCurrentWeightTicket] = useState(weightTicket);
+  const [currentMtoShipments, setCurrentMtoShipments] = useState(mtoShipments);
   const { mutate: patchWeightTicketMutation } = useMutation({
     mutationFn: patchWeightTicket,
     onSuccess,
     onError,
   });
-
   const ppmShipment = mtoShipment?.ppmShipment;
 
   const weightAllowance = order.entitlement?.totalWeight;
 
-  const handleSubmit = (values) => {
-    const ownsTrailer = values.ownsTrailer === 'true';
-    const trailerMeetsCriteria = ownsTrailer ? values.trailerMeetsCriteria === 'true' : false;
+  const handleSubmit = (formValues) => {
+    const ownsTrailer = formValues.ownsTrailer === 'true';
+    const trailerMeetsCriteria = ownsTrailer ? formValues.trailerMeetsCriteria === 'true' : false;
     const payload = {
       ppmShipmentId: weightTicket.ppmShipmentId,
       vehicleDescription: weightTicket.vehicleDescription,
-      emptyWeight: parseInt(values.emptyWeight, 10),
+      emptyWeight: parseInt(removeCommas(formValues.emptyWeight), 10),
       missingEmptyWeightTicket: weightTicket.missingEmptyWeightTicket,
-      fullWeight: parseInt(values.fullWeight, 10),
+      fullWeight: parseInt(removeCommas(formValues.fullWeight), 10),
       missingFullWeightTicket: weightTicket.missingFullWeightTicket,
-      netWeightRemarks: weightTicket.netWeightRemarks,
       ownsTrailer,
       trailerMeetsCriteria,
-      reason: values.status === ppmDocumentStatus.APPROVED ? null : values.rejectionReason,
-      status: values.status,
+      reason: formValues.rejectionReason,
+      status: formValues.status,
+      allowableWeight: parseInt(removeCommas(formValues.allowableWeight), 10),
     };
     patchWeightTicketMutation({
       ppmShipmentId: weightTicket.ppmShipmentId,
@@ -94,6 +100,7 @@ export default function ReviewWeightTicket({
     missingFullWeightTicket,
     emptyWeight,
     fullWeight,
+    allowableWeight,
     ownsTrailer,
     proofOfTrailerOwnershipDocument,
     trailerMeetsCriteria,
@@ -102,17 +109,51 @@ export default function ReviewWeightTicket({
   } = weightTicket || {};
 
   const hasProofOfTrailerOwnershipDocument = proofOfTrailerOwnershipDocument?.uploads.length > 0;
-
   let isTrailerClaimable;
   if (ownsTrailer) {
     isTrailerClaimable = trailerMeetsCriteria ? 'true' : 'false';
   } else {
     isTrailerClaimable = '';
   }
-
+  const createUpdatedWeightTicketWithUpdatedValues = (updatedFormValues) => {
+    const updatedWeightTicket = {
+      ...weightTicket,
+      emptyWeight: parseInt(removeCommas(updatedFormValues.emptyWeight), 10),
+      fullWeight: parseInt(removeCommas(updatedFormValues.fullWeight), 10),
+      allowableWeight: parseInt(removeCommas(updatedFormValues.allowableWeight), 10),
+    };
+    return updatedWeightTicket;
+  };
+  const updateMtoShipmentsWithNewWeightValues = (MtoShipmentsToUpdate, updatedWeightTicket) => {
+    const mtoShipmentIndex = MtoShipmentsToUpdate.findIndex((index) => index.id === mtoShipment.id);
+    const updatedPPMShipment = {
+      ...MtoShipmentsToUpdate[mtoShipmentIndex].ppmShipment,
+    };
+    const weightTicketIndex = updatedPPMShipment.weightTickets.findIndex(
+      (ticket) => ticket.id === updatedWeightTicket.id,
+    );
+    updatedPPMShipment.weightTickets[weightTicketIndex] = updatedWeightTicket;
+    const updatedMtoShipment = {
+      ...mtoShipment,
+      ppmShipment: updatedPPMShipment,
+    };
+    const updatedMtoShipments = MtoShipmentsToUpdate;
+    updatedMtoShipments[mtoShipmentIndex] = updatedMtoShipment;
+    return updatedMtoShipments;
+  };
+  const getNewNetWeightCalculation = (MtoShipmentsToUpdate, updatedFormValues) => {
+    const updatedWeightTicket = createUpdatedWeightTicketWithUpdatedValues(updatedFormValues);
+    const newMtoShipments = updateMtoShipmentsWithNewWeightValues(MtoShipmentsToUpdate, updatedWeightTicket);
+    const newWeightTotal = calculateWeightRequested(newMtoShipments);
+    setCurrentWeightTicket(updatedWeightTicket);
+    setCurrentMtoShipments(newMtoShipments);
+    updateTotalWeight(newWeightTotal);
+  };
+  // Allowable weight should default to the net weight if there isn't already an allowable weight defined.
   const initialValues = {
     emptyWeight: emptyWeight ? `${emptyWeight}` : '',
     fullWeight: fullWeight ? `${fullWeight}` : '',
+    allowableWeight: allowableWeight ? `${allowableWeight}` : `${getWeightTicketNetWeight(weightTicket)}`,
     ownsTrailer: ownsTrailer ? 'true' : 'false',
     trailerMeetsCriteria: isTrailerClaimable,
     status: status || '',
@@ -124,7 +165,7 @@ export default function ReviewWeightTicket({
       formRef.current.resetForm();
       formRef.current.validateForm();
     }
-  }, [formRef, weightTicket]);
+  }, [formRef, weightTicket, currentMtoShipments]);
 
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
@@ -138,10 +179,24 @@ export default function ReviewWeightTicket({
       >
         {({ handleChange, errors, setFieldError, setFieldTouched, setFieldValue, touched, values }) => {
           const handleApprovalChange = (event) => {
+            const updatedValue = event.target.value;
+            const newApprovalState =
+              updatedValue === ppmDocumentStatus.APPROVED && !isNullUndefinedOrWhitespace(updatedValue);
+            if (newApprovalState === false) {
+              setCanEditRejection(true);
+              setFieldValue('rejectionReason', '');
+            }
             handleChange(event);
-            setCanEditRejection(true);
           };
-
+          const handleRejectionReasonChange = (event) => {
+            handleChange(event);
+          };
+          const handleFieldValueChange = (event) => {
+            setFieldValue(event.target.name, removeCommas(event.target.value));
+            if (mtoShipments !== undefined && mtoShipments.length > 0) {
+              getNewNetWeightCalculation(mtoShipments, values);
+            }
+          };
           const handleTrailerOwnedChange = (event) => {
             handleChange(event);
             setFieldValue('trailerMeetsCriteria', '');
@@ -169,6 +224,7 @@ export default function ReviewWeightTicket({
                 name="emptyWeight"
                 label="Empty weight"
                 id="emptyWeight"
+                inputTestId="emptyWeight"
                 mask={Number}
                 description={missingEmptyWeightTicket ? 'Vehicle weight' : 'Weight tickets'}
                 scale={0} // digits after point, 0 for integers
@@ -176,6 +232,7 @@ export default function ReviewWeightTicket({
                 thousandsSeparator=","
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
+                onBlur={handleFieldValueChange}
               />
 
               <MaskedTextField
@@ -183,6 +240,7 @@ export default function ReviewWeightTicket({
                 name="fullWeight"
                 label="Full weight"
                 id="fullWeight"
+                inputTestId="fullWeight"
                 mask={Number}
                 description={missingFullWeightTicket ? 'Constructed weight' : 'Weight tickets'}
                 scale={0} // digits after point, 0 for integers
@@ -190,12 +248,28 @@ export default function ReviewWeightTicket({
                 thousandsSeparator=","
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
+                onBlur={handleFieldValueChange}
               />
 
+              <MaskedTextField
+                defaultValue="0"
+                name="allowableWeight"
+                label="Allowable weight"
+                id="allowableWeight"
+                inputTestId="allowableWeight"
+                mask={Number}
+                description="Maximum allowable weight"
+                scale={0} // digits after point, 0 for integers
+                signed={false} // disallow negative
+                thousandsSeparator=","
+                lazy={false} // immediate masking evaluation
+                suffix="lbs"
+                onBlur={handleFieldValueChange}
+              />
               <EditPPMNetWeight
-                weightTicket={weightTicket}
+                weightTicket={currentWeightTicket}
                 weightAllowance={weightAllowance}
-                shipments={mtoShipments}
+                shipments={currentMtoShipments}
               />
 
               <FormGroup>
@@ -283,7 +357,7 @@ export default function ReviewWeightTicket({
                     value={ppmDocumentStatus.REJECTED}
                     name="status"
                     label="Reject"
-                    onChange={handleChange}
+                    onChange={handleApprovalChange}
                     data-testid="rejectRadio"
                   />
 
@@ -301,8 +375,9 @@ export default function ReviewWeightTicket({
                           </ErrorMessage>
                           <Textarea
                             id={`rejectReason-${weightTicket?.id}`}
+                            data-testid="rejectionReasonText"
                             name="rejectionReason"
-                            onChange={handleChange}
+                            onChange={handleRejectionReasonChange}
                             error={touched.rejectionReason ? errors.rejectionReason : null}
                             value={values.rejectionReason}
                             placeholder="Type something"
