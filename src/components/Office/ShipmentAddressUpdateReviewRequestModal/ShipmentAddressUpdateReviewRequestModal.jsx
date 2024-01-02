@@ -44,7 +44,7 @@ export const ShipmentAddressUpdateReviewRequestModal = ({
   );
 
   // checking to see if the shipment contains destination SIT service items
-  // storying them in an array so we can have the count
+  // storing them in an array so we can have the count and display to the TOO
   const destSitServiceItems = shipment.mtoServiceItems.filter((s) =>
     ['DDDSIT', 'DDASIT', 'DDFSIT', 'DDSFSC'].includes(s.reServiceCode),
   );
