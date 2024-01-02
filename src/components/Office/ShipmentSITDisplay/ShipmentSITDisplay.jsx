@@ -127,10 +127,12 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
     formatDate(sitStatus?.currentSIT?.sitRequestedDelivery, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE;
 
   useEffect(() => {
-    const itemsArray = Object.values(shipment.mtoServiceItems);
-    const currentSIT = itemsArray.find((item) => item.id === sitStatus?.currentSIT?.serviceItemID);
-    if (currentSIT?.convertToCustomerExpense) setIsConvertedToCustomerExpense(true);
-    else setIsConvertedToCustomerExpense(false);
+    if (shipment.mtoServiceItems) {
+      const itemsArray = Object.values(shipment.mtoServiceItems);
+      const currentSIT = itemsArray.find((item) => item.id === sitStatus?.currentSIT?.serviceItemID);
+      if (currentSIT?.convertToCustomerExpense) setIsConvertedToCustomerExpense(true);
+      else setIsConvertedToCustomerExpense(false);
+    }
   }, [shipment.mtoServiceItems, sitStatus?.currentSIT?.serviceItemID]);
 
   return (
