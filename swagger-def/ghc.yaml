@@ -1453,7 +1453,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/UpdateSITServiceItemCustomerExpensePayload'
+            $ref: '#/definitions/UpdateSITServiceItemCustomerExpense'
         - in: header
           name: If-Match
           type: string
@@ -4886,7 +4886,7 @@ definitions:
     required:
       - officeRemarks
       - convertToCustomerExpense
-  UpdateSITServiceItemCustomerExpensePayload:
+  UpdateSITServiceItemCustomerExpense:
     properties:
       convertToCustomerExpense:
         example: true

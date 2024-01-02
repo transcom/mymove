@@ -4577,7 +4577,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateSITServiceItemCustomerExpensePayload"
+              "$ref": "#/definitions/UpdateSITServiceItemCustomerExpense"
             }
           },
           {
@@ -9879,7 +9879,7 @@ func init() {
         }
       }
     },
-    "UpdateSITServiceItemCustomerExpensePayload": {
+    "UpdateSITServiceItemCustomerExpense": {
       "required": [
         "convertToCustomerExpense",
         "customerExpenseReason"
@@ -16209,7 +16209,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateSITServiceItemCustomerExpensePayload"
+              "$ref": "#/definitions/UpdateSITServiceItemCustomerExpense"
             }
           },
           {
@@ -21661,7 +21661,7 @@ func init() {
         }
       }
     },
-    "UpdateSITServiceItemCustomerExpensePayload": {
+    "UpdateSITServiceItemCustomerExpense": {
       "required": [
         "convertToCustomerExpense",
         "customerExpenseReason"
