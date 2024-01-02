@@ -6121,6 +6121,10 @@ definitions:
       createdAt:
         format: date-time
         type: string
+      convertToCustomerExpense:
+        type: boolean
+        example: false
+        x-omitempty: false
       customerContacts:
         $ref: '#/definitions/MTOServiceItemCustomerContacts'
       deletedAt:
@@ -7582,6 +7586,10 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+      convertToCustomerExpense:
+        type: boolean
+        example: false
+        x-omitempty: false
       deletedAt:
         format: date
         type: string

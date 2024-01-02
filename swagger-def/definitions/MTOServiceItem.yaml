@@ -26,6 +26,10 @@ properties:
   createdAt:
     format: date-time
     type: string
+  convertToCustomerExpense:
+    type: boolean
+    example: false
+    x-omitempty: false
   customerContacts:
     $ref: 'MTOServiceItemCustomerContacts.yaml'
   deletedAt:

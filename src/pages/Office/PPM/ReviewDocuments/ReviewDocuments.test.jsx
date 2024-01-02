@@ -14,7 +14,7 @@ import {
 } from 'utils/test/factories/ppmShipment';
 import { createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import createUpload from 'utils/test/factories/upload';
-import { servicesCounselingRoutes } from 'constants/routes';
+import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
 
 Element.prototype.scrollTo = jest.fn();
 
@@ -120,6 +120,11 @@ const useReviewShipmentWeightsQueryReturnValueAll = {
 
 const mockRoutingOptions = {
   path: servicesCounselingRoutes.BASE_REVIEW_SHIPMENT_WEIGHTS_PATH,
+  params: { moveCode: 'READY1' },
+};
+
+const mockTooRountingOptions = {
+  path: tooRoutes.BASE_MOVE_VIEW_PATH,
   params: { moveCode: 'READY1' },
 };
 
@@ -316,6 +321,34 @@ describe('ReviewDocuments', () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
+
+      expect(await screen.findByRole('heading', { level: 2, name: '1 of 1 Document Sets' }));
+
+      expect(await screen.findByRole('heading', { level: 3, name: /trip 1/ })).toBeInTheDocument();
+
+      // Need to accept the document before we can move forward without errors.
+      await userEvent.click(screen.getByLabelText('Accept'));
+
+      const continueButton = screen.getByRole('button', { name: 'Continue' });
+      expect(continueButton).toBeEnabled();
+
+      const backButton = screen.getByRole('button', { name: 'Back' });
+      expect(backButton).not.toBeEnabled();
+
+      await userEvent.click(continueButton);
+
+      expect(await screen.findByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
+
+      expect(backButton).toBeEnabled();
+      await userEvent.click(backButton);
+
+      expect(await screen.findByRole('heading', { level: 3, name: /trip 1/ })).toBeInTheDocument();
+    });
+
+    it('handles navigation properly using the continue/back buttons', async () => {
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+      renderWithProviders(<ReviewDocuments />, mockTooRountingOptions);
 
       expect(await screen.findByRole('heading', { level: 2, name: '1 of 1 Document Sets' }));
 

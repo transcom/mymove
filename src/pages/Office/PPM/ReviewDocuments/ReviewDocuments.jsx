@@ -9,7 +9,7 @@ import styles from './ReviewDocuments.module.scss';
 
 import ReviewDocumentsSidePanel from 'components/Office/PPM/ReviewDocumentsSidePanel/ReviewDocumentsSidePanel';
 import { ErrorMessage } from 'components/form';
-import { servicesCounselingRoutes } from 'constants/routes';
+import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
@@ -20,6 +20,7 @@ import ReviewWeightTicket from 'components/Office/PPM/ReviewWeightTicket/ReviewW
 import ReviewExpense from 'components/Office/PPM/ReviewExpense/ReviewExpense';
 import { DOCUMENTS } from 'constants/queryKeys';
 import ReviewProGear from 'components/Office/PPM/ReviewProGear/ReviewProGear';
+import { roleTypes } from 'constants/userRoles';
 
 // TODO: This should be in src/constants/ppms.js, but it's causing a lot of errors in unrelated tests, so I'll leave
 //  this here for now.
@@ -140,7 +141,12 @@ export const ReviewDocuments = () => {
   const queryClient = useQueryClient();
 
   const onClose = () => {
-    navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode }));
+    navigate(
+      generatePath(
+        roleTypes.SERVICES_COUNSELOR ? servicesCounselingRoutes.BASE_MOVE_VIEW_PATH : tooRoutes.BASE_MOVE_VIEW_PATH,
+        { moveCode },
+      ),
+    );
   };
 
   const onBack = () => {
@@ -174,7 +180,9 @@ export const ReviewDocuments = () => {
   };
 
   const onConfirmSuccess = () => {
-    navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode }));
+    if (roleTypes.SERVICES_COUNSELOR)
+      navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode }));
+    else if (roleTypes.TOO) navigate(generatePath(tooRoutes.BASE_MOVE_VIEW_PATH, { moveCode }));
   };
 
   const onContinue = () => {

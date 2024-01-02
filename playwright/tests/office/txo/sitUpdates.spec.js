@@ -17,13 +17,32 @@ test.describe('TOO user', () => {
       await officePage.tooNavigateToMove(move.locator);
     });
 
+    test('is able to see the SIT Departure Date', async ({ page }) => {
+      // navigate to MTO tab
+      await page.getByTestId('MoveTaskOrder-Tab').click();
+      await tooFlowPage.waitForPage.moveTaskOrder();
+
+      const target = await page
+        .getByTestId('sitDaysAtCurrentLocation')
+        .locator('table[class="DataTable_dataTable__TGt9M table--data-point"]')
+        .locator('tbody')
+        .locator('td')
+        .nth(1)
+        .locator('div')
+        .locator('span')
+        .textContent();
+      const pattern = /(—|\d{2} \w{3} \d{4})/;
+
+      expect(pattern.test(target)).toBeTruthy();
+    });
+
     test('is able to increase a SIT authorization', async ({ page }) => {
       // navigate to MTO tab
       await page.getByTestId('MoveTaskOrder-Tab').click();
       await tooFlowPage.waitForPage.moveTaskOrder();
 
       // increase SIT authorization to 100 days
-      await page.getByTestId('sitExtensions').getByTestId('button').click();
+      await page.getByTestId('sitExtensions').getByRole('button', { name: 'Edit' }).click();
       await expect(page.getByRole('heading', { name: 'Edit SIT authorization' })).toBeVisible();
       await page.getByTestId('daysApproved').clear();
       await page.getByTestId('daysApproved').fill('100');
@@ -42,7 +61,7 @@ test.describe('TOO user', () => {
       await tooFlowPage.waitForPage.moveTaskOrder();
 
       // decrease SIT authorization to 80 days
-      await page.getByTestId('sitExtensions').getByTestId('button').click();
+      await page.getByTestId('sitExtensions').getByRole('button', { name: 'Edit' }).click();
       await expect(page.getByRole('heading', { name: 'Edit SIT authorization' })).toBeVisible();
       await page.getByTestId('daysApproved').clear();
       await page.getByTestId('daysApproved').fill('80');
@@ -93,7 +112,7 @@ test.describe('TOO user', () => {
       await tooFlowPage.waitForPage.moveTaskOrder();
 
       // try to decrease SIT authorization to 1 day
-      await page.getByTestId('sitExtensions').getByTestId('button').click();
+      await page.getByTestId('sitExtensions').getByRole('button', { name: 'Edit' }).click();
       await expect(page.getByRole('heading', { name: 'Edit SIT authorization' })).toBeVisible();
       await page.getByTestId('daysApproved').clear();
       await page.getByTestId('daysApproved').fill('1');
@@ -194,6 +213,15 @@ test.describe('TOO user', () => {
       await expect(page.getByText('SIT start date')).toBeVisible();
       await expect(page.getByText('	SIT authorized end date')).toBeVisible();
       await expect(page.getByText('Calculated total SIT days')).toBeVisible();
+    });
+    test('is showing the SIT Departure Date section', async ({ page }) => {
+      // navigate to MTO tab
+      await page.getByTestId('MoveTaskOrder-Tab').click();
+      await tooFlowPage.waitForPage.moveTaskOrder();
+
+      await expect(
+        page.locator('table[class="DataTable_dataTable__TGt9M table--data-point"]').getByText('SIT Departure Date'),
+      ).toBeVisible();
     });
   });
 });

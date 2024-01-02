@@ -10,6 +10,7 @@ import {
   SITStatusOrigin,
   SITStatusDestination,
   SITStatusDestinationWithoutCustomerDeliveryInfo,
+  SITStatusOriginWithoutCustomerDeliveryInfo,
   SITShipment,
   SITStatusWithPastSITOriginServiceItem,
   SITStatusWithPastSITServiceItems,
@@ -18,6 +19,8 @@ import {
   SITExtensionPending,
   SITExtensionDenied,
   SITStatusExpired,
+  SITStatusShowConvert,
+  SITStatusDontShowConvert,
 } from './ShipmentSITDisplayTestParams';
 
 import { MockProviders } from 'testUtils';
@@ -64,6 +67,20 @@ describe('ShipmentSITDisplay', () => {
     expect(within(sitStartAndEndTable).getByText('45')).toBeInTheDocument();
   });
 
+  it('renders the Shipment SIT at Origin, with customer delivery info', async () => {
+    render(
+      <MockProviders>
+        <ShipmentSITDisplay sitStatus={SITStatusOrigin} shipment={SITShipment} />
+      </MockProviders>,
+    );
+
+    expect(screen.getByText('Customer delivery request')).toBeInTheDocument();
+    expect(screen.getByText('Customer contact date')).toBeInTheDocument();
+    expect(screen.getByText('26 Aug 2021')).toBeInTheDocument();
+    expect(screen.getByText('Requested delivery date')).toBeInTheDocument();
+    expect(screen.getByText('30 Aug 2021')).toBeInTheDocument();
+  });
+
   it('renders the Shipment SIT at Destination, with customer delivery info', async () => {
     render(
       <MockProviders>
@@ -76,6 +93,7 @@ describe('ShipmentSITDisplay', () => {
     expect(screen.getByText('26 Aug 2021')).toBeInTheDocument();
     expect(screen.getByText('Requested delivery date')).toBeInTheDocument();
     expect(screen.getByText('30 Aug 2021')).toBeInTheDocument();
+    expect(screen.getByText('SIT Departure Date')).toBeInTheDocument();
   });
 
   it('renders the Shipment SIT at Destination, without customer delivery info', async () => {
@@ -88,7 +106,20 @@ describe('ShipmentSITDisplay', () => {
     expect(screen.getByText('Customer delivery request')).toBeInTheDocument();
     expect(screen.getByText('Customer contact date')).toBeInTheDocument();
     expect(screen.getByText('Requested delivery date')).toBeInTheDocument();
-    expect(screen.getAllByText('—')).toHaveLength(2);
+    expect(screen.getAllByText('—')).toHaveLength(3);
+  });
+
+  it('renders the Shipment SIT at Origin, without customer delivery info', async () => {
+    render(
+      <MockProviders>
+        <ShipmentSITDisplay sitStatus={SITStatusOriginWithoutCustomerDeliveryInfo} shipment={SITShipment} />
+      </MockProviders>,
+    );
+
+    expect(screen.getByText('Customer delivery request')).toBeInTheDocument();
+    expect(screen.getByText('Customer contact date')).toBeInTheDocument();
+    expect(screen.getByText('Requested delivery date')).toBeInTheDocument();
+    expect(screen.getAllByText('—')).toHaveLength(3);
   });
 
   it('renders the Shipment SIT at Destination, previous destination SIT', async () => {
@@ -246,6 +277,52 @@ describe('ShipmentSITDisplay', () => {
     await waitFor(() => {
       expect(onClick).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it('show convert SIT To Customer Expense callback when show convert is true', async () => {
+    const onClick = jest.fn();
+    const OpenConvertModalButton = (
+      <button type="button" onClick={() => onClick()}>
+        Convert to customer expense
+      </button>
+    );
+    render(
+      <MockProviders permissions={[permissionTypes.updateSITExtension]}>
+        <ShipmentSITDisplay
+          sitStatus={SITStatusShowConvert}
+          shipment={SITShipment}
+          openConvertModalButton={OpenConvertModalButton}
+        />
+      </MockProviders>,
+    );
+
+    const convertButton = screen.getByRole('button', { name: 'Convert to customer expense' });
+
+    await userEvent.click(convertButton);
+
+    await waitFor(() => {
+      expect(onClick).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('hide convert SIT To Customer Expense button when show button is false', async () => {
+    const onClick = jest.fn();
+    const OpenConvertModalButton = (
+      <button type="button" onClick={() => onClick()}>
+        Convert to customer expense
+      </button>
+    );
+    render(
+      <MockProviders permissions={[permissionTypes.updateSITExtension]}>
+        <ShipmentSITDisplay
+          sitStatus={SITStatusDontShowConvert}
+          shipment={SITShipment}
+          openConvertModalButton={OpenConvertModalButton}
+        />
+      </MockProviders>,
+    );
+
+    expect(screen.queryByRole('button', { name: 'Convert to customer expense' })).not.toBeInTheDocument();
   });
 
   it('hides review pending SIT Extension button when hide prop is true', async () => {

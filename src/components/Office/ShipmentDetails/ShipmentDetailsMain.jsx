@@ -11,6 +11,7 @@ import { AddressShape } from 'types';
 import { ShipmentShape } from 'types/shipment';
 import SubmitSITExtensionModal from 'components/Office/SubmitSITExtensionModal/SubmitSITExtensionModal';
 import ReviewSITExtensionsModal from 'components/Office/ReviewSITExtensionModal/ReviewSITExtensionModal';
+import ConvertSITToCustomerExpenseModal from 'components/Office/ConvertSITToCustomerExpenseModal/ConvertSITToCustomerExpenseModal';
 import ShipmentSITDisplay from 'components/Office/ShipmentSITDisplay/ShipmentSITDisplay';
 import ImportantShipmentDates from 'components/Office/ImportantShipmentDates/ImportantShipmentDates';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
@@ -68,6 +69,7 @@ const ShipmentDetailsMain = ({
 
   const [isReviewSITExtensionModalVisible, setIsReviewSITExtensionModalVisible] = useState(false);
   const [isSubmitITExtensionModalVisible, setIsSubmitITExtensionModalVisible] = useState(false);
+  const [isConvertSITToCustomerExpenseModalVisible, setIsConvertSITToCustomerExpenseModalVisible] = useState(false);
   const [, setSubmittedChangeTime] = useState(Date.now());
 
   const reviewSITExtension = (sitExtensionID, formValues) => {
@@ -75,9 +77,15 @@ const ShipmentDetailsMain = ({
     handleReviewSITExtension(sitExtensionID, formValues, shipment);
     setSubmittedChangeTime(Date.now());
   };
+
   const submitSITExtension = (formValues) => {
     setIsSubmitITExtensionModalVisible(false);
     handleSubmitSITExtension(formValues, shipment);
+    setSubmittedChangeTime(Date.now());
+  };
+
+  const convertSITToCustomerExpense = () => {
+    setIsConvertSITToCustomerExpenseModalVisible(false);
     setSubmittedChangeTime(Date.now());
   };
 
@@ -98,6 +106,17 @@ const ShipmentDetailsMain = ({
       onClick={setIsSubmitITExtensionModalVisible}
       title="Edit"
       className={styles.submitSITEXtensionLink}
+    />
+  );
+
+  /**
+   * Displays button to open the modal on the SIT Display component to open with Convert to customer expense modal.
+   */
+  const openConvertModalButton = (
+    <OpenModalButton
+      permission={permissionTypes.updateSITExtension}
+      onClick={setIsConvertSITToCustomerExpenseModalVisible}
+      title="Convert to customer expense"
     />
   );
 
@@ -133,6 +152,14 @@ const ShipmentDetailsMain = ({
           sitStatus={sitStatus}
         />
       )}
+      {isConvertSITToCustomerExpenseModalVisible && (
+        <ConvertSITToCustomerExpenseModal
+          onClose={() => setIsConvertSITToCustomerExpenseModalVisible(false)}
+          onSubmit={convertSITToCustomerExpense}
+          shipment={shipment}
+          sitStatus={sitStatus}
+        />
+      )}
       {isSubmitITExtensionModalVisible && (
         <SubmitSITExtensionModal
           onClose={() => setIsSubmitITExtensionModalVisible(false)}
@@ -150,6 +177,7 @@ const ShipmentDetailsMain = ({
           shipment={shipment}
           className={styles.shipmentSITSummary}
           openModalButton={openModalButton}
+          openConvertModalButton={openConvertModalButton}
         />
       )}
       <ImportantShipmentDates
