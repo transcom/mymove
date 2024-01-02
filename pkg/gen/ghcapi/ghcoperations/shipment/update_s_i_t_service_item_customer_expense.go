@@ -30,7 +30,7 @@ func NewUpdateSITServiceItemCustomerExpense(ctx *middleware.Context, handler Upd
 }
 
 /*
-	UpdateSITServiceItemCustomerExpense swagger:route PATCH /shipments/{shipmentID}/sit-service-item/convertToCustomerExpense shipment mtoServiceItem updateSITServiceItemCustomerExpense
+	UpdateSITServiceItemCustomerExpense swagger:route PATCH /shipments/{shipmentID}/sit-service-item/convert-to-customer-expense shipment mtoServiceItem updateSITServiceItemCustomerExpense
 
 # Converts a SIT to customer expense
 

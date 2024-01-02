@@ -4556,7 +4556,7 @@ func init() {
         }
       ]
     },
-    "/shipments/{shipmentID}/sit-service-item/convertToCustomerExpense": {
+    "/shipments/{shipmentID}/sit-service-item/convert-to-customer-expense": {
       "patch": {
         "description": "Converts a SIT to customer expense",
         "consumes": [
@@ -16188,7 +16188,7 @@ func init() {
         }
       ]
     },
-    "/shipments/{shipmentID}/sit-service-item/convertToCustomerExpense": {
+    "/shipments/{shipmentID}/sit-service-item/convert-to-customer-expense": {
       "patch": {
         "description": "Converts a SIT to customer expense",
         "consumes": [

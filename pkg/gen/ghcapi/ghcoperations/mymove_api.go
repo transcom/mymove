@@ -1203,7 +1203,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/shipments/{shipmentID}/sit-service-item/convertToCustomerExpense"] = shipment.NewUpdateSITServiceItemCustomerExpense(o.context, o.ShipmentUpdateSITServiceItemCustomerExpenseHandler)
+	o.handlers["PATCH"]["/shipments/{shipmentID}/sit-service-item/convert-to-customer-expense"] = shipment.NewUpdateSITServiceItemCustomerExpense(o.context, o.ShipmentUpdateSITServiceItemCustomerExpenseHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

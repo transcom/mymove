@@ -1435,7 +1435,7 @@ paths:
       summary: Denies a SIT extension
       x-permissions:
         - update.SITExtension
-  '/shipments/{shipmentID}/sit-service-item/convertToCustomerExpense':
+  '/shipments/{shipmentID}/sit-service-item/convert-to-customer-expense':
     parameters:
       - description: ID of the shipment
         in: path

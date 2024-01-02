@@ -42,7 +42,7 @@ func (o *UpdateSITServiceItemCustomerExpenseURL) SetBasePath(bp string) {
 func (o *UpdateSITServiceItemCustomerExpenseURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/shipments/{shipmentID}/sit-service-item/convertToCustomerExpense"
+	var _path = "/shipments/{shipmentID}/sit-service-item/convert-to-customer-expense"
 
 	shipmentID := o.ShipmentID.String()
 	if shipmentID != "" {
