@@ -1141,11 +1141,12 @@ func (h UpdateSITServiceItemCustomerExpenseHandler) Handle(params shipmentops.Up
 			if err != nil {
 				return handleError(err)
 			}
-			_, err = h.MTOServiceItemUpdater.ConvertItemToCustomerExpense(appCtx, shipment, customerExpenseReason, convertToCustomerExpense)
-			if err != nil {
-				return handleError(err)
+			if *convertToCustomerExpense {
+				_, err = h.MTOServiceItemUpdater.ConvertItemToCustomerExpense(appCtx, shipment, customerExpenseReason, true)
+				if err != nil {
+					return handleError(err)
+				}
 			}
-
 			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
 			if err != nil {
 				return handleError(err)

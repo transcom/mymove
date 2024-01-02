@@ -61,7 +61,7 @@ func (p *mtoServiceItemUpdater) ConvertItemToCustomerExpense(
 	appCtx appcontext.AppContext,
 	shipment *models.MTOShipment,
 	customerExpenseReason *string,
-	convertToCustomerExpense *bool,
+	convertToCustomerExpense bool,
 ) (*models.MTOServiceItem, error) {
 	var DOFSITCodeID, DDFSITCodeID uuid.UUID
 	DOFSITServiceErr := appCtx.DB().RawQuery(`SELECT id FROM re_services WHERE code = 'DOFSIT'`).First(&DOFSITCodeID) // First get uuid for DOFSIT service code
@@ -96,7 +96,7 @@ func (p *mtoServiceItemUpdater) ConvertItemToCustomerExpense(
 	eTag := etag.GenerateEtag(SITItem.UpdatedAt)
 
 	// Finally, update the mto_service_item with the members_expense flag set to TRUE
-	SITItem.CustomerExpense = models.BoolPointer(true)
+	SITItem.CustomerExpense = true
 	mtoServiceItem, err := p.findServiceItem(appCtx, SITItem.ID)
 	if err != nil {
 		return &models.MTOServiceItem{}, err
@@ -238,7 +238,7 @@ func (p *mtoServiceItemUpdater) convertItemToCustomerExpense(
 	appCtx appcontext.AppContext,
 	serviceItem models.MTOServiceItem,
 	customerExpenseReason *string,
-	convertToCustomerExpense *bool,
+	convertToCustomerExpense bool,
 	eTag string,
 	checks ...validator,
 ) (*models.MTOServiceItem, error) {
