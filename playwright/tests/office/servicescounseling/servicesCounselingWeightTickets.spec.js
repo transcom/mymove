@@ -66,10 +66,10 @@ test('A services counselor can reduce PPM weights for a move with excess weight'
   await page.getByRole('link', { name: 'Review Documents' }).click();
   await scPage.waitForPage.reviewWeightTicket();
 
-  await page.getByTestId('net-weight-display').getByTestId('button').click();
-  await page.getByTestId('weightInput').fill('0');
-  await page.getByTestId('formRemarks').fill('Reduce PPM weight to slash excess weight');
-  await page.getByRole('button', { name: 'Save changes' }).click();
+  await page.getByTestId('fullWeight').clear();
+  await page.getByTestId('fullWeight').fill('8000');
+  await page.getByTestId('fullWeight').blur();
+  await page.getByText('Accept').click();
   await page.getByRole('button', { name: 'Continue' }).click();
   await page.getByTestId('closeSidebar').click();
 
