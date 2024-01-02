@@ -6181,6 +6181,9 @@ definitions:
         type: boolean
         example: false
         x-omitempty: false
+      customerExpenseReason:
+        type: string
+        x-nullable: true
       customerContacts:
         $ref: '#/definitions/MTOServiceItemCustomerContacts'
       deletedAt:
@@ -6527,6 +6530,10 @@ definitions:
       currentSIT:
         type: object
         properties:
+          serviceItemID:
+            type: string
+            format: uuid
+            example: c56a4180-65aa-42ec-a945-5fd21dec0538
           location:
             enum:
               - ORIGIN
@@ -7640,6 +7647,9 @@ definitions:
         type: boolean
         example: false
         x-omitempty: false
+      customerExpenseReason:
+        type: string
+        x-nullable: true
       deletedAt:
         format: date
         type: string

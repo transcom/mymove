@@ -6396,6 +6396,10 @@ func init() {
         "customerContacts": {
           "$ref": "#/definitions/MTOServiceItemCustomerContacts"
         },
+        "customerExpenseReason": {
+          "type": "string",
+          "x-nullable": true
+        },
         "deletedAt": {
           "type": "string",
           "format": "date"
@@ -6621,6 +6625,10 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "customerExpenseReason": {
+          "type": "string",
+          "x-nullable": true
         },
         "deletedAt": {
           "type": "string",
@@ -8906,6 +8914,11 @@ func init() {
                 "ORIGIN",
                 "DESTINATION"
               ]
+            },
+            "serviceItemID": {
+              "type": "string",
+              "format": "uuid",
+              "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
             },
             "sitAllowanceEndDate": {
               "type": "string",
@@ -18099,6 +18112,10 @@ func init() {
         "customerContacts": {
           "$ref": "#/definitions/MTOServiceItemCustomerContacts"
         },
+        "customerExpenseReason": {
+          "type": "string",
+          "x-nullable": true
+        },
         "deletedAt": {
           "type": "string",
           "format": "date"
@@ -18324,6 +18341,10 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "customerExpenseReason": {
+          "type": "string",
+          "x-nullable": true
         },
         "deletedAt": {
           "type": "string",
@@ -20614,6 +20635,11 @@ func init() {
                 "DESTINATION"
               ]
             },
+            "serviceItemID": {
+              "type": "string",
+              "format": "uuid",
+              "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+            },
             "sitAllowanceEndDate": {
               "type": "string",
               "format": "date",
@@ -20666,6 +20692,11 @@ func init() {
             "ORIGIN",
             "DESTINATION"
           ]
+        },
+        "serviceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "sitAllowanceEndDate": {
           "type": "string",
