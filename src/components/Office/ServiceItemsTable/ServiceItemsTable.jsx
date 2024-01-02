@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Tag, Alert } from '@trussworks/react-uswds';
+import { Button } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useParams } from 'react-router';
@@ -10,11 +10,7 @@ import { ServiceItemDetailsShape } from '../../../types/serviceItems';
 import styles from './ServiceItemsTable.module.scss';
 
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
-import {
-  ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES,
-  SIT_ADDRESS_UPDATE_STATUS,
-  ALLOWED_RESUBMISSION_SI_CODES,
-} from 'constants/sitUpdates';
+import { ALLOWED_RESUBMISSION_SI_CODES, ALLOWED_SIT_UPDATE_SI_CODES } from 'constants/sitUpdates';
 import { formatDateFromIso } from 'utils/formatters';
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 import Restricted from 'components/Restricted/Restricted';
@@ -27,25 +23,10 @@ const ServiceItemsTable = ({
   serviceItems,
   statusForTableType,
   handleUpdateMTOServiceItemStatus,
-  handleRequestSITAddressUpdateModal,
   handleShowRejectionDialog,
   handleShowEditSitAddressModal,
   handleShowEditSitEntryDateModal,
-  serviceItemAddressUpdateAlert,
 }) => {
-  const hasSITAddressUpdate = (sitAddressUpdates) => {
-    const requestedAddressUpdates = sitAddressUpdates.filter((s) => s.status === SIT_ADDRESS_UPDATE_STATUS.REQUESTED);
-    return requestedAddressUpdates.length > 0;
-  };
-
-  const showSITAddressUpdateRequestedTag = (code, sitAddressUpdates) => {
-    return (
-      statusForTableType === SERVICE_ITEM_STATUS.APPROVED &&
-      ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) &&
-      hasSITAddressUpdate(sitAddressUpdates)
-    );
-  };
-
   const getServiceItemDisplayDate = (item) => {
     const prefix = selectDatePrefixByStatus(statusForTableType);
     const date = formatDateFromIso(item[`${selectDateFieldByStatus(statusForTableType)}`], 'DD MMM YYYY');
@@ -148,37 +129,18 @@ const ServiceItemsTable = ({
     return resubmittedServiceItemValues;
   };
 
-  const tableRows = serviceItems.map((serviceItem, index) => {
+  const tableRows = serviceItems.map((serviceItem) => {
     const { id, code, details, mtoShipmentID, sitAddressUpdates, serviceRequestDocuments, ...item } = serviceItem;
-    const { makeVisible, alertType, alertMessage } = serviceItemAddressUpdateAlert;
     let hasPaymentRequestBeenMade;
     // if there are service items in the payment requests, we want to look to see if the service item is in there
     // if so, we don't want to let the TOO edit the SIT entry date
-    if (serviceItemInPaymentRequests && ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code)) {
+    if (serviceItemInPaymentRequests && ALLOWED_SIT_UPDATE_SI_CODES.includes(code)) {
       hasPaymentRequestBeenMade = isServiceItemFoundInPaymentRequests(id);
     }
     const resubmittedToolTip = renderToolTipWithOldDataIfResubmission(id);
 
     return (
       <React.Fragment key={`sit-alert-${id}`}>
-        {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) &&
-          sitAddressUpdates &&
-          showSITAddressUpdateRequestedTag(code, sitAddressUpdates) && (
-            <tr key={index}>
-              <td colSpan={3} style={{ borderBottom: 'none', paddingBottom: '0', paddingTop: '8px' }}>
-                <Tag data-testid="sitAddressUpdateTag">UPDATE REQUESTED</Tag>
-              </td>
-            </tr>
-          )}
-        {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) && makeVisible && (
-          <tr key={`sit-alert-${id}`}>
-            <td style={{ border: 'none', paddingBottom: '0' }} colSpan={3}>
-              <Alert type={alertType} slim data-testid="serviceItemAddressUpdateAlert">
-                {alertMessage}
-              </Alert>
-            </td>
-          </tr>
-        )}
         <tr key={id}>
           <td className={styles.nameAndDate}>
             <div className={styles.codeName}>
@@ -192,7 +154,7 @@ const ServiceItemsTable = ({
                   color="#0050d8"
                 />
               ) : null}
-              {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) && hasPaymentRequestBeenMade ? (
+              {ALLOWED_SIT_UPDATE_SI_CODES.includes(code) && hasPaymentRequestBeenMade ? (
                 <ToolTip
                   text="This cannot be changed due to a payment request existing for this service item."
                   color="#d54309"
@@ -255,40 +217,26 @@ const ServiceItemsTable = ({
                     </span>{' '}
                     Reject
                   </Button>
-                  {ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(code) && (
+                  {ALLOWED_SIT_UPDATE_SI_CODES.includes(code) && (
                     <div>
-                      {sitAddressUpdates && hasSITAddressUpdate(sitAddressUpdates) ? (
-                        <Button
-                          type="button"
-                          data-testid="reviewRequestTextButton"
-                          className="text-blue usa-button--unstyled margin-left-1"
-                          onClick={() => handleRequestSITAddressUpdateModal(id, mtoShipmentID)}
-                        >
-                          <span>
-                            <FontAwesomeIcon icon="pencil" style={{ marginRight: '5px' }} />
-                          </span>{' '}
-                          Review Request
-                        </Button>
-                      ) : (
-                        <Button
-                          type="button"
-                          data-testid="editTextButton"
-                          className="text-blue usa-button--unstyled margin-left-1"
-                          disabled={hasPaymentRequestBeenMade}
-                          onClick={() => {
-                            if (code === 'DDFSIT' || code === 'DOFSIT') {
-                              handleShowEditSitEntryDateModal(id, mtoShipmentID);
-                            } else {
-                              handleShowEditSitAddressModal(id, mtoShipmentID);
-                            }
-                          }}
-                        >
-                          <span>
-                            <FontAwesomeIcon icon="pencil" style={{ marginRight: '5px' }} />
-                          </span>{' '}
-                          Edit
-                        </Button>
-                      )}
+                      <Button
+                        type="button"
+                        data-testid="editTextButton"
+                        className="text-blue usa-button--unstyled margin-left-1"
+                        disabled={hasPaymentRequestBeenMade}
+                        onClick={() => {
+                          if (code === 'DDFSIT' || code === 'DOFSIT') {
+                            handleShowEditSitEntryDateModal(id, mtoShipmentID);
+                          } else {
+                            handleShowEditSitAddressModal(id, mtoShipmentID);
+                          }
+                        }}
+                      >
+                        <span>
+                          <FontAwesomeIcon icon="pencil" style={{ marginRight: '5px' }} />
+                        </span>{' '}
+                        Edit
+                      </Button>
                     </div>
                   )}
                 </div>
@@ -333,16 +281,10 @@ const ServiceItemsTable = ({
   );
 };
 
-ServiceItemsTable.defaultProps = {
-  handleRequestSITAddressUpdateModal: () => {},
-};
-
 ServiceItemsTable.propTypes = {
   handleUpdateMTOServiceItemStatus: PropTypes.func.isRequired,
   handleShowRejectionDialog: PropTypes.func.isRequired,
   statusForTableType: PropTypes.string.isRequired,
-  handleRequestSITAddressUpdateModal: PropTypes.func,
-  serviceItemAddressUpdateAlert: PropTypes.object.isRequired,
   serviceItems: PropTypes.arrayOf(ServiceItemDetailsShape).isRequired,
 };
 
