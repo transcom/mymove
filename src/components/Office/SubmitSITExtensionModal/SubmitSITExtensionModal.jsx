@@ -19,6 +19,7 @@ import { dropdownInputOptions } from 'utils/formatters';
 import { sitExtensionReasons } from 'constants/sitExtensions';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
 import { formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
+import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
 
 const SitDaysAllowanceForm = ({ onChange }) => (
   <MaskedTextField
@@ -41,8 +42,9 @@ const SitEndDateForm = ({ onChange }) => (
 );
 
 const SitStatusTables = ({ sitStatus, shipment }) => {
-  const { totalSITDaysUsed } = sitStatus;
+  const { totalSITDaysUsed, calculatedTotalDaysInSIT } = sitStatus;
   const { daysInSIT } = sitStatus.currentSIT;
+  const sitDepartureDate = sitStatus.currentSIT?.sitDepartureDate || DEFAULT_EMPTY_VALUE;
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
 
@@ -98,7 +100,9 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
     // Sit days allowance
     sitAllowanceHelper.setValue(daysApproved);
     // // // Sit End date
-    const calculatedSitEndDate = formatDateForDatePicker(sitEntryDate.add(daysApproved - daysInPreviousSIT, 'days'));
+    const calculatedSitEndDate = formatDateForDatePicker(
+      sitEntryDate.add(daysApproved - (calculatedTotalDaysInSIT - daysInSIT), 'days'),
+    );
     endDateHelper.setTouched(true);
     endDateHelper.setValue(calculatedSitEndDate);
   };
@@ -139,7 +143,11 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
       </div>
       <div className={styles.tableContainer}>
         {/* Total days at current location */}
-        <DataTable columnHeaders={[`Total days in ${currentLocation}`]} dataRow={[currentDaysInSit]} />
+        <DataTable
+          testID="currentSITDateData"
+          columnHeaders={[`Total days in ${currentLocation}`, `SIT Departure Date`]}
+          dataRow={[currentDaysInSit, sitDepartureDate]}
+        />
       </div>
     </>
   );
@@ -162,7 +170,7 @@ const SubmitSITExtensionModal = ({ shipment, sitStatus, onClose, onSubmit }) => 
     daysApproved: String(shipment.sitDaysAllowance),
     sitEndDate: formatDateForDatePicker(moment(sitStatus.currentSIT.sitAllowanceEndDate, swaggerDateFormat)),
   };
-  const minimumDaysAllowed = sitStatus.totalSITDaysUsed - sitStatus.currentSIT.daysInSIT + 1;
+  const minimumDaysAllowed = sitStatus.calculatedTotalDaysInSIT - sitStatus.currentSIT.daysInSIT + 1;
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const reviewSITExtensionSchema = Yup.object().shape({
     requestReason: Yup.string().required('Required'),

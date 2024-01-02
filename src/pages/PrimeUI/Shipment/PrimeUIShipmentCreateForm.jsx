@@ -20,6 +20,7 @@ const PrimeUIShipmentCreateForm = () => {
   const { shipmentType } = values;
   const { sitExpected, hasProGear } = values.ppmShipment;
   const [, , checkBoxHelperProps] = useField('diversion');
+  const [, , divertedFromIdHelperProps] = useField('divertedFromShipmentId');
   const [isChecked, setIsChecked] = useState(false);
 
   const hasShipmentType = !!shipmentType;
@@ -31,7 +32,9 @@ const PrimeUIShipmentCreateForm = () => {
       checkBoxHelperProps.setValue(true);
       setIsChecked(true);
     } else {
+      // set values for checkbox & divertedFromShipmentId when box is unchecked
       checkBoxHelperProps.setValue('');
+      divertedFromIdHelperProps.setValue('');
       setIsChecked(false);
     }
   };

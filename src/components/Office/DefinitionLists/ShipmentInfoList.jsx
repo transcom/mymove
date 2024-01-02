@@ -196,7 +196,7 @@ const ShipmentInfoList = ({
       <dd data-testid="destinationAddress">
         {deliveryAddressUpdate?.status === ADDRESS_UPDATE_STATUS.REQUESTED
           ? 'Review required'
-          : (destinationAddress && formatAddress(destinationAddress)) || '-'}
+          : (destinationAddress && formatAddress(destinationAddress)) || '—'}
       </dd>
     </div>
   );

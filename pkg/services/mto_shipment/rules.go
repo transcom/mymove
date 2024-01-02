@@ -296,21 +296,6 @@ func checkDiversionValid() validator {
 				return apperror.NewNotFoundError(newer.ID, "DivertedFromShipmentID shipment not found")
 			}
 		}
-		// Ensure that if "DivertedFromShipmentID" exists, and it is found to be a diversion as well, that it has a parent ID
-		if newer.DivertedFromShipmentID != nil {
-			var parentShipment models.MTOShipment
-			err := appCtx.DB().Q().
-				Where("id = ?", *newer.DivertedFromShipmentID).
-				First(&parentShipment)
-			if err != nil {
-				return apperror.NewQueryError("Move", err, "Unexpected error")
-			}
-
-			// Ensure that the provided divertedFromShipmentID is valid if it is a diversion as well
-			if parentShipment.Diversion && parentShipment.DivertedFromShipmentID == nil {
-				return apperror.NewInvalidInputError(newer.ID, nil, verrs, "The diverted shipment must have a DivertedFromShipmentID if it is a diversion")
-			}
-		}
 		// Ensure that the diverted from ID is not equal to itself
 		if newer.Diversion && newer.DivertedFromShipmentID == &newer.ID {
 			return apperror.NewInvalidInputError(newer.ID, nil, verrs, "The DivertedFromShipmentID parameter can not be equal to the current shipment ID")

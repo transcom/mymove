@@ -21,6 +21,10 @@
         format: date-time
         type: string
         readOnly: true
+      convertToCustomerExpense:
+        type: boolean
+        example: false
+        x-omitempty: false
       deletedAt:
         format: date
         type: string

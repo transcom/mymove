@@ -25,17 +25,17 @@ describe('ConvertSITToCustomerExpenseModal', () => {
   it('calls onSubmit prop on approval with form values when validations pass', async () => {
     const mockOnSubmit = jest.fn();
     await render(<ConvertSITToCustomerExpenseModal onSubmit={mockOnSubmit} onClose={() => {}} {...defaultValues} />);
-    const officeRemarksInput = screen.getByLabelText('Office remarks');
+    const remarksInput = screen.getByLabelText('Remarks');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    await act(() => userEvent.type(officeRemarksInput, 'Approved!'));
+    await act(() => userEvent.type(remarksInput, 'Approved!'));
     await act(() => userEvent.click(submitBtn));
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
       expect(mockOnSubmit).toHaveBeenCalledWith({
         convertToCustomersExpense: true,
-        officeRemarks: 'Approved!',
+        remarks: 'Approved!',
       });
     });
   });
@@ -43,10 +43,10 @@ describe('ConvertSITToCustomerExpenseModal', () => {
   it('does not allow submission when office remarks is empty', async () => {
     const mockOnSubmit = jest.fn();
     await render(<ConvertSITToCustomerExpenseModal onSubmit={mockOnSubmit} onClose={() => {}} {...defaultValues} />);
-    const officeRemarksInput = screen.getByLabelText('Office remarks');
+    const remarksInput = screen.getByLabelText('Remarks');
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
-    await act(() => userEvent.clear(officeRemarksInput));
+    await act(() => userEvent.clear(remarksInput));
     await waitFor(() => {
       expect(submitBtn).toBeDisabled();
     });
