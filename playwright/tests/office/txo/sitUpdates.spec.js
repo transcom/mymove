@@ -128,6 +128,36 @@ test.describe('TOO user', () => {
     });
   });
 
+  test.describe('converting a SIT to customer expense using convert to customer expense button', () => {
+    test.beforeEach(async ({ officePage }) => {
+      // build move in SIT that ends today
+      const move = await officePage.testHarness.buildHHGMoveInSITEndsToday();
+      await officePage.signInAsNewTOOUser();
+      tooFlowPage = new TooFlowPage(officePage, move);
+      await officePage.tooNavigateToMove(move.locator);
+    });
+
+    test('is able to convert a SIT to customer expense', async ({ page }) => {
+      // navigate to MTO tab
+      await page.getByTestId('MoveTaskOrder-Tab').click();
+      await tooFlowPage.waitForPage.moveTaskOrder();
+
+      // assert that there is a Convert to customer expense button
+      await expect(page.getByText('Convert to customer expense')).toBeVisible();
+
+      // Convert SIT to customer expense through the modal
+      await page.getByRole('button', { name: 'Convert to customer expense' }).click();
+      await expect(page.getByRole('heading', { name: 'Convert SIT To Customer Expense' })).toBeVisible();
+      await page.getByTestId('remarks').fill('testing convert to customer expense');
+      await page.getByTestId('form').getByTestId('button').click();
+
+      // assert that there is a Converted To Customer Expense Tag
+      await expect(page.getByTestId('tag').getByText('Converted to customer expense')).toBeVisible();
+
+      // assert that there is no Convert to customer expense button showing
+      await expect(page.getByText('Convert to customer expense')).toBeHidden();
+    });
+  });
   test.describe('updating a move shipment in SIT with a SIT extension request', () => {
     test.beforeEach(async ({ officePage }) => {
       // build move in SIT with 90 days authorized and with one pending extension request
@@ -197,6 +227,9 @@ test.describe('TOO user', () => {
       await page.getByTestId('convertToCustomerExpense').click();
       await page.getByTestId('convertToCustomerExpenseConfirmationYes').click();
       await page.getByTestId('form').getByTestId('button').click();
+
+      // assert that there is a Converted To Customer Expense Tag
+      await expect(page.getByTestId('tag').getByText('Converted to customer expense')).toBeVisible();
 
       // assert that there is no pending SIT extension request and the days authorization is still 90
       await expect(page.getByText('Additional days requested')).toBeHidden();
