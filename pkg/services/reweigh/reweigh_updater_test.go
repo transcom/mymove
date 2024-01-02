@@ -154,6 +154,115 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 		suite.Equal(childReweigh.ShipmentID, childShipment.ID)
 	})
 	suite.Run("Existing reweigh chains don't go wonky (Those created prior to 'chaning' logic)", func() {
-		// TODO
+		parentShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &currentTime,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					Diversion: true,
+				},
+			},
+		}, nil)
+		childShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &currentTime,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					UsesExternalVendor: true,
+					Diversion:          true,
+				},
+			},
+		}, nil)
+		oldParentReweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+			MTOShipment: parentShipment,
+		})
+		eTag := etag.GenerateEtag(oldParentReweigh.UpdatedAt)
+
+		// Update Parent
+		newReweigh := oldParentReweigh
+		newWeight := unit.Pound(200)
+		newReweigh.Weight = &newWeight
+		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(suite.AppContextForTest(), &newReweigh, eTag)
+		suite.NoError(err)
+		suite.NotNil(updatedReweigh)
+		suite.Equal(newWeight, *updatedReweigh.Weight)
+		// Check that the child shipment did not receive a new reweigh
+		reweighFetcher := NewReweighFetcher()
+		reweighMap, err := reweighFetcher.ListReweighsByShipmentIDs(suite.AppContextForTest(), []uuid.UUID{childShipment.ID})
+		suite.NotNil(reweighMap)
+		suite.NoError(err)
+		_, exists := reweighMap[childShipment.ID]
+		suite.False(exists)
+	})
+	suite.Run("Update a diverted child shipment reweigh and its parent and the parent's grandchild", func() {
+		parentShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &currentTime,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					Diversion:              true,
+					DivertedFromShipmentID: nil,
+				},
+			},
+		}, nil)
+		childShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &currentTime,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					Diversion:              true,
+					DivertedFromShipmentID: &parentShipment.ID,
+				},
+			},
+		}, nil)
+		grandChildShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &currentTime,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					Diversion:              true,
+					DivertedFromShipmentID: &childShipment.ID,
+				},
+			},
+		}, nil)
+		oldChildReweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
+			MTOShipment: parentShipment,
+		})
+		eTag := etag.GenerateEtag(oldChildReweigh.UpdatedAt)
+
+		// Update Child
+		newReweigh := oldChildReweigh
+		newWeight := unit.Pound(200)
+		newReweigh.Weight = &newWeight
+		updatedReweigh, err := reweighUpdater.UpdateReweighCheck(suite.AppContextForTest(), &newReweigh, eTag)
+		suite.NoError(err)
+		suite.NotNil(updatedReweigh)
+		suite.Equal(newWeight, *updatedReweigh.Weight)
+		// Check that the parent shipment now has the new lowest reweigh and that the grandchild has it too
+		reweighFetcher := NewReweighFetcher()
+		reweighMap, err := reweighFetcher.ListReweighsByShipmentIDs(suite.AppContextForTest(), []uuid.UUID{parentShipment.ID, grandChildShipment.ID})
+		suite.NotNil(reweighMap)
+		suite.NoError(err)
+		// Parent
+		parentReweigh := reweighMap[parentShipment.ID]
+		suite.Equal(parentReweigh.ShipmentID, parentShipment.ID)
+		// Grandchild
+		grandChildReweigh := reweighMap[grandChildShipment.ID]
+		suite.Equal(grandChildReweigh.ShipmentID, grandChildShipment.ID)
 	})
 }
