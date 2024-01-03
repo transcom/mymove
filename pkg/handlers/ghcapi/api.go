@@ -31,7 +31,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	reportviolation "github.com/transcom/mymove/pkg/services/report_violation"
 	shipmentaddressupdate "github.com/transcom/mymove/pkg/services/shipment_address_update"
-	sitaddressupdate "github.com/transcom/mymove/pkg/services/sit_address_update"
 	sitentrydateupdate "github.com/transcom/mymove/pkg/services/sit_entry_date_update"
 	sitextension "github.com/transcom/mymove/pkg/services/sit_extension"
 	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
@@ -397,15 +396,6 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		sitextension.NewApprovedSITDurationUpdateCreator(),
 		shipmentSITStatus,
-	}
-
-	ghcAPI.MtoServiceItemCreateSITAddressUpdateHandler = CreateSITAddressUpdateHandler{
-		handlerConfig,
-		sitaddressupdate.NewApprovedOfficeSITAddressUpdateCreator(
-			handlerConfig.HHGPlanner(),
-			addressCreator,
-			mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator),
-		),
 	}
 
 	ghcAPI.GhcDocumentsGetDocumentHandler = GetDocumentHandler{handlerConfig}

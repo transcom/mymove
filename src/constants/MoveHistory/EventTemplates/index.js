@@ -58,6 +58,8 @@ export { default as createServiceMemberBackupContacts } from './CreateServiceMem
 export { default as updateCustomer } from './UpdateCustomer/updateCustomer';
 export { default as updateServiceItemSitEntryDate } from './UpdateSITEntryDate/updateSitEntryDate';
 export { default as createDestinationSITUpdateRequest } from './CreateSITRequest/CreateSITAddressUpdateRequest';
+export { default as approveSITAddressUpdate } from './UpdateSITAddress/ApproveSITAddressUpdate';
+export { default as rejectSITAddressUpdate } from './UpdateSITAddress/RejectSITAddressUpdate';
 export { default as createSITAddressUpdate } from './UpdateSITAddress/CreateSITAddressUpdate';
 export { default as updateMTOShipmentPPMDetails } from './UpdateMTOShipment/UpdateMTOShipmentPPMDetails';
 export { default as updateWeightTicket } from './UpdateWeightTicket/UpdateWeightTicket';
