@@ -67,32 +67,32 @@ export const EditServiceInfo = ({
       current_location_id: values.current_location.id,
     };
 
-    // patchServiceMember(payload)
-    //   .then((response) => {
-    //     updateServiceMember(response);
-    //     if (entitlementCouldChange) {
-    //       const weightAllowance = currentOrders?.has_dependents
-    //         ? response.weight_allotment.total_weight_self_plus_dependents
-    //         : response.weight_allotment.total_weight_self;
-    //       setFlashMessage(
-    //         'EDIT_SERVICE_INFO_SUCCESS',
-    //         'info',
-    //         `Your weight entitlement is now ${formatWeight(weightAllowance)}.`,
-    //         'Your changes have been saved. Note that the entitlement has also changed.',
-    //       );
-    //     } else {
-    //       setFlashMessage('EDIT_SERVICE_INFO_SUCCESS', 'success', '', 'Your changes have been saved.');
-    //     }
+    patchServiceMember(payload)
+      .then((response) => {
+        updateServiceMember(response);
+        if (entitlementCouldChange) {
+          const weightAllowance = currentOrders?.has_dependents
+            ? response.weight_allotment.total_weight_self_plus_dependents
+            : response.weight_allotment.total_weight_self;
+          setFlashMessage(
+            'EDIT_SERVICE_INFO_SUCCESS',
+            'info',
+            `Your weight entitlement is now ${formatWeight(weightAllowance)}.`,
+            'Your changes have been saved. Note that the entitlement has also changed.',
+          );
+        } else {
+          setFlashMessage('EDIT_SERVICE_INFO_SUCCESS', 'success', '', 'Your changes have been saved.');
+        }
 
-    //     navigate(customerRoutes.PROFILE_PATH);
-    //   })
-    //   .catch((e) => {
-    //     // TODO - error handling - below is rudimentary error handling to approximate existing UX
-    //     // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
-    //     const { response } = e;
-    //     const errorMessage = getResponseError(response, 'failed to update service member due to server error');
-    //     setServerError(errorMessage);
-    //   });
+        navigate(customerRoutes.PROFILE_PATH);
+      })
+      .catch((e) => {
+        // TODO - error handling - below is rudimentary error handling to approximate existing UX
+        // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
+        const { response } = e;
+        const errorMessage = getResponseError(response, 'failed to update service member due to server error');
+        setServerError(errorMessage);
+      });
 
     const ordersPayload = {
       grade: values.grade,

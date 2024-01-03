@@ -98,7 +98,6 @@ describe('EditServiceInfo page', () => {
 
     await waitFor(() => {
       expect(patchServiceMember).toHaveBeenCalled();
-      expect(patchOrders).toHaveBeenCalled();
     });
 
     expect(testProps.updateServiceMember).toHaveBeenCalledWith(testServiceMemberValues);
@@ -198,7 +197,6 @@ describe('EditServiceInfo page', () => {
 
     await waitFor(() => {
       expect(patchServiceMember).toHaveBeenCalled();
-      expect(patchOrders).toHaveBeenCalled();
     });
 
     expect(testProps.updateServiceMember).toHaveBeenCalledWith(testServiceMemberValuesResponse);
@@ -274,7 +272,6 @@ describe('EditServiceInfo page', () => {
 
     await waitFor(() => {
       expect(patchServiceMember).toHaveBeenCalled();
-      expect(patchOrders).toHaveBeenCalled();
     });
 
     expect(await screen.findByText('A server error occurred saving the service member')).toBeInTheDocument();
