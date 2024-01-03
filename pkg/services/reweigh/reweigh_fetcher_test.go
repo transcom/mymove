@@ -11,7 +11,7 @@ import (
 
 func (suite *ReweighSuite) TestListReweighsByShipmentIDs() {
 	reweighFetcher := NewReweighFetcher()
-
+	appCtx := suite.AppContextForTest()
 	move := factory.BuildMove(suite.DB(), nil, nil)
 	parentShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
@@ -64,10 +64,10 @@ func (suite *ReweighSuite) TestListReweighsByShipmentIDs() {
 		ShipmentID:  childShipment.ID,
 	}
 	reweighCreator := NewReweighCreator()
-	parentReweigh, err := reweighCreator.CreateReweighCheck(suite.AppContextForTest(), parentReweighModel)
+	parentReweigh, err := reweighCreator.CreateReweighCheck(appCtx, parentReweighModel)
 	suite.NoError(err)
 	suite.NotNil(parentReweigh)
-	childReweigh, err := reweighCreator.CreateReweighCheck(suite.AppContextForTest(), childReweighModel)
+	childReweigh, err := reweighCreator.CreateReweighCheck(appCtx, childReweighModel)
 	suite.NoError(err)
 	suite.NotNil(childReweigh)
 	// Leave grandchild with no reweigh
@@ -78,7 +78,7 @@ func (suite *ReweighSuite) TestListReweighsByShipmentIDs() {
 	// Ensure reweighs are correctly fetched
 	suite.Equal(parentReweigh.ID, reweighsMap[parentShipment.ID].ID)
 	suite.Equal(childReweigh.ID, reweighsMap[childShipment.ID].ID)
-	// Ensure the grandchild is not found because it does not have a reweight
+	// Ensure the grandchild is found because it gets a reweigh created when it's found to not have any
 	_, exists := reweighsMap[grandChildShipment.ID]
-	suite.False(exists)
+	suite.True(exists)
 }

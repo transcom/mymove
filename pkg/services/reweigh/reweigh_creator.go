@@ -130,7 +130,6 @@ func (f *reweighCreator) createReweighsForDivertedChain(appCtx appcontext.AppCon
 		if exists {
 			// Shipment already exists for the provided ID
 			// update it instead
-			oldReweigh := models.Reweigh{}
 
 			shipment := models.MTOShipment{}
 			// Find the shipment
@@ -141,9 +140,8 @@ func (f *reweighCreator) createReweighsForDivertedChain(appCtx appcontext.AppCon
 				}
 				return nil, apperror.NewQueryError("MTOShipment", err, "")
 			}
-			oldReweigh.Shipment = shipment
 
-			err = validateReweigh(appCtx, reweigh, &oldReweigh, &oldReweigh.Shipment, checks...)
+			err = validateReweigh(appCtx, reweigh, nil, &shipment, checks...)
 			if err != nil {
 				return nil, err
 			}
@@ -153,9 +151,8 @@ func (f *reweighCreator) createReweighsForDivertedChain(appCtx appcontext.AppCon
 				reweigh.VerificationProvidedAt = &now
 			}
 
-			newReweigh := mergeReweigh(reweigh, &oldReweigh)
 			// Make the update and create a InvalidInputError if there were validation issues
-			verrs, validationErr := appCtx.DB().ValidateAndSave(newReweigh)
+			verrs, validationErr := appCtx.DB().ValidateAndSave(&reweigh)
 			if verrs != nil && verrs.HasAny() {
 				return nil, apperror.NewInvalidInputError(reweigh.ID, err, verrs, "Invalid input found while updating the reweigh.")
 			} else if validationErr != nil {

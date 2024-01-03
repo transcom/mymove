@@ -134,6 +134,11 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 		}, nil)
 		oldParentReweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{
 			MTOShipment: parentShipment,
+			Reweigh: models.Reweigh{
+				RequestedBy: models.ReweighRequesterPrime,
+				RequestedAt: time.Now(),
+				ShipmentID:  parentShipment.ID,
+			},
 		})
 		eTag := etag.GenerateEtag(oldParentReweigh.UpdatedAt)
 
