@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, within } from '@testing-library/react';
+import { screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { ReviewDocuments } from './ReviewDocuments';
@@ -14,7 +14,7 @@ import {
 } from 'utils/test/factories/ppmShipment';
 import { createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import createUpload from 'utils/test/factories/upload';
-import { servicesCounselingRoutes } from 'constants/routes';
+import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
 
 Element.prototype.scrollTo = jest.fn();
 
@@ -123,6 +123,11 @@ const mockRoutingOptions = {
   params: { moveCode: 'READY1' },
 };
 
+const mockTooRountingOptions = {
+  path: tooRoutes.BASE_MOVE_VIEW_PATH,
+  params: { moveCode: 'READY1' },
+};
+
 describe('ReviewDocuments', () => {
   describe('check loading and error component states', () => {
     const loadingReturnValue = {
@@ -212,37 +217,44 @@ describe('ReviewDocuments', () => {
 
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
 
+      const weightTicket = mtoShipmentWithOneWeightTicket.ppmShipment.weightTickets[0];
+
       const newEmptyWeight = 14500;
-      const emptyWeightInput = screen.getByRole('textbox', { name: 'Empty weight' });
+      const emptyWeightInput = screen.getByTestId('emptyWeight');
       await userEvent.clear(emptyWeightInput);
       await userEvent.type(emptyWeightInput, newEmptyWeight.toString());
 
       const newFullWeight = 18500;
-      const fullWeightInput = screen.getByRole('textbox', { name: 'Full weight' });
+      const fullWeightInput = screen.getByTestId('fullWeight');
       await userEvent.clear(fullWeightInput);
       await userEvent.type(fullWeightInput, newFullWeight.toString());
+
+      const newAllowableWeight = 20000;
+      const reimbursableInput = screen.getByTestId('allowableWeight');
+      await userEvent.clear(reimbursableInput);
+      await userEvent.type(reimbursableInput, newAllowableWeight.toString());
 
       const netWeightDisplay = screen.getByTestId('net-weight-display');
       expect(netWeightDisplay).toHaveTextContent('4,000 lbs');
 
-      expect(await screen.findByLabelText('Accept')).toBeInTheDocument();
+      const acceptOption = screen.getByTestId('approveRadio');
+      expect(acceptOption).toBeInTheDocument();
 
-      const rejectOption = screen.getByLabelText('Reject');
+      const rejectOption = screen.getByTestId('rejectRadio');
       expect(rejectOption).toBeInTheDocument();
       await userEvent.click(rejectOption);
 
-      expect(screen.getByLabelText('Reason')).toBeInTheDocument();
-
       const rejectionReason = 'Not legible';
-      await userEvent.type(screen.getByLabelText('Reason'), rejectionReason);
+      const reasonTextBox = screen.getByLabelText('Reason');
+      expect(reasonTextBox).toBeInTheDocument();
+      await userEvent.type(reasonTextBox, rejectionReason);
 
-      const continueButton = screen.getByRole('button', { name: 'Continue' });
+      const continueButton = screen.getByTestId('reviewDocumentsContinueButton');
       expect(continueButton).toBeInTheDocument();
       await userEvent.click(continueButton);
 
       expect(screen.queryByText('Reviewing this weight ticket is required')).not.toBeInTheDocument();
 
-      const weightTicket = mtoShipmentWithOneWeightTicket.ppmShipment.weightTickets[0];
       const expectedPayload = {
         ppmShipmentId: mtoShipmentWithOneWeightTicket.ppmShipment.id,
         weightTicketId: weightTicket.id,
@@ -251,6 +263,7 @@ describe('ReviewDocuments', () => {
           ppmShipmentId: mtoShipmentWithOneWeightTicket.ppmShipment.id,
           vehicleDescription: weightTicket.vehicleDescription,
           emptyWeight: newEmptyWeight,
+          allowableWeight: newAllowableWeight,
           missingEmptyWeightTicket: weightTicket.missingEmptyWeightTicket,
           fullWeight: newFullWeight,
           missingFullWeightTicket: weightTicket.missingFullWeightTicket,
@@ -260,8 +273,9 @@ describe('ReviewDocuments', () => {
           reason: rejectionReason,
         },
       };
-
-      expect(mockPatchWeightTicket).toHaveBeenCalledWith(expectedPayload);
+      await waitFor(() => {
+        expect(mockPatchWeightTicket).toHaveBeenCalledWith(expectedPayload);
+      });
 
       expect(await screen.findByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
 
@@ -307,6 +321,34 @@ describe('ReviewDocuments', () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
+
+      expect(await screen.findByRole('heading', { level: 2, name: '1 of 1 Document Sets' }));
+
+      expect(await screen.findByRole('heading', { level: 3, name: /trip 1/ })).toBeInTheDocument();
+
+      // Need to accept the document before we can move forward without errors.
+      await userEvent.click(screen.getByLabelText('Accept'));
+
+      const continueButton = screen.getByRole('button', { name: 'Continue' });
+      expect(continueButton).toBeEnabled();
+
+      const backButton = screen.getByRole('button', { name: 'Back' });
+      expect(backButton).not.toBeEnabled();
+
+      await userEvent.click(continueButton);
+
+      expect(await screen.findByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
+
+      expect(backButton).toBeEnabled();
+      await userEvent.click(backButton);
+
+      expect(await screen.findByRole('heading', { level: 3, name: /trip 1/ })).toBeInTheDocument();
+    });
+
+    it('handles navigation properly using the continue/back buttons', async () => {
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+      renderWithProviders(<ReviewDocuments />, mockTooRountingOptions);
 
       expect(await screen.findByRole('heading', { level: 2, name: '1 of 1 Document Sets' }));
 

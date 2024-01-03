@@ -4748,6 +4748,10 @@ definitions:
       netWeightRemarks:
         description: Remarks explaining any edits made to the net weight
         type: string
+      allowableWeight:
+        description: Indicates the maximum reimbursable weight of the shipment
+        type: integer
+        minimum: 0
   UpdateMovingExpense:
     type: object
     properties:
@@ -6117,6 +6121,10 @@ definitions:
       createdAt:
         format: date-time
         type: string
+      convertToCustomerExpense:
+        type: boolean
+        example: false
+        x-omitempty: false
       customerContacts:
         $ref: '#/definitions/MTOServiceItemCustomerContacts'
       deletedAt:
@@ -6689,6 +6697,12 @@ definitions:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
+      allowableWeight:
+        description: Maximum reimbursable weight.
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
     required:
       - ppmShipmentId
       - createdAt
@@ -7572,6 +7586,10 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+      convertToCustomerExpense:
+        type: boolean
+        example: false
+        x-omitempty: false
       deletedAt:
         format: date
         type: string

@@ -12,8 +12,6 @@ const RequestedServiceItemsTable = ({
   serviceItems,
   handleUpdateMTOServiceItemStatus,
   handleShowRejectionDialog,
-  handleRequestSITAddressUpdateModal,
-  handleShowEditSitAddressModal,
   handleShowEditSitEntryDateModal,
   statusForTableType,
   serviceItemAddressUpdateAlert,
@@ -45,8 +43,6 @@ const RequestedServiceItemsTable = ({
         serviceItems={serviceItems}
         handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
         handleShowRejectionDialog={handleShowRejectionDialog}
-        handleShowEditSitAddressModal={handleShowEditSitAddressModal}
-        handleRequestSITAddressUpdateModal={handleRequestSITAddressUpdateModal}
         handleShowEditSitEntryDateModal={handleShowEditSitEntryDateModal}
         statusForTableType={statusForTableType}
         serviceItemAddressUpdateAlert={serviceItemAddressUpdateAlert}
@@ -55,17 +51,10 @@ const RequestedServiceItemsTable = ({
   );
 };
 
-RequestedServiceItemsTable.defaultProps = {
-  handleRequestSITAddressUpdateModal: () => {},
-};
-
 RequestedServiceItemsTable.propTypes = {
   handleUpdateMTOServiceItemStatus: PropTypes.func.isRequired,
   handleShowRejectionDialog: PropTypes.func.isRequired,
-  handleShowEditSitAddressModal: PropTypes.func.isRequired,
-  handleRequestSITAddressUpdateModal: PropTypes.func,
   statusForTableType: PropTypes.string.isRequired,
-  serviceItemAddressUpdateAlert: PropTypes.object.isRequired,
   serviceItems: PropTypes.arrayOf(ServiceItemDetailsShape).isRequired,
 };
 
