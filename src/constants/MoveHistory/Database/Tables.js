@@ -17,5 +17,4 @@ export default {
   sit_address_updates: 'sit_address_updates',
   ppm_shipments: 'ppm_shipments',
   weight_tickets: 'weight_tickets',
-  progear_weight_tickets: 'progear_weight_tickets',
 };
