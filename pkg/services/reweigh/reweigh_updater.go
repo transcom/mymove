@@ -45,6 +45,17 @@ func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *mo
 	//
 	// If the shipment being reweighed is a child diverted shipment, all shipments in the "diverted shipment chain"
 	// should receive this new weight as long as it greater than or equal to the lowest.
+	// Find the shipment, return error if not found
+	err := appCtx.DB().Find(&reweigh.Shipment, reweigh.ShipmentID)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(reweigh.ID, "while looking for Shipment")
+		default:
+			return nil, apperror.NewQueryError("MTOShipment", err, "")
+		}
+	}
+
 	if reweigh.Shipment.Diversion {
 		return f.updateDivertedShipmentReweigh(appCtx, reweigh, eTag, checks...)
 	}
@@ -125,7 +136,9 @@ func (f *reweighUpdater) updateReweighsInChain(appCtx appcontext.AppContext, req
 				// Proceed as the reweigh found doesn't match the requested
 				newReweigh := existingReweigh
 				newReweigh.Weight = updatedRequestedReweigh.Weight
-				_, err := f.doUpdateReweigh(appCtx, &newReweigh, eTag, checks...)
+				// Generate new eTag as this is a different reweigh than the original
+				newEtag := etag.GenerateEtag(existingReweigh.UpdatedAt)
+				_, err := f.doUpdateReweigh(appCtx, &newReweigh, newEtag, checks...)
 				if err != nil {
 					return nil, err
 				}
