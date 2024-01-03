@@ -96,7 +96,7 @@ const ConvertSITToCustomerExpenseModal = ({ shipment, sitStatus, onClose, onSubm
           </ModalTitle>
           <Formik
             validationSchema={convertSITToCustomerExpenseSchema}
-            onSubmit={(e) => onSubmit(e)}
+            onSubmit={(e) => onSubmit(true, e.remarks)}
             initialValues={initialValues}
             validateOnMount
           >
