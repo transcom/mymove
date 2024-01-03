@@ -66,9 +66,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrderAcknowledgeExcessWeightRiskHandler: order.AcknowledgeExcessWeightRiskHandlerFunc(func(params order.AcknowledgeExcessWeightRiskParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.AcknowledgeExcessWeightRisk has not yet been implemented")
 		}),
-		MtoServiceItemApproveSITAddressUpdateHandler: mto_service_item.ApproveSITAddressUpdateHandlerFunc(func(params mto_service_item.ApproveSITAddressUpdateParams) middleware.Responder {
-			return middleware.NotImplemented("operation mto_service_item.ApproveSITAddressUpdate has not yet been implemented")
-		}),
 		ShipmentApproveSITExtensionHandler: shipment.ApproveSITExtensionHandlerFunc(func(params shipment.ApproveSITExtensionParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.ApproveSITExtension has not yet been implemented")
 		}),
@@ -200,9 +197,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		QueuesListPrimeMovesHandler: queues.ListPrimeMovesHandlerFunc(func(params queues.ListPrimeMovesParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.ListPrimeMoves has not yet been implemented")
-		}),
-		MtoServiceItemRejectSITAddressUpdateHandler: mto_service_item.RejectSITAddressUpdateHandlerFunc(func(params mto_service_item.RejectSITAddressUpdateParams) middleware.Responder {
-			return middleware.NotImplemented("operation mto_service_item.RejectSITAddressUpdate has not yet been implemented")
 		}),
 		ShipmentRejectShipmentHandler: shipment.RejectShipmentHandlerFunc(func(params shipment.RejectShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.RejectShipment has not yet been implemented")
@@ -339,8 +333,6 @@ type MymoveAPI struct {
 
 	// OrderAcknowledgeExcessWeightRiskHandler sets the operation handler for the acknowledge excess weight risk operation
 	OrderAcknowledgeExcessWeightRiskHandler order.AcknowledgeExcessWeightRiskHandler
-	// MtoServiceItemApproveSITAddressUpdateHandler sets the operation handler for the approve s i t address update operation
-	MtoServiceItemApproveSITAddressUpdateHandler mto_service_item.ApproveSITAddressUpdateHandler
 	// ShipmentApproveSITExtensionHandler sets the operation handler for the approve s i t extension operation
 	ShipmentApproveSITExtensionHandler shipment.ApproveSITExtensionHandler
 	// ShipmentApproveShipmentHandler sets the operation handler for the approve shipment operation
@@ -429,8 +421,6 @@ type MymoveAPI struct {
 	MtoShipmentListMTOShipmentsHandler mto_shipment.ListMTOShipmentsHandler
 	// QueuesListPrimeMovesHandler sets the operation handler for the list prime moves operation
 	QueuesListPrimeMovesHandler queues.ListPrimeMovesHandler
-	// MtoServiceItemRejectSITAddressUpdateHandler sets the operation handler for the reject s i t address update operation
-	MtoServiceItemRejectSITAddressUpdateHandler mto_service_item.RejectSITAddressUpdateHandler
 	// ShipmentRejectShipmentHandler sets the operation handler for the reject shipment operation
 	ShipmentRejectShipmentHandler shipment.RejectShipmentHandler
 	// ShipmentRequestShipmentCancellationHandler sets the operation handler for the request shipment cancellation operation
@@ -574,9 +564,6 @@ func (o *MymoveAPI) Validate() error {
 	if o.OrderAcknowledgeExcessWeightRiskHandler == nil {
 		unregistered = append(unregistered, "order.AcknowledgeExcessWeightRiskHandler")
 	}
-	if o.MtoServiceItemApproveSITAddressUpdateHandler == nil {
-		unregistered = append(unregistered, "mto_service_item.ApproveSITAddressUpdateHandler")
-	}
 	if o.ShipmentApproveSITExtensionHandler == nil {
 		unregistered = append(unregistered, "shipment.ApproveSITExtensionHandler")
 	}
@@ -708,9 +695,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.QueuesListPrimeMovesHandler == nil {
 		unregistered = append(unregistered, "queues.ListPrimeMovesHandler")
-	}
-	if o.MtoServiceItemRejectSITAddressUpdateHandler == nil {
-		unregistered = append(unregistered, "mto_service_item.RejectSITAddressUpdateHandler")
 	}
 	if o.ShipmentRejectShipmentHandler == nil {
 		unregistered = append(unregistered, "shipment.RejectShipmentHandler")
@@ -899,10 +883,6 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/sit-address-update/{sitAddressUpdateID}/approve"] = mto_service_item.NewApproveSITAddressUpdate(o.context, o.MtoServiceItemApproveSITAddressUpdateHandler)
-	if o.handlers["PATCH"] == nil {
-		o.handlers["PATCH"] = make(map[string]http.Handler)
-	}
 	o.handlers["PATCH"]["/shipments/{shipmentID}/sit-extensions/{sitExtensionID}/approve"] = shipment.NewApproveSITExtension(o.context, o.ShipmentApproveSITExtensionHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -1076,10 +1056,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/queues/prime-moves"] = queues.NewListPrimeMoves(o.context, o.QueuesListPrimeMovesHandler)
-	if o.handlers["PATCH"] == nil {
-		o.handlers["PATCH"] = make(map[string]http.Handler)
-	}
-	o.handlers["PATCH"]["/sit-address-update/{sitAddressUpdateID}/reject"] = mto_service_item.NewRejectSITAddressUpdate(o.context, o.MtoServiceItemRejectSITAddressUpdateHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
