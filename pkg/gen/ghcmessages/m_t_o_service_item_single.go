@@ -32,6 +32,9 @@ type MTOServiceItemSingle struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
+	// customer expense reason
+	CustomerExpenseReason *string `json:"customerExpenseReason,omitempty"`
+
 	// deleted at
 	// Format: date
 	DeletedAt strfmt.Date `json:"deletedAt,omitempty"`
