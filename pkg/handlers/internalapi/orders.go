@@ -295,13 +295,13 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			}
 
 			if payload.OriginDutyLocationID != "" {
-				originDutyLocationID, err := uuid.FromString(payload.OriginDutyLocationID.String())
-				if err != nil {
-					return handlers.ResponseForError(appCtx.Logger(), err), err
+				originDutyLocationID, errorOrigin := uuid.FromString(payload.OriginDutyLocationID.String())
+				if errorOrigin != nil {
+					return handlers.ResponseForError(appCtx.Logger(), errorOrigin), errorOrigin
 				}
-				originDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), originDutyLocationID)
-				if err != nil {
-					return handlers.ResponseForError(appCtx.Logger(), err), err
+				originDutyLocation, errorOrigin := models.FetchDutyLocation(appCtx.DB(), originDutyLocationID)
+				if errorOrigin != nil {
+					return handlers.ResponseForError(appCtx.Logger(), errorOrigin), errorOrigin
 				}
 				order.OriginDutyLocation = &originDutyLocation
 				order.OriginDutyLocationID = &originDutyLocationID
