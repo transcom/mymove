@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// UpdateShipmentDestinationAddress UpdateShipmentDestinationAddress contains the fields required for the prime to create a non SIT address update request.
+// UpdateShipmentDestinationAddress UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment or its SIT service items.
 //
 // swagger:model UpdateShipmentDestinationAddress
 type UpdateShipmentDestinationAddress struct {

@@ -3110,7 +3110,7 @@ func init() {
       }
     },
     "UpdateShipmentDestinationAddress": {
-      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to create a non SIT address update request.",
+      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment or its SIT service items.",
       "type": "object",
       "required": [
         "contractorRemarks",
@@ -6373,7 +6373,7 @@ func init() {
       }
     },
     "UpdateShipmentDestinationAddress": {
-      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to create a non SIT address update request.",
+      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment or its SIT service items.",
       "type": "object",
       "required": [
         "contractorRemarks",
