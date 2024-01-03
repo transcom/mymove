@@ -1472,6 +1472,54 @@ paths:
       summary: Denies a SIT extension
       x-permissions:
         - update.SITExtension
+  /shipments/{shipmentID}/sit-service-item/convert-to-customer-expense:
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateSITServiceItemCustomerExpense'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully converted to customer expense
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+        - mtoServiceItem
+      description: Converts a SIT to customer expense
+      operationId: updateSITServiceItemCustomerExpense
+      summary: Converts a SIT to customer expense
+      x-permissions:
+        - update.MTOServiceItem
   /shipments/{shipmentID}/ppm-documents:
     parameters:
       - description: ID of the shipment
@@ -4748,6 +4796,10 @@ definitions:
       netWeightRemarks:
         description: Remarks explaining any edits made to the net weight
         type: string
+      allowableWeight:
+        description: Indicates the maximum reimbursable weight of the shipment
+        type: integer
+        minimum: 0
   UpdateMovingExpense:
     type: object
     properties:
@@ -5020,6 +5072,18 @@ definitions:
     required:
       - officeRemarks
       - convertToCustomerExpense
+  UpdateSITServiceItemCustomerExpense:
+    properties:
+      convertToCustomerExpense:
+        example: true
+        type: boolean
+      customerExpenseReason:
+        description: Reason the service item was rejected
+        type: string
+        example: Insufficent details provided
+    required:
+      - convertToCustomerExpense
+      - customerExpenseReason
   CreateApprovedSITDurationUpdate:
     properties:
       requestReason:
@@ -6117,6 +6181,13 @@ definitions:
       createdAt:
         format: date-time
         type: string
+      convertToCustomerExpense:
+        type: boolean
+        example: false
+        x-omitempty: false
+      customerExpenseReason:
+        type: string
+        x-nullable: true
       customerContacts:
         $ref: '#/definitions/MTOServiceItemCustomerContacts'
       deletedAt:
@@ -6463,6 +6534,10 @@ definitions:
       currentSIT:
         type: object
         properties:
+          serviceItemID:
+            type: string
+            format: uuid
+            example: c56a4180-65aa-42ec-a945-5fd21dec0538
           location:
             enum:
               - ORIGIN
@@ -6689,6 +6764,12 @@ definitions:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
+      allowableWeight:
+        description: Maximum reimbursable weight.
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
     required:
       - ppmShipmentId
       - createdAt
@@ -7572,6 +7653,13 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+      convertToCustomerExpense:
+        type: boolean
+        example: false
+        x-omitempty: false
+      customerExpenseReason:
+        type: string
+        x-nullable: true
       deletedAt:
         format: date
         type: string

@@ -95,7 +95,7 @@ func (f *sitExtensionDenier) denySITExtension(appCtx appcontext.AppContext, ship
 
 		// Since we aren't implementing an undo function, only update members_expense in the mto_service_items table if it's true.
 		if *convertToCustomerExpense {
-			_, convertErr := f.serviceItemUpdater.ConvertItemToCustomerExpense(appCtx, &returnedShipment)
+			_, convertErr := f.serviceItemUpdater.ConvertItemToCustomerExpense(appCtx, &returnedShipment, officeRemarks, true)
 			if convertErr != nil {
 				return convertErr
 			}
