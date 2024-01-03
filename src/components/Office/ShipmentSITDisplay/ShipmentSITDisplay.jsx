@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import classnames from 'classnames';
 import moment from 'moment';
 import { PropTypes } from 'prop-types';
@@ -71,6 +71,8 @@ const SitHistoryList = ({ sitHistory, dayAllowance }) => {
 };
 
 const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, openConvertModalButton }) => {
+  const [isConvertedToCustomerExpense, setIsConvertedToCustomerExpense] = useState(false);
+
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
   const currentDaysInSIT = sitStatus.currentSIT?.daysInSIT || 0;
   const sitDepartureDate =
@@ -123,11 +125,26 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
     formatDate(sitStatus?.currentSIT?.sitCustomerContacted, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE;
   const sitRequestedDelivery =
     formatDate(sitStatus?.currentSIT?.sitRequestedDelivery, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE;
+
+  useEffect(() => {
+    if (shipment.mtoServiceItems) {
+      const itemsArray = Object.values(shipment.mtoServiceItems);
+      const currentSIT = itemsArray.find((item) => item.id === sitStatus?.currentSIT?.serviceItemID);
+      if (currentSIT?.convertToCustomerExpense) setIsConvertedToCustomerExpense(true);
+      else setIsConvertedToCustomerExpense(false);
+    }
+  }, [shipment.mtoServiceItems, sitStatus?.currentSIT?.serviceItemID]);
+
   return (
     <>
       <div className={styles.title}>
         <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Additional Days Requested</Tag>}</p>
-        {sitStatus.currentSIT && !pendingSITExtension && showConvertToCustomerExpense && openConvertModalButton}
+        {!pendingSITExtension && isConvertedToCustomerExpense && <Tag>Converted To Customer Expense</Tag>}
+        {sitStatus.currentSIT &&
+          !pendingSITExtension &&
+          showConvertToCustomerExpense &&
+          !isConvertedToCustomerExpense &&
+          openConvertModalButton}
         {sitStatus.currentSIT && openModalButton}
       </div>
       <div className={styles.tableContainer} data-testid="sitStatusTable">
