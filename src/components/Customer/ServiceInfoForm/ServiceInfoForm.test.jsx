@@ -138,7 +138,7 @@ describe('ServiceInfoForm', () => {
       suffix: '',
       affiliation: '',
       edipi: '',
-      rank: '',
+      grade: '',
       current_location: {},
     },
     newDutyLocation: {},
@@ -234,7 +234,7 @@ describe('ServiceInfoForm', () => {
           last_name: 'Spaceman',
           affiliation: 'NAVY',
           edipi: '1234567890',
-          rank: 'E_5',
+          grade: 'E_5',
           current_location: {
             address: {
               city: 'Test City',
