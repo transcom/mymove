@@ -393,6 +393,13 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		shipmentSITStatus,
 	}
 
+	ghcAPI.ShipmentUpdateSITServiceItemCustomerExpenseHandler = UpdateSITServiceItemCustomerExpenseHandler{
+		handlerConfig,
+		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter, shipmentFetcher, addressCreator),
+		mtoshipment.NewMTOShipmentFetcher(),
+		shipmentSITStatus,
+	}
+
 	ghcAPI.ShipmentCreateApprovedSITDurationUpdateHandler = CreateApprovedSITDurationUpdateHandler{
 		handlerConfig,
 		sitextension.NewApprovedSITDurationUpdateCreator(),
