@@ -712,6 +712,7 @@ func currentSIT(currentSIT *services.CurrentSIT) *ghcmessages.SITStatusCurrentSI
 		return nil
 	}
 	return &ghcmessages.SITStatusCurrentSIT{
+		ServiceItemID:        *handlers.FmtUUID(currentSIT.ServiceItemID),
 		Location:             currentSIT.Location,
 		DaysInSIT:            handlers.FmtIntPtrToInt64(&currentSIT.DaysInSIT),
 		SitEntryDate:         handlers.FmtDate(currentSIT.SITEntryDate),
@@ -1315,6 +1316,7 @@ func MTOServiceItemSingleModel(s *models.MTOServiceItem) *ghcmessages.MTOService
 		Status:                   handlers.FmtString(string(s.Status)),
 		UpdatedAt:                *handlers.FmtDateTime(s.UpdatedAt),
 		ConvertToCustomerExpense: *handlers.FmtBool(s.CustomerExpense),
+		CustomerExpenseReason:    handlers.FmtStringPtr(s.CustomerExpenseReason),
 	}
 }
 
@@ -1365,6 +1367,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		ETag:                          etag.GenerateEtag(s.UpdatedAt),
 		ServiceRequestDocuments:       serviceRequestDocs,
 		ConvertToCustomerExpense:      *handlers.FmtBool(s.CustomerExpense),
+		CustomerExpenseReason:         handlers.FmtStringPtr(s.CustomerExpenseReason),
 	}
 }
 

@@ -25,6 +25,9 @@
         type: boolean
         example: false
         x-omitempty: false
+      customerExpenseReason:
+        type: string
+        x-nullable: true
       deletedAt:
         format: date
         type: string

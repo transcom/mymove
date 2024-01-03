@@ -432,6 +432,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.UpdateProGearWeightTicket has not yet been implemented")
 		})
 	}
+	if api.ShipmentUpdateSITServiceItemCustomerExpenseHandler == nil {
+		api.ShipmentUpdateSITServiceItemCustomerExpenseHandler = shipment.UpdateSITServiceItemCustomerExpenseHandlerFunc(func(params shipment.UpdateSITServiceItemCustomerExpenseParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.UpdateSITServiceItemCustomerExpense has not yet been implemented")
+		})
+	}
 	if api.MtoServiceItemUpdateServiceItemSitEntryDateHandler == nil {
 		api.MtoServiceItemUpdateServiceItemSitEntryDateHandler = mto_service_item.UpdateServiceItemSitEntryDateHandlerFunc(func(params mto_service_item.UpdateServiceItemSitEntryDateParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.UpdateServiceItemSitEntryDate has not yet been implemented")
