@@ -97,10 +97,6 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 			},
 		}, nil)
 
-		sitAddressUpdate := factory.BuildSITAddressUpdate(suite.DB(), []factory.Customization{{Model: originSit,
-			LinkOnly: true}}, nil)
-		originSit.SITAddressUpdates = []models.SITAddressUpdate{sitAddressUpdate}
-
 		customerContact := testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{})
 		destinationSit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
