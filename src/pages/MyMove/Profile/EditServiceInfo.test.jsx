@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import { EditServiceInfo } from './EditServiceInfo';
 
-import { patchServiceMember, patchOrders } from 'services/internalApi';
+import { patchServiceMember } from 'services/internalApi';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -15,7 +15,6 @@ jest.mock('react-router-dom', () => ({
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   patchServiceMember: jest.fn(),
-  patchOrders: jest.fn(),
 }));
 
 beforeEach(() => {
@@ -77,7 +76,6 @@ describe('EditServiceInfo page', () => {
     };
 
     patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValues));
-    patchOrders.mockImplementation(() => Promise.resolve(testServiceMemberValues));
 
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
     render(
@@ -111,7 +109,7 @@ describe('EditServiceInfo page', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/service-member/profile');
   });
 
-  it('displays a flash message about entitlement when the rank changes', async () => {
+  it('displays a flash message about entitlement when the pay grade changes', async () => {
     const testServiceMemberValues = {
       id: 'testServiceMemberId',
       first_name: 'Leo',
@@ -173,7 +171,6 @@ describe('EditServiceInfo page', () => {
     };
 
     patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValuesResponse));
-    patchOrders.mockImplementation(() => Promise.resolve(testServiceMemberValuesResponse));
 
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
     render(
