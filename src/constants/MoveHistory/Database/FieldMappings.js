@@ -110,4 +110,5 @@ export default {
   net_weight_remarks: 'Remarks',
   adjusted_net_weight: 'Net weight',
   weight: 'Weight',
+  belongs_to_self: 'Service member',
 };

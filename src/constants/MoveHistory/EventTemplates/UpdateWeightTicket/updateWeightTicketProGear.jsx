@@ -8,7 +8,7 @@ import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
 
 const formatChangedValues = (historyRecord) => {
   const newChangedValues = {
-    description: historyRecord.oldValues.belongs_to_self ? 'Pro-gear Weight' : 'Spouse Pro-gear Weight',
+    belongs_to_self: historyRecord.oldValues.belongs_to_self,
     ...historyRecord.changedValues,
     ...getMtoShipmentLabel(historyRecord),
   };
