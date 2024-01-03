@@ -469,24 +469,6 @@ func init() {
         }
       }
     },
-    "CreateNonSITAddressUpdateRequest": {
-      "description": "CreateNonSITAddressUpdateRequest contains the fields required for the prime to create a non SIT address update request.",
-      "type": "object",
-      "required": [
-        "contractorRemarks",
-        "newAddress"
-      ],
-      "properties": {
-        "contractorRemarks": {
-          "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
-          "type": "string",
-          "example": "Customer reached out to me this week and let me know they want to move somewhere else."
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        }
-      }
-    },
     "CreatePPMShipment": {
       "description": "Creation object containing the ` + "`" + `PPM` + "`" + ` shipmentType specific data, not used for other shipment types.",
       "type": "object",
@@ -3124,6 +3106,24 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": 2000
+        }
+      }
+    },
+    "UpdateShipmentDestinationAddress": {
+      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to create a non SIT address update request.",
+      "type": "object",
+      "required": [
+        "contractorRemarks",
+        "newAddress"
+      ],
+      "properties": {
+        "contractorRemarks": {
+          "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
+          "type": "string",
+          "example": "Customer reached out to me this week and let me know they want to move somewhere else."
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
         }
       }
     },
@@ -3732,24 +3732,6 @@ func init() {
         }
       }
     },
-    "CreateNonSITAddressUpdateRequest": {
-      "description": "CreateNonSITAddressUpdateRequest contains the fields required for the prime to create a non SIT address update request.",
-      "type": "object",
-      "required": [
-        "contractorRemarks",
-        "newAddress"
-      ],
-      "properties": {
-        "contractorRemarks": {
-          "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
-          "type": "string",
-          "example": "Customer reached out to me this week and let me know they want to move somewhere else."
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        }
-      }
-    },
     "CreatePPMShipment": {
       "description": "Creation object containing the ` + "`" + `PPM` + "`" + ` shipmentType specific data, not used for other shipment types.",
       "type": "object",
@@ -6387,6 +6369,24 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": 2000
+        }
+      }
+    },
+    "UpdateShipmentDestinationAddress": {
+      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to create a non SIT address update request.",
+      "type": "object",
+      "required": [
+        "contractorRemarks",
+        "newAddress"
+      ],
+      "properties": {
+        "contractorRemarks": {
+          "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
+          "type": "string",
+          "example": "Customer reached out to me this week and let me know they want to move somewhere else."
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
         }
       }
     },
