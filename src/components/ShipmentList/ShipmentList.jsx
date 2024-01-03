@@ -54,11 +54,20 @@ export const ShipmentListItem = ({
       {showShipmentWeight && (
         <div className={styles.shipmentWeight}>
           {isPPM && (
-            <p>
-              {estimated}-{formatWeight(shipment.ppmShipment.estimatedWeight)}
-              <br />
-              {actual}-{formatWeight(shipment.calculatedBillableWeight)}
-            </p>
+            <div className={styles.spaceBetween}>
+              <div className={styles.textAlignRight}>
+                <h6>{estimated}</h6>
+                <h6>{actual}</h6>
+              </div>
+              <div className={styles.textAlignLeft}>
+                <h6>
+                  <strong>{formatWeight(shipment.ppmShipment.estimatedWeight)}</strong>
+                </h6>
+                <h6>
+                  <strong>{formatWeight(shipment.calculatedBillableWeight)}</strong>
+                </h6>
+              </div>
+            </div>
           )}
           {!isPPM && formatWeight(shipment.calculatedBillableWeight)}
         </div>
