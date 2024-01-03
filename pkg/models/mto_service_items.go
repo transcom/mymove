@@ -62,7 +62,8 @@ type MTOServiceItem struct {
 	ApprovedAt                        *time.Time                     `db:"approved_at"`
 	RejectedAt                        *time.Time                     `db:"rejected_at"`
 	RequestedApprovalsRequestedStatus *bool                          `db:"requested_approvals_requested_status"`
-	CustomerExpense                   *bool                          `db:"customer_expense"`
+	CustomerExpense                   bool                           `db:"customer_expense"`
+	CustomerExpenseReason             *string                        `db:"customer_expense_reason"`
 }
 
 // MTOServiceItemSingle is an object representing a single column in the service items table
@@ -91,7 +92,8 @@ type MTOServiceItemSingle struct {
 	SITDestinationOriginalAddressID *uuid.UUID           `db:"sit_destination_original_address_id"`
 	SITCustomerContacted            *time.Time           `db:"sit_customer_contacted"`
 	SITRequestedDelivery            *time.Time           `db:"sit_requested_delivery"`
-	CustomerExpense                 *bool                `db:"customer_expense"`
+	CustomerExpense                 bool                 `db:"customer_expense"`
+	CustomerExpenseReason           *string              `db:"customer_expense_reason"`
 }
 
 // TableName overrides the table name used by Pop.
