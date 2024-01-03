@@ -3896,3 +3896,202 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.NoError(payload.Validate(strfmt.Default))
 	})
 }
+func (suite *HandlerSuite) TestUpdateSITServiceItemCustomerExpenseHandler() {
+	moveRouter := moveservices.NewMoveRouter()
+	builder := query.NewQueryBuilder()
+	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
+	addressCreator := address.NewAddressCreator()
+
+	suite.Run("Successful PATCH - Integration Test", func() {
+		// Build shipment with SIT
+		shipmentSITAllowance := int(90)
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
+			},
+		}, nil)
+
+		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
+		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		dofsit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &aMonthAgo,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
+			},
+		}, nil)
+
+		approvedShipment.MTOServiceItems = models.MTOServiceItems{dofsit}
+
+		eTag := etag.GenerateEtag(approvedShipment.UpdatedAt)
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		updater := mtoserviceitem.NewMTOServiceItemUpdater(builder, moveRouter, shipmentFetcher, addressCreator)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/shipments/%s/sit-service-item/convert-to-customer-expense", approvedShipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerConfig := suite.HandlerConfig()
+
+		handler := UpdateSITServiceItemCustomerExpenseHandler{
+			handlerConfig,
+			updater,
+			shipmentFetcher,
+			sitstatus.NewShipmentSITStatus(),
+		}
+		convertToCustomerExpense := true
+		customerExpenseReason := "test"
+		createParams := shipmentops.UpdateSITServiceItemCustomerExpenseParams{
+			HTTPRequest: req,
+			IfMatch:     eTag,
+			Body: &ghcmessages.UpdateSITServiceItemCustomerExpense{
+				ConvertToCustomerExpense: &convertToCustomerExpense,
+				CustomerExpenseReason:    &customerExpenseReason,
+			},
+			ShipmentID: *handlers.FmtUUID(approvedShipment.ID),
+		}
+
+		// Validate incoming payload
+		suite.NoError(createParams.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(createParams)
+		suite.IsType(&shipmentops.UpdateSITServiceItemCustomerExpenseOK{}, response)
+		okResponse := response.(*shipmentops.UpdateSITServiceItemCustomerExpenseOK)
+		payload := okResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+	})
+
+	suite.Run("PATCH failure - 404 -- not found", func() {
+		// Build shipment with SIT
+		shipmentSITAllowance := int(90)
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
+			},
+		}, nil)
+
+		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
+		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		dofsit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &aMonthAgo,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
+			},
+		}, nil)
+		approvedShipment.MTOServiceItems = models.MTOServiceItems{dofsit}
+
+		eTag := etag.GenerateEtag(approvedShipment.UpdatedAt)
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		updater := mtoserviceitem.NewMTOServiceItemUpdater(builder, moveRouter, shipmentFetcher, addressCreator)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/shipments/%s/sit-service-item/convert-to-customer-expense", approvedShipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerConfig := suite.HandlerConfig()
+
+		handler := UpdateSITServiceItemCustomerExpenseHandler{
+			handlerConfig,
+			updater,
+			shipmentFetcher,
+			sitstatus.NewShipmentSITStatus(),
+		}
+		convertToCustomerExpense := true
+		customerExpenseReason := "test"
+		uuidString := handlers.FmtUUID(uuid.FromStringOrNil("d874d002-5582-4a91-97d3-786e8f66c763"))
+		createParams := shipmentops.UpdateSITServiceItemCustomerExpenseParams{
+			HTTPRequest: req,
+			IfMatch:     eTag,
+			Body: &ghcmessages.UpdateSITServiceItemCustomerExpense{
+				ConvertToCustomerExpense: &convertToCustomerExpense,
+				CustomerExpenseReason:    &customerExpenseReason,
+			},
+			ShipmentID: *uuidString,
+		}
+
+		// Validate incoming payload
+		suite.NoError(createParams.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(createParams)
+
+		suite.IsType(&shipmentops.UpdateSITServiceItemCustomerExpenseNotFound{}, response)
+		payload := response.(*shipmentops.UpdateSITServiceItemCustomerExpenseNotFound).Payload
+
+		// Validate outgoing payload: nil payload
+		suite.Nil(payload)
+	})
+
+	suite.Run("500 server error", func() {
+		shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
+		// Build shipment with SIT
+		shipmentSITAllowance := int(90)
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
+			},
+		}, nil)
+		eTag := etag.GenerateEtag(approvedShipment.UpdatedAt)
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+		// Mock the updater to return an error.
+		mockedUpdater := &mocks.MTOServiceItemUpdater{}
+		mockedUpdater.On("ConvertItemToCustomerExpense",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, errors.New("internal server error"))
+
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/shipments/%s/sit-service-item/convert-to-customer-expense", approvedShipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerConfig := suite.HandlerConfig()
+
+		handler := UpdateSITServiceItemCustomerExpenseHandler{
+			handlerConfig,
+			mockedUpdater, // Use the mocked updater here
+			shipmentFetcher,
+			sitstatus.NewShipmentSITStatus(),
+		}
+		convertToCustomerExpense := true
+		customerExpenseReason := "test"
+		createParams := shipmentops.UpdateSITServiceItemCustomerExpenseParams{
+			HTTPRequest: req,
+			IfMatch:     eTag,
+			Body: &ghcmessages.UpdateSITServiceItemCustomerExpense{
+				ConvertToCustomerExpense: &convertToCustomerExpense,
+				CustomerExpenseReason:    &customerExpenseReason,
+			},
+			ShipmentID: *handlers.FmtUUID(approvedShipment.ID),
+		}
+
+		suite.NoError(createParams.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(createParams)
+		suite.IsType(&shipmentops.UpdateSITServiceItemCustomerExpenseInternalServerError{}, response)
+	})
+}

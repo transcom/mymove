@@ -4437,6 +4437,78 @@ func init() {
         }
       ]
     },
+    "/shipments/{shipmentID}/sit-service-item/convert-to-customer-expense": {
+      "patch": {
+        "description": "Converts a SIT to customer expense",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment",
+          "mtoServiceItem"
+        ],
+        "summary": "Converts a SIT to customer expense",
+        "operationId": "updateSITServiceItemCustomerExpense",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateSITServiceItemCustomerExpense"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully converted to customer expense",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "update.MTOServiceItem"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/tac/valid": {
       "get": {
         "description": "Returns a boolean based on whether a tac value is valid or not",
@@ -6041,6 +6113,10 @@ func init() {
         "customerContacts": {
           "$ref": "#/definitions/MTOServiceItemCustomerContacts"
         },
+        "customerExpenseReason": {
+          "type": "string",
+          "x-nullable": true
+        },
         "deletedAt": {
           "type": "string",
           "format": "date"
@@ -6266,6 +6342,10 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "customerExpenseReason": {
+          "type": "string",
+          "x-nullable": true
         },
         "deletedAt": {
           "type": "string",
@@ -8540,6 +8620,11 @@ func init() {
                 "DESTINATION"
               ]
             },
+            "serviceItemID": {
+              "type": "string",
+              "format": "uuid",
+              "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+            },
             "sitAllowanceEndDate": {
               "type": "string",
               "format": "date",
@@ -9496,6 +9581,23 @@ func init() {
         "weight": {
           "description": "Weight of the pro-gear contained in the shipment.",
           "type": "integer"
+        }
+      }
+    },
+    "UpdateSITServiceItemCustomerExpense": {
+      "required": [
+        "convertToCustomerExpense",
+        "customerExpenseReason"
+      ],
+      "properties": {
+        "convertToCustomerExpense": {
+          "type": "boolean",
+          "example": true
+        },
+        "customerExpenseReason": {
+          "description": "Reason the service item was rejected",
+          "type": "string",
+          "example": "Insufficent details provided"
         }
       }
     },
@@ -15639,6 +15741,96 @@ func init() {
         }
       ]
     },
+    "/shipments/{shipmentID}/sit-service-item/convert-to-customer-expense": {
+      "patch": {
+        "description": "Converts a SIT to customer expense",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment",
+          "mtoServiceItem"
+        ],
+        "summary": "Converts a SIT to customer expense",
+        "operationId": "updateSITServiceItemCustomerExpense",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateSITServiceItemCustomerExpense"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully converted to customer expense",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "update.MTOServiceItem"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/tac/valid": {
       "get": {
         "description": "Returns a boolean based on whether a tac value is valid or not",
@@ -17277,6 +17469,10 @@ func init() {
         "customerContacts": {
           "$ref": "#/definitions/MTOServiceItemCustomerContacts"
         },
+        "customerExpenseReason": {
+          "type": "string",
+          "x-nullable": true
+        },
         "deletedAt": {
           "type": "string",
           "format": "date"
@@ -17502,6 +17698,10 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "customerExpenseReason": {
+          "type": "string",
+          "x-nullable": true
         },
         "deletedAt": {
           "type": "string",
@@ -19780,6 +19980,11 @@ func init() {
                 "DESTINATION"
               ]
             },
+            "serviceItemID": {
+              "type": "string",
+              "format": "uuid",
+              "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+            },
             "sitAllowanceEndDate": {
               "type": "string",
               "format": "date",
@@ -19832,6 +20037,11 @@ func init() {
             "ORIGIN",
             "DESTINATION"
           ]
+        },
+        "serviceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "sitAllowanceEndDate": {
           "type": "string",
@@ -20783,6 +20993,23 @@ func init() {
           "description": "Weight of the pro-gear contained in the shipment.",
           "type": "integer",
           "minimum": 0
+        }
+      }
+    },
+    "UpdateSITServiceItemCustomerExpense": {
+      "required": [
+        "convertToCustomerExpense",
+        "customerExpenseReason"
+      ],
+      "properties": {
+        "convertToCustomerExpense": {
+          "type": "boolean",
+          "example": true
+        },
+        "customerExpenseReason": {
+          "description": "Reason the service item was rejected",
+          "type": "string",
+          "example": "Insufficent details provided"
         }
       }
     },
