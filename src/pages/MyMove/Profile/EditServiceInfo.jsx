@@ -54,7 +54,6 @@ export const EditServiceInfo = ({
   };
 
   const handleSubmit = (values) => {
-    console.log(values);
     const entitlementCouldChange = values.grade !== currentOrders.grade;
     const payload = {
       id: serviceMember.id,
@@ -94,7 +93,6 @@ export const EditServiceInfo = ({
     //     const errorMessage = getResponseError(response, 'failed to update service member due to server error');
     //     setServerError(errorMessage);
     //   });
-    console.log(currentOrders);
 
     const ordersPayload = {
       grade: values.grade,
@@ -102,9 +100,6 @@ export const EditServiceInfo = ({
       service_member_id: serviceMember.id,
       id: currentOrders.id,
       new_duty_location_id: currentOrders.new_duty_location.id,
-      new_duty_location: currentOrders.new_duty_location,
-      uploaded_orders: currentOrders.uploaded_orders,
-      move_status: currentOrders.status,
       has_dependents: currentOrders.has_dependents,
       issue_date: formatDateForSwagger(currentOrders.issue_date),
       report_by_date: formatDateForSwagger(currentOrders.report_by_date),
@@ -113,7 +108,6 @@ export const EditServiceInfo = ({
     };
     patchOrders(ordersPayload)
       .then((response) => {
-        console.log('response', response);
         updateOrders(response);
         if (entitlementCouldChange) {
           const weightAllowance = currentOrders?.has_dependents

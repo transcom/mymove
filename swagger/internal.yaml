@@ -1972,6 +1972,10 @@ definitions:
       grade:
         $ref: '#/definitions/ServiceMemberRank'
         title: Pay Grade
+      origin_duty_location_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
     required:
       - service_member_id
       - issue_date

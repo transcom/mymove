@@ -294,6 +294,19 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
+			if payload.OriginDutyLocationID != "" {
+				originDutyLocationID, err := uuid.FromString(payload.OriginDutyLocationID.String())
+				if err != nil {
+					return handlers.ResponseForError(appCtx.Logger(), err), err
+				}
+				originDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), originDutyLocationID)
+				if err != nil {
+					return handlers.ResponseForError(appCtx.Logger(), err), err
+				}
+				order.OriginDutyLocation = &originDutyLocation
+				order.OriginDutyLocationID = &originDutyLocationID
+			}
+
 			if payload.OrdersType == nil {
 				errMsg := "missing required field: OrdersType"
 				return handlers.ResponseForError(appCtx.Logger(), errors.New(errMsg)), apperror.NewBadDataError("missing required field: OrdersType")
@@ -311,6 +324,10 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			order.TAC = payload.Tac
 			order.SAC = payload.Sac
 			order.Grade = (*string)(payload.Grade)
+			// order.OriginDutyLocationID = originDutyLocation.ID
+			// order.OriginDutyLocation = originDutyLocation
+			//order.OriginDutyLocationID = *payload.OriginDutyLocation.ID
+			//order.OriginDutyLocation = originDutyLocation
 
 			if payload.DepartmentIndicator != nil {
 				order.DepartmentIndicator = handlers.FmtString(string(*payload.DepartmentIndicator))

@@ -54,6 +54,11 @@ type CreateUpdateOrders struct {
 	// orders type detail
 	OrdersTypeDetail *OrdersTypeDetail `json:"orders_type_detail,omitempty"`
 
+	// origin duty location id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Format: uuid
+	OriginDutyLocationID strfmt.UUID `json:"origin_duty_location_id,omitempty"`
+
 	// Report-by date
 	//
 	// Report By Date
@@ -110,6 +115,10 @@ func (m *CreateUpdateOrders) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateOrdersTypeDetail(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOriginDutyLocationID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -242,6 +251,18 @@ func (m *CreateUpdateOrders) validateOrdersTypeDetail(formats strfmt.Registry) e
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *CreateUpdateOrders) validateOriginDutyLocationID(formats strfmt.Registry) error {
+	if swag.IsZero(m.OriginDutyLocationID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("origin_duty_location_id", "body", "uuid", m.OriginDutyLocationID.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

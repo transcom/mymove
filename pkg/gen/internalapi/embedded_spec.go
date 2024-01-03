@@ -4192,6 +4192,11 @@ func init() {
         "orders_type_detail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
+        "origin_duty_location_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "report_by_date": {
           "description": "Report By Date",
           "type": "string",
@@ -12766,6 +12771,11 @@ func init() {
         },
         "orders_type_detail": {
           "$ref": "#/definitions/OrdersTypeDetail"
+        },
+        "origin_duty_location_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "report_by_date": {
           "description": "Report By Date",
