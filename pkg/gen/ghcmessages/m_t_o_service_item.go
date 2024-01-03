@@ -39,6 +39,9 @@ type MTOServiceItem struct {
 	// customer contacts
 	CustomerContacts MTOServiceItemCustomerContacts `json:"customerContacts,omitempty"`
 
+	// customer expense reason
+	CustomerExpenseReason *string `json:"customerExpenseReason,omitempty"`
+
 	// deleted at
 	// Format: date
 	DeletedAt strfmt.Date `json:"deletedAt,omitempty"`

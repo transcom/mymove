@@ -379,7 +379,49 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.True(invalidInputError.ValidationErrors.HasAny())
 		suite.Contains(invalidInputError.ValidationErrors.Keys(), "SITDestinationOriginalAddress")
 	})
+	suite.Run("When TOO converts a SIT to customer expense", func() {
+		// Build shipment with SIT
+		shipmentSITAllowance := int(90)
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
+			},
+		}, nil)
 
+		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
+		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		dofsit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &aMonthAgo,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
+			},
+		}, nil)
+
+		approvedShipment.MTOServiceItems = models.MTOServiceItems{dofsit}
+
+		// Update ConvertToCustomerExpense and CustomerExpenseReason
+		updatedServiceItem, err := updater.ConvertItemToCustomerExpense(
+			suite.AppContextForTest(), &approvedShipment, models.StringPointer("test"), true)
+		suite.NoError(err)
+
+		// Check the SIT for updated value
+		suite.Equal(true, updatedServiceItem.CustomerExpense)
+		suite.Equal(models.StringPointer("test"), updatedServiceItem.CustomerExpenseReason)
+	})
 }
 
 func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
@@ -1025,7 +1067,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 
 	suite.Run("Returns a not found error if the updater can't find the ReService code for DOFSIT in the DB.", func() {
 		_, err := updater.ConvertItemToCustomerExpense(
-			suite.AppContextForTest(), &models.MTOShipment{})
+			suite.AppContextForTest(), &models.MTOShipment{}, models.StringPointer("test"), true)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
@@ -1034,7 +1076,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		// Create ReService in DB so that ConvertItemToCustomerExpense makes it to the MTO Shipment check.
 		testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{ReService: models.ReService{Code: "DOFSIT"}})
 		_, err := updater.ConvertItemToCustomerExpense(
-			suite.AppContextForTest(), &models.MTOShipment{})
+			suite.AppContextForTest(), &models.MTOShipment{}, models.StringPointer("test"), true)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
