@@ -36,7 +36,7 @@ import StorageFacilityInfo from 'components/Office/StorageFacilityInfo/StorageFa
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
 import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
-import { ADDRESS_UPDATE_STATUS, shipmentDestinationTypes } from 'constants/shipments';
+import { ADDRESS_UPDATE_STATUS, ppmShipmentStatuses, shipmentDestinationTypes } from 'constants/shipments';
 import { officeRoles, roleTypes } from 'constants/userRoles';
 import { deleteShipment, reviewShipmentAddressUpdate, updateMoveCloseoutOffice } from 'services/ghcApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -480,6 +480,8 @@ const ShipmentForm = (props) => {
     }
   };
 
+  const ppmStatus = mtoShipment?.ppmShipment?.status;
+
   return (
     <Formik
       initialValues={initialValues}
@@ -584,7 +586,7 @@ const ShipmentForm = (props) => {
 
                   <h1>{isCreatePage ? 'Add' : 'Edit'} shipment details</h1>
                 </div>
-                {!isCreatePage && !isTOO && (
+                {!isCreatePage && ppmStatus !== ppmShipmentStatuses.PAYMENT_APPROVED && (
                   <Button
                     type="button"
                     onClick={() => {
