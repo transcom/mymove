@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { func, number, object, PropTypes } from 'prop-types';
 import { Field, Formik } from 'formik';
@@ -46,7 +46,7 @@ const validationSchema = Yup.object().shape({
   status: Yup.string().required('Reviewing this weight ticket is required'),
 });
 
-export default function ReviewWeightTicket({
+function ReviewWeightTicket({
   mtoShipment,
   mtoShipments,
   order,
@@ -58,42 +58,6 @@ export default function ReviewWeightTicket({
   formRef,
   updateTotalWeight,
 }) {
-  const [canEditRejection, setCanEditRejection] = useState(true);
-  const [currentWeightTicket, setCurrentWeightTicket] = useState(weightTicket);
-  const [currentMtoShipments, setCurrentMtoShipments] = useState(mtoShipments);
-  const { mutate: patchWeightTicketMutation } = useMutation({
-    mutationFn: patchWeightTicket,
-    onSuccess,
-    onError,
-  });
-  const ppmShipment = mtoShipment?.ppmShipment;
-
-  const weightAllowance = order.entitlement?.totalWeight;
-
-  const handleSubmit = (formValues) => {
-    const ownsTrailer = formValues.ownsTrailer === 'true';
-    const trailerMeetsCriteria = ownsTrailer ? formValues.trailerMeetsCriteria === 'true' : false;
-    const payload = {
-      ppmShipmentId: weightTicket.ppmShipmentId,
-      vehicleDescription: weightTicket.vehicleDescription,
-      emptyWeight: parseInt(removeCommas(formValues.emptyWeight), 10),
-      missingEmptyWeightTicket: weightTicket.missingEmptyWeightTicket,
-      fullWeight: parseInt(removeCommas(formValues.fullWeight), 10),
-      missingFullWeightTicket: weightTicket.missingFullWeightTicket,
-      ownsTrailer,
-      trailerMeetsCriteria,
-      reason: formValues.rejectionReason,
-      status: formValues.status,
-      allowableWeight: parseInt(removeCommas(formValues.allowableWeight), 10),
-    };
-    patchWeightTicketMutation({
-      ppmShipmentId: weightTicket.ppmShipmentId,
-      weightTicketId: weightTicket.id,
-      payload,
-      eTag: weightTicket.eTag,
-    });
-  };
-
   const {
     vehicleDescription,
     missingEmptyWeightTicket,
@@ -107,6 +71,46 @@ export default function ReviewWeightTicket({
     status,
     reason,
   } = weightTicket || {};
+  const currentAllowableWeight = useRef(
+    allowableWeight ? `${allowableWeight}` : `${getWeightTicketNetWeight(weightTicket)}`,
+  );
+  const currentEmptyWeight = useRef(emptyWeight ? `${emptyWeight}` : `${getWeightTicketNetWeight(weightTicket)}`);
+  const currentFullWeight = useRef(fullWeight ? `${fullWeight}` : `${getWeightTicketNetWeight(fullWeight)}`);
+  const [canEditRejection, setCanEditRejection] = useState(true);
+  const [currentWeightTicket, setCurrentWeightTicket] = useState(weightTicket);
+  const [currentMtoShipments, setCurrentMtoShipments] = useState(mtoShipments);
+  const { mutate: patchWeightTicketMutation } = useMutation({
+    mutationFn: patchWeightTicket,
+    onSuccess,
+    onError,
+  });
+  const ppmShipment = mtoShipment?.ppmShipment;
+
+  const weightAllowance = order.entitlement?.totalWeight;
+
+  const handleSubmit = (formValues) => {
+    const ownsTrailerSubmit = formValues.ownsTrailer === 'true';
+    const trailerMeetsCriteriaSubmit = ownsTrailerSubmit ? formValues.trailerMeetsCriteria === 'true' : false;
+    const payload = {
+      ppmShipmentId: weightTicket.ppmShipmentId,
+      vehicleDescription: weightTicket.vehicleDescription,
+      emptyWeight: parseInt(removeCommas(formValues.emptyWeight), 10),
+      missingEmptyWeightTicket: weightTicket.missingEmptyWeightTicket,
+      fullWeight: parseInt(removeCommas(formValues.fullWeight), 10),
+      missingFullWeightTicket: weightTicket.missingFullWeightTicket,
+      ownsTrailer,
+      trailerMeetsCriteriaSubmit,
+      reason: formValues.rejectionReason,
+      status: formValues.status,
+      allowableWeight: parseInt(removeCommas(formValues.allowableWeight), 10),
+    };
+    patchWeightTicketMutation({
+      ppmShipmentId: weightTicket.ppmShipmentId,
+      weightTicketId: weightTicket.id,
+      payload,
+      eTag: weightTicket.eTag,
+    });
+  };
 
   const hasProofOfTrailerOwnershipDocument = proofOfTrailerOwnershipDocument?.uploads.length > 0;
   let isTrailerClaimable;
@@ -151,9 +155,9 @@ export default function ReviewWeightTicket({
   };
   // Allowable weight should default to the net weight if there isn't already an allowable weight defined.
   const initialValues = {
-    emptyWeight: emptyWeight ? `${emptyWeight}` : '',
-    fullWeight: fullWeight ? `${fullWeight}` : '',
-    allowableWeight: allowableWeight ? `${allowableWeight}` : `${getWeightTicketNetWeight(weightTicket)}`,
+    emptyWeight: `${currentEmptyWeight.current}`,
+    fullWeight: `${currentFullWeight.current}`,
+    allowableWeight: `${currentAllowableWeight.current}`,
     ownsTrailer: ownsTrailer ? 'true' : 'false',
     trailerMeetsCriteria: isTrailerClaimable,
     status: status || '',
@@ -191,8 +195,16 @@ export default function ReviewWeightTicket({
           const handleRejectionReasonChange = (event) => {
             handleChange(event);
           };
-          const handleFieldValueChange = (event) => {
-            setFieldValue(event.target.name, removeCommas(event.target.value));
+          const handleAllowableWeightFieldChange = (event) => {
+            currentAllowableWeight.current = `${event.target.value}`;
+          };
+          const handleWeightFieldsChange = (event) => {
+            if (event.target.name === 'emptyWeight') {
+              currentEmptyWeight.current = `${removeCommas(event.target.value)}`;
+            }
+            if (event.target.name === 'fullWeight') {
+              currentFullWeight.current = `${removeCommas(event.target.value)}`;
+            }
             if (mtoShipments !== undefined && mtoShipments.length > 0) {
               getNewNetWeightCalculation(mtoShipments, values);
             }
@@ -232,7 +244,7 @@ export default function ReviewWeightTicket({
                 thousandsSeparator=","
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
-                onBlur={handleFieldValueChange}
+                onBlur={handleWeightFieldsChange}
               />
 
               <MaskedTextField
@@ -248,7 +260,7 @@ export default function ReviewWeightTicket({
                 thousandsSeparator=","
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
-                onBlur={handleFieldValueChange}
+                onBlur={handleWeightFieldsChange}
               />
 
               <MaskedTextField
@@ -264,7 +276,7 @@ export default function ReviewWeightTicket({
                 thousandsSeparator=","
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
-                onBlur={handleFieldValueChange}
+                onBlur={handleAllowableWeightFieldChange}
               />
               <EditPPMNetWeight
                 weightTicket={currentWeightTicket}
@@ -415,3 +427,4 @@ ReviewWeightTicket.defaultProps = {
   formRef: null,
   mtoShipments: [],
 };
+export default React.memo(ReviewWeightTicket);
