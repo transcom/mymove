@@ -32,7 +32,9 @@ export const ShipmentListItem = ({
     [styles[`shipment-list-item-HHG`]]: shipment.shipmentType === SHIPMENT_OPTIONS.HHG,
     [styles[`shipment-list-item-PPM`]]: shipment.shipmentType === SHIPMENT_OPTIONS.PPM,
   });
-
+  const isPPM = shipment.shipmentType === SHIPMENT_OPTIONS.PPM;
+  const estimated = 'Estimated';
+  const actual = 'Actual';
   return (
     <div
       className={`${styles['shipment-list-item-container']} ${shipmentClassName} ${
@@ -50,9 +52,27 @@ export const ShipmentListItem = ({
       )}{' '}
       {showIncomplete && <Tag>Incomplete</Tag>}
       {showShipmentWeight && (
-        <div className={styles.shipmentWeight}>{formatWeight(shipment.calculatedBillableWeight)}</div>
+        <div className={styles.shipmentWeight}>
+          {isPPM && (
+            <div className={styles.spaceBetween}>
+              <div className={styles.textAlignRight}>
+                <h6>{estimated}</h6>
+                <h6>{actual}</h6>
+              </div>
+              <div className={styles.textAlignLeft}>
+                <h6>
+                  <strong>{formatWeight(shipment.ppmShipment.estimatedWeight)}</strong>
+                </h6>
+                <h6>
+                  <strong>{formatWeight(shipment.calculatedBillableWeight)}</strong>
+                </h6>
+              </div>
+            </div>
+          )}
+          {!isPPM && formatWeight(shipment.calculatedBillableWeight)}
+        </div>
       )}
-      {(isOverweight || isMissingWeight) && (
+      {(isOverweight || (isMissingWeight && !isPPM)) && (
         <div className={styles['warning-section']}>
           <FontAwesomeIcon icon="exclamation-triangle" className={styles.warning} />
           <span className={styles.warningText}>{isOverweight ? 'Over weight' : 'Missing weight'}</span>
