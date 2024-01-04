@@ -887,3 +887,4 @@
 20231211213232_add_allowable_weight.up.sql
 20231218144414_mto_shipment_diverted_from_shipment_id.up.sql
 20231226174935_create_ppm_documents_triggers.up.sql
+20240103174317_add_customer_expense.up.sql
