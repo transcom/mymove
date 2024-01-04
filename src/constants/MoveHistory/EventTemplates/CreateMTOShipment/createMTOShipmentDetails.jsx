@@ -20,6 +20,6 @@ export default {
   action: a.INSERT,
   eventName: o.createMTOShipment,
   tableName: t.ppm_shipments,
-  getEventNameDisplay: () => 'Created shipment',
+  getEventNameDisplay: () => 'Prime update shipment',
   getDetails: (historyRecord) => <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />,
 };
