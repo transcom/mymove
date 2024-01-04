@@ -123,6 +123,14 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		}
 	}
 
+	// checking to see if the service item being created is a destination SIT
+	// if so, we want the destination address to be the same as the shipment's
+	// which will later populate the additional dest SIT service items as well
+	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT && mtoShipment.DestinationAddressID != nil {
+		serviceItem.SITDestinationFinalAddress = mtoShipment.DestinationAddress
+		serviceItem.SITDestinationFinalAddressID = mtoShipment.DestinationAddressID
+	}
+
 	if serviceItem.ReService.Code == models.ReServiceCodeDOASIT {
 		// DOASIT must be associated with shipment that has DOFSIT
 		serviceItem, err = o.validateSITStandaloneServiceItem(appCtx, serviceItem, models.ReServiceCodeDOFSIT)
