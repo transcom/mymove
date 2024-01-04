@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/CreateMTOShipment/createMTOShipmentDetails';
+import e from 'constants/MoveHistory/EventTemplates/CreateMTOShipment/createMTOShipmentPPM';
 
 describe('When a PPM is created by the Prime and the move history is viewed', () => {
   const historyRecord = {
