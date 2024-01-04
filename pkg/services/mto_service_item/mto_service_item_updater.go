@@ -185,12 +185,12 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 
 		// Check to see if there is already a SIT Destination Original Address
 		// by checking for the ID before trying to set one on the service item.
-		// If there isn't one, then we set it. We also make sure that the
-		// expression looks for the DDDSIT or DDSFSC service codes and only
-		// updates the address fields if the service item is of DDDSIT or
-		// DDSFSC.
+		// If there isn't one, then we set it. We will update all four destination
+		// SIT service items that get created
 		if (serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
-			serviceItem.ReService.Code == models.ReServiceCodeDDSFSC) &&
+			serviceItem.ReService.Code == models.ReServiceCodeDDSFSC ||
+			serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
+			serviceItem.ReService.Code == models.ReServiceCodeDDFSIT) &&
 			serviceItem.SITDestinationOriginalAddressID == nil {
 
 			// Get the shipment destination address
@@ -200,7 +200,7 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 			}
 
 			// Set the original address on a service item to the shipment's
-			// destination address when approving a SIT service item.
+			// destination address when approving destination SIT service items
 			// Creating a new address record to ensure SITDestinationOriginalAddress
 			// doesn't change if shipment destination address is updated
 			shipmentDestinationAddress := &models.Address{
