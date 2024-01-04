@@ -4161,7 +4161,6 @@ func init() {
           "$ref": "#/definitions/DeptIndicator"
         },
         "grade": {
-          "title": "Pay Grade",
           "$ref": "#/definitions/ServiceMemberRank"
         },
         "has_dependents": {
@@ -12751,7 +12750,6 @@ func init() {
           "$ref": "#/definitions/DeptIndicator"
         },
         "grade": {
-          "title": "Pay Grade",
           "$ref": "#/definitions/ServiceMemberRank"
         },
         "has_dependents": {

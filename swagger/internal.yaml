@@ -1975,7 +1975,6 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       grade:
         $ref: '#/definitions/ServiceMemberRank'
-        title: Pay Grade
       origin_duty_location_id:
         type: string
         format: uuid
