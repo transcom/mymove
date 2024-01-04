@@ -30,7 +30,7 @@ describe('When a PPM is created by the Prime and the move history is viewed', ()
   it('correctly matches the Create basic service item event', () => {
     const result = getTemplate(historyRecord);
     expect(result).toMatchObject(e);
-    expect(result.getEventNameDisplay(result)).toEqual('Created shipment');
+    expect(result.getEventNameDisplay(result)).toEqual('Updated shipment');
   });
   describe('it correctly renders the details component for Create MTO shipments', () => {
     it('displays the correct detail values ', async () => {
