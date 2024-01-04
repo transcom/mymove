@@ -167,7 +167,7 @@ describe('ServiceInfoForm', () => {
     expect(dodInput).toBeInstanceOf(HTMLInputElement);
     expect(dodInput).toBeRequired();
 
-    const rankInput = await screen.findByLabelText('Rank');
+    const rankInput = await screen.findByLabelText('Pay grade');
     expect(rankInput).toBeInstanceOf(HTMLSelectElement);
     expect(rankInput).toBeRequired();
 
@@ -193,7 +193,7 @@ describe('ServiceInfoForm', () => {
     await userEvent.click(screen.getByLabelText('Last name'));
     await userEvent.click(screen.getByLabelText('Branch of service'));
     await userEvent.click(screen.getByLabelText('DoD ID number'));
-    await userEvent.click(screen.getByLabelText('Rank'));
+    await userEvent.click(screen.getByLabelText('Pay grade'));
 
     const submitBtn = screen.getByRole('button', { name: 'Save' });
     await userEvent.click(submitBtn);
@@ -217,7 +217,7 @@ describe('ServiceInfoForm', () => {
     await userEvent.type(screen.getByLabelText('Last name'), 'Spaceman');
     await userEvent.selectOptions(screen.getByLabelText('Branch of service'), ['NAVY']);
     await userEvent.type(screen.getByLabelText('DoD ID number'), '1234567890');
-    await userEvent.selectOptions(screen.getByLabelText('Rank'), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText('Pay grade'), ['E_5']);
     fireEvent.change(screen.getByLabelText('Current duty location'), { target: { value: 'AFB' } });
     await act(() => selectEvent.select(screen.getByLabelText('Current duty location'), /Luke/));
 

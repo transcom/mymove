@@ -285,6 +285,12 @@ paths:
     post:
       summary: createMTOShipment
       description: >
+        _[Deprecated: sunset on 2024-04-08]_ This endpoint is deprecated and
+        will be removed in a future version.
+
+        Please use the new endpoint at `/prime/v2/createMTOShipment` instead.
+
+
         Creates a new shipment within the specified move. This endpoint should
         be used whenever the movers identify a
 
@@ -550,13 +556,17 @@ paths:
       description: >
         ### Functionality
 
-        This endpoint is used to **update** the pickup and secondary addresses
-        on an MTO Shipment.
+        This endpoint is used to **update** the pickup, secondary, and
+        destination addresses on an MTO Shipment.
         mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a
         delivery address. The address details completely replace the original,
         except for the UUID.
 
         Therefore a complete address should be sent in the request.
+
+        When a destination address on a shipment is updated, the destination SIT
+        service items address ID will also be updated so that shipment and
+        service item final destinations match.
 
 
         This endpoint **cannot create** an address.
@@ -945,6 +955,8 @@ paths:
           $ref: '#/responses/NotFound'
         '412':
           $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
   /mto-shipments/{mtoShipmentID}/sit-extensions:

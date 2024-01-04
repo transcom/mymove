@@ -43,26 +43,11 @@ const InternalCreateSignedCertificationEndpointKey = "Internal.CreateSignedCerti
 // InternalIndexSignedCertificationEndpointKey is the key for the indexSignedCertification endpoint in internal
 const InternalIndexSignedCertificationEndpointKey = "Internal.IndexSignedCertification"
 
-// InternalCreatePersonallyProcuredMoveEndpointKey is the key for the createPersonallyProcuredMove endpoint in internal
-const InternalCreatePersonallyProcuredMoveEndpointKey = "Internal.CreatePersonallyProcuredMove"
-
-// InternalIndexPersonallyProcuredMovesEndpointKey is the key for the indexPersonallyProcuredMoves endpoint in internal
-const InternalIndexPersonallyProcuredMovesEndpointKey = "Internal.IndexPersonallyProcuredMoves"
-
-// InternalUpdatePersonallyProcuredMoveEndpointKey is the key for the updatePersonallyProcuredMove endpoint in internal
-const InternalUpdatePersonallyProcuredMoveEndpointKey = "Internal.UpdatePersonallyProcuredMove"
-
 // InternalPatchPersonallyProcuredMoveEndpointKey is the key for the patchPersonallyProcuredMove endpoint in internal
 const InternalPatchPersonallyProcuredMoveEndpointKey = "Internal.PatchPersonallyProcuredMove"
 
-// InternalShowPersonallyProcuredMoveEndpointKey is the key for the showPersonallyProcuredMove endpoint in internal
-const InternalShowPersonallyProcuredMoveEndpointKey = "Internal.ShowPersonallyProcuredMove"
-
 // InternalSubmitPersonallyProcuredMoveEndpointKey is the key for the submitPersonallyProcuredMove endpoint in internal
 const InternalSubmitPersonallyProcuredMoveEndpointKey = "Internal.SubmitPersonallyProcuredMove"
-
-// InternalRequestPPMExpenseSummaryEndpointKey is the key for the requestPPMExpenseSummary endpoint in internal
-const InternalRequestPPMExpenseSummaryEndpointKey = "Internal.RequestPPMExpenseSummary"
 
 // InternalRequestPPMPaymentEndpointKey is the key for the requestPPMPayment endpoint in internal
 const InternalRequestPPMPaymentEndpointKey = "Internal.RequestPPMPayment"
@@ -99,9 +84,6 @@ const InternalShowMoveDatesSummaryEndpointKey = "Internal.ShowMoveDatesSummary"
 
 // InternalShowShipmentSummaryWorksheetEndpointKey is the key for the showShipmentSummaryWorksheet endpoint in internal
 const InternalShowShipmentSummaryWorksheetEndpointKey = "Internal.ShowShipmentSummaryWorksheet"
-
-// InternalCreatePPMAttachmentsEndpointKey is the key for the createPPMAttachments endpoint in internal
-const InternalCreatePPMAttachmentsEndpointKey = "Internal.CreatePPMAttachments"
 
 // InternalApprovePPMEndpointKey is the key for the approvePPM endpoint in internal
 const InternalApprovePPMEndpointKey = "Internal.ApprovePPM"
@@ -231,33 +213,13 @@ var internalEndpoints = EndpointMapType{
 		APIName:     InternalAPIName,
 		OperationID: "indexSignedCertification",
 	},
-	InternalCreatePersonallyProcuredMoveEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "createPersonallyProcuredMove",
-	},
-	InternalIndexPersonallyProcuredMovesEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "indexPersonallyProcuredMoves",
-	},
-	InternalUpdatePersonallyProcuredMoveEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "updatePersonallyProcuredMove",
-	},
 	InternalPatchPersonallyProcuredMoveEndpointKey: {
 		APIName:     InternalAPIName,
 		OperationID: "patchPersonallyProcuredMove",
 	},
-	InternalShowPersonallyProcuredMoveEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "showPersonallyProcuredMove",
-	},
 	InternalSubmitPersonallyProcuredMoveEndpointKey: {
 		APIName:     InternalAPIName,
 		OperationID: "submitPersonallyProcuredMove",
-	},
-	InternalRequestPPMExpenseSummaryEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "requestPPMExpenseSummary",
 	},
 	InternalRequestPPMPaymentEndpointKey: {
 		APIName:     InternalAPIName,
@@ -306,10 +268,6 @@ var internalEndpoints = EndpointMapType{
 	InternalShowShipmentSummaryWorksheetEndpointKey: {
 		APIName:     InternalAPIName,
 		OperationID: "showShipmentSummaryWorksheet",
-	},
-	InternalCreatePPMAttachmentsEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "createPPMAttachments",
 	},
 	InternalApprovePPMEndpointKey: {
 		APIName:     InternalAPIName,

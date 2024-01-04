@@ -4,7 +4,6 @@ import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { func } from 'prop-types';
-import { isEmpty } from 'lodash';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 import 'styles/office.scss';
@@ -12,7 +11,6 @@ import 'styles/office.scss';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
-import { ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES, SIT_ADDRESS_UPDATE_STATUS } from 'constants/sitUpdates';
 import { ADDRESS_UPDATE_STATUS, shipmentStatuses } from 'constants/shipments';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
@@ -52,7 +50,6 @@ const errorIfMissing = {
 const MoveDetails = ({
   setUnapprovedShipmentCount,
   setUnapprovedServiceItemCount,
-  setUnapprovedSITAddressUpdateCount,
   setExcessWeightRiskCount,
   setUnapprovedSITExtensionCount,
   setShipmentsWithDeliveryAddressUpdateRequestedCount,
@@ -179,22 +176,6 @@ const MoveDetails = ({
     });
     setUnapprovedServiceItemCount(serviceItemCount);
   }, [approvedOrCanceledShipments, mtoServiceItems, setUnapprovedServiceItemCount]);
-
-  useEffect(() => {
-    let sitAddressUpdateServiceItemCount = 0;
-
-    mtoServiceItems?.forEach((serviceItem) => {
-      if (serviceItem.mtoShipmentID && ALLOWED_SIT_ADDRESS_UPDATE_SI_CODES.includes(serviceItem.reServiceCode)) {
-        const requestedSITAddressUpdateItems =
-          serviceItem?.sitAddressUpdates &&
-          serviceItem.sitAddressUpdates.filter((s) => s.status === SIT_ADDRESS_UPDATE_STATUS.REQUESTED);
-        if (!isEmpty(requestedSITAddressUpdateItems)) {
-          sitAddressUpdateServiceItemCount += 1;
-        }
-      }
-    });
-    setUnapprovedSITAddressUpdateCount(sitAddressUpdateServiceItemCount);
-  }, [mtoServiceItems, setUnapprovedSITAddressUpdateCount]);
 
   useEffect(() => {
     const estimatedWeight = calculateEstimatedWeight(mtoShipments);
@@ -464,7 +445,6 @@ const MoveDetails = ({
 MoveDetails.propTypes = {
   setUnapprovedShipmentCount: func.isRequired,
   setUnapprovedServiceItemCount: func.isRequired,
-  setUnapprovedSITAddressUpdateCount: func.isRequired,
   setExcessWeightRiskCount: func.isRequired,
   setUnapprovedSITExtensionCount: func.isRequired,
   setShipmentsWithDeliveryAddressUpdateRequestedCount: func,

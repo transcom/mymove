@@ -1071,190 +1071,7 @@ func init() {
         }
       }
     },
-    "/moves/{moveId}/personally_procured_move": {
-      "get": {
-        "description": "Returns a list of all PPMs associated with this move",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Returns a list of all PPMs associated with this move",
-        "operationId": "indexPersonallyProcuredMoves",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move these PPMs are associated with",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "returns list of personally_procured_move",
-            "schema": {
-              "$ref": "#/definitions/IndexPersonallyProcuredMovePayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          }
-        }
-      },
-      "post": {
-        "description": "Create an instance of personally_procured_move tied to the move ID",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Creates a new PPM for the given move",
-        "operationId": "createPersonallyProcuredMove",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move this PPM is associated with",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "createPersonallyProcuredMovePayload",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/CreatePersonallyProcuredMovePayload"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "created instance of personally_procured_move",
-            "schema": {
-              "$ref": "#/definitions/PersonallyProcuredMovePayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "404": {
-            "description": "move not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}": {
-      "get": {
-        "description": "Returns the given PPM",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Returns the given PPM",
-        "operationId": "showPersonallyProcuredMove",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move being signed for",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the PPM",
-            "name": "personallyProcuredMoveId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "the instance of personally_procured_move",
-            "schema": {
-              "$ref": "#/definitions/IndexPersonallyProcuredMovePayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          }
-        }
-      },
-      "put": {
-        "description": "This replaces the current version of the PPM with the version sent.",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Updates the PPM",
-        "operationId": "updatePersonallyProcuredMove",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the PPM being updated",
-            "name": "personallyProcuredMoveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "updatePersonallyProcuredMovePayload",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UpdatePersonallyProcuredMovePayload"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "updated instance of personally_procured_move",
-            "schema": {
-              "$ref": "#/definitions/PersonallyProcuredMovePayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      },
       "patch": {
         "description": "Any fields sent in this request will be set on the PPM referenced",
         "tags": [
@@ -2094,49 +1911,6 @@ func init() {
         }
       }
     },
-    "/personally_procured_move/{personallyProcuredMoveId}/expense_summary": {
-      "get": {
-        "description": "Calculates and returns an expense summary organized by expense type",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Returns an expense summary organized by expense type",
-        "operationId": "requestPPMExpenseSummary",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the PPM",
-            "name": "personallyProcuredMoveId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully calculated expense summary",
-            "schema": {
-              "$ref": "#/definitions/ExpenseSummaryPayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "404": {
-            "description": "personally procured move not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/personally_procured_move/{personallyProcuredMoveId}/request_payment": {
       "post": {
         "description": "Moves the PPM and the move into the PAYMENT_REQUESTED state",
@@ -2346,74 +2120,6 @@ func init() {
           },
           "500": {
             "description": "internal server error"
-          }
-        }
-      }
-    },
-    "/personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments": {
-      "post": {
-        "description": "Creates a PPM attachments PDF",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Creates PPM attachments PDF",
-        "operationId": "createPPMAttachments",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the PPM to create an attachments PDF for",
-            "name": "personallyProcuredMoveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "array",
-            "items": {
-              "enum": [
-                "OTHER",
-                "WEIGHT_TICKET",
-                "STORAGE_EXPENSE",
-                "SHIPMENT_SUMMARY",
-                "EXPENSE",
-                "WEIGHT_TICKET_SET"
-              ],
-              "type": "string"
-            },
-            "collectionFormat": "csv",
-            "description": "Restrict the list to documents with matching docType.",
-            "name": "docTypes",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "returns a PPM attachments upload",
-            "schema": {
-              "$ref": "#/definitions/Upload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "must be authenticated to use this endpoint"
-          },
-          "403": {
-            "description": "not authorized to perform this action"
-          },
-          "413": {
-            "description": "payload is too large"
-          },
-          "422": {
-            "description": "malformed PDF contained in uploads"
-          },
-          "424": {
-            "description": "no files to be processed into attachments PDF"
-          },
-          "500": {
-            "description": "server error"
           }
         }
       }
@@ -4718,28 +4424,6 @@ func init() {
         },
         "title": {
           "type": "string"
-        }
-      }
-    },
-    "ExpenseSummaryPayload": {
-      "type": "object",
-      "properties": {
-        "categories": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/CategoryExpenseSummary"
-          }
-        },
-        "grand_total": {
-          "type": "object",
-          "properties": {
-            "payment_method_totals": {
-              "$ref": "#/definitions/PaymentMethodsTotals"
-            },
-            "total": {
-              "type": "integer"
-            }
-          }
         }
       }
     },
@@ -8002,6 +7686,10 @@ func init() {
           "description": "Indicates the adjusted net weight of the vehicle",
           "type": "integer"
         },
+        "allowableWeight": {
+          "description": "Indicates the maximum reimbursable weight of the shipment",
+          "type": "integer"
+        },
         "emptyWeight": {
           "description": "Weight of the vehicle when empty.",
           "type": "integer"
@@ -8169,6 +7857,12 @@ func init() {
       "properties": {
         "adjustedNetWeight": {
           "description": "Indicates the adjusted net weight of the vehicle",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "allowableWeight": {
+          "description": "Maximum reimbursable weight.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
@@ -9543,190 +9237,7 @@ func init() {
         }
       }
     },
-    "/moves/{moveId}/personally_procured_move": {
-      "get": {
-        "description": "Returns a list of all PPMs associated with this move",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Returns a list of all PPMs associated with this move",
-        "operationId": "indexPersonallyProcuredMoves",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move these PPMs are associated with",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "returns list of personally_procured_move",
-            "schema": {
-              "$ref": "#/definitions/IndexPersonallyProcuredMovePayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          }
-        }
-      },
-      "post": {
-        "description": "Create an instance of personally_procured_move tied to the move ID",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Creates a new PPM for the given move",
-        "operationId": "createPersonallyProcuredMove",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move this PPM is associated with",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "createPersonallyProcuredMovePayload",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/CreatePersonallyProcuredMovePayload"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "created instance of personally_procured_move",
-            "schema": {
-              "$ref": "#/definitions/PersonallyProcuredMovePayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "404": {
-            "description": "move not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}": {
-      "get": {
-        "description": "Returns the given PPM",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Returns the given PPM",
-        "operationId": "showPersonallyProcuredMove",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move being signed for",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the PPM",
-            "name": "personallyProcuredMoveId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "the instance of personally_procured_move",
-            "schema": {
-              "$ref": "#/definitions/IndexPersonallyProcuredMovePayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          }
-        }
-      },
-      "put": {
-        "description": "This replaces the current version of the PPM with the version sent.",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Updates the PPM",
-        "operationId": "updatePersonallyProcuredMove",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the PPM being updated",
-            "name": "personallyProcuredMoveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "updatePersonallyProcuredMovePayload",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UpdatePersonallyProcuredMovePayload"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "updated instance of personally_procured_move",
-            "schema": {
-              "$ref": "#/definitions/PersonallyProcuredMovePayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      },
       "patch": {
         "description": "Any fields sent in this request will be set on the PPM referenced",
         "tags": [
@@ -10638,49 +10149,6 @@ func init() {
         }
       }
     },
-    "/personally_procured_move/{personallyProcuredMoveId}/expense_summary": {
-      "get": {
-        "description": "Calculates and returns an expense summary organized by expense type",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Returns an expense summary organized by expense type",
-        "operationId": "requestPPMExpenseSummary",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the PPM",
-            "name": "personallyProcuredMoveId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully calculated expense summary",
-            "schema": {
-              "$ref": "#/definitions/ExpenseSummaryPayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "404": {
-            "description": "personally procured move not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/personally_procured_move/{personallyProcuredMoveId}/request_payment": {
       "post": {
         "description": "Moves the PPM and the move into the PAYMENT_REQUESTED state",
@@ -10890,74 +10358,6 @@ func init() {
           },
           "500": {
             "description": "internal server error"
-          }
-        }
-      }
-    },
-    "/personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments": {
-      "post": {
-        "description": "Creates a PPM attachments PDF",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Creates PPM attachments PDF",
-        "operationId": "createPPMAttachments",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the PPM to create an attachments PDF for",
-            "name": "personallyProcuredMoveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "array",
-            "items": {
-              "enum": [
-                "OTHER",
-                "WEIGHT_TICKET",
-                "STORAGE_EXPENSE",
-                "SHIPMENT_SUMMARY",
-                "EXPENSE",
-                "WEIGHT_TICKET_SET"
-              ],
-              "type": "string"
-            },
-            "collectionFormat": "csv",
-            "description": "Restrict the list to documents with matching docType.",
-            "name": "docTypes",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "returns a PPM attachments upload",
-            "schema": {
-              "$ref": "#/definitions/Upload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "must be authenticated to use this endpoint"
-          },
-          "403": {
-            "description": "not authorized to perform this action"
-          },
-          "413": {
-            "description": "payload is too large"
-          },
-          "422": {
-            "description": "malformed PDF contained in uploads"
-          },
-          "424": {
-            "description": "no files to be processed into attachments PDF"
-          },
-          "500": {
-            "description": "server error"
           }
         }
       }
@@ -13610,39 +13010,6 @@ func init() {
         }
       }
     },
-    "ExpenseSummaryPayload": {
-      "type": "object",
-      "properties": {
-        "categories": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/CategoryExpenseSummary"
-          }
-        },
-        "grand_total": {
-          "type": "object",
-          "properties": {
-            "payment_method_totals": {
-              "$ref": "#/definitions/PaymentMethodsTotals"
-            },
-            "total": {
-              "type": "integer"
-            }
-          }
-        }
-      }
-    },
-    "ExpenseSummaryPayloadGrandTotal": {
-      "type": "object",
-      "properties": {
-        "payment_method_totals": {
-          "$ref": "#/definitions/PaymentMethodsTotals"
-        },
-        "total": {
-          "type": "integer"
-        }
-      }
-    },
     "FeatureFlagBoolean": {
       "description": "A feature flag",
       "type": "object",
@@ -16914,6 +16281,11 @@ func init() {
           "type": "integer",
           "minimum": 0
         },
+        "allowableWeight": {
+          "description": "Indicates the maximum reimbursable weight of the shipment",
+          "type": "integer",
+          "minimum": 0
+        },
         "emptyWeight": {
           "description": "Weight of the vehicle when empty.",
           "type": "integer",
@@ -17086,6 +16458,13 @@ func init() {
       "properties": {
         "adjustedNetWeight": {
           "description": "Indicates the adjusted net weight of the vehicle",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "allowableWeight": {
+          "description": "Maximum reimbursable weight.",
           "type": "integer",
           "minimum": 0,
           "x-nullable": true,

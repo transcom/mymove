@@ -11,6 +11,7 @@ import { AddressShape } from 'types';
 import { ShipmentShape } from 'types/shipment';
 import SubmitSITExtensionModal from 'components/Office/SubmitSITExtensionModal/SubmitSITExtensionModal';
 import ReviewSITExtensionsModal from 'components/Office/ReviewSITExtensionModal/ReviewSITExtensionModal';
+import ConvertSITToCustomerExpenseModal from 'components/Office/ConvertSITToCustomerExpenseModal/ConvertSITToCustomerExpenseModal';
 import ShipmentSITDisplay from 'components/Office/ShipmentSITDisplay/ShipmentSITDisplay';
 import ImportantShipmentDates from 'components/Office/ImportantShipmentDates/ImportantShipmentDates';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
@@ -43,6 +44,7 @@ const ShipmentDetailsMain = ({
   handleRequestReweighModal,
   handleReviewSITExtension,
   handleSubmitSITExtension,
+  handleUpdateSITServiceItemCustomerExpense,
 }) => {
   const {
     requestedPickupDate,
@@ -68,6 +70,7 @@ const ShipmentDetailsMain = ({
 
   const [isReviewSITExtensionModalVisible, setIsReviewSITExtensionModalVisible] = useState(false);
   const [isSubmitITExtensionModalVisible, setIsSubmitITExtensionModalVisible] = useState(false);
+  const [isConvertSITToCustomerExpenseModalVisible, setIsConvertSITToCustomerExpenseModalVisible] = useState(false);
   const [, setSubmittedChangeTime] = useState(Date.now());
 
   const reviewSITExtension = (sitExtensionID, formValues) => {
@@ -75,9 +78,16 @@ const ShipmentDetailsMain = ({
     handleReviewSITExtension(sitExtensionID, formValues, shipment);
     setSubmittedChangeTime(Date.now());
   };
+
   const submitSITExtension = (formValues) => {
     setIsSubmitITExtensionModalVisible(false);
     handleSubmitSITExtension(formValues, shipment);
+    setSubmittedChangeTime(Date.now());
+  };
+
+  const convertSITToCustomerExpense = (convertToCustomerExpense, remark) => {
+    setIsConvertSITToCustomerExpenseModalVisible(false);
+    handleUpdateSITServiceItemCustomerExpense(shipment.id, convertToCustomerExpense, remark, shipment.eTag);
     setSubmittedChangeTime(Date.now());
   };
 
@@ -98,6 +108,17 @@ const ShipmentDetailsMain = ({
       onClick={setIsSubmitITExtensionModalVisible}
       title="Edit"
       className={styles.submitSITEXtensionLink}
+    />
+  );
+
+  /**
+   * Displays button to open the modal on the SIT Display component to open with Convert to customer expense modal.
+   */
+  const openConvertModalButton = (
+    <OpenModalButton
+      permission={permissionTypes.updateSITExtension}
+      onClick={setIsConvertSITToCustomerExpenseModalVisible}
+      title="Convert to customer expense"
     />
   );
 
@@ -133,6 +154,14 @@ const ShipmentDetailsMain = ({
           sitStatus={sitStatus}
         />
       )}
+      {isConvertSITToCustomerExpenseModalVisible && (
+        <ConvertSITToCustomerExpenseModal
+          onClose={() => setIsConvertSITToCustomerExpenseModalVisible(false)}
+          onSubmit={convertSITToCustomerExpense}
+          shipment={shipment}
+          sitStatus={sitStatus}
+        />
+      )}
       {isSubmitITExtensionModalVisible && (
         <SubmitSITExtensionModal
           onClose={() => setIsSubmitITExtensionModalVisible(false)}
@@ -150,6 +179,7 @@ const ShipmentDetailsMain = ({
           shipment={shipment}
           className={styles.shipmentSITSummary}
           openModalButton={openModalButton}
+          openConvertModalButton={openConvertModalButton}
         />
       )}
       <ImportantShipmentDates
@@ -203,6 +233,7 @@ ShipmentDetailsMain.propTypes = {
   handleRequestReweighModal: PropTypes.func.isRequired,
   handleReviewSITExtension: PropTypes.func.isRequired,
   handleSubmitSITExtension: PropTypes.func.isRequired,
+  handleUpdateSITServiceItemCustomerExpense: PropTypes.func.isRequired,
 };
 
 ShipmentDetailsMain.defaultProps = {
