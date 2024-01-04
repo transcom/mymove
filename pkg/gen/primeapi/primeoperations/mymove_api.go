@@ -23,7 +23,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
-	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/sit_address_update"
 )
 
 // NewMymoveAPI creates a new Mymove instance
@@ -67,9 +66,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		PaymentRequestCreatePaymentRequestHandler: payment_request.CreatePaymentRequestHandlerFunc(func(params payment_request.CreatePaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_request.CreatePaymentRequest has not yet been implemented")
-		}),
-		SitAddressUpdateCreateSITAddressUpdateRequestHandler: sit_address_update.CreateSITAddressUpdateRequestHandlerFunc(func(params sit_address_update.CreateSITAddressUpdateRequestParams) middleware.Responder {
-			return middleware.NotImplemented("operation sit_address_update.CreateSITAddressUpdateRequest has not yet been implemented")
 		}),
 		MtoShipmentCreateSITExtensionHandler: mto_shipment.CreateSITExtensionHandlerFunc(func(params mto_shipment.CreateSITExtensionParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateSITExtension has not yet been implemented")
@@ -176,8 +172,6 @@ type MymoveAPI struct {
 	MtoShipmentCreateNonSITAddressUpdateRequestHandler mto_shipment.CreateNonSITAddressUpdateRequestHandler
 	// PaymentRequestCreatePaymentRequestHandler sets the operation handler for the create payment request operation
 	PaymentRequestCreatePaymentRequestHandler payment_request.CreatePaymentRequestHandler
-	// SitAddressUpdateCreateSITAddressUpdateRequestHandler sets the operation handler for the create s i t address update request operation
-	SitAddressUpdateCreateSITAddressUpdateRequestHandler sit_address_update.CreateSITAddressUpdateRequestHandler
 	// MtoShipmentCreateSITExtensionHandler sets the operation handler for the create s i t extension operation
 	MtoShipmentCreateSITExtensionHandler mto_shipment.CreateSITExtensionHandler
 	// MtoServiceItemCreateServiceRequestDocumentUploadHandler sets the operation handler for the create service request document upload operation
@@ -308,9 +302,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PaymentRequestCreatePaymentRequestHandler == nil {
 		unregistered = append(unregistered, "payment_request.CreatePaymentRequestHandler")
-	}
-	if o.SitAddressUpdateCreateSITAddressUpdateRequestHandler == nil {
-		unregistered = append(unregistered, "sit_address_update.CreateSITAddressUpdateRequestHandler")
 	}
 	if o.MtoShipmentCreateSITExtensionHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.CreateSITExtensionHandler")
@@ -473,10 +464,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/payment-requests"] = payment_request.NewCreatePaymentRequest(o.context, o.PaymentRequestCreatePaymentRequestHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/sit-address-updates"] = sit_address_update.NewCreateSITAddressUpdateRequest(o.context, o.SitAddressUpdateCreateSITAddressUpdateRequestHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

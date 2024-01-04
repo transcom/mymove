@@ -1432,60 +1432,6 @@ func init() {
           }
         }
       }
-    },
-    "/sit-address-updates": {
-      "post": {
-        "description": "**Functionality:**\nCreates an update request for a SIT service item's final delivery address.\nA newly created update request is assigned the status 'REQUESTED'  if the change in address\nis \u003e 50 miles and automatically approved otherwise.\n\n**Limitations:**\nThe update can be requested for APPROVED SIT service items only.\nOnly ONE request is allowed per approved SIT service item.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "sitAddressUpdate"
-        ],
-        "summary": "createSITAddressUpdateRequest",
-        "operationId": "createSITAddressUpdateRequest",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/CreateSITAddressUpdateRequest"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Succesfully created a SIT address update request.",
-            "schema": {
-              "$ref": "#/definitions/SitAddressUpdate"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "409": {
-            "$ref": "#/responses/Conflict"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      }
     }
   },
   "definitions": {
@@ -1902,27 +1848,6 @@ func init() {
           "items": {
             "$ref": "#/definitions/ServiceItem"
           }
-        }
-      }
-    },
-    "CreateSITAddressUpdateRequest": {
-      "description": "CreateSITAddressUpdateRequest contains the fields required for the prime to create a SIT address update request.",
-      "type": "object",
-      "required": [
-        "contractorRemarks"
-      ],
-      "properties": {
-        "contractorRemarks": {
-          "type": "string",
-          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
-        },
-        "mtoServiceItemID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
         }
       }
     },
@@ -6631,81 +6556,6 @@ func init() {
           }
         }
       }
-    },
-    "/sit-address-updates": {
-      "post": {
-        "description": "**Functionality:**\nCreates an update request for a SIT service item's final delivery address.\nA newly created update request is assigned the status 'REQUESTED'  if the change in address\nis \u003e 50 miles and automatically approved otherwise.\n\n**Limitations:**\nThe update can be requested for APPROVED SIT service items only.\nOnly ONE request is allowed per approved SIT service item.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "sitAddressUpdate"
-        ],
-        "summary": "createSITAddressUpdateRequest",
-        "operationId": "createSITAddressUpdateRequest",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/CreateSITAddressUpdateRequest"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Succesfully created a SIT address update request.",
-            "schema": {
-              "$ref": "#/definitions/SitAddressUpdate"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "401": {
-            "description": "The request was denied.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "403": {
-            "description": "The request was denied.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "409": {
-            "description": "The request could not be processed because of conflict in the current state of the resource.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "422": {
-            "description": "The request was unprocessable, likely due to bad input from the requester.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
     }
   },
   "definitions": {
@@ -7122,27 +6972,6 @@ func init() {
           "items": {
             "$ref": "#/definitions/ServiceItem"
           }
-        }
-      }
-    },
-    "CreateSITAddressUpdateRequest": {
-      "description": "CreateSITAddressUpdateRequest contains the fields required for the prime to create a SIT address update request.",
-      "type": "object",
-      "required": [
-        "contractorRemarks"
-      ],
-      "properties": {
-        "contractorRemarks": {
-          "type": "string",
-          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
-        },
-        "mtoServiceItemID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
         }
       }
     },
