@@ -22,7 +22,7 @@ const DodInfoForm = ({ initialValues, onSubmit, onBack }) => {
     edipi: Yup.string()
       .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
       .required('Required'),
-    rank: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
+    grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
   });
 
   return (
@@ -49,7 +49,7 @@ const DodInfoForm = ({ initialValues, onSubmit, onBack }) => {
                 inputMode="numeric"
                 pattern="[0-9]{10}"
               />
-              <DropdownInput label="Pay grade" name="rank" id="payGrade" required options={payGradeOptions} />
+              <DropdownInput label="Pay grade" name="grade" id="grade" required options={payGradeOptions} />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
@@ -70,7 +70,7 @@ DodInfoForm.propTypes = {
   initialValues: PropTypes.shape({
     affiliation: PropTypes.string,
     edipi: PropTypes.string,
-    rank: PropTypes.string,
+    grade: PropTypes.string,
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,

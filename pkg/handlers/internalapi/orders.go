@@ -324,10 +324,6 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			order.TAC = payload.Tac
 			order.SAC = payload.Sac
 			order.Grade = (*string)(payload.Grade)
-			// order.OriginDutyLocationID = originDutyLocation.ID
-			// order.OriginDutyLocation = originDutyLocation
-			//order.OriginDutyLocationID = *payload.OriginDutyLocation.ID
-			//order.OriginDutyLocation = originDutyLocation
 
 			if payload.DepartmentIndicator != nil {
 				order.DepartmentIndicator = handlers.FmtString(string(*payload.DepartmentIndicator))
