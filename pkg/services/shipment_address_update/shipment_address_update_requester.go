@@ -217,9 +217,24 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		return nil, err
 	}
 
-	updateNeedsTOOReview, err := f.doesDeliveryAddressUpdateChangeServiceArea(appCtx, contract.ID, addressUpdate.OriginalAddress, newAddress)
+	updateNeedsTOOReview := false
+
+	//We calculate and set the distance between the old and new address
+	distance := 0
+	distance, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.OriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode)
 	if err != nil {
 		return nil, err
+	}
+
+	if distance > 50 {
+		updateNeedsTOOReview = true
+	}
+
+	if !updateNeedsTOOReview {
+		updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeServiceArea(appCtx, contract.ID, addressUpdate.OriginalAddress, newAddress)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if !updateNeedsTOOReview {
@@ -248,17 +263,38 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 			return apperror.NewQueryError("ShipmentAddressUpdate", txnErr, "error saving shipment address update request")
 		}
 
+		//Get the move
+		var move models.Move
+		err := txnAppCtx.DB().Find(&move, shipment.MoveTaskOrderID)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return apperror.NewNotFoundError(shipment.MoveTaskOrderID, "looking for Move")
+			default:
+				return apperror.NewQueryError("Move", err, "unable to retrieve move")
+			}
+		}
+
+		existingMoveStatus := move.Status
 		if updateNeedsTOOReview {
 			err = f.moveRouter.SendToOfficeUser(appCtx, &shipment.MoveTaskOrder)
 			if err != nil {
 				return err
+			}
+
+			// Only update if the move status has actually changed
+			if existingMoveStatus != move.Status {
+				err = txnAppCtx.DB().Update(&move)
+				if err != nil {
+					return err
+				}
 			}
 		} else {
 			shipment.DestinationAddressID = &addressUpdate.NewAddressID
 		}
 
 		// If the request needs TOO review, this will just update the UpdatedAt timestamp on the shipment
-		verrs, err := appCtx.DB().ValidateAndUpdate(&shipment)
+		verrs, err = appCtx.DB().ValidateAndUpdate(&shipment)
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(
 				shipment.ID, err, verrs, "Invalid input found while updating shipment")
