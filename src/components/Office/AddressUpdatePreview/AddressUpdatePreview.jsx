@@ -33,9 +33,13 @@ const AddressUpdatePreview = ({ deliveryAddressUpdate, destSitServiceItems }) =>
             This shipment contains {destSitServiceItems.length} destination SIT service items. If approved, this could
             change the following:{' '}
             <span className={styles.listItem}>
-              SIT Delivery out over 50 miles <strong>or</strong> under 50 miles
+              SIT delivery &gt; 50 miles <strong>or</strong> SIT delivery &le; 50 miles.
             </span>
-            Approvals will result in updated pricing for the service item. Customer may be subject to excess costs.
+            <span className={styles.listItem}>Service area.</span>
+            <span className={styles.listItem}>Mileage bracket (for Direct Delivery).</span>
+            <span className={styles.listItem}>Weight bracket change.</span>
+            Approvals will result in updated pricing for the service item and require TOO approval. Customer may be
+            subject to excess costs.
           </span>
         </Alert>
       ) : null}

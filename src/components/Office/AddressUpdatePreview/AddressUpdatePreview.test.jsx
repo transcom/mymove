@@ -162,8 +162,10 @@ describe('AddressUpdatePreview', () => {
     expect(screen.getByTestId('destSitAlert')).toBeInTheDocument();
     expect(screen.getByTestId('destSitAlert')).toHaveTextContent(
       'This shipment contains 4 destination SIT service items. If approved, this could change the following: ' +
-        'SIT Delivery out over 50 miles or under 50 miles' +
-        'Approvals will result in updated pricing for the service item. Customer may be subject to excess costs.',
+        'SIT delivery > 50 miles or SIT delivery ≤ 50 miles.Service area.' +
+        'Mileage bracket (for Direct Delivery).' +
+        'Weight bracket change.' +
+        'Approvals will result in updated pricing for the service item and require TOO approval. Customer may be subject to excess costs.',
     );
   });
 });
