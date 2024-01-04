@@ -40,8 +40,15 @@ This endpoint supports different body definitions. In the modelType field below,
 
 	to the service item you wish to update and the documentation will update with the new definition.
 
-* Addresses: You can add a new SIT Destination final address using this endpoint (and must use this endpoint to do so), but you cannot update an existing one.
-Please use [createSITAddressUpdateRequest](#operation/createSITAddressUpdateRequest) instead.
+**This endpoint has received a breaking change enhancement, please read the note below.**
+
+**Note**: Previously, SIT destination final addresses were created via this endpoint, and if you were looking to update an
+existing SIT destination final address, you would the [createSITAddressUpdateRequest](#operation/createSITAddressUpdateRequest) endpoint.
+**This is no longer the case.** SIT destination final addresses can now only be updated via the endpoint used
+to update the MTO shipment. SIT addresses are now updated at the shipment level, not service item level.
+The following endpoint is utilized for updating the destination address on an MTO Shipment: [createNonSITAddressUpdateRequest](#operation/createNonSITAddressUpdateRequest),
+and is going to be renamed in the docmentation to [updateShipmentDestinationAddress](#operation/updateShipmentDestinationAddress). The endpoint URL will remain the same
+after the documentation rename.
 
 To create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.
 */
