@@ -542,15 +542,14 @@ func (a *Client) UpdateSITDeliveryRequest(params *UpdateSITDeliveryRequestParams
 
 This endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,
 after the destination address has already been approved.
-This does not change addresses on SIT service items.
 Address updates will be automatically approved unless they change:
   - The service area
   - Mileage bracket for direct delivery
   - Domestic Short Haul to Domestic Line Haul or vice versa
   - Shipments that start and end in one ZIP3 use Short Haul pricing
   - Shipments that start and end in different ZIP3s use Line Haul pricing
-  - The service item mileage by more than 50 miles based on the new destination address
-  - Or if the new service item mileage goes under 50 miles based on the new destination address if it was previously over by 50 miles
+  - The SIT service item mileage by more than 50 miles based on the new destination address
+  - Or if the new SIT service item mileage goes under 50 miles based on the new destination address if it was previously over by 50 miles
 
 For those, changes will require TOO approval.
 */
