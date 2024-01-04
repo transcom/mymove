@@ -23,7 +23,7 @@ type CreateUpdateOrders struct {
 	DepartmentIndicator *DeptIndicator `json:"department_indicator,omitempty"`
 
 	// grade
-	Grade *ServiceMemberRank `json:"grade,omitempty"`
+	Grade *OrderPayGrade `json:"grade,omitempty"`
 
 	// Are dependents included in your orders?
 	// Required: true

@@ -224,7 +224,7 @@ function mapStateToProps(state) {
     // The move still counts as in draft if there are no orders.
     moveIsInDraft: selectMoveIsInDraft(state) || !selectCurrentOrders(state),
     isPpm: selectHasCurrentPPM(state),
-    schemaRank: get(state, 'swaggerInternal.spec.definitions.ServiceMemberRank', {}),
+    schemaGrade: get(state, 'swaggerInternal.spec.definitions.OrderPayGrade', {}),
     schemaAffiliation: get(state, 'swaggerInternal.spec.definitions.Affiliation', {}),
     entitlement: selectWeightAllotmentsForLoggedInUser(state),
   };
