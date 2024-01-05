@@ -33,10 +33,7 @@ describe('ConvertSITToCustomerExpenseModal', () => {
 
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
-      expect(mockOnSubmit).toHaveBeenCalledWith({
-        convertToCustomersExpense: true,
-        remarks: 'Approved!',
-      });
+      expect(mockOnSubmit).toHaveBeenCalledWith(true, 'Approved!');
     });
   });
 

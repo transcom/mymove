@@ -15,11 +15,9 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-
 CREATE TRIGGER check_customer_expense_on_update
   BEFORE UPDATE ON mto_service_items
   FOR EACH ROW EXECUTE FUNCTION check_customer_expense();
-
 CREATE TRIGGER check_customer_expense_on_insert
   BEFORE INSERT ON mto_service_items
   FOR EACH ROW EXECUTE FUNCTION check_customer_expense();

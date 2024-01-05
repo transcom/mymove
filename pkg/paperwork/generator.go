@@ -12,7 +12,7 @@ import (
 	"github.com/disintegration/imaging"
 	"github.com/jung-kurt/gofpdf"
 	"github.com/pdfcpu/pdfcpu/pkg/api"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
@@ -36,20 +36,20 @@ const (
 type Generator struct {
 	fs        *afero.Afero
 	uploader  *uploader.Uploader
-	pdfConfig *pdfcpu.Configuration
+	pdfConfig *model.Configuration
 	workDir   string
 	pdfLib    PDFLibrary
 }
 
 type pdfCPUWrapper struct {
-	*pdfcpu.Configuration
+	*model.Configuration
 }
 
 // Merge merges files
 func (pcw pdfCPUWrapper) Merge(files []io.ReadSeeker, w io.Writer) error {
 	var rscs []io.ReadSeeker
 	rscs = append(rscs, files...)
-	return api.Merge(rscs, w, pcw.Configuration)
+	return api.MergeRaw(rscs, w, false, pcw.Configuration) // Todo: False refers to a divider page. Find out what this does
 }
 
 // Validate validates the api configuration
@@ -92,7 +92,7 @@ func convertTo8BitPNG(in io.Reader, out io.Writer) error {
 func NewGenerator(uploader *uploader.Uploader) (*Generator, error) {
 	afs := uploader.Storer.FileSystem()
 
-	pdfConfig := pdfcpu.NewDefaultConfiguration()
+	pdfConfig := model.NewDefaultConfiguration()
 	pdfCPU := pdfCPUWrapper{Configuration: pdfConfig}
 
 	directory, err := afs.TempDir("", "generator")
