@@ -291,7 +291,7 @@ export class Summary extends Component {
             onEditClick={this.handleEditClick}
             lastName={serviceMember.last_name}
             postalCode={serviceMember.residential_address.postalCode}
-            payGrade={ORDERS_PAY_GRADE_OPTIONS[currentOrders?.grade] || ''}
+            payGrade={ORDERS_PAY_GRADE_OPTIONS[currentOrders.grade] || ''}
             state={serviceMember.residential_address.state}
             streetAddress1={serviceMember.residential_address.streetAddress1}
             streetAddress2={serviceMember.residential_address.streetAddress2}
