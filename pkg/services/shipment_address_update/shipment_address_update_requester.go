@@ -231,16 +231,9 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		return nil, err
 	}
 
-	updateNeedsTOOReview, err := f.isAddressChangeDistanceOver50(appCtx, addressUpdate)
+	updateNeedsTOOReview, err := f.doesDeliveryAddressUpdateChangeServiceArea(appCtx, contract.ID, addressUpdate.OriginalAddress, newAddress)
 	if err != nil {
 		return nil, err
-	}
-
-	if !updateNeedsTOOReview {
-		updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeServiceArea(appCtx, contract.ID, addressUpdate.OriginalAddress, newAddress)
-		if err != nil {
-			return nil, err
-		}
 	}
 
 	if !updateNeedsTOOReview {
@@ -256,6 +249,14 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 			return nil, err
 		}
 	}
+
+	if !updateNeedsTOOReview {
+		updateNeedsTOOReview, err = f.isAddressChangeDistanceOver50(appCtx, addressUpdate)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	if updateNeedsTOOReview {
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusRequested
 	}
