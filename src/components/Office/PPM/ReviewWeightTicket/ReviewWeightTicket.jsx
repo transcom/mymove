@@ -195,9 +195,6 @@ function ReviewWeightTicket({
           const handleRejectionReasonChange = (event) => {
             handleChange(event);
           };
-          const handleAllowableWeightFieldChange = (event) => {
-            currentAllowableWeight.current = `${event.target.value}`;
-          };
           const handleWeightFieldsChange = (event) => {
             if (event.target.name === 'emptyWeight') {
               currentEmptyWeight.current = `${removeCommas(event.target.value)}`;
@@ -205,9 +202,13 @@ function ReviewWeightTicket({
             if (event.target.name === 'fullWeight') {
               currentFullWeight.current = `${removeCommas(event.target.value)}`;
             }
+            if (event.target.name === 'allowableWeight') {
+              currentAllowableWeight.current = `${removeCommas(event.target.value)}`;
+            }
             if (mtoShipments !== undefined && mtoShipments.length > 0) {
               getNewNetWeightCalculation(mtoShipments, values);
             }
+            setFieldTouched(true);
           };
           const handleTrailerOwnedChange = (event) => {
             handleChange(event);
@@ -276,7 +277,7 @@ function ReviewWeightTicket({
                 thousandsSeparator=","
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
-                onBlur={handleAllowableWeightFieldChange}
+                onBlur={handleWeightFieldsChange}
               />
               <EditPPMNetWeight
                 weightTicket={currentWeightTicket}
