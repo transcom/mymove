@@ -44,7 +44,7 @@ const MaskedTextField = ({
 }) => {
   const [field, metaProps, helpers] = useField({ id, name, validate, ...props });
   // if a field relies on MaskedTextField and uses OnBlur event listener, this is added so ShowError doesn't block any error text
-  const isUsingOnBlur = field.onBlur !== null || field.onBlur !== undefined;
+  const isUsingOnBlur = typeof props.onBlur === 'function';
   const showError =
     (isUsingOnBlur && !isNullUndefinedOrWhitespace(metaProps.error)) ||
     (metaProps.touched && !isNullUndefinedOrWhitespace(metaProps.error)) ||

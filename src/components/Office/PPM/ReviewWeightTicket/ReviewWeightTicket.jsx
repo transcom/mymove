@@ -99,7 +99,7 @@ function ReviewWeightTicket({
       fullWeight: parseInt(removeCommas(formValues.fullWeight), 10),
       missingFullWeightTicket: weightTicket.missingFullWeightTicket,
       ownsTrailer,
-      trailerMeetsCriteriaSubmit,
+      trailerMeetsCriteria: trailerMeetsCriteriaSubmit,
       reason: formValues.rejectionReason,
       status: formValues.status,
       allowableWeight: parseInt(removeCommas(formValues.allowableWeight), 10),
