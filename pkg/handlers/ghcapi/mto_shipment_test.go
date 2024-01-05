@@ -311,8 +311,8 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 }
 
 func (suite *HandlerSuite) TestDeleteShipmentHandler() {
-	suite.Run("Returns a 403 when the office user is not a service counselor", func() {
-		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
+	suite.Run("Returns a 403 when user is not a service counselor or TOO", func() {
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeQaeCsr})
 		uuid := uuid.Must(uuid.NewV4())
 		deleter := &mocks.ShipmentDeleter{}
 
@@ -343,7 +343,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 	suite.Run("Returns 204 when all validations pass", func() {
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
-		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		deleter := &mocks.ShipmentDeleter{}
 
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(shipment.MoveTaskOrderID, nil)
