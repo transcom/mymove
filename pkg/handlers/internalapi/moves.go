@@ -25,6 +25,7 @@ import (
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/services"
+	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -220,9 +221,9 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 			}
 			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
 
-			ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(*move))
+			ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer(rateengine.NewRateEngine(*move))
 
-			ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(appCtx.DB(), appCtx.Session(), moveID)
+			ssfd, err := shipmentsummaryworksheet.FetchDataShipmentSummaryWorksheetFormData(appCtx.DB(), appCtx.Session(), moveID)
 			if err != nil {
 				logger.Error("Error fetching data for SSW", zap.Error(err))
 				return handlers.ResponseForError(logger, err), err
@@ -235,7 +236,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 				return handlers.ResponseForError(logger, err), err
 			}
 
-			page1Data, page2Data, page3Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)
+			page1Data, page2Data, page3Data, err := shipmentsummaryworksheet.FormatValuesShipmentSummaryWorksheet(ssfd)
 
 			if err != nil {
 				return handlers.ResponseForError(logger, err), err
