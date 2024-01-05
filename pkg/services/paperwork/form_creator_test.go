@@ -29,7 +29,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() shipmentsummaryworksheet.ShipmentSummaryWorksheetPage1Values {
+func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() shipmentsummaryworksheet.Page1Values {
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
@@ -104,7 +104,7 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() shipmentsummary
 		},
 	}, nil)
 	factory.BuildSignedCertification(nil, nil, nil)
-	ssd, _ := shipmentsummaryworksheet.FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, move.ID)
+	ssd, _ := shipmentsummaryworksheet.FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, move.ID)
 	page1Data, _, _, _ := shipmentsummaryworksheet.FormatValuesShipmentSummaryWorksheet(ssd)
 	return page1Data
 }

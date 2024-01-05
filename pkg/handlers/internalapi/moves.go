@@ -223,7 +223,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 
 			ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer(rateengine.NewRateEngine(*move))
 
-			ssfd, err := shipmentsummaryworksheet.FetchDataShipmentSummaryWorksheetFormData(appCtx.DB(), appCtx.Session(), moveID)
+			ssfd, err := shipmentsummaryworksheet.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), moveID)
 			if err != nil {
 				logger.Error("Error fetching data for SSW", zap.Error(err))
 				return handlers.ResponseForError(logger, err), err

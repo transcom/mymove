@@ -129,7 +129,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 			},
 		},
 	}, nil)
-	ssd, err := FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
+	ssd, err := FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, moveID)
 
 	suite.NoError(err)
 	suite.Equal(move.Orders.ID, ssd.Order.ID)
@@ -196,7 +196,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 		ApplicationName: auth.MilApp,
 	}
 
-	emptySSD, err := FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
+	emptySSD, err := FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, moveID)
 
 	suite.Error(err)
 	suite.Equal(emptySSD, ShipmentSummaryFormData{})
@@ -212,7 +212,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchMovingExpensesShipme
 		ApplicationName: auth.MilApp,
 	}
 
-	movingExpenses, err := FetchMovingExpensesShipmentSummaryWorksheet(move, suite.DB(), &session)
+	movingExpenses, err := FetchMovingExpensesShipmentSummaryWorksheet(move, suite.AppContextForTest(), &session)
 
 	suite.Len(movingExpenses, 0)
 	suite.NoError(err)
@@ -301,7 +301,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 			},
 		},
 	}, nil)
-	ssd, err := FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
+	ssd, err := FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, moveID)
 
 	suite.NoError(err)
 	suite.Equal(move.Orders.ID, ssd.Order.ID)

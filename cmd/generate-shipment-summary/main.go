@@ -153,7 +153,7 @@ func main() {
 	planner := route.NewHEREPlanner(hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
 	ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer(rateengine.NewRateEngine(move))
 
-	ssfd, err := shipmentsummaryworksheet.FetchDataShipmentSummaryWorksheetFormData(dbConnection, &auth.Session{}, parsedID)
+	ssfd, err := shipmentsummaryworksheet.FetchDataShipmentSummaryWorksheetFormData(appCtx, &auth.Session{}, parsedID)
 	if err != nil {
 		log.Fatalf("%s", errors.Wrap(err, "Error fetching shipment summary worksheet data "))
 	}
