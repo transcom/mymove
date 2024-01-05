@@ -34,6 +34,20 @@ func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator ser
 	}
 }
 
+func (f *shipmentAddressUpdateRequester) isAddressChangeDistanceOver50(appCtx appcontext.AppContext, addressUpdate models.ShipmentAddressUpdate) (bool, error) {
+
+	//We calculate and set the distance between the old and new address
+	distance, err := f.planner.ZipTransitDistance(appCtx, addressUpdate.OriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode)
+	if err != nil {
+		return false, err
+	}
+
+	if distance > 50 {
+		return true, nil
+	}
+	return false, nil
+}
+
 func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeServiceArea(appCtx appcontext.AppContext, contractID uuid.UUID, originalDeliveryAddress models.Address, newDeliveryAddress models.Address) (bool, error) {
 	var existingServiceArea models.ReZip3
 	var actualServiceArea models.ReZip3
@@ -217,17 +231,9 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		return nil, err
 	}
 
-	updateNeedsTOOReview := false
-
-	//We calculate and set the distance between the old and new address
-	distance := 0
-	distance, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.OriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode)
+	updateNeedsTOOReview, err := f.isAddressChangeDistanceOver50(appCtx, addressUpdate)
 	if err != nil {
 		return nil, err
-	}
-
-	if distance > 50 {
-		updateNeedsTOOReview = true
 	}
 
 	if !updateNeedsTOOReview {
