@@ -18,4 +18,5 @@ export default {
   ppm_shipments: 'ppm_shipments',
   weight_tickets: 'weight_tickets',
   moving_expenses: 'moving_expenses',
+  progear_weight_tickets: 'progear_weight_tickets',
 };

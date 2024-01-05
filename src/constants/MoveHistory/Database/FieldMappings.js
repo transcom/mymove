@@ -112,4 +112,6 @@ export default {
   amount: 'Amount',
   sit_start_date: 'SIT Start Date',
   sit_end_date: 'SIT End Date',
+  weight: 'Weight',
+  belongs_to_self: 'Service member',
 };

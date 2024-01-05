@@ -48,4 +48,5 @@ export default {
   updateWeightTicket: 'updateWeightTicket', // ghc.yaml, internal.yaml
   updateProGearWeightTicket: 'updateProGearWeightTicket', // ghc.yaml, internal.yaml
   updateMovingExpense: 'updateMovingExpense', // ghc.yaml, internal.yaml
+  deleteMTOShipment: 'deleteMTOShipment', // prime.yaml
 };
