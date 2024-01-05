@@ -89,7 +89,7 @@ describe('Shipment details component', () => {
     const shipmentLevelHeader = screen.getByRole('heading', { name: 'HHG shipment', level: 3 });
     expect(shipmentLevelHeader).toBeInTheDocument();
 
-    const updateShipmentLink = screen.getByText(/Update Shipment/, { selector: 'a.usa-button' });
+    const updateShipmentLink = screen.getAllByText(/Update Shipment/, { selector: 'a.usa-button' })[0];
     expect(updateShipmentLink).toBeInTheDocument();
     expect(updateShipmentLink.getAttribute('href')).toBe(`/shipments/${shipmentId}`);
 
