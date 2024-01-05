@@ -31,7 +31,7 @@ func (suite *PaperworkSuite) AfterTest() {
 		//RA Developer Status: Mitigated
 		//RA Validator Status: Mitigated
 		//RA Modified Severity: N/A
-		// nolint:errcheck
+		// nolint: errcheck
 		file.Close()
 	}
 }

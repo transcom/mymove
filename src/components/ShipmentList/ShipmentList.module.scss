@@ -95,3 +95,17 @@
 .shipment-list-item-NTS-release {
   border-left: 5px solid $accent-ntsr;
 }
+
+.spaceBetween {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.textAlignRight {
+  text-align: right;
+}
+
+.textAlignLeft {
+  text-align: left;
+}
