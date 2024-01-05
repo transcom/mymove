@@ -328,8 +328,8 @@ func (h DeleteShipmentHandler) Handle(params shipmentops.DeleteShipmentParams) m
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			if !appCtx.Session().IsOfficeUser() {
-				forbiddenError := apperror.NewForbiddenError("user is not authenticated with service counselor office role")
+			if !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				forbiddenError := apperror.NewForbiddenError("user is not authenticated with an office role")
 				appCtx.Logger().Error(forbiddenError.Error())
 				return shipmentops.NewDeleteShipmentForbidden(), forbiddenError
 			}

@@ -119,13 +119,13 @@ func checkDeleteAllowed() validator {
 
 		if appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
 			if move.Status != models.MoveStatusDRAFT && move.Status != models.MoveStatusNeedsServiceCounseling {
-				return apperror.NewForbiddenError("Service Counselor: A shipment can only be deleted if the move is in Draft or NeedsServiceCounseling")
+				return apperror.NewForbiddenError("Service Counselor: A shipment can only be deleted if the move is in 'Draft' or 'NeedsServiceCounseling' status")
 			}
 		}
 
 		if appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
 			if older.Status == models.MTOShipmentStatusApproved {
-				return apperror.NewForbiddenError("TOO: A shipment can only be deleted if the move has not been APPROVED")
+				return apperror.NewForbiddenError("TOO: APPROVED shipments cannot be deleted")
 			}
 		}
 
