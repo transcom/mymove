@@ -20,7 +20,7 @@ import { dropdownInputOptions } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
-const rankDropdownOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
+const payGradeDropdownOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
 const branchDropdownOption = dropdownInputOptions(ORDERS_BRANCH_OPTIONS);
 
@@ -156,7 +156,7 @@ const ServicesCounselingMoveAllowances = () => {
               <div className={styles.body}>
                 <AllowancesDetailForm
                   entitlements={order.entitlement}
-                  rankOptions={rankDropdownOptions}
+                  payGradeOptions={payGradeDropdownOptions}
                   branchOptions={branchDropdownOption}
                   header="Counseling"
                 />

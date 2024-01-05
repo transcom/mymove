@@ -87,7 +87,6 @@ export const EditServiceInfo = ({
         navigate(customerRoutes.PROFILE_PATH);
       })
       .catch((e) => {
-        // TODO - error handling - below is rudimentary error handling to approximate existing UX
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
         const { response } = e;
         const errorMessage = getResponseError(response, 'failed to update service member due to server error');
@@ -126,7 +125,6 @@ export const EditServiceInfo = ({
         navigate(customerRoutes.PROFILE_PATH);
       })
       .catch((e) => {
-        // TODO - error handling - below is rudimentary error handling to approximate existing UX
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
         const { response } = e;
         const errorMessage = getResponseError(response, 'failed to update orders due to server error');
