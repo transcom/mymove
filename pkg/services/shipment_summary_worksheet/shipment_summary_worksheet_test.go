@@ -129,7 +129,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 			},
 		},
 	}, nil)
-	ssd, err := models.FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
+	ssd, err := FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
 
 	suite.NoError(err)
 	suite.Equal(move.Orders.ID, ssd.Order.ID)
@@ -196,7 +196,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 		ApplicationName: auth.MilApp,
 	}
 
-	emptySSD, err := models.FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
+	emptySSD, err := FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
 
 	suite.Error(err)
 	suite.Equal(emptySSD, ShipmentSummaryFormData{})
@@ -212,7 +212,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchMovingExpensesShipme
 		ApplicationName: auth.MilApp,
 	}
 
-	movingExpenses, err := models.FetchMovingExpensesShipmentSummaryWorksheet(move, suite.DB(), &session)
+	movingExpenses, err := FetchMovingExpensesShipmentSummaryWorksheet(move, suite.DB(), &session)
 
 	suite.Len(movingExpenses, 0)
 	suite.NoError(err)
@@ -301,7 +301,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 			},
 		},
 	}, nil)
-	ssd, err := models.FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
+	ssd, err := FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
 
 	suite.NoError(err)
 	suite.Equal(move.Orders.ID, ssd.Order.ID)
@@ -651,7 +651,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestGroupExpenses() {
 	}
 
 	for _, testCase := range testCases {
-		actual := models.SubTotalExpenses(testCase.input)
+		actual := SubTotalExpenses(testCase.input)
 		suite.Equal(testCase.expected, actual)
 	}
 
@@ -664,7 +664,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementPP
 		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
 	}
 
-	ppmRemainingEntitlement, err := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
+	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, totalEntitlement)
 	suite.NoError(err)
 
 	suite.Equal(totalEntitlement, ppmRemainingEntitlement)
@@ -677,7 +677,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementPP
 		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
 	}
 
-	ppmRemainingEntitlement, err := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
+	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, totalEntitlement)
 	suite.NoError(err)
 
 	suite.Equal(unit.Pound(ppmWeight), ppmRemainingEntitlement)
@@ -688,7 +688,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWGetEntitlement()
 	hasDependants := true
 	allotment := models.GetWeightAllotment(models.ServiceMemberRankE1)
 	expectedTotalWeight := allotment.TotalWeightSelfPlusDependents + allotment.ProGearWeight + allotment.ProGearWeightSpouse
-	sswEntitlement := models.SSWGetEntitlement(models.ServiceMemberRankE1, hasDependants, spouseHasProGear)
+	sswEntitlement := SSWGetEntitlement(models.ServiceMemberRankE1, hasDependants, spouseHasProGear)
 
 	suite.Equal(unit.Pound(expectedTotalWeight), sswEntitlement.TotalWeight)
 	suite.Equal(unit.Pound(allotment.TotalWeightSelfPlusDependents), sswEntitlement.Entitlement)
@@ -701,7 +701,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWGetEntitlementNo
 	hasDependants := false
 	allotment := models.GetWeightAllotment(models.ServiceMemberRankE1)
 	expectedTotalWeight := allotment.TotalWeightSelf + allotment.ProGearWeight
-	sswEntitlement := models.SSWGetEntitlement(models.ServiceMemberRankE1, hasDependants, spouseHasProGear)
+	sswEntitlement := SSWGetEntitlement(models.ServiceMemberRankE1, hasDependants, spouseHasProGear)
 
 	suite.Equal(unit.Pound(expectedTotalWeight), sswEntitlement.TotalWeight)
 	suite.Equal(unit.Pound(allotment.TotalWeightSelf), sswEntitlement.Entitlement)
@@ -714,7 +714,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatLocation() {
 	yuma := models.DutyLocation{Name: "Yuma AFB", Address: models.Address{State: "IA", PostalCode: "50309"}}
 
 	suite.Equal("Fort Eisenhower, GA 30813", fortEisenhower.Name)
-	suite.Equal("Yuma AFB, IA 50309", models.FormatLocation(yuma))
+	suite.Equal("Yuma AFB, IA 50309", FormatLocation(yuma))
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatServiceMemberFullName() {
@@ -729,32 +729,32 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatServiceMemberFullNa
 		LastName:  models.StringPointer("Smith"),
 	}
 
-	suite.Equal("Smith Jr., Tom James", models.FormatServiceMemberFullName(sm1))
-	suite.Equal("Smith, Tom", models.FormatServiceMemberFullName(sm2))
+	suite.Equal("Smith Jr., Tom James", FormatServiceMemberFullName(sm1))
+	suite.Equal("Smith, Tom", FormatServiceMemberFullName(sm2))
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatCurrentPPMStatus() {
 	paymentRequested := models.PersonallyProcuredMove{Status: models.PPMStatusPAYMENTREQUESTED}
 	completed := models.PersonallyProcuredMove{Status: models.PPMStatusCOMPLETED}
 
-	suite.Equal("At destination", models.FormatCurrentPPMStatus(paymentRequested))
-	suite.Equal("Completed", models.FormatCurrentPPMStatus(completed))
+	suite.Equal("At destination", FormatCurrentPPMStatus(paymentRequested))
+	suite.Equal("Completed", FormatCurrentPPMStatus(completed))
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatRank() {
 	e9 := models.ServiceMemberRankE9
 	multipleRanks := models.ServiceMemberRankO1ACADEMYGRADUATE
 
-	suite.Equal("E-9", models.FormatRank(&e9))
-	suite.Equal("O-1 or Service Academy Graduate", models.FormatRank(&multipleRanks))
+	suite.Equal("E-9", FormatRank(&e9))
+	suite.Equal("O-1 or Service Academy Graduate", FormatRank(&multipleRanks))
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipmentNumberAndType() {
 	singlePPM := models.PersonallyProcuredMoves{models.PersonallyProcuredMove{}}
 	multiplePPMs := models.PersonallyProcuredMoves{models.PersonallyProcuredMove{}, models.PersonallyProcuredMove{}}
 
-	multiplePPMsFormatted := models.FormatAllShipments(multiplePPMs)
-	singlePPMFormatted := models.FormatAllShipments(singlePPM)
+	multiplePPMsFormatted := FormatAllShipments(multiplePPMs)
+	singlePPMFormatted := FormatAllShipments(singlePPM)
 
 	// testing single shipment moves
 	suite.Equal("01 - PPM", singlePPMFormatted.ShipmentNumberAndTypes)
@@ -764,18 +764,18 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipmentNumberAndTy
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatWeights() {
-	suite.Equal("0", models.FormatWeights(0))
-	suite.Equal("10", models.FormatWeights(10))
-	suite.Equal("1,000", models.FormatWeights(1000))
-	suite.Equal("1,000,000", models.FormatWeights(1000000))
+	suite.Equal("0", FormatWeights(0))
+	suite.Equal("10", FormatWeights(10))
+	suite.Equal("1,000", FormatWeights(1000))
+	suite.Equal("1,000,000", FormatWeights(1000000))
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatOrdersIssueDate() {
 	dec212018 := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)
 	jan012019 := time.Date(2019, time.January, 1, 0, 0, 0, 0, time.UTC)
 
-	suite.Equal("21-Dec-2018", models.FormatDate(dec212018))
-	suite.Equal("01-Jan-2019", models.FormatDate(jan012019))
+	suite.Equal("21-Dec-2018", FormatDate(dec212018))
+	suite.Equal("01-Jan-2019", FormatDate(jan012019))
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatOrdersType() {
@@ -783,16 +783,16 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatOrdersType() {
 	var unknownOrdersType internalmessages.OrdersType = "UNKNOWN_ORDERS_TYPE"
 	localOrder := models.Order{OrdersType: unknownOrdersType}
 
-	suite.Equal("PCS", models.FormatOrdersType(pcsOrder))
-	suite.Equal("", models.FormatOrdersType(localOrder))
+	suite.Equal("PCS", FormatOrdersType(pcsOrder))
+	suite.Equal("", FormatOrdersType(localOrder))
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatServiceMemberAffiliation() {
 	airForce := models.AffiliationAIRFORCE
 	marines := models.AffiliationMARINES
 
-	suite.Equal("Air Force", models.FormatServiceMemberAffiliation(&airForce))
-	suite.Equal("Marines", models.FormatServiceMemberAffiliation(&marines))
+	suite.Equal("Air Force", FormatServiceMemberAffiliation(&airForce))
+	suite.Equal("Marines", FormatServiceMemberAffiliation(&marines))
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatPPMWeight() {
@@ -800,8 +800,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatPPMWeight() {
 	ppm := models.PersonallyProcuredMove{NetWeight: &pounds}
 	noWtg := models.PersonallyProcuredMove{NetWeight: nil}
 
-	suite.Equal("1,000 lbs - FINAL", models.FormatPPMWeight(ppm))
-	suite.Equal("", models.FormatPPMWeight(noWtg))
+	suite.Equal("1,000 lbs - FINAL", FormatPPMWeight(ppm))
+	suite.Equal("", FormatPPMWeight(noWtg))
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementNoHHGPPMLessThanMaxEntitlement() {
@@ -811,7 +811,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementNo
 		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
 	}
 
-	ppmRemainingEntitlement, err := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
+	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, totalEntitlement)
 	suite.NoError(err)
 
 	suite.Equal(unit.Pound(ppmWeight), ppmRemainingEntitlement)
@@ -824,7 +824,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementNo
 		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
 	}
 
-	ppmRemainingEntitlement, err := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
+	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, totalEntitlement)
 	suite.NoError(err)
 
 	suite.Equal(totalEntitlement, ppmRemainingEntitlement)
@@ -836,7 +836,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignature() {
 		LastName:  models.StringPointer("Smith"),
 	}
 
-	formattedSignature := models.FormatSignature(sm)
+	formattedSignature := FormatSignature(sm)
 
 	suite.Equal("John Smith electronically signed", formattedSignature)
 }
@@ -851,7 +851,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignatureDate() {
 		SignedCertification: signature,
 	}
 
-	formattedDate := models.FormatSignatureDate(sswfd.SignedCertification)
+	formattedDate := FormatSignatureDate(sswfd.SignedCertification)
 
 	suite.Equal("26 Jan 2019 at 2:40pm", formattedDate)
 }
