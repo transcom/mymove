@@ -64,3 +64,4 @@ export { default as createSITAddressUpdate } from './UpdateSITAddress/CreateSITA
 export { default as updateMTOShipmentPPMDetails } from './UpdateMTOShipment/UpdateMTOShipmentPPMDetails';
 export { default as updateWeightTicket } from './UpdateWeightTicket/UpdateWeightTicket';
 export { default as updateWeightTicketProGear } from './UpdateWeightTicket/updateWeightTicketProGear';
+export { default as createMTOShipmentPPMDetails } from './CreateMTOShipment/createMTOShipmentPPMDetails';
