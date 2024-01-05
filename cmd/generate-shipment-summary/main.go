@@ -24,6 +24,7 @@ import (
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
+	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
 )
 
 // hereRequestTimeout is how long to wait on HERE request before timing out (15 seconds).
@@ -150,9 +151,9 @@ func main() {
 
 	// TODO: Future cleanup will need to remap to a different planner, or this command should be removed if it is consider deprecated
 	planner := route.NewHEREPlanner(hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
-	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(move))
+	ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer(rateengine.NewRateEngine(move))
 
-	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(dbConnection, &auth.Session{}, parsedID)
+	ssfd, err := shipmentsummaryworksheet.FetchDataShipmentSummaryWorksheetFormData(dbConnection, &auth.Session{}, parsedID)
 	if err != nil {
 		log.Fatalf("%s", errors.Wrap(err, "Error fetching shipment summary worksheet data "))
 	}
@@ -161,7 +162,7 @@ func main() {
 		log.Fatalf("%s", errors.Wrap(err, "Error calculating obligations "))
 	}
 
-	page1Data, page2Data, page3Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)
+	page1Data, page2Data, page3Data, err := shipmentsummaryworksheet.FormatValuesShipmentSummaryWorksheet(ssfd)
 	noErr(err)
 
 	// page 1
