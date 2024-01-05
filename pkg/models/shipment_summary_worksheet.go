@@ -631,5 +631,5 @@ func derefStringTypes(st interface{}) string {
 	case string:
 		return v
 	}
-	return ""
+	return " "
 }

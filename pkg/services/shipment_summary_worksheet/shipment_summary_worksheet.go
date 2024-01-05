@@ -6,16 +6,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"github.com/transcom/mymove/pkg/appcontext"
-
-	// shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -25,7 +22,7 @@ import (
 )
 
 // FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
-func FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummaryFormData) (ShipmentSummaryWorksheetPage1Values, ShipmentSummaryWorksheetPage2Values, ShipmentSummaryWorksheetPage3Values, error) {
+func FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummaryFormData) (Page1Values, Page2Values, Page3Values, error) {
 	page1 := FormatValuesShipmentSummaryWorksheetFormPage1(shipmentSummaryFormData)
 	page2 := FormatValuesShipmentSummaryWorksheetFormPage2(shipmentSummaryFormData)
 	page3 := FormatValuesShipmentSummaryWorksheetFormPage3(shipmentSummaryFormData)
@@ -33,8 +30,8 @@ func FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummar
 	return page1, page2, page3, nil
 }
 
-// ShipmentSummaryWorksheetPage1Values is an object representing a Shipment Summary Worksheet
-type ShipmentSummaryWorksheetPage1Values struct {
+// Page1Values is an object representing a Shipment Summary Worksheet
+type Page1Values struct {
 	CUIBanner                       string
 	ServiceMemberName               string
 	MaxSITStorageEntitlement        string
@@ -76,24 +73,24 @@ type ShipmentSummaryWorksheetPage1Values struct {
 	MileageTotal                    string
 }
 
-// ShipmentSummaryWorkSheetShipments is an object representing shipment line items on Shipment Summary Worksheet
-type ShipmentSummaryWorkSheetShipments struct {
+// WorkSheetShipments is an object representing shipment line items on Shipment Summary Worksheet
+type WorkSheetShipments struct {
 	ShipmentNumberAndTypes  string
 	PickUpDates             string
 	ShipmentWeights         string
 	CurrentShipmentStatuses string
 }
 
-// ShipmentSummaryWorkSheetSIT is an object representing SIT on the Shipment Summary Worksheet
-type ShipmentSummaryWorkSheetSIT struct {
+// WorkSheetSIT is an object representing SIT on the Shipment Summary Worksheet
+type WorkSheetSIT struct {
 	NumberAndTypes string
 	EntryDates     string
 	EndDates       string
 	DaysInStorage  string
 }
 
-// ShipmentSummaryWorksheetPage2Values is an object representing a Shipment Summary Worksheet
-type ShipmentSummaryWorksheetPage2Values struct {
+// Page2Values is an object representing a Shipment Summary Worksheet
+type Page2Values struct {
 	CUIBanner       string
 	PreparationDate string
 	TAC             string
@@ -144,8 +141,8 @@ type FormattedOtherExpenses struct {
 	AmountsPaid  string
 }
 
-// ShipmentSummaryWorksheetPage3Values is an object representing a Shipment Summary Worksheet
-type ShipmentSummaryWorksheetPage3Values struct {
+// Page3Values is an object representing a Shipment Summary Worksheet
+type Page3Values struct {
 	CUIBanner              string
 	PreparationDate        string
 	ServiceMemberSignature string
@@ -204,9 +201,9 @@ func (obligation Obligation) MaxAdvance() float64 {
 }
 
 // FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
-func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth.Session, moveID uuid.UUID) (ShipmentSummaryFormData, error) {
+func FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, session *auth.Session, moveID uuid.UUID) (ShipmentSummaryFormData, error) {
 	move := models.Move{}
-	dbQErr := db.Q().Eager(
+	dbQErr := appCtx.DB().Q().Eager(
 		"Orders",
 		"Orders.NewDutyLocation.Address",
 		"Orders.ServiceMember",
@@ -222,7 +219,7 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 	}
 
 	for i, ppm := range move.PersonallyProcuredMoves {
-		ppmDetails, err := models.FetchPersonallyProcuredMove(db, session, ppm.ID)
+		ppmDetails, err := models.FetchPersonallyProcuredMove(appCtx.DB(), session, ppm.ID)
 		if err != nil {
 			return ShipmentSummaryFormData{}, err
 		}
@@ -234,7 +231,7 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		}
 	}
 
-	_, authErr := models.FetchOrderForUser(db, session, move.OrdersID)
+	_, authErr := models.FetchOrderForUser(appCtx.DB(), session, move.OrdersID)
 	if authErr != nil {
 		return ShipmentSummaryFormData{}, authErr
 	}
@@ -252,7 +249,7 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		return ShipmentSummaryFormData{}, err
 	}
 
-	signedCertification, err := models.FetchSignedCertificationsPPMPayment(db, session, moveID)
+	signedCertification, err := models.FetchSignedCertificationsPPMPayment(appCtx.DB(), session, moveID)
 	if err != nil {
 		return ShipmentSummaryFormData{}, err
 	}
@@ -336,8 +333,8 @@ const (
 )
 
 // FormatValuesShipmentSummaryWorksheetFormPage1 formats the data for page 1 of the Shipment Summary Worksheet
-func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData) ShipmentSummaryWorksheetPage1Values {
-	page1 := ShipmentSummaryWorksheetPage1Values{}
+func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData) Page1Values {
+	page1 := Page1Values{}
 	page1.CUIBanner = controlledUnclassifiedInformationText
 	page1.MaxSITStorageEntitlement = "90 days per each shipment"
 	// We don't currently know what allows POV to be authorized, so we are hardcoding it to "No" to start
@@ -436,8 +433,8 @@ func FormatRank(rank *models.ServiceMemberRank) string {
 }
 
 // FormatValuesShipmentSummaryWorksheetFormPage2 formats the data for page 2 of the Shipment Summary Worksheet
-func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData) ShipmentSummaryWorksheetPage2Values {
-	page2 := ShipmentSummaryWorksheetPage2Values{}
+func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData) Page2Values {
+	page2 := Page2Values{}
 	page2.CUIBanner = controlledUnclassifiedInformationText
 	page2.TAC = derefStringTypes(data.Order.TAC)
 	page2.SAC = derefStringTypes(data.Order.SAC)
@@ -448,8 +445,8 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData)
 }
 
 // FormatValuesShipmentSummaryWorksheetFormPage3 formats the data for page 2 of the Shipment Summary Worksheet
-func FormatValuesShipmentSummaryWorksheetFormPage3(data ShipmentSummaryFormData) ShipmentSummaryWorksheetPage3Values {
-	page3 := ShipmentSummaryWorksheetPage3Values{}
+func FormatValuesShipmentSummaryWorksheetFormPage3(data ShipmentSummaryFormData) Page3Values {
+	page3 := Page3Values{}
 	page3.CUIBanner = controlledUnclassifiedInformationText
 	page3.PreparationDate = FormatDate(data.PreparationDate)
 	page3.ServiceMemberSignature = FormatSignature(data.ServiceMember)
@@ -490,9 +487,9 @@ func FormatServiceMemberFullName(serviceMember models.ServiceMember) string {
 }
 
 // FormatAllShipments formats Shipment line items for the Shipment Summary Worksheet
-func FormatAllShipments(ppms models.PersonallyProcuredMoves) ShipmentSummaryWorkSheetShipments {
+func FormatAllShipments(ppms models.PersonallyProcuredMoves) WorkSheetShipments {
 	totalShipments := len(ppms)
-	formattedShipments := ShipmentSummaryWorkSheetShipments{}
+	formattedShipments := WorkSheetShipments{}
 	formattedNumberAndTypes := make([]string, totalShipments)
 	formattedPickUpDates := make([]string, totalShipments)
 	formattedShipmentWeights := make([]string, totalShipments)
@@ -517,7 +514,7 @@ func FormatAllShipments(ppms models.PersonallyProcuredMoves) ShipmentSummaryWork
 
 // FetchMovingExpensesShipmentSummaryWorksheet fetches moving expenses for the Shipment Summary Worksheet
 // TODO: update to create moving expense summary with the new moving expense model
-func FetchMovingExpensesShipmentSummaryWorksheet(_ models.Move, _ *pop.Connection, _ *auth.Session) ([]models.MovingExpense, error) {
+func FetchMovingExpensesShipmentSummaryWorksheet(_ models.Move, _ appcontext.AppContext, _ *auth.Session) ([]models.MovingExpense, error) {
 	var movingExpenseDocuments []models.MovingExpense
 
 	return movingExpenseDocuments, nil
