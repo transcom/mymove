@@ -109,4 +109,6 @@ export default {
   trailer_meets_criteria: 'Trailer meets criteria',
   net_weight_remarks: 'Remarks',
   adjusted_net_weight: 'Net weight',
+  weight: 'Weight',
+  belongs_to_self: 'Service member',
 };
