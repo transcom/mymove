@@ -64,6 +64,11 @@ const LabeledDetails = ({ historyRecord }) => {
     delete changedValuesToUse.service_item_name;
   }
 
+  if ('moving_expense_type' in changedValuesToUse) {
+    shipmentDisplay += `, ${changedValuesToUse.moving_expense_type}`;
+    delete changedValuesToUse.moving_expense_type;
+  }
+
   /* Filter out empty values unless they used to be non-empty
      These values may be non-nullish in oldValues and nullish in changedValues */
   const dbFieldsToDisplay = Object.keys(fieldMappings).filter((dbField) => {
