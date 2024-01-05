@@ -133,8 +133,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 
 	suite.NoError(err)
 	suite.Equal(move.Orders.ID, ssd.Order.ID)
-	suite.Require().Len(ssd.PersonallyProcuredMoves, 1)
-	suite.Equal(ppm.ID, ssd.PersonallyProcuredMoves[0].ID)
+	suite.Require().Len(ssd.PPMShipments, 1)
+	suite.Equal(ppm.ID, ssd.PPMShipments[0].ID)
 	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
 	suite.Equal(yuma.ID, ssd.CurrentDutyLocation.ID)
 	suite.Equal(yuma.Address.ID, ssd.CurrentDutyLocation.Address.ID)
@@ -150,10 +150,9 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
 	suite.Require().Nil(err)
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
-	suite.Equal(ppm.NetWeight, ssd.PersonallyProcuredMoves[0].NetWeight)
-	suite.Require().NotNil(ssd.PersonallyProcuredMoves[0].Advance)
-	suite.Equal(ppm.Advance.ID, ssd.PersonallyProcuredMoves[0].Advance.ID)
-	suite.Equal(unit.Cents(1000), ssd.PersonallyProcuredMoves[0].Advance.RequestedAmount)
+	suite.Equal(ppm.NetWeight, ssd.PPMShipments[0].EstimatedWeight)
+	suite.Require().NotNil(ssd.PPMShipments[0].AdvanceAmountRequested)
+	suite.Equal(unit.Cents(1000), ssd.PPMShipments[0].AdvanceAmountRequested)
 	suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
 }
 
@@ -305,8 +304,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 
 	suite.NoError(err)
 	suite.Equal(move.Orders.ID, ssd.Order.ID)
-	suite.Require().Len(ssd.PersonallyProcuredMoves, 1)
-	suite.Equal(ppm.ID, ssd.PersonallyProcuredMoves[0].ID)
+	suite.Require().Len(ssd.PPMShipments, 1)
+	suite.Equal(ppm.ID, ssd.PPMShipments[0].ID)
 	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
 	suite.Equal(yuma.ID, ssd.CurrentDutyLocation.ID)
 	suite.Equal(yuma.Address.ID, ssd.CurrentDutyLocation.Address.ID)
@@ -321,10 +320,9 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	// E_9 rank, no dependents, no spouse pro-gear
 	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
-	suite.Equal(ppm.NetWeight, ssd.PersonallyProcuredMoves[0].NetWeight)
-	suite.Require().NotNil(ssd.PersonallyProcuredMoves[0].Advance)
-	suite.Equal(ppm.Advance.ID, ssd.PersonallyProcuredMoves[0].Advance.ID)
-	suite.Equal(unit.Cents(1000), ssd.PersonallyProcuredMoves[0].Advance.RequestedAmount)
+	suite.Equal(ppm.NetWeight, ssd.PPMShipments[0].EstimatedWeight)
+	suite.Require().NotNil(ssd.PPMShipments[0].AdvanceAmountRequested)
+	suite.Equal(unit.Cents(1000), ssd.PPMShipments[0].AdvanceAmountRequested)
 	suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
 	suite.Require().Len(ssd.MovingExpenses, 0)
 }
@@ -368,14 +366,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		SpouseHasProGear:  true,
 	}
 	pickupDate := time.Date(2019, time.January, 11, 0, 0, 0, 0, time.UTC)
-	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
 	netWeight := unit.Pound(4000)
-	personallyProcuredMoves := []models.PersonallyProcuredMove{
+	cents := unit.Cents(1000)
+	PPMShipments := []models.PPMShipment{
 		{
-			OriginalMoveDate: &pickupDate,
-			Status:           models.PPMStatusPAYMENTREQUESTED,
-			NetWeight:        &netWeight,
-			Advance:          &advance,
+			ExpectedDepartureDate:  *&pickupDate,
+			Status:                 models.PPMShipmentStatusWaitingOnCustomer,
+			EstimatedWeight:        &netWeight,
+			AdvanceAmountRequested: &cents,
 		},
 	}
 	ssd := ShipmentSummaryFormData{
@@ -386,7 +384,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		PPMRemainingEntitlement: 3000,
 		WeightAllotment:         wtgEntitlements,
 		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
-		PersonallyProcuredMoves: personallyProcuredMoves,
+		PPMShipments:            PPMShipments,
 		Obligations: Obligations{
 			MaxObligation:              Obligation{Gcc: unit.Cents(600000), SIT: unit.Cents(53000)},
 			ActualObligation:           Obligation{Gcc: unit.Cents(500000), SIT: unit.Cents(30000), Miles: unit.Miles(4050)},
@@ -882,9 +880,9 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestComputeObligationsParams(
 		PickupPostalCode:      &pickupPostalCode,
 		DestinationPostalCode: &destinationPostalCode,
 	}
-	noPPM := ShipmentSummaryFormData{PersonallyProcuredMoves: models.PersonallyProcuredMoves{}}
-	missingZip := ShipmentSummaryFormData{PersonallyProcuredMoves: models.PersonallyProcuredMoves{{}}}
-	missingActualMoveDate := ShipmentSummaryFormData{PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm}}
+	noPPM := ShipmentSummaryFormData{PPMShipments: models.PersonallyProcuredMoves{}}
+	missingZip := ShipmentSummaryFormData{PPMShipments: models.PersonallyProcuredMoves{{}}}
+	missingActualMoveDate := ShipmentSummaryFormData{PPMShipments: models.PersonallyProcuredMoves{ppm}}
 
 	planner := &mocks.Planner{}
 	planner.On("ZipTransitDistance",
@@ -958,7 +956,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestComputeObligations() {
 		ppm, order, currentDutyLocation := setupTestData()
 
 		params := ShipmentSummaryFormData{
-			PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
+			PPMShipments:            models.PersonallyProcuredMoves{ppm},
 			WeightAllotment:         SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
 			PPMRemainingEntitlement: ppmRemainingEntitlement,
 			CurrentDutyLocation:     currentDutyLocation,
@@ -1012,7 +1010,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestComputeObligations() {
 		ppm, order, currentDutyLocation := setupTestData()
 
 		params := ShipmentSummaryFormData{
-			PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
+			PPMShipments:            models.PersonallyProcuredMoves{ppm},
 			WeightAllotment:         SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
 			PPMRemainingEntitlement: ppmRemainingEntitlement,
 			CurrentDutyLocation:     currentDutyLocation,
@@ -1063,10 +1061,10 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestComputeObligations() {
 		})
 		currentDutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 		shipmentSummaryFormParams := ShipmentSummaryFormData{
-			PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
-			WeightAllotment:         SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
-			CurrentDutyLocation:     currentDutyLocation,
-			Order:                   order,
+			PPMShipments:        models.PersonallyProcuredMoves{ppm},
+			WeightAllotment:     SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
+			CurrentDutyLocation: currentDutyLocation,
+			Order:               order,
 		}
 		ppmComputer := NewSSWPPMComputer(&mockComputer)
 		obligations, err := ppmComputer.ComputeObligations(suite.AppContextForTest(), shipmentSummaryFormParams, planner)
@@ -1079,7 +1077,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestComputeObligations() {
 		ppm, order, currentDutyLocation := setupTestData()
 
 		params := ShipmentSummaryFormData{
-			PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
+			PPMShipments:            models.PersonallyProcuredMoves{ppm},
 			WeightAllotment:         SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
 			PPMRemainingEntitlement: ppmRemainingEntitlement,
 			CurrentDutyLocation:     currentDutyLocation,
