@@ -24,11 +24,12 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/paperwork/mocks"
+	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.ShipmentSummaryWorksheetPage1Values {
+func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() shipmentsummaryworksheet.ShipmentSummaryWorksheetPage1Values {
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
@@ -103,8 +104,8 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.Shipment
 		},
 	}, nil)
 	factory.BuildSignedCertification(nil, nil, nil)
-	ssd, _ := models.FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, move.ID)
-	page1Data, _, _, _ := models.FormatValuesShipmentSummaryWorksheet(ssd)
+	ssd, _ := shipmentsummaryworksheet.FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, move.ID)
+	page1Data, _, _, _ := shipmentsummaryworksheet.FormatValuesShipmentSummaryWorksheet(ssd)
 	return page1Data
 }
 
