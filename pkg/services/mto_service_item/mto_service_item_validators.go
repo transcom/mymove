@@ -106,7 +106,6 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 	}
 
 	// Checks that SITDestinationFinalAddress isn't updated through this endpoint
-	// Should use the createSITAddressUpdate endpoint
 	err = serviceItemData.checkSITDestinationFinalAddress(appCtx)
 	if err != nil {
 		return err
