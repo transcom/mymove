@@ -157,7 +157,7 @@ type ShipmentSummaryFormData struct {
 	CurrentDutyLocation     models.DutyLocation
 	NewDutyLocation         models.DutyLocation
 	WeightAllotment         SSWMaxWeightEntitlement
-	PersonallyProcuredMoves models.PersonallyProcuredMoves
+	PPMShipments            []models.PPMShipment
 	PreparationDate         time.Time
 	Obligations             Obligations
 	MovingExpenses          []models.MovingExpense
@@ -257,13 +257,25 @@ func FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, ses
 		return ShipmentSummaryFormData{},
 			errors.New("shipment summary worksheet: signed certification is nil")
 	}
+
+	moveHolder := models.Move{}
+	var ppmShipments []models.PPMShipment
+
+	// MTOShipments is inherently plural
+	for _, mtoShipment := range moveHolder.MTOShipments {
+		if mtoShipment.PPMShipment != nil {
+			// We have a PPM shipment present, append it
+			ppmShipments = append(ppmShipments, *mtoShipment.PPMShipment)
+		}
+	}
+
 	ssd := ShipmentSummaryFormData{
 		ServiceMember:           serviceMember,
 		Order:                   move.Orders,
 		CurrentDutyLocation:     serviceMember.DutyLocation,
 		NewDutyLocation:         move.Orders.NewDutyLocation,
 		WeightAllotment:         weightAllotment,
-		PersonallyProcuredMoves: move.PersonallyProcuredMoves,
+		PPMShipments:            ppmShipments,
 		SignedCertification:     *signedCertification,
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
 	}
@@ -362,7 +374,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.WeightAllotmentProgearSpouse = FormatWeights(data.WeightAllotment.SpouseProGear)
 	page1.TotalWeightAllotment = FormatWeights(data.WeightAllotment.TotalWeight)
 
-	formattedShipments := FormatAllShipments(data.PersonallyProcuredMoves)
+	formattedShipments := FormatAllShipments(data.PPMShipments)
 	page1.ShipmentNumberAndTypes = formattedShipments.ShipmentNumberAndTypes
 	page1.ShipmentPickUpDates = formattedShipments.PickUpDates
 	page1.ShipmentCurrentShipmentStatuses = formattedShipments.CurrentShipmentStatuses
@@ -386,8 +398,8 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 }
 
 func formatActualObligationAdvance(data ShipmentSummaryFormData) string {
-	if len(data.PersonallyProcuredMoves) > 0 && data.PersonallyProcuredMoves[0].Advance != nil {
-		advance := data.PersonallyProcuredMoves[0].Advance.RequestedAmount.ToDollarFloatNoRound()
+	if len(data.PPMShipments) > 0 && data.PPMShipments[0].HasRequestedAdvance != nil {
+		advance := data.PPMShipments[0].AdvanceAmountRequested.ToDollarFloatNoRound()
 		return FormatDollars(advance)
 	}
 	return FormatDollars(0)
@@ -487,7 +499,7 @@ func FormatServiceMemberFullName(serviceMember models.ServiceMember) string {
 }
 
 // FormatAllShipments formats Shipment line items for the Shipment Summary Worksheet
-func FormatAllShipments(ppms models.PersonallyProcuredMoves) WorkSheetShipments {
+func FormatAllShipments(ppms models.PPMShipments) WorkSheetShipments {
 	totalShipments := len(ppms)
 	formattedShipments := WorkSheetShipments{}
 	formattedNumberAndTypes := make([]string, totalShipments)
@@ -546,7 +558,7 @@ func getExpenseType(expense models.MovingExpense) string {
 }
 
 // FormatCurrentPPMStatus formats FormatCurrentPPMStatus for the Shipment Summary Worksheet
-func FormatCurrentPPMStatus(ppm models.PersonallyProcuredMove) string {
+func FormatCurrentPPMStatus(ppm models.PPMShipment) string {
 	if ppm.Status == "PAYMENT_REQUESTED" {
 		return "At destination"
 	}
@@ -559,20 +571,17 @@ func FormatPPMNumberAndType(i int) string {
 }
 
 // FormatPPMWeight formats a ppms NetWeight for the Shipment Summary Worksheet
-func FormatPPMWeight(ppm models.PersonallyProcuredMove) string {
-	if ppm.NetWeight != nil {
-		wtg := FormatWeights(unit.Pound(*ppm.NetWeight))
+func FormatPPMWeight(ppm models.PPMShipment) string {
+	if ppm.EstimatedWeight != nil {
+		wtg := FormatWeights(unit.Pound(*ppm.EstimatedWeight))
 		return fmt.Sprintf("%s lbs - FINAL", wtg)
 	}
 	return ""
 }
 
 // FormatPPMPickupDate formats a shipments ActualPickupDate for the Shipment Summary Worksheet
-func FormatPPMPickupDate(ppm models.PersonallyProcuredMove) string {
-	if ppm.OriginalMoveDate != nil {
-		return FormatDate(*ppm.OriginalMoveDate)
-	}
-	return ""
+func FormatPPMPickupDate(ppm models.PPMShipment) string {
+	return FormatDate(*&ppm.ExpectedDepartureDate)
 }
 
 // FormatOrdersTypeAndOrdersNumber formats OrdersTypeAndOrdersNumber for Shipment Summary Worksheet
@@ -664,7 +673,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(appCtx appcontext.AppCo
 	originDutyLocationZip := ssfd.CurrentDutyLocation.Address.PostalCode
 	destDutyLocationZip := ssfd.Order.NewDutyLocation.Address.PostalCode
 
-	distanceMilesFromPickupZip, err := planner.ZipTransitDistance(appCtx, *firstPPM.PickupPostalCode, destDutyLocationZip)
+	distanceMilesFromPickupZip, err := planner.ZipTransitDistance(appCtx, firstPPM.PickupPostalCode, destDutyLocationZip)
 	if err != nil {
 		return Obligations{}, errors.New("error calculating distance")
 	}
@@ -677,12 +686,12 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(appCtx appcontext.AppCo
 	actualCosts, err := sswPpmComputer.ComputePPMMoveCosts(
 		appCtx,
 		ssfd.PPMRemainingEntitlement,
-		*firstPPM.PickupPostalCode,
+		firstPPM.PickupPostalCode,
 		originDutyLocationZip,
 		destDutyLocationZip,
 		distanceMilesFromPickupZip,
 		distanceMilesFromDutyLocationZip,
-		*firstPPM.OriginalMoveDate,
+		firstPPM.ExpectedDepartureDate,
 		0,
 	)
 	if err != nil {
@@ -692,12 +701,12 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(appCtx appcontext.AppCo
 	maxCosts, err := sswPpmComputer.ComputePPMMoveCosts(
 		appCtx,
 		ssfd.WeightAllotment.TotalWeight,
-		*firstPPM.PickupPostalCode,
+		firstPPM.PickupPostalCode,
 		originDutyLocationZip,
 		destDutyLocationZip,
 		distanceMilesFromPickupZip,
 		distanceMilesFromDutyLocationZip,
-		*firstPPM.OriginalMoveDate,
+		firstPPM.ExpectedDepartureDate,
 		0,
 	)
 	if err != nil {
@@ -710,8 +719,8 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(appCtx appcontext.AppCo
 	nonWinningMaxCost := rateengine.GetNonWinningCostMove(maxCosts)
 
 	var actualSIT unit.Cents
-	if firstPPM.TotalSITCost != nil {
-		actualSIT = *firstPPM.TotalSITCost
+	if firstPPM.SITEstimatedCost != nil {
+		actualSIT = *firstPPM.SITEstimatedCost
 	}
 
 	if actualSIT > maxCost.SITMax {
@@ -727,16 +736,17 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(appCtx appcontext.AppCo
 	return obligations, nil
 }
 
-func (sswPpmComputer *SSWPPMComputer) nilCheckPPM(ssfd ShipmentSummaryFormData) (models.PersonallyProcuredMove, error) {
-	if len(ssfd.PersonallyProcuredMoves) == 0 {
-		return models.PersonallyProcuredMove{}, errors.New("missing ppm")
+func (sswPpmComputer *SSWPPMComputer) nilCheckPPM(ssfd ShipmentSummaryFormData) (models.PPMShipment, error) {
+	if len(ssfd.PPMShipments) == 0 {
+		return models.PPMShipment{}, errors.New("missing ppm")
 	}
-	firstPPM := ssfd.PersonallyProcuredMoves[0]
-	if firstPPM.PickupPostalCode == nil || firstPPM.DestinationPostalCode == nil {
-		return models.PersonallyProcuredMove{}, errors.New("missing required address parameter")
+	firstPPM := ssfd.PPMShipments[0]
+	if firstPPM.PickupPostalCode == "" || firstPPM.DestinationPostalCode == "" {
+		return models.PPMShipment{}, errors.New("missing required address parameter")
 	}
-	if firstPPM.OriginalMoveDate == nil {
-		return models.PersonallyProcuredMove{}, errors.New("missing required original move date parameter")
-	}
+	// This test is being removed as they are checking whether required values exist
+	// if firstPPM.ExpectedDepartureDate == nil {
+	// 	return models.PersonallyProcuredMove{}, errors.New("missing required original move date parameter")
+	// }
 	return firstPPM, nil
 }
