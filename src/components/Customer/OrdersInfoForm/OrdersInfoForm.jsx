@@ -6,6 +6,7 @@ import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-us
 
 import styles from './OrdersInfoForm.module.scss';
 
+import { ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
 import { Form } from 'components/form/Form';
@@ -14,9 +15,11 @@ import formStyles from 'styles/form.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
-import { formatLabelReportByDate } from 'utils/formatters';
+import { formatLabelReportByDate, dropdownInputOptions } from 'utils/formatters';
 
 const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) => {
+  const payGradeOptions = dropdownInputOptions(ORDERS_RANK_OPTIONS);
+
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -29,6 +32,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
       .required('Required'),
     has_dependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     new_duty_location: Yup.object().nullable().required('Required'),
+    grade: Yup.mixed().oneOf(Object.keys(ORDERS_RANK_OPTIONS)).required('Required'),
   });
 
   return (
@@ -79,6 +83,8 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                   />
                 </div>
               </FormGroup>
+              <DropdownInput label="Pay grade" name="grade" id="grade" required options={payGradeOptions} />
+
               {isRetirementOrSeparation ? (
                 <>
                   <h3 className={styles.calloutLabel}>Where are you entitled to move?</h3>
@@ -137,6 +143,7 @@ OrdersInfoForm.propTypes = {
     report_by_date: PropTypes.string,
     has_dependents: PropTypes.string,
     new_duty_location: PropTypes.shape({}),
+    grade: PropTypes.string,
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,
