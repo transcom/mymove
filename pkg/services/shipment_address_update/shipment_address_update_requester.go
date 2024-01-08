@@ -42,10 +42,10 @@ func (f *shipmentAddressUpdateRequester) isAddressChangeDistanceOver50(appCtx ap
 		return false, err
 	}
 
-	if distance > 50 {
-		return true, nil
+	if distance <= 50 {
+		return false, nil
 	}
-	return false, nil
+	return true, nil
 }
 
 func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeServiceArea(appCtx appcontext.AppContext, contractID uuid.UUID, originalDeliveryAddress models.Address, newDeliveryAddress models.Address) (bool, error) {
