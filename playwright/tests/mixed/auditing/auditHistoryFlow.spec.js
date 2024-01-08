@@ -14,7 +14,7 @@ const GetPrimeStepHelpers = ({ page, helpers }) => ({
   },
 });
 
-export const getCustomerStepHelpers = ({ page, helpers: { stringHelpers, ...helpers} }) => ({
+export const getCustomerStepHelpers = ({ page, helpers: { stringHelpers, ...helpers } }) => ({
   ...helpers,
   stringHelpers,
   signInAsExisting: async (userId) => {
@@ -40,7 +40,6 @@ export const getCustomerStepHelpers = ({ page, helpers: { stringHelpers, ...help
     await page.locator(`button[data-hook="new-user-login-${milmoveUserType}"]`).click();
   },
 });
-
 
 /** Array of test scenarios which also receive the test fixtures via pageInstance */
 const SCENARIOS = {

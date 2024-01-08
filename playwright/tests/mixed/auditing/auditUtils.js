@@ -92,7 +92,7 @@ export const dateInputOperator = async (page, locator, dateValue) => {
 
   let matching = {
     month: compareDate.getMonth() === firstDate.getMonth(),
-    year: compareDate.getYear() === firstDate.getYear(),
+    year: compareDate.getFullYear() === firstDate.getFullYear(),
   }
 
   let isOnTargetDate = matching.month && matching.year;
@@ -129,7 +129,7 @@ export const dateInputOperator = async (page, locator, dateValue) => {
 
   matching = {
     month: compareDate.getMonth() === firstDateOfCurrentMonth.getMonth(),
-    year: compareDate.getYear() === firstDateOfCurrentMonth.getYear(),
+    year: compareDate.getFullYear() === firstDateOfCurrentMonth.getFullYear(),
   }
 
   isOnTargetDate = matching.month && matching.year;

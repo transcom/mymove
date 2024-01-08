@@ -58,7 +58,15 @@ const config = {
         ...devices['Desktop Chrome'],
       },
     },
-
+    {
+      // lparker 2023-08-01: for now, only test desktop chrome for admin
+      name: 'mixed',
+      testMatch: 'mixed/**/*.spec.js',
+      use: {
+        baseURL: process.env.PLAYWRIGHT_ADMIN_URL || 'http://adminlocal:3000',
+        ...devices['Desktop Chrome'],
+      },
+    },
     {
       // ahobson 2022-12-08: for now, only test desktop chrome for my
       name: 'my',

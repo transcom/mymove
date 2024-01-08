@@ -38,8 +38,6 @@ export class AuditTestPage {
       },
       stringHelpers,
       utils: {
-        formatRelativeDate,
-        formatNumericDate,
         textWithNoTrailingNumbers,
       },
       fast: {
