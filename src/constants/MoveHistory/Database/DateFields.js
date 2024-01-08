@@ -15,4 +15,6 @@ export default {
   expected_departure_date: 'expected_departure_date',
   sit_estimated_departure_date: 'sit_estimated_departure_date',
   sit_estimated_entry_date: 'sit_estimated_entry_date',
+  sit_start_date: 'sit_start_date',
+  sit_end_date: 'sit_end_date',
 };
