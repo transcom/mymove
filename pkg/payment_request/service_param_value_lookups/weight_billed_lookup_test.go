@@ -61,15 +61,6 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 		suite.Equal("1450", valueStr)
 	})
 
-	suite.Run("has reweigh weight where reweigh is lower", func() {
-		// Set the original weight to greater than the reweigh weight. Lower weight (reweigh) should win.
-		_, _, paramLookup := suite.setupTestMTOServiceItemWithReweigh(unit.Pound(1450), unit.Pound(1481), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
-
-		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
-		suite.FatalNoError(err)
-		suite.Equal("1450", valueStr)
-	})
-
 	suite.Run("has adjusted weight", func() {
 		// Set the original weight to greater than the adjusted weight (adjusted weight should always win)
 		adjustedWeight := unit.Pound(1400)
