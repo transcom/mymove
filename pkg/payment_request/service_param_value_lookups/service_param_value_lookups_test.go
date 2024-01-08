@@ -169,8 +169,8 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithEstimated
 	return mtoServiceItem, paymentRequest, &paramLookup
 }
 
-// Create a parent, child, and grandchild diverted shipment chain
-func (suite *ServiceParamValueLookupsSuite) setupDivertedShipmentChainServiceItemsWithAllWeights(parentEstimatedWeight *unit.Pound, childEstimatedWeight *unit.Pound, parentActualWeight *unit.Pound, childActualWeight *unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.MTOServiceItem, models.PaymentRequest, models.PaymentRequest, *ServiceItemParamKeyData, *ServiceItemParamKeyData) {
+// Create a parent and child diverted shipment chain
+func (suite *ServiceParamValueLookupsSuite) setupDivertedShipmentChainServiceItemsWithAllWeights(parentEstimatedWeight *unit.Pound, childEstimatedWeight *unit.Pound, parentActualWeight *unit.Pound, childActualWeight *unit.Pound, parentReweighWeight *unit.Pound, childReweighWeight *unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.MTOServiceItem, models.PaymentRequest, models.PaymentRequest, *ServiceItemParamKeyData, *ServiceItemParamKeyData) {
 	// Create contract year
 	testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 		ReContractYear: models.ReContractYear{
@@ -200,6 +200,16 @@ func (suite *ServiceParamValueLookupsSuite) setupDivertedShipmentChainServiceIte
 			DivertedFromShipmentID: &parentShipment.ID,
 		}},
 	}, nil)
+
+	// Create reweigh for parent shipment if provided
+	if parentReweighWeight != nil {
+		_ = testdatagen.MakeReweighForShipment(suite.DB(), testdatagen.Assertions{}, parentShipment, *parentReweighWeight)
+	}
+
+	// Create reweigh for child shipment if provided
+	if childReweighWeight != nil {
+		_ = testdatagen.MakeReweighForShipment(suite.DB(), testdatagen.Assertions{}, parentShipment, *childReweighWeight)
+	}
 
 	// Parent
 	parentMtoServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -252,8 +262,8 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithWeightOnD
 	return suite.setupTestMTOServiceItemWithAllWeights(&estimatedWeight, &originalWeight, nil, nil, code, shipmentType, diversion, divertedFromShipmentID)
 }
 
-func (suite *ServiceParamValueLookupsSuite) setupTestDivertedShipmentChain(parentEstimatedWeight *unit.Pound, childEstimatedWeight *unit.Pound, parentOriginalWeight *unit.Pound, childOriginalWeight *unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.MTOServiceItem, models.PaymentRequest, models.PaymentRequest, *ServiceItemParamKeyData, *ServiceItemParamKeyData) {
-	return suite.setupDivertedShipmentChainServiceItemsWithAllWeights(parentEstimatedWeight, childEstimatedWeight, parentOriginalWeight, childOriginalWeight, code, shipmentType)
+func (suite *ServiceParamValueLookupsSuite) setupTestDivertedShipmentChain(parentEstimatedWeight *unit.Pound, childEstimatedWeight *unit.Pound, parentOriginalWeight *unit.Pound, childOriginalWeight *unit.Pound, parentReweighWeight *unit.Pound, childReweighWeight *unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.MTOServiceItem, models.PaymentRequest, models.PaymentRequest, *ServiceItemParamKeyData, *ServiceItemParamKeyData) {
+	return suite.setupDivertedShipmentChainServiceItemsWithAllWeights(parentEstimatedWeight, childEstimatedWeight, parentOriginalWeight, childOriginalWeight, parentReweighWeight, childReweighWeight, code, shipmentType)
 }
 
 func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithShuttleWeight(itemEstimatedWeight unit.Pound, itemOriginalWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
