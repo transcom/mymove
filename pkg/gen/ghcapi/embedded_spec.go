@@ -2683,6 +2683,36 @@ func init() {
         ]
       }
     },
+    "/ppm-shipments/closeout": {
+      "get": {
+        "description": "Fetches a list of all expense/reimbursement calculations needed in the \"Review Documents\" section of a PPM closeout shipment.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Fetch PPM closeout calculations.",
+        "operationId": "fetchCloseoutCalculations",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all PPM closeout calculations.",
+            "schema": {
+              "$ref": "#/definitions/MTOAgents"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/finish-document-review": {
       "patch": {
         "description": "Updates a PPM shipment's status once documents have been reviewed. Status is updated depending on whether any documents have been rejected.\n",
@@ -13542,6 +13572,45 @@ func init() {
         "x-permissions": [
           "update.paymentRequest"
         ]
+      }
+    },
+    "/ppm-shipments/closeout": {
+      "get": {
+        "description": "Fetches a list of all expense/reimbursement calculations needed in the \"Review Documents\" section of a PPM closeout shipment.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Fetch PPM closeout calculations.",
+        "operationId": "fetchCloseoutCalculations",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all PPM closeout calculations.",
+            "schema": {
+              "$ref": "#/definitions/MTOAgents"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
       }
     },
     "/ppm-shipments/{ppmShipmentId}/finish-document-review": {

@@ -1,0 +1,79 @@
+description: The calculations needed in the "Review Documents" section of a PPM closeout. LIst of all expenses/reimbursements related toa PPM shipment.
+properties:
+  id:
+    description: Primary auto-generated unique identifier of the PPM shipment object
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+    readOnly: true
+  shipmentId:
+    description: The id of the parent MTOShipment object
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+    readOnly: true
+  plannedMoveDate:
+    $ref: 'PPMShipment.yaml#/properties/expectedDepartureDate'
+  actualMoveDate:
+    $ref: 'PPMShipment.yaml#/properties/actualMoveDate'
+  miles:
+    description: The distance between the old address and the new address in miles.
+    example: 54
+    minimum: 0
+    type: integer
+    required: true
+  estimatedWeight:
+    $ref: 'PPMShipment.yaml#/properties/estimatedWeight'
+  actualWeight:
+    $ref: 'MTOShipment.yaml#/properties/primeActualWeight'
+  proGearWeight:
+    $ref: 'PPMShipment.yaml#/properties/proGearWeight'
+  grossIncentive:
+    $ref: 'PPMShipment.yaml#/properties/finalIncentive'
+  gcc:
+    description: Government Constructive Cost (GCC)
+    type: integer
+    title: GCC
+    format: cents
+    required: true
+  aoa:
+    description: Advance Operating Allowance (AOA).
+    type: integer
+    format: cents
+    required: true
+  remainingReimbursementOwed:
+    description: The remaining reimbursement amount that is still owed to the customer.
+    type: integer
+    format: cents
+    required: true
+  haulPrice:
+    description: The price of the linehaul or shorthaul.
+    type: integer
+    format: cents
+    required: true
+  haulFSC:
+    description: The linehaul/shorthaul Fuel Surcharge (FSC).
+    type: integer
+    format: cents
+    required: true
+  dop:
+    description: The Domestic Origin Price (DOP).
+    type: integer
+    format: cents
+    required: true
+  ddp:
+    description: The Domestic Destination Price (DDP).
+    type: integer
+    format: cents
+    required: true
+  packUnpackPrice:
+    description: The full price of all packing/unpacking services.
+    type: integer
+    format: cents
+    required: true
+  SITReimbursement:
+    description: The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.
+    type: integer
+    format: cents
+    required: true
+

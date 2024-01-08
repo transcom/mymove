@@ -111,6 +111,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		EvaluationReportsDownloadEvaluationReportHandler: evaluation_reports.DownloadEvaluationReportHandlerFunc(func(params evaluation_reports.DownloadEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.DownloadEvaluationReport has not yet been implemented")
 		}),
+		PpmFetchCloseoutCalculationsHandler: ppm.FetchCloseoutCalculationsHandlerFunc(func(params ppm.FetchCloseoutCalculationsParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.FetchCloseoutCalculations has not yet been implemented")
+		}),
 		MtoAgentFetchMTOAgentListHandler: mto_agent.FetchMTOAgentListHandlerFunc(func(params mto_agent.FetchMTOAgentListParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_agent.FetchMTOAgentList has not yet been implemented")
 		}),
@@ -360,6 +363,8 @@ type MymoveAPI struct {
 	ShipmentDenySITExtensionHandler shipment.DenySITExtensionHandler
 	// EvaluationReportsDownloadEvaluationReportHandler sets the operation handler for the download evaluation report operation
 	EvaluationReportsDownloadEvaluationReportHandler evaluation_reports.DownloadEvaluationReportHandler
+	// PpmFetchCloseoutCalculationsHandler sets the operation handler for the fetch closeout calculations operation
+	PpmFetchCloseoutCalculationsHandler ppm.FetchCloseoutCalculationsHandler
 	// MtoAgentFetchMTOAgentListHandler sets the operation handler for the fetch m t o agent list operation
 	MtoAgentFetchMTOAgentListHandler mto_agent.FetchMTOAgentListHandler
 	// PpmFinishDocumentReviewHandler sets the operation handler for the finish document review operation
@@ -603,6 +608,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.EvaluationReportsDownloadEvaluationReportHandler == nil {
 		unregistered = append(unregistered, "evaluation_reports.DownloadEvaluationReportHandler")
+	}
+	if o.PpmFetchCloseoutCalculationsHandler == nil {
+		unregistered = append(unregistered, "ppm.FetchCloseoutCalculationsHandler")
 	}
 	if o.MtoAgentFetchMTOAgentListHandler == nil {
 		unregistered = append(unregistered, "mto_agent.FetchMTOAgentListHandler")
@@ -932,6 +940,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/evaluation-reports/{reportID}/download"] = evaluation_reports.NewDownloadEvaluationReport(o.context, o.EvaluationReportsDownloadEvaluationReportHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/ppm-shipments/closeout"] = ppm.NewFetchCloseoutCalculations(o.context, o.PpmFetchCloseoutCalculationsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

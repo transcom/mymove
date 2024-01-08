@@ -1455,6 +1455,29 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /ppm-shipments/closeout:
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved all PPM closeout calculations.
+          schema:
+            $ref: '#/definitions/MTOAgents'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - ppm
+      description: >-
+        Fetches a list of all expense/reimbursement calculations needed in the
+        "Review Documents" section of a PPM closeout shipment.
+      operationId: fetchCloseoutCalculations
+      summary: Fetch PPM closeout calculations.
   /ppm-shipments/{ppmShipmentId}/moving-expenses/{movingExpenseId}:
     parameters:
       - $ref: '#/parameters/ppmShipmentId'
