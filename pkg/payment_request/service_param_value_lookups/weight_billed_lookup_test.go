@@ -289,3 +289,32 @@ func (suite *ServiceParamValueLookupsSuite) TestShuttleWeightBilledLookup() {
 		suite.Equal("1000", valueStr)
 	})
 }
+
+func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookupDivertedShipments() {
+	key := models.ServiceItemParamNameWeightBilled
+
+	suite.Run("single diverted shipment", func() {
+		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeightOnDiversion(unit.Pound(1234), unit.Pound(1000), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG, true, nil)
+
+		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		suite.FatalNoError(err)
+		suite.Equal("1000", valueStr)
+	})
+
+	suite.Run("multiple diverted shipments with different weights", func() {
+		// Setup multiple diverted shipments with different weights
+		parentEstimatedWeight := unit.Pound(800)
+		parentActualWeight := unit.Pound(1200)
+		childEstimatedWeight := unit.Pound(1600)
+		childActualWeight := unit.Pound(2400)
+
+		_, _, _, _, _, childParamLookup := suite.setupTestDivertedShipmentChain(&parentEstimatedWeight, &childEstimatedWeight, &parentActualWeight, &childActualWeight, models.ReServiceCodeDLH, models.MTOShipmentTypeHHGIntoNTSDom)
+
+		// Use the child shipment
+		valueStr, err := childParamLookup.ServiceParamValue(suite.AppContextForTest(), key)
+
+		// After looking up the child shipment billable weight we should get the parent's weight because it's lower and in the diversion chain
+		suite.FatalNoError(err)
+		suite.Equal("1200", valueStr)
+	})
+}
