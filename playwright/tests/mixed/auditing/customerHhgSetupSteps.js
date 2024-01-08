@@ -1,7 +1,6 @@
 // @ts-nocheck
-import { milmoveUserType } from '../../utils/my/customerTest';
 import './auditUtils';
-import { formatRelativeDate, formatNumericDate, dateInputOperator, stringHelpers as str } from './auditUtils';
+import { formatRelativeDate, dateInputOperator, stringHelpers as str } from './auditUtils';
 import { expect } from './auditTestSetup';
 import _ from 'lodash';
 
