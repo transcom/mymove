@@ -78,7 +78,8 @@ func (suite *ReweighSuite) TestListReweighsByShipmentIDs() {
 	// Ensure reweighs are correctly fetched
 	suite.Equal(parentReweigh.ID, reweighsMap[parentShipment.ID].ID)
 	suite.Equal(childReweigh.ID, reweighsMap[childShipment.ID].ID)
-	// Ensure the grandchild is found because it gets a reweigh created when it's found to not have any
+	// Ensure the grandchild is not found because we do not create the reweigh for all in the chain
+	// Instead, this will be calculated on service item lookup
 	_, exists := reweighsMap[grandChildShipment.ID]
-	suite.True(exists)
+	suite.False(exists)
 }
