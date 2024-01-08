@@ -55,8 +55,6 @@ func (f *shipmentDeleter) DeleteShipment(appCtx appcontext.AppContext, shipmentI
 				return apperror.NewInternalServerError("failed attempt to soft delete model")
 			}
 		}
-		// Update PPMType once shipment gets created.
-		_, err = f.moveTaskOrderUpdater.UpdatePPMType(txnAppCtx, shipment.MoveTaskOrderID)
 
 		if err != nil {
 			return err

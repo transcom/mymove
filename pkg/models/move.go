@@ -67,8 +67,6 @@ type Move struct {
 	AvailableToPrimeAt           *time.Time              `db:"available_to_prime_at"`
 	ContractorID                 *uuid.UUID              `db:"contractor_id"`
 	Contractor                   *Contractor             `belongs_to:"contractors" fk_id:"contractor_id"`
-	PPMEstimatedWeight           *unit.Pound             `db:"ppm_estimated_weight"`
-	PPMType                      *string                 `db:"ppm_type"`
 	MTOServiceItems              MTOServiceItems         `has_many:"mto_service_items" fk_id:"move_id"`
 	PaymentRequests              PaymentRequests         `has_many:"payment_requests" fk_id:"move_id"`
 	MTOShipments                 MTOShipments            `has_many:"mto_shipments" fk_id:"move_id"`

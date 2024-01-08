@@ -2612,7 +2612,6 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 				Locator:     moveInfo.MoveLocator,
 				Status:      models.MoveStatusAPPROVED,
 				SubmittedAt: &submittedAt,
-				PPMType:     models.StringPointer("FULL"),
 			},
 		},
 		{

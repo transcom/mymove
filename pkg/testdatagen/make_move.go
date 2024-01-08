@@ -32,16 +32,9 @@ func makeMove(db *pop.Connection, assertions Assertions) models.Move {
 		contractorID = contractor.ID
 	}
 
-	ppmType := assertions.Move.PPMType
-	if assertions.Move.PPMType == nil {
-		partialType := "PARTIAL"
-		ppmType = &partialType
-	}
-
 	move := models.Move{
 		Orders:       orders,
 		OrdersID:     orders.ID,
-		PPMType:      ppmType,
 		Status:       models.MoveStatusDRAFT,
 		Locator:      models.GenerateLocator(),
 		Show:         setShow(assertions.Move.Show),

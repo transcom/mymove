@@ -7,8 +7,6 @@ import (
 )
 
 func (suite *FactorySuite) TestBuildMove() {
-	partialType := "PARTIAL"
-	defaultPpmType := &partialType
 	defaultShow := true
 
 	suite.Run("Successful creation of default move", func() {
@@ -22,7 +20,6 @@ func (suite *FactorySuite) TestBuildMove() {
 		// Create move
 		move := BuildMove(suite.DB(), nil, nil)
 
-		suite.Equal(*defaultPpmType, *move.PPMType)
 		suite.Equal(defaultShow, *move.Show)
 		suite.NotNil(move.Contractor)
 		suite.False(move.ContractorID.IsNil())
@@ -38,7 +35,6 @@ func (suite *FactorySuite) TestBuildMove() {
 		suite.NoError(err)
 
 		move := BuildMove(nil, nil, nil)
-		suite.Equal(*defaultPpmType, *move.PPMType)
 		suite.Equal(defaultShow, *move.Show)
 		suite.NotNil(move.Contractor)
 		suite.Empty(*move.ReferenceID)
@@ -58,14 +54,12 @@ func (suite *FactorySuite) TestBuildMove() {
 		// custom move
 		referenceID := "refID"
 		show := false
-		ppmType := "FULL"
 		locator := "ABC123"
 		closeoutOfficeName := "Closeout office"
 
 		customMove := models.Move{
 			ReferenceID: &referenceID,
 			Show:        &show,
-			PPMType:     &ppmType,
 			Locator:     locator,
 		}
 		customs := []Customization{
@@ -81,7 +75,6 @@ func (suite *FactorySuite) TestBuildMove() {
 		}
 		move := BuildMove(suite.DB(), customs, nil)
 
-		suite.Equal(ppmType, *move.PPMType)
 		suite.False(*move.Show)
 		suite.Equal(locator, move.Locator)
 		suite.Equal(closeoutOfficeName, move.CloseoutOffice.Name)

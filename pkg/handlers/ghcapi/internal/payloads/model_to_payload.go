@@ -87,14 +87,6 @@ func ListMove(move *models.Move) *ghcmessages.ListPrimeMove {
 		ETag:               etag.GenerateEtag(move.UpdatedAt),
 	}
 
-	if move.PPMEstimatedWeight != nil {
-		payload.PpmEstimatedWeight = int64(*move.PPMEstimatedWeight)
-	}
-
-	if move.PPMType != nil {
-		payload.PpmType = *move.PPMType
-	}
-
 	return payload
 }
 
@@ -1638,7 +1630,6 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
 			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation),
 			OriginGBLOC:             gbloc,
-			PpmType:                 move.PPMType,
 			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
 			CloseoutLocation:        &closeoutLocation,
 		}

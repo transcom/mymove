@@ -52,10 +52,8 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 
 		// SETUP
 		locator := "ABC123"
-		ppmType := "FULL"
 
 		move := models.Move{
-			PPMType: &ppmType,
 			Locator: locator,
 		}
 
@@ -74,7 +72,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		suite.Equal(mtoShipment.ShipmentType, models.MTOShipmentTypeBoatHaulAway)
 		suite.Equal(mtoShipment.Status, models.MTOShipmentStatusApproved)
 
-		suite.Equal(mtoShipment.MoveTaskOrder.PPMType, &ppmType)
 		suite.Equal(mtoShipment.MoveTaskOrder.Locator, locator)
 	})
 
@@ -97,11 +94,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 			StreetAddress3: models.StringPointer("c/o Some Person"),
 		}
 
-		partialType := "PARTIAL"
-		defaultMove := models.Move{
-			PPMType: &partialType,
-		}
-
 		defaultRequestedPickupDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 		defaultScheduledPickupDate := time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
 		defaultActualPickupDate := time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
@@ -122,9 +114,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		suite.Equal(defaultDeliveryAddress.StreetAddress1, mtoShipment.DestinationAddress.StreetAddress1)
 		suite.Equal(defaultDeliveryAddress.StreetAddress2, mtoShipment.DestinationAddress.StreetAddress2)
 		suite.Equal(defaultDeliveryAddress.StreetAddress3, mtoShipment.DestinationAddress.StreetAddress3)
-
-		// Check move
-		suite.Equal(defaultMove.PPMType, mtoShipment.MoveTaskOrder.PPMType)
 
 		suite.Nil(mtoShipment.StorageFacility)
 

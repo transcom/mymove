@@ -44,8 +44,6 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		}
 	}
 
-	partialType := "PARTIAL"
-	ppmType := &partialType
 	contractor := FetchOrBuildDefaultContractor(db, customs, traits)
 	defaultShow := true
 
@@ -59,7 +57,6 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 	move := models.Move{
 		Orders:       order,
 		OrdersID:     order.ID,
-		PPMType:      ppmType,
 		Status:       models.MoveStatusDRAFT,
 		Locator:      defaultLocator,
 		Show:         &defaultShow,

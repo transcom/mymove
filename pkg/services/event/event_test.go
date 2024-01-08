@@ -206,7 +206,6 @@ func (suite *EventServiceSuite) Test_MTOEventTrigger() {
 		// nolint:errcheck
 		json.Unmarshal([]byte(notification.Payload), &mtoInPayload)
 		// Check some params
-		suite.Equal(mto.PPMType, &mtoInPayload.PpmType)
 		suite.Equal(handlers.FmtDateTimePtr(mto.AvailableToPrimeAt).String(), mtoInPayload.AvailableToPrimeAt.String())
 
 	})

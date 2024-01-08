@@ -10,7 +10,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/event"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 // CustomerModel converts payload to model - currently does not tackle addresses
@@ -99,13 +98,11 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.Move 
 	if mtoPayload == nil {
 		return nil
 	}
-	ppmEstimatedWeight := unit.Pound(mtoPayload.PpmEstimatedWeight)
+
 	contractorID := uuid.FromStringOrNil(mtoPayload.ContractorID.String())
 	model := &models.Move{
-		ReferenceID:        &mtoPayload.ReferenceID,
-		PPMEstimatedWeight: &ppmEstimatedWeight,
-		PPMType:            &mtoPayload.PpmType,
-		ContractorID:       &contractorID,
+		ReferenceID:  &mtoPayload.ReferenceID,
+		ContractorID: &contractorID,
 	}
 
 	if mtoPayload.AvailableToPrimeAt != nil {

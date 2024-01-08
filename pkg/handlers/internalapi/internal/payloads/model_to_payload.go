@@ -478,7 +478,6 @@ func SignedCertification(signedCertification *models.SignedCertification) *inter
 		ID:                handlers.FmtUUIDValue(signedCertification.ID),
 		SubmittingUserID:  handlers.FmtUUIDValue(signedCertification.SubmittingUserID),
 		MoveID:            handlers.FmtUUIDValue(signedCertification.MoveID),
-		PpmID:             handlers.FmtUUIDPtr(signedCertification.PpmID),
 		CertificationText: &signedCertification.CertificationText,
 		Signature:         &signedCertification.Signature,
 		Date:              handlers.FmtDate(signedCertification.Date),

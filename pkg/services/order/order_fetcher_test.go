@@ -355,11 +355,9 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		// Set up:           Make 2 moves, with different ppm types, and search for both types
 		// Expected outcome: search results should only include the move with the PPM type that was searched for
 		officeUser, partialPPMMove := setupTestData()
-		suite.Equal("PARTIAL", *partialPPMMove.PPMType)
 		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
 			{
 				Model: models.Move{
-					PPMType: models.StringPointer("FULL"),
 					Locator: "FULLLL",
 				},
 			},
@@ -1510,9 +1508,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		}, nil)
 		ppmShipmentPartial := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
 			{
-				Model: models.Move{
-					PPMType: models.StringPointer("Partial"),
-				},
+				Model: models.Move{},
 			},
 			{
 				Model:    closeoutOffice,
@@ -1522,9 +1518,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		})
 		ppmShipmentFull := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
 			{
-				Model: models.Move{
-					PPMType: models.StringPointer("FULL"),
-				},
+				Model: models.Move{},
 			},
 			{
 				Model:    closeoutOffice,

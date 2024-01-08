@@ -55,16 +55,6 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 			return err
 		}
 
-		if !isPPMShipment {
-			// Update PPMType once shipment gets created.
-			_, err = s.moveTaskOrderUpdater.UpdatePPMType(txnAppCtx, mtoShipment.MoveTaskOrderID)
-
-			if err != nil {
-				return err
-			}
-			return nil
-		}
-
 		mtoShipment.PPMShipment.ShipmentID = mtoShipment.ID
 		mtoShipment.PPMShipment.Shipment = *mtoShipment
 
@@ -73,8 +63,6 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 		if err != nil {
 			return err
 		}
-		// Update PPMType once shipment gets created.
-		_, err = s.moveTaskOrderUpdater.UpdatePPMType(txnAppCtx, mtoShipment.MoveTaskOrderID)
 
 		if err != nil {
 			return err
