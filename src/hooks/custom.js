@@ -67,26 +67,11 @@ const groupDivertedShipmentsByAddress = (shipments) => {
   return chains;
 };
 
-/**
- * This function calculates the total Billable Weight of the move,
- * by adding up all of the calculatedBillableWeight fields of all shipments with the required statuses.
- *
- * This function does **NOT** include PPM net weights in the calculation.
- * @param mtoShipments An array of MTO Shipments
- * @return {int|null} The calculated total billable weight
- */
-export const useCalculatedTotalBillableWeight = (mtoShipments) => {
-  return useMemo(() => {
-    return (
-      mtoShipments
-        ?.filter((s) => {
-          return includedStatusesForCalculatingWeights(s.status) && s.calculatedBillableWeight;
-        })
-        .reduce((prev, current) => {
-          return prev + current.calculatedBillableWeight;
-        }, 0) || null
-    );
-  }, [mtoShipments]);
+const getEstimatedLowestShipmentWeight = (shipments) => {
+  return shipments.reduce((lowest, shipment) => {
+    const estimatedWeight = getShipmentEstimatedWeight(shipment);
+    return estimatedWeight < lowest ? estimatedWeight : lowest;
+  }, Number.MAX_SAFE_INTEGER);
 };
 
 const getLowestShipmentNetWeight = (shipments) => {
@@ -94,6 +79,53 @@ const getLowestShipmentNetWeight = (shipments) => {
     const currentNetWeight = calculateShipmentNetWeight(shipment);
     return currentNetWeight < lowest ? currentNetWeight : lowest;
   }, Number.MAX_SAFE_INTEGER);
+};
+
+/**
+ * This function calculates the total Billable Weight of the move,
+ * by adding up all of the calculatedBillableWeight fields of all shipments with the required statuses.
+ * It has unique calculations to also only count the lowest weight from a diverted shipment "Chain".
+ * It is chained by a shipment having its diversion parameter set to true and the destination address
+ * of the parent shipment matching the pickup address of the child shipment.
+ *
+ * This function does **NOT** include PPM net weights in the calculation.
+ * @param mtoShipments An array of MTO Shipments
+ * @return {int|null} The calculated total billable weight
+ */
+export const useCalculatedTotalBillableWeight = (mtoShipments) => {
+  return useMemo(() => {
+    if (mtoShipments?.length) {
+      // Separate diverted shipments and other eligible shipments for weight calculations
+      // This is done because a diverted shipment only has one true weight, but when it gets diverted
+      // it is entered as a whole new shipment. This causes the sum to be counted twice for its weight,
+      // we filter to include only the lowest weight from the diverted shipments here to prevent that.
+      const divertedEligibleShipments = mtoShipments.filter(
+        (s) => s.diversion && includedStatusesForCalculatingWeights(s.status) && s.calculatedBillableWeight,
+      );
+      const otherEligibleShipments = mtoShipments.filter(
+        (s) => !s.diversion && includedStatusesForCalculatingWeights(s.status) && s.calculatedBillableWeight,
+      );
+      // In order to properly sum the lowest weight of the diverted shipments, we must first put them into
+      // their correct "chains". Please see comments for groupDivertedShipments for more details.
+      const chains = groupDivertedShipmentsByAddress(divertedEligibleShipments);
+      // Grab the lowest weight from each chain
+      const chainWeights = chains.map((chain) =>
+        chain.reduce((lowest, shipment) => {
+          return shipment.calculatedBillableWeight < lowest ? shipment.calculatedBillableWeight : lowest;
+        }, Number.MAX_SAFE_INTEGER),
+      );
+      // Now that we have the lowest weight from each chain, get the sum
+      const sumChainWeights = chainWeights.reduce((total, weight) => total + weight, 0);
+
+      // Sum non-diverted eligible billable weights
+      const sumOtherEligibleWeights = otherEligibleShipments.reduce((total, current) => {
+        return total + current.calculatedBillableWeight;
+      }, 0);
+
+      return sumOtherEligibleWeights + sumChainWeights > 0 ? sumOtherEligibleWeights + sumChainWeights : null;
+    }
+    return null;
+  }, [mtoShipments]);
 };
 
 /**
@@ -140,13 +172,6 @@ export const useCalculatedWeightRequested = (mtoShipments) => {
   return useMemo(() => {
     return calculateWeightRequested(mtoShipments);
   }, [mtoShipments]);
-};
-
-const getEstimatedLowestShipmentWeight = (shipments) => {
-  return shipments.reduce((lowest, shipment) => {
-    const estimatedWeight = getShipmentEstimatedWeight(shipment);
-    return estimatedWeight < lowest ? estimatedWeight : lowest;
-  }, Number.MAX_SAFE_INTEGER);
 };
 
 export const calculateEstimatedWeight = (mtoShipments) => {
