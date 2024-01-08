@@ -30,7 +30,7 @@ func NewShowShipmentSummaryWorksheet(ctx *middleware.Context, handler ShowShipme
 }
 
 /*
-	ShowShipmentSummaryWorksheet swagger:route GET /moves/{moveId}/shipment_summary_worksheet moves showShipmentSummaryWorksheet
+	ShowShipmentSummaryWorksheet swagger:route GET /moves/{ppmShipmentId}/shipment_summary_worksheet moves showShipmentSummaryWorksheet
 
 # Returns Shipment Summary Worksheet
 
