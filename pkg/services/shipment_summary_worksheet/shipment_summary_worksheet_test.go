@@ -204,14 +204,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() {
 	serviceMemberID, _ := uuid.NewV4()
 
-	move := factory.BuildMove(suite.DB(), nil, nil)
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 	session := auth.Session{
-		UserID:          move.Orders.ServiceMember.UserID,
+		UserID:          ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID,
 		ServiceMemberID: serviceMemberID,
 		ApplicationName: auth.MilApp,
 	}
 
-	movingExpenses, err := FetchMovingExpensesShipmentSummaryWorksheet(move, suite.AppContextForTest(), &session)
+	movingExpenses, err := FetchMovingExpensesShipmentSummaryWorksheet(ppmShipment, suite.AppContextForTest(), &session)
 
 	suite.Len(movingExpenses, 0)
 	suite.NoError(err)
@@ -732,11 +732,11 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatServiceMemberFullNa
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatCurrentPPMStatus() {
-	paymentRequested := models.PersonallyProcuredMove{Status: models.PPMStatusPAYMENTREQUESTED}
-	completed := models.PersonallyProcuredMove{Status: models.PPMStatusCOMPLETED}
+	draft := models.PPMShipment{Status: models.PPMShipmentStatusDraft}
+	submitted := models.PPMShipment{Status: models.PPMShipmentStatusSubmitted}
 
-	suite.Equal("At destination", FormatCurrentPPMStatus(paymentRequested))
-	suite.Equal("Completed", FormatCurrentPPMStatus(completed))
+	suite.Equal("At destination", FormatCurrentPPMStatus(draft))
+	suite.Equal("Completed", FormatCurrentPPMStatus(submitted))
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatRank() {

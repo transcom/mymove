@@ -213,17 +213,17 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			moveID, _ := uuid.FromString(params.MoveID.String())
+			ppmShipmentId, _ := uuid.FromString(params.PpmShipmentID.String())
 
-			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+			ppmShipment, err := models.FetchPPMShipmentByPPMShipmentID(appCtx.DB(), ppmShipmentId)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
+			logger := appCtx.Logger()
 
-			ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer(rateengine.NewRateEngine(*move))
+			ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer(rateengine.NewRateEngine(ppmShipment))
 
-			ssfd, err := shipmentsummaryworksheet.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), moveID)
+			ssfd, err := shipmentsummaryworksheet.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentId)
 			if err != nil {
 				logger.Error("Error fetching data for SSW", zap.Error(err))
 				return handlers.ResponseForError(logger, err), err

@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -199,4 +200,18 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&OptionalUUIDIsPresent{Name: "AOAPacketID", Field: p.AOAPacketID},
 		&OptionalUUIDIsPresent{Name: "PaymentPacketID", Field: p.PaymentPacketID},
 	), nil
+}
+
+// FetchMoveByMoveID returns a Move for a given id
+func FetchPPMShipmentByPPMShipmentID(db *pop.Connection, ppmShipmentID uuid.UUID) (PPMShipment, error) {
+	var ppmShipment PPMShipment
+	err := db.Q().Find(&ppmShipment, ppmShipmentID)
+
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return PPMShipment{}, ErrFetchNotFound
+		}
+		return PPMShipment{}, err
+	}
+	return ppmShipment, nil
 }

@@ -157,10 +157,10 @@ type ShipmentSummaryFormData struct {
 	CurrentDutyLocation     models.DutyLocation
 	NewDutyLocation         models.DutyLocation
 	WeightAllotment         SSWMaxWeightEntitlement
-	PPMShipments            []models.PPMShipment
+	PPMShipments            models.PPMShipments
 	PreparationDate         time.Time
 	Obligations             Obligations
-	MovingExpenses          []models.MovingExpense
+	MovingExpenses          models.MovingExpenses
 	PPMRemainingEntitlement unit.Pound
 	SignedCertification     models.SignedCertification
 }
@@ -526,8 +526,8 @@ func FormatAllShipments(ppms models.PPMShipments) WorkSheetShipments {
 
 // FetchMovingExpensesShipmentSummaryWorksheet fetches moving expenses for the Shipment Summary Worksheet
 // TODO: update to create moving expense summary with the new moving expense model
-func FetchMovingExpensesShipmentSummaryWorksheet(_ models.Move, _ appcontext.AppContext, _ *auth.Session) ([]models.MovingExpense, error) {
-	var movingExpenseDocuments []models.MovingExpense
+func FetchMovingExpensesShipmentSummaryWorksheet(PPMShipment models.PPMShipment, _ appcontext.AppContext, _ *auth.Session) (models.MovingExpenses, error) {
+	var movingExpenseDocuments = PPMShipment.MovingExpenses
 
 	return movingExpenseDocuments, nil
 }
