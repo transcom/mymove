@@ -243,9 +243,11 @@ const PerformHHGSetup = async (
 
 export const RUN_MOVER_OWNER_SETS_UP_HHG = {
   run: async (input, getHelpers) => {
+    const todaysDate = new Date();
+    todaysDate.setMonth(10);
     const hhgFormData = {
       preferredPickupDate: formatRelativeDate(5),
-      preferredDeliveryDate: formatRelativeDate(20),
+      preferredDeliveryDate: {relativeDate: todaysDate},
       useExistingAddress: true,
       releasingAgentDetails: {
         firstName: 'larry',
