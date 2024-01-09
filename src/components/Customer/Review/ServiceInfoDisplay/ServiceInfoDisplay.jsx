@@ -17,7 +17,7 @@ const ServiceInfoDisplay = ({
   showMessage,
   lastName,
   editURL,
-  rank,
+  payGrade,
 }) => {
   return (
     <div className={serviceInfoDisplayStyles.serviceInfoContainer}>
@@ -47,7 +47,7 @@ const ServiceInfoDisplay = ({
 
           <div className={descriptionListStyles.row}>
             <dt>Pay grade</dt>
-            <dd>{rank}</dd>
+            <dd>{payGrade}</dd>
           </div>
 
           <div className={descriptionListStyles.row}>
@@ -76,7 +76,7 @@ ServiceInfoDisplay.propTypes = {
   showMessage: bool,
   lastName: string.isRequired,
   editURL: string,
-  rank: string.isRequired,
+  payGrade: string.isRequired,
 };
 
 ServiceInfoDisplay.defaultProps = {

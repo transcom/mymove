@@ -20,7 +20,7 @@ export const DefaultState = (argTypes) => (
       suffix: '',
       affiliation: '',
       edipi: '',
-      rank: '',
+      grade: '',
       current_location: {},
     }}
     onSubmit={argTypes.onSubmit}
@@ -37,7 +37,7 @@ export const WithInitialValues = (argTypes) => (
       suffix: 'Mr.',
       affiliation: 'ARMY',
       edipi: '9999999999',
-      rank: 'E_2',
+      grade: 'E_2',
       current_location: {
         address: {
           city: 'Los Angeles',
