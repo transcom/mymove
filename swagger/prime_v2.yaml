@@ -102,18 +102,17 @@ paths:
         approve it before the contractor can proceed with billing.
 
 
-        **NOTE**: If you create a new diverted shipment with the `diversion` and
+        **NOTE**: When creating a child shipment diversion, you can no longer
+        specify the `primeActualWeight`.
+
+        If you create a new diverted shipment with the `diversion` and
         `divertedFromShipmentId` parameter, it will automatically
 
-        inherit the reweigh and actual weight of its `divertedFromShipmentId`
-        parent. It establishes the chain by looking up by this
+        inherit the primeActualWeight of its `divertedFromShipmentId` parent.
+        Payment requests created on a diverted shipment "chain" will utilize
 
-        UUID, and checking that the destination address of the
-        `divertedFromShipmentId` parent matches the pickup address of this new
-        shipment.
-
-        If it does not match this automatic application of weights will not
-        execute as it does not successfully create a diversion chain.
+        the lowest weight possible in the chain to prevent overcharging as they
+        are still separate shipments.
 
 
         **WIP**: The Prime should be notified by a push notification whenever

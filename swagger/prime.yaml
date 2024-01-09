@@ -861,12 +861,6 @@ paths:
         or transportation office. Not all shipments are reweighed,
 
         so not all shipments will have a reweigh weight.
-
-
-        **NOTE**: If you reweigh a diverted shipment, the new reweigh weight
-        will apply for all shipments in the chain. Diversions are handled
-        uniquely. calcuation for payment requests without a `WeightBilled`
-        parameter.
       operationId: updateReweigh
       tags:
         - mtoShipment
@@ -1426,8 +1420,9 @@ paths:
         pickup addresses.
 
         If the chain cannot be established it will fall back to the
-        `PrimeActualWeight`. This is utilized because diverted shipments are all
-        one single shipment, but going to different locations.
+        `PrimeActualWeight` of the current shipment. This is utilized because
+        diverted shipments are all one single shipment, but going to different
+        locations.
 
         The lowest weight found is the true shipment weight, and thus we search
         the chain of shipments for the lowest weight found.

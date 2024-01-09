@@ -722,9 +722,6 @@ paths:
         A reweigh is the second recorded weight for a shipment, as validated by certified weight tickets. Applies to one shipment.
         A reweigh can be triggered automatically, or requested by the customer or transportation office. Not all shipments are reweighed,
         so not all shipments will have a reweigh weight.
-
-        **NOTE**: If you reweigh a diverted shipment, the new reweigh weight will apply for all shipments in the chain. Diversions are handled uniquely. calcuation for payment requests without a `WeightBilled` parameter.
-
       operationId: updateReweigh
       tags:
         - mtoShipment
@@ -1184,7 +1181,7 @@ paths:
         - The lowest reweigh weight found in the diverted shipment chain.
 
         The diverted shipment chain is created by referencing the `diversion` boolean, `divertedFromShipmentId` UUID, and matching destination to pickup addresses.
-        If the chain cannot be established it will fall back to the `PrimeActualWeight`. This is utilized because diverted shipments are all one single shipment, but going to different locations.
+        If the chain cannot be established it will fall back to the `PrimeActualWeight` of the current shipment. This is utilized because diverted shipments are all one single shipment, but going to different locations.
         The lowest weight found is the true shipment weight, and thus we search the chain of shipments for the lowest weight found.
 
         **DOFSIT - Domestic origin 1st day SIT**
