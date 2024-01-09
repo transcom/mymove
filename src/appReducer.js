@@ -11,7 +11,6 @@ import { swaggerReducerPublic, swaggerReducerInternal } from 'shared/Swagger/duc
 import { requestsReducer } from 'shared/Swagger/requestsReducer';
 import { entitiesReducer } from 'shared/Entities/reducer';
 import { officeFlashMessagesReducer } from 'scenes/Office/ducks';
-import officePpmReducer from 'scenes/Office/Ppm/ducks';
 
 const authPersistConfig = {
   key: 'auth',
@@ -35,7 +34,6 @@ export const appReducer = () =>
     swaggerInternal: swaggerReducerInternal,
     flashMessages: officeFlashMessagesReducer,
     interceptor: interceptorReducer,
-    ppmIncentive: officePpmReducer,
   });
 
 export default appReducer;
