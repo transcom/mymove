@@ -241,7 +241,7 @@ function ReviewWeightTicket({
                 mask={Number}
                 description={missingEmptyWeightTicket ? 'Vehicle weight' : 'Weight tickets'}
                 scale={0} // digits after point, 0 for integers
-                signed={false} // disallow negative
+                min={0} // disallow negative
                 thousandsSeparator=","
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
@@ -257,7 +257,7 @@ function ReviewWeightTicket({
                 mask={Number}
                 description={missingFullWeightTicket ? 'Constructed weight' : 'Weight tickets'}
                 scale={0} // digits after point, 0 for integers
-                signed={false} // disallow negative
+                min={0} // disallow negative
                 thousandsSeparator=","
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
@@ -273,7 +273,7 @@ function ReviewWeightTicket({
                 mask={Number}
                 description="Maximum allowable weight"
                 scale={0} // digits after point, 0 for integers
-                signed={false} // disallow negative
+                min={0} // disallow negative
                 thousandsSeparator=","
                 lazy={false} // immediate masking evaluation
                 suffix="lbs"
