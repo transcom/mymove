@@ -149,7 +149,6 @@ class EditProfile extends Component {
     patchOrders(fieldValues)
       .then((response) => {
         // Update Redux with new data
-        // this.props.updateServiceMember(response);
         this.props.updateOrders(response);
 
         if (entitlementCouldChange) {
@@ -167,7 +166,6 @@ class EditProfile extends Component {
         navigate(-1);
       })
       .catch((e) => {
-        // TODO - error handling - below is rudimentary error handling to approximate existing UX
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
         const { response } = e;
         const errorMessage = getResponseError(response, 'failed to update orders due to server error');
