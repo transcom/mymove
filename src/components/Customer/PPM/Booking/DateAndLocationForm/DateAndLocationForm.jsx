@@ -23,21 +23,21 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 // export const residentialAddressName = 'residential_address';
 
 const validationShape = {
-  pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
+  // pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
   useCurrentResidence: Yup.boolean(),
   hasSecondaryPickup: Yup.boolean(),
   useCurrentDestinationAddress: Yup.boolean(),
-  secondaryPickupPostalCode: Yup.string().when('hasSecondaryPickup', {
-    is: true,
-    then: (schema) => schema.matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
-  }),
-  useDestinationDutyLocationZIP: Yup.boolean(),
-  destinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
-  hasSecondaryDestinationPostalCode: Yup.boolean().required('Required'),
-  secondaryDestinationPostalCode: Yup.string().when('hasSecondaryDestinationPostalCode', {
-    is: true,
-    then: (schema) => schema.matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
-  }),
+  // secondaryPickupPostalCode: Yup.string().when('hasSecondaryPickup', {
+  //   is: true,
+  //   then: (schema) => schema.matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
+  // }),
+  // useDestinationDutyLocationZIP: Yup.boolean(),
+  // destinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
+  // hasSecondaryDestinationPostalCode: Yup.boolean().required('Required'),
+  // secondaryDestinationPostalCode: Yup.string().when('hasSecondaryDestinationPostalCode', {
+  //  is: true,
+  //  then: (schema) => schema.matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
+  // }),
   sitExpected: Yup.boolean().required('Required'),
   expectedDepartureDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
@@ -308,7 +308,7 @@ const DateAndLocationForm = ({
                       <p>Please input Delivery Address</p>
                       <Checkbox
                         data-testid="useCurrentDestinationAddress"
-                        label="Use destination address"
+                        label="Use my current destination address"
                         name="serviceMember.destination_address"
                         onChange={handleUseDestinationAddress}
                         id="useCurrentDestinationAddress"
@@ -354,9 +354,7 @@ const DateAndLocationForm = ({
                 </Hint> */}
                 <FormGroup>
                   <Fieldset>
-                    <legend className="usa-label">
-                      Will you deliver part of your PPM to another place in a different ZIP code?
-                    </legend>
+                    <legend className="usa-label">Will you add items to your PPM from a different address?</legend>
                     <Field
                       as={Radio}
                       id="hasSecondaryDestinationPostalCodeYes"
