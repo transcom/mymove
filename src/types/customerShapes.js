@@ -34,7 +34,6 @@ export const ServiceMemberShape = shape({
 export const MoveShape = shape({
   id: string,
   locator: string,
-  selected_move_type: string,
   status: string,
   closeout_office: TransportationOfficeShape,
 });

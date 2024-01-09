@@ -22,7 +22,7 @@ jest.mock('hooks/queries', () => ({
             actionTstampTx: '2022-03-09T15:33:38.579Z',
             changedValues: { available_to_prime_at: '2022-04-11T19:31:18.482947+00:00', status: 'APPROVED' },
             clientQuery:
-              'UPDATE "moves" AS moves SET "available_to_prime_at" = $1, "billable_weights_reviewed_at" = $2, "cancel_reason" = $3, "contractor_id" = $4, "excess_weight_acknowledged_at" = $5, "excess_weight_qualified_at" = $6, "excess_weight_upload_id" = $7, "financial_review_flag" = $8, "financial_review_flag_set_at" = $9, "financial_review_remarks" = $10, "locator" = $11, "orders_id" = $12, "ppm_estimated_weight" = $13, "ppm_type" = $14, "reference_id" = $15, "selected_move_type" = $16, "service_counseling_completed_at" = $17, "show" = $18, "status" = $19, "submitted_at" = $20, "tio_remarks" = $21, "updated_at" = $22 WHERE moves.id = $23',
+              'UPDATE "moves" AS moves SET "available_to_prime_at" = $1, "billable_weights_reviewed_at" = $2, "cancel_reason" = $3, "contractor_id" = $4, "excess_weight_acknowledged_at" = $5, "excess_weight_qualified_at" = $6, "excess_weight_upload_id" = $7, "financial_review_flag" = $8, "financial_review_flag_set_at" = $9, "financial_review_remarks" = $10, "locator" = $11, "orders_id" = $12, "ppm_estimated_weight" = $13, "ppm_type" = $14, "reference_id" = $15, "service_counseling_completed_at" = $17, "show" = $18, "status" = $19, "submitted_at" = $20, "tio_remarks" = $21, "updated_at" = $22 WHERE moves.id = $23',
             eventName: 'updateMoveTaskOrderStatus',
             id: '6f5a4601-edde-4df1-aca9-0d3b58c11b59',
             objectId: '3efc84ca-d5a8-4f5f-b9b8-6deca1188e11',
@@ -43,7 +43,6 @@ jest.mock('hooks/queries', () => ({
               ppm_estimated_weight: '',
               ppm_type: 'PARTIAL',
               reference_id: '1895-7770',
-              selected_move_type: 'PPM',
               service_counseling_completed_at: '2022-04-11T19:28:00.832092+00:00',
               show: '',
               status: 'SERVICE COUNSELING COMPLETED',

@@ -56,7 +56,6 @@ const testProps = {
   currentMove: {
     id: '123',
     locator: 'CXVV3F',
-    selected_move_type: 'HHG',
     service_member_id: '666',
     status: MOVE_STATUSES.DRAFT,
   },
