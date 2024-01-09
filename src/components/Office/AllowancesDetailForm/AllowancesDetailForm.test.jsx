@@ -47,7 +47,7 @@ jest.mock('formik', () => ({
 
 const { Formik } = jest.requireActual('formik');
 
-const rankOptions = [
+const payGradeOptions = [
   { key: 'E_1', value: 'E-1' },
   { key: 'E_2', value: 'E-2' },
   { key: 'E_3', value: 'E-3' },
@@ -83,7 +83,11 @@ describe('AllowancesDetailForm', () => {
   it('renders the form', async () => {
     render(
       <Formik initialValues={initialValues}>
-        <AllowancesDetailForm entitlements={entitlements} rankOptions={rankOptions} branchOptions={branchOptions} />
+        <AllowancesDetailForm
+          entitlements={entitlements}
+          payGradeOptions={payGradeOptions}
+          branchOptions={branchOptions}
+        />
       </Formik>,
     );
 
@@ -95,7 +99,11 @@ describe('AllowancesDetailForm', () => {
   it('renders the pro-gear hints', async () => {
     render(
       <Formik initialValues={initialValues}>
-        <AllowancesDetailForm entitlements={entitlements} rankOptions={rankOptions} branchOptions={branchOptions} />
+        <AllowancesDetailForm
+          entitlements={entitlements}
+          payGradeOptions={payGradeOptions}
+          branchOptions={branchOptions}
+        />
       </Formik>,
     );
 
@@ -108,7 +116,7 @@ describe('AllowancesDetailForm', () => {
       <Formik initialValues={initialValues}>
         <AllowancesDetailForm
           entitlements={entitlements}
-          rankOptions={rankOptions}
+          payGradeOptions={payGradeOptions}
           branchOptions={branchOptions}
           header="Test Header"
         />
