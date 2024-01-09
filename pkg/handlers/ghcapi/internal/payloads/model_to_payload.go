@@ -811,6 +811,12 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 	return payloadPPMShipment
 }
 
+// TODO: Fill out this function once more work on values is done.
+// func PPMCloseout(_ storage.FileStorer, ppmCloseout *models.PPMCloseout) *ghcmessages.PPMCloseout {
+
+// 	return nil
+// }
+
 // ProGearWeightTickets sets up a ProGearWeightTicket slice for the api using model data.
 func ProGearWeightTickets(storer storage.FileStorer, proGearWeightTickets models.ProgearWeightTickets) []*ghcmessages.ProGearWeightTicket {
 	payload := make([]*ghcmessages.ProGearWeightTicket, len(proGearWeightTickets))

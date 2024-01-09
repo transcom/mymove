@@ -137,6 +137,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation evaluation_reports.DownloadEvaluationReport has not yet been implemented")
 		})
 	}
+	if api.PpmFetchCloseoutCalculationsHandler == nil {
+		api.PpmFetchCloseoutCalculationsHandler = ppm.FetchCloseoutCalculationsHandlerFunc(func(params ppm.FetchCloseoutCalculationsParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.FetchCloseoutCalculations has not yet been implemented")
+		})
+	}
 	if api.MtoAgentFetchMTOAgentListHandler == nil {
 		api.MtoAgentFetchMTOAgentListHandler = mto_agent.FetchMTOAgentListHandlerFunc(func(params mto_agent.FetchMTOAgentListParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_agent.FetchMTOAgentList has not yet been implemented")
