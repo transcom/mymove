@@ -1734,6 +1734,33 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.shipment
+  /ppm-shipments/{ppmShipmentId}/closeout:
+    parameters:
+      - $ref: '#/parameters/ppmShipmentId'
+    get:
+      summary: Get the closeout data for the specified PPM shipment
+      description: |
+        Retrieves the closeout data for the specified PPM shipment.
+      operationId: getPPMCloseoutData
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Returns closeout data for the specified PPM shipment.
+          schema:
+            $ref: '#/definitions/PPMCloseoutData'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents:
     parameters:
       - description: ID of move task order
@@ -5703,6 +5730,15 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/TransportationOffice'
+  PPMCloseoutData:
+    type: object
+    description: Closeout data for a PPM shipment
+    readOnly: true
+    properties:
+      ppmShipmentId:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
   Address:
     description: A postal address
     type: object

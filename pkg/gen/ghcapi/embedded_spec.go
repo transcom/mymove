@@ -2742,6 +2742,47 @@ func init() {
         ]
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/closeout": {
+      "get": {
+        "description": "Retrieves the closeout data for the specified PPM shipment.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Get the closeout data for the specified PPM shipment",
+        "operationId": "getPPMCloseoutData",
+        "responses": {
+          "200": {
+            "description": "Returns closeout data for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/PPMCloseoutData"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/finish-document-review": {
       "patch": {
         "description": "Updates a PPM shipment's status once documents have been reviewed. Status is updated depending on whether any documents have been rejected.\n",
@@ -7754,6 +7795,18 @@ func init() {
         "EDITED"
       ],
       "x-nullable": true
+    },
+    "PPMCloseoutData": {
+      "description": "Closeout data for a PPM shipment",
+      "type": "object",
+      "properties": {
+        "ppmShipmentId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        }
+      },
+      "readOnly": true
     },
     "PPMDocumentStatus": {
       "description": "Status of the PPM document.",
@@ -13916,6 +13969,64 @@ func init() {
         ]
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/closeout": {
+      "get": {
+        "description": "Retrieves the closeout data for the specified PPM shipment.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Get the closeout data for the specified PPM shipment",
+        "operationId": "getPPMCloseoutData",
+        "responses": {
+          "200": {
+            "description": "Returns closeout data for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/PPMCloseoutData"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/finish-document-review": {
       "patch": {
         "description": "Updates a PPM shipment's status once documents have been reviewed. Status is updated depending on whether any documents have been rejected.\n",
@@ -19480,6 +19591,18 @@ func init() {
         "EDITED"
       ],
       "x-nullable": true
+    },
+    "PPMCloseoutData": {
+      "description": "Closeout data for a PPM shipment",
+      "type": "object",
+      "properties": {
+        "ppmShipmentId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        }
+      },
+      "readOnly": true
     },
     "PPMDocumentStatus": {
       "description": "Status of the PPM document.",

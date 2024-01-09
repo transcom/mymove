@@ -995,6 +995,19 @@ func PPMDocuments(storer storage.FileStorer, ppmDocuments *models.PPMDocuments) 
 	return payload
 }
 
+// PPMCloseoutData payload
+func PPMCloseoutData(ppmShipmentID *string) *ghcmessages.PPMCloseoutData {
+	var uuid strfmt.UUID
+	if ppmShipmentID != nil {
+		uuid = strfmt.UUID(*ppmShipmentID)
+	}
+	payload := &ghcmessages.PPMCloseoutData{
+		PpmShipmentID: uuid,
+	}
+
+	return payload
+}
+
 // ShipmentAddressUpdate payload
 func ShipmentAddressUpdate(shipmentAddressUpdate *models.ShipmentAddressUpdate) *ghcmessages.ShipmentAddressUpdate {
 	if shipmentAddressUpdate == nil || shipmentAddressUpdate.ID.IsNil() {

@@ -480,6 +480,10 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		ppmDocumentsFetcher,
 	}
 
+	ghcAPI.PpmGetPPMCloseoutDataHandler = GetPPMCloseoutDataHandler{
+		handlerConfig,
+	}
+
 	weightTicketFetcher := weightticket.NewWeightTicketFetcher()
 
 	ghcAPI.PpmUpdateWeightTicketHandler = UpdateWeightTicketHandler{
