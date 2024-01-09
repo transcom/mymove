@@ -379,7 +379,49 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.True(invalidInputError.ValidationErrors.HasAny())
 		suite.Contains(invalidInputError.ValidationErrors.Keys(), "SITDestinationOriginalAddress")
 	})
+	suite.Run("When TOO converts a SIT to customer expense", func() {
+		// Build shipment with SIT
+		shipmentSITAllowance := int(90)
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
+			},
+		}, nil)
 
+		year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
+		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		dofsit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &aMonthAgo,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
+			},
+		}, nil)
+
+		approvedShipment.MTOServiceItems = models.MTOServiceItems{dofsit}
+
+		// Update ConvertToCustomerExpense and CustomerExpenseReason
+		updatedServiceItem, err := updater.ConvertItemToCustomerExpense(
+			suite.AppContextForTest(), &approvedShipment, models.StringPointer("test"), true)
+		suite.NoError(err)
+
+		// Check the SIT for updated value
+		suite.Equal(true, updatedServiceItem.CustomerExpense)
+		suite.Equal(models.StringPointer("test"), updatedServiceItem.CustomerExpenseReason)
+	})
 }
 
 func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
@@ -884,6 +926,204 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.Equal(shipment.DestinationAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
 	})
 
+	suite.Run("When TOO approves a DDASIT service item with an existing SITDestinationFinalAddress", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+		sitDestinationFinalAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDASIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+			{
+				Model:    sitDestinationFinalAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITDestinationFinalAddress,
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
+			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+		suite.NoError(err)
+
+		// ApproveOrRejectServiceItem doesn't return the service item with the updated move
+		// get move from the db to check the updated status
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+
+		suite.Equal(models.MTOServiceItemStatusApproved, updatedServiceItem.Status)
+		suite.NotNil(updatedServiceItem.ApprovedAt)
+		suite.Nil(updatedServiceItem.RejectionReason)
+		suite.Nil(updatedServiceItem.RejectedAt)
+		suite.NotNil(updatedServiceItem)
+		destinationAddress := serviceItem.MTOShipment.DestinationAddress
+		suite.Equal(destinationAddress.StreetAddress1, updatedServiceItem.SITDestinationOriginalAddress.StreetAddress1)
+		suite.Equal(destinationAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
+		suite.Equal(destinationAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
+		suite.Equal(destinationAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
+	})
+
+	suite.Run("When TOO approves a DDASIT service item without a SITDestinationFinalAddress", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDASIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
+			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+		suite.NoError(err)
+
+		// ApproveOrRejectServiceItem doesn't return the service item with the updated move
+		// get move from the db to check the updated status
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+
+		suite.Equal(models.MTOServiceItemStatusApproved, updatedServiceItem.Status)
+		suite.NotNil(updatedServiceItem.ApprovedAt)
+		suite.Nil(updatedServiceItem.RejectionReason)
+		suite.Nil(updatedServiceItem.RejectedAt)
+		suite.NotNil(updatedServiceItem)
+		suite.NotEqual(shipment.DestinationAddressID, *updatedServiceItem.SITDestinationOriginalAddressID)
+		suite.NotEqual(shipment.DestinationAddress.ID, *updatedServiceItem.SITDestinationOriginalAddressID)
+		suite.Equal(shipment.DestinationAddress.StreetAddress1, updatedServiceItem.SITDestinationOriginalAddress.StreetAddress1)
+		suite.Equal(shipment.DestinationAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
+		suite.Equal(shipment.DestinationAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
+		suite.Equal(shipment.DestinationAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
+	})
+
+	suite.Run("When TOO approves a DDFSIT service item with an existing SITDestinationFinalAddress", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+		sitDestinationFinalAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+			{
+				Model:    sitDestinationFinalAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SITDestinationFinalAddress,
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
+			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+		suite.NoError(err)
+
+		// ApproveOrRejectServiceItem doesn't return the service item with the updated move
+		// get move from the db to check the updated status
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+
+		suite.Equal(models.MTOServiceItemStatusApproved, updatedServiceItem.Status)
+		suite.NotNil(updatedServiceItem.ApprovedAt)
+		suite.Nil(updatedServiceItem.RejectionReason)
+		suite.Nil(updatedServiceItem.RejectedAt)
+		suite.NotNil(updatedServiceItem)
+		destinationAddress := serviceItem.MTOShipment.DestinationAddress
+		suite.Equal(destinationAddress.StreetAddress1, updatedServiceItem.SITDestinationOriginalAddress.StreetAddress1)
+		suite.Equal(destinationAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
+		suite.Equal(destinationAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
+		suite.Equal(destinationAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
+	})
+
+	suite.Run("When TOO approves a DDFSIT service item without a SITDestinationFinalAddress", func() {
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+
+		updatedServiceItem, err := updater.ApproveOrRejectServiceItem(
+			suite.AppContextForTest(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+		suite.NoError(err)
+
+		// ApproveOrRejectServiceItem doesn't return the service item with the updated move
+		// get move from the db to check the updated status
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+
+		suite.Equal(models.MTOServiceItemStatusApproved, updatedServiceItem.Status)
+		suite.NotNil(updatedServiceItem.ApprovedAt)
+		suite.Nil(updatedServiceItem.RejectionReason)
+		suite.Nil(updatedServiceItem.RejectedAt)
+		suite.NotNil(updatedServiceItem)
+		suite.NotEqual(shipment.DestinationAddressID, *updatedServiceItem.SITDestinationOriginalAddressID)
+		suite.NotEqual(shipment.DestinationAddress.ID, *updatedServiceItem.SITDestinationOriginalAddressID)
+		suite.Equal(shipment.DestinationAddress.StreetAddress1, updatedServiceItem.SITDestinationOriginalAddress.StreetAddress1)
+		suite.Equal(shipment.DestinationAddress.City, updatedServiceItem.SITDestinationOriginalAddress.City)
+		suite.Equal(shipment.DestinationAddress.State, updatedServiceItem.SITDestinationOriginalAddress.State)
+		suite.Equal(shipment.DestinationAddress.PostalCode, updatedServiceItem.SITDestinationOriginalAddress.PostalCode)
+	})
+
 	// Test that the move's status changes to Approvals Requested if any of its service
 	// items' status is SUBMITTED
 	suite.Run("When move is approved and service item is submitted", func() {
@@ -1025,7 +1265,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 
 	suite.Run("Returns a not found error if the updater can't find the ReService code for DOFSIT in the DB.", func() {
 		_, err := updater.ConvertItemToCustomerExpense(
-			suite.AppContextForTest(), &models.MTOShipment{})
+			suite.AppContextForTest(), &models.MTOShipment{}, models.StringPointer("test"), true)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
@@ -1034,7 +1274,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		// Create ReService in DB so that ConvertItemToCustomerExpense makes it to the MTO Shipment check.
 		testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{ReService: models.ReService{Code: "DOFSIT"}})
 		_, err := updater.ConvertItemToCustomerExpense(
-			suite.AppContextForTest(), &models.MTOShipment{})
+			suite.AppContextForTest(), &models.MTOShipment{}, models.StringPointer("test"), true)
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})

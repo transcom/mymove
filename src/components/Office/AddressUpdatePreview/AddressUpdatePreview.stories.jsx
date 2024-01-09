@@ -26,6 +26,8 @@ const mockDeliveryAddressUpdate = {
   status: 'REQUESTED',
 };
 
+const destinationSITServiceItems = ['DDDSIT', 'DDFSIT', 'DDASIT', 'DDSFSC'];
+
 export default {
   title: 'Office Components/AddressUpdatePreview',
   component: AddressUpdatePreview,
@@ -34,7 +36,11 @@ export default {
 export const preview = {
   render: () => (
     <div style={{ width: '566px' }}>
-      <AddressUpdatePreview deliveryAddressUpdate={mockDeliveryAddressUpdate} />,
+      <AddressUpdatePreview
+        deliveryAddressUpdate={mockDeliveryAddressUpdate}
+        destSitServiceItems={destinationSITServiceItems}
+      />
+      ,
     </div>
   ),
 };

@@ -40,6 +40,7 @@ after the destination address has already been approved.
 Address updates will be automatically approved unless they change:
   - The service area
   - Mileage bracket for direct delivery
+  - the address and the distance between the old and new address is > 50
   - Domestic Short Haul to Domestic Line Haul or vice versa
   - Shipments that start and end in one ZIP3 use Short Haul pricing
   - Shipments that start and end in different ZIP3s use Line Haul pricing
