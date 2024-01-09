@@ -5,8 +5,11 @@ import { connect } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import ServiceInfoForm from 'components/Customer/ServiceInfoForm/ServiceInfoForm';
-import { patchServiceMember, getResponseError } from 'services/internalApi';
-import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
+import { patchServiceMember, patchOrders, getResponseError } from 'services/internalApi';
+import {
+  updateServiceMember as updateServiceMemberAction,
+  updateOrders as updateOrdersAction,
+} from 'store/entities/actions';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import {
   selectServiceMemberFromLoggedInUser,
@@ -17,11 +20,13 @@ import { generalRoutes, customerRoutes } from 'constants/routes';
 import { OrdersShape, ServiceMemberShape } from 'types/customerShapes';
 import { formatWeight } from 'utils/formatters';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
+import { formatDateForSwagger } from 'shared/dates';
 
 export const EditServiceInfo = ({
   serviceMember,
   currentOrders,
   updateServiceMember,
+  updateOrders,
   setFlashMessage,
   moveIsInDraft,
 }) => {
@@ -42,13 +47,14 @@ export const EditServiceInfo = ({
     suffix: serviceMember?.suffix || '',
     affiliation: serviceMember?.affiliation || '',
     edipi: serviceMember?.edipi || '',
-    rank: currentOrders?.grade || '',
+    grade: currentOrders?.grade || '',
     current_location: currentOrders?.origin_duty_location || {},
+    orders_type: currentOrders?.orders_type || '',
+    departmentIndicator: currentOrders?.department_indicator,
   };
 
   const handleSubmit = (values) => {
-    const entitlementCouldChange = values.rank !== currentOrders.grade;
-
+    const entitlementCouldChange = values.grade !== currentOrders.grade;
     const payload = {
       id: serviceMember.id,
       first_name: values.first_name,
@@ -57,11 +63,11 @@ export const EditServiceInfo = ({
       suffix: values.suffix,
       affiliation: values.affiliation,
       edipi: values.edipi,
-      rank: values.rank,
+      rank: values.grade,
       current_location_id: values.current_location.id,
     };
 
-    return patchServiceMember(payload)
+    patchServiceMember(payload)
       .then((response) => {
         updateServiceMember(response);
         if (entitlementCouldChange) {
@@ -81,10 +87,47 @@ export const EditServiceInfo = ({
         navigate(customerRoutes.PROFILE_PATH);
       })
       .catch((e) => {
-        // TODO - error handling - below is rudimentary error handling to approximate existing UX
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
         const { response } = e;
         const errorMessage = getResponseError(response, 'failed to update service member due to server error');
+        setServerError(errorMessage);
+      });
+
+    const ordersPayload = {
+      grade: values.grade,
+      origin_duty_location_id: values.current_location.id,
+      service_member_id: serviceMember.id,
+      id: currentOrders.id,
+      new_duty_location_id: currentOrders.new_duty_location.id,
+      has_dependents: currentOrders.has_dependents,
+      issue_date: formatDateForSwagger(currentOrders.issue_date),
+      report_by_date: formatDateForSwagger(currentOrders.report_by_date),
+      spouse_has_pro_gear: currentOrders.spouse_has_pro_gear,
+      orders_type: currentOrders.orders_type,
+    };
+    patchOrders(ordersPayload)
+      .then((response) => {
+        updateOrders(response);
+        if (entitlementCouldChange) {
+          const weightAllowance = currentOrders?.has_dependents
+            ? serviceMember.weight_allotment.total_weight_self_plus_dependents
+            : serviceMember.weight_allotment.total_weight_self;
+          setFlashMessage(
+            'EDIT_SERVICE_INFO_SUCCESS',
+            'info',
+            `Your weight entitlement is now ${formatWeight(weightAllowance)}.`,
+            'Your changes have been saved. Note that the entitlement has also changed.',
+          );
+        } else {
+          setFlashMessage('EDIT_SERVICE_INFO_SUCCESS', 'success', '', 'Your changes have been saved.');
+        }
+
+        navigate(customerRoutes.PROFILE_PATH);
+      })
+      .catch((e) => {
+        // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
+        const { response } = e;
+        const errorMessage = getResponseError(response, 'failed to update orders due to server error');
         setServerError(errorMessage);
       });
   };
@@ -113,6 +156,7 @@ export const EditServiceInfo = ({
 
 EditServiceInfo.propTypes = {
   updateServiceMember: PropTypes.func.isRequired,
+  updateOrders: PropTypes.func.isRequired,
   setFlashMessage: PropTypes.func.isRequired,
   serviceMember: ServiceMemberShape.isRequired,
   currentOrders: OrdersShape.isRequired,
@@ -125,6 +169,7 @@ EditServiceInfo.defaultProps = {
 
 const mapDispatchToProps = {
   updateServiceMember: updateServiceMemberAction,
+  updateOrders: updateOrdersAction,
   setFlashMessage: setFlashMessageAction,
 };
 
