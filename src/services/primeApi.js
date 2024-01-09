@@ -137,11 +137,22 @@ export function updateMTOServiceItem({ mtoServiceItemID, eTag, body }) {
   );
 }
 
-export function createSITAddressUpdateRequest({ body }) {
+export function createNonSITAddressUpdateRequest({
+  mtoShipmentID,
+  ifMatchETag,
+  body,
+  schemaKey = 'mtoShipment',
+  normalize = true,
+}) {
+  const operationPath = 'mtoShipment.createNonSITAddressUpdateRequest';
   return makePrimeSimulatorRequest(
-    'sitAddressUpdate.createSITAddressUpdateRequest',
-    { body: { ...body } },
-    { normalize: false },
+    operationPath,
+    {
+      mtoShipmentID,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { schemaKey, normalize },
   );
 }
 

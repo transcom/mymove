@@ -584,7 +584,7 @@ const ShipmentForm = (props) => {
 
                   <h1>{isCreatePage ? 'Add' : 'Edit'} shipment details</h1>
                 </div>
-                {!isCreatePage && (
+                {!isCreatePage && mtoShipment?.status !== 'APPROVED' && (
                   <Button
                     type="button"
                     onClick={() => {

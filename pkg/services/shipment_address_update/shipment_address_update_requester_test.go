@@ -70,23 +70,28 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"94535",
-		).Return(2500, nil).Twice()
+		).Return(2500, nil).Once()
+		mockPlanner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			"94535",
+			"94535",
+		).Return(2500, nil).Once()
 		move := setupTestData()
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
 
 		// New destination address with same postal code should not change pricing
 		newAddress := models.Address{
-			StreetAddress1: "123 Any St",
-			City:           "Beverly Hills",
+			StreetAddress1: "987 Any Avenue",
+			City:           "Fairfield",
 			State:          "CA",
-			PostalCode:     shipment.DestinationAddress.PostalCode,
+			PostalCode:     "94535",
 			Country:        models.StringPointer("United States"),
 		}
 		suite.NotEmpty(move.MTOShipments)
 		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		suite.NoError(err)
 		suite.NotNil(update)
-		suite.Equal(models.ShipmentAddressUpdateStatusApproved, update.Status)
+		suite.Equal(models.ShipmentAddressUpdateStatusRequested, update.Status)
 
 		// Make sure the destination address on the shipment was updated
 		var updatedShipment models.MTOShipment
@@ -211,10 +216,16 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			"90210",
 			"94535",
 		).Return(2500, nil).Times(4)
+		mockPlanner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			"94535",
+			"94535",
+		).Return(2500, nil).Twice()
+
 		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		suite.NoError(err)
 		suite.NotNil(update)
-		suite.Equal(models.ShipmentAddressUpdateStatusApproved, update.Status)
+		suite.Equal(models.ShipmentAddressUpdateStatusRequested, update.Status)
 		suite.Equal("we really need to change the address", update.ContractorRemarks)
 
 		// Need to re-request the shipment to get the updated etag
@@ -225,7 +236,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		update, err = addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address again", etag.GenerateEtag(updatedShipment.UpdatedAt))
 		suite.NoError(err)
 		suite.NotNil(update)
-		suite.Equal(models.ShipmentAddressUpdateStatusApproved, update.Status)
+		suite.Equal(models.ShipmentAddressUpdateStatusRequested, update.Status)
 		suite.Equal("we really need to change the address again", update.ContractorRemarks)
 	})
 	suite.Run("Shorthaul to linehaul should be flagged", func() {
@@ -740,9 +751,9 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		}
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
-			"90210",
 			"94535",
-		).Return(2500, nil).Once()
+			"94535",
+		).Return(2500, nil).Twice()
 
 		addressChange, _ := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		officeRemarks := "This is a TOO remark"

@@ -116,8 +116,17 @@ func checkUpdateAllowed() validator {
 func checkDeleteAllowed() validator {
 	return validatorFunc(func(appCtx appcontext.AppContext, _ *models.MTOShipment, older *models.MTOShipment) error {
 		move := older.MoveTaskOrder
-		if move.Status != models.MoveStatusDRAFT && move.Status != models.MoveStatusNeedsServiceCounseling {
-			return apperror.NewForbiddenError("A shipment can only be deleted if the move is in Draft or NeedsServiceCounseling")
+
+		if appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+			if move.Status != models.MoveStatusDRAFT && move.Status != models.MoveStatusNeedsServiceCounseling {
+				return apperror.NewForbiddenError("Service Counselor: A shipment can only be deleted if the move is in 'Draft' or 'NeedsServiceCounseling' status")
+			}
+		}
+
+		if appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+			if older.Status == models.MTOShipmentStatusApproved {
+				return apperror.NewForbiddenError("TOO: APPROVED shipments cannot be deleted")
+			}
 		}
 
 		return nil

@@ -56,7 +56,7 @@ const ProfileTable = ({
             <td>{affiliation}</td>
           </tr>
           <tr>
-            <th scope="row">Rank</th>
+            <th scope="row">Pay grade</th>
             <td>{rank}</td>
           </tr>
           <tr>
