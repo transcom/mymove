@@ -43,7 +43,6 @@ export const selectServiceMemberProfileState = createSelector(selectServiceMembe
 
   /* eslint-disable camelcase */
   const {
-    rank,
     edipi,
     affiliation,
     first_name,
@@ -58,7 +57,7 @@ export const selectServiceMemberProfileState = createSelector(selectServiceMembe
     backup_contacts,
   } = serviceMember;
 
-  if (!rank || !edipi || !affiliation) return profileStates.EMPTY_PROFILE;
+  if (!edipi || !affiliation) return profileStates.EMPTY_PROFILE;
   if (!first_name || !last_name) return profileStates.DOD_INFO_COMPLETE;
   if (!telephone || !personal_email || !(phone_is_preferred || email_is_preferred)) return profileStates.NAME_COMPLETE;
   if (!current_location || !current_location.id || current_location.id === NULL_UUID)
@@ -76,7 +75,6 @@ export const selectIsProfileComplete = createSelector(
   (serviceMember) =>
     !!(
       serviceMember &&
-      serviceMember.rank &&
       serviceMember.edipi &&
       serviceMember.affiliation &&
       serviceMember.first_name &&
