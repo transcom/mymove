@@ -21,7 +21,7 @@ properties:
     example: 54
     minimum: 0
     type: integer
-    required: true
+
   estimatedWeight:
     $ref: 'PPMShipment.yaml#/properties/estimatedWeight'
   actualWeight:
@@ -35,45 +35,64 @@ properties:
     type: integer
     title: GCC
     format: cents
-    required: true
+
   aoa:
     description: Advance Operating Allowance (AOA).
     type: integer
     format: cents
-    required: true
+
   remainingReimbursementOwed:
     description: The remaining reimbursement amount that is still owed to the customer.
     type: integer
     format: cents
-    required: true
+
   haulPrice:
     description: The price of the linehaul or shorthaul.
     type: integer
     format: cents
-    required: true
+
   haulFSC:
     description: The linehaul/shorthaul Fuel Surcharge (FSC).
     type: integer
     format: cents
-    required: true
+
   dop:
     description: The Domestic Origin Price (DOP).
     type: integer
     format: cents
-    required: true
+
   ddp:
     description: The Domestic Destination Price (DDP).
     type: integer
     format: cents
-    required: true
+
   packUnpackPrice:
     description: The full price of all packing/unpacking services.
     type: integer
     format: cents
-    required: true
+
   SITReimbursement:
     description: The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.
     type: integer
     format: cents
-    required: true
+
+required:
+  - plannedMoveDate
+  - actualMoveDate
+  - miles
+  - estimatedWeight
+  - actualWeight
+  - proGearWeight
+  - grossIncentive
+  - gcc
+  - aoa
+  - remainingReimbursementOwed
+  - haulPrice
+  - haulFSC
+  - dop
+  - ddp
+  - packUnpackPrice
+  - SITReimbursement
+
+
 

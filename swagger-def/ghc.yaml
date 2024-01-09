@@ -1419,7 +1419,7 @@ paths:
         '200':
           description: Successfully retrieved all PPM closeout calculations.
           schema:
-            $ref: 'definitions/MTOAgents.yaml'
+            $ref: 'definitions/PPMCloseout.yaml'
         '404':
           $ref: '#/responses/NotFound'
         '422':

@@ -26,7 +26,7 @@ type FetchCloseoutCalculationsOK struct {
 	/*
 	  In: Body
 	*/
-	Payload ghcmessages.MTOAgents `json:"body,omitempty"`
+	Payload *ghcmessages.PPMCloseout `json:"body,omitempty"`
 }
 
 // NewFetchCloseoutCalculationsOK creates FetchCloseoutCalculationsOK with default headers values
@@ -36,13 +36,13 @@ func NewFetchCloseoutCalculationsOK() *FetchCloseoutCalculationsOK {
 }
 
 // WithPayload adds the payload to the fetch closeout calculations o k response
-func (o *FetchCloseoutCalculationsOK) WithPayload(payload ghcmessages.MTOAgents) *FetchCloseoutCalculationsOK {
+func (o *FetchCloseoutCalculationsOK) WithPayload(payload *ghcmessages.PPMCloseout) *FetchCloseoutCalculationsOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the fetch closeout calculations o k response
-func (o *FetchCloseoutCalculationsOK) SetPayload(payload ghcmessages.MTOAgents) {
+func (o *FetchCloseoutCalculationsOK) SetPayload(payload *ghcmessages.PPMCloseout) {
 	o.Payload = payload
 }
 
@@ -50,14 +50,11 @@ func (o *FetchCloseoutCalculationsOK) SetPayload(payload ghcmessages.MTOAgents) 
 func (o *FetchCloseoutCalculationsOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(200)
-	payload := o.Payload
-	if payload == nil {
-		// return empty array
-		payload = ghcmessages.MTOAgents{}
-	}
-
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
