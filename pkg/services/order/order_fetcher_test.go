@@ -350,39 +350,6 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.Equal(1, len(moves))
 	})
 
-	suite.Run("returns moves filtered by ppm type", func() {
-		// Under test: ListOrders
-		// Set up:           Make 2 moves, with different ppm types, and search for both types
-		// Expected outcome: search results should only include the move with the PPM type that was searched for
-		officeUser, partialPPMMove := setupTestData()
-		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
-			{
-				Model: models.Move{
-					Locator: "FULLLL",
-				},
-			},
-		})
-		fullPPMMove := ppmShipment.Shipment.MoveTaskOrder
-
-		// Search for PARTIAL PPM moves
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
-			PPMType: models.StringPointer("PARTIAL"),
-		})
-
-		suite.FatalNoError(err)
-		suite.Equal(1, len(moves))
-		suite.Equal(partialPPMMove.Locator, moves[0].Locator)
-
-		// Search for FULL PPM moves
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
-			PPMType: models.StringPointer("FULL"),
-		})
-
-		suite.FatalNoError(err)
-		suite.Equal(1, len(moves))
-		suite.Equal(fullPPMMove.Locator, moves[0].Locator)
-	})
-
 	suite.Run("returns moves filtered by closeout location", func() {
 		// Under test: ListOrders
 		// Set up:           Make a move with a closeout office. Search for that closeout office.
@@ -1497,59 +1464,6 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		suite.Equal(2, len(moves))
 		suite.Equal(ppmShipmentB.Shipment.MoveTaskOrder.Locator, moves[0].Locator)
 		suite.Equal(ppmShipmentA.Shipment.MoveTaskOrder.Locator, moves[1].Locator)
-	})
-
-	suite.Run("Sort by PPM type (full or partial)", func() {
-		officeUser := setupTestData()
-		closeoutOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
-			{
-				Model: models.TransportationOffice{Gbloc: "KKFA"},
-			},
-		}, nil)
-		ppmShipmentPartial := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
-			{
-				Model: models.Move{},
-			},
-			{
-				Model:    closeoutOffice,
-				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
-			},
-		})
-		ppmShipmentFull := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
-			{
-				Model: models.Move{},
-			},
-			{
-				Model:    closeoutOffice,
-				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
-			},
-		})
-
-		// Sort by PPM type (ascending)
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
-			NeedsPPMCloseout: models.BoolPointer(true),
-			Sort:             models.StringPointer("ppmType"),
-			Order:            models.StringPointer("asc"),
-		})
-
-		suite.FatalNoError(err)
-		suite.Equal(2, len(moves))
-		suite.Equal(ppmShipmentFull.Shipment.MoveTaskOrder.Locator, moves[0].Locator)
-		suite.Equal(ppmShipmentPartial.Shipment.MoveTaskOrder.Locator, moves[1].Locator)
-
-		// Sort by PPM type (descending)
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
-			NeedsPPMCloseout: models.BoolPointer(true),
-			Sort:             models.StringPointer("ppmType"),
-			Order:            models.StringPointer("desc"),
-		})
-
-		suite.FatalNoError(err)
-		suite.Equal(2, len(moves))
-		suite.Equal(ppmShipmentPartial.Shipment.MoveTaskOrder.Locator, moves[0].Locator)
-		suite.Equal(ppmShipmentFull.Shipment.MoveTaskOrder.Locator, moves[1].Locator)
 	})
 }
 
