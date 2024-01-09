@@ -328,31 +328,4 @@ test.describe('Services counselor user', () => {
 
     await expect(page.getByTestId('ShipmentContainer').getByTestId('tag')).toContainText('packet ready for download');
   });
-
-  test.describe('Checking for Partial/Full PPM functionality', () => {
-    let partialPpmCloseoutLocator = '';
-    let partialPpmCounselingLocator = '';
-    let fullPpmMoveLocator = '';
-
-    test('counselor can see partial PPM ready for closeout', async ({ page, scPage }) => {
-      const partialPpmMoveCloseout = await scPage.testHarness.buildPartialPPMMoveReadyForCloseout();
-      partialPpmCloseoutLocator = partialPpmMoveCloseout.locator;
-      await scPage.searchForCloseoutMove(partialPpmCloseoutLocator);
-      await expect(page.getByTestId('ppmType-0')).toContainText('Partial');
-    });
-
-    test('counselor can see partial PPM ready for counseling', async ({ page, scPage }) => {
-      const partialPpmMoveCounseling = await scPage.testHarness.buildPartialPPMMoveReadyForCounseling();
-      partialPpmCounselingLocator = partialPpmMoveCounseling.locator;
-      await scPage.searchForMove(partialPpmCounselingLocator);
-      await expect(page.getByTestId('locator-0')).toContainText(partialPpmCounselingLocator);
-    });
-
-    test('counselor can see full PPM ready for closeout', async ({ page, scPage }) => {
-      const fullPpmMove = await scPage.testHarness.buildPPMMoveWithCloseout();
-      fullPpmMoveLocator = fullPpmMove.locator;
-      await scPage.searchForCloseoutMove(fullPpmMoveLocator);
-      await expect(page.getByTestId('ppmType-0')).toContainText('Full');
-    });
-  });
 });

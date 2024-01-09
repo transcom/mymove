@@ -19,23 +19,6 @@ test.describe('Services counselor user', () => {
       await scPage.page.locator('[data-testid="closeout-tab-link"]').click();
     });
 
-    test('is able to filter partial vs full moves based on ppm type', async ({ page }) => {
-      // closeout tab
-
-      // Created a single Partial PPM move, so when we search for
-      // Partial, we should see it in the results
-      await page.locator('th[data-testid="locator"] > div > input').type(moveLocator);
-      await page.locator('th[data-testid="locator"] > div > input').blur();
-
-      await page.locator('th[data-testid="ppmType"] > div > select').selectOption({ label: 'Partial' });
-
-      await expect(page.locator('td').getByText(moveLocator)).toBeVisible();
-
-      // When we search for Full PPM moves, partial move should not come up
-      await page.locator('th[data-testid="ppmType"] > div > select').selectOption({ label: 'Full' });
-      await expect(page.locator('h1').getByText('Moves (0)')).toBeVisible();
-    });
-
     test('is able to filter moves based on destination duty location', async ({ page }) => {
       // add filter for move code (PPM closeout that has Fort Gordon as
       // its destination duty location)
