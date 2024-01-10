@@ -8,6 +8,7 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
@@ -47,9 +48,9 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 
 	if downloadMoveOrderUploadType == services.DownloadMoveOrderUploadTypeAll || downloadMoveOrderUploadType == services.DownloadMoveOrderUploadTypeOnlyOrders {
 		if move.Orders.UploadedOrdersID == uuid.Nil {
-			return nil, errors.New("Order does not have any uploades associated to it.")
+			return nil, errors.New("order does not have any uploades associated to it")
 		}
-		info, err := g.buildPdfBatchInfo(appCtx, services.UserUploadDocTypeOrder, move.Locator, move.Orders.UploadedOrdersID)
+		info, err := g.buildPdfBatchInfo(appCtx, services.UserUploadDocTypeOrder, move.Orders.UploadedOrdersID)
 		if err != nil {
 			return nil, err
 		}
@@ -58,10 +59,10 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 
 	if downloadMoveOrderUploadType == services.DownloadMoveOrderUploadTypeAll || downloadMoveOrderUploadType == services.DownloadMoveOrderUploadTypeOnlyAmendments {
 		if downloadMoveOrderUploadType == services.DownloadMoveOrderUploadTypeOnlyAmendments && move.Orders.UploadedAmendedOrdersID == nil {
-			return nil, errors.New("Order does not have any amendment uploads associated to it.")
+			return nil, errors.New("order does not have any amendment uploads associated to it")
 		}
 		if move.Orders.UploadedAmendedOrdersID != nil {
-			info, err := g.buildPdfBatchInfo(appCtx, services.UserUploadDocTypeAmendments, move.Locator, *move.Orders.UploadedAmendedOrdersID)
+			info, err := g.buildPdfBatchInfo(appCtx, services.UserUploadDocTypeAmendments, *move.Orders.UploadedAmendedOrdersID)
 			if err != nil {
 				return nil, err
 			}
@@ -127,7 +128,7 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 }
 
 // Build orderUploadDocType for document
-func (g *moveUserUploadToPDFDownloader) buildPdfBatchInfo(appCtx appcontext.AppContext, uploadDocType services.UserUploadDocType, locator string, documentID uuid.UUID) (*pdfBatchInfo, error) {
+func (g *moveUserUploadToPDFDownloader) buildPdfBatchInfo(appCtx appcontext.AppContext, uploadDocType services.UserUploadDocType, documentID uuid.UUID) (*pdfBatchInfo, error) {
 	document, err := models.FetchDocumentWithNoRestrictions(appCtx.DB(), appCtx.Session(), documentID, false)
 	if err != nil {
 		return nil, err
@@ -148,6 +149,9 @@ func (g *moveUserUploadToPDFDownloader) buildPdfBatchInfo(appCtx appcontext.AppC
 		}
 
 		pdfFile, err := g.pdfGenerator.CreateMergedPDFUpload(appCtx, uploads)
+		if err != nil {
+			return nil, err
+		}
 		pdfFileNames = append(pdfFileNames, pdfFile.Name())
 		pdfFileInfo, err := g.pdfGenerator.GetPdfFileInfo(pdfFile.Name())
 		if err != nil {

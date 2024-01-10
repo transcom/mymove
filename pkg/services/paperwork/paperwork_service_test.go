@@ -1,24 +1,21 @@
 package paperwork
 
 import (
+	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-
-	"github.com/stretchr/testify/suite"
-
-	"github.com/transcom/mymove/pkg/testingsuite"
-
-	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/suite"
 
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
