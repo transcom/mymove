@@ -17,7 +17,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -204,6 +203,7 @@ type DownloadMoveOrderHandler struct {
 	handlers.HandlerConfig
 	services.MoveSearcher
 	services.OrderFetcher
+	services.PrimeDownloadMoveUploadPDFGenerator
 }
 
 // Handler for downloading move order by locator as a PDF
@@ -261,14 +261,16 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 
 			move := moves[len(moves)-1]
 
-			generator, err := paperwork.NewMoveOrderPdfGenerator(appCtx, h.FileStorer())
+			//generator, err := paperwork.NewMoveOrderPdfGenerator(appCtx, h.FileStorer())
 			if err != nil {
 				appCtx.Logger().Error("Error: NewMoveOrderPdfGenerator", zap.Error(err))
 				return movetaskorderops.NewDownloadMoveOrderInternalServerError().WithPayload(
 					payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
-			outputFile, err := generator.GeneratePdf(paperwork.DownloadAll, move)
+			//outputFile, err := generator.GeneratePdf(paperwork.DownloadAll, move)
+			outputFile, err := h.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, services.DownloadMoveOrderUploadTypeAll, move)
+
 			if err != nil {
 				appCtx.Logger().Error("Error: generator.GeneratePdf", zap.Error(err))
 				return movetaskorderops.NewDownloadMoveOrderInternalServerError().WithPayload(
