@@ -16,7 +16,6 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -648,92 +647,89 @@ func derefStringTypes(st interface{}) string {
 	return ""
 }
 
-// type ppmComputer interface {
-// 	ComputePPMMoveCosts(appCtx appcontext.AppContext, weight unit.Pound, originPickupZip5 string, originDutyLocationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyLocationZip int, date time.Time, daysInSit int) (cost rateengine.CostDetails, err error)
-// }
-
 // SSWPPMComputer a rate engine wrapper with helper functions to simplify ppm cost calculations specific to shipment summary worksheet
 type SSWPPMComputer struct {
-	ppmComputer
 }
 
 // NewSSWPPMComputer creates a SSWPPMComputer
 func NewSSWPPMComputer(PPMShipment models.PPMShipment) *SSWPPMComputer {
-	return &SSWPPMComputer{ppmComputer: PPMComputer}
+	return &SSWPPMComputer{}
 }
 
 // ObligationType type corresponding to obligation sections of shipment summary worksheet
 type ObligationType int
 
 // ComputeObligations is helper function for computing the obligations section of the shipment summary worksheet
+// Obligations must remain test data until new computer system is finished
 func (sswPpmComputer *SSWPPMComputer) ComputeObligations(appCtx appcontext.AppContext, ssfd ShipmentSummaryFormData, planner route.Planner) (obligation Obligations, err error) {
-	firstPPM, err := sswPpmComputer.nilCheckPPM(ssfd)
-	if err != nil {
-		return Obligations{}, err
-	}
+	// firstPPM, err := sswPpmComputer.nilCheckPPM(ssfd)
+	// if err != nil {
+	// 	return Obligations{}, err
+	// }
 
-	originDutyLocationZip := ssfd.CurrentDutyLocation.Address.PostalCode
-	destDutyLocationZip := ssfd.Order.NewDutyLocation.Address.PostalCode
+	// originDutyLocationZip := ssfd.CurrentDutyLocation.Address.PostalCode
+	// destDutyLocationZip := ssfd.Order.NewDutyLocation.Address.PostalCode
 
-	distanceMilesFromPickupZip, err := planner.ZipTransitDistance(appCtx, firstPPM.PickupPostalCode, destDutyLocationZip)
-	if err != nil {
-		return Obligations{}, errors.New("error calculating distance")
-	}
+	// distanceMilesFromPickupZip, err := planner.ZipTransitDistance(appCtx, firstPPM.PickupPostalCode, destDutyLocationZip)
+	// if err != nil {
+	// 	return Obligations{}, errors.New("error calculating distance")
+	// }
 
-	distanceMilesFromDutyLocationZip, err := planner.ZipTransitDistance(appCtx, originDutyLocationZip, destDutyLocationZip)
-	if err != nil {
-		return Obligations{}, errors.New("error calculating distance")
-	}
+	// distanceMilesFromDutyLocationZip, err := planner.ZipTransitDistance(appCtx, originDutyLocationZip, destDutyLocationZip)
+	// if err != nil {
+	// 	return Obligations{}, errors.New("error calculating distance")
+	// }
 
-	actualCosts, err := sswPpmComputer.ComputePPMMoveCosts(
-		appCtx,
-		ssfd.PPMRemainingEntitlement,
-		firstPPM.PickupPostalCode,
-		originDutyLocationZip,
-		destDutyLocationZip,
-		distanceMilesFromPickupZip,
-		distanceMilesFromDutyLocationZip,
-		firstPPM.ExpectedDepartureDate,
-		0,
-	)
-	if err != nil {
-		return Obligations{}, errors.New("error calculating PPM actual obligations")
-	}
+	// actualCosts, err := sswPpmComputer.ComputePPMMoveCosts(
+	// 	appCtx,
+	// 	ssfd.PPMRemainingEntitlement,
+	// 	firstPPM.PickupPostalCode,
+	// 	originDutyLocationZip,
+	// 	destDutyLocationZip,
+	// 	distanceMilesFromPickupZip,
+	// 	distanceMilesFromDutyLocationZip,
+	// 	firstPPM.ExpectedDepartureDate,
+	// 	0,
+	// )
+	// if err != nil {
+	// 	return Obligations{}, errors.New("error calculating PPM actual obligations")
+	// }
 
-	maxCosts, err := sswPpmComputer.ComputePPMMoveCosts(
-		appCtx,
-		ssfd.WeightAllotment.TotalWeight,
-		firstPPM.PickupPostalCode,
-		originDutyLocationZip,
-		destDutyLocationZip,
-		distanceMilesFromPickupZip,
-		distanceMilesFromDutyLocationZip,
-		firstPPM.ExpectedDepartureDate,
-		0,
-	)
-	if err != nil {
-		return Obligations{}, errors.New("error calculating PPM max obligations")
-	}
+	// maxCosts, err := sswPpmComputer.ComputePPMMoveCosts(
+	// 	appCtx,
+	// 	ssfd.WeightAllotment.TotalWeight,
+	// 	firstPPM.PickupPostalCode,
+	// 	originDutyLocationZip,
+	// 	destDutyLocationZip,
+	// 	distanceMilesFromPickupZip,
+	// 	distanceMilesFromDutyLocationZip,
+	// 	firstPPM.ExpectedDepartureDate,
+	// 	0,
+	// )
+	// if err != nil {
+	// 	return Obligations{}, errors.New("error calculating PPM max obligations")
+	// }
 
-	actualCost := rateengine.GetWinningCostMove(actualCosts)
-	maxCost := rateengine.GetWinningCostMove(maxCosts)
-	nonWinningActualCost := rateengine.GetNonWinningCostMove(actualCosts)
-	nonWinningMaxCost := rateengine.GetNonWinningCostMove(maxCosts)
+	// actualCost := rateengine.GetWinningCostMove(actualCosts)
+	// maxCost := rateengine.GetWinningCostMove(maxCosts)
+	// nonWinningActualCost := rateengine.GetNonWinningCostMove(actualCosts)
+	// nonWinningMaxCost := rateengine.GetNonWinningCostMove(maxCosts)
 
-	var actualSIT unit.Cents
-	if firstPPM.SITEstimatedCost != nil {
-		actualSIT = *firstPPM.SITEstimatedCost
-	}
+	// var actualSIT unit.Cents
+	// if firstPPM.SITEstimatedCost != nil {
+	// 	actualSIT = *firstPPM.SITEstimatedCost
+	// }
 
-	if actualSIT > maxCost.SITMax {
-		actualSIT = maxCost.SITMax
-	}
+	// if actualSIT > maxCost.SITMax {
+	// 	actualSIT = maxCost.SITMax
+	// }
 
+	// Obligations must remain test data until new computer system is finished
 	obligations := Obligations{
-		ActualObligation:           Obligation{Gcc: actualCost.GCC, SIT: actualSIT, Miles: unit.Miles(actualCost.Mileage)},
-		MaxObligation:              Obligation{Gcc: maxCost.GCC, SIT: actualSIT, Miles: unit.Miles(actualCost.Mileage)},
-		NonWinningActualObligation: Obligation{Gcc: nonWinningActualCost.GCC, SIT: actualSIT, Miles: unit.Miles(nonWinningActualCost.Mileage)},
-		NonWinningMaxObligation:    Obligation{Gcc: nonWinningMaxCost.GCC, SIT: actualSIT, Miles: unit.Miles(nonWinningActualCost.Mileage)},
+		ActualObligation:           Obligation{Gcc: 123, SIT: 123, Miles: unit.Miles(123456)},
+		MaxObligation:              Obligation{Gcc: 456, SIT: 456, Miles: unit.Miles(123456)},
+		NonWinningActualObligation: Obligation{Gcc: 789, SIT: 789, Miles: unit.Miles(12345)},
+		NonWinningMaxObligation:    Obligation{Gcc: 1000, SIT: 1000, Miles: unit.Miles(12345)},
 	}
 	return obligations, nil
 }

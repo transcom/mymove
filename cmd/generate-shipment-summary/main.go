@@ -22,7 +22,6 @@ import (
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
-	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
 	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
 )
@@ -31,8 +30,8 @@ import (
 const hereRequestTimeout = time.Duration(15) * time.Second
 
 const (
-	moveIDFlag string = "move"
-	debugFlag  string = "debug"
+	PPMShipmentIDFlag string = "ppmshipment"
+	debugFlag         string = "debug"
 )
 
 func noErr(err error) {
@@ -61,7 +60,7 @@ func checkConfig(v *viper.Viper, logger *zap.Logger) error {
 func initFlags(flag *pflag.FlagSet) {
 
 	// Scenario config
-	flag.String(moveIDFlag, "", "The move ID to generate a shipment summary worksheet for")
+	flag.String(PPMShipmentIDFlag, "", "The move ID to generate a shipment summary worksheet for")
 	flag.Bool(debugFlag, false, "show field debug output")
 
 	// DB Config
@@ -120,7 +119,7 @@ func main() {
 
 	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
 
-	moveID := v.GetString(moveIDFlag)
+	moveID := v.GetString(PPMShipmentIDFlag)
 	if moveID == "" {
 		log.Fatalf("Usage: %s --move <29cb984e-c70d-46f0-926d-cd89e07a6ec3>", os.Args[0])
 	}
@@ -138,9 +137,9 @@ func main() {
 		formFiller.Debug()
 	}
 
-	move, err := models.FetchMoveByMoveID(dbConnection, parsedID)
+	ppmShipment, err := models.FetchPPMShipmentByPPMShipmentID(dbConnection, parsedID)
 	if err != nil {
-		log.Fatalf("error fetching move: %s", moveIDFlag)
+		log.Fatalf("error fetching ppmshipment: %s", PPMShipmentIDFlag)
 	}
 
 	geocodeEndpoint := os.Getenv("HERE_MAPS_GEOCODE_ENDPOINT")
@@ -151,7 +150,7 @@ func main() {
 
 	// TODO: Future cleanup will need to remap to a different planner, or this command should be removed if it is consider deprecated
 	planner := route.NewHEREPlanner(hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
-	ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer(rateengine.NewRateEngine(move))
+	ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer(ppmShipment)
 
 	ssfd, err := shipmentsummaryworksheet.FetchDataShipmentSummaryWorksheetFormData(appCtx, &auth.Session{}, parsedID)
 	if err != nil {
