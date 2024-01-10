@@ -16,18 +16,17 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
-// userUploadToPDFConverter is the concrete struct implementing the UserUploadToPDFConverter interface
+// moveUserUploadToPDFDownloader is the concrete struct implementing the services.PrimeDownloadMoveUploadPDFGenerator interface
 type moveUserUploadToPDFDownloader struct {
-	isTest bool
-	//*uploader.UserUploader
+	isTest       bool
 	pdfGenerator paperwork.Generator
 }
 
-// NewUserUploadToPDFConverter creates a new userUploadToPDFConverter struct with the service dependencies
+// NewMoveUserUploadToPDFDownloader creates a new userUploadToPDFDownloader struct with the service dependencies
 func NewMoveUserUploadToPDFDownloader(isTest bool, userUploader *uploader.UserUploader) (services.PrimeDownloadMoveUploadPDFGenerator, error) {
 	pdfGenerator, err := paperwork.NewGenerator(userUploader.Uploader())
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "error getting instance of PDF generator")
 	}
 	return &moveUserUploadToPDFDownloader{
 		isTest,
@@ -41,30 +40,30 @@ type pdfBatchInfo struct {
 	PageCounts    []int
 }
 
-// ConvertUserUploadsToPDF converts user uploads to PDFs
+// MoveUserUploadToPDFDownloader converts user uploads to PDFs to download
 func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx appcontext.AppContext, downloadMoveOrderUploadType services.DownloadMoveOrderUploadType, move models.Move) (afero.File, error) {
 	var pdfBatchInfos []pdfBatchInfo
 	var pdfFileNames []string
 
 	if downloadMoveOrderUploadType == services.DownloadMoveOrderUploadTypeAll || downloadMoveOrderUploadType == services.DownloadMoveOrderUploadTypeOnlyOrders {
 		if move.Orders.UploadedOrdersID == uuid.Nil {
-			return nil, errors.New("order does not have any uploades associated to it")
+			return nil, fmt.Errorf("order does not have any uploades associated to it, move.Orders.ID: %s", move.Orders.ID)
 		}
 		info, err := g.buildPdfBatchInfo(appCtx, services.UserUploadDocTypeOrder, move.Orders.UploadedOrdersID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "error building PDF batch information for bookmark generation for order docs")
 		}
 		pdfBatchInfos = append(pdfBatchInfos, *info)
 	}
 
 	if downloadMoveOrderUploadType == services.DownloadMoveOrderUploadTypeAll || downloadMoveOrderUploadType == services.DownloadMoveOrderUploadTypeOnlyAmendments {
 		if downloadMoveOrderUploadType == services.DownloadMoveOrderUploadTypeOnlyAmendments && move.Orders.UploadedAmendedOrdersID == nil {
-			return nil, errors.New("order does not have any amendment uploads associated to it")
+			return nil, fmt.Errorf("order does not have any amendment uploads associated to it, move.Orders.ID: %s", move.Orders.ID)
 		}
 		if move.Orders.UploadedAmendedOrdersID != nil {
 			info, err := g.buildPdfBatchInfo(appCtx, services.UserUploadDocTypeAmendments, *move.Orders.UploadedAmendedOrdersID)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "error building PDF batch information for bookmark generation for amendment docs")
 			}
 			pdfBatchInfos = append(pdfBatchInfos, *info)
 		}
@@ -80,7 +79,7 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 	// Take all of generated PDFs and merge into a single PDF.
 	mergedPdf, err := g.pdfGenerator.MergePDFFiles(appCtx, pdfFileNames)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "error merging PDF files into one")
 	}
 
 	// *** Build Bookmarks ****
@@ -115,7 +114,7 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 	}
 
 	if g.isTest {
-		// Hack to overcome unit test failure on AddPdfBookmarks().
+		// HACK ALERT - to overcome unit test failure on AddPdfBookmarks().
 		// For some reason it fails when using temp files in the context of running
 		// this in a unit test. It actually works when running via application.
 		// TODO: look into to this at a later day. For now, unit testing will not
@@ -131,7 +130,7 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 func (g *moveUserUploadToPDFDownloader) buildPdfBatchInfo(appCtx appcontext.AppContext, uploadDocType services.UserUploadDocType, documentID uuid.UUID) (*pdfBatchInfo, error) {
 	document, err := models.FetchDocumentWithNoRestrictions(appCtx.DB(), appCtx.Session(), documentID, false)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, fmt.Sprintf("error fetching document domain by id: %s", documentID))
 	}
 
 	var pdfFileNames []string
@@ -145,17 +144,17 @@ func (g *moveUserUploadToPDFDownloader) buildPdfBatchInfo(appCtx appcontext.AppC
 
 		uploads, err := models.UploadsFromUserUploads(appCtx.DB(), currentUserUpload)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "error retrieving user uploads")
 		}
 
 		pdfFile, err := g.pdfGenerator.CreateMergedPDFUpload(appCtx, uploads)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "error generating a merged PDF file")
 		}
 		pdfFileNames = append(pdfFileNames, pdfFile.Name())
 		pdfFileInfo, err := g.pdfGenerator.GetPdfFileInfo(pdfFile.Name())
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "error getting fileInfo from generated PDF file")
 		}
 		if pdfFileInfo != nil {
 			pageCounts = append(pageCounts, pdfFileInfo.PageCount)
