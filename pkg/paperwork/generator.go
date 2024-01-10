@@ -128,20 +128,6 @@ func (g *Generator) Cleanup(_ appcontext.AppContext) error {
 	return g.fs.RemoveAll(g.workDir)
 }
 
-// // Add bookmarks into a single PDF
-//
-//	func (g *Generator) AddPdfBookmarks(inputFile afero.File, bookmarks []pdfcpu.Bookmark) (afero.File, error) {
-//		outputFile, err := g.newTempFile()
-//		if err != nil {
-//			return nil, err
-//		}
-//		replace := true
-//		if err := api.AddBookmarksFile(inputFile.Name(), outputFile.Name(), bookmarks, replace, nil); err != nil {
-//			return nil, err
-//		}
-//		return outputFile, nil
-//	}
-//
 // Add bookmarks into a single PDF
 func (g *Generator) AddPdfBookmarks(inputFile string, bookmarks []pdfcpu.Bookmark) (afero.File, error) {
 	outputFile, err := g.newTempFile()

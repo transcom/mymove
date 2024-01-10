@@ -72,16 +72,16 @@ type PDFMerger interface {
 type DownloadMoveOrderUploadType int
 
 const (
-	DownloadMoveOrderUploadTypeAll            DownloadMoveOrderUploadType = 0
-	DownloadMoveOrderUploadTypeOnlyOrders     DownloadMoveOrderUploadType = 1
-	DownloadMoveOrderUploadTypeOnlyAmendments DownloadMoveOrderUploadType = 2
+	DownloadMoveOrderUploadTypeAll DownloadMoveOrderUploadType = iota
+	DownloadMoveOrderUploadTypeOnlyOrders
+	DownloadMoveOrderUploadTypeOnlyAmendments
 )
 
 type UserUploadDocType int
 
 const (
-	UserUploadDocTypeOrder      UserUploadDocType = 0
-	UserUploadDocTypeAmendments UserUploadDocType = 1
+	UserUploadDocTypeOrder UserUploadDocType = iota
+	UserUploadDocTypeAmendments
 )
 
 //go:generate mockery --name PrimeDownloadMoveUploadPDFGenerator
