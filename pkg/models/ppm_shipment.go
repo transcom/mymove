@@ -18,7 +18,8 @@ type PPMCloseout struct {
 	Miles                      *unit.Miles
 	EstimatedWeight            *unit.Pound
 	ActualWeight               *unit.Pound
-	ProGearWeight              *unit.Pound
+	ProGearWeightCustomer      *unit.Pound
+	ProGearWeightSpouse        *unit.Pound
 	GrossIncentive             *unit.Cents
 	GCC                        *unit.Cents
 	AOA                        *unit.Cents
@@ -27,7 +28,8 @@ type PPMCloseout struct {
 	HaulFSC                    *unit.Cents
 	DOP                        *unit.Cents
 	DDP                        *unit.Cents
-	PackUnpackPrice            *unit.Cents
+	PackPrice                  *unit.Cents
+	UnpackPrice                *unit.Cents
 	SITReimbursement           *unit.Cents
 }
 
