@@ -11,6 +11,26 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+type PPMCloseout struct {
+	ID                         *uuid.UUID
+	PlannedMoveDate            *time.Time
+	ActualMoveDate             *time.Time
+	Miles                      *unit.Miles
+	EstimatedWeight            *unit.Pound
+	ActualWeight               *unit.Pound
+	ProGearWeight              *unit.Pound
+	GrossIncentive             *unit.Cents
+	GCC                        *unit.Cents
+	AOA                        *unit.Cents
+	RemainingReimbursementOwed *unit.Cents
+	HaulPrice                  *unit.Cents
+	HaulFSC                    *unit.Cents
+	DOP                        *unit.Cents
+	DDP                        *unit.Cents
+	PackUnpackPrice            *unit.Cents
+	SITReimbursement           *unit.Cents
+}
+
 // PPMShipmentStatus represents the status of an order record's lifecycle
 type PPMShipmentStatus string
 
@@ -199,4 +219,5 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&OptionalUUIDIsPresent{Name: "AOAPacketID", Field: p.AOAPacketID},
 		&OptionalUUIDIsPresent{Name: "PaymentPacketID", Field: p.PaymentPacketID},
 	), nil
+
 }
