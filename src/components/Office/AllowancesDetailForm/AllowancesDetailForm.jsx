@@ -10,7 +10,7 @@ import { EntitlementShape } from 'types/order';
 import { formatWeight } from 'utils/formatters';
 import Hint from 'components/Hint';
 
-const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions, formIsDisabled }) => {
+const AllowancesDetailForm = ({ header, entitlements, payGradeOptions, branchOptions, formIsDisabled }) => {
   return (
     <div className={styles.AllowancesDetailForm}>
       {header && <h3 data-testid="header">{header}</h3>}
@@ -72,10 +72,11 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
         isDisabled={formIsDisabled}
       />
       <DropdownInput
-        data-testid="rankInput"
+        data-testid="payGradeInput"
         name="grade"
         label="Pay grade"
-        options={rankOptions}
+        id="payGradeInput"
+        options={payGradeOptions}
         showDropdownPlaceholderText={false}
         isDisabled={formIsDisabled}
       />
@@ -120,7 +121,7 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
 
 AllowancesDetailForm.propTypes = {
   entitlements: EntitlementShape.isRequired,
-  rankOptions: DropdownArrayOf.isRequired,
+  payGradeOptions: DropdownArrayOf.isRequired,
   branchOptions: DropdownArrayOf.isRequired,
   header: PropTypes.string,
   formIsDisabled: PropTypes.bool,

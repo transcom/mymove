@@ -109,7 +109,7 @@ describe('EditServiceInfo page', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/service-member/profile');
   });
 
-  it('displays a flash message about entitlement when the rank changes', async () => {
+  it('displays a flash message about entitlement when the pay grade changes', async () => {
     const testServiceMemberValues = {
       id: 'testServiceMemberId',
       first_name: 'Leo',
@@ -185,8 +185,8 @@ describe('EditServiceInfo page', () => {
       />,
     );
 
-    const rankInput = await screen.findByLabelText('Pay grade');
-    await userEvent.selectOptions(rankInput, ['E_2']);
+    const payGradeInput = await screen.findByLabelText('Pay grade');
+    await userEvent.selectOptions(payGradeInput, ['E_2']);
 
     const submitButton = await screen.findByText('Save');
     expect(submitButton).toBeInTheDocument();
