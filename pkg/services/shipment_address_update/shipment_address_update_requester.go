@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -399,6 +400,13 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(
 				shipment.ID, err, verrs, "Invalid input found while updating shipment")
+		}
+		if err != nil {
+			return err
+		}
+
+		if len(shipment.MTOServiceItems) > 0 {
+			err = mtoshipment.UpdateDestinationSITServiceItemsAddress(appCtx, &shipment)
 		}
 		if err != nil {
 			return err
