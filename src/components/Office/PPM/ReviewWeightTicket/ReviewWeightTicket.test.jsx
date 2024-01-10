@@ -524,7 +524,9 @@ describe('ReviewWeightTicket component', () => {
         await userEvent.clear(fullWeightInput);
         await userEvent.type(fullWeightInput, '10,000');
         fullWeightInput.blur();
+      });
 
+      await act(async () => {
         await userEvent.clear(allowableWeightInput);
         await userEvent.type(allowableWeightInput, '11,000');
         allowableWeightInput.blur();

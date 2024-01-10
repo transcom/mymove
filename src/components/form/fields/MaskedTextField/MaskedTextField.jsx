@@ -11,6 +11,7 @@ import styles from './MaskedTextField.module.scss';
 import { OptionalTag } from 'components/form/OptionalTag';
 import { ErrorMessage } from 'components/form/index';
 import Hint from 'components/Hint';
+import { isNullUndefinedOrWhitespace } from 'shared/utils';
 
 const MaskedTextField = ({
   containerClassName,
@@ -42,7 +43,12 @@ const MaskedTextField = ({
   ...props
 }) => {
   const [field, metaProps, helpers] = useField({ id, name, validate, ...props });
-  const showError = (metaProps.touched && !!metaProps.error) || error;
+  // if a field relies on MaskedTextField and uses OnBlur event listener, this is added so ShowError doesn't block any error text
+  const isUsingOnBlur = typeof props.onBlur === 'function';
+  const showError =
+    (isUsingOnBlur && !isNullUndefinedOrWhitespace(metaProps.error)) ||
+    (metaProps.touched && !isNullUndefinedOrWhitespace(metaProps.error)) ||
+    error;
   const showWarning = !showError && warning;
   const { value } = field;
   const descriptionRef = useRef(uuidv4());
