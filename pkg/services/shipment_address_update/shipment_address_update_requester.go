@@ -382,30 +382,32 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 
 		// we need to also update this final destination address for destination SIT service items
 		// if the service item's final address id is different, we'll need to update it
-		serviceItems := shipment.MTOServiceItems
-		for _, serviceItem := range serviceItems {
-			if serviceItem.SITDestinationFinalAddressID != shipment.DestinationAddressID {
-				serviceCode := serviceItem.ReService.Code
-				if serviceCode == models.ReServiceCodeDDASIT ||
-					serviceCode == models.ReServiceCodeDDFSIT ||
-					serviceCode == models.ReServiceCodeDDDSIT ||
-					serviceCode == models.ReServiceCodeDDSFSC {
-					serviceItem.SITDestinationFinalAddress = shipment.DestinationAddress
-					serviceItem.SITDestinationFinalAddressID = shipment.DestinationAddressID
+		if len(shipment.MTOServiceItems) > 0 {
+			serviceItems := shipment.MTOServiceItems
+			for _, serviceItem := range serviceItems {
+				if serviceItem.SITDestinationFinalAddressID != shipment.DestinationAddressID {
+					serviceCode := serviceItem.ReService.Code
+					if serviceCode == models.ReServiceCodeDDASIT ||
+						serviceCode == models.ReServiceCodeDDFSIT ||
+						serviceCode == models.ReServiceCodeDDDSIT ||
+						serviceCode == models.ReServiceCodeDDSFSC {
+						serviceItem.SITDestinationFinalAddress = shipment.DestinationAddress
+						serviceItem.SITDestinationFinalAddressID = shipment.DestinationAddressID
 
-					transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-						verrs, txnErr := appCtx.DB().ValidateAndSave(serviceItem)
-						if verrs.HasAny() {
-							return apperror.NewInvalidInputError(serviceItem.ID, txnErr, verrs, "unable to update service item's final destination address")
-						}
-						if txnErr != nil {
-							return apperror.NewQueryError("ServiceItemUpdate", txnErr, "error updating service items in shipment address update request")
-						}
-						return nil
-					})
+						transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+							verrs, txnErr := appCtx.DB().ValidateAndSave(serviceItem)
+							if verrs.HasAny() {
+								return apperror.NewInvalidInputError(serviceItem.ID, txnErr, verrs, "unable to update service item's final destination address")
+							}
+							if txnErr != nil {
+								return apperror.NewQueryError("ServiceItemUpdate", txnErr, "error updating service items in shipment address update request")
+							}
+							return nil
+						})
 
-					if transactionError != nil {
-						return nil, transactionError
+						if transactionError != nil {
+							return nil, transactionError
+						}
 					}
 				}
 			}
