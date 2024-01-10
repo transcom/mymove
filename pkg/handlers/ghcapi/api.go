@@ -25,6 +25,7 @@ import (
 	order "github.com/transcom/mymove/pkg/services/order"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	paymentserviceitem "github.com/transcom/mymove/pkg/services/payment_service_item"
+	ppmcloseout "github.com/transcom/mymove/pkg/services/ppm_closeout"
 	ppmshipment "github.com/transcom/mymove/pkg/services/ppmshipment"
 	progear "github.com/transcom/mymove/pkg/services/progear_weight_ticket"
 	pwsviolation "github.com/transcom/mymove/pkg/services/pws_violation"
@@ -480,8 +481,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		ppmDocumentsFetcher,
 	}
 
+	PPMCloseout := ppmcloseout.NewPPMCloseout()
+
 	ghcAPI.PpmGetPPMCloseoutHandler = GetPPMCloseoutHandler{
 		handlerConfig,
+		PPMCloseout,
 	}
 
 	weightTicketFetcher := weightticket.NewWeightTicketFetcher()
