@@ -46,4 +46,7 @@ export default {
   rejectSITAddressUpdate: 'rejectSITAddressUpdate', // ghc.yaml
   createSITAddressUpdate: 'createSITAddressUpdate', // ghc.yaml
   updateWeightTicket: 'updateWeightTicket', // ghc.yaml, internal.yaml
+  updateProGearWeightTicket: 'updateProGearWeightTicket', // ghc.yaml, internal.yaml
+  updateMovingExpense: 'updateMovingExpense', // ghc.yaml, internal.yaml
+  deleteMTOShipment: 'deleteMTOShipment', // prime.yaml
 };
