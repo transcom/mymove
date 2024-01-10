@@ -541,7 +541,9 @@ func (a *Client) UpdateSITDeliveryRequest(params *UpdateSITDeliveryRequestParams
 	### Functionality
 
 This endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,
-after the destination address has already been approved.
+after the destination address has already been approved. If there are any destination SIT service items present, it will
+also apply the update to these service items.
+
 Address updates will be automatically approved unless they change:
   - The service area
   - Mileage bracket for direct delivery
@@ -553,6 +555,13 @@ Address updates will be automatically approved unless they change:
   - Or if the new SIT service item mileage goes under 50 miles based on the new destination address if it was previously over by 50 miles
 
 For those, changes will require TOO approval.
+
+### Impacted service items
+On a new address approval for an MTO Shipment, the following service items will inherit the change:
+  - DDFSIT - Domestic destination 1st day SIT
+  - DDASIT - Domestic destination Additional day SIT
+  - DDDSIT - Domestic destination SIT delivery
+  - DDSFSC - Domestic destination SIT fuel surcharge
 */
 func (a *Client) UpdateShipmentDestinationAddress(params *UpdateShipmentDestinationAddressParams, opts ...ClientOption) (*UpdateShipmentDestinationAddressCreated, error) {
 	// TODO: Validate the params before sending
