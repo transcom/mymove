@@ -391,13 +391,15 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 						serviceCode == models.ReServiceCodeDDFSIT ||
 						serviceCode == models.ReServiceCodeDDDSIT ||
 						serviceCode == models.ReServiceCodeDDSFSC {
-						serviceItem.SITDestinationFinalAddress = shipment.DestinationAddress
-						serviceItem.SITDestinationFinalAddressID = shipment.DestinationAddressID
+						// Create a local copy to avoid implicit memory aliasing
+						localServiceItem := serviceItem
+						localServiceItem.SITDestinationFinalAddress = shipment.DestinationAddress
+						localServiceItem.SITDestinationFinalAddressID = shipment.DestinationAddressID
 
 						transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-							verrs, txnErr := appCtx.DB().ValidateAndSave(serviceItem)
+							verrs, txnErr := appCtx.DB().ValidateAndSave(&localServiceItem)
 							if verrs.HasAny() {
-								return apperror.NewInvalidInputError(serviceItem.ID, txnErr, verrs, "unable to update service item's final destination address")
+								return apperror.NewInvalidInputError(localServiceItem.ID, txnErr, verrs, "unable to update service item's final destination address")
 							}
 							if txnErr != nil {
 								return apperror.NewQueryError("ServiceItemUpdate", txnErr, "error updating service items in shipment address update request")
