@@ -189,6 +189,7 @@ describe('Orders page', () => {
           name: 'Yuma AFB',
           updated_at: '2020-10-19T17:01:16.114Z',
         },
+        grade: 'E_1',
       };
 
       createOrders.mockImplementation(() => Promise.resolve(testOrdersValues));
@@ -199,6 +200,7 @@ describe('Orders page', () => {
       await userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));
+      await userEvent.selectOptions(screen.getByLabelText('Pay grade'), ['E_5']);
 
       // Test Duty Location Search Box interaction
       await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
@@ -212,6 +214,7 @@ describe('Orders page', () => {
           report_by_date: '26 Nov 2020',
           has_dependents: 'no',
           new_duty_location: 'Luke AFB',
+          grade: 'E_5',
         });
       });
 
@@ -266,6 +269,7 @@ describe('Orders page', () => {
           name: 'Yuma AFB',
           updated_at: '2020-10-19T17:01:16.114Z',
         },
+        grade: 'E_1',
       };
 
       getOrdersForServiceMember.mockImplementation(() => Promise.resolve(testOrdersValues));
@@ -306,6 +310,7 @@ describe('Orders page', () => {
           name: 'Yuma AFB',
           updated_at: '2020-10-19T17:01:16.114Z',
         },
+        grade: 'E_1',
       };
       getOrdersForServiceMember.mockImplementation(() => Promise.resolve(testOrdersValues));
       patchOrders.mockImplementation(() => Promise.resolve(testOrdersValues));
@@ -370,6 +375,7 @@ describe('Orders page', () => {
         name: 'Yuma AFB',
         updated_at: '2020-10-19T17:01:16.114Z',
       },
+      grade: 'E_1',
     };
 
     getOrdersForServiceMember.mockImplementation(() => Promise.resolve(testOrdersValues));
