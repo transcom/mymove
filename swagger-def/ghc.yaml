@@ -1688,10 +1688,10 @@ paths:
     parameters:
       - $ref: 'parameters/ppmShipmentId.yaml'
     get:
-      summary: Get the closeout data for the specified PPM shipment
+      summary: Get the closeout calcuations for the specified PPM shipment
       description: |
-        Retrieves the closeout data for the specified PPM shipment.
-      operationId: getPPMCloseoutData
+        Retrieves the closeout calculations for the specified PPM shipment.
+      operationId: getPPMCloseout
       tags:
         - ppm
       consumes:
@@ -1700,9 +1700,9 @@ paths:
         - application/json
       responses:
         '200':
-          description: Returns closeout data for the specified PPM shipment.
+          description: Returns closeout for the specified PPM shipment.
           schema:
-            $ref: '#/definitions/PPMCloseoutData'
+            $ref: 'definitions/PPMCloseout.yaml'
         '401':
           $ref: '#/responses/PermissionDenied'
         '403':
@@ -5530,15 +5530,6 @@ definitions:
     type: array
     items:
       $ref: 'definitions/TransportationOffice.yaml'
-  PPMCloseoutData:
-    type: object
-    description: Closeout data for a PPM shipment
-    readOnly: true
-    properties:
-      ppmShipmentId:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
 responses:
   InvalidRequest:
     description: The request payload is invalid

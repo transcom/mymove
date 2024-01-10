@@ -2744,7 +2744,7 @@ func init() {
     },
     "/ppm-shipments/{ppmShipmentId}/closeout": {
       "get": {
-        "description": "Retrieves the closeout data for the specified PPM shipment.\n",
+        "description": "Retrieves the closeout calculations for the specified PPM shipment.\n",
         "consumes": [
           "application/json"
         ],
@@ -2754,13 +2754,13 @@ func init() {
         "tags": [
           "ppm"
         ],
-        "summary": "Get the closeout data for the specified PPM shipment",
-        "operationId": "getPPMCloseoutData",
+        "summary": "Get the closeout calcuations for the specified PPM shipment",
+        "operationId": "getPPMCloseout",
         "responses": {
           "200": {
-            "description": "Returns closeout data for the specified PPM shipment.",
+            "description": "Returns closeout for the specified PPM shipment.",
             "schema": {
-              "$ref": "#/definitions/PPMCloseoutData"
+              "$ref": "#/definitions/PPMCloseout"
             }
           },
           "401": {
@@ -7796,17 +7796,111 @@ func init() {
       ],
       "x-nullable": true
     },
-    "PPMCloseoutData": {
-      "description": "Closeout data for a PPM shipment",
-      "type": "object",
+    "PPMCloseout": {
+      "description": "The calculations needed in the \"Review Documents\" section of a PPM closeout. LIst of all expenses/reimbursements related toa PPM shipment.",
+      "required": [
+        "plannedMoveDate",
+        "actualMoveDate",
+        "miles",
+        "estimatedWeight",
+        "actualWeight",
+        "proGearWeight",
+        "grossIncentive",
+        "gcc",
+        "aoa",
+        "remainingReimbursementOwed",
+        "haulPrice",
+        "haulFSC",
+        "dop",
+        "ddp",
+        "packUnpackPrice",
+        "SITReimbursement"
+      ],
       "properties": {
-        "ppmShipmentId": {
+        "SITReimbursement": {
+          "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
+          "type": "integer",
+          "format": "cents"
+        },
+        "actualMoveDate": {
+          "$ref": "#/definitions/actualMoveDate"
+        },
+        "actualWeight": {
+          "$ref": "#/definitions/primeActualWeight"
+        },
+        "aoa": {
+          "description": "Advance Operating Allowance (AOA).",
+          "type": "integer",
+          "format": "cents"
+        },
+        "ddp": {
+          "description": "The Domestic Destination Price (DDP).",
+          "type": "integer",
+          "format": "cents"
+        },
+        "dop": {
+          "description": "The Domestic Origin Price (DOP).",
+          "type": "integer",
+          "format": "cents"
+        },
+        "estimatedWeight": {
+          "$ref": "#/definitions/estimatedWeight"
+        },
+        "gcc": {
+          "description": "Government Constructive Cost (GCC)",
+          "type": "integer",
+          "format": "cents",
+          "title": "GCC"
+        },
+        "grossIncentive": {
+          "$ref": "#/definitions/finalIncentive"
+        },
+        "haulFSC": {
+          "description": "The linehaul/shorthaul Fuel Surcharge (FSC).",
+          "type": "integer",
+          "format": "cents"
+        },
+        "haulPrice": {
+          "description": "The price of the linehaul or shorthaul.",
+          "type": "integer",
+          "format": "cents"
+        },
+        "id": {
+          "description": "Primary auto-generated unique identifier of the PPM shipment object",
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "miles": {
+          "description": "The distance between the old address and the new address in miles.",
+          "type": "integer",
+          "example": 54
+        },
+        "packUnpackPrice": {
+          "description": "The full price of all packing/unpacking services.",
+          "type": "integer",
+          "format": "cents"
+        },
+        "plannedMoveDate": {
+          "$ref": "#/definitions/expectedDepartureDate"
+        },
+        "proGearWeight": {
+          "$ref": "#/definitions/proGearWeight"
+        },
+        "remainingReimbursementOwed": {
+          "description": "The remaining reimbursement amount that is still owed to the customer.",
+          "type": "integer",
+          "format": "cents"
+        },
+        "shipmentId": {
+          "description": "The id of the parent MTOShipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         }
-      },
-      "readOnly": true
+      }
     },
     "PPMDocumentStatus": {
       "description": "Status of the PPM document.",
@@ -10356,6 +10450,44 @@ func init() {
       "items": {
         "$ref": "#/definitions/WeightTicket"
       },
+      "x-omitempty": false
+    },
+    "actualMoveDate": {
+      "description": "The actual start date of when the PPM shipment left the origin.",
+      "type": "string",
+      "format": "date",
+      "x-nullable": true,
+      "x-omitempty": false
+    },
+    "estimatedWeight": {
+      "description": "The estimated weight of the PPM shipment goods being moved.",
+      "type": "integer",
+      "x-nullable": true,
+      "x-omitempty": false,
+      "example": 4200
+    },
+    "expectedDepartureDate": {
+      "description": "Date the customer expects to begin their move.\n",
+      "type": "string",
+      "format": "date"
+    },
+    "finalIncentive": {
+      "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
+      "type": "integer",
+      "format": "cents",
+      "x-nullable": true,
+      "x-omitempty": false,
+      "readOnly": true
+    },
+    "primeActualWeight": {
+      "type": "integer",
+      "x-nullable": true,
+      "example": 2000
+    },
+    "proGearWeight": {
+      "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
+      "type": "integer",
+      "x-nullable": true,
       "x-omitempty": false
     }
   },
@@ -13971,7 +14103,7 @@ func init() {
     },
     "/ppm-shipments/{ppmShipmentId}/closeout": {
       "get": {
-        "description": "Retrieves the closeout data for the specified PPM shipment.\n",
+        "description": "Retrieves the closeout calculations for the specified PPM shipment.\n",
         "consumes": [
           "application/json"
         ],
@@ -13981,13 +14113,13 @@ func init() {
         "tags": [
           "ppm"
         ],
-        "summary": "Get the closeout data for the specified PPM shipment",
-        "operationId": "getPPMCloseoutData",
+        "summary": "Get the closeout calcuations for the specified PPM shipment",
+        "operationId": "getPPMCloseout",
         "responses": {
           "200": {
-            "description": "Returns closeout data for the specified PPM shipment.",
+            "description": "Returns closeout for the specified PPM shipment.",
             "schema": {
-              "$ref": "#/definitions/PPMCloseoutData"
+              "$ref": "#/definitions/PPMCloseout"
             }
           },
           "401": {
@@ -19592,17 +19724,112 @@ func init() {
       ],
       "x-nullable": true
     },
-    "PPMCloseoutData": {
-      "description": "Closeout data for a PPM shipment",
-      "type": "object",
+    "PPMCloseout": {
+      "description": "The calculations needed in the \"Review Documents\" section of a PPM closeout. LIst of all expenses/reimbursements related toa PPM shipment.",
+      "required": [
+        "plannedMoveDate",
+        "actualMoveDate",
+        "miles",
+        "estimatedWeight",
+        "actualWeight",
+        "proGearWeight",
+        "grossIncentive",
+        "gcc",
+        "aoa",
+        "remainingReimbursementOwed",
+        "haulPrice",
+        "haulFSC",
+        "dop",
+        "ddp",
+        "packUnpackPrice",
+        "SITReimbursement"
+      ],
       "properties": {
-        "ppmShipmentId": {
+        "SITReimbursement": {
+          "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
+          "type": "integer",
+          "format": "cents"
+        },
+        "actualMoveDate": {
+          "$ref": "#/definitions/actualMoveDate"
+        },
+        "actualWeight": {
+          "$ref": "#/definitions/primeActualWeight"
+        },
+        "aoa": {
+          "description": "Advance Operating Allowance (AOA).",
+          "type": "integer",
+          "format": "cents"
+        },
+        "ddp": {
+          "description": "The Domestic Destination Price (DDP).",
+          "type": "integer",
+          "format": "cents"
+        },
+        "dop": {
+          "description": "The Domestic Origin Price (DOP).",
+          "type": "integer",
+          "format": "cents"
+        },
+        "estimatedWeight": {
+          "$ref": "#/definitions/estimatedWeight"
+        },
+        "gcc": {
+          "description": "Government Constructive Cost (GCC)",
+          "type": "integer",
+          "format": "cents",
+          "title": "GCC"
+        },
+        "grossIncentive": {
+          "$ref": "#/definitions/finalIncentive"
+        },
+        "haulFSC": {
+          "description": "The linehaul/shorthaul Fuel Surcharge (FSC).",
+          "type": "integer",
+          "format": "cents"
+        },
+        "haulPrice": {
+          "description": "The price of the linehaul or shorthaul.",
+          "type": "integer",
+          "format": "cents"
+        },
+        "id": {
+          "description": "Primary auto-generated unique identifier of the PPM shipment object",
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "miles": {
+          "description": "The distance between the old address and the new address in miles.",
+          "type": "integer",
+          "minimum": 0,
+          "example": 54
+        },
+        "packUnpackPrice": {
+          "description": "The full price of all packing/unpacking services.",
+          "type": "integer",
+          "format": "cents"
+        },
+        "plannedMoveDate": {
+          "$ref": "#/definitions/expectedDepartureDate"
+        },
+        "proGearWeight": {
+          "$ref": "#/definitions/proGearWeight"
+        },
+        "remainingReimbursementOwed": {
+          "description": "The remaining reimbursement amount that is still owed to the customer.",
+          "type": "integer",
+          "format": "cents"
+        },
+        "shipmentId": {
+          "description": "The id of the parent MTOShipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         }
-      },
-      "readOnly": true
+      }
     },
     "PPMDocumentStatus": {
       "description": "Status of the PPM document.",
@@ -22219,6 +22446,44 @@ func init() {
       "items": {
         "$ref": "#/definitions/WeightTicket"
       },
+      "x-omitempty": false
+    },
+    "actualMoveDate": {
+      "description": "The actual start date of when the PPM shipment left the origin.",
+      "type": "string",
+      "format": "date",
+      "x-nullable": true,
+      "x-omitempty": false
+    },
+    "estimatedWeight": {
+      "description": "The estimated weight of the PPM shipment goods being moved.",
+      "type": "integer",
+      "x-nullable": true,
+      "x-omitempty": false,
+      "example": 4200
+    },
+    "expectedDepartureDate": {
+      "description": "Date the customer expects to begin their move.\n",
+      "type": "string",
+      "format": "date"
+    },
+    "finalIncentive": {
+      "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
+      "type": "integer",
+      "format": "cents",
+      "x-nullable": true,
+      "x-omitempty": false,
+      "readOnly": true
+    },
+    "primeActualWeight": {
+      "type": "integer",
+      "x-nullable": true,
+      "example": 2000
+    },
+    "proGearWeight": {
+      "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
+      "type": "integer",
+      "x-nullable": true,
       "x-omitempty": false
     }
   },

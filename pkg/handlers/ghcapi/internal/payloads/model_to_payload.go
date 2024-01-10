@@ -995,14 +995,14 @@ func PPMDocuments(storer storage.FileStorer, ppmDocuments *models.PPMDocuments) 
 	return payload
 }
 
-// PPMCloseoutData payload
-func PPMCloseoutData(ppmShipmentID *string) *ghcmessages.PPMCloseoutData {
+// PPMCloseout payload
+func PPMCloseout(ppmShipmentID *string) *ghcmessages.PPMCloseout {
 	var uuid strfmt.UUID
 	if ppmShipmentID != nil {
 		uuid = strfmt.UUID(*ppmShipmentID)
 	}
-	payload := &ghcmessages.PPMCloseoutData{
-		PpmShipmentID: uuid,
+	payload := &ghcmessages.PPMCloseout{
+		ID: uuid,
 	}
 
 	return payload

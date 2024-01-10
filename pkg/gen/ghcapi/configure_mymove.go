@@ -222,9 +222,9 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation order.GetOrder has not yet been implemented")
 		})
 	}
-	if api.PpmGetPPMCloseoutDataHandler == nil {
-		api.PpmGetPPMCloseoutDataHandler = ppm.GetPPMCloseoutDataHandlerFunc(func(params ppm.GetPPMCloseoutDataParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.GetPPMCloseoutData has not yet been implemented")
+	if api.PpmGetPPMCloseoutHandler == nil {
+		api.PpmGetPPMCloseoutHandler = ppm.GetPPMCloseoutHandlerFunc(func(params ppm.GetPPMCloseoutParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.GetPPMCloseout has not yet been implemented")
 		})
 	}
 	if api.PpmGetPPMDocumentsHandler == nil {
