@@ -94,12 +94,6 @@ type PPMCloseout struct {
 	// The remaining reimbursement amount that is still owed to the customer.
 	// Required: true
 	RemainingReimbursementOwed *int64 `json:"remainingReimbursementOwed"`
-
-	// The id of the parent MTOShipment object
-	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-	// Read Only: true
-	// Format: uuid
-	ShipmentID strfmt.UUID `json:"shipmentId,omitempty"`
 }
 
 // Validate validates this p p m closeout
@@ -171,10 +165,6 @@ func (m *PPMCloseout) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRemainingReimbursementOwed(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateShipmentID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -434,18 +424,6 @@ func (m *PPMCloseout) validateRemainingReimbursementOwed(formats strfmt.Registry
 	return nil
 }
 
-func (m *PPMCloseout) validateShipmentID(formats strfmt.Registry) error {
-	if swag.IsZero(m.ShipmentID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("shipmentId", "body", "uuid", m.ShipmentID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // ContextValidate validate this p p m closeout based on the context it is used
 func (m *PPMCloseout) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -475,10 +453,6 @@ func (m *PPMCloseout) ContextValidate(ctx context.Context, formats strfmt.Regist
 	}
 
 	if err := m.contextValidateProGearWeight(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateShipmentID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -594,15 +568,6 @@ func (m *PPMCloseout) contextValidateProGearWeight(ctx context.Context, formats 
 			}
 			return err
 		}
-	}
-
-	return nil
-}
-
-func (m *PPMCloseout) contextValidateShipmentID(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "shipmentId", "body", strfmt.UUID(m.ShipmentID)); err != nil {
-		return err
 	}
 
 	return nil

@@ -7892,13 +7892,6 @@ func init() {
           "description": "The remaining reimbursement amount that is still owed to the customer.",
           "type": "integer",
           "format": "cents"
-        },
-        "shipmentId": {
-          "description": "The id of the parent MTOShipment object",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         }
       }
     },
@@ -19821,13 +19814,6 @@ func init() {
           "description": "The remaining reimbursement amount that is still owed to the customer.",
           "type": "integer",
           "format": "cents"
-        },
-        "shipmentId": {
-          "description": "The id of the parent MTOShipment object",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         }
       }
     },

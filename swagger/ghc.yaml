@@ -7704,12 +7704,6 @@ definitions:
         format: uuid
         type: string
         readOnly: true
-      shipmentId:
-        description: The id of the parent MTOShipment object
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-        readOnly: true
       plannedMoveDate:
         $ref: '#/definitions/expectedDepartureDate'
       actualMoveDate:
