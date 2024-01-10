@@ -25,6 +25,7 @@ const testInitialValues = {
     name: 'Yuma AFB',
     updated_at: '2020-10-19T17:01:16.114Z',
   },
+  grade: 'E_1',
 };
 
 export default {
@@ -37,7 +38,14 @@ export default {
 };
 
 const testProps = {
-  initialValues: { orders_type: '', issue_date: '', report_by_date: '', has_dependents: '', new_duty_location: {} },
+  initialValues: {
+    orders_type: '',
+    issue_date: '',
+    report_by_date: '',
+    has_dependents: '',
+    new_duty_location: {},
+    grade: '',
+  },
   ordersTypeOptions: [
     { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
     { key: 'LOCAL_MOVE', value: 'Local Move' },

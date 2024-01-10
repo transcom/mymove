@@ -81,6 +81,7 @@ export class Orders extends Component {
         has_dependents: formatYesNoAPIValue(values.has_dependents),
         report_by_date: formatDateForSwagger(values.report_by_date),
         issue_date: formatDateForSwagger(values.issue_date),
+        grade: values.grade,
         spouse_has_pro_gear: false, // TODO - this input seems to be deprecated?
       };
 
@@ -118,6 +119,7 @@ export class Orders extends Component {
       report_by_date: currentOrders?.report_by_date || '',
       has_dependents: formatYesNoInputValue(currentOrders?.has_dependents),
       new_duty_location: currentOrders?.new_duty_location || null,
+      grade: currentOrders?.grade || null,
     };
 
     // Only allow PCS unless feature flag is on
