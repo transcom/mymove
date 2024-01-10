@@ -268,12 +268,15 @@ func (v *updateMTOServiceItemData) checkOldServiceItemStatus(_ appcontext.AppCon
 
 			// Fields allowed to changed when status is approved
 			if serviceItemData.updatedServiceItem.SITDepartureDate != nil {
+				serviceItemData.updatedServiceItem.Status = models.MTOServiceItemStatusApproved
 				return nil
 			}
 			if serviceItemData.updatedServiceItem.SITRequestedDelivery != nil {
+				serviceItemData.updatedServiceItem.Status = models.MTOServiceItemStatusApproved
 				return nil
 			}
 			if serviceItemData.updatedServiceItem.SITCustomerContacted != nil {
+				serviceItemData.updatedServiceItem.Status = models.MTOServiceItemStatusApproved
 				return nil
 			}
 
