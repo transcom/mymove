@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -379,41 +380,6 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 				addressUpdate.Shipment.MTOServiceItems = append(addressUpdate.Shipment.MTOServiceItems, regeneratedServiceItems...)
 			}
 		}
-
-		// we need to also update this final destination address for destination SIT service items
-		// if the service item's final address id is different, we'll need to update it
-		if len(shipment.MTOServiceItems) > 0 {
-			serviceItems := shipment.MTOServiceItems
-			for _, serviceItem := range serviceItems {
-				if serviceItem.SITDestinationFinalAddressID != shipment.DestinationAddressID {
-					serviceCode := serviceItem.ReService.Code
-					if serviceCode == models.ReServiceCodeDDASIT ||
-						serviceCode == models.ReServiceCodeDDFSIT ||
-						serviceCode == models.ReServiceCodeDDDSIT ||
-						serviceCode == models.ReServiceCodeDDSFSC {
-						// Create a local copy to avoid implicit memory aliasing
-						localServiceItem := serviceItem
-						localServiceItem.SITDestinationFinalAddress = shipment.DestinationAddress
-						localServiceItem.SITDestinationFinalAddressID = shipment.DestinationAddressID
-
-						transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-							verrs, txnErr := appCtx.DB().ValidateAndSave(&localServiceItem)
-							if verrs.HasAny() {
-								return apperror.NewInvalidInputError(localServiceItem.ID, txnErr, verrs, "unable to update service item's final destination address")
-							}
-							if txnErr != nil {
-								return apperror.NewQueryError("ServiceItemUpdate", txnErr, "error updating service items in shipment address update request")
-							}
-							return nil
-						})
-
-						if transactionError != nil {
-							return nil, transactionError
-						}
-					}
-				}
-			}
-		}
 	}
 
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusRejected {
@@ -434,6 +400,13 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(
 				shipment.ID, err, verrs, "Invalid input found while updating shipment")
+		}
+		if err != nil {
+			return err
+		}
+
+		if len(shipment.MTOServiceItems) > 0 {
+			err = mtoshipment.UpdateServiceItemsAddress(appCtx, &shipment)
 		}
 		if err != nil {
 			return err
