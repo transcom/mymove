@@ -154,6 +154,7 @@ type Page3Values struct {
 type ShipmentSummaryFormData struct {
 	ServiceMember           models.ServiceMember
 	Order                   models.Order
+	Move                    models.Move
 	CurrentDutyLocation     models.DutyLocation
 	NewDutyLocation         models.DutyLocation
 	WeightAllotment         SSWMaxWeightEntitlement
@@ -201,15 +202,15 @@ func (obligation Obligation) MaxAdvance() float64 {
 }
 
 // FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
-func FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, session *auth.Session, moveID uuid.UUID) (ShipmentSummaryFormData, error) {
-	move := models.Move{}
+func FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, session *auth.Session, ppmShipmentID uuid.UUID) (ShipmentSummaryFormData, error) {
+	ppmShipment := models.PPMShipment{}
 	dbQErr := appCtx.DB().Q().Eager(
-		"Orders",
-		"Orders.NewDutyLocation.Address",
-		"Orders.ServiceMember",
-		"Orders.ServiceMember.DutyLocation.Address",
-		"PersonallyProcuredMoves",
-	).Find(&move, moveID)
+		"Shipment.MoveTaskOrder.Orders.ServiceMember",
+		"Shipment.MoveTaskOrder",
+		"Shipment.MoveTaskOrder.Orders",
+		"Shipment.MoveTaskOrder.Orders.NewDutyLocation.Address",
+		"Shipment.MoveTaskOrder.Orders.ServiceMember.DutyLocation.Address",
+	).Find(&ppmShipment, ppmShipmentID)
 
 	if dbQErr != nil {
 		if errors.Cause(dbQErr).Error() == models.RecordNotFoundErrorString {
@@ -218,38 +219,38 @@ func FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, ses
 		return ShipmentSummaryFormData{}, dbQErr
 	}
 
-	for i, ppm := range move.PersonallyProcuredMoves {
-		ppmDetails, err := models.FetchPersonallyProcuredMove(appCtx.DB(), session, ppm.ID)
-		if err != nil {
-			return ShipmentSummaryFormData{}, err
-		}
-		if ppmDetails.Advance != nil {
-			status := ppmDetails.Advance.Status
-			if status == models.ReimbursementStatusAPPROVED || status == models.ReimbursementStatusPAID {
-				move.PersonallyProcuredMoves[i].Advance = ppmDetails.Advance
-			}
-		}
-	}
+	// for i, ppm := range move.PersonallyProcuredMoves {
+	// 	ppmDetails, err := models.FetchPersonallyProcuredMove(appCtx.DB(), session, ppm.ID)
+	// 	if err != nil {
+	// 		return ShipmentSummaryFormData{}, err
+	// 	}
+	// 	if ppmDetails.Advance != nil {
+	// 		status := ppmDetails.Advance.Status
+	// 		if status == models.ReimbursementStatusAPPROVED || status == models.ReimbursementStatusPAID {
+	// 			move.PersonallyProcuredMoves[i].Advance = ppmDetails.Advance
+	// 		}
+	// 	}
+	// }
 
-	_, authErr := models.FetchOrderForUser(appCtx.DB(), session, move.OrdersID)
-	if authErr != nil {
-		return ShipmentSummaryFormData{}, authErr
-	}
+	// _, authErr := models.FetchOrderForUser(appCtx.DB(), session, move.OrdersID)
+	// if authErr != nil {
+	// 	return ShipmentSummaryFormData{}, authErr
+	// }
 
-	serviceMember := move.Orders.ServiceMember
+	serviceMember := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 	var rank models.ServiceMemberRank
 	var weightAllotment SSWMaxWeightEntitlement
 	if serviceMember.Rank != nil {
 		rank = models.ServiceMemberRank(*serviceMember.Rank)
-		weightAllotment = SSWGetEntitlement(rank, move.Orders.HasDependents, move.Orders.SpouseHasProGear)
+		weightAllotment = SSWGetEntitlement(rank, ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear)
 	}
 
-	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, weightAllotment.TotalWeight)
+	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(ppmShipment.Shipment.MoveTaskOrder, weightAllotment.TotalWeight)
 	if err != nil {
 		return ShipmentSummaryFormData{}, err
 	}
 
-	signedCertification, err := models.FetchSignedCertificationsPPMPayment(appCtx.DB(), session, moveID)
+	signedCertification, err := models.FetchSignedCertificationsPPMPayment(appCtx.DB(), session, ppmShipment.Shipment.MoveTaskOrderID)
 	if err != nil {
 		return ShipmentSummaryFormData{}, err
 	}
@@ -271,9 +272,10 @@ func FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, ses
 
 	ssd := ShipmentSummaryFormData{
 		ServiceMember:           serviceMember,
-		Order:                   move.Orders,
+		Order:                   ppmShipment.Shipment.MoveTaskOrder.Orders,
+		Move:                    ppmShipment.Shipment.MoveTaskOrder,
 		CurrentDutyLocation:     serviceMember.DutyLocation,
-		NewDutyLocation:         move.Orders.NewDutyLocation,
+		NewDutyLocation:         ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation,
 		WeightAllotment:         weightAllotment,
 		PPMShipments:            ppmShipments,
 		SignedCertification:     *signedCertification,
@@ -646,9 +648,9 @@ func derefStringTypes(st interface{}) string {
 	return ""
 }
 
-type ppmComputer interface {
-	ComputePPMMoveCosts(appCtx appcontext.AppContext, weight unit.Pound, originPickupZip5 string, originDutyLocationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyLocationZip int, date time.Time, daysInSit int) (cost rateengine.CostDetails, err error)
-}
+// type ppmComputer interface {
+// 	ComputePPMMoveCosts(appCtx appcontext.AppContext, weight unit.Pound, originPickupZip5 string, originDutyLocationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyLocationZip int, date time.Time, daysInSit int) (cost rateengine.CostDetails, err error)
+// }
 
 // SSWPPMComputer a rate engine wrapper with helper functions to simplify ppm cost calculations specific to shipment summary worksheet
 type SSWPPMComputer struct {
@@ -656,7 +658,7 @@ type SSWPPMComputer struct {
 }
 
 // NewSSWPPMComputer creates a SSWPPMComputer
-func NewSSWPPMComputer(PPMComputer ppmComputer) *SSWPPMComputer {
+func NewSSWPPMComputer(PPMShipment models.PPMShipment) *SSWPPMComputer {
 	return &SSWPPMComputer{ppmComputer: PPMComputer}
 }
 
