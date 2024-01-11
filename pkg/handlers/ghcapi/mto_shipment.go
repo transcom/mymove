@@ -328,8 +328,8 @@ func (h DeleteShipmentHandler) Handle(params shipmentops.DeleteShipmentParams) m
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-				forbiddenError := apperror.NewForbiddenError("user is not authenticated with service counselor office role")
+			if !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				forbiddenError := apperror.NewForbiddenError("user is not authenticated with an office role")
 				appCtx.Logger().Error(forbiddenError.Error())
 				return shipmentops.NewDeleteShipmentForbidden(), forbiddenError
 			}
@@ -1087,6 +1087,75 @@ func (h DenySITExtensionHandler) triggerDenySITExtensionEvent(appCtx appcontext.
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.DenySITExtensionHandler could not generate the event", zap.Error(err))
 	}
+}
+
+// UpdateSITServiceItemCustomerExpenseHandler converts a SIT to customer expense
+type UpdateSITServiceItemCustomerExpenseHandler struct {
+	handlers.HandlerConfig
+	services.MTOServiceItemUpdater
+	services.MTOShipmentFetcher
+	services.ShipmentSITStatus
+}
+
+// Handle ... converts the SIT to customer expense
+func (h UpdateSITServiceItemCustomerExpenseHandler) Handle(params shipmentops.UpdateSITServiceItemCustomerExpenseParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("error converting SIT to customer expense", zap.Error(err))
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return shipmentops.NewUpdateSITServiceItemCustomerExpenseNotFound(), err
+				case apperror.InvalidInputError:
+					payload := payloadForValidationError(
+						handlers.ValidationErrMessage,
+						err.Error(),
+						h.GetTraceIDFromRequest(params.HTTPRequest),
+						e.ValidationErrors)
+					return shipmentops.NewUpdateSITServiceItemCustomerExpenseUnprocessableEntity().WithPayload(payload), err
+				case apperror.PreconditionFailedError:
+					return shipmentops.NewUpdateSITServiceItemCustomerExpensePreconditionFailed().
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
+				case apperror.ForbiddenError:
+					return shipmentops.NewUpdateSITServiceItemCustomerExpenseForbidden().
+						WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())}), err
+				default:
+					return shipmentops.NewUpdateSITServiceItemCustomerExpenseInternalServerError(), err
+				}
+			}
+
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+				forbiddenError := apperror.NewForbiddenError("is not a TOO")
+				return handleError(forbiddenError)
+			}
+
+			shipmentID := uuid.FromStringOrNil(string(params.ShipmentID))
+			convertToCustomerExpense := params.Body.ConvertToCustomerExpense
+			customerExpenseReason := params.Body.CustomerExpenseReason
+			eagerAssociations := []string{"SITDurationUpdates",
+				"MTOServiceItems",
+				"MTOServiceItems.ReService.Code"}
+
+			shipment, err := h.MTOShipmentFetcher.GetShipment(appCtx, shipmentID, eagerAssociations...)
+			if err != nil {
+				return handleError(err)
+			}
+			if *convertToCustomerExpense {
+				_, err = h.MTOServiceItemUpdater.ConvertItemToCustomerExpense(appCtx, shipment, customerExpenseReason, true)
+				if err != nil {
+					return handleError(err)
+				}
+			}
+			shipmentSITStatus, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+			if err != nil {
+				return handleError(err)
+			}
+			sitStatusPayload := payloads.SITStatus(shipmentSITStatus, h.FileStorer())
+
+			payload := payloads.MTOShipment(h.FileStorer(), shipment, sitStatusPayload)
+			return shipmentops.NewUpdateSITServiceItemCustomerExpenseOK().WithPayload(payload), nil
+		})
 }
 
 // CreateApprovedSITDurationUpdateHandler creates a SIT Duration Update in the approved state
