@@ -7805,12 +7805,136 @@ func init() {
         "id"
       ],
       "properties": {
+        "SITReimbursement": {
+          "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualMoveDate": {
+          "description": "The actual start date of when the PPM shipment left the origin.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "aoa": {
+          "description": "Advance Operating Allowance (AOA).",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ddp": {
+          "description": "The Domestic Destination Price (DDP).",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "dop": {
+          "description": "The Domestic Origin Price (DOP).",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "estimatedWeight": {
+          "description": "The estimated weight of the PPM shipment goods being moved.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4200
+        },
+        "gcc": {
+          "description": "Government Constructive Cost (GCC)",
+          "type": "integer",
+          "format": "cents",
+          "title": "GCC",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "grossIncentive": {
+          "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "haulFSC": {
+          "description": "The linehaul/shorthaul Fuel Surcharge (FSC).",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "haulPrice": {
+          "description": "The price of the linehaul or shorthaul.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "Primary auto-generated unique identifier of the PPM shipment object",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "miles": {
+          "description": "The distance between the old address and the new address in miles.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 54
+        },
+        "packPrice": {
+          "description": "The full price of all packing/unpacking services.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "plannedMoveDate": {
+          "description": "Date the customer expects to begin their move.\n",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "proGearWeightCustomer": {
+          "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "proGearWeightSpouse": {
+          "description": "The estimated weight of the pro-gear being moved belonging to a spouse.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "remainingReimbursementOwed": {
+          "description": "The remaining reimbursement amount that is still owed to the customer.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "unpackPrice": {
+          "description": "The full price of all packing/unpacking services.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -19610,12 +19734,137 @@ func init() {
         "id"
       ],
       "properties": {
+        "SITReimbursement": {
+          "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualMoveDate": {
+          "description": "The actual start date of when the PPM shipment left the origin.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "aoa": {
+          "description": "Advance Operating Allowance (AOA).",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ddp": {
+          "description": "The Domestic Destination Price (DDP).",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "dop": {
+          "description": "The Domestic Origin Price (DOP).",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "estimatedWeight": {
+          "description": "The estimated weight of the PPM shipment goods being moved.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4200
+        },
+        "gcc": {
+          "description": "Government Constructive Cost (GCC)",
+          "type": "integer",
+          "format": "cents",
+          "title": "GCC",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "grossIncentive": {
+          "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "haulFSC": {
+          "description": "The linehaul/shorthaul Fuel Surcharge (FSC).",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "haulPrice": {
+          "description": "The price of the linehaul or shorthaul.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "Primary auto-generated unique identifier of the PPM shipment object",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "miles": {
+          "description": "The distance between the old address and the new address in miles.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 54
+        },
+        "packPrice": {
+          "description": "The full price of all packing/unpacking services.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "plannedMoveDate": {
+          "description": "Date the customer expects to begin their move.\n",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "proGearWeightCustomer": {
+          "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "proGearWeightSpouse": {
+          "description": "The estimated weight of the pro-gear being moved belonging to a spouse.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "remainingReimbursementOwed": {
+          "description": "The remaining reimbursement amount that is still owed to the customer.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "unpackPrice": {
+          "description": "The full price of all packing/unpacking services.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },

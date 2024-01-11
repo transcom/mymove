@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -25,22 +26,21 @@ type GetPPMCloseoutHandler struct {
 func (h GetPPMCloseoutHandler) Handle(params ppmcloseoutops.GetPPMCloseoutParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			// TODO - uncomment and edit once closeout return starts returning values besides ID.
-			// handleError := func(err error) (middleware.Responder, error) {
-			// 	appCtx.Logger().Error("ListMTOShipmentsHandler error", zap.Error(err))
-			// 	payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
-			// 	switch err.(type) {
-			// 	case apperror.NotFoundError:
-			// 		return mtoshipmentops.NewListMTOShipmentsNotFound().WithPayload(payload), err
-			// 	case apperror.ForbiddenError:
-			// 		return mtoshipmentops.NewListMTOShipmentsForbidden().WithPayload(payload), err
-			// 	case apperror.QueryError:
-			// 		return mtoshipmentops.NewListMTOShipmentsInternalServerError(), err
-			// 	default:
-			// 		return mtoshipmentops.NewListMTOShipmentsInternalServerError(), err
-			// 	}
-			// }
 
+			handleError := func(err error) (middleware.Responder, error) {
+				appCtx.Logger().Error("GetShipment error", zap.Error(err))
+				payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return ppmcloseoutops.NewGetPPMCloseoutNotFound().WithPayload(payload), err
+				case apperror.ForbiddenError:
+					return ppmcloseoutops.NewGetPPMCloseoutForbidden().WithPayload(payload), err
+				case apperror.QueryError:
+					return ppmcloseoutops.NewGetPPMCloseoutInternalServerError(), err
+				default:
+					return ppmcloseoutops.NewGetPPMCloseoutInternalServerError(), err
+				}
+			}
 			errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
 
 			errPayload := &ghcmessages.Error{Message: &errInstance}
@@ -48,18 +48,14 @@ func (h GetPPMCloseoutHandler) Handle(params ppmcloseoutops.GetPPMCloseoutParams
 			if !appCtx.Session().IsOfficeApp() {
 				return ppmcloseoutops.NewGetPPMCloseoutForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
 			}
-
 			ppmShipmentID := uuid.FromStringOrNil(params.PpmShipmentID.String())
 
-			// TODO - uncomment and edit once closeout return starts returning values besides ID.
-			// ppmCloseout, err := h.ppmCloseoutFetcher.GetPPMCloseout()(appCtx, ppmShipmentID)
-			// if err != nil {
-			// 	return handleError(err)
-			// }
+			ppmCloseout, err := h.ppmCloseoutFetcher.GetPPMCloseout(appCtx, ppmShipmentID)
+			if err != nil {
+				return handleError(err)
+			}
 
-			ppmShipmentIDString := ppmShipmentID.String()
-
-			returnPayload := payloads.PPMCloseout(&ppmShipmentIDString)
+			returnPayload := payloads.PPMCloseout(ppmCloseout)
 
 			return ppmcloseoutops.NewGetPPMCloseoutOK().WithPayload(returnPayload), nil
 		})

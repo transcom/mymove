@@ -19,25 +19,114 @@ import (
 // swagger:model PPMCloseout
 type PPMCloseout struct {
 
+	// The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.
+	SITReimbursement *int64 `json:"SITReimbursement"`
+
+	// The actual start date of when the PPM shipment left the origin.
+	// Format: date
+	ActualMoveDate *strfmt.Date `json:"actualMoveDate"`
+
+	// actual weight
+	// Example: 2000
+	ActualWeight *int64 `json:"actualWeight,omitempty"`
+
+	// Advance Operating Allowance (AOA).
+	Aoa *int64 `json:"aoa"`
+
+	// The Domestic Destination Price (DDP).
+	Ddp *int64 `json:"ddp"`
+
+	// The Domestic Origin Price (DOP).
+	Dop *int64 `json:"dop"`
+
+	// The estimated weight of the PPM shipment goods being moved.
+	// Example: 4200
+	EstimatedWeight *int64 `json:"estimatedWeight"`
+
+	// GCC
+	//
+	// Government Constructive Cost (GCC)
+	Gcc *int64 `json:"gcc"`
+
+	// The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.
+	//
+	// Read Only: true
+	GrossIncentive *int64 `json:"grossIncentive"`
+
+	// The linehaul/shorthaul Fuel Surcharge (FSC).
+	HaulFSC *int64 `json:"haulFSC"`
+
+	// The price of the linehaul or shorthaul.
+	HaulPrice *int64 `json:"haulPrice"`
+
 	// Primary auto-generated unique identifier of the PPM shipment object
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Required: true
 	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id"`
+
+	// The distance between the old address and the new address in miles.
+	// Example: 54
+	// Minimum: 0
+	Miles *int64 `json:"miles"`
+
+	// The full price of all packing/unpacking services.
+	PackPrice *int64 `json:"packPrice"`
+
+	// Date the customer expects to begin their move.
+	//
+	// Format: date
+	PlannedMoveDate *strfmt.Date `json:"plannedMoveDate"`
+
+	// The estimated weight of the pro-gear being moved belonging to the service member.
+	ProGearWeightCustomer *int64 `json:"proGearWeightCustomer"`
+
+	// The estimated weight of the pro-gear being moved belonging to a spouse.
+	ProGearWeightSpouse *int64 `json:"proGearWeightSpouse"`
+
+	// The remaining reimbursement amount that is still owed to the customer.
+	RemainingReimbursementOwed *int64 `json:"remainingReimbursementOwed"`
+
+	// The full price of all packing/unpacking services.
+	UnpackPrice *int64 `json:"unpackPrice"`
 }
 
 // Validate validates this p p m closeout
 func (m *PPMCloseout) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateActualMoveDate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMiles(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePlannedMoveDate(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *PPMCloseout) validateActualMoveDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.ActualMoveDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("actualMoveDate", "body", "date", m.ActualMoveDate.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -54,9 +143,37 @@ func (m *PPMCloseout) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *PPMCloseout) validateMiles(formats strfmt.Registry) error {
+	if swag.IsZero(m.Miles) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("miles", "body", *m.Miles, 0, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PPMCloseout) validatePlannedMoveDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.PlannedMoveDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("plannedMoveDate", "body", "date", m.PlannedMoveDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validate this p p m closeout based on the context it is used
 func (m *PPMCloseout) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.contextValidateGrossIncentive(ctx, formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.contextValidateID(ctx, formats); err != nil {
 		res = append(res, err)
@@ -65,6 +182,15 @@ func (m *PPMCloseout) ContextValidate(ctx context.Context, formats strfmt.Regist
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *PPMCloseout) contextValidateGrossIncentive(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "grossIncentive", "body", m.GrossIncentive); err != nil {
+		return err
+	}
+
 	return nil
 }
 
