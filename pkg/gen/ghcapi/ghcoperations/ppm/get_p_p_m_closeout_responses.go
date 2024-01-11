@@ -58,15 +58,15 @@ func (o *GetPPMCloseoutOK) WriteResponse(rw http.ResponseWriter, producer runtim
 	}
 }
 
-// GetPPMCloseoutUnauthorizedCode is the HTTP code returned for type GetPPMCloseoutUnauthorized
-const GetPPMCloseoutUnauthorizedCode int = 401
+// GetPPMCloseoutBadRequestCode is the HTTP code returned for type GetPPMCloseoutBadRequest
+const GetPPMCloseoutBadRequestCode int = 400
 
 /*
-GetPPMCloseoutUnauthorized The request was denied
+GetPPMCloseoutBadRequest The request payload is invalid
 
-swagger:response getPPMCloseoutUnauthorized
+swagger:response getPPMCloseoutBadRequest
 */
-type GetPPMCloseoutUnauthorized struct {
+type GetPPMCloseoutBadRequest struct {
 
 	/*
 	  In: Body
@@ -74,27 +74,27 @@ type GetPPMCloseoutUnauthorized struct {
 	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
-// NewGetPPMCloseoutUnauthorized creates GetPPMCloseoutUnauthorized with default headers values
-func NewGetPPMCloseoutUnauthorized() *GetPPMCloseoutUnauthorized {
+// NewGetPPMCloseoutBadRequest creates GetPPMCloseoutBadRequest with default headers values
+func NewGetPPMCloseoutBadRequest() *GetPPMCloseoutBadRequest {
 
-	return &GetPPMCloseoutUnauthorized{}
+	return &GetPPMCloseoutBadRequest{}
 }
 
-// WithPayload adds the payload to the get p p m closeout unauthorized response
-func (o *GetPPMCloseoutUnauthorized) WithPayload(payload *ghcmessages.Error) *GetPPMCloseoutUnauthorized {
+// WithPayload adds the payload to the get p p m closeout bad request response
+func (o *GetPPMCloseoutBadRequest) WithPayload(payload *ghcmessages.Error) *GetPPMCloseoutBadRequest {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the get p p m closeout unauthorized response
-func (o *GetPPMCloseoutUnauthorized) SetPayload(payload *ghcmessages.Error) {
+// SetPayload sets the payload to the get p p m closeout bad request response
+func (o *GetPPMCloseoutBadRequest) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *GetPPMCloseoutUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *GetPPMCloseoutBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(401)
+	rw.WriteHeader(400)
 	if o.Payload != nil {
 		payload := o.Payload
 		if err := producer.Produce(rw, payload); err != nil {
@@ -140,6 +140,51 @@ func (o *GetPPMCloseoutForbidden) SetPayload(payload *ghcmessages.Error) {
 func (o *GetPPMCloseoutForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
+// GetPPMCloseoutNotFoundCode is the HTTP code returned for type GetPPMCloseoutNotFound
+const GetPPMCloseoutNotFoundCode int = 404
+
+/*
+GetPPMCloseoutNotFound The requested resource wasn't found
+
+swagger:response getPPMCloseoutNotFound
+*/
+type GetPPMCloseoutNotFound struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.Error `json:"body,omitempty"`
+}
+
+// NewGetPPMCloseoutNotFound creates GetPPMCloseoutNotFound with default headers values
+func NewGetPPMCloseoutNotFound() *GetPPMCloseoutNotFound {
+
+	return &GetPPMCloseoutNotFound{}
+}
+
+// WithPayload adds the payload to the get p p m closeout not found response
+func (o *GetPPMCloseoutNotFound) WithPayload(payload *ghcmessages.Error) *GetPPMCloseoutNotFound {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the get p p m closeout not found response
+func (o *GetPPMCloseoutNotFound) SetPayload(payload *ghcmessages.Error) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *GetPPMCloseoutNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(404)
 	if o.Payload != nil {
 		payload := o.Payload
 		if err := producer.Produce(rw, payload); err != nil {

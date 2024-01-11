@@ -8,7 +8,7 @@ import (
 type ppmCloseoutFetcher struct{}
 
 // NewPPMDocumentFetcher creates a new struct
-func NewPPMCloseoutFetcher() services.PPMCloseout {
+func NewPPMCloseoutFetcher() services.PPMCloseoutFetcher {
 	return &ppmCloseoutFetcher{}
 }
 

@@ -1003,6 +1003,8 @@ func PPMCloseout(ppmShipmentID *string) *ghcmessages.PPMCloseout {
 	}
 	payload := &ghcmessages.PPMCloseout{
 		ID: uuid,
+
+		// TODO - add service values here when they're coded.
 	}
 
 	return payload

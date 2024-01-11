@@ -1,5 +1,5 @@
 package services
 
-type PPMCloseout interface {
+type PPMCloseoutFetcher interface {
 	GetPPMCloseout()
 }
