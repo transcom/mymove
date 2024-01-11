@@ -1,1 +1,377 @@
 package notifications
+
+// import (
+// 	"github.com/transcom/mymove/pkg/auth"
+// 	"github.com/transcom/mymove/pkg/factory"
+// )
+
+// func (suite *NotificationSuite) TestPpmPacketEmail() {
+// 	move := factory.BuildMove(suite.DB(), nil, nil)
+// 	notification := NewPpmPacketEmail(move.ID)
+
+// 	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
+// 		ServiceMemberID: move.Orders.ServiceMember.ID,
+// 		ApplicationName: auth.MilApp,
+// 	}))
+// 	subject := "Your Personally Procured Move (PPM) closeout has been processed and is now available for your review."
+
+// 	suite.NoError(err)
+// 	suite.Equal(len(emails), 1)
+
+// 	email := emails[0]
+// 	sm := move.Orders.ServiceMember
+// 	suite.Equal(email.recipientEmail, *sm.PersonalEmail)
+// 	suite.Equal(email.subject, subject)
+// 	suite.NotEmpty(email.htmlBody)
+// 	suite.NotEmpty(email.textBody)
+// }
+
+// func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderWithGovCounseling() {
+// 	approver := factory.BuildUser(nil, nil, nil)
+// 	move := factory.BuildMove(suite.DB(), nil, nil)
+// 	notification := NewPpmPacketEmail(move.ID)
+
+// 	originDutyLocation := "origDutyLocation"
+// 	originDutyLocationPhoneLine := "555-555-5555"
+
+// 	s := PpmPacketEmailEmailData{
+// 		OriginDutyLocation:           &originDutyLocation,
+// 		DestinationDutyLocation:      "destDutyLocation",
+// 		OriginDutyLocationPhoneLine:  &originDutyLocationPhoneLine,
+// 		Locator:                      "abc123",
+// 		WeightAllowance:              "7,999",
+// 		ProvidesGovernmentCounseling: true,
+// 	}
+// 	expectedHTMLContent := `<p>
+//   *** DO NOT REPLY directly to this email ***
+// </p>
+
+// <p>
+//   This is a confirmation that you have submitted the details for your move from origDutyLocation to destDutyLocation.
+// </p>
+
+// <p>
+//   <strong>We have assigned you a move code: abc123.</strong> You can use this code when talking to any representative about your move.
+// </p>
+
+// <p>
+//   To change any information about your move, or to add or cancel shipments, you should contact 555-555-5555 or visit your <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">local transportation office</a>.
+// </p>
+
+// <p>
+//   <strong>Your weight allowance: 7,999 pounds.</strong>
+//   That is how much combined weight the government will pay for all movements between authorized locations under your orders.
+// </p>
+
+// <p>
+//   If you move more than 7,999 pounds or ship to/from an other than authorized location, you may owe the government the difference in cost between what you are authorized and what you decide to move.
+// </p>
+
+// <p>
+//   If you are doing a Household Goods (HHG) shipment: The company responsible for managing your shipment, HomeSafe Alliance, will estimate the total weight of your personal property during a pre-move survey, and you will be notified if it looks like you might exceed your weight allowance. But you are responsible for excess costs associated with the weight moved, up to HomeSafe’s weight estimate plus 10%.
+// </p>
+
+// <h4>
+//   Next Steps for your Government-arranged Shipment(s):
+// </h4>
+
+// <ul>
+//   <li>Your move request will be reviewed and a counselor will be assigned to brief you on your move entitlements.</li>
+//   <li>Your move counselor will get in touch with you soon.</li>
+// </ul>
+// <p>
+//   Your move counselor will, among other things:
+// </p>
+// <ul>
+//   <li>Verify the information you entered and your entitlements</li>
+//   <li>Give you moving-related advice</li>
+//   <li>Give you tips to avoid excess costs (i.e., going over your weight allowance) or advise you if you are in an excess cost scenario</li>
+// </ul>
+// <p>
+//   Once your counseling is complete, your request will be reviewed by the responsible personal property shipping office, and a move task order will be placed with HomeSafe Alliance. Once this order is placed, you will receive an invitation to create an account in HomeSafe Connect. This is the system you will use to schedule your pre-move survey.
+// </p>
+
+// <p>
+//   HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes.
+// </p>
+
+// <h4>
+//   IMPORTANT: Take the Customer Satisfaction Survey
+// </h4>
+
+// <p>
+//   You will receive an invitation to take a quick customer satisfaction survey (CSS) at key stages of your move process. The first invitation will be sent shortly after counseling is complete.
+// </p>
+// <p>
+//   Taking the survey at each stage provides transparency and increases accountability of those assisting you with your relocation.
+// </p>
+
+// <p>
+//   Thank you,
+// </p>
+// <p>
+//   Defense Personal Property Program’s MilMove Team
+// </p>
+// <p>
+//   The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
+// </p>
+// `
+
+// 	htmlContent, err := notification.RenderHTML(suite.AppContextWithSessionForTest(&auth.Session{
+// 		UserID:          approver.ID,
+// 		ApplicationName: auth.OfficeApp,
+// 	}), s)
+
+// 	suite.NoError(err)
+// 	suite.Equal(expectedHTMLContent, htmlContent)
+// }
+
+// func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderWithoutGovCounseling() {
+// 	approver := factory.BuildUser(nil, nil, nil)
+// 	move := factory.BuildMove(suite.DB(), nil, nil)
+// 	notification := NewPpmPacketEmail(move.ID)
+
+// 	originDutyLocation := "origDutyLocation"
+// 	originDutyLocationPhoneLine := "555-555-5555"
+
+// 	s := PpmPacketEmailEmailData{
+// 		OriginDutyLocation:           &originDutyLocation,
+// 		DestinationDutyLocation:      "destDutyLocation",
+// 		OriginDutyLocationPhoneLine:  &originDutyLocationPhoneLine,
+// 		Locator:                      "abc123",
+// 		WeightAllowance:              "7,999",
+// 		ProvidesGovernmentCounseling: false,
+// 	}
+// 	expectedHTMLContent := `<p>
+//   *** DO NOT REPLY directly to this email ***
+// </p>
+
+// <p>
+//   This is a confirmation that you have submitted the details for your move from origDutyLocation to destDutyLocation.
+// </p>
+
+// <p>
+//   <strong>We have assigned you a move code: abc123.</strong> You can use this code when talking to any representative about your move.
+// </p>
+
+// <p>
+//   To change any information about your move, or to add or cancel shipments, you should contact 555-555-5555 or visit your <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">local transportation office</a>.
+// </p>
+
+// <p>
+//   <strong>Your weight allowance: 7,999 pounds.</strong>
+//   That is how much combined weight the government will pay for all movements between authorized locations under your orders.
+// </p>
+
+// <p>
+//   If you move more than 7,999 pounds or ship to/from an other than authorized location, you may owe the government the difference in cost between what you are authorized and what you decide to move.
+// </p>
+
+// <p>
+//   If you are doing a Household Goods (HHG) shipment: The company responsible for managing your shipment, HomeSafe Alliance, will estimate the total weight of your personal property during a pre-move survey, and you will be notified if it looks like you might exceed your weight allowance. But you are responsible for excess costs associated with the weight moved, up to HomeSafe’s weight estimate plus 10%.
+// </p>
+
+// <h4>
+//   Next Steps for your Government-arranged Shipment(s):
+// </h4>
+
+// <p>
+//   Your move request will be reviewed by the responsible personal property shipping office and an move task order for services will be placed with HomeSafe Alliance.
+// </p>
+// <p>
+//   Once this order is placed, you will receive an invitation to create an account in HomeSafe Connect. This is the system you will use for your counseling session. You will also schedule your pre-move survey during this session.
+// </p>
+
+// <p>
+//   HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes.
+// </p>
+
+// <h4>
+//   IMPORTANT: Take the Customer Satisfaction Survey
+// </h4>
+
+// <p>
+//   You will receive an invitation to take a quick customer satisfaction survey (CSS) at key stages of your move process. The first invitation will be sent shortly after counseling is complete.
+// </p>
+// <p>
+//   Taking the survey at each stage provides transparency and increases accountability of those assisting you with your relocation.
+// </p>
+
+// <p>
+//   Thank you,
+// </p>
+// <p>
+//   Defense Personal Property Program’s MilMove Team
+// </p>
+// <p>
+//   The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
+// </p>
+// `
+
+// 	htmlContent, err := notification.RenderHTML(suite.AppContextWithSessionForTest(&auth.Session{
+// 		UserID:          approver.ID,
+// 		ApplicationName: auth.OfficeApp,
+// 	}), s)
+
+// 	suite.NoError(err)
+// 	suite.Equal(expectedHTMLContent, htmlContent)
+// }
+
+// func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderNoDutyLocation() {
+// 	approver := factory.BuildUser(nil, nil, nil)
+// 	move := factory.BuildMove(suite.DB(), nil, nil)
+// 	notification := NewPpmPacketEmail(move.ID)
+
+// 	s := PpmPacketEmailEmailData{
+// 		OriginDutyLocation:           nil,
+// 		DestinationDutyLocation:      "destDutyLocation",
+// 		OriginDutyLocationPhoneLine:  nil,
+// 		Locator:                      "abc123",
+// 		WeightAllowance:              "7,999",
+// 		ProvidesGovernmentCounseling: false,
+// 	}
+// 	expectedHTMLContent := `<p>
+//   *** DO NOT REPLY directly to this email ***
+// </p>
+
+// <p>
+//   This is a confirmation that you have submitted the details for your move to destDutyLocation.
+// </p>
+
+// <p>
+//   <strong>We have assigned you a move code: abc123.</strong> You can use this code when talking to any representative about your move.
+// </p>
+
+// <p>
+//   To change any information about your move, or to add or cancel shipments, you should contact your nearest transportation office. You can find the contact information using the <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">directory of PCS-related contacts</a>.
+// </p>
+
+// <p>
+//   <strong>Your weight allowance: 7,999 pounds.</strong>
+//   That is how much combined weight the government will pay for all movements between authorized locations under your orders.
+// </p>
+
+// <p>
+//   If you move more than 7,999 pounds or ship to/from an other than authorized location, you may owe the government the difference in cost between what you are authorized and what you decide to move.
+// </p>
+
+// <p>
+//   If you are doing a Household Goods (HHG) shipment: The company responsible for managing your shipment, HomeSafe Alliance, will estimate the total weight of your personal property during a pre-move survey, and you will be notified if it looks like you might exceed your weight allowance. But you are responsible for excess costs associated with the weight moved, up to HomeSafe’s weight estimate plus 10%.
+// </p>
+
+// <h4>
+//   Next Steps for your Government-arranged Shipment(s):
+// </h4>
+
+// <p>
+//   Your move request will be reviewed by the responsible personal property shipping office and an move task order for services will be placed with HomeSafe Alliance.
+// </p>
+// <p>
+//   Once this order is placed, you will receive an invitation to create an account in HomeSafe Connect. This is the system you will use for your counseling session. You will also schedule your pre-move survey during this session.
+// </p>
+
+// <p>
+//   HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes.
+// </p>
+
+// <h4>
+//   IMPORTANT: Take the Customer Satisfaction Survey
+// </h4>
+
+// <p>
+//   You will receive an invitation to take a quick customer satisfaction survey (CSS) at key stages of your move process. The first invitation will be sent shortly after counseling is complete.
+// </p>
+// <p>
+//   Taking the survey at each stage provides transparency and increases accountability of those assisting you with your relocation.
+// </p>
+
+// <p>
+//   Thank you,
+// </p>
+// <p>
+//   Defense Personal Property Program’s MilMove Team
+// </p>
+// <p>
+//   The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
+// </p>
+// `
+
+// 	htmlContent, err := notification.RenderHTML(suite.AppContextWithSessionForTest(&auth.Session{
+// 		UserID:          approver.ID,
+// 		ApplicationName: auth.OfficeApp,
+// 	}), s)
+
+// 	suite.NoError(err)
+// 	suite.Equal(expectedHTMLContent, htmlContent)
+
+// }
+
+// func (suite *NotificationSuite) TestPpmPacketEmailTextTemplateRender() {
+
+// 	approver := factory.BuildUser(nil, nil, nil)
+// 	move := factory.BuildMove(suite.DB(), nil, nil)
+// 	notification := NewPpmPacketEmail(move.ID)
+
+// 	originDutyLocation := "origDutyLocation"
+// 	originDutyLocationPhoneLine := "555-555-5555"
+
+// 	s := PpmPacketEmailEmailData{
+// 		OriginDutyLocation:           &originDutyLocation,
+// 		DestinationDutyLocation:      "destDutyLocation",
+// 		OriginDutyLocationPhoneLine:  &originDutyLocationPhoneLine,
+// 		Locator:                      "abc123",
+// 		WeightAllowance:              "7,999",
+// 		ProvidesGovernmentCounseling: true,
+// 	}
+
+// 	expectedTextContent := `*** DO NOT REPLY directly to this email ***
+
+// This is a confirmation that you have submitted the details for your move from origDutyLocation to destDutyLocation.
+
+// We have assigned you a move code: abc123. You can use this code when talking to any representative about your move.
+
+// To change any information about your move, or to add or cancel shipments, you should contact 555-555-5555 or visit your local transportation office (https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL) .
+
+// Your weight allowance: 7,999 pounds. That is how much combined weight the government will pay for all movements between authorized locations under your orders.
+
+// If you move more than 7,999 pounds or ship to/from an other than authorized location, you may owe the government the difference in cost between what you are authorized and what you decide to move.
+
+// If you are doing a Household Goods (HHG) shipment: The company responsible for managing your shipment, HomeSafe Alliance, will estimate the total weight of your personal property during a pre-move survey, and you will be notified if it looks like you might exceed your weight allowance. But you are responsible for excess costs associated with the weight moved, up to HomeSafe’s weight estimate plus 10%.
+
+// ** Next Steps for your Government-arranged Shipment(s):
+// ------------------------------------------------------------
+
+// * Your move request will be reviewed and a counselor will be assigned to brief you on your move entitlements.
+// * Your move counselor will get in touch with you soon.
+
+// Your move counselor will, among other things:
+// * Verify the information you entered and your entitlements
+// * Give you moving-related advice
+// * Give you tips to avoid excess costs (i.e., going over your weight allowance) or advise you if you are in an excess cost scenario
+
+// Once your counseling is complete, your request will be reviewed by the responsible personal property shipping office, and a move task order will be placed with HomeSafe Alliance. Once this order is placed, you will receive an invitation to create an account in HomeSafe Connect. This is the system you will use to schedule your pre-move survey.
+
+// HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes.
+
+// ** IMPORTANT: Take the Customer Satisfaction Survey
+// ------------------------------------------------------------
+
+// You will receive an invitation to take a quick customer satisfaction survey (CSS) at key stages of your move process. The first invitation will be sent shortly after counseling is complete.
+
+// Taking the survey at each stage provides transparency and increases accountability of those assisting you with your relocation.
+
+// Thank you,
+
+// Defense Personal Property Program’s MilMove Team
+
+// The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
+// `
+
+// 	textContent, err := notification.RenderText(suite.AppContextWithSessionForTest(&auth.Session{
+// 		UserID:          approver.ID,
+// 		ApplicationName: auth.OfficeApp,
+// 	}), s)
+
+// 	suite.NoError(err)
+// 	suite.Equal(expectedTextContent, textContent)
+// }
