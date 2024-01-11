@@ -55,7 +55,6 @@ describe('DodInfo page', () => {
       id: 'testServiceMemberId',
       affiliation: 'ARMY',
       edipi: '9999999999',
-      rank: 'E_2',
     };
 
     patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValues));
@@ -80,7 +79,6 @@ describe('DodInfo page', () => {
       id: 'testServiceMemberId',
       affiliation: 'ARMY',
       edipi: '9999999999',
-      rank: 'E_2',
     };
 
     patchServiceMember.mockImplementation(() =>
@@ -162,7 +160,6 @@ describe('requireCustomerState DodInfo', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
             first_name: 'Tester',
@@ -199,7 +196,6 @@ describe('requireCustomerState DodInfo', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
             first_name: 'Tester',
