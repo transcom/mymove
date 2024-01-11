@@ -14,33 +14,13 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-type ppmComputerParams struct {
-	Weight                                 unit.Pound
-	OriginPickupZip5                       string
-	OriginDutyLocationZip5                 string
-	DestinationZip5                        string
-	DistanceMilesFromOriginPickupZip       int
-	DistanceMilesFromOriginDutyLocationZip int
-	Date                                   time.Time
-	DaysInSIT                              int
-}
-
-type mockPPMComputer struct {
-	costDetails       rateengine.CostDetails
-	err               error
-	ppmComputerParams []ppmComputerParams
-}
-
-// Currently failing, needs refactor
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryWorksheet() {
 	//advanceID, _ := uuid.NewV4()
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -48,30 +28,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
 
-	// move := factory.BuildMove(suite.DB(), []factory.Customization{
-	// 	{
-	// 		Model: models.Order{
-	// 			OrdersType: ordersType,
-	// 		},
-	// 	},
-	// 	{
-	// 		Model:    fortGordon,
-	// 		LinkOnly: true,
-	// 		Type:     &factory.DutyLocations.NewDutyLocation,
-	// 	},
-	// 	{
-	// 		Model:    yuma,
-	// 		LinkOnly: true,
-	// 		Type:     &factory.DutyLocations.OriginDutyLocation,
-	// 	},
-	// 	{
-	// 		Model: models.ServiceMember{
-	// 			Rank: &rank,
-	// 		},
-	// 	},
-	// }, nil)
-
-	// moveID := move.ID
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
@@ -109,6 +65,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 		ServiceMemberID: serviceMemberID,
 		ApplicationName: auth.MilApp,
 	}
+
+	// Signed certification needsd to be reworked for new SSW Model
 	// moveRouter := moverouter.NewMoveRouter()
 	// newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
 	// 	{
@@ -126,6 +84,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	// certificationType := models.SignedCertificationTypePPMPAYMENT
 	models.SaveMoveDependencies(suite.DB(), &ppmShipment.Shipment.MoveTaskOrder)
 
+	// Signed certification needsd to be reworked for new SSW Model
 	// signedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
 	// 	{
 	// 		Model:    move,
@@ -229,35 +188,11 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchMovingExpensesShipme
 	suite.NoError(err)
 }
 
-// Currently failing, needs refactor
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
-
-	// move := factory.BuildMove(suite.DB(), []factory.Customization{
-	// 	{
-	// 		Model: models.Order{
-	// 			OrdersType: ordersType,
-	// 		},
-	// 	},
-	// 	{
-	// 		Model:    fortGordon,
-	// 		LinkOnly: true,
-	// 		Type:     &factory.DutyLocations.NewDutyLocation,
-	// 	},
-	// 	{
-	// 		Model:    yuma,
-	// 		LinkOnly: true,
-	// 		Type:     &factory.DutyLocations.OriginDutyLocation,
-	// 	},
-	// 	{
-	// 		Model: models.ServiceMember{
-	// 			Rank: &rank,
-	// 		},
-	// 	},
-	// }, nil)
 
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
@@ -284,49 +219,18 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 			Model: models.SignedCertification{},
 		},
 	}, nil)
-
-	// moveID := move.ID
 	ppmShipmentID := ppmShipment.ID
 	println(ppmShipment.PickupPostalCode)
 	println(ppmShipment.PickupPostalCode)
 
 	serviceMemberID := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID
-	// advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
-	// netWeight := unit.Pound(10000)
-	// ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-	// 	PersonallyProcuredMove: models.PersonallyProcuredMove{
-	// 		MoveID:              move.ID,
-	// 		NetWeight:           &netWeight,
-	// 		HasRequestedAdvance: true,
-	// 		AdvanceID:           &advance.ID,
-	// 		Advance:             &advance,
-	// 	},
-	// })
-	// // Only concerned w/ approved advances for ssw
-	// ppmShipment.Advance.Request()
-	// ppm.Move.PersonallyProcuredMoves[0].Advance.Approve()
-	// // Save advance in reimbursements table by saving ppm
-	// models.SavePersonallyProcuredMove(suite.DB(), &ppm)
-
 	session := auth.Session{
 		UserID:          ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID,
 		ServiceMemberID: serviceMemberID,
 		ApplicationName: auth.MilApp,
 	}
-	// moveRouter := moverouter.NewMoveRouter()
-	// newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
-	// 	{
-	// 		Model:    ppmShipment,
-	// 		LinkOnly: true,
-	// 	},
-	// }, nil)
-	// moveRouter.Submit(suite.AppContextForTest(), &ppmShipment.Shipment.MoveTaskOrder, &newSignedCertification)
-	// moveRouter.Approve(suite.AppContextForTest(), &ppmShipment.Shipment.MoveTaskOrder)
-	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
-	// ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	// ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	// ppm.Move.PersonallyProcuredMoves[0].RequestPayment()
 	models.SaveMoveDependencies(suite.DB(), &ppmShipment.Shipment.MoveTaskOrder)
+	// Certifications need to be reworked due to new model
 	// certificationType := models.SignedCertificationTypePPMPAYMENT
 	// signedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
 	// 	{
@@ -413,7 +317,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	cents := unit.Cents(1000)
 	PPMShipments := []models.PPMShipment{
 		{
-			ExpectedDepartureDate:  *&pickupDate,
+			ExpectedDepartureDate:  pickupDate,
 			Status:                 models.PPMShipmentStatusWaitingOnCustomer,
 			EstimatedWeight:        &netWeight,
 			AdvanceAmountRequested: &cents,
@@ -899,242 +803,3 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignatureDate() {
 
 	suite.Equal("26 Jan 2019 at 2:40pm", formattedDate)
 }
-
-func (mppmc *mockPPMComputer) ComputePPMMoveCosts(_ appcontext.AppContext, weight unit.Pound, originPickupZip5 string, originDutyLocationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyLocationZip int, date time.Time, daysInSit int) (cost rateengine.CostDetails, err error) {
-	mppmc.ppmComputerParams = append(mppmc.ppmComputerParams, ppmComputerParams{
-		Weight:                                 weight,
-		OriginPickupZip5:                       originPickupZip5,
-		OriginDutyLocationZip5:                 originDutyLocationZip5,
-		DestinationZip5:                        destinationZip5,
-		DistanceMilesFromOriginPickupZip:       distanceMilesFromOriginPickupZip,
-		DistanceMilesFromOriginDutyLocationZip: distanceMilesFromOriginDutyLocationZip,
-		Date:                                   date,
-		DaysInSIT:                              daysInSit,
-	})
-	return mppmc.costDetails, mppmc.err
-}
-
-func (mppmc *mockPPMComputer) CalledWith() []ppmComputerParams {
-	return mppmc.ppmComputerParams
-}
-
-// Obligations testing is on hold until new calculation process is made
-// func (suite *ShipmentSummaryWorksheetServiceSuite) TestComputeObligationsParams() {
-// 	ppmComputer := NewSSWPPMComputer(&mockPPMComputer{})
-// 	pickupPostalCode := "85369"
-// 	destinationPostalCode := "31905"
-// 	ppm := models.PersonallyProcuredMove{
-// 		PickupPostalCode:      &pickupPostalCode,
-// 		DestinationPostalCode: &destinationPostalCode,
-// 	}
-// 	noPPM := ShipmentSummaryFormData{PPMShipments: models.PersonallyProcuredMoves{}}
-// 	missingZip := ShipmentSummaryFormData{PPMShipments: models.PersonallyProcuredMoves{{}}}
-// 	missingActualMoveDate := ShipmentSummaryFormData{PPMShipments: models.PersonallyProcuredMoves{ppm}}
-
-// 	planner := &mocks.Planner{}
-// 	planner.On("ZipTransitDistance",
-// 		mock.AnythingOfType("*appcontext.appContext"),
-// 		mock.Anything,
-// 		mock.Anything,
-// 	).Return(10, nil)
-// 	_, err1 := ppmComputer.ComputeObligations(suite.AppContextForTest(), noPPM, planner)
-// 	_, err2 := ppmComputer.ComputeObligations(suite.AppContextForTest(), missingZip, planner)
-// 	_, err3 := ppmComputer.ComputeObligations(suite.AppContextForTest(), missingActualMoveDate, planner)
-
-// 	suite.NotNil(err1)
-// 	suite.Equal("missing ppm", err1.Error())
-
-// 	suite.NotNil(err2)
-// 	suite.Equal("missing required address parameter", err2.Error())
-
-// 	suite.NotNil(err3)
-// 	suite.Equal("missing required original move date parameter", err3.Error())
-// }
-
-// Obligations testing is on hold until new calculation process is made
-// func (suite *ShipmentSummaryWorksheetServiceSuite) TestComputeObligations() {
-// 	miles := 100
-// 	totalWeightEntitlement := unit.Pound(1000)
-// 	ppmRemainingEntitlement := unit.Pound(2000)
-// 	planner := &mocks.Planner{}
-// 	planner.On("ZipTransitDistance",
-// 		mock.AnythingOfType("*appcontext.appContext"),
-// 		mock.Anything,
-// 		mock.Anything,
-// 	).Return(miles, nil)
-// 	origMoveDate := time.Date(2018, 12, 11, 0, 0, 0, 0, time.UTC)
-// 	actualDate := time.Date(2018, 12, 15, 0, 0, 0, 0, time.UTC)
-// 	pickupPostalCode := "85369"
-// 	destinationPostalCode := "31905"
-// 	cents := unit.Cents(1000)
-
-// 	setupTestData := func() (models.PersonallyProcuredMove, models.Order, models.DutyLocation) {
-// 		ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-// 			PersonallyProcuredMove: models.PersonallyProcuredMove{
-// 				OriginalMoveDate:      &origMoveDate,
-// 				ActualMoveDate:        &actualDate,
-// 				PickupPostalCode:      &pickupPostalCode,
-// 				DestinationPostalCode: &destinationPostalCode,
-// 				TotalSITCost:          &cents,
-// 			},
-// 		})
-// 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
-// 			{
-// 				Model: models.DutyLocation{
-// 					Name: "New Duty Location",
-// 				},
-// 				Type: &factory.DutyLocations.NewDutyLocation,
-// 			},
-// 			{
-// 				Model: models.Address{
-// 					StreetAddress1: "some address",
-// 					City:           "city",
-// 					State:          "state",
-// 					PostalCode:     "31905",
-// 				},
-// 				Type: &factory.Addresses.DutyLocationAddress,
-// 			},
-// 		}, nil)
-
-// 		currentDutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
-// 		return ppm, order, currentDutyLocation
-// 	}
-
-// 	suite.Run("TestComputeObligations", func() {
-// 		ppm, order, currentDutyLocation := setupTestData()
-
-// 		params := ShipmentSummaryFormData{
-// 			PPMShipments:            models.PersonallyProcuredMoves{ppm},
-// 			WeightAllotment:         SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
-// 			PPMRemainingEntitlement: ppmRemainingEntitlement,
-// 			CurrentDutyLocation:     currentDutyLocation,
-// 			Order:                   order,
-// 		}
-
-// 		var costDetails = make(rateengine.CostDetails)
-// 		costDetails["pickupLocation"] = &rateengine.CostDetail{
-// 			Cost:      rateengine.CostComputation{GCC: 100, SITMax: 20000},
-// 			IsWinning: true,
-// 		}
-// 		costDetails["originDutyLocation"] = &rateengine.CostDetail{
-// 			Cost:      rateengine.CostComputation{GCC: 200, SITMax: 30000},
-// 			IsWinning: true,
-// 		}
-
-// 		mockComputer := mockPPMComputer{
-// 			costDetails: costDetails,
-// 		}
-// 		ppmComputer := NewSSWPPMComputer(&mockComputer)
-// 		expectMaxObligationParams := ppmComputerParams{
-// 			Weight:                                 totalWeightEntitlement,
-// 			OriginPickupZip5:                       pickupPostalCode,
-// 			OriginDutyLocationZip5:                 currentDutyLocation.Address.PostalCode,
-// 			DestinationZip5:                        destinationPostalCode,
-// 			DistanceMilesFromOriginPickupZip:       miles,
-// 			DistanceMilesFromOriginDutyLocationZip: miles,
-// 			Date:                                   origMoveDate,
-// 			DaysInSIT:                              0,
-// 		}
-// 		expectActualObligationParams := ppmComputerParams{
-// 			Weight:                                 ppmRemainingEntitlement,
-// 			OriginPickupZip5:                       pickupPostalCode,
-// 			OriginDutyLocationZip5:                 currentDutyLocation.Address.PostalCode,
-// 			DestinationZip5:                        destinationPostalCode,
-// 			DistanceMilesFromOriginPickupZip:       miles,
-// 			DistanceMilesFromOriginDutyLocationZip: miles,
-// 			Date:                                   origMoveDate,
-// 			DaysInSIT:                              0,
-// 		}
-// 		cost, err := ppmComputer.ComputeObligations(suite.AppContextForTest(), params, planner)
-
-// 		suite.NoError(err)
-// 		calledWith := mockComputer.CalledWith()
-// 		suite.Equal(*ppm.TotalSITCost, cost.ActualObligation.SIT)
-// 		suite.Equal(expectActualObligationParams, calledWith[0])
-// 		suite.Equal(expectMaxObligationParams, calledWith[1])
-// 	})
-
-// 	suite.Run("TestComputeObligations when actual PPM SIT exceeds MaxSIT", func() {
-// 		ppm, order, currentDutyLocation := setupTestData()
-
-// 		params := ShipmentSummaryFormData{
-// 			PPMShipments:            models.PersonallyProcuredMoves{ppm},
-// 			WeightAllotment:         SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
-// 			PPMRemainingEntitlement: ppmRemainingEntitlement,
-// 			CurrentDutyLocation:     currentDutyLocation,
-// 			Order:                   order,
-// 		}
-// 		var costDetails = make(rateengine.CostDetails)
-// 		costDetails["pickupLocation"] = &rateengine.CostDetail{
-// 			Cost:      rateengine.CostComputation{SITMax: unit.Cents(500)},
-// 			IsWinning: true,
-// 		}
-// 		costDetails["originDutyLocation"] = &rateengine.CostDetail{
-// 			Cost:      rateengine.CostComputation{SITMax: unit.Cents(600)},
-// 			IsWinning: false,
-// 		}
-// 		mockComputer := mockPPMComputer{
-// 			costDetails: costDetails,
-// 		}
-// 		ppmComputer := NewSSWPPMComputer(&mockComputer)
-// 		obligations, err := ppmComputer.ComputeObligations(suite.AppContextForTest(), params, planner)
-
-// 		suite.NoError(err)
-// 		suite.Equal(unit.Cents(500), obligations.ActualObligation.SIT)
-// 	})
-
-// 	suite.Run("TestComputeObligations when there is no actual PPM SIT", func() {
-// 		_, order, _ := setupTestData()
-
-// 		var costDetails = make(rateengine.CostDetails)
-// 		costDetails["pickupLocation"] = &rateengine.CostDetail{
-// 			Cost:      rateengine.CostComputation{SITMax: unit.Cents(500)},
-// 			IsWinning: true,
-// 		}
-// 		costDetails["originDutyLocation"] = &rateengine.CostDetail{
-// 			Cost:      rateengine.CostComputation{SITMax: unit.Cents(600)},
-// 			IsWinning: false,
-// 		}
-// 		mockComputer := mockPPMComputer{
-// 			costDetails: costDetails,
-// 		}
-
-// 		ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-// 			PersonallyProcuredMove: models.PersonallyProcuredMove{
-// 				OriginalMoveDate:      &origMoveDate,
-// 				ActualMoveDate:        &actualDate,
-// 				PickupPostalCode:      &pickupPostalCode,
-// 				DestinationPostalCode: &destinationPostalCode,
-// 			},
-// 		})
-// 		currentDutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
-// 		shipmentSummaryFormParams := ShipmentSummaryFormData{
-// 			PPMShipments:        models.PersonallyProcuredMoves{ppm},
-// 			WeightAllotment:     SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
-// 			CurrentDutyLocation: currentDutyLocation,
-// 			Order:               order,
-// 		}
-// 		ppmComputer := NewSSWPPMComputer(&mockComputer)
-// 		obligations, err := ppmComputer.ComputeObligations(suite.AppContextForTest(), shipmentSummaryFormParams, planner)
-
-// 		suite.NoError(err)
-// 		suite.Equal(unit.Cents(0), obligations.ActualObligation.SIT)
-// 	})
-
-// 	suite.Run("TestCalcError", func() {
-// 		ppm, order, currentDutyLocation := setupTestData()
-
-// 		params := ShipmentSummaryFormData{
-// 			PPMShipments:            models.PersonallyProcuredMoves{ppm},
-// 			WeightAllotment:         SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
-// 			PPMRemainingEntitlement: ppmRemainingEntitlement,
-// 			CurrentDutyLocation:     currentDutyLocation,
-// 			Order:                   order,
-// 		}
-// 		mockComputer := mockPPMComputer{err: errors.New("ERROR")}
-// 		ppmComputer := SSWPPMComputer{&mockComputer}
-// 		_, err := ppmComputer.ComputeObligations(suite.AppContextForTest(), params, planner)
-
-// 		suite.NotNil(err)
-// 	})
-// }
