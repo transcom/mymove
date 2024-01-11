@@ -29,13 +29,18 @@ type PpmPacketEmail struct {
 }
 
 // ppmPacketEmailData is used to render an email template
+// Uses ZIPs only if no city/state data is provided
 type ppmPacketEmailData struct {
-	OriginZIP      string
-	DestinationZIP string
-	SubmitLocation string
-	NavalBranch    bool
-	ServiceBranch  string
-	Locator        string
+	OriginZIP        *string
+	DestinationZIP   *string
+	OriginCity       *string
+	OriginState      *string
+	DestinationCity  *string
+	DestinationState *string
+	SubmitLocation   string
+	NavalBranch      bool
+	ServiceBranch    string
+	Locator          string
 }
 
 // NewPpmPacketEmail returns a new payment reminder notification 14 days after actual move in date
@@ -116,14 +121,31 @@ func (m PpmPacketEmail) emails(appCtx appcontext.AppContext) ([]emailContent, er
 		models.AffiliationCOASTGUARD: "Marine Corps, Navy and Coast Guard",
 	}
 
-	htmlBody, textBody, err := m.renderTemplates(appCtx, ppmPacketEmailData{
-		OriginZIP:      ppmShipment.PickupPostalCode,
-		DestinationZIP: ppmShipment.DestinationPostalCode,
-		SubmitLocation: submitLocation,
-		NavalBranch:    navalBranch,
-		ServiceBranch:  affiliationDisplayValue[*serviceMember.Affiliation],
-		Locator:        move.Locator,
-	})
+	var htmlBody, textBody string
+
+	// If address IDs are available for this PPM shipment, then do another query to get the city/state for origin and destination.
+	// Note: This is a conditional put in because this work was done before address_ids were added to the ppm_shipments table.
+	if ppmShipment.PickupPostalAddressID != uuid.Nil && ppmShipment.DestinationPostalAddressID != uuid.Nil {
+		htmlBody, textBody, err = m.renderTemplates(appCtx, ppmPacketEmailData{
+			OriginCity:       &ppmShipment.PickupPostalCode,
+			OriginState:      &ppmShipment.PickupPostalCode,
+			DestinationCity:  &ppmShipment.DestinationPostalCode,
+			DestinationState: &ppmShipment.PickupPostalCode,
+			SubmitLocation:   submitLocation,
+			NavalBranch:      navalBranch,
+			ServiceBranch:    affiliationDisplayValue[*serviceMember.Affiliation],
+			Locator:          move.Locator,
+		})
+	} else {
+		htmlBody, textBody, err = m.renderTemplates(appCtx, ppmPacketEmailData{
+			OriginZIP:      &ppmShipment.PickupPostalCode,
+			DestinationZIP: &ppmShipment.DestinationPostalCode,
+			SubmitLocation: submitLocation,
+			NavalBranch:    navalBranch,
+			ServiceBranch:  affiliationDisplayValue[*serviceMember.Affiliation],
+			Locator:        move.Locator,
+		})
+	}
 
 	if err != nil {
 		appCtx.Logger().Error("error rendering template", zap.Error(err))
