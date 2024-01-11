@@ -5,13 +5,13 @@ import (
 )
 
 // ppmDocumentFetcher is the concrete implementation of the services.PPMDocumentFetcher interface
-type ppmCloseout struct{}
+type ppmCloseoutFetcher struct{}
 
 // NewPPMDocumentFetcher creates a new struct
-func NewPPMCloseout() services.PPMCloseout {
-	return &ppmCloseout{}
+func NewPPMCloseoutFetcher() services.PPMCloseout {
+	return &ppmCloseoutFetcher{}
 }
 
-func (p *ppmCloseout) GetPPMCloseout() {
+func (p *ppmCloseoutFetcher) GetPPMCloseout() {
 
 }
