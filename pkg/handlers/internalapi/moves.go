@@ -212,9 +212,9 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			ppmShipmentId, _ := uuid.FromString(params.PpmShipmentID.String())
+			ppmShipmentID, _ := uuid.FromString(params.PpmShipmentID.String())
 
-			ppmShipment, err := models.FetchPPMShipmentByPPMShipmentID(appCtx.DB(), ppmShipmentId)
+			ppmShipment, err := models.FetchPPMShipmentByPPMShipmentID(appCtx.DB(), ppmShipmentID)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
@@ -222,7 +222,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 
 			ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer(ppmShipment)
 
-			ssfd, err := shipmentsummaryworksheet.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentId)
+			ssfd, err := shipmentsummaryworksheet.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentID)
 			if err != nil {
 				logger.Error("Error fetching data for SSW", zap.Error(err))
 				return handlers.ResponseForError(logger, err), err

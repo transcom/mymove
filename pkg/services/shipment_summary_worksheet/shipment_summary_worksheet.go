@@ -201,7 +201,7 @@ func (obligation Obligation) MaxAdvance() float64 {
 }
 
 // FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
-func FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, session *auth.Session, ppmShipmentID uuid.UUID) (ShipmentSummaryFormData, error) {
+func FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, _ *auth.Session, ppmShipmentID uuid.UUID) (ShipmentSummaryFormData, error) {
 	ppmShipment := models.PPMShipment{}
 	dbQErr := appCtx.DB().Q().Eager(
 		"Shipment.MoveTaskOrder.Orders.ServiceMember",
@@ -217,24 +217,6 @@ func FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, ses
 		}
 		return ShipmentSummaryFormData{}, dbQErr
 	}
-
-	// for i, ppm := range move.PersonallyProcuredMoves {
-	// 	ppmDetails, err := models.FetchPersonallyProcuredMove(appCtx.DB(), session, ppm.ID)
-	// 	if err != nil {
-	// 		return ShipmentSummaryFormData{}, err
-	// 	}
-	// 	if ppmDetails.Advance != nil {
-	// 		status := ppmDetails.Advance.Status
-	// 		if status == models.ReimbursementStatusAPPROVED || status == models.ReimbursementStatusPAID {
-	// 			move.PersonallyProcuredMoves[i].Advance = ppmDetails.Advance
-	// 		}
-	// 	}
-	// }
-
-	// _, authErr := models.FetchOrderForUser(appCtx.DB(), session, move.OrdersID)
-	// if authErr != nil {
-	// 	return ShipmentSummaryFormData{}, authErr
-	// }
 
 	serviceMember := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 	var rank models.ServiceMemberRank
@@ -576,7 +558,7 @@ func FormatPPMWeight(ppm models.PPMShipment) string {
 
 // FormatPPMPickupDate formats a shipments ActualPickupDate for the Shipment Summary Worksheet
 func FormatPPMPickupDate(ppm models.PPMShipment) string {
-	return FormatDate(*&ppm.ExpectedDepartureDate)
+	return FormatDate(ppm.ExpectedDepartureDate)
 }
 
 // FormatOrdersTypeAndOrdersNumber formats OrdersTypeAndOrdersNumber for Shipment Summary Worksheet
@@ -646,7 +628,7 @@ type SSWPPMComputer struct {
 }
 
 // NewSSWPPMComputer creates a SSWPPMComputer
-func NewSSWPPMComputer(PPMShipment models.PPMShipment) *SSWPPMComputer {
+func NewSSWPPMComputer(_ models.PPMShipment) *SSWPPMComputer {
 	return &SSWPPMComputer{}
 }
 
@@ -654,8 +636,8 @@ func NewSSWPPMComputer(PPMShipment models.PPMShipment) *SSWPPMComputer {
 type ObligationType int
 
 // ComputeObligations is helper function for computing the obligations section of the shipment summary worksheet
-// Obligations must remain test data until new computer system is finished
-func (sswPpmComputer *SSWPPMComputer) ComputeObligations(appCtx appcontext.AppContext, ssfd ShipmentSummaryFormData, planner route.Planner) (obligation Obligations, err error) {
+// Obligations must remain as static test data until new computer system is finished
+func (sswPpmComputer *SSWPPMComputer) ComputeObligations(_ appcontext.AppContext, _ ShipmentSummaryFormData, _ route.Planner) (obligation Obligations, err error) {
 	// firstPPM, err := sswPpmComputer.nilCheckPPM(ssfd)
 	// if err != nil {
 	// 	return Obligations{}, err
@@ -726,19 +708,4 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(appCtx appcontext.AppCo
 		NonWinningMaxObligation:    Obligation{Gcc: 1000, SIT: 1000, Miles: unit.Miles(12345)},
 	}
 	return obligations, nil
-}
-
-func (sswPpmComputer *SSWPPMComputer) nilCheckPPM(ssfd ShipmentSummaryFormData) (models.PPMShipment, error) {
-	if len(ssfd.PPMShipments) == 0 {
-		return models.PPMShipment{}, errors.New("missing ppm")
-	}
-	firstPPM := ssfd.PPMShipments[0]
-	if firstPPM.PickupPostalCode == "" || firstPPM.DestinationPostalCode == "" {
-		return models.PPMShipment{}, errors.New("missing required address parameter")
-	}
-	// This test is being removed as they are checking whether required values exist
-	// if firstPPM.ExpectedDepartureDate == nil {
-	// 	return models.PersonallyProcuredMove{}, errors.New("missing required original move date parameter")
-	// }
-	return firstPPM, nil
 }
