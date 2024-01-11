@@ -151,6 +151,7 @@ const testProps = {
     { key: 'SEPARATION', value: 'Separation' },
   ],
   currentDutyLocation: {},
+  grade: '',
 };
 
 const initialValues = {
@@ -186,6 +187,7 @@ const initialValues = {
       contentType: 'application/pdf',
     },
   ],
+  grade: 'E_1',
 };
 
 describe('EditOrdersForm component', () => {
@@ -197,6 +199,7 @@ describe('EditOrdersForm component', () => {
       ['Yes', false, HTMLInputElement],
       ['No', false, HTMLInputElement],
       ['New duty location', false, HTMLInputElement],
+      ['Pay grade', true, HTMLSelectElement],
     ])('rendering %s and is required is %s', async (formInput, required, inputType) => {
       render(<EditOrdersForm {...testProps} />);
 
@@ -262,6 +265,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
+    await userEvent.selectOptions(screen.getByLabelText('Pay grade'), ['E_5']);
 
     // Test Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
@@ -321,6 +325,7 @@ describe('EditOrdersForm component', () => {
     await userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
+    await userEvent.selectOptions(screen.getByLabelText('Pay grade'), ['E_5']);
 
     // Test Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
@@ -360,6 +365,7 @@ describe('EditOrdersForm component', () => {
             name: 'Luke AFB',
             updated_at: '2021-02-11T16:48:04.117Z',
           },
+          grade: 'E_5',
         }),
         expect.anything(),
       );
@@ -411,6 +417,7 @@ describe('EditOrdersForm component', () => {
           contentType: 'application/pdf',
         },
       ],
+      grade: 'E_1',
     };
 
     it('pre-fills the inputs', async () => {
@@ -426,6 +433,7 @@ describe('EditOrdersForm component', () => {
       expect(screen.getByLabelText('Yes')).not.toBeChecked();
       expect(screen.getByLabelText('No')).toBeChecked();
       expect(screen.getByText('Yuma AFB')).toBeInTheDocument();
+      expect(screen.getByLabelText('Pay grade')).toHaveValue(testInitialValues.grade);
     });
 
     it('renders the uploads table with an existing upload', async () => {
@@ -444,6 +452,7 @@ describe('EditOrdersForm component', () => {
       ['Report By Date', 'report_by_date', ''],
       ['Duty Location', 'new_duty_location', null],
       ['Uploaded Orders', 'uploaded_orders', []],
+      ['Pay grade', 'grade', ''],
     ])('when there is no %s', async (attributeNamePrettyPrint, attributeName, valueToReplaceIt) => {
       const modifiedProps = {
         onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
@@ -480,6 +489,7 @@ describe('EditOrdersForm component', () => {
               contentType: 'application/pdf',
             },
           ],
+          grade: 'E_1',
         },
         onCancel: jest.fn(),
         onUploadComplete: jest.fn(),

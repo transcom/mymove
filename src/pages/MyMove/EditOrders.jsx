@@ -10,10 +10,14 @@ import {
   getResponseError,
   getOrdersForServiceMember,
   patchOrders,
+  patchServiceMember,
   createUploadForDocument,
   deleteUpload,
 } from 'services/internalApi';
-import { updateOrders as updateOrdersAction } from 'store/entities/actions';
+import {
+  updateServiceMember as updateServiceMemberAction,
+  updateOrders as updateOrdersAction,
+} from 'store/entities/actions';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import {
   selectServiceMemberFromLoggedInUser,
@@ -35,6 +39,7 @@ export const EditOrders = ({
   currentOrders,
   currentMove,
   updateOrders,
+  updateServiceMember,
   existingUploads,
   moveIsApproved,
   setFlashMessage,
@@ -96,6 +101,20 @@ export const EditOrders = ({
     const newDutyLocationId = fieldValues.new_duty_location.id;
     const newPayGrade = fieldValues.grade;
 
+    const payload = {
+      id: serviceMemberId,
+      rank: newPayGrade,
+    };
+
+    patchServiceMember(payload)
+      .then(updateServiceMember)
+      .catch((e) => {
+        const { response } = e;
+        const errorMessage = getResponseError(response, 'failed to update orders due to server error');
+        setServerError(errorMessage);
+        scrollToTop();
+      });
+
     return patchOrders({
       ...fieldValues,
       id: currentOrders.id,
@@ -127,7 +146,6 @@ export const EditOrders = ({
         navigate(-1);
       })
       .catch((e) => {
-        // TODO - error handling - below is rudimentary error handling to approximate existing UX
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
         const { response } = e;
         const errorMessage = getResponseError(response, 'failed to update orders due to server error');
@@ -215,6 +233,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
+  updateServiceMember: updateServiceMemberAction,
   updateOrders: updateOrdersAction,
   setFlashMessage: setFlashMessageAction,
 };
