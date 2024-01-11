@@ -21,7 +21,7 @@ export const DodInfo = ({ updateServiceMember, serviceMember }) => {
   const initialValues = {
     affiliation: serviceMember?.affiliation || '',
     edipi: serviceMember?.edipi || '',
-    rank: serviceMember?.rank || '',
+    grade: serviceMember?.rank || '',
   };
 
   const handleBack = () => {
@@ -37,7 +37,7 @@ export const DodInfo = ({ updateServiceMember, serviceMember }) => {
       id: serviceMember.id,
       affiliation: values.affiliation,
       edipi: values.edipi,
-      rank: values.rank,
+      rank: values.grade,
     };
 
     return patchServiceMember(payload)

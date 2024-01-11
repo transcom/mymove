@@ -26,7 +26,7 @@ const defaultProps = {
   firstName: 'Jason',
   lastName: 'Ash',
   affiliation: 'Air Force',
-  rank: 'E-5',
+  payGrade: 'E-5',
   edipi: '9999999999',
   currentDutyLocationName: 'Buckley AFB',
   telephone: '(999) 999-9999',
