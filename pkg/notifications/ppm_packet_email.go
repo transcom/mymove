@@ -126,11 +126,21 @@ func (m PpmPacketEmail) emails(appCtx appcontext.AppContext) ([]emailContent, er
 	// If address IDs are available for this PPM shipment, then do another query to get the city/state for origin and destination.
 	// Note: This is a conditional put in because this work was done before address_ids were added to the ppm_shipments table.
 	if ppmShipment.PickupPostalAddressID != uuid.Nil && ppmShipment.DestinationPostalAddressID != uuid.Nil {
+		var pickupAddress, destinationAddress models.Address
+		err = appCtx.DB().Find(&pickupAddress, ppmShipment.PickupPostalAddressID)
+		if err != nil {
+			return emails, err
+		}
+		err = appCtx.DB().Find(&destinationAddress, ppmShipment.DestinationPostalAddressID)
+		if err != nil {
+			return emails, err
+		}
+
 		htmlBody, textBody, err = m.renderTemplates(appCtx, ppmPacketEmailData{
-			OriginCity:       &ppmShipment.PickupPostalCode,
-			OriginState:      &ppmShipment.PickupPostalCode,
-			DestinationCity:  &ppmShipment.DestinationPostalCode,
-			DestinationState: &ppmShipment.PickupPostalCode,
+			OriginCity:       &pickupAddress.City,
+			OriginState:      &pickupAddress.State,
+			DestinationCity:  &destinationAddress.City,
+			DestinationState: &destinationAddress.State,
 			SubmitLocation:   submitLocation,
 			NavalBranch:      navalBranch,
 			ServiceBranch:    affiliationDisplayValue[*serviceMember.Affiliation],

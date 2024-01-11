@@ -1,6 +1,6 @@
 *** DO NOT REPLY directly to this email ***
 
-This is a confirmation that your Personally Procured Move (PPM) with the assigned move code {{.Locator}} from {{.OriginZIP}} to {{.DestinationZIP}} has been processed in MilMove.
+This is a confirmation that your Personally Procured Move (PPM) with the assigned move code {{.Locator}} from {{if and .OriginCity .OriginState .DestinationCity .DestinationState}} {{.OriginCity}},{{.OriginState}} to {{.DestinationCity}}, {{.DestinationState}} {{else}} {{.OriginZIP}} to {{.DestinationZIP}} {{end}}has been processed in MilMove.
 
 Next steps:
 ------------------------------------------------------------
