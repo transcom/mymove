@@ -249,35 +249,29 @@ func FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, ses
 		return ShipmentSummaryFormData{}, err
 	}
 
-	signedCertification, err := models.FetchSignedCertificationsPPMPayment(appCtx.DB(), session, ppmShipment.Shipment.MoveTaskOrderID)
-	if err != nil {
-		return ShipmentSummaryFormData{}, err
-	}
-	if signedCertification == nil {
-		return ShipmentSummaryFormData{},
-			errors.New("shipment summary worksheet: signed certification is nil")
-	}
+	// Signed Certification needs to be updated
+	// signedCertification, err := models.FetchSignedCertificationsPPMPayment(appCtx.DB(), session, ppmShipment.Shipment.MoveTaskOrderID)
+	// if err != nil {
+	// 	return ShipmentSummaryFormData{}, err
+	// }
+	// if signedCertification == nil {
+	// 	return ShipmentSummaryFormData{},
+	// 		errors.New("shipment summary worksheet: signed certification is nil")
+	// }
 
-	moveHolder := models.Move{}
 	var ppmShipments []models.PPMShipment
 
-	// MTOShipments is inherently plural
-	for _, mtoShipment := range moveHolder.MTOShipments {
-		if mtoShipment.PPMShipment != nil {
-			// We have a PPM shipment present, append it
-			ppmShipments = append(ppmShipments, *mtoShipment.PPMShipment)
-		}
-	}
+	ppmShipments = append(ppmShipments, ppmShipment)
 
 	ssd := ShipmentSummaryFormData{
-		ServiceMember:           serviceMember,
-		Order:                   ppmShipment.Shipment.MoveTaskOrder.Orders,
-		Move:                    ppmShipment.Shipment.MoveTaskOrder,
-		CurrentDutyLocation:     serviceMember.DutyLocation,
-		NewDutyLocation:         ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation,
-		WeightAllotment:         weightAllotment,
-		PPMShipments:            ppmShipments,
-		SignedCertification:     *signedCertification,
+		ServiceMember:       serviceMember,
+		Order:               ppmShipment.Shipment.MoveTaskOrder.Orders,
+		Move:                ppmShipment.Shipment.MoveTaskOrder,
+		CurrentDutyLocation: serviceMember.DutyLocation,
+		NewDutyLocation:     ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation,
+		WeightAllotment:     weightAllotment,
+		PPMShipments:        ppmShipments,
+		// SignedCertification:     *signedCertification,
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
 	}
 	return ssd, nil

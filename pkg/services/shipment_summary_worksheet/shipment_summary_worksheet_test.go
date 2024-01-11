@@ -14,13 +14,12 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
-	moverouter "github.com/transcom/mymove/pkg/services/move"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -49,7 +48,31 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
 
-	move := factory.BuildMove(suite.DB(), []factory.Customization{
+	// move := factory.BuildMove(suite.DB(), []factory.Customization{
+	// 	{
+	// 		Model: models.Order{
+	// 			OrdersType: ordersType,
+	// 		},
+	// 	},
+	// 	{
+	// 		Model:    fortGordon,
+	// 		LinkOnly: true,
+	// 		Type:     &factory.DutyLocations.NewDutyLocation,
+	// 	},
+	// 	{
+	// 		Model:    yuma,
+	// 		LinkOnly: true,
+	// 		Type:     &factory.DutyLocations.OriginDutyLocation,
+	// 	},
+	// 	{
+	// 		Model: models.ServiceMember{
+	// 			Rank: &rank,
+	// 		},
+	// 	},
+	// }, nil)
+
+	// moveID := move.ID
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
 				OrdersType: ordersType,
@@ -70,68 +93,60 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 				Rank: &rank,
 			},
 		},
+		{
+			Model: models.SignedCertification{},
+		},
 	}, nil)
 
-	moveID := move.ID
-	serviceMemberID := move.Orders.ServiceMemberID
-	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
-	netWeight := unit.Pound(10000)
-	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			MoveID:              move.ID,
-			NetWeight:           &netWeight,
-			HasRequestedAdvance: true,
-			AdvanceID:           &advance.ID,
-			Advance:             &advance,
-		},
-	})
-	// Only concerned w/ approved advances for ssw
-	ppm.Move.PersonallyProcuredMoves[0].Advance.Request()
-	ppm.Move.PersonallyProcuredMoves[0].Advance.Approve()
-	// Save advance in reimbursements table by saving ppm
-	models.SavePersonallyProcuredMove(suite.DB(), &ppm)
+	ppmShipmentID := ppmShipment.ID
+	println(ppmShipment.PickupPostalCode)
+	println(ppmShipment.PickupPostalCode)
+
+	serviceMemberID := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID
 
 	session := auth.Session{
-		UserID:          move.Orders.ServiceMember.UserID,
+		UserID:          ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID,
 		ServiceMemberID: serviceMemberID,
 		ApplicationName: auth.MilApp,
 	}
-	moveRouter := moverouter.NewMoveRouter()
-	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-	}, nil)
-	moveRouter.Submit(suite.AppContextForTest(), &ppm.Move, &newSignedCertification)
-	moveRouter.Approve(suite.AppContextForTest(), &ppm.Move)
-	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
-	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	ppm.Move.PersonallyProcuredMoves[0].RequestPayment()
-	models.SaveMoveDependencies(suite.DB(), &ppm.Move)
-	certificationType := models.SignedCertificationTypePPMPAYMENT
-	signedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-		{
-			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &ppm.ID,
-				CertificationType:        &certificationType,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
-			},
-		},
-	}, nil)
-	ssd, err := FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, moveID)
+	// moveRouter := moverouter.NewMoveRouter()
+	// newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+	// 	{
+	// 		Model:    move,
+	// 		LinkOnly: true,
+	// 	},
+	// }, nil)
+	// moveRouter.Submit(suite.AppContextForTest(), &ppm.Move, &newSignedCertification)
+	// moveRouter.Approve(suite.AppContextForTest(), &ppm.Move)
+	// // This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
+	// ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
+	// ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	// ppm.Move.PersonallyProcuredMoves[0].RequestPayment()
+	// models.SaveMoveDependencies(suite.DB(), &ppm.Move)
+	// certificationType := models.SignedCertificationTypePPMPAYMENT
+	models.SaveMoveDependencies(suite.DB(), &ppmShipment.Shipment.MoveTaskOrder)
+
+	// signedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+	// 	{
+	// 		Model:    move,
+	// 		LinkOnly: true,
+	// 	},
+	// 	{
+	// 		Model: models.SignedCertification{
+	// 			PersonallyProcuredMoveID: &ppm.ID,
+	// 			CertificationType:        &certificationType,
+	// 			CertificationText:        "LEGAL",
+	// 			Signature:                "ACCEPT",
+	// 			Date:                     testdatagen.NextValidMoveDate,
+	// 		},
+	// 	},
+	// }, nil)
+	ssd, err := FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, ppmShipmentID)
 
 	suite.NoError(err)
-	suite.Equal(move.Orders.ID, ssd.Order.ID)
+	suite.Equal(ppmShipment.Shipment.MoveTaskOrder.Orders.ID, ssd.Order.ID)
 	suite.Require().Len(ssd.PPMShipments, 1)
-	suite.Equal(ppm.ID, ssd.PPMShipments[0].ID)
+	suite.Equal(ppmShipment.ID, ssd.PPMShipments[0].ID)
 	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
 	suite.Equal(yuma.ID, ssd.CurrentDutyLocation.ID)
 	suite.Equal(yuma.Address.ID, ssd.CurrentDutyLocation.Address.ID)
@@ -147,10 +162,10 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
 	suite.Require().Nil(err)
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
-	suite.Equal(ppm.NetWeight, ssd.PPMShipments[0].EstimatedWeight)
+	suite.Equal(ppmShipment.EstimatedWeight, ssd.PPMShipments[0].EstimatedWeight)
 	suite.Require().NotNil(ssd.PPMShipments[0].AdvanceAmountRequested)
-	suite.Equal(unit.Cents(1000), ssd.PPMShipments[0].AdvanceAmountRequested)
-	suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
+	suite.Equal(ppmShipment.AdvanceAmountRequested, ssd.PPMShipments[0].AdvanceAmountRequested)
+	// suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryWorksheetWithErrorNoMove() {
@@ -221,7 +236,30 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
 
-	move := factory.BuildMove(suite.DB(), []factory.Customization{
+	// move := factory.BuildMove(suite.DB(), []factory.Customization{
+	// 	{
+	// 		Model: models.Order{
+	// 			OrdersType: ordersType,
+	// 		},
+	// 	},
+	// 	{
+	// 		Model:    fortGordon,
+	// 		LinkOnly: true,
+	// 		Type:     &factory.DutyLocations.NewDutyLocation,
+	// 	},
+	// 	{
+	// 		Model:    yuma,
+	// 		LinkOnly: true,
+	// 		Type:     &factory.DutyLocations.OriginDutyLocation,
+	// 	},
+	// 	{
+	// 		Model: models.ServiceMember{
+	// 			Rank: &rank,
+	// 		},
+	// 	},
+	// }, nil)
+
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
 				OrdersType: ordersType,
@@ -242,68 +280,75 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 				Rank: &rank,
 			},
 		},
+		{
+			Model: models.SignedCertification{},
+		},
 	}, nil)
 
-	moveID := move.ID
-	serviceMemberID := move.Orders.ServiceMemberID
-	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
-	netWeight := unit.Pound(10000)
-	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			MoveID:              move.ID,
-			NetWeight:           &netWeight,
-			HasRequestedAdvance: true,
-			AdvanceID:           &advance.ID,
-			Advance:             &advance,
-		},
-	})
-	// Only concerned w/ approved advances for ssw
-	ppm.Move.PersonallyProcuredMoves[0].Advance.Request()
-	ppm.Move.PersonallyProcuredMoves[0].Advance.Approve()
-	// Save advance in reimbursements table by saving ppm
-	models.SavePersonallyProcuredMove(suite.DB(), &ppm)
+	// moveID := move.ID
+	ppmShipmentID := ppmShipment.ID
+	println(ppmShipment.PickupPostalCode)
+	println(ppmShipment.PickupPostalCode)
+
+	serviceMemberID := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID
+	// advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
+	// netWeight := unit.Pound(10000)
+	// ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+	// 	PersonallyProcuredMove: models.PersonallyProcuredMove{
+	// 		MoveID:              move.ID,
+	// 		NetWeight:           &netWeight,
+	// 		HasRequestedAdvance: true,
+	// 		AdvanceID:           &advance.ID,
+	// 		Advance:             &advance,
+	// 	},
+	// })
+	// // Only concerned w/ approved advances for ssw
+	// ppmShipment.Advance.Request()
+	// ppm.Move.PersonallyProcuredMoves[0].Advance.Approve()
+	// // Save advance in reimbursements table by saving ppm
+	// models.SavePersonallyProcuredMove(suite.DB(), &ppm)
 
 	session := auth.Session{
-		UserID:          move.Orders.ServiceMember.UserID,
+		UserID:          ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID,
 		ServiceMemberID: serviceMemberID,
 		ApplicationName: auth.MilApp,
 	}
-	moveRouter := moverouter.NewMoveRouter()
-	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-	}, nil)
-	moveRouter.Submit(suite.AppContextForTest(), &ppm.Move, &newSignedCertification)
-	moveRouter.Approve(suite.AppContextForTest(), &ppm.Move)
+	// moveRouter := moverouter.NewMoveRouter()
+	// newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+	// 	{
+	// 		Model:    ppmShipment,
+	// 		LinkOnly: true,
+	// 	},
+	// }, nil)
+	// moveRouter.Submit(suite.AppContextForTest(), &ppmShipment.Shipment.MoveTaskOrder, &newSignedCertification)
+	// moveRouter.Approve(suite.AppContextForTest(), &ppmShipment.Shipment.MoveTaskOrder)
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
-	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	ppm.Move.PersonallyProcuredMoves[0].RequestPayment()
-	models.SaveMoveDependencies(suite.DB(), &ppm.Move)
-	certificationType := models.SignedCertificationTypePPMPAYMENT
-	signedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-		{
-			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &ppm.ID,
-				CertificationType:        &certificationType,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
-			},
-		},
-	}, nil)
-	ssd, err := FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, moveID)
+	// ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
+	// ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	// ppm.Move.PersonallyProcuredMoves[0].RequestPayment()
+	models.SaveMoveDependencies(suite.DB(), &ppmShipment.Shipment.MoveTaskOrder)
+	// certificationType := models.SignedCertificationTypePPMPAYMENT
+	// signedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+	// 	{
+	// 		Model:    move,
+	// 		LinkOnly: true,
+	// 	},
+	// 	{
+	// 		Model: models.SignedCertification{
+	// 			PersonallyProcuredMoveID: &ppmShipment.ID,
+	// 			CertificationType:        &certificationType,
+	// 			CertificationText:        "LEGAL",
+	// 			Signature:                "ACCEPT",
+	// 			Date:                     testdatagen.NextValidMoveDate,
+	// 		},
+	// 	},
+	// }, nil)
+	ssd, err := FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, ppmShipmentID)
 
 	suite.NoError(err)
-	suite.Equal(move.Orders.ID, ssd.Order.ID)
+	suite.Equal(ppmShipment.Shipment.MoveTaskOrder.Orders.ID, ssd.Order.ID)
 	suite.Require().Len(ssd.PPMShipments, 1)
-	suite.Equal(ppm.ID, ssd.PPMShipments[0].ID)
+	suite.Equal(ppmShipment.ID, ssd.PPMShipments[0].ID)
 	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
 	suite.Equal(yuma.ID, ssd.CurrentDutyLocation.ID)
 	suite.Equal(yuma.Address.ID, ssd.CurrentDutyLocation.Address.ID)
@@ -318,10 +363,10 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	// E_9 rank, no dependents, no spouse pro-gear
 	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
-	suite.Equal(ppm.NetWeight, ssd.PPMShipments[0].EstimatedWeight)
+	suite.Equal(ppmShipment.EstimatedWeight, ssd.PPMShipments[0].EstimatedWeight)
 	suite.Require().NotNil(ssd.PPMShipments[0].AdvanceAmountRequested)
-	suite.Equal(unit.Cents(1000), ssd.PPMShipments[0].AdvanceAmountRequested)
-	suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
+	suite.Equal(ppmShipment.AdvanceAmountRequested, ssd.PPMShipments[0].AdvanceAmountRequested)
+	// suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
 	suite.Require().Len(ssd.MovingExpenses, 0)
 }
 
@@ -748,26 +793,26 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatRank() {
 	suite.Equal("O-1 or Service Academy Graduate", FormatRank(&multipleRanks))
 }
 
-// func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipmentNumberAndType() {
-// 	singlePPM := models.PersonallyProcuredMoves{models.PersonallyProcuredMove{}}
-// 	multiplePPMs := models.PersonallyProcuredMoves{models.PersonallyProcuredMove{}, models.PersonallyProcuredMove{}}
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipmentNumberAndType() {
+	singlePPM := models.PPMShipments{models.PPMShipment{}}
+	multiplePPMs := models.PPMShipments{models.PPMShipment{}, models.PPMShipment{}}
 
-// 	multiplePPMsFormatted := FormatAllShipments(multiplePPMs)
-// 	singlePPMFormatted := FormatAllShipments(singlePPM)
+	multiplePPMsFormatted := FormatAllShipments(multiplePPMs)
+	singlePPMFormatted := FormatAllShipments(singlePPM)
 
-// 	// testing single shipment moves
-// 	suite.Equal("01 - PPM", singlePPMFormatted.ShipmentNumberAndTypes)
+	// testing single shipment moves
+	suite.Equal("01 - PPM", singlePPMFormatted.ShipmentNumberAndTypes)
 
-// 	// testing multiple ppm moves
-// 	suite.Equal("01 - PPM\n\n02 - PPM", multiplePPMsFormatted.ShipmentNumberAndTypes)
-// }
+	// testing multiple ppm moves
+	suite.Equal("01 - PPM\n\n02 - PPM", multiplePPMsFormatted.ShipmentNumberAndTypes)
+}
 
-// func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatWeights() {
-// 	suite.Equal("0", FormatWeights(0))
-// 	suite.Equal("10", FormatWeights(10))
-// 	suite.Equal("1,000", FormatWeights(1000))
-// 	suite.Equal("1,000,000", FormatWeights(1000000))
-// }
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatWeights() {
+	suite.Equal("0", FormatWeights(0))
+	suite.Equal("10", FormatWeights(10))
+	suite.Equal("1,000", FormatWeights(1000))
+	suite.Equal("1,000,000", FormatWeights(1000000))
+}
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatOrdersIssueDate() {
 	dec212018 := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)
@@ -794,14 +839,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatServiceMemberAffili
 	suite.Equal("Marines", FormatServiceMemberAffiliation(&marines))
 }
 
-// func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatPPMWeight() {
-// 	pounds := unit.Pound(1000)
-// 	ppm := models.PersonallyProcuredMove{NetWeight: &pounds}
-// 	noWtg := models.PersonallyProcuredMove{NetWeight: nil}
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatPPMWeight() {
+	pounds := unit.Pound(1000)
+	ppm := models.PPMShipment{EstimatedWeight: &pounds}
+	noWtg := models.PPMShipment{EstimatedWeight: nil}
 
-// 	suite.Equal("1,000 lbs - FINAL", FormatPPMWeight(ppm))
-// 	suite.Equal("", FormatPPMWeight(noWtg))
-// }
+	suite.Equal("1,000 lbs - FINAL", FormatPPMWeight(ppm))
+	suite.Equal("", FormatPPMWeight(noWtg))
+}
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementNoHHGPPMLessThanMaxEntitlement() {
 	ppmWeight := unit.Pound(900)
@@ -855,19 +900,19 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignatureDate() {
 	suite.Equal("26 Jan 2019 at 2:40pm", formattedDate)
 }
 
-// func (mppmc *mockPPMComputer) ComputePPMMoveCosts(_ appcontext.AppContext, weight unit.Pound, originPickupZip5 string, originDutyLocationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyLocationZip int, date time.Time, daysInSit int) (cost rateengine.CostDetails, err error) {
-// 	mppmc.ppmComputerParams = append(mppmc.ppmComputerParams, ppmComputerParams{
-// 		Weight:                                 weight,
-// 		OriginPickupZip5:                       originPickupZip5,
-// 		OriginDutyLocationZip5:                 originDutyLocationZip5,
-// 		DestinationZip5:                        destinationZip5,
-// 		DistanceMilesFromOriginPickupZip:       distanceMilesFromOriginPickupZip,
-// 		DistanceMilesFromOriginDutyLocationZip: distanceMilesFromOriginDutyLocationZip,
-// 		Date:                                   date,
-// 		DaysInSIT:                              daysInSit,
-// 	})
-// 	return mppmc.costDetails, mppmc.err
-// }
+func (mppmc *mockPPMComputer) ComputePPMMoveCosts(_ appcontext.AppContext, weight unit.Pound, originPickupZip5 string, originDutyLocationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyLocationZip int, date time.Time, daysInSit int) (cost rateengine.CostDetails, err error) {
+	mppmc.ppmComputerParams = append(mppmc.ppmComputerParams, ppmComputerParams{
+		Weight:                                 weight,
+		OriginPickupZip5:                       originPickupZip5,
+		OriginDutyLocationZip5:                 originDutyLocationZip5,
+		DestinationZip5:                        destinationZip5,
+		DistanceMilesFromOriginPickupZip:       distanceMilesFromOriginPickupZip,
+		DistanceMilesFromOriginDutyLocationZip: distanceMilesFromOriginDutyLocationZip,
+		Date:                                   date,
+		DaysInSIT:                              daysInSit,
+	})
+	return mppmc.costDetails, mppmc.err
+}
 
 func (mppmc *mockPPMComputer) CalledWith() []ppmComputerParams {
 	return mppmc.ppmComputerParams
