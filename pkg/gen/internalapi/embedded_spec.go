@@ -2005,57 +2005,37 @@ func init() {
         }
       }
     },
-    "/personally_procured_moves/incentive": {
-      "get": {
-        "description": "Calculates incentive for a PPM move (excluding SIT)",
+    "/personally_procured_moves/{personallyProcuredMoveId}/approve": {
+      "post": {
+        "description": "Sets the status of the PPM to APPROVED.",
         "tags": [
-          "ppm"
+          "office"
         ],
-        "summary": "Return a PPM incentive value",
-        "operationId": "showPPMIncentive",
+        "summary": "Approves the PPM",
+        "operationId": "approvePPM",
         "parameters": [
           {
             "type": "string",
-            "format": "date",
-            "name": "original_move_date",
-            "in": "query",
-            "required": true
-          },
-          {
-            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-            "type": "string",
-            "format": "zip",
-            "name": "origin_zip",
-            "in": "query",
-            "required": true
-          },
-          {
-            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-            "type": "string",
-            "format": "zip",
-            "name": "origin_duty_location_zip",
-            "in": "query",
-            "required": true
-          },
-          {
-            "type": "string",
             "format": "uuid",
-            "name": "orders_id",
-            "in": "query",
+            "description": "UUID of the PPM being updated",
+            "name": "personallyProcuredMoveId",
+            "in": "path",
             "required": true
           },
           {
-            "type": "integer",
-            "name": "weight",
-            "in": "query",
-            "required": true
+            "name": "approvePersonallyProcuredMovePayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApprovePersonallyProcuredMovePayload"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Made calculation of PPM incentive",
+            "description": "updated instance of personally_procured_move",
             "schema": {
-              "$ref": "#/definitions/PPMIncentive"
+              "$ref": "#/definitions/PersonallyProcuredMovePayload"
             }
           },
           "400": {
@@ -2066,9 +2046,6 @@ func init() {
           },
           "403": {
             "description": "user is not authorized"
-          },
-          "409": {
-            "description": "distance is less than 50 miles (no short haul moves)"
           },
           "500": {
             "description": "internal server error"
@@ -10270,57 +10247,37 @@ func init() {
         }
       }
     },
-    "/personally_procured_moves/incentive": {
-      "get": {
-        "description": "Calculates incentive for a PPM move (excluding SIT)",
+    "/personally_procured_moves/{personallyProcuredMoveId}/approve": {
+      "post": {
+        "description": "Sets the status of the PPM to APPROVED.",
         "tags": [
-          "ppm"
+          "office"
         ],
-        "summary": "Return a PPM incentive value",
-        "operationId": "showPPMIncentive",
+        "summary": "Approves the PPM",
+        "operationId": "approvePPM",
         "parameters": [
           {
             "type": "string",
-            "format": "date",
-            "name": "original_move_date",
-            "in": "query",
-            "required": true
-          },
-          {
-            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-            "type": "string",
-            "format": "zip",
-            "name": "origin_zip",
-            "in": "query",
-            "required": true
-          },
-          {
-            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-            "type": "string",
-            "format": "zip",
-            "name": "origin_duty_location_zip",
-            "in": "query",
-            "required": true
-          },
-          {
-            "type": "string",
             "format": "uuid",
-            "name": "orders_id",
-            "in": "query",
+            "description": "UUID of the PPM being updated",
+            "name": "personallyProcuredMoveId",
+            "in": "path",
             "required": true
           },
           {
-            "type": "integer",
-            "name": "weight",
-            "in": "query",
-            "required": true
+            "name": "approvePersonallyProcuredMovePayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApprovePersonallyProcuredMovePayload"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Made calculation of PPM incentive",
+            "description": "updated instance of personally_procured_move",
             "schema": {
-              "$ref": "#/definitions/PPMIncentive"
+              "$ref": "#/definitions/PersonallyProcuredMovePayload"
             }
           },
           "400": {
@@ -10331,9 +10288,6 @@ func init() {
           },
           "403": {
             "description": "user is not authorized"
-          },
-          "409": {
-            "description": "distance is less than 50 miles (no short haul moves)"
           },
           "500": {
             "description": "internal server error"
