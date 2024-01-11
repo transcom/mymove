@@ -203,3 +203,30 @@ describe('Shipment List being used for billable weight', () => {
     });
   });
 });
+describe('Shipment List with PPM', () => {
+  it('displays both estimated weight on PPM shipment', () => {
+    const shipments = [
+      {
+        id: '0001',
+        shipmentType: SHIPMENT_OPTIONS.PPM,
+        ppmShipment: {
+          id: '1234',
+          hasRequestedAdvance: null,
+          primeEstimatedWeight: '1000',
+          calculatedBillableWeight: '1500',
+        },
+      },
+    ];
+
+    const defaultProps = {
+      shipments,
+      moveSubmitted: true,
+      showShipmentWeight: true,
+    };
+
+    render(<ShipmentList {...defaultProps} />);
+
+    expect(screen.getByText('Estimated')).toBeInTheDocument();
+    expect(screen.getByText('Actual')).toBeInTheDocument();
+  });
+});

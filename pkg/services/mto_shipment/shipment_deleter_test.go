@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -46,6 +47,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 		session := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
 			OfficeUserID:    uuid.Must(uuid.NewV4()),
+			Roles:           factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor}).User.Roles,
 		})
 
 		_, err := shipmentDeleter.DeleteShipment(session, shipment.ID)
