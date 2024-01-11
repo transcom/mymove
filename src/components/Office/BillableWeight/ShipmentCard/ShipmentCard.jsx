@@ -125,7 +125,7 @@ export default function ShipmentCard({
 
         <ShipmentCardDetailRow
           display={!shipmentIsNTSR}
-          rowTestId="estimatedWeightContainer"
+          rowTestId="actualWeightContainer"
           className={classnames(styles.field, {
             [styles.warning]: !primeActualWeight,
           })}
