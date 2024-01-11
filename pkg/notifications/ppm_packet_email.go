@@ -30,7 +30,7 @@ type PpmPacketEmail struct {
 
 // ppmPacketEmailData is used to render an email template
 // Uses ZIPs only if no city/state data is provided
-type ppmPacketEmailData struct {
+type PpmPacketEmailData struct {
 	OriginZIP        *string
 	DestinationZIP   *string
 	OriginCity       *string
@@ -41,6 +41,13 @@ type ppmPacketEmailData struct {
 	NavalBranch      bool
 	ServiceBranch    string
 	Locator          string
+}
+
+// Used to get logging data from GetEmailData
+type LoggerData struct {
+	ServiceMember models.ServiceMember
+	PPMShipmentID uuid.UUID
+	MoveLocator   string
 }
 
 // NewPpmPacketEmail returns a new payment reminder notification 14 days after actual move in date
@@ -62,40 +69,63 @@ func (m PpmPacketEmail) emails(appCtx appcontext.AppContext) ([]emailContent, er
 		zap.String("uuid", m.ppmShipmentID.String()),
 	)
 
-	var ppmShipment models.PPMShipment
-	err := appCtx.DB().Find(&ppmShipment, m.ppmShipmentID)
+	emailData, loggerData, err := GetEmailData(m, appCtx)
 	if err != nil {
-		return emails, err
+		return nil, err
+	}
+
+	appCtx.Logger().Info("generated PPM Closeout Packet email",
+		zap.String("service member uuid", loggerData.ServiceMember.ID.String()),
+		zap.String("PPM Shipment ID", loggerData.PPMShipmentID.String()),
+		zap.String("Move Locator", loggerData.MoveLocator),
+	)
+
+	var htmlBody, textBody string
+	htmlBody, textBody, err = m.renderTemplates(appCtx, emailData)
+
+	if err != nil {
+		appCtx.Logger().Error("error rendering template", zap.Error(err))
+	}
+
+	ppmEmail := emailContent{
+		recipientEmail: *loggerData.ServiceMember.PersonalEmail,
+		subject:        "Your Personally Procured Move (PPM) closeout has been processed and is now available for your review.",
+		htmlBody:       htmlBody,
+		textBody:       textBody,
+	}
+
+	return append(emails, ppmEmail), nil
+}
+
+func GetEmailData(p PpmPacketEmail, appCtx appcontext.AppContext) (PpmPacketEmailData, LoggerData, error) {
+	var ppmShipment models.PPMShipment
+	err := appCtx.DB().Find(&ppmShipment, p.ppmShipmentID)
+	if err != nil {
+		return PpmPacketEmailData{}, LoggerData{}, err
 	} else if ppmShipment.PickupPostalCode == "" || ppmShipment.DestinationPostalCode == "" {
-		return emails, fmt.Errorf("no pickup or destination postal code found for this shipment")
+		return PpmPacketEmailData{}, LoggerData{}, fmt.Errorf("no pickup or destination postal code found for this shipment")
 	}
 
 	var mtoShipment models.MTOShipment
 	err = appCtx.DB().Find(&mtoShipment, ppmShipment.ShipmentID)
 	if err != nil {
-		return emails, err
+		return PpmPacketEmailData{}, LoggerData{}, err
 	}
 
 	var move models.Move
 	err = appCtx.DB().Find(&move, mtoShipment.MoveTaskOrderID)
 	if err != nil {
-		return emails, err
+		return PpmPacketEmailData{}, LoggerData{}, err
 	}
 
 	serviceMember, err := models.GetCustomerFromShipment(appCtx.DB(), ppmShipment.ShipmentID)
 	if err != nil {
-		return emails, err
+		return PpmPacketEmailData{}, LoggerData{}, err
 	}
 
 	if serviceMember.PersonalEmail == nil {
-		return emails, fmt.Errorf("no email found for service member")
+		return PpmPacketEmailData{}, LoggerData{}, fmt.Errorf("no email found for service member")
 	}
-
-	appCtx.Logger().Info("generated PPM Closeout Packet email for service member",
-		zap.String("service member uuid", serviceMember.ID.String()),
-		zap.String("PPM Shipment ID", ppmShipment.ID.String()),
-		zap.String("Move Locator", move.Locator),
-	)
 
 	var submitLocation string
 	if *serviceMember.Affiliation == models.AffiliationARMY {
@@ -114,64 +144,61 @@ func (m PpmPacketEmail) emails(appCtx appcontext.AppContext) ([]emailContent, er
 
 	var affiliationDisplayValue = map[models.ServiceMemberAffiliation]string{
 		models.AffiliationARMY:       "Army",
-		models.AffiliationNAVY:       "Marine Corps, Navy and Coast Guard",
-		models.AffiliationMARINES:    "Marine Corps, Navy and Coast Guard",
+		models.AffiliationNAVY:       "Marine Corps, Navy, and Coast Guard",
+		models.AffiliationMARINES:    "Marine Corps, Navy, and Coast Guard",
 		models.AffiliationAIRFORCE:   "Air Force and Space Force",
 		models.AffiliationSPACEFORCE: "Air Force and Space Force",
-		models.AffiliationCOASTGUARD: "Marine Corps, Navy and Coast Guard",
+		models.AffiliationCOASTGUARD: "Marine Corps, Navy, and Coast Guard",
 	}
-
-	var htmlBody, textBody string
 
 	// If address IDs are available for this PPM shipment, then do another query to get the city/state for origin and destination.
 	// Note: This is a conditional put in because this work was done before address_ids were added to the ppm_shipments table.
-	if ppmShipment.PickupPostalAddressID != uuid.Nil && ppmShipment.DestinationPostalAddressID != uuid.Nil {
+	if ppmShipment.PickupPostalAddressID != nil && ppmShipment.DestinationPostalAddressID != nil {
 		var pickupAddress, destinationAddress models.Address
 		err = appCtx.DB().Find(&pickupAddress, ppmShipment.PickupPostalAddressID)
 		if err != nil {
-			return emails, err
+			return PpmPacketEmailData{}, LoggerData{}, err
 		}
 		err = appCtx.DB().Find(&destinationAddress, ppmShipment.DestinationPostalAddressID)
 		if err != nil {
-			return emails, err
+			return PpmPacketEmailData{}, LoggerData{}, err
 		}
 
-		htmlBody, textBody, err = m.renderTemplates(appCtx, ppmPacketEmailData{
-			OriginCity:       &pickupAddress.City,
-			OriginState:      &pickupAddress.State,
-			DestinationCity:  &destinationAddress.City,
-			DestinationState: &destinationAddress.State,
-			SubmitLocation:   submitLocation,
-			NavalBranch:      navalBranch,
-			ServiceBranch:    affiliationDisplayValue[*serviceMember.Affiliation],
-			Locator:          move.Locator,
-		})
-	} else {
-		htmlBody, textBody, err = m.renderTemplates(appCtx, ppmPacketEmailData{
+		return PpmPacketEmailData{
+				OriginCity:       &pickupAddress.City,
+				OriginState:      &pickupAddress.State,
+				DestinationCity:  &destinationAddress.City,
+				DestinationState: &destinationAddress.State,
+				SubmitLocation:   submitLocation,
+				NavalBranch:      navalBranch,
+				ServiceBranch:    affiliationDisplayValue[*serviceMember.Affiliation],
+				Locator:          move.Locator,
+			},
+			LoggerData{
+				ServiceMember: *serviceMember,
+				PPMShipmentID: ppmShipment.ID,
+				MoveLocator:   move.Locator,
+			}, nil
+	}
+
+	// Fallback to using ZIPs if the above if-block for city,state doesn't happen
+	return PpmPacketEmailData{
 			OriginZIP:      &ppmShipment.PickupPostalCode,
 			DestinationZIP: &ppmShipment.DestinationPostalCode,
 			SubmitLocation: submitLocation,
 			NavalBranch:    navalBranch,
 			ServiceBranch:  affiliationDisplayValue[*serviceMember.Affiliation],
 			Locator:        move.Locator,
-		})
-	}
+		},
+		LoggerData{
+			ServiceMember: *serviceMember,
+			PPMShipmentID: ppmShipment.ID,
+			MoveLocator:   move.Locator,
+		}, nil
 
-	if err != nil {
-		appCtx.Logger().Error("error rendering template", zap.Error(err))
-	}
-
-	ppmEmail := emailContent{
-		recipientEmail: *serviceMember.PersonalEmail,
-		subject:        "Your Personally Procured Move (PPM) closeout has been processed and is now available for your review.",
-		htmlBody:       htmlBody,
-		textBody:       textBody,
-	}
-
-	return append(emails, ppmEmail), nil
 }
 
-func (m PpmPacketEmail) renderTemplates(appCtx appcontext.AppContext, data ppmPacketEmailData) (string, string, error) {
+func (m PpmPacketEmail) renderTemplates(appCtx appcontext.AppContext, data PpmPacketEmailData) (string, string, error) {
 	htmlBody, err := m.RenderHTML(appCtx, data)
 	if err != nil {
 		return "", "", fmt.Errorf("error rendering html template using %#v", data)
@@ -184,7 +211,7 @@ func (m PpmPacketEmail) renderTemplates(appCtx appcontext.AppContext, data ppmPa
 }
 
 // RenderHTML renders the html for the email
-func (m PpmPacketEmail) RenderHTML(appCtx appcontext.AppContext, data ppmPacketEmailData) (string, error) {
+func (m PpmPacketEmail) RenderHTML(appCtx appcontext.AppContext, data PpmPacketEmailData) (string, error) {
 	var htmlBuffer bytes.Buffer
 	if err := m.htmlTemplate.Execute(&htmlBuffer, data); err != nil {
 		appCtx.Logger().Error("cant render html template ", zap.Error(err))
@@ -193,7 +220,7 @@ func (m PpmPacketEmail) RenderHTML(appCtx appcontext.AppContext, data ppmPacketE
 }
 
 // RenderText renders the text for the email
-func (m PpmPacketEmail) RenderText(appCtx appcontext.AppContext, data ppmPacketEmailData) (string, error) {
+func (m PpmPacketEmail) RenderText(appCtx appcontext.AppContext, data PpmPacketEmailData) (string, error) {
 	var textBuffer bytes.Buffer
 	if err := m.textTemplate.Execute(&textBuffer, data); err != nil {
 		appCtx.Logger().Error("cant render text template ", zap.Error(err))
