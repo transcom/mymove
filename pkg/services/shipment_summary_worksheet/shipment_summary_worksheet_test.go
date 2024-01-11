@@ -769,30 +769,30 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatRank() {
 // 	suite.Equal("1,000,000", FormatWeights(1000000))
 // }
 
-// func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatOrdersIssueDate() {
-// 	dec212018 := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)
-// 	jan012019 := time.Date(2019, time.January, 1, 0, 0, 0, 0, time.UTC)
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatOrdersIssueDate() {
+	dec212018 := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)
+	jan012019 := time.Date(2019, time.January, 1, 0, 0, 0, 0, time.UTC)
 
-// 	suite.Equal("21-Dec-2018", FormatDate(dec212018))
-// 	suite.Equal("01-Jan-2019", FormatDate(jan012019))
-// }
+	suite.Equal("21-Dec-2018", FormatDate(dec212018))
+	suite.Equal("01-Jan-2019", FormatDate(jan012019))
+}
 
-// func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatOrdersType() {
-// 	pcsOrder := models.Order{OrdersType: internalmessages.OrdersTypePERMANENTCHANGEOFSTATION}
-// 	var unknownOrdersType internalmessages.OrdersType = "UNKNOWN_ORDERS_TYPE"
-// 	localOrder := models.Order{OrdersType: unknownOrdersType}
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatOrdersType() {
+	pcsOrder := models.Order{OrdersType: internalmessages.OrdersTypePERMANENTCHANGEOFSTATION}
+	var unknownOrdersType internalmessages.OrdersType = "UNKNOWN_ORDERS_TYPE"
+	localOrder := models.Order{OrdersType: unknownOrdersType}
 
-// 	suite.Equal("PCS", FormatOrdersType(pcsOrder))
-// 	suite.Equal("", FormatOrdersType(localOrder))
-// }
+	suite.Equal("PCS", FormatOrdersType(pcsOrder))
+	suite.Equal("", FormatOrdersType(localOrder))
+}
 
-// func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatServiceMemberAffiliation() {
-// 	airForce := models.AffiliationAIRFORCE
-// 	marines := models.AffiliationMARINES
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatServiceMemberAffiliation() {
+	airForce := models.AffiliationAIRFORCE
+	marines := models.AffiliationMARINES
 
-// 	suite.Equal("Air Force", FormatServiceMemberAffiliation(&airForce))
-// 	suite.Equal("Marines", FormatServiceMemberAffiliation(&marines))
-// }
+	suite.Equal("Air Force", FormatServiceMemberAffiliation(&airForce))
+	suite.Equal("Marines", FormatServiceMemberAffiliation(&marines))
+}
 
 // func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatPPMWeight() {
 // 	pounds := unit.Pound(1000)
@@ -803,57 +803,57 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatRank() {
 // 	suite.Equal("", FormatPPMWeight(noWtg))
 // }
 
-// func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementNoHHGPPMLessThanMaxEntitlement() {
-// 	ppmWeight := unit.Pound(900)
-// 	totalEntitlement := unit.Pound(1000)
-// 	move := models.Move{
-// 		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
-// 	}
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementNoHHGPPMLessThanMaxEntitlement() {
+	ppmWeight := unit.Pound(900)
+	totalEntitlement := unit.Pound(1000)
+	move := models.Move{
+		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
+	}
 
-// 	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, totalEntitlement)
-// 	suite.NoError(err)
+	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, totalEntitlement)
+	suite.NoError(err)
 
-// 	suite.Equal(unit.Pound(ppmWeight), ppmRemainingEntitlement)
-// }
+	suite.Equal(unit.Pound(ppmWeight), ppmRemainingEntitlement)
+}
 
-// func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementNoHHGPPMGreaterThanMaxEntitlement() {
-// 	ppmWeight := unit.Pound(1100)
-// 	totalEntitlement := unit.Pound(1000)
-// 	move := models.Move{
-// 		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
-// 	}
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementNoHHGPPMGreaterThanMaxEntitlement() {
+	ppmWeight := unit.Pound(1100)
+	totalEntitlement := unit.Pound(1000)
+	move := models.Move{
+		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
+	}
 
-// 	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, totalEntitlement)
-// 	suite.NoError(err)
+	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, totalEntitlement)
+	suite.NoError(err)
 
-// 	suite.Equal(totalEntitlement, ppmRemainingEntitlement)
-// }
+	suite.Equal(totalEntitlement, ppmRemainingEntitlement)
+}
 
-// func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignature() {
-// 	sm := models.ServiceMember{
-// 		FirstName: models.StringPointer("John"),
-// 		LastName:  models.StringPointer("Smith"),
-// 	}
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignature() {
+	sm := models.ServiceMember{
+		FirstName: models.StringPointer("John"),
+		LastName:  models.StringPointer("Smith"),
+	}
 
-// 	formattedSignature := FormatSignature(sm)
+	formattedSignature := FormatSignature(sm)
 
-// 	suite.Equal("John Smith electronically signed", formattedSignature)
-// }
+	suite.Equal("John Smith electronically signed", formattedSignature)
+}
 
-// func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignatureDate() {
-// 	signatureDate := time.Date(2019, time.January, 26, 14, 40, 0, 0, time.UTC)
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignatureDate() {
+	signatureDate := time.Date(2019, time.January, 26, 14, 40, 0, 0, time.UTC)
 
-// 	signature := models.SignedCertification{
-// 		Date: signatureDate,
-// 	}
-// 	sswfd := ShipmentSummaryFormData{
-// 		SignedCertification: signature,
-// 	}
+	signature := models.SignedCertification{
+		Date: signatureDate,
+	}
+	sswfd := ShipmentSummaryFormData{
+		SignedCertification: signature,
+	}
 
-// 	formattedDate := FormatSignatureDate(sswfd.SignedCertification)
+	formattedDate := FormatSignatureDate(sswfd.SignedCertification)
 
-// 	suite.Equal("26 Jan 2019 at 2:40pm", formattedDate)
-// }
+	suite.Equal("26 Jan 2019 at 2:40pm", formattedDate)
+}
 
 // func (mppmc *mockPPMComputer) ComputePPMMoveCosts(_ appcontext.AppContext, weight unit.Pound, originPickupZip5 string, originDutyLocationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyLocationZip int, date time.Time, daysInSit int) (cost rateengine.CostDetails, err error) {
 // 	mppmc.ppmComputerParams = append(mppmc.ppmComputerParams, ppmComputerParams{
@@ -869,10 +869,11 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatRank() {
 // 	return mppmc.costDetails, mppmc.err
 // }
 
-// func (mppmc *mockPPMComputer) CalledWith() []ppmComputerParams {
-// 	return mppmc.ppmComputerParams
-// }
+func (mppmc *mockPPMComputer) CalledWith() []ppmComputerParams {
+	return mppmc.ppmComputerParams
+}
 
+// Obligations testing is on hold until new calculation process is made
 // func (suite *ShipmentSummaryWorksheetServiceSuite) TestComputeObligationsParams() {
 // 	ppmComputer := NewSSWPPMComputer(&mockPPMComputer{})
 // 	pickupPostalCode := "85369"
@@ -905,6 +906,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatRank() {
 // 	suite.Equal("missing required original move date parameter", err3.Error())
 // }
 
+// Obligations testing is on hold until new calculation process is made
 // func (suite *ShipmentSummaryWorksheetServiceSuite) TestComputeObligations() {
 // 	miles := 100
 // 	totalWeightEntitlement := unit.Pound(1000)
