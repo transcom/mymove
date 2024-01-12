@@ -1402,6 +1402,32 @@ paths:
         (`PrimeActualWeight`) will be considered in the calculation.
 
 
+        **NOTE**: Diversions have a unique calcuation for payment requests
+        without a `WeightBilled` parameter.
+
+
+        If you created a payment request for a diversion and `WeightBilled` is
+        not provided, then the following will be used in the calculation:
+
+        - The lowest shipment weight (`PrimeActualWeight`) found in the diverted
+        shipment chain.
+
+        - The lowest reweigh weight found in the diverted shipment chain.
+
+
+        The diverted shipment chain is created by referencing the `diversion`
+        boolean, `divertedFromShipmentId` UUID, and matching destination to
+        pickup addresses.
+
+        If the chain cannot be established it will fall back to the
+        `PrimeActualWeight` of the current shipment. This is utilized because
+        diverted shipments are all one single shipment, but going to different
+        locations.
+
+        The lowest weight found is the true shipment weight, and thus we search
+        the chain of shipments for the lowest weight found.
+
+
         **DOFSIT - Domestic origin 1st day SIT**
 
         ```json

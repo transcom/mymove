@@ -38,6 +38,11 @@ Creates a new shipment within the specified move. This endpoint should be used w
 need for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must
 approve it before the contractor can proceed with billing.
 
+**NOTE**: When creating a child shipment diversion, you can no longer specify the `primeActualWeight`.
+If you create a new diverted shipment with the `diversion` and `divertedFromShipmentId` parameter, it will automatically
+inherit the primeActualWeight of its `divertedFromShipmentId` parent. Payment requests created on a diverted shipment "chain" will utilize
+the lowest weight possible in the chain to prevent overcharging as they are still separate shipments.
+
 **WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to
 one of their moves. Otherwise, the Prime can fetch the related move using the
 [getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status `"APPROVED"`.

@@ -10,7 +10,7 @@ import { func } from 'prop-types';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import { primeSimulatorRoutes } from 'constants/routes';
 import scrollToTop from 'shared/scrollToTop';
-import { createPrimeMTOShipment } from 'services/primeApi';
+import { createPrimeMTOShipmentV2 } from 'services/primeApi';
 import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
@@ -31,7 +31,7 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
   const handleClose = () => {
     navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
   };
-  const { mutateAsync: mutateCreateMTOShipment } = useMutation(createPrimeMTOShipment, {
+  const { mutateAsync: mutateCreateMTOShipment } = useMutation(createPrimeMTOShipmentV2, {
     onSuccess: (createdMTOShipment) => {
       setFlashMessage(
         `MSG_CREATE_PAYMENT_SUCCESS${createdMTOShipment.id}`,
