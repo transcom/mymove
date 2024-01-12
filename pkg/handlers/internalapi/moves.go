@@ -213,12 +213,13 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
 			ppmShipmentID, _ := uuid.FromString(params.PpmShipmentID.String())
+			logger := appCtx.Logger()
 
 			ppmShipment, err := models.FetchPPMShipmentByPPMShipmentID(appCtx.DB(), ppmShipmentID)
 			if err != nil {
+				logger.Error("Error fetching PPMShipment", zap.Error(err))
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-			logger := appCtx.Logger()
 
 			ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer(ppmShipment)
 
