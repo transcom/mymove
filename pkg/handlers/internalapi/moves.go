@@ -225,16 +225,14 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer(ppmShipment)
-
-			ssfd, err := shipmentsummaryworksheet.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentID)
+			ssfd, err := h.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipment.ID)
 			if err != nil {
 				logger.Error("Error fetching data for SSW", zap.Error(err))
 				return handlers.ResponseForError(logger, err), err
 			}
 
 			ssfd.PreparationDate = time.Time(params.PreparationDate)
-			ssfd.Obligations, err = ppmComputer.ComputeObligations(appCtx, ssfd, h.DTODPlanner())
+			ssfd.Obligations, err = h.SSWPPMComputer.ComputeObligations(appCtx, ssfd, h.DTODPlanner())
 			if err != nil {
 				logger.Error("Error calculating obligations ", zap.Error(err))
 				return handlers.ResponseForError(logger, err), err
@@ -314,6 +312,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 // ShowShipmentSummaryWorksheetHandler returns a Shipment Summary Worksheet PDF
 type ShowShipmentSummaryWorksheetHandler struct {
 	handlers.HandlerConfig
+	services.SSWPPMComputer
 }
 
 // SubmitAmendedOrdersHandler approves a move via POST /moves/{moveId}/submit
