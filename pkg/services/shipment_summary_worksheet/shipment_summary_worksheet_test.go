@@ -66,40 +66,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 		ApplicationName: auth.MilApp,
 	}
 
-	// Signed certification needsd to be reworked for new SSW Model
-	// moveRouter := moverouter.NewMoveRouter()
-	// newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
-	// 	{
-	// 		Model:    move,
-	// 		LinkOnly: true,
-	// 	},
-	// }, nil)
-	// moveRouter.Submit(suite.AppContextForTest(), &ppm.Move, &newSignedCertification)
-	// moveRouter.Approve(suite.AppContextForTest(), &ppm.Move)
-	// // This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
-	// ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	// ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	// ppm.Move.PersonallyProcuredMoves[0].RequestPayment()
-	// models.SaveMoveDependencies(suite.DB(), &ppm.Move)
-	// certificationType := models.SignedCertificationTypePPMPAYMENT
 	models.SaveMoveDependencies(suite.DB(), &ppmShipment.Shipment.MoveTaskOrder)
 
-	// Signed certification needsd to be reworked for new SSW Model
-	// signedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
-	// 	{
-	// 		Model:    move,
-	// 		LinkOnly: true,
-	// 	},
-	// 	{
-	// 		Model: models.SignedCertification{
-	// 			PersonallyProcuredMoveID: &ppm.ID,
-	// 			CertificationType:        &certificationType,
-	// 			CertificationText:        "LEGAL",
-	// 			Signature:                "ACCEPT",
-	// 			Date:                     testdatagen.NextValidMoveDate,
-	// 		},
-	// 	},
-	// }, nil)
 	ssd, err := FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, ppmShipmentID)
 
 	suite.NoError(err)
@@ -230,23 +198,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 		ApplicationName: auth.MilApp,
 	}
 	models.SaveMoveDependencies(suite.DB(), &ppmShipment.Shipment.MoveTaskOrder)
-	// Certifications need to be reworked due to new model
-	// certificationType := models.SignedCertificationTypePPMPAYMENT
-	// signedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
-	// 	{
-	// 		Model:    move,
-	// 		LinkOnly: true,
-	// 	},
-	// 	{
-	// 		Model: models.SignedCertification{
-	// 			PersonallyProcuredMoveID: &ppmShipment.ID,
-	// 			CertificationType:        &certificationType,
-	// 			CertificationText:        "LEGAL",
-	// 			Signature:                "ACCEPT",
-	// 			Date:                     testdatagen.NextValidMoveDate,
-	// 		},
-	// 	},
-	// }, nil)
 	ssd, err := FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, ppmShipmentID)
 
 	suite.NoError(err)
