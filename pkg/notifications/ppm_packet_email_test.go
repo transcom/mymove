@@ -117,16 +117,16 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpa
 		DestinationCity:  &destinationAddress.City,
 		DestinationState: &destinationAddress.State,
 		SubmitLocation:   allOtherSubmitLocation,
-		NavalBranch:      false,
 		ServiceBranch:    affiliationDisplayValue[*serviceMember.Affiliation],
 		Locator:          move.Locator,
 	})
 
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your Personally Procured Move (PPM) with the assigned move code ` + move.Locator + ` from ` + pickupAddress.City + `,` + pickupAddress.State + ` to ` + destinationAddress.City + `,` + destinationAddress.State + ` has been processed in MilMove. </p>
-<p>Next steps:</p>
+<p>This is a confirmation that your Personally Procured Move (PPM) with the assigned move code <strong>` + move.Locator + `</strong> from <strong>` + pickupAddress.City + `,` + pickupAddress.State + ` to ` + destinationAddress.City + `,` + destinationAddress.State + ` </strong>has been processed in MilMove. </p>
+<h4>Next steps:</h4>
+
 <p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):</p>
-<p>You can now log into MilMove <a href="https://my.move.mil/">https://my.move.mil/</a> and download your payment packet to submit to ` + allOtherSubmitLocation + `. You must complete this step to receive final settlement of your PPM.</p>
+<p>You can now log into MilMove <a href="https://my.move.mil/">https://my.move.mil/</a> and download your payment packet to submit to ` + allOtherSubmitLocation + `. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
 <p>Note: The Transportation Office does not determine claimable expenses. Claimable expenses will be determined by finance.</p>
 
 <p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a></p>
@@ -203,17 +203,17 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForArmy() {
 		DestinationCity:  &destinationAddress.City,
 		DestinationState: &destinationAddress.State,
 		SubmitLocation:   armySubmitLocation,
-		NavalBranch:      false,
 		ServiceBranch:    affiliationDisplayValue[*serviceMember.Affiliation],
 		Locator:          move.Locator,
 	})
 
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your Personally Procured Move (PPM) with the assigned move code ` + move.Locator + ` from ` + pickupAddress.City + `,` + pickupAddress.State + ` to ` + destinationAddress.City + `,` + destinationAddress.State + ` has been processed in MilMove. </p>
-<p>Next steps:</p>
+<p>This is a confirmation that your Personally Procured Move (PPM) with the assigned move code <strong>` + move.Locator + `</strong> from <strong>` + pickupAddress.City + `,` + pickupAddress.State + ` to ` + destinationAddress.City + `,` + destinationAddress.State + ` </strong>has been processed in MilMove. </p>
+<h4>Next steps:</h4>
+
 <p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):</p>
-<p>You can now log into MilMove <a href="https://my.move.mil/">https://my.move.mil/</a> and download your payment packet to submit to ` + armySubmitLocation + `. You must complete this step to receive final settlement of your PPM.</p>
-<p>Note: The Transportation Office does not determine claimable expenses. Claimable expenses will be determined by finance.</p>
+<p>You can now log into MilMove <a href="https://my.move.mil/">https://my.move.mil/</a> and download your payment packet to submit to ` + armySubmitLocation + `. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
+<p>Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense</p>
 
 <p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a></p>
 
@@ -289,14 +289,14 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForNavalBran
 		DestinationCity:  &destinationAddress.City,
 		DestinationState: &destinationAddress.State,
 		SubmitLocation:   allOtherSubmitLocation,
-		NavalBranch:      true,
 		ServiceBranch:    affiliationDisplayValue[*serviceMember.Affiliation],
 		Locator:          move.Locator,
 	})
 
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your Personally Procured Move (PPM) with the assigned move code ` + move.Locator + ` from ` + pickupAddress.City + `,` + pickupAddress.State + ` to ` + destinationAddress.City + `,` + destinationAddress.State + ` has been processed in MilMove. </p>
-<p>Next steps:</p>
+<p>This is a confirmation that your Personally Procured Move (PPM) with the assigned move code <strong>` + move.Locator + `</strong> from <strong>` + pickupAddress.City + `,` + pickupAddress.State + ` to ` + destinationAddress.City + `,` + destinationAddress.State + ` </strong>has been processed in MilMove. </p>
+<h4>Next steps:</h4>
+
 <p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel:</p>
 <p>You can now log into MilMove <a href="https://my.move.mil/">https://my.move.mil/</a> and view your payment packet; however, you do not need to forward your packet to finance as your closeout location is associated with your finance office and they will handle this step for you.</p>
 <p>Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.</p>
@@ -375,13 +375,14 @@ func (suite *NotificationSuite) TestPpmPacketEmailTextTemplateRender() {
 This is a confirmation that your Personally Procured Move (PPM) with the assigned move code ` + move.Locator + ` from ` + pickupAddress.City + `,` + pickupAddress.State + ` to ` + destinationAddress.City + `,` + destinationAddress.State + ` has been processed in MilMove.
 
 Next steps:
+
 For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):
 
 You can now log into MilMove <https://my.move.mil/> and download your payment packet to submit to ` + armySubmitLocation + `. You must complete this step to receive final settlement of your PPM.
 
-Note: The Transportation Office does not determine claimable expenses. Claimable expenses will be determined by finance.
+Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.
 
-If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here:
+If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL>
 
 Thank you,
 
@@ -439,16 +440,16 @@ func (suite *NotificationSuite) TestPpmPacketEmailZipcodeFallback() {
 		OriginZIP:      &customPPM.PickupPostalCode,
 		DestinationZIP: &customPPM.DestinationPostalCode,
 		SubmitLocation: allOtherSubmitLocation,
-		NavalBranch:    false,
 		ServiceBranch:  affiliationDisplayValue[*serviceMember.Affiliation],
 		Locator:        move.Locator,
 	})
 
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your Personally Procured Move (PPM) with the assigned move code ` + move.Locator + ` from ` + *ppmEmailData.OriginZIP + ` to ` + *ppmEmailData.DestinationZIP + ` has been processed in MilMove. </p>
-<p>Next steps:</p>
+<p>This is a confirmation that your Personally Procured Move (PPM) with the assigned move code <strong>` + move.Locator + `</strong> from <strong>` + *ppmEmailData.OriginZIP + ` to ` + *ppmEmailData.DestinationZIP + ` </strong>has been processed in MilMove. </p>
+<h4>Next steps:</h4>
+
 <p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):</p>
-<p>You can now log into MilMove <a href="https://my.move.mil/">https://my.move.mil/</a> and download your payment packet to submit to ` + allOtherSubmitLocation + `. You must complete this step to receive final settlement of your PPM.</p>
+<p>You can now log into MilMove <a href="https://my.move.mil/">https://my.move.mil/</a> and download your payment packet to submit to ` + allOtherSubmitLocation + `. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
 <p>Note: The Transportation Office does not determine claimable expenses. Claimable expenses will be determined by finance.</p>
 
 <p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a></p>

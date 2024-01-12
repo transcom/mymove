@@ -38,7 +38,6 @@ type PpmPacketEmailData struct {
 	DestinationCity  *string
 	DestinationState *string
 	SubmitLocation   string
-	NavalBranch      bool
 	ServiceBranch    string
 	Locator          string
 }
@@ -134,14 +133,6 @@ func GetEmailData(p PpmPacketEmail, appCtx appcontext.AppContext) (PpmPacketEmai
 		submitLocation = `your local finance office`
 	}
 
-	var navalBranch bool
-	if *serviceMember.Affiliation == models.AffiliationNAVY || *serviceMember.Affiliation == models.AffiliationMARINES ||
-		*serviceMember.Affiliation == models.AffiliationCOASTGUARD {
-		navalBranch = true
-	} else {
-		navalBranch = false
-	}
-
 	var affiliationDisplayValue = map[models.ServiceMemberAffiliation]string{
 		models.AffiliationARMY:       "Army",
 		models.AffiliationNAVY:       "Marine Corps, Navy, and Coast Guard",
@@ -170,7 +161,6 @@ func GetEmailData(p PpmPacketEmail, appCtx appcontext.AppContext) (PpmPacketEmai
 				DestinationCity:  &destinationAddress.City,
 				DestinationState: &destinationAddress.State,
 				SubmitLocation:   submitLocation,
-				NavalBranch:      navalBranch,
 				ServiceBranch:    affiliationDisplayValue[*serviceMember.Affiliation],
 				Locator:          move.Locator,
 			},
@@ -186,7 +176,6 @@ func GetEmailData(p PpmPacketEmail, appCtx appcontext.AppContext) (PpmPacketEmai
 			OriginZIP:      &ppmShipment.PickupPostalCode,
 			DestinationZIP: &ppmShipment.DestinationPostalCode,
 			SubmitLocation: submitLocation,
-			NavalBranch:    navalBranch,
 			ServiceBranch:  affiliationDisplayValue[*serviceMember.Affiliation],
 			Locator:        move.Locator,
 		},
