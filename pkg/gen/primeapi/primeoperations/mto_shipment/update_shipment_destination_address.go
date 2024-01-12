@@ -36,8 +36,7 @@ updateShipmentDestinationAddress
 
 ### Functionality
 This endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,
-after the destination address has already been approved. If there are any destination SIT service items present, it will
-also apply the update to these service items.
+after the destination address has already been approved.
 
 Address updates will be automatically approved unless they change:
   - The service area
@@ -46,17 +45,8 @@ Address updates will be automatically approved unless they change:
   - Domestic Short Haul to Domestic Line Haul or vice versa
   - Shipments that start and end in one ZIP3 use Short Haul pricing
   - Shipments that start and end in different ZIP3s use Line Haul pricing
-  - The SIT service item mileage by more than 50 miles based on the new destination address
-  - Or if the new SIT service item mileage goes under 50 miles based on the new destination address if it was previously over by 50 miles
 
 For those, changes will require TOO approval.
-
-### Impacted service items
-On a new address approval for an MTO Shipment, the following service items will inherit the change:
-  - DDFSIT - Domestic destination 1st day SIT
-  - DDASIT - Domestic destination Additional day SIT
-  - DDDSIT - Domestic destination SIT delivery
-  - DDSFSC - Domestic destination SIT fuel surcharge
 */
 type UpdateShipmentDestinationAddress struct {
 	Context *middleware.Context

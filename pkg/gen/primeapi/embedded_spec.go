@@ -1049,7 +1049,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
       "post": {
-        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved. If there are any destination SIT service items present, it will\nalso apply the update to these service items.\n\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n  - The SIT service item mileage by more than 50 miles based on the new destination address\n    - Or if the new SIT service item mileage goes under 50 miles based on the new destination address if it was previously over by 50 miles\n\nFor those, changes will require TOO approval.\n\n### Impacted service items\nOn a new address approval for an MTO Shipment, the following service items will inherit the change:\n  * DDFSIT - Domestic destination 1st day SIT\n  * DDASIT - Domestic destination Additional day SIT\n  * DDDSIT - Domestic destination SIT delivery\n  * DDSFSC - Domestic destination SIT fuel surcharge\n",
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\n\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
         "consumes": [
           "application/json"
         ],
@@ -4600,7 +4600,7 @@ func init() {
       }
     },
     "UpdateShipmentDestinationAddress": {
-      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment which applies to its destination SIT service items of DDFSIT, DDASIT, DDDSIT, and DDSFSC.",
+      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment.",
       "type": "object",
       "required": [
         "contractorRemarks",
@@ -6120,7 +6120,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
       "post": {
-        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved. If there are any destination SIT service items present, it will\nalso apply the update to these service items.\n\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n  - The SIT service item mileage by more than 50 miles based on the new destination address\n    - Or if the new SIT service item mileage goes under 50 miles based on the new destination address if it was previously over by 50 miles\n\nFor those, changes will require TOO approval.\n\n### Impacted service items\nOn a new address approval for an MTO Shipment, the following service items will inherit the change:\n  * DDFSIT - Domestic destination 1st day SIT\n  * DDASIT - Domestic destination Additional day SIT\n  * DDDSIT - Domestic destination SIT delivery\n  * DDSFSC - Domestic destination SIT fuel surcharge\n",
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\n\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
         "consumes": [
           "application/json"
         ],
@@ -9866,7 +9866,7 @@ func init() {
       }
     },
     "UpdateShipmentDestinationAddress": {
-      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment which applies to its destination SIT service items of DDFSIT, DDASIT, DDDSIT, and DDSFSC.",
+      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment.",
       "type": "object",
       "required": [
         "contractorRemarks",
