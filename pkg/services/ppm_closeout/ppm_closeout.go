@@ -32,6 +32,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 			"ActualWeight",
 			"ProGearWeightCustomer",
 			"ProGearWeightSpouse",
+			"GrossIncentive",
 		).
 		Join("mto_shipments", "mto_shipments.id = ppm_shipments.shipment_id").
 		Find(&ppmShipment, ppmShipmentID)

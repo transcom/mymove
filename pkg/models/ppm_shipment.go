@@ -20,7 +20,7 @@ type PPMCloseout struct {
 	ActualWeight               *unit.Pound `db:"prime_actual_weight"`
 	ProGearWeightCustomer      *unit.Pound `db:"pro_gear_weight"`
 	ProGearWeightSpouse        *unit.Pound `db:"pro_gear_weight_spouse"`
-	GrossIncentive             *unit.Cents
+	GrossIncentive             *unit.Cents `db:"final_incentive"`
 	GCC                        *unit.Cents
 	AOA                        *unit.Cents
 	RemainingReimbursementOwed *unit.Cents
