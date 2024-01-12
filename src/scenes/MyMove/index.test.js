@@ -123,7 +123,7 @@ describe('CustomerApp tests', () => {
     });
   });
 
-  describe('with GHC/HHG feature flags turned off', () => {
+  describe('with GHC/HHG/MultiMove feature flags turned off', () => {
     it('renders without crashing or erroring', () => {
       const mockStore = configureStore(loggedInCustomerState);
 
@@ -135,6 +135,7 @@ describe('CustomerApp tests', () => {
           flags: {
             hhgFlow: false,
             ghcFlow: false,
+            multiMove: false,
           },
         },
       };
@@ -155,7 +156,7 @@ describe('CustomerApp tests', () => {
   });
 
   describe('with GHC/HHG feature flags turned on', () => {
-    it('renders without crashing or erroring', () => {
+    it('renders without crashing or erroring and also detects the multiMove info alert', () => {
       const mockStore = configureStore(loggedInCustomerState);
 
       const flagsOnProps = {
@@ -166,6 +167,7 @@ describe('CustomerApp tests', () => {
           flags: {
             hhgFlow: true,
             ghcFlow: true,
+            multiMove: true,
           },
         },
       };
@@ -183,6 +185,7 @@ describe('CustomerApp tests', () => {
 
     expect(screen.queryByText('Missing Context')).not.toBeInTheDocument();
     expect(screen.queryByText('Error')).not.toBeInTheDocument();
+    expect(screen.getByText('The Multi Move feature is enabled')).toBeInTheDocument();
   });
 
   describe('Page components', () => {
