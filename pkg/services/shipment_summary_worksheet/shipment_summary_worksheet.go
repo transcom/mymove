@@ -17,8 +17,21 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 )
+
+// SSWPPMComputer is the concrete struct implementing the services.shipmentsummaryworksheet interface
+type SSWPPMComputer1 struct {
+	isTest bool
+}
+
+// NewSSWPPMComputer creates a SSWPPMComputer
+func NewSSWPPMComputer(isTest bool) (services.SSWPPMComputer, error) {
+	return &SSWPPMComputer1{
+		isTest,
+	}, nil
+}
 
 // FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
 func FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummaryFormData) (Page1Values, Page2Values, Page3Values, error) {
@@ -198,65 +211,6 @@ func (obligation Obligation) FormatSIT() float64 {
 // MaxAdvance calculates the Max Advance on the shipment summary worksheet
 func (obligation Obligation) MaxAdvance() float64 {
 	return obligation.Gcc.MultiplyFloat64(.60).ToDollarFloatNoRound()
-}
-
-// FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
-func FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, _ *auth.Session, ppmShipmentID uuid.UUID) (ShipmentSummaryFormData, error) {
-	ppmShipment := models.PPMShipment{}
-	dbQErr := appCtx.DB().Q().Eager(
-		"Shipment.MoveTaskOrder.Orders.ServiceMember",
-		"Shipment.MoveTaskOrder",
-		"Shipment.MoveTaskOrder.Orders",
-		"Shipment.MoveTaskOrder.Orders.NewDutyLocation.Address",
-		"Shipment.MoveTaskOrder.Orders.ServiceMember.DutyLocation.Address",
-	).Find(&ppmShipment, ppmShipmentID)
-
-	if dbQErr != nil {
-		if errors.Cause(dbQErr).Error() == models.RecordNotFoundErrorString {
-			return ShipmentSummaryFormData{}, models.ErrFetchNotFound
-		}
-		return ShipmentSummaryFormData{}, dbQErr
-	}
-
-	serviceMember := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
-	var rank models.ServiceMemberRank
-	var weightAllotment SSWMaxWeightEntitlement
-	if serviceMember.Rank != nil {
-		rank = models.ServiceMemberRank(*serviceMember.Rank)
-		weightAllotment = SSWGetEntitlement(rank, ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear)
-	}
-
-	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(ppmShipment.Shipment.MoveTaskOrder, weightAllotment.TotalWeight)
-	if err != nil {
-		return ShipmentSummaryFormData{}, err
-	}
-
-	// Signed Certification needs to be updated
-	// signedCertification, err := models.FetchSignedCertificationsPPMPayment(appCtx.DB(), session, ppmShipment.Shipment.MoveTaskOrderID)
-	// if err != nil {
-	// 	return ShipmentSummaryFormData{}, err
-	// }
-	// if signedCertification == nil {
-	// 	return ShipmentSummaryFormData{},
-	// 		errors.New("shipment summary worksheet: signed certification is nil")
-	// }
-
-	var ppmShipments []models.PPMShipment
-
-	ppmShipments = append(ppmShipments, ppmShipment)
-
-	ssd := ShipmentSummaryFormData{
-		ServiceMember:       serviceMember,
-		Order:               ppmShipment.Shipment.MoveTaskOrder.Orders,
-		Move:                ppmShipment.Shipment.MoveTaskOrder,
-		CurrentDutyLocation: serviceMember.DutyLocation,
-		NewDutyLocation:     ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation,
-		WeightAllotment:     weightAllotment,
-		PPMShipments:        ppmShipments,
-		// SignedCertification:     *signedCertification,
-		PPMRemainingEntitlement: ppmRemainingEntitlement,
-	}
-	return ssd, nil
 }
 
 // SSWMaxWeightEntitlement weight allotment for the shipment summary worksheet.
@@ -623,21 +577,12 @@ func derefStringTypes(st interface{}) string {
 	return ""
 }
 
-// SSWPPMComputer a rate engine wrapper with helper functions to simplify ppm cost calculations specific to shipment summary worksheet
-type SSWPPMComputer struct {
-}
-
-// NewSSWPPMComputer creates a SSWPPMComputer
-func NewSSWPPMComputer(_ *models.PPMShipment) *SSWPPMComputer {
-	return &SSWPPMComputer{}
-}
-
 // ObligationType type corresponding to obligation sections of shipment summary worksheet
 type ObligationType int
 
 // ComputeObligations is helper function for computing the obligations section of the shipment summary worksheet
 // Obligations must remain as static test data until new computer system is finished
-func (sswPpmComputer *SSWPPMComputer) ComputeObligations(_ appcontext.AppContext, _ ShipmentSummaryFormData, _ route.Planner) (obligation Obligations, err error) {
+func (sswPpmComputer *SSWPPMComputer1) ComputeObligations(_ appcontext.AppContext, _ ShipmentSummaryFormData, _ route.Planner) (obligation Obligations, err error) {
 	// Obligations must remain test data until new computer system is finished
 	obligations := Obligations{
 		ActualObligation:           Obligation{Gcc: 123, SIT: 123, Miles: unit.Miles(123456)},
@@ -646,4 +591,64 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(_ appcontext.AppContext
 		NonWinningMaxObligation:    Obligation{Gcc: 1000, SIT: 1000, Miles: unit.Miles(12345)},
 	}
 	return obligations, nil
+}
+
+// FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
+func (SSWPPMComputer *SSWPPMComputer1) FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, _ *auth.Session, ppmShipmentID uuid.UUID) (ShipmentSummaryFormData, error) {
+
+	ppmShipment := models.PPMShipment{}
+	dbQErr := appCtx.DB().Q().Eager(
+		"Shipment.MoveTaskOrder.Orders.ServiceMember",
+		"Shipment.MoveTaskOrder",
+		"Shipment.MoveTaskOrder.Orders",
+		"Shipment.MoveTaskOrder.Orders.NewDutyLocation.Address",
+		"Shipment.MoveTaskOrder.Orders.ServiceMember.DutyLocation.Address",
+	).Find(&ppmShipment, ppmShipmentID)
+
+	if dbQErr != nil {
+		if errors.Cause(dbQErr).Error() == models.RecordNotFoundErrorString {
+			return ShipmentSummaryFormData{}, models.ErrFetchNotFound
+		}
+		return ShipmentSummaryFormData{}, dbQErr
+	}
+
+	serviceMember := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+	var rank models.ServiceMemberRank
+	var weightAllotment SSWMaxWeightEntitlement
+	if serviceMember.Rank != nil {
+		rank = models.ServiceMemberRank(*serviceMember.Rank)
+		weightAllotment = SSWGetEntitlement(rank, ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear)
+	}
+
+	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(ppmShipment.Shipment.MoveTaskOrder, weightAllotment.TotalWeight)
+	if err != nil {
+		return ShipmentSummaryFormData{}, err
+	}
+
+	// Signed Certification needs to be updated
+	// signedCertification, err := models.FetchSignedCertificationsPPMPayment(appCtx.DB(), session, ppmShipment.Shipment.MoveTaskOrderID)
+	// if err != nil {
+	// 	return ShipmentSummaryFormData{}, err
+	// }
+	// if signedCertification == nil {
+	// 	return ShipmentSummaryFormData{},
+	// 		errors.New("shipment summary worksheet: signed certification is nil")
+	// }
+
+	var ppmShipments []models.PPMShipment
+
+	ppmShipments = append(ppmShipments, ppmShipment)
+
+	ssd := ShipmentSummaryFormData{
+		ServiceMember:       serviceMember,
+		Order:               ppmShipment.Shipment.MoveTaskOrder.Orders,
+		Move:                ppmShipment.Shipment.MoveTaskOrder,
+		CurrentDutyLocation: serviceMember.DutyLocation,
+		NewDutyLocation:     ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation,
+		WeightAllotment:     weightAllotment,
+		PPMShipments:        ppmShipments,
+		// SignedCertification:     *signedCertification,
+		PPMRemainingEntitlement: ppmRemainingEntitlement,
+	}
+	return ssd, nil
 }
