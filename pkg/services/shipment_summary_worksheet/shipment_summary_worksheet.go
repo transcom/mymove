@@ -638,68 +638,6 @@ type ObligationType int
 // ComputeObligations is helper function for computing the obligations section of the shipment summary worksheet
 // Obligations must remain as static test data until new computer system is finished
 func (sswPpmComputer *SSWPPMComputer) ComputeObligations(_ appcontext.AppContext, _ ShipmentSummaryFormData, _ route.Planner) (obligation Obligations, err error) {
-	// firstPPM, err := sswPpmComputer.nilCheckPPM(ssfd)
-	// if err != nil {
-	// 	return Obligations{}, err
-	// }
-
-	// originDutyLocationZip := ssfd.CurrentDutyLocation.Address.PostalCode
-	// destDutyLocationZip := ssfd.Order.NewDutyLocation.Address.PostalCode
-
-	// distanceMilesFromPickupZip, err := planner.ZipTransitDistance(appCtx, firstPPM.PickupPostalCode, destDutyLocationZip)
-	// if err != nil {
-	// 	return Obligations{}, errors.New("error calculating distance")
-	// }
-
-	// distanceMilesFromDutyLocationZip, err := planner.ZipTransitDistance(appCtx, originDutyLocationZip, destDutyLocationZip)
-	// if err != nil {
-	// 	return Obligations{}, errors.New("error calculating distance")
-	// }
-
-	// actualCosts, err := sswPpmComputer.ComputePPMMoveCosts(
-	// 	appCtx,
-	// 	ssfd.PPMRemainingEntitlement,
-	// 	firstPPM.PickupPostalCode,
-	// 	originDutyLocationZip,
-	// 	destDutyLocationZip,
-	// 	distanceMilesFromPickupZip,
-	// 	distanceMilesFromDutyLocationZip,
-	// 	firstPPM.ExpectedDepartureDate,
-	// 	0,
-	// )
-	// if err != nil {
-	// 	return Obligations{}, errors.New("error calculating PPM actual obligations")
-	// }
-
-	// maxCosts, err := sswPpmComputer.ComputePPMMoveCosts(
-	// 	appCtx,
-	// 	ssfd.WeightAllotment.TotalWeight,
-	// 	firstPPM.PickupPostalCode,
-	// 	originDutyLocationZip,
-	// 	destDutyLocationZip,
-	// 	distanceMilesFromPickupZip,
-	// 	distanceMilesFromDutyLocationZip,
-	// 	firstPPM.ExpectedDepartureDate,
-	// 	0,
-	// )
-	// if err != nil {
-	// 	return Obligations{}, errors.New("error calculating PPM max obligations")
-	// }
-
-	// actualCost := rateengine.GetWinningCostMove(actualCosts)
-	// maxCost := rateengine.GetWinningCostMove(maxCosts)
-	// nonWinningActualCost := rateengine.GetNonWinningCostMove(actualCosts)
-	// nonWinningMaxCost := rateengine.GetNonWinningCostMove(maxCosts)
-
-	// var actualSIT unit.Cents
-	// if firstPPM.SITEstimatedCost != nil {
-	// 	actualSIT = *firstPPM.SITEstimatedCost
-	// }
-
-	// if actualSIT > maxCost.SITMax {
-	// 	actualSIT = maxCost.SITMax
-	// }
-
 	// Obligations must remain test data until new computer system is finished
 	obligations := Obligations{
 		ActualObligation:           Obligation{Gcc: 123, SIT: 123, Miles: unit.Miles(123456)},
