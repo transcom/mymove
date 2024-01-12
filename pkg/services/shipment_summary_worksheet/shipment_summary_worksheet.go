@@ -628,7 +628,7 @@ type SSWPPMComputer struct {
 }
 
 // NewSSWPPMComputer creates a SSWPPMComputer
-func NewSSWPPMComputer(_ models.PPMShipment) *SSWPPMComputer {
+func NewSSWPPMComputer(_ *models.PPMShipment) *SSWPPMComputer {
 	return &SSWPPMComputer{}
 }
 
