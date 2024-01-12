@@ -12,15 +12,15 @@ import (
 )
 
 type PPMCloseout struct {
-	ID                         *uuid.UUID  `db:"id"`
-	PlannedMoveDate            *time.Time  `db:"expected_departure_date"`
-	ActualMoveDate             *time.Time  `db:"actual_move_date"`
-	Miles                      *int        `db:"distance"`
-	EstimatedWeight            *unit.Pound `db:"estimated_weight"`
-	ActualWeight               *unit.Pound `db:"prime_actual_weight"`
-	ProGearWeightCustomer      *unit.Pound `db:"pro_gear_weight"`
-	ProGearWeightSpouse        *unit.Pound `db:"pro_gear_weight_spouse"`
-	GrossIncentive             *unit.Cents `db:"final_incentive"`
+	ID                         *uuid.UUID
+	PlannedMoveDate            *time.Time
+	ActualMoveDate             *time.Time
+	Miles                      *int
+	EstimatedWeight            *unit.Pound
+	ActualWeight               *unit.Pound
+	ProGearWeightCustomer      *unit.Pound
+	ProGearWeightSpouse        *unit.Pound
+	GrossIncentive             *unit.Cents
 	GCC                        *unit.Cents
 	AOA                        *unit.Cents
 	RemainingReimbursementOwed *unit.Cents
