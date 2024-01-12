@@ -101,6 +101,150 @@ describe('for all shipments that are approved, have a cancellation requested, or
 
     expect(result.current).toBe(1100);
   });
+  it('useCalculatedWeightRequested returns the calculated billable weight using the lower value between the prime actual weight and the reweigh weight with a single divesion chain present', () => {
+    const mtoShipments = [
+      {
+        primeActualWeight: 10,
+        status: shipmentStatuses.DRAFT,
+        reweigh: {
+          weight: 5,
+        },
+      },
+      {
+        primeActualWeight: 2000,
+        status: shipmentStatuses.APPROVED,
+        reweigh: {
+          weight: 300,
+        },
+      },
+      {
+        primeActualWeight: 100,
+        status: shipmentStatuses.APPROVED,
+      },
+      {
+        primeActualWeight: 1000,
+        status: shipmentStatuses.CANCELLATION_REQUESTED,
+        reweigh: {
+          weight: 200,
+        },
+      },
+      {
+        primeActualWeight: 400,
+        status: shipmentStatuses.DIVERSION_REQUESTED,
+        reweigh: {
+          weight: 3000,
+        },
+      },
+      {
+        primeActualWeight: 400,
+        status: shipmentStatuses.APPROVED,
+        diversion: true,
+        pickupAddress: { city: 'City1' },
+        destinationAddress: { city: 'City2' },
+        reweigh: {
+          weight: 3000,
+        },
+      },
+      {
+        primeActualWeight: 400,
+        status: shipmentStatuses.APPROVED,
+        diversion: true,
+        pickupAddress: { city: 'City2' },
+        destinationAddress: { city: 'City3' },
+        reweigh: {
+          weight: 3000,
+        },
+      },
+    ];
+
+    const { result } = renderHook(() => useCalculatedWeightRequested(mtoShipments));
+
+    expect(result.current).toBe(1000 + 400); // Add the lowest actual weight from the diversion chain
+  });
+  it('useCalculatedWeightRequested returns the calculated billable weight using the lower value between the prime actual weight and the reweigh weight with two divesion chains present', () => {
+    const mtoShipments = [
+      {
+        primeActualWeight: 10,
+        status: shipmentStatuses.DRAFT,
+        reweigh: {
+          weight: 5,
+        },
+      },
+      {
+        primeActualWeight: 2000,
+        status: shipmentStatuses.APPROVED,
+        reweigh: {
+          weight: 300,
+        },
+      },
+      {
+        primeActualWeight: 100,
+        status: shipmentStatuses.APPROVED,
+      },
+      {
+        primeActualWeight: 1000,
+        status: shipmentStatuses.CANCELLATION_REQUESTED,
+        reweigh: {
+          weight: 200,
+        },
+      },
+      {
+        primeActualWeight: 400,
+        status: shipmentStatuses.DIVERSION_REQUESTED,
+        reweigh: {
+          weight: 3000,
+        },
+      },
+      {
+        id: 'parent1',
+        primeActualWeight: 400,
+        status: shipmentStatuses.APPROVED,
+        diversion: true,
+        pickupAddress: { city: 'City1' },
+        destinationAddress: { city: 'City2' },
+        reweigh: {
+          weight: 3000,
+        },
+      },
+      {
+        id: 'child1',
+        primeActualWeight: 400,
+        status: shipmentStatuses.APPROVED,
+        diversion: true,
+        pickupAddress: { city: 'City2' },
+        destinationAddress: { city: 'City3' },
+        reweigh: {
+          weight: 3000,
+        },
+      },
+      {
+        id: 'parent2',
+        primeActualWeight: 800,
+        status: shipmentStatuses.APPROVED,
+        diversion: true,
+        pickupAddress: { city: 'CityA' },
+        destinationAddress: { city: 'CityB' },
+        reweigh: {
+          weight: 3000,
+        },
+      },
+      {
+        id: 'child2',
+        primeActualWeight: 1000,
+        status: shipmentStatuses.APPROVED,
+        diversion: true,
+        pickupAddress: { city: 'CityB' },
+        destinationAddress: { city: 'CityC' },
+        reweigh: {
+          weight: 3000,
+        },
+      },
+    ];
+
+    const { result } = renderHook(() => useCalculatedWeightRequested(mtoShipments));
+
+    expect(result.current).toBe(1000 + 400 + 800); // Add the lowest actual weight from the two diversion chains
+  });
   it('useCalculatedTotalEstimatedWeight', () => {
     let mtoShipments = [
       {
@@ -135,5 +279,105 @@ describe('for all shipments that are approved, have a cancellation requested, or
     rerender();
 
     expect(result.current).toBe(8000);
+  });
+  it('useCalculatedTotalEstimatedWeight with diversions present', () => {
+    const mtoShipments = [
+      {
+        primeEstimatedWeight: 1000,
+        calculatedBillableWeight: 10,
+        status: shipmentStatuses.DRAFT,
+      },
+      {
+        primeEstimatedWeight: 1000,
+        calculatedBillableWeight: 200,
+        status: shipmentStatuses.CANCELLATION_REQUESTED,
+      },
+      {
+        id: 'parent',
+        primeEstimatedWeight: 1000,
+        calculatedBillableWeight: 300,
+        pickupAddress: { city: 'CityA' },
+        destinationAddress: { city: 'CityB' },
+        diversion: true,
+        status: shipmentStatuses.DIVERSION_REQUESTED,
+      },
+      {
+        id: 'child',
+        primeEstimatedWeight: 1500,
+        calculatedBillableWeight: 300,
+        pickupAddress: { city: 'CityB' },
+        destinationAddress: { city: 'CityC' },
+        diversion: true,
+        status: shipmentStatuses.APPROVED,
+      },
+    ];
+
+    const { result } = renderHook(() => useCalculatedEstimatedWeight(mtoShipments));
+
+    expect(result.current).toBe(1000 + 1000);
+  });
+  it('calculates the lowest weight of shipments with 2 parent diversions', () => {
+    const mtoShipments = [
+      {
+        id: 'parent1',
+        primeEstimatedWeight: 3000,
+        status: shipmentStatuses.APPROVED,
+        diversion: true,
+        pickupAddress: { city: 'CityA' },
+        destinationAddress: { city: 'CityB' },
+      },
+      {
+        id: 'child1',
+        primeEstimatedWeight: 2500,
+        status: shipmentStatuses.APPROVED,
+        diversion: true,
+        pickupAddress: { city: 'CityB' },
+        destinationAddress: { city: 'CityC' },
+      },
+      {
+        id: 'parent2',
+        primeEstimatedWeight: 2000,
+        status: shipmentStatuses.APPROVED,
+        diversion: true,
+        pickupAddress: { city: 'City1' },
+        destinationAddress: { city: 'City2' },
+      },
+      {
+        id: 'child2',
+        primeEstimatedWeight: 1500,
+        status: shipmentStatuses.APPROVED,
+        diversion: true,
+        pickupAddress: { city: 'City2' },
+        destinationAddress: { city: 'City3' },
+      },
+    ];
+
+    const { result } = renderHook(() => useCalculatedEstimatedWeight(mtoShipments));
+
+    expect(result.current).toBe(2500 + 1500);
+  });
+  it('calculates the lowest weight of shipments with 1 parent diversion', () => {
+    const mtoShipments = [
+      {
+        id: 'parent1',
+        primeEstimatedWeight: 3000,
+        status: shipmentStatuses.APPROVED,
+        diversion: true,
+        pickupAddress: { city: 'CityA' },
+        destinationAddress: { city: 'CityB' },
+      },
+      {
+        id: 'child1',
+        primeEstimatedWeight: 2500,
+        status: shipmentStatuses.APPROVED,
+        diversion: true,
+        pickupAddress: { city: 'CityB' },
+        destinationAddress: { city: 'CityC' },
+      },
+    ];
+
+    const { result } = renderHook(() => useCalculatedEstimatedWeight(mtoShipments));
+
+    expect(result.current).toBe(2500);
   });
 });
