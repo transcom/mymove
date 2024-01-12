@@ -16,6 +16,7 @@ import { isDevelopment } from 'shared/constants';
 import { useTitle } from 'hooks/custom';
 
 const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
+  const isMultiMoveEnabled = context.flags.multiMove;
   const location = useLocation();
   const [showEula, setShowEula] = useState(false);
   const navigate = useNavigate();
@@ -63,6 +64,14 @@ const SignIn = ({ context, showLocalDevLogin, showTestharnessList }) => {
             <div>
               <Alert type="success" heading="You have signed out of MilMove">
                 Sign in again when you&apos;re ready to start a new session.
+              </Alert>
+            </div>
+          )}
+
+          {isMultiMoveEnabled && (
+            <div>
+              <Alert type="info" heading="The Multi Move feature is enabled">
+                This environment is utilizing the Multi Move feature flag.
               </Alert>
             </div>
           )}
