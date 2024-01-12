@@ -22,10 +22,18 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	var ppmCloseoutObj models.PPMCloseout
 	var ppmShipment models.PPMShipment
 
-	err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
+	err := appCtx.DB().Scope(utilities.ExcludeDeletedScope(&ppmCloseoutObj)).
 		EagerPreload(
 			"ID",
+			"PlannedMoveDate",
+			"ActualMoveDate",
+			"Miles",
+			"EstimatedWeight",
+			"ActualWeight",
+			"ProGearWeightCustomer",
+			"ProGearWeightSpouse",
 		).
+		Join("mto_shipments", "mto_shipments.id = ppm_shipments.shipment_id").
 		Find(&ppmShipment, ppmShipmentID)
 
 	if err != nil {
@@ -36,25 +44,6 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 			return nil, apperror.NewQueryError("PPMShipment", err, "unable to find PPMShipment")
 		}
 	}
-	ppmCloseoutObj.ID = &ppmShipmentID
-	ppmCloseoutObj.PlannedMoveDate = nil
-	ppmCloseoutObj.ActualMoveDate = nil
-	ppmCloseoutObj.Miles = nil
-	ppmCloseoutObj.EstimatedWeight = nil
-	ppmCloseoutObj.ActualWeight = nil
-	ppmCloseoutObj.ProGearWeightCustomer = nil
-	ppmCloseoutObj.ProGearWeightSpouse = nil
-	ppmCloseoutObj.GrossIncentive = nil
-	ppmCloseoutObj.GCC = nil
-	ppmCloseoutObj.AOA = nil
-	ppmCloseoutObj.RemainingReimbursementOwed = nil
-	ppmCloseoutObj.HaulPrice = nil
-	ppmCloseoutObj.HaulFSC = nil
-	ppmCloseoutObj.DOP = nil
-	ppmCloseoutObj.DDP = nil
-	ppmCloseoutObj.PackPrice = nil
-	ppmCloseoutObj.UnpackPrice = nil
-	ppmCloseoutObj.SITReimbursement = nil
 
 	return &ppmCloseoutObj, nil
 }
