@@ -37,7 +37,7 @@ createNonSITAddressUpdateRequest
 ### Functionality
 This endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,
 after the destination address has already been approved.
-This does not change addresses on SIT service items.
+This does change addresses on SIT service items.
 Address updates will be automatically approved unless they change:
   - the service area
   - Mileage bracket for direct delivery
