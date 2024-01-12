@@ -399,3 +399,59 @@ func (suite *MTOShipmentServiceSuite) TestFindMTOShipment() {
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 }
+
+func (suite *MTOShipmentServiceSuite) TestGetDiversionChain() {
+	mtoShipmentFetcher := NewMTOShipmentFetcher()
+
+	suite.Run("Gets diversion chain", func() {
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		parentShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					UsesExternalVendor:     true,
+					Diversion:              true,
+					DivertedFromShipmentID: nil,
+				},
+			},
+		}, nil)
+		childShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					UsesExternalVendor:     true,
+					Diversion:              true,
+					DivertedFromShipmentID: &parentShipment.ID,
+				},
+			},
+		}, nil)
+		grandChildShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					UsesExternalVendor:     true,
+					Diversion:              true,
+					DivertedFromShipmentID: &childShipment.ID,
+				},
+			},
+		}, nil)
+
+		diversionChain, err := mtoShipmentFetcher.GetDiversionChain(suite.AppContextForTest(), parentShipment.ID)
+		suite.NoError(err)
+		suite.NotNil(diversionChain)
+		dereferencedDiversionChain := *diversionChain
+		suite.Len(dereferencedDiversionChain, 3)
+		suite.Equal(parentShipment.ID, (dereferencedDiversionChain)[0].ID)
+		suite.Equal(childShipment.ID, (dereferencedDiversionChain)[1].ID)
+		suite.Equal(grandChildShipment.ID, (dereferencedDiversionChain)[2].ID)
+	})
+}
