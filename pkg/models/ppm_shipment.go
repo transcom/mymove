@@ -203,15 +203,15 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 }
 
 // FetchMoveByMoveID returns a Move for a given id
-func FetchPPMShipmentByPPMShipmentID(db *pop.Connection, ppmShipmentID uuid.UUID) (PPMShipment, error) {
+func FetchPPMShipmentByPPMShipmentID(db *pop.Connection, ppmShipmentID uuid.UUID) (*PPMShipment, error) {
 	var ppmShipment PPMShipment
 	err := db.Q().Find(&ppmShipment, ppmShipmentID)
 
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
-			return PPMShipment{}, ErrFetchNotFound
+			return nil, ErrFetchNotFound
 		}
-		return PPMShipment{}, err
+		return nil, err
 	}
-	return ppmShipment, nil
+	return &ppmShipment, nil
 }
