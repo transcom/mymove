@@ -70,7 +70,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			mock.AnythingOfType("*appcontext.appContext"),
 			"90210",
 			"94535",
-		).Return(2500, nil).Once()
+		).Return(2500, nil).Twice()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"94535",
@@ -753,7 +753,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			mock.AnythingOfType("*appcontext.appContext"),
 			"94535",
 			"94535",
-		).Return(2500, nil).Twice()
+		).Return(2500, nil).Once()
 
 		addressChange, _ := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		officeRemarks := "This is a TOO remark"
@@ -890,6 +890,35 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		suite.Equal(shorthaul[0].Status, models.MTOServiceItemStatusRejected)
 		suite.Equal(autoRejectionRemark, *shorthaul[0].RejectionReason)
 		suite.Equal(linehaul[0].Status, models.MTOServiceItemStatusApproved)
+	})
+	suite.Run("Successfully update shipment and its servie items without error", func() {
+		mockPlanner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			"94535",
+			"94535",
+		).Return(30, nil).Once()
+		move := setupTestData()
+		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
+
+		//Generate a couple of service items to test their status changes upon approval
+		serviceItem1 := factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDDDSIT, move, shipment, nil, nil)
+
+		var serviceItems models.MTOServiceItems
+		shipment.MTOServiceItems = append(serviceItems, serviceItem1)
+
+		newAddress := models.Address{
+			StreetAddress1: shipment.DestinationAddress.StreetAddress1,
+			City:           shipment.DestinationAddress.City,
+			State:          shipment.DestinationAddress.State,
+			PostalCode:     shipment.DestinationAddress.PostalCode,
+			Country:        shipment.DestinationAddress.Country,
+		}
+
+		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "Submitting same address", etag.GenerateEtag(shipment.UpdatedAt))
+
+		suite.NoError(err)
+		suite.NotNil(update)
+		suite.Equal(models.ShipmentAddressUpdateStatusApproved, update.Status)
 	})
 }
 
