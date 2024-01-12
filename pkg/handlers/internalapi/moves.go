@@ -211,9 +211,13 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSummaryWorksheetParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
-			ppmShipmentID, _ := uuid.FromString(params.PpmShipmentID.String())
 			logger := appCtx.Logger()
+
+			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
+			if err != nil {
+				logger.Error("Error fetching PPMShipment", zap.Error(err))
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
 
 			ppmShipment, err := models.FetchPPMShipmentByPPMShipmentID(appCtx.DB(), ppmShipmentID)
 			if err != nil {
