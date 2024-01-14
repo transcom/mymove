@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 
 import { profileStates } from 'constants/customerStates';
-import { MOVE_STATUSES, NULL_UUID } from 'shared/constants';
+import { MOVE_STATUSES } from 'shared/constants';
 
 /**
  * Use this file for selecting "slices" of state from Redux and for computed
@@ -51,7 +51,6 @@ export const selectServiceMemberProfileState = createSelector(selectServiceMembe
     personal_email,
     phone_is_preferred,
     email_is_preferred,
-    current_location,
     residential_address,
     backup_mailing_address,
     backup_contacts,
@@ -60,9 +59,7 @@ export const selectServiceMemberProfileState = createSelector(selectServiceMembe
   if (!edipi || !affiliation) return profileStates.EMPTY_PROFILE;
   if (!first_name || !last_name) return profileStates.DOD_INFO_COMPLETE;
   if (!telephone || !personal_email || !(phone_is_preferred || email_is_preferred)) return profileStates.NAME_COMPLETE;
-  if (!current_location || !current_location.id || current_location.id === NULL_UUID)
-    return profileStates.CONTACT_INFO_COMPLETE;
-  if (!residential_address) return profileStates.DUTY_LOCATION_COMPLETE;
+  if (!residential_address) return profileStates.CONTACT_INFO_COMPLETE;
   if (!backup_mailing_address) return profileStates.ADDRESS_COMPLETE;
   if (!backup_contacts || !backup_contacts.length) return profileStates.BACKUP_ADDRESS_COMPLETE;
   return profileStates.BACKUP_CONTACTS_COMPLETE;
@@ -81,7 +78,6 @@ export const selectIsProfileComplete = createSelector(
       serviceMember.last_name &&
       serviceMember.telephone &&
       serviceMember.personal_email &&
-      serviceMember.current_location?.id &&
       serviceMember.residential_address?.postalCode &&
       serviceMember.backup_mailing_address?.postalCode &&
       serviceMember.backup_contacts?.length > 0
