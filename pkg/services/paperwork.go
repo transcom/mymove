@@ -69,22 +69,16 @@ type PDFMerger interface {
 	MergePDFs(appCtx appcontext.AppContext, pdfsToMerge []io.ReadCloser) (io.ReadCloser, error)
 }
 
-type DownloadMoveOrderUploadType int
+// Prime move order upload to PDF generation for download
+type MoveOrderUploadType int
 
 const (
-	DownloadMoveOrderUploadTypeAll DownloadMoveOrderUploadType = iota
-	DownloadMoveOrderUploadTypeOnlyOrders
-	DownloadMoveOrderUploadTypeOnlyAmendments
-)
-
-type UserUploadDocType int
-
-const (
-	UserUploadDocTypeOrder UserUploadDocType = iota
-	UserUploadDocTypeAmendments
+	MoveOrderUploadAll MoveOrderUploadType = iota
+	MoveOrderUpload
+	MoveOrderAmendmentUpload
 )
 
 //go:generate mockery --name PrimeDownloadMoveUploadPDFGenerator
 type PrimeDownloadMoveUploadPDFGenerator interface {
-	GenerateDownloadMoveUserUploadPDF(appCtx appcontext.AppContext, downloadMoveOrderUploadType DownloadMoveOrderUploadType, move models.Move) (afero.File, error)
+	GenerateDownloadMoveUserUploadPDF(appCtx appcontext.AppContext, moveOrderUploadType MoveOrderUploadType, move models.Move) (afero.File, error)
 }

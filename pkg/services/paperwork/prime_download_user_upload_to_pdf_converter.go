@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services"
@@ -35,33 +36,33 @@ func NewMoveUserUploadToPDFDownloader(isTest bool, userUploader *uploader.UserUp
 }
 
 type pdfBatchInfo struct {
-	UploadDocType services.UserUploadDocType
+	UploadDocType services.MoveOrderUploadType
 	FileNames     []string
 	PageCounts    []int
 }
 
 // MoveUserUploadToPDFDownloader converts user uploads to PDFs to download
-func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx appcontext.AppContext, downloadMoveOrderUploadType services.DownloadMoveOrderUploadType, move models.Move) (afero.File, error) {
+func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx appcontext.AppContext, downloadMoveOrderUploadType services.MoveOrderUploadType, move models.Move) (afero.File, error) {
 	var pdfBatchInfos []pdfBatchInfo
 	var pdfFileNames []string
 
-	if downloadMoveOrderUploadType == services.DownloadMoveOrderUploadTypeAll || downloadMoveOrderUploadType == services.DownloadMoveOrderUploadTypeOnlyOrders {
+	if downloadMoveOrderUploadType == services.MoveOrderUploadAll || downloadMoveOrderUploadType == services.MoveOrderUpload {
 		if move.Orders.UploadedOrdersID == uuid.Nil {
-			return nil, fmt.Errorf("order does not have any uploades associated to it, move.Orders.ID: %s", move.Orders.ID)
+			return nil, apperror.NewUnprocessableEntityError(fmt.Sprintf("order does not have any uploads associated to it, move.Orders.ID: %s", move.Orders.ID))
 		}
-		info, err := g.buildPdfBatchInfo(appCtx, services.UserUploadDocTypeOrder, move.Orders.UploadedOrdersID)
+		info, err := g.buildPdfBatchInfo(appCtx, services.MoveOrderUpload, move.Orders.UploadedOrdersID)
 		if err != nil {
 			return nil, errors.Wrap(err, "error building PDF batch information for bookmark generation for order docs")
 		}
 		pdfBatchInfos = append(pdfBatchInfos, *info)
 	}
 
-	if downloadMoveOrderUploadType == services.DownloadMoveOrderUploadTypeAll || downloadMoveOrderUploadType == services.DownloadMoveOrderUploadTypeOnlyAmendments {
-		if downloadMoveOrderUploadType == services.DownloadMoveOrderUploadTypeOnlyAmendments && move.Orders.UploadedAmendedOrdersID == nil {
-			return nil, fmt.Errorf("order does not have any amendment uploads associated to it, move.Orders.ID: %s", move.Orders.ID)
+	if downloadMoveOrderUploadType == services.MoveOrderUploadAll || downloadMoveOrderUploadType == services.MoveOrderAmendmentUpload {
+		if downloadMoveOrderUploadType == services.MoveOrderAmendmentUpload && move.Orders.UploadedAmendedOrdersID == nil {
+			return nil, apperror.NewUnprocessableEntityError(fmt.Sprintf("order does not have any amendment uploads associated to it, move.Orders.ID: %s", move.Orders.ID))
 		}
 		if move.Orders.UploadedAmendedOrdersID != nil {
-			info, err := g.buildPdfBatchInfo(appCtx, services.UserUploadDocTypeAmendments, *move.Orders.UploadedAmendedOrdersID)
+			info, err := g.buildPdfBatchInfo(appCtx, services.MoveOrderAmendmentUpload, *move.Orders.UploadedAmendedOrdersID)
 			if err != nil {
 				return nil, errors.Wrap(err, "error building PDF batch information for bookmark generation for amendment docs")
 			}
@@ -88,13 +89,13 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 	var bookmarks []pdfcpu.Bookmark
 	index := 0
 	docCounter := 1
-	var lastDocType services.UserUploadDocType
+	var lastDocType services.MoveOrderUploadType
 	for i := 0; i < len(pdfBatchInfos); i++ {
 		if lastDocType != pdfBatchInfos[i].UploadDocType {
 			docCounter = 1
 		}
 		for j := 0; j < len(pdfBatchInfos[i].PageCounts); j++ {
-			if pdfBatchInfos[i].UploadDocType == services.UserUploadDocTypeOrder {
+			if pdfBatchInfos[i].UploadDocType == services.MoveOrderUpload {
 				if index == 0 {
 					bookmarks = append(bookmarks, pdfcpu.Bookmark{PageFrom: 1, PageThru: pdfBatchInfos[i].PageCounts[j], Title: fmt.Sprintf("Customer Order for MTO %s Doc #%s", move.Locator, strconv.Itoa(docCounter))})
 				} else {
@@ -127,7 +128,7 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 }
 
 // Build orderUploadDocType for document
-func (g *moveUserUploadToPDFDownloader) buildPdfBatchInfo(appCtx appcontext.AppContext, uploadDocType services.UserUploadDocType, documentID uuid.UUID) (*pdfBatchInfo, error) {
+func (g *moveUserUploadToPDFDownloader) buildPdfBatchInfo(appCtx appcontext.AppContext, uploadDocType services.MoveOrderUploadType, documentID uuid.UUID) (*pdfBatchInfo, error) {
 	document, err := models.FetchDocumentWithNoRestrictions(appCtx.DB(), appCtx.Session(), documentID, false)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("error fetching document domain by id: %s", documentID))

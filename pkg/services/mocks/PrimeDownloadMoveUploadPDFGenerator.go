@@ -17,25 +17,25 @@ type PrimeDownloadMoveUploadPDFGenerator struct {
 	mock.Mock
 }
 
-// GenerateDownloadMoveUserUploadPDF provides a mock function with given fields: appCtx, downloadMoveOrderUploadType, move
-func (_m *PrimeDownloadMoveUploadPDFGenerator) GenerateDownloadMoveUserUploadPDF(appCtx appcontext.AppContext, downloadMoveOrderUploadType services.DownloadMoveOrderUploadType, move models.Move) (afero.File, error) {
-	ret := _m.Called(appCtx, downloadMoveOrderUploadType, move)
+// GenerateDownloadMoveUserUploadPDF provides a mock function with given fields: appCtx, moveOrderUploadType, move
+func (_m *PrimeDownloadMoveUploadPDFGenerator) GenerateDownloadMoveUserUploadPDF(appCtx appcontext.AppContext, moveOrderUploadType services.MoveOrderUploadType, move models.Move) (afero.File, error) {
+	ret := _m.Called(appCtx, moveOrderUploadType, move)
 
 	var r0 afero.File
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, services.DownloadMoveOrderUploadType, models.Move) (afero.File, error)); ok {
-		return rf(appCtx, downloadMoveOrderUploadType, move)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, services.MoveOrderUploadType, models.Move) (afero.File, error)); ok {
+		return rf(appCtx, moveOrderUploadType, move)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, services.DownloadMoveOrderUploadType, models.Move) afero.File); ok {
-		r0 = rf(appCtx, downloadMoveOrderUploadType, move)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, services.MoveOrderUploadType, models.Move) afero.File); ok {
+		r0 = rf(appCtx, moveOrderUploadType, move)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(afero.File)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, services.DownloadMoveOrderUploadType, models.Move) error); ok {
-		r1 = rf(appCtx, downloadMoveOrderUploadType, move)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, services.MoveOrderUploadType, models.Move) error); ok {
+		r1 = rf(appCtx, moveOrderUploadType, move)
 	} else {
 		r1 = ret.Error(1)
 	}
