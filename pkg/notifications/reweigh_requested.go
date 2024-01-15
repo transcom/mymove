@@ -57,12 +57,20 @@ func (m ReweighRequested) emails(appCtx appcontext.AppContext) ([]emailContent, 
 	if err != nil {
 		appCtx.Logger().Error("error rendering template", zap.Error(err))
 	}
+	shipmentID := m.shipment.ID.String()
+	var shipmentNumber string
 
-	shipmentType := strings.Split(string(m.shipment.ShipmentType), "_")[0]
+	// Shipment # is the first 8 characters of shipmentId
+	if len(shipmentID) >= 8 {
+		firstEight := shipmentID[:8]
+		shipmentNumber = strings.ToUpper(firstEight)
+	} else {
+		shipmentNumber = ""
+	}
 
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
-		subject:        fmt.Sprintf("FYI: Your %v should be reweighed before it is delivered", shipmentType),
+		subject:        fmt.Sprintf("FYI: A reweigh has been requested for your shipment #%v, and must be reweighed before it is delivered", shipmentNumber),
 		htmlBody:       htmlBody,
 		textBody:       textBody,
 	}

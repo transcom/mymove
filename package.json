@@ -96,7 +96,8 @@
     "recursive-readdir": "^2.2.3",
     "semver": "^7.5.2",
     "url-parse": "^1.5.1",
-    "y18n": "^5.0.5"
+    "y18n": "^5.0.5",
+    "follow-redirects": "^1.15.4"
   },
   "name": "client",
   "private": true,
@@ -139,7 +140,7 @@
     "@storybook/addon-links": "^7.2.0",
     "@storybook/jest": "^0.1.0",
     "@storybook/preset-create-react-app": "^7.6.7",
-    "@storybook/preview-api": "^7.4.2",
+    "@storybook/preview-api": "^7.6.8",
     "@storybook/react": "^7.2.0",
     "@storybook/react-webpack5": "^7.2.0",
     "@storybook/testing-library": "^0.2.0",

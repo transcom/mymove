@@ -6,6 +6,7 @@ import { parseDate } from 'shared/dates';
 import { formatDelimitedNumber, parseSwaggerDate } from 'utils/formatters';
 import { roleTypes } from 'constants/userRoles';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
+import { expenseTypeLabels } from 'constants/ppmExpenseTypes';
 
 const formatDateForSwagger = (date) => {
   const parsedDate = parseDate(date);
@@ -400,6 +401,9 @@ export function getMtoShipmentLabel({ context }) {
   }
   if (context[0].name) {
     mtoShipmentLabels.service_item_name = context[0].name;
+  }
+  if (context[0].moving_expense_type) {
+    mtoShipmentLabels.moving_expense_type = expenseTypeLabels[context[0].moving_expense_type];
   }
   return mtoShipmentLabels;
 }

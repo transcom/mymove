@@ -358,7 +358,7 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 	}
 	updatedShipment.MTOAgents = updatedAgents
 
-	err = UpdateServiceItemsAddress(appCtx, updatedShipment)
+	err = UpdateDestinationSITServiceItemsAddress(appCtx, updatedShipment)
 	if err != nil {
 		return nil, err
 	}
@@ -1000,10 +1000,17 @@ func (f mtoShipmentUpdater) MTOShipmentsMTOAvailableToPrime(appCtx appcontext.Ap
 	return true, nil
 }
 
-// UpdateServiceItemsAddress updates a shipments, service items address
-func UpdateServiceItemsAddress(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
+// UpdateDestinationSITServiceItemsAddress updates destination SIT service items attached to a shipment
+// this updates the final_destination_address to be the same as the shipment's destination_address
+func UpdateDestinationSITServiceItemsAddress(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
+	// getting the shipment and service items with code in case they weren't passed in
+	eagerAssociations := []string{"MTOServiceItems.ReService.Code"}
+	mtoShipment, err := FindShipment(appCtx, shipment.ID, eagerAssociations...)
+	if err != nil {
+		return err
+	}
 
-	mtoServiceItems := shipment.MTOServiceItems
+	mtoServiceItems := mtoShipment.MTOServiceItems
 
 	// Only update these serviceItems address ID
 	serviceItemsToUpdate := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDSFSC}

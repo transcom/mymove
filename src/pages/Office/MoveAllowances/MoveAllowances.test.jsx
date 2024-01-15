@@ -150,7 +150,7 @@ describe('MoveAllowances page', () => {
       expect(screen.getByTestId('proGearWeightSpouseInput')).toHaveDisplayValue('500');
       expect(screen.getByTestId('rmeInput')).toHaveDisplayValue('1,000');
       expect(screen.getByTestId('branchInput')).toHaveDisplayValue('Army');
-      expect(screen.getByTestId('rankInput')).toHaveDisplayValue('E-1');
+      expect(screen.getByTestId('payGradeInput')).toHaveDisplayValue('E-1');
       expect(screen.getByTestId('sitInput')).toHaveDisplayValue('2');
 
       expect(screen.getByLabelText('OCIE authorized (Army only)')).toBeChecked();

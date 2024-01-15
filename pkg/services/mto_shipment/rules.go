@@ -116,8 +116,17 @@ func checkUpdateAllowed() validator {
 func checkDeleteAllowed() validator {
 	return validatorFunc(func(appCtx appcontext.AppContext, _ *models.MTOShipment, older *models.MTOShipment) error {
 		move := older.MoveTaskOrder
-		if move.Status != models.MoveStatusDRAFT && move.Status != models.MoveStatusNeedsServiceCounseling {
-			return apperror.NewForbiddenError("A shipment can only be deleted if the move is in Draft or NeedsServiceCounseling")
+
+		if appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+			if move.Status != models.MoveStatusDRAFT && move.Status != models.MoveStatusNeedsServiceCounseling {
+				return apperror.NewForbiddenError("Service Counselor: A shipment can only be deleted if the move is in 'Draft' or 'NeedsServiceCounseling' status")
+			}
+		}
+
+		if appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+			if older.Status == models.MTOShipmentStatusApproved {
+				return apperror.NewForbiddenError("TOO: APPROVED shipments cannot be deleted")
+			}
 		}
 
 		return nil
@@ -285,6 +294,7 @@ func checkDiversionValid() validator {
 			return apperror.NewInvalidInputError(newer.ID, nil, verrs, "The diversion parameter must be true if a DivertedFromShipmentID is provided")
 		}
 		// Ensure that the "DivertedFromShipmentID" exists if it is provided
+		// Also ensure that if these conditions are met that the PrimeActualWeight has not been provided in the new diversion
 		if newer.Diversion && newer.DivertedFromShipmentID != nil {
 			exists, err := appCtx.DB().Q().
 				Where("id = ?", *newer.DivertedFromShipmentID).
@@ -295,10 +305,37 @@ func checkDiversionValid() validator {
 			if !exists {
 				return apperror.NewNotFoundError(newer.ID, "DivertedFromShipmentID shipment not found")
 			}
+
+			// Ensure that if an actual weight is provided in this shipment that we inform the user the endpoint is beign utilized incorrectly
+			// The prime actual weight should be inherited from the parent if it is a diversion, not provided on creation
+			if newer.PrimeActualWeight != nil {
+				return apperror.NewInvalidInputError(newer.ID, nil, verrs, "The prime actual weight should not be provided inside of a newly created diversion. It will be automatically inherited by the parent. This rule does not apply for updating a shipment if that was your intention.")
+			}
 		}
 		// Ensure that the diverted from ID is not equal to itself
 		if newer.Diversion && newer.DivertedFromShipmentID == &newer.ID {
 			return apperror.NewInvalidInputError(newer.ID, nil, verrs, "The DivertedFromShipmentID parameter can not be equal to the current shipment ID")
+		}
+		return nil
+	})
+}
+
+// This func automatically sets the actual weight of the newly created shipment to be equal to the parent shipment's actual weight
+func childDiversionPrimeWeightRule() validator {
+	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
+		// Ensure that if "DivertedFromShipmentID" exists, that we set the actual weight of the new shipment to be equal to the parent
+		if newer.DivertedFromShipmentID != nil {
+			var parentShipment models.MTOShipment
+			err := appCtx.DB().Q().
+				Where("id = ?", *newer.DivertedFromShipmentID).
+				First(&parentShipment)
+			if err != nil {
+				return apperror.NewQueryError("Move", err, "Unexpected error")
+			}
+			if parentShipment.PrimeActualWeight == nil {
+				return apperror.NewQueryError("Move", err, "Unexpected error with parent shipment actual weight being nil")
+			}
+			newer.PrimeActualWeight = parentShipment.PrimeActualWeight
 		}
 		return nil
 	})
