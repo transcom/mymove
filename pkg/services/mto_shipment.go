@@ -17,6 +17,7 @@ import (
 type MTOShipmentFetcher interface {
 	ListMTOShipments(appCtx appcontext.AppContext, moveID uuid.UUID) ([]models.MTOShipment, error)
 	GetShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eagerAssociations ...string) (*models.MTOShipment, error)
+	GetDiversionChain(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*[]models.MTOShipment, error)
 }
 
 // MTOShipmentUpdater is the service object interface for UpdateMTOShipment
