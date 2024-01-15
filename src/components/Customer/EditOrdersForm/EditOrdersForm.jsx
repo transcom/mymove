@@ -56,6 +56,7 @@ const EditOrdersForm = ({
       )
       .min(1),
     grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
+    origin_duty_location: Yup.object().nullable().required('Required'),
   });
 
   const enableDelete = () => {
@@ -123,6 +124,14 @@ const EditOrdersForm = ({
                   />
                 </div>
               </FormGroup>
+
+              <DutyLocationInput
+                label="Current duty location"
+                name="origin_duty_location"
+                id="origin_duty_location"
+                required
+              />
+
               {isRetirementOrSeparation ? (
                 <>
                   <h3 className={styles.calloutLabel}>Where are you entitled to move?</h3>
@@ -206,6 +215,9 @@ EditOrdersForm.propTypes = {
     report_by_date: PropTypes.string,
     has_dependents: PropTypes.string,
     new_duty_location: PropTypes.shape({
+      name: PropTypes.string,
+    }),
+    origin_duty_location: PropTypes.shape({
       name: PropTypes.string,
     }),
     uploaded_orders: ExistingUploadsShape,
