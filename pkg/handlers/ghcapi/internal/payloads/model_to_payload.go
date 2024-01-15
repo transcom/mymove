@@ -1004,7 +1004,7 @@ func PPMCloseout(ppmCloseout *models.PPMCloseout) *ghcmessages.PPMCloseout {
 		ID:                         strfmt.UUID(ppmCloseout.ID.String()),
 		PlannedMoveDate:            handlers.FmtDatePtr(ppmCloseout.PlannedMoveDate),
 		ActualMoveDate:             handlers.FmtDatePtr(ppmCloseout.ActualMoveDate),
-		Miles:                      handlers.FmtIntPtrToInt64(ppmCloseout.Miles),
+		Miles:                      handlers.FmtInt64(int64(*ppmCloseout.Miles)),
 		EstimatedWeight:            handlers.FmtPoundPtr(ppmCloseout.EstimatedWeight),
 		ActualWeight:               handlers.FmtPoundPtr(ppmCloseout.ActualWeight),
 		ProGearWeightCustomer:      handlers.FmtPoundPtr(ppmCloseout.ProGearWeightCustomer),

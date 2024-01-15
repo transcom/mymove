@@ -1,15 +1,12 @@
 package ppmcloseout
 
 import (
-	"time"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 type ppmCloseoutFetcher struct{}
@@ -20,26 +17,34 @@ func NewPPMCloseoutFetcher() services.PPMCloseoutFetcher {
 
 func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.PPMCloseout, error) {
 	var ppmCloseoutObj models.PPMCloseout
-	var results []map[string]any
+	var ppmShipmentQueryResult models.PPMShipment
+	var mtoShipmentQueryResult models.MTOShipment
 
-	err := appCtx.DB().Q().RawQuery("SELECT ms.distance, ms.priime_actual_weight, ps.* FROM ppm_shipments ps join on ps.shipment_id = ms.id WHERE ps.id = ?", ppmShipmentID).All(&results)
-
-	if err != nil {
-		if len(results) == 0 {
-			return nil, apperror.NewNotFoundError(ppmShipmentID, "while looking for PPMShipment")
+	ppmShipmentQueryErr := appCtx.DB().Find(&ppmShipmentQueryResult, ppmShipmentID)
+	if ppmShipmentQueryErr != nil {
+		if ppmShipmentQueryResult.ID != uuid.Nil {
+			return nil, apperror.NewQueryError("PPMShipment", ppmShipmentQueryErr, "unable to find PPMShipment")
 		}
-		return nil, apperror.NewQueryError("PPMShipment", err, "unable to find PPMShipment")
+		return nil, apperror.NewNotFoundError(ppmShipmentID, "while looking for PPMShipment")
 	}
 
-	ppmCloseoutObj.ID = results[0]["id"].(*uuid.UUID)
-	ppmCloseoutObj.PlannedMoveDate = results[0]["expected_departure_date"].(*time.Time)
-	ppmCloseoutObj.ActualMoveDate = results[0]["actual_move_date"].(*time.Time)
-	ppmCloseoutObj.Miles = results[0]["distance"].(*int)
-	ppmCloseoutObj.EstimatedWeight = results[0]["estimated_weight"].(*unit.Pound)
-	ppmCloseoutObj.ActualWeight = results[0]["prime_actual_weight"].(*unit.Pound)
-	ppmCloseoutObj.ProGearWeightCustomer = results[0]["pro_gear_weight"].(*unit.Pound)
-	ppmCloseoutObj.ProGearWeightSpouse = results[0]["pro_gear_weight_spouse"].(*unit.Pound)
-	ppmCloseoutObj.GrossIncentive = results[0]["final_incentive"].(*unit.Cents)
+	mtoShipmentQueryResultErr := appCtx.DB().Find(&mtoShipmentQueryResult, &ppmShipmentQueryResult.ShipmentID)
+	if mtoShipmentQueryResultErr != nil {
+		if mtoShipmentQueryResult.ID != uuid.Nil {
+			return nil, apperror.NewQueryError("MTOShipment", mtoShipmentQueryResultErr, "unable to find associated MTOShipment")
+		}
+		return nil, apperror.NewNotFoundError(ppmShipmentQueryResult.ShipmentID, "while looking for MTOShipment")
+	}
+
+	ppmCloseoutObj.ID = ppmShipmentQueryResult.ID
+	ppmCloseoutObj.PlannedMoveDate = &ppmShipmentQueryResult.ExpectedDepartureDate
+	ppmCloseoutObj.ActualMoveDate = ppmShipmentQueryResult.ActualMoveDate
+	ppmCloseoutObj.Miles = mtoShipmentQueryResult.Distance
+	ppmCloseoutObj.EstimatedWeight = ppmShipmentQueryResult.EstimatedWeight
+	ppmCloseoutObj.ActualWeight = mtoShipmentQueryResult.PrimeActualWeight
+	ppmCloseoutObj.ProGearWeightCustomer = ppmShipmentQueryResult.ProGearWeight
+	ppmCloseoutObj.ProGearWeightSpouse = ppmShipmentQueryResult.SpouseProGearWeight
+	ppmCloseoutObj.GrossIncentive = ppmShipmentQueryResult.FinalIncentive
 
 	return &ppmCloseoutObj, nil
 }

@@ -12,10 +12,10 @@ import (
 )
 
 type PPMCloseout struct {
-	ID                         *uuid.UUID
+	ID                         uuid.UUID
 	PlannedMoveDate            *time.Time
 	ActualMoveDate             *time.Time
-	Miles                      *int
+	Miles                      *unit.Miles
 	EstimatedWeight            *unit.Pound
 	ActualWeight               *unit.Pound
 	ProGearWeightCustomer      *unit.Pound
