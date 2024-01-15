@@ -200,6 +200,7 @@ describe('EditOrdersForm component', () => {
       ['No', false, HTMLInputElement],
       ['New duty location', false, HTMLInputElement],
       ['Pay grade', true, HTMLSelectElement],
+      ['Current duty location', false, HTMLInputElement],
     ])('rendering %s and is required is %s', async (formInput, required, inputType) => {
       render(<EditOrdersForm {...testProps} />);
 
@@ -267,14 +268,20 @@ describe('EditOrdersForm component', () => {
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText('Pay grade'), ['E_5']);
 
-    // Test Duty Location Search Box interaction
+    // Test Current Duty Location Search Box interaction
+    await userEvent.type(screen.getByLabelText('Current duty location'), 'AFB', { delay: 100 });
+    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    await userEvent.click(selectedOptionCurrent);
+
+    // Test New Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
-    const selectedOption = await screen.findByText(/Luke/);
-    await userEvent.click(selectedOption);
+    const selectedOptionNew = await screen.findByText(/Luke/);
+    await userEvent.click(selectedOptionNew);
 
     await waitFor(() => {
       expect(screen.getByRole('form')).toHaveFormValues({
         new_duty_location: 'Luke AFB',
+        origin_duty_location: 'Altus AFB',
       });
     });
 
@@ -327,14 +334,20 @@ describe('EditOrdersForm component', () => {
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText('Pay grade'), ['E_5']);
 
-    // Test Duty Location Search Box interaction
+    // Test Current Duty Location Search Box interaction
+    await userEvent.type(screen.getByLabelText('Current duty location'), 'AFB', { delay: 100 });
+    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    await userEvent.click(selectedOptionCurrent);
+
+    // Test New Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
-    const selectedOption = await screen.findByText(/Luke/);
-    await userEvent.click(selectedOption);
+    const selectedOptionNew = await screen.findByText(/Luke/);
+    await userEvent.click(selectedOptionNew);
 
     await waitFor(() =>
       expect(screen.getByRole('form')).toHaveFormValues({
         new_duty_location: 'Luke AFB',
+        origin_duty_location: 'Altus AFB',
       }),
     );
 
@@ -418,6 +431,21 @@ describe('EditOrdersForm component', () => {
         },
       ],
       grade: 'E_1',
+      origin_duty_location: {
+        address: {
+          city: '',
+          id: '00000000-0000-0000-0000-000000000000',
+          postalCode: '',
+          state: '',
+          streetAddress1: '',
+        },
+        address_id: '46c4640b-c35e-4293-a2f1-36c7b629f903',
+        affiliation: 'AIR_FORCE',
+        created_at: '2021-02-11T16:48:04.117Z',
+        id: '93f0755f-6f35-478b-9a75-35a69211da1c',
+        name: 'Altus AFB',
+        updated_at: '2021-02-11T16:48:04.117Z',
+      },
     };
 
     it('pre-fills the inputs', async () => {
@@ -425,6 +453,7 @@ describe('EditOrdersForm component', () => {
 
       expect(await screen.findByRole('form')).toHaveFormValues({
         new_duty_location: 'Yuma AFB',
+        origin_duty_location: 'Altus AFB',
       });
 
       expect(screen.getByLabelText('Orders type')).toHaveValue(testInitialValues.orders_type);
@@ -434,6 +463,7 @@ describe('EditOrdersForm component', () => {
       expect(screen.getByLabelText('No')).toBeChecked();
       expect(screen.getByText('Yuma AFB')).toBeInTheDocument();
       expect(screen.getByLabelText('Pay grade')).toHaveValue(testInitialValues.grade);
+      expect(screen.getByText('Altus AFB')).toBeInTheDocument();
     });
 
     it('renders the uploads table with an existing upload', async () => {
