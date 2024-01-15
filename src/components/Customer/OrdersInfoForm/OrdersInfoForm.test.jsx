@@ -129,7 +129,15 @@ jest.mock('components/LocationSearchBox/api', () => ({
 
 const testProps = {
   onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
-  initialValues: { orders_type: '', issue_date: '', report_by_date: '', has_dependents: '', new_duty_location: {} },
+  initialValues: {
+    orders_type: '',
+    issue_date: '',
+    report_by_date: '',
+    has_dependents: '',
+    new_duty_location: {},
+    grade: '',
+    origin_duty_location: {},
+  },
   onBack: jest.fn(),
   ordersTypeOptions: [
     { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
@@ -137,8 +145,6 @@ const testProps = {
     { key: 'RETIREMENT', value: 'Retirement' },
     { key: 'SEPARATION', value: 'Separation' },
   ],
-  currentDutyLocation: {},
-  grade: 'E_1',
 };
 
 describe('OrdersInfoForm component', () => {
@@ -156,6 +162,7 @@ describe('OrdersInfoForm component', () => {
       expect(getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText('New duty location')).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText('Pay grade')).toBeInstanceOf(HTMLSelectElement);
+      expect(getByLabelText('Current duty location')).toBeInstanceOf(HTMLInputElement);
     });
   });
 
@@ -179,7 +186,7 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('allows new and current duty location to be the same', async () => {
-    render(<OrdersInfoForm {...testProps} currentDutyLocation={{ name: 'Luke AFB' }} />);
+    render(<OrdersInfoForm {...testProps} />);
 
     await userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
     await userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
@@ -187,14 +194,20 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText('Pay grade'), ['E_5']);
 
-    // Test Duty Location Search Box interaction
+    // Test Current Duty Location Search Box interaction
+    await userEvent.type(screen.getByLabelText('Current duty location'), 'AFB', { delay: 100 });
+    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    await userEvent.click(selectedOptionCurrent);
+
+    // Test New Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
-    const selectedOption = await screen.findByText(/Luke/);
-    await userEvent.click(selectedOption);
+    const selectedOptionNew = await screen.findByText(/Luke/);
+    await userEvent.click(selectedOptionNew);
 
     await waitFor(() => {
       expect(screen.getByRole('form')).toHaveFormValues({
         new_duty_location: 'Luke AFB',
+        origin_duty_location: 'Altus AFB',
       });
     });
 
@@ -228,14 +241,20 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText('Pay grade'), ['E_5']);
 
-    // Test Duty Location Search Box interaction
+    // Test Current Duty Location Search Box interaction
+    await userEvent.type(screen.getByLabelText('Current duty location'), 'AFB', { delay: 100 });
+    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    await userEvent.click(selectedOptionCurrent);
+
+    // Test New Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
-    const selectedOption = await screen.findByText(/Luke/);
-    await userEvent.click(selectedOption);
+    const selectedOptionNew = await screen.findByText(/Luke/);
+    await userEvent.click(selectedOptionNew);
 
     await waitFor(() => {
       expect(screen.getByRole('form')).toHaveFormValues({
         new_duty_location: 'Luke AFB',
+        origin_duty_location: 'Altus AFB',
       });
     });
 
@@ -266,6 +285,21 @@ describe('OrdersInfoForm component', () => {
             updated_at: '2021-02-11T16:48:04.117Z',
           },
           grade: 'E_5',
+          origin_duty_location: {
+            address: {
+              city: '',
+              id: '00000000-0000-0000-0000-000000000000',
+              postalCode: '',
+              state: '',
+              streetAddress1: '',
+            },
+            address_id: '46c4640b-c35e-4293-a2f1-36c7b629f903',
+            affiliation: 'AIR_FORCE',
+            created_at: '2021-02-11T16:48:04.117Z',
+            id: '93f0755f-6f35-478b-9a75-35a69211da1c',
+            name: 'Altus AFB',
+            updated_at: '2021-02-11T16:48:04.117Z',
+          },
         }),
         expect.anything(),
       );
@@ -308,6 +342,21 @@ describe('OrdersInfoForm component', () => {
         updated_at: '2020-10-19T17:01:16.114Z',
       },
       grade: 'E_1',
+      origin_duty_location: {
+        address: {
+          city: '',
+          id: '00000000-0000-0000-0000-000000000000',
+          postalCode: '',
+          state: '',
+          streetAddress1: '',
+        },
+        address_id: '46c4640b-c35e-4293-a2f1-36c7b629f903',
+        affiliation: 'AIR_FORCE',
+        created_at: '2021-02-11T16:48:04.117Z',
+        id: '93f0755f-6f35-478b-9a75-35a69211da1c',
+        name: 'Altus AFB',
+        updated_at: '2021-02-11T16:48:04.117Z',
+      },
     };
 
     it('pre-fills the inputs', async () => {
@@ -318,6 +367,7 @@ describe('OrdersInfoForm component', () => {
       await waitFor(() => {
         expect(getByRole('form')).toHaveFormValues({
           new_duty_location: 'Yuma AFB',
+          origin_duty_location: 'Altus AFB',
         });
 
         expect(getByLabelText('Orders type')).toHaveValue(testInitialValues.orders_type);
@@ -327,6 +377,7 @@ describe('OrdersInfoForm component', () => {
         expect(getByLabelText('No')).toBeChecked();
         expect(queryByText('Yuma AFB')).toBeInTheDocument();
         expect(getByLabelText('Pay grade')).toHaveValue(testInitialValues.grade);
+        expect(queryByText('Altus AFB')).toBeInTheDocument();
       });
     });
   });

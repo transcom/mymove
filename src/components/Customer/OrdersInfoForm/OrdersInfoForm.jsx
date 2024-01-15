@@ -11,6 +11,7 @@ import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/fo
 import Hint from 'components/Hint/index';
 import { Form } from 'components/form/Form';
 import { DropdownArrayOf } from 'types';
+import { DutyLocationShape } from 'types/dutyLocation';
 import formStyles from 'styles/form.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
@@ -33,6 +34,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
     has_dependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     new_duty_location: Yup.object().nullable().required('Required'),
     grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
+    origin_duty_location: Yup.object().nullable().required('Required'),
   });
 
   return (
@@ -83,6 +85,14 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                   />
                 </div>
               </FormGroup>
+
+              <DutyLocationInput
+                label="Current duty location"
+                name="origin_duty_location"
+                id="origin_duty_location"
+                required
+              />
+
               {isRetirementOrSeparation ? (
                 <>
                   <h3 className={styles.calloutLabel}>Where are you entitled to move?</h3>
@@ -144,6 +154,7 @@ OrdersInfoForm.propTypes = {
     has_dependents: PropTypes.string,
     new_duty_location: PropTypes.shape({}),
     grade: PropTypes.string,
+    origin_duty_location: DutyLocationShape,
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,

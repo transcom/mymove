@@ -83,12 +83,14 @@ export class Orders extends Component {
         report_by_date: formatDateForSwagger(values.report_by_date),
         issue_date: formatDateForSwagger(values.issue_date),
         grade: values.grade,
-        spouse_has_pro_gear: false, // TODO - this input seems to be deprecated?
+        origin_duty_location_id: values.origin_duty_location.id,
+        spouse_has_pro_gear: false,
       };
 
       const payload = {
         id: serviceMemberId,
         rank: values.grade,
+        current_location_id: values.origin_duty_location.id,
       };
 
       patchServiceMember(payload)
@@ -133,6 +135,7 @@ export class Orders extends Component {
       has_dependents: formatYesNoInputValue(currentOrders?.has_dependents),
       new_duty_location: currentOrders?.new_duty_location || null,
       grade: currentOrders?.grade || null,
+      origin_duty_location: currentOrders?.origin_duty_location || null,
     };
 
     // Only allow PCS unless feature flag is on
@@ -195,11 +198,12 @@ Orders.defaultProps = {
 
 const mapStateToProps = (state) => {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const orders = selectCurrentOrders(state);
 
   return {
     serviceMemberId: serviceMember?.id,
     currentOrders: selectCurrentOrders(state),
-    currentDutyLocation: serviceMember?.current_location || {},
+    currentDutyLocation: orders?.origin_duty_location || {},
   };
 };
 
