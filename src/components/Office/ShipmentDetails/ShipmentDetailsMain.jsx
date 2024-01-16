@@ -202,6 +202,7 @@ const ShipmentDetailsMain = ({
         scheduledDeliveryDate={scheduledDeliveryDate ? formatDateWithUTC(scheduledDeliveryDate) : null}
         actualDeliveryDate={actualDeliveryDate ? formatDateWithUTC(actualDeliveryDate) : null}
         requiredDeliveryDate={requiredDeliveryDate ? formatDateWithUTC(requiredDeliveryDate) : null}
+        isPPM={shipmentType === SHIPMENT_OPTIONS.PPM}
       />
       <ShipmentAddresses
         pickupAddress={displayedPickupAddress}
