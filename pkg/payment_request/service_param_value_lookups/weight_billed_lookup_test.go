@@ -61,15 +61,6 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 		suite.Equal("1450", valueStr)
 	})
 
-	suite.Run("has reweigh weight where reweigh is lower", func() {
-		// Set the original weight to greater than the reweigh weight. Lower weight (reweigh) should win.
-		_, _, paramLookup := suite.setupTestMTOServiceItemWithReweigh(unit.Pound(1450), unit.Pound(1481), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
-
-		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
-		suite.FatalNoError(err)
-		suite.Equal("1450", valueStr)
-	})
-
 	suite.Run("has adjusted weight", func() {
 		// Set the original weight to greater than the adjusted weight (adjusted weight should always win)
 		adjustedWeight := unit.Pound(1400)
@@ -288,4 +279,52 @@ func (suite *ServiceParamValueLookupsSuite) TestShuttleWeightBilledLookup() {
 
 		suite.Equal("1000", valueStr)
 	})
+}
+
+func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookupDivertedShipments() {
+	key := models.ServiceItemParamNameWeightBilled
+
+	suite.Run("single diverted shipment", func() {
+		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeightOnDiversion(unit.Pound(1234), unit.Pound(1000), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG, true, nil)
+
+		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		suite.FatalNoError(err)
+		suite.Equal("1000", valueStr)
+	})
+
+	suite.Run("multiple diverted shipments with different weights", func() {
+		// Setup multiple diverted shipments with different weights
+		parentEstimatedWeight := unit.Pound(800)
+		parentActualWeight := unit.Pound(1200)
+		childEstimatedWeight := unit.Pound(1600)
+		childActualWeight := unit.Pound(2400)
+
+		_, _, _, _, _, childParamLookup := suite.setupTestDivertedShipmentChain(&parentEstimatedWeight, &childEstimatedWeight, &parentActualWeight, &childActualWeight, nil, nil, models.ReServiceCodeDLH, models.MTOShipmentTypeHHGIntoNTSDom)
+
+		// Use the child shipment
+		valueStr, err := childParamLookup.ServiceParamValue(suite.AppContextForTest(), key)
+
+		// After looking up the child shipment billable weight we should get the parent's weight because it's lower and in the diversion chain
+		suite.FatalNoError(err)
+		suite.Equal("1200", valueStr)
+	})
+
+	suite.Run("multiple diverted shipments with different weights with a prime with lowest", func() {
+		// Setup multiple diverted shipments with different weights
+		parentEstimatedWeight := unit.Pound(800)
+		parentActualWeight := unit.Pound(1200)
+		parentReweighWeight := unit.Pound(700)
+		childEstimatedWeight := unit.Pound(1600)
+		childActualWeight := unit.Pound(2400)
+
+		_, _, _, _, _, childParamLookup := suite.setupTestDivertedShipmentChain(&parentEstimatedWeight, &childEstimatedWeight, &parentActualWeight, &childActualWeight, &parentReweighWeight, nil, models.ReServiceCodeDLH, models.MTOShipmentTypeHHGIntoNTSDom)
+
+		// Use the child shipment
+		valueStr, err := childParamLookup.ServiceParamValue(suite.AppContextForTest(), key)
+
+		// After looking up the child shipment billable weight we should get the parent's reweigh weight because it's lower and in the diversion chain
+		suite.FatalNoError(err)
+		suite.Equal("700", valueStr)
+	})
+
 }

@@ -560,12 +560,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 }
 
-func (suite *HandlerSuite) TestCreateNonSITAddressUpdateRequestHandler() {
+func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 	req := httptest.NewRequest("POST", "/mto-shipments/{mtoShipmentID}/shipment-address-updates", nil)
 
-	makeSubtestData := func() mtoshipmentops.CreateNonSITAddressUpdateRequestParams {
+	makeSubtestData := func() mtoshipmentops.UpdateShipmentDestinationAddressParams {
 		contractorRemark := "This is a contractor remark"
-		body := primemessages.CreateNonSITAddressUpdateRequest{
+		body := primemessages.UpdateShipmentDestinationAddress{
 			ContractorRemarks: &contractorRemark,
 			NewAddress: &primemessages.Address{
 				City:           swag.String("Beverly Hills"),
@@ -575,7 +575,7 @@ func (suite *HandlerSuite) TestCreateNonSITAddressUpdateRequestHandler() {
 			},
 		}
 
-		params := mtoshipmentops.CreateNonSITAddressUpdateRequestParams{
+		params := mtoshipmentops.UpdateShipmentDestinationAddressParams{
 			HTTPRequest: req,
 			Body:        &body,
 		}
@@ -586,7 +586,7 @@ func (suite *HandlerSuite) TestCreateNonSITAddressUpdateRequestHandler() {
 	suite.Run("POST failure - 422 Unprocessable Entity Error", func() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
-		handler := CreateNonSITAddressUpdateRequestHandler{
+		handler := UpdateShipmentDestinationAddressHandler{
 			suite.HandlerConfig(),
 			&mockCreator,
 		}
@@ -608,8 +608,8 @@ func (suite *HandlerSuite) TestCreateNonSITAddressUpdateRequestHandler() {
 		suite.NoError(subtestData.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(subtestData)
-		suite.IsType(&mtoshipmentops.CreateNonSITAddressUpdateRequestUnprocessableEntity{}, response)
-		errResponse := response.(*mtoshipmentops.CreateNonSITAddressUpdateRequestUnprocessableEntity)
+		suite.IsType(&mtoshipmentops.UpdateShipmentDestinationAddressUnprocessableEntity{}, response)
+		errResponse := response.(*mtoshipmentops.UpdateShipmentDestinationAddressUnprocessableEntity)
 
 		// Validate outgoing payload
 		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
@@ -618,7 +618,7 @@ func (suite *HandlerSuite) TestCreateNonSITAddressUpdateRequestHandler() {
 	suite.Run("POST failure - 409 Request conflict reponse Error", func() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
-		handler := CreateNonSITAddressUpdateRequestHandler{
+		handler := UpdateShipmentDestinationAddressHandler{
 			suite.HandlerConfig(),
 			&mockCreator,
 		}
@@ -637,8 +637,8 @@ func (suite *HandlerSuite) TestCreateNonSITAddressUpdateRequestHandler() {
 		suite.NoError(subtestData.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(subtestData)
-		suite.IsType(&mtoshipmentops.CreateNonSITAddressUpdateRequestConflict{}, response)
-		errResponse := response.(*mtoshipmentops.CreateNonSITAddressUpdateRequestConflict)
+		suite.IsType(&mtoshipmentops.UpdateShipmentDestinationAddressConflict{}, response)
+		errResponse := response.(*mtoshipmentops.UpdateShipmentDestinationAddressConflict)
 
 		// Validate outgoing payload
 		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
@@ -648,7 +648,7 @@ func (suite *HandlerSuite) TestCreateNonSITAddressUpdateRequestHandler() {
 
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
-		handler := CreateNonSITAddressUpdateRequestHandler{
+		handler := UpdateShipmentDestinationAddressHandler{
 			suite.HandlerConfig(),
 			&mockCreator,
 		}
@@ -667,8 +667,8 @@ func (suite *HandlerSuite) TestCreateNonSITAddressUpdateRequestHandler() {
 		suite.NoError(subtestData.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(subtestData)
-		suite.IsType(&mtoshipmentops.CreateNonSITAddressUpdateRequestNotFound{}, response)
-		errResponse := response.(*mtoshipmentops.CreateNonSITAddressUpdateRequestNotFound)
+		suite.IsType(&mtoshipmentops.UpdateShipmentDestinationAddressNotFound{}, response)
+		errResponse := response.(*mtoshipmentops.UpdateShipmentDestinationAddressNotFound)
 
 		// Validate outgoing payload
 		suite.NoError(errResponse.Payload.Validate(strfmt.Default))
@@ -678,7 +678,7 @@ func (suite *HandlerSuite) TestCreateNonSITAddressUpdateRequestHandler() {
 
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
-		handler := CreateNonSITAddressUpdateRequestHandler{
+		handler := UpdateShipmentDestinationAddressHandler{
 			suite.HandlerConfig(),
 			&mockCreator,
 		}
@@ -697,8 +697,8 @@ func (suite *HandlerSuite) TestCreateNonSITAddressUpdateRequestHandler() {
 		suite.NoError(subtestData.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(subtestData)
-		suite.IsType(&mtoshipmentops.CreateNonSITAddressUpdateRequestInternalServerError{}, response)
-		errResponse := response.(*mtoshipmentops.CreateNonSITAddressUpdateRequestInternalServerError)
+		suite.IsType(&mtoshipmentops.UpdateShipmentDestinationAddressInternalServerError{}, response)
+		errResponse := response.(*mtoshipmentops.UpdateShipmentDestinationAddressInternalServerError)
 
 		// Validate outgoing payload
 		suite.NoError(errResponse.Payload.Validate(strfmt.Default))

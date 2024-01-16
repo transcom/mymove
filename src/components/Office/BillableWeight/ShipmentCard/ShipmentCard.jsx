@@ -54,6 +54,7 @@ export default function ShipmentCard({
   pickupAddress,
   destinationAddress,
   estimatedWeight,
+  primeActualWeight,
   originalWeight,
   adjustedWeight,
   reweighRemarks,
@@ -120,6 +121,17 @@ export default function ShipmentCard({
           title="Estimated weight"
           contentTestId="estimatedWeight"
           content={estimatedWeight ? formatWeight(estimatedWeight) : <strong>Missing</strong>}
+        />
+
+        <ShipmentCardDetailRow
+          display={!shipmentIsNTSR}
+          rowTestId="actualWeightContainer"
+          className={classnames(styles.field, {
+            [styles.warning]: !primeActualWeight,
+          })}
+          title="Actual weight"
+          contentTestId="actualWeight"
+          content={primeActualWeight ? formatWeight(primeActualWeight) : <strong>Missing</strong>}
         />
 
         <ShipmentCardDetailRow
@@ -193,6 +205,7 @@ ShipmentCard.propTypes = {
   destinationAddress: MandatorySimpleAddressShape.isRequired,
   editEntity: func.isRequired,
   estimatedWeight: number,
+  primeActualWeight: number,
   originalWeight: number.isRequired,
   adjustedWeight: number,
   pickupAddress: MandatorySimpleAddressShape.isRequired,
@@ -209,6 +222,7 @@ ShipmentCard.defaultProps = {
   billableWeightJustification: '',
   dateReweighRequested: '',
   estimatedWeight: 0,
+  primeActualWeight: 0,
   adjustedWeight: null,
   reweighWeight: null,
   reweighRemarks: '',
