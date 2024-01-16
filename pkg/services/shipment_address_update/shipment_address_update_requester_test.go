@@ -501,7 +501,6 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		suite.NotNil(update)
 		suite.Equal(models.ShipmentAddressUpdateStatusApproved, update.Status)
 		suite.Equal("This is a TOO remark", *update.OfficeRemarks)
-
 	})
 
 	suite.Run("TOO rejects address change", func() {
@@ -554,6 +553,77 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		suite.NotNil(update)
 		suite.Equal(models.MoveStatusAPPROVED, updatedMove.Status)
 
+	})
+
+	suite.Run("TOO approves address change and service items status and final destination address change", func() {
+
+		// creating an address change that shares the same address to avoid hitting lineHaulChange check
+		addressChange := factory.BuildShipmentAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "123 Main St",
+					StreetAddress2: models.StringPointer("Apt 2"),
+					StreetAddress3: models.StringPointer("Suite 200"),
+					City:           "New York",
+					State:          "NY",
+					PostalCode:     "10001",
+					Country:        models.StringPointer("US"),
+				},
+				Type: &factory.Addresses.OriginalAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "123 Main St",
+					StreetAddress2: models.StringPointer("Apt 2"),
+					StreetAddress3: models.StringPointer("Suite 200"),
+					City:           "New York",
+					State:          "NY",
+					PostalCode:     "10001",
+					Country:        models.StringPointer("US"),
+				},
+				Type: &factory.Addresses.NewAddress,
+			},
+		}, nil)
+		shipment := addressChange.Shipment
+		reService := factory.BuildDDFSITReService(suite.DB())
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ID: shipment.MoveTaskOrderID,
+				},
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    reService,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+		}, nil)
+		officeRemarks := "This is a TOO remark"
+
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "APPROVED", officeRemarks)
+
+		suite.NoError(err)
+		suite.NotNil(update)
+		suite.Equal(models.ShipmentAddressUpdateStatusApproved, update.Status)
+		suite.Equal("This is a TOO remark", *update.OfficeRemarks)
+
+		// Make sure the destination address on the shipment was updated
+		var updatedShipment models.MTOShipment
+		err = suite.DB().EagerPreload("DestinationAddress", "MTOServiceItems").Find(&updatedShipment, update.ShipmentID)
+		suite.NoError(err)
+
+		// service item status should be changed to submitted
+		suite.Equal(models.MTOServiceItemStatusSubmitted, updatedShipment.MTOServiceItems[0].Status)
+		// delivery and final destination addresses should be the same
+		suite.Equal(updatedShipment.DestinationAddressID, updatedShipment.MTOServiceItems[0].SITDestinationFinalAddressID)
 	})
 
 }
