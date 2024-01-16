@@ -62,7 +62,8 @@ const ServiceItemsTable = ({
         historyRecordOfServiceItem.action === 'UPDATE' &&
         (historyRecordOfServiceItem.oldValues.status === 'REJECTED' ||
           historyRecordOfServiceItem.oldValues.status === 'APPROVED') &&
-        historyRecordOfServiceItem.eventName === 'updateMTOServiceItem' &&
+        (historyRecordOfServiceItem.eventName === 'updateMTOServiceItem' ||
+          historyRecordOfServiceItem.eventName === 'reviewShipmentAddressUpdate') &&
         statusForTableType === SERVICE_ITEM_STATUS.SUBMITTED
       ) {
         isResubmitted = true;
