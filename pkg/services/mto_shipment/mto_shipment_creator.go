@@ -45,7 +45,7 @@ func NewMTOShipmentCreatorV2(builder createMTOShipmentQueryBuilder, fetcher serv
 		builder,
 		fetcher,
 		moveRouter,
-		[]validator{checkDiversionValid()},
+		[]validator{checkDiversionValid(), childDiversionPrimeWeightRule()},
 	}
 }
 
