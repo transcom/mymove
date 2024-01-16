@@ -433,12 +433,12 @@ describe('Orders page', () => {
     await userEvent.click(queryByText('Next'));
 
     await waitFor(() => {
-      // expect(patchOrders).toHaveBeenCalled();
+      expect(patchOrders).toHaveBeenCalled();
     });
 
-    // expect(queryByText('A server error occurred saving the orders')).toBeInTheDocument();
-    // expect(testProps.updateOrders).toHaveBeenCalledTimes(1);
-    // expect(mockNavigate).not.toHaveBeenCalled();
+    expect(queryByText('A server error occurred saving the orders')).toBeInTheDocument();
+    expect(testProps.updateOrders).toHaveBeenCalledTimes(1);
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   describe('with the allOrdersType feature flag set to true', () => {
