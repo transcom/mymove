@@ -20,7 +20,6 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/route"
 	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
@@ -137,7 +136,6 @@ func main() {
 		formFiller.Debug()
 	}
 
-	ppmShipment, err := models.FetchPPMShipmentByPPMShipmentID(dbConnection, parsedID)
 	if err != nil {
 		log.Fatalf("error fetching ppmshipment: %s", PPMShipmentIDFlag)
 	}
@@ -150,9 +148,9 @@ func main() {
 
 	// TODO: Future cleanup will need to remap to a different planner, or this command should be removed if it is consider deprecated
 	planner := route.NewHEREPlanner(hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
-	ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer(ppmShipment)
+	ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer(false)
 
-	ssfd, err := shipmentsummaryworksheet.FetchDataShipmentSummaryWorksheetFormData(appCtx, &auth.Session{}, parsedID)
+	ssfd, err := ppmComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, &auth.Session{}, parsedID)
 	if err != nil {
 		log.Fatalf("%s", errors.Wrap(err, "Error fetching shipment summary worksheet data "))
 	}
@@ -161,7 +159,7 @@ func main() {
 		log.Fatalf("%s", errors.Wrap(err, "Error calculating obligations "))
 	}
 
-	page1Data, page2Data, page3Data, err := shipmentsummaryworksheet.FormatValuesShipmentSummaryWorksheet(ssfd)
+	page1Data, page2Data, page3Data, err := ppmComputer.FormatValuesShipmentSummaryWorksheet(ssfd)
 	noErr(err)
 
 	// page 1
