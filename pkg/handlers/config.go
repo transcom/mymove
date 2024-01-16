@@ -49,6 +49,7 @@ type HandlerConfig interface {
 	GetTraceIDFromRequest(r *http.Request) uuid.UUID
 
 	FeatureFlagFetcher() services.FeatureFlagFetcher
+	EnvFetcher() services.EnvFetcher // Experimental, TODO: Replace with full flipt FeatureFlagFetcher implementation
 }
 
 // A single Config is passed to each handler. This should be
@@ -70,6 +71,7 @@ type Config struct {
 	appNames              auth.ApplicationServername
 	sessionManagers       auth.AppSessionManagers
 	featureFlagFetcher    services.FeatureFlagFetcher
+	envFetcher            services.EnvFetcher
 }
 
 // NewHandlerConfig returns a new HandlerConfig interface with its
@@ -90,6 +92,7 @@ func NewHandlerConfig(
 	appNames auth.ApplicationServername,
 	sessionManagers auth.AppSessionManagers,
 	featureFlagFetcher services.FeatureFlagFetcher,
+	envFetcher services.EnvFetcher,
 ) HandlerConfig {
 	return &Config{
 		db:                    db,
@@ -107,6 +110,7 @@ func NewHandlerConfig(
 		appNames:              appNames,
 		sessionManagers:       sessionManagers,
 		featureFlagFetcher:    featureFlagFetcher,
+		envFetcher:            envFetcher,
 	}
 }
 
@@ -333,4 +337,14 @@ func (c *Config) FeatureFlagFetcher() services.FeatureFlagFetcher {
 // SetFeatureFlagFetcher sets the feature flag fetcher
 func (c *Config) SetFeatureFlagFetcher(fff services.FeatureFlagFetcher) {
 	c.featureFlagFetcher = fff
+}
+
+// EnvFetcher returns the environment fetching service
+func (c *Config) EnvFetcher() services.EnvFetcher {
+	return c.envFetcher
+}
+
+// SetEnvFetcher sets the environment fetcher
+func (c *Config) SetEnvFetcher(ef services.EnvFetcher) {
+	c.envFetcher = ef
 }
