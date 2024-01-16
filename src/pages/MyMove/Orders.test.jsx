@@ -31,12 +31,6 @@ jest.mock('components/LocationSearchBox/api', () => ({
     Promise.resolve([
       {
         address: {
-          // city: 'Altus AFB',
-          // country: 'United States',
-          // id: 'fa51dab0-4553-4732-b843-1f33407f77bd',
-          // postalCode: '73523',
-          // state: 'OK',
-          // streetAddress1: 'n/a',
           city: '',
           id: '00000000-0000-0000-0000-000000000000',
           postalCode: '',
