@@ -53,12 +53,15 @@ const ServiceItemsTable = ({
     });
   };
 
+  // we are checking the previous status & db action of the service item
+  // that determines if we show the tooltip or not
   const getResubmissionStatus = (historyRecordOfServiceItem) => {
     let isResubmitted = false;
     if (historyRecordOfServiceItem) {
       if (
         historyRecordOfServiceItem.action === 'UPDATE' &&
-        historyRecordOfServiceItem.oldValues.status === 'REJECTED' &&
+        (historyRecordOfServiceItem.oldValues.status === 'REJECTED' ||
+          historyRecordOfServiceItem.oldValues.status === 'APPROVED') &&
         historyRecordOfServiceItem.eventName === 'updateMTOServiceItem' &&
         statusForTableType === SERVICE_ITEM_STATUS.SUBMITTED
       ) {
