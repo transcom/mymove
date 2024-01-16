@@ -24,7 +24,6 @@ import (
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services"
-	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -238,7 +237,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 				return handlers.ResponseForError(logger, err), err
 			}
 
-			page1Data, page2Data, page3Data, err := shipmentsummaryworksheet.FormatValuesShipmentSummaryWorksheet(ssfd)
+			page1Data, page2Data, page3Data, err := h.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(ssfd)
 
 			if err != nil {
 				logger.Error("Error formatting data for SSW", zap.Error(err))
