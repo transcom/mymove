@@ -891,7 +891,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		suite.Equal(autoRejectionRemark, *shorthaul[0].RejectionReason)
 		suite.Equal(linehaul[0].Status, models.MTOServiceItemStatusApproved)
 	})
-	suite.Run("Successfully update shipment and its servie items without error", func() {
+	suite.Run("Successfully update shipment and its service items without error", func() {
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"94535",
