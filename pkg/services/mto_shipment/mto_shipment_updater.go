@@ -1043,3 +1043,48 @@ func UpdateDestinationSITServiceItemsAddress(appCtx appcontext.AppContext, shipm
 
 	return nil
 }
+
+// UpdateDestinationSITServiceItemsAddressAndStatusToSubmitted updates destination SIT service items attached to a shipment
+// also changes the status of the service item to SUBMITTED that requires TOO approval
+// this updates the final_destination_address to be the same as the shipment's destination_address
+func UpdateDestinationSITServiceItemsAddressAndStatusToSubmitted(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
+	eagerAssociations := []string{"MTOServiceItems.ReService.Code"}
+	mtoShipment, err := FindShipment(appCtx, shipment.ID, eagerAssociations...)
+	if err != nil {
+		return err
+	}
+
+	mtoServiceItems := mtoShipment.MTOServiceItems
+
+	// Only update destination SIT service items
+	serviceItemsToUpdate := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDSFSC}
+
+	for _, serviceItem := range mtoServiceItems {
+		newServiceItem := serviceItem
+
+		// Only update the address ID if it is not up to date with the shipment destination address ID
+		if slices.Contains(serviceItemsToUpdate, serviceItem.ReService.Code) && serviceItem.SITDestinationFinalAddressID != shipment.DestinationAddressID {
+			newServiceItem.SITDestinationFinalAddressID = shipment.DestinationAddressID
+		}
+
+		// change the status of the service item to submitted
+		newServiceItem.Status = models.MTOServiceItemStatusSubmitted
+
+		transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
+			verrs, err := txnCtx.DB().ValidateAndUpdate(&newServiceItem)
+			if verrs != nil && verrs.HasAny() {
+				return apperror.NewInvalidInputError(shipment.ID, err, verrs, "invalid input found while updating final destination address and status of service item")
+			} else if err != nil {
+				return apperror.NewQueryError("Service item", err, "")
+			}
+
+			return nil
+		})
+
+		if transactionError != nil {
+			return transactionError
+		}
+	}
+
+	return nil
+}

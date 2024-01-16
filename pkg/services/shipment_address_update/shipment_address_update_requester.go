@@ -386,6 +386,14 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 				addressUpdate.Shipment.MTOServiceItems = append(addressUpdate.Shipment.MTOServiceItems, regeneratedServiceItems...)
 			}
 		}
+
+		// update destination SIT service items and change status to SUBMITTED
+		if len(shipment.MTOServiceItems) > 0 {
+			err = mtoshipment.UpdateDestinationSITServiceItemsAddressAndStatusToSubmitted(appCtx, &shipment)
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusRejected {
@@ -411,9 +419,6 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 			return err
 		}
 
-		if len(shipment.MTOServiceItems) > 0 {
-			err = mtoshipment.UpdateDestinationSITServiceItemsAddress(appCtx, &shipment)
-		}
 		if err != nil {
 			return err
 		}
