@@ -100,6 +100,74 @@ describe('ServiceItemsTable', () => {
     expect(toolTip.props().text).toBe(resultString);
   });
 
+  it('renders a tooltip with old details if service item was in a previously approved status', () => {
+    const defaultProps = {
+      handleUpdateMTOServiceItemStatus: jest.fn(),
+      handleShowRejectionDialog: jest.fn(),
+      handleRequestSITAddressUpdateModal: jest.fn(),
+      handleShowEditSitAddressModal: jest.fn(),
+      handleShowEditSitEntryDateModal: jest.fn(),
+      serviceItemAddressUpdateAlert: {
+        makeVisible: false,
+        alertMessage: '',
+        alertType: '',
+      },
+    };
+
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic Destination 1st Day SIT',
+        code: 'DOFSIT',
+        details: {
+          pickupPostalCode: '11111',
+          reason: 'This is the reason',
+        },
+      },
+    ];
+    const history = {
+      isLoading: false,
+      isError: false,
+      queueResult: {
+        data: [
+          {
+            action: 'UPDATE',
+            eventName: 'reviewShipmentAddressUpdate',
+            actionTstampTx: '2022-03-09T15:33:38.579Z',
+            changedValues: {
+              status: 'SUBMITTED',
+            },
+            objectId: 'historyObjectInServiceItemsTableTest',
+            oldValues: {
+              status: 'APPROVED',
+            },
+          },
+        ],
+      },
+      isSuccess: true,
+    };
+
+    useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
+    useGHCGetMoveHistory.mockReturnValue(history);
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        />
+      </MockProviders>,
+    );
+
+    const toolTip = wrapper.find('ToolTip').at(0);
+    expect(toolTip.exists()).toBe(true);
+    const resultString = 'Status\nNew: SUBMITTED \nPrevious: APPROVED\n\n';
+    expect(toolTip.props().text).toBe(resultString);
+  });
+
   it('does not render a tooltip for a service item that has not been resubmitted', () => {
     const defaultProps = {
       handleUpdateMTOServiceItemStatus: jest.fn(),
