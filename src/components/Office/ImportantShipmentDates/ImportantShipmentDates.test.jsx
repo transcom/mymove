@@ -33,15 +33,8 @@ describe('ImportantShipmentDates', () => {
     expect(wrapper.find('td').at(6).text()).toEqual(actualDeliveryDate);
   });
 
-  it('should render an em-dash when no date is provided', () => {
-    const emDash = '\u2014';
+  it('should not show irrelevant data when it is a PPM', () => {
     const wrapper = mount(<ImportantShipmentDates />);
-    expect(wrapper.find('td').at(0).text()).toEqual(emDash);
-    expect(wrapper.find('td').at(1).text()).toEqual(emDash);
-    expect(wrapper.find('td').at(2).text()).toEqual(emDash);
-    expect(wrapper.find('td').at(3).text()).toEqual(emDash);
-    expect(wrapper.find('td').at(4).text()).toEqual(emDash);
-    expect(wrapper.find('td').at(5).text()).toEqual(emDash);
-    expect(wrapper.find('td').at(6).text()).toEqual(emDash);
+    expect(wrapper.find('div').at(0).text()).toHaveLength(0);
   });
 });
