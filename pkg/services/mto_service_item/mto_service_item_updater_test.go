@@ -613,6 +613,47 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 		suite.NotNil(updatedServiceItem)
 		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
 	})
+
+	// Test that when an approved DDDSIT sitDestination is updated the serviceItem stays approved
+	suite.Run("UpdateMTOServiceItemPrimeValidator - Successfully Update Approved ServiceItem sitDepartureDate", func() {
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDDSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate: &now,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
+			},
+		}, nil)
+
+		newServiceItemPrime := oldServiceItemPrime
+		newServiceItemPrime.RequestedApprovalsRequestedStatus = nil
+
+		// Change sitDepartureDate:
+		newDate := time.Now().AddDate(0, 0, 5)
+		newServiceItemPrime.SITDepartureDate = &newDate
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem:  newServiceItemPrime,
+			oldServiceItem:      oldServiceItemPrime,
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+		}
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.AppContextForTest(), &serviceItemData, UpdateMTOServiceItemPrimeValidator)
+
+		suite.NoError(err)
+		suite.NotNil(updatedServiceItem)
+		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
+		suite.Equal(updatedServiceItem.Status, models.MTOServiceItemStatusApproved)
+	})
 }
 
 func (suite *MTOServiceItemServiceSuite) createServiceItem() (string, models.MTOServiceItem, models.Move) {
