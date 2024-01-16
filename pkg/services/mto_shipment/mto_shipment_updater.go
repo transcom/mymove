@@ -1067,22 +1067,23 @@ func UpdateDestinationSITServiceItemsAddressAndStatusToSubmitted(appCtx appconte
 			newServiceItem.SITDestinationFinalAddressID = shipment.DestinationAddressID
 		}
 
-		// change the status of the service item to submitted
-		newServiceItem.Status = models.MTOServiceItemStatusSubmitted
+		if slices.Contains(serviceItemsToUpdate, serviceItem.ReService.Code) && serviceItem.SITDestinationFinalAddressID != shipment.DestinationAddressID {
+			// change the status of the service item to submitted
+			newServiceItem.Status = models.MTOServiceItemStatusSubmitted
+			transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
+				verrs, err := txnCtx.DB().ValidateAndUpdate(&newServiceItem)
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(shipment.ID, err, verrs, "invalid input found while updating final destination address and status of service item")
+				} else if err != nil {
+					return apperror.NewQueryError("Service item", err, "")
+				}
 
-		transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
-			verrs, err := txnCtx.DB().ValidateAndUpdate(&newServiceItem)
-			if verrs != nil && verrs.HasAny() {
-				return apperror.NewInvalidInputError(shipment.ID, err, verrs, "invalid input found while updating final destination address and status of service item")
-			} else if err != nil {
-				return apperror.NewQueryError("Service item", err, "")
+				return nil
+			})
+
+			if transactionError != nil {
+				return transactionError
 			}
-
-			return nil
-		})
-
-		if transactionError != nil {
-			return transactionError
 		}
 	}
 
