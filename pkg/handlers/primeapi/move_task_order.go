@@ -1,7 +1,6 @@
 package primeapi
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"strings"
@@ -204,6 +203,7 @@ type DownloadMoveOrderHandler struct {
 	handlers.HandlerConfig
 	services.MoveSearcher
 	services.OrderFetcher
+	services.PrimeDownloadMoveUploadPDFGenerator
 }
 
 // Handler for downloading move order by locator as a PDF
@@ -259,15 +259,17 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 				}
 			}
 
-			// For now return mock empty PDF file for 200 response.
-			// TODO: (B-18027) - https://www13.v1host.com/USTRANSCOM38/story.mvc/Summary?oidToken=Story%3A870406
-			// - Retrieve all uploaded move order docs
-			// - Create new PDF service layer to merge all uploaded docs in one payload
-			// - Wire up PDF service to generate response PDF payload
-			buf := new(bytes.Buffer)
-			payload := io.NopCloser(buf)
-			filename := fmt.Sprintf("inline; filename=\"%s QA-%s %s.pdf\"", "MOCK", locator, time.Now().Format("01-02-2006"))
+			move := moves[len(moves)-1]
+			outputFile, err := h.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, services.MoveOrderUploadAll, move)
 
+			if err != nil {
+				appCtx.Logger().Error("Error: generator.GeneratePdf", zap.Error(err))
+				return movetaskorderops.NewDownloadMoveOrderInternalServerError().WithPayload(
+					payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+
+			payload := io.NopCloser(outputFile)
+			filename := fmt.Sprintf("inline; filename=\"%s-%s.pdf\"", locator, time.Now().UTC().Format("2006-01-02T15:04:05.000Z"))
 			return movetaskorderops.NewDownloadMoveOrderOK().WithContentDisposition(filename).WithPayload(payload), nil
 		})
 }
