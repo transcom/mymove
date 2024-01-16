@@ -4,7 +4,6 @@ import (
 	"database/sql"
 
 	"github.com/gofrs/uuid"
-	"golang.org/x/exp/slices"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -301,35 +300,10 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		} else {
 			shipment.DestinationAddressID = &addressUpdate.NewAddressID
 
-			mtoServiceItems := shipment.MTOServiceItems
-
-			// Only update these serviceItems address ID
-			serviceItemsToUpdate := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDSFSC}
-
-			for _, serviceItem := range mtoServiceItems {
-
-				// Only update the address ID if it is not up to date with the shipment destination address ID
-				if slices.Contains(serviceItemsToUpdate, serviceItem.ReService.Code) {
-
-					newServiceItem := serviceItem
-					newServiceItem.SITDestinationFinalAddressID = shipment.DestinationAddressID
-
-					transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
-						// update service item final destination address ID to match shipment address ID
-						verrs, err = txnCtx.DB().ValidateAndUpdate(&newServiceItem)
-						if verrs != nil && verrs.HasAny() {
-							return apperror.NewInvalidInputError(shipment.ID, err, verrs, "invalid input found while updating final destination address of service item")
-						} else if err != nil {
-							return apperror.NewQueryError("Service item", err, "")
-						}
-
-						return nil
-					})
-
-					if transactionError != nil {
-						return transactionError
-					}
-				}
+			// Update MTO Shipment Destination Service Items
+			err = mtoshipment.UpdateDestinationSITServiceItemsAddress(appCtx, &shipment)
+			if err != nil {
+				return err
 			}
 		}
 
