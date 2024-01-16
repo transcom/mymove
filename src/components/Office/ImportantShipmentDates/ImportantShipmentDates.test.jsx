@@ -35,6 +35,6 @@ describe('ImportantShipmentDates', () => {
 
   it('should not show irrelevant data when it is a PPM', () => {
     const wrapper = mount(<ImportantShipmentDates />);
-    expect(wrapper.find('div').at(0).text()).toHaveLength(0);
+    expect(wrapper.text()).toHaveLength(0);
   });
 });
