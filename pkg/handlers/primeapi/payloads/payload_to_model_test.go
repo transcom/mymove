@@ -460,7 +460,7 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdateModel() {
 		StreetAddress1: handlers.FmtString(""),
 	}
 
-	nonSITAddressUpdate := primemessages.CreateNonSITAddressUpdateRequest{
+	nonSITAddressUpdate := primemessages.UpdateShipmentDestinationAddress{
 		ContractorRemarks: &contractorRemarks,
 		NewAddress:        &newAddress,
 	}
