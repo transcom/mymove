@@ -537,14 +537,14 @@ paths:
           $ref: '#/responses/ServerError'
   /mto-shipments/{mtoShipmentID}/shipment-address-updates:
     post:
-      summary: createNonSITAddressUpdateRequest
+      summary: updateShipmentDestinationAddress
       description: |
         ### Functionality
         This endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,
         after the destination address has already been approved.
-        This does not change addresses on SIT service items.
+
         Address updates will be automatically approved unless they change:
-          - the service area
+          - The service area
           - Mileage bracket for direct delivery
           - the address and the distance between the old and new address is > 50
           - Domestic Short Haul to Domestic Line Haul or vice versa
@@ -553,7 +553,7 @@ paths:
 
         For those, changes will require TOO approval.
 
-      operationId: createNonSITAddressUpdateRequest
+      operationId: updateShipmentDestinationAddress
       tags:
         - mtoShipment
       consumes:
@@ -571,7 +571,7 @@ paths:
           required: true
           name: body
           schema:
-            $ref: '#/definitions/CreateNonSITAddressUpdateRequest'
+            $ref: '#/definitions/UpdateShipmentDestinationAddress'
         - in: header
           name: If-Match
           type: string
@@ -1764,8 +1764,8 @@ definitions:
         readOnly: true
     allOf:
       - $ref: 'definitions/prime/MTOShipmentWithoutServiceItems.yaml'
-  CreateNonSITAddressUpdateRequest:
-    description: CreateNonSITAddressUpdateRequest contains the fields required for the prime to create a non SIT address update request.
+  UpdateShipmentDestinationAddress:
+    description: UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment.
     type: object
     properties:
       newAddress:
