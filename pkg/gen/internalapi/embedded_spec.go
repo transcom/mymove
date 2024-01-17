@@ -1911,49 +1911,6 @@ func init() {
         }
       }
     },
-    "/personally_procured_move/{personallyProcuredMoveId}/request_payment": {
-      "post": {
-        "description": "Moves the PPM and the move into the PAYMENT_REQUESTED state",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Moves the PPM and the move into the PAYMENT_REQUESTED state",
-        "operationId": "requestPPMPayment",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the PPM",
-            "name": "personallyProcuredMoveId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Sucesssfully requested payment",
-            "schema": {
-              "$ref": "#/definitions/PersonallyProcuredMovePayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "404": {
-            "description": "move not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/personally_procured_moves/incentive": {
       "get": {
         "description": "Calculates incentive for a PPM move (excluding SIT)",
@@ -10166,49 +10123,6 @@ func init() {
           },
           "413": {
             "description": "payload is too large"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
-    "/personally_procured_move/{personallyProcuredMoveId}/request_payment": {
-      "post": {
-        "description": "Moves the PPM and the move into the PAYMENT_REQUESTED state",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Moves the PPM and the move into the PAYMENT_REQUESTED state",
-        "operationId": "requestPPMPayment",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the PPM",
-            "name": "personallyProcuredMoveId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Sucesssfully requested payment",
-            "schema": {
-              "$ref": "#/definitions/PersonallyProcuredMovePayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "404": {
-            "description": "move not found"
           },
           "500": {
             "description": "server error"

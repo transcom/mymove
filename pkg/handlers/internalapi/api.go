@@ -68,7 +68,6 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	internalAPI.PpmPatchPersonallyProcuredMoveHandler = PatchPersonallyProcuredMoveHandler{handlerConfig}
 	internalAPI.PpmShowPPMIncentiveHandler = ShowPPMIncentiveHandler{handlerConfig}
-	internalAPI.PpmRequestPPMPaymentHandler = RequestPPMPaymentHandler{handlerConfig}
 
 	internalAPI.DutyLocationsSearchDutyLocationsHandler = SearchDutyLocationsHandler{handlerConfig}
 

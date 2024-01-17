@@ -459,18 +459,6 @@ export async function calculatePPMSITEstimate(ppmId, moveDate, sitDays, originZi
   );
 }
 
-export async function requestPayment(ppmId) {
-  return makeInternalRequest(
-    'ppm.requestPPMPayment',
-    {
-      personallyProcuredMoveId: ppmId,
-    },
-    {
-      normalize: false,
-    },
-  );
-}
-
 export async function createMovingExpense(ppmShipmentId) {
   return makeInternalRequest(
     'ppm.createMovingExpense',
