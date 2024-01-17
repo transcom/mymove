@@ -138,7 +138,7 @@ func (suite *NotificationSuite) TestMoveApprovedTextTemplateRender() {
 	}
 	expectedTextContent := `*** DO NOT REPLY directly to this email ***
 
-	This is a confirmation that your counselor has approved move details for the assigned move code abc123</strong> from origDutyLocation to destDutyLocation in the MilMove system.
+	This is a confirmation that your counselor has approved move details for the assigned move code abc123 from origDutyLocation to destDutyLocation in the MilMove system.
 
 	What this means to you:
 	If you are doing a Personally Procured Move (PPM), you can start moving your personal property.
