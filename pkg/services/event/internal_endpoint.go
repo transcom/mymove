@@ -43,9 +43,6 @@ const InternalCreateSignedCertificationEndpointKey = "Internal.CreateSignedCerti
 // InternalIndexSignedCertificationEndpointKey is the key for the indexSignedCertification endpoint in internal
 const InternalIndexSignedCertificationEndpointKey = "Internal.IndexSignedCertification"
 
-// InternalPatchPersonallyProcuredMoveEndpointKey is the key for the patchPersonallyProcuredMove endpoint in internal
-const InternalPatchPersonallyProcuredMoveEndpointKey = "Internal.PatchPersonallyProcuredMove"
-
 // InternalApproveReimbursementEndpointKey is the key for the approveReimbursement endpoint in internal
 const InternalApproveReimbursementEndpointKey = "Internal.ApproveReimbursement"
 
@@ -206,10 +203,6 @@ var internalEndpoints = EndpointMapType{
 	InternalIndexSignedCertificationEndpointKey: {
 		APIName:     InternalAPIName,
 		OperationID: "indexSignedCertification",
-	},
-	InternalPatchPersonallyProcuredMoveEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "patchPersonallyProcuredMove",
 	},
 	InternalApproveReimbursementEndpointKey: {
 		APIName:     InternalAPIName,

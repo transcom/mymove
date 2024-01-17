@@ -412,20 +412,6 @@ export async function deleteProGearWeightTicket(ppmShipmentId, proGearWeightTick
 }
 
 /** PPMS */
-export async function patchPPM(moveId, ppm) {
-  return makeInternalRequest(
-    'ppm.patchPersonallyProcuredMove',
-    {
-      moveId,
-      personallyProcuredMoveId: ppm.id,
-      patchPersonallyProcuredMovePayload: ppm,
-    },
-    {
-      normalize: false,
-    },
-  );
-}
-
 export async function calculatePPMEstimate(moveDate, originZip, originDutyLocationZip, ordersId, weightEstimate) {
   return makeInternalRequest(
     'ppm.showPPMEstimate',

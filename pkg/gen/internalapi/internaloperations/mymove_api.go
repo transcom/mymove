@@ -165,9 +165,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MovesPatchMoveHandler: moves.PatchMoveHandlerFunc(func(params moves.PatchMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation moves.PatchMove has not yet been implemented")
 		}),
-		PpmPatchPersonallyProcuredMoveHandler: ppm.PatchPersonallyProcuredMoveHandlerFunc(func(params ppm.PatchPersonallyProcuredMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.PatchPersonallyProcuredMove has not yet been implemented")
-		}),
 		ServiceMembersPatchServiceMemberHandler: service_members.PatchServiceMemberHandlerFunc(func(params service_members.PatchServiceMemberParams) middleware.Responder {
 			return middleware.NotImplemented("operation service_members.PatchServiceMember has not yet been implemented")
 		}),
@@ -383,8 +380,6 @@ type MymoveAPI struct {
 	MtoShipmentListMTOShipmentsHandler mto_shipment.ListMTOShipmentsHandler
 	// MovesPatchMoveHandler sets the operation handler for the patch move operation
 	MovesPatchMoveHandler moves.PatchMoveHandler
-	// PpmPatchPersonallyProcuredMoveHandler sets the operation handler for the patch personally procured move operation
-	PpmPatchPersonallyProcuredMoveHandler ppm.PatchPersonallyProcuredMoveHandler
 	// ServiceMembersPatchServiceMemberHandler sets the operation handler for the patch service member operation
 	ServiceMembersPatchServiceMemberHandler service_members.PatchServiceMemberHandler
 	// PpmResubmitPPMShipmentDocumentationHandler sets the operation handler for the resubmit p p m shipment documentation operation
@@ -634,9 +629,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MovesPatchMoveHandler == nil {
 		unregistered = append(unregistered, "moves.PatchMoveHandler")
-	}
-	if o.PpmPatchPersonallyProcuredMoveHandler == nil {
-		unregistered = append(unregistered, "ppm.PatchPersonallyProcuredMoveHandler")
 	}
 	if o.ServiceMembersPatchServiceMemberHandler == nil {
 		unregistered = append(unregistered, "service_members.PatchServiceMemberHandler")
@@ -964,10 +956,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/moves/{moveId}"] = moves.NewPatchMove(o.context, o.MovesPatchMoveHandler)
-	if o.handlers["PATCH"] == nil {
-		o.handlers["PATCH"] = make(map[string]http.Handler)
-	}
-	o.handlers["PATCH"]["/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}"] = ppm.NewPatchPersonallyProcuredMove(o.context, o.PpmPatchPersonallyProcuredMoveHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

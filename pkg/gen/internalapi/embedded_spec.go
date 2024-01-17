@@ -1071,68 +1071,6 @@ func init() {
         }
       }
     },
-    "/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}": {
-      "patch": {
-        "description": "Any fields sent in this request will be set on the PPM referenced",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Patches the PPM",
-        "operationId": "patchPersonallyProcuredMove",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the PPM being patched",
-            "name": "personallyProcuredMoveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "patchPersonallyProcuredMovePayload",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/PatchPersonallyProcuredMovePayload"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "updated instance of personally_procured_move",
-            "schema": {
-              "$ref": "#/definitions/PersonallyProcuredMovePayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "404": {
-            "description": "ppm is not found or ppm discount not found for provided postal codes and original move date"
-          },
-          "422": {
-            "description": "cannot process request with given information"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      }
-    },
     "/moves/{moveId}/shipment_summary_worksheet": {
       "get": {
         "description": "Generates pre-filled PDF using data already collected",
@@ -9211,68 +9149,6 @@ func init() {
           },
           "404": {
             "description": "move not found"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      }
-    },
-    "/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}": {
-      "patch": {
-        "description": "Any fields sent in this request will be set on the PPM referenced",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Patches the PPM",
-        "operationId": "patchPersonallyProcuredMove",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the PPM being patched",
-            "name": "personallyProcuredMoveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "patchPersonallyProcuredMovePayload",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/PatchPersonallyProcuredMovePayload"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "updated instance of personally_procured_move",
-            "schema": {
-              "$ref": "#/definitions/PersonallyProcuredMovePayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "404": {
-            "description": "ppm is not found or ppm discount not found for provided postal codes and original move date"
-          },
-          "422": {
-            "description": "cannot process request with given information"
           },
           "500": {
             "description": "internal server error"
