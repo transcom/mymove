@@ -580,18 +580,6 @@ definitions:
     required:
       - range_min
       - range_max
-  PPMIncentive:
-    type: object
-    properties:
-      gcc:
-        type: integer
-        title: GCC
-      incentive_percentage:
-        type: integer
-        title: PPM Incentive @ 95%
-    required:
-      - gcc
-      - incentive_percentage
   CategoryExpenseSummary:
     type: object
     properties:
