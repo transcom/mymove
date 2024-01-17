@@ -154,12 +154,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("%s", errors.Wrap(err, "Error fetching shipment summary worksheet data "))
 	}
-	ssfd.Obligations, err = ppmComputer.ComputeObligations(appCtx, ssfd, planner)
+	ssfd.Obligations, err = ppmComputer.ComputeObligations(appCtx, *ssfd, planner)
 	if err != nil {
 		log.Fatalf("%s", errors.Wrap(err, "Error calculating obligations "))
 	}
 
-	page1Data, page2Data, page3Data, err := ppmComputer.FormatValuesShipmentSummaryWorksheet(ssfd)
+	page1Data, page2Data, page3Data, err := ppmComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
 	noErr(err)
 
 	// page 1
