@@ -1845,6 +1845,8 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 }
 
 func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
+	uri := "/moves/%s/documents"
+	paramTypeAll := "ALL"
 	suite.Run("Successful DownloadMoveOrder - 200", func() {
 		mockMoveSearcher := mocks.MoveSearcher{}
 		mockOrderFetcher := mocks.OrderFetcher{}
@@ -1881,11 +1883,12 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
 		locator := "test"
-		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/order/download", locator), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf(uri, locator), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
 		params := movetaskorderops.DownloadMoveOrderParams{
 			HTTPRequest: request,
 			Locator:     locator,
+			Type:        &paramTypeAll,
 		}
 		response := handler.Handle(params)
 		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderOK)
@@ -1929,11 +1932,12 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
 		locator := "test"
-		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/order/download", locator), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf(uri, locator), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
 		params := movetaskorderops.DownloadMoveOrderParams{
 			HTTPRequest: request,
 			Locator:     locator,
+			Type:        &paramTypeAll,
 		}
 		response := handler.Handle(params)
 		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderInternalServerError)
@@ -1957,11 +1961,12 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
 		locator := ""
-		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/order/download", locator), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf(uri, locator), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
 		params := movetaskorderops.DownloadMoveOrderParams{
 			HTTPRequest: request,
 			Locator:     locator,
+			Type:        &paramTypeAll,
 		}
 		response := handler.Handle(params)
 		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderBadRequest)
@@ -1990,11 +1995,12 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
 		locator := "test"
-		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/order/download", locator), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf(uri, locator), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
 		params := movetaskorderops.DownloadMoveOrderParams{
 			HTTPRequest: request,
 			Locator:     locator,
+			Type:        &paramTypeAll,
 		}
 		response := handler.Handle(params)
 		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderNotFound)
@@ -2027,11 +2033,12 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
 		locator := "test"
-		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/order/download", locator), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf(uri, locator), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
 		params := movetaskorderops.DownloadMoveOrderParams{
 			HTTPRequest: request,
 			Locator:     locator,
+			Type:        &paramTypeAll,
 		}
 		response := handler.Handle(params)
 		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderUnprocessableEntity)
@@ -2067,11 +2074,12 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
 		locator := "test"
-		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/order/download", locator), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf(uri, locator), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
 		params := movetaskorderops.DownloadMoveOrderParams{
 			HTTPRequest: request,
 			Locator:     locator,
+			Type:        &paramTypeAll,
 		}
 		response := handler.Handle(params)
 		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderUnprocessableEntity)
@@ -2100,11 +2108,12 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
 		locator := "test"
-		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/order/download", locator), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf(uri, locator), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
 		params := movetaskorderops.DownloadMoveOrderParams{
 			HTTPRequest: request,
 			Locator:     locator,
+			Type:        &paramTypeAll,
 		}
 		response := handler.Handle(params)
 		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderInternalServerError)

@@ -492,7 +492,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/moves/{locator}/order/download"] = move_task_order.NewDownloadMoveOrder(o.context, o.MoveTaskOrderDownloadMoveOrderHandler)
+	o.handlers["GET"]["/moves/{locator}/documents"] = move_task_order.NewDownloadMoveOrder(o.context, o.MoveTaskOrderDownloadMoveOrderHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

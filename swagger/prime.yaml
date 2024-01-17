@@ -1727,13 +1727,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /moves/{locator}/order/download:
-    parameters:
-      - description: the locator code for move order to be downloaded
-        in: path
-        name: locator
-        required: true
-        type: string
+  /moves/{locator}/documents:
     get:
       summary: Downloads move order as a PDF
       description: >
@@ -1754,6 +1748,22 @@ paths:
         - moveTaskOrder
       produces:
         - application/pdf
+      parameters:
+        - in: path
+          type: string
+          name: locator
+          description: the locator code for move order to be downloaded
+          required: true
+        - in: query
+          name: type
+          type: string
+          description: upload type
+          required: false
+          default: ALL
+          enum:
+            - ALL
+            - ORDERS
+            - AMENDMENTS
       responses:
         '200':
           headers:
