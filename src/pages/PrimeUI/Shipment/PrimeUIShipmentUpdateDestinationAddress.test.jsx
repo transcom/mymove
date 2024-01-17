@@ -3,7 +3,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { usePrimeSimulatorGetMove } from '../../../hooks/queries';
-import { createNonSITAddressUpdateRequest } from '../../../services/primeApi';
+import { updateShipmentDestinationAddress } from '../../../services/primeApi';
 
 import PrimeUIShipmentUpdateDestinationAddress from './PrimeUIShipmentUpdateDestinationAddress';
 
@@ -23,7 +23,7 @@ jest.mock('hooks/queries', () => ({
 
 jest.mock('services/primeApi', () => ({
   ...jest.requireActual('services/primeApi'),
-  createNonSITAddressUpdateRequest: jest.fn(),
+  updateShipmentDestinationAddress: jest.fn(),
 }));
 
 const routingParams = { moveCodeOrID: 'LN4T89', shipmentId: '4' };
@@ -184,7 +184,7 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
   describe('successful submission of form', () => {
     it('calls history router back to move details', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
-      createNonSITAddressUpdateRequest.mockReturnValue({
+      updateShipmentDestinationAddress.mockReturnValue({
         id: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
         streetAddress1: '444 Main Ave',
         streetAddress2: 'Apartment 9000',
@@ -214,7 +214,7 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
   describe('error alert display', () => {
     it('displays the error alert when the api submission returns an error', () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
-      createNonSITAddressUpdateRequest.mockRejectedValue({
+      updateShipmentDestinationAddress.mockRejectedValue({
         response: { body: { title: 'Error title', detail: 'Error detail' } },
       });
 
@@ -230,7 +230,7 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
 
     it('displays the unknown error when none is provided', () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
-      createNonSITAddressUpdateRequest.mockRejectedValue('malformed api error response');
+      updateShipmentDestinationAddress.mockRejectedValue('malformed api error response');
 
       renderComponent();
 

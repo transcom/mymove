@@ -700,6 +700,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			}, nil)
 
 			clearedChildShipment := clearShipmentIDFields(&childShipment)
+			clearedChildShipment.PrimeActualWeight = nil
 
 			_, err = creator.CreateMTOShipment(suite.AppContextForTest(), clearedChildShipment)
 			suite.NoError(err)
@@ -761,6 +762,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			}, nil)
 
 			clearedChildFromParentDivertedShipment := clearShipmentIDFields(&childFromParentDivertedShipment)
+			clearedChildFromParentDivertedShipment.PrimeActualWeight = nil
 
 			createdChildFromParentDivertedShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedChildFromParentDivertedShipment)
 			suite.NoError(err)
@@ -781,7 +783,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			}, nil)
 
 			clearedChildOfDivertedShipment := clearShipmentIDFields(&childOfDivertedShipment)
-
+			clearedChildOfDivertedShipment.PrimeActualWeight = nil
 			_, err = creator.CreateMTOShipment(suite.AppContextForTest(), clearedChildOfDivertedShipment)
 			suite.NoError(err)
 		}
@@ -914,6 +916,81 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			suite.Error(err)
 		}
 	})
+
+	suite.Run("Child diversion shipment creation should inherit parent's weight", func() {
+		currentTime := time.Now()
+		parentShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &currentTime,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					Diversion:              true,
+					DivertedFromShipmentID: nil,
+				},
+			},
+		}, nil)
+		subtestData := suite.createSubtestDataV2(nil)
+		creator := subtestData.shipmentCreator
+		childShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Diversion:              true,
+					DivertedFromShipmentID: &parentShipment.ID,
+				},
+			},
+		}, nil)
+
+		clearedChildShipment := clearShipmentIDFields(&childShipment)
+		clearedChildShipment.PrimeActualWeight = nil
+		clearedChildShipment.DivertedFromShipmentID = &parentShipment.ID
+
+		createdChildShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedChildShipment)
+		suite.NoError(err)
+		suite.Equal(createdChildShipment.PrimeActualWeight, parentShipment.PrimeActualWeight)
+	})
+	suite.Run("Child diversion shipment creation should fail if PrimeActualWeight is provided", func() {
+		currentTime := time.Now()
+		parentShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &currentTime,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					Diversion:              true,
+					DivertedFromShipmentID: nil,
+				},
+			},
+		}, nil)
+		subtestData := suite.createSubtestDataV2(nil)
+		creator := subtestData.shipmentCreator
+		childShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Diversion:              true,
+					DivertedFromShipmentID: &parentShipment.ID,
+				},
+			},
+		}, nil)
+
+		// prmie actual weight is auto supplied
+		clearedChildShipment := clearShipmentIDFields(&childShipment)
+
+		_, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedChildShipment)
+		suite.Error(err)
+	})
 }
 
 // Clears all the ID fields that we need to be null for a new shipment to get created:
@@ -953,49 +1030,3 @@ func clearShipmentIDFields(shipment *models.MTOShipment) *models.MTOShipment {
 
 	return shipment
 }
-
-// func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentWithMTOAgents() {
-// 	suite.Run("Fail to create MTOAgents with same MTOAgentType", func() {
-// 		subtestData := suite.createSubtestData(nil)
-// 		creator := subtestData.shipmentCreator
-
-// 		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
-// 			{
-// 				Model:    subtestData.move,
-// 				LinkOnly: true,
-// 			},
-// 		}, nil)
-
-// 		firstName := ""
-// 		lastName := ""
-// 		email := ""
-// 		phone := ""
-
-// 		// Set up two agents of the same type
-// 		agentType := models.MTOAgentReleasing
-// 		mtoShipment.MTOAgents = models.MTOAgents{
-// 			models.MTOAgent{
-// 				MTOAgentType: agentType,
-// 				FirstName:    &firstName,
-// 				LastName:     &lastName,
-// 				Email:        &email,
-// 				Phone:        &phone,
-// 			},
-// 			models.MTOAgent{
-// 				MTOAgentType: agentType,
-// 				FirstName:    &firstName,
-// 				LastName:     &lastName,
-// 				Email:        &email,
-// 				Phone:        &phone,
-// 			},
-// 		}
-
-// 		createdShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), &mtoShipment)
-
-// 		suite.Nil(createdShipment)
-// 		suite.Error(err)
-// 		suite.IsType(apperror.InvalidInputError{}, err)
-// 		invalidErr := err.(apperror.InvalidInputError)
-// 		suite.Contains(invalidErr.Error(), "MTOAgents can only contain one agent of each type")
-// 	})
-// }
