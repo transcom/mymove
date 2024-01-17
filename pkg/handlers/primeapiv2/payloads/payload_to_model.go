@@ -184,7 +184,7 @@ func MTOShipmentModelFromCreate(mtoShipment *primev2messages.CreateMTOShipment) 
 }
 
 // Non SIT Address update Model
-func ShipmentAddressUpdateModel(nonSITAddressUpdate *primev2messages.CreateNonSITAddressUpdateRequest, MtoShipmentID uuid.UUID) *models.ShipmentAddressUpdate {
+func ShipmentAddressUpdateModel(nonSITAddressUpdate *primev2messages.UpdateShipmentDestinationAddress, MtoShipmentID uuid.UUID) *models.ShipmentAddressUpdate {
 	if nonSITAddressUpdate == nil {
 		return nil
 	}
