@@ -29,6 +29,7 @@ type PPMCloseout struct {
 	HaulFSC                    *unit.Cents
 	DOP                        *unit.Cents
 	DDP                        *unit.Cents
+	Factor                     *float32
 	PackPrice                  *unit.Cents
 	UnpackPrice                *unit.Cents
 	SITReimbursement           *unit.Cents
