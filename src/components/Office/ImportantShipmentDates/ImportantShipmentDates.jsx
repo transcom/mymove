@@ -17,13 +17,17 @@ const ImportantShipmentDates = ({
   actualDeliveryDate,
   isPPM,
 }) => {
+  const headerPlannedMoveDate = isPPM ? 'Planned Move Date' : 'Requested pick up date';
+  const headerActualMoveDate = isPPM ? 'Actual Move Date' : 'Scheduled pick up date';
+  const headerActualArrivalDate = isPPM ? 'Actual Arrival Date' : 'Actual pick up date';
+
   const emDash = '\u2014';
   return (
     <div className={classnames('maxw-tablet', styles.shipmentDatesContainer)}>
       <DataTableWrapper className="table--data-point-group">
         {!isPPM && <DataTable columnHeaders={['Required Delivery Date']} dataRow={[requiredDeliveryDate || emDash]} />}
         <DataTable
-          columnHeaders={['Requested pick up date', 'Scheduled pick up date', 'Actual pick up date']}
+          columnHeaders={[headerPlannedMoveDate, headerActualMoveDate, headerActualArrivalDate]}
           dataRow={[requestedPickupDate || emDash, scheduledPickupDate || emDash, actualPickupDate || emDash]}
         />
         {!isPPM && (
