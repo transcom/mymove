@@ -125,7 +125,6 @@ func (h SubmitPPMShipmentDocumentationHandler) Handle(params ppmops.SubmitPPMShi
 			)
 			if err != nil {
 				appCtx.Logger().Error("problem sending email to user", zap.Error(err))
-				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			return ppmops.NewSubmitPPMShipmentDocumentationOK().WithPayload(returnPayload), nil
@@ -256,7 +255,6 @@ func (h ResubmitPPMShipmentDocumentationHandler) Handle(params ppmops.ResubmitPP
 			)
 			if err != nil {
 				appCtx.Logger().Error("problem sending email to user", zap.Error(err))
-				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			returnPayload := payloads.PPMShipment(h.FileStorer(), ppmShipment)
