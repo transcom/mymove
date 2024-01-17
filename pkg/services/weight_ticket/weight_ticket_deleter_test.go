@@ -1,13 +1,12 @@
 package weightticket
 
 import (
-	"fmt"
+	"database/sql"
 	"time"
 
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
@@ -83,12 +82,7 @@ func (suite *WeightTicketSuite) TestDeleteWeightTicket() {
 		err := deleter.DeleteWeightTicket(suite.AppContextForTest(), ppmID, notFoundWeightTicketID)
 
 		if suite.Error(err) {
-			suite.IsType(apperror.NotFoundError{}, err)
-
-			suite.Equal(
-				fmt.Sprintf("ID: %s not found while looking for WeightTicket", notFoundWeightTicketID.String()),
-				err.Error(),
-			)
+			suite.IsType(sql.ErrNoRows, err)
 		}
 	})
 

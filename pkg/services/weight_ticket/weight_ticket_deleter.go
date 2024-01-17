@@ -1,8 +1,6 @@
 package weightticket
 
 import (
-	"database/sql"
-
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -35,14 +33,13 @@ func (d *weightTicketDeleter) DeleteWeightTicket(appCtx appcontext.AppContext, p
 		).
 		Find(&ppmShipment, ppmID)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return apperror.NewNotFoundError(weightTicketID, "while looking for WeightTicket")
-		}
-		return apperror.NewQueryError("WeightTicket fetch original", err, "")
+		println("db error")
+		println(err)
+		return err
 	}
 
-	if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID && !appCtx.Session().IsOfficeUser() {
-		wrongServiceMemberIDErr := apperror.NewForbiddenError("Attempted delete by wrong service member")
+	if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID {
+		wrongServiceMemberIDErr := apperror.NewSessionError("Attempted delete by wrong service member")
 		appCtx.Logger().Error("internalapi.DeleteWeightTicketHandler", zap.Error(wrongServiceMemberIDErr))
 		return wrongServiceMemberIDErr
 	}
@@ -55,7 +52,7 @@ func (d *weightTicketDeleter) DeleteWeightTicket(appCtx appcontext.AppContext, p
 		}
 	}
 	if !found {
-		mismatchedPPMShipmentAndWeightTicketIDErr := apperror.NewNotFoundError(weightTicketID, "Weight ticket does not exist on ppm shipment")
+		mismatchedPPMShipmentAndWeightTicketIDErr := apperror.NewSessionError("Weight ticket does not exist on ppm shipment")
 		appCtx.Logger().Error("internalapi.DeleteWeightTicketHandler", zap.Error(mismatchedPPMShipmentAndWeightTicketIDErr))
 		return mismatchedPPMShipmentAndWeightTicketIDErr
 	}
