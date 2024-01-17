@@ -3,11 +3,19 @@ import React from 'react';
 import { shallow, mount } from 'enzyme';
 
 import { SERVICE_ITEM_STATUS } from '../../../shared/constants';
+import { history, moveTaskOrder, multiplePaymentRequests } from '../ServiceItemsTable/serviceItemsTableUnitTestData';
 
 import RequestedServiceItemsTable from './RequestedServiceItemsTable';
 
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
+import { useGHCGetMoveHistory, useMovePaymentRequestsQueries, useMoveTaskOrderQueries } from 'hooks/queries';
+
+jest.mock('hooks/queries', () => ({
+  useMovePaymentRequestsQueries: jest.fn(),
+  useGHCGetMoveHistory: jest.fn(),
+  useMoveTaskOrderQueries: jest.fn(),
+}));
 
 const defaultProps = {
   handleShowRejectionDialog: jest.fn(),
@@ -23,6 +31,7 @@ const serviceItemWithCrating = {
   id: 'abc123',
   createdAt: '2020-11-20',
   serviceItem: 'Domestic crating',
+  mtoShipmentId: 'xyz789',
   code: 'DCRT',
   details: {
     description: 'grandfather clock',
@@ -34,6 +43,7 @@ const serviceItemWithContact = {
   id: 'abc1234',
   createdAt: '2020-09-01',
   serviceItem: 'Domestic destination 1st day SIT',
+  mtoShipmentId: 'xyz789',
   code: 'DDFSIT',
   details: {
     sitEntryDate: '',
@@ -53,6 +63,7 @@ const serviceItemWithDetails = {
   id: 'abc12345',
   createdAt: '2020-10-15',
   serviceItem: 'Domestic origin 1st day SIT',
+  mtoShipmentId: 'xyz789',
   code: 'DOPSIT',
   details: {
     pickupPostalCode: '20050',
@@ -91,6 +102,7 @@ const testDetails = (wrapper) => {
 describe('RequestedServiceItemsTable', () => {
   it('shows the correct number of service items in the table', () => {
     const serviceItems = [serviceItemWithCrating];
+    useMoveTaskOrderQueries.mockReturnValue(moveTaskOrder);
 
     let wrapper = shallow(
       <RequestedServiceItemsTable
@@ -116,6 +128,9 @@ describe('RequestedServiceItemsTable', () => {
 
   it('displays the service item name and submitted date', () => {
     const serviceItems = [serviceItemWithCrating, serviceItemWithContact, serviceItemWithDetails];
+    useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
+    useMoveTaskOrderQueries.mockReturnValue(moveTaskOrder);
+    useGHCGetMoveHistory.mockReturnValue(history);
     const wrapper = mount(
       <MockProviders>
         <RequestedServiceItemsTable

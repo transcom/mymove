@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
+import { Button, Tag } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useParams } from 'react-router';
@@ -10,14 +10,19 @@ import { ServiceItemDetailsShape } from '../../../types/serviceItems';
 import styles from './ServiceItemsTable.module.scss';
 
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
-import { ALLOWED_RESUBMISSION_SI_CODES, ALLOWED_SIT_UPDATE_SI_CODES } from 'constants/sitUpdates';
+import {
+  ALLOWED_RESUBMISSION_SI_CODES,
+  ALLOWED_SIT_UPDATE_SI_CODES,
+  DESTINATION_SIT_SERVICE_ITEMS,
+} from 'constants/sitUpdates';
 import { formatDateFromIso } from 'utils/formatters';
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import { selectDateFieldByStatus, selectDatePrefixByStatus } from 'utils/dates';
-import { useGHCGetMoveHistory, useMovePaymentRequestsQueries } from 'hooks/queries';
+import { useGHCGetMoveHistory, useMovePaymentRequestsQueries, useMoveTaskOrderQueries } from 'hooks/queries';
 import ToolTip from 'shared/ToolTip/ToolTip';
+import { formatTwoLineAddress } from 'utils/shipmentDisplay';
 
 const ServiceItemsTable = ({
   serviceItems,
@@ -36,6 +41,8 @@ const ServiceItemsTable = ({
   // adding in payment requests to determine edit button status
   const { moveCode } = useParams();
   const { paymentRequests } = useMovePaymentRequestsQueries(moveCode);
+  const { mtoShipments } = useMoveTaskOrderQueries(moveCode);
+
   let serviceItemInPaymentRequests;
   if (paymentRequests.some((obj) => 'serviceItems' in obj)) {
     serviceItemInPaymentRequests = paymentRequests.map((obj) => ({
@@ -53,6 +60,23 @@ const ServiceItemsTable = ({
     });
   };
 
+  // checking previous status and db action of service item in audit history
+  // if found, this displays destination address change info found for shipment address change
+  const getServiceItemDestinationAddressChangeHistory = (historyRecordOfServiceItem) => {
+    let serviceItemDestinationAddressUpdated = false;
+    if (historyRecordOfServiceItem) {
+      if (
+        historyRecordOfServiceItem.action === 'UPDATE' &&
+        historyRecordOfServiceItem.oldValues.status === 'APPROVED' &&
+        historyRecordOfServiceItem.eventName === 'reviewShipmentAddressUpdate' &&
+        statusForTableType === SERVICE_ITEM_STATUS.SUBMITTED
+      ) {
+        serviceItemDestinationAddressUpdated = true;
+      }
+    }
+    return serviceItemDestinationAddressUpdated;
+  };
+
   // we are checking the previous status & db action of the service item
   // that determines if we show the tooltip or not
   const getResubmissionStatus = (historyRecordOfServiceItem) => {
@@ -60,10 +84,8 @@ const ServiceItemsTable = ({
     if (historyRecordOfServiceItem) {
       if (
         historyRecordOfServiceItem.action === 'UPDATE' &&
-        (historyRecordOfServiceItem.oldValues.status === 'REJECTED' ||
-          historyRecordOfServiceItem.oldValues.status === 'APPROVED') &&
-        (historyRecordOfServiceItem.eventName === 'updateMTOServiceItem' ||
-          historyRecordOfServiceItem.eventName === 'reviewShipmentAddressUpdate') &&
+        historyRecordOfServiceItem.oldValues.status === 'REJECTED' &&
+        historyRecordOfServiceItem.eventName === 'updateMTOServiceItem' &&
         statusForTableType === SERVICE_ITEM_STATUS.SUBMITTED
       ) {
         isResubmitted = true;
@@ -133,21 +155,40 @@ const ServiceItemsTable = ({
     return resubmittedServiceItemValues;
   };
 
+  const renderDestinationAddressInfo = (serviceItemId) => {
+    const historyDataForMove = history.queueResult.data;
+    const historyDataForServiceItem = getNewestHistoryDataForServiceItem(historyDataForMove, serviceItemId);
+    const destAddressHasBeenChanged = getServiceItemDestinationAddressChangeHistory(historyDataForServiceItem);
+    return destAddressHasBeenChanged;
+  };
+
   const tableRows = serviceItems.map((serviceItem) => {
     const { id, code, details, mtoShipmentID, sitAddressUpdates, serviceRequestDocuments, ...item } = serviceItem;
-    let hasPaymentRequestBeenMade;
+    // finding the mtoShipment that the service item is under
+    const mtoShipment = mtoShipments.find((shipment) => shipment.id === serviceItem.mtoShipmentID) || {};
+    // Destructure deliveryAddressUpdate if it exists, otherwise default to an empty object
+    const { deliveryAddressUpdate = {} } = mtoShipment;
+
     // if there are service items in the payment requests, we want to look to see if the service item is in there
     // if so, we don't want to let the TOO edit the SIT entry date
+    let hasPaymentRequestBeenMade;
     if (serviceItemInPaymentRequests && ALLOWED_SIT_UPDATE_SI_CODES.includes(code)) {
       hasPaymentRequestBeenMade = isServiceItemFoundInPaymentRequests(id);
     }
+
     const resubmittedToolTip = renderToolTipWithOldDataIfResubmission(id);
+    const destinationAddressHasChanged = renderDestinationAddressInfo(id);
 
     return (
       <React.Fragment key={`sit-alert-${id}`}>
         <tr key={id}>
           <td className={styles.nameAndDate}>
             <div className={styles.codeName}>
+              <div data-testid="destinationAddressChangeTag">
+                {DESTINATION_SIT_SERVICE_ITEMS.includes(code) && destinationAddressHasChanged ? (
+                  <Tag className="usa-tag--yellow">Destination Address Updated</Tag>
+                ) : null}
+              </div>
               {serviceItem.serviceItem}{' '}
               {ALLOWED_RESUBMISSION_SI_CODES.includes(code) && resubmittedToolTip.isResubmitted ? (
                 <ToolTip
@@ -169,13 +210,32 @@ const ServiceItemsTable = ({
             <p>{getServiceItemDisplayDate(item)}</p>
           </td>
           <td className={styles.detail}>
-            <ServiceItemDetails
-              id={`service-${id}`}
-              code={code}
-              details={details}
-              serviceRequestDocs={serviceRequestDocuments}
-              serviceItem={serviceItem}
-            />
+            {DESTINATION_SIT_SERVICE_ITEMS.includes(code) && destinationAddressHasChanged ? (
+              <>
+                <div
+                  key={`original-address-${id}`}
+                  className={styles.detailLine}
+                  data-testid="originalDestinationAddressInfo"
+                >
+                  <dt className={styles.detailType}>Original Destination Address:</dt>{' '}
+                  <dt>{formatTwoLineAddress(deliveryAddressUpdate.originalAddress)}</dt>
+                </div>
+                <br />
+                <div key={`new-address-${id}`} className={styles.detailLine} data-testid="newDestinationAddressInfo">
+                  <dt className={styles.detailType}>New Destination Address:</dt>{' '}
+                  <dt>{formatTwoLineAddress(deliveryAddressUpdate.newAddress)}</dt>
+                </div>
+              </>
+            ) : (
+              <ServiceItemDetails
+                id={`service-${id}`}
+                code={code}
+                details={details}
+                serviceRequestDocs={serviceRequestDocuments}
+                serviceItem={serviceItem}
+                data-testid="serviceItemDetails"
+              />
+            )}
           </td>
           <td>
             {statusForTableType === SERVICE_ITEM_STATUS.SUBMITTED && (

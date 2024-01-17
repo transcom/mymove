@@ -14,5 +14,7 @@ export const DESTINATION_SIT_ADDRESS_UPDATE_STATUS_FOR_UI = {
 // allowing edit of SIT entry date for Domestic origin 1st day SIT (DOFSIT)
 export const ALLOWED_SIT_UPDATE_SI_CODES = ['DOFSIT', 'DDFSIT'];
 
+export const DESTINATION_SIT_SERVICE_ITEMS = ['DDDSIT', 'DDFSIT', 'DDASIT', 'DDSFSC'];
+
 // allowing display of old service item details for following SIT types which can be resubmitted
 export const ALLOWED_RESUBMISSION_SI_CODES = ['DDDSIT', 'DOFSIT', 'DDFSIT', 'DOASIT', 'DOPSIT'];

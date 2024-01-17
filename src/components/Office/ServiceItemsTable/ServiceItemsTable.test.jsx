@@ -3,10 +3,18 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import ServiceItemsTable from './ServiceItemsTable';
+import { multiplePaymentRequests, moveTaskOrder, history } from './serviceItemsTableUnitTestData';
 
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
+import { useMovePaymentRequestsQueries, useGHCGetMoveHistory, useMoveTaskOrderQueries } from 'hooks/queries';
+
+jest.mock('hooks/queries', () => ({
+  useMovePaymentRequestsQueries: jest.fn(),
+  useGHCGetMoveHistory: jest.fn(),
+  useMoveTaskOrderQueries: jest.fn(),
+}));
 
 describe('ServiceItemsTable', () => {
   const defaultProps = {
@@ -26,12 +34,17 @@ describe('ServiceItemsTable', () => {
     const serviceItems = [
       {
         id: 'abc123',
+        mtoShipmentID: 'xyz789',
         submittedAt: '2020-11-20',
         serviceItem: 'Fuel Surcharge',
         code: 'FSC',
         details: {},
       },
     ];
+    useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
+    useGHCGetMoveHistory.mockReturnValue(history);
+    useMoveTaskOrderQueries.mockReturnValue(moveTaskOrder);
+
     const wrapper = mount(
       <MockProviders>
         <ServiceItemsTable
@@ -48,6 +61,7 @@ describe('ServiceItemsTable', () => {
     const serviceItems = [
       {
         id: 'abc123',
+        mtoShipmentID: 'xyz789',
         createdAt: '2020-11-20',
         serviceItem: 'Domestic Crating',
         code: 'DCRT',
@@ -82,6 +96,7 @@ describe('ServiceItemsTable', () => {
     const serviceItems = [
       {
         id: 'abc123',
+        mtoShipmentID: 'xyz789',
         createdAt: '2020-11-20',
         serviceItem: 'Domestic Crating',
         code: 'DDFSIT',
@@ -128,6 +143,7 @@ describe('ServiceItemsTable', () => {
     const serviceItems = [
       {
         id: 'abc123',
+        mtoShipmentID: 'xyz789',
         submittedAt: '2020-11-20',
         serviceItem: 'Domestic Origin 1st Day SIT',
         code: 'DOFSIT',
@@ -441,5 +457,185 @@ describe('ServiceItemsTable', () => {
     wrapper.find('button[data-testid="approveTextButton"]').simulate('click');
 
     expect(defaultProps.handleUpdateMTOServiceItemStatus).toHaveBeenCalledWith('abc123', 'xyz789', 'APPROVED');
+  });
+
+  it('renders a tooltip with old details if resubmitted service item', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic Origin 1st Day SIT',
+        code: 'DOFSIT',
+        details: {
+          pickupPostalCode: '11111',
+          reason: 'This is the reason',
+        },
+      },
+    ];
+    const historyWithResubmission = {
+      isLoading: false,
+      isError: false,
+      queueResult: {
+        data: [
+          {
+            action: 'UPDATE',
+            eventName: 'updateMTOServiceItem',
+            actionTstampTx: '2022-03-09T15:33:38.579Z',
+            changedValues: {
+              reason: 'New reason in test code',
+              status: 'SUBMITTED',
+              id: 'abc12345',
+              pickup_postal_code: '54321',
+              sit_entry_date: '2023-01-01',
+              sit_postal_code: '09876',
+            },
+            objectId: 'historyObjectInServiceItemsTableTest',
+            oldValues: {
+              reason: 'Old reason in test code',
+              status: 'REJECTED',
+              id: 'def67890',
+              pickup_postal_code: '12345',
+              sit_entry_date: '2022-12-12',
+              sit_postal_code: '67890',
+            },
+          },
+        ],
+      },
+      isSuccess: true,
+    };
+
+    useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
+    useGHCGetMoveHistory.mockReturnValue(historyWithResubmission);
+    useMoveTaskOrderQueries.mockReturnValue(moveTaskOrder);
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        />
+      </MockProviders>,
+    );
+
+    const toolTip = wrapper.find('ToolTip').at(0);
+    expect(toolTip.exists()).toBe(true);
+    let resultString = 'Reason\nNew: New reason in test code \nPrevious: Old reason in test code\n\n';
+    resultString += 'Status\nNew: SUBMITTED \nPrevious: REJECTED\n\n';
+    resultString += 'ID\nNew: abc12345 \nPrevious: def67890\n\n';
+    resultString += 'Pickup Postal Code\nNew: 54321 \nPrevious: 12345\n\n';
+    resultString += 'SIT Entry Date\nNew: 2023-01-01 \nPrevious: 2022-12-12\n\n';
+    resultString += 'SIT Postal Code\nNew: 09876 \nPrevious: 67890\n\n';
+    expect(toolTip.props().text).toBe(resultString);
+  });
+
+  it('renders a destination address change flag and address data when in submitted status', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic Destination 1st Day SIT',
+        code: 'DDFSIT',
+        details: {
+          pickupPostalCode: '11111',
+          reason: 'This is the reason',
+        },
+      },
+    ];
+    const historyWithDestinationAddressChange = {
+      isLoading: false,
+      isError: false,
+      queueResult: {
+        data: [
+          {
+            action: 'UPDATE',
+            eventName: 'reviewShipmentAddressUpdate',
+            actionTstampTx: '2022-03-09T15:33:38.579Z',
+            changedValues: {
+              status: 'SUBMITTED',
+            },
+            objectId: 'historyObjectInServiceItemsTableTest',
+            oldValues: {
+              status: 'APPROVED',
+            },
+          },
+        ],
+      },
+      isSuccess: true,
+    };
+
+    useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
+    useGHCGetMoveHistory.mockReturnValue(historyWithDestinationAddressChange);
+    useMoveTaskOrderQueries.mockReturnValue(moveTaskOrder);
+
+    const wrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        />
+      </MockProviders>,
+    );
+
+    const destinationAddresssTag = wrapper.find('div[data-testid="destinationAddressChangeTag"]');
+    expect(destinationAddresssTag.exists()).toBe(true);
+    const originalAddressInfo = wrapper.find('div[data-testid="originalDestinationAddressInfo"]');
+    expect(wrapper.find('dt').at(0).text()).toBe('Original Destination Address:');
+    expect(wrapper.find('dt').at(1).text()).toBe('3456 Hello Street,Oklahoma City, OK 74133');
+    expect(wrapper.find('dt').at(2).text()).toBe('New Destination Address:');
+    expect(wrapper.find('dt').at(3).text()).toBe('3456 DO THIS Street,Space, OK 74133');
+    expect(originalAddressInfo.exists()).toBe(true);
+    const newAddressInfo = wrapper.find('div[data-testid="originalDestinationAddressInfo"]');
+    expect(newAddressInfo.exists()).toBe(true);
+    const serviceItemDetails = wrapper.find('ServiceItemDetails').at(0);
+    expect(serviceItemDetails.exists()).toBe(false);
+  });
+
+  it('does not render a tooltip for a service item that has not been resubmitted', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        mtoShipmentID: 'xyz789',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Domestic Origin 1st Day SIT',
+        code: 'DOFSIT',
+        details: {
+          pickupPostalCode: '11111',
+          reason: 'This is the reason',
+        },
+      },
+    ];
+
+    useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
+    useGHCGetMoveHistory.mockReturnValue(history);
+
+    const approvedWrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+        />
+      </MockProviders>,
+    );
+
+    const toolTipAccepted = approvedWrapper.find('ToolTip').at(0);
+    expect(toolTipAccepted.exists()).toBe(false);
+
+    const rejectedWrapper = mount(
+      <MockProviders permissions={[permissionTypes.updateMTOServiceItem]}>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.REJECTED}
+        />
+      </MockProviders>,
+    );
+
+    const toolTipRejected = rejectedWrapper.find('ToolTip').at(0);
+    expect(toolTipRejected.exists()).toBe(false);
   });
 });
