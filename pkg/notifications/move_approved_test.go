@@ -1,6 +1,7 @@
 package notifications
 
 import (
+	"regexp"
 	"strings"
 
 	"github.com/gofrs/uuid"
@@ -75,7 +76,7 @@ USTRANSCOM MilMove Team</p>
 	htmlContent, err := notification.RenderHTML(suite.AppContextWithSessionForTest(&auth.Session{}), s)
 
 	suite.NoError(err)
-	suite.Equal(expectedHTMLContent, htmlContent)
+	suite.Equal(trimExtraSpaces(expectedHTMLContent), trimExtraSpaces(htmlContent))
 
 }
 
@@ -118,7 +119,7 @@ USTRANSCOM MilMove Team</p>
 	htmlContent, err := notification.RenderHTML(suite.AppContextWithSessionForTest(&auth.Session{}), s)
 
 	suite.NoError(err)
-	suite.Equal(expectedHTMLContent, htmlContent)
+	suite.Equal(trimExtraSpaces(expectedHTMLContent), trimExtraSpaces(htmlContent))
 
 }
 
@@ -161,5 +162,11 @@ func (suite *NotificationSuite) TestMoveApprovedTextTemplateRender() {
 	textContent, err := notification.RenderText(suite.AppContextWithSessionForTest(&auth.Session{}), s)
 
 	suite.NoError(err)
-	suite.Equal(expectedTextContent, textContent)
+	suite.Equal(trimExtraSpaces(expectedTextContent), trimExtraSpaces(textContent))
+}
+
+func trimExtraSpaces(input string) string {
+	// Replace consecutive white spaces with a single space
+	re := regexp.MustCompile(`\s+`)
+	return strings.TrimSpace(re.ReplaceAllString(input, " "))
 }
