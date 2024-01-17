@@ -99,6 +99,27 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		return nil, paramErr
 	}
 	var totalPrice, packPrice, unpackPrice, destinationPrice, originPrice unit.Cents
+	var totalWeight unit.Pound
+	var ppmToMtoShipment models.MTOShipment
+
+	if len(ppmShipment.WeightTickets) >= 1 {
+		for _, weightTicket := range ppmShipment.WeightTickets {
+			if weightTicket.Status != nil && *weightTicket.Status == models.PPMDocumentStatusRejected {
+				totalWeight += 0
+			} else if weightTicket.AdjustedNetWeight != nil {
+				totalWeight += *weightTicket.AdjustedNetWeight
+			} else if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
+				totalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+			}
+		}
+	}
+	if totalWeight > 0 {
+		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
+		ppmToMtoShipment = mapPPMShipmentFinalFields(ppmShipment, *ppmShipment.EstimatedWeight)
+	} else {
+		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
+		ppmToMtoShipment = mapPPMShipmentEstimatedFields(ppmShipment)
+	}
 
 	for _, serviceItem := range serviceItemsToPrice {
 		pricer, pricerErr := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code)
@@ -110,7 +131,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		// For the non-accessorial service items there isn't any initialization that is going to change between lookups
 		// for the same param. However, this is how the payment request does things and we'd want to know if it breaks
 		// rather than optimizing I think.
-		serviceItemLookups := serviceparamvaluelookups.InitializeLookups(mtoShipment, serviceItem)
+		serviceItemLookups := serviceparamvaluelookups.InitializeLookups(ppmToMtoShipment, serviceItem)
 
 		// This is the struct that gets passed to every param lookup() method that was initialized above
 		keyData := serviceparamvaluelookups.NewServiceItemParamKeyData(p.planner, serviceItemLookups, serviceItem, mtoShipment, contract.Code)
@@ -130,7 +151,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		for _, param := range paramsForServiceCode(serviceItem.ReService.Code, paramsForServiceItems) {
 			paramKey := param.ServiceItemParamKey
 			// This is where the lookup() method of each service item param is actually evaluated
-			paramValue, valueErr := keyData.ServiceParamValue(appCtx, paramKey.Key)
+			paramValue, valueErr := keyData.ServiceParamValue(appCtx, paramKey.Key) // Fails with "DistanceZip" param?
 			if valueErr != nil {
 				logger.Error("could not calculate param value lookup", zap.Error(valueErr))
 				return nil, valueErr
@@ -230,4 +251,28 @@ func paramsForServiceCode(code models.ReServiceCode, serviceParams models.Servic
 		}
 	}
 	return serviceItemParams
+}
+
+func mapPPMShipmentFinalFields(ppmShipment models.PPMShipment, totalWeight unit.Pound) models.MTOShipment {
+
+	ppmShipment.Shipment.ActualPickupDate = ppmShipment.ActualMoveDate
+	ppmShipment.Shipment.RequestedPickupDate = ppmShipment.ActualMoveDate
+	ppmShipment.Shipment.PickupAddress = &models.Address{PostalCode: *ppmShipment.ActualPickupPostalCode}
+	ppmShipment.Shipment.DestinationAddress = &models.Address{PostalCode: *ppmShipment.ActualDestinationPostalCode}
+	ppmShipment.Shipment.PrimeActualWeight = &totalWeight
+
+	return ppmShipment.Shipment
+}
+
+// mapPPMShipmentEstimatedFields remaps our PPMShipment specific information into the fields where the service param lookups
+// expect to find them on the MTOShipment model.  This is only in-memory and shouldn't get saved to the database.
+func mapPPMShipmentEstimatedFields(ppmShipment models.PPMShipment) models.MTOShipment {
+
+	ppmShipment.Shipment.ActualPickupDate = &ppmShipment.ExpectedDepartureDate
+	ppmShipment.Shipment.RequestedPickupDate = &ppmShipment.ExpectedDepartureDate
+	ppmShipment.Shipment.PickupAddress = &models.Address{PostalCode: ppmShipment.PickupPostalCode}
+	ppmShipment.Shipment.DestinationAddress = &models.Address{PostalCode: ppmShipment.DestinationPostalCode}
+	ppmShipment.Shipment.PrimeActualWeight = ppmShipment.EstimatedWeight
+
+	return ppmShipment.Shipment
 }
