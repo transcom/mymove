@@ -156,22 +156,13 @@ func (h DeleteProGearWeightTicketHandler) Handle(params progearops.DeleteProGear
 			ppmID := uuid.FromStringOrNil(params.PpmShipmentID.String())
 			progearWeightTicketID := uuid.FromStringOrNil(params.ProGearWeightTicketID.String())
 
-			_, err := h.progearDeleter.DeleteProgearWeightTicket(appCtx, ppmID, progearWeightTicketID)
-			if err != nil {
-				appCtx.Logger().Error("internalapi.DeleteProgearWeightTicketHandler", zap.Error(err))
+			response, err := h.progearDeleter.DeleteProgearWeightTicket(appCtx, ppmID, progearWeightTicketID)
+			if response != nil {
+				return response, err
+			}
 
-				switch err.(type) {
-				case apperror.NotFoundError:
-					return progearops.NewDeleteProGearWeightTicketNotFound(), err
-				case apperror.ConflictError:
-					return progearops.NewDeleteProGearWeightTicketConflict(), err
-				case apperror.ForbiddenError:
-					return progearops.NewDeleteProGearWeightTicketForbidden(), err
-				case apperror.UnprocessableEntityError:
-					return progearops.NewDeleteProGearWeightTicketUnprocessableEntity(), err
-				default:
-					return progearops.NewDeleteProGearWeightTicketInternalServerError(), err
-				}
+			if err != nil {
+				return progearops.NewDeleteProGearWeightTicketInternalServerError(), err
 			}
 
 			return progearops.NewDeleteProGearWeightTicketNoContent(), nil

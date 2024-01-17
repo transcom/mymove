@@ -56,7 +56,7 @@ func (d *progearWeightTicketDeleter) DeleteProgearWeightTicket(appCtx appcontext
 	})
 
 	if transactionError != nil {
-		return progearops.NewDeleteProGearWeightTicketBadRequest(), transactionError
+		return progearops.NewDeleteProGearWeightTicketInternalServerError(), transactionError
 	}
 
 	return nil, nil
