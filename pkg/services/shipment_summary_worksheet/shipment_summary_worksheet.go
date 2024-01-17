@@ -23,14 +23,11 @@ import (
 
 // SSWPPMComputer is the concrete struct implementing the services.shipmentsummaryworksheet interface
 type SSWPPMComputer struct {
-	isTest bool
 }
 
 // NewSSWPPMComputer creates a SSWPPMComputer
-func NewSSWPPMComputer(isTest bool) services.SSWPPMComputer {
-	return &SSWPPMComputer{
-		isTest,
-	}
+func NewSSWPPMComputer() services.SSWPPMComputer {
+	return &SSWPPMComputer{}
 }
 
 // FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
