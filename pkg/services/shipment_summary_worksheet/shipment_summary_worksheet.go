@@ -31,12 +31,12 @@ func NewSSWPPMComputer() services.SSWPPMComputer {
 }
 
 // FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
-func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData services.ShipmentSummaryFormData) (services.Page1Values, services.Page2Values, services.Page3Values, error) {
+func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData services.ShipmentSummaryFormData) (services.Page1Values, services.Page2Values, services.Page3Values) {
 	page1 := FormatValuesShipmentSummaryWorksheetFormPage1(shipmentSummaryFormData)
 	page2 := FormatValuesShipmentSummaryWorksheetFormPage2(shipmentSummaryFormData)
 	page3 := FormatValuesShipmentSummaryWorksheetFormPage3(shipmentSummaryFormData)
 
-	return page1, page2, page3, nil
+	return page1, page2, page3
 }
 
 // Page1Values is an object representing a Shipment Summary Worksheet
