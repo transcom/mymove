@@ -45,18 +45,20 @@ func (_m *SSWPPMComputer) ComputeObligations(_a0 appcontext.AppContext, _a1 serv
 }
 
 // FetchDataShipmentSummaryWorksheetFormData provides a mock function with given fields: appCtx, _a1, ppmShipmentID
-func (_m *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, _a1 *auth.Session, ppmShipmentID uuid.UUID) (services.ShipmentSummaryFormData, error) {
+func (_m *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, _a1 *auth.Session, ppmShipmentID uuid.UUID) (*services.ShipmentSummaryFormData, error) {
 	ret := _m.Called(appCtx, _a1, ppmShipmentID)
 
-	var r0 services.ShipmentSummaryFormData
+	var r0 *services.ShipmentSummaryFormData
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *auth.Session, uuid.UUID) (services.ShipmentSummaryFormData, error)); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *auth.Session, uuid.UUID) (*services.ShipmentSummaryFormData, error)); ok {
 		return rf(appCtx, _a1, ppmShipmentID)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *auth.Session, uuid.UUID) services.ShipmentSummaryFormData); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *auth.Session, uuid.UUID) *services.ShipmentSummaryFormData); ok {
 		r0 = rf(appCtx, _a1, ppmShipmentID)
 	} else {
-		r0 = ret.Get(0).(services.ShipmentSummaryFormData)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*services.ShipmentSummaryFormData)
+		}
 	}
 
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *auth.Session, uuid.UUID) error); ok {
@@ -69,14 +71,13 @@ func (_m *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appco
 }
 
 // FormatValuesShipmentSummaryWorksheet provides a mock function with given fields: shipmentSummaryFormData
-func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData services.ShipmentSummaryFormData) (services.Page1Values, services.Page2Values, services.Page3Values, error) {
+func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData services.ShipmentSummaryFormData) (services.Page1Values, services.Page2Values, services.Page3Values) {
 	ret := _m.Called(shipmentSummaryFormData)
 
 	var r0 services.Page1Values
 	var r1 services.Page2Values
 	var r2 services.Page3Values
-	var r3 error
-	if rf, ok := ret.Get(0).(func(services.ShipmentSummaryFormData) (services.Page1Values, services.Page2Values, services.Page3Values, error)); ok {
+	if rf, ok := ret.Get(0).(func(services.ShipmentSummaryFormData) (services.Page1Values, services.Page2Values, services.Page3Values)); ok {
 		return rf(shipmentSummaryFormData)
 	}
 	if rf, ok := ret.Get(0).(func(services.ShipmentSummaryFormData) services.Page1Values); ok {
@@ -97,13 +98,7 @@ func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFo
 		r2 = ret.Get(2).(services.Page3Values)
 	}
 
-	if rf, ok := ret.Get(3).(func(services.ShipmentSummaryFormData) error); ok {
-		r3 = rf(shipmentSummaryFormData)
-	} else {
-		r3 = ret.Error(3)
-	}
-
-	return r0, r1, r2, r3
+	return r0, r1, r2
 }
 
 // NewSSWPPMComputer creates a new instance of SSWPPMComputer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
