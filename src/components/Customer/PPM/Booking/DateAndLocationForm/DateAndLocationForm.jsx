@@ -23,7 +23,7 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 // export const residentialAddressName = 'residential_address';
 
 const validationShape = {
-  // pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
+  pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
   useCurrentResidence: Yup.boolean(),
   hasSecondaryPickup: Yup.boolean(),
   useCurrentDestinationAddress: Yup.boolean(),
