@@ -573,7 +573,7 @@ func (SSWPPMComputer *SSWPPMComputer) ComputeObligations(_ appcontext.AppContext
 }
 
 // FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
-func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, _ *auth.Session, ppmShipmentID uuid.UUID) (services.ShipmentSummaryFormData, error) {
+func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, _ *auth.Session, ppmShipmentID uuid.UUID) (*services.ShipmentSummaryFormData, error) {
 
 	ppmShipment := models.PPMShipment{}
 	dbQErr := appCtx.DB().Q().Eager(
@@ -586,9 +586,9 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 
 	if dbQErr != nil {
 		if errors.Cause(dbQErr).Error() == models.RecordNotFoundErrorString {
-			return services.ShipmentSummaryFormData{}, models.ErrFetchNotFound
+			return nil, models.ErrFetchNotFound
 		}
-		return services.ShipmentSummaryFormData{}, dbQErr
+		return nil, dbQErr
 	}
 
 	serviceMember := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
@@ -601,7 +601,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 
 	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(ppmShipment.Shipment.MoveTaskOrder, weightAllotment.TotalWeight)
 	if err != nil {
-		return services.ShipmentSummaryFormData{}, err
+		return nil, err
 	}
 
 	// Signed Certification needs to be updated
@@ -629,5 +629,5 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		// SignedCertification:     *signedCertification,
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
 	}
-	return ssd, nil
+	return &ssd, nil
 }

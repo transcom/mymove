@@ -138,7 +138,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	emptySSD, err := SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, PPMShipmentID)
 
 	suite.Error(err)
-	suite.Equal(emptySSD, services.ShipmentSummaryFormData{})
+	suite.Nil(emptySSD)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() {
