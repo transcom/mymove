@@ -69,9 +69,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OfficeApproveMoveHandler: office.ApproveMoveHandlerFunc(func(params office.ApproveMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ApproveMove has not yet been implemented")
 		}),
-		OfficeApprovePPMHandler: office.ApprovePPMHandlerFunc(func(params office.ApprovePPMParams) middleware.Responder {
-			return middleware.NotImplemented("operation office.ApprovePPM has not yet been implemented")
-		}),
 		OfficeApproveReimbursementHandler: office.ApproveReimbursementHandlerFunc(func(params office.ApproveReimbursementParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ApproveReimbursement has not yet been implemented")
 		}),
@@ -210,6 +207,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmShowPPMEstimateHandler: ppm.ShowPPMEstimateHandlerFunc(func(params ppm.ShowPPMEstimateParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.ShowPPMEstimate has not yet been implemented")
 		}),
+		PpmShowPPMIncentiveHandler: ppm.ShowPPMIncentiveHandlerFunc(func(params ppm.ShowPPMIncentiveParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.ShowPPMIncentive has not yet been implemented")
+		}),
 		PpmShowPPMSitEstimateHandler: ppm.ShowPPMSitEstimateHandlerFunc(func(params ppm.ShowPPMSitEstimateParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.ShowPPMSitEstimate has not yet been implemented")
 		}),
@@ -322,8 +322,6 @@ type MymoveAPI struct {
 
 	// OfficeApproveMoveHandler sets the operation handler for the approve move operation
 	OfficeApproveMoveHandler office.ApproveMoveHandler
-	// OfficeApprovePPMHandler sets the operation handler for the approve p p m operation
-	OfficeApprovePPMHandler office.ApprovePPMHandler
 	// OfficeApproveReimbursementHandler sets the operation handler for the approve reimbursement operation
 	OfficeApproveReimbursementHandler office.ApproveReimbursementHandler
 	// FeatureFlagsBooleanFeatureFlagForUserHandler sets the operation handler for the boolean feature flag for user operation
@@ -416,6 +414,8 @@ type MymoveAPI struct {
 	OrdersShowOrdersHandler orders.ShowOrdersHandler
 	// PpmShowPPMEstimateHandler sets the operation handler for the show p p m estimate operation
 	PpmShowPPMEstimateHandler ppm.ShowPPMEstimateHandler
+	// PpmShowPPMIncentiveHandler sets the operation handler for the show p p m incentive operation
+	PpmShowPPMIncentiveHandler ppm.ShowPPMIncentiveHandler
 	// PpmShowPPMSitEstimateHandler sets the operation handler for the show p p m sit estimate operation
 	PpmShowPPMSitEstimateHandler ppm.ShowPPMSitEstimateHandler
 	// QueuesShowQueueHandler sets the operation handler for the show queue operation
@@ -543,9 +543,6 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.OfficeApproveMoveHandler == nil {
 		unregistered = append(unregistered, "office.ApproveMoveHandler")
-	}
-	if o.OfficeApprovePPMHandler == nil {
-		unregistered = append(unregistered, "office.ApprovePPMHandler")
 	}
 	if o.OfficeApproveReimbursementHandler == nil {
 		unregistered = append(unregistered, "office.ApproveReimbursementHandler")
@@ -684,6 +681,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PpmShowPPMEstimateHandler == nil {
 		unregistered = append(unregistered, "ppm.ShowPPMEstimateHandler")
+	}
+	if o.PpmShowPPMIncentiveHandler == nil {
+		unregistered = append(unregistered, "ppm.ShowPPMIncentiveHandler")
 	}
 	if o.PpmShowPPMSitEstimateHandler == nil {
 		unregistered = append(unregistered, "ppm.ShowPPMSitEstimateHandler")
@@ -844,10 +844,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/moves/{moveId}/approve"] = office.NewApproveMove(o.context, o.OfficeApproveMoveHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/personally_procured_moves/{personallyProcuredMoveId}/approve"] = office.NewApprovePPM(o.context, o.OfficeApprovePPMHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
@@ -1032,6 +1028,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/estimates/ppm"] = ppm.NewShowPPMEstimate(o.context, o.PpmShowPPMEstimateHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/personally_procured_moves/incentive"] = ppm.NewShowPPMIncentive(o.context, o.PpmShowPPMIncentiveHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

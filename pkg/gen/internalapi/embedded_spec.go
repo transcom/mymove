@@ -1911,29 +1911,72 @@ func init() {
         }
       }
     },
-    "/personally_procured_moves/{personallyProcuredMoveId}/approve": {
+    "/personally_procured_move/{personallyProcuredMoveId}/request_payment": {
       "post": {
-        "description": "Sets the status of the PPM to APPROVED.",
+        "description": "Moves the PPM and the move into the PAYMENT_REQUESTED state",
         "tags": [
-          "office"
+          "ppm"
         ],
-        "summary": "Approves the PPM",
-        "operationId": "approvePPM",
+        "summary": "Moves the PPM and the move into the PAYMENT_REQUESTED state",
+        "operationId": "requestPPMPayment",
         "parameters": [
           {
             "type": "string",
             "format": "uuid",
-            "description": "UUID of the PPM being updated",
+            "description": "UUID of the PPM",
+            "name": "personallyProcuredMoveId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesssfully requested payment",
+            "schema": {
+              "$ref": "#/definitions/PersonallyProcuredMovePayload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "move not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/personally_procured_move/{personallyProcuredMoveId}/submit": {
+      "post": {
+        "description": "Submits a PPM for approval by the office. The status of the PPM will be updated to SUBMITTED",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Submits a PPM for approval",
+        "operationId": "submitPersonallyProcuredMove",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the PPM being submitted",
             "name": "personallyProcuredMoveId",
             "in": "path",
             "required": true
           },
           {
-            "name": "approvePersonallyProcuredMovePayload",
+            "name": "submitPersonallyProcuredMovePayload",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ApprovePersonallyProcuredMovePayload"
+              "$ref": "#/definitions/SubmitPersonallyProcuredMovePayload"
             }
           }
         ],
@@ -1952,6 +1995,80 @@ func init() {
           },
           "403": {
             "description": "user is not authorized"
+          },
+          "404": {
+            "description": "ppm is not found"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/personally_procured_moves/incentive": {
+      "get": {
+        "description": "Calculates incentive for a PPM move (excluding SIT)",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Return a PPM incentive value",
+        "operationId": "showPPMIncentive",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "date",
+            "name": "original_move_date",
+            "in": "query",
+            "required": true
+          },
+          {
+            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+            "type": "string",
+            "format": "zip",
+            "name": "origin_zip",
+            "in": "query",
+            "required": true
+          },
+          {
+            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+            "type": "string",
+            "format": "zip",
+            "name": "origin_duty_location_zip",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "orders_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "weight",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Made calculation of PPM incentive",
+            "schema": {
+              "$ref": "#/definitions/PPMIncentive"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "409": {
+            "description": "distance is less than 50 miles (no short haul moves)"
           },
           "500": {
             "description": "internal server error"
@@ -10059,29 +10176,72 @@ func init() {
         }
       }
     },
-    "/personally_procured_moves/{personallyProcuredMoveId}/approve": {
+    "/personally_procured_move/{personallyProcuredMoveId}/request_payment": {
       "post": {
-        "description": "Sets the status of the PPM to APPROVED.",
+        "description": "Moves the PPM and the move into the PAYMENT_REQUESTED state",
         "tags": [
-          "office"
+          "ppm"
         ],
-        "summary": "Approves the PPM",
-        "operationId": "approvePPM",
+        "summary": "Moves the PPM and the move into the PAYMENT_REQUESTED state",
+        "operationId": "requestPPMPayment",
         "parameters": [
           {
             "type": "string",
             "format": "uuid",
-            "description": "UUID of the PPM being updated",
+            "description": "UUID of the PPM",
+            "name": "personallyProcuredMoveId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesssfully requested payment",
+            "schema": {
+              "$ref": "#/definitions/PersonallyProcuredMovePayload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "move not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/personally_procured_move/{personallyProcuredMoveId}/submit": {
+      "post": {
+        "description": "Submits a PPM for approval by the office. The status of the PPM will be updated to SUBMITTED",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Submits a PPM for approval",
+        "operationId": "submitPersonallyProcuredMove",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the PPM being submitted",
             "name": "personallyProcuredMoveId",
             "in": "path",
             "required": true
           },
           {
-            "name": "approvePersonallyProcuredMovePayload",
+            "name": "submitPersonallyProcuredMovePayload",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ApprovePersonallyProcuredMovePayload"
+              "$ref": "#/definitions/SubmitPersonallyProcuredMovePayload"
             }
           }
         ],
@@ -10100,6 +10260,80 @@ func init() {
           },
           "403": {
             "description": "user is not authorized"
+          },
+          "404": {
+            "description": "ppm is not found"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/personally_procured_moves/incentive": {
+      "get": {
+        "description": "Calculates incentive for a PPM move (excluding SIT)",
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Return a PPM incentive value",
+        "operationId": "showPPMIncentive",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "date",
+            "name": "original_move_date",
+            "in": "query",
+            "required": true
+          },
+          {
+            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+            "type": "string",
+            "format": "zip",
+            "name": "origin_zip",
+            "in": "query",
+            "required": true
+          },
+          {
+            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+            "type": "string",
+            "format": "zip",
+            "name": "origin_duty_location_zip",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "orders_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "weight",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Made calculation of PPM incentive",
+            "schema": {
+              "$ref": "#/definitions/PPMIncentive"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "409": {
+            "description": "distance is less than 50 miles (no short haul moves)"
           },
           "500": {
             "description": "internal server error"
