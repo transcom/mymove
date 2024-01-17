@@ -13,7 +13,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { primeSimulatorRoutes } from 'constants/routes';
 import { addressSchema } from 'utils/validation';
 import scrollToTop from 'shared/scrollToTop';
-import { createNonSITAddressUpdateRequest } from 'services/primeApi';
+import { updateShipmentDestinationAddress } from 'services/primeApi';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import { isEmpty } from 'shared/utils';
 import { fromPrimeAPIAddressFormat } from 'utils/formatters';
@@ -41,7 +41,7 @@ const PrimeUIShipmentUpdateDestinationAddress = () => {
   };
 
   /* istanbul ignore next */
-  const { mutate: updateShipmentDestinationAddress } = useMutation(createNonSITAddressUpdateRequest, {
+  const { mutate: updateShipmentDestinationAddressAPI } = useMutation(updateShipmentDestinationAddress, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((mtoShipment) => mtoShipment.id === updatedMTOShipment.id)] =
         updatedMTOShipment;
@@ -93,7 +93,7 @@ const PrimeUIShipmentUpdateDestinationAddress = () => {
       contractorRemarks: values.contractorRemarks,
     };
 
-    updateShipmentDestinationAddress({
+    updateShipmentDestinationAddressAPI({
       mtoShipmentID,
       ifMatchETag: values.eTag,
       body,
