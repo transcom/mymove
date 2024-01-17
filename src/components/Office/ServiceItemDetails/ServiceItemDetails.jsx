@@ -20,8 +20,9 @@ function generateDetailText(details, id, className) {
   return detailList;
 }
 
-const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, details, code) => {
+const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, details, code, serviceItem, shipment) => {
   const { customerContacts } = details;
+
   // Below we are using the sortBy func in lodash to sort the customer contacts
   // by the firstAvailableDeliveryDate field. sortBy returns a new
   // array with the elements in ascending order.
@@ -35,19 +36,44 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
     'Customer contact 1': '-',
   });
 
+  const formatAddress = (address) => {
+    const { city, state, postalCode } = address;
+    return `${city}, ${state} ${postalCode}`;
+  };
+
   return (
     <div>
       <dl>
         {code === 'DDDSIT'
           ? generateDetailText({
+              'Original Delivery Address': formatAddress(serviceItem.sitDestinationFinalAddress) || '-',
+              'Final Delivery Address': formatAddress(serviceItem.sitDestinationOriginalAddress) || '-',
+              'Delivery Miles': 'TBD',
+            })
+          : null}
+        {code === 'DDFSIT'
+          ? generateDetailText({
+              'SIT entry date': details.sitEntryDate ? formatDateWithUTC(details.sitEntryDate, 'DD MMM YYYY') : '-',
+            })
+          : null}
+
+        {code === 'DDASIT'
+          ? generateDetailText({
+              'Original Delivery Address': formatAddress(serviceItem.sitDestinationFinalAddress) || '-',
+              "Add'l SIT Start Date": formatDateWithUTC(serviceItem.sitEntryDate, 'DD MMM YYYY') || '-',
+              '# of days approved for': shipment.sitDaysAllowance || '-',
+              'SIT expiration date': 'TBD' || '-',
+              'Customer Contacted HomeSafe': formatDateWithUTC(serviceItem.sitCustomerContacted) || '-',
+              'Customer Requested Del Date': formatDateWithUTC(serviceItem.sitRequestedDelivery) || '-',
+              'SIT departure date': formatDateWithUTC(serviceItem.sitDepartureDate, 'DD MMM YYYY') || '-',
+            })
+          : null}
+
+        {code === 'DDSFSC'
+          ? generateDetailText({
               'SIT departure date': details.sitDepartureDate
                 ? formatDateWithUTC(details.sitDepartureDate, 'DD MMM YYYY')
                 : '-',
-            })
-          : null}
-        {code === 'DDFSIT' || code === 'DDASIT'
-          ? generateDetailText({
-              'SIT entry date': details.sitEntryDate ? formatDateWithUTC(details.sitEntryDate, 'DD MMM YYYY') : '-',
             })
           : null}
 
@@ -90,7 +116,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
   );
 };
 
-const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
+const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, serviceItem, shipment }) => {
   const serviceRequestDocUploads = serviceRequestDocs?.map((doc) => doc.uploads[0]);
 
   let detailSection;
@@ -163,7 +189,14 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs }) => {
     case 'DDASIT':
     case 'DDDSIT':
     case 'DDSFSC': {
-      detailSection = generateDestinationSITDetailSection(id, serviceRequestDocUploads, details, code);
+      detailSection = generateDestinationSITDetailSection(
+        id,
+        serviceRequestDocUploads,
+        details,
+        code,
+        serviceItem,
+        shipment,
+      );
       break;
     }
     case 'DCRT':

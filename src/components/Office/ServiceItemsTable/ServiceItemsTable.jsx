@@ -16,7 +16,7 @@ import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItem
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import { selectDateFieldByStatus, selectDatePrefixByStatus } from 'utils/dates';
-import { useGHCGetMoveHistory, useMovePaymentRequestsQueries } from 'hooks/queries';
+import { useGHCGetMoveHistory, useMovePaymentRequestsQueries, useMoveTaskOrderQueries } from 'hooks/queries';
 import ToolTip from 'shared/ToolTip/ToolTip';
 
 const ServiceItemsTable = ({
@@ -36,6 +36,8 @@ const ServiceItemsTable = ({
   // adding in payment requests to determine edit button status
   const { moveCode } = useParams();
   const { paymentRequests } = useMovePaymentRequestsQueries(moveCode);
+  const { mtoShipments } = useMoveTaskOrderQueries(moveCode);
+
   let serviceItemInPaymentRequests;
   if (paymentRequests.some((obj) => 'serviceItems' in obj)) {
     serviceItemInPaymentRequests = paymentRequests.map((obj) => ({
@@ -131,6 +133,8 @@ const ServiceItemsTable = ({
 
   const tableRows = serviceItems.map((serviceItem) => {
     const { id, code, details, mtoShipmentID, sitAddressUpdates, serviceRequestDocuments, ...item } = serviceItem;
+    const shipment = mtoShipments.find((obj) => obj.id === serviceItem.mtoShipmentID);
+
     let hasPaymentRequestBeenMade;
     // if there are service items in the payment requests, we want to look to see if the service item is in there
     // if so, we don't want to let the TOO edit the SIT entry date
@@ -171,6 +175,7 @@ const ServiceItemsTable = ({
               details={details}
               serviceRequestDocs={serviceRequestDocuments}
               serviceItem={serviceItem}
+              shipment={shipment}
             />
           </td>
           <td>
