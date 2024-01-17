@@ -69,12 +69,14 @@ func (suite *ProgearWeightTicketSuite) TestDeleteProgearWeightTicket() {
 			ApplicationName: auth.OfficeApp,
 			OfficeUserID:    uuid.Must(uuid.NewV4()),
 		})
+
 		notFoundProgearWeightTicketID := uuid.Must(uuid.NewV4())
 		deleter := NewProgearWeightTicketDeleter()
 
-		err := deleter.DeleteProgearWeightTicket(session, notFoundProgearWeightTicketID)
+		response, err := deleter.DeleteProgearWeightTicket(session, uuid.Nil, notFoundProgearWeightTicketID)
 
 		if suite.Error(err) {
+			suite.NotNil(response)
 			suite.IsType(apperror.NotFoundError{}, err)
 
 			suite.Equal(
@@ -95,8 +97,9 @@ func (suite *ProgearWeightTicketSuite) TestDeleteProgearWeightTicket() {
 		deleter := NewProgearWeightTicketDeleter()
 
 		suite.Nil(originalProgearWeightTicket.DeletedAt)
-		err := deleter.DeleteProgearWeightTicket(session, originalProgearWeightTicket.ID)
+		response, err := deleter.DeleteProgearWeightTicket(session, uuid.Nil, originalProgearWeightTicket.ID)
 		suite.NoError(err)
+		suite.Nil(response)
 
 		var progearWeightTicketInDB models.ProgearWeightTicket
 		err = suite.DB().Find(&progearWeightTicketInDB, originalProgearWeightTicket.ID)

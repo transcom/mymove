@@ -3,8 +3,10 @@
 package mocks
 
 import (
-	mock "github.com/stretchr/testify/mock"
+	middleware "github.com/go-openapi/runtime/middleware"
 	appcontext "github.com/transcom/mymove/pkg/appcontext"
+
+	mock "github.com/stretchr/testify/mock"
 
 	uuid "github.com/gofrs/uuid"
 )
@@ -14,18 +16,30 @@ type ProgearWeightTicketDeleter struct {
 	mock.Mock
 }
 
-// DeleteProgearWeightTicket provides a mock function with given fields: appCtx, progearWeightTicketID
-func (_m *ProgearWeightTicketDeleter) DeleteProgearWeightTicket(appCtx appcontext.AppContext, progearWeightTicketID uuid.UUID) error {
-	ret := _m.Called(appCtx, progearWeightTicketID)
+// DeleteProgearWeightTicket provides a mock function with given fields: appCtx, ppmID, progearWeightTicketID
+func (_m *ProgearWeightTicketDeleter) DeleteProgearWeightTicket(appCtx appcontext.AppContext, ppmID uuid.UUID, progearWeightTicketID uuid.UUID) (middleware.Responder, error) {
+	ret := _m.Called(appCtx, ppmID, progearWeightTicketID)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) error); ok {
-		r0 = rf(appCtx, progearWeightTicketID)
+	var r0 middleware.Responder
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) (middleware.Responder, error)); ok {
+		return rf(appCtx, ppmID, progearWeightTicketID)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) middleware.Responder); ok {
+		r0 = rf(appCtx, ppmID, progearWeightTicketID)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(middleware.Responder)
+		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) error); ok {
+		r1 = rf(appCtx, ppmID, progearWeightTicketID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // NewProgearWeightTicketDeleter creates a new instance of ProgearWeightTicketDeleter. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

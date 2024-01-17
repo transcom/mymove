@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http/httptest"
 
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -390,12 +391,14 @@ func (suite *HandlerSuite) TestDeleteProgearWeightTicketHandler() {
 		subtestData := makeDeleteSubtestData(true)
 		params := subtestData.params
 
+		var actual middleware.Responder
 		err := errors.New("ServerError")
 
 		mockDeleter.On("DeleteProgearWeightTicket",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("uuid.UUID"),
-		).Return(err)
+			mock.AnythingOfType("uuid.UUID"),
+		).Return(actual, err)
 
 		// Use createS3HandlerConfig for the HandlerConfig because we are required to upload a doc
 		handler := DeleteProGearWeightTicketHandler{
