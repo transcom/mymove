@@ -18,7 +18,7 @@ func (suite *HandlerSuite) TestGetPPMCloseoutHandler() {
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 		handlerConfig := suite.HandlerConfig()
-		fetcher := ppmcloseout.NewPPMCloseoutFetcher()
+		fetcher := ppmcloseout.NewPPMCloseoutFetcher(suite.HandlerConfig().DTODPlanner())
 		request := httptest.NewRequest("GET", fmt.Sprintf("/ppm-shipments/%s/closeout", ppmShipment.ID.String()), nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 
@@ -47,7 +47,7 @@ func (suite *HandlerSuite) TestGetPPMCloseoutHandler() {
 		uuidForShipment, _ := uuid.NewV4()
 		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 		handlerConfig := suite.HandlerConfig()
-		fetcher := ppmcloseout.NewPPMCloseoutFetcher()
+		fetcher := ppmcloseout.NewPPMCloseoutFetcher(suite.HandlerConfig().DTODPlanner())
 		request := httptest.NewRequest("GET", fmt.Sprintf("/ppm-shipments/%s/closeout", uuidForShipment.String()), nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 

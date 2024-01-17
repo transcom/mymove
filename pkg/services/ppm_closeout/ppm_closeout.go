@@ -24,8 +24,8 @@ type ppmCloseoutFetcher struct {
 	planner route.Planner
 }
 
-func NewPPMCloseoutFetcher() services.PPMCloseoutFetcher {
-	return &ppmCloseoutFetcher{}
+func NewPPMCloseoutFetcher(planner route.Planner) services.PPMCloseoutFetcher {
+	return &ppmCloseoutFetcher{planner: planner}
 }
 
 func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.PPMCloseout, error) {
@@ -87,6 +87,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		return nil, err
 	}
 	serviceItemsToPrice = ppmshipment.BaseServiceItems(ppmShipment.ShipmentID)
+	logger.Debug(fmt.Sprintf("serviceItemsToPrice %+v", serviceItemsToPrice))
 	// itemPricer := ghcrateengine.NewServiceItemPricer()
 	contractDate := ppmShipment.ExpectedDepartureDate
 	contract, contractErr := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
@@ -188,30 +189,19 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		}
 
 		totalPrice = totalPrice.AddCents(centsValue)
-	}
-	// for _, mtoServiceItem := range serviceItemsToPrice {
-	// 		var paymentServiceItem models.PaymentServiceItem
-	// 		err = appCtx.DB().Find(&paymentServiceItem, mtoServiceItem.ID)
-	// 		if err != nil {
-	// 			return nil, apperror.NewQueryError("paymentServiceItem", err, "unable to find paymentServiceItem")
-	// 		}
-	// 		price, _, err = itemPricer.PriceServiceItem(appCtx, paymentServiceItem)
-	// 		if err != nil {
-	// 			return nil, apperror.NewQueryError("PriceServiceItem", err, "error pricing the paymentServiceItem")
-	// 		}
 
-	// 		switch mtoServiceItem.ReService.Code {
-	// 		case "DPK":
-	// 			packPrice += price
-	// 		case "DUPK":
-	// 			unpackPrice += price
-	// 		case "DOP":
-	// 			originPrice += price
-	// 		case "DDP":
-	// 			destinationPrice += price
-	// 			// TODO: Others can put cases for FSC DLH, etc. here, and the pricer *should* handle it.
-	// 		}
-	// }
+		switch serviceItem.ReService.Code {
+		case "DPK":
+			packPrice += centsValue
+		case "DUPK":
+			unpackPrice += centsValue
+		case "DOP":
+			originPrice += centsValue
+		case "DDP":
+			destinationPrice += centsValue
+			// TODO: Others can put cases for FSC DLH, etc. here, and the pricer *should* handle it.
+		}
+	}
 
 	factor := float32(*mtoShipment.PrimeActualWeight) / float32(ghcrateengine.GetMinDomesticWeight())
 
@@ -234,8 +224,8 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	ppmCloseoutObj.Factor = &factor
 	ppmCloseoutObj.PackPrice = &packPrice
 	ppmCloseoutObj.UnpackPrice = &unpackPrice
+	ppmCloseoutObj.SITReimbursement = ppmShipment.SITEstimatedCost
 
-	ppmCloseoutObj.SITReimbursement, err = ppmshipment.CalculateSITCost(appCtx, &ppmShipment, contract)
 	if err != nil {
 		return nil, apperror.NewQueryError("SITReimbursement", err, "error calculating SIT costs.")
 	}
