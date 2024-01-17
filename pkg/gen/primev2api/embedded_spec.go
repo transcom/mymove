@@ -80,7 +80,7 @@ func init() {
     },
     "/mto-shipments": {
       "post": {
-        "description": "Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a\nneed for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must\napprove it before the contractor can proceed with billing.\n\n**WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to\none of their moves. Otherwise, the Prime can fetch the related move using the\n[getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status ` + "`" + `\"APPROVED\"` + "`" + `.\n",
+        "description": "Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a\nneed for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must\napprove it before the contractor can proceed with billing.\n\n**NOTE**: When creating a child shipment diversion, you can no longer specify the ` + "`" + `primeActualWeight` + "`" + `.\nIf you create a new diverted shipment with the ` + "`" + `diversion` + "`" + ` and ` + "`" + `divertedFromShipmentId` + "`" + ` parameter, it will automatically\ninherit the primeActualWeight of its ` + "`" + `divertedFromShipmentId` + "`" + ` parent. Payment requests created on a diverted shipment \"chain\" will utilize\nthe lowest weight possible in the chain to prevent overcharging as they are still separate shipments.\n\n**WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to\none of their moves. Otherwise, the Prime can fetch the related move using the\n[getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status ` + "`" + `\"APPROVED\"` + "`" + `.\n",
         "consumes": [
           "application/json"
         ],
@@ -466,24 +466,6 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
-        }
-      }
-    },
-    "CreateNonSITAddressUpdateRequest": {
-      "description": "CreateNonSITAddressUpdateRequest contains the fields required for the prime to create a non SIT address update request.",
-      "type": "object",
-      "required": [
-        "contractorRemarks",
-        "newAddress"
-      ],
-      "properties": {
-        "contractorRemarks": {
-          "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
-          "type": "string",
-          "example": "Customer reached out to me this week and let me know they want to move somewhere else."
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
         }
       }
     },
@@ -3127,6 +3109,24 @@ func init() {
         }
       }
     },
+    "UpdateShipmentDestinationAddress": {
+      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment.",
+      "type": "object",
+      "required": [
+        "contractorRemarks",
+        "newAddress"
+      ],
+      "properties": {
+        "contractorRemarks": {
+          "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
+          "type": "string",
+          "example": "Customer reached out to me this week and let me know they want to move somewhere else."
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        }
+      }
+    },
     "UploadWithOmissions": {
       "description": "An uploaded file.",
       "type": "object",
@@ -3331,7 +3331,7 @@ func init() {
     },
     "/mto-shipments": {
       "post": {
-        "description": "Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a\nneed for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must\napprove it before the contractor can proceed with billing.\n\n**WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to\none of their moves. Otherwise, the Prime can fetch the related move using the\n[getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status ` + "`" + `\"APPROVED\"` + "`" + `.\n",
+        "description": "Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a\nneed for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must\napprove it before the contractor can proceed with billing.\n\n**NOTE**: When creating a child shipment diversion, you can no longer specify the ` + "`" + `primeActualWeight` + "`" + `.\nIf you create a new diverted shipment with the ` + "`" + `diversion` + "`" + ` and ` + "`" + `divertedFromShipmentId` + "`" + ` parameter, it will automatically\ninherit the primeActualWeight of its ` + "`" + `divertedFromShipmentId` + "`" + ` parent. Payment requests created on a diverted shipment \"chain\" will utilize\nthe lowest weight possible in the chain to prevent overcharging as they are still separate shipments.\n\n**WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to\none of their moves. Otherwise, the Prime can fetch the related move using the\n[getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status ` + "`" + `\"APPROVED\"` + "`" + `.\n",
         "consumes": [
           "application/json"
         ],
@@ -3732,24 +3732,6 @@ func init() {
         }
       }
     },
-    "CreateNonSITAddressUpdateRequest": {
-      "description": "CreateNonSITAddressUpdateRequest contains the fields required for the prime to create a non SIT address update request.",
-      "type": "object",
-      "required": [
-        "contractorRemarks",
-        "newAddress"
-      ],
-      "properties": {
-        "contractorRemarks": {
-          "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
-          "type": "string",
-          "example": "Customer reached out to me this week and let me know they want to move somewhere else."
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        }
-      }
-    },
     "CreatePPMShipment": {
       "description": "Creation object containing the ` + "`" + `PPM` + "`" + ` shipmentType specific data, not used for other shipment types.",
       "type": "object",
@@ -6387,6 +6369,24 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": 2000
+        }
+      }
+    },
+    "UpdateShipmentDestinationAddress": {
+      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment.",
+      "type": "object",
+      "required": [
+        "contractorRemarks",
+        "newAddress"
+      ],
+      "properties": {
+        "contractorRemarks": {
+          "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
+          "type": "string",
+          "example": "Customer reached out to me this week and let me know they want to move somewhere else."
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
         }
       }
     },

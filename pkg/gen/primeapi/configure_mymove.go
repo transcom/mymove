@@ -71,11 +71,6 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
 		})
 	}
-	if api.MtoShipmentCreateNonSITAddressUpdateRequestHandler == nil {
-		api.MtoShipmentCreateNonSITAddressUpdateRequestHandler = mto_shipment.CreateNonSITAddressUpdateRequestHandlerFunc(func(params mto_shipment.CreateNonSITAddressUpdateRequestParams) middleware.Responder {
-			return middleware.NotImplemented("operation mto_shipment.CreateNonSITAddressUpdateRequest has not yet been implemented")
-		})
-	}
 	if api.PaymentRequestCreatePaymentRequestHandler == nil {
 		api.PaymentRequestCreatePaymentRequestHandler = payment_request.CreatePaymentRequestHandlerFunc(func(params payment_request.CreatePaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_request.CreatePaymentRequest has not yet been implemented")
@@ -159,6 +154,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	if api.MtoShipmentUpdateSITDeliveryRequestHandler == nil {
 		api.MtoShipmentUpdateSITDeliveryRequestHandler = mto_shipment.UpdateSITDeliveryRequestHandlerFunc(func(params mto_shipment.UpdateSITDeliveryRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.UpdateSITDeliveryRequest has not yet been implemented")
+		})
+	}
+	if api.MtoShipmentUpdateShipmentDestinationAddressHandler == nil {
+		api.MtoShipmentUpdateShipmentDestinationAddressHandler = mto_shipment.UpdateShipmentDestinationAddressHandlerFunc(func(params mto_shipment.UpdateShipmentDestinationAddressParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.UpdateShipmentDestinationAddress has not yet been implemented")
 		})
 	}
 
