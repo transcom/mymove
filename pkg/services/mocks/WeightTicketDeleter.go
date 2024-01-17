@@ -15,7 +15,7 @@ type WeightTicketDeleter struct {
 }
 
 // DeleteWeightTicket provides a mock function with given fields: appCtx, weightTicketID
-func (_m *WeightTicketDeleter) DeleteWeightTicket(appCtx appcontext.AppContext, weightTicketID uuid.UUID) error {
+func (_m *WeightTicketDeleter) DeleteWeightTicket(appCtx appcontext.AppContext, ppmID uuid.UUID, weightTicketID uuid.UUID) error {
 	ret := _m.Called(appCtx, weightTicketID)
 
 	var r0 error

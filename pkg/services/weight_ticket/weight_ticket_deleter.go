@@ -2,9 +2,12 @@ package weightticket
 
 import (
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/db/utilities"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 )
@@ -21,7 +24,39 @@ func NewWeightTicketDeleter(fetcher services.WeightTicketFetcher, estimator serv
 	}
 }
 
-func (d *weightTicketDeleter) DeleteWeightTicket(appCtx appcontext.AppContext, weightTicketID uuid.UUID) error {
+func (d *weightTicketDeleter) DeleteWeightTicket(appCtx appcontext.AppContext, ppmID uuid.UUID, weightTicketID uuid.UUID) error {
+	var ppmShipment models.PPMShipment
+	err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
+		EagerPreload(
+			"Shipment.MoveTaskOrder.Orders",
+			"WeightTickets",
+		).
+		Find(&ppmShipment, ppmID)
+	if err != nil {
+		println("db error")
+		println(err)
+		return err
+	}
+
+	if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID {
+		wrongServiceMemberIDErr := apperror.NewSessionError("Attempted delete by wrong service member")
+		appCtx.Logger().Error("internalapi.DeleteWeightTicketHandler", zap.Error(wrongServiceMemberIDErr))
+		return wrongServiceMemberIDErr
+	}
+
+	found := false
+	for _, lineItem := range ppmShipment.WeightTickets {
+		if lineItem.ID == weightTicketID {
+			found = true
+			break
+		}
+	}
+	if !found {
+		mismatchedPPMShipmentAndWeightTicketIDErr := apperror.NewSessionError("Weight ticket does not exist on ppm shipment")
+		appCtx.Logger().Error("internalapi.DeleteWeightTicketHandler", zap.Error(mismatchedPPMShipmentAndWeightTicketIDErr))
+		return mismatchedPPMShipmentAndWeightTicketIDErr
+	}
+
 	weightTicket, err := d.GetWeightTicket(appCtx, weightTicketID)
 	if err != nil {
 		return err
