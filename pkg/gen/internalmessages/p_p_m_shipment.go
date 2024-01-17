@@ -51,6 +51,11 @@ type PPMShipment struct {
 	// advance status
 	AdvanceStatus *PPMAdvanceStatus `json:"advanceStatus,omitempty"`
 
+	// aoa packet id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Format: uuid
+	AoaPacketID strfmt.UUID `json:"aoa_packet_id,omitempty"`
+
 	// The timestamp of when the shipment was approved and the service member can begin their move.
 	// Format: date-time
 	ApprovedAt *strfmt.DateTime `json:"approvedAt"`
@@ -222,6 +227,10 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateAoaPacketID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateApprovedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -370,6 +379,18 @@ func (m *PPMShipment) validateAdvanceStatus(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) validateAoaPacketID(formats strfmt.Registry) error {
+	if swag.IsZero(m.AoaPacketID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("aoa_packet_id", "body", "uuid", m.AoaPacketID.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

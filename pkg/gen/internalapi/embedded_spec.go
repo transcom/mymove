@@ -5839,6 +5839,11 @@ func init() {
         "advanceStatus": {
           "$ref": "#/definitions/PPMAdvanceStatus"
         },
+        "aoa_packet_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "approvedAt": {
           "description": "The timestamp of when the shipment was approved and the service member can begin their move.",
           "type": "string",
@@ -14423,6 +14428,11 @@ func init() {
         },
         "advanceStatus": {
           "$ref": "#/definitions/PPMAdvanceStatus"
+        },
+        "aoa_packet_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "approvedAt": {
           "description": "The timestamp of when the shipment was approved and the service member can begin their move.",

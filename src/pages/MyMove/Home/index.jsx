@@ -38,6 +38,7 @@ import {
   selectSignedCertification,
 } from 'shared/Entities/modules/signed_certifications';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { updateMTOShipments } from 'store/entities/actions';
 import {
   selectCurrentMove,
@@ -52,6 +53,7 @@ import { MoveShape, OrdersShape, UploadShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import { formatCustomerDate, formatWeight } from 'utils/formatters';
 import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete } from 'utils/shipments';
+import { useAOAPacketDocumentQueries } from 'hooks/queries';
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types/router';
 
@@ -368,17 +370,6 @@ export class Home extends Component {
     window.print();
   };
 
-  // return a link to use to download the AOA packet
-  // getAOAPacketFileUrl = (moveCode) => {
-  //   // TODO: B-18061 will change this to download the actual AOA packet to include the SSW
-  //   //       For now we just provide a link to download the order documents as a placeholder
-  //   const { upload, amendedUpload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
-  //   if (isLoading) return <LoadingPlaceholder />;
-  //   if (isError) return <SomethingWentWrong />;
-  //   const orderDocuments = Object.values(upload || {}).concat(Object.values(amendedUpload || {}));
-  //   const sortedFiles = orderDocuments.sort((a, b) => moment(b.createdAt) - moment(a.createdAt));
-  // };
-
   render() {
     const { isProfileComplete, move, mtoShipments, serviceMember, signedCertification, uploadedOrderDocuments } =
       this.props;
@@ -416,6 +407,7 @@ export class Home extends Component {
     // eslint-disable-next-line camelcase
     const currentLocation = current_location;
     const shipmentNumbersByType = {};
+
     return (
       <>
         <ConnectedDestructiveShipmentConfirmationModal
@@ -588,13 +580,16 @@ export class Home extends Component {
                               <br />
                               <br />
                             </Description>
-                            {allSortedShipments.map((shipment) => {
+                            {ppmShipments.map((shipment) => {
                               const { shipmentType } = shipment;
                               if (shipmentNumbersByType[shipmentType]) {
                                 shipmentNumbersByType[shipmentType] += 1;
                               } else {
                                 shipmentNumbersByType[shipmentType] = 1;
                               }
+                              // if(shipment?.ppmShipment?.advanceStatus === 'APPROVED') {
+                              //   aoaPacketNumber += 1;
+                              // }
                               const shipmentNumber = shipmentNumbersByType[shipmentType];
                               return (
                                 <>
@@ -603,12 +598,11 @@ export class Home extends Component {
                                     {` ${shipmentNumber} `}
                                   </strong>
                                   {shipment?.ppmShipment?.advanceStatus === 'APPROVED' && (
-                                    // <p className={styles.downloadLink}>
-                                    //   <a href={getAOAPacketFileUrl(shipment.moveId)} download>
-                                    //     <span>Download AOA Paperwork (PDF)</span>
-                                    //   </a>
-                                    // </p>
-                                    <Description>Advance request approved</Description>
+                                    <p className={styles.downloadLink}>
+                                      <a href={`documents/${shipment?.ppmShipment?.aoa_packet_id}`} download>
+                                        <span>Download AOA Paperwork (PDF) NEED AOA PACKET URL HERE</span>
+                                      </a>
+                                    </p>
                                   )}
                                   {shipment?.ppmShipment?.advanceStatus === 'REJECTED' && (
                                     <Description>Advance request denied</Description>
