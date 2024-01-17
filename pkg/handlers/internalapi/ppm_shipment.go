@@ -10,6 +10,7 @@ import (
 	ppmops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -119,12 +120,12 @@ func (h SubmitPPMShipmentDocumentationHandler) Handle(params ppmops.SubmitPPMShi
 
 			returnPayload := payloads.PPMShipment(h.FileStorer(), ppmShipment)
 
-			// err = h.NotificationSender().SendNotification(appCtx,
-			// 	notifications.NewPpmPacketEmail(ppmShipment.ID),
-			// )
-			// if err != nil {
-			// 	appCtx.Logger().Error("problem sending email to user", zap.Error(err))
-			// }
+			err = h.NotificationSender().SendNotification(appCtx,
+				notifications.NewPpmPacketEmail(ppmShipment.ID),
+			)
+			if err != nil {
+				appCtx.Logger().Error("problem sending email to user", zap.Error(err))
+			}
 
 			return ppmops.NewSubmitPPMShipmentDocumentationOK().WithPayload(returnPayload), nil
 		})
@@ -249,12 +250,12 @@ func (h ResubmitPPMShipmentDocumentationHandler) Handle(params ppmops.ResubmitPP
 				}
 			}
 
-			// err = h.NotificationSender().SendNotification(appCtx,
-			// 	notifications.NewPpmPacketEmail(ppmShipment.ID),
-			// )
-			// if err != nil {
-			// 	appCtx.Logger().Error("problem sending email to user", zap.Error(err))
-			// }
+			err = h.NotificationSender().SendNotification(appCtx,
+				notifications.NewPpmPacketEmail(ppmShipment.ID),
+			)
+			if err != nil {
+				appCtx.Logger().Error("problem sending email to user", zap.Error(err))
+			}
 
 			returnPayload := payloads.PPMShipment(h.FileStorer(), ppmShipment)
 
