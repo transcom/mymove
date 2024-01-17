@@ -148,7 +148,7 @@ func main() {
 
 	// TODO: Future cleanup will need to remap to a different planner, or this command should be removed if it is consider deprecated
 	planner := route.NewHEREPlanner(hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
-	ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer(false)
+	ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer()
 
 	ssfd, err := ppmComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, &auth.Session{}, parsedID)
 	if err != nil {

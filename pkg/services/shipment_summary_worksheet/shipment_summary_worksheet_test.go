@@ -28,7 +28,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
-	SSWPPMComputer := NewSSWPPMComputer(true)
+	SSWPPMComputer := NewSSWPPMComputer()
 
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
@@ -101,7 +101,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
-	SSWPPMComputer := NewSSWPPMComputer(true)
+	SSWPPMComputer := NewSSWPPMComputer()
 
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
@@ -162,7 +162,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
-	SSWPPMComputer := NewSSWPPMComputer(true)
+	SSWPPMComputer := NewSSWPPMComputer()
 
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
