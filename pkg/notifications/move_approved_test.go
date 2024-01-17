@@ -1,7 +1,6 @@
 package notifications
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/gofrs/uuid"
@@ -19,7 +18,7 @@ func (suite *NotificationSuite) TestMoveApproved() {
 		ApplicationName: auth.OfficeApp,
 	}
 	notification := NewMoveApproved("milmovelocal", move.ID)
-	subject := fmt.Sprintf("[MilMove] Your Move is approved (move: %s)", move.Locator)
+	subject := "Your counselor has approved your move details"
 
 	emails, err := notification.emails(suite.AppContextWithSessionForTest(session))
 	suite.NoError(err)
@@ -47,28 +46,30 @@ func (suite *NotificationSuite) TestMoveApprovedHTMLTemplateRender() {
 		OriginDutyLocationPhoneLine: &originDutyLocationPhoneLine,
 		Locator:                     "abc123",
 	}
-	expectedHTMLContent := `<p><strong>You're all set to move!</strong></p>
+	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
 
-<p>
-  The local transportation office <strong>approved your move</strong> from <strong>origDutyLocation</strong> to
-  <strong>destDutyLocation</strong
-  >.
-</p>
+	<p>This is a confirmation that your counselor has approved move details for the <strong>assigned move code abc123</strong> from origDutyLocation to destDutyLocation in the MilMove system.</p>
 
-<p>Please <a href="https://milmovelocal/downloads/ppm_info_sheet.pdf">review the Personally Procured Move (PPM) info sheet</a> for detailed instructions.</p>
-<br />
-<p>
-  <strong>Next steps</strong> <br />Because you’ve chosen a do-it-yourself move, you can start whenever you are ready.
-</p>
+	<p>What this means to you:</br>
+	If you are doing a Personally Procured Move (PPM), you can start moving your personal property.</p>
 
-<p>
-  Be sure to <strong>save your weight tickets and any receipts</strong> associated with your move. You’ll need them to
-  request payment later in the process.
-</p>
+	<p><strong>Next steps for a PPM:</strong>
+	<ul>
+	  <li>Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform. If you do not upload legible certified weight tickets, your PPM incentive could be affected.</li>
+	  <li>If your counselor approved an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into <a href="https://my.move.mil">MilMove</a> to download your AOA Packet, and submit it to finance according to the instructions provided by your counselor. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.</li>
+	  <li>Once you complete your PPM, log into <a href="https://my.move.mil">MilMove</a>, upload your receipts and weight tickets, and submit your PPM for review.</li>
+	</ul>
 
-<p>If you have any questions, call the origDutyLocation PPPO at 555-555-5555 and reference your move locator code: abc123</p>
+	<p><strong>Next steps for government arranged shipments:</strong></br>
+	<ul>
+	  <li>Your move request will be reviewed by the responsible personal property shipping office and a move task order for services will be placed with HomeSafe Alliance.</li>
+	  <li>Once this order is placed, you will receive an e-mail invitation to create an account in HomeSafe Connect (check your spam or junk folder). This is the system you will use to schedule your pre-move survey.</li>
+	  <li>HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes. Remember to keep your contact information updated in MilMove.</li>
+	</ul>
+	<p>Thank you,</br>
+	USTRANSCOM MilMove Team</p>
 
-<p>You can <a href="https://my.move.mil">check the status of your move</a> anytime at https://my.move.mil"</p>
+	<p>The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.</p>
 `
 
 	htmlContent, err := notification.RenderHTML(suite.AppContextWithSessionForTest(&auth.Session{}), s)
@@ -88,29 +89,31 @@ func (suite *NotificationSuite) TestMoveApprovedHTMLTemplateRenderNoOriginDutyLo
 		OriginDutyLocationPhoneLine: nil,
 		Locator:                     "abc123",
 	}
-	expectedHTMLContent := `<p><strong>You're all set to move!</strong></p>
+	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
 
-<p>
-  The local transportation office <strong>approved your move</strong> to
-  <strong>destDutyLocation</strong
-  >.
-</p>
+	<p>This is a confirmation that your counselor has approved move details for the <strong>assigned move code</strong>.</p>
 
-<p>Please <a href="https://milmovelocal/downloads/ppm_info_sheet.pdf">review the Personally Procured Move (PPM) info sheet</a> for detailed instructions.</p>
-<br />
-<p>
-  <strong>Next steps</strong> <br />Because you’ve chosen a do-it-yourself move, you can start whenever you are ready.
-</p>
+	<p>What this means to you:</br>
+	If you are doing a Personally Procured Move (PPM), you can start moving your personal property.</p>
 
-<p>
-  Be sure to <strong>save your weight tickets and any receipts</strong> associated with your move. You’ll need them to
-  request payment later in the process.
-</p>
+	<p><strong>Next steps for a PPM:</strong>
+	<ul>
+	  <li>Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform. If you do not upload legible certified weight tickets, your PPM incentive could be affected.</li>
+	  <li>If your counselor approved an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into <a href="https://my.move.mil">MilMove</a> to download your AOA Packet, and submit it to finance according to the instructions provided by your counselor. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.</li>
+	  <li>Once you complete your PPM, log into <a href="https://my.move.mil">MilMove</a>, upload your receipts and weight tickets, and submit your PPM for review.</li>
+	</ul>
 
+	<p><strong>Next steps for government arranged shipments:</strong></br>
+	<ul>
+	  <li>Your move request will be reviewed by the responsible personal property shipping office and a move task order for services will be placed with HomeSafe Alliance.</li>
+	  <li>Once this order is placed, you will receive an e-mail invitation to create an account in HomeSafe Connect (check your spam or junk folder). This is the system you will use to schedule your pre-move survey.</li>
+	  <li>HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes. Remember to keep your contact information updated in MilMove.</li>
+	</ul>
+	<p>Thank you,</br>
+	USTRANSCOM MilMove Team</p>
 
-
-<p>You can <a href="https://my.move.mil">check the status of your move</a> anytime at https://my.move.mil"</p>
-`
+	<p>The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.</p>
+	`
 
 	htmlContent, err := notification.RenderHTML(suite.AppContextWithSessionForTest(&auth.Session{}), s)
 
@@ -132,22 +135,28 @@ func (suite *NotificationSuite) TestMoveApprovedTextTemplateRender() {
 		OriginDutyLocationPhoneLine: &originDutyLocationPhoneLine,
 		Locator:                     "abc123",
 	}
-	expectedTextContent := `You're all set to move!
+	expectedTextContent := `*** DO NOT REPLY directly to this email ***
 
-The local transportation office approved your move from origDutyLocation to destDutyLocation.
+	This is a confirmation that your counselor has approved move details for the assigned move code abc123</strong> from origDutyLocation to destDutyLocation in the MilMove system.
 
-Please review the Personally Procured Move (PPM) info sheet for detailed instructions at https://milmovelocal/downloads/ppm_info_sheet.pdf.
+	What this means to you:
+	If you are doing a Personally Procured Move (PPM), you can start moving your personal property.
 
+	Next steps for a PPM:
+		* Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform. If you do not upload legible certified weight tickets, your PPM incentive could be affected.
+		* If your counselor approved an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into MilMove <https://my.move.mil/> to download your AOA Packet, and submit it to finance according to the instructions provided by your counselor. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.
+		* Once you complete your PPM, log into MilMove <https://my.move.mil/>, upload your receipts and weight tickets, and submit your PPM for review.
 
-Next steps
-Because you’ve chosen a do-it-yourself move, you can start whenever you are ready.
+	Next steps for government arranged shipments:
+		* Your move request will be reviewed by the responsible personal property shipping office and a move task order for services will be placed with HomeSafe Alliance.
+		* Once this order is placed, you will receive an e-mail invitation to create an account in HomeSafe Connect (check your spam or junk folder). This is the system you will use to schedule your pre-move survey.
+		* HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes. Remember to keep your contact information updated in MilMove.
 
-Be sure to save your weight tickets and any receipts associated with your move. You’ll need them to request payment later in the process.
+	Thank you,
+	USTRANSCOM MilMove Team
 
-If you have any questions, call the origDutyLocation PPPO at 555-555-5555 and reference move locator code: abc123.
-
-You can check the status of your move anytime at https://my.move.mil"
-`
+	The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
+	`
 
 	textContent, err := notification.RenderText(suite.AppContextWithSessionForTest(&auth.Session{}), s)
 
