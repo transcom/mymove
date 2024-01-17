@@ -43,6 +43,9 @@ type PPMCloseout struct {
 	// Example: 4200
 	EstimatedWeight *int64 `json:"estimatedWeight"`
 
+	// The factor for the origin/destination price.
+	Factor *float32 `json:"factor"`
+
 	// GCC
 	//
 	// Government Constructive Cost (GCC)

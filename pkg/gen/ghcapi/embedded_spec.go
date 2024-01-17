@@ -7569,6 +7569,13 @@ func init() {
           "x-omitempty": false,
           "example": 4200
         },
+        "factor": {
+          "description": "The factor for the origin/destination price.",
+          "type": "number",
+          "format": "float",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "gcc": {
           "description": "Government Constructive Cost (GCC)",
           "type": "integer",
@@ -19127,6 +19134,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": 4200
+        },
+        "factor": {
+          "description": "The factor for the origin/destination price.",
+          "type": "number",
+          "format": "float",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "gcc": {
           "description": "Government Constructive Cost (GCC)",

@@ -2,17 +2,27 @@ package ppmcloseout
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/models"
+	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
+	serviceparamvaluelookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
-type ppmCloseoutFetcher struct{}
+type ppmCloseoutFetcher struct {
+	planner route.Planner
+}
 
 func NewPPMCloseoutFetcher() services.PPMCloseoutFetcher {
 	return &ppmCloseoutFetcher{}
@@ -66,6 +76,124 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		}
 	}
 
+	// Get all DLH, FSC, DOP, DDP, DPK, and DUPK service items for the shipment
+	var serviceItemsToPrice []models.MTOServiceItem
+	var err error
+	logger := appCtx.Logger()
+	idString := ppmShipment.ShipmentID.String()
+	fmt.Print(idString)
+	err = appCtx.DB().Where("mto_shipment_id = ?", ppmShipment.ShipmentID).All(&serviceItemsToPrice)
+	if err != nil {
+		return nil, err
+	}
+	serviceItemsToPrice = ppmshipment.BaseServiceItems(ppmShipment.ShipmentID)
+	// itemPricer := ghcrateengine.NewServiceItemPricer()
+	contractDate := ppmShipment.ExpectedDepartureDate
+	contract, contractErr := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
+	if contractErr != nil {
+		return nil, contractErr
+	}
+
+	paramsForServiceItems, paramErr := paymentrequesthelper.Helper.FetchServiceParamsForServiceItems(&paymentrequesthelper.RequestPaymentHelper{}, appCtx, serviceItemsToPrice)
+	if paramErr != nil {
+		return nil, paramErr
+	}
+	var totalPrice, packPrice, unpackPrice, destinationPrice, originPrice unit.Cents
+
+	for _, serviceItem := range serviceItemsToPrice {
+		pricer, pricerErr := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code)
+		if pricerErr != nil {
+			logger.Error("unable to find pricer for service item", zap.Error(err))
+			return nil, err
+		}
+
+		// For the non-accessorial service items there isn't any initialization that is going to change between lookups
+		// for the same param. However, this is how the payment request does things and we'd want to know if it breaks
+		// rather than optimizing I think.
+		serviceItemLookups := serviceparamvaluelookups.InitializeLookups(mtoShipment, serviceItem)
+
+		// This is the struct that gets passed to every param lookup() method that was initialized above
+		keyData := serviceparamvaluelookups.NewServiceItemParamKeyData(p.planner, serviceItemLookups, serviceItem, mtoShipment, contract.Code)
+
+		// The distance value gets saved to the mto shipment model to reduce repeated api calls.
+		var shipmentWithDistance models.MTOShipment
+		err = appCtx.DB().Find(&shipmentWithDistance, mtoShipment.ID)
+		if err != nil {
+			logger.Error("could not find shipment in the database")
+			return nil, err
+		}
+		serviceItem.MTOShipment = shipmentWithDistance
+		// set this to avoid potential eTag errors because the MTOShipment.Distance field was likely updated
+		ppmShipment.Shipment = shipmentWithDistance
+
+		var paramValues models.PaymentServiceItemParams
+		for _, param := range paramsForServiceCode(serviceItem.ReService.Code, paramsForServiceItems) {
+			paramKey := param.ServiceItemParamKey
+			// This is where the lookup() method of each service item param is actually evaluated
+			paramValue, valueErr := keyData.ServiceParamValue(appCtx, paramKey.Key)
+			if valueErr != nil {
+				logger.Error("could not calculate param value lookup", zap.Error(valueErr))
+				return nil, valueErr
+			}
+
+			// Gather all the param values for the service item to pass to the pricer's Price() method
+			paymentServiceItemParam := models.PaymentServiceItemParam{
+				// Some pricers like Fuel Surcharge try to requery the shipment through the service item, this is a
+				// workaround to avoid a not found error because our PPM shipment has no service items saved in the db.
+				// I think the FSC service item should really be relying on one of the zip distance params.
+				PaymentServiceItem: models.PaymentServiceItem{
+					MTOServiceItem: serviceItem,
+				},
+				ServiceItemParamKey: paramKey,
+				Value:               paramValue,
+			}
+			paramValues = append(paramValues, paymentServiceItemParam)
+		}
+
+		if len(paramValues) == 0 {
+			return nil, fmt.Errorf("no params were found for service item %s", serviceItem.ReService.Code)
+		}
+
+		centsValue, paymentParams, priceErr := pricer.PriceUsingParams(appCtx, paramValues)
+		if priceErr != nil {
+			return nil, priceErr
+		}
+		logger.Debug(fmt.Sprintf("Service item price %s %d", serviceItem.ReService.Code, centsValue))
+		logger.Debug(fmt.Sprintf("Payment service item params %+v", paymentParams))
+
+		if err != nil {
+			logger.Error("unable to calculate service item price", zap.Error(err))
+			return nil, err
+		}
+
+		totalPrice = totalPrice.AddCents(centsValue)
+	}
+	// for _, mtoServiceItem := range serviceItemsToPrice {
+	// 		var paymentServiceItem models.PaymentServiceItem
+	// 		err = appCtx.DB().Find(&paymentServiceItem, mtoServiceItem.ID)
+	// 		if err != nil {
+	// 			return nil, apperror.NewQueryError("paymentServiceItem", err, "unable to find paymentServiceItem")
+	// 		}
+	// 		price, _, err = itemPricer.PriceServiceItem(appCtx, paymentServiceItem)
+	// 		if err != nil {
+	// 			return nil, apperror.NewQueryError("PriceServiceItem", err, "error pricing the paymentServiceItem")
+	// 		}
+
+	// 		switch mtoServiceItem.ReService.Code {
+	// 		case "DPK":
+	// 			packPrice += price
+	// 		case "DUPK":
+	// 			unpackPrice += price
+	// 		case "DOP":
+	// 			originPrice += price
+	// 		case "DDP":
+	// 			destinationPrice += price
+	// 			// TODO: Others can put cases for FSC DLH, etc. here, and the pricer *should* handle it.
+	// 		}
+	// }
+
+	factor := float32(*mtoShipment.PrimeActualWeight) / float32(ghcrateengine.GetMinDomesticWeight())
+
 	ppmCloseoutObj.ID = &ppmShipmentID
 	ppmCloseoutObj.PlannedMoveDate = mtoShipment.ScheduledPickupDate
 	ppmCloseoutObj.ActualMoveDate = mtoShipment.ActualPickupDate
@@ -80,11 +208,26 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	ppmCloseoutObj.RemainingReimbursementOwed = nil
 	ppmCloseoutObj.HaulPrice = nil
 	ppmCloseoutObj.HaulFSC = nil
-	ppmCloseoutObj.DOP = nil
-	ppmCloseoutObj.DDP = nil
-	ppmCloseoutObj.PackPrice = nil
-	ppmCloseoutObj.UnpackPrice = nil
-	ppmCloseoutObj.SITReimbursement = nil
+	ppmCloseoutObj.DOP = &originPrice
+	ppmCloseoutObj.DDP = &destinationPrice
+	ppmCloseoutObj.Factor = &factor
+	ppmCloseoutObj.PackPrice = &packPrice
+	ppmCloseoutObj.UnpackPrice = &unpackPrice
+
+	ppmCloseoutObj.SITReimbursement, err = ppmshipment.CalculateSITCost(appCtx, &ppmShipment, contract)
+	if err != nil {
+		return nil, apperror.NewQueryError("SITReimbursement", err, "error calculating SIT costs.")
+	}
 
 	return &ppmCloseoutObj, nil
+}
+
+func paramsForServiceCode(code models.ReServiceCode, serviceParams models.ServiceParams) models.ServiceParams {
+	var serviceItemParams models.ServiceParams
+	for _, serviceParam := range serviceParams {
+		if serviceParam.Service.Code == code {
+			serviceItemParams = append(serviceItemParams, serviceParam)
+		}
+	}
+	return serviceItemParams
 }

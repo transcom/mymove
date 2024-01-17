@@ -151,7 +151,7 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 
 	estimatedSITCost := oldPPMShipment.SITEstimatedCost
 	if calculateSITEstimate {
-		estimatedSITCost, err = f.calculateSITCost(appCtx, newPPMShipment, contract)
+		estimatedSITCost, err = CalculateSITCost(appCtx, newPPMShipment, contract)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -239,7 +239,7 @@ func SumWeightTickets(ppmShipment, newPPMShipment models.PPMShipment) (originalT
 func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, totalWeightFromWeightTickets unit.Pound, contract models.ReContract) (*unit.Cents, error) {
 	logger := appCtx.Logger()
 
-	serviceItemsToPrice := baseServiceItems(ppmShipment.ShipmentID)
+	serviceItemsToPrice := BaseServiceItems(ppmShipment.ShipmentID)
 
 	// Get a list of all the pricing params needed to calculate the price for each service item
 	paramsForServiceItems, err := f.paymentRequestHelper.FetchServiceParamsForServiceItems(appCtx, serviceItemsToPrice)
@@ -327,7 +327,7 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 	return &totalPrice, nil
 }
 
-func (f estimatePPM) calculateSITCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, contract models.ReContract) (*unit.Cents, error) {
+func CalculateSITCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, contract models.ReContract) (*unit.Cents, error) {
 	logger := appCtx.Logger()
 
 	additionalDaysInSIT := additionalDaysInSIT(*ppmShipment.SITEstimatedEntryDate, *ppmShipment.SITEstimatedDepartureDate)
@@ -459,7 +459,7 @@ func mapPPMShipmentFinalFields(ppmShipment models.PPMShipment, totalWeight unit.
 
 // baseServiceItems returns a list of the MTOServiceItems that makeup the price of the estimated incentive.  These
 // are the same non-accesorial service items that get auto-created and approved when the TOO approves an HHG shipment.
-func baseServiceItems(mtoShipmentID uuid.UUID) []models.MTOServiceItem {
+func BaseServiceItems(mtoShipmentID uuid.UUID) []models.MTOServiceItem {
 	return []models.MTOServiceItem{
 		{ReService: models.ReService{Code: models.ReServiceCodeDLH}, MTOShipmentID: &mtoShipmentID},
 		{ReService: models.ReService{Code: models.ReServiceCodeFSC}, MTOShipmentID: &mtoShipmentID},
