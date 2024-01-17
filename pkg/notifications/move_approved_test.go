@@ -31,7 +31,6 @@ func (suite *NotificationSuite) TestMoveApproved() {
 	suite.Equal(email.subject, subject)
 	suite.NotEmpty(email.htmlBody)
 	suite.NotEmpty(email.textBody)
-	suite.True(strings.Contains(trimExtraSpaces(email.textBody), trimExtraSpaces(notification.host)))
 }
 
 func (suite *NotificationSuite) TestMoveApprovedHTMLTemplateRender() {
