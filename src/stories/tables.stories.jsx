@@ -312,6 +312,7 @@ export const ServiceItemTables = () => (
         serviceItems={[
           {
             id: 'abc12345',
+            mtoShipmentId: 'xyz890',
             createdAt: '2020-11-22T00:00:00',
             serviceItem: 'Dom. Crating',
             code: 'DCRT',

@@ -31,6 +31,7 @@ const domesticOriginSitDocuments = [
 
 const DOFSIT = {
   id: 'dosit-123',
+  mtoShipmentId: 'abc123',
   createdAt: '2020-11-20T00:00:00',
   approvedAt: '2020-12-20T00:00:00',
   rejectedAt: '2020-13-20T00:00:00',
@@ -43,6 +44,7 @@ const DOFSIT = {
 
 const DOASIT = {
   id: 'dosit-234',
+  mtoShipmentId: 'abc123',
   createdAt: '2020-11-20T00:00:00',
   approvedAt: '2020-12-20T00:00:00',
   rejectedAt: '2020-13-20T00:00:00',
@@ -55,6 +57,7 @@ const DOASIT = {
 
 const DOPSIT = {
   id: 'dosit-345',
+  mtoShipmentId: 'abc123',
   createdAt: '2020-11-20T00:00:00',
   approvedAt: '2020-12-20T00:00:00',
   rejectedAt: '2020-13-20T00:00:00',
@@ -67,6 +70,7 @@ const DOPSIT = {
 
 const DOSFSC = {
   id: 'abc-456',
+  mtoShipmentId: 'abc123',
   createdAt: '2020-11-20T00:00:00',
   approvedAt: '2020-12-20T00:00:00',
   rejectedAt: '2020-13-20T00:00:00',
@@ -100,6 +104,7 @@ const domesticDestinationSitDocuments = [
 
 const DDFSIT = {
   id: 'ddsit-123',
+  mtoShipmentId: 'abc123',
   createdAt: '2020-11-20T00:00:00',
   approvedAt: '2020-12-20T00:00:00',
   rejectedAt: '2020-13-20T00:00:00',
@@ -112,6 +117,7 @@ const DDFSIT = {
 
 const DDASIT = {
   id: 'ddsit-234',
+  mtoShipmentId: 'abc123',
   createdAt: '2020-11-20T00:00:00',
   approvedAt: '2020-12-20T00:00:00',
   rejectedAt: '2020-13-20T00:00:00',
@@ -124,6 +130,7 @@ const DDASIT = {
 
 const DDDSIT = {
   id: 'ddsit-345',
+  mtoShipmentId: 'abc123',
   createdAt: '2020-11-20T00:00:00',
   approvedAt: '2020-12-20T00:00:00',
   rejectedAt: '2020-13-20T00:00:00',
@@ -136,6 +143,7 @@ const DDDSIT = {
 
 const DDSFSC = {
   id: 'ddsit-456',
+  mtoShipmentId: 'abc123',
   createdAt: '2020-11-20T00:00:00',
   approvedAt: '2020-12-20T00:00:00',
   rejectedAt: '2020-13-20T00:00:00',
@@ -148,6 +156,7 @@ const DDSFSC = {
 
 const DOSHUT = {
   id: 'cba-123',
+  mtoShipmentId: 'abc123',
   createdAt: '2020-11-20T00:00:00',
   approvedAt: '2020-11-20T00:00:00',
   rejectedAt: '2020-11-20T00:00:00',
@@ -162,6 +171,7 @@ const DOSHUT = {
 
 const DDSHUT = {
   id: 'cba-1234',
+  mtoShipmentId: 'abc123',
   createdAt: '2020-11-20T00:00:00',
   approvedAt: '2020-11-20T00:00:00',
   rejectedAt: '2020-11-20T00:00:00',
@@ -176,6 +186,7 @@ const DDSHUT = {
 
 const DCRT = {
   id: 'abc12345',
+  mtoShipmentId: 'abc123',
   createdAt: '2020-11-20T00:00:00',
   approvedAt: '2020-11-20T00:00:00',
   rejectedAt: '2020-11-20T00:00:00',

@@ -165,7 +165,7 @@ const ServiceItemsTable = ({
   const tableRows = serviceItems.map((serviceItem) => {
     const { id, code, details, mtoShipmentID, sitAddressUpdates, serviceRequestDocuments, ...item } = serviceItem;
     // finding the mtoShipment that the service item is under
-    const mtoShipment = mtoShipments.find((shipment) => shipment.id === serviceItem.mtoShipmentID) || {};
+    const mtoShipment = mtoShipments?.find((shipment) => shipment.id === serviceItem.mtoShipmentID) || {};
     // Destructure deliveryAddressUpdate if it exists, otherwise default to an empty object
     const { deliveryAddressUpdate = {} } = mtoShipment;
 

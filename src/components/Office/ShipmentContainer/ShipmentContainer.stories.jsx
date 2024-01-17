@@ -116,6 +116,7 @@ export const MTOAccessorial = () => (
         serviceItems={[
           object('ServiceItem.first', {
             id: '1',
+            mtoShipmentId: '11',
             createdAt: '2020-01-10:00:00:00',
             serviceItem: 'Fuel Surcharge',
             code: 'FSC',
