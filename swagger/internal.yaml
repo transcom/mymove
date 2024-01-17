@@ -4438,42 +4438,6 @@ paths:
           description: cannot process request with given information
         '500':
           description: internal server error
-  /personally_procured_move/{personallyProcuredMoveId}/submit:
-    post:
-      summary: Submits a PPM for approval
-      description: >-
-        Submits a PPM for approval by the office. The status of the PPM will be
-        updated to SUBMITTED
-      operationId: submitPersonallyProcuredMove
-      tags:
-        - ppm
-      parameters:
-        - in: path
-          name: personallyProcuredMoveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the PPM being submitted
-        - name: submitPersonallyProcuredMovePayload
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/SubmitPersonallyProcuredMovePayload'
-      responses:
-        '200':
-          description: updated instance of personally_procured_move
-          schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '404':
-          description: ppm is not found
-        '500':
-          description: internal server error
   /personally_procured_move/{personallyProcuredMoveId}/request_payment:
     post:
       summary: Moves the PPM and the move into the PAYMENT_REQUESTED state

@@ -46,9 +46,6 @@ const InternalIndexSignedCertificationEndpointKey = "Internal.IndexSignedCertifi
 // InternalPatchPersonallyProcuredMoveEndpointKey is the key for the patchPersonallyProcuredMove endpoint in internal
 const InternalPatchPersonallyProcuredMoveEndpointKey = "Internal.PatchPersonallyProcuredMove"
 
-// InternalSubmitPersonallyProcuredMoveEndpointKey is the key for the submitPersonallyProcuredMove endpoint in internal
-const InternalSubmitPersonallyProcuredMoveEndpointKey = "Internal.SubmitPersonallyProcuredMove"
-
 // InternalRequestPPMPaymentEndpointKey is the key for the requestPPMPayment endpoint in internal
 const InternalRequestPPMPaymentEndpointKey = "Internal.RequestPPMPayment"
 
@@ -216,10 +213,6 @@ var internalEndpoints = EndpointMapType{
 	InternalPatchPersonallyProcuredMoveEndpointKey: {
 		APIName:     InternalAPIName,
 		OperationID: "patchPersonallyProcuredMove",
-	},
-	InternalSubmitPersonallyProcuredMoveEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "submitPersonallyProcuredMove",
 	},
 	InternalRequestPPMPaymentEndpointKey: {
 		APIName:     InternalAPIName,

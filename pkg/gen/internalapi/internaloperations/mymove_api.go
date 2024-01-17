@@ -240,9 +240,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmSubmitPPMShipmentDocumentationHandler: ppm.SubmitPPMShipmentDocumentationHandlerFunc(func(params ppm.SubmitPPMShipmentDocumentationParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.SubmitPPMShipmentDocumentation has not yet been implemented")
 		}),
-		PpmSubmitPersonallyProcuredMoveHandler: ppm.SubmitPersonallyProcuredMoveHandlerFunc(func(params ppm.SubmitPersonallyProcuredMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.SubmitPersonallyProcuredMove has not yet been implemented")
-		}),
 		MtoShipmentUpdateMTOShipmentHandler: mto_shipment.UpdateMTOShipmentHandlerFunc(func(params mto_shipment.UpdateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.UpdateMTOShipment has not yet been implemented")
 		}),
@@ -439,8 +436,6 @@ type MymoveAPI struct {
 	MovesSubmitMoveForApprovalHandler moves.SubmitMoveForApprovalHandler
 	// PpmSubmitPPMShipmentDocumentationHandler sets the operation handler for the submit p p m shipment documentation operation
 	PpmSubmitPPMShipmentDocumentationHandler ppm.SubmitPPMShipmentDocumentationHandler
-	// PpmSubmitPersonallyProcuredMoveHandler sets the operation handler for the submit personally procured move operation
-	PpmSubmitPersonallyProcuredMoveHandler ppm.SubmitPersonallyProcuredMoveHandler
 	// MtoShipmentUpdateMTOShipmentHandler sets the operation handler for the update m t o shipment operation
 	MtoShipmentUpdateMTOShipmentHandler mto_shipment.UpdateMTOShipmentHandler
 	// MoveDocsUpdateMoveDocumentHandler sets the operation handler for the update move document operation
@@ -719,9 +714,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PpmSubmitPPMShipmentDocumentationHandler == nil {
 		unregistered = append(unregistered, "ppm.SubmitPPMShipmentDocumentationHandler")
-	}
-	if o.PpmSubmitPersonallyProcuredMoveHandler == nil {
-		unregistered = append(unregistered, "ppm.SubmitPersonallyProcuredMoveHandler")
 	}
 	if o.MtoShipmentUpdateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.UpdateMTOShipmentHandler")
@@ -1080,10 +1072,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation"] = ppm.NewSubmitPPMShipmentDocumentation(o.context, o.PpmSubmitPPMShipmentDocumentationHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/personally_procured_move/{personallyProcuredMoveId}/submit"] = ppm.NewSubmitPersonallyProcuredMove(o.context, o.PpmSubmitPersonallyProcuredMoveHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
