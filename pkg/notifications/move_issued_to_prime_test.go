@@ -53,6 +53,7 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 
 <p>
   Your government-arranged shipment(s) will be managed by HomeSafe Alliance, the DoD contractor under the Global Household Goods Contract (GHC).
+  Your government-arranged shipment(s) will be managed by HomeSafe Alliance, the DoD contractor under the Global Household Goods Contract (GHC).
 </p>
 
 <h4>Next steps for your government-arranged shipment(s): </h4>
@@ -78,6 +79,8 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
     Within 3-7 days of your receipt of this e-mail, contact you to provide a 7-day pickup date spread window.
     This spread window must contain your requested pickup date.
     (What this means: your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
+    This spread window must contain your requested pickup date.
+    (What this means: your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
   </li>
 </ul>
 
@@ -100,6 +103,7 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 
 <p>Thank you,</p>
 
+<p>USTRANSCOM MilMove Team</p>
 <p>USTRANSCOM MilMove Team</p>
 
 <p>
@@ -141,6 +145,7 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 
 <p>
   Your government-arranged shipment(s) will be managed by HomeSafe Alliance, the DoD contractor under the Global Household Goods Contract (GHC).
+  Your government-arranged shipment(s) will be managed by HomeSafe Alliance, the DoD contractor under the Global Household Goods Contract (GHC).
 </p>
 
 <h4>Next steps for your government-arranged shipment(s): </h4>
@@ -166,6 +171,8 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
     Within 3-7 days of your receipt of this e-mail, contact you to provide a 7-day pickup date spread window.
     This spread window must contain your requested pickup date.
     (What this means: your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
+    This spread window must contain your requested pickup date.
+    (What this means: your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
   </li>
 </ul>
 
@@ -188,6 +195,7 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 
 <p>Thank you,</p>
 
+<p>USTRANSCOM MilMove Team</p>
 <p>USTRANSCOM MilMove Team</p>
 
 <p>
@@ -236,6 +244,12 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 
 <p>
   Your government-arranged shipment(s) will be managed by HomeSafe Alliance, the DoD contractor under the Global Household Goods Contract (GHC).
+  If you have requested a Personally Procured Move (PPM), <strong>DO NOT</strong> start your PPM until it has been approved by your counselor.
+  You will receive an email when that is complete.
+</p>
+
+<p>
+  Your government-arranged shipment(s) will be managed by HomeSafe Alliance, the DoD contractor under the Global Household Goods Contract (GHC).
 </p>
 
 <h4>Next steps for your government-arranged shipment(s): </h4>
@@ -261,6 +275,9 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
     Within 3-7 days of your receipt of this e-mail, contact you to assist in completion of counseling
     and provide a 7-day pickup date spread window. This spread window must contain your requested pickup date.
     (What this means: your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
+    Within 3-7 days of your receipt of this e-mail, contact you to assist in completion of counseling
+    and provide a 7-day pickup date spread window. This spread window must contain your requested pickup date.
+    (What this means: your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
   </li>
 </ul>
 
@@ -283,6 +300,7 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 
 <p>Thank you,</p>
 
+<p>USTRANSCOM MilMove Team</p>
 <p>USTRANSCOM MilMove Team</p>
 
 <p>
@@ -326,6 +344,7 @@ Your government-arranged shipment(s) will be managed by HomeSafe Alliance,
 the DoD contractor under the Global Household Goods Contract (GHC).
 
 *** Next steps for your government-arranged shipment(s): ***
+*** Next steps for your government-arranged shipment(s): ***
 
 HomeSafe will send you an e-mail invitation (check your spam or junk folder) to log in to their system, HomeSafe Connect.
 
@@ -350,6 +369,7 @@ You can see a listing of transportation offices on Military One Source here:
 
 Thank you,
 
+USTRANSCOM MilMove Team
 USTRANSCOM MilMove Team
 
 The information contained in this email may contain Privacy Act information and is therefore protected
@@ -387,6 +407,7 @@ Your government-arranged shipment(s) will be managed by HomeSafe Alliance,
 the DoD contractor under the Global Household Goods Contract (GHC).
 
 *** Next steps for your government-arranged shipment(s): ***
+*** Next steps for your government-arranged shipment(s): ***
 
 HomeSafe will send you an e-mail invitation (check your spam or junk folder) to log in to their system, HomeSafe Connect.
 
@@ -411,6 +432,7 @@ You can see a listing of transportation offices on Military One Source here:
 
 Thank you,
 
+USTRANSCOM MilMove Team
 USTRANSCOM MilMove Team
 
 The information contained in this email may contain Privacy Act information and is therefore protected
@@ -449,9 +471,13 @@ What this means to you:
 If you have requested a Personally Procured Move (PPM), DO NOT start your PPM until it has been approved by your counselor.
 You will receive an email when that is complete.
 
+If you have requested a Personally Procured Move (PPM), DO NOT start your PPM until it has been approved by your counselor.
+You will receive an email when that is complete.
+
 Your government-arranged shipment(s) will be managed by HomeSafe Alliance,
 the DoD contractor under the Global Household Goods Contract (GHC).
 
+*** Next steps for your government-arranged shipment(s): ***
 *** Next steps for your government-arranged shipment(s): ***
 
 HomeSafe will send you an e-mail invitation (check your spam or junk folder) to log in to their system, HomeSafe Connect.
@@ -461,6 +487,9 @@ You can request either a virtual, or in-person pre-move survey.
 
 HomeSafe Customer Care is Required to:
 * Reach out to you within one Government Business Day.
+* Within 3-7 days of your receipt of this e-mail, contact you to assist in completion of counseling
+and provide a 7-day pickup date spread window. This spread window must contain your requested pickup date.
+(What this means: your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
 * Within 3-7 days of your receipt of this e-mail, contact you to assist in completion of counseling
 and provide a 7-day pickup date spread window. This spread window must contain your requested pickup date.
 (What this means: your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
@@ -477,6 +506,7 @@ You can see a listing of transportation offices on Military One Source here:
 
 Thank you,
 
+USTRANSCOM MilMove Team
 USTRANSCOM MilMove Team
 
 The information contained in this email may contain Privacy Act information and is therefore protected
