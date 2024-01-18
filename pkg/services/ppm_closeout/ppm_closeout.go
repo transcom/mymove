@@ -21,30 +21,60 @@ func NewPPMCloseoutFetcher() services.PPMCloseoutFetcher {
 func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.PPMCloseout, error) {
 	var ppmCloseoutObj models.PPMCloseout
 	var ppmShipment models.PPMShipment
+	var mtoShipment models.MTOShipment
 
-	err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
+	errPPM := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
 		EagerPreload(
 			"ID",
+			"ShipmentID",
+			"ExpectedDepartureDate",
+			"ActualMoveDate",
+			"EstimatedWeight",
+			"HasProGear",
+			"ProGearWeight",
+			"SpouseProGearWeight",
+			"FinalIncentive",
 		).
 		Find(&ppmShipment, ppmShipmentID)
 
-	if err != nil {
-		switch err {
+	if errPPM != nil {
+		switch errPPM {
 		case sql.ErrNoRows:
 			return nil, apperror.NewNotFoundError(ppmShipmentID, "while looking for PPMShipment")
 		default:
-			return nil, apperror.NewQueryError("PPMShipment", err, "unable to find PPMShipment")
+			return nil, apperror.NewQueryError("PPMShipment", errPPM, "unable to find PPMShipment")
 		}
 	}
+
+	mtoShipmentID := &ppmShipment.ShipmentID
+	errMTO := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
+		EagerPreload(
+			"ID",
+			"ScheduledPickupDate",
+			"ActualPickupDate",
+			"Distance",
+			"PrimeActualWeight",
+		).
+		Find(&mtoShipment, mtoShipmentID)
+
+	if errMTO != nil {
+		switch errMTO {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(*mtoShipmentID, "while looking for MTOShipment")
+		default:
+			return nil, apperror.NewQueryError("MTOShipment", errMTO, "unable to find MTOShipment")
+		}
+	}
+
 	ppmCloseoutObj.ID = &ppmShipmentID
-	ppmCloseoutObj.PlannedMoveDate = nil
-	ppmCloseoutObj.ActualMoveDate = nil
-	ppmCloseoutObj.Miles = nil
-	ppmCloseoutObj.EstimatedWeight = nil
-	ppmCloseoutObj.ActualWeight = nil
-	ppmCloseoutObj.ProGearWeightCustomer = nil
-	ppmCloseoutObj.ProGearWeightSpouse = nil
-	ppmCloseoutObj.GrossIncentive = nil
+	ppmCloseoutObj.PlannedMoveDate = mtoShipment.ScheduledPickupDate
+	ppmCloseoutObj.ActualMoveDate = mtoShipment.ActualPickupDate
+	ppmCloseoutObj.Miles = (*int)(mtoShipment.Distance)
+	ppmCloseoutObj.EstimatedWeight = ppmShipment.EstimatedWeight
+	ppmCloseoutObj.ActualWeight = mtoShipment.PrimeActualWeight
+	ppmCloseoutObj.ProGearWeightCustomer = ppmShipment.ProGearWeight
+	ppmCloseoutObj.ProGearWeightSpouse = ppmShipment.SpouseProGearWeight
+	ppmCloseoutObj.GrossIncentive = ppmShipment.FinalIncentive
 	ppmCloseoutObj.GCC = nil
 	ppmCloseoutObj.AOA = nil
 	ppmCloseoutObj.RemainingReimbursementOwed = nil
