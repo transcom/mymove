@@ -10,7 +10,7 @@ import (
 
 func (suite *NotificationSuite) TestMoveCounselled() {
 	move := factory.BuildMove(suite.DB(), nil, nil)
-	notification := NewMoveSubmitted(move.ID)
+	notification := NewMoveCounselled(move.ID)
 
 	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
 		ServiceMemberID: move.Orders.ServiceMember.ID,
