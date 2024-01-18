@@ -4,17 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './MultiMovesLandingPage.module.scss';
 import MultiMovesMoveHeader from './MultiMovesMoveHeader/MultiMovesMoveHeader';
-import MultiMovesMoveContainer from './MultiMovesMoveContainer/MultiMovesMoveContainer';
-import {
-  mockMovesPCS,
-  mockMovesSeparation,
-  mockMovesRetirement,
-  mockMovesNoPreviousMoves,
-  mockMovesNoCurrentMoveWithPreviousMoves,
-  mockMovesNoCurrentOrPreviousMoves,
-} from './MultiMovesTestData';
 
-import { detectFlags } from 'utils/featureFlags';
 import { generatePageTitle } from 'hooks/custom';
 import { milmoveLogger } from 'utils/milmoveLog';
 import retryPageLoading from 'utils/retryPageLoading';
@@ -25,35 +15,6 @@ import Helper from 'components/Customer/Home/Helper';
 
 const MultiMovesLandingPage = () => {
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
-  // ! This is just used for testing and viewing different variations of data that MilMove will use
-  // user can add params of ?moveData=PCS, etc to view different views
-  let moves;
-  const currentUrl = new URL(window.location.href);
-  const moveDataSource = currentUrl.searchParams.get('moveData');
-  switch (moveDataSource) {
-    case 'PCS':
-      moves = mockMovesPCS;
-      break;
-    case 'retirement':
-      moves = mockMovesRetirement;
-      break;
-    case 'separation':
-      moves = mockMovesSeparation;
-      break;
-    case 'noPreviousMoves':
-      moves = mockMovesNoPreviousMoves;
-      break;
-    case 'noCurrentMove':
-      moves = mockMovesNoCurrentMoveWithPreviousMoves;
-      break;
-    case 'noMoves':
-      moves = mockMovesNoCurrentOrPreviousMoves;
-      break;
-    default:
-      moves = mockMovesPCS;
-      break;
-  }
-  // ! end of test data
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -79,15 +40,12 @@ const MultiMovesLandingPage = () => {
     };
 
     fetchData();
-  }, [setErrorState]);
+  }, []); // Empty dependency array means this effect runs once after the initial render
 
-  const flags = detectFlags(process.env.NODE_ENV, window.location.host, window.location.search);
-
-  // ! WILL ONLY SHOW IF MULTIMOVE FLAG IS TRUE
-  return flags.multiMove ? (
+  return (
     <div>
       <div className={styles.homeContainer}>
-        <header data-testid="customerHeader" className={styles.customerHeader}>
+        <header data-testid="customer-header" className={styles.customerHeader}>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
             <h2>First Last</h2>
           </div>
@@ -108,45 +66,12 @@ const MultiMovesLandingPage = () => {
             </Button>
           </div>
           <div className={styles.movesContainer}>
-            {moves.currentMove.length > 0 ? (
-              <>
-                <div data-testid="currentMoveHeader">
-                  <MultiMovesMoveHeader title="Current Move" />
-                </div>
-                <div data-testid="currentMoveContainer">
-                  <MultiMovesMoveContainer moves={moves.currentMove} />
-                </div>
-              </>
-            ) : (
-              <>
-                <div data-testid="currentMoveHeader">
-                  <MultiMovesMoveHeader title="Current Moves" />
-                </div>
-                <div>You do not have a current move.</div>
-              </>
-            )}
-            {moves.previousMoves.length > 0 ? (
-              <>
-                <div data-testid="prevMovesHeader">
-                  <MultiMovesMoveHeader title="Previous Moves" />
-                </div>
-                <div data-testid="prevMovesContainer">
-                  <MultiMovesMoveContainer moves={moves.previousMoves} />
-                </div>
-              </>
-            ) : (
-              <>
-                <div data-testid="prevMovesHeader">
-                  <MultiMovesMoveHeader title="Previous Moves" />
-                </div>
-                <div>You have no previous moves.</div>
-              </>
-            )}
+            <MultiMovesMoveHeader title="Current Move" />
           </div>
         </div>
       </div>
     </div>
-  ) : null;
+  );
 };
 
 export default MultiMovesLandingPage;

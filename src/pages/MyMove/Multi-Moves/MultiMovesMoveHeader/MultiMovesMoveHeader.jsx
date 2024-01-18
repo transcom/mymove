@@ -7,7 +7,7 @@ import styles from './MultiMovesMoveHeader.module.scss';
 const MultiMovesMoveHeader = ({ title }) => {
   return (
     <div className={styles.moveHeaderContainer}>
-      <FontAwesomeIcon icon={faTruck} data-testid="truck-icon" />
+      <FontAwesomeIcon icon={faTruck} />
       <h3>{title}</h3>
     </div>
   );
