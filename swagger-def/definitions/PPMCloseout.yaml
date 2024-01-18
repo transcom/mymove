@@ -111,13 +111,6 @@ properties:
     x-nullable: true
     x-omitempty: false
 
-  factor:
-    description: The factor for the origin/destination price.
-    type: number
-    format: float
-    x-nullable: true
-    x-omitempty: false
-
   packPrice:
     description: The full price of all packing/unpacking services.
     type: integer
