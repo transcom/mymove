@@ -216,6 +216,9 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		} else {
 			return nil, err
 		}
+	} else {
+		addressUpdate.OriginalAddressID = *shipment.DestinationAddressID
+		addressUpdate.OriginalAddress = *shipment.DestinationAddress
 	}
 
 	addressUpdate.Status = models.ShipmentAddressUpdateStatusApproved
