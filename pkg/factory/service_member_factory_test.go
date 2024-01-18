@@ -9,7 +9,7 @@ import (
 func (suite *FactorySuite) TestBuildServiceMember() {
 	defaultEmail := "leo_spaceman_sm@example.com"
 	defaultAgency := models.AffiliationARMY
-	defaultRank := models.ServiceMemberRankE1
+	defaultRank := models.ServiceMemberGradeE1
 	suite.Run("Successful creation of default ServiceMember", func() {
 		// Under test:      BuildServiceMember
 		// Mocked:          None
@@ -60,7 +60,7 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		// Set up:          Create a Service Member and pass custom fields
 		// Expected outcome:serviceMember should be created with custom fields
 		// SETUP
-		customRank := models.ServiceMemberRankE3
+		customRank := models.ServiceMemberGradeE3
 		customAffiliation := models.AffiliationAIRFORCE
 
 		customServiceMember := models.ServiceMember{
@@ -118,7 +118,7 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		// Expected outcome:serviceMember should be created with custom residential address different from address attached backup mailing address
 
 		// SETUP
-		customRank := models.ServiceMemberRankE3
+		customRank := models.ServiceMemberGradeE3
 		customAffiliation := models.AffiliationAIRFORCE
 
 		customResidentialAddress := models.Address{
@@ -242,7 +242,7 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		// members and a backupContact should be created
 
 		// SETUP
-		customRank := models.ServiceMemberRankE3
+		customRank := models.ServiceMemberGradeE3
 		customAffiliation := models.AffiliationAIRFORCE
 
 		customServiceMember := models.ServiceMember{

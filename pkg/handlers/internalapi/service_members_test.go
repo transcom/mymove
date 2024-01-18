@@ -175,7 +175,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	var origEdipi = "2342342344"
 	var newEdipi = "9999999999"
 
-	origRank := models.ServiceMemberRankE1
+	origRank := models.ServiceMemberGradeE1
 
 	origAffiliation := models.AffiliationAIRFORCE
 	newAffiliation := internalmessages.AffiliationARMY
@@ -260,7 +260,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		},
 	}, nil)
 
-	orderGrade := (string)(models.ServiceMemberRankE5)
+	orderGrade := (string)(models.ServiceMemberGradeE5)
 	factory.BuildMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
@@ -345,7 +345,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 
 	// If there are orders and the move has been submitted, then the
 	// affiliation rank, and duty location should not be editable.
-	origRank := models.ServiceMemberRankE1
+	origRank := models.ServiceMemberGradeE1
 	newRank := internalmessages.ServiceMemberRankE2
 
 	origAffiliation := models.AffiliationAIRFORCE
@@ -496,7 +496,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	// These fields should not change (they should still be the original
 	// values) after the move has been submitted.
 	suite.Equal(origAffiliation, models.ServiceMemberAffiliation(*serviceMemberPayload.Affiliation))
-	suite.Equal(origRank, models.ServiceMemberRank(*serviceMemberPayload.Rank))
+	suite.Equal(origRank, models.ServiceMemberGrade(*serviceMemberPayload.Rank))
 	suite.Equal(origDutyLocation.ID.String(), string(*serviceMemberPayload.CurrentLocation.ID))
 
 	// These fields should change even if the move is submitted.

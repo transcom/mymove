@@ -332,7 +332,7 @@ func (suite *FactorySuite) TestNestedModelsCheck() {
 		testid := uuid.Must(uuid.NewV4())
 		edipi := RandomEdipi()
 		timestamp := time.Now()
-		rank := models.ServiceMemberRankE4
+		rank := models.ServiceMemberGradeE4
 		name := "Riley Baker"
 		phone := "555-777-9929"
 
