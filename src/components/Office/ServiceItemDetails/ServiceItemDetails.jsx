@@ -40,17 +40,13 @@ const generateSITDetailSection = (id, serviceRequestDocUploads, details, code, s
   });
 
   const formatAddress = (address) => {
-    // handle invalid input
     if (!address || typeof address !== 'object') {
       return '';
     }
-
     const { city, state, postalCode } = address || {};
-
     const formattedCity = city ? `${city}, ` : '';
     const formattedState = state ? `${state} ` : '';
     const formattedPostalCode = postalCode || '';
-
     return `${formattedCity}${formattedState}${formattedPostalCode}`;
   };
 
