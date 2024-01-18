@@ -335,8 +335,8 @@ or in-person pre-move survey.
 HomeSafe Customer Care is Required to:
 * Reach out to you within one Government Business Day.
 * Within 3-7 days of your receipt of this e-mail, contact you to provide a 7-day pickup date spread window.
-This spread window must contain your requested pickup date. (What this means:
-your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
+This spread window must contain your requested pickup date.
+(What this means: your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
 
 If you are requesting to move in 5 days or less, HomeSafe should assist you with scheduling within one day of your receipt of this email.
 
@@ -396,8 +396,8 @@ or in-person pre-move survey.
 HomeSafe Customer Care is Required to:
 * Reach out to you within one Government Business Day.
 * Within 3-7 days of your receipt of this e-mail, contact you to provide a 7-day pickup date spread window.
-This spread window must contain your requested pickup date. (What this means:
-your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
+This spread window must contain your requested pickup date.
+(What this means: your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
 
 If you are requesting to move in 5 days or less, HomeSafe should assist you with scheduling within one day of your receipt of this email.
 
