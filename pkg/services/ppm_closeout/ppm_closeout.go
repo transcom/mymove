@@ -176,12 +176,11 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 			return nil, fmt.Errorf("no params were found for service item %s", serviceItem.ReService.Code)
 		}
 
-		centsValue, paymentParams, priceErr := pricer.PriceUsingParams(appCtx, paramValues)
+		// Middle var here can give you info on payment params like FSC multiplier, price rate/factor, etc. if needed.
+		centsValue, _, priceErr := pricer.PriceUsingParams(appCtx, paramValues)
 		if priceErr != nil {
 			return nil, priceErr
 		}
-		logger.Debug(fmt.Sprintf("Service item price %s %d", serviceItem.ReService.Code, centsValue))
-		logger.Debug(fmt.Sprintf("Payment service item params %+v", paymentParams))
 
 		if err != nil {
 			logger.Error("unable to calculate service item price", zap.Error(err))
@@ -199,11 +198,9 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 			originPrice += centsValue
 		case "DDP":
 			destinationPrice += centsValue
-			// TODO: Others can put cases for FSC DLH, etc. here, and the pricer *should* handle it.
+			// TODO: Others (Konstance?) can put cases here for FSC (fuel surcharge), DLH (domestic linehaul), etc. here.
 		}
 	}
-
-	factor := float32(*mtoShipment.PrimeActualWeight) / float32(ghcrateengine.GetMinDomesticWeight())
 
 	ppmCloseoutObj.ID = &ppmShipmentID
 	ppmCloseoutObj.PlannedMoveDate = mtoShipment.ScheduledPickupDate
@@ -221,7 +218,6 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	ppmCloseoutObj.HaulFSC = nil
 	ppmCloseoutObj.DOP = &originPrice
 	ppmCloseoutObj.DDP = &destinationPrice
-	ppmCloseoutObj.Factor = &factor
 	ppmCloseoutObj.PackPrice = &packPrice
 	ppmCloseoutObj.UnpackPrice = &unpackPrice
 	ppmCloseoutObj.SITReimbursement = ppmShipment.SITEstimatedCost
