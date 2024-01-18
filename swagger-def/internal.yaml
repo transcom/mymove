@@ -579,18 +579,6 @@ definitions:
     required:
       - range_min
       - range_max
-  PPMIncentive:
-    type: object
-    properties:
-      gcc:
-        type: integer
-        title: GCC
-      incentive_percentage:
-        type: integer
-        title: PPM Incentive @ 95%
-    required:
-      - gcc
-      - incentive_percentage
   CategoryExpenseSummary:
     type: object
     properties:
@@ -3615,53 +3603,36 @@ paths:
           description: user is not authorized
         '500':
           description: internal server error
-  /personally_procured_moves/incentive:
-    get:
-      summary: Return a PPM incentive value
-      description: Calculates incentive for a PPM move (excluding SIT)
-      operationId: showPPMIncentive
+  /personally_procured_moves/{personallyProcuredMoveId}/approve:
+    post:
+      summary: Approves the PPM
+      description: Sets the status of the PPM to APPROVED.
+      operationId: approvePPM
       tags:
-        - ppm
+        - office
       parameters:
-        - in: query
-          name: original_move_date
-          type: string
-          format: date
-          required: true
-        - in: query
-          name: origin_zip
-          type: string
-          format: zip
-          pattern: '^(\d{5}([\-]\d{4})?)$'
-          required: true
-        - in: query
-          name: origin_duty_location_zip
-          type: string
-          format: zip
-          pattern: '^(\d{5}([\-]\d{4})?)$'
-          required: true
-        - in: query
-          name: orders_id
+        - in: path
+          name: personallyProcuredMoveId
           type: string
           format: uuid
           required: true
-        - in: query
-          name: weight
-          type: integer
+          description: UUID of the PPM being updated
+        - name: approvePersonallyProcuredMovePayload
+          in: body
           required: true
+          schema:
+            $ref: '#/definitions/ApprovePersonallyProcuredMovePayload'
       responses:
         '200':
-          description: Made calculation of PPM incentive
+          description: updated instance of personally_procured_move
           schema:
-            $ref: '#/definitions/PPMIncentive'
+            $ref: '#/definitions/PersonallyProcuredMovePayload'
         '400':
           description: invalid request
         '401':
           description: request requires user authentication
         '403':
           description: user is not authorized
-        '409':
-          description: distance is less than 50 miles (no short haul moves)
         '500':
           description: internal server error
   /documents:

@@ -5791,23 +5791,6 @@ func init() {
         }
       }
     },
-    "PPMIncentive": {
-      "type": "object",
-      "required": [
-        "gcc",
-        "incentive_percentage"
-      ],
-      "properties": {
-        "gcc": {
-          "type": "integer",
-          "title": "GCC"
-        },
-        "incentive_percentage": {
-          "type": "integer",
-          "title": "PPM Incentive @ 95%"
-        }
-      }
-    },
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service member moves themselves.",
       "required": [
@@ -14400,23 +14383,6 @@ func init() {
         "range_min": {
           "type": "integer",
           "title": "Low estimate"
-        }
-      }
-    },
-    "PPMIncentive": {
-      "type": "object",
-      "required": [
-        "gcc",
-        "incentive_percentage"
-      ],
-      "properties": {
-        "gcc": {
-          "type": "integer",
-          "title": "GCC"
-        },
-        "incentive_percentage": {
-          "type": "integer",
-          "title": "PPM Incentive @ 95%"
         }
       }
     },
