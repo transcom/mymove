@@ -1849,77 +1849,6 @@ func init() {
         }
       }
     },
-    "/personally_procured_moves/incentive": {
-      "get": {
-        "description": "Calculates incentive for a PPM move (excluding SIT)",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Return a PPM incentive value",
-        "operationId": "showPPMIncentive",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "date",
-            "name": "original_move_date",
-            "in": "query",
-            "required": true
-          },
-          {
-            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-            "type": "string",
-            "format": "zip",
-            "name": "origin_zip",
-            "in": "query",
-            "required": true
-          },
-          {
-            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-            "type": "string",
-            "format": "zip",
-            "name": "origin_duty_location_zip",
-            "in": "query",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "name": "orders_id",
-            "in": "query",
-            "required": true
-          },
-          {
-            "type": "integer",
-            "name": "weight",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Made calculation of PPM incentive",
-            "schema": {
-              "$ref": "#/definitions/PPMIncentive"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "409": {
-            "description": "distance is less than 50 miles (no short haul moves)"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      }
-    },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses": {
       "post": {
         "description": "Creates a moving expense document for the PPM shipment",
@@ -3425,20 +3354,6 @@ func init() {
         "SPACE_FORCE": "Space Force"
       },
       "x-nullable": true
-    },
-    "ApprovePersonallyProcuredMovePayload": {
-      "type": "object",
-      "required": [
-        "approve_date"
-      ],
-      "properties": {
-        "approve_date": {
-          "type": "string",
-          "format": "date-time",
-          "title": "When was the ppm move approved?",
-          "example": "2019-03-26T13:19:56-04:00"
-        }
-      }
     },
     "AvailableMoveDates": {
       "type": "object",
@@ -9941,77 +9856,6 @@ func init() {
         }
       }
     },
-    "/personally_procured_moves/incentive": {
-      "get": {
-        "description": "Calculates incentive for a PPM move (excluding SIT)",
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Return a PPM incentive value",
-        "operationId": "showPPMIncentive",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "date",
-            "name": "original_move_date",
-            "in": "query",
-            "required": true
-          },
-          {
-            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-            "type": "string",
-            "format": "zip",
-            "name": "origin_zip",
-            "in": "query",
-            "required": true
-          },
-          {
-            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-            "type": "string",
-            "format": "zip",
-            "name": "origin_duty_location_zip",
-            "in": "query",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "name": "orders_id",
-            "in": "query",
-            "required": true
-          },
-          {
-            "type": "integer",
-            "name": "weight",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Made calculation of PPM incentive",
-            "schema": {
-              "$ref": "#/definitions/PPMIncentive"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "409": {
-            "description": "distance is less than 50 miles (no short haul moves)"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      }
-    },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses": {
       "post": {
         "description": "Creates a moving expense document for the PPM shipment",
@@ -11858,20 +11702,6 @@ func init() {
         "SPACE_FORCE": "Space Force"
       },
       "x-nullable": true
-    },
-    "ApprovePersonallyProcuredMovePayload": {
-      "type": "object",
-      "required": [
-        "approve_date"
-      ],
-      "properties": {
-        "approve_date": {
-          "type": "string",
-          "format": "date-time",
-          "title": "When was the ppm move approved?",
-          "example": "2019-03-26T13:19:56-04:00"
-        }
-      }
     },
     "AvailableMoveDates": {
       "type": "object",

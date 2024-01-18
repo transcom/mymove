@@ -209,7 +209,6 @@ var allowedRoutes = map[string]bool{
 	"move_docs.updateMoveDocument":                true,
 	"moves.showMove":                              true,
 	"office.approveMove":                          true,
-	"office.approvePPM":                           true,
 	"office.approveReimbursement":                 true,
 	"office.cancelMove":                           true,
 	"office.showOfficeOrders":                     true,
