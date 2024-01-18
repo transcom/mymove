@@ -192,6 +192,15 @@ func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params move
 			moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 			mto, err := h.moveTaskOrderStatusUpdater.UpdateStatusServiceCounselingCompleted(appCtx, moveTaskOrderID, eTag)
 
+			if mto.Status == "SERVICE COUNSELING COMPLETED" {
+				emailErr := h.NotificationSender().SendNotification(appCtx,
+					notifications.NewMoveCounselled(moveTaskOrderID),
+				)
+				if emailErr != nil {
+					return handleError(err)
+				}
+			}
+
 			if err != nil {
 				return handleError(err)
 			}
