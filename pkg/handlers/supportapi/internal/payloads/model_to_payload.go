@@ -78,9 +78,6 @@ func Customer(customer *models.ServiceMember) *supportmessages.Customer {
 		UserID:         strfmt.UUID(customer.UserID.String()),
 		ETag:           etag.GenerateEtag(customer.UpdatedAt),
 	}
-	if customer.Rank != nil {
-		payload.Rank = supportmessages.NewRank(supportmessages.Rank(*customer.Rank))
-	}
 	return &payload
 }
 
@@ -93,7 +90,7 @@ func Order(order *models.Order) *supportmessages.Order {
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	uploadedOrders := Document(&order.UploadedOrders)
 	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(*order.Grade)
+		order.Entitlement.SetWeightAllotment(string(*order.Grade))
 	}
 
 	reportByDate := strfmt.Date(order.ReportByDate)

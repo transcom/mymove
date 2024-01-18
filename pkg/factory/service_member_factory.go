@@ -58,7 +58,6 @@ func buildServiceMemberWithBuildType(db *pop.Connection, customs []Customization
 
 	email := "leo_spaceman_sm@example.com"
 	agency := models.AffiliationARMY
-	rank := models.ServiceMemberGradeE1
 
 	// Create random edipi
 	randomEdipi := RandomEdipi()
@@ -74,7 +73,6 @@ func buildServiceMemberWithBuildType(db *pop.Connection, customs []Customization
 		PersonalEmail:        &email,
 		ResidentialAddressID: &resAddress.ID,
 		ResidentialAddress:   &resAddress,
-		Rank:                 &rank,
 	}
 
 	backupAddressResult := findValidCustomization(customs, Addresses.BackupMailingAddress)

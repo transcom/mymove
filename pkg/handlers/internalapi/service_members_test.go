@@ -118,7 +118,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerNoValues() {
 	// These shouldn't return any value or Swagger clients will complain during validation
 	// because the payloads for these objects are defined to require non-null values for most fields
 	// which can't be handled in OpenAPI Spec 2.0. Therefore we don't return them at all.
-	suite.Assertions.Equal((*serviceMemberPayload).Rank, (*internalmessages.ServiceMemberRank)(nil))
+	suite.Assertions.Equal((*serviceMemberPayload).Grade, (*internalmessages.OrderPayGrade)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).Affiliation, (*internalmessages.Affiliation)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).CurrentLocation, (*internalmessages.DutyLocationPayload)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).ResidentialAddress, (*internalmessages.Address)(nil))
@@ -174,8 +174,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	// TODO: add more fields to change
 	var origEdipi = "2342342344"
 	var newEdipi = "9999999999"
-
-	origRank := models.ServiceMemberGradeE1
 
 	origAffiliation := models.AffiliationAIRFORCE
 	newAffiliation := internalmessages.AffiliationARMY
@@ -240,7 +238,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		{
 			Model: models.ServiceMember{
 				Edipi:              &origEdipi,
-				Rank:               &origRank,
 				Affiliation:        &origAffiliation,
 				FirstName:          origFirstName,
 				MiddleName:         origMiddleName,
@@ -260,7 +257,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		},
 	}, nil)
 
-	orderGrade := (string)(models.ServiceMemberGradeE5)
+	orderGrade := models.ServiceMemberGradeE5
 	factory.BuildMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
@@ -278,7 +275,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		},
 	}, nil)
 
-	rank := internalmessages.ServiceMemberRankE1
+	grade := models.ServiceMemberGradeE1
 	resAddress := fakeAddressPayload()
 	backupAddress := fakeAddressPayload()
 	patchPayload := internalmessages.PatchServiceMemberPayload{
@@ -286,7 +283,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		BackupMailingAddress: backupAddress,
 		ResidentialAddress:   resAddress,
 		Affiliation:          &newAffiliation,
-		Rank:                 &rank,
+		Grade:                &grade,
 		EmailIsPreferred:     newEmailIsPreferred,
 		FirstName:            newFirstName,
 		LastName:             newLastName,
@@ -335,7 +332,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	// Editing SM info DutyLocation and Rank fields should edit Orders OriginDutyLocation and Grade fields
 	suite.Equal(*serviceMemberPayload.Orders[0].OriginDutyLocation.Name, newDutyLocation.Name)
 	suite.Equal(serviceMemberPayload.Orders[0].OriginDutyLocationGbloc, &newGBLOC.GBLOC)
-	suite.Equal(*serviceMemberPayload.Orders[0].Grade, (string)(rank))
+	suite.Equal(*serviceMemberPayload.Orders[0].Grade, (string)(grade))
 	suite.NotEqual(*serviceMemberPayload.Orders[0].Grade, orderGrade)
 }
 
@@ -347,8 +344,8 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 
 	// If there are orders and the move has been submitted, then the
 	// affiliation rank, and duty location should not be editable.
-	origRank := models.ServiceMemberGradeE1
-	newRank := internalmessages.ServiceMemberRankE2
+	origGrade := models.ServiceMemberGradeE1
+	newGrade := models.ServiceMemberGradeE2
 
 	origAffiliation := models.AffiliationAIRFORCE
 	newAffiliation := internalmessages.AffiliationARMY
@@ -389,7 +386,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 			Model: models.ServiceMember{
 				UserID:             user.ID,
 				Edipi:              &edipi,
-				Rank:               &origRank,
 				Affiliation:        &origAffiliation,
 				FirstName:          origFirstName,
 				MiddleName:         origMiddleName,
@@ -468,7 +464,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 		MiddleName:           newMiddleName,
 		PersonalEmail:        newPersonalEmail,
 		PhoneIsPreferred:     newPhoneIsPreferred,
-		Rank:                 &newRank,
+		Grade:                &newGrade,
 		SecondaryTelephone:   newSecondaryTelephone,
 		Suffix:               newSuffix,
 		Telephone:            newTelephone,
@@ -498,7 +494,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	// These fields should not change (they should still be the original
 	// values) after the move has been submitted.
 	suite.Equal(origAffiliation, models.ServiceMemberAffiliation(*serviceMemberPayload.Affiliation))
-	suite.Equal(origRank, models.ServiceMemberGrade(*serviceMemberPayload.Rank))
+	suite.Equal(origGrade, internalmessages.OrderPayGrade(*serviceMemberPayload.Grade))
 	suite.Equal(origDutyLocation.ID.String(), string(*serviceMemberPayload.CurrentLocation.ID))
 
 	// These fields should change even if the move is submitted.

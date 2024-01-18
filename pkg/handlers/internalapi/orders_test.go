@@ -78,7 +78,6 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	suite.Assertions.Equal(handlers.FmtString("SacNumber"), okResponse.Payload.Sac)
 	suite.Assertions.Equal(&deptIndicator, okResponse.Payload.DepartmentIndicator)
 	suite.Equal(sm.DutyLocationID, createdOrder.OriginDutyLocationID)
-	suite.Equal((*string)(sm.Rank), createdOrder.Grade)
 	suite.Assertions.Equal(*models.Int64Pointer(8000), *okResponse.Payload.AuthorizedWeight)
 	suite.NotNil(&createdOrder.Entitlement)
 	suite.NotEmpty(createdOrder.SupplyAndServicesCostEstimate)
