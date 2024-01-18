@@ -98,7 +98,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 				UserID:               appCtx.Session().UserID,
 				Edipi:                params.CreateServiceMemberPayload.Edipi,
 				Affiliation:          (*models.ServiceMemberAffiliation)(params.CreateServiceMemberPayload.Affiliation),
-				Rank:                 (*models.ServiceMemberRank)(params.CreateServiceMemberPayload.Rank),
+				Rank:                 (*models.ServiceMemberGrade)(params.CreateServiceMemberPayload.Rank),
 				FirstName:            params.CreateServiceMemberPayload.FirstName,
 				MiddleName:           params.CreateServiceMemberPayload.MiddleName,
 				LastName:             params.CreateServiceMemberPayload.LastName,
@@ -272,7 +272,7 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(appCtx appconte
 		}
 
 		if payload.Rank != nil {
-			serviceMember.Rank = (*models.ServiceMemberRank)(payload.Rank)
+			serviceMember.Rank = (*models.ServiceMemberGrade)(payload.Rank)
 		}
 	}
 	if payload.Edipi != nil {
