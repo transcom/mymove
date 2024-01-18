@@ -27,17 +27,17 @@ const validationShape = {
   useCurrentResidence: Yup.boolean(),
   hasSecondaryPickup: Yup.boolean(),
   useCurrentDestinationAddress: Yup.boolean(),
-  // secondaryPickupPostalCode: Yup.string().when('hasSecondaryPickup', {
-  //   is: true,
-  //   then: (schema) => schema.matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
-  // }),
-  // useDestinationDutyLocationZIP: Yup.boolean(),
-  // destinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
-  // hasSecondaryDestinationPostalCode: Yup.boolean().required('Required'),
-  // secondaryDestinationPostalCode: Yup.string().when('hasSecondaryDestinationPostalCode', {
-  //  is: true,
-  //  then: (schema) => schema.matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
-  // }),
+  secondaryPickupPostalCode: Yup.string().when('hasSecondaryPickup', {
+    is: true,
+    then: (schema) => schema.matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
+  }),
+  useDestinationDutyLocationZIP: Yup.boolean(),
+  destinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
+  hasSecondaryDestinationPostalCode: Yup.boolean().required('Required'),
+  secondaryDestinationPostalCode: Yup.string().when('hasSecondaryDestinationPostalCode', {
+    is: true,
+    then: (schema) => schema.matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
+  }),
   sitExpected: Yup.boolean().required('Required'),
   expectedDepartureDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
