@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -33,7 +34,7 @@ func NewOfficeProgearWeightTicketUpdater() services.ProgearWeightTicketUpdater {
 // UpdateProgearWeightTicket updates a progearWeightTicket
 func (f *progearWeightTicketUpdater) UpdateProgearWeightTicket(appCtx appcontext.AppContext, progearWeightTicket models.ProgearWeightTicket, eTag string) (*models.ProgearWeightTicket, error) {
 	// get existing ProgearWeightTicket
-	originalProgearWeightTicket, err := FetchProgearWeightTicketByIDExcludeDeletedUploads(appCtx, progearWeightTicket.ID)
+	originalProgearWeightTicket, err := FetchProgearWeightTicketByIDExcludeDeletedUploads(appCtx, uuid.Nil, progearWeightTicket.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +91,32 @@ func mergeProgearWeightTicket(progearWeightTicket models.ProgearWeightTicket, or
 	return mergedProgearWeightTicket
 }
 
-func FetchProgearWeightTicketByIDExcludeDeletedUploads(appContext appcontext.AppContext, progearWeightTicketID uuid.UUID) (*models.ProgearWeightTicket, error) {
+func FetchProgearWeightTicketByIDExcludeDeletedUploads(appContext appcontext.AppContext, ppmID uuid.UUID, progearWeightTicketID uuid.UUID) (*models.ProgearWeightTicket, error) {
+	if ppmID != uuid.Nil {
+		var ppmShipment models.PPMShipment
+		err := appContext.DB().Scope(utilities.ExcludeDeletedScope()).
+			EagerPreload(
+				"Shipment.MoveTaskOrder.Orders",
+				"ProgearWeightTickets",
+			).
+			Find(&ppmShipment, ppmID)
+
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return nil, apperror.NewNotFoundError(progearWeightTicketID, "while looking for ProgearWeightTicket")
+			default:
+				return nil, apperror.NewQueryError("ProgearWeightTicket fetch original", err, "")
+			}
+		}
+
+		if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appContext.Session().ServiceMemberID {
+			wrongServiceMemberIDErr := apperror.NewSessionError("Attempted delete by wrong service member")
+			appContext.Logger().Error("internalapi.DeleteProgearWeightTicketHandler", zap.Error(wrongServiceMemberIDErr))
+			return nil, wrongServiceMemberIDErr
+		}
+	}
+
 	var progearWeightTicket models.ProgearWeightTicket
 	findProgearWeightTicketQuery := appContext.DB().Q().Scope(utilities.ExcludeDeletedScope(models.ProgearWeightTicket{})).EagerPreload(
 		"Document.UserUploads.Upload",

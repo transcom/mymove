@@ -425,7 +425,7 @@ func (suite *ProgearWeightTicketSuite) TestFetchProgearWeightTicketByIDExcludeDe
 			ApplicationName: auth.MilApp,
 			ServiceMemberID: serviceMember.ID,
 		})
-		fetchedProgearWeightTicket, err := FetchProgearWeightTicketByIDExcludeDeletedUploads(session, progearWeightTicket.ID)
+		fetchedProgearWeightTicket, err := FetchProgearWeightTicketByIDExcludeDeletedUploads(session, uuid.Nil, progearWeightTicket.ID)
 		suite.NoError(err)
 		suite.Equal(progearWeightTicket.ID, fetchedProgearWeightTicket.ID)
 	})
@@ -439,7 +439,7 @@ func (suite *ProgearWeightTicketSuite) TestFetchProgearWeightTicketByIDExcludeDe
 		progearID := uuid.Must(uuid.NewV4())
 		expectedError := apperror.NewNotFoundError(progearID, "while looking for ProgearWeightTicket")
 
-		progear, err := FetchProgearWeightTicketByIDExcludeDeletedUploads(session, progearID)
+		progear, err := FetchProgearWeightTicketByIDExcludeDeletedUploads(session, uuid.Nil, progearID)
 
 		suite.Nil(progear)
 		suite.Equalf(err, expectedError, "while looking for ProgearWeightTicket")
@@ -451,7 +451,7 @@ func (suite *ProgearWeightTicketSuite) TestFetchProgearWeightTicketByIDExcludeDe
 			ServiceMemberID: uuid.Must(uuid.NewV4()),
 		})
 
-		progear, err := FetchProgearWeightTicketByIDExcludeDeletedUploads(maliciousSession, progearWeightTicket.ID)
+		progear, err := FetchProgearWeightTicketByIDExcludeDeletedUploads(maliciousSession, uuid.Nil, progearWeightTicket.ID)
 		suite.Error(err)
 		suite.Nil(progear)
 		suite.IsType(apperror.NotFoundError{}, err)
