@@ -106,7 +106,6 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 	}
 
 	// Checks that SITDestinationFinalAddress isn't updated through this endpoint
-	// Should use the createSITAddressUpdate endpoint
 	err = serviceItemData.checkSITDestinationFinalAddress(appCtx)
 	if err != nil {
 		return err
@@ -269,12 +268,15 @@ func (v *updateMTOServiceItemData) checkOldServiceItemStatus(_ appcontext.AppCon
 
 			// Fields allowed to changed when status is approved
 			if serviceItemData.updatedServiceItem.SITDepartureDate != nil {
+				serviceItemData.updatedServiceItem.Status = models.MTOServiceItemStatusApproved
 				return nil
 			}
 			if serviceItemData.updatedServiceItem.SITRequestedDelivery != nil {
+				serviceItemData.updatedServiceItem.Status = models.MTOServiceItemStatusApproved
 				return nil
 			}
 			if serviceItemData.updatedServiceItem.SITCustomerContacted != nil {
+				serviceItemData.updatedServiceItem.Status = models.MTOServiceItemStatusApproved
 				return nil
 			}
 

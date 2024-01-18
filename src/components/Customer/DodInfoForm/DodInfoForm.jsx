@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
-import { ORDERS_RANK_OPTIONS } from 'constants/orders';
+import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 import { Form } from 'components/form/Form';
 import TextField from 'components/form/fields/TextField/TextField';
@@ -15,14 +15,14 @@ import formStyles from 'styles/form.module.scss';
 
 const DodInfoForm = ({ initialValues, onSubmit, onBack }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
-  const rankOptions = dropdownInputOptions(ORDERS_RANK_OPTIONS);
+  const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
   const validationSchema = Yup.object().shape({
     affiliation: Yup.mixed().oneOf(Object.keys(SERVICE_MEMBER_AGENCY_LABELS)).required('Required'),
     edipi: Yup.string()
       .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
       .required('Required'),
-    rank: Yup.mixed().oneOf(Object.keys(ORDERS_RANK_OPTIONS)).required('Required'),
+    grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
   });
 
   return (
@@ -49,7 +49,7 @@ const DodInfoForm = ({ initialValues, onSubmit, onBack }) => {
                 inputMode="numeric"
                 pattern="[0-9]{10}"
               />
-              <DropdownInput label="Rank" name="rank" id="rank" required options={rankOptions} />
+              <DropdownInput label="Pay grade" name="grade" id="grade" required options={payGradeOptions} />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
@@ -70,7 +70,7 @@ DodInfoForm.propTypes = {
   initialValues: PropTypes.shape({
     affiliation: PropTypes.string,
     edipi: PropTypes.string,
-    rank: PropTypes.string,
+    grade: PropTypes.string,
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,

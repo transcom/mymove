@@ -30,7 +30,7 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
       {({ isValid, isSubmitting, handleChange, handleSubmit, setFieldTouched }) => {
         return (
           <Form className={formStyles.form}>
-            <h1>Current pickup address</h1>
+            <h1>Current address</h1>
             <p className={styles.noBottomMargin}>Must be a physical address.</p>
             <SectionWrapper className={classnames(styles.noTopMargin, formStyles.formSection)}>
               <AddressFields

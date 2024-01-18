@@ -75,9 +75,6 @@ const PrimeSimulatorUploadServiceRequestDocuments = lazy(() =>
   import('pages/PrimeUI/UploadServiceRequestDocuments/UploadServiceRequestDocuments'),
 );
 const PrimeSimulatorCreateServiceItem = lazy(() => import('pages/PrimeUI/CreateServiceItem/CreateServiceItem'));
-const PrimeSimulatorUpdateServiceItems = lazy(() =>
-  import('pages/PrimeUI/UpdateServiceItems/PrimeUIUpdateServiceItems'),
-);
 const PrimeSimulatorUpdateSitServiceItem = lazy(() =>
   import('pages/PrimeUI/UpdateServiceItems/PrimeUIUpdateSitServiceItem'),
 );
@@ -85,6 +82,9 @@ const PrimeUIShipmentUpdateAddress = lazy(() => import('pages/PrimeUI/Shipment/P
 const PrimeUIShipmentUpdateReweigh = lazy(() => import('pages/PrimeUI/Shipment/PrimeUIShipmentUpdateReweigh'));
 const PrimeSimulatorCreateSITExtensionRequest = lazy(() =>
   import('pages/PrimeUI/CreateSITExtensionRequest/CreateSITExtensionRequest'),
+);
+const PrimeUIShipmentUpdateDestinationAddress = lazy(() =>
+  import('pages/PrimeUI/Shipment/PrimeUIShipmentUpdateDestinationAddress'),
 );
 
 const QAECSRMoveSearch = lazy(() => import('pages/Office/QAECSRMoveSearch/QAECSRMoveSearch'));
@@ -295,6 +295,15 @@ export class OfficeApp extends Component {
                         </PrivateRoute>
                       }
                     />
+                    <Route
+                      key="tooCounselingMoveInfoRoute"
+                      path={`${tooRoutes.BASE_SHIPMENT_ADVANCE_PATH_TOO}/*`}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                          <ServicesCounselingMoveInfo />
+                        </PrivateRoute>
+                      }
+                    />
                     {/* PRIME SIMULATOR */}
                     <Route
                       key="primeSimulatorMovePath"
@@ -371,15 +380,6 @@ export class OfficeApp extends Component {
                       }
                     />
                     <Route
-                      key="primeSimulatorUpdateServiceItems"
-                      path={primeSimulatorRoutes.UPDATE_SERVICE_ITEMS_PATH}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
-                          <PrimeSimulatorUpdateServiceItems />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
                       key="primeSimulatorUpdateSitServiceItems"
                       path={primeSimulatorRoutes.UPDATE_SIT_SERVICE_ITEM_PATH}
                       element={
@@ -403,6 +403,15 @@ export class OfficeApp extends Component {
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
                           <PrimeSimulatorCreateSITExtensionRequest />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      key="primeSimulatorUpdateDestinationAddressPath"
+                      path={primeSimulatorRoutes.SHIPMENT_UPDATE_DESTINATION_ADDRESS_PATH}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                          <PrimeUIShipmentUpdateDestinationAddress />
                         </PrivateRoute>
                       }
                     />

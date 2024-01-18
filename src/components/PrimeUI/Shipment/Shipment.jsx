@@ -56,8 +56,8 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
 
   return (
     <dl className={descriptionListStyles.descriptionList}>
+      <h3>{`${shipmentTypeLabels[shipment.shipmentType]} shipment`}</h3>
       <div className={classnames(descriptionListStyles.row, styles.shipmentHeader)}>
-        <h3>{`${shipmentTypeLabels[shipment.shipmentType]} shipment`}</h3>
         {moveId && (
           <>
             {!shipment.ppmShipment && hasSITServiceItem() && (
@@ -71,6 +71,13 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
             )}
             <Link to={`../shipments/${shipment.id}`} relative="path" className="usa-button usa-button-secondary">
               Update Shipment
+            </Link>
+            <Link
+              to={`../shipments/${shipment.id}/updateDestinationAddress`}
+              relative="path"
+              className="usa-button usa-button-secondary"
+            >
+              Update Shipment Destination Address
             </Link>
             {shipment.shipmentType === SHIPMENT_OPTIONS.PPM &&
               shipment.ppmShipment &&
@@ -173,7 +180,7 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
         <dd>
           {shipmentDestinationTypes[shipment.destinationType]
             ? shipmentDestinationTypes[shipment.destinationType]
-            : '-'}
+            : '—'}
         </dd>
       </div>
       <div className={descriptionListStyles.row}>

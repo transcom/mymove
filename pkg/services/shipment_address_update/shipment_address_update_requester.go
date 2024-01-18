@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -32,6 +33,20 @@ func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator ser
 		addressCreator: addressCreator,
 		moveRouter:     moveRouter,
 	}
+}
+
+func (f *shipmentAddressUpdateRequester) isAddressChangeDistanceOver50(appCtx appcontext.AppContext, addressUpdate models.ShipmentAddressUpdate) (bool, error) {
+
+	//We calculate and set the distance between the old and new address
+	distance, err := f.planner.ZipTransitDistance(appCtx, addressUpdate.OriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode)
+	if err != nil {
+		return false, err
+	}
+
+	if distance <= 50 {
+		return false, nil
+	}
+	return true, nil
 }
 
 func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeServiceArea(appCtx appcontext.AppContext, contractID uuid.UUID, originalDeliveryAddress models.Address, newDeliveryAddress models.Address) (bool, error) {
@@ -235,6 +250,14 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 			return nil, err
 		}
 	}
+
+	if !updateNeedsTOOReview {
+		updateNeedsTOOReview, err = f.isAddressChangeDistanceOver50(appCtx, addressUpdate)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	if updateNeedsTOOReview {
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusRequested
 	}
@@ -248,17 +271,44 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 			return apperror.NewQueryError("ShipmentAddressUpdate", txnErr, "error saving shipment address update request")
 		}
 
+		//Get the move
+		var move models.Move
+		err := txnAppCtx.DB().Find(&move, shipment.MoveTaskOrderID)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return apperror.NewNotFoundError(shipment.MoveTaskOrderID, "looking for Move")
+			default:
+				return apperror.NewQueryError("Move", err, "unable to retrieve move")
+			}
+		}
+
+		existingMoveStatus := move.Status
 		if updateNeedsTOOReview {
 			err = f.moveRouter.SendToOfficeUser(appCtx, &shipment.MoveTaskOrder)
 			if err != nil {
 				return err
 			}
+
+			// Only update if the move status has actually changed
+			if existingMoveStatus != move.Status {
+				err = txnAppCtx.DB().Update(&move)
+				if err != nil {
+					return err
+				}
+			}
 		} else {
 			shipment.DestinationAddressID = &addressUpdate.NewAddressID
+
+			// Update MTO Shipment Destination Service Items
+			err = mtoshipment.UpdateDestinationSITServiceItemsAddress(appCtx, &shipment)
+			if err != nil {
+				return err
+			}
 		}
 
 		// If the request needs TOO review, this will just update the UpdatedAt timestamp on the shipment
-		verrs, err := appCtx.DB().ValidateAndUpdate(&shipment)
+		verrs, err = appCtx.DB().ValidateAndUpdate(&shipment)
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(
 				shipment.ID, err, verrs, "Invalid input found while updating shipment")
@@ -356,6 +406,13 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(
 				shipment.ID, err, verrs, "Invalid input found while updating shipment")
+		}
+		if err != nil {
+			return err
+		}
+
+		if len(shipment.MTOServiceItems) > 0 {
+			err = mtoshipment.UpdateDestinationSITServiceItemsAddress(appCtx, &shipment)
 		}
 		if err != nil {
 			return err

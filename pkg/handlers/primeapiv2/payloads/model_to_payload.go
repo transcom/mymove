@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -831,4 +832,30 @@ func InternalServerError(detail *string, traceID uuid.UUID) *primev2messages.Err
 		payload.Detail = detail
 	}
 	return &payload
+}
+
+// ValidationError describes validation errors from the model or properties
+func ValidationError(detail string, instance uuid.UUID, validationErrors *validate.Errors) *primev2messages.ValidationError {
+	payload := &primev2messages.ValidationError{
+		ClientError: *ClientError(handlers.ValidationErrMessage, detail, instance),
+	}
+	if validationErrors != nil {
+		payload.InvalidFields = handlers.NewValidationErrorListResponse(validationErrors).Errors
+	}
+	return payload
+}
+
+// MTOShipment converts MTOShipment model to payload
+func MTOShipment(mtoShipment *models.MTOShipment) *primev2messages.MTOShipment {
+	payload := &primev2messages.MTOShipment{
+		MTOShipmentWithoutServiceItems: *MTOShipmentWithoutServiceItems(mtoShipment),
+	}
+
+	if mtoShipment.MTOServiceItems != nil {
+		payload.SetMtoServiceItems(*MTOServiceItems(&mtoShipment.MTOServiceItems))
+	} else {
+		payload.SetMtoServiceItems([]primev2messages.MTOServiceItem{})
+	}
+
+	return payload
 }

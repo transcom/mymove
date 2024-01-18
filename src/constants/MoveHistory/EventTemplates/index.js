@@ -62,3 +62,8 @@ export { default as approveSITAddressUpdate } from './UpdateSITAddress/ApproveSI
 export { default as rejectSITAddressUpdate } from './UpdateSITAddress/RejectSITAddressUpdate';
 export { default as createSITAddressUpdate } from './UpdateSITAddress/CreateSITAddressUpdate';
 export { default as updateMTOShipmentPPMDetails } from './UpdateMTOShipment/UpdateMTOShipmentPPMDetails';
+export { default as updateWeightTicket } from './UpdateWeightTicket/UpdateWeightTicket';
+export { default as updateMovingExpense } from './UpdateMovingExpense/UpdateMovingExpense';
+export { default as updateWeightTicketProGear } from './UpdateWeightTicket/updateWeightTicketProGear';
+export { default as createMTOShipmentPPMDetails } from './CreateMTOShipment/createMTOShipmentPPMDetails';
+export { default as deleteShipmentPPM } from './DeleteShipment/DeleteShipmentPPM';

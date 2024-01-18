@@ -285,6 +285,12 @@ paths:
     post:
       summary: createMTOShipment
       description: >
+        _[Deprecated: sunset on 2024-04-08]_ This endpoint is deprecated and
+        will be removed in a future version.
+
+        Please use the new endpoint at `/prime/v2/createMTOShipment` instead.
+
+
         Creates a new shipment within the specified move. This endpoint should
         be used whenever the movers identify a
 
@@ -635,7 +641,7 @@ paths:
           $ref: '#/responses/ServerError'
   /mto-shipments/{mtoShipmentID}/shipment-address-updates:
     post:
-      summary: createNonSITAddressUpdateRequest
+      summary: updateShipmentDestinationAddress
       description: >
         ### Functionality
 
@@ -644,17 +650,20 @@ paths:
 
         after the destination address has already been approved.
 
-        This does not change addresses on SIT service items.
+        If automatically approved or TOO approves, this will update the final
+        destination address values for destination SIT service items to be the
+        same as the changed destination address that was approved.
 
         Address updates will be automatically approved unless they change:
-          - the service area
+          - The service area
           - Mileage bracket for direct delivery
+          - the address and the distance between the old and new address is > 50
           - Domestic Short Haul to Domestic Line Haul or vice versa
               - Shipments that start and end in one ZIP3 use Short Haul pricing
               - Shipments that start and end in different ZIP3s use Line Haul pricing
 
         For those, changes will require TOO approval.
-      operationId: createNonSITAddressUpdateRequest
+      operationId: updateShipmentDestinationAddress
       tags:
         - mtoShipment
       consumes:
@@ -672,7 +681,7 @@ paths:
           required: true
           name: body
           schema:
-            $ref: '#/definitions/CreateNonSITAddressUpdateRequest'
+            $ref: '#/definitions/UpdateShipmentDestinationAddress'
         - in: header
           name: If-Match
           type: string
@@ -949,6 +958,8 @@ paths:
           $ref: '#/responses/NotFound'
         '412':
           $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
   /mto-shipments/{mtoShipmentID}/sit-extensions:
@@ -1392,6 +1403,32 @@ paths:
 
         If `WeightBilled` is not provided then the full shipment weight
         (`PrimeActualWeight`) will be considered in the calculation.
+
+
+        **NOTE**: Diversions have a unique calcuation for payment requests
+        without a `WeightBilled` parameter.
+
+
+        If you created a payment request for a diversion and `WeightBilled` is
+        not provided, then the following will be used in the calculation:
+
+        - The lowest shipment weight (`PrimeActualWeight`) found in the diverted
+        shipment chain.
+
+        - The lowest reweigh weight found in the diverted shipment chain.
+
+
+        The diverted shipment chain is created by referencing the `diversion`
+        boolean, `divertedFromShipmentId` UUID, and matching destination to
+        pickup addresses.
+
+        If the chain cannot be established it will fall back to the
+        `PrimeActualWeight` of the current shipment. This is utilized because
+        diverted shipments are all one single shipment, but going to different
+        locations.
+
+        The lowest weight found is the true shipment weight, and thus we search
+        the chain of shipments for the lowest weight found.
 
 
         **DOFSIT - Domestic origin 1st day SIT**
@@ -2362,10 +2399,10 @@ definitions:
         readOnly: true
     allOf:
       - $ref: '#/definitions/MTOShipmentWithoutServiceItems'
-  CreateNonSITAddressUpdateRequest:
+  UpdateShipmentDestinationAddress:
     description: >-
-      CreateNonSITAddressUpdateRequest contains the fields required for the
-      prime to create a non SIT address update request.
+      UpdateShipmentDestinationAddress contains the fields required for the
+      prime to request an update for the destination address on an MTO Shipment.
     type: object
     properties:
       newAddress:

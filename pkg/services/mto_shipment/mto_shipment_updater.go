@@ -9,6 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/jinzhu/copier"
 	"github.com/pkg/errors"
+	"golang.org/x/exp/slices"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -356,6 +357,11 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 		return nil, err
 	}
 	updatedShipment.MTOAgents = updatedAgents
+
+	err = UpdateDestinationSITServiceItemsAddress(appCtx, updatedShipment)
+	if err != nil {
+		return nil, err
+	}
 
 	return updatedShipment, nil
 }
@@ -992,4 +998,48 @@ func (f mtoShipmentUpdater) MTOShipmentsMTOAvailableToPrime(appCtx appcontext.Ap
 		return false, err
 	}
 	return true, nil
+}
+
+// UpdateDestinationSITServiceItemsAddress updates destination SIT service items attached to a shipment
+// this updates the final_destination_address to be the same as the shipment's destination_address
+func UpdateDestinationSITServiceItemsAddress(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
+	// getting the shipment and service items with code in case they weren't passed in
+	eagerAssociations := []string{"MTOServiceItems.ReService.Code"}
+	mtoShipment, err := FindShipment(appCtx, shipment.ID, eagerAssociations...)
+	if err != nil {
+		return err
+	}
+
+	mtoServiceItems := mtoShipment.MTOServiceItems
+
+	// Only update these serviceItems address ID
+	serviceItemsToUpdate := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDSFSC}
+
+	for _, serviceItem := range mtoServiceItems {
+
+		// Only update the address ID if it is not up to date with the shipment destination address ID
+		if slices.Contains(serviceItemsToUpdate, serviceItem.ReService.Code) && serviceItem.SITDestinationFinalAddressID != shipment.DestinationAddressID {
+
+			newServiceItem := serviceItem
+			newServiceItem.SITDestinationFinalAddressID = shipment.DestinationAddressID
+
+			transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
+				// update service item final destination address ID to match shipment address ID
+				verrs, err := txnCtx.DB().ValidateAndUpdate(&newServiceItem)
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(shipment.ID, err, verrs, "invalid input found while updating final destination address of service item")
+				} else if err != nil {
+					return apperror.NewQueryError("Service item", err, "")
+				}
+
+				return nil
+			})
+
+			if transactionError != nil {
+				return transactionError
+			}
+		}
+	}
+
+	return nil
 }

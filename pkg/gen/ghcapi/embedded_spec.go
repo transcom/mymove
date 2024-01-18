@@ -924,65 +924,6 @@ func init() {
           }
         }
       },
-      "patch": {
-        "description": "Updates a service item by ID for a move by ID",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoServiceItem"
-        ],
-        "summary": "Updates a service item by ID for a move by ID",
-        "operationId": "updateMTOServiceItem",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
-            }
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully updated move task order status",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "412": {
-            "$ref": "#/responses/PreconditionFailed"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        },
-        "x-permissions": [
-          "update.MTOServiceItem"
-        ]
-      },
       "parameters": [
         {
           "type": "string",
@@ -2742,6 +2683,50 @@ func init() {
         ]
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/closeout": {
+      "get": {
+        "description": "Retrieves the closeout calculations for the specified PPM shipment.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Get the closeout calcuations for the specified PPM shipment",
+        "operationId": "getPPMCloseout",
+        "responses": {
+          "200": {
+            "description": "Returns closeout for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/PPMCloseout"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/finish-document-review": {
       "patch": {
         "description": "Updates a PPM shipment's status once documents have been reviewed. Status is updated depending on whether any documents have been rejected.\n",
@@ -3672,66 +3657,6 @@ func init() {
         }
       ]
     },
-    "/service-items/{mtoServiceItemID}/sit-address-update": {
-      "post": {
-        "description": "TOO can create an already-approved SIT Address Update on behalf of a customer",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoServiceItem"
-        ],
-        "summary": "Create an approved SIT Address Update",
-        "operationId": "createSITAddressUpdate",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "ID of line item to use",
-            "name": "mtoServiceItemID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/CreateSITAddressUpdate"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully created a SIT Address Update.",
-            "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        },
-        "x-permissions": [
-          "create.SITAddressUpdate"
-        ]
-      }
-    },
     "/shipments/{shipmentID}": {
       "get": {
         "description": "fetches a shipment by ID",
@@ -4556,9 +4481,9 @@ func init() {
         }
       ]
     },
-    "/sit-address-update/{sitAddressUpdateID}/approve": {
+    "/shipments/{shipmentID}/sit-service-item/convert-to-customer-expense": {
       "patch": {
-        "description": "This endpoint is used to approve a SIT address update. Office remarks are required. Approving the SIT address update will update the SIT Destination Final Address of the associated service item",
+        "description": "Converts a SIT to customer expense",
         "consumes": [
           "application/json"
         ],
@@ -4566,17 +4491,18 @@ func init() {
           "application/json"
         ],
         "tags": [
+          "shipment",
           "mtoServiceItem"
         ],
-        "summary": "Approves a SIT Address Update",
-        "operationId": "approveSITAddressUpdate",
+        "summary": "Converts a SIT to customer expense",
+        "operationId": "updateSITServiceItemCustomerExpense",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/PatchSITAddressUpdateStatus"
+              "$ref": "#/definitions/UpdateSITServiceItemCustomerExpense"
             }
           },
           {
@@ -4588,22 +4514,19 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully approved a SIT address update",
+            "description": "Successfully converted to customer expense",
             "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
+              "$ref": "#/definitions/MTOShipment"
             }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
             "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
           },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
@@ -4616,90 +4539,15 @@ func init() {
           }
         },
         "x-permissions": [
-          "update.MTOServiceItem",
-          "update.SITAddressUpdate"
+          "update.MTOServiceItem"
         ]
       },
       "parameters": [
         {
           "type": "string",
           "format": "uuid",
-          "description": "ID of the sit address update",
-          "name": "sitAddressUpdateID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/sit-address-update/{sitAddressUpdateID}/reject": {
-      "patch": {
-        "description": "This endpoint is used to reject a requested SIT address update. Office remarks are required. Rejecting the SIT address update will not update the SIT Destination Final Address.",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoServiceItem"
-        ],
-        "summary": "Rejects a SIT Address Update",
-        "operationId": "rejectSITAddressUpdate",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/PatchSITAddressUpdateStatus"
-            }
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully rejected a SIT address update",
-            "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "412": {
-            "$ref": "#/responses/PreconditionFailed"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        },
-        "x-permissions": [
-          "update.SITAddressUpdate"
-        ]
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of the sit address update",
-          "name": "sitAddressUpdateID",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
           "in": "path",
           "required": true
         }
@@ -5480,21 +5328,6 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
-        }
-      }
-    },
-    "CreateSITAddressUpdate": {
-      "required": [
-        "newAddress",
-        "officeRemarks"
-      ],
-      "properties": {
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "officeRemarks": {
-          "description": "Remarks from TOO about SIT Address Update creation",
-          "type": "string"
         }
       }
     },
@@ -6312,12 +6145,21 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "convertToCustomerExpense": {
+          "type": "boolean",
+          "x-omitempty": false,
+          "example": false
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time"
         },
         "customerContacts": {
           "$ref": "#/definitions/MTOServiceItemCustomerContacts"
+        },
+        "customerExpenseReason": {
+          "type": "string",
+          "x-nullable": true
         },
         "deletedAt": {
           "type": "string",
@@ -6535,10 +6377,19 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "convertToCustomerExpense": {
+          "type": "boolean",
+          "x-omitempty": false,
+          "example": false
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "customerExpenseReason": {
+          "type": "string",
+          "x-nullable": true
         },
         "deletedAt": {
           "type": "string",
@@ -7665,6 +7516,145 @@ func init() {
       ],
       "x-nullable": true
     },
+    "PPMCloseout": {
+      "description": "The calculations needed in the \"Review Documents\" section of a PPM closeout. LIst of all expenses/reimbursements related toa PPM shipment.",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "SITReimbursement": {
+          "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualMoveDate": {
+          "description": "The actual start date of when the PPM shipment left the origin.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "aoa": {
+          "description": "Advance Operating Allowance (AOA).",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ddp": {
+          "description": "The Domestic Destination Price (DDP).",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "dop": {
+          "description": "The Domestic Origin Price (DOP).",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "estimatedWeight": {
+          "description": "The estimated weight of the PPM shipment goods being moved.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4200
+        },
+        "gcc": {
+          "description": "Government Constructive Cost (GCC)",
+          "type": "integer",
+          "format": "cents",
+          "title": "GCC",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "grossIncentive": {
+          "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "haulFSC": {
+          "description": "The linehaul/shorthaul Fuel Surcharge (FSC).",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "haulPrice": {
+          "description": "The price of the linehaul or shorthaul.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "id": {
+          "description": "Primary auto-generated unique identifier of the PPM shipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "miles": {
+          "description": "The distance between the old address and the new address in miles.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 54
+        },
+        "packPrice": {
+          "description": "The full price of all packing/unpacking services.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "plannedMoveDate": {
+          "description": "Date the customer expects to begin their move.\n",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "proGearWeightCustomer": {
+          "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "proGearWeightSpouse": {
+          "description": "The estimated weight of the pro-gear being moved belonging to a spouse.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "remainingReimbursementOwed": {
+          "description": "The remaining reimbursement amount that is still owed to the customer.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "unpackPrice": {
+          "description": "The full price of all packing/unpacking services.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        }
+      }
+    },
     "PPMDocumentStatus": {
       "description": "Status of the PPM document.",
       "type": "string",
@@ -8062,18 +8052,6 @@ func init() {
             "APPROVED",
             "REJECTED"
           ]
-        }
-      }
-    },
-    "PatchSITAddressUpdateStatus": {
-      "required": [
-        "officeRemarks"
-      ],
-      "properties": {
-        "officeRemarks": {
-          "description": "Reason the SIT address update was approved or rejected",
-          "type": "string",
-          "example": "Insufficient details provided"
         }
       }
     },
@@ -8824,6 +8802,11 @@ func init() {
                 "ORIGIN",
                 "DESTINATION"
               ]
+            },
+            "serviceItemID": {
+              "type": "string",
+              "format": "uuid",
+              "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
             },
             "sitAllowanceEndDate": {
               "type": "string",
@@ -9784,6 +9767,23 @@ func init() {
         }
       }
     },
+    "UpdateSITServiceItemCustomerExpense": {
+      "required": [
+        "convertToCustomerExpense",
+        "customerExpenseReason"
+      ],
+      "properties": {
+        "convertToCustomerExpense": {
+          "type": "boolean",
+          "example": true
+        },
+        "customerExpenseReason": {
+          "description": "Reason the service item was rejected",
+          "type": "string",
+          "example": "Insufficent details provided"
+        }
+      }
+    },
     "UpdateShipment": {
       "type": "object",
       "properties": {
@@ -9903,6 +9903,10 @@ func init() {
       "properties": {
         "adjustedNetWeight": {
           "description": "Indicates the adjusted net weight of the vehicle",
+          "type": "integer"
+        },
+        "allowableWeight": {
+          "description": "Indicates the maximum reimbursable weight of the shipment",
           "type": "integer"
         },
         "emptyWeight": {
@@ -10036,6 +10040,12 @@ func init() {
       "properties": {
         "adjustedNetWeight": {
           "description": "Indicates the adjusted net weight of the vehicle",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "allowableWeight": {
+          "description": "Maximum reimbursable weight.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
@@ -11504,83 +11514,6 @@ func init() {
           }
         }
       },
-      "patch": {
-        "description": "Updates a service item by ID for a move by ID",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoServiceItem"
-        ],
-        "summary": "Updates a service item by ID for a move by ID",
-        "operationId": "updateMTOServiceItem",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
-            }
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully updated move task order status",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "412": {
-            "description": "Precondition failed",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        },
-        "x-permissions": [
-          "update.MTOServiceItem"
-        ]
-      },
       "parameters": [
         {
           "type": "string",
@@ -13794,6 +13727,70 @@ func init() {
         ]
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/closeout": {
+      "get": {
+        "description": "Retrieves the closeout calculations for the specified PPM shipment.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Get the closeout calcuations for the specified PPM shipment",
+        "operationId": "getPPMCloseout",
+        "responses": {
+          "200": {
+            "description": "Returns closeout for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/PPMCloseout"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/finish-document-review": {
       "patch": {
         "description": "Updates a PPM shipment's status once documents have been reviewed. Status is updated depending on whether any documents have been rejected.\n",
@@ -14945,81 +14942,6 @@ func init() {
         }
       ]
     },
-    "/service-items/{mtoServiceItemID}/sit-address-update": {
-      "post": {
-        "description": "TOO can create an already-approved SIT Address Update on behalf of a customer",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoServiceItem"
-        ],
-        "summary": "Create an approved SIT Address Update",
-        "operationId": "createSITAddressUpdate",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "ID of line item to use",
-            "name": "mtoServiceItemID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/CreateSITAddressUpdate"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully created a SIT Address Update.",
-            "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        },
-        "x-permissions": [
-          "create.SITAddressUpdate"
-        ]
-      }
-    },
     "/shipments/{shipmentID}": {
       "get": {
         "description": "fetches a shipment by ID",
@@ -16066,9 +15988,9 @@ func init() {
         }
       ]
     },
-    "/sit-address-update/{sitAddressUpdateID}/approve": {
+    "/shipments/{shipmentID}/sit-service-item/convert-to-customer-expense": {
       "patch": {
-        "description": "This endpoint is used to approve a SIT address update. Office remarks are required. Approving the SIT address update will update the SIT Destination Final Address of the associated service item",
+        "description": "Converts a SIT to customer expense",
         "consumes": [
           "application/json"
         ],
@@ -16076,17 +15998,18 @@ func init() {
           "application/json"
         ],
         "tags": [
+          "shipment",
           "mtoServiceItem"
         ],
-        "summary": "Approves a SIT Address Update",
-        "operationId": "approveSITAddressUpdate",
+        "summary": "Converts a SIT to customer expense",
+        "operationId": "updateSITServiceItemCustomerExpense",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/PatchSITAddressUpdateStatus"
+              "$ref": "#/definitions/UpdateSITServiceItemCustomerExpense"
             }
           },
           {
@@ -16098,21 +16021,9 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully approved a SIT address update",
+            "description": "Successfully converted to customer expense",
             "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/MTOShipment"
             }
           },
           "403": {
@@ -16123,6 +16034,12 @@ func init() {
           },
           "404": {
             "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -16147,111 +16064,15 @@ func init() {
           }
         },
         "x-permissions": [
-          "update.MTOServiceItem",
-          "update.SITAddressUpdate"
+          "update.MTOServiceItem"
         ]
       },
       "parameters": [
         {
           "type": "string",
           "format": "uuid",
-          "description": "ID of the sit address update",
-          "name": "sitAddressUpdateID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/sit-address-update/{sitAddressUpdateID}/reject": {
-      "patch": {
-        "description": "This endpoint is used to reject a requested SIT address update. Office remarks are required. Rejecting the SIT address update will not update the SIT Destination Final Address.",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoServiceItem"
-        ],
-        "summary": "Rejects a SIT Address Update",
-        "operationId": "rejectSITAddressUpdate",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/PatchSITAddressUpdateStatus"
-            }
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully rejected a SIT address update",
-            "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "412": {
-            "description": "Precondition failed",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        },
-        "x-permissions": [
-          "update.SITAddressUpdate"
-        ]
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of the sit address update",
-          "name": "sitAddressUpdateID",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
           "in": "path",
           "required": true
         }
@@ -17069,21 +16890,6 @@ func init() {
         }
       }
     },
-    "CreateSITAddressUpdate": {
-      "required": [
-        "newAddress",
-        "officeRemarks"
-      ],
-      "properties": {
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "officeRemarks": {
-          "description": "Remarks from TOO about SIT Address Update creation",
-          "type": "string"
-        }
-      }
-    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -17898,12 +17704,21 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "convertToCustomerExpense": {
+          "type": "boolean",
+          "x-omitempty": false,
+          "example": false
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time"
         },
         "customerContacts": {
           "$ref": "#/definitions/MTOServiceItemCustomerContacts"
+        },
+        "customerExpenseReason": {
+          "type": "string",
+          "x-nullable": true
         },
         "deletedAt": {
           "type": "string",
@@ -18121,10 +17936,19 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "convertToCustomerExpense": {
+          "type": "boolean",
+          "x-omitempty": false,
+          "example": false
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "customerExpenseReason": {
+          "type": "string",
+          "x-nullable": true
         },
         "deletedAt": {
           "type": "string",
@@ -19251,6 +19075,146 @@ func init() {
       ],
       "x-nullable": true
     },
+    "PPMCloseout": {
+      "description": "The calculations needed in the \"Review Documents\" section of a PPM closeout. LIst of all expenses/reimbursements related toa PPM shipment.",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "SITReimbursement": {
+          "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualMoveDate": {
+          "description": "The actual start date of when the PPM shipment left the origin.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "aoa": {
+          "description": "Advance Operating Allowance (AOA).",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "ddp": {
+          "description": "The Domestic Destination Price (DDP).",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "dop": {
+          "description": "The Domestic Origin Price (DOP).",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "estimatedWeight": {
+          "description": "The estimated weight of the PPM shipment goods being moved.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4200
+        },
+        "gcc": {
+          "description": "Government Constructive Cost (GCC)",
+          "type": "integer",
+          "format": "cents",
+          "title": "GCC",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "grossIncentive": {
+          "description": "The final calculated incentive for the PPM shipment. This does not include **SIT** as it is a reimbursement.\n",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "haulFSC": {
+          "description": "The linehaul/shorthaul Fuel Surcharge (FSC).",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "haulPrice": {
+          "description": "The price of the linehaul or shorthaul.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "id": {
+          "description": "Primary auto-generated unique identifier of the PPM shipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "miles": {
+          "description": "The distance between the old address and the new address in miles.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 54
+        },
+        "packPrice": {
+          "description": "The full price of all packing/unpacking services.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "plannedMoveDate": {
+          "description": "Date the customer expects to begin their move.\n",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "proGearWeightCustomer": {
+          "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "proGearWeightSpouse": {
+          "description": "The estimated weight of the pro-gear being moved belonging to a spouse.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "remainingReimbursementOwed": {
+          "description": "The remaining reimbursement amount that is still owed to the customer.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "unpackPrice": {
+          "description": "The full price of all packing/unpacking services.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        }
+      }
+    },
     "PPMDocumentStatus": {
       "description": "Status of the PPM document.",
       "type": "string",
@@ -19648,18 +19612,6 @@ func init() {
             "APPROVED",
             "REJECTED"
           ]
-        }
-      }
-    },
-    "PatchSITAddressUpdateStatus": {
-      "required": [
-        "officeRemarks"
-      ],
-      "properties": {
-        "officeRemarks": {
-          "description": "Reason the SIT address update was approved or rejected",
-          "type": "string",
-          "example": "Insufficient details provided"
         }
       }
     },
@@ -20415,6 +20367,11 @@ func init() {
                 "DESTINATION"
               ]
             },
+            "serviceItemID": {
+              "type": "string",
+              "format": "uuid",
+              "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+            },
             "sitAllowanceEndDate": {
               "type": "string",
               "format": "date",
@@ -20467,6 +20424,11 @@ func init() {
             "ORIGIN",
             "DESTINATION"
           ]
+        },
+        "serviceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "sitAllowanceEndDate": {
           "type": "string",
@@ -21421,6 +21383,23 @@ func init() {
         }
       }
     },
+    "UpdateSITServiceItemCustomerExpense": {
+      "required": [
+        "convertToCustomerExpense",
+        "customerExpenseReason"
+      ],
+      "properties": {
+        "convertToCustomerExpense": {
+          "type": "boolean",
+          "example": true
+        },
+        "customerExpenseReason": {
+          "description": "Reason the service item was rejected",
+          "type": "string",
+          "example": "Insufficent details provided"
+        }
+      }
+    },
     "UpdateShipment": {
       "type": "object",
       "properties": {
@@ -21540,6 +21519,11 @@ func init() {
       "properties": {
         "adjustedNetWeight": {
           "description": "Indicates the adjusted net weight of the vehicle",
+          "type": "integer",
+          "minimum": 0
+        },
+        "allowableWeight": {
+          "description": "Indicates the maximum reimbursable weight of the shipment",
           "type": "integer",
           "minimum": 0
         },
@@ -21679,6 +21663,13 @@ func init() {
       "properties": {
         "adjustedNetWeight": {
           "description": "Indicates the adjusted net weight of the vehicle",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "allowableWeight": {
+          "description": "Maximum reimbursable weight.",
           "type": "integer",
           "minimum": 0,
           "x-nullable": true,

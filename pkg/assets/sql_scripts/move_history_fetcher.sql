@@ -514,6 +514,39 @@ WITH move AS (
 			audit_history
 		JOIN move_backup_contacts ON move_backup_contacts.id = audit_history.object_id
 	),
+	-- document_review_items grabs historical data for weight ticket, pro-gear
+	-- weight tickets, and moving expense tickets
+	document_review_items (doc_id, shipment_type, shipment_id, moving_expense_type) AS (
+		SELECT COALESCE(wt.id, pwt.id, me.id),
+			ppms.shipment_type,
+			ppms.shipment_id,
+			me.moving_expense_type
+		FROM audit_history ah
+		LEFT JOIN weight_tickets wt ON ah.object_id = wt.id
+		LEFT JOIN progear_weight_tickets pwt ON ah.object_id = pwt.id
+		LEFT JOIN moving_expenses me on ah.object_id = me.id
+		JOIN ppms ON ppms.ppm_id = COALESCE(wt.ppm_shipment_id, pwt.ppm_shipment_id, me.ppm_shipment_id)
+	),
+	document_review_logs AS (
+	    SELECT
+	        audit_history.*,
+	            jsonb_agg(
+	                jsonb_strip_nulls(
+	                    jsonb_build_object(
+	                        'shipment_type', document_review_items.shipment_type,
+	                        'shipment_id_abbr', (CASE WHEN document_review_items.shipment_id IS NOT NULL THEN LEFT(document_review_items.shipment_id::TEXT, 5) ELSE NULL END),
+	                        'moving_expense_type', document_review_items.moving_expense_type
+	                    )
+	                )
+	            )::TEXT AS context,
+	        COALESCE(document_review_items.shipment_id::TEXT, NULL)::TEXT AS context_id
+	    FROM
+	        audit_history
+	    JOIN document_review_items ON document_review_items.doc_id = audit_history.object_id
+	    WHERE audit_history.table_name = 'weight_tickets' OR audit_history.table_name = 'progear_weight_tickets' OR audit_history.table_name = 'moving_expenses'
+	    GROUP BY
+	        document_review_items.doc_id, document_review_items.shipment_id, audit_history.id
+	),
 	combined_logs AS (
 		SELECT
 			*
@@ -599,6 +632,11 @@ WITH move AS (
 		 	*
 		FROM
 			backup_contacts_logs
+		UNION
+		SELECT
+			*
+		FROM
+			document_review_logs
 
 
 	) SELECT DISTINCT

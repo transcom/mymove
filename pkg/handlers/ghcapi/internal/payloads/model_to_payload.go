@@ -712,6 +712,7 @@ func currentSIT(currentSIT *services.CurrentSIT) *ghcmessages.SITStatusCurrentSI
 		return nil
 	}
 	return &ghcmessages.SITStatusCurrentSIT{
+		ServiceItemID:        *handlers.FmtUUID(currentSIT.ServiceItemID),
 		Location:             currentSIT.Location,
 		DaysInSIT:            handlers.FmtIntPtrToInt64(&currentSIT.DaysInSIT),
 		SitEntryDate:         handlers.FmtDate(currentSIT.SITEntryDate),
@@ -989,6 +990,36 @@ func PPMDocuments(storer storage.FileStorer, ppmDocuments *models.PPMDocuments) 
 		WeightTickets:        WeightTickets(storer, ppmDocuments.WeightTickets),
 		MovingExpenses:       MovingExpenses(storer, ppmDocuments.MovingExpenses),
 		ProGearWeightTickets: ProGearWeightTickets(storer, ppmDocuments.ProgearWeightTickets),
+	}
+
+	return payload
+}
+
+// PPMCloseout payload
+func PPMCloseout(ppmCloseout *models.PPMCloseout) *ghcmessages.PPMCloseout {
+	if ppmCloseout == nil {
+		return nil
+	}
+	payload := &ghcmessages.PPMCloseout{
+		ID:                         strfmt.UUID(ppmCloseout.ID.String()),
+		PlannedMoveDate:            handlers.FmtDatePtr(ppmCloseout.PlannedMoveDate),
+		ActualMoveDate:             handlers.FmtDatePtr(ppmCloseout.ActualMoveDate),
+		Miles:                      handlers.FmtIntPtrToInt64(ppmCloseout.Miles),
+		EstimatedWeight:            handlers.FmtPoundPtr(ppmCloseout.EstimatedWeight),
+		ActualWeight:               handlers.FmtPoundPtr(ppmCloseout.ActualWeight),
+		ProGearWeightCustomer:      handlers.FmtPoundPtr(ppmCloseout.ProGearWeightCustomer),
+		ProGearWeightSpouse:        handlers.FmtPoundPtr(ppmCloseout.ProGearWeightSpouse),
+		GrossIncentive:             handlers.FmtCost(ppmCloseout.GrossIncentive),
+		Gcc:                        handlers.FmtCost(ppmCloseout.GCC),
+		Aoa:                        handlers.FmtCost(ppmCloseout.AOA),
+		RemainingReimbursementOwed: handlers.FmtCost(ppmCloseout.RemainingReimbursementOwed),
+		HaulPrice:                  handlers.FmtCost(ppmCloseout.HaulPrice),
+		HaulFSC:                    handlers.FmtCost(ppmCloseout.HaulFSC),
+		Dop:                        handlers.FmtCost(ppmCloseout.DOP),
+		Ddp:                        handlers.FmtCost(ppmCloseout.DDP),
+		PackPrice:                  handlers.FmtCost(ppmCloseout.PackPrice),
+		UnpackPrice:                handlers.FmtCost(ppmCloseout.UnpackPrice),
+		SITReimbursement:           handlers.FmtCost(ppmCloseout.SITReimbursement),
 	}
 
 	return payload
@@ -1298,22 +1329,24 @@ func ServiceRequestDoc(serviceRequest models.ServiceRequestDocument, storer stor
 // MTOServiceItemSingleModel payload
 func MTOServiceItemSingleModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItemSingle {
 	return &ghcmessages.MTOServiceItemSingle{
-		SitPostalCode:        handlers.FmtStringPtr(s.SITPostalCode),
-		ApprovedAt:           handlers.FmtDateTimePtr(s.ApprovedAt),
-		CreatedAt:            *handlers.FmtDateTime(s.CreatedAt),
-		ID:                   *handlers.FmtUUID(s.ID),
-		MoveTaskOrderID:      *handlers.FmtUUID(s.MoveTaskOrderID),
-		MtoShipmentID:        handlers.FmtUUID(*s.MTOShipmentID),
-		PickupPostalCode:     handlers.FmtStringPtr(s.PickupPostalCode),
-		ReServiceID:          *handlers.FmtUUID(s.ReServiceID),
-		RejectedAt:           handlers.FmtDateTimePtr(s.RejectedAt),
-		RejectionReason:      handlers.FmtStringPtr(s.RejectionReason),
-		SitCustomerContacted: handlers.FmtDatePtr(s.SITCustomerContacted),
-		SitDepartureDate:     handlers.FmtDateTimePtr(s.SITDepartureDate),
-		SitEntryDate:         handlers.FmtDateTimePtr(s.SITEntryDate),
-		SitRequestedDelivery: handlers.FmtDatePtr(s.SITRequestedDelivery),
-		Status:               handlers.FmtString(string(s.Status)),
-		UpdatedAt:            *handlers.FmtDateTime(s.UpdatedAt),
+		SitPostalCode:            handlers.FmtStringPtr(s.SITPostalCode),
+		ApprovedAt:               handlers.FmtDateTimePtr(s.ApprovedAt),
+		CreatedAt:                *handlers.FmtDateTime(s.CreatedAt),
+		ID:                       *handlers.FmtUUID(s.ID),
+		MoveTaskOrderID:          *handlers.FmtUUID(s.MoveTaskOrderID),
+		MtoShipmentID:            handlers.FmtUUID(*s.MTOShipmentID),
+		PickupPostalCode:         handlers.FmtStringPtr(s.PickupPostalCode),
+		ReServiceID:              *handlers.FmtUUID(s.ReServiceID),
+		RejectedAt:               handlers.FmtDateTimePtr(s.RejectedAt),
+		RejectionReason:          handlers.FmtStringPtr(s.RejectionReason),
+		SitCustomerContacted:     handlers.FmtDatePtr(s.SITCustomerContacted),
+		SitDepartureDate:         handlers.FmtDateTimePtr(s.SITDepartureDate),
+		SitEntryDate:             handlers.FmtDateTimePtr(s.SITEntryDate),
+		SitRequestedDelivery:     handlers.FmtDatePtr(s.SITRequestedDelivery),
+		Status:                   handlers.FmtString(string(s.Status)),
+		UpdatedAt:                *handlers.FmtDateTime(s.UpdatedAt),
+		ConvertToCustomerExpense: *handlers.FmtBool(s.CustomerExpense),
+		CustomerExpenseReason:    handlers.FmtStringPtr(s.CustomerExpenseReason),
 	}
 }
 
@@ -1363,6 +1396,8 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		RejectedAt:                    handlers.FmtDateTimePtr(s.RejectedAt),
 		ETag:                          etag.GenerateEtag(s.UpdatedAt),
 		ServiceRequestDocuments:       serviceRequestDocs,
+		ConvertToCustomerExpense:      *handlers.FmtBool(s.CustomerExpense),
+		CustomerExpenseReason:         handlers.FmtStringPtr(s.CustomerExpenseReason),
 	}
 }
 

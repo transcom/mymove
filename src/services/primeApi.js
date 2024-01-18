@@ -3,6 +3,7 @@ import Swagger from 'swagger-client';
 import { makeSwaggerRequest, requestInterceptor, responseInterceptor } from './swaggerRequest';
 
 let primeSimulatorClient = null;
+let primeSimulatorClientV2 = null;
 
 // setting up the same config from Swagger/api.js
 export async function getPrimeSimulatorClient() {
@@ -16,8 +17,25 @@ export async function getPrimeSimulatorClient() {
   return primeSimulatorClient;
 }
 
+// setting up the same config from Swagger/api.js
+export async function getPrimeSimulatorClientV2() {
+  if (!primeSimulatorClientV2) {
+    primeSimulatorClientV2 = await Swagger({
+      url: '/prime/v2/swagger.yaml',
+      requestInterceptor,
+      responseInterceptor,
+    });
+  }
+  return primeSimulatorClientV2;
+}
+
 export async function makePrimeSimulatorRequest(operationPath, params = {}, options = {}) {
   const client = await getPrimeSimulatorClient();
+  return makeSwaggerRequest(client, operationPath, params, options);
+}
+
+export async function makePrimeSimulatorRequestV2(operationPath, params = {}, options = {}) {
+  const client = await getPrimeSimulatorClientV2();
   return makeSwaggerRequest(client, operationPath, params, options);
 }
 
@@ -77,6 +95,17 @@ export function createPrimeMTOShipment({ normalize = false, schemaKey = 'mtoShip
   );
 }
 
+export function createPrimeMTOShipmentV2({ normalize = false, schemaKey = 'mtoShipment', body }) {
+  const operationPath = 'mtoShipment.createMTOShipment';
+  return makePrimeSimulatorRequestV2(
+    operationPath,
+    {
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
+
 export function updatePrimeMTOShipment({
   mtoShipmentID,
   ifMatchETag,
@@ -108,11 +137,22 @@ export function updateMTOServiceItem({ mtoServiceItemID, eTag, body }) {
   );
 }
 
-export function createSITAddressUpdateRequest({ body }) {
+export function updateShipmentDestinationAddress({
+  mtoShipmentID,
+  ifMatchETag,
+  body,
+  schemaKey = 'mtoShipment',
+  normalize = true,
+}) {
+  const operationPath = 'mtoShipment.updateShipmentDestinationAddress';
   return makePrimeSimulatorRequest(
-    'sitAddressUpdate.createSITAddressUpdateRequest',
-    { body: { ...body } },
-    { normalize: false },
+    operationPath,
+    {
+      mtoShipmentID,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { schemaKey, normalize },
   );
 }
 
