@@ -64,7 +64,7 @@ type Order struct {
 	NtsTAC                         *string                            `json:"nts_tac" db:"nts_tac"`
 	NtsSAC                         *string                            `json:"nts_sac" db:"nts_sac"`
 	DepartmentIndicator            *string                            `json:"department_indicator" db:"department_indicator"`
-	Grade                          *string                            `json:"grade" db:"grade"`
+	Grade                          *internalmessages.OrderPayGrade    `json:"grade" db:"grade"`
 	Entitlement                    *Entitlement                       `belongs_to:"entitlements" fk_id:"entitlement_id"`
 	EntitlementID                  *uuid.UUID                         `json:"entitlement_id" db:"entitlement_id"`
 	UploadedAmendedOrders          *Document                          `belongs_to:"documents" fk_id:"uploaded_amended_orders_id"`

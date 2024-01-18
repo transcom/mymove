@@ -234,11 +234,9 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 	}
 
 	serviceMember := move.Orders.ServiceMember
-	var rank ServiceMemberGrade
 	var weightAllotment SSWMaxWeightEntitlement
-	if serviceMember.Rank != nil {
-		rank = ServiceMemberGrade(*serviceMember.Rank)
-		weightAllotment = SSWGetEntitlement(rank, move.Orders.HasDependents, move.Orders.SpouseHasProGear)
+	if move.Orders.Grade != nil {
+		weightAllotment = SSWGetEntitlement(*move.Orders.Grade, move.Orders.HasDependents, move.Orders.SpouseHasProGear)
 	}
 
 	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, weightAllotment.TotalWeight)
@@ -287,9 +285,9 @@ func (wa *SSWMaxWeightEntitlement) addLineItem(field string, value int) {
 
 // SSWGetEntitlement calculates the entitlement for the shipment summary worksheet based on the parameters of
 // a move (hasDependents, spouseHasProGear)
-func SSWGetEntitlement(rank ServiceMemberGrade, hasDependents bool, spouseHasProGear bool) SSWMaxWeightEntitlement {
+func SSWGetEntitlement(grade internalmessages.OrderPayGrade, hasDependents bool, spouseHasProGear bool) SSWMaxWeightEntitlement {
 	sswEntitlements := SSWMaxWeightEntitlement{}
-	entitlements := GetWeightAllotment(rank)
+	entitlements := GetWeightAllotment(grade)
 	sswEntitlements.addLineItem("ProGear", entitlements.ProGearWeight)
 	if !hasDependents {
 		sswEntitlements.addLineItem("Entitlement", entitlements.TotalWeightSelf)
@@ -344,7 +342,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.ServiceBranch = FormatServiceMemberAffiliation(sm.Affiliation)
 	page1.PreferredEmail = derefStringTypes(sm.PersonalEmail)
 	page1.DODId = derefStringTypes(sm.Edipi)
-	page1.RankGrade = FormatRank(data.ServiceMember.Rank)
+	page1.RankGrade = FormatRank(data.Order.Grade)
 
 	page1.IssuingBranchOrAgency = FormatServiceMemberAffiliation(sm.Affiliation)
 	page1.OrdersIssueDate = FormatDate(data.Order.IssueDate)
@@ -391,8 +389,8 @@ func formatActualObligationAdvance(data ShipmentSummaryFormData) string {
 }
 
 // FormatRank formats the service member's rank for Shipment Summary Worksheet
-func FormatRank(rank *ServiceMemberGrade) string {
-	var rankDisplayValue = map[ServiceMemberGrade]string{
+func FormatRank(grade *internalmessages.OrderPayGrade) string {
+	var gradeDisplayValue = map[internalmessages.OrderPayGrade]string{
 		ServiceMemberGradeE1:                      "E-1",
 		ServiceMemberGradeE2:                      "E-2",
 		ServiceMemberGradeE3:                      "E-3",
@@ -423,8 +421,8 @@ func FormatRank(rank *ServiceMemberGrade) string {
 		ServiceMemberGradeACADEMYCADET:            "Service Academy Cadet",
 		ServiceMemberGradeMIDSHIPMAN:              "Midshipman",
 	}
-	if rank != nil {
-		return rankDisplayValue[*rank]
+	if grade != nil {
+		return gradeDisplayValue[*grade]
 	}
 	return ""
 }

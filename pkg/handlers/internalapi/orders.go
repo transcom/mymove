@@ -79,6 +79,11 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		originDutyLocation = *order.OriginDutyLocation
 	}
 
+	var grade internalmessages.OrderPayGrade
+	if order.Grade != nil {
+		grade = internalmessages.OrderPayGrade(*order.Grade)
+	}
+
 	ordersType := order.OrdersType
 	payload := &internalmessages.Orders{
 		ID:                      handlers.FmtUUID(order.ID),
@@ -91,7 +96,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		OrdersTypeDetail:        order.OrdersTypeDetail,
 		OriginDutyLocation:      payloadForDutyLocationModel(originDutyLocation),
 		OriginDutyLocationGbloc: handlers.FmtStringPtr(order.OriginDutyLocationGBLOC),
-		Grade:                   order.Grade,
+		Grade:                   &grade,
 		NewDutyLocation:         payloadForDutyLocationModel(order.NewDutyLocation),
 		HasDependents:           handlers.FmtBool(order.HasDependents),
 		SpouseHasProGear:        handlers.FmtBool(order.SpouseHasProGear),
@@ -139,20 +144,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-
-			var originDutyLocation models.DutyLocation
-
-			if payload.OriginDutyLocationID != "" {
-				originDutyLocationID, errorOrigin := uuid.FromString(payload.OriginDutyLocationID.String())
-				if errorOrigin != nil {
-					return handlers.ResponseForError(appCtx.Logger(), errorOrigin), errorOrigin
-				}
-				originDutyLoc, errorOrigin := models.FetchDutyLocation(appCtx.DB(), originDutyLocationID)
-				if errorOrigin != nil {
-					return handlers.ResponseForError(appCtx.Logger(), errorOrigin), errorOrigin
-				}
-				originDutyLocation = originDutyLoc
-			}
+			originDutyLocation := serviceMember.DutyLocation
 
 			originDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
 			if err != nil {
@@ -164,10 +156,9 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				}
 			}
 
-			grade := (*string)(payload.Grade)
-			serviceMember.Rank = (*models.ServiceMemberRank)(payload.Grade)
-
-			weightAllotment := models.GetWeightAllotment(*serviceMember.Rank)
+			// grade := (*string)(serviceMember.Rank)
+			grade := payload.Grade
+			weightAllotment := models.GetWeightAllotment(*grade)
 
 			weight := weightAllotment.TotalWeightSelf
 			if *payload.HasDependents {
@@ -337,7 +328,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			order.NewDutyLocation = dutyLocation
 			order.TAC = payload.Tac
 			order.SAC = payload.Sac
-			order.Grade = (*string)(payload.Grade)
+			order.Grade = payload.Grade
 
 			if payload.DepartmentIndicator != nil {
 				order.DepartmentIndicator = handlers.FmtString(string(*payload.DepartmentIndicator))

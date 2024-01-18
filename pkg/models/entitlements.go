@@ -2,6 +2,8 @@ package models
 
 import (
 	"fmt"
+
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // WeightAllotment represents the weights allotted for a rank
@@ -175,7 +177,7 @@ var civilianEmployee = WeightAllotment{
 	ProGearWeightSpouse:           500,
 }
 
-var entitlements = map[ServiceMemberGrade]WeightAllotment{
+var entitlements = map[internalmessages.OrderPayGrade]WeightAllotment{
 	ServiceMemberGradeACADEMYCADET:            midshipman,
 	ServiceMemberGradeAVIATIONCADET:           aviationCadet,
 	ServiceMemberGradeE1:                      e1,
@@ -207,21 +209,21 @@ var entitlements = map[ServiceMemberGrade]WeightAllotment{
 	ServiceMemberGradeCIVILIANEMPLOYEE:        civilianEmployee,
 }
 
-func getEntitlement(rank ServiceMemberGrade) (WeightAllotment, error) {
-	if entitlement, ok := entitlements[rank]; ok {
+func getEntitlement(grade internalmessages.OrderPayGrade) (WeightAllotment, error) {
+	if entitlement, ok := entitlements[grade]; ok {
 		return entitlement, nil
 	}
-	return WeightAllotment{}, fmt.Errorf("no entitlement found for rank %s", rank)
+	return WeightAllotment{}, fmt.Errorf("no entitlement found for rank %s", grade)
 }
 
 // AllWeightAllotments returns all the weight allotments for each rank.
-func AllWeightAllotments() map[ServiceMemberGrade]WeightAllotment {
+func AllWeightAllotments() map[internalmessages.OrderPayGrade]WeightAllotment {
 	return entitlements
 }
 
-// GetWeightAllotment returns the weight allotments for a given rank.
-func GetWeightAllotment(rank ServiceMemberGrade) WeightAllotment {
-	entitlement, err := getEntitlement(rank)
+// GetWeightAllotment returns the weight allotments for a given pay grade.
+func GetWeightAllotment(grade internalmessages.OrderPayGrade) WeightAllotment {
+	entitlement, err := getEntitlement(grade)
 	if err != nil {
 		return WeightAllotment{}
 	}

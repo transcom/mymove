@@ -131,7 +131,12 @@ func Order(order *models.Order) *primemessages.Order {
 	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(*order.Grade)
+		order.Entitlement.SetWeightAllotment(string(*order.Grade))
+	}
+
+	var grade string
+	if order.Grade != nil {
+		grade = string(*order.Grade)
 	}
 
 	payload := primemessages.Order{
@@ -144,7 +149,7 @@ func Order(order *models.Order) *primemessages.Order {
 		OriginDutyLocationGBLOC: swag.StringValue(order.OriginDutyLocationGBLOC),
 		OrderNumber:             order.OrdersNumber,
 		LinesOfAccounting:       order.TAC,
-		Rank:                    order.Grade,
+		Rank:                    &grade,
 		ETag:                    etag.GenerateEtag(order.UpdatedAt),
 		ReportByDate:            strfmt.Date(order.ReportByDate),
 		OrdersType:              primemessages.OrdersType(order.OrdersType),
