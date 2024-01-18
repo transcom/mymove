@@ -43,15 +43,6 @@ const InternalCreateSignedCertificationEndpointKey = "Internal.CreateSignedCerti
 // InternalIndexSignedCertificationEndpointKey is the key for the indexSignedCertification endpoint in internal
 const InternalIndexSignedCertificationEndpointKey = "Internal.IndexSignedCertification"
 
-// InternalPatchPersonallyProcuredMoveEndpointKey is the key for the patchPersonallyProcuredMove endpoint in internal
-const InternalPatchPersonallyProcuredMoveEndpointKey = "Internal.PatchPersonallyProcuredMove"
-
-// InternalSubmitPersonallyProcuredMoveEndpointKey is the key for the submitPersonallyProcuredMove endpoint in internal
-const InternalSubmitPersonallyProcuredMoveEndpointKey = "Internal.SubmitPersonallyProcuredMove"
-
-// InternalRequestPPMPaymentEndpointKey is the key for the requestPPMPayment endpoint in internal
-const InternalRequestPPMPaymentEndpointKey = "Internal.RequestPPMPayment"
-
 // InternalApproveReimbursementEndpointKey is the key for the approveReimbursement endpoint in internal
 const InternalApproveReimbursementEndpointKey = "Internal.ApproveReimbursement"
 
@@ -209,18 +200,6 @@ var internalEndpoints = EndpointMapType{
 	InternalIndexSignedCertificationEndpointKey: {
 		APIName:     InternalAPIName,
 		OperationID: "indexSignedCertification",
-	},
-	InternalPatchPersonallyProcuredMoveEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "patchPersonallyProcuredMove",
-	},
-	InternalSubmitPersonallyProcuredMoveEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "submitPersonallyProcuredMove",
-	},
-	InternalRequestPPMPaymentEndpointKey: {
-		APIName:     InternalAPIName,
-		OperationID: "requestPPMPayment",
 	},
 	InternalApproveReimbursementEndpointKey: {
 		APIName:     InternalAPIName,
