@@ -35,6 +35,11 @@ export const ShipmentListItem = ({
   const isPPM = shipment.shipmentType === SHIPMENT_OPTIONS.PPM;
   const estimated = 'Estimated';
   const actual = 'Actual';
+  let requestedWeightPPM = 0;
+  for (let i = 0; i < shipment.ppmShipment.weightTickets.length; i += 1) {
+    requestedWeightPPM +=
+      shipment.ppmShipment.weightTickets[i].fullWeight - shipment.ppmShipment.weightTickets[i].emptyWeight;
+  }
   return (
     <div
       className={`${styles['shipment-list-item-container']} ${shipmentClassName} ${
@@ -64,7 +69,7 @@ export const ShipmentListItem = ({
                   <strong>{formatWeight(shipment.ppmShipment.estimatedWeight)}</strong>
                 </h6>
                 <h6>
-                  <strong>{formatWeight(shipment.calculatedBillableWeight)}</strong>
+                  <strong>{formatWeight(requestedWeightPPM)}</strong>
                 </h6>
               </div>
             </div>
