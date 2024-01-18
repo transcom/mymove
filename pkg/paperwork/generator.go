@@ -12,7 +12,6 @@ import (
 	"github.com/disintegration/imaging"
 	"github.com/jung-kurt/gofpdf"
 	"github.com/pdfcpu/pdfcpu/pkg/api"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -128,29 +127,6 @@ func (g *Generator) Cleanup(_ appcontext.AppContext) error {
 	return g.fs.RemoveAll(g.workDir)
 }
 
-// Add bookmarks into a single PDF
-func (g *Generator) AddPdfBookmarks(inputFile string, bookmarks []pdfcpu.Bookmark) (afero.File, error) {
-	outputFile, err := g.newTempFile()
-	if err != nil {
-		return nil, err
-	}
-	replace := true
-	if err := api.AddBookmarksFile(inputFile, outputFile.Name(), bookmarks, replace, nil); err != nil {
-		return nil, err
-	}
-	return outputFile, nil
-}
-
-// Get file information of a single PDF
-func (g *Generator) GetPdfFileInfo(fileName string) (*pdfcpu.PDFInfo, error) {
-	file, err := g.fs.Open(fileName)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-	return api.PDFInfo(file, fileName, nil, g.pdfConfig)
-}
-
 // CreateMergedPDFUpload converts Uploads to PDF and merges them into a single PDF
 func (g *Generator) CreateMergedPDFUpload(appCtx appcontext.AppContext, uploads models.Uploads) (afero.File, error) {
 	pdfs, err := g.ConvertUploadsToPDF(appCtx, uploads)
@@ -184,7 +160,6 @@ func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads mo
 				if err != nil {
 					return nil, errors.Wrap(err, "Converting images")
 				}
-
 				pdfs = append(pdfs, pdf)
 				images = make([]inputFile, 0)
 			}
