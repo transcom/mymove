@@ -20,8 +20,11 @@ function generateDetailText(details, id, className) {
   return detailList;
 }
 
-const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, details, code, serviceItem, shipment) => {
+const generateSITDetailSection = (id, serviceRequestDocUploads, details, code, serviceItem, shipment) => {
   const { customerContacts } = details;
+  const { sitStatus } = shipment;
+  console.log('serviceItem', serviceItem);
+  console.log('shipment', shipment);
 
   // Below we are using the sortBy func in lodash to sort the customer contacts
   // by the firstAvailableDeliveryDate field. sortBy returns a new
@@ -37,39 +40,64 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
   });
 
   const formatAddress = (address) => {
-    const { city, state, postalCode } = address;
-    return `${city}, ${state} ${postalCode}`;
+    // handle invalid input
+    if (!address || typeof address !== 'object') {
+      return '';
+    }
+
+    const { city, state, postalCode } = address || {};
+
+    const formattedCity = city ? `${city}, ` : '';
+    const formattedState = state ? `${state} ` : '';
+    const formattedPostalCode = postalCode || '';
+
+    return `${formattedCity}${formattedState}${formattedPostalCode}`;
   };
 
+  // DDDSIT (destination SIT delivery) & DOPSIT (origin SIT pickup)
+  // DDFSIT (destination 1st day SIT) & DOFSIT (origin 1st day SIT)
+  // DDASIT (destination add'l days SIT) & DOASIT (origin add'l days SIT)
+  // DDSFSC (destination fuel surcharge) & DOSFSC (origin fuel surcharge)
   return (
     <div>
       <dl>
-        {code === 'DDDSIT'
+        {code === 'DDDSIT' || code === 'DOPSIT'
           ? generateDetailText({
-              'Original Delivery Address': formatAddress(serviceItem.sitDestinationFinalAddress) || '-',
-              'Final Delivery Address': formatAddress(serviceItem.sitDestinationOriginalAddress) || '-',
+              'Original Delivery Address': formatAddress(serviceItem.sitDestinationOriginalAddress) || '-',
+              'Final Delivery Address': formatAddress(serviceItem.sitDestinationFinalAddress) || '-',
               'Delivery Miles': 'TBD',
             })
           : null}
-        {code === 'DDFSIT'
+        {code === 'DDFSIT' || code === 'DOFSIT'
           ? generateDetailText({
+              'Original Delivery Address': formatAddress(serviceItem.sitDestinationOriginalAddress) || '-',
               'SIT entry date': details.sitEntryDate ? formatDateWithUTC(details.sitEntryDate, 'DD MMM YYYY') : '-',
             })
           : null}
 
-        {code === 'DDASIT'
+        {code === 'DDASIT' || code === 'DOASIT'
           ? generateDetailText({
-              'Original Delivery Address': formatAddress(serviceItem.sitDestinationFinalAddress) || '-',
-              "Add'l SIT Start Date": formatDateWithUTC(serviceItem.sitEntryDate, 'DD MMM YYYY') || '-',
-              '# of days approved for': shipment.sitDaysAllowance || '-',
-              'SIT expiration date': 'TBD' || '-',
-              'Customer Contacted HomeSafe': formatDateWithUTC(serviceItem.sitCustomerContacted) || '-',
-              'Customer Requested Del Date': formatDateWithUTC(serviceItem.sitRequestedDelivery) || '-',
-              'SIT departure date': formatDateWithUTC(serviceItem.sitDepartureDate, 'DD MMM YYYY') || '-',
+              'Original Delivery Address': formatAddress(serviceItem.sitDestinationOriginalAddress) || '-',
+              "Add'l SIT Start Date": !serviceItem.sitEntryDate
+                ? '-'
+                : formatDateWithUTC(serviceItem.sitEntryDate, 'DD MMM YYYY'),
+              '# of days approved': !shipment.sitDaysAllowance ? '-' : `${shipment.sitDaysAllowance} days`,
+              'SIT expiration date': !sitStatus
+                ? '-'
+                : formatDateWithUTC(sitStatus.currentSIT.sitAllowanceEndDate, 'DD MMM YYYY'),
+              'Customer Contacted HomeSafe': !serviceItem.sitCustomerContacted
+                ? '-'
+                : formatDateWithUTC(serviceItem.sitCustomerContacted, 'DD MMM YYYY'),
+              'Customer Requested Del Date': !serviceItem.sitRequestedDelivery
+                ? '-'
+                : formatDateWithUTC(serviceItem.sitRequestedDelivery, 'DD MMM YYYY'),
+              'SIT departure date': !serviceItem.sitDepartureDate
+                ? '-'
+                : formatDateWithUTC(serviceItem.sitDepartureDate, 'DD MMM YYYY'),
             })
           : null}
 
-        {code === 'DDSFSC'
+        {code === 'DDSFSC' || code === 'DOSFSC'
           ? generateDetailText({
               'SIT departure date': details.sitDepartureDate
                 ? formatDateWithUTC(details.sitDepartureDate, 'DD MMM YYYY')
@@ -121,82 +149,15 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, serviceItem
 
   let detailSection;
   switch (code) {
-    case 'DOFSIT':
-    case 'DOASIT': {
-      detailSection = (
-        <div>
-          <dl>
-            {generateDetailText(
-              {
-                'SIT entry date': details.sitEntryDate ? formatDateWithUTC(details.sitEntryDate, 'DD MMM YYYY') : '-',
-                ZIP: details.SITPostalCode ? details.SITPostalCode : '-',
-                Reason: details.reason ? details.reason : '-',
-              },
-              id,
-            )}
-            {details.rejectionReason &&
-              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
-            {!isEmpty(serviceRequestDocUploads) ? (
-              <div className={styles.uploads}>
-                <p className={styles.detailType}>Download service item documentation:</p>
-                {serviceRequestDocUploads.map((file) => (
-                  <div className={styles.uploads}>
-                    <a href={file.url} download>
-                      {trimFileName(file.filename)}
-                    </a>
-                  </div>
-                ))}
-              </div>
-            ) : null}
-          </dl>
-        </div>
-      );
-      break;
-    }
-    case 'DOPSIT':
-    case 'DOSFSC': {
-      detailSection = (
-        <div>
-          <dl>
-            {generateDetailText(
-              {
-                ZIP: details.SITPostalCode ? details.SITPostalCode : '-',
-                Reason: details.reason ? details.reason : '-',
-              },
-              id,
-            )}
-            {details.rejectionReason &&
-              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
-            {!isEmpty(serviceRequestDocUploads) ? (
-              <div className={styles.uploads}>
-                <p className={styles.detailType}>Download service item documentation:</p>
-                {serviceRequestDocUploads.map((file) => (
-                  <div className={styles.uploads}>
-                    <a href={file.url} download>
-                      {trimFileName(file.filename)}
-                    </a>
-                  </div>
-                ))}
-              </div>
-            ) : null}
-          </dl>
-        </div>
-      );
-      break;
-    }
-
     case 'DDFSIT':
     case 'DDASIT':
     case 'DDDSIT':
-    case 'DDSFSC': {
-      detailSection = generateDestinationSITDetailSection(
-        id,
-        serviceRequestDocUploads,
-        details,
-        code,
-        serviceItem,
-        shipment,
-      );
+    case 'DDSFSC':
+    case 'DOFSIT':
+    case 'DOASIT':
+    case 'DOPSIT':
+    case 'DOSFSC': {
+      detailSection = generateSITDetailSection(id, serviceRequestDocUploads, details, code, serviceItem, shipment);
       break;
     }
     case 'DCRT':
