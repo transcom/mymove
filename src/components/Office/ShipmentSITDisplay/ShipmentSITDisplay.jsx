@@ -163,7 +163,11 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
             {currentDaysInSIT > 0 && <p className={styles.sitHeader}>Current location: {currentLocation}</p>}
             <DataTable
               columnHeaders={[`SIT start date`, 'SIT authorized end date', 'Calculated total SIT days']}
-              dataRow={[sitStartDateElement, sitEndDate, sitStatus.calculatedTotalDaysInSIT]}
+              dataRow={[
+                sitStartDateElement,
+                sitStatus?.currentSIT?.sitAuthorizedEndDate,
+                sitStatus.calculatedTotalDaysInSIT,
+              ]}
               custClass={styles.currentLocation}
             />
           </div>

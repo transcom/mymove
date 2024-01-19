@@ -436,7 +436,7 @@ func CalculateSITAuthorizedAndRequirededDates(appCtx appcontext.AppContext, serv
 	}
 
 	oldServiceItem.SITAuthorizedEndDate = sitAuthorizedEndDate
-	verrs, err = appCtx.DB().ValidateAndUpdate(oldServiceItem)
+	verrs, err = appCtx.DB().ValidateAndUpdate(&oldServiceItem)
 
 	if verrs != nil && verrs.HasAny() {
 		return apperror.NewInvalidInputError(oldServiceItem.ID, err, verrs, "invalid input found while updating the sit service item")

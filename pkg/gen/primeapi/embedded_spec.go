@@ -3820,6 +3820,11 @@ func init() {
               "format": "date",
               "x-nullable": true
             },
+            "sitAuthorizedEndDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "sitCustomerContacted": {
               "type": "string",
               "format": "date",
@@ -9041,6 +9046,11 @@ func init() {
               "format": "date",
               "x-nullable": true
             },
+            "sitAuthorizedEndDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "sitCustomerContacted": {
               "type": "string",
               "format": "date",
@@ -9087,6 +9097,11 @@ func init() {
           ]
         },
         "sitAllowanceEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitAuthorizedEndDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
