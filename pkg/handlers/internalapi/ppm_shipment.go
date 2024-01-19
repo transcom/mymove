@@ -127,12 +127,12 @@ func (h SubmitPPMShipmentDocumentationHandler) Handle(params ppmops.SubmitPPMShi
 			if err != nil {
 				appCtx.Logger().Error("problem sending email to user", zap.Error(err))
 			}
-			_ = h.NotificationSender().SendNotification(appCtx,
+			err = h.NotificationSender().SendNotification(appCtx,
 				notifications.NewPpmPacketEmail(mtoShipment.MoveTaskOrderID),
 			)
-			// if err != nil {
-			// 	appCtx.Logger().Error("problem sending email to user", zap.Error(err))
-			// }
+			if err != nil {
+				appCtx.Logger().Error("problem sending email to user", zap.Error(err))
+			}
 
 			return ppmops.NewSubmitPPMShipmentDocumentationOK().WithPayload(returnPayload), nil
 		})
