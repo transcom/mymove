@@ -294,7 +294,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 	if updatedServiceItem != nil {
 		code := updatedServiceItem.ReService.Code
 
-		// If this is an updated to an Origin SIT or Destination SIT service item we need to recalculate the
+		// If this is an update to an Origin SIT or Destination SIT service item we need to recalculate the
 		// Authorized End Date and Required Delivery Date
 		if (code == models.ReServiceCodeDOFSIT || code == models.ReServiceCodeDDFSIT) &&
 			updatedServiceItem.Status == models.MTOServiceItemStatusApproved {
@@ -413,8 +413,8 @@ func CalculateSITAuthorizedAndRequirededDates(appCtx appcontext.AppContext, serv
 	var verrs *validate.Errors
 	var err error
 
+	// For Origin SIT we need to update the Required Delivery Date which is stored with the shipment instead of the service item
 	if location == OriginSITLocation {
-
 		verrs, err = appCtx.DB().ValidateAndUpdate(&shipment)
 
 		if verrs != nil && verrs.HasAny() {
