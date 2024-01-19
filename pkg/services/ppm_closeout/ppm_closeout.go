@@ -21,11 +21,15 @@ import (
 )
 
 type ppmCloseoutFetcher struct {
-	planner route.Planner
+	planner              route.Planner
+	paymentRequestHelper paymentrequesthelper.Helper
 }
 
-func NewPPMCloseoutFetcher(planner route.Planner) services.PPMCloseoutFetcher {
-	return &ppmCloseoutFetcher{planner: planner}
+func NewPPMCloseoutFetcher(planner route.Planner, paymentRequestHelper paymentrequesthelper.Helper) services.PPMCloseoutFetcher {
+	return &ppmCloseoutFetcher{
+		planner:              planner,
+		paymentRequestHelper: paymentRequestHelper,
+	}
 }
 
 func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.PPMCloseout, error) {
@@ -114,7 +118,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		return nil, err
 	}
 
-	paramsForServiceItems, paramErr := paymentrequesthelper.Helper.FetchServiceParamsForServiceItems(&paymentrequesthelper.RequestPaymentHelper{}, appCtx, serviceItemsToPrice)
+	paramsForServiceItems, paramErr := p.paymentRequestHelper.FetchServiceParamsForServiceItems(appCtx, serviceItemsToPrice)
 	if paramErr != nil {
 		return nil, paramErr
 	}
