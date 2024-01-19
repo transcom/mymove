@@ -215,7 +215,6 @@ describe('when getting the next incomplete page', () => {
             ...serviceMember,
             is_profile_complete: false,
             edipi: '1234567890',
-            rank: 'E_6',
             affiliation: 'Marines',
           },
           context: ppmContext,
@@ -230,7 +229,6 @@ describe('when getting the next incomplete page', () => {
             ...serviceMember,
             is_profile_complete: false,
             edipi: '1234567890',
-            rank: 'E_6',
             affiliation: 'Marines',
             last_name: 'foo',
             first_name: 'foo',
@@ -248,7 +246,6 @@ describe('when getting the next incomplete page', () => {
             ...serviceMember,
             is_profile_complete: false,
             edipi: '1234567890',
-            rank: 'E_6',
             affiliation: 'Marines',
             last_name: 'foo',
             first_name: 'foo',
@@ -272,7 +269,6 @@ describe('when getting the next incomplete page', () => {
             ...serviceMember,
             is_profile_complete: false,
             edipi: '1234567890',
-            rank: 'E_6',
             affiliation: 'Marines',
             last_name: 'foo',
             first_name: 'foo',
@@ -302,7 +298,6 @@ describe('when getting the next incomplete page', () => {
             ...serviceMember,
             is_profile_complete: false,
             edipi: '1234567890',
-            rank: 'E_6',
             affiliation: 'Marines',
             last_name: 'foo',
             first_name: 'foo',
@@ -347,7 +342,6 @@ describe('when getting the next incomplete page', () => {
           ...serviceMember,
           is_profile_complete: false,
           edipi: '1234567890',
-          rank: 'E_6',
           affiliation: 'Marines',
           last_name: 'foo',
           first_name: 'foo',
@@ -404,6 +398,7 @@ describe('when getting the next incomplete page', () => {
             report_by_date: '2019-02-01',
             new_duty_location: { id: 'something' },
             origin_duty_location: { id: 'something' },
+            grade: 'E_4',
           },
           move: { id: 'bar' },
           context: ppmContext,
@@ -427,6 +422,7 @@ describe('when getting the next incomplete page', () => {
             uploaded_orders: {
               uploads: [{}],
             },
+            grade: 'E_4',
           },
           move: { id: 'bar' },
           uploads: [
@@ -458,6 +454,7 @@ describe('when getting the next incomplete page', () => {
             uploaded_orders: {
               uploads: [{}],
             },
+            grade: 'E_4',
           },
           move: {
             id: 'bar',
@@ -490,6 +487,7 @@ describe('when getting the next incomplete page', () => {
             uploaded_orders: {
               uploads: [{}],
             },
+            grade: 'E_4',
           },
           move: {
             id: 'bar',
