@@ -165,7 +165,9 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
               columnHeaders={[`SIT start date`, 'SIT authorized end date', 'Calculated total SIT days']}
               dataRow={[
                 sitStartDateElement,
-                sitStatus?.currentSIT?.sitAuthorizedEndDate,
+                sitStatus?.currentSIT?.sitAuthorizedEndDate == null
+                  ? sitEndDate
+                  : sitStatus?.currentSIT?.sitAuthorizedEndDate,
                 sitStatus.calculatedTotalDaysInSIT,
               ]}
               custClass={styles.currentLocation}
