@@ -1,0 +1,50 @@
+@import '../../../../shared/styles/basics';
+@import '../../../../shared/styles/mixins';
+@import '../../../../shared/styles/colors';
+
+.movesContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 20px;
+}
+
+.moveContainer {
+    border-top: 8px;
+    @include u-border-top('base-darker');
+    @include u-margin-bottom(1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+  .heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    @include u-text('base-darkest');
+    @include u-margin(0);
+    @include u-border('1px');
+    @include u-border('base-lighter');
+    @include u-padding(2);
+
+    .moveHeaderBtn {
+        margin-left: auto;
+    }
+
+    h3 {
+      display: inline;
+      font-weight: bold;
+      @include u-margin(0);
+      @include u-margin-x(1);
+    }
+
+    .icon {
+       margin-left: 1rem;
+    }
+}
+
+  .moveInfoList {
+    @include u-margin-top(-2);
+  }
+}

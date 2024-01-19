@@ -1,0 +1,490 @@
+export const movesPCS = {
+  currentMove: [
+    {
+      id: 'testMoveID1',
+      moveCode: 'MOVECO',
+      orderID: 'testOrderID1',
+      status: 'DRAFT',
+      orders: {
+        id: 'testOrder1',
+        destinationDutyLocation: {
+          id: 'testDDL1',
+          name: 'Fort Bragg North Station',
+          address: {
+            streetAddress1: '123 Main Ave',
+            streetAddress2: 'Apartment 9000',
+            streetAddress3: '',
+            city: 'Anytown',
+            state: 'AL',
+            postalCode: '90210',
+            country: 'USA',
+          },
+        },
+        originDutyLocation: {
+          id: 'testODL1',
+          name: 'Fort Bragg North Station',
+          address: {
+            streetAddress1: '123 Main Ave',
+            streetAddress2: 'Apartment 9000',
+            streetAddress3: '',
+            city: 'Anytown',
+            state: 'AL',
+            postalCode: '90210',
+            country: 'USA',
+          },
+        },
+        rank: 'E_8',
+        reportByDate: '2024-01-25',
+        ordersType: 'PERMANENT_CHANGE_OF_STATION',
+        orderNumber: 'ORDER3',
+        date_issued: '2024-01-01',
+      },
+      mtoShipments: [
+        {
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3054',
+          shipmentType: 'HHG',
+          STATUS: 'APPROVED',
+        },
+        {
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3053',
+          shipmentType: 'PPM',
+          STATUS: 'APPROVED',
+        },
+      ],
+    },
+  ],
+  previousMoves: [
+    {
+      id: 'testMoveID2',
+      moveCode: 'SAMPLE',
+      orderID: 'testOrderID2',
+      status: 'APPROVED',
+      orders: {
+        id: 'testOrder2',
+        destinationDutyLocation: {
+          id: 'testDDL2',
+          name: 'Fort Bragg South Station',
+          address: {
+            streetAddress1: '456 Oak St',
+            streetAddress2: 'Apartment 8000',
+            streetAddress3: '',
+            city: 'Anytown',
+            state: 'AL',
+            postalCode: '90211',
+            country: 'USA',
+          },
+        },
+        originDutyLocation: {
+          id: 'testODL2',
+          name: 'Fort Bragg South Station',
+          address: {
+            streetAddress1: '456 Oak St',
+            streetAddress2: 'Apartment 8000',
+            streetAddress3: '',
+            city: 'Anytown',
+            state: 'AL',
+            postalCode: '90211',
+            country: 'USA',
+          },
+        },
+        rank: 'E_7',
+        reportByDate: '2024-01-24',
+        ordersType: 'PERMANENT_CHANGE_OF_STATION',
+        orderNumber: 'ORDER4',
+        date_issued: '2021-01-01',
+      },
+      mtoShipments: [
+        {
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3054',
+          shipmentType: 'HHG',
+          STATUS: 'APPROVED',
+        },
+        {
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3053',
+          shipmentType: 'PPM',
+          STATUS: 'APPROVED',
+        },
+      ],
+    },
+    {
+      id: 'testMoveID3',
+      moveCode: 'EXAMPL',
+      orderID: 'testOrderID3',
+      status: 'APPROVED',
+      orders: {
+        id: 'testOrder3',
+        destinationDutyLocation: {
+          id: 'testDDL3',
+          name: 'Fort Bragg East Station',
+          address: {
+            streetAddress1: '789 Pine Ave',
+            streetAddress2: 'Apartment 7000',
+            streetAddress3: '',
+            city: 'Anytown',
+            state: 'AL',
+            postalCode: '90212',
+            country: 'USA',
+          },
+        },
+        originDutyLocation: {
+          id: 'testODL3',
+          name: 'Fort Bragg East Station',
+          address: {
+            streetAddress1: '789 Pine Ave',
+            streetAddress2: 'Apartment 7000',
+            streetAddress3: '',
+            city: 'Anytown',
+            state: 'AL',
+            postalCode: '90212',
+            country: 'USA',
+          },
+        },
+        rank: 'E_6',
+        reportByDate: '2024-01-26',
+        ordersType: 'PERMANENT_CHANGE_OF_STATION',
+        orderNumber: 'ORDER5',
+        date_issued: '2018-01-01',
+      },
+      mtoShipments: [
+        {
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3054',
+          shipmentType: 'HHG',
+          STATUS: 'APPROVED',
+        },
+        {
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3053',
+          shipmentType: 'PPM',
+          STATUS: 'APPROVED',
+        },
+      ],
+    },
+  ],
+};
+
+export const movesRetirement = {
+  currentMove: [
+    {
+      id: 'testMoveID1',
+      moveCode: 'MOVECO',
+      orderID: 'testOrderID1',
+      status: 'SUBMITTED',
+      orders: {
+        id: 'testOrder1',
+        destinationDutyLocation: {
+          id: 'testDDL1',
+          name: 'Fort Bragg North Station',
+          address: {
+            streetAddress1: '123 Main Ave',
+            streetAddress2: 'Apartment 9000',
+            streetAddress3: '',
+            city: 'Anytown',
+            state: 'AL',
+            postalCode: '90210',
+            country: 'USA',
+          },
+        },
+        originDutyLocation: {
+          id: 'testODL1',
+          name: 'Fort Bragg North Station',
+          address: {
+            streetAddress1: '123 Main Ave',
+            streetAddress2: 'Apartment 9000',
+            streetAddress3: '',
+            city: 'Anytown',
+            state: 'AL',
+            postalCode: '90210',
+            country: 'USA',
+          },
+        },
+        rank: 'E_8',
+        reportByDate: '2024-01-25',
+        ordersType: 'RETIREMENT',
+        orderNumber: 'ORDER3',
+        date_issued: '2024-01-01',
+      },
+      mtoShipments: [
+        {
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3054',
+          shipmentType: 'HHG',
+          STATUS: 'APPROVED',
+        },
+        {
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3053',
+          shipmentType: 'PPM',
+          STATUS: 'APPROVED',
+        },
+      ],
+    },
+  ],
+  previousMoves: [
+    {
+      id: 'testMoveID2',
+      moveCode: 'SAMPLE',
+      orderID: 'testOrderID2',
+      status: 'APPROVED',
+      orders: {
+        id: 'testOrder2',
+        destinationDutyLocation: {
+          id: 'testDDL2',
+          name: 'Fort Bragg South Station',
+          address: {
+            streetAddress1: '456 Oak St',
+            streetAddress2: 'Apartment 8000',
+            streetAddress3: '',
+            city: 'Anytown',
+            state: 'AL',
+            postalCode: '90211',
+            country: 'USA',
+          },
+        },
+        originDutyLocation: {
+          id: 'testODL2',
+          name: 'Fort Bragg South Station',
+          address: {
+            streetAddress1: '456 Oak St',
+            streetAddress2: 'Apartment 8000',
+            streetAddress3: '',
+            city: 'Anytown',
+            state: 'AL',
+            postalCode: '90211',
+            country: 'USA',
+          },
+        },
+        rank: 'E_7',
+        reportByDate: '2024-01-24',
+        ordersType: 'PERMANENT_CHANGE_OF_STATION',
+        orderNumber: 'ORDER4',
+        date_issued: '2021-01-01',
+      },
+      mtoShipments: [
+        {
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3054',
+          shipmentType: 'HHG',
+          STATUS: 'APPROVED',
+        },
+        {
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3053',
+          shipmentType: 'PPM',
+          STATUS: 'APPROVED',
+        },
+      ],
+    },
+    {
+      id: 'testMoveID3',
+      moveCode: 'EXAMPL',
+      orderID: 'testOrderID3',
+      status: 'APPROVED',
+      orders: {
+        id: 'testOrder3',
+        destinationDutyLocation: {
+          id: 'testDDL3',
+          name: 'Fort Bragg East Station',
+          address: {
+            streetAddress1: '789 Pine Ave',
+            streetAddress2: 'Apartment 7000',
+            streetAddress3: '',
+            city: 'Anytown',
+            state: 'AL',
+            postalCode: '90212',
+            country: 'USA',
+          },
+        },
+        originDutyLocation: {
+          id: 'testODL3',
+          name: 'Fort Bragg East Station',
+          address: {
+            streetAddress1: '789 Pine Ave',
+            streetAddress2: 'Apartment 7000',
+            streetAddress3: '',
+            city: 'Anytown',
+            state: 'AL',
+            postalCode: '90212',
+            country: 'USA',
+          },
+        },
+        rank: 'E_6',
+        reportByDate: '2024-01-26',
+        ordersType: 'PERMANENT_CHANGE_OF_STATION',
+        orderNumber: 'ORDER5',
+        date_issued: '2018-01-01',
+      },
+      mtoShipments: [
+        {
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3054',
+          shipmentType: 'HHG',
+          STATUS: 'APPROVED',
+        },
+        {
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3053',
+          shipmentType: 'PPM',
+          STATUS: 'APPROVED',
+        },
+      ],
+    },
+  ],
+};
+
+export const movesSeparation = {
+  currentMove: [
+    {
+      id: 'testMoveID1',
+      moveCode: 'MOVECO',
+      orderID: 'testOrderID1',
+      status: 'DRAFT',
+      orders: {
+        id: 'testOrder1',
+        destinationDutyLocation: {
+          id: 'testDDL1',
+          name: 'Fort Bragg North Station',
+          address: {
+            streetAddress1: '123 Main Ave',
+            streetAddress2: 'Apartment 9000',
+            streetAddress3: '',
+            city: 'Anytown',
+            state: 'AL',
+            postalCode: '90210',
+            country: 'USA',
+          },
+        },
+        originDutyLocation: {
+          id: 'testODL1',
+          name: 'Fort Bragg North Station',
+          address: {
+            streetAddress1: '123 Main Ave',
+            streetAddress2: 'Apartment 9000',
+            streetAddress3: '',
+            city: 'Anytown',
+            state: 'AL',
+            postalCode: '90210',
+            country: 'USA',
+          },
+        },
+        rank: 'E_8',
+        reportByDate: '2024-01-25',
+        ordersType: 'SEPARATION',
+        orderNumber: 'ORDER3',
+        date_issued: '2024-01-01',
+      },
+      mtoShipments: [
+        {
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3054',
+          shipmentType: 'HHG',
+          STATUS: 'APPROVED',
+        },
+        {
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3053',
+          shipmentType: 'PPM',
+          STATUS: 'APPROVED',
+        },
+      ],
+    },
+  ],
+  previousMoves: [
+    {
+      id: 'testMoveID2',
+      moveCode: 'SAMPLE',
+      orderID: 'testOrderID2',
+      status: 'APPROVED',
+      orders: {
+        id: 'testOrder2',
+        destinationDutyLocation: {
+          id: 'testDDL2',
+          name: 'Fort Bragg South Station',
+          address: {
+            streetAddress1: '456 Oak St',
+            streetAddress2: 'Apartment 8000',
+            streetAddress3: '',
+            city: 'Anytown',
+            state: 'AL',
+            postalCode: '90211',
+            country: 'USA',
+          },
+        },
+        originDutyLocation: {
+          id: 'testODL2',
+          name: 'Fort Bragg South Station',
+          address: {
+            streetAddress1: '456 Oak St',
+            streetAddress2: 'Apartment 8000',
+            streetAddress3: '',
+            city: 'Anytown',
+            state: 'AL',
+            postalCode: '90211',
+            country: 'USA',
+          },
+        },
+        rank: 'E_7',
+        reportByDate: '2024-01-24',
+        ordersType: 'PERMANENT_CHANGE_OF_STATION',
+        orderNumber: 'ORDER4',
+        date_issued: '2021-01-01',
+      },
+      mtoShipments: [
+        {
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3054',
+          shipmentType: 'HHG',
+          STATUS: 'APPROVED',
+        },
+        {
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3053',
+          shipmentType: 'PPM',
+          STATUS: 'APPROVED',
+        },
+      ],
+    },
+    {
+      id: 'testMoveID3',
+      moveCode: 'EXAMPL',
+      orderID: 'testOrderID3',
+      status: 'APPROVED',
+      orders: {
+        id: 'testOrder3',
+        destinationDutyLocation: {
+          id: 'testDDL3',
+          name: 'Fort Bragg East Station',
+          address: {
+            streetAddress1: '789 Pine Ave',
+            streetAddress2: 'Apartment 7000',
+            streetAddress3: '',
+            city: 'Anytown',
+            state: 'AL',
+            postalCode: '90212',
+            country: 'USA',
+          },
+        },
+        originDutyLocation: {
+          id: 'testODL3',
+          name: 'Fort Bragg East Station',
+          address: {
+            streetAddress1: '789 Pine Ave',
+            streetAddress2: 'Apartment 7000',
+            streetAddress3: '',
+            city: 'Anytown',
+            state: 'AL',
+            postalCode: '90212',
+            country: 'USA',
+          },
+        },
+        rank: 'E_6',
+        reportByDate: '2024-01-26',
+        ordersType: 'PERMANENT_CHANGE_OF_STATION',
+        orderNumber: 'ORDER5',
+        date_issued: '2018-01-01',
+      },
+      mtoShipments: [
+        {
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3054',
+          shipmentType: 'HHG',
+          STATUS: 'APPROVED',
+        },
+        {
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3053',
+          shipmentType: 'PPM',
+          STATUS: 'APPROVED',
+        },
+      ],
+    },
+  ],
+};
+
+export default { movesPCS, movesRetirement, movesSeparation };

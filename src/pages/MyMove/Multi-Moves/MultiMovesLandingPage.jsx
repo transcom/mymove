@@ -4,6 +4,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './MultiMovesLandingPage.module.scss';
 import MultiMovesMoveHeader from './MultiMovesMoveHeader/MultiMovesMoveHeader';
+import MultiMovesMoveContainer from './MultiMovesMoveContainer/MultiMovesMoveContainer';
+import { movesPCS } from './MultiMovesTestData';
 
 import { generatePageTitle } from 'hooks/custom';
 import { milmoveLogger } from 'utils/milmoveLog';
@@ -40,7 +42,12 @@ const MultiMovesLandingPage = () => {
     };
 
     fetchData();
-  }, []); // Empty dependency array means this effect runs once after the initial render
+  }, [setErrorState]);
+
+  // including test data to use - imported from MultiMovesTestData
+  const moves = movesPCS;
+  // const moves = movesSeparation;
+  // const moves = movesRetirement;
 
   return (
     <div>
@@ -67,6 +74,9 @@ const MultiMovesLandingPage = () => {
           </div>
           <div className={styles.movesContainer}>
             <MultiMovesMoveHeader title="Current Move" />
+            <MultiMovesMoveContainer move={moves.currentMove} />
+            <MultiMovesMoveHeader title="Previous Moves" />
+            <MultiMovesMoveContainer move={moves.previousMoves} />
           </div>
         </div>
       </div>
