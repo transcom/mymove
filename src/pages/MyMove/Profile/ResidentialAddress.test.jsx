@@ -191,7 +191,7 @@ describe('requireCustomerState ResidentialAddress', () => {
     updateServiceMember: jest.fn(),
   };
 
-  it('dispatches a redirect if the current state is earlier than the "DUTY LOCATION COMPLETE" state', async () => {
+  it('dispatches a redirect if the current state is earlier than the "CONTACT_INFO_PATH" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -231,7 +231,7 @@ describe('requireCustomerState ResidentialAddress', () => {
     });
   });
 
-  it('does not redirect if the current state equals the "DUTY LOCATION COMPLETE" state', async () => {
+  it('does not redirect if the current state equals the "CONTACT_INFO_COMPLETE" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -244,7 +244,6 @@ describe('requireCustomerState ResidentialAddress', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
             first_name: 'Tester',
@@ -274,7 +273,7 @@ describe('requireCustomerState ResidentialAddress', () => {
     });
   });
 
-  it('does not redirect if the current state is after the "DUTY LOCATION COMPLETE" state and profile is not complete', async () => {
+  it('does not redirect if the current state is after the "CONTACT_INFO_COMPLETE" state and profile is not complete', async () => {
     const mockState = {
       entities: {
         user: {
@@ -287,7 +286,6 @@ describe('requireCustomerState ResidentialAddress', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
             first_name: 'Tester',
@@ -336,7 +334,6 @@ describe('requireCustomerState ResidentialAddress', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
             first_name: 'Tester',
