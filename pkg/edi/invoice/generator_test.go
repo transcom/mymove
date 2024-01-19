@@ -124,7 +124,7 @@ func MakeValidEdi() Invoice858C {
 			ReferenceIdentificationQualifier: "1W",
 			ReferenceIdentification:          "Leo, Spacemen",
 		},
-		ServiceMemberRank: edisegment.N9{
+		OrderPayGrade: edisegment.N9{
 			ReferenceIdentificationQualifier: "ML",
 			ReferenceIdentification:          "E_1",
 		},
