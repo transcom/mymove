@@ -45,9 +45,9 @@ const MultiMovesLandingPage = () => {
   }, [setErrorState]);
 
   // including test data to use - imported from MultiMovesTestData
-  // const moves = movesPCS;
+  const moves = movesPCS;
   // const moves = movesSeparation;
-  const moves = movesRetirement;
+  // const moves = movesRetirement;
 
   return (
     <div>
