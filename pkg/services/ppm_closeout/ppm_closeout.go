@@ -47,12 +47,31 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		).
 		Find(&ppmShipment, ppmShipmentID)
 
+	// Check if PPM shipment is in "NEEDS_PAYMENT_APPROVAL" status, if not, it's not ready for closeout, so return
+	if ppmShipment.Status != models.PPMShipmentStatusNeedsPaymentApproval {
+		return nil, apperror.NewPPMNotReadyForCloseoutError(ppmShipmentID, "")
+	}
+
 	if errPPM != nil {
 		switch errPPM {
 		case sql.ErrNoRows:
 			return nil, apperror.NewNotFoundError(ppmShipmentID, "while looking for PPMShipment")
 		default:
 			return nil, apperror.NewQueryError("PPMShipment", errPPM, "unable to find PPMShipment")
+		}
+	}
+
+	var expenseItems []models.MovingExpense
+	storageExpensePrice := unit.Cents(0)
+
+	expenseErr := appCtx.DB().Where("ppm_shipment_id = ?", ppmShipmentID).All(&expenseItems)
+	if expenseErr != nil {
+		return nil, expenseErr
+	}
+
+	for _, movingExpense := range expenseItems {
+		if movingExpense.MovingExpenseType != nil && *movingExpense.MovingExpenseType == models.MovingExpenseReceiptTypeStorage {
+			storageExpensePrice += *movingExpense.Amount
 		}
 	}
 
@@ -220,11 +239,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	ppmCloseoutObj.DDP = &destinationPrice
 	ppmCloseoutObj.PackPrice = &packPrice
 	ppmCloseoutObj.UnpackPrice = &unpackPrice
-	ppmCloseoutObj.SITReimbursement = ppmShipment.SITEstimatedCost
-
-	if err != nil {
-		return nil, apperror.NewQueryError("SITReimbursement", err, "error calculating SIT costs.")
-	}
+	ppmCloseoutObj.SITReimbursement = &storageExpensePrice
 
 	return &ppmCloseoutObj, nil
 }
