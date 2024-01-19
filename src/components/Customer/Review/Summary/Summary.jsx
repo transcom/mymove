@@ -284,16 +284,12 @@ export class Summary extends Component {
           <ProfileTable
             affiliation={ORDERS_BRANCH_OPTIONS[serviceMember?.affiliation] || ''}
             city={serviceMember.residential_address.city}
-            currentDutyLocationName={currentOrders.origin_duty_location.name}
             edipi={serviceMember.edipi}
             email={serviceMember.personal_email}
             firstName={serviceMember.first_name}
             onEditClick={this.handleEditClick}
             lastName={serviceMember.last_name}
             postalCode={serviceMember.residential_address.postalCode}
-            payGrade={
-              ORDERS_PAY_GRADE_OPTIONS[currentOrders?.grade] || ORDERS_PAY_GRADE_OPTIONS[serviceMember?.rank] || ''
-            }
             state={serviceMember.residential_address.state}
             streetAddress1={serviceMember.residential_address.streetAddress1}
             streetAddress2={serviceMember.residential_address.streetAddress2}
@@ -310,6 +306,8 @@ export class Summary extends Component {
             orderType={currentOrders.orders_type}
             reportByDate={currentOrders.report_by_date}
             uploads={currentOrders.uploaded_orders.uploads}
+            payGrade={ORDERS_PAY_GRADE_OPTIONS[currentOrders?.grade] || ''}
+            originDutyLocationName={currentOrders.origin_duty_location.name}
           />
         </SectionWrapper>
         {thirdSectionHasContent && (

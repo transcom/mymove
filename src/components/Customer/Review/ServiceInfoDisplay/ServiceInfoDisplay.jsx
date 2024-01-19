@@ -8,7 +8,6 @@ import descriptionListStyles from 'styles/descriptionList.module.scss';
 
 const ServiceInfoDisplay = ({
   affiliation,
-  originDutyLocationName,
   originTransportationOfficeName,
   originTransportationOfficePhone,
   edipi,
@@ -17,7 +16,6 @@ const ServiceInfoDisplay = ({
   showMessage,
   lastName,
   editURL,
-  payGrade,
 }) => {
   const { state } = useLocation();
 
@@ -52,18 +50,8 @@ const ServiceInfoDisplay = ({
           </div>
 
           <div className={descriptionListStyles.row}>
-            <dt>Pay grade</dt>
-            <dd>{payGrade}</dd>
-          </div>
-
-          <div className={descriptionListStyles.row}>
             <dt>DoD ID#</dt>
             <dd>{edipi}</dd>
-          </div>
-
-          <div className={descriptionListStyles.row}>
-            <dt>Current duty location</dt>
-            <dd>{originDutyLocationName}</dd>
           </div>
         </dl>
       </div>
@@ -73,7 +61,6 @@ const ServiceInfoDisplay = ({
 
 ServiceInfoDisplay.propTypes = {
   affiliation: string.isRequired,
-  originDutyLocationName: string.isRequired,
   originTransportationOfficeName: string.isRequired,
   originTransportationOfficePhone: string,
   edipi: string.isRequired,
@@ -82,7 +69,6 @@ ServiceInfoDisplay.propTypes = {
   showMessage: bool,
   lastName: string.isRequired,
   editURL: string,
-  payGrade: string.isRequired,
 };
 
 ServiceInfoDisplay.defaultProps = {
