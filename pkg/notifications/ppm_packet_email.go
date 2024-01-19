@@ -23,9 +23,9 @@ var (
 
 // PpmPacketEmail has notification content for approved moves
 type PpmPacketEmail struct {
-	ppmShipmentID uuid.UUID
-	htmlTemplate  *html.Template
-	textTemplate  *text.Template
+	moveID       uuid.UUID
+	htmlTemplate *html.Template
+	textTemplate *text.Template
 }
 
 // ppmPacketEmailData is used to render an email template
@@ -35,19 +35,19 @@ type emailData struct {
 }
 
 // Used to get logging data from GetEmailData
-type LoggerData struct {
-	ServiceMember models.ServiceMember
-	PPMShipmentID uuid.UUID
-	MoveLocator   string
-}
+// type LoggerData struct {
+// 	ServiceMember models.ServiceMember
+// 	moveID        uuid.UUID
+// 	MoveLocator   string
+// }
 
 // NewPpmPacketEmail returns a new payment reminder notification 14 days after actual move in date
-func NewPpmPacketEmail(ppmShipmentID uuid.UUID) *PpmPacketEmail {
+func NewPpmPacketEmail(moveID uuid.UUID) *PpmPacketEmail {
 
 	return &PpmPacketEmail{
-		ppmShipmentID: ppmShipmentID,
-		htmlTemplate:  ppmPacketEmailHTMLTemplate,
-		textTemplate:  ppmPacketEmailTextTemplate,
+		moveID:       moveID,
+		htmlTemplate: ppmPacketEmailHTMLTemplate,
+		textTemplate: ppmPacketEmailTextTemplate,
 	}
 }
 
@@ -55,10 +55,6 @@ func NewPpmPacketEmail(ppmShipmentID uuid.UUID) *PpmPacketEmail {
 // so we implement `email` to satisfy that interface
 func (m PpmPacketEmail) emails(appCtx appcontext.AppContext) ([]emailContent, error) {
 	var emails []emailContent
-
-	appCtx.Logger().Info("ppm SHIPMENT UUID",
-		zap.String("uuid", m.ppmShipmentID.String()),
-	)
 
 	// emailData, loggerData, err := GetEmailData(m, appCtx)
 	// if err != nil {
@@ -70,20 +66,17 @@ func (m PpmPacketEmail) emails(appCtx appcontext.AppContext) ([]emailContent, er
 	// 	zap.String("PPM Shipment ID", loggerData.PPMShipmentID.String()),
 	// 	zap.String("Move Locator", loggerData.MoveLocator),
 	// )
-	var ppmShipment models.PPMShipment
-	err := appCtx.DB().Find(&ppmShipment, m.ppmShipmentID)
+	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), m.moveID)
 	if err != nil {
 		return emails, err
 	}
 
-	var mtoShipment models.MTOShipment
-	err = appCtx.DB().Find(&mtoShipment, ppmShipment.ShipmentID)
+	orders, err := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), move.OrdersID)
 	if err != nil {
 		return emails, err
 	}
 
-	var move models.Move
-	err = appCtx.DB().Find(&move, mtoShipment.MoveTaskOrderID)
+	serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), orders.ServiceMemberID)
 	if err != nil {
 		return emails, err
 	}
@@ -93,11 +86,6 @@ func (m PpmPacketEmail) emails(appCtx appcontext.AppContext) ([]emailContent, er
 	})
 	if err != nil {
 		appCtx.Logger().Error("error rendering template", zap.Error(err))
-	}
-
-	serviceMember, err := models.GetCustomerFromShipment(appCtx.DB(), ppmShipment.ShipmentID)
-	if err != nil {
-		return emails, err
 	}
 
 	if serviceMember.PersonalEmail == nil {
