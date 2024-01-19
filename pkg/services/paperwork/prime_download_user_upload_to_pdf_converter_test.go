@@ -1,6 +1,10 @@
 package paperwork
 
 import (
+	"github.com/pdfcpu/pdfcpu/pkg/api"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
+
+	"github.com/spf13/afero"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
@@ -25,9 +29,8 @@ func (suite *PaperworkServiceSuite) TestPrimeDownloadMoveUploadPDFGenerator() {
 	pdfFileTest1, err := service.GenerateDownloadMoveUserUploadPDF(suite.AppContextForTest(), services.MoveOrderUploadAll, customMoveWithOnlyOrders)
 	suite.FatalNil(err)
 	// Verify generated files have 3 pages. see setup data for upload count
-	fileInfo, err := pdfGenerator.GetPdfFileInfo(pdfFileTest1.Name())
+	fileInfo, err := suite.pdfFileInfo(pdfGenerator, pdfFileTest1)
 	suite.FatalNil(err)
-	// Verify the 3 uploads were seperated out and images were mot grouped together
 	suite.Equal(3, fileInfo.PageCount)
 
 	// Point amendments doc to UploadedOrdersID.
@@ -39,28 +42,28 @@ func (suite *PaperworkServiceSuite) TestPrimeDownloadMoveUploadPDFGenerator() {
 	pdfFileTest2, err := service.GenerateDownloadMoveUserUploadPDF(suite.AppContextForTest(), services.MoveOrderUploadAll, customMoveWithOrdersAndAmendments)
 	suite.FatalNil(err)
 	// Verify generated files have (3 x 2) pages for both orders and amendments. see setup data for upload count
-	fileInfoAll, err := pdfGenerator.GetPdfFileInfo(pdfFileTest2.Name())
+	fileInfoAll, err := suite.pdfFileInfo(pdfGenerator, pdfFileTest2)
 	suite.FatalNil(err)
 	suite.Equal(6, fileInfoAll.PageCount)
 
 	pdfFileTest3, err := service.GenerateDownloadMoveUserUploadPDF(suite.AppContextForTest(), services.MoveOrderUpload, customMoveWithOrdersAndAmendments)
 	suite.FatalNil(err)
 	// Verify generated files have (3 x 1) pages for order. see setup data for upload count
-	fileInfoAll1, err := pdfGenerator.GetPdfFileInfo(pdfFileTest3.Name())
+	fileInfoAll1, err := suite.pdfFileInfo(pdfGenerator, pdfFileTest3)
 	suite.FatalNil(err)
 	suite.Equal(3, fileInfoAll1.PageCount)
 
 	pdfFileTest4, err := service.GenerateDownloadMoveUserUploadPDF(suite.AppContextForTest(), services.MoveOrderAmendmentUpload, customMoveWithOrdersAndAmendments)
 	suite.FatalNil(err)
 	// Verify only amendments are generated
-	fileInfoOnlyAmendments, err := pdfGenerator.GetPdfFileInfo(pdfFileTest4.Name())
+	fileInfoOnlyAmendments, err := suite.pdfFileInfo(pdfGenerator, pdfFileTest4)
 	suite.FatalNil(err)
 	suite.Equal(3, fileInfoOnlyAmendments.PageCount)
 	suite.AfterTest()
 }
 
 func (suite *PaperworkServiceSuite) TestPrimeDownloadMoveUploadPDFGeneratorUnprocessableEntityError() {
-	service, _ := NewMoveUserUploadToPDFDownloader(true, suite.userUploader)
+	service, _ := NewMoveUserUploadToPDFDownloader(suite.userUploader)
 
 	locator := "AAAA"
 
@@ -80,6 +83,10 @@ func (suite *PaperworkServiceSuite) TestPrimeDownloadMoveUploadPDFGeneratorUnpro
 	testOrder3, err := service.GenerateDownloadMoveUserUploadPDF(suite.AppContextForTest(), services.MoveOrderAmendmentUpload, testOrder2)
 	suite.FatalNil(testOrder3)
 	suite.Assertions.IsType(apperror.UnprocessableEntityError{}, err)
+}
+
+func (suite *PaperworkServiceSuite) pdfFileInfo(generator *paperwork.Generator, file afero.File) (*pdfcpu.PDFInfo, error) {
+	return api.PDFInfo(file, file.Name(), nil, generator.PdfConfiguration())
 }
 
 func (suite *PaperworkServiceSuite) setupOrdersDocument() (services.PrimeDownloadMoveUploadPDFGenerator, models.Order) {
@@ -113,7 +120,7 @@ func (suite *PaperworkServiceSuite) setupOrdersDocument() (services.PrimeDownloa
 	order.UploadedOrdersID = document.ID
 	suite.MustSave(&order)
 
-	service, err := NewMoveUserUploadToPDFDownloader(true, suite.userUploader)
+	service, err := NewMoveUserUploadToPDFDownloader(suite.userUploader)
 	if err != nil {
 		suite.FatalNil(err)
 	}

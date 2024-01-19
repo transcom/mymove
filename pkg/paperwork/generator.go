@@ -1,6 +1,7 @@
 package paperwork
 
 import (
+	"bytes"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -20,6 +21,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -91,7 +93,9 @@ func convertTo8BitPNG(in io.Reader, out io.Writer) error {
 
 // NewGenerator creates a new Generator.
 func NewGenerator(uploader *uploader.Uploader) (*Generator, error) {
-	afs := uploader.Storer.FileSystem()
+	// Use in memory filesystem for generation. Purpose is to not write
+	// to hard disk due to restrictions in AWS storage. May need better long term solution.
+	afs := storage.NewMemory(storage.NewMemoryParams("", "")).FileSystem()
 
 	pdfConfig := model.NewDefaultConfiguration()
 	pdfCPU := pdfCPUWrapper{Configuration: pdfConfig}
@@ -129,16 +133,36 @@ func (g *Generator) Cleanup(_ appcontext.AppContext) error {
 }
 
 // Add bookmarks into a single PDF
-func (g *Generator) AddPdfBookmarks(inputFile string, bookmarks []pdfcpu.Bookmark) (afero.File, error) {
-	outputFile, err := g.newTempFile()
+func (g *Generator) AddPdfBookmarks(inputFile afero.File, bookmarks []pdfcpu.Bookmark) (afero.File, error) {
+	tempFile, err := g.newTempFile()
 	if err != nil {
 		return nil, err
 	}
+
+	buf := new(bytes.Buffer)
 	replace := true
-	if err := api.AddBookmarksFile(inputFile, outputFile.Name(), bookmarks, replace, nil); err != nil {
-		return nil, err
+	if err := api.AddBookmarks(inputFile, buf, bookmarks, replace, nil); err != nil {
+		return nil, errors.Wrap(err, "error pdfcpu.api.AddBookmarks")
 	}
-	return outputFile, nil
+
+	// copy byte[] to temp file
+	_, err = io.Copy(tempFile, buf)
+	if err != nil {
+		return nil, errors.Wrap(err, "error io.Copy on byte[] to temp")
+	}
+
+	// Reload the file from memstore
+	pdfWithBookmarks, err := g.fs.Open(tempFile.Name())
+	if err != nil {
+		return nil, errors.Wrap(err, "error g.fs.Open on reload from memstore")
+	}
+
+	return pdfWithBookmarks, nil
+}
+
+// Get PDF Configuration (For Testing)
+func (g *Generator) PdfConfiguration() *model.Configuration {
+	return g.pdfConfig
 }
 
 // Get file information of a single PDF

@@ -56,7 +56,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 		log.Fatalln(err)
 	}
 
-	primeDownloadMoveUploadPDFGenerator, err := paperwork.NewMoveUserUploadToPDFDownloader(false, userUploader)
+	primeDownloadMoveUploadPDFGenerator, err := paperwork.NewMoveUserUploadToPDFDownloader(userUploader)
 	if err != nil {
 		log.Fatalln(err)
 	}
