@@ -1,4 +1,4 @@
-export const mockMovesPCS = {
+export const movesPCS = {
   currentMove: [
     {
       id: 'testMoveID1',
@@ -41,46 +41,14 @@ export const mockMovesPCS = {
       },
       mtoShipments: [
         {
-          id: 'shipment1',
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3054',
           shipmentType: 'HHG',
-          status: 'APPROVED',
-          created_at: '2024-01-03 15:28:28.468 -0600',
+          STATUS: 'APPROVED',
         },
         {
-          id: 'shipment2',
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3053',
           shipmentType: 'PPM',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment3',
-          shipmentType: 'HHG_INTO_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment4',
-          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment5',
-          shipmentType: 'MOTORHOME',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_HAUL_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_TOW_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
+          STATUS: 'APPROVED',
         },
       ],
     },
@@ -127,46 +95,14 @@ export const mockMovesPCS = {
       },
       mtoShipments: [
         {
-          id: 'shipment1',
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3054',
           shipmentType: 'HHG',
-          status: 'APPROVED',
-          created_at: '2024-01-03 15:28:28.468 -0600',
+          STATUS: 'APPROVED',
         },
         {
-          id: 'shipment2',
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3053',
           shipmentType: 'PPM',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment3',
-          shipmentType: 'HHG_INTO_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment4',
-          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment5',
-          shipmentType: 'MOTORHOME',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_HAUL_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_TOW_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
+          STATUS: 'APPROVED',
         },
       ],
     },
@@ -211,53 +147,21 @@ export const mockMovesPCS = {
       },
       mtoShipments: [
         {
-          id: 'shipment1',
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3054',
           shipmentType: 'HHG',
-          status: 'APPROVED',
-          created_at: '2024-01-03 15:28:28.468 -0600',
+          STATUS: 'APPROVED',
         },
         {
-          id: 'shipment2',
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3053',
           shipmentType: 'PPM',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment3',
-          shipmentType: 'HHG_INTO_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment4',
-          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment5',
-          shipmentType: 'MOTORHOME',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_HAUL_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_TOW_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
+          STATUS: 'APPROVED',
         },
       ],
     },
   ],
 };
 
-export const mockMovesRetirement = {
+export const movesRetirement = {
   currentMove: [
     {
       id: 'testMoveID1',
@@ -300,46 +204,14 @@ export const mockMovesRetirement = {
       },
       mtoShipments: [
         {
-          id: 'shipment1',
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3054',
           shipmentType: 'HHG',
-          status: 'APPROVED',
-          created_at: '2024-01-03 15:28:28.468 -0600',
+          STATUS: 'APPROVED',
         },
         {
-          id: 'shipment2',
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3053',
           shipmentType: 'PPM',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment3',
-          shipmentType: 'HHG_INTO_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment4',
-          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment5',
-          shipmentType: 'MOTORHOME',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_HAUL_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_TOW_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
+          STATUS: 'APPROVED',
         },
       ],
     },
@@ -386,46 +258,14 @@ export const mockMovesRetirement = {
       },
       mtoShipments: [
         {
-          id: 'shipment1',
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3054',
           shipmentType: 'HHG',
-          status: 'APPROVED',
-          created_at: '2024-01-03 15:28:28.468 -0600',
+          STATUS: 'APPROVED',
         },
         {
-          id: 'shipment2',
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3053',
           shipmentType: 'PPM',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment3',
-          shipmentType: 'HHG_INTO_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment4',
-          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment5',
-          shipmentType: 'MOTORHOME',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_HAUL_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_TOW_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
+          STATUS: 'APPROVED',
         },
       ],
     },
@@ -470,53 +310,21 @@ export const mockMovesRetirement = {
       },
       mtoShipments: [
         {
-          id: 'shipment1',
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3054',
           shipmentType: 'HHG',
-          status: 'APPROVED',
-          created_at: '2024-01-03 15:28:28.468 -0600',
+          STATUS: 'APPROVED',
         },
         {
-          id: 'shipment2',
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3053',
           shipmentType: 'PPM',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment3',
-          shipmentType: 'HHG_INTO_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment4',
-          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment5',
-          shipmentType: 'MOTORHOME',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_HAUL_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_TOW_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
+          STATUS: 'APPROVED',
         },
       ],
     },
   ],
 };
 
-export const mockMovesSeparation = {
+export const movesSeparation = {
   currentMove: [
     {
       id: 'testMoveID1',
@@ -559,46 +367,14 @@ export const mockMovesSeparation = {
       },
       mtoShipments: [
         {
-          id: 'shipment1',
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3054',
           shipmentType: 'HHG',
-          status: 'APPROVED',
-          created_at: '2024-01-03 15:28:28.468 -0600',
+          STATUS: 'APPROVED',
         },
         {
-          id: 'shipment2',
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3053',
           shipmentType: 'PPM',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment3',
-          shipmentType: 'HHG_INTO_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment4',
-          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment5',
-          shipmentType: 'MOTORHOME',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_HAUL_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_TOW_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
+          STATUS: 'APPROVED',
         },
       ],
     },
@@ -645,46 +421,14 @@ export const mockMovesSeparation = {
       },
       mtoShipments: [
         {
-          id: 'shipment1',
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3054',
           shipmentType: 'HHG',
-          status: 'APPROVED',
-          created_at: '2024-01-03 15:28:28.468 -0600',
+          STATUS: 'APPROVED',
         },
         {
-          id: 'shipment2',
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3053',
           shipmentType: 'PPM',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment3',
-          shipmentType: 'HHG_INTO_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment4',
-          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment5',
-          shipmentType: 'MOTORHOME',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_HAUL_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_TOW_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
+          STATUS: 'APPROVED',
         },
       ],
     },
@@ -729,326 +473,18 @@ export const mockMovesSeparation = {
       },
       mtoShipments: [
         {
-          id: 'shipment1',
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3054',
           shipmentType: 'HHG',
-          status: 'APPROVED',
-          created_at: '2024-01-03 15:28:28.468 -0600',
+          STATUS: 'APPROVED',
         },
         {
-          id: 'shipment2',
+          id: '3f2270c7-7166-40ae-981e-b200ebdf3053',
           shipmentType: 'PPM',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment3',
-          shipmentType: 'HHG_INTO_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment4',
-          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment5',
-          shipmentType: 'MOTORHOME',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_HAUL_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_TOW_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
+          STATUS: 'APPROVED',
         },
       ],
     },
   ],
 };
 
-export const mockMovesNoPreviousMoves = {
-  currentMove: [
-    {
-      id: 'testMoveID1',
-      moveCode: 'MOVECO',
-      orderID: 'testOrderID1',
-      status: 'DRAFT',
-      orders: {
-        id: 'testOrder1',
-        destinationDutyLocation: {
-          id: 'testDDL1',
-          name: 'Fort Bragg North Station',
-          address: {
-            streetAddress1: '123 Main Ave',
-            streetAddress2: 'Apartment 9000',
-            streetAddress3: '',
-            city: 'Anytown',
-            state: 'AL',
-            postalCode: '90210',
-            country: 'USA',
-          },
-        },
-        originDutyLocation: {
-          id: 'testODL1',
-          name: 'Fort Bragg North Station',
-          address: {
-            streetAddress1: '123 Main Ave',
-            streetAddress2: 'Apartment 9000',
-            streetAddress3: '',
-            city: 'Anytown',
-            state: 'AL',
-            postalCode: '90210',
-            country: 'USA',
-          },
-        },
-        rank: 'E_8',
-        reportByDate: '2024-01-25',
-        ordersType: 'PERMANENT_CHANGE_OF_STATION',
-        orderNumber: 'ORDER3',
-        date_issued: '2024-01-01',
-      },
-      mtoShipments: [
-        {
-          id: 'shipment1',
-          shipmentType: 'HHG',
-          status: 'APPROVED',
-          created_at: '2024-01-03 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment2',
-          shipmentType: 'PPM',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment3',
-          shipmentType: 'HHG_INTO_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment4',
-          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment5',
-          shipmentType: 'MOTORHOME',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_HAUL_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_TOW_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-      ],
-    },
-  ],
-  previousMoves: [],
-};
-
-export const mockMovesNoCurrentMoveWithPreviousMoves = {
-  currentMove: [],
-  previousMoves: [
-    {
-      id: 'testMoveID2',
-      moveCode: 'SAMPLE',
-      orderID: 'testOrderID2',
-      status: 'APPROVED',
-      orders: {
-        id: 'testOrder2',
-        destinationDutyLocation: {
-          id: 'testDDL2',
-          name: 'Fort Bragg South Station',
-          address: {
-            streetAddress1: '456 Oak St',
-            streetAddress2: 'Apartment 8000',
-            streetAddress3: '',
-            city: 'Anytown',
-            state: 'AL',
-            postalCode: '90211',
-            country: 'USA',
-          },
-        },
-        originDutyLocation: {
-          id: 'testODL2',
-          name: 'Fort Bragg South Station',
-          address: {
-            streetAddress1: '456 Oak St',
-            streetAddress2: 'Apartment 8000',
-            streetAddress3: '',
-            city: 'Anytown',
-            state: 'AL',
-            postalCode: '90211',
-            country: 'USA',
-          },
-        },
-        rank: 'E_7',
-        reportByDate: '2024-01-24',
-        ordersType: 'PERMANENT_CHANGE_OF_STATION',
-        orderNumber: 'ORDER4',
-        date_issued: '2021-01-01',
-      },
-      mtoShipments: [
-        {
-          id: 'shipment1',
-          shipmentType: 'HHG',
-          status: 'APPROVED',
-          created_at: '2024-01-03 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment2',
-          shipmentType: 'PPM',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment3',
-          shipmentType: 'HHG_INTO_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment4',
-          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment5',
-          shipmentType: 'MOTORHOME',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_HAUL_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_TOW_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-      ],
-    },
-    {
-      id: 'testMoveID3',
-      moveCode: 'EXAMPL',
-      orderID: 'testOrderID3',
-      status: 'APPROVED',
-      orders: {
-        id: 'testOrder3',
-        destinationDutyLocation: {
-          id: 'testDDL3',
-          name: 'Fort Bragg East Station',
-          address: {
-            streetAddress1: '789 Pine Ave',
-            streetAddress2: 'Apartment 7000',
-            streetAddress3: '',
-            city: 'Anytown',
-            state: 'AL',
-            postalCode: '90212',
-            country: 'USA',
-          },
-        },
-        originDutyLocation: {
-          id: 'testODL3',
-          name: 'Fort Bragg East Station',
-          address: {
-            streetAddress1: '789 Pine Ave',
-            streetAddress2: 'Apartment 7000',
-            streetAddress3: '',
-            city: 'Anytown',
-            state: 'AL',
-            postalCode: '90212',
-            country: 'USA',
-          },
-        },
-        rank: 'E_6',
-        reportByDate: '2024-01-26',
-        ordersType: 'PERMANENT_CHANGE_OF_STATION',
-        orderNumber: 'ORDER5',
-        date_issued: '2018-01-01',
-      },
-      mtoShipments: [
-        {
-          id: 'shipment1',
-          shipmentType: 'HHG',
-          status: 'APPROVED',
-          created_at: '2024-01-03 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment2',
-          shipmentType: 'PPM',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment3',
-          shipmentType: 'HHG_INTO_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment4',
-          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment5',
-          shipmentType: 'MOTORHOME',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_HAUL_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-        {
-          id: 'shipment6',
-          shipmentType: 'BOAT_TOW_AWAY',
-          status: 'APPROVED',
-          created_at: '2024-01-05 15:28:28.468 -0600',
-        },
-      ],
-    },
-  ],
-};
-
-export const mockMovesNoCurrentOrPreviousMoves = {
-  currentMove: [],
-  previousMoves: [],
-};
-
-export default {
-  mockMovesPCS,
-  mockMovesRetirement,
-  mockMovesSeparation,
-  mockMovesNoPreviousMoves,
-  mockMovesNoCurrentMoveWithPreviousMoves,
-  mockMovesNoCurrentOrPreviousMoves,
-};
+export default { movesPCS, movesRetirement, movesSeparation };

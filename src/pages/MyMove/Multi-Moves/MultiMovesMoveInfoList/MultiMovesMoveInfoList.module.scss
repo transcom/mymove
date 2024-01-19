@@ -3,16 +3,17 @@
 @import 'shared/styles/colors';
 
 .moveInfoContainer {
-
+  
     .moveInfoSection {
       dl {
         dt {
           @include u-width(33%);
         }
-
+  
         dd {
           @include u-width(67%);
         }
+        @include u-margin-bottom(0);
       }
     }
   }

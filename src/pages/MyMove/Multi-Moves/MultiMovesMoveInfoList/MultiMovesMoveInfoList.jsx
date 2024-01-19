@@ -8,28 +8,6 @@ import { formatAddress } from 'utils/shipmentDisplay';
 const MultiMovesMoveInfoList = ({ move }) => {
   const { orders } = move;
 
-  // function that determines label based on order type
-  const getReportByLabel = (ordersType) => {
-    if (ordersType === 'SEPARATION') {
-      return 'Separation Date';
-    }
-    if (ordersType === 'RETIREMENT') {
-      return 'Retirement Date';
-    }
-    return 'Report by Date';
-  };
-
-  // destination duty location label will differ based on order type
-  const getDestinationDutyLocationLabel = (ordersType) => {
-    if (ordersType === 'SEPARATION') {
-      return 'HOR or PLEAD';
-    }
-    if (ordersType === 'RETIREMENT') {
-      return 'HOR, HOS, or PLEAD';
-    }
-    return 'Destination Duty Location';
-  };
-
   return (
     <div className={styles.moveInfoContainer} data-testid="move--info-container">
       <div className={styles.moveInfoSection}>
@@ -50,7 +28,7 @@ const MultiMovesMoveInfoList = ({ move }) => {
           </div>
 
           <div className={descriptionListStyles.row}>
-            <dt>{getReportByLabel(orders.ordersType)}</dt>
+            <dt>Report by</dt>
             <dd>{orders.reportByDate || '-'}</dd>
           </div>
 
@@ -60,7 +38,7 @@ const MultiMovesMoveInfoList = ({ move }) => {
           </div>
 
           <div className={descriptionListStyles.row}>
-            <dt>{getDestinationDutyLocationLabel(orders.ordersType)}</dt>
+            <dt>Destination Duty Location</dt>
             <dd>{formatAddress(orders.destinationDutyLocation.address) || '-'}</dd>
           </div>
         </dl>
