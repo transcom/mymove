@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './MultiMovesLandingPage.module.scss';
 import MultiMovesMoveHeader from './MultiMovesMoveHeader/MultiMovesMoveHeader';
 import MultiMovesMoveContainer from './MultiMovesMoveContainer/MultiMovesMoveContainer';
-import { movesPCS } from './MultiMovesTestData';
+import { movesPCS, movesRetirement } from './MultiMovesTestData';
 
 import { generatePageTitle } from 'hooks/custom';
 import { milmoveLogger } from 'utils/milmoveLog';
@@ -45,9 +45,9 @@ const MultiMovesLandingPage = () => {
   }, [setErrorState]);
 
   // including test data to use - imported from MultiMovesTestData
-  const moves = movesPCS;
+  // const moves = movesPCS;
   // const moves = movesSeparation;
-  // const moves = movesRetirement;
+  const moves = movesRetirement;
 
   return (
     <div>
@@ -73,7 +73,7 @@ const MultiMovesLandingPage = () => {
             </Button>
           </div>
           <div className={styles.movesContainer}>
-            <MultiMovesMoveHeader title="Current Move" />
+            <MultiMovesMoveHeader data-testid="currentMoveHeader" title="Current Move" />
             <MultiMovesMoveContainer move={moves.currentMove} />
             <MultiMovesMoveHeader title="Previous Moves" />
             <MultiMovesMoveContainer move={moves.previousMoves} />

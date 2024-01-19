@@ -2,6 +2,7 @@
 @import 'shared/styles/_basics';
 @import 'shared/styles/_variables';
 
+
 .grid-container {
   margin-left: auto;
   margin-right: auto;
@@ -67,6 +68,16 @@
     @include u-margin-top(-1);
     span {
       @include u-margin-right(.5em)
+    }
+
+    @media (max-width: $tablet) {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      span {
+        @include u-margin-right(0);
+      }
     }
   }
 

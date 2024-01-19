@@ -1,6 +1,7 @@
 @import '../../../../shared/styles/basics';
 @import '../../../../shared/styles/mixins';
 @import '../../../../shared/styles/colors';
+@import '../../../../shared/styles/_variables';
 
 .movesContainer {
     display: flex;
@@ -28,7 +29,11 @@
     @include u-border('base-lighter');
     @include u-padding(2);
 
-    .moveHeaderBtn {
+    .goToMoveBtn {
+        margin-left: auto;
+    }
+
+    .dropdownBtn {
         margin-left: auto;
     }
 
