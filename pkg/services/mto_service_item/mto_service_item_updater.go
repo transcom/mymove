@@ -435,14 +435,11 @@ func CalculateSITAuthorizedAndRequirededDates(appCtx appcontext.AppContext, serv
 		}
 	}
 
-	serviceItem.SITAuthorizedEndDate = sitAuthorizedEndDate
-	serviceItem.MoveTaskOrderID = oldServiceItem.MoveTaskOrderID
-	serviceItem.ReServiceID = oldServiceItem.ReServiceID
-
-	verrs, err = appCtx.DB().ValidateAndUpdate(serviceItem)
+	oldServiceItem.SITAuthorizedEndDate = sitAuthorizedEndDate
+	verrs, err = appCtx.DB().ValidateAndUpdate(oldServiceItem)
 
 	if verrs != nil && verrs.HasAny() {
-		return apperror.NewInvalidInputError(serviceItem.ID, err, verrs, "invalid input found while updating current sit service item")
+		return apperror.NewInvalidInputError(oldServiceItem.ID, err, verrs, "invalid input found while updating the sit service item")
 	} else if err != nil {
 		return apperror.NewQueryError("Service item", err, "")
 	}
