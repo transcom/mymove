@@ -237,7 +237,8 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 				return handlers.ResponseForError(logger, err), err
 			}
 
-			page1Data, page2Data, page3Data := h.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
+			// Rework will begin here
+			page1Data, page2Data := h.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
 
 			if err != nil {
 				logger.Error("Error formatting data for SSW", zap.Error(err))
@@ -275,22 +276,6 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 			err = formFiller.AppendPage(page2Reader, page2Layout.FieldsLayout, page2Data)
 			if err != nil {
 				appCtx.Logger().Error("Error appending 2 page to PDF", zap.Error(err))
-				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
-			}
-
-			// page 3
-			page3Layout := paperwork.ShipmentSummaryPage3Layout
-			page3Template, err := assets.Asset(page3Layout.TemplateImagePath)
-
-			if err != nil {
-				appCtx.Logger().Error("Error reading page 3 template file", zap.String("asset", page3Layout.TemplateImagePath), zap.Error(err))
-				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
-			}
-
-			page3Reader := bytes.NewReader(page3Template)
-			err = formFiller.AppendPage(page3Reader, page3Layout.FieldsLayout, page3Data)
-			if err != nil {
-				appCtx.Logger().Error("Error appending page 3 to PDF", zap.Error(err))
 				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
 			}
 

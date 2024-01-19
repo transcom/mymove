@@ -30,13 +30,21 @@ func NewSSWPPMComputer() services.SSWPPMComputer {
 	return &SSWPPMComputer{}
 }
 
+// SSWPPMComputer is the concrete struct implementing the services.shipmentsummaryworksheet interface
+type SSWPPMGenerator struct {
+}
+
+// NewSSWPPMComputer creates a SSWPPMComputer
+func NewSSWPPMGenerator() services.SSWPPMGenerator {
+	return &SSWPPMGenerator{}
+}
+
 // FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
-func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData services.ShipmentSummaryFormData) (services.Page1Values, services.Page2Values, services.Page3Values) {
+func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData services.ShipmentSummaryFormData) (services.Page1Values, services.Page2Values) {
 	page1 := FormatValuesShipmentSummaryWorksheetFormPage1(shipmentSummaryFormData)
 	page2 := FormatValuesShipmentSummaryWorksheetFormPage2(shipmentSummaryFormData)
-	page3 := FormatValuesShipmentSummaryWorksheetFormPage3(shipmentSummaryFormData)
 
-	return page1, page2, page3
+	return page1, page2
 }
 
 // Page1Values is an object representing a Shipment Summary Worksheet
@@ -363,17 +371,9 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 	page2.PreparationDate = FormatDate(data.PreparationDate)
 	page2.TotalMemberPaidRepeated = page2.TotalMemberPaid
 	page2.TotalGTCCPaidRepeated = page2.TotalGTCCPaid
+	page2.ServiceMemberSignature = FormatSignature(data.ServiceMember)
+	page2.SignatureDate = FormatSignatureDate(data.SignedCertification)
 	return page2
-}
-
-// FormatValuesShipmentSummaryWorksheetFormPage3 formats the data for page 2 of the Shipment Summary Worksheet
-func FormatValuesShipmentSummaryWorksheetFormPage3(data services.ShipmentSummaryFormData) services.Page3Values {
-	page3 := services.Page3Values{}
-	page3.CUIBanner = controlledUnclassifiedInformationText
-	page3.PreparationDate = FormatDate(data.PreparationDate)
-	page3.ServiceMemberSignature = FormatSignature(data.ServiceMember)
-	page3.SignatureDate = FormatSignatureDate(data.SignedCertification)
-	return page3
 }
 
 // FormatSignature formats a service member's signature for the Shipment Summary Worksheet
