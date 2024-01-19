@@ -970,8 +970,6 @@ definitions:
         title: DoD ID number
       affiliation:
         $ref: 'definitions/Affiliation.yaml'
-      grade:
-        $ref: '#/definitions/OrderPayGrade'
       first_name:
         type: string
         example: John

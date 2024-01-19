@@ -51,6 +51,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		Tac:                 handlers.FmtString("E19A"),
 		Sac:                 handlers.FmtString("SacNumber"),
 		DepartmentIndicator: internalmessages.NewDeptIndicator(deptIndicator),
+		Grade:               models.ServiceMemberGradeE1.Pointer(),
 	}
 
 	params := ordersop.CreateOrdersParams{

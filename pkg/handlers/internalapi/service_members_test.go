@@ -275,7 +275,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		},
 	}, nil)
 
-	grade := models.ServiceMemberGradeE1
 	resAddress := fakeAddressPayload()
 	backupAddress := fakeAddressPayload()
 	patchPayload := internalmessages.PatchServiceMemberPayload{
@@ -283,7 +282,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		BackupMailingAddress: backupAddress,
 		ResidentialAddress:   resAddress,
 		Affiliation:          &newAffiliation,
-		Grade:                &grade,
 		EmailIsPreferred:     newEmailIsPreferred,
 		FirstName:            newFirstName,
 		LastName:             newLastName,
@@ -332,8 +330,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	// Editing SM info DutyLocation and Rank fields should edit Orders OriginDutyLocation and Grade fields
 	suite.Equal(*serviceMemberPayload.Orders[0].OriginDutyLocation.Name, newDutyLocation.Name)
 	suite.Equal(serviceMemberPayload.Orders[0].OriginDutyLocationGbloc, &newGBLOC.GBLOC)
-	suite.Equal(*serviceMemberPayload.Orders[0].Grade, (string)(grade))
-	suite.NotEqual(*serviceMemberPayload.Orders[0].Grade, orderGrade)
 }
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
@@ -341,11 +337,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	user := factory.BuildDefaultUser(suite.DB())
 
 	edipi := "2342342344"
-
-	// If there are orders and the move has been submitted, then the
-	// affiliation rank, and duty location should not be editable.
-	origGrade := models.ServiceMemberGradeE1
-	newGrade := models.ServiceMemberGradeE2
 
 	origAffiliation := models.AffiliationAIRFORCE
 	newAffiliation := internalmessages.AffiliationARMY
@@ -464,7 +455,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 		MiddleName:           newMiddleName,
 		PersonalEmail:        newPersonalEmail,
 		PhoneIsPreferred:     newPhoneIsPreferred,
-		Grade:                &newGrade,
 		SecondaryTelephone:   newSecondaryTelephone,
 		Suffix:               newSuffix,
 		Telephone:            newTelephone,
@@ -494,7 +484,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	// These fields should not change (they should still be the original
 	// values) after the move has been submitted.
 	suite.Equal(origAffiliation, models.ServiceMemberAffiliation(*serviceMemberPayload.Affiliation))
-	suite.Equal(origGrade, internalmessages.OrderPayGrade(*serviceMemberPayload.Grade))
 	suite.Equal(origDutyLocation.ID.String(), string(*serviceMemberPayload.CurrentLocation.ID))
 
 	// These fields should change even if the move is submitted.
