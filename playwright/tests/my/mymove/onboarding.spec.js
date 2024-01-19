@@ -10,7 +10,7 @@ test('A customer can go through onboarding', async ({ page, customerPage }) => {
   await page.getByText('Starts and ends in the continental US').click();
   await customerPage.navigateForward();
 
-  // Branch/DOD ID/Rank section
+  // Branch/DOD ID section
   await customerPage.waitForPage.onboardingDodId();
   await page.getByRole('combobox', { name: 'Branch of service' }).selectOption({ label: 'Space Force' });
   await page.getByRole('combobox', { name: 'Branch of service' }).selectOption({ label: 'Army' });
