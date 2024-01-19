@@ -5,16 +5,9 @@ properties:
   totalDaysRemaining:
     type: integer
     minimum: 0
-  calculatedTotalDaysInSIT:
-    type: integer
-    minimum: 0
   currentSIT:
     type: object
     properties:
-      serviceItemID:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       location:
         enum:
           - 'ORIGIN'
@@ -46,5 +39,3 @@ properties:
         type: string
         format: date
         x-nullable: true
-  pastSITServiceItems:
-    $ref: 'MTOServiceItems.yaml'

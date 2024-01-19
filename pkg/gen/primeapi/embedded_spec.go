@@ -3820,6 +3820,11 @@ func init() {
               "format": "date",
               "x-nullable": true
             },
+            "sitAuthorizedEndDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "sitCustomerContacted": {
               "type": "string",
               "format": "date",
@@ -4018,22 +4023,12 @@ func init() {
         "newAddress": {
           "$ref": "#/definitions/Address"
         },
-        "newSitDistanceBetween": {
-          "description": "The distance between the original SIT address and requested new destination address of shipment",
-          "type": "integer",
-          "example": 88
-        },
         "officeRemarks": {
           "description": "The TOO comment on approval or rejection.",
           "type": "string",
           "title": "Office Remarks",
           "x-nullable": true,
           "example": "This is an office remark"
-        },
-        "oldSitDistanceBetween": {
-          "description": "The distance between the original SIT address and the previous/old destination address of shipment",
-          "type": "integer",
-          "example": 50
         },
         "originalAddress": {
           "$ref": "#/definitions/Address"
@@ -4043,9 +4038,6 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "sitOriginalAddress": {
-          "$ref": "#/definitions/Address"
         },
         "status": {
           "$ref": "#/definitions/ShipmentAddressUpdateStatus"
@@ -9054,6 +9046,11 @@ func init() {
               "format": "date",
               "x-nullable": true
             },
+            "sitAuthorizedEndDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "sitCustomerContacted": {
               "type": "string",
               "format": "date",
@@ -9100,6 +9097,11 @@ func init() {
           ]
         },
         "sitAllowanceEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitAuthorizedEndDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -9297,24 +9299,12 @@ func init() {
         "newAddress": {
           "$ref": "#/definitions/Address"
         },
-        "newSitDistanceBetween": {
-          "description": "The distance between the original SIT address and requested new destination address of shipment",
-          "type": "integer",
-          "minimum": 0,
-          "example": 88
-        },
         "officeRemarks": {
           "description": "The TOO comment on approval or rejection.",
           "type": "string",
           "title": "Office Remarks",
           "x-nullable": true,
           "example": "This is an office remark"
-        },
-        "oldSitDistanceBetween": {
-          "description": "The distance between the original SIT address and the previous/old destination address of shipment",
-          "type": "integer",
-          "minimum": 0,
-          "example": 50
         },
         "originalAddress": {
           "$ref": "#/definitions/Address"
@@ -9324,9 +9314,6 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "sitOriginalAddress": {
-          "$ref": "#/definitions/Address"
         },
         "status": {
           "$ref": "#/definitions/ShipmentAddressUpdateStatus"

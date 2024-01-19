@@ -7539,7 +7539,6 @@ func init() {
         "actualWeight": {
           "type": "integer",
           "x-nullable": true,
-          "x-omitempty": false,
           "example": 2000
         },
         "aoa": {
@@ -7640,7 +7639,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "remainingIncentive": {
+        "remainingReimbursementOwed": {
           "description": "The remaining reimbursement amount that is still owed to the customer.",
           "type": "integer",
           "format": "cents",
@@ -8810,6 +8809,11 @@ func init() {
               "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
             },
             "sitAllowanceEndDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitAuthorizedEndDate": {
               "type": "string",
               "format": "date",
               "x-nullable": true
@@ -19099,7 +19103,6 @@ func init() {
         "actualWeight": {
           "type": "integer",
           "x-nullable": true,
-          "x-omitempty": false,
           "example": 2000
         },
         "aoa": {
@@ -19201,7 +19204,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "remainingIncentive": {
+        "remainingReimbursementOwed": {
           "description": "The remaining reimbursement amount that is still owed to the customer.",
           "type": "integer",
           "format": "cents",
@@ -20379,6 +20382,11 @@ func init() {
               "format": "date",
               "x-nullable": true
             },
+            "sitAuthorizedEndDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "sitCustomerContacted": {
               "type": "string",
               "format": "date",
@@ -20433,6 +20441,11 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "sitAllowanceEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitAuthorizedEndDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
