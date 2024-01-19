@@ -208,6 +208,17 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		return ediinvoice.Invoice858C{}, err
 	}
 
+	// Add order pay grade detail to header
+	if moveTaskOrder.Orders.Grade == nil {
+		// Nil check
+		return ediinvoice.Invoice858C{}, apperror.NewNotFoundError(moveTaskOrder.Orders.ID, "order pay grade not found")
+	}
+
+	edi858.Header.OrderPayGrade = edisegment.N9{
+		ReferenceIdentificationQualifier: "ML",
+		ReferenceIdentification:          string(*moveTaskOrder.Orders.Grade),
+	}
+
 	var paymentServiceItems models.PaymentServiceItems
 	err = appCtx.DB().Q().
 		Eager("MTOServiceItem.ReService", "MTOServiceItem.MTOShipment").
