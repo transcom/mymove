@@ -32,8 +32,9 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	var ppmCloseoutObj models.PPMCloseout
 	var ppmShipment models.PPMShipment
 	var mtoShipment models.MTOShipment
+	var err error
 
-	errPPM := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
+	err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
 		EagerPreload(
 			"ID",
 			"ShipmentID",
@@ -52,21 +53,21 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		return nil, apperror.NewPPMNotReadyForCloseoutError(ppmShipmentID, "")
 	}
 
-	if errPPM != nil {
-		switch errPPM {
+	if err != nil {
+		switch err {
 		case sql.ErrNoRows:
 			return nil, apperror.NewNotFoundError(ppmShipmentID, "while looking for PPMShipment")
 		default:
-			return nil, apperror.NewQueryError("PPMShipment", errPPM, "unable to find PPMShipment")
+			return nil, apperror.NewQueryError("PPMShipment", err, "unable to find PPMShipment")
 		}
 	}
 
 	var expenseItems []models.MovingExpense
 	storageExpensePrice := unit.Cents(0)
 
-	expenseErr := appCtx.DB().Where("ppm_shipment_id = ?", ppmShipmentID).All(&expenseItems)
-	if expenseErr != nil {
-		return nil, expenseErr
+	err = appCtx.DB().Where("ppm_shipment_id = ?", ppmShipmentID).All(&expenseItems)
+	if err != nil {
+		return nil, err
 	}
 
 	for _, movingExpense := range expenseItems {
@@ -76,7 +77,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	}
 
 	mtoShipmentID := &ppmShipment.ShipmentID
-	errMTO := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
+	err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
 		EagerPreload(
 			"ID",
 			"ScheduledPickupDate",
@@ -86,18 +87,17 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		).
 		Find(&mtoShipment, mtoShipmentID)
 
-	if errMTO != nil {
-		switch errMTO {
+	if err != nil {
+		switch err {
 		case sql.ErrNoRows:
 			return nil, apperror.NewNotFoundError(*mtoShipmentID, "while looking for MTOShipment")
 		default:
-			return nil, apperror.NewQueryError("MTOShipment", errMTO, "unable to find MTOShipment")
+			return nil, apperror.NewQueryError("MTOShipment", err, "unable to find MTOShipment")
 		}
 	}
 
 	// Get all DLH, FSC, DOP, DDP, DPK, and DUPK service items for the shipment
 	var serviceItemsToPrice []models.MTOServiceItem
-	var err error
 	logger := appCtx.Logger()
 	idString := ppmShipment.ShipmentID.String()
 	fmt.Print(idString)
@@ -109,9 +109,9 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	logger.Debug(fmt.Sprintf("serviceItemsToPrice %+v", serviceItemsToPrice))
 	// itemPricer := ghcrateengine.NewServiceItemPricer()
 	contractDate := ppmShipment.ExpectedDepartureDate
-	contract, contractErr := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
-	if contractErr != nil {
-		return nil, contractErr
+	contract, err := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
+	if err != nil {
+		return nil, err
 	}
 
 	paramsForServiceItems, paramErr := paymentrequesthelper.Helper.FetchServiceParamsForServiceItems(&paymentrequesthelper.RequestPaymentHelper{}, appCtx, serviceItemsToPrice)
@@ -135,15 +135,15 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	}
 	if totalWeight > 0 {
 		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
-		ppmToMtoShipment = mapPPMShipmentFinalFields(ppmShipment, *ppmShipment.EstimatedWeight)
+		ppmToMtoShipment = ppmshipment.MapPPMShipmentFinalFields(ppmShipment, *ppmShipment.EstimatedWeight)
 	} else {
 		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
-		ppmToMtoShipment = mapPPMShipmentEstimatedFields(ppmShipment)
+		ppmToMtoShipment = ppmshipment.MapPPMShipmentEstimatedFields(ppmShipment)
 	}
 
 	for _, serviceItem := range serviceItemsToPrice {
-		pricer, pricerErr := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code)
-		if pricerErr != nil {
+		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code)
+		if err != nil {
 			logger.Error("unable to find pricer for service item", zap.Error(err))
 			return nil, err
 		}
@@ -171,10 +171,10 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		for _, param := range paramsForServiceCode(serviceItem.ReService.Code, paramsForServiceItems) {
 			paramKey := param.ServiceItemParamKey
 			// This is where the lookup() method of each service item param is actually evaluated
-			paramValue, valueErr := keyData.ServiceParamValue(appCtx, paramKey.Key) // Fails with "DistanceZip" param?
-			if valueErr != nil {
-				logger.Error("could not calculate param value lookup", zap.Error(valueErr))
-				return nil, valueErr
+			paramValue, serviceParamErr := keyData.ServiceParamValue(appCtx, paramKey.Key) // Fails with "DistanceZip" param?
+			if serviceParamErr != nil {
+				logger.Error("could not calculate param value lookup", zap.Error(serviceParamErr))
+				return nil, serviceParamErr
 			}
 
 			// Gather all the param values for the service item to pass to the pricer's Price() method
@@ -196,13 +196,8 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		}
 
 		// Middle var here can give you info on payment params like FSC multiplier, price rate/factor, etc. if needed.
-		centsValue, _, priceErr := pricer.PriceUsingParams(appCtx, paramValues)
-		if priceErr != nil {
-			return nil, priceErr
-		}
-
+		centsValue, _, err := pricer.PriceUsingParams(appCtx, paramValues)
 		if err != nil {
-			logger.Error("unable to calculate service item price", zap.Error(err))
 			return nil, err
 		}
 
@@ -252,28 +247,4 @@ func paramsForServiceCode(code models.ReServiceCode, serviceParams models.Servic
 		}
 	}
 	return serviceItemParams
-}
-
-func mapPPMShipmentFinalFields(ppmShipment models.PPMShipment, totalWeight unit.Pound) models.MTOShipment {
-
-	ppmShipment.Shipment.ActualPickupDate = ppmShipment.ActualMoveDate
-	ppmShipment.Shipment.RequestedPickupDate = ppmShipment.ActualMoveDate
-	ppmShipment.Shipment.PickupAddress = &models.Address{PostalCode: *ppmShipment.ActualPickupPostalCode}
-	ppmShipment.Shipment.DestinationAddress = &models.Address{PostalCode: *ppmShipment.ActualDestinationPostalCode}
-	ppmShipment.Shipment.PrimeActualWeight = &totalWeight
-
-	return ppmShipment.Shipment
-}
-
-// mapPPMShipmentEstimatedFields remaps our PPMShipment specific information into the fields where the service param lookups
-// expect to find them on the MTOShipment model.  This is only in-memory and shouldn't get saved to the database.
-func mapPPMShipmentEstimatedFields(ppmShipment models.PPMShipment) models.MTOShipment {
-
-	ppmShipment.Shipment.ActualPickupDate = &ppmShipment.ExpectedDepartureDate
-	ppmShipment.Shipment.RequestedPickupDate = &ppmShipment.ExpectedDepartureDate
-	ppmShipment.Shipment.PickupAddress = &models.Address{PostalCode: ppmShipment.PickupPostalCode}
-	ppmShipment.Shipment.DestinationAddress = &models.Address{PostalCode: ppmShipment.DestinationPostalCode}
-	ppmShipment.Shipment.PrimeActualWeight = ppmShipment.EstimatedWeight
-
-	return ppmShipment.Shipment
 }

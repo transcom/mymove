@@ -251,10 +251,10 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 	var mtoShipment models.MTOShipment
 	if totalWeightFromWeightTickets > 0 {
 		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
-		mtoShipment = mapPPMShipmentFinalFields(*ppmShipment, totalWeightFromWeightTickets)
+		mtoShipment = MapPPMShipmentFinalFields(*ppmShipment, totalWeightFromWeightTickets)
 	} else {
 		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
-		mtoShipment = mapPPMShipmentEstimatedFields(*ppmShipment)
+		mtoShipment = MapPPMShipmentEstimatedFields(*ppmShipment)
 	}
 
 	totalPrice := unit.Cents(0)
@@ -433,7 +433,7 @@ func priceAdditionalDaySIT(appCtx appcontext.AppContext, pricer services.ParamsP
 
 // mapPPMShipmentEstimatedFields remaps our PPMShipment specific information into the fields where the service param lookups
 // expect to find them on the MTOShipment model.  This is only in-memory and shouldn't get saved to the database.
-func mapPPMShipmentEstimatedFields(ppmShipment models.PPMShipment) models.MTOShipment {
+func MapPPMShipmentEstimatedFields(ppmShipment models.PPMShipment) models.MTOShipment {
 
 	ppmShipment.Shipment.ActualPickupDate = &ppmShipment.ExpectedDepartureDate
 	ppmShipment.Shipment.RequestedPickupDate = &ppmShipment.ExpectedDepartureDate
@@ -446,7 +446,7 @@ func mapPPMShipmentEstimatedFields(ppmShipment models.PPMShipment) models.MTOShi
 
 // mapPPMShipmentFinalFields remaps our PPMShipment specific information into the fields where the service param lookups
 // expect to find them on the MTOShipment model.  This is only in-memory and shouldn't get saved to the database.
-func mapPPMShipmentFinalFields(ppmShipment models.PPMShipment, totalWeight unit.Pound) models.MTOShipment {
+func MapPPMShipmentFinalFields(ppmShipment models.PPMShipment, totalWeight unit.Pound) models.MTOShipment {
 
 	ppmShipment.Shipment.ActualPickupDate = ppmShipment.ActualMoveDate
 	ppmShipment.Shipment.RequestedPickupDate = ppmShipment.ActualMoveDate
