@@ -15,7 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-var rankDisplayValue = map[models.ServiceMemberGrade]string{
+var rankDisplayValue = map[internalmessages.OrderPayGrade]string{
 	models.ServiceMemberGradeE1:                      "E-1",
 	models.ServiceMemberGradeE2:                      "E-2",
 	models.ServiceMemberGradeE3:                      "E-3",
@@ -237,9 +237,9 @@ func (f *FormFiller) drawData(fields map[string]FieldPos, data interface{}) erro
 			displayValue = strconv.FormatInt(v, 10)
 		case time.Time:
 			displayValue = v.Format("02-Jan-2006")
-		case models.ServiceMemberGrade:
+		case internalmessages.OrderPayGrade:
 			displayValue = rankDisplayValue[v]
-		case *models.ServiceMemberGrade:
+		case *internalmessages.OrderPayGrade:
 			if v != nil {
 				displayValue = rankDisplayValue[*v]
 			}

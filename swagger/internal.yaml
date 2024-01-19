@@ -1302,8 +1302,6 @@ definitions:
         title: DoD ID number
       affiliation:
         $ref: '#/definitions/Affiliation'
-      grade:
-        $ref: '#/definitions/OrderPayGrade'
       first_name:
         type: string
         example: John

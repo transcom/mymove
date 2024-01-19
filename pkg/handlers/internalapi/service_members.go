@@ -32,9 +32,6 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 	}
 
 	var weightAllotment *internalmessages.WeightAllotment
-	if serviceMember.Rank != nil {
-		weightAllotment = payloadForWeightAllotmentModel(models.GetWeightAllotment(*serviceMember.Rank))
-	}
 
 	serviceMemberPayload := internalmessages.ServiceMemberPayload{
 		ID:                   handlers.FmtUUID(serviceMember.ID),
@@ -44,7 +41,6 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		Edipi:                serviceMember.Edipi,
 		Orders:               orders,
 		Affiliation:          (*internalmessages.Affiliation)(serviceMember.Affiliation),
-		Rank:                 (*internalmessages.ServiceMemberRank)(serviceMember.Rank),
 		FirstName:            serviceMember.FirstName,
 		MiddleName:           serviceMember.MiddleName,
 		LastName:             serviceMember.LastName,
@@ -98,7 +94,6 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 				UserID:               appCtx.Session().UserID,
 				Edipi:                params.CreateServiceMemberPayload.Edipi,
 				Affiliation:          (*models.ServiceMemberAffiliation)(params.CreateServiceMemberPayload.Affiliation),
-				Rank:                 (*models.ServiceMemberGrade)(params.CreateServiceMemberPayload.Rank),
 				FirstName:            params.CreateServiceMemberPayload.FirstName,
 				MiddleName:           params.CreateServiceMemberPayload.MiddleName,
 				LastName:             params.CreateServiceMemberPayload.LastName,
@@ -217,11 +212,6 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 					return handlers.ResponseForError(appCtx.Logger(), err), err
 				}
 
-				serviceMemberRank := (*string)(serviceMember.Rank)
-				if serviceMemberRank != order.Grade {
-					order.Grade = serviceMemberRank
-				}
-
 				if serviceMember.DutyLocation.ID != order.OriginDutyLocation.ID {
 					dutyLocation := &serviceMember.DutyLocation
 					var originDutyLocationGBLOC models.PostalCodeToGBLOC
@@ -269,10 +259,6 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(appCtx appconte
 
 		if payload.Affiliation != nil {
 			serviceMember.Affiliation = (*models.ServiceMemberAffiliation)(payload.Affiliation)
-		}
-
-		if payload.Rank != nil {
-			serviceMember.Rank = (*models.ServiceMemberGrade)(payload.Rank)
 		}
 	}
 	if payload.Edipi != nil {

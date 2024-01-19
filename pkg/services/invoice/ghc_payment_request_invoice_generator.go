@@ -304,16 +304,6 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 		ReferenceIdentification:          serviceMember.ReverseNameLineFormat(),
 	}
 
-	// rank
-	rank := serviceMember.Rank
-	if rank == nil {
-		return apperror.NewConflictError(serviceMember.ID, fmt.Sprintf("no rank found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
-	}
-	header.ServiceMemberRank = edisegment.N9{
-		ReferenceIdentificationQualifier: "ML",
-		ReferenceIdentification:          string(*rank),
-	}
-
 	// branch
 	branch := serviceMember.Affiliation
 	if branch == nil {
@@ -718,17 +708,17 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 		//"HO" - O-1 Academy graduate through O-10, W1 - W5, Aviation Cadet, Academy Cadet, and Midshipman
 		//"HC" - Civilian employee
 
-		if orders.ServiceMember.Rank == nil {
-			return nil, apperror.NewConflictError(orders.ServiceMember.ID, "this service member has no rank")
+		if orders.Grade == nil {
+			return nil, apperror.NewConflictError(orders.ServiceMember.ID, "this service member has no pay grade for the specified order")
 		}
-		rank := *orders.ServiceMember.Rank
+		grade := *orders.Grade
 
 		hhgCode := ""
-		if rank[:2] == "E_" {
+		if grade[:2] == "E_" {
 			hhgCode = "HE"
-		} else if rank[:2] == "O_" || rank[:2] == "W_" || rank == models.ServiceMemberGradeACADEMYCADET || rank == models.ServiceMemberGradeAVIATIONCADET || rank == models.ServiceMemberGradeMIDSHIPMAN {
+		} else if grade[:2] == "O_" || grade[:2] == "W_" || grade == models.ServiceMemberGradeACADEMYCADET || grade == models.ServiceMemberGradeAVIATIONCADET || grade == models.ServiceMemberGradeMIDSHIPMAN {
 			hhgCode = "HO"
-		} else if rank == models.ServiceMemberGradeCIVILIANEMPLOYEE {
+		} else if grade == models.ServiceMemberGradeCIVILIANEMPLOYEE {
 			hhgCode = "HC"
 		} else {
 			return nil, apperror.NotImplementedError{}

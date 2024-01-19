@@ -44,9 +44,6 @@ type PatchServiceMemberPayload struct {
 	// Example: John
 	FirstName *string `json:"first_name,omitempty"`
 
-	// grade
-	Grade *OrderPayGrade `json:"grade,omitempty"`
-
 	// Last name
 	// Example: Donut
 	LastName *string `json:"last_name,omitempty"`
@@ -103,10 +100,6 @@ func (m *PatchServiceMemberPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateEdipi(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateGrade(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -206,25 +199,6 @@ func (m *PatchServiceMemberPayload) validateEdipi(formats strfmt.Registry) error
 	return nil
 }
 
-func (m *PatchServiceMemberPayload) validateGrade(formats strfmt.Registry) error {
-	if swag.IsZero(m.Grade) { // not required
-		return nil
-	}
-
-	if m.Grade != nil {
-		if err := m.Grade.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("grade")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("grade")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (m *PatchServiceMemberPayload) validatePersonalEmail(formats strfmt.Registry) error {
 	if swag.IsZero(m.PersonalEmail) { // not required
 		return nil
@@ -304,10 +278,6 @@ func (m *PatchServiceMemberPayload) ContextValidate(ctx context.Context, formats
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateGrade(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateResidentialAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -352,27 +322,6 @@ func (m *PatchServiceMemberPayload) contextValidateBackupMailingAddress(ctx cont
 				return ve.ValidateName("backup_mailing_address")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("backup_mailing_address")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *PatchServiceMemberPayload) contextValidateGrade(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.Grade != nil {
-
-		if swag.IsZero(m.Grade) { // not required
-			return nil
-		}
-
-		if err := m.Grade.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("grade")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("grade")
 			}
 			return err
 		}
