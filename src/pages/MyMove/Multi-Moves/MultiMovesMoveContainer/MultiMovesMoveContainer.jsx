@@ -57,7 +57,9 @@ const MultiMovesMoveContainer = ({ move }) => {
             onClick={() => handleExpandClick(index)}
           />
         </div>
-        <div className={styles.moveInfoList}>{expandedMoves[index] && <MultiMovesMoveInfoList move={m} />}</div>
+        <div className={styles.moveInfoList} data-testid="move-info-container">
+          {expandedMoves[index] && <MultiMovesMoveInfoList move={m} />}
+        </div>
       </div>
     </React.Fragment>
   ));
