@@ -208,7 +208,6 @@ func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads mo
 				if err != nil {
 					return nil, errors.Wrap(err, "Converting images")
 				}
-
 				pdfs = append(pdfs, pdf)
 				images = make([]inputFile, 0)
 			}

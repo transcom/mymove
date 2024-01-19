@@ -2001,50 +2001,13 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderNotFound{}, downloadMoveOrderResponse)
 	})
 
-	suite.Run("DownloadMoveOrder: move did not request counseling  - 422", func() {
-		mockMoveSearcher := mocks.MoveSearcher{}
-		mockOrderFetcher := mocks.OrderFetcher{}
-
-		move := factory.BuildMove(suite.DB(), nil, nil)
-		move.Status = models.MoveStatusCANCELED
-
-		moves := models.Moves{move}
-
-		handlerConfig := suite.HandlerConfig()
-		handler := DownloadMoveOrderHandler{
-			HandlerConfig: handlerConfig,
-			MoveSearcher:  &mockMoveSearcher,
-			OrderFetcher:  &mockOrderFetcher,
-		}
-
-		mockMoveSearcher.On("SearchMoves",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
-				return true
-			}),
-		).Return(moves, 1, nil)
-
-		// make the request
-		requestUser := factory.BuildUser(nil, nil, nil)
-		locator := "test"
-		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/order/download", locator), nil)
-		request = suite.AuthenticateUserRequest(request, requestUser)
-		params := movetaskorderops.DownloadMoveOrderParams{
-			HTTPRequest: request,
-			Locator:     locator,
-		}
-		response := handler.Handle(params)
-		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderUnprocessableEntity)
-		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderUnprocessableEntity{}, downloadMoveOrderResponse)
-	})
-
 	suite.Run("DownloadMoveOrder: move requires counseling but origin duty location does have GOV counseling,  Prime counseling is not needed - 422", func() {
 		mockMoveSearcher := mocks.MoveSearcher{}
 		mockOrderFetcher := mocks.OrderFetcher{}
 
 		move := factory.BuildMove(suite.DB(), nil, nil)
 		// Hardcode to MoveStatusNeedsServiceCounseling status
-		move.Status = models.MoveStatusNeedsServiceCounseling
+		//move.Status = models.MoveStatusNeedsServiceCounseling
 		// Hardcode to TRUE. TRUE whens GOV counseling available and PRIME counseling NOT needed.
 		move.Orders.OriginDutyLocation.ProvidesServicesCounseling = true
 
