@@ -264,26 +264,6 @@ func (h ResubmitPPMShipmentDocumentationHandler) Handle(params ppmops.ResubmitPP
 				}
 			}
 
-			eagerAssociations := []string{"MoveTaskOrder",
-				"PickupAddress",
-				"DestinationAddress",
-				"SecondaryPickupAddress",
-				"SecondaryDeliveryAddress",
-				"MTOServiceItems.ReService",
-				"StorageFacility.Address",
-				"PPMShipment"}
-
-			mtoShipment, err := mtoshipment.NewMTOShipmentFetcher().GetShipment(appCtx, ppmShipment.ShipmentID, eagerAssociations...)
-			if err != nil {
-				appCtx.Logger().Error("problem sending email to user", zap.Error(err))
-			}
-			_ = h.NotificationSender().SendNotification(appCtx,
-				notifications.NewPpmPacketEmail(mtoShipment.MoveTaskOrderID),
-			)
-			// if err != nil {
-			// 	appCtx.Logger().Error("problem sending email to user", zap.Error(err))
-			// }
-
 			returnPayload := payloads.PPMShipment(h.FileStorer(), ppmShipment)
 
 			return ppmops.NewResubmitPPMShipmentDocumentationOK().WithPayload(returnPayload), nil
