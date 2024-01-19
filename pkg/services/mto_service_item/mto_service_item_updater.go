@@ -10,13 +10,24 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/services/query"
 	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 )
+
+// OriginSITLocation is the constant representing when the shipment in storage occurs at the origin
+const OriginSITLocation = "ORIGIN"
+
+// DestinationSITLocation is the constant representing when the shipment in storage occurs at the destination
+const DestinationSITLocation = "DESTINATION"
+
+// Number of days of grace period after customer contacts prime for delivery out of SIT
+const GracePeriodDays = 5
 
 type mtoServiceItemQueryBuilder interface {
 	FetchOne(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error
@@ -274,9 +285,169 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemBasic(
 func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 	appCtx appcontext.AppContext,
 	mtoServiceItem *models.MTOServiceItem,
+	planner route.Planner,
+	shipment models.MTOShipment,
 	eTag string,
 ) (*models.MTOServiceItem, error) {
-	return p.UpdateMTOServiceItem(appCtx, mtoServiceItem, eTag, UpdateMTOServiceItemPrimeValidator)
+	updatedServiceItem, err := p.UpdateMTOServiceItem(appCtx, mtoServiceItem, eTag, UpdateMTOServiceItemPrimeValidator)
+
+	if updatedServiceItem != nil {
+		code := updatedServiceItem.ReService.Code
+
+		// If this is an updated to an Origin SIT or Destination SIT service item we need to recalculate the
+		// Authorized End Date and Required Delivery Date
+		if (code == models.ReServiceCodeDOFSIT || code == models.ReServiceCodeDDFSIT) &&
+			updatedServiceItem.Status == models.MTOServiceItemStatusApproved {
+			err = CalculateSITAuthorizedAndRequirededDates(appCtx, mtoServiceItem, shipment, planner)
+		}
+	}
+
+	return updatedServiceItem, err
+}
+
+// Calculate Required Delivery Date(RDD) from customer contact and requested delivery dates
+// The RDD is calculated using the following business logic:
+// If the SIT Departure Date is the same day or after the Customer Contact Date + GracePeriodDays then the RDD is Customer Contact Date + GracePeriodDays + GHC Transit Time
+// If however the SIT Departure Date is before the Customer Contact Date + GracePeriodDays then the RDD is SIT Departure Date + GHC Transit Time
+func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipment models.MTOShipment, planner route.Planner,
+	sitCustomerContacted *time.Time, sitDepartureDate *time.Time) (*time.Time, error) {
+	// Get a distance calculation between pickup and destination addresses.
+	distance, err := planner.ZipTransitDistance(appCtx, shipment.PickupAddress.PostalCode, shipment.DestinationAddress.PostalCode)
+
+	if err != nil {
+		return nil, apperror.NewUnprocessableEntityError("cannot calculate distance between pickup and destination addresses")
+	}
+
+	weight := shipment.PrimeEstimatedWeight
+
+	if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+		weight = shipment.NTSRecordedWeight
+	}
+
+	// Query the ghc_domestic_transit_times table for the max transit time using the distance between location
+	// and the weight to determine the number of days for transit
+	var ghcDomesticTransitTime models.GHCDomesticTransitTime
+	err = appCtx.DB().Where("distance_miles_lower <= ? "+
+		"AND distance_miles_upper >= ? "+
+		"AND weight_lbs_lower <= ? "+
+		"AND (weight_lbs_upper >= ? OR weight_lbs_upper = 0)",
+		distance, distance, weight, weight).First(&ghcDomesticTransitTime)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(shipment.ID, fmt.Sprintf(
+				"failed to find transit time for shipment of %d lbs weight and %d mile distance", weight.Int(), distance))
+		default:
+			return nil, apperror.NewQueryError("CalculateSITAllowanceRequestedDates", err, "failed to query for transit time")
+		}
+	}
+
+	var requiredDeliveryDate time.Time
+	customerContactDatePlusFive := sitCustomerContacted.AddDate(0, 0, GracePeriodDays)
+
+	// we calculate required delivery date here using customer contact date and transit time
+	if sitDepartureDate.Before(customerContactDatePlusFive) {
+		requiredDeliveryDate = sitDepartureDate.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime)
+	} else if sitDepartureDate.After(customerContactDatePlusFive) || sitDepartureDate.Equal(customerContactDatePlusFive) {
+		requiredDeliveryDate = customerContactDatePlusFive.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime)
+	}
+
+	// Weekends and holidays are not allowable dates, find the next available workday
+	var calendar = dates.NewUSCalendar()
+
+	actual, observed, _ := calendar.IsHoliday(requiredDeliveryDate)
+
+	if actual || observed || !calendar.IsWorkday(requiredDeliveryDate) {
+		requiredDeliveryDate = dates.NextWorkday(*calendar, requiredDeliveryDate)
+	}
+
+	return &requiredDeliveryDate, nil
+}
+
+// Calculate the Authorized End Date and the Required Delivery Date for the service item based on business logic using the
+// Customer Contact Date, Customer Requested Delivery Date, and SIT Departure Date
+func CalculateSITAuthorizedAndRequirededDates(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, shipment models.MTOShipment,
+	planner route.Planner) error {
+	location := DestinationSITLocation
+
+	if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT {
+		location = OriginSITLocation
+	}
+
+	sitDepartureDate := serviceItem.SITDepartureDate
+
+	// Calculate authorized end date and required delivery date based on sitCustomerContacted and sitRequestedDelivery
+	// using the below business logic.
+	sitAuthorizedEndDate := sitDepartureDate
+
+	if location == OriginSITLocation {
+		// Origin SIT: sitAuthorizedEndDate should be GracePeriodDays days after sitCustomerContacted or the sitDepartureDate whichever is earlier.
+		calculatedAuthorizedEndDate := serviceItem.SITCustomerContacted.AddDate(0, 0, GracePeriodDays)
+
+		if sitDepartureDate == nil || calculatedAuthorizedEndDate.Before(*sitDepartureDate) {
+			sitAuthorizedEndDate = &calculatedAuthorizedEndDate
+		}
+
+		if sitDepartureDate != nil {
+			requiredDeliveryDate, err := calculateOriginSITRequiredDeliveryDate(appCtx, shipment, planner,
+				serviceItem.SITCustomerContacted, sitDepartureDate)
+
+			if err != nil {
+				return err
+			}
+
+			serviceItem.MTOShipment.RequiredDeliveryDate = requiredDeliveryDate
+		} else {
+			return apperror.NewNotFoundError(serviceItem.MTOShipment.ID, "sit departure date not found")
+		}
+	} else if location == DestinationSITLocation {
+		// Destination SIT: sitAuthorizedEndDate should be GracePeriodDays days after sitRequestedDelivery or the sitDepartureDate whichever is earlier.
+		calculatedAuthorizedEndDate := serviceItem.SITRequestedDelivery.AddDate(0, 0, GracePeriodDays)
+
+		if sitDepartureDate == nil || calculatedAuthorizedEndDate.Before(*sitDepartureDate) {
+			sitAuthorizedEndDate = &calculatedAuthorizedEndDate
+		}
+	}
+
+	var verrs *validate.Errors
+	var err error
+
+	if location == OriginSITLocation {
+
+		verrs, err = appCtx.DB().ValidateAndUpdate(&shipment)
+
+		if verrs != nil && verrs.HasAny() {
+			return apperror.NewInvalidInputError(serviceItem.MTOShipment.ID, err, verrs, "invalid input found while updating dates of shipment")
+		} else if err != nil {
+			return apperror.NewQueryError("Shipment", err, "")
+		}
+	}
+
+	// We retrieve the old service item so we can get the required values to update with the new value for Authorized End Date
+	oldServiceItem, err := models.FetchServiceItem(appCtx.DB(), serviceItem.ID)
+	if err != nil {
+		switch err {
+		case models.ErrFetchNotFound:
+			return apperror.NewNotFoundError(serviceItem.ID, "while looking for MTOServiceItem")
+		default:
+			return apperror.NewQueryError("MTOServiceItem", err, "")
+		}
+	}
+
+	serviceItem.SITAuthorizedEndDate = sitAuthorizedEndDate
+	serviceItem.MoveTaskOrderID = oldServiceItem.MoveTaskOrderID
+	serviceItem.ReServiceID = oldServiceItem.ReServiceID
+
+	verrs, err = appCtx.DB().ValidateAndUpdate(serviceItem)
+
+	if verrs != nil && verrs.HasAny() {
+		return apperror.NewInvalidInputError(serviceItem.ID, err, verrs, "invalid input found while updating current sit service item")
+	} else if err != nil {
+		return apperror.NewQueryError("Service item", err, "")
+	}
+
+	return nil
 }
 
 // UpdateMTOServiceItem updates the given service item
