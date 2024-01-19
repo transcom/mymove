@@ -58,7 +58,7 @@ export const movesPCS = {
       id: 'testMoveID2',
       moveCode: 'SAMPLE',
       orderID: 'testOrderID2',
-      status: 'APPROVED',
+      status: 'COMPLETED',
       orders: {
         id: 'testOrder2',
         destinationDutyLocation: {
@@ -110,7 +110,7 @@ export const movesPCS = {
       id: 'testMoveID3',
       moveCode: 'EXAMPL',
       orderID: 'testOrderID3',
-      status: 'APPROVED',
+      status: 'COMPLETED',
       orders: {
         id: 'testOrder3',
         destinationDutyLocation: {
@@ -221,7 +221,7 @@ export const movesRetirement = {
       id: 'testMoveID2',
       moveCode: 'SAMPLE',
       orderID: 'testOrderID2',
-      status: 'APPROVED',
+      status: 'COMPLETED',
       orders: {
         id: 'testOrder2',
         destinationDutyLocation: {
@@ -273,7 +273,7 @@ export const movesRetirement = {
       id: 'testMoveID3',
       moveCode: 'EXAMPL',
       orderID: 'testOrderID3',
-      status: 'APPROVED',
+      status: 'COMPLETED',
       orders: {
         id: 'testOrder3',
         destinationDutyLocation: {
@@ -384,7 +384,7 @@ export const movesSeparation = {
       id: 'testMoveID2',
       moveCode: 'SAMPLE',
       orderID: 'testOrderID2',
-      status: 'APPROVED',
+      status: 'COMPLETED',
       orders: {
         id: 'testOrder2',
         destinationDutyLocation: {
@@ -436,7 +436,7 @@ export const movesSeparation = {
       id: 'testMoveID3',
       moveCode: 'EXAMPL',
       orderID: 'testOrderID3',
-      status: 'APPROVED',
+      status: 'COMPLETED',
       orders: {
         id: 'testOrder3',
         destinationDutyLocation: {

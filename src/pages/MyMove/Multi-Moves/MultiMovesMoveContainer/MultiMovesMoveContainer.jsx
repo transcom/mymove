@@ -4,10 +4,9 @@ import classnames from 'classnames';
 import { Button } from '@trussworks/react-uswds';
 
 import MultiMovesMoveInfoList from '../MultiMovesMoveInfoList/MultiMovesMoveInfoList';
+import ButtonDropdownMenu from '../ButtonDropdownMenu/ButtonDropdownMenu';
 
 import styles from './MultiMovesMoveContainer.module.scss';
-
-import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 
 const MultiMovesMoveContainer = ({ move }) => {
   const [expandedMoves, setExpandedMoves] = useState({});
@@ -19,24 +18,35 @@ const MultiMovesMoveContainer = ({ move }) => {
     }));
   };
 
-  const handleButtonDropdownChange = (e) => {
-    const selectedOption = e.target.value;
-    console.log(selectedOption);
+  const handleDropdownItemClick = (selectedItem) => {
+    console.log(`${selectedItem.value}`);
   };
+
+  const items = [
+    {
+      id: 1,
+      value: 'PCS Orders',
+    },
+    {
+      id: 2,
+      value: 'PPM Packet',
+    },
+  ];
 
   const moveList = move.map((m, index) => (
     <React.Fragment key={index}>
       <div className={styles.moveContainer}>
         <div className={styles.heading} key={index}>
           <h3>#{m.moveCode}</h3>
-          {m.status !== 'APPROVED' ? (
-            <Button className={styles.moveHeaderBtn}>Go to Move</Button>
+          {m.status !== 'COMPLETED' ? (
+            <Button className={styles.goToMoveBtn}>Go to Move</Button>
           ) : (
-            <ButtonDropdown divClassName={styles.moveHeaderBtn} onChange={handleButtonDropdownChange}>
-              <option value="">Download</option>
-              <option>PCS Orders</option>
-              <option>PPM Packet</option>
-            </ButtonDropdown>
+            <ButtonDropdownMenu
+              title="Download"
+              items={items}
+              divClassName={styles.dropdownBtn}
+              onItemClick={handleDropdownItemClick}
+            />
           )}
           <FontAwesomeIcon
             className={styles.icon}
