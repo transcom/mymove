@@ -155,3 +155,6 @@ type SSWPPMComputer interface {
 	ComputeObligations(_ appcontext.AppContext, _ ShipmentSummaryFormData, _ route.Planner) (Obligations, error)
 	FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummaryFormData) (Page1Values, Page2Values, Page3Values)
 }
+
+type SSWPPMGenerator interface {
+}
