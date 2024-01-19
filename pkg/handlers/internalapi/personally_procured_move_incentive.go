@@ -51,8 +51,8 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			distanceMilesFromOriginDutyLocationZip, err := h.DTODPlanner().Zip5TransitDistanceLineHaul(appCtx, params.OriginDutyLocationZip, destinationZip)
-			if err != nil {
+			distanceMilesFromOriginDutyLocationZip, errDistanceMilesFromOrigin := h.DTODPlanner().Zip5TransitDistanceLineHaul(appCtx, params.OriginDutyLocationZip, destinationZip)
+			if errDistanceMilesFromOrigin != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 

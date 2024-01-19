@@ -98,7 +98,7 @@ func (m MoveApproved) emails(appCtx appcontext.AppContext) ([]emailContent, erro
 	}
 
 	smEmail := emailContent{
-		subject:        fmt.Sprintf("[MilMove] Your Move is approved (move: %s)", move.Locator),
+		subject:        "Your counselor has approved your move details",
 		recipientEmail: *serviceMember.PersonalEmail,
 		htmlBody:       htmlBody,
 		textBody:       textBody,
