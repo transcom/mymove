@@ -42,7 +42,6 @@ describe('Profile component', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
             first_name: 'Tester',
@@ -122,7 +121,6 @@ describe('Profile component', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
             first_name: 'Tester',
@@ -226,7 +224,6 @@ describe('Profile component', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
-            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
             first_name: 'Tester',
