@@ -5,7 +5,7 @@ import classnames from 'classnames';
 
 import styles from './ButtonDropdownMenu.module.scss';
 
-function ButtonDropdownMenu({ title, items, multiSelect = false, divClassName, onItemClick }) {
+function ButtonDropdownMenu({ title, items, multiSelect = false, divClassName, onItemClick, outline }) {
   const [open, setOpen] = useState(false);
   const [selection, setSelection] = useState([]);
   const toggle = () => setOpen(!open);
@@ -46,12 +46,21 @@ function ButtonDropdownMenu({ title, items, multiSelect = false, divClassName, o
   return (
     <div className={classnames(styles.dropdownWrapper, divClassName)}>
       <div className={styles.dropdownContainer} ref={dropdownRef}>
-        <Button className={styles.btn} onClick={() => handleButtonClick()}>
-          <span>{title}</span>
-          <div>
-            <FontAwesomeIcon icon="download" />
-          </div>
-        </Button>
+        {outline ? (
+          <Button className={styles.btn} onClick={() => handleButtonClick()} secondary outline>
+            <span>{title}</span>
+            <div>
+              <FontAwesomeIcon icon="download" />
+            </div>
+          </Button>
+        ) : (
+          <Button className={styles.btn} onClick={() => handleButtonClick()}>
+            <span>{title}</span>
+            <div>
+              <FontAwesomeIcon icon="download" />
+            </div>
+          </Button>
+        )}
         {open && (
           <ul className={styles.dropdownList}>
             {items.map((item) => (
