@@ -17,6 +17,8 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
 
 // CreateableServiceItemMap is a map of MTOServiceItemModelTypes and their allowed statuses
@@ -127,8 +129,21 @@ func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOSe
 					verrs.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs)), verrs
 			}
 
+			// We need to get the shipment in case we need to update the Authorized End Date and Required Delivery Dates
+			// for an Origin or Destination SIT service item
+			eagerAssociations := []string{"MoveTaskOrder",
+				"PickupAddress",
+				"DestinationAddress",
+				"SecondaryPickupAddress",
+				"SecondaryDeliveryAddress",
+				"MTOServiceItems.ReService",
+				"StorageFacility.Address",
+				"PPMShipment"}
+			serviceItem, err := mtoserviceitem.NewMTOServiceItemFetcher().GetServiceItem(appCtx, mtoServiceItem.ID)
+			shipmentID := *serviceItem.MTOShipmentID
 			eTag := params.IfMatch
-			updatedMTOServiceItem, err := h.MTOServiceItemUpdater.UpdateMTOServiceItemPrime(appCtx, mtoServiceItem, eTag)
+			shipment, err := mtoshipment.NewMTOShipmentFetcher().GetShipment(appCtx, shipmentID, eagerAssociations...)
+			updatedMTOServiceItem, err := h.MTOServiceItemUpdater.UpdateMTOServiceItemPrime(appCtx, mtoServiceItem, h.HandlerConfig.HHGPlanner(), *shipment, eTag)
 
 			if err != nil {
 				appCtx.Logger().Error("primeapi.UpdateMTOServiceItemHandler error", zap.Error(err))
