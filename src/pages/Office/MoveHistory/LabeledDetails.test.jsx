@@ -63,7 +63,7 @@ describe('LabeledDetails', () => {
       ['NTS TAC', ': 3333'],
       ['HHG SAC', ': 4444'],
       ['NTS SAC', ': 5555'],
-      ['Rank', ': E-1'],
+      ['Pay grade', ': E-1'],
       ['Dept. indicator', ': Air Force and Space Force'],
       ['Departure date', ': 01 Jan 2022'],
       ['Shipment weight', ': 100 lbs'],
