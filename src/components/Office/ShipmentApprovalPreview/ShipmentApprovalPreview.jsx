@@ -135,7 +135,7 @@ ShipmentApprovalPreview.propTypes = {
   ordersInfo: OrdersInfoShape.isRequired,
   allowancesInfo: PropTypes.shape({
     branch: PropTypes.string,
-    rank: PropTypes.string,
+    grade: PropTypes.string,
     weightAllowance: PropTypes.number,
     authorizedWeight: PropTypes.number,
     progear: PropTypes.number,
