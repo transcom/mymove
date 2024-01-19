@@ -22,7 +22,7 @@ const MultiMovesMoveContainer = ({ move }) => {
     console.log(`${selectedItem.value}`);
   };
 
-  const items = [
+  const dropdownMenuItems = [
     {
       id: 1,
       value: 'PCS Orders',
@@ -39,13 +39,16 @@ const MultiMovesMoveContainer = ({ move }) => {
         <div className={styles.heading} key={index}>
           <h3>#{m.moveCode}</h3>
           {m.status !== 'COMPLETED' ? (
-            <Button className={styles.goToMoveBtn}>Go to Move</Button>
+            <Button className={styles.goToMoveBtn} secondary outline>
+              Go to Move
+            </Button>
           ) : (
             <ButtonDropdownMenu
               title="Download"
-              items={items}
+              items={dropdownMenuItems}
               divClassName={styles.dropdownBtn}
               onItemClick={handleDropdownItemClick}
+              outline
             />
           )}
           <FontAwesomeIcon
