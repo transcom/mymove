@@ -9,6 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	ppmcloseoutops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
+	paymentrequest "github.com/transcom/mymove/pkg/payment_request"
 	ppmcloseout "github.com/transcom/mymove/pkg/services/ppm_closeout"
 )
 
@@ -18,7 +19,7 @@ func (suite *HandlerSuite) TestGetPPMCloseoutHandler() {
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 		handlerConfig := suite.HandlerConfig()
-		fetcher := ppmcloseout.NewPPMCloseoutFetcher(suite.HandlerConfig().DTODPlanner())
+		fetcher := ppmcloseout.NewPPMCloseoutFetcher(suite.HandlerConfig().DTODPlanner(), &paymentrequest.RequestPaymentHelper{})
 		request := httptest.NewRequest("GET", fmt.Sprintf("/ppm-shipments/%s/closeout", ppmShipment.ID.String()), nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 
@@ -47,7 +48,7 @@ func (suite *HandlerSuite) TestGetPPMCloseoutHandler() {
 		uuidForShipment, _ := uuid.NewV4()
 		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 		handlerConfig := suite.HandlerConfig()
-		fetcher := ppmcloseout.NewPPMCloseoutFetcher(suite.HandlerConfig().DTODPlanner())
+		fetcher := ppmcloseout.NewPPMCloseoutFetcher(suite.HandlerConfig().DTODPlanner(), &paymentrequest.RequestPaymentHelper{})
 		request := httptest.NewRequest("GET", fmt.Sprintf("/ppm-shipments/%s/closeout", uuidForShipment.String()), nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 
