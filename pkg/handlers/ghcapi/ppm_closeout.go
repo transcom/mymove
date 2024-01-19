@@ -33,6 +33,8 @@ func (h GetPPMCloseoutHandler) Handle(params ppmcloseoutops.GetPPMCloseoutParams
 				switch err.(type) {
 				case apperror.NotFoundError:
 					return ppmcloseoutops.NewGetPPMCloseoutNotFound().WithPayload(payload), err
+				case apperror.PPMNotReadyForCloseoutError:
+					return ppmcloseoutops.NewGetPPMCloseoutNotFound().WithPayload(payload), err
 				case apperror.ForbiddenError:
 					return ppmcloseoutops.NewGetPPMCloseoutForbidden().WithPayload(payload), err
 				case apperror.QueryError:
