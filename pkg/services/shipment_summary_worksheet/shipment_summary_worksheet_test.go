@@ -399,60 +399,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	// fields w/ no expenses should format as $0.00, but must be temporarily removed until string function is replaced
 }
 
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSummaryWorksheetFormPage3() {
-	signatureDate := time.Date(2019, time.January, 26, 14, 40, 0, 0, time.UTC)
-	sm := models.ServiceMember{
-		FirstName: models.StringPointer("John"),
-		LastName:  models.StringPointer("Smith"),
-	}
-	paidWithGTCC := false
-	tollExpense := models.MovingExpenseReceiptTypeTolls
-	oilExpense := models.MovingExpenseReceiptTypeOil
-	amount := unit.Cents(10000)
-	movingExpenses := models.MovingExpenses{
-		{
-			MovingExpenseType: &tollExpense,
-			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
-		},
-		{
-			MovingExpenseType: &oilExpense,
-			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
-		},
-		{
-			MovingExpenseType: &oilExpense,
-			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
-		},
-		{
-			MovingExpenseType: &oilExpense,
-			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
-		},
-		{
-			MovingExpenseType: &tollExpense,
-			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
-		},
-	}
-	signature := models.SignedCertification{
-		Date: signatureDate,
-	}
-
-	ssd := services.ShipmentSummaryFormData{
-		ServiceMember:       sm,
-		SignedCertification: signature,
-		MovingExpenses:      movingExpenses,
-	}
-
-	sswPage3 := FormatValuesShipmentSummaryWorksheetFormPage3(ssd)
-
-	suite.Equal("", sswPage3.AmountsPaid)
-	suite.Equal("John Smith electronically signed", sswPage3.ServiceMemberSignature)
-	suite.Equal("26 Jan 2019 at 2:40pm", sswPage3.SignatureDate)
-}
-
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestGroupExpenses() {
 	paidWithGTCC := false
 	tollExpense := models.MovingExpenseReceiptTypeTolls

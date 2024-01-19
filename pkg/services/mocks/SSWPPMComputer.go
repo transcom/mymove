@@ -71,13 +71,12 @@ func (_m *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appco
 }
 
 // FormatValuesShipmentSummaryWorksheet provides a mock function with given fields: shipmentSummaryFormData
-func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData services.ShipmentSummaryFormData) (services.Page1Values, services.Page2Values, services.Page3Values) {
+func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData services.ShipmentSummaryFormData) (services.Page1Values, services.Page2Values) {
 	ret := _m.Called(shipmentSummaryFormData)
 
 	var r0 services.Page1Values
 	var r1 services.Page2Values
-	var r2 services.Page3Values
-	if rf, ok := ret.Get(0).(func(services.ShipmentSummaryFormData) (services.Page1Values, services.Page2Values, services.Page3Values)); ok {
+	if rf, ok := ret.Get(0).(func(services.ShipmentSummaryFormData) (services.Page1Values, services.Page2Values)); ok {
 		return rf(shipmentSummaryFormData)
 	}
 	if rf, ok := ret.Get(0).(func(services.ShipmentSummaryFormData) services.Page1Values); ok {
@@ -92,13 +91,7 @@ func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFo
 		r1 = ret.Get(1).(services.Page2Values)
 	}
 
-	if rf, ok := ret.Get(2).(func(services.ShipmentSummaryFormData) services.Page3Values); ok {
-		r2 = rf(shipmentSummaryFormData)
-	} else {
-		r2 = ret.Get(2).(services.Page3Values)
-	}
-
-	return r0, r1, r2
+	return r0, r1
 }
 
 // NewSSWPPMComputer creates a new instance of SSWPPMComputer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

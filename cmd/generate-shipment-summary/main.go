@@ -146,7 +146,7 @@ func main() {
 	testAppCode := os.Getenv("HERE_MAPS_APP_CODE")
 	hereClient := &http.Client{Timeout: hereRequestTimeout}
 
-	// TODO: Future cleanup will need to remap to a different planner, or this command should be removed if it is consider deprecated
+	// TODO: Future cleanup will need to remap to a different planner, but this command should remain for testing purposes
 	planner := route.NewHEREPlanner(hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
 	ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer()
 
@@ -159,7 +159,8 @@ func main() {
 		log.Fatalf("%s", errors.Wrap(err, "Error calculating obligations "))
 	}
 
-	page1Data, page2Data, page3Data := ppmComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
+	// Rework will begin here
+	page1Data, page2Data := ppmComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
 	noErr(err)
 
 	// page 1
@@ -178,15 +179,6 @@ func main() {
 
 	page2Reader := bytes.NewReader(page2Template)
 	err = formFiller.AppendPage(page2Reader, page2Layout.FieldsLayout, page2Data)
-	noErr(err)
-
-	// page 3
-	page3Layout := paperwork.ShipmentSummaryPage3Layout
-	page3Template, err := assets.Asset(page3Layout.TemplateImagePath)
-	noErr(err)
-
-	page3Reader := bytes.NewReader(page3Template)
-	err = formFiller.AppendPage(page3Reader, page3Layout.FieldsLayout, page3Data)
 	noErr(err)
 
 	filename := fmt.Sprintf("shipment-summary-worksheet-%s.pdf", time.Now().Format(time.RFC3339))

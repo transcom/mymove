@@ -65,21 +65,15 @@ type Page2Values struct {
 	TAC             string
 	SAC             string
 	FormattedMovingExpenses
+	ServiceMemberSignature string
+	SignatureDate          string
+	FormattedOtherExpenses
 }
 
 // FormattedOtherExpenses is an object representing the other moving expenses formatted for the SSW
 type FormattedOtherExpenses struct {
 	Descriptions string
 	AmountsPaid  string
-}
-
-// Page3Values is an object representing a Shipment Summary Worksheet
-type Page3Values struct {
-	CUIBanner              string
-	PreparationDate        string
-	ServiceMemberSignature string
-	SignatureDate          string
-	FormattedOtherExpenses
 }
 
 // FormattedMovingExpenses is an object representing the service member's moving expenses formatted for the SSW
@@ -153,7 +147,7 @@ type SSWMaxWeightEntitlement struct {
 type SSWPPMComputer interface {
 	FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, _ *auth.Session, ppmShipmentID uuid.UUID) (*ShipmentSummaryFormData, error)
 	ComputeObligations(_ appcontext.AppContext, _ ShipmentSummaryFormData, _ route.Planner) (Obligations, error)
-	FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummaryFormData) (Page1Values, Page2Values, Page3Values)
+	FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummaryFormData) (Page1Values, Page2Values)
 }
 
 type SSWPPMGenerator interface {
