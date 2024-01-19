@@ -90,7 +90,6 @@ const defaultProps = {
     personal_email: 'test@example.com',
     first_name: 'Jason',
     last_name: 'Ash',
-    rank: 'E_1',
     telephone: '323-555-7890',
   },
 };
