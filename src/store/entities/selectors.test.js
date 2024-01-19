@@ -141,7 +141,6 @@ describe('selectServiceMemberProfileState', () => {
           serviceMemberId456: {
             id: 'serviceMemberId456',
             affiliation: 'ARMY',
-            rank: 'O_4_W_4',
             edipi: '1234567890',
           },
         },
@@ -164,7 +163,6 @@ describe('selectServiceMemberProfileState', () => {
           serviceMemberId456: {
             id: 'serviceMemberId456',
             affiliation: 'ARMY',
-            rank: 'O_4_W_4',
             edipi: '1234567890',
             first_name: 'Erin',
             last_name: 'Stanfill',
@@ -177,7 +175,7 @@ describe('selectServiceMemberProfileState', () => {
     expect(selectServiceMemberProfileState(testState)).toEqual(profileStates.NAME_COMPLETE);
   });
 
-  it('returns CONTACT_INFO_COMPLETE if there is no duty location data', () => {
+  it('returns CONTACT_INFO_COMPLETE if there is no residential address data', () => {
     const testState = {
       entities: {
         user: {
@@ -190,7 +188,6 @@ describe('selectServiceMemberProfileState', () => {
           serviceMemberId456: {
             id: 'serviceMemberId456',
             affiliation: 'ARMY',
-            rank: 'O_4_W_4',
             edipi: '1234567890',
             first_name: 'Erin',
             last_name: 'Stanfill',
@@ -260,7 +257,6 @@ describe('selectServiceMemberProfileState', () => {
           serviceMemberId456: {
             id: 'serviceMemberId456',
             affiliation: 'ARMY',
-            rank: 'O_4_W_4',
             edipi: '1234567890',
             first_name: 'Erin',
             last_name: 'Stanfill',
@@ -316,7 +312,6 @@ describe('selectServiceMemberProfileState', () => {
           serviceMemberId456: {
             id: 'serviceMemberId456',
             affiliation: 'ARMY',
-            rank: 'O_4_W_4',
             edipi: '1234567890',
             first_name: 'Erin',
             last_name: 'Stanfill',
@@ -397,7 +392,6 @@ describe('selectServiceMemberProfileState', () => {
             middle_name: '',
             personal_email: 'erin@truss.works',
             phone_is_preferred: true,
-            rank: 'O_4_W_4',
             residential_address: {
               city: 'Somewhere',
               postalCode: '80913',
@@ -564,7 +558,6 @@ describe('selectIsProfileComplete', () => {
     middle_name: '',
     personal_email: 'erin@truss.works',
     phone_is_preferred: true,
-    rank: 'O_4_W_4',
     residential_address: {
       city: 'Somewhere',
       postalCode: '80913',
