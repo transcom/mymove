@@ -12,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
-	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
 
 // SubmitPPMShipmentDocumentationHandler is the handler to save a PPMShipment signature and route the PPM shipment to the office
@@ -121,14 +120,8 @@ func (h SubmitPPMShipmentDocumentationHandler) Handle(params ppmops.SubmitPPMShi
 
 			returnPayload := payloads.PPMShipment(h.FileStorer(), ppmShipment)
 
-			eagerAssociations := []string{"MoveTaskOrder", "MoveTaskOrderID"}
-
-			mtoShipment, err := mtoshipment.NewMTOShipmentFetcher().GetShipment(appCtx, ppmShipment.ShipmentID, eagerAssociations...)
-			if err != nil {
-				appCtx.Logger().Error("problem sending email to user", zap.Error(err))
-			}
 			err = h.NotificationSender().SendNotification(appCtx,
-				notifications.NewPpmPacketEmail(mtoShipment.MoveTaskOrderID),
+				notifications.NewPpmPacketEmail(ppmShipment.ID),
 			)
 			if err != nil {
 				appCtx.Logger().Error("problem sending email to user", zap.Error(err))
