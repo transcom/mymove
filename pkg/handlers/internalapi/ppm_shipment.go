@@ -121,14 +121,7 @@ func (h SubmitPPMShipmentDocumentationHandler) Handle(params ppmops.SubmitPPMShi
 
 			returnPayload := payloads.PPMShipment(h.FileStorer(), ppmShipment)
 
-			eagerAssociations := []string{"MoveTaskOrder",
-				"PickupAddress",
-				"DestinationAddress",
-				"SecondaryPickupAddress",
-				"SecondaryDeliveryAddress",
-				"MTOServiceItems.ReService",
-				"StorageFacility.Address",
-				"PPMShipment"}
+			eagerAssociations := []string{"MoveTaskOrder", "MoveTaskOrderID"}
 
 			mtoShipment, err := mtoshipment.NewMTOShipmentFetcher().GetShipment(appCtx, ppmShipment.ShipmentID, eagerAssociations...)
 			if err != nil {
