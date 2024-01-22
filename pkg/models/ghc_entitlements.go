@@ -76,7 +76,7 @@ func (e *Entitlement) AuthorizedWeight() *int {
 	}
 }
 
-// WeightAllowance will return the service member's weight allotment based on their rank and if dependents are
+// WeightAllowance will return the service member's weight allotment based on their grade and if dependents are
 // authorized
 func (e *Entitlement) WeightAllowance() *int {
 	if weightAllotment := e.WeightAllotment(); weightAllotment != nil {

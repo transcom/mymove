@@ -149,7 +149,7 @@ func Order(order *models.Order) *primemessages.Order {
 		OriginDutyLocationGBLOC: swag.StringValue(order.OriginDutyLocationGBLOC),
 		OrderNumber:             order.OrdersNumber,
 		LinesOfAccounting:       order.TAC,
-		Rank:                    &grade,
+		Rank:                    &grade, // Convert prime API "Rank" into our internal tracking of "Grade"
 		ETag:                    etag.GenerateEtag(order.UpdatedAt),
 		ReportByDate:            strfmt.Date(order.ReportByDate),
 		OrdersType:              primemessages.OrdersType(order.OrdersType),
