@@ -140,9 +140,21 @@ func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOSe
 				"StorageFacility.Address",
 				"PPMShipment"}
 			serviceItem, err := mtoserviceitem.NewMTOServiceItemFetcher().GetServiceItem(appCtx, mtoServiceItem.ID)
+
+			if err != nil {
+				return mtoserviceitemops.NewUpdateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
+					verrs.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs)), verrs
+			}
+
 			shipmentID := *serviceItem.MTOShipmentID
 			eTag := params.IfMatch
 			shipment, err := mtoshipment.NewMTOShipmentFetcher().GetShipment(appCtx, shipmentID, eagerAssociations...)
+
+			if err != nil {
+				return mtoserviceitemops.NewUpdateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
+					verrs.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs)), verrs
+			}
+
 			updatedMTOServiceItem, err := h.MTOServiceItemUpdater.UpdateMTOServiceItemPrime(appCtx, mtoServiceItem, h.HandlerConfig.HHGPlanner(), *shipment, eTag)
 
 			if err != nil {
