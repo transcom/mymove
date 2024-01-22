@@ -10,7 +10,7 @@ export function formatAddress(address) {
   if (address.streetAddress1 != null && address.streetAddress1 !== 'n/a') {
     return `${address.streetAddress1}, ${address.city}, ${address.state} ${address.postalCode}`;
   }
-  if (address.city != null && address.state != null && address.zip != null) {
+  if (address.city != null || address.state != null || address.zip != null) {
     return `${address.city}, ${address.state} ${address.postalCode}`;
   }
   return '';
