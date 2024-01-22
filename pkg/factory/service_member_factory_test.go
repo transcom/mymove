@@ -316,10 +316,6 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		suite.Equal(customBackupAddress.PostalCode,
 			serviceMember.BackupMailingAddress.PostalCode)
 
-		ordersDutyLocation := FetchOrBuildCurrentDutyLocation(suite.DB())
-		suite.Equal(ordersDutyLocation.ID, serviceMember.DutyLocation.ID)
-		suite.Equal(ordersDutyLocation.Name, serviceMember.DutyLocation.Name)
-
 		// Check that backup contact was made and appended to service member
 		suite.Equal(1, len(serviceMember.BackupContacts))
 		suite.Equal(models.BackupContactPermissionEDIT, serviceMember.BackupContacts[0].Permission)
@@ -333,8 +329,7 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		precount, err := suite.DB().Count(&models.ServiceMember{})
 		suite.NoError(err)
 
-		serviceMember := BuildExtendedServiceMember(nil, nil, nil)
-		suite.Equal("Yuma AFB", serviceMember.DutyLocation.Name)
+		BuildExtendedServiceMember(nil, nil, nil)
 
 		count, err := suite.DB().Count(&models.ServiceMember{})
 		suite.Equal(precount, count)

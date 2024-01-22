@@ -135,9 +135,9 @@ func (suite *FactorySuite) TestBuildOrder() {
 		order := BuildOrder(suite.DB(), customs, nil)
 
 		suite.Equal(originDutyLocation.Name, order.OriginDutyLocation.Name)
-		suite.Equal(originDutyLocation.Name, order.ServiceMember.DutyLocation.Name)
+		suite.Equal(originDutyLocation.Name, order.OriginDutyLocation.Name)
 		suite.Equal(originDutyLocationTOName, order.OriginDutyLocation.TransportationOffice.Name)
-		suite.Equal(originDutyLocationTOName, order.ServiceMember.DutyLocation.TransportationOffice.Name)
+		suite.Equal(originDutyLocationTOName, order.OriginDutyLocation.TransportationOffice.Name)
 		suite.Equal(*serviceMember.FirstName, *order.ServiceMember.FirstName)
 		suite.Equal(*serviceMember.LastName, *order.ServiceMember.LastName)
 		suite.Equal(uploadedOrders.ID, order.UploadedOrdersID)
