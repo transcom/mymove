@@ -82,12 +82,12 @@ func (suite *MovingExpenseSuite) TestDeleteMovingExpense() {
 
 	suite.Run("Successfully deletes as a customer's moving expense", func() {
 		originalMovingExpense := setupForTest(nil, true)
-
-		ppmID := originalMovingExpense.PPMShipmentID
 		deleter := NewMovingExpenseDeleter()
 
 		suite.Nil(originalMovingExpense.DeletedAt)
-		err := deleter.DeleteMovingExpense(suite.AppContextWithSessionForTest(&auth.Session{}), ppmID, originalMovingExpense.ID)
+		err := deleter.DeleteMovingExpense(suite.AppContextWithSessionForTest(&auth.Session{
+			ServiceMemberID: originalMovingExpense.Document.ServiceMemberID,
+		}), originalMovingExpense.PPMShipmentID, originalMovingExpense.ID)
 		suite.NoError(err)
 
 		var movingExpenseInDB models.MovingExpense
