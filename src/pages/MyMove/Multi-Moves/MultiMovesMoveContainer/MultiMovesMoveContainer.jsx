@@ -13,6 +13,7 @@ import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentConta
 const MultiMovesMoveContainer = ({ moves }) => {
   const [expandedMoves, setExpandedMoves] = useState({});
 
+  // this expands the moves when the arrow is clicked
   const handleExpandClick = (index) => {
     setExpandedMoves((prev) => ({
       ...prev,
@@ -20,8 +21,9 @@ const MultiMovesMoveContainer = ({ moves }) => {
     }));
   };
 
+  // when an item is selected in the dropdown, this function will handle that logic
   const handleDropdownItemClick = (selectedItem) => {
-    console.log(`${selectedItem.value}`);
+    return selectedItem.value;
   };
 
   const dropdownMenuItems = [
@@ -34,6 +36,32 @@ const MultiMovesMoveContainer = ({ moves }) => {
       value: 'PPM Packet',
     },
   ];
+
+  // handles the title of the shipment header below each move
+  const generateShipmentTypeTitle = (shipmentType) => {
+    if (shipmentType === 'HHG') {
+      return 'Household Goods';
+    }
+    if (shipmentType === 'PPM') {
+      return 'Personally Procured Move';
+    }
+    if (shipmentType === 'HHG_INTO_NTS_DOMESTIC') {
+      return 'Household Goods into NTS Domestic';
+    }
+    if (shipmentType === 'HHG_OUTOF_NTS_DOMESTIC') {
+      return 'Household Goods out of NTS Domestic';
+    }
+    if (shipmentType === 'MOTORHOME') {
+      return 'Motorhome';
+    }
+    if (shipmentType === 'BOAT_HAUL_AWAY') {
+      return 'Boat Haul Away';
+    }
+    if (shipmentType === 'BOAT_TOW_AWAY') {
+      return 'Boat Tow Away';
+    }
+    return 'Shipment';
+  };
 
   const moveList = moves.map((m, index) => (
     <React.Fragment key={index}>
@@ -77,7 +105,7 @@ const MultiMovesMoveContainer = ({ moves }) => {
                     >
                       <div className={styles.innerWrapper}>
                         <div className={styles.shipmentTypeHeading}>
-                          <h4>{s.shipmentType}</h4>
+                          <h4>{generateShipmentTypeTitle(s.shipmentType)}</h4>
                           <h5>#{m.moveCode}</h5>
                         </div>
                       </div>
