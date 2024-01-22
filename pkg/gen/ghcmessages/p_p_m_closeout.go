@@ -28,7 +28,7 @@ type PPMCloseout struct {
 
 	// actual weight
 	// Example: 2000
-	ActualWeight *int64 `json:"actualWeight,omitempty"`
+	ActualWeight *int64 `json:"actualWeight"`
 
 	// Advance Operating Allowance (AOA).
 	Aoa *int64 `json:"aoa"`
