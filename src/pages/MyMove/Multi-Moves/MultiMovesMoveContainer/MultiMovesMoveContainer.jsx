@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import { Button } from '@trussworks/react-uswds';
 
 import MultiMovesMoveInfoList from '../MultiMovesMoveInfoList/MultiMovesMoveInfoList';
-import ButtonDropdownMenu from '../ButtonDropdownMenu/ButtonDropdownMenu';
+import ButtonDropdownMenu from '../../../../components/ButtonDropdownMenu/ButtonDropdownMenu';
 
 import styles from './MultiMovesMoveContainer.module.scss';
 
