@@ -901,7 +901,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
 
 		//Generate a couple of service items to test their status changes upon approval
-		serviceItem1 := factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDDDSIT, move, shipment, nil, nil)
+		serviceItem1 := factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDOASIT, move, shipment, nil, nil)
 
 		var serviceItems models.MTOServiceItems
 		shipment.MTOServiceItems = append(serviceItems, serviceItem1)
