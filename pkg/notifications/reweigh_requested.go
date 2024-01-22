@@ -52,7 +52,9 @@ func (m ReweighRequested) emails(appCtx appcontext.AppContext) ([]emailContent, 
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
-	htmlBody, textBody, err := m.renderTemplates(appCtx, reweighRequestedEmailData{})
+	htmlBody, textBody, err := m.renderTemplates(appCtx, reweighRequestedEmailData{
+		MilitaryOneSourceLink: "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL",
+	})
 
 	if err != nil {
 		appCtx.Logger().Error("error rendering template", zap.Error(err))
@@ -94,7 +96,9 @@ func (m ReweighRequested) renderTemplates(appCtx appcontext.AppContext, data rew
 	return htmlBody, textBody, nil
 }
 
-type reweighRequestedEmailData struct{}
+type reweighRequestedEmailData struct {
+	MilitaryOneSourceLink string
+}
 
 // RenderHTML renders the html for the email
 func (m ReweighRequested) RenderHTML(appCtx appcontext.AppContext, data reweighRequestedEmailData) (string, error) {
