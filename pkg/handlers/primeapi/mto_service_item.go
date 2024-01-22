@@ -142,8 +142,9 @@ func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOSe
 			serviceItem, err := mtoserviceitem.NewMTOServiceItemFetcher().GetServiceItem(appCtx, mtoServiceItem.ID)
 
 			if err != nil {
-				return mtoserviceitemops.NewUpdateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
-					verrs.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs)), verrs
+				appCtx.Logger().Error("primeapi.UpdateMTOServiceItemHandler error", zap.Error(err))
+				return mtoserviceitemops.NewUpdateMTOServiceItemNotFound().WithPayload(
+					payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
 			shipmentID := *serviceItem.MTOShipmentID
@@ -151,6 +152,7 @@ func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOSe
 			shipment, err := mtoshipment.NewMTOShipmentFetcher().GetShipment(appCtx, shipmentID, eagerAssociations...)
 
 			if err != nil {
+				appCtx.Logger().Error("primeapi.UpdateMTOServiceItemHandler error", zap.Error(err))
 				return mtoserviceitemops.NewUpdateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
 					verrs.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs)), verrs
 			}
