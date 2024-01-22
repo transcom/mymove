@@ -49,8 +49,8 @@ const MultiMovesLandingPage = () => {
 
   // including test data to use - imported from MultiMovesTestData
   const moves = mockMovesPCS;
-  // const moves = movesSeparation;
-  // const moves = movesRetirement;
+  // const moves = mockMovesSeparation;
+  // const moves = mockMovesRetirement;
 
   // ! WILL ONLY SHOW IF MULTIMOVE FLAG IS TRUE
   return flags.multiMove ? (
