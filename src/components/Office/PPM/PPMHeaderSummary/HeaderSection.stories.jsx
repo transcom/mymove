@@ -43,7 +43,7 @@ Incentives.args = {
     type: sectionTypes.incentives,
     estimatedIncentive: 79796,
     gcc: 79796,
-    remainingReimbursement: 76173,
+    remainingIncentive: 76173,
   },
   ppmNumber: 1,
 };

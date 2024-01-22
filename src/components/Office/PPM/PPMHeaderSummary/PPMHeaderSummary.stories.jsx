@@ -69,7 +69,7 @@ WithAdvanceReviewAllDocuments.args = {
     incentives: {
       estimatedIncentive: 79796,
       gcc: 79796,
-      remainingReimbursement: 76173,
+      remainingIncentive: 76173,
     },
     gcc: {
       linehaulPrice: 60803,
@@ -99,7 +99,7 @@ WithNoAdvanceReviewAllDocuments.args = {
     incentives: {
       estimatedIncentive: 79796,
       gcc: 79796,
-      remainingReimbursement: 76173,
+      remainingIncentive: 76173,
     },
     gcc: {
       linehaulPrice: 60803,

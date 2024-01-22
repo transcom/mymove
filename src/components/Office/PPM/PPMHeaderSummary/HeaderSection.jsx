@@ -88,8 +88,8 @@ const getSectionMarkup = (sectionInfo) => {
             <span className={styles.light}>${formatCents(sectionInfo.gcc) ?? `TEST VAL`}</span>
           </div>
           <div>
-            <Label>Remaining Reimbursement Owed to Customer</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.remainingReimbursement) ?? `TEST VAL`}</span>
+            <Label>Remaining Incentive</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.remainingIncentive) ?? `TEST VAL`}</span>
           </div>
         </div>
       );
