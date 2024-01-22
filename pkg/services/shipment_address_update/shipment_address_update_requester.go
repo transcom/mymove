@@ -246,6 +246,8 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	addressUpdate.NewAddressID = address.ID
 	addressUpdate.NewAddress = *address
 
+	// if the shipment contains destination SIT service items, we need to update the addressUpdate data
+	// with the SIT original address and calculate the distances between the old & new shipment addresses
 	if shipmentHasDestSIT {
 		serviceItems := shipment.MTOServiceItems
 		for _, serviceItem := range serviceItems {
@@ -258,6 +260,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 					addressUpdate.SitOriginalAddress = serviceItem.SITDestinationOriginalAddress
 				}
 			}
+			// if we have updated the values we need, no need to keep looping through the service items
 			if addressUpdate.SitOriginalAddress != nil && addressUpdate.SitOriginalAddressID != nil {
 				break
 			}
@@ -274,6 +277,11 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		}
 		addressUpdate.NewSitDistanceBetween = &distanceBetweenNew
 		addressUpdate.OldSitDistanceBetween = &distanceBetweenOld
+	} else {
+		addressUpdate.SitOriginalAddressID = nil
+		addressUpdate.SitOriginalAddress = nil
+		addressUpdate.NewSitDistanceBetween = nil
+		addressUpdate.OldSitDistanceBetween = nil
 	}
 
 	contract, err := serviceparamvaluelookups.FetchContract(appCtx, *shipment.MoveTaskOrder.AvailableToPrimeAt)
