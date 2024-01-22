@@ -1,4 +1,4 @@
-export const movesPCS = {
+export const mockMovesPCS = {
   currentMove: [
     {
       id: 'testMoveID1',
@@ -257,7 +257,7 @@ export const movesPCS = {
   ],
 };
 
-export const movesRetirement = {
+export const mockMovesRetirement = {
   currentMove: [
     {
       id: 'testMoveID1',
@@ -516,7 +516,7 @@ export const movesRetirement = {
   ],
 };
 
-export const movesSeparation = {
+export const mockMovesSeparation = {
   currentMove: [
     {
       id: 'testMoveID1',
@@ -775,4 +775,4 @@ export const movesSeparation = {
   ],
 };
 
-export default { movesPCS, movesRetirement, movesSeparation };
+export default { mockMovesPCS, mockMovesRetirement, mockMovesSeparation };

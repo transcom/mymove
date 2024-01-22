@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './MultiMovesLandingPage.module.scss';
 import MultiMovesMoveHeader from './MultiMovesMoveHeader/MultiMovesMoveHeader';
 import MultiMovesMoveContainer from './MultiMovesMoveContainer/MultiMovesMoveContainer';
-import { movesPCS } from './MultiMovesTestData';
+import { mockMovesPCS } from './MultiMovesTestData';
 
 import { detectFlags } from 'utils/featureFlags';
 import { generatePageTitle } from 'hooks/custom';
@@ -48,7 +48,7 @@ const MultiMovesLandingPage = () => {
   const flags = detectFlags(process.env.NODE_ENV, window.location.host, window.location.search);
 
   // including test data to use - imported from MultiMovesTestData
-  const moves = movesPCS;
+  const moves = mockMovesPCS;
   // const moves = movesSeparation;
   // const moves = movesRetirement;
 
@@ -56,7 +56,7 @@ const MultiMovesLandingPage = () => {
   return flags.multiMove ? (
     <div>
       <div className={styles.homeContainer}>
-        <header data-testid="customer-header" className={styles.customerHeader}>
+        <header data-testid="customerHeader" className={styles.customerHeader}>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
             <h2>First Last</h2>
           </div>
@@ -77,10 +77,18 @@ const MultiMovesLandingPage = () => {
             </Button>
           </div>
           <div className={styles.movesContainer}>
-            <MultiMovesMoveHeader data-testid="currentMoveHeader" title="Current Move" />
-            <MultiMovesMoveContainer moves={moves.currentMove} />
-            <MultiMovesMoveHeader title="Previous Moves" />
-            <MultiMovesMoveContainer moves={moves.previousMoves} />
+            <div data-testid="currentMoveHeader">
+              <MultiMovesMoveHeader title="Current Move" />
+            </div>
+            <div data-testid="currentMoveContainer">
+              <MultiMovesMoveContainer moves={moves.currentMove} />
+            </div>
+            <div data-testid="prevMovesHeader">
+              <MultiMovesMoveHeader title="Previous Moves" />
+            </div>
+            <div data-testid="prevMovesContainer">
+              <MultiMovesMoveContainer moves={moves.previousMoves} />
+            </div>
           </div>
         </div>
       </div>
