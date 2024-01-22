@@ -1036,12 +1036,12 @@ func ShipmentAddressUpdate(shipmentAddressUpdate *models.ShipmentAddressUpdate) 
 		ShipmentID:            strfmt.UUID(shipmentAddressUpdate.ShipmentID.String()),
 		NewAddress:            Address(&shipmentAddressUpdate.NewAddress),
 		OriginalAddress:       Address(&shipmentAddressUpdate.OriginalAddress),
-		SitOriginalAddress:    Address(&shipmentAddressUpdate.SitOriginalAddress),
+		SitOriginalAddress:    Address(shipmentAddressUpdate.SitOriginalAddress),
 		ContractorRemarks:     shipmentAddressUpdate.ContractorRemarks,
 		OfficeRemarks:         shipmentAddressUpdate.OfficeRemarks,
 		Status:                ghcmessages.ShipmentAddressUpdateStatus(shipmentAddressUpdate.Status),
-		NewSitDistanceBetween: handlers.FmtIntPtrToInt64(&shipmentAddressUpdate.NewSitDistanceBetween),
-		OldSitDistanceBetween: handlers.FmtIntPtrToInt64(&shipmentAddressUpdate.OldSitDistanceBetween),
+		NewSitDistanceBetween: handlers.FmtIntPtrToInt64(shipmentAddressUpdate.NewSitDistanceBetween),
+		OldSitDistanceBetween: handlers.FmtIntPtrToInt64(shipmentAddressUpdate.OldSitDistanceBetween),
 	}
 
 	return payload

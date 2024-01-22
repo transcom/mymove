@@ -252,13 +252,13 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 			serviceCode := serviceItem.ReService.Code
 			if serviceCode == models.ReServiceCodeDDASIT || serviceCode == models.ReServiceCodeDDDSIT || serviceCode == models.ReServiceCodeDDFSIT || serviceCode == models.ReServiceCodeDDSFSC {
 				if serviceItem.SITDestinationOriginalAddressID != nil {
-					addressUpdate.SitOriginalAddressID = *serviceItem.SITDestinationOriginalAddressID
+					addressUpdate.SitOriginalAddressID = serviceItem.SITDestinationOriginalAddressID
 				}
 				if serviceItem.SITDestinationOriginalAddress != nil {
-					addressUpdate.SitOriginalAddress = *serviceItem.SITDestinationOriginalAddress
+					addressUpdate.SitOriginalAddress = serviceItem.SITDestinationOriginalAddress
 				}
 			}
-			if addressUpdate.SitOriginalAddress != (models.Address{}) && addressUpdate.SitOriginalAddressID != uuid.Nil {
+			if addressUpdate.SitOriginalAddress != nil && addressUpdate.SitOriginalAddressID != nil {
 				break
 			}
 		}
@@ -272,8 +272,8 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		if err != nil {
 			return nil, err
 		}
-		addressUpdate.NewSitDistanceBetween = distanceBetweenNew
-		addressUpdate.OldSitDistanceBetween = distanceBetweenOld
+		addressUpdate.NewSitDistanceBetween = &distanceBetweenNew
+		addressUpdate.OldSitDistanceBetween = &distanceBetweenOld
 	}
 
 	contract, err := serviceparamvaluelookups.FetchContract(appCtx, *shipment.MoveTaskOrder.AvailableToPrimeAt)
