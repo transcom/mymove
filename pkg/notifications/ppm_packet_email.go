@@ -32,9 +32,9 @@ type PpmPacketEmail struct {
 // Uses ZIPs only if no city/state data is provided
 type PpmPacketEmailData struct {
 	OriginZIP        *string
-	DestinationZIP   *string
 	OriginCity       *string
 	OriginState      *string
+	DestinationZIP   *string
 	DestinationCity  *string
 	DestinationState *string
 	SubmitLocation   string
