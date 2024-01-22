@@ -1,5 +1,5 @@
 <p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your Personally Procured Move (PPM) with the assigned move code <strong>{{.Locator}}</strong> from <strong>{{if and .OriginCity .OriginState .DestinationCity .DestinationState}}{{.OriginCity}},{{.OriginState}} to {{.DestinationCity}},{{.DestinationState}} {{else}}{{.OriginZIP}} to {{.DestinationZIP}} {{end}}</strong>has been processed in MilMove. </p>
+<p>This is a confirmation that your Personally Procured Move (PPM) with the assigned move code <strong>{{.Locator}}</strong> from <strong>{{if and .OriginCity .OriginState .DestinationCity .DestinationState}}{{.OriginCity}}, {{.OriginState}} to {{.DestinationCity}}, {{.DestinationState}} {{else}}{{.OriginZIP}} to {{.DestinationZIP}} {{end}}</strong>has been processed in MilMove. </p>
 <h4>Next steps:</h4>
 {{if eq .ServiceBranch "Marine Corps, Navy, and Coast Guard"}}
 <p>For Marine Corps, Navy, and Coast Guard personnel:</p>
