@@ -6,6 +6,17 @@ import { LOA_TYPE, shipmentOptionLabels } from 'shared/constants';
 import { shipmentStatuses, shipmentModificationTypes } from 'constants/shipments';
 import affiliations from 'content/serviceMemberAgencies';
 
+export function formatAddress(address) {
+  const { streetAddress1, streetAddress2, city, state, postalCode } = address;
+  return (
+    <>
+      {streetAddress1 && <>{streetAddress1},&nbsp;</>}
+      {streetAddress2 && <>{streetAddress2},&nbsp;</>}
+      {city ? `${city}, ${state} ${postalCode}` : postalCode}
+    </>
+  );
+}
+
 export function formatTwoLineAddress(address) {
   const { streetAddress1, streetAddress2, city, state, postalCode } = address;
 
