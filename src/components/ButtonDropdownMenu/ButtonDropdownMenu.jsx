@@ -64,7 +64,7 @@ function ButtonDropdownMenu({ title, items, multiSelect = false, divClassName, o
         {open && (
           <ul className={styles.dropdownList}>
             {items.map((item) => (
-              <li key={item.id}>
+              <li key={item.id} data-testid={`${item.id}-dropdown-item`}>
                 <button type="button" onClick={() => handleOnClick(item)}>
                   <span>{item.value}</span>
                 </button>

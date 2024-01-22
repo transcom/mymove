@@ -87,6 +87,7 @@ const MultiMovesMoveContainer = ({ moves }) => {
               'chevron-up': expandedMoves[index],
               'chevron-down': !expandedMoves[index],
             })}
+            data-testid="expand-icon"
             onClick={() => handleExpandClick(index)}
           />
         </div>
