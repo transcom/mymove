@@ -214,7 +214,7 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 			docType := strings.TrimSpace(*params.Type)
 
 			if len(locator) == 0 {
-				err := apperror.NewBadDataError("missing/empty required URI parameter: locator")
+				err := apperror.NewBadDataError("primeapi.DownloadMoveOrder: missing/empty required URI parameter: locator")
 				appCtx.Logger().Error(err.Error())
 				return movetaskorderops.NewDownloadMoveOrderBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
 					err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
@@ -225,7 +225,7 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 			}
 			moves, totalCount, err := h.MoveSearcher.SearchMoves(appCtx, &searchMovesParams)
 			if err != nil {
-				appCtx.Logger().Error("Unexpected server error", zap.Error(err))
+				appCtx.Logger().Error("primeapi.DownloadMoveOrder error", zap.Error(err))
 				return movetaskorderops.NewDownloadMoveOrderInternalServerError().WithPayload(
 					payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
@@ -243,8 +243,8 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 				// FALSE indicates the location requires PRIME/GHC counseling.
 				if move.Orders.OriginDutyLocation.ProvidesServicesCounseling {
 					unprocessableErr := apperror.NewUnprocessableEntityError(
-						fmt.Sprintf("Duty location of client's move currently does not have Prime counseling enabled, locator: %s", locator))
-					appCtx.Logger().Info(unprocessableErr.Error())
+						fmt.Sprintf("primeapi.DownloadMoveOrder: Duty location of client's move currently does not have Prime counseling enabled, locator: %s", locator))
+					appCtx.Logger().Warn(unprocessableErr.Error())
 					payload := payloads.ValidationError(unprocessableErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
 					return movetaskorderops.NewDownloadMoveOrderUnprocessableEntity().
 						WithPayload(payload), unprocessableErr
@@ -254,7 +254,7 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 			move := moves[len(moves)-1]
 
 			var moveOrderUploadType = services.MoveOrderUploadAll
-			if docType == "ORDERs" {
+			if docType == "ORDERS" {
 				moveOrderUploadType = services.MoveOrderUpload
 			} else if docType == "AMENDMENTS" {
 				moveOrderUploadType = services.MoveOrderAmendmentUpload
@@ -263,12 +263,13 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 			outputFile, err := h.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, moveOrderUploadType, move)
 
 			if err != nil {
-				appCtx.Logger().Error("primeapi.PrimeDownloadMoveUploadPDFGenerator error", zap.Error(err))
 				switch e := err.(type) {
 				case apperror.UnprocessableEntityError:
+					appCtx.Logger().Warn("primeapi.DownloadMoveOrder warn", zap.Error(err))
 					payload := payloads.ValidationError(e.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
 					return movetaskorderops.NewDownloadMoveOrderUnprocessableEntity().WithPayload(payload), err
 				default:
+					appCtx.Logger().Error("primeapi.DownloadMoveOrder error", zap.Error(err))
 					return movetaskorderops.NewDownloadMoveOrderInternalServerError().WithPayload(
 						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
