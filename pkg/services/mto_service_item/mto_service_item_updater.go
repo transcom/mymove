@@ -399,7 +399,7 @@ func CalculateSITAuthorizedAndRequirededDates(appCtx appcontext.AppContext, serv
 
 			shipment.RequiredDeliveryDate = requiredDeliveryDate
 		} else {
-			return apperror.NewNotFoundError(serviceItem.MTOShipment.ID, "sit departure date not found")
+			return apperror.NewNotFoundError(shipment.ID, "sit departure date not found")
 		}
 	} else if location == DestinationSITLocation {
 		// Destination SIT: sitAuthorizedEndDate should be GracePeriodDays days after sitRequestedDelivery or the sitDepartureDate whichever is earlier.
