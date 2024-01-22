@@ -397,7 +397,7 @@ func CalculateSITAuthorizedAndRequirededDates(appCtx appcontext.AppContext, serv
 				return err
 			}
 
-			serviceItem.MTOShipment.RequiredDeliveryDate = requiredDeliveryDate
+			shipment.RequiredDeliveryDate = requiredDeliveryDate
 		} else {
 			return apperror.NewNotFoundError(serviceItem.MTOShipment.ID, "sit departure date not found")
 		}
@@ -415,10 +415,10 @@ func CalculateSITAuthorizedAndRequirededDates(appCtx appcontext.AppContext, serv
 
 	// For Origin SIT we need to update the Required Delivery Date which is stored with the shipment instead of the service item
 	if location == OriginSITLocation {
-		verrs, err = appCtx.DB().ValidateAndUpdate(&serviceItem.MTOShipment)
+		verrs, err = appCtx.DB().ValidateAndUpdate(&shipment)
 
 		if verrs != nil && verrs.HasAny() {
-			return apperror.NewInvalidInputError(serviceItem.MTOShipment.ID, err, verrs, "invalid input found while updating dates of shipment")
+			return apperror.NewInvalidInputError(shipment.ID, err, verrs, "invalid input found while updating dates of shipment")
 		} else if err != nil {
 			return apperror.NewQueryError("Shipment", err, "")
 		}
