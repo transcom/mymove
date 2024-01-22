@@ -4,6 +4,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -191,10 +192,26 @@ func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params move
 			eTag := params.IfMatch
 			moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 
-			errNotif := h.NotificationSender().SendNotification(appCtx, notifications.NewMoveCounseled(moveTaskOrderID))
-			if errNotif != nil {
-				appCtx.Logger().Error("problem sending email to user", zap.Error(errNotif))
-				return handlers.ResponseForError(appCtx.Logger(), errNotif), errNotif
+			// Check if h.NotificationSender() is not nil
+			if h.NotificationSender() != nil {
+				// Check if notifications.NewMoveCounseled(moveTaskOrderID) is not nil
+				if notification := notifications.NewMoveCounseled(moveTaskOrderID); notification != nil {
+					errNotif := h.NotificationSender().SendNotification(appCtx, notification)
+					if errNotif != nil {
+						appCtx.Logger().Error("problem sending email to user", zap.Error(errNotif))
+						return handlers.ResponseForError(appCtx.Logger(), errNotif), errNotif
+					}
+				} else {
+					// Handle the case where notifications.NewMoveCounseled is nil
+					err := errors.New("notifications.NewMoveCounseled is nil")
+					appCtx.Logger().Error("problem creating notification", zap.Error(err))
+					return handlers.ResponseForError(appCtx.Logger(), err), err
+				}
+			} else {
+				// Handle the case where h.NotificationSender() is nil
+				err := errors.New("h.NotificationSender() is nil")
+				appCtx.Logger().Error("problem getting NotificationSender", zap.Error(err))
+				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			mto, err := h.moveTaskOrderStatusUpdater.UpdateStatusServiceCounselingCompleted(appCtx, moveTaskOrderID, eTag)
