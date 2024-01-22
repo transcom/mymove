@@ -114,8 +114,8 @@ func Order(order *models.Order) *supportmessages.Order {
 	}
 
 	if order.Grade != nil {
-		rank := (supportmessages.Rank)(*order.Grade)
-		payload.Rank = &rank
+		grade := (supportmessages.Rank)(*order.Grade)
+		payload.Rank = &grade // Convert support API "Rank" into our internal tracking of "Grade"
 	}
 	if order.OriginDutyLocationID != nil {
 		payload.OriginDutyLocationID = handlers.FmtUUID(*order.OriginDutyLocationID)
