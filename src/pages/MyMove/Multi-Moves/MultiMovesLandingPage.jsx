@@ -74,9 +74,9 @@ const MultiMovesLandingPage = () => {
           </div>
           <div className={styles.movesContainer}>
             <MultiMovesMoveHeader data-testid="currentMoveHeader" title="Current Move" />
-            <MultiMovesMoveContainer move={moves.currentMove} />
+            <MultiMovesMoveContainer moves={moves.currentMove} />
             <MultiMovesMoveHeader title="Previous Moves" />
-            <MultiMovesMoveContainer move={moves.previousMoves} />
+            <MultiMovesMoveContainer moves={moves.previousMoves} />
           </div>
         </div>
       </div>
