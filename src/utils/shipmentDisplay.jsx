@@ -149,7 +149,7 @@ export function formatPaymentRequestAddressString(pickupAddress, destinationAddr
  * It displays only the city, state and postal code.
  * */
 export function formatCityStateAndPostalCode(address) {
-  if (address) {
+  if (address !== undefined && address !== null) {
     return `${address.city}, ${address.state} ${address.postalCode}`;
   }
   return '';
