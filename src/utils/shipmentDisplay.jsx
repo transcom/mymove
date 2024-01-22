@@ -6,13 +6,6 @@ import { LOA_TYPE, shipmentOptionLabels } from 'shared/constants';
 import { shipmentStatuses, shipmentModificationTypes } from 'constants/shipments';
 import affiliations from 'content/serviceMemberAgencies';
 
-export function formatAddress(address) {
-  if (address.city != null || address.state != null || address.zip != null) {
-    return `${address.city}, ${address.state} ${address.postalCode}`;
-  }
-  return '';
-}
-
 export function formatTwoLineAddress(address) {
   const { streetAddress1, streetAddress2, city, state, postalCode } = address;
 
