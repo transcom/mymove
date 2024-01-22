@@ -86,15 +86,6 @@ func buildServiceMemberWithBuildType(db *pop.Connection, customs []Customization
 		serviceMember.BackupMailingAddress = &backupAddress
 	}
 
-	dutyLocationResult := findValidCustomization(customs, DutyLocation)
-	// Find/create the DutyLocation if customization is
-	// provided
-	if dutyLocationResult != nil {
-		dutyLocation := BuildDutyLocation(db, customs, traits)
-		serviceMember.DutyLocationID = &dutyLocation.ID
-		serviceMember.DutyLocation = dutyLocation
-	}
-
 	if buildType == serviceMemberBuildExtended {
 		serviceMember.EmailIsPreferred = models.BoolPointer(true)
 
@@ -104,14 +95,6 @@ func buildServiceMemberWithBuildType(db *pop.Connection, customs []Customization
 			backupAddress := BuildAddress(db, customs, traits)
 			serviceMember.BackupMailingAddressID = &backupAddress.ID
 			serviceMember.BackupMailingAddress = &backupAddress
-		}
-
-		// ensure extended service member has duty location,
-		// even if customization is not provided
-		if serviceMember.DutyLocationID == nil {
-			dutyLocation := FetchOrBuildCurrentDutyLocation(db)
-			serviceMember.DutyLocationID = &dutyLocation.ID
-			serviceMember.DutyLocation = dutyLocation
 		}
 	}
 

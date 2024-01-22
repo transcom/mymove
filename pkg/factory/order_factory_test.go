@@ -52,15 +52,11 @@ func (suite *FactorySuite) TestBuildOrder() {
 		// extended service members have backup contacts
 		suite.False(order.ServiceMemberID.IsNil())
 		suite.False(order.ServiceMember.ID.IsNil())
-		suite.False(order.ServiceMember.DutyLocationID.IsNil())
+		suite.False(order.OriginDutyLocationID.IsNil())
 		suite.NotEmpty(order.ServiceMember.BackupContacts)
 		serviceMemberCountInDB, err := suite.DB().Count(models.ServiceMember{})
 		suite.NoError(err)
 		suite.Equal(1, serviceMemberCountInDB)
-
-		// uses the same duty location name for service member and
-		// orders OriginDutyLocation
-		suite.Equal(order.ServiceMember.DutyLocation.Name, order.OriginDutyLocation.Name)
 
 		// uses the default orders NewDutyLocation
 		suite.Equal(order.NewDutyLocation.Name, "Fort Eisenhower, GA 30813")
