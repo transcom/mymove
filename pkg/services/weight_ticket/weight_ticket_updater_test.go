@@ -144,6 +144,8 @@ func (suite *WeightTicketSuite) TestUpdateWeightTicket() {
 	})
 
 	suite.Run("Returns a PreconditionFailedError if the input eTag is stale/incorrect", func() {
+		// appCtx := suite.AppContextForTest()
+
 		originalWeightTicket := setupForTest(nil, false, false, false)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
