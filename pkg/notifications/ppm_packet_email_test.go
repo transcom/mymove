@@ -122,7 +122,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpa
 	})
 
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + pickupAddress.City + `, ` + pickupAddress.State + `</strong> to <strong>` + destinationAddress.City + `, ` + destinationAddress.State + ` </strong>has been processed in MilMove. </p>
+<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + pickupAddress.City + `, ` + pickupAddress.State + `</strong> to <strong>` + destinationAddress.City + `, ` + destinationAddress.State + `</strong>has been processed in MilMove. </p>
 <h4>Next steps:</h4>
 
 <p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):</p>
@@ -208,12 +208,12 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForArmy() {
 	})
 
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + pickupAddress.City + `, ` + pickupAddress.State + `</strong> to <strong>` + destinationAddress.City + `, ` + destinationAddress.State + ` </strong>has been processed in MilMove. </p>
+<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + pickupAddress.City + `, ` + pickupAddress.State + `</strong> to <strong>` + destinationAddress.City + `, ` + destinationAddress.State + `</strong>has been processed in MilMove. </p>
 <h4>Next steps:</h4>
 
 <p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):</p>
 <p>You can now log into MilMove <a href="https://my.move.mil/">https://my.move.mil/</a> and download your payment packet to submit to ` + armySubmitLocation + `. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
-<p>Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense</p>
+<p>Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.</p>
 
 <p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a></p>
 
@@ -294,7 +294,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForNavalBran
 	})
 
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + pickupAddress.City + `, ` + pickupAddress.State + `</strong> to <strong>` + destinationAddress.City + `, ` + destinationAddress.State + ` </strong>has been processed in MilMove. </p>
+<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + pickupAddress.City + `, ` + pickupAddress.State + `</strong> to <strong>` + destinationAddress.City + `, ` + destinationAddress.State + `</strong>has been processed in MilMove. </p>
 <h4>Next steps:</h4>
 
 <p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel:</p>
@@ -445,7 +445,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailZipcodeFallback() {
 	})
 
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + *ppmEmailData.OriginZIP + `</strong> to <strong>` + *ppmEmailData.DestinationZIP + ` </strong>has been processed in MilMove. </p>
+<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + *ppmEmailData.OriginZIP + `</strong> to <strong>` + *ppmEmailData.DestinationZIP + `</strong>has been processed in MilMove. </p>
 <h4>Next steps:</h4>
 
 <p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):</p>
