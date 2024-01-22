@@ -153,9 +153,7 @@ const multiplePaymentRequests = {
         id: 'reweighID1',
         weight: 100,
       },
-      ppmShipment: {
-        weightTickets: [],
-      },
+
       mtoServiceItems: [
         {
           id: '5',
@@ -188,9 +186,7 @@ const multiplePaymentRequests = {
         id: 'reweighID2',
         weight: 600,
       },
-      ppmShipment: {
-        weightTickets: [],
-      },
+
       mtoServiceItems: [
         {
           id: '9',
@@ -223,9 +219,7 @@ const multiplePaymentRequests = {
         id: 'reweighID3',
         weight: 900,
       },
-      ppmShipment: {
-        weightTickets: [],
-      },
+
       mtoServiceItems: [
         {
           id: '12',
@@ -292,9 +286,7 @@ const singleReviewedPaymentRequest = {
         id: 'reweighID',
         weight: 900,
       },
-      ppmShipment: {
-        weightTickets: [],
-      },
+
       mtoServiceItems: [
         {
           id: '3',
@@ -324,9 +316,7 @@ const emptyPaymentRequests = {
         id: 'reweighID',
         weight: 900,
       },
-      ppmShipment: {
-        weightTickets: [],
-      },
+
       mtoServiceItems: [
         {
           id: '3',
@@ -353,9 +343,7 @@ const moveShipmentOverweight = {
       calculatedBillableWeight: 5000,
       primeActualWeight: 7000,
       primeEstimatedWeight: 3000,
-      ppmShipment: {
-        weightTickets: [],
-      },
+
       mtoServiceItems: [
         {
           id: '3',
@@ -385,9 +373,7 @@ const moveShipmentMissingReweighWeight = {
       reweigh: {
         id: '123',
       },
-      ppmShipment: {
-        weightTickets: [],
-      },
+
       mtoServiceItems: [
         {
           id: '3',
@@ -414,9 +400,7 @@ const returnWithBillableWeightsReviewed = {
       calculatedBillableWeight: 2000,
       primeActualWeight: 8000,
       primeEstimatedWeight: 3000,
-      ppmShipment: {
-        weightTickets: [],
-      },
+
       reweigh: {
         id: '123',
       },
