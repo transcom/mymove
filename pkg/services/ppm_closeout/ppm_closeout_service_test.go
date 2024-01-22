@@ -19,15 +19,3 @@ func TestPPMCloseoutServiceSuite(t *testing.T) {
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()
 }
-
-// func setUpMockPPMCloseout(suite *PPMCloseoutSuite) (*models.PPMCloseout, error) {
-// 	mockedPlanner := &mocks.Planner{}
-// 	ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.AppContextForTest().DB(), nil, nil)
-// 	ppmCloseoutFetcher := NewPPMCloseoutFetcher(mockedPlanner)
-// 	ppmCloseoutObj, err := ppmCloseoutFetcher.GetPPMCloseout(suite.AppContextForTest(), ppmShipment.ID)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return ppmCloseoutObj, nil
-// }

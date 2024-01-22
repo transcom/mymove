@@ -62,7 +62,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		case sql.ErrNoRows:
 			return nil, apperror.NewNotFoundError(ppmShipmentID, "while looking for PPMShipment")
 		default:
-			return nil, apperror.NewQueryError("PPMShipment", err, "unable to find PPMShipment")
+			return nil, apperror.NewQueryError("PPMShipment", errPPM, "unable to find PPMShipment")
 		}
 	}
 
