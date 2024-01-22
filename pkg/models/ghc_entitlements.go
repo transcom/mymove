@@ -48,7 +48,7 @@ func (e *Entitlement) Validate(*pop.Connection) (*validate.Errors, error) {
 // TODO and possibly consider creating ghc specific GetWeightAllotment should the two
 // TODO diverge in the future
 func (e *Entitlement) SetWeightAllotment(grade string) {
-	wa := GetWeightAllotment(ServiceMemberGrade(grade))
+	wa := GetWeightAllotment(ServiceMemberRank(grade))
 	e.WeightAllotted = &wa
 }
 

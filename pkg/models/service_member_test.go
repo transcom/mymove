@@ -36,7 +36,7 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	// And: a service member is incompletely initialized with almost all required values
 	edipi := "12345567890"
 	affiliation := AffiliationARMY
-	rank := ServiceMemberGradeE5
+	rank := ServiceMemberRankE5
 	firstName := "bob"
 	lastName := "sally"
 	telephone := "510 555-5555"

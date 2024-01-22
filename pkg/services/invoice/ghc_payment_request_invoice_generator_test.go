@@ -2067,38 +2067,38 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		setupLoaTestData()
 
 		rankTestCases := []struct {
-			rank            models.ServiceMemberGrade
+			rank            models.ServiceMemberRank
 			expectedLoaCode string
 		}{
-			{models.ServiceMemberGradeE1, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberGradeE2, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberGradeE3, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberGradeE4, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberGradeE5, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberGradeE6, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberGradeE7, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberGradeE8, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberGradeE9, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberGradeE9SPECIALSENIORENLISTED, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberGradeO1ACADEMYGRADUATE, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeO2, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeO3, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeO4, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeO5, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeO6, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeO7, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeO8, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeO9, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeO10, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeW1, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeW2, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeW3, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeW4, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeW5, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeAVIATIONCADET, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeCIVILIANEMPLOYEE, models.LineOfAccountingHouseholdGoodsCodeCivilian},
-			{models.ServiceMemberGradeACADEMYCADET, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeMIDSHIPMAN, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankE1, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberRankE2, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberRankE3, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberRankE4, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberRankE5, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberRankE6, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberRankE7, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberRankE8, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberRankE9, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberRankE9SPECIALSENIORENLISTED, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberRankO1ACADEMYGRADUATE, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankO2, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankO3, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankO4, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankO5, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankO6, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankO7, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankO8, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankO9, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankO10, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankW1, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankW2, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankW3, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankW4, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankW5, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankAVIATIONCADET, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankCIVILIANEMPLOYEE, models.LineOfAccountingHouseholdGoodsCodeCivilian},
+			{models.ServiceMemberRankACADEMYCADET, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberRankMIDSHIPMAN, models.LineOfAccountingHouseholdGoodsCodeOfficer},
 		}
 
 		for _, testCase := range rankTestCases {
@@ -2145,7 +2145,7 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 		}, nil)
 
 		// Update service member rank to E1 knowing there is only Civilian LOAs
-		testCaseRank := models.ServiceMemberGradeE1
+		testCaseRank := models.ServiceMemberRankE1
 		move.Orders.ServiceMember.Rank = &testCaseRank
 		paymentRequest.MoveTaskOrder.Orders.ServiceMember.Rank = &testCaseRank
 		err := suite.DB().Save(&move.Orders.ServiceMember)

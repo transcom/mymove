@@ -787,7 +787,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		order.DepartmentIndicator = (*string)(internalmessages.NewDeptIndicator(internalmessages.DeptIndicatorARMY))
 		order.AmendedOrdersAcknowledgedAt = &now
 		// this is gathered on the customer flow
-		rank := string(models.ServiceMemberGradeE9SPECIALSENIORENLISTED)
+		rank := string(models.ServiceMemberRankE9SPECIALSENIORENLISTED)
 		order.Grade = &rank
 
 		suite.MustSave(&order)

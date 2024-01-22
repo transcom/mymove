@@ -726,9 +726,9 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 		hhgCode := ""
 		if rank[:2] == "E_" {
 			hhgCode = "HE"
-		} else if rank[:2] == "O_" || rank[:2] == "W_" || rank == models.ServiceMemberGradeACADEMYCADET || rank == models.ServiceMemberGradeAVIATIONCADET || rank == models.ServiceMemberGradeMIDSHIPMAN {
+		} else if rank[:2] == "O_" || rank[:2] == "W_" || rank == models.ServiceMemberRankACADEMYCADET || rank == models.ServiceMemberRankAVIATIONCADET || rank == models.ServiceMemberRankMIDSHIPMAN {
 			hhgCode = "HO"
-		} else if rank == models.ServiceMemberGradeCIVILIANEMPLOYEE {
+		} else if rank == models.ServiceMemberRankCIVILIANEMPLOYEE {
 			hhgCode = "HC"
 		} else {
 			return nil, apperror.NotImplementedError{}

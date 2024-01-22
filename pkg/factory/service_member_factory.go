@@ -58,7 +58,7 @@ func buildServiceMemberWithBuildType(db *pop.Connection, customs []Customization
 
 	email := "leo_spaceman_sm@example.com"
 	agency := models.AffiliationARMY
-	rank := models.ServiceMemberGradeE1
+	rank := models.ServiceMemberRankE1
 
 	// Create random edipi
 	randomEdipi := RandomEdipi()

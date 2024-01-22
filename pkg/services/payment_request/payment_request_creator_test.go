@@ -905,7 +905,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			InvalidMove: func() models.Move {
 				mtoInvalid := factory.BuildMove(suite.DB(), nil, nil)
 				sm := mtoInvalid.Orders.ServiceMember
-				blank := models.ServiceMemberGrade("")
+				blank := models.ServiceMemberRank("")
 				sm.Rank = &blank
 				err := suite.DB().Update(&sm)
 				suite.FatalNoError(err)

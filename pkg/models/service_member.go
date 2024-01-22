@@ -48,7 +48,7 @@ type ServiceMember struct {
 	User                   User                      `belongs_to:"user" fk_id:"user_id"`
 	Edipi                  *string                   `json:"edipi" db:"edipi"`
 	Affiliation            *ServiceMemberAffiliation `json:"affiliation" db:"affiliation"`
-	Rank                   *ServiceMemberGrade       `json:"rank" db:"rank"`
+	Rank                   *ServiceMemberRank        `json:"rank" db:"rank"`
 	FirstName              *string                   `json:"first_name" db:"first_name"`
 	MiddleName             *string                   `json:"middle_name" db:"middle_name"`
 	LastName               *string                   `json:"last_name" db:"last_name"`

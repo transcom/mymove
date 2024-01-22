@@ -28,7 +28,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
-	rank := models.ServiceMemberGradeE9
+	rank := models.ServiceMemberRankE9
 
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
@@ -140,7 +140,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetWithErrorNoMove() 
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
-	rank := models.ServiceMemberGradeE9
+	rank := models.ServiceMemberRankE9
 
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
@@ -200,7 +200,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
-	rank := models.ServiceMemberGradeE9
+	rank := models.ServiceMemberRankE9
 
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
@@ -319,7 +319,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 
 	serviceMemberID, _ := uuid.NewV4()
 	serviceBranch := models.AffiliationAIRFORCE
-	rank := models.ServiceMemberGradeE9
+	rank := models.ServiceMemberRankE9
 	serviceMember := models.ServiceMember{
 		ID:             serviceMemberID,
 		FirstName:      models.StringPointer("Marcus"),
@@ -664,9 +664,9 @@ func (suite *ModelSuite) TestCalculatePPMEntitlementPPMLessThanRemainingEntitlem
 func (suite *ModelSuite) TestFormatSSWGetEntitlement() {
 	spouseHasProGear := true
 	hasDependants := true
-	allotment := models.GetWeightAllotment(models.ServiceMemberGradeE1)
+	allotment := models.GetWeightAllotment(models.ServiceMemberRankE1)
 	expectedTotalWeight := allotment.TotalWeightSelfPlusDependents + allotment.ProGearWeight + allotment.ProGearWeightSpouse
-	sswEntitlement := models.SSWGetEntitlement(models.ServiceMemberGradeE1, hasDependants, spouseHasProGear)
+	sswEntitlement := models.SSWGetEntitlement(models.ServiceMemberRankE1, hasDependants, spouseHasProGear)
 
 	suite.Equal(unit.Pound(expectedTotalWeight), sswEntitlement.TotalWeight)
 	suite.Equal(unit.Pound(allotment.TotalWeightSelfPlusDependents), sswEntitlement.Entitlement)
@@ -677,9 +677,9 @@ func (suite *ModelSuite) TestFormatSSWGetEntitlement() {
 func (suite *ModelSuite) TestFormatSSWGetEntitlementNoDependants() {
 	spouseHasProGear := false
 	hasDependants := false
-	allotment := models.GetWeightAllotment(models.ServiceMemberGradeE1)
+	allotment := models.GetWeightAllotment(models.ServiceMemberRankE1)
 	expectedTotalWeight := allotment.TotalWeightSelf + allotment.ProGearWeight
-	sswEntitlement := models.SSWGetEntitlement(models.ServiceMemberGradeE1, hasDependants, spouseHasProGear)
+	sswEntitlement := models.SSWGetEntitlement(models.ServiceMemberRankE1, hasDependants, spouseHasProGear)
 
 	suite.Equal(unit.Pound(expectedTotalWeight), sswEntitlement.TotalWeight)
 	suite.Equal(unit.Pound(allotment.TotalWeightSelf), sswEntitlement.Entitlement)
@@ -720,8 +720,8 @@ func (suite *ModelSuite) TestFormatCurrentPPMStatus() {
 }
 
 func (suite *ModelSuite) TestFormatRank() {
-	e9 := models.ServiceMemberGradeE9
-	multipleRanks := models.ServiceMemberGradeO1ACADEMYGRADUATE
+	e9 := models.ServiceMemberRankE9
+	multipleRanks := models.ServiceMemberRankO1ACADEMYGRADUATE
 
 	suite.Equal("E-9", models.FormatRank(&e9))
 	suite.Equal("O-1 or Service Academy Graduate", models.FormatRank(&multipleRanks))

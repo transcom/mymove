@@ -524,7 +524,7 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 	// update service member
 	if order.Grade != nil {
 		// keep grade and rank in sync
-		order.ServiceMember.Rank = (*models.ServiceMemberGrade)(order.Grade)
+		order.ServiceMember.Rank = (*models.ServiceMemberRank)(order.Grade)
 	}
 
 	if order.OriginDutyLocationID != nil {

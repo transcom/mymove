@@ -58,7 +58,7 @@ func makeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 	}
 
 	randomEdipi := RandomEdipi()
-	rank := models.ServiceMemberGradeE1
+	rank := models.ServiceMemberRankE1
 
 	serviceMember := models.ServiceMember{
 		UserID:               user.ID,
@@ -99,7 +99,7 @@ func makeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 	}
 	residentialAddress := MakeDefaultAddress(db)
 	backupMailingAddress := MakeAddress2(db, assertions)
-	e1 := models.ServiceMemberGradeE1
+	e1 := models.ServiceMemberRankE1
 
 	dutyLocation := assertions.OriginDutyLocation
 	if isZeroUUID(dutyLocation.ID) {
