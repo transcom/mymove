@@ -886,7 +886,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		},
 		// Order with no Grade
 		{
-			TestDescription: "Given move with service member that has no Rank, the create should fail",
+			TestDescription: "Given move with order that has no Rank, the create should fail",
 			InvalidMove: func() models.Move {
 				mtoInvalid := factory.BuildMove(suite.DB(), nil, nil)
 				mtoInvalid.Orders.Grade = nil
@@ -902,7 +902,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		},
 		// Order with empty Grade
 		{
-			TestDescription: "Given move with service member that has blank Rank, the create should fail",
+			TestDescription: "Given move with order that has blank Rank, the create should fail",
 			InvalidMove: func() models.Move {
 				mtoInvalid := factory.BuildMove(suite.DB(), nil, nil)
 				mtoInvalid.Orders.Grade = internalmessages.NewOrderPayGrade("")

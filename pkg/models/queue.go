@@ -14,7 +14,7 @@ type MoveQueueItem struct {
 	ID                          uuid.UUID                       `json:"id" db:"id"`
 	CreatedAt                   time.Time                       `json:"created_at" db:"created_at"`
 	Edipi                       string                          `json:"edipi" db:"edipi"`
-	Grade                       *internalmessages.OrderPayGrade `json:"rank" db:"rank"`
+	Grade                       *internalmessages.OrderPayGrade `json:"grade" db:"grade"`
 	CustomerName                string                          `json:"customer_name" db:"customer_name"`
 	Locator                     string                          `json:"locator" db:"locator"`
 	Status                      string                          `json:"status" db:"status"`
@@ -44,11 +44,11 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 		query = `
 			SELECT moves.ID,
 				COALESCE(sm.edipi, '*missing*') as edipi,
-				COALESCE(sm.rank, '*missing*') as rank,
 				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
 				moves.locator as locator,
 				sm.affiliation as branch_of_service,
 				ord.orders_type as orders_type,
+				ord.grade as grade,
 				COALESCE(
 					ppm.actual_move_date,
 					ppm.original_move_date
@@ -72,17 +72,17 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			OR (ppm.status = 'SUBMITTED'
 				AND (NOT moves.status in ('CANCELED', 'DRAFT'))))
 			AND moves.show is true
-			GROUP BY moves.ID, rank, customer_name, edipi, locator, orders_type, move_date, moves.created_at, last_modified_date, moves.status, ppm.submit_date, ppm_status, origin_duty_location.name, sm.affiliation, ppm.actual_move_date, ppm.original_move_date
+			GROUP BY moves.ID, grade, customer_name, edipi, locator, orders_type, move_date, moves.created_at, last_modified_date, moves.status, ppm.submit_date, ppm_status, origin_duty_location.name, sm.affiliation, ppm.actual_move_date, ppm.original_move_date
 		`
 	} else if lifecycleState == "ppm_payment_requested" {
 		query = `
 			SELECT moves.ID,
 				COALESCE(sm.edipi, '*missing*') as edipi,
-				COALESCE(sm.rank, '*missing*') as rank,
 				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
 				moves.locator as locator,
 				sm.affiliation as branch_of_service,
 				ord.orders_type as orders_type,
+				ord.grade as grade,
 				COALESCE(ppm.actual_move_date, ppm.original_move_date) as move_date,
 				moves.created_at as created_at,
 				ppm.updated_at as last_modified_date,
@@ -105,11 +105,11 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 		query = `
 			SELECT moves.ID,
 				COALESCE(sm.edipi, '*missing*') as edipi,
-				COALESCE(sm.rank, '*missing*') as rank,
 				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
 				moves.locator as locator,
 				sm.affiliation as branch_of_service,
 				ord.orders_type as orders_type,
+				ord.grade as grade,
 				COALESCE(ppm.actual_move_date, ppm.original_move_date) as move_date,
 				moves.created_at as created_at,
 				ppm.updated_at as last_modified_date,
@@ -132,11 +132,11 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 		query = `
 			SELECT moves.ID,
 				COALESCE(sm.edipi, '*missing*') as edipi,
-				COALESCE(sm.rank, '*missing*') as rank,
 				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
 				moves.locator as locator,
 				sm.affiliation as branch_of_service,
 				ord.orders_type as orders_type,
+				ord.grade as grade,
 				COALESCE(ppm.actual_move_date, ppm.original_move_date) as move_date,
 				moves.created_at as created_at,
 				ppm.updated_at as last_modified_date,
@@ -159,7 +159,6 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 		query = `
 			SELECT moves.ID,
 				COALESCE(sm.edipi, '*missing*') as edipi,
-				COALESCE(sm.rank, '*missing*') as rank,
 				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
 				moves.locator as locator,
 				sm.affiliation as branch_of_service,

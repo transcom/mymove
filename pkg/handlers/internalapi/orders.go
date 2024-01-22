@@ -169,7 +169,6 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				}
 			}
 
-			// grade := (*string)(serviceMember.Rank)
 			grade := payload.Grade
 			weightAllotment := models.GetWeightAllotment(*grade)
 

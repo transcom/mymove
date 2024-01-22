@@ -301,7 +301,7 @@ func OrderModel(orderPayload *supportmessages.Order) *models.Order {
 	}
 
 	if orderPayload.Rank != nil {
-		grade := internalmessages.OrderPayGrade(*orderPayload.Rank)
+		grade := internalmessages.OrderPayGrade(*orderPayload.Rank) // Convert support API "Rank" into our internal tracking of "Grade"
 		model.Grade = &grade
 	}
 
