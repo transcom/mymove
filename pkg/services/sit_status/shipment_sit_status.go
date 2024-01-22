@@ -129,7 +129,8 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		sitCustomerContacted = currentSIT.SITCustomerContacted
 		sitRequestedDelivery = currentSIT.SITRequestedDelivery
 
-		oldServiceItem, err := models.FetchServiceItem(appCtx.DB(), currentSIT.ID)
+		// Need to retrieve the current service item so we can populate the Authorized End Date for the current SIT
+		currentServiceItem, err := models.FetchServiceItem(appCtx.DB(), currentSIT.ID)
 		if err != nil {
 			switch err {
 			case models.ErrFetchNotFound:
@@ -139,7 +140,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 			}
 		}
 
-		sitAuthorizedEndDate := oldServiceItem.SITAuthorizedEndDate
+		sitAuthorizedEndDate := currentServiceItem.SITAuthorizedEndDate
 
 		shipmentSITStatus.CurrentSIT = &services.CurrentSIT{
 			ServiceItemID:        currentSIT.ID,
