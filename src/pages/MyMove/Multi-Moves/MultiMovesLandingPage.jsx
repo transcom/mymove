@@ -5,8 +5,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './MultiMovesLandingPage.module.scss';
 import MultiMovesMoveHeader from './MultiMovesMoveHeader/MultiMovesMoveHeader';
 import MultiMovesMoveContainer from './MultiMovesMoveContainer/MultiMovesMoveContainer';
-import { movesPCS, movesRetirement } from './MultiMovesTestData';
+import { movesPCS } from './MultiMovesTestData';
 
+import { detectFlags } from 'utils/featureFlags';
 import { generatePageTitle } from 'hooks/custom';
 import { milmoveLogger } from 'utils/milmoveLog';
 import retryPageLoading from 'utils/retryPageLoading';
@@ -44,12 +45,15 @@ const MultiMovesLandingPage = () => {
     fetchData();
   }, [setErrorState]);
 
+  const flags = detectFlags(process.env.NODE_ENV, window.location.host, window.location.search);
+
   // including test data to use - imported from MultiMovesTestData
   const moves = movesPCS;
   // const moves = movesSeparation;
   // const moves = movesRetirement;
 
-  return (
+  // ! WILL ONLY SHOW IF MULTIMOVE FLAG IS TRUE
+  return flags.multiMove ? (
     <div>
       <div className={styles.homeContainer}>
         <header data-testid="customer-header" className={styles.customerHeader}>
@@ -81,7 +85,7 @@ const MultiMovesLandingPage = () => {
         </div>
       </div>
     </div>
-  );
+  ) : null;
 };
 
 export default MultiMovesLandingPage;

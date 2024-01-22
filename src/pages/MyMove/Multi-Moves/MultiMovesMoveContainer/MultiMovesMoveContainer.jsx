@@ -46,10 +46,10 @@ const MultiMovesMoveContainer = ({ moves }) => {
       return 'Personally Procured Move';
     }
     if (shipmentType === 'HHG_INTO_NTS_DOMESTIC') {
-      return 'Household Goods into NTS Domestic';
+      return 'Household Goods NTS';
     }
     if (shipmentType === 'HHG_OUTOF_NTS_DOMESTIC') {
-      return 'Household Goods out of NTS Domestic';
+      return 'Household Goods NTSR';
     }
     if (shipmentType === 'MOTORHOME') {
       return 'Motorhome';
@@ -92,7 +92,7 @@ const MultiMovesMoveContainer = ({ moves }) => {
         </div>
         <div className={styles.moveInfoList} data-testid="move-info-container">
           {expandedMoves[index] && (
-            <div>
+            <div className={styles.moveInfoListExpanded}>
               <MultiMovesMoveInfoList move={m} />
               <h3 className={styles.shipmentH3}>Shipments</h3>
               {m.mtoShipments.map((s, sIndex) => (

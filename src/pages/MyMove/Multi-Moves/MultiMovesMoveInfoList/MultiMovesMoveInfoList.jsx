@@ -8,6 +8,7 @@ import { formatAddress } from 'utils/shipmentDisplay';
 const MultiMovesMoveInfoList = ({ move }) => {
   const { orders } = move;
 
+  // function that determines label based on order type
   const getReportByLabel = (ordersType) => {
     if (ordersType === 'SEPARATION') {
       return 'Separation Date';
@@ -18,6 +19,7 @@ const MultiMovesMoveInfoList = ({ move }) => {
     return 'Report by Date';
   };
 
+  // destination duty location label will differ based on order type
   const getDestinationDutyLocationLabel = (ordersType) => {
     if (ordersType === 'SEPARATION') {
       return 'HOR or PLEAD';
