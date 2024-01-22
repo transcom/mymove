@@ -52,20 +52,11 @@ export const GCC = Template.bind({});
 GCC.args = {
   sectionInfo: {
     type: sectionTypes.gcc,
-    baseLinehaul: 60803,
-    originLinehaulFactor: 109,
-    destinationLinehaulFactor: 68,
-    linehaulAdjustment: 433,
-    shorthaulCharge: 0,
-    transportationCost: 61276,
+    linehaulPrice: 60803,
     linehaulFuelSurcharge: 0,
-    fuelSurchargePercent: 0,
-    originServiceAreaFee: 512,
-    originFactor: 1253,
-    destinationServiceAreaFee: 343,
-    destinationFactor: 839,
+    shorthaulPrice: 0,
+    shorthaulFuelSurcharge: 0,
     fullPackUnpackCharge: 16427,
-    ppmFactor: 0,
   },
   ppmNumber: 1,
 };

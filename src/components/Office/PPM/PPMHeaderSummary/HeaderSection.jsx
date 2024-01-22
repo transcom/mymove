@@ -98,60 +98,24 @@ const getSectionMarkup = (sectionInfo) => {
       return (
         <div className={classnames(styles.Details)}>
           <div>
-            <Label>Base Linehaul</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.baseLinehaul) ?? `TEST VAL`}</span>
-          </div>
-          <div>
-            <Label>Origin Linehaul Factor</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.originLinehaulFactor) ?? `TEST VAL`}</span>
-          </div>
-          <div>
-            <Label>Destination Linehaul Factor</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.destinationLinehaulFactor) ?? `TEST VAL`}</span>
-          </div>
-          <div>
-            <Label>Linehaul Adjustment</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.linehaulAdjustment) ?? `TEST VAL`}</span>
-          </div>
-          <div>
-            <Label>ShortHaul Charge</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.shorthaulCharge) ?? `TEST VAL`}</span>
-          </div>
-          <div>
-            <Label>Transportation Cost</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.transportationCost) ?? `TEST VAL`}</span>
+            <Label>Linehaul Price</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.linehaulPrice) ?? `TEST VAL`}</span>
           </div>
           <div>
             <Label>Linehaul Fuel Surcharge</Label>
             <span className={styles.light}>${formatCents(sectionInfo.linehaulFuelSurcharge) ?? `TEST VAL`}</span>
           </div>
           <div>
-            <Label>Fuel Surcharge Percent</Label>
-            <span className={styles.light}>{sectionInfo.fuelSurchargePercent ?? `TEST VAL`}%</span>
+            <Label>Shorthaul Price</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.shorthaulPrice) ?? `TEST VAL`}</span>
           </div>
           <div>
-            <Label>Origin Service Area Fee</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.originServiceAreaFee) ?? `TEST VAL`}</span>
-          </div>
-          <div>
-            <Label>Origin Factor</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.originFactor) ?? `TEST VAL`}</span>
-          </div>
-          <div>
-            <Label>Destination Service Area Fee</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.destinationServiceAreaFee) ?? `TEST VAL`}</span>
-          </div>
-          <div>
-            <Label>Destination Factor</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.destinationFactor) ?? `TEST VAL`}</span>
+            <Label>Shorthaul Fuel Surcharge</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.shorthaulFuelSurcharge) ?? `TEST VAL`}</span>
           </div>
           <div>
             <Label>Full Pack/Unpack Charge</Label>
             <span className={styles.light}>${formatCents(sectionInfo.fullPackUnpackCharge) ?? `TEST VAL`}</span>
-          </div>
-          <div>
-            <Label>PPM Factor</Label>
-            <span className={styles.light}>{sectionInfo.ppmFactor ?? `TEST VAL`}%</span>
           </div>
         </div>
       );
