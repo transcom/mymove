@@ -19,18 +19,16 @@ import (
 
 // moveUserUploadToPDFDownloader is the concrete struct implementing the services.PrimeDownloadMoveUploadPDFGenerator interface
 type moveUserUploadToPDFDownloader struct {
-	isTest       bool
 	pdfGenerator paperwork.Generator
 }
 
 // NewMoveUserUploadToPDFDownloader creates a new userUploadToPDFDownloader struct with the service dependencies
-func NewMoveUserUploadToPDFDownloader(isTest bool, userUploader *uploader.UserUploader) (services.PrimeDownloadMoveUploadPDFGenerator, error) {
+func NewMoveUserUploadToPDFDownloader(userUploader *uploader.UserUploader) (services.PrimeDownloadMoveUploadPDFGenerator, error) {
 	pdfGenerator, err := paperwork.NewGenerator(userUploader.Uploader())
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting instance of PDF generator")
 	}
 	return &moveUserUploadToPDFDownloader{
-		isTest,
 		*pdfGenerator,
 	}, nil
 }
@@ -114,17 +112,8 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 		}
 	}
 
-	if g.isTest {
-		// HACK ALERT - to overcome unit test failure on AddPdfBookmarks().
-		// For some reason it fails when using temp files in the context of running
-		// this in a unit test. It actually works when running via application.
-		// TODO: look into to this at a later day. For now, unit testing will not
-		// have any bookmarks in the PDF outputs.
-		return mergedPdf, nil
-	}
-
 	// Decorate master PDF file with bookmarks
-	return g.pdfGenerator.AddPdfBookmarks(mergedPdf.Name(), bookmarks)
+	return g.pdfGenerator.AddPdfBookmarks(mergedPdf, bookmarks)
 }
 
 // Build orderUploadDocType for document

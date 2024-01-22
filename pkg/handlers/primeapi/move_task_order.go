@@ -239,20 +239,11 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 			}
 
 			for _, move := range moves {
-				var errMessage string
-				// Check if move has requested counseling
-				if move.Status != models.MoveStatusNeedsServiceCounseling {
-					errMessage = fmt.Sprintf("Move is not in 'needs counseling state', locator: %s ", locator)
-				}
-
 				// Note: OriginDutyLocation.ProvidesServicesCounseling == True means location has government based counseling.
 				// FALSE indicates the location requires PRIME/GHC counseling.
 				if move.Orders.OriginDutyLocation.ProvidesServicesCounseling {
-					errMessage = fmt.Sprintf("Duty location of client's move currently does not have Prime counseling enabled, locator: %s", locator)
-				}
-
-				if len(errMessage) > 0 {
-					unprocessableErr := apperror.NewUnprocessableEntityError(errMessage)
+					unprocessableErr := apperror.NewUnprocessableEntityError(
+						fmt.Sprintf("Duty location of client's move currently does not have Prime counseling enabled, locator: %s", locator))
 					appCtx.Logger().Info(unprocessableErr.Error())
 					payload := payloads.ValidationError(unprocessableErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
 					return movetaskorderops.NewDownloadMoveOrderUnprocessableEntity().
@@ -290,7 +281,7 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 			// Customer-ORDERS,AMENDMENTS-for-MTO-PPMSIT-2024-01-11T17-02.pdf   (all)
 			// Customer-ORDERS-for-MTO-PPMSIT-2024-01-11T17-02.pdf
 			// Customer-AMENDMENTS-for-MTO-PPMSIT-2024-01-11T17-02.pdf
-			var fileNamePrefix string = "Customer"
+			var fileNamePrefix = "Customer"
 			if docType == "ALL" {
 				fileNamePrefix += "-ORDERS,AMENDMENTS"
 			} else {
