@@ -199,8 +199,6 @@ func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params move
 
 			moveTaskOrderPayload := payloads.Move(mto)
 
-			h.SendMoveCounseledEmail(appCtx, moveTaskOrderID)
-
 			// Audit
 			_, err = audit.Capture(appCtx, mto, moveTaskOrderPayload, params.HTTPRequest)
 			if err != nil {
@@ -220,15 +218,17 @@ func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params move
 				appCtx.Logger().Error("ghcapi.UpdateMTOStatusServiceCounselingCompletedHandlerFunc could not generate the event")
 			}
 
+			ch := make(chan error)
+			go func() {
+				err = h.NotificationSender().SendNotification(appCtx, notifications.NewMoveCounseled(moveTaskOrderID))
+				ch <- err
+			}()
+			if ch != nil {
+				appCtx.Logger().Error("problem sending email to user", zap.Error(err))
+			}
+
 			return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedOK().WithPayload(moveTaskOrderPayload), nil
 		})
-}
-
-func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) SendMoveCounseledEmail(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID) {
-	err := h.NotificationSender().SendNotification(appCtx, notifications.NewMoveCounseled(moveTaskOrderID))
-	if err != nil {
-		appCtx.Logger().Error("problem sending email to user", zap.Error(err))
-	}
 }
 
 // UpdateMTOReviewedBillableWeightsAtHandlerFunc provides timestamp for a Move's (MoveTaskOrder's) ReviewedBillableWeightsAt field
