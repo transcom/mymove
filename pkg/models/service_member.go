@@ -48,7 +48,6 @@ type ServiceMember struct {
 	User                   User                      `belongs_to:"user" fk_id:"user_id"`
 	Edipi                  *string                   `json:"edipi" db:"edipi"`
 	Affiliation            *ServiceMemberAffiliation `json:"affiliation" db:"affiliation"`
-	Rank                   *ServiceMemberRank        `json:"rank" db:"rank"`
 	FirstName              *string                   `json:"first_name" db:"first_name"`
 	MiddleName             *string                   `json:"middle_name" db:"middle_name"`
 	LastName               *string                   `json:"last_name" db:"last_name"`
@@ -216,7 +215,7 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 	sac *string,
 	departmentIndicator *string,
 	originDutyLocation *DutyLocation,
-	grade *string,
+	grade *internalmessages.OrderPayGrade,
 	entitlement *Entitlement,
 	originDutyLocationGBLOC *string,
 	packingAndShippingInstructions string) (Order, *validate.Errors, error) {
@@ -290,9 +289,6 @@ func (s *ServiceMember) IsProfileComplete() bool {
 		return false
 	}
 	if s.Affiliation == nil {
-		return false
-	}
-	if s.Rank == nil {
 		return false
 	}
 	if s.FirstName == nil {

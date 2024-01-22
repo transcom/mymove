@@ -118,7 +118,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerNoValues() {
 	// These shouldn't return any value or Swagger clients will complain during validation
 	// because the payloads for these objects are defined to require non-null values for most fields
 	// which can't be handled in OpenAPI Spec 2.0. Therefore we don't return them at all.
-	suite.Assertions.Equal((*serviceMemberPayload).Rank, (*internalmessages.ServiceMemberRank)(nil))
+	suite.Assertions.Equal((*serviceMemberPayload).Grade, (*internalmessages.OrderPayGrade)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).Affiliation, (*internalmessages.Affiliation)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).CurrentLocation, (*internalmessages.DutyLocationPayload)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).ResidentialAddress, (*internalmessages.Address)(nil))
@@ -174,8 +174,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	// TODO: add more fields to change
 	var origEdipi = "2342342344"
 	var newEdipi = "9999999999"
-
-	origRank := models.ServiceMemberRankE1
 
 	origAffiliation := models.AffiliationAIRFORCE
 	newAffiliation := internalmessages.AffiliationARMY
@@ -240,7 +238,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		{
 			Model: models.ServiceMember{
 				Edipi:              &origEdipi,
-				Rank:               &origRank,
 				Affiliation:        &origAffiliation,
 				FirstName:          origFirstName,
 				MiddleName:         origMiddleName,
@@ -260,7 +257,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		},
 	}, nil)
 
-	orderGrade := (string)(models.ServiceMemberRankE5)
+	orderGrade := models.ServiceMemberGradeE5
 	factory.BuildMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
@@ -278,7 +275,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		},
 	}, nil)
 
-	rank := internalmessages.ServiceMemberRankE1
 	resAddress := fakeAddressPayload()
 	backupAddress := fakeAddressPayload()
 	patchPayload := internalmessages.PatchServiceMemberPayload{
@@ -286,7 +282,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		BackupMailingAddress: backupAddress,
 		ResidentialAddress:   resAddress,
 		Affiliation:          &newAffiliation,
-		Rank:                 &rank,
 		EmailIsPreferred:     newEmailIsPreferred,
 		FirstName:            newFirstName,
 		LastName:             newLastName,
@@ -343,11 +338,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 
 	edipi := "2342342344"
 
-	// If there are orders and the move has been submitted, then the
-	// affiliation rank, and duty location should not be editable.
-	origRank := models.ServiceMemberRankE1
-	newRank := internalmessages.ServiceMemberRankE2
-
 	origAffiliation := models.AffiliationAIRFORCE
 	newAffiliation := internalmessages.AffiliationARMY
 
@@ -387,7 +377,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 			Model: models.ServiceMember{
 				UserID:             user.ID,
 				Edipi:              &edipi,
-				Rank:               &origRank,
 				Affiliation:        &origAffiliation,
 				FirstName:          origFirstName,
 				MiddleName:         origMiddleName,
@@ -466,7 +455,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 		MiddleName:           newMiddleName,
 		PersonalEmail:        newPersonalEmail,
 		PhoneIsPreferred:     newPhoneIsPreferred,
-		Rank:                 &newRank,
 		SecondaryTelephone:   newSecondaryTelephone,
 		Suffix:               newSuffix,
 		Telephone:            newTelephone,
@@ -496,7 +484,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	// These fields should not change (they should still be the original
 	// values) after the move has been submitted.
 	suite.Equal(origAffiliation, models.ServiceMemberAffiliation(*serviceMemberPayload.Affiliation))
-	suite.Equal(origRank, models.ServiceMemberRank(*serviceMemberPayload.Rank))
 	suite.Equal(origDutyLocation.ID.String(), string(*serviceMemberPayload.CurrentLocation.ID))
 
 	// These fields should change even if the move is submitted.

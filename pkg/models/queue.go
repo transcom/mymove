@@ -5,32 +5,34 @@ import (
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // MoveQueueItem represents a single move queue item within a queue.
 type MoveQueueItem struct {
-	ID                          uuid.UUID          `json:"id" db:"id"`
-	CreatedAt                   time.Time          `json:"created_at" db:"created_at"`
-	Edipi                       string             `json:"edipi" db:"edipi"`
-	Rank                        *ServiceMemberRank `json:"rank" db:"rank"`
-	CustomerName                string             `json:"customer_name" db:"customer_name"`
-	Locator                     string             `json:"locator" db:"locator"`
-	Status                      string             `json:"status" db:"status"`
-	PpmStatus                   *string            `json:"ppm_status" db:"ppm_status"`
-	OrdersType                  string             `json:"orders_type" db:"orders_type"`
-	MoveDate                    *time.Time         `json:"move_date" db:"move_date"`
-	SubmittedDate               *time.Time         `json:"submitted_date" db:"submitted_date"`
-	LastModifiedDate            time.Time          `json:"last_modified_date" db:"last_modified_date"`
-	OriginDutyLocationName      string             `json:"origin_duty_location_name" db:"origin_duty_location_name"`
-	DestinationDutyLocationName string             `json:"destination_duty_location_name" db:"destination_duty_location_name"`
-	PmSurveyConductedDate       *time.Time         `json:"pm_survey_conducted_date" db:"pm_survey_conducted_date"`
-	OriginGBLOC                 *string            `json:"origin_gbloc" db:"origin_gbloc"`
-	DestinationGBLOC            *string            `json:"destination_gbloc" db:"destination_gbloc"`
-	DeliveredDate               *time.Time         `json:"delivered_date" db:"delivered_date"`
-	InvoiceApprovedDate         *time.Time         `json:"invoice_approved_date" db:"invoice_approved_date"`
-	BranchOfService             string             `json:"branch_of_service" db:"branch_of_service"`
-	ActualMoveDate              *time.Time         `json:"actual_move_date" db:"actual_move_date"`
-	OriginalMoveDate            *time.Time         `json:"original_move_date" db:"original_move_date"`
+	ID                          uuid.UUID                       `json:"id" db:"id"`
+	CreatedAt                   time.Time                       `json:"created_at" db:"created_at"`
+	Edipi                       string                          `json:"edipi" db:"edipi"`
+	Grade                       *internalmessages.OrderPayGrade `json:"rank" db:"rank"`
+	CustomerName                string                          `json:"customer_name" db:"customer_name"`
+	Locator                     string                          `json:"locator" db:"locator"`
+	Status                      string                          `json:"status" db:"status"`
+	PpmStatus                   *string                         `json:"ppm_status" db:"ppm_status"`
+	OrdersType                  string                          `json:"orders_type" db:"orders_type"`
+	MoveDate                    *time.Time                      `json:"move_date" db:"move_date"`
+	SubmittedDate               *time.Time                      `json:"submitted_date" db:"submitted_date"`
+	LastModifiedDate            time.Time                       `json:"last_modified_date" db:"last_modified_date"`
+	OriginDutyLocationName      string                          `json:"origin_duty_location_name" db:"origin_duty_location_name"`
+	DestinationDutyLocationName string                          `json:"destination_duty_location_name" db:"destination_duty_location_name"`
+	PmSurveyConductedDate       *time.Time                      `json:"pm_survey_conducted_date" db:"pm_survey_conducted_date"`
+	OriginGBLOC                 *string                         `json:"origin_gbloc" db:"origin_gbloc"`
+	DestinationGBLOC            *string                         `json:"destination_gbloc" db:"destination_gbloc"`
+	DeliveredDate               *time.Time                      `json:"delivered_date" db:"delivered_date"`
+	InvoiceApprovedDate         *time.Time                      `json:"invoice_approved_date" db:"invoice_approved_date"`
+	BranchOfService             string                          `json:"branch_of_service" db:"branch_of_service"`
+	ActualMoveDate              *time.Time                      `json:"actual_move_date" db:"actual_move_date"`
+	OriginalMoveDate            *time.Time                      `json:"original_move_date" db:"original_move_date"`
 }
 
 // GetMoveQueueItems gets all moveQueueItems for a specific lifecycleState

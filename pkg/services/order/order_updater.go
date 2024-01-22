@@ -373,10 +373,10 @@ func allowanceFromTOOPayload(existingOrder models.Order, payload ghcmessages.Upd
 		order.ServiceMember.Affiliation = (*models.ServiceMemberAffiliation)(payload.Agency)
 	}
 
-	// rank
+	// grade
 	if payload.Grade != nil {
-		grade := (*string)(payload.Grade)
-		order.Grade = grade
+		grade := internalmessages.OrderPayGrade(*payload.Grade)
+		order.Grade = &grade
 	}
 
 	if payload.OrganizationalClothingAndIndividualEquipment != nil {
@@ -415,10 +415,10 @@ func allowanceFromCounselingPayload(existingOrder models.Order, payload ghcmessa
 		order.ServiceMember.Affiliation = (*models.ServiceMemberAffiliation)(payload.Agency)
 	}
 
-	// rank
+	// grade
 	if payload.Grade != nil {
-		grade := (*string)(payload.Grade)
-		order.Grade = grade
+		grade := internalmessages.OrderPayGrade(*payload.Grade)
+		order.Grade = &grade
 	}
 
 	if payload.OrganizationalClothingAndIndividualEquipment != nil {
@@ -519,12 +519,6 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 
 	if verr := ValidateOrder(&order, checks...); verr != nil {
 		return nil, verr
-	}
-
-	// update service member
-	if order.Grade != nil {
-		// keep grade and rank in sync
-		order.ServiceMember.Rank = (*models.ServiceMemberRank)(order.Grade)
 	}
 
 	if order.OriginDutyLocationID != nil {

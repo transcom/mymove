@@ -7,6 +7,8 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // Entitlement is an object representing entitlements for orders
@@ -48,7 +50,7 @@ func (e *Entitlement) Validate(*pop.Connection) (*validate.Errors, error) {
 // TODO and possibly consider creating ghc specific GetWeightAllotment should the two
 // TODO diverge in the future
 func (e *Entitlement) SetWeightAllotment(grade string) {
-	wa := GetWeightAllotment(ServiceMemberRank(grade))
+	wa := GetWeightAllotment(internalmessages.OrderPayGrade(grade))
 	e.WeightAllotted = &wa
 }
 
