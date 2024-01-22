@@ -7,14 +7,13 @@ import { shipmentStatuses, shipmentModificationTypes } from 'constants/shipments
 import affiliations from 'content/serviceMemberAgencies';
 
 export function formatAddress(address) {
-  const { streetAddress1, streetAddress2, city, state, postalCode } = address;
-  return (
-    <>
-      {streetAddress1 && <>{streetAddress1},&nbsp;</>}
-      {streetAddress2 && <>{streetAddress2},&nbsp;</>}
-      {city ? `${city}, ${state} ${postalCode}` : postalCode}
-    </>
-  );
+  if (address.streetAddress1 != null && address.streetAddress1 !== 'n/a') {
+    return `${address.streetAddress1}, ${address.city}, ${address.state} ${address.postalCode}`;
+  }
+  if (address.city != null && address.state != null && address.zip != null) {
+    return `${address.city}, ${address.state} ${address.postalCode}`;
+  }
+  return '';
 }
 
 export function formatTwoLineAddress(address) {
