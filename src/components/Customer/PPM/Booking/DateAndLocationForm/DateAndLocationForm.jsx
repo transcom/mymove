@@ -68,6 +68,7 @@ const DateAndLocationForm = ({
     useCurrentDestinationAddress: false,
     destinationPostalCode: mtoShipment?.ppmShipment?.destinationPostalCode || '',
     hasSecondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode ? 'true' : 'false',
+    secondaryDestinationAddress: mtoShipment?.ppmShipment?.secondaryPickupAddress || '',
     secondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode || '',
     sitExpected: mtoShipment?.ppmShipment?.sitExpected ? 'true' : 'false',
     expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
@@ -199,68 +200,10 @@ const DateAndLocationForm = ({
                         id="useCurrentResidence"
                       />
                       {fields}
-                      {/* <h4>Second Origin Address</h4>
-                      <FormGroup>
-                        <p>Will you add items to your PPM from a different address?</p>
-                        <div className={formStyles.radioGroup}>
-                          <Field
-                            as={Radio}
-                            id="has-secondary-pickup"
-                            data-testid="has-secondary-pickup"
-                            label="Yes"
-                            name="hasSecondaryPickup"
-                            value="yes"
-                            title="Yes, I have a second pickup location"
-                            checked={hasSecondaryPickup === 'yes'}
-                          />
-                          <Field
-                            as={Radio}
-                            id="no-secondary-pickup"
-                            data-testid="no-secondary-pickup"
-                            label="No"
-                            name="hasSecondaryPickup"
-                            value="no"
-                            title="No, I do not have a second pickup location"
-                            checked={hasSecondaryPickup !== 'yes'}
-                          />
-                        </div>
-                      </FormGroup>
-                      {hasSecondaryPickup === 'yes' && <AddressFields name="secondaryPickup.address" />} */}
                     </>
                   )}
                 />
 
-                {/* <TextField
-                  label="ZIP"
-                  id="pickupPostalCode"
-                  name="pickupPostalCode"
-                  maxLength={5}
-                  onChange={(e) => {
-                    handlePrefillPostalCodeChange(
-                      e.target.value,
-                      setFieldValue,
-                      'pickupPostalCode',
-                      residentialAddressPostalCode,
-                      'useResidentialAddressZIP',
-                      values.useResidentialAddressZIP,
-                    );
-                  }}
-                  validate={(value) => postalCodeValidate(value, 'origin', 'pickupPostalCode')}
-                /> */}
-                {/* <CheckboxField
-                  id="useResidentialAddressZIP"
-                  name="useResidentialAddressZIP"
-                  label={`Use my current ZIP (${residentialAddressPostalCode})`}
-                  onChange={() =>
-                    setValue(
-                      setFieldValue,
-                      'pickupPostalCode',
-                      residentialAddressPostalCode,
-                      values.useResidentialAddressZIP,
-                      'useResidentialAddressZIP',
-                    )
-                  }
-                /> */}
                 <FormGroup>
                   <Fieldset>
                     <legend className="usa-label">
@@ -375,7 +318,7 @@ const DateAndLocationForm = ({
                 </FormGroup>
                 {values.hasSecondaryDestinationPostalCode === 'true' && (
                   <>
-                    <AddressFields name="serviceMember.backup_mailing_address" />
+                    <AddressFields name="mtoShipment.secondaryDestinationAddress" />
                     {/* <TextField
                       label="Second ZIP"
                       id="secondaryDestinationPostalCode"
