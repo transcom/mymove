@@ -7,9 +7,6 @@ import { shipmentStatuses, shipmentModificationTypes } from 'constants/shipments
 import affiliations from 'content/serviceMemberAgencies';
 
 export function formatAddress(address) {
-  if (address.streetAddress1 != null && address.streetAddress1 !== 'n/a') {
-    return `${address.streetAddress1}, ${address.city}, ${address.state} ${address.postalCode}`;
-  }
   if (address.city != null || address.state != null || address.zip != null) {
     return `${address.city}, ${address.state} ${address.postalCode}`;
   }
