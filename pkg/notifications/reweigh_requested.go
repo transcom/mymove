@@ -52,17 +52,27 @@ func (m ReweighRequested) emails(appCtx appcontext.AppContext) ([]emailContent, 
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
-	htmlBody, textBody, err := m.renderTemplates(appCtx, reweighRequestedEmailData{})
+	htmlBody, textBody, err := m.renderTemplates(appCtx, reweighRequestedEmailData{
+		MilitaryOneSourceLink: "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL",
+	})
 
 	if err != nil {
 		appCtx.Logger().Error("error rendering template", zap.Error(err))
 	}
+	shipmentID := m.shipment.ID.String()
+	var shipmentNumber string
 
-	shipmentType := strings.Split(string(m.shipment.ShipmentType), "_")[0]
+	// Shipment # is the first 8 characters of shipmentId
+	if len(shipmentID) >= 8 {
+		firstEight := shipmentID[:8]
+		shipmentNumber = strings.ToUpper(firstEight)
+	} else {
+		shipmentNumber = ""
+	}
 
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
-		subject:        fmt.Sprintf("FYI: Your %v should be reweighed before it is delivered", shipmentType),
+		subject:        fmt.Sprintf("FYI: A reweigh has been requested for your shipment #%v, and must be reweighed before it is delivered", shipmentNumber),
 		htmlBody:       htmlBody,
 		textBody:       textBody,
 	}
@@ -86,7 +96,9 @@ func (m ReweighRequested) renderTemplates(appCtx appcontext.AppContext, data rew
 	return htmlBody, textBody, nil
 }
 
-type reweighRequestedEmailData struct{}
+type reweighRequestedEmailData struct {
+	MilitaryOneSourceLink string
+}
 
 // RenderHTML renders the html for the email
 func (m ReweighRequested) RenderHTML(appCtx appcontext.AppContext, data reweighRequestedEmailData) (string, error) {

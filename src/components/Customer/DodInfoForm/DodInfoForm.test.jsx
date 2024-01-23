@@ -7,7 +7,7 @@ import DodInfoForm from './DodInfoForm';
 describe('DodInfoForm component', () => {
   const testProps = {
     onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
-    initialValues: { affiliation: '', edipi: '', rank: '' },
+    initialValues: { affiliation: '', edipi: '', grade: '' },
     onBack: jest.fn(),
   };
 
@@ -66,7 +66,7 @@ describe('DodInfoForm component', () => {
 
     await waitFor(() => {
       expect(testProps.onSubmit).toHaveBeenCalledWith(
-        expect.objectContaining({ affiliation: 'NAVY', edipi: '1234567890', rank: 'E_5' }),
+        expect.objectContaining({ affiliation: 'NAVY', edipi: '1234567890', grade: 'E_5' }),
         expect.anything(),
       );
     });

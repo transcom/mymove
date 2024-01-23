@@ -19,13 +19,13 @@ import ServiceInfoDisplay from 'components/Customer/Review/ServiceInfoDisplay/Se
 import OktaInfoDisplay from 'components/Customer/Profile/OktaInfoDisplay/OktaInfoDisplay';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import formStyles from 'styles/form.module.scss';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { OktaUserInfoShape } from 'types/user';
 
 const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsInDraft, oktaUser }) => {
   const showMessages = currentOrders.id && !moveIsInDraft;
-  const rank = currentOrders.grade ?? serviceMember.rank;
-  const originDutyLocation = currentOrders.origin_duty_location ?? serviceMember.current_location;
+  const payGrade = currentOrders.grade;
+  const originDutyLocation = currentOrders.origin_duty_location;
   const transportationOfficePhoneLines = originDutyLocation?.transportation_office?.phone_lines;
   const transportationOfficePhone = transportationOfficePhoneLines ? transportationOfficePhoneLines[0] : '';
   const backupContact = {
@@ -36,7 +36,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
 
   // displays the profile data for MilMove & Okta
   // Profile w/contact info for servicemember & backup contact
-  // Service info that displays name, branch, rank, DoDID/EDIPI, and current duty location
+  // Service info that displays name, branch, pay grade, DoDID/EDIPI, and current duty location
   // okta profile information: username, email, first name, last name, and DoDID/EDIPI
   return (
     <div className="grid-container usa-prose">
@@ -71,7 +71,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               originTransportationOfficeName={originDutyLocation?.transportation_office?.name || ''}
               originTransportationOfficePhone={transportationOfficePhone}
               affiliation={ORDERS_BRANCH_OPTIONS[serviceMember?.affiliation] || ''}
-              rank={ORDERS_RANK_OPTIONS[rank] || ''}
+              payGrade={ORDERS_PAY_GRADE_OPTIONS[payGrade] || ''}
               edipi={serviceMember?.edipi || ''}
               editURL={customerRoutes.SERVICE_INFO_EDIT_PATH}
               isEditable={moveIsInDraft}
