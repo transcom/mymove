@@ -34,9 +34,6 @@ type ServiceMemberPayload struct {
 	// Format: date-time
 	CreatedAt *strfmt.DateTime `json:"created_at"`
 
-	// current location
-	CurrentLocation *DutyLocationPayload `json:"current_location,omitempty"`
-
 	// DoD ID number
 	// Example: 5789345789
 	// Max Length: 10
@@ -132,10 +129,6 @@ func (m *ServiceMemberPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateCreatedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateCurrentLocation(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -256,25 +249,6 @@ func (m *ServiceMemberPayload) validateCreatedAt(formats strfmt.Registry) error 
 
 	if err := validate.FormatOf("created_at", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-func (m *ServiceMemberPayload) validateCurrentLocation(formats strfmt.Registry) error {
-	if swag.IsZero(m.CurrentLocation) { // not required
-		return nil
-	}
-
-	if m.CurrentLocation != nil {
-		if err := m.CurrentLocation.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("current_location")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("current_location")
-			}
-			return err
-		}
 	}
 
 	return nil
@@ -483,10 +457,6 @@ func (m *ServiceMemberPayload) ContextValidate(ctx context.Context, formats strf
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateCurrentLocation(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateGrade(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -557,27 +527,6 @@ func (m *ServiceMemberPayload) contextValidateBackupMailingAddress(ctx context.C
 				return ve.ValidateName("backup_mailing_address")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("backup_mailing_address")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *ServiceMemberPayload) contextValidateCurrentLocation(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.CurrentLocation != nil {
-
-		if swag.IsZero(m.CurrentLocation) { // not required
-			return nil
-		}
-
-		if err := m.CurrentLocation.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("current_location")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("current_location")
 			}
 			return err
 		}

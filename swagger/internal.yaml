@@ -1181,8 +1181,6 @@ definitions:
         type: boolean
         x-nullable: true
         title: Email
-      current_location:
-        $ref: '#/definitions/DutyLocationPayload'
       residential_address:
         $ref: '#/definitions/Address'
         title: Residential Address
