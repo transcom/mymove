@@ -523,7 +523,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			{
 				Model: models.Move{
 					PrimeCounselingCompletedAt: &aWeekAgo,
-					PPMEstimatedWeight:         models.PoundPointer(1000),
 					ExcessWeightQualifiedAt:    &aWeekAgo,
 					ExcessWeightAcknowledgedAt: &now,
 					ExcessWeightUploadID:       &upload.ID,
@@ -554,7 +553,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(successMove.AvailableToPrimeAt.Format(time.RFC3339), handlers.FmtDateTimePtrToPop(movePayload.AvailableToPrimeAt).Format(time.RFC3339))
 		suite.Equal(successMove.PrimeCounselingCompletedAt.Format(time.RFC3339), handlers.FmtDateTimePtrToPop(movePayload.PrimeCounselingCompletedAt).Format(time.RFC3339))
 		suite.Equal(*successMove.PPMType, movePayload.PpmType)
-		suite.Equal(*handlers.FmtPoundPtr(successMove.PPMEstimatedWeight), movePayload.PpmEstimatedWeight)
 		suite.Equal(successMove.ExcessWeightQualifiedAt.Format(time.RFC3339), handlers.FmtDateTimePtrToPop(movePayload.ExcessWeightQualifiedAt).Format(time.RFC3339))
 		suite.Equal(successMove.ExcessWeightAcknowledgedAt.Format(time.RFC3339), handlers.FmtDateTimePtrToPop(movePayload.ExcessWeightAcknowledgedAt).Format(time.RFC3339))
 		suite.Equal(successMove.ExcessWeightUploadID.String(), movePayload.ExcessWeightUploadID.String())

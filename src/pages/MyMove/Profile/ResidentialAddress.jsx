@@ -52,7 +52,7 @@ export const ResidentialAddress = ({ serviceMember, updateServiceMember }) => {
   };
 
   const handleBack = () => {
-    navigate(customerRoutes.CONTACT_INFO_PATH);
+    navigate(customerRoutes.CURRENT_DUTY_LOCATION_PATH);
   };
 
   const handleNext = () => {
@@ -69,6 +69,7 @@ export const ResidentialAddress = ({ serviceMember, updateServiceMember }) => {
       .then(updateServiceMember)
       .then(handleNext)
       .catch((e) => {
+        // TODO - error handling - below is rudimentary error handling to approximate existing UX
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
         const { response } = e;
         const errorMessage = getResponseError(response, 'failed to update service member due to server error');
@@ -124,4 +125,4 @@ const mapStateToProps = (state) => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(requireCustomerState(ResidentialAddress, profileStates.CONTACT_INFO_COMPLETE));
+)(requireCustomerState(ResidentialAddress, profileStates.DUTY_LOCATION_COMPLETE));

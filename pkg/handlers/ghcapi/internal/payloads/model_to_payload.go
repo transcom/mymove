@@ -87,10 +87,6 @@ func ListMove(move *models.Move) *ghcmessages.ListPrimeMove {
 		ETag:               etag.GenerateEtag(move.UpdatedAt),
 	}
 
-	if move.PPMEstimatedWeight != nil {
-		payload.PpmEstimatedWeight = int64(*move.PPMEstimatedWeight)
-	}
-
 	if move.PPMType != nil {
 		payload.PpmType = *move.PPMType
 	}
