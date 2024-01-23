@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 	"net/http"
@@ -16,7 +15,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
@@ -161,24 +159,6 @@ func main() {
 
 	// Rework will begin here
 	page1Data, page2Data := ppmComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
-	noErr(err)
-
-	// page 1
-	page1Layout := paperwork.ShipmentSummaryPage1Layout
-	page1Template, err := assets.Asset(page1Layout.TemplateImagePath)
-	noErr(err)
-
-	page1Reader := bytes.NewReader(page1Template)
-	err = formFiller.AppendPage(page1Reader, page1Layout.FieldsLayout, page1Data)
-	noErr(err)
-
-	// page 2
-	page2Layout := paperwork.ShipmentSummaryPage2Layout
-	page2Template, err := assets.Asset(page2Layout.TemplateImagePath)
-	noErr(err)
-
-	page2Reader := bytes.NewReader(page2Template)
-	err = formFiller.AppendPage(page2Reader, page2Layout.FieldsLayout, page2Data)
 	noErr(err)
 
 	filename := fmt.Sprintf("shipment-summary-worksheet-%s.pdf", time.Now().Format(time.RFC3339))

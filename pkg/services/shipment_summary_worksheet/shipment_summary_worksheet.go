@@ -10,26 +10,25 @@ import (
 	"strings"
 	"time"
 
-	"github.com/transcom/mymove/pkg/paperwork"
-	"github.com/transcom/mymove/pkg/storage"
-	"github.com/transcom/mymove/pkg/uploader"
-
-	"github.com/spf13/afero"
-
 	"github.com/gofrs/uuid"
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/pkg/errors"
+	"github.com/spf13/afero"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/unit"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
-	"golang.org/x/text/message"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 // SSWPPMComputer is the concrete struct implementing the services.shipmentsummaryworksheet interface
@@ -731,7 +730,13 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 
 	storer := storage.NewMemory(storage.NewMemoryParams("", ""))
 	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
+	if err != nil {
+		return nil, err
+	}
 	g, err := paperwork.NewGenerator(userUploader.Uploader())
+	if err != nil {
+		return nil, err
+	}
 
 	var conf *model.Configuration
 	// pdfTemplate, err := assets.Asset(pdfTemplatePath)
@@ -801,10 +806,11 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		fmt.Println("Error marshaling JSON:", err)
 		return
 	}
-	readJson := strings.NewReader(string(jsonData))
+	readJSON := strings.NewReader(string(jsonData))
 	buf := new(bytes.Buffer)
 
-	if err := api.FillForm(SSWPPMGenerator.templateReader, readJson, buf, conf); err != nil {
+	formerr := api.FillForm(SSWPPMGenerator.templateReader, readJSON, buf, conf)
+	if formerr != nil {
 		return nil, err
 	}
 
@@ -825,12 +831,13 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		return nil, errors.Wrap(err, "error g.fs.Open on reload from memstore")
 	}
 
-	pdfInfo, err := g.GetPdfFileInfo(SSWWorksheet.Name())
-	if err != nil {
-		return nil, errors.Wrap(err, "error io.Copy on byte[] to temp")
-	}
+	// To be used in testing
+	// pdfInfo, err := g.GetPdfFileInfo(SSWWorksheet.Name())
+	// if err != nil {
+	// 	return nil, errors.Wrap(err, "error io.Copy on byte[] to temp")
+	// }
 
-	println(pdfInfo.PageCount)
+	// println(pdfInfo.PageCount)
 	return SSWWorksheet, err
 }
 
