@@ -543,12 +543,7 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 
 	featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
 	if err != nil {
-		appCtx.Logger().Fatal("Could not instantiate feature flag fetcher", zap.Error(err))
-	}
-
-	envFetcher, err := featureflag.NewEnvFetcher(cli.GetFliptFetcherConfig(v))
-	if err != nil {
-		appCtx.Logger().Fatal("Could not instantiate env fetcher", zap.Error(err))
+		appCtx.Logger().Fatal("Could not instantiate feature flag featcher", zap.Error(err))
 	}
 
 	routingConfig.HandlerConfig = handlers.NewHandlerConfig(
@@ -567,7 +562,6 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		appNames,
 		sessionManagers,
 		featureFlagFetcher,
-		envFetcher,
 	)
 
 	initializeRouteOptions(v, routingConfig)
