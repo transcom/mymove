@@ -207,6 +207,46 @@ describe('selectServiceMemberProfileState', () => {
     expect(selectServiceMemberProfileState(testState)).toEqual(profileStates.CONTACT_INFO_COMPLETE);
   });
 
+  it('returns DUTY_LOCATION_COMPLETE if there is no address data', () => {
+    const testState = {
+      entities: {
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            affiliation: 'ARMY',
+            rank: 'O_4_W_4',
+            edipi: '1234567890',
+            first_name: 'Erin',
+            last_name: 'Stanfill',
+            middle_name: '',
+            personal_email: 'erin@truss.works',
+            phone_is_preferred: true,
+            telephone: '555-555-5556',
+            email_is_preferred: false,
+            current_location: {
+              id: 'testDutyLocationId',
+              address: {
+                city: 'Colorado Springs',
+                country: 'United States',
+                postalCode: '80913',
+                state: 'CO',
+                streetAddress1: 'n/a',
+              },
+            },
+          },
+        },
+      },
+    };
+
+    expect(selectServiceMemberProfileState(testState)).toEqual(profileStates.DUTY_LOCATION_COMPLETE);
+  });
+
   it('returns ADDRESS_COMPLETE if there is no backup address data', () => {
     const testState = {
       entities: {
