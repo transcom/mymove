@@ -395,6 +395,7 @@ func (suite *HandlerSuite) TestDeleteProgearWeightTicketHandler() {
 		mockDeleter.On("DeleteProgearWeightTicket",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("uuid.UUID"),
 		).Return(err)
 
 		// Use createS3HandlerConfig for the HandlerConfig because we are required to upload a doc

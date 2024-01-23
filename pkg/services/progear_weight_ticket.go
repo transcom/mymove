@@ -25,5 +25,5 @@ type ProgearWeightTicketUpdater interface {
 //
 //go:generate mockery --name ProgearWeightTicketDeleter
 type ProgearWeightTicketDeleter interface {
-	DeleteProgearWeightTicket(appCtx appcontext.AppContext, progearWeightTicketID uuid.UUID) error
+	DeleteProgearWeightTicket(appCtx appcontext.AppContext, ppmID uuid.UUID, progearWeightTicketID uuid.UUID) error
 }
