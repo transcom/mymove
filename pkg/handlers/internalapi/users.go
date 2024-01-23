@@ -77,30 +77,6 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 				return userop.NewShowLoggedInUserUnauthorized(), err
 			}
 
-			// Load duty location and transportation office association
-			if serviceMember.DutyLocationID != nil {
-				// Fetch associations on duty location
-				dutyLocation, dutyLocationErr := models.FetchDutyLocation(appCtx.DB(), *serviceMember.DutyLocationID)
-				if dutyLocationErr != nil {
-					return handlers.ResponseForError(appCtx.Logger(), dutyLocationErr), dutyLocationErr
-				}
-				serviceMember.DutyLocation = dutyLocation
-
-				// Fetch duty location transportation office
-				transportationOffice, tspErr := models.FetchDutyLocationTransportationOffice(appCtx.DB(), *serviceMember.DutyLocationID)
-				if tspErr != nil {
-					if errors.Cause(tspErr) != models.ErrFetchNotFound {
-						// The absence of an office shouldn't render the entire request a 404
-						return handlers.ResponseForError(appCtx.Logger(), tspErr), tspErr
-					}
-					// We might not have Transportation Office data for a Duty Location, and that's ok
-					if errors.Cause(tspErr) != models.ErrFetchNotFound {
-						return handlers.ResponseForError(appCtx.Logger(), tspErr), tspErr
-					}
-				}
-				serviceMember.DutyLocation.TransportationOffice = transportationOffice
-			}
-
 			// Load the latest orders associations and new duty location transport office
 			if len(serviceMember.Orders) > 0 {
 				orders, orderErr := models.FetchOrderForUser(appCtx.DB(), appCtx.Session(), serviceMember.Orders[0].ID)

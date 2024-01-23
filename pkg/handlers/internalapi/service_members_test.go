@@ -120,7 +120,6 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerNoValues() {
 	// which can't be handled in OpenAPI Spec 2.0. Therefore we don't return them at all.
 	suite.Assertions.Equal((*serviceMemberPayload).Grade, (*internalmessages.OrderPayGrade)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).Affiliation, (*internalmessages.Affiliation)(nil))
-	suite.Assertions.Equal((*serviceMemberPayload).CurrentLocation, (*internalmessages.DutyLocationPayload)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).ResidentialAddress, (*internalmessages.Address)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).BackupMailingAddress, (*internalmessages.Address)(nil))
 	suite.Assertions.Equal((*serviceMemberPayload).BackupContacts, internalmessages.IndexServiceMemberBackupContactsPayload{})
@@ -205,35 +204,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	origEmailIsPreferred := models.BoolPointer(true)
 	newEmailIsPreferred := models.BoolPointer(false)
 
-	origDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
-	// Test updating duty location to one with different GBLOC
-	newDutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
-		{
-			Model: models.Address{
-				StreetAddress1: "Fort Eisenhower",
-				City:           "Fort Eisenhower",
-				State:          "GA",
-				PostalCode:     "77777",
-				Country:        models.StringPointer("United States"),
-			},
-		},
-	}, nil)
-
-	// Create a custom postal code to GBLOC
-	newGBLOC := factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), newDutyLocationAddress.PostalCode, "UUUU")
-	newDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{
-			Model: models.DutyLocation{
-				Name: "Fort Sam Houston",
-			},
-		},
-		{
-			Model:    newDutyLocationAddress,
-			LinkOnly: true,
-		},
-	}, nil)
-	newDutyLocationID := strfmt.UUID(newDutyLocation.ID.String())
-
 	newServiceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceMember{
@@ -250,11 +220,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 				EmailIsPreferred:   origEmailIsPreferred,
 			},
 		},
-		{
-			Model:    origDutyLocation,
-			LinkOnly: true,
-			Type:     &factory.DutyLocations.OriginDutyLocation,
-		},
 	}, nil)
 
 	orderGrade := models.ServiceMemberGradeE5
@@ -263,11 +228,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 			Model: models.Order{
 				Grade: &orderGrade,
 			},
-		},
-		{
-			Model:    origDutyLocation,
-			LinkOnly: true,
-			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
 		{
 			Model:    newServiceMember,
@@ -291,7 +251,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		SecondaryTelephone:   newSecondaryTelephone,
 		Suffix:               newSuffix,
 		Telephone:            newTelephone,
-		CurrentLocationID:    &newDutyLocationID,
 	}
 
 	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
@@ -327,9 +286,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	suite.Equal(*newEmailIsPreferred, *serviceMemberPayload.EmailIsPreferred)
 	suite.Equal(*resAddress.StreetAddress1, *serviceMemberPayload.ResidentialAddress.StreetAddress1)
 	suite.Equal(*backupAddress.StreetAddress1, *serviceMemberPayload.BackupMailingAddress.StreetAddress1)
-	// Editing SM info DutyLocation and Rank fields should edit Orders OriginDutyLocation and Grade fields
-	suite.Equal(*serviceMemberPayload.Orders[0].OriginDutyLocation.Name, newDutyLocation.Name)
-	suite.Equal(serviceMemberPayload.Orders[0].OriginDutyLocationGbloc, &newGBLOC.GBLOC)
 }
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
@@ -484,7 +440,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	// These fields should not change (they should still be the original
 	// values) after the move has been submitted.
 	suite.Equal(origAffiliation, models.ServiceMemberAffiliation(*serviceMemberPayload.Affiliation))
-	suite.Equal(origDutyLocation.ID.String(), string(*serviceMemberPayload.CurrentLocation.ID))
 
 	// These fields should change even if the move is submitted.
 	suite.Equal(*newFirstName, *serviceMemberPayload.FirstName)

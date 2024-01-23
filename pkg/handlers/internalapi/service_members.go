@@ -1,15 +1,12 @@
 package internalapi
 
 import (
-	"database/sql"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/apperror"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -54,7 +51,6 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		BackupMailingAddress: payloads.Address(serviceMember.BackupMailingAddress),
 		BackupContacts:       contactPayloads,
 		IsProfileComplete:    handlers.FmtBool(serviceMember.IsProfileComplete()),
-		CurrentLocation:      payloadForDutyLocationModel(serviceMember.DutyLocation),
 		WeightAllotment:      weightAllotment,
 	}
 	return &serviceMemberPayload
@@ -74,21 +70,6 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 			residentialAddress := addressModelFromPayload(params.CreateServiceMemberPayload.ResidentialAddress)
 			backupMailingAddress := addressModelFromPayload(params.CreateServiceMemberPayload.BackupMailingAddress)
 
-			var dutyLocationID *uuid.UUID
-			var dutyLocation models.DutyLocation
-			if params.CreateServiceMemberPayload.CurrentLocationID != nil {
-				id, err := uuid.FromString(params.CreateServiceMemberPayload.CurrentLocationID.String())
-				if err != nil {
-					return handlers.ResponseForError(appCtx.Logger(), err), err
-				}
-				s, err := models.FetchDutyLocation(appCtx.DB(), id)
-				if err != nil {
-					return handlers.ResponseForError(appCtx.Logger(), err), err
-				}
-				dutyLocationID = &id
-				dutyLocation = s
-			}
-
 			// Create a new serviceMember for an authenticated user
 			newServiceMember := models.ServiceMember{
 				UserID:               appCtx.Session().UserID,
@@ -105,8 +86,6 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 				EmailIsPreferred:     params.CreateServiceMemberPayload.EmailIsPreferred,
 				ResidentialAddress:   residentialAddress,
 				BackupMailingAddress: backupMailingAddress,
-				DutyLocation:         dutyLocation,
-				DutyLocationID:       dutyLocationID,
 			}
 			smVerrs, err := models.SaveServiceMember(appCtx, &newServiceMember)
 			if smVerrs.HasAny() || err != nil {
@@ -212,23 +191,6 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 					return handlers.ResponseForError(appCtx.Logger(), err), err
 				}
 
-				if serviceMember.DutyLocation.ID != order.OriginDutyLocation.ID {
-					dutyLocation := &serviceMember.DutyLocation
-					var originDutyLocationGBLOC models.PostalCodeToGBLOC
-					originDutyLocationGBLOC, err = models.FetchGBLOCForPostalCode(appCtx.DB(), dutyLocation.Address.PostalCode)
-					if err != nil {
-						switch err {
-						case sql.ErrNoRows:
-							return nil, apperror.NewNotFoundError(dutyLocation.ID, "while looking for Duty Location PostalCodeToGBLOC")
-						default:
-							return nil, apperror.NewQueryError("PostalCodeToGBLOC", err, "")
-						}
-					}
-					order.OriginDutyLocation = &serviceMember.DutyLocation
-					order.OriginDutyLocationID = &serviceMember.DutyLocation.ID
-					order.OriginDutyLocationGBLOC = &originDutyLocationGBLOC.GBLOC
-				}
-
 				verrs, err = appCtx.DB().ValidateAndSave(&order)
 				if verrs.HasAny() || err != nil {
 					return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
@@ -243,20 +205,6 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 
 func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(appCtx appcontext.AppContext, serviceMember *models.ServiceMember, payload *internalmessages.PatchServiceMemberPayload) (*validate.Errors, error) {
 	if h.isDraftMove(serviceMember) {
-		if payload.CurrentLocationID != nil {
-			dutyLocationID, err := uuid.FromString(payload.CurrentLocationID.String())
-			if err != nil {
-				return validate.NewErrors(), err
-			}
-			// Fetch the model partially as a validation on the ID
-			dutyLocation, err := models.FetchDutyLocation(appCtx.DB(), dutyLocationID)
-			if err != nil {
-				return validate.NewErrors(), err
-			}
-			serviceMember.DutyLocation = dutyLocation
-			serviceMember.DutyLocationID = &dutyLocationID
-		}
-
 		if payload.Affiliation != nil {
 			serviceMember.Affiliation = (*models.ServiceMemberAffiliation)(payload.Affiliation)
 		}

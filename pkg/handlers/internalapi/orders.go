@@ -136,15 +136,23 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			dutyLocationID, err := uuid.FromString(payload.NewDutyLocationID.String())
+			originDutyLocationID, err := uuid.FromString(payload.OriginDutyLocationID.String())
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-			newDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), dutyLocationID)
+			originDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), originDutyLocationID)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-			originDutyLocation := serviceMember.DutyLocation
+
+			newDutyLocationID, err := uuid.FromString(payload.NewDutyLocationID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+			newDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), newDutyLocationID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
 
 			originDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
 			if err != nil {

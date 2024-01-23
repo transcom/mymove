@@ -154,11 +154,10 @@ func (f *orderUpdater) findOrderWithAmendedOrders(appCtx appcontext.AppContext, 
 func orderFromTOOPayload(_ appcontext.AppContext, existingOrder models.Order, payload ghcmessages.UpdateOrderPayload) models.Order {
 	order := existingOrder
 
-	// update both order origin duty location and service member duty location
+	// update order origin duty location
 	if payload.OriginDutyLocationID != nil {
 		originDutyLocationID := uuid.FromStringOrNil(payload.OriginDutyLocationID.String())
 		order.OriginDutyLocationID = &originDutyLocationID
-		order.ServiceMember.DutyLocationID = &originDutyLocationID
 	}
 
 	if payload.NewDutyLocationID != nil {
@@ -282,11 +281,10 @@ func (f *orderUpdater) amendedOrder(appCtx appcontext.AppContext, userID uuid.UU
 func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.CounselingUpdateOrderPayload) models.Order {
 	order := existingOrder
 
-	// update both order origin duty location and service member duty location
+	// update order origin duty location
 	if payload.OriginDutyLocationID != nil {
 		originDutyLocationID := uuid.FromStringOrNil(payload.OriginDutyLocationID.String())
 		order.OriginDutyLocationID = &originDutyLocationID
-		order.ServiceMember.DutyLocationID = &originDutyLocationID
 	}
 
 	if payload.NewDutyLocationID != nil {
@@ -546,9 +544,6 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 			}
 		}
 		order.OriginDutyLocationGBLOC = &dutyLocationGBLOC.GBLOC
-
-		order.ServiceMember.DutyLocationID = &originDutyLocation.ID
-		order.ServiceMember.DutyLocation = originDutyLocation
 	}
 
 	if order.Grade != nil || order.OriginDutyLocationID != nil {

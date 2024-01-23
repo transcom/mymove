@@ -6931,9 +6931,6 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
-        "current_location": {
-          "$ref": "#/definitions/DutyLocationPayload"
-        },
         "edipi": {
           "type": "string",
           "format": "edipi",
@@ -15523,9 +15520,6 @@ func init() {
         "created_at": {
           "type": "string",
           "format": "date-time"
-        },
-        "current_location": {
-          "$ref": "#/definitions/DutyLocationPayload"
         },
         "edipi": {
           "type": "string",
