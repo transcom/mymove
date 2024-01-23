@@ -2690,6 +2690,17 @@ definitions:
       - title
       - detail
     type: object
+  MovesList:
+    type: object
+    properties:
+      currentMove:
+        type: array
+        items:
+          $ref: 'definitions/prime/MoveTaskOrder.yaml'
+      previousMoves:
+        type: array
+        items:
+          $ref: 'definitions/prime/MoveTaskOrder.yaml'
 paths:
   /estimates/ppm:
     get:
@@ -3035,6 +3046,36 @@ paths:
           description: payload is too large
         '500':
           description: server error
+  /all_moves/{serviceMemberId}:
+    get:
+      summary: Return the current and previous moves of a service member
+      description: |
+        Gets all moves that belongs to the serviceMember
+      operationId: getAllMoves
+      tags:
+        - moves
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: serviceMemberId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the service member
+      responses:
+        '200':
+          description: >-
+            Successfully retrieved moves. A successful fetch might still return
+            zero moves.
+          schema:
+            $ref: '#/definitions/MovesList'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
   /moves/{moveId}:
     patch:
       summary: Patches the move
