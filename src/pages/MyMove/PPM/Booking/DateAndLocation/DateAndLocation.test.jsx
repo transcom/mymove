@@ -444,9 +444,9 @@ describe('DateAndLocation component', () => {
     it('renders the heading and form with shipment values', async () => {
       renderDateAndLocation(fullShipmentProps);
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('PPM date & location');
-
+      expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
       const postalCodes = screen.getAllByLabelText('ZIP');
-      const secondaryPostalCodes = screen.getAllByLabelText('Second ZIP');
+      
 
       await waitFor(() => {
         expect(screen.getByLabelText('When do you plan to start moving your PPM?')).toHaveValue('31 Dec 2022');
@@ -454,9 +454,9 @@ describe('DateAndLocation component', () => {
 
       expect(postalCodes[0]).toHaveValue('20002');
       expect(postalCodes[1]).toHaveValue('20004');
-      expect(secondaryPostalCodes[0]).toHaveValue('20003');
-      expect(secondaryPostalCodes[1]).toHaveValue('20005');
-      expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
+      expect(secondaryPostalCodes[2]).toHaveValue('20003');
+      expect(secondaryPostalCodes[3]).toHaveValue('20005');
+      
     });
 
     it('routes back to the home page screen when back is clicked', async () => {
@@ -513,11 +513,11 @@ describe('DateAndLocation component', () => {
       await userEvent.clear(primaryPostalCodes[1]);
       await userEvent.type(primaryPostalCodes[1], '10002');
 
-      const secondaryPostalCodes = screen.getAllByLabelText('Second ZIP');
-      await userEvent.clear(secondaryPostalCodes[0]);
-      await userEvent.type(secondaryPostalCodes[0], '10003');
-      await userEvent.clear(secondaryPostalCodes[1]);
-      await userEvent.type(secondaryPostalCodes[1], '10004');
+      
+      await userEvent.clear(primaryPostalCodes[2]);
+      await userEvent.type(primaryPostalCodes[2], '10003');
+      await userEvent.clear(primaryPostalCodes[3]);
+      await userEvent.type(primaryPostalCodes[3], '10004');
 
       const expectedDepartureDate = screen.getByLabelText('When do you plan to start moving your PPM?');
       await userEvent.clear(expectedDepartureDate);
