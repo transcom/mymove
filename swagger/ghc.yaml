@@ -5104,6 +5104,8 @@ definitions:
         enum:
           - FULL
           - PARTIAL
+      ppmEstimatedWeight:
+        type: integer
       eTag:
         type: string
         readOnly: true
