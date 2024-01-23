@@ -90,7 +90,7 @@ export const mockMovesPCS = {
       id: 'testMoveID2',
       moveCode: 'SAMPLE',
       orderID: 'testOrderID2',
-      status: 'COMPLETED',
+      status: 'APPROVED',
       orders: {
         id: 'testOrder2',
         destinationDutyLocation: {
@@ -174,7 +174,7 @@ export const mockMovesPCS = {
       id: 'testMoveID3',
       moveCode: 'EXAMPL',
       orderID: 'testOrderID3',
-      status: 'COMPLETED',
+      status: 'APPROVED',
       orders: {
         id: 'testOrder3',
         destinationDutyLocation: {
@@ -349,7 +349,7 @@ export const mockMovesRetirement = {
       id: 'testMoveID2',
       moveCode: 'SAMPLE',
       orderID: 'testOrderID2',
-      status: 'COMPLETED',
+      status: 'APPROVED',
       orders: {
         id: 'testOrder2',
         destinationDutyLocation: {
@@ -433,7 +433,7 @@ export const mockMovesRetirement = {
       id: 'testMoveID3',
       moveCode: 'EXAMPL',
       orderID: 'testOrderID3',
-      status: 'COMPLETED',
+      status: 'APPROVED',
       orders: {
         id: 'testOrder3',
         destinationDutyLocation: {
@@ -608,7 +608,7 @@ export const mockMovesSeparation = {
       id: 'testMoveID2',
       moveCode: 'SAMPLE',
       orderID: 'testOrderID2',
-      status: 'COMPLETED',
+      status: 'APPROVED',
       orders: {
         id: 'testOrder2',
         destinationDutyLocation: {
@@ -692,7 +692,7 @@ export const mockMovesSeparation = {
       id: 'testMoveID3',
       moveCode: 'EXAMPL',
       orderID: 'testOrderID3',
-      status: 'COMPLETED',
+      status: 'APPROVED',
       orders: {
         id: 'testOrder3',
         destinationDutyLocation: {

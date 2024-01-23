@@ -68,7 +68,7 @@ const MultiMovesMoveContainer = ({ moves }) => {
       <div className={styles.moveContainer}>
         <div className={styles.heading} key={index}>
           <h3>#{m.moveCode}</h3>
-          {m.status !== 'COMPLETED' ? (
+          {m.status !== 'APPROVED' ? (
             <Button className={styles.goToMoveBtn} secondary outline>
               Go to Move
             </Button>
