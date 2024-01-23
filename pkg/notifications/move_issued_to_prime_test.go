@@ -34,7 +34,7 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 		originDutyLocation := "origDutyLocation"
 
 		s := moveIssuedToPrimeEmailData{
-			MilitaryOneSourceLink:        "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL",
+			MilitaryOneSourceLink:        "https://example.com",
 			OriginDutyLocation:           &originDutyLocation,
 			DestinationDutyLocation:      "destDutyLocation",
 			Locator:                      "abc123",
@@ -52,7 +52,8 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 </p>
 
 <p>
-  Your government-arranged shipment(s) will be managed by HomeSafe Alliance, the DoD contractor under the Global Household Goods Contract (GHC).
+  Your government-arranged shipment(s) will be managed by HomeSafe Alliance, the DoD contractor under the
+  Global Household Goods Contract (GHC).
 </p>
 
 <h4>Next steps for your government-arranged shipment(s): </h4>
@@ -76,8 +77,8 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
   </li>
   <li>
     Within 3-7 days of your receipt of this e-mail, contact you to provide a 7-day pickup date spread window.
-    This spread window must contain your requested pickup date.
-    (What this means: your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
+    This spread window must contain your requested pickup date. (What this means: your requested pickup date may
+    fall on the spread start date, the spread end date, or anywhere in between.)
   </li>
 </ul>
 
@@ -95,12 +96,12 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 <p>
   If you are unsatisfied at any time, contact a government transportation office.
   You can see a listing of transportation offices on Military One Source here:
-  <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a>.
+  <a href="https://example.com">https://example.com</a>.
 </p>
 
 <p>Thank you,</p>
 
-<p>USTRANSCOM MilMove Team</p>
+<p>Defense Personal Property Program’s MilMove Team</p>
 
 <p>
   The information contained in this email may contain Privacy Act information and is therefore protected under the
@@ -123,7 +124,7 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 		notification := NewMoveIssuedToPrime(move.ID)
 
 		s := moveIssuedToPrimeEmailData{
-			MilitaryOneSourceLink:        "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL",
+			MilitaryOneSourceLink:        "https://example.com",
 			DestinationDutyLocation:      "destDutyLocation",
 			Locator:                      "abc123",
 			ProvidesGovernmentCounseling: true,
@@ -140,7 +141,8 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 </p>
 
 <p>
-  Your government-arranged shipment(s) will be managed by HomeSafe Alliance, the DoD contractor under the Global Household Goods Contract (GHC).
+  Your government-arranged shipment(s) will be managed by HomeSafe Alliance, the DoD contractor under the
+  Global Household Goods Contract (GHC).
 </p>
 
 <h4>Next steps for your government-arranged shipment(s): </h4>
@@ -164,8 +166,8 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
   </li>
   <li>
     Within 3-7 days of your receipt of this e-mail, contact you to provide a 7-day pickup date spread window.
-    This spread window must contain your requested pickup date.
-    (What this means: your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
+    This spread window must contain your requested pickup date. (What this means: your requested pickup date may
+    fall on the spread start date, the spread end date, or anywhere in between.)
   </li>
 </ul>
 
@@ -183,12 +185,12 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 <p>
   If you are unsatisfied at any time, contact a government transportation office.
   You can see a listing of transportation offices on Military One Source here:
-  <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a>.
+  <a href="https://example.com">https://example.com</a>.
 </p>
 
 <p>Thank you,</p>
 
-<p>USTRANSCOM MilMove Team</p>
+<p>Defense Personal Property Program’s MilMove Team</p>
 
 <p>
   The information contained in this email may contain Privacy Act information and is therefore protected under the
@@ -212,7 +214,7 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 		originDutyLocation := "origDutyLocation"
 
 		s := moveIssuedToPrimeEmailData{
-			MilitaryOneSourceLink:        "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL",
+			MilitaryOneSourceLink:        "https://example.com",
 			OriginDutyLocation:           &originDutyLocation,
 			DestinationDutyLocation:      "destDutyLocation",
 			Locator:                      "abc123",
@@ -230,12 +232,8 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 </p>
 
 <p>
-  If you have requested a Personally Procured Move (PPM), <strong>DO NOT</strong> start your PPM until it has been approved by your counselor.
-  You will receive an email when that is complete.
-</p>
-
-<p>
-  Your government-arranged shipment(s) will be managed by HomeSafe Alliance, the DoD contractor under the Global Household Goods Contract (GHC).
+  Your government-arranged shipment(s) will be managed by HomeSafe Alliance, the DoD contractor under the
+  Global Household Goods Contract (GHC).
 </p>
 
 <h4>Next steps for your government-arranged shipment(s): </h4>
@@ -258,9 +256,9 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
     Reach out to you within one Government Business Day.
   </li>
   <li>
-    Within 3-7 days of your receipt of this e-mail, contact you to assist in completion of counseling
-    and provide a 7-day pickup date spread window. This spread window must contain your requested pickup date.
-    (What this means: your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
+    Within 3-7 days of your receipt of this e-mail, contact you to assist in completion of counseling and
+    provide a 7-day pickup date spread window. This spread window must contain your requested pickup date. (What this means:
+    your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
   </li>
 </ul>
 
@@ -278,12 +276,12 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 <p>
   If you are unsatisfied at any time, contact a government transportation office.
   You can see a listing of transportation offices on Military One Source here:
-  <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a>.
+  <a href="https://example.com">https://example.com</a>.
 </p>
 
 <p>Thank you,</p>
 
-<p>USTRANSCOM MilMove Team</p>
+<p>Defense Personal Property Program’s MilMove Team</p>
 
 <p>
   The information contained in this email may contain Privacy Act information and is therefore protected under the
@@ -309,7 +307,7 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeTextTemplateRender() {
 		originDutyLocation := "origDutyLocation"
 
 		s := moveIssuedToPrimeEmailData{
-			MilitaryOneSourceLink:        "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL",
+			MilitaryOneSourceLink:        "https://example.com",
 			OriginDutyLocation:           &originDutyLocation,
 			DestinationDutyLocation:      "destDutyLocation",
 			Locator:                      "abc123",
@@ -325,7 +323,8 @@ What this means to you:
 Your government-arranged shipment(s) will be managed by HomeSafe Alliance,
 the DoD contractor under the Global Household Goods Contract (GHC).
 
-*** Next steps for your government-arranged shipment(s): ***
+** Next steps for your government-arranged shipment(s):
+------------------------------------------------------------
 
 HomeSafe will send you an e-mail invitation (check your spam or junk folder) to log in to their system, HomeSafe Connect.
 
@@ -335,8 +334,8 @@ or in-person pre-move survey.
 HomeSafe Customer Care is Required to:
 * Reach out to you within one Government Business Day.
 * Within 3-7 days of your receipt of this e-mail, contact you to provide a 7-day pickup date spread window.
-This spread window must contain your requested pickup date.
-(What this means: your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
+This spread window must contain your requested pickup date. (What this means:
+your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
 
 If you are requesting to move in 5 days or less, HomeSafe should assist you with scheduling within one day of your receipt of this email.
 
@@ -346,11 +345,11 @@ Utilize your HomeSafe Customer Care Representative:
 
 If you are unsatisfied at any time, contact a government transportation office.
 You can see a listing of transportation offices on Military One Source here:
-https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL.
+https://example.com.
 
 Thank you,
 
-USTRANSCOM MilMove Team
+Defense Personal Property Program’s MilMove Team
 
 The information contained in this email may contain Privacy Act information and is therefore protected
 under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
@@ -371,7 +370,7 @@ under the Privacy Act of 1974. Failure to protect Privacy Act information could 
 		notification := NewMoveIssuedToPrime(move.ID)
 
 		s := moveIssuedToPrimeEmailData{
-			MilitaryOneSourceLink:        "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL",
+			MilitaryOneSourceLink:        "https://example.com",
 			DestinationDutyLocation:      "destDutyLocation",
 			Locator:                      "abc123",
 			ProvidesGovernmentCounseling: true,
@@ -386,7 +385,8 @@ What this means to you:
 Your government-arranged shipment(s) will be managed by HomeSafe Alliance,
 the DoD contractor under the Global Household Goods Contract (GHC).
 
-*** Next steps for your government-arranged shipment(s): ***
+** Next steps for your government-arranged shipment(s):
+------------------------------------------------------------
 
 HomeSafe will send you an e-mail invitation (check your spam or junk folder) to log in to their system, HomeSafe Connect.
 
@@ -396,8 +396,8 @@ or in-person pre-move survey.
 HomeSafe Customer Care is Required to:
 * Reach out to you within one Government Business Day.
 * Within 3-7 days of your receipt of this e-mail, contact you to provide a 7-day pickup date spread window.
-This spread window must contain your requested pickup date.
-(What this means: your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
+This spread window must contain your requested pickup date. (What this means:
+your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
 
 If you are requesting to move in 5 days or less, HomeSafe should assist you with scheduling within one day of your receipt of this email.
 
@@ -407,11 +407,11 @@ Utilize your HomeSafe Customer Care Representative:
 
 If you are unsatisfied at any time, contact a government transportation office.
 You can see a listing of transportation offices on Military One Source here:
-https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL.
+https://example.com.
 
 Thank you,
 
-USTRANSCOM MilMove Team
+Defense Personal Property Program’s MilMove Team
 
 The information contained in this email may contain Privacy Act information and is therefore protected
 under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
@@ -433,7 +433,7 @@ under the Privacy Act of 1974. Failure to protect Privacy Act information could 
 		originDutyLocation := "origDutyLocation"
 
 		s := moveIssuedToPrimeEmailData{
-			MilitaryOneSourceLink:        "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL",
+			MilitaryOneSourceLink:        "https://example.com",
 			OriginDutyLocation:           &originDutyLocation,
 			DestinationDutyLocation:      "destDutyLocation",
 			Locator:                      "abc123",
@@ -446,13 +446,11 @@ from origDutyLocation to destDutyLocation.
 
 What this means to you:
 
-If you have requested a Personally Procured Move (PPM), DO NOT start your PPM until it has been approved by your counselor.
-You will receive an email when that is complete.
-
 Your government-arranged shipment(s) will be managed by HomeSafe Alliance,
 the DoD contractor under the Global Household Goods Contract (GHC).
 
-*** Next steps for your government-arranged shipment(s): ***
+** Next steps for your government-arranged shipment(s):
+------------------------------------------------------------
 
 HomeSafe will send you an e-mail invitation (check your spam or junk folder) to log in to their system, HomeSafe Connect.
 
@@ -461,9 +459,9 @@ You can request either a virtual, or in-person pre-move survey.
 
 HomeSafe Customer Care is Required to:
 * Reach out to you within one Government Business Day.
-* Within 3-7 days of your receipt of this e-mail, contact you to assist in completion of counseling
-and provide a 7-day pickup date spread window. This spread window must contain your requested pickup date.
-(What this means: your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
+* Within 3-7 days of your receipt of this e-mail, contact you to assist in completion of counseling and provide a 7-day pickup date spread window.
+This spread window must contain your requested pickup date. (What this means:
+your requested pickup date may fall on the spread start date, the spread end date, or anywhere in between.)
 
 If you are requesting to move in 5 days or less, HomeSafe should assist you with scheduling within one day of your receipt of this email.
 
@@ -473,11 +471,11 @@ Utilize your HomeSafe Customer Care Representative:
 
 If you are unsatisfied at any time, contact a government transportation office.
 You can see a listing of transportation offices on Military One Source here:
-https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL.
+https://example.com.
 
 Thank you,
 
-USTRANSCOM MilMove Team
+Defense Personal Property Program’s MilMove Team
 
 The information contained in this email may contain Privacy Act information and is therefore protected
 under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.

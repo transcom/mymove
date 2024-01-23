@@ -79,7 +79,6 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 	// Test that we can initialize routing and serve the index file
 	handlerConfig := suite.BaseHandlerTestSuite.HandlerConfig()
 	handlerConfig.SetAppNames(handlers.ApplicationTestServername())
-	handlerConfig.SetNotificationSender(suite.TestNotificationSender())
 
 	// Need this for any requests that will either retrieve or save files or their info.
 	fakeS3 := storageTest.NewFakeS3Storage(true)
