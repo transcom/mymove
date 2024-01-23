@@ -354,3 +354,16 @@ func (h SubmitAmendedOrdersHandler) Handle(params moveop.SubmitAmendedOrdersPara
 			return moveop.NewSubmitAmendedOrdersOK().WithPayload(movePayload), nil
 		})
 }
+
+type GetAllMovesHandler struct {
+	handlers.HandlerConfig
+}
+
+// GetAllMovesHandler returns the current and all previous moves of a service member
+func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			return moveop.NewGetAllMovesOK().WithPayload(nil), nil
+		})
+}
