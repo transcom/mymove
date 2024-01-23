@@ -59,7 +59,7 @@ func checkConfig(v *viper.Viper, logger *zap.Logger) error {
 func initFlags(flag *pflag.FlagSet) {
 
 	// Scenario config
-	flag.String(PPMShipmentIDFlag, "8158f06c-3cfa-4852-8984-c12de39da48f", "The PPMShipmentID to generate a shipment summary worksheet for")
+	flag.String(PPMShipmentIDFlag, "b9ae4c25-1376-4b9b-8781-106b5ae7ecab", "The PPMShipmentID to generate a shipment summary worksheet for")
 	flag.Bool(debugFlag, false, "show field debug output")
 
 	// DB Config
