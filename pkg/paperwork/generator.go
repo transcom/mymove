@@ -1,6 +1,7 @@
 package paperwork
 
 import (
+	"bytes"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -12,6 +13,7 @@ import (
 	"github.com/disintegration/imaging"
 	"github.com/jung-kurt/gofpdf"
 	"github.com/pdfcpu/pdfcpu/pkg/api"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -130,6 +132,51 @@ func (g *Generator) newTempFile() (afero.File, error) {
 // Cleanup removes filesystem working dir
 func (g *Generator) Cleanup(_ appcontext.AppContext) error {
 	return g.fs.RemoveAll(g.workDir)
+}
+
+// Add bookmarks into a single PDF
+func (g *Generator) AddPdfBookmarks(inputFile afero.File, bookmarks []pdfcpu.Bookmark) (afero.File, error) {
+
+	buf := new(bytes.Buffer)
+	replace := true
+	err := api.AddBookmarks(inputFile, buf, bookmarks, replace, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "error pdfcpu.api.AddBookmarks")
+	}
+
+	tempFile, err := g.newTempFile()
+	if err != nil {
+		return nil, err
+	}
+
+	// copy byte[] to temp file
+	_, err = io.Copy(tempFile, buf)
+	if err != nil {
+		return nil, errors.Wrap(err, "error io.Copy on byte[] to temp")
+	}
+
+	// Reload the file from memstore
+	pdfWithBookmarks, err := g.fs.Open(tempFile.Name())
+	if err != nil {
+		return nil, errors.Wrap(err, "error g.fs.Open on reload from memstore")
+	}
+
+	return pdfWithBookmarks, nil
+}
+
+// Get PDF Configuration (For Testing)
+func (g *Generator) PdfConfiguration() *model.Configuration {
+	return g.pdfConfig
+}
+
+// Get file information of a single PDF
+func (g *Generator) GetPdfFileInfo(fileName string) (*pdfcpu.PDFInfo, error) {
+	file, err := g.fs.Open(fileName)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	return api.PDFInfo(file, fileName, nil, g.pdfConfig)
 }
 
 // CreateMergedPDFUpload converts Uploads to PDF and merges them into a single PDF
