@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/spf13/afero"
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
@@ -151,4 +152,5 @@ type SSWPPMComputer interface {
 }
 
 type SSWPPMGenerator interface {
+	FillSSWPDFForm(Page1Values, Page2Values) (afero.File, error)
 }
