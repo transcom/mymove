@@ -22,6 +22,7 @@ describe('ImportantShipmentDates', () => {
         scheduledDeliveryDate={scheduledDeliveryDate}
         actualDeliveryDate={actualDeliveryDate}
         requiredDeliveryDate={requiredDeliveryDate}
+        isPPM={false}
       />,
     );
     expect(wrapper.find('td').at(0).text()).toEqual(requiredDeliveryDate);
@@ -43,5 +44,23 @@ describe('ImportantShipmentDates', () => {
     expect(wrapper.find('td').at(4).text()).toEqual(emDash);
     expect(wrapper.find('td').at(5).text()).toEqual(emDash);
     expect(wrapper.find('td').at(6).text()).toEqual(emDash);
+  });
+
+  it('should not show irrelevant fields when it is a PPM', () => {
+    const wrapper = mount(
+      <ImportantShipmentDates
+        requestedPickupDate={requestedPickupDate}
+        scheduledPickupDate={scheduledPickupDate}
+        actualPickupDate={actualPickupDate}
+        requestedDeliveryDate={requestedDeliveryDate}
+        scheduledDeliveryDate={scheduledDeliveryDate}
+        actualDeliveryDate={actualDeliveryDate}
+        requiredDeliveryDate={requiredDeliveryDate}
+        isPPM
+      />,
+    );
+    expect(wrapper.find('td').at(0).text()).toEqual(requestedPickupDate);
+    expect(wrapper.find('td').at(1).text()).toEqual(scheduledPickupDate);
+    expect(wrapper.find('td').at(2).text()).toEqual(actualPickupDate);
   });
 });
