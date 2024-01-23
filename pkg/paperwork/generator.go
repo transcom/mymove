@@ -15,11 +15,11 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
-	"go.uber.org/zap"
-
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
+	"go.uber.org/zap"
 )
 
 // Default values for PDF generation
@@ -90,8 +90,13 @@ func convertTo8BitPNG(in io.Reader, out io.Writer) error {
 
 // NewGenerator creates a new Generator.
 func NewGenerator(uploader *uploader.Uploader) (*Generator, error) {
-	afs := uploader.Storer.FileSystem()
+	// Use in memory filesystem for generation. Purpose is to not write
+	// to hard disk due to restrictions in AWS storage. May need better long term solution.
+	afs := storage.NewMemory(storage.NewMemoryParams("", "")).FileSystem()
 
+	// Disable ConfiDir for AWS deployment purposes.
+	// PDFCPU will attempt to create temp dir using os.create(hard disk).This will prevent it.
+	api.DisableConfigDir()
 	pdfConfig := model.NewDefaultConfiguration()
 	pdfCPU := pdfCPUWrapper{Configuration: pdfConfig}
 

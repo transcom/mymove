@@ -6,12 +6,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
-	"golang.org/x/text/message"
+	"encoding/json"
+	"io"
+	"os"
 
+	"github.com/spf13/afero"
+
+	"github.com/gofrs/uuid"
+	"github.com/pdfcpu/pdfcpu/pkg/api"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
+	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -19,6 +23,9 @@ import (
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 )
 
 // SSWPPMComputer is the concrete struct implementing the services.shipmentsummaryworksheet interface
@@ -630,4 +637,137 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
 	}
 	return &ssd, nil
+}
+
+// TextField represents a text field within a form.
+type TextField struct {
+	Pages     []int  `json:"pages"`
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Value     string `json:"value"`
+	Multiline bool   `json:"multiline"`
+	Locked    bool   `json:"locked"`
+}
+
+func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values) (sswfile afero.File, err error) {
+	// storer := storage.NewMemory(storage.NewMemoryParams("", ""))
+	// userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
+	// g, err := paperwork.NewGenerator(userUploader.Uploader())
+
+	var conf *model.Configuration
+	filename := fmt.Sprintf("newfill-%s.pdf", time.Now().Format(time.RFC3339))
+	pdfTemplatePath := "/Users/anthonymann/projects/mymove/pkg/assets/paperwork/formtemplates/SSWPDFTemplate.pdf"
+	// pdfTemplate, err := assets.Asset(pdfTemplatePath)
+	if err != nil {
+		return nil, err
+	}
+
+	// Header represents the header section of the JSON.
+	type Header struct {
+		Source   string `json:"source"`
+		Version  string `json:"version"`
+		Creation string `json:"creation"`
+		Producer string `json:"producer"`
+	}
+
+	// Checkbox represents a checkbox within a form.
+	type Checkbox struct {
+		Pages   []int  `json:"pages"`
+		ID      string `json:"id"`
+		Name    string `json:"name"`
+		Default bool   `json:"value"`
+		Value   bool   `json:"multiline"`
+		Locked  bool   `json:"locked"`
+	}
+
+	// Forms represents a form containing text fields.
+	type Form struct {
+		TextField []TextField `json:"textfield"`
+		Checkbox  []Checkbox  `json:"checkbox"`
+	}
+
+	// PDFData represents the entire JSON structure.
+	type PDFData struct {
+		Header Header `json:"header"`
+		Forms  []Form `json:"forms"`
+	}
+
+	formData := PDFData{
+		Header: Header{
+			Source:   "SSWPDFTemplate.pdf",
+			Version:  "pdfcpu v0.6.0 dev",
+			Creation: "2024-01-22 21:49:12 UTC",
+			Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
+		},
+		Forms: []Form{
+			{
+				TextField: mergeTextFields(createTextFields(Page1Values, 1), createTextFields(Page2Values, 2)),
+			},
+			{
+				Checkbox: []Checkbox{
+					{
+						Pages:   []int{2},
+						ID:      "797",
+						Name:    "EDOther",
+						Value:   true,
+						Default: false,
+						Locked:  false,
+					},
+				},
+			},
+		},
+	}
+
+	// Marshal the FormData struct into a JSON-encoded byte slice
+	jsonData, err := json.MarshalIndent(formData, "", "  ")
+	if err != nil {
+		fmt.Println("Error marshaling JSON:", err)
+		return
+	}
+	readJson := strings.NewReader(string(jsonData))
+
+	newFile, err := os.Create(filename) // Will use g.NewTempFile for proper memory usage
+	if err != nil {
+		return nil, err
+	}
+
+	outputFileWriter := io.Writer(newFile)
+	// templateReader, err := afero.NewMemMapFs().Open(pdfTemplatePath)
+	templateReader, err := os.Open(pdfTemplatePath)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := api.FillForm(templateReader, readJson, outputFileWriter, conf); err != nil {
+		return nil, err
+	}
+
+	return nil, err
+}
+
+func createTextFields(data interface{}, pages ...int) []TextField {
+	var textFields []TextField
+
+	val := reflect.ValueOf(data)
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Type().Field(i)
+		value := val.Field(i).Interface()
+
+		textField := TextField{
+			Pages:     pages,
+			ID:        fmt.Sprintf("%d", len(textFields)+1),
+			Name:      field.Name,
+			Value:     fmt.Sprintf("%v", value),
+			Multiline: false,
+			Locked:    true,
+		}
+
+		textFields = append(textFields, textField)
+	}
+
+	return textFields
+}
+
+func mergeTextFields(fields1, fields2 []TextField) []TextField {
+	return append(fields1, fields2...)
 }
