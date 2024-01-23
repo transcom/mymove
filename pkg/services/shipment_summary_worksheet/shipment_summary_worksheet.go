@@ -1,14 +1,18 @@
 package shipmentsummaryworksheet
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
+	"os"
 	"reflect"
 	"strings"
 	"time"
 
-	"encoding/json"
-	"io"
-	"os"
+	"github.com/transcom/mymove/pkg/paperwork"
+	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/uploader"
 
 	"github.com/spf13/afero"
 
@@ -37,13 +41,23 @@ func NewSSWPPMComputer() services.SSWPPMComputer {
 	return &SSWPPMComputer{}
 }
 
-// SSWPPMComputer is the concrete struct implementing the services.shipmentsummaryworksheet interface
+// SSWPPMGenerator is the concrete struct implementing the services.shipmentsummaryworksheet interface
 type SSWPPMGenerator struct {
+	templateReader io.ReadSeeker
 }
 
-// NewSSWPPMComputer creates a SSWPPMComputer
+// NewSSWPPMGenerator creates a SSWPPMGenerator
 func NewSSWPPMGenerator() services.SSWPPMGenerator {
-	return &SSWPPMGenerator{}
+	pdfTemplatePath := "pkg/assets/paperwork/formtemplates/SSWPDFTemplate.pdf"
+
+	templateReader, err := os.Open(pdfTemplatePath)
+	if err != nil {
+		panic(err)
+	}
+
+	return &SSWPPMGenerator{
+		templateReader: templateReader,
+	}
 }
 
 // FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
@@ -540,7 +554,7 @@ func FormatPPMPickupDate(ppm models.PPMShipment) string {
 // FormatSITEntryDate formats a SIT EstimatedEntryDate for the Shipment Summary Worksheet
 func FormatSITEntryDate(ppm models.PPMShipment) string {
 	if ppm.SITEstimatedEntryDate == nil {
-		return "" // Return empty string if no SIT attached, field should be blank
+		return "No Entry Data" // Return string if no SIT attached
 	}
 	return FormatDate(*ppm.SITEstimatedEntryDate)
 }
@@ -548,7 +562,7 @@ func FormatSITEntryDate(ppm models.PPMShipment) string {
 // FormatSITEndDate formats a SIT EstimatedPickupDate for the Shipment Summary Worksheet
 func FormatSITEndDate(ppm models.PPMShipment) string {
 	if ppm.SITEstimatedDepartureDate == nil {
-		return "" // Return empty string if no SIT attached, field should be blank
+		return "No Departure Data" // Return string if no SIT attached
 	}
 	return FormatDate(*ppm.SITEstimatedDepartureDate)
 }
@@ -556,7 +570,7 @@ func FormatSITEndDate(ppm models.PPMShipment) string {
 // FormatSITDaysInStorage formats a SIT DaysInStorage for the Shipment Summary Worksheet
 func FormatSITDaysInStorage(ppm models.PPMShipment) string {
 	if ppm.SITEstimatedEntryDate == nil || ppm.SITEstimatedDepartureDate == nil {
-		return "" // Return empty string if no SIT attached, field should be blank
+		return "No Entry/Departure Data" // Return string if no SIT attached
 	}
 	firstDate := ppm.SITEstimatedDepartureDate
 	secondDate := *ppm.SITEstimatedEntryDate
@@ -714,13 +728,12 @@ type TextField struct {
 }
 
 func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values) (sswfile afero.File, err error) {
-	// storer := storage.NewMemory(storage.NewMemoryParams("", ""))
-	// userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
-	// g, err := paperwork.NewGenerator(userUploader.Uploader())
+
+	storer := storage.NewMemory(storage.NewMemoryParams("", ""))
+	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
+	g, err := paperwork.NewGenerator(userUploader.Uploader())
 
 	var conf *model.Configuration
-	filename := fmt.Sprintf("newfill-%s.pdf", time.Now().Format(time.RFC3339))
-	pdfTemplatePath := "/Users/anthonymann/projects/mymove/pkg/assets/paperwork/formtemplates/SSWPDFTemplate.pdf"
 	// pdfTemplate, err := assets.Asset(pdfTemplatePath)
 	if err != nil {
 		return nil, err
@@ -789,26 +802,39 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		return
 	}
 	readJson := strings.NewReader(string(jsonData))
+	buf := new(bytes.Buffer)
 
-	newFile, err := os.Create(filename) // Will use g.NewTempFile for proper memory usage
+	if err := api.FillForm(SSWPPMGenerator.templateReader, readJson, buf, conf); err != nil {
+		return nil, err
+	}
+
+	tempFile, err := g.NewTempFile() // Will use g.NewTempFile for proper memory usage
 	if err != nil {
 		return nil, err
 	}
 
-	outputFileWriter := io.Writer(newFile)
-	// templateReader, err := afero.NewMemMapFs().Open(pdfTemplatePath)
-	templateReader, err := os.Open(pdfTemplatePath)
+	// copy byte[] to temp file
+	_, err = io.Copy(tempFile, buf)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "error io.Copy on byte[] to temp")
 	}
 
-	if err := api.FillForm(templateReader, readJson, outputFileWriter, conf); err != nil {
-		return nil, err
+	// Reload the file from memstore
+	SSWWorksheet, err := g.FileSystem().Open(tempFile.Name())
+	if err != nil {
+		return nil, errors.Wrap(err, "error g.fs.Open on reload from memstore")
 	}
 
-	return nil, err
+	pdfInfo, err := g.GetPdfFileInfo(SSWWorksheet.Name())
+	if err != nil {
+		return nil, errors.Wrap(err, "error io.Copy on byte[] to temp")
+	}
+
+	println(pdfInfo.PageCount)
+	return SSWWorksheet, err
 }
 
+// CreateTextFields formats the SSW Page data to match PDF-accepted JSON
 func createTextFields(data interface{}, pages ...int) []TextField {
 	var textFields []TextField
 
@@ -823,7 +849,7 @@ func createTextFields(data interface{}, pages ...int) []TextField {
 			Name:      field.Name,
 			Value:     fmt.Sprintf("%v", value),
 			Multiline: false,
-			Locked:    true,
+			Locked:    false,
 		}
 
 		textFields = append(textFields, textField)
@@ -832,6 +858,7 @@ func createTextFields(data interface{}, pages ...int) []TextField {
 	return textFields
 }
 
+// MergeTextFields merges page 1 and page 2 data
 func mergeTextFields(fields1, fields2 []TextField) []TextField {
 	return append(fields1, fields2...)
 }

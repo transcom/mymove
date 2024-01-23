@@ -1,7 +1,6 @@
 package paperwork
 
 import (
-	"bytes"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -121,7 +120,7 @@ type inputFile struct {
 	ContentType string
 }
 
-func (g *Generator) newTempFile() (afero.File, error) {
+func (g *Generator) NewTempFile() (afero.File, error) {
 	outputFile, err := g.fs.TempFile(g.workDir, "temp")
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -134,49 +133,14 @@ func (g *Generator) Cleanup(_ appcontext.AppContext) error {
 	return g.fs.RemoveAll(g.workDir)
 }
 
-// Add bookmarks into a single PDF
-func (g *Generator) AddPdfBookmarks(inputFile afero.File, bookmarks []pdfcpu.Bookmark) (afero.File, error) {
-
-	buf := new(bytes.Buffer)
-	replace := true
-	err := api.AddBookmarks(inputFile, buf, bookmarks, replace, nil)
-	if err != nil {
-		return nil, errors.Wrap(err, "error pdfcpu.api.AddBookmarks")
-	}
-
-	tempFile, err := g.newTempFile()
-	if err != nil {
-		return nil, err
-	}
-
-	// copy byte[] to temp file
-	_, err = io.Copy(tempFile, buf)
-	if err != nil {
-		return nil, errors.Wrap(err, "error io.Copy on byte[] to temp")
-	}
-
-	// Reload the file from memstore
-	pdfWithBookmarks, err := g.fs.Open(tempFile.Name())
-	if err != nil {
-		return nil, errors.Wrap(err, "error g.fs.Open on reload from memstore")
-	}
-
-	return pdfWithBookmarks, nil
+// Get PDF Configuration (For Testing)
+func (g *Generator) FileSystem() *afero.Afero {
+	return g.fs
 }
 
 // Get PDF Configuration (For Testing)
 func (g *Generator) PdfConfiguration() *model.Configuration {
 	return g.pdfConfig
-}
-
-// Get file information of a single PDF
-func (g *Generator) GetPdfFileInfo(fileName string) (*pdfcpu.PDFInfo, error) {
-	file, err := g.fs.Open(fileName)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-	return api.PDFInfo(file, fileName, nil, g.pdfConfig)
 }
 
 // CreateMergedPDFUpload converts Uploads to PDF and merges them into a single PDF
@@ -228,7 +192,7 @@ func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads mo
 			}
 		}()
 
-		outputFile, err := g.newTempFile()
+		outputFile, err := g.NewTempFile()
 
 		if err != nil {
 			return nil, errors.Wrap(err, "Creating temp file")
@@ -290,7 +254,7 @@ func ReduceUnusedSpace(_ appcontext.AppContext, file afero.File, g *Generator, c
 
 	// If the image is landscape, then turn it to portrait orientation
 	if w > h {
-		newFile, newTemplateFileErr := g.newTempFile()
+		newFile, newTemplateFileErr := g.NewTempFile()
 		if newTemplateFileErr != nil {
 			return nil, 0.0, 0.0, errors.Wrap(newTemplateFileErr, "Creating temp file for image rotation")
 		}
@@ -349,7 +313,7 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 
 	appCtx.Logger().Debug("generating PDF from image files", zap.Any("images", images))
 
-	outputFile, err := g.newTempFile()
+	outputFile, err := g.NewTempFile()
 	if err != nil {
 		return "", err
 	}
@@ -377,7 +341,7 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 		if img.ContentType == uploader.FileTypePNG {
 			appCtx.Logger().Debug("Converting png to 8-bit")
 			// gofpdf isn't able to process 16-bit PNGs, so to be safe we convert all PNGs to an 8-bit color depth
-			newFile, newTemplateFileErr := g.newTempFile()
+			newFile, newTemplateFileErr := g.NewTempFile()
 			if newTemplateFileErr != nil {
 				return "", errors.Wrap(newTemplateFileErr, "Creating temp file for png conversion")
 			}
@@ -450,7 +414,7 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 // MergePDFFiles Merges a slice of paths to PDF files into a single PDF
 func (g *Generator) MergePDFFiles(_ appcontext.AppContext, paths []string) (afero.File, error) {
 	var err error
-	mergedFile, err := g.newTempFile()
+	mergedFile, err := g.NewTempFile()
 	if err != nil {
 		return mergedFile, err
 	}
@@ -494,4 +458,14 @@ func (g *Generator) MergeImagesToPDF(appCtx appcontext.AppContext, paths []strin
 	}
 
 	return g.PDFFromImages(appCtx, images)
+}
+
+// Get file information of a single PDF
+func (g *Generator) GetPdfFileInfo(fileName string) (*pdfcpu.PDFInfo, error) {
+	file, err := g.fs.Open(fileName)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	return api.PDFInfo(file, fileName, nil, g.pdfConfig)
 }
