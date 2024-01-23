@@ -43,6 +43,15 @@ const InternalCreateSignedCertificationEndpointKey = "Internal.CreateSignedCerti
 // InternalIndexSignedCertificationEndpointKey is the key for the indexSignedCertification endpoint in internal
 const InternalIndexSignedCertificationEndpointKey = "Internal.IndexSignedCertification"
 
+// InternalPatchPersonallyProcuredMoveEndpointKey is the key for the patchPersonallyProcuredMove endpoint in internal
+const InternalPatchPersonallyProcuredMoveEndpointKey = "Internal.PatchPersonallyProcuredMove"
+
+// InternalSubmitPersonallyProcuredMoveEndpointKey is the key for the submitPersonallyProcuredMove endpoint in internal
+const InternalSubmitPersonallyProcuredMoveEndpointKey = "Internal.SubmitPersonallyProcuredMove"
+
+// InternalRequestPPMPaymentEndpointKey is the key for the requestPPMPayment endpoint in internal
+const InternalRequestPPMPaymentEndpointKey = "Internal.RequestPPMPayment"
+
 // InternalApproveReimbursementEndpointKey is the key for the approveReimbursement endpoint in internal
 const InternalApproveReimbursementEndpointKey = "Internal.ApproveReimbursement"
 
@@ -78,6 +87,9 @@ const InternalShowShipmentSummaryWorksheetEndpointKey = "Internal.ShowShipmentSu
 
 // InternalApprovePPMEndpointKey is the key for the approvePPM endpoint in internal
 const InternalApprovePPMEndpointKey = "Internal.ApprovePPM"
+
+// InternalShowPPMIncentiveEndpointKey is the key for the showPPMIncentive endpoint in internal
+const InternalShowPPMIncentiveEndpointKey = "Internal.ShowPPMIncentive"
 
 // InternalCreateDocumentEndpointKey is the key for the createDocument endpoint in internal
 const InternalCreateDocumentEndpointKey = "Internal.CreateDocument"
@@ -201,6 +213,18 @@ var internalEndpoints = EndpointMapType{
 		APIName:     InternalAPIName,
 		OperationID: "indexSignedCertification",
 	},
+	InternalPatchPersonallyProcuredMoveEndpointKey: {
+		APIName:     InternalAPIName,
+		OperationID: "patchPersonallyProcuredMove",
+	},
+	InternalSubmitPersonallyProcuredMoveEndpointKey: {
+		APIName:     InternalAPIName,
+		OperationID: "submitPersonallyProcuredMove",
+	},
+	InternalRequestPPMPaymentEndpointKey: {
+		APIName:     InternalAPIName,
+		OperationID: "requestPPMPayment",
+	},
 	InternalApproveReimbursementEndpointKey: {
 		APIName:     InternalAPIName,
 		OperationID: "approveReimbursement",
@@ -248,6 +272,10 @@ var internalEndpoints = EndpointMapType{
 	InternalApprovePPMEndpointKey: {
 		APIName:     InternalAPIName,
 		OperationID: "approvePPM",
+	},
+	InternalShowPPMIncentiveEndpointKey: {
+		APIName:     InternalAPIName,
+		OperationID: "showPPMIncentive",
 	},
 	InternalCreateDocumentEndpointKey: {
 		APIName:     InternalAPIName,
