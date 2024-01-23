@@ -45,10 +45,6 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 		ETag:                       etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
 
-	if moveTaskOrder.PPMEstimatedWeight != nil {
-		payload.PpmEstimatedWeight = int64(*moveTaskOrder.PPMEstimatedWeight)
-	}
-
 	if moveTaskOrder.PPMType != nil {
 		payload.PpmType = *moveTaskOrder.PPMType
 	}
@@ -73,10 +69,6 @@ func ListMove(move *models.Move) *primemessages.ListMove {
 		ReferenceID:        *move.ReferenceID,
 		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
 		ETag:               etag.GenerateEtag(move.UpdatedAt),
-	}
-
-	if move.PPMEstimatedWeight != nil {
-		payload.PpmEstimatedWeight = int64(*move.PPMEstimatedWeight)
 	}
 
 	if move.PPMType != nil {
