@@ -372,7 +372,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailTextTemplateRender() {
 
 	expectedTextContent := `*** DO NOT REPLY directly to this email ***
 
-This is a confirmation that your Personally Procured Move (PPM) with the assigned move code ` + move.Locator + ` from ` + pickupAddress.City + `, ` + pickupAddress.State + `</strong> to <strong>` + destinationAddress.City + `, ` + destinationAddress.State + ` has been processed in MilMove.
+This is a confirmation that your Personally Procured Move (PPM) with the assigned move code ` + move.Locator + ` from ` + pickupAddress.City + `, ` + pickupAddress.State + ` to ` + destinationAddress.City + `, ` + destinationAddress.State + ` has been processed in MilMove.
 
 Next steps:
 
