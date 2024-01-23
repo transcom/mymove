@@ -33,6 +33,7 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/dod-info',
           '/service-member/name',
           '/service-member/contact-info',
+          '/service-member/current-duty',
           '/service-member/current-address',
           '/service-member/backup-address',
           '/service-member/backup-contact',
@@ -74,6 +75,7 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/dod-info',
           '/service-member/name',
           '/service-member/contact-info',
+          '/service-member/current-duty',
           '/service-member/current-address',
           '/service-member/backup-address',
           '/service-member/backup-contact',
@@ -97,6 +99,7 @@ describe('when getting the routes for the current workflow', () => {
             '/service-member/dod-info',
             '/service-member/name',
             '/service-member/contact-info',
+            '/service-member/current-duty',
             '/service-member/current-address',
             '/service-member/backup-address',
             '/service-member/backup-contact',
@@ -121,6 +124,7 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/dod-info',
           '/service-member/name',
           '/service-member/contact-info',
+          '/service-member/current-duty',
           '/service-member/current-address',
           '/service-member/backup-address',
           '/service-member/backup-contact',
@@ -142,6 +146,7 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/dod-info',
           '/service-member/name',
           '/service-member/contact-info',
+          '/service-member/current-duty',
           '/service-member/current-address',
           '/service-member/backup-address',
           '/service-member/backup-contact',
@@ -163,6 +168,7 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/dod-info',
           '/service-member/name',
           '/service-member/contact-info',
+          '/service-member/current-duty',
           '/service-member/current-address',
           '/service-member/backup-address',
           '/service-member/backup-contact',
@@ -184,6 +190,7 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/dod-info',
           '/service-member/name',
           '/service-member/contact-info',
+          '/service-member/current-duty',
           '/service-member/current-address',
           '/service-member/backup-address',
           '/service-member/backup-contact',
@@ -258,6 +265,30 @@ describe('when getting the next incomplete page', () => {
             current_location: {
               id: NULL_UUID,
               name: '',
+            },
+          },
+          context: ppmContext,
+        });
+        expect(result).toEqual('/service-member/current-duty');
+      });
+    });
+    describe('when duty location is complete', () => {
+      it('returns the next page of the user profile', () => {
+        const result = getNextIncompletePage({
+          serviceMember: {
+            ...serviceMember,
+            is_profile_complete: false,
+            edipi: '1234567890',
+            rank: 'E_6',
+            affiliation: 'Marines',
+            last_name: 'foo',
+            first_name: 'foo',
+            phone_is_preferred: true,
+            telephone: '666-666-6666',
+            personal_email: 'foo@bar.com',
+            current_location: {
+              id: '5e30f356-e590-4372-b9c0-30c3fd1ff42d',
+              name: 'Blue Grass Army Depot',
             },
           },
           context: ppmContext,
@@ -403,7 +434,6 @@ describe('when getting the next incomplete page', () => {
             issue_date: '2019-01-01',
             report_by_date: '2019-02-01',
             new_duty_location: { id: 'something' },
-            origin_duty_location: { id: 'something' },
           },
           move: { id: 'bar' },
           context: ppmContext,
@@ -423,7 +453,6 @@ describe('when getting the next incomplete page', () => {
             issue_date: '2019-01-01',
             report_by_date: '2019-02-01',
             new_duty_location: { id: 'something' },
-            origin_duty_location: { id: 'something' },
             uploaded_orders: {
               uploads: [{}],
             },
@@ -454,7 +483,6 @@ describe('when getting the next incomplete page', () => {
             issue_date: '2019-01-01',
             report_by_date: '2019-02-01',
             new_duty_location: { id: 'something' },
-            origin_duty_location: { id: 'something' },
             uploaded_orders: {
               uploads: [{}],
             },
@@ -486,7 +514,6 @@ describe('when getting the next incomplete page', () => {
             issue_date: '2019-01-01',
             report_by_date: '2019-02-01',
             new_duty_location: { id: 'something' },
-            origin_duty_location: { id: 'something' },
             uploaded_orders: {
               uploads: [{}],
             },
