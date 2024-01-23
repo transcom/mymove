@@ -10,8 +10,9 @@ import { formatTwoLineAddress } from 'utils/shipmentDisplay';
 import DataTableWrapper from 'components/DataTableWrapper';
 import { ShipmentAddressUpdateShape } from 'types';
 
-const AddressUpdatePreview = ({ deliveryAddressUpdate, destSitServiceItems }) => {
+const AddressUpdatePreview = ({ deliveryAddressUpdate }) => {
   const { originalAddress, newAddress, contractorRemarks } = deliveryAddressUpdate;
+  const newSitMileage = deliveryAddressUpdate.newSitDistanceBetween;
   return (
     <div>
       <h3 className={styles.previewHeading}>Delivery location</h3>
@@ -27,19 +28,12 @@ const AddressUpdatePreview = ({ deliveryAddressUpdate, destSitServiceItems }) =>
           Approvals will result in updated pricing for this shipment. Customer may be subject to excess costs.
         </span>
       </Alert>
-      {destSitServiceItems.length > 0 ? (
-        <Alert type="info" className={styles.alert} id="destSitAlert" data-testid="destSitAlert">
+      {newSitMileage > 50 ? (
+        <Alert type="warning" className={styles.alert} id="destSitAlert" data-testid="destSitAlert">
           <span className={styles.alertContent}>
-            This shipment contains {destSitServiceItems.length} destination SIT service items. If approved, this could
-            change the following:{' '}
-            <span className={styles.listItem}>
-              SIT delivery &gt; 50 miles <strong>or</strong> SIT delivery &le; 50 miles.
-            </span>
-            <span className={styles.listItem}>Service area.</span>
-            <span className={styles.listItem}>Mileage bracket (for Direct Delivery).</span>
-            <span className={styles.listItem}>Weight bracket change.</span>
-            Approvals will result in updated pricing for the service item and require TOO approval. Customer may be
-            subject to excess costs.
+            Updated Mileage for SIT: <strong>{newSitMileage} miles</strong>
+            <br />
+            Approval of this address change request will result in SIT Delivery &gt; 50 Miles.
           </span>
         </Alert>
       ) : null}
