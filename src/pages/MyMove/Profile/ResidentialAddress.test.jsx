@@ -79,7 +79,7 @@ describe('ResidentialAddress page', () => {
     });
   });
 
-  it('back button goes to the contact info step', async () => {
+  it('back button goes to the Current duty location step', async () => {
     const testProps = generateTestProps(blankAddress);
 
     render(<ResidentialAddress {...testProps} />);
@@ -88,7 +88,7 @@ describe('ResidentialAddress page', () => {
     expect(backButton).toBeInTheDocument();
     await userEvent.click(backButton);
 
-    expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.CONTACT_INFO_PATH);
+    expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.CURRENT_DUTY_LOCATION_PATH);
   });
 
   it('next button submits the form and goes to the Backup address step', async () => {
@@ -204,10 +204,14 @@ describe('requireCustomerState ResidentialAddress', () => {
         serviceMembers: {
           testServiceMemberId: {
             id: 'testServiceMemberId',
+            rank: 'test rank',
             edipi: '1234567890',
             affiliation: 'ARMY',
             first_name: 'Tester',
             last_name: 'Testperson',
+            telephone: '1234567890',
+            personal_email: 'test@example.com',
+            email_is_preferred: true,
           },
         },
       },
@@ -223,7 +227,7 @@ describe('requireCustomerState ResidentialAddress', () => {
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {
-      expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.CONTACT_INFO_PATH);
+      expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.CURRENT_DUTY_LOCATION_PATH);
     });
   });
 
