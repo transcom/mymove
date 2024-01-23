@@ -46,7 +46,15 @@ BasicMultiple.args = {
   shipments: [
     { id: '0001', shipmentType: SHIPMENT_OPTIONS.HHG },
     { id: '0002', shipmentType: SHIPMENT_OPTIONS.NTS },
-    { id: '0003', shipmentType: SHIPMENT_OPTIONS.PPM },
+    {
+      id: '0003',
+      shipmentType: SHIPMENT_OPTIONS.PPM,
+      ppmShipment: {
+        id: 'completePPM',
+        hasRequestedAdvance: false,
+        weightTickets: [],
+      },
+    },
     { id: '0004', shipmentType: SHIPMENT_OPTIONS.NTSR },
   ],
 };
@@ -95,6 +103,7 @@ WithPpms.args = {
       ppmShipment: {
         id: 'completePPM',
         hasRequestedAdvance: false,
+        weightTickets: [],
       },
     },
     {
