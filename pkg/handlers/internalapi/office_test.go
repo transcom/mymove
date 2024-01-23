@@ -2,7 +2,6 @@ package internalapi
 
 import (
 	"net/http/httptest"
-	"time"
 
 	"github.com/go-openapi/strfmt"
 
@@ -109,7 +108,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 	response := handler.Handle(params)
 
 	// Then: expect a 400 status code
-	suite.Assertions.IsType(&officeop.ApprovePPMBadRequest{}, response)
+	suite.Assertions.IsType(&officeop.ApproveMoveBadRequest{}, response)
 }
 
 func (suite *HandlerSuite) TestApproveMoveHandlerForbidden() {
@@ -234,73 +233,6 @@ func (suite *HandlerSuite) TestCancelMoveHandlerForbidden() {
 
 	// Then: response is Forbidden
 	suite.Assertions.IsType(&officeop.CancelMoveForbidden{}, response)
-}
-
-func (suite *HandlerSuite) TestApprovePPMHandler() {
-	// Given: a set of orders, a move, user and servicemember
-	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			Status: models.PPMStatusSUBMITTED,
-		},
-	})
-
-	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-
-	// And: the context contains the auth values
-	req := httptest.NewRequest("POST", "/personally_procured_moves/some_id/approve", nil)
-	req = suite.AuthenticateOfficeRequest(req, officeUser)
-	approveDate := strfmt.DateTime(time.Now())
-
-	newApprovePersonallyProcuredMovePayload := internalmessages.ApprovePersonallyProcuredMovePayload{
-		ApproveDate: &approveDate,
-	}
-	params := officeop.ApprovePPMParams{
-		HTTPRequest:                          req,
-		PersonallyProcuredMoveID:             strfmt.UUID(ppm.ID.String()),
-		ApprovePersonallyProcuredMovePayload: &newApprovePersonallyProcuredMovePayload,
-	}
-
-	// And: a ppm is approved
-	handlerConfig := suite.HandlerConfig()
-	handlerConfig.SetNotificationSender(suite.TestNotificationSender())
-	handler := ApprovePPMHandler{handlerConfig}
-	response := handler.Handle(params)
-
-	// Then: expect a 200 status code
-	suite.Assertions.IsType(&officeop.ApprovePPMOK{}, response)
-	okResponse := response.(*officeop.ApprovePPMOK)
-
-	// And: Returned query to have an approved status
-	suite.Equal(internalmessages.PPMStatusAPPROVED, okResponse.Payload.Status)
-}
-
-func (suite *HandlerSuite) TestApprovePPMHandlerForbidden() {
-	// Given: a set of orders, a move, user and servicemember
-	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-	user := factory.BuildServiceMember(suite.DB(), nil, nil)
-
-	// And: the context contains the auth values
-	req := httptest.NewRequest("POST", "/personally_procured_moves/some_id/approve", nil)
-	req = suite.AuthenticateRequest(req, user)
-	approveDate := strfmt.DateTime(time.Now())
-
-	newApprovePersonallyProcuredMovePayload := internalmessages.ApprovePersonallyProcuredMovePayload{
-		ApproveDate: &approveDate,
-	}
-	params := officeop.ApprovePPMParams{
-		HTTPRequest:                          req,
-		PersonallyProcuredMoveID:             strfmt.UUID(ppm.ID.String()),
-		ApprovePersonallyProcuredMovePayload: &newApprovePersonallyProcuredMovePayload,
-	}
-
-	// And: a ppm is approved
-	handlerConfig := suite.HandlerConfig()
-	handlerConfig.SetNotificationSender(suite.TestNotificationSender())
-	handler := ApprovePPMHandler{handlerConfig}
-	response := handler.Handle(params)
-
-	// Then: expect a Forbidden status code
-	suite.Assertions.IsType(&officeop.ApprovePPMForbidden{}, response)
 }
 
 // TODO: Determine whether we need to complete remove reimbursements handler from Office handlers
