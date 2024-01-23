@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/office_user/customer"
 	"github.com/transcom/mymove/pkg/services/support"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 type moveTaskOrderCreator struct {
@@ -384,14 +385,15 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.Move 
 	if mtoPayload == nil {
 		return nil
 	}
-
+	ppmEstimatedWeight := unit.Pound(mtoPayload.PpmEstimatedWeight)
 	contractorID := uuid.FromStringOrNil(mtoPayload.ContractorID.String())
 	model := &models.Move{
-		ReferenceID:  &mtoPayload.ReferenceID,
-		Locator:      mtoPayload.MoveCode,
-		PPMType:      &mtoPayload.PpmType,
-		ContractorID: &contractorID,
-		Status:       (models.MoveStatus)(mtoPayload.Status),
+		ReferenceID:        &mtoPayload.ReferenceID,
+		Locator:            mtoPayload.MoveCode,
+		PPMEstimatedWeight: &ppmEstimatedWeight,
+		PPMType:            &mtoPayload.PpmType,
+		ContractorID:       &contractorID,
+		Status:             (models.MoveStatus)(mtoPayload.Status),
 	}
 
 	if mtoPayload.AvailableToPrimeAt != nil {
