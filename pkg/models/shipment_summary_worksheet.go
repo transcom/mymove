@@ -215,19 +215,6 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		return ShipmentSummaryFormData{}, dbQErr
 	}
 
-	for i, ppm := range move.PersonallyProcuredMoves {
-		ppmDetails, err := FetchPersonallyProcuredMove(db, session, ppm.ID)
-		if err != nil {
-			return ShipmentSummaryFormData{}, err
-		}
-		if ppmDetails.Advance != nil {
-			status := ppmDetails.Advance.Status
-			if status == ReimbursementStatusAPPROVED || status == ReimbursementStatusPAID {
-				move.PersonallyProcuredMoves[i].Advance = ppmDetails.Advance
-			}
-		}
-	}
-
 	_, authErr := FetchOrderForUser(db, session, move.OrdersID)
 	if authErr != nil {
 		return ShipmentSummaryFormData{}, authErr
@@ -241,7 +228,7 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		weightAllotment = SSWGetEntitlement(rank, move.Orders.HasDependents, move.Orders.SpouseHasProGear)
 	}
 
-	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, weightAllotment.TotalWeight)
+	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(weightAllotment.TotalWeight)
 	if err != nil {
 		return ShipmentSummaryFormData{}, err
 	}
@@ -260,7 +247,6 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		CurrentDutyLocation:     serviceMember.DutyLocation,
 		NewDutyLocation:         move.Orders.NewDutyLocation,
 		WeightAllotment:         weightAllotment,
-		PersonallyProcuredMoves: move.PersonallyProcuredMoves,
 		SignedCertification:     *signedCertification,
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
 	}
@@ -304,16 +290,10 @@ func SSWGetEntitlement(rank ServiceMemberRank, hasDependents bool, spouseHasProG
 
 // CalculateRemainingPPMEntitlement calculates the remaining PPM entitlement for PPM moves
 // a PPMs remaining entitlement weight is equal to total entitlement - hhg weight
-func CalculateRemainingPPMEntitlement(move Move, totalEntitlement unit.Pound) (unit.Pound, error) {
+func CalculateRemainingPPMEntitlement(totalEntitlement unit.Pound) (unit.Pound, error) {
 	var hhgActualWeight unit.Pound
 
 	var ppmActualWeight unit.Pound
-	if len(move.PersonallyProcuredMoves) > 0 {
-		if move.PersonallyProcuredMoves[0].NetWeight == nil {
-			return ppmActualWeight, errors.Errorf("PPM %s does not have NetWeight", move.PersonallyProcuredMoves[0].ID)
-		}
-		ppmActualWeight = unit.Pound(*move.PersonallyProcuredMoves[0].NetWeight)
-	}
 
 	switch ppmRemainingEntitlement := totalEntitlement - hhgActualWeight; {
 	case ppmActualWeight < ppmRemainingEntitlement:

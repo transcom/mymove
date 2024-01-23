@@ -66,10 +66,6 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 			Advance:             &advance,
 		},
 	})
-	// Only concerned w/ approved advances for ssw
-	ppm.Move.PersonallyProcuredMoves[0].Advance.Request()
-	ppm.Move.PersonallyProcuredMoves[0].Advance.Approve()
-	// Save advance in reimbursements table by saving ppm
 	models.SavePersonallyProcuredMove(suite.DB(), &ppm)
 
 	session := auth.Session{
@@ -87,9 +83,6 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	moveRouter.Submit(suite.AppContextForTest(), &ppm.Move, &newSignedCertification)
 	moveRouter.Approve(suite.AppContextForTest(), &ppm.Move)
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
-	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	ppm.Move.PersonallyProcuredMoves[0].RequestPayment()
 	models.SaveMoveDependencies(suite.DB(), &ppm.Move)
 	certificationType := models.SignedCertificationTypePPMPAYMENT
 	signedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
@@ -238,9 +231,6 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 			Advance:             &advance,
 		},
 	})
-	// Only concerned w/ approved advances for ssw
-	ppm.Move.PersonallyProcuredMoves[0].Advance.Request()
-	ppm.Move.PersonallyProcuredMoves[0].Advance.Approve()
 	// Save advance in reimbursements table by saving ppm
 	models.SavePersonallyProcuredMove(suite.DB(), &ppm)
 
@@ -259,9 +249,6 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	moveRouter.Submit(suite.AppContextForTest(), &ppm.Move, &newSignedCertification)
 	moveRouter.Approve(suite.AppContextForTest(), &ppm.Move)
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
-	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	ppm.Move.PersonallyProcuredMoves[0].RequestPayment()
 	models.SaveMoveDependencies(suite.DB(), &ppm.Move)
 	certificationType := models.SignedCertificationTypePPMPAYMENT
 	signedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
@@ -635,32 +622,6 @@ func (suite *ModelSuite) TestGroupExpenses() {
 
 }
 
-func (suite *ModelSuite) TestCalculatePPMEntitlementPPMGreaterThanRemainingEntitlement() {
-	ppmWeight := unit.Pound(1100)
-	totalEntitlement := unit.Pound(1000)
-	move := models.Move{
-		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
-	}
-
-	ppmRemainingEntitlement, err := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
-	suite.NoError(err)
-
-	suite.Equal(totalEntitlement, ppmRemainingEntitlement)
-}
-
-func (suite *ModelSuite) TestCalculatePPMEntitlementPPMLessThanRemainingEntitlement() {
-	ppmWeight := unit.Pound(500)
-	totalEntitlement := unit.Pound(1000)
-	move := models.Move{
-		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
-	}
-
-	ppmRemainingEntitlement, err := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
-	suite.NoError(err)
-
-	suite.Equal(unit.Pound(ppmWeight), ppmRemainingEntitlement)
-}
-
 func (suite *ModelSuite) TestFormatSSWGetEntitlement() {
 	spouseHasProGear := true
 	hasDependants := true
@@ -781,33 +742,6 @@ func (suite *ModelSuite) TestFormatPPMWeight() {
 	suite.Equal("1,000 lbs - FINAL", models.FormatPPMWeight(ppm))
 	suite.Equal("", models.FormatPPMWeight(noWtg))
 }
-
-func (suite *ModelSuite) TestCalculatePPMEntitlementNoHHGPPMLessThanMaxEntitlement() {
-	ppmWeight := unit.Pound(900)
-	totalEntitlement := unit.Pound(1000)
-	move := models.Move{
-		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
-	}
-
-	ppmRemainingEntitlement, err := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
-	suite.NoError(err)
-
-	suite.Equal(unit.Pound(ppmWeight), ppmRemainingEntitlement)
-}
-
-func (suite *ModelSuite) TestCalculatePPMEntitlementNoHHGPPMGreaterThanMaxEntitlement() {
-	ppmWeight := unit.Pound(1100)
-	totalEntitlement := unit.Pound(1000)
-	move := models.Move{
-		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
-	}
-
-	ppmRemainingEntitlement, err := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
-	suite.NoError(err)
-
-	suite.Equal(totalEntitlement, ppmRemainingEntitlement)
-}
-
 func (suite *ModelSuite) TestFormatSignature() {
 	sm := models.ServiceMember{
 		FirstName: models.StringPointer("John"),

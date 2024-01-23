@@ -10,8 +10,6 @@
 package paperwork
 
 import (
-	"time"
-
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/mock"
@@ -82,9 +80,6 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.Shipment
 	moveRouter.Submit(suite.AppContextForTest(), &ppm.Move, &newSignedCertification)
 	moveRouter.Approve(suite.AppContextForTest(), &ppm.Move)
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
-	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	ppm.Move.PersonallyProcuredMoves[0].RequestPayment()
 	models.SaveMoveDependencies(suite.DB(), &ppm.Move)
 	certificationType := models.SignedCertificationTypePPMPAYMENT
 	factory.BuildSignedCertification(suite.DB(), []factory.Customization{
