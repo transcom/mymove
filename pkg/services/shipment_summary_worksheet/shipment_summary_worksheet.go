@@ -321,6 +321,12 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.ShipmentNumberAndTypes = formattedShipments.ShipmentNumberAndTypes
 	page1.ShipmentPickUpDates = formattedShipments.PickUpDates
 	page1.ShipmentCurrentShipmentStatuses = formattedShipments.CurrentShipmentStatuses
+	formattedSIT := FormatAllSITS(data.PPMShipments)
+
+	page1.SITDaysInStorage = formattedSIT.DaysInStorage
+	page1.SITEntryDates = formattedSIT.EntryDates
+	page1.SITEndDates = formattedSIT.EndDates
+	// page1.SITNumberAndTypes
 	page1.ShipmentWeights = formattedShipments.ShipmentWeights
 	// Obligations cannot be used at this time, require new computer setup.
 	page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
@@ -437,8 +443,33 @@ func FormatAllShipments(ppms models.PPMShipments) WorkSheetShipments {
 	formattedShipments.PickUpDates = strings.Join(formattedPickUpDates, "\n\n")
 	formattedShipments.ShipmentWeights = strings.Join(formattedShipmentWeights, "\n\n")
 	formattedShipments.CurrentShipmentStatuses = strings.Join(formattedShipmentStatuses, "\n\n")
-
 	return formattedShipments
+}
+
+// FormatAllSITs formats SIT line items for the Shipment Summary Worksheet
+func FormatAllSITS(ppms models.PPMShipments) WorkSheetSIT {
+	totalSITS := len(ppms)
+	formattedSIT := WorkSheetSIT{}
+	formattedSITNumberAndTypes := make([]string, totalSITS)
+	formattedSITEntryDates := make([]string, totalSITS)
+	formattedSITEndDates := make([]string, totalSITS)
+	formattedSITDaysInStorage := make([]string, totalSITS)
+	var sitNumber int
+
+	for _, ppm := range ppms {
+		// formattedSITNumberAndTypes[sitNumber] = FormatPPMNumberAndType(sitNumber)
+		formattedSITEntryDates[sitNumber] = FormatSITEntryDate(ppm)
+		formattedSITEndDates[sitNumber] = FormatSITEndDate(ppm)
+		formattedSITDaysInStorage[sitNumber] = FormatSITDaysInStorage(ppm)
+
+		sitNumber++
+	}
+	formattedSIT.NumberAndTypes = strings.Join(formattedSITNumberAndTypes, "\n\n")
+	formattedSIT.EntryDates = strings.Join(formattedSITEntryDates, "\n\n")
+	formattedSIT.EndDates = strings.Join(formattedSITEndDates, "\n\n")
+	formattedSIT.DaysInStorage = strings.Join(formattedSITDaysInStorage, "\n\n")
+
+	return formattedSIT
 }
 
 // FetchMovingExpensesShipmentSummaryWorksheet fetches moving expenses for the Shipment Summary Worksheet
@@ -487,6 +518,11 @@ func FormatPPMNumberAndType(i int) string {
 	return fmt.Sprintf("%02d - PPM", i+1)
 }
 
+// FormatSITNumberAndType formats FormatSITNumberAndType for the Shipment Summary Worksheet
+func FormatSITNumberAndType(i int) string {
+	return fmt.Sprintf("%02d - SIT", i+1)
+}
+
 // FormatPPMWeight formats a ppms NetWeight for the Shipment Summary Worksheet
 func FormatPPMWeight(ppm models.PPMShipment) string {
 	if ppm.EstimatedWeight != nil {
@@ -499,6 +535,34 @@ func FormatPPMWeight(ppm models.PPMShipment) string {
 // FormatPPMPickupDate formats a shipments ActualPickupDate for the Shipment Summary Worksheet
 func FormatPPMPickupDate(ppm models.PPMShipment) string {
 	return FormatDate(ppm.ExpectedDepartureDate)
+}
+
+// FormatSITEntryDate formats a SIT EstimatedEntryDate for the Shipment Summary Worksheet
+func FormatSITEntryDate(ppm models.PPMShipment) string {
+	if ppm.SITEstimatedEntryDate == nil {
+		return "" // Return empty string if no SIT attached, field should be blank
+	}
+	return FormatDate(*ppm.SITEstimatedEntryDate)
+}
+
+// FormatSITEndDate formats a SIT EstimatedPickupDate for the Shipment Summary Worksheet
+func FormatSITEndDate(ppm models.PPMShipment) string {
+	if ppm.SITEstimatedDepartureDate == nil {
+		return "" // Return empty string if no SIT attached, field should be blank
+	}
+	return FormatDate(*ppm.SITEstimatedDepartureDate)
+}
+
+// FormatSITDaysInStorage formats a SIT DaysInStorage for the Shipment Summary Worksheet
+func FormatSITDaysInStorage(ppm models.PPMShipment) string {
+	if ppm.SITEstimatedEntryDate == nil || ppm.SITEstimatedDepartureDate == nil {
+		return "" // Return empty string if no SIT attached, field should be blank
+	}
+	firstDate := ppm.SITEstimatedDepartureDate
+	secondDate := *ppm.SITEstimatedEntryDate
+	difference := firstDate.Sub(secondDate)
+	formattedDifference := fmt.Sprintf("Days: %d\n", int64(difference.Hours()/24))
+	return formattedDifference
 }
 
 // FormatOrdersTypeAndOrdersNumber formats OrdersTypeAndOrdersNumber for Shipment Summary Worksheet
