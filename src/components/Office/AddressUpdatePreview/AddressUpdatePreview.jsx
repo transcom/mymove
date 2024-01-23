@@ -31,9 +31,9 @@ const AddressUpdatePreview = ({ deliveryAddressUpdate }) => {
       {newSitMileage > 50 ? (
         <Alert type="warning" className={styles.alert} id="destSitAlert" data-testid="destSitAlert">
           <span className={styles.alertContent}>
-            Updated Mileage for SIT: <strong>{newSitMileage} miles</strong>
-            <br />
             Approval of this address change request will result in SIT Delivery &gt; 50 Miles.
+            <br />
+            Updated Mileage for SIT: <strong>{newSitMileage} miles</strong>
           </span>
         </Alert>
       ) : null}

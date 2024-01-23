@@ -120,8 +120,8 @@ describe('AddressUpdatePreview', () => {
     expect(screen.getByRole('heading', { name: 'Delivery location' })).toBeInTheDocument();
     expect(screen.getByTestId('destSitAlert')).toBeInTheDocument();
     expect(screen.getByTestId('destSitAlert')).toHaveTextContent(
-      'Updated Mileage for SIT: 55 miles' +
-        'Approval of this address change request will result in SIT Delivery > 50 Miles.',
+      'Approval of this address change request will result in SIT Delivery > 50 Miles.' +
+        'Updated Mileage for SIT: 55 miles',
     );
   });
 });
