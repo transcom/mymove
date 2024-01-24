@@ -51,7 +51,6 @@ import AccessibilityStatement from 'components/Statements/AccessibilityStatement
 import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
 import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
 import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipment';
-import Dashboard from 'pages/MyMove/Dashboard';
 import Home from 'pages/MyMove/Home';
 import TitleAnnouncer from 'components/TitleAnnouncer/TitleAnnouncer';
 import MultiMovesLandingPage from 'pages/MyMove/Multi-Moves/MultiMovesLandingPage';
@@ -183,7 +182,6 @@ export class CustomerApp extends Component {
               <Routes>
                 {/* no auth routes should still exist */}
                 <Route path={generalRoutes.SIGN_IN_PATH} element={<SignIn />} />
-                <Route path={generalRoutes.MULTI_MOVES_LANDING_PAGE} element={<MultiMovesLandingPage />} />
                 <Route path={generalRoutes.PRIVACY_SECURITY_POLICY_PATH} element={<PrivacyPolicyStatement />} />
                 <Route path={generalRoutes.ACCESSIBILITY_PATH} element={<AccessibilityStatement />} />
 
@@ -192,13 +190,15 @@ export class CustomerApp extends Component {
 
                 {/* ROOT */}
                 {/* If multiMove is enabled home page will route to dashboard element */}
-                {multiMoveWorkflow && <Route path={generalRoutes.HOME_PATH} end element={<Dashboard />} />}
-                {!multiMoveWorkflow && <Route path={generalRoutes.HOME_PATH} end element={<Home />} />}
+                {multiMoveWorkflow && (
+                  <Route path={generalRoutes.LANDING_PAGE} end element={<MultiMovesLandingPage />} />
+                )}
+                {!multiMoveWorkflow && <Route path={generalRoutes.LANDING_PAGE} end element={<Home />} />}
 
                 {getWorkflowRoutes(props)}
 
                 {/* If multiMove is enabled then move path routes to the move path rendering the home element */}
-                {multiMoveWorkflow && <Route path={customerRoutes.MOVE_PATH} end element={<Home />} />}
+                {multiMoveWorkflow && <Route path={generalRoutes.LANDING_PAGE} end element={<Home />} />}
                 <Route end path={customerRoutes.SHIPMENT_MOVING_INFO_PATH} element={<MovingInfo />} />
                 <Route end path="/moves/:moveId/edit" element={<Edit />} />
                 <Route end path={customerRoutes.EDIT_PROFILE_PATH} element={<EditProfile />} />
