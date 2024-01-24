@@ -1,7 +1,6 @@
 package shipmentsummaryworksheet
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -12,9 +11,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
-	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"golang.org/x/text/cases"
@@ -774,7 +771,6 @@ type TextField struct {
 }
 
 // FillSSWPDFForm takes form data and fills an existing PDF form template with said data
-// NEEDS TEST
 func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values) (sswfile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
 	// Generator and dependencies must be initiated to handle memory filesystem for AWS
 	storer := storage.NewMemory(storage.NewMemoryParams("", ""))
@@ -783,11 +779,6 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		return nil, nil, err
 	}
 	g, err := paperwork.NewGenerator(userUploader.Uploader())
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var conf *model.Configuration
 	if err != nil {
 		return nil, nil, err
 	}
@@ -855,30 +846,9 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		fmt.Println("Error marshaling JSON:", err)
 		return
 	}
-	// Change type to reader
-	readJSON := strings.NewReader(string(jsonData))
-	buf := new(bytes.Buffer)
-	// Fills form using the template reader with json reader, outputs to byte, to be saved to afero file.
-	formerr := api.FillForm(SSWPPMGenerator.templateReader, readJSON, buf, conf)
-	if formerr != nil {
-		return nil, nil, err
-	}
-
-	tempFile, err := g.NewTempFile() // Will use g.NewTempFile for proper memory usage
+	SSWWorksheet, err := g.FillPDFFormForSSW(jsonData, SSWPPMGenerator.templateReader)
 	if err != nil {
 		return nil, nil, err
-	}
-
-	// copy byte[] to temp file
-	_, err = io.Copy(tempFile, buf)
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "error io.Copy on byte[] to temp")
-	}
-
-	// Reload the file from memstore
-	SSWWorksheet, err := g.FileSystem().Open(tempFile.Name())
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "error g.fs.Open on reload from memstore")
 	}
 
 	// pdfInfo.PageCount is a great way to tell whether returned PDF is corrupted
