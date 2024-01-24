@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 import { Button } from '@trussworks/react-uswds';
+import { useNavigate } from 'react-router';
 
 import MultiMovesMoveInfoList from '../MultiMovesMoveInfoList/MultiMovesMoveInfoList';
 import ButtonDropdownMenu from '../../../../components/ButtonDropdownMenu/ButtonDropdownMenu';
@@ -9,9 +10,11 @@ import ButtonDropdownMenu from '../../../../components/ButtonDropdownMenu/Button
 import styles from './MultiMovesMoveContainer.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
+import { customerRoutes } from 'constants/routes';
 
 const MultiMovesMoveContainer = ({ moves }) => {
   const [expandedMoves, setExpandedMoves] = useState({});
+  const navigate = useNavigate();
 
   // this expands the moves when the arrow is clicked
   const handleExpandClick = (index) => {
@@ -63,13 +66,24 @@ const MultiMovesMoveContainer = ({ moves }) => {
     return 'Shipment';
   };
 
+  // sends user to the move page when clicking "Go to Move" btn
+  const handleGoToMoveClick = () => {
+    navigate(customerRoutes.MOVE_HOME_PAGE);
+  };
+
   const moveList = moves.map((m, index) => (
     <React.Fragment key={index}>
       <div className={styles.moveContainer}>
         <div className={styles.heading} key={index}>
           <h3>#{m.moveCode}</h3>
           {m.status !== 'APPROVED' ? (
-            <Button className={styles.goToMoveBtn} secondary outline>
+            <Button
+              data-testid="goToMoveBtn"
+              className={styles.goToMoveBtn}
+              secondary
+              outline
+              onClick={handleGoToMoveClick}
+            >
               Go to Move
             </Button>
           ) : (
