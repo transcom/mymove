@@ -1,7 +1,6 @@
-import { includes, get, filter, map } from 'lodash';
-import { denormalize, normalize } from 'normalizr';
+import { includes, get } from 'lodash';
+import { normalize } from 'normalizr';
 
-import { moveDocuments } from '../schema';
 import { addEntities } from '../actions';
 
 import { getClient, checkResponse } from 'shared/Swagger/api';
@@ -51,17 +50,3 @@ export function createMovingExpenseDocument({
     return response;
   };
 }
-
-export const selectPPMCloseoutDocumentsForMove = (
-  state,
-  id,
-  selectedDocumentTypes = ['EXPENSE', 'WEIGHT_TICKET_SET'],
-) => {
-  if (!id) {
-    return [];
-  }
-  const movingExpenseDocs = filter(state.entities.moveDocuments, (doc) => {
-    return doc.move_id === id && selectedDocumentTypes.includes(doc.move_document_type);
-  });
-  return denormalize(map(movingExpenseDocs, 'id'), moveDocuments, state.entities);
-};
