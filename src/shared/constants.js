@@ -11,6 +11,7 @@ export const gitBranch = process.env.REACT_APP_GIT_BRANCH || 'unknown';
 export const gitSha = process.env.REACT_APP_GIT_COMMIT || 'unknown';
 
 export const NULL_UUID = '00000000-0000-0000-0000-000000000000';
+export const ppmInfoPacket = '/downloads/ppm_info_sheet.pdf';
 
 export const hostname = window && window.location && window.location.hostname;
 export const isMilmoveSite = hostname.startsWith('my') || hostname.startsWith('mil') || '';
@@ -78,7 +79,7 @@ export const SHIPMENT_OPTIONS = {
   NTSR: 'HHG_OUTOF_NTS_DOMESTIC',
   BOAT_TOW_AWAY: 'BOAT_TOW_AWAY',
   BOAT_HAUL_AWAY: 'BOAT_HAUL_AWAY',
-  MOTOR_HOME: 'MOTOR_HOME',
+  MOTORHOME: 'MOTORHOME',
 };
 
 // These constants are used for forming URLs that have the shipment type in
