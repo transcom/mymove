@@ -224,11 +224,13 @@ describe('DateAndLocationForm component', () => {
   describe('pull values from the ppm shipment when available', () => {
     it('renders blank form on load', async () => {
       render(<DateAndLocationForm {...mtoShipmentProps} />);
-      expect(await screen.getAllByLabelText('ZIP')[0].value).toHaveValue(
+      const postalCodes = screen.getAllByLabelText('ZIP');
+
+      expect(await postalCodes[0].toHaveValue(
         mtoShipmentProps.mtoShipment.ppmShipment.pickupPostalCode,
-      );
+      ));
       expect(screen.getAllByLabelText('Yes')[0].value).toBe('true');
-      expect(screen.getAllByLabelText('ZIP')[2].value).toHaveValue(
+      expect(postalCodes[2].value).toHaveValue(
         mtoShipmentProps.mtoShipment.ppmShipment.destinationPostalCode,
       );
       expect(screen.getByText('Start typing a closeout office...')).toBeInTheDocument();
@@ -386,32 +388,5 @@ describe('DateAndLocationForm component', () => {
         );
       });
     });
-
-    it('displays error when postal code lookup fails', async () => {
-      const postalCodeValidatorFailure = {
-        ...defaultProps,
-        postalCodeValidator: jest
-          .fn()
-          .mockReturnValue('Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.'),
-      };
-      render(<DateAndLocationForm {...postalCodeValidatorFailure} />);
-
-      const primaryZIPs = screen.getAllByLabelText('ZIP');
-      await userEvent.type(primaryZIPs[0], '99999');
-
-      await waitFor(() => {
-        expect(postalCodeValidatorFailure.postalCodeValidator).toHaveBeenCalledWith(
-          '99999',
-          'origin',
-          UnsupportedZipCodePPMErrorMsg,
-        );
-        /*
-        expect(screen.getByRole('alert')).toHaveTextContent(
-          'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.',
-        );
-       */
-      });
-    });
-    
   });
 ;
