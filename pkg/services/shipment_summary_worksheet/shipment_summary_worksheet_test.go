@@ -18,11 +18,8 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/unit"
-	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryWorksheet() {
@@ -787,19 +784,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestCreateTextFields() {
 	suite.Nil(emptyResult)
 }
 
-// Last test to get working
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
+	SSWPPMComputer := NewSSWPPMComputer()
+	ppmGenerator := NewSSWPPMGenerator()
+
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	rank := models.ServiceMemberRankE9
-	SSWPPMComputer := NewSSWPPMComputer()
-	storer := storage.NewMemory(storage.NewMemoryParams("", ""))
-	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
-	suite.NoError(err)
-	g, err := paperwork.NewGenerator(userUploader.Uploader())
-	suite.NoError(err)
-
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
@@ -841,14 +833,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 	ssd, err := SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, ppmShipmentID)
 	suite.NoError(err)
 	page1Data, page2Data := SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssd)
-	ppmGenerator := NewSSWPPMGenerator()
-	test, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
-	pdfInfo, err := g.GetPdfFileInfo(test.Name())
-	suite.Equal(pdfInfo.PageCount, 2)
-	// if err != nil {
-	// 	return nil, errors.Wrap(err, "error, PDF is corrupted!")
-	// }
-
-	// println(pdfInfo.PageCount)
-
+	test, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
+	suite.NoError(err)
+	println(test.Name())           // ensures was generated with temp filesystem
+	suite.Equal(info.PageCount, 2) // ensures PDF is not corrupted
 }
