@@ -124,7 +124,7 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 		if shipments[i].DeliveryAddressUpdate != nil {
 			// Cannot EagerPreload the address update `NewAddress` due to POP bug
 			// See: https://transcom.github.io/mymove-docs/docs/backend/setup/using-eagerpreload-in-pop#eager-vs-eagerpreload-inconsistency
-			loadErr := appCtx.DB().Load(shipments[i].DeliveryAddressUpdate, "NewAddress", "SitOriginalAddress")
+			loadErr := appCtx.DB().Load(shipments[i].DeliveryAddressUpdate, "NewAddress")
 			if loadErr != nil {
 				return nil, apperror.NewQueryError("DeliveryAddressUpdate", loadErr, "")
 			}
