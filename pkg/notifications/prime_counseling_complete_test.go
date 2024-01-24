@@ -15,7 +15,6 @@ var payload = primemessages.MoveTaskOrder{
 	Order:    &primeOrder,
 }
 var correctPrimeCounselingData = PrimeCounselingCompleteData{
-	CustomerEmail:           "test@example.com",
 	Locator:                 "TEST00",
 	OriginDutyLocation:      "Fort Origin",
 	DestinationDutyLocation: "Fort Destination",
@@ -117,26 +116,24 @@ func (suite *NotificationSuite) TestPrimeCounselingCompleteTextTemplateRender() 
 }
 
 func getCorrectEmailTemplate(emailData PrimeCounselingCompleteData) string {
-	return `Subject Line: Your counselor has approved your move details
-Email message body:
-<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your counselor has approved move details for the assigned move code ` + emailData.Locator + ` from ` + emailData.OriginDutyLocation + ` to ` + emailData.DestinationDutyLocation + ` in the MilMove system. </p>
+	return `<p>*** DO NOT REPLY directly to this email ***</p>
+<p>This is a confirmation that your counselor has approved move details for the assigned move code ` + emailData.Locator + ` from ` + emailData.OriginDutyLocation + ` to ` + emailData.DestinationDutyLocation + ` in the MilMove system.</p>
 <p>What this means to you:</p>
 <p>If you are doing a Personally Procured Move (PPM), you can start moving your personal property.</p>
 <h4>Next steps for a PPM:</h4>
 <ul>
 <li>Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform.  If you do not upload legible certified weight tickets, your PPM incentive could be affected.</li>
-<li>If you are requesting an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into <a href=https://my.move.mil>MilMove</a> to download your AOA packet. You must obtain signature approval on the AOA packet from a government transportation office before submitting it to finance. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.</li>
-<li>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href=https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL>https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a></li>
-<li>Once you complete your PPM, log into <a href=https://my.move.mil>MilMove</a>, upload your receipts and weight tickets, and submit your PPM for review.</li>
+<li>If you are requesting an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into <a href="https://my.move.mil">MilMove</a> to download your AOA packet. You must obtain signature approval on the AOA packet from a government transportation office before submitting it to finance. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.</li>
+<li>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a></li>
+<li>Once you complete your PPM, log into <a href="https://my.move.mil">MilMove</a>, upload your receipts and weight tickets, and submit your PPM for review.</li>
 </ul>
 <h4>Next steps for government arranged shipments:</h4>
 <ul>
 <li>If additional services were identified during counseling, HomeSafe will send the request to the responsible government transportation office for review. Your HomeSafe Customer Care Representative should keep you informed on the status of the request.</li>
 <li>If you have not already done so, please schedule a pre-move survey using HomeSafe Connect or by contacting a HomeSafe Customer Care Representative.</li>
-<li>HomeSafe is your primary point of contact. If any information changes during the move, immediately notify your HomeSafe Customer Care Representative of the changes. Remember to keep your contact information updated in MilMove. </li>
+<li>HomeSafe is your primary point of contact. If any information changes during the move, immediately notify your HomeSafe Customer Care Representative of the changes. Remember to keep your contact information updated in MilMove.</li>
 </ul>
-<p>If you are unsatisfied at any time, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href=https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL>https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a> </p>
+<p>If you are unsatisfied at any time, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a></p>
 <p>Thank you,</p>
 
 <p>USTRANSCOM MilMove Team</p>
@@ -145,12 +142,12 @@ Email message body:
 }
 
 func getCorrectTextTemplate(emailData PrimeCounselingCompleteData) string {
-	return `Subject Line: Your counselor has approved your move details
-Email message body:
-*** DO NOT REPLY directly to this email ***
+	return `*** DO NOT REPLY directly to this email ***
 This is a confirmation that your counselor has approved move details for the assigned move code ` + emailData.Locator + ` from ` + emailData.OriginDutyLocation + ` to ` + emailData.DestinationDutyLocation + ` in the MilMove system.
+
 What this means to you:
 If you are doing a Personally Procured Move (PPM), you can start moving your personal property.
+
 Next steps for a PPM:
 • Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform.  If you do not upload legible certified weight tickets, your PPM incentive could be affected.
 
