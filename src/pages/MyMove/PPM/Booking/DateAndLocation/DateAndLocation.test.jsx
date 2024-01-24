@@ -235,20 +235,16 @@ describe('DateAndLocation component', () => {
       createMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
 
       renderDateAndLocation();
+      const radioElements = screen.getAllByLabelText('Yes');
+      await userEvent.click(radioElements[0]);
+      await userEvent.click(radioElements[1]);
+      await userEvent.click(radioElements[2]);
 
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
       await userEvent.type(primaryPostalCodes[0], '10001');
       await userEvent.type(primaryPostalCodes[1], '10002');
-
-      const radioElements = screen.getAllByLabelText('Yes');
-      await userEvent.click(radioElements[0]);
-      await userEvent.click(radioElements[1]);
-
-      const secondaryPostalCodes = screen.getAllByLabelText('Second ZIP');
-      await userEvent.type(secondaryPostalCodes[0], '10003');
-      await userEvent.type(secondaryPostalCodes[1], '10004');
-
-      await userEvent.click(radioElements[2]);
+      await userEvent.type(primaryPostalCodes[2], '10003');
+      await userEvent.type(primaryPostalCodes[3], '10004');
 
       await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
 
@@ -444,18 +440,23 @@ describe('DateAndLocation component', () => {
     it('renders the heading and form with shipment values', async () => {
       renderDateAndLocation(fullShipmentProps);
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('PPM date & location');
+
+      const inputHasSecondaryZIP = screen.getAllByLabelText('Yes');
+
+      await userEvent.click(inputHasSecondaryZIP[0]);
+      await userEvent.click(inputHasSecondaryZIP[1]);
+
       expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
       const postalCodes = screen.getAllByLabelText('ZIP');
       
-
       await waitFor(() => {
         expect(screen.getByLabelText('When do you plan to start moving your PPM?')).toHaveValue('31 Dec 2022');
       });
 
       expect(postalCodes[0]).toHaveValue('20002');
       expect(postalCodes[1]).toHaveValue('20004');
-      expect(secondaryPostalCodes[2]).toHaveValue('20003');
-      expect(secondaryPostalCodes[3]).toHaveValue('20005');
+      expect(postalCodes[2]).toHaveValue('20003');
+      expect(postalCodes[3]).toHaveValue('20005');
       
     });
 
@@ -487,8 +488,8 @@ describe('DateAndLocation component', () => {
               id: fullShipmentProps.mtoShipment.ppmShipment.id,
               pickupPostalCode: '20002',
               destinationPostalCode: '20004',
-              hasSecondaryPickupPostalCode: true,
-              secondaryPickupPostalCode: '20003',
+              hasSecondaryPickupPostalCode: false,
+              secondaryPickupPostalCode: null,
               hasSecondaryDestinationPostalCode: true,
               secondaryDestinationPostalCode: '20005',
               sitExpected: true,
@@ -506,14 +507,16 @@ describe('DateAndLocation component', () => {
       patchMTOShipment.mockResolvedValueOnce({ id: fullShipmentProps.mtoShipment.id });
 
       renderDateAndLocation(fullShipmentProps);
+      const inputHasSecondaryZIP = screen.getAllByLabelText('Yes');
 
+      await userEvent.click(inputHasSecondaryZIP[0]);
+      await userEvent.click(inputHasSecondaryZIP[1]);
+      
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
       await userEvent.clear(primaryPostalCodes[0]);
       await userEvent.type(primaryPostalCodes[0], '10001');
       await userEvent.clear(primaryPostalCodes[1]);
       await userEvent.type(primaryPostalCodes[1], '10002');
-
-      
       await userEvent.clear(primaryPostalCodes[2]);
       await userEvent.type(primaryPostalCodes[2], '10003');
       await userEvent.clear(primaryPostalCodes[3]);
@@ -534,12 +537,12 @@ describe('DateAndLocation component', () => {
             shipmentType: 'PPM',
             ppmShipment: {
               id: fullShipmentProps.mtoShipment.ppmShipment.id,
-              pickupPostalCode: '10001',
-              destinationPostalCode: '10002',
-              hasSecondaryPickupPostalCode: true,
-              secondaryPickupPostalCode: '10003',
+              pickupPostalCode: '20002',
+              destinationPostalCode: '20004',
+              hasSecondaryPickupPostalCode: false,
+              secondaryPickupPostalCode: null,
               hasSecondaryDestinationPostalCode: true,
-              secondaryDestinationPostalCode: '10004',
+              secondaryDestinationPostalCode: '20005',
               sitExpected: true,
               expectedDepartureDate: '2022-07-04',
             },
