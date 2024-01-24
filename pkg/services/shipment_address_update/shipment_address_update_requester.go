@@ -265,13 +265,23 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 				break
 			}
 		}
+		if addressUpdate.SitOriginalAddress == nil {
+			return nil, apperror.NewUnprocessableEntityError("shipments with destination SIT must have a SIT destination original address")
+		}
 		var distanceBetweenNew int
 		var distanceBetweenOld int
-		distanceBetweenNew, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode)
+		// if there was data already in the table, we want the "new" mileage to be the "old" mileage
+		// if there is NOT, then we will calculate the distance between the original SIT dest address & the previous shipment address
+		if *addressUpdate.NewSitDistanceBetween != 0 {
+			distanceBetweenOld = *addressUpdate.NewSitDistanceBetween
+		} else {
+			distanceBetweenOld, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.OriginalAddress.PostalCode)
+		}
 		if err != nil {
 			return nil, err
 		}
-		distanceBetweenOld, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.OriginalAddress.PostalCode)
+		// calculating distance between the new address update & the SIT
+		distanceBetweenNew, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode)
 		if err != nil {
 			return nil, err
 		}
