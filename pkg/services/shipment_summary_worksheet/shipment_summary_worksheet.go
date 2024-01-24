@@ -45,6 +45,66 @@ type SSWPPMGenerator struct {
 	generator      paperwork.Generator
 }
 
+// TextField represents a text field within a form.
+type textField struct {
+	Pages     []int  `json:"pages"`
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Value     string `json:"value"`
+	Multiline bool   `json:"multiline"`
+	Locked    bool   `json:"locked"`
+}
+
+// Header represents the header section of the JSON.
+type header struct {
+	Source   string `json:"source"`
+	Version  string `json:"version"`
+	Creation string `json:"creation"`
+	Producer string `json:"producer"`
+}
+
+// Checkbox represents a checkbox within a form.
+type checkbox struct {
+	Pages   []int  `json:"pages"`
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Default bool   `json:"value"`
+	Value   bool   `json:"multiline"`
+	Locked  bool   `json:"locked"`
+}
+
+// Forms represents a form containing text fields.
+type form struct {
+	TextField []textField `json:"textfield"`
+	Checkbox  []checkbox  `json:"checkbox"`
+}
+
+// PDFData represents the entire JSON structure.
+type pDFData struct {
+	Header header `json:"header"`
+	Forms  []form `json:"forms"`
+}
+
+var sswHeader = header{
+	Source:   "SSWPDFTemplate.pdf",
+	Version:  "pdfcpu v0.6.0 dev",
+	Creation: "2024-01-22 21:49:12 UTC",
+	Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
+}
+
+var sswCheckbox = []checkbox{
+	{
+		Pages:   []int{2},
+		ID:      "797",
+		Name:    "EDOther",
+		Value:   true,
+		Default: false,
+		Locked:  false,
+	},
+}
+
+var newline = "\n\n"
+
 // NewSSWPPMGenerator creates a SSWPPMGenerator
 func NewSSWPPMGenerator() services.SSWPPMGenerator {
 	pdfTemplatePath, err := filepath.Abs("pkg/assets/paperwork/formtemplates/SSWPDFTemplate.pdf")
@@ -507,10 +567,10 @@ func FormatAllShipments(ppms models.PPMShipments) WorkSheetShipments {
 		shipmentNumber++
 	}
 
-	formattedShipments.ShipmentNumberAndTypes = strings.Join(formattedNumberAndTypes, "\n\n")
-	formattedShipments.PickUpDates = strings.Join(formattedPickUpDates, "\n\n")
-	formattedShipments.ShipmentWeights = strings.Join(formattedShipmentWeights, "\n\n")
-	formattedShipments.CurrentShipmentStatuses = strings.Join(formattedShipmentStatuses, "\n\n")
+	formattedShipments.ShipmentNumberAndTypes = strings.Join(formattedNumberAndTypes, newline)
+	formattedShipments.PickUpDates = strings.Join(formattedPickUpDates, newline)
+	formattedShipments.ShipmentWeights = strings.Join(formattedShipmentWeights, newline)
+	formattedShipments.CurrentShipmentStatuses = strings.Join(formattedShipmentStatuses, newline)
 	return formattedShipments
 }
 
@@ -532,10 +592,10 @@ func FormatAllSITS(ppms models.PPMShipments) WorkSheetSIT {
 
 		sitNumber++
 	}
-	formattedSIT.NumberAndTypes = strings.Join(formattedSITNumberAndTypes, "\n\n")
-	formattedSIT.EntryDates = strings.Join(formattedSITEntryDates, "\n\n")
-	formattedSIT.EndDates = strings.Join(formattedSITEndDates, "\n\n")
-	formattedSIT.DaysInStorage = strings.Join(formattedSITDaysInStorage, "\n\n")
+	formattedSIT.NumberAndTypes = strings.Join(formattedSITNumberAndTypes, newline)
+	formattedSIT.EntryDates = strings.Join(formattedSITEntryDates, newline)
+	formattedSIT.EndDates = strings.Join(formattedSITEndDates, newline)
+	formattedSIT.DaysInStorage = strings.Join(formattedSITDaysInStorage, newline)
 
 	return formattedSIT
 }
@@ -772,72 +832,18 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 	return &ssd, nil
 }
 
-// TextField represents a text field within a form.
-type TextField struct {
-	Pages     []int  `json:"pages"`
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	Value     string `json:"value"`
-	Multiline bool   `json:"multiline"`
-	Locked    bool   `json:"locked"`
-}
-
 // FillSSWPDFForm takes form data and fills an existing PDF form template with said data
 func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values) (sswfile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
 
-	// Header represents the header section of the JSON.
-	type Header struct {
-		Source   string `json:"source"`
-		Version  string `json:"version"`
-		Creation string `json:"creation"`
-		Producer string `json:"producer"`
-	}
-
-	// Checkbox represents a checkbox within a form.
-	type Checkbox struct {
-		Pages   []int  `json:"pages"`
-		ID      string `json:"id"`
-		Name    string `json:"name"`
-		Default bool   `json:"value"`
-		Value   bool   `json:"multiline"`
-		Locked  bool   `json:"locked"`
-	}
-
-	// Forms represents a form containing text fields.
-	type Form struct {
-		TextField []TextField `json:"textfield"`
-		Checkbox  []Checkbox  `json:"checkbox"`
-	}
-
-	// PDFData represents the entire JSON structure.
-	type PDFData struct {
-		Header Header `json:"header"`
-		Forms  []Form `json:"forms"`
-	}
-
-	formData := PDFData{ // This is unique to each PDF template, must be found for new templates using PDFCPU's export function used on the template (can be done through CLI)
-		Header: Header{
-			Source:   "SSWPDFTemplate.pdf",
-			Version:  "pdfcpu v0.6.0 dev",
-			Creation: "2024-01-22 21:49:12 UTC",
-			Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
-		},
-		Forms: []Form{
+	formData := pDFData{ // This is unique to each PDF template, must be found for new templates using PDFCPU's export function used on the template (can be done through CLI)
+		Header: sswHeader,
+		Forms: []form{
 			{ // Dynamically loops, creates, and aggregates json for text fields, merges page 1 and 2
 				TextField: mergeTextFields(createTextFields(Page1Values, 1), createTextFields(Page2Values, 2)),
 			},
 			// The following is the structure for using a Checkbox field
 			{
-				Checkbox: []Checkbox{
-					{
-						Pages:   []int{2},
-						ID:      "797",
-						Name:    "EDOther",
-						Value:   true,
-						Default: false,
-						Locked:  false,
-					},
-				},
+				Checkbox: sswCheckbox,
 			},
 		},
 	}
@@ -864,15 +870,15 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 }
 
 // CreateTextFields formats the SSW Page data to match PDF-accepted JSON
-func createTextFields(data interface{}, pages ...int) []TextField {
-	var textFields []TextField
+func createTextFields(data interface{}, pages ...int) []textField {
+	var textFields []textField
 
 	val := reflect.ValueOf(data)
 	for i := 0; i < val.NumField(); i++ {
 		field := val.Type().Field(i)
 		value := val.Field(i).Interface()
 
-		textField := TextField{
+		var textFieldEntry = textField{
 			Pages:     pages,
 			ID:        fmt.Sprintf("%d", len(textFields)+1),
 			Name:      field.Name,
@@ -881,13 +887,13 @@ func createTextFields(data interface{}, pages ...int) []TextField {
 			Locked:    false,
 		}
 
-		textFields = append(textFields, textField)
+		textFields = append(textFields, textFieldEntry)
 	}
 
 	return textFields
 }
 
 // MergeTextFields merges page 1 and page 2 data
-func mergeTextFields(fields1, fields2 []TextField) []TextField {
+func mergeTextFields(fields1, fields2 []textField) []textField {
 	return append(fields1, fields2...)
 }
