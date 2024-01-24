@@ -234,11 +234,13 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 			}
 
 			ppmGenerator := shipmentsummaryworksheet.NewSSWPPMGenerator()
-			SSWPPMWorksheet, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
+			SSWPPMWorksheet, SSWPDFInfo, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
 			if err != nil {
 				return nil, err
 			}
-
+			if SSWPDFInfo.PageCount != 2 {
+				return nil, errors.Wrap(err, "SSWGenerator output a corrupted or incorretly altered PDF")
+			}
 			payload := io.NopCloser(SSWPPMWorksheet)
 			filename := fmt.Sprintf("inline; filename=\"%s-%s-ssw-%s.pdf\"", *ssfd.ServiceMember.FirstName, *ssfd.ServiceMember.LastName, time.Now().Format("01-02-2006"))
 

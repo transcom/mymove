@@ -160,8 +160,9 @@ func main() {
 	page1Data, page2Data := ppmComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
 	noErr(err)
 	ppmGenerator := shipmentsummaryworksheet.NewSSWPPMGenerator()
-	test, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
-	fmt.Println(test)
-	fmt.Println(err)
-
+	ssw, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
+	noErr(err)
+	fmt.Println(ssw.Name())     // Should always return
+	fmt.Println(info.PageCount) // Page count should always be 2
+	// This is a testing command, above lines log information on whether PDF was generated successfully.
 }

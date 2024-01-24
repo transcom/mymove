@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/spf13/afero"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -154,5 +155,5 @@ type SSWPPMComputer interface {
 }
 
 type SSWPPMGenerator interface {
-	FillSSWPDFForm(Page1Values, Page2Values) (afero.File, error)
+	FillSSWPDFForm(Page1Values, Page2Values) (afero.File, *pdfcpu.PDFInfo, error)
 }

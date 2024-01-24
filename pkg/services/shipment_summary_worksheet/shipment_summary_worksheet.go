@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"time"
 
 	"github.com/gofrs/uuid"
 	"github.com/pdfcpu/pdfcpu/pkg/api"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -47,9 +49,23 @@ type SSWPPMGenerator struct {
 
 // NewSSWPPMGenerator creates a SSWPPMGenerator
 func NewSSWPPMGenerator() services.SSWPPMGenerator {
-	pdfTemplatePath := "pkg/assets/paperwork/formtemplates/SSWPDFTemplate.pdf"
+	pdfTemplatePath, err := filepath.Abs("pkg/assets/paperwork/formtemplates/SSWPDFTemplate.pdf")
+	if err != nil {
+		panic(err)
+	}
 
-	templateReader, err := os.Open(pdfTemplatePath)
+	// NOTE: The testing suite is based on a different filesystem, relative filepaths will not work.
+	// Additionally, the function runs at a different file location. Therefore, when ran from testing,
+	// the PDF template path needs to be reconfigured relative to where the test runs from.
+	if strings.HasSuffix(os.Args[0], ".test") {
+		pdfTemplatePath, err = filepath.Abs("../../../pkg/assets/paperwork/formtemplates/SSWPDFTemplate.pdf")
+		if err != nil {
+			panic(err)
+		}
+
+	}
+
+	templateReader, err := afero.NewOsFs().Open(pdfTemplatePath)
 	if err != nil {
 		panic(err)
 	}
@@ -759,22 +775,21 @@ type TextField struct {
 
 // FillSSWPDFForm takes form data and fills an existing PDF form template with said data
 // NEEDS TEST
-func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values) (sswfile afero.File, err error) {
-
+func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values) (sswfile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
+	// Generator and dependencies must be initiated to handle memory filesystem for AWS
 	storer := storage.NewMemory(storage.NewMemoryParams("", ""))
 	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	g, err := paperwork.NewGenerator(userUploader.Uploader())
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	var conf *model.Configuration
-	// pdfTemplate, err := assets.Asset(pdfTemplatePath)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Header represents the header section of the JSON.
@@ -807,7 +822,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		Forms  []Form `json:"forms"`
 	}
 
-	formData := PDFData{
+	formData := PDFData{ // This is unique to each PDF template, must be found for new templates using PDFCPU's export function used on the template (can be done through CLI)
 		Header: Header{
 			Source:   "SSWPDFTemplate.pdf",
 			Version:  "pdfcpu v0.6.0 dev",
@@ -815,9 +830,10 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 			Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
 		},
 		Forms: []Form{
-			{
+			{ // Dynamically loops, creates, and aggregates json for text fields, merges page 1 and 2
 				TextField: mergeTextFields(createTextFields(Page1Values, 1), createTextFields(Page2Values, 2)),
 			},
+			// The following is the structure for using a Checkbox field
 			{
 				Checkbox: []Checkbox{
 					{
@@ -839,39 +855,40 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		fmt.Println("Error marshaling JSON:", err)
 		return
 	}
+	// Change type to reader
 	readJSON := strings.NewReader(string(jsonData))
 	buf := new(bytes.Buffer)
-
+	// Fills form using the template reader with json reader, outputs to byte, to be saved to afero file.
 	formerr := api.FillForm(SSWPPMGenerator.templateReader, readJSON, buf, conf)
 	if formerr != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	tempFile, err := g.NewTempFile() // Will use g.NewTempFile for proper memory usage
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// copy byte[] to temp file
 	_, err = io.Copy(tempFile, buf)
 	if err != nil {
-		return nil, errors.Wrap(err, "error io.Copy on byte[] to temp")
+		return nil, nil, errors.Wrap(err, "error io.Copy on byte[] to temp")
 	}
 
 	// Reload the file from memstore
 	SSWWorksheet, err := g.FileSystem().Open(tempFile.Name())
 	if err != nil {
-		return nil, errors.Wrap(err, "error g.fs.Open on reload from memstore")
+		return nil, nil, errors.Wrap(err, "error g.fs.Open on reload from memstore")
 	}
 
-	// To be used in testing
-	// pdfInfo, err := g.GetPdfFileInfo(SSWWorksheet.Name())
-	// if err != nil {
-	// 	return nil, errors.Wrap(err, "error io.Copy on byte[] to temp")
-	// }
-
-	// println(pdfInfo.PageCount)
-	return SSWWorksheet, err
+	// pdfInfo.PageCount is a great way to tell whether returned PDF is corrupted
+	pdfInfoResult, err := g.GetPdfFileInfo(SSWWorksheet.Name())
+	if err != nil || pdfInfoResult.PageCount != 2 {
+		return nil, nil, errors.Wrap(err, "SSWGenerator output a corrupted or incorretly altered PDF")
+	}
+	// Return PDFInfo for additional testing in other functions
+	pdfInfo = pdfInfoResult
+	return SSWWorksheet, pdfInfo, err
 }
 
 // CreateTextFields formats the SSW Page data to match PDF-accepted JSON
