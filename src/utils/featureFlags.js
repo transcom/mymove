@@ -35,17 +35,17 @@ const environmentFlags = {
 
   experimental: {
     ...defaultFlags,
-    multiMove: true,
+    multiMove: false,
   },
 
   staging: {
     ...defaultFlags,
-    markerIO: true,
+    markerIO: false,
   },
 
   demo: {
     ...defaultFlags,
-    markerIO: true,
+    markerIO: false,
   },
 
   production: {
