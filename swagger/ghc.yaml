@@ -6382,6 +6382,10 @@ definitions:
             type: string
             format: date
             x-nullable: true
+          sitAuthorizedEndDate:
+            type: string
+            format: date
+            x-nullable: true
           sitCustomerContacted:
             type: string
             format: date
