@@ -18,8 +18,11 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/unit"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryWorksheet() {
@@ -680,4 +683,172 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignatureDate() {
 	formattedDate := FormatSignatureDate(sswfd.SignedCertification)
 
 	suite.Equal("26 Jan 2019 at 2:40pm", formattedDate)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAddress() {
+	// Test case 1: Valid W2 address
+	validAddress := &models.Address{
+		StreetAddress1: "123 Main St",
+		City:           "Cityville",
+		State:          "ST",
+		PostalCode:     "12345",
+	}
+
+	expectedValidResult := "123 Main St,  Cityville ST 12345"
+
+	resultValid := FormatAddress(validAddress)
+
+	suite.Equal(expectedValidResult, resultValid)
+
+	// Test case 2: Nil W2 address
+	nilAddress := (*models.Address)(nil)
+
+	expectedNilResult := ""
+
+	resultNil := FormatAddress(nilAddress)
+
+	suite.Equal(expectedNilResult, resultNil)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestNilOrValue() {
+	// Test case 1: Non-nil pointer
+	validPointer := "ValidValue"
+	validResult := nilOrValue(&validPointer)
+	expectedValidResult := "ValidValue"
+
+	if validResult != expectedValidResult {
+		suite.Equal(expectedValidResult, validResult)
+	}
+
+	// Test case 2: Nil pointer
+	nilPointer := (*string)(nil)
+	nilResult := nilOrValue(nilPointer)
+	expectedNilResult := ""
+
+	if nilResult != expectedNilResult {
+		suite.Equal(expectedNilResult, nilResult)
+	}
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestMergeTextFields() {
+	// Test case 1: Non-empty input slices
+	fields1 := []TextField{
+		{Pages: []int{1, 2}, ID: "1", Name: "Field1", Value: "Value1", Multiline: false, Locked: true},
+		{Pages: []int{3, 4}, ID: "2", Name: "Field2", Value: "Value2", Multiline: true, Locked: false},
+	}
+
+	fields2 := []TextField{
+		{Pages: []int{5, 6}, ID: "3", Name: "Field3", Value: "Value3", Multiline: true, Locked: false},
+		{Pages: []int{7, 8}, ID: "4", Name: "Field4", Value: "Value4", Multiline: false, Locked: true},
+	}
+
+	mergedResult := mergeTextFields(fields1, fields2)
+
+	expectedMergedResult := []TextField{
+		{Pages: []int{1, 2}, ID: "1", Name: "Field1", Value: "Value1", Multiline: false, Locked: true},
+		{Pages: []int{3, 4}, ID: "2", Name: "Field2", Value: "Value2", Multiline: true, Locked: false},
+		{Pages: []int{5, 6}, ID: "3", Name: "Field3", Value: "Value3", Multiline: true, Locked: false},
+		{Pages: []int{7, 8}, ID: "4", Name: "Field4", Value: "Value4", Multiline: false, Locked: true},
+	}
+
+	suite.Equal(mergedResult, expectedMergedResult)
+
+	// Test case 2: Empty input slices
+	emptyResult := mergeTextFields([]TextField{}, []TextField{})
+	expectedEmptyResult := []TextField{}
+
+	suite.Equal(emptyResult, expectedEmptyResult)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestCreateTextFields() {
+	// Test case 1: Non-empty input
+	type TestData struct {
+		Field1 string
+		Field2 int
+		Field3 bool
+	}
+
+	testData := TestData{"Value1", 42, true}
+	pages := []int{1, 2}
+
+	result := createTextFields(testData, pages...)
+
+	expectedResult := []TextField{
+		{Pages: pages, ID: "1", Name: "Field1", Value: "Value1", Multiline: false, Locked: false},
+		{Pages: pages, ID: "2", Name: "Field2", Value: "42", Multiline: false, Locked: false},
+		{Pages: pages, ID: "3", Name: "Field3", Value: "true", Multiline: false, Locked: false},
+	}
+
+	suite.Equal(result, expectedResult)
+
+	// Test case 2: Empty input
+	emptyResult := createTextFields(struct{}{})
+
+	suite.Nil(emptyResult)
+}
+
+// Last test to get working
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
+	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
+	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
+	rank := models.ServiceMemberRankE9
+	SSWPPMComputer := NewSSWPPMComputer()
+	storer := storage.NewMemory(storage.NewMemoryParams("", ""))
+	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
+	suite.NoError(err)
+	g, err := paperwork.NewGenerator(userUploader.Uploader())
+	suite.NoError(err)
+
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				OrdersType: ordersType,
+			},
+		},
+		{
+			Model:    fortGordon,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
+		},
+		{
+			Model:    yuma,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.ServiceMember{
+				Rank: &rank,
+			},
+		},
+		{
+			Model: models.SignedCertification{},
+		},
+	}, nil)
+
+	ppmShipmentID := ppmShipment.ID
+
+	serviceMemberID := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID
+
+	session := auth.Session{
+		UserID:          ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID,
+		ServiceMemberID: serviceMemberID,
+		ApplicationName: auth.MilApp,
+	}
+
+	models.SaveMoveDependencies(suite.DB(), &ppmShipment.Shipment.MoveTaskOrder)
+
+	ssd, err := SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, ppmShipmentID)
+	suite.NoError(err)
+	page1Data, page2Data := SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssd)
+	ppmGenerator := NewSSWPPMGenerator()
+	test, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
+	pdfInfo, err := g.GetPdfFileInfo(test.Name())
+	suite.Equal(pdfInfo.PageCount, 2)
+	// if err != nil {
+	// 	return nil, errors.Wrap(err, "error, PDF is corrupted!")
+	// }
+
+	// println(pdfInfo.PageCount)
+
 }
