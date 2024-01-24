@@ -151,6 +151,8 @@ type PPMShipment struct {
 	DestinationPostalCode          string               `json:"destination_postal_code" db:"destination_postal_code"`
 	SecondaryDestinationPostalCode *string              `json:"secondary_destination_postal_code" db:"secondary_destination_postal_code"`
 	ActualDestinationPostalCode    *string              `json:"actual_destination_postal_code" db:"actual_destination_postal_code"`
+	PickupPostalAddressID          *uuid.UUID           `json:"pickup_postal_address_id" db:"pickup_postal_address_id"`
+	DestinationPostalAddressID     *uuid.UUID           `json:"destination_postal_address_id" db:"destination_postal_address_id"`
 	EstimatedWeight                *unit.Pound          `json:"estimated_weight" db:"estimated_weight"`
 	HasProGear                     *bool                `json:"has_pro_gear" db:"has_pro_gear"`
 	ProGearWeight                  *unit.Pound          `json:"pro_gear_weight" db:"pro_gear_weight"`
