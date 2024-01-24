@@ -42,6 +42,7 @@ func NewSSWPPMComputer() services.SSWPPMComputer {
 // SSWPPMGenerator is the concrete struct implementing the services.shipmentsummaryworksheet interface
 type SSWPPMGenerator struct {
 	templateReader io.ReadSeeker
+	generator      paperwork.Generator
 }
 
 // NewSSWPPMGenerator creates a SSWPPMGenerator
@@ -66,9 +67,20 @@ func NewSSWPPMGenerator() services.SSWPPMGenerator {
 	if err != nil {
 		panic(err)
 	}
+	// Generator and dependencies must be initiated to handle memory filesystem for AWS
+	storer := storage.NewMemory(storage.NewMemoryParams("", ""))
+	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
+	if err != nil {
+		panic(err)
+	}
+	generator, err := paperwork.NewGenerator(userUploader.Uploader())
+	if err != nil {
+		panic(err)
+	}
 
 	return &SSWPPMGenerator{
 		templateReader: templateReader,
+		generator:      *generator,
 	}
 }
 
@@ -772,16 +784,6 @@ type TextField struct {
 
 // FillSSWPDFForm takes form data and fills an existing PDF form template with said data
 func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values) (sswfile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
-	// Generator and dependencies must be initiated to handle memory filesystem for AWS
-	storer := storage.NewMemory(storage.NewMemoryParams("", ""))
-	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
-	if err != nil {
-		return nil, nil, err
-	}
-	g, err := paperwork.NewGenerator(userUploader.Uploader())
-	if err != nil {
-		return nil, nil, err
-	}
 
 	// Header represents the header section of the JSON.
 	type Header struct {
@@ -846,13 +848,13 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		fmt.Println("Error marshaling JSON:", err)
 		return
 	}
-	SSWWorksheet, err := g.FillPDFFormForSSW(jsonData, SSWPPMGenerator.templateReader)
+	SSWWorksheet, err := SSWPPMGenerator.generator.FillPDFFormForSSW(jsonData, SSWPPMGenerator.templateReader)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	// pdfInfo.PageCount is a great way to tell whether returned PDF is corrupted
-	pdfInfoResult, err := g.GetPdfFileInfo(SSWWorksheet.Name())
+	pdfInfoResult, err := SSWPPMGenerator.generator.GetPdfFileInfo(SSWWorksheet.Name())
 	if err != nil || pdfInfoResult.PageCount != 2 {
 		return nil, nil, errors.Wrap(err, "SSWGenerator output a corrupted or incorretly altered PDF")
 	}
