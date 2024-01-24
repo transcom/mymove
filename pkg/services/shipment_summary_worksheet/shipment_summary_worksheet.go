@@ -1,4 +1,4 @@
-package models
+package shipmentsummaryworksheet
 
 import (
 	"fmt"
@@ -6,29 +6,41 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// SSWPPMComputer is the concrete struct implementing the services.shipmentsummaryworksheet interface
+type SSWPPMComputer struct {
+}
+
+// NewSSWPPMComputer creates a SSWPPMComputer
+func NewSSWPPMComputer() services.SSWPPMComputer {
+	return &SSWPPMComputer{}
+}
+
 // FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
-func FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummaryFormData) (ShipmentSummaryWorksheetPage1Values, ShipmentSummaryWorksheetPage2Values, ShipmentSummaryWorksheetPage3Values, error) {
+func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData services.ShipmentSummaryFormData) (services.Page1Values, services.Page2Values, services.Page3Values) {
 	page1 := FormatValuesShipmentSummaryWorksheetFormPage1(shipmentSummaryFormData)
 	page2 := FormatValuesShipmentSummaryWorksheetFormPage2(shipmentSummaryFormData)
 	page3 := FormatValuesShipmentSummaryWorksheetFormPage3(shipmentSummaryFormData)
 
-	return page1, page2, page3, nil
+	return page1, page2, page3
 }
 
-// ShipmentSummaryWorksheetPage1Values is an object representing a Shipment Summary Worksheet
-type ShipmentSummaryWorksheetPage1Values struct {
+// Page1Values is an object representing a Shipment Summary Worksheet
+type Page1Values struct {
 	CUIBanner                       string
 	ServiceMemberName               string
 	MaxSITStorageEntitlement        string
@@ -70,24 +82,24 @@ type ShipmentSummaryWorksheetPage1Values struct {
 	MileageTotal                    string
 }
 
-// ShipmentSummaryWorkSheetShipments is an object representing shipment line items on Shipment Summary Worksheet
-type ShipmentSummaryWorkSheetShipments struct {
+// WorkSheetShipments is an object representing shipment line items on Shipment Summary Worksheet
+type WorkSheetShipments struct {
 	ShipmentNumberAndTypes  string
 	PickUpDates             string
 	ShipmentWeights         string
 	CurrentShipmentStatuses string
 }
 
-// ShipmentSummaryWorkSheetSIT is an object representing SIT on the Shipment Summary Worksheet
-type ShipmentSummaryWorkSheetSIT struct {
+// WorkSheetSIT is an object representing SIT on the Shipment Summary Worksheet
+type WorkSheetSIT struct {
 	NumberAndTypes string
 	EntryDates     string
 	EndDates       string
 	DaysInStorage  string
 }
 
-// ShipmentSummaryWorksheetPage2Values is an object representing a Shipment Summary Worksheet
-type ShipmentSummaryWorksheetPage2Values struct {
+// Page2Values is an object representing a Shipment Summary Worksheet
+type Page2Values struct {
 	CUIBanner       string
 	PreparationDate string
 	TAC             string
@@ -138,8 +150,8 @@ type FormattedOtherExpenses struct {
 	AmountsPaid  string
 }
 
-// ShipmentSummaryWorksheetPage3Values is an object representing a Shipment Summary Worksheet
-type ShipmentSummaryWorksheetPage3Values struct {
+// Page3Values is an object representing a Shipment Summary Worksheet
+type Page3Values struct {
 	CUIBanner              string
 	PreparationDate        string
 	ServiceMemberSignature string
@@ -149,17 +161,18 @@ type ShipmentSummaryWorksheetPage3Values struct {
 
 // ShipmentSummaryFormData is a container for the various objects required for the a Shipment Summary Worksheet
 type ShipmentSummaryFormData struct {
-	ServiceMember           ServiceMember
-	Order                   Order
-	CurrentDutyLocation     DutyLocation
-	NewDutyLocation         DutyLocation
+	ServiceMember           models.ServiceMember
+	Order                   models.Order
+	Move                    models.Move
+	CurrentDutyLocation     models.DutyLocation
+	NewDutyLocation         models.DutyLocation
 	WeightAllotment         SSWMaxWeightEntitlement
-	PersonallyProcuredMoves PersonallyProcuredMoves
+	PPMShipments            models.PPMShipments
 	PreparationDate         time.Time
 	Obligations             Obligations
-	MovingExpenses          []MovingExpense
+	MovingExpenses          models.MovingExpenses
 	PPMRemainingEntitlement unit.Pound
-	SignedCertification     SignedCertification
+	SignedCertification     models.SignedCertification
 }
 
 // Obligations is an object representing the winning and non-winning Max Obligation and Actual Obligation sections of the shipment summary worksheet
@@ -197,76 +210,6 @@ func (obligation Obligation) MaxAdvance() float64 {
 	return obligation.Gcc.MultiplyFloat64(.60).ToDollarFloatNoRound()
 }
 
-// FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
-func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth.Session, moveID uuid.UUID) (ShipmentSummaryFormData, error) {
-	move := Move{}
-	dbQErr := db.Q().Eager(
-		"Orders",
-		"Orders.NewDutyLocation.Address",
-		"Orders.ServiceMember",
-		"Orders.ServiceMember.DutyLocation.Address",
-		"PersonallyProcuredMoves",
-	).Find(&move, moveID)
-
-	if dbQErr != nil {
-		if errors.Cause(dbQErr).Error() == RecordNotFoundErrorString {
-			return ShipmentSummaryFormData{}, ErrFetchNotFound
-		}
-		return ShipmentSummaryFormData{}, dbQErr
-	}
-
-	for i, ppm := range move.PersonallyProcuredMoves {
-		ppmDetails, err := FetchPersonallyProcuredMove(db, session, ppm.ID)
-		if err != nil {
-			return ShipmentSummaryFormData{}, err
-		}
-		if ppmDetails.Advance != nil {
-			status := ppmDetails.Advance.Status
-			if status == ReimbursementStatusAPPROVED || status == ReimbursementStatusPAID {
-				move.PersonallyProcuredMoves[i].Advance = ppmDetails.Advance
-			}
-		}
-	}
-
-	_, authErr := FetchOrderForUser(db, session, move.OrdersID)
-	if authErr != nil {
-		return ShipmentSummaryFormData{}, authErr
-	}
-
-	serviceMember := move.Orders.ServiceMember
-	var rank ServiceMemberRank
-	var weightAllotment SSWMaxWeightEntitlement
-	if serviceMember.Rank != nil {
-		rank = ServiceMemberRank(*serviceMember.Rank)
-		weightAllotment = SSWGetEntitlement(rank, move.Orders.HasDependents, move.Orders.SpouseHasProGear)
-	}
-
-	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, weightAllotment.TotalWeight)
-	if err != nil {
-		return ShipmentSummaryFormData{}, err
-	}
-
-	signedCertification, err := FetchSignedCertificationsPPMPayment(db, session, moveID)
-	if err != nil {
-		return ShipmentSummaryFormData{}, err
-	}
-	if signedCertification == nil {
-		return ShipmentSummaryFormData{},
-			errors.New("shipment summary worksheet: signed certification is nil")
-	}
-	ssd := ShipmentSummaryFormData{
-		ServiceMember:           serviceMember,
-		Order:                   move.Orders,
-		CurrentDutyLocation:     serviceMember.DutyLocation,
-		NewDutyLocation:         move.Orders.NewDutyLocation,
-		WeightAllotment:         weightAllotment,
-		PersonallyProcuredMoves: move.PersonallyProcuredMoves,
-		SignedCertification:     *signedCertification,
-		PPMRemainingEntitlement: ppmRemainingEntitlement,
-	}
-	return ssd, nil
-}
-
 // SSWMaxWeightEntitlement weight allotment for the shipment summary worksheet.
 type SSWMaxWeightEntitlement struct {
 	Entitlement   unit.Pound
@@ -287,24 +230,24 @@ func (wa *SSWMaxWeightEntitlement) addLineItem(field string, value int) {
 
 // SSWGetEntitlement calculates the entitlement for the shipment summary worksheet based on the parameters of
 // a move (hasDependents, spouseHasProGear)
-func SSWGetEntitlement(rank ServiceMemberRank, hasDependents bool, spouseHasProGear bool) SSWMaxWeightEntitlement {
+func SSWGetEntitlement(rank models.ServiceMemberRank, hasDependents bool, spouseHasProGear bool) services.SSWMaxWeightEntitlement {
 	sswEntitlements := SSWMaxWeightEntitlement{}
-	entitlements := GetWeightAllotment(rank)
+	entitlements := models.GetWeightAllotment(rank)
 	sswEntitlements.addLineItem("ProGear", entitlements.ProGearWeight)
 	if !hasDependents {
 		sswEntitlements.addLineItem("Entitlement", entitlements.TotalWeightSelf)
-		return sswEntitlements
+		return services.SSWMaxWeightEntitlement(sswEntitlements)
 	}
 	sswEntitlements.addLineItem("Entitlement", entitlements.TotalWeightSelfPlusDependents)
 	if spouseHasProGear {
 		sswEntitlements.addLineItem("SpouseProGear", entitlements.ProGearWeightSpouse)
 	}
-	return sswEntitlements
+	return services.SSWMaxWeightEntitlement(sswEntitlements)
 }
 
 // CalculateRemainingPPMEntitlement calculates the remaining PPM entitlement for PPM moves
 // a PPMs remaining entitlement weight is equal to total entitlement - hhg weight
-func CalculateRemainingPPMEntitlement(move Move, totalEntitlement unit.Pound) (unit.Pound, error) {
+func CalculateRemainingPPMEntitlement(move models.Move, totalEntitlement unit.Pound) (unit.Pound, error) {
 	var hhgActualWeight unit.Pound
 
 	var ppmActualWeight unit.Pound
@@ -330,8 +273,8 @@ const (
 )
 
 // FormatValuesShipmentSummaryWorksheetFormPage1 formats the data for page 1 of the Shipment Summary Worksheet
-func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData) ShipmentSummaryWorksheetPage1Values {
-	page1 := ShipmentSummaryWorksheetPage1Values{}
+func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummaryFormData) services.Page1Values {
+	page1 := services.Page1Values{}
 	page1.CUIBanner = controlledUnclassifiedInformationText
 	page1.MaxSITStorageEntitlement = "90 days per each shipment"
 	// We don't currently know what allows POV to be authorized, so we are hardcoding it to "No" to start
@@ -359,69 +302,51 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.WeightAllotmentProgearSpouse = FormatWeights(data.WeightAllotment.SpouseProGear)
 	page1.TotalWeightAllotment = FormatWeights(data.WeightAllotment.TotalWeight)
 
-	formattedShipments := FormatAllShipments(data.PersonallyProcuredMoves)
+	formattedShipments := FormatAllShipments(data.PPMShipments)
 	page1.ShipmentNumberAndTypes = formattedShipments.ShipmentNumberAndTypes
 	page1.ShipmentPickUpDates = formattedShipments.PickUpDates
 	page1.ShipmentCurrentShipmentStatuses = formattedShipments.CurrentShipmentStatuses
 	page1.ShipmentWeights = formattedShipments.ShipmentWeights
-
-	maxObligations := data.Obligations.MaxObligation
-	page1.MaxObligationGCC100 = FormatDollars(maxObligations.GCC100())
+	// Obligations cannot be used at this time, require new computer setup.
 	page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
-	page1.MaxObligationGCC95 = FormatDollars(maxObligations.GCC95())
-	page1.MaxObligationSIT = FormatDollars(maxObligations.FormatSIT())
-	page1.MaxObligationGCCMaxAdvance = FormatDollars(maxObligations.MaxAdvance())
-
 	actualObligations := data.Obligations.ActualObligation
-	page1.ActualObligationGCC100 = FormatDollars(actualObligations.GCC100())
 	page1.PPMRemainingEntitlement = FormatWeights(data.PPMRemainingEntitlement)
-	page1.ActualObligationGCC95 = FormatDollars(actualObligations.GCC95())
-	page1.ActualObligationSIT = FormatDollars(actualObligations.FormatSIT())
-	page1.ActualObligationAdvance = formatActualObligationAdvance(data)
 	page1.MileageTotal = actualObligations.Miles.String()
 	return page1
 }
 
-func formatActualObligationAdvance(data ShipmentSummaryFormData) string {
-	if len(data.PersonallyProcuredMoves) > 0 && data.PersonallyProcuredMoves[0].Advance != nil {
-		advance := data.PersonallyProcuredMoves[0].Advance.RequestedAmount.ToDollarFloatNoRound()
-		return FormatDollars(advance)
-	}
-	return FormatDollars(0)
-}
-
 // FormatRank formats the service member's rank for Shipment Summary Worksheet
-func FormatRank(rank *ServiceMemberRank) string {
-	var rankDisplayValue = map[ServiceMemberRank]string{
-		ServiceMemberRankE1:                      "E-1",
-		ServiceMemberRankE2:                      "E-2",
-		ServiceMemberRankE3:                      "E-3",
-		ServiceMemberRankE4:                      "E-4",
-		ServiceMemberRankE5:                      "E-5",
-		ServiceMemberRankE6:                      "E-6",
-		ServiceMemberRankE7:                      "E-7",
-		ServiceMemberRankE8:                      "E-8",
-		ServiceMemberRankE9:                      "E-9",
-		ServiceMemberRankE9SPECIALSENIORENLISTED: "E-9 (Special Senior Enlisted)",
-		ServiceMemberRankO1ACADEMYGRADUATE:       "O-1 or Service Academy Graduate",
-		ServiceMemberRankO2:                      "O-2",
-		ServiceMemberRankO3:                      "O-3",
-		ServiceMemberRankO4:                      "O-4",
-		ServiceMemberRankO5:                      "O-5",
-		ServiceMemberRankO6:                      "O-6",
-		ServiceMemberRankO7:                      "O-7",
-		ServiceMemberRankO8:                      "O-8",
-		ServiceMemberRankO9:                      "O-9",
-		ServiceMemberRankO10:                     "O-10",
-		ServiceMemberRankW1:                      "W-1",
-		ServiceMemberRankW2:                      "W-2",
-		ServiceMemberRankW3:                      "W-3",
-		ServiceMemberRankW4:                      "W-4",
-		ServiceMemberRankW5:                      "W-5",
-		ServiceMemberRankAVIATIONCADET:           "Aviation Cadet",
-		ServiceMemberRankCIVILIANEMPLOYEE:        "Civilian Employee",
-		ServiceMemberRankACADEMYCADET:            "Service Academy Cadet",
-		ServiceMemberRankMIDSHIPMAN:              "Midshipman",
+func FormatRank(rank *models.ServiceMemberRank) string {
+	var rankDisplayValue = map[models.ServiceMemberRank]string{
+		models.ServiceMemberRankE1:                      "E-1",
+		models.ServiceMemberRankE2:                      "E-2",
+		models.ServiceMemberRankE3:                      "E-3",
+		models.ServiceMemberRankE4:                      "E-4",
+		models.ServiceMemberRankE5:                      "E-5",
+		models.ServiceMemberRankE6:                      "E-6",
+		models.ServiceMemberRankE7:                      "E-7",
+		models.ServiceMemberRankE8:                      "E-8",
+		models.ServiceMemberRankE9:                      "E-9",
+		models.ServiceMemberRankE9SPECIALSENIORENLISTED: "E-9 (Special Senior Enlisted)",
+		models.ServiceMemberRankO1ACADEMYGRADUATE:       "O-1 or Service Academy Graduate",
+		models.ServiceMemberRankO2:                      "O-2",
+		models.ServiceMemberRankO3:                      "O-3",
+		models.ServiceMemberRankO4:                      "O-4",
+		models.ServiceMemberRankO5:                      "O-5",
+		models.ServiceMemberRankO6:                      "O-6",
+		models.ServiceMemberRankO7:                      "O-7",
+		models.ServiceMemberRankO8:                      "O-8",
+		models.ServiceMemberRankO9:                      "O-9",
+		models.ServiceMemberRankO10:                     "O-10",
+		models.ServiceMemberRankW1:                      "W-1",
+		models.ServiceMemberRankW2:                      "W-2",
+		models.ServiceMemberRankW3:                      "W-3",
+		models.ServiceMemberRankW4:                      "W-4",
+		models.ServiceMemberRankW5:                      "W-5",
+		models.ServiceMemberRankAVIATIONCADET:           "Aviation Cadet",
+		models.ServiceMemberRankCIVILIANEMPLOYEE:        "Civilian Employee",
+		models.ServiceMemberRankACADEMYCADET:            "Service Academy Cadet",
+		models.ServiceMemberRankMIDSHIPMAN:              "Midshipman",
 	}
 	if rank != nil {
 		return rankDisplayValue[*rank]
@@ -430,8 +355,8 @@ func FormatRank(rank *ServiceMemberRank) string {
 }
 
 // FormatValuesShipmentSummaryWorksheetFormPage2 formats the data for page 2 of the Shipment Summary Worksheet
-func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData) ShipmentSummaryWorksheetPage2Values {
-	page2 := ShipmentSummaryWorksheetPage2Values{}
+func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummaryFormData) services.Page2Values {
+	page2 := services.Page2Values{}
 	page2.CUIBanner = controlledUnclassifiedInformationText
 	page2.TAC = derefStringTypes(data.Order.TAC)
 	page2.SAC = derefStringTypes(data.Order.SAC)
@@ -442,8 +367,8 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData)
 }
 
 // FormatValuesShipmentSummaryWorksheetFormPage3 formats the data for page 2 of the Shipment Summary Worksheet
-func FormatValuesShipmentSummaryWorksheetFormPage3(data ShipmentSummaryFormData) ShipmentSummaryWorksheetPage3Values {
-	page3 := ShipmentSummaryWorksheetPage3Values{}
+func FormatValuesShipmentSummaryWorksheetFormPage3(data services.ShipmentSummaryFormData) services.Page3Values {
+	page3 := services.Page3Values{}
 	page3.CUIBanner = controlledUnclassifiedInformationText
 	page3.PreparationDate = FormatDate(data.PreparationDate)
 	page3.ServiceMemberSignature = FormatSignature(data.ServiceMember)
@@ -452,7 +377,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage3(data ShipmentSummaryFormData)
 }
 
 // FormatSignature formats a service member's signature for the Shipment Summary Worksheet
-func FormatSignature(sm ServiceMember) string {
+func FormatSignature(sm models.ServiceMember) string {
 	first := derefStringTypes(sm.FirstName)
 	last := derefStringTypes(sm.LastName)
 
@@ -460,19 +385,19 @@ func FormatSignature(sm ServiceMember) string {
 }
 
 // FormatSignatureDate formats the date the service member electronically signed for the Shipment Summary Worksheet
-func FormatSignatureDate(signature SignedCertification) string {
+func FormatSignatureDate(signature models.SignedCertification) string {
 	dateLayout := "02 Jan 2006 at 3:04pm"
 	dt := signature.Date.Format(dateLayout)
 	return dt
 }
 
 // FormatLocation formats AuthorizedOrigin and AuthorizedDestination for Shipment Summary Worksheet
-func FormatLocation(dutyLocation DutyLocation) string {
+func FormatLocation(dutyLocation models.DutyLocation) string {
 	return fmt.Sprintf("%s, %s %s", dutyLocation.Name, dutyLocation.Address.State, dutyLocation.Address.PostalCode)
 }
 
 // FormatServiceMemberFullName formats ServiceMember full name for Shipment Summary Worksheet
-func FormatServiceMemberFullName(serviceMember ServiceMember) string {
+func FormatServiceMemberFullName(serviceMember models.ServiceMember) string {
 	lastName := derefStringTypes(serviceMember.LastName)
 	suffix := derefStringTypes(serviceMember.Suffix)
 	firstName := derefStringTypes(serviceMember.FirstName)
@@ -484,9 +409,9 @@ func FormatServiceMemberFullName(serviceMember ServiceMember) string {
 }
 
 // FormatAllShipments formats Shipment line items for the Shipment Summary Worksheet
-func FormatAllShipments(ppms PersonallyProcuredMoves) ShipmentSummaryWorkSheetShipments {
+func FormatAllShipments(ppms models.PPMShipments) WorkSheetShipments {
 	totalShipments := len(ppms)
-	formattedShipments := ShipmentSummaryWorkSheetShipments{}
+	formattedShipments := WorkSheetShipments{}
 	formattedNumberAndTypes := make([]string, totalShipments)
 	formattedPickUpDates := make([]string, totalShipments)
 	formattedShipmentWeights := make([]string, totalShipments)
@@ -511,14 +436,14 @@ func FormatAllShipments(ppms PersonallyProcuredMoves) ShipmentSummaryWorkSheetSh
 
 // FetchMovingExpensesShipmentSummaryWorksheet fetches moving expenses for the Shipment Summary Worksheet
 // TODO: update to create moving expense summary with the new moving expense model
-func FetchMovingExpensesShipmentSummaryWorksheet(_ Move, _ *pop.Connection, _ *auth.Session) ([]MovingExpense, error) {
-	var movingExpenseDocuments []MovingExpense
+func FetchMovingExpensesShipmentSummaryWorksheet(PPMShipment models.PPMShipment, _ appcontext.AppContext, _ *auth.Session) (models.MovingExpenses, error) {
+	var movingExpenseDocuments = PPMShipment.MovingExpenses
 
 	return movingExpenseDocuments, nil
 }
 
 // SubTotalExpenses groups moving expenses by type and payment method
-func SubTotalExpenses(expenseDocuments MovingExpenses) map[string]float64 {
+func SubTotalExpenses(expenseDocuments models.MovingExpenses) map[string]float64 {
 	var expenseType string
 	totals := make(map[string]float64)
 	for _, expense := range expenseDocuments {
@@ -530,7 +455,7 @@ func SubTotalExpenses(expenseDocuments MovingExpenses) map[string]float64 {
 	return totals
 }
 
-func getExpenseType(expense MovingExpense) string {
+func getExpenseType(expense models.MovingExpense) string {
 	expenseType := FormatEnum(string(*expense.MovingExpenseType), "")
 	paidWithGTCC := expense.PaidWithGTCC
 	if paidWithGTCC != nil {
@@ -543,7 +468,7 @@ func getExpenseType(expense MovingExpense) string {
 }
 
 // FormatCurrentPPMStatus formats FormatCurrentPPMStatus for the Shipment Summary Worksheet
-func FormatCurrentPPMStatus(ppm PersonallyProcuredMove) string {
+func FormatCurrentPPMStatus(ppm models.PPMShipment) string {
 	if ppm.Status == "PAYMENT_REQUESTED" {
 		return "At destination"
 	}
@@ -556,31 +481,28 @@ func FormatPPMNumberAndType(i int) string {
 }
 
 // FormatPPMWeight formats a ppms NetWeight for the Shipment Summary Worksheet
-func FormatPPMWeight(ppm PersonallyProcuredMove) string {
-	if ppm.NetWeight != nil {
-		wtg := FormatWeights(unit.Pound(*ppm.NetWeight))
+func FormatPPMWeight(ppm models.PPMShipment) string {
+	if ppm.EstimatedWeight != nil {
+		wtg := FormatWeights(unit.Pound(*ppm.EstimatedWeight))
 		return fmt.Sprintf("%s lbs - FINAL", wtg)
 	}
 	return ""
 }
 
 // FormatPPMPickupDate formats a shipments ActualPickupDate for the Shipment Summary Worksheet
-func FormatPPMPickupDate(ppm PersonallyProcuredMove) string {
-	if ppm.OriginalMoveDate != nil {
-		return FormatDate(*ppm.OriginalMoveDate)
-	}
-	return ""
+func FormatPPMPickupDate(ppm models.PPMShipment) string {
+	return FormatDate(ppm.ExpectedDepartureDate)
 }
 
 // FormatOrdersTypeAndOrdersNumber formats OrdersTypeAndOrdersNumber for Shipment Summary Worksheet
-func FormatOrdersTypeAndOrdersNumber(order Order) string {
+func FormatOrdersTypeAndOrdersNumber(order models.Order) string {
 	issuingBranch := FormatOrdersType(order)
 	ordersNumber := derefStringTypes(order.OrdersNumber)
 	return fmt.Sprintf("%s/%s", issuingBranch, ordersNumber)
 }
 
 // FormatServiceMemberAffiliation formats ServiceMemberAffiliation in human friendly format
-func FormatServiceMemberAffiliation(affiliation *ServiceMemberAffiliation) string {
+func FormatServiceMemberAffiliation(affiliation *models.ServiceMemberAffiliation) string {
 	if affiliation != nil {
 		return FormatEnum(string(*affiliation), " ")
 	}
@@ -588,7 +510,7 @@ func FormatServiceMemberAffiliation(affiliation *ServiceMemberAffiliation) strin
 }
 
 // FormatOrdersType formats OrdersType for Shipment Summary Worksheet
-func FormatOrdersType(order Order) string {
+func FormatOrdersType(order models.Order) string {
 	switch order.OrdersType {
 	case internalmessages.OrdersTypePERMANENTCHANGEOFSTATION:
 		return "PCS"
@@ -632,4 +554,80 @@ func derefStringTypes(st interface{}) string {
 		return v
 	}
 	return ""
+}
+
+// ObligationType type corresponding to obligation sections of shipment summary worksheet
+type ObligationType int
+
+// ComputeObligations is helper function for computing the obligations section of the shipment summary worksheet
+// Obligations must remain as static test data until new computer system is finished
+func (SSWPPMComputer *SSWPPMComputer) ComputeObligations(_ appcontext.AppContext, _ services.ShipmentSummaryFormData, _ route.Planner) (obligation services.Obligations, err error) {
+	// Obligations must remain test data until new computer system is finished
+	obligations := services.Obligations{
+		ActualObligation:           services.Obligation{Gcc: 123, SIT: 123, Miles: unit.Miles(123456)},
+		MaxObligation:              services.Obligation{Gcc: 456, SIT: 456, Miles: unit.Miles(123456)},
+		NonWinningActualObligation: services.Obligation{Gcc: 789, SIT: 789, Miles: unit.Miles(12345)},
+		NonWinningMaxObligation:    services.Obligation{Gcc: 1000, SIT: 1000, Miles: unit.Miles(12345)},
+	}
+	return obligations, nil
+}
+
+// FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
+func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, _ *auth.Session, ppmShipmentID uuid.UUID) (*services.ShipmentSummaryFormData, error) {
+
+	ppmShipment := models.PPMShipment{}
+	dbQErr := appCtx.DB().Q().Eager(
+		"Shipment.MoveTaskOrder.Orders.ServiceMember",
+		"Shipment.MoveTaskOrder",
+		"Shipment.MoveTaskOrder.Orders",
+		"Shipment.MoveTaskOrder.Orders.NewDutyLocation.Address",
+		"Shipment.MoveTaskOrder.Orders.ServiceMember.DutyLocation.Address",
+	).Find(&ppmShipment, ppmShipmentID)
+
+	if dbQErr != nil {
+		if errors.Cause(dbQErr).Error() == models.RecordNotFoundErrorString {
+			return nil, models.ErrFetchNotFound
+		}
+		return nil, dbQErr
+	}
+
+	serviceMember := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
+	var rank models.ServiceMemberRank
+	var weightAllotment services.SSWMaxWeightEntitlement
+	if serviceMember.Rank != nil {
+		rank = models.ServiceMemberRank(*serviceMember.Rank)
+		weightAllotment = SSWGetEntitlement(rank, ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear)
+	}
+
+	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(ppmShipment.Shipment.MoveTaskOrder, weightAllotment.TotalWeight)
+	if err != nil {
+		return nil, err
+	}
+
+	// Signed Certification needs to be updated
+	// signedCertification, err := models.FetchSignedCertificationsPPMPayment(appCtx.DB(), session, ppmShipment.Shipment.MoveTaskOrderID)
+	// if err != nil {
+	// 	return ShipmentSummaryFormData{}, err
+	// }
+	// if signedCertification == nil {
+	// 	return ShipmentSummaryFormData{},
+	// 		errors.New("shipment summary worksheet: signed certification is nil")
+	// }
+
+	var ppmShipments []models.PPMShipment
+
+	ppmShipments = append(ppmShipments, ppmShipment)
+
+	ssd := services.ShipmentSummaryFormData{
+		ServiceMember:       serviceMember,
+		Order:               ppmShipment.Shipment.MoveTaskOrder.Orders,
+		Move:                ppmShipment.Shipment.MoveTaskOrder,
+		CurrentDutyLocation: serviceMember.DutyLocation,
+		NewDutyLocation:     ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation,
+		WeightAllotment:     weightAllotment,
+		PPMShipments:        ppmShipments,
+		// SignedCertification:     *signedCertification,
+		PPMRemainingEntitlement: ppmRemainingEntitlement,
+	}
+	return &ssd, nil
 }
