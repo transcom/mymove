@@ -30,6 +30,7 @@ const environmentFlags = {
 
   test: {
     ...defaultFlags,
+    multiMove: true,
   },
 
   experimental: {
