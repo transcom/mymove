@@ -2285,9 +2285,11 @@ func MakeHHGMoveWithRetireeForTOO(appCtx appcontext.AppContext) models.Move {
 	retirement := internalmessages.OrdersTypeRETIREMENT
 	hhg := models.MTOShipmentTypeHHG
 	hor := models.DestinationTypeHomeOfRecord
+	originDutyLocation := factory.FetchOrBuildCurrentDutyLocation(appCtx.DB())
 	move := scenario.CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 		Order: models.Order{
-			OrdersType: retirement,
+			OrdersType:         retirement,
+			OriginDutyLocation: &originDutyLocation,
 		},
 		MTOShipment: models.MTOShipment{
 			ShipmentType:    hhg,

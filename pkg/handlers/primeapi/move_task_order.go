@@ -200,6 +200,7 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 				notifications.NewPrimeCounselingComplete(*mtoPayload),
 			)
 			if err != nil {
+				appCtx.Logger().Error(err.Error())
 				return movetaskorderops.NewUpdateMTOPostCounselingInformationInternalServerError().WithPayload(
 					payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}

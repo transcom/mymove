@@ -89,6 +89,7 @@ func GetEmailData(m primemessages.MoveTaskOrder, appCtx appcontext.AppContext) (
 	)
 
 	return PrimeCounselingCompleteData{
+		CustomerEmail:           m.Order.Customer.Email,
 		OriginDutyLocation:      m.Order.OriginDutyLocation.Name,
 		DestinationDutyLocation: m.Order.DestinationDutyLocation.Name,
 		Locator:                 m.MoveCode,
