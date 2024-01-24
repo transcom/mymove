@@ -139,6 +139,12 @@ export const MTOAgentType = {
   RECEIVING: 'RECEIVING_AGENT',
 };
 
+export const MoveOrderDocumentType = {
+  ALL: 'ALL',
+  ORDERS: 'ORDERS',
+  AMENDMENTS: 'AMENDMENTS',
+};
+
 // These constants are used to track network requests using component state
 export const isError = 'REQUEST_ERROR';
 export const isLoading = 'REQUEST_LOADING';
