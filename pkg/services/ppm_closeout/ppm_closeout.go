@@ -89,6 +89,8 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 			"ActualPickupDate",
 			"Distance",
 			"PrimeActualWeight",
+			"MoveTaskOrder",
+			"MoveTaskOrderID",
 		).
 		Find(&mtoShipment, mtoShipmentID)
 
@@ -98,6 +100,54 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 			return nil, apperror.NewNotFoundError(*mtoShipmentID, "while looking for MTOShipment")
 		default:
 			return nil, apperror.NewQueryError("MTOShipment", err, "unable to find MTOShipment")
+		}
+	}
+
+	//TODO: combinen using dBeaver join query
+	var moveModel models.Move
+	moveID := &mtoShipment.MoveTaskOrderID
+
+	errMove := appCtx.DB().EagerPreload(
+		"OrdersID",
+	).
+		Find(&moveModel, moveID)
+
+	if errMove != nil {
+		switch errMove {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(*moveID, "while looking for Move")
+		default:
+			return nil, apperror.NewQueryError("Move", errMove, "unable to find Move")
+		}
+	}
+
+	var order models.Order
+	orderID := &moveModel.OrdersID
+	errOrder := appCtx.DB().EagerPreload(
+		"EntitlementID",
+	).Find(&order, orderID)
+
+	if errOrder != nil {
+		switch errOrder {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(*orderID, "while looking for Order")
+		default:
+			return nil, apperror.NewQueryError("Order", errOrder, "unable to find Order")
+		}
+	}
+
+	var entitlement models.Entitlement
+	entitlementID := order.EntitlementID
+	errEntitlement := appCtx.DB().EagerPreload(
+		"DBAuthorizedWeight",
+	).Find(&entitlement, entitlementID)
+
+	if errEntitlement != nil {
+		switch errEntitlement {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(*entitlementID, "while looking for Entitlement")
+		default:
+			return nil, apperror.NewQueryError("Entitlement", errEntitlement, "unable to find Entitlement")
 		}
 	}
 
@@ -125,6 +175,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	var totalPrice, packPrice, unpackPrice, destinationPrice, originPrice, haulPrice, haulFSC unit.Cents
 	var totalWeight unit.Pound
 	var ppmToMtoShipment models.MTOShipment
+	//TODO: price for fullEntitlementWeight := unit.Pound(*entitlement.DBAuthorizedWeight)
 
 	if len(ppmShipment.WeightTickets) >= 1 {
 		for _, weightTicket := range ppmShipment.WeightTickets {
@@ -137,6 +188,10 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 			}
 		}
 	}
+	// if fullEntitlementWeight > 0 {
+	// 	// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
+	// 	ppmToMtoShipment = ppmshipment.MapPPMShipmentFinalFields(ppmShipment, unit.Pound(*entitlement.DBAuthorizedWeight))
+	// } else
 	if totalWeight > 0 {
 		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
 		ppmToMtoShipment = ppmshipment.MapPPMShipmentFinalFields(ppmShipment, *ppmShipment.EstimatedWeight)
@@ -230,24 +285,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		return nil, errTest4
 	}
 
-	var paymentServiceItem models.PaymentServiceItem
-	var remainingIncentive unit.Cents
-	var test = &mtoServiceItems
-
-	for _, element := range *test {
-		errTest5 := appCtx.DB().Eager("PriceCents", "staus", "paid_at").Where("payment_service_items.mto_service_item_id = ?", element.ID).All(&paymentServiceItem)
-
-		if paymentServiceItem.Status == models.PaymentServiceItemStatusApproved && paymentServiceItem.PaidAt == nil {
-			remainingIncentive = remainingIncentive.AddCents(*paymentServiceItem.PriceCents)
-		}
-
-		if errTest5 != nil {
-			return nil, errTest5
-		}
-	}
-
-	itemPricer := ghcrateengine.NewServiceItemPricer()
-	var price, _, _ = itemPricer.PriceServiceItem(appCtx, paymentServiceItem)
+	remainingIncentive := unit.Cents(ppmShipment.FinalIncentive.Int() - ppmShipment.AdvanceAmountReceived.Int())
 
 	ppmCloseoutObj.ID = &ppmShipmentID
 	ppmCloseoutObj.PlannedMoveDate = mtoShipment.ScheduledPickupDate
@@ -258,9 +296,9 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	ppmCloseoutObj.ProGearWeightCustomer = ppmShipment.ProGearWeight
 	ppmCloseoutObj.ProGearWeightSpouse = ppmShipment.SpouseProGearWeight
 	ppmCloseoutObj.GrossIncentive = ppmShipment.FinalIncentive
-	ppmCloseoutObj.GCC = &price
+	ppmCloseoutObj.GCC = nil
 	ppmCloseoutObj.AOA = ppmShipment.AdvanceAmountReceived
-	ppmCloseoutObj.RemainingReimbursementOwed = &remainingIncentive
+	ppmCloseoutObj.RemainingIncentive = &remainingIncentive
 	ppmCloseoutObj.HaulPrice = &haulPrice
 	ppmCloseoutObj.HaulFSC = &haulFSC
 	ppmCloseoutObj.DOP = &originPrice
