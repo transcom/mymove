@@ -1,8 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { arrayOf, bool } from 'prop-types';
-import { Alert } from '@trussworks/react-uswds';
-import { Link } from 'react-router-dom';
+import { Alert, Button } from '@trussworks/react-uswds';
+import { Link, useLocation } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import styles from './Profile.module.scss';
 
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import ContactInfoDisplay from 'components/Customer/Profile/ContactInfoDisplay/ContactInfoDisplay';
@@ -34,6 +37,10 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
     email: currentBackupContacts[0]?.email || '',
   };
 
+  const { search } = useLocation();
+  const currentUrl = new URL(window.location.href);
+  const needVerifyProfileBanner = currentUrl.searchParams.get('verifyProfile');
+
   // displays the profile data for MilMove & Okta
   // Profile w/contact info for servicemember & backup contact
   // Service info that displays name, branch, pay grade, DoDID/EDIPI, and current duty location
@@ -43,11 +50,30 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
       <ConnectedFlashMessage />
       <div className="grid-row">
         <div className="grid-col-12">
-          <Link to={generalRoutes.HOME_PATH}>Return to Move</Link>
-          <h1>Profile</h1>
+          {needVerifyProfileBanner ? (
+            <Link to={generalRoutes.MULTI_MOVES_LANDING_PAGE}>Return to Dashboard</Link>
+          ) : (
+            <Link to={generalRoutes.HOME_PATH}>Return to Move</Link>
+          )}
+          <div className={styles.profileHeader}>
+            <h1>Profile</h1>
+            {needVerifyProfileBanner && (
+              <Button>
+                <span>Create a Move</span>
+                <div>
+                  <FontAwesomeIcon icon="plus" />
+                </div>
+              </Button>
+            )}
+          </div>
           {showMessages && (
             <Alert headingLevel="h4" type="info">
               You can change these details later by talking to a move counselor or customer care representative.
+            </Alert>
+          )}
+          {needVerifyProfileBanner && (
+            <Alert type="info">
+              <strong>Please verify & confirm your profile before starting the process of creating your move.</strong>
             </Alert>
           )}
           <SectionWrapper className={formStyles.formSection}>
@@ -60,7 +86,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               residentialAddress={serviceMember?.residential_address || ''}
               backupMailingAddress={serviceMember?.backup_mailing_address || ''}
               backupContact={backupContact}
-              editURL={customerRoutes.CONTACT_INFO_EDIT_PATH}
+              editURL={`${customerRoutes.CONTACT_INFO_EDIT_PATH}${search}`}
             />
           </SectionWrapper>
           <SectionWrapper className={formStyles.formSection}>
@@ -73,7 +99,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               affiliation={ORDERS_BRANCH_OPTIONS[serviceMember?.affiliation] || ''}
               payGrade={ORDERS_PAY_GRADE_OPTIONS[payGrade] || ''}
               edipi={serviceMember?.edipi || ''}
-              editURL={customerRoutes.SERVICE_INFO_EDIT_PATH}
+              editURL={`${customerRoutes.SERVICE_INFO_EDIT_PATH}${search}`}
               isEditable={moveIsInDraft}
               showMessage={showMessages}
             />
@@ -85,7 +111,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               oktaFirstName={oktaUser?.firstName || 'Not Provided'}
               oktaLastName={oktaUser?.lastName || 'Not Provided'}
               oktaEdipi={oktaUser?.cac_edipi || 'Not Provided'}
-              editURL={customerRoutes.EDIT_OKTA_PROFILE_PATH}
+              editURL={`${customerRoutes.EDIT_OKTA_PROFILE_PATH}${search}`}
             />
           </SectionWrapper>
         </div>

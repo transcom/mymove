@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useLocation, useNavigate } from 'react-router';
 
 import styles from './MultiMovesLandingPage.module.scss';
 import MultiMovesMoveHeader from './MultiMovesMoveHeader/MultiMovesMoveHeader';
@@ -22,9 +23,28 @@ import { loadInternalSchema } from 'shared/Swagger/ducks';
 import { loadUser } from 'store/auth/actions';
 import { initOnboarding } from 'store/onboarding/actions';
 import Helper from 'components/Customer/Home/Helper';
+import { customerRoutes, generalRoutes } from 'constants/routes';
 
 const MultiMovesLandingPage = () => {
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
+  const { search } = useLocation();
+  const navigate = useNavigate();
+  const searchParams = useMemo(() => new URLSearchParams(search), [search]);
+
+  const handleNewPathClick = (path, paramKey, paramValue) => {
+    if (!paramKey || !paramValue) {
+      navigate({
+        pathname: path,
+      });
+    } else {
+      searchParams.set(paramKey, paramValue);
+      navigate({
+        pathname: path,
+        search: searchParams.toString(),
+      });
+    }
+  };
+
   // ! This is just used for testing and viewing different variations of data that MilMove will use
   // user can add params of ?moveData=PCS, etc to view different views
   let moves;
@@ -83,6 +103,15 @@ const MultiMovesLandingPage = () => {
 
   const flags = detectFlags(process.env.NODE_ENV, window.location.host, window.location.search);
 
+  const handleCreateMoveBtnClick = () => {
+    if (moves.previousMoves.length > 0) {
+      const profileEditPath = customerRoutes.PROFILE_PATH;
+      handleNewPathClick(profileEditPath, 'verifyProfile', 'true');
+    } else {
+      handleNewPathClick(generalRoutes.HOME_PATH);
+    }
+  };
+
   // ! WILL ONLY SHOW IF MULTIMOVE FLAG IS TRUE
   return flags.multiMove ? (
     <div>
@@ -100,7 +129,7 @@ const MultiMovesLandingPage = () => {
             </p>
           </Helper>
           <div className={styles.centeredContainer}>
-            <Button className={styles.createMoveBtn}>
+            <Button className={styles.createMoveBtn} onClick={handleCreateMoveBtnClick}>
               <span>Create a Move</span>
               <div>
                 <FontAwesomeIcon icon="plus" />
