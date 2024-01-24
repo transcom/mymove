@@ -7539,6 +7539,7 @@ func init() {
         "actualWeight": {
           "type": "integer",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         },
         "aoa": {
@@ -7639,7 +7640,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "remainingReimbursementOwed": {
+        "remainingIncentive": {
           "description": "The remaining reimbursement amount that is still owed to the customer.",
           "type": "integer",
           "format": "cents",
@@ -19098,6 +19099,7 @@ func init() {
         "actualWeight": {
           "type": "integer",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         },
         "aoa": {
@@ -19199,7 +19201,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "remainingReimbursementOwed": {
+        "remainingIncentive": {
           "description": "The remaining reimbursement amount that is still owed to the customer.",
           "type": "integer",
           "format": "cents",

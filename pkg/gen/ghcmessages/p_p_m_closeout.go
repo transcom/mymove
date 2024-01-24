@@ -86,7 +86,7 @@ type PPMCloseout struct {
 	ProGearWeightSpouse *int64 `json:"proGearWeightSpouse"`
 
 	// The remaining reimbursement amount that is still owed to the customer.
-	RemainingReimbursementOwed *int64 `json:"remainingReimbursementOwed"`
+	RemainingIncentive *int64 `json:"remainingIncentive"`
 
 	// The full price of all packing/unpacking services.
 	UnpackPrice *int64 `json:"unpackPrice"`
