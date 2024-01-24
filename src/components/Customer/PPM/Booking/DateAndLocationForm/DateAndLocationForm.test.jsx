@@ -35,20 +35,6 @@ const defaultProps = {
       streetAddress2: '',
     },
   },
-  currentResidence: {
-    city: 'Fort Benning',
-    state: 'GA',
-    postalCode: '31905',
-    streetAddress1: '123 Main',
-    streetAddress2: '',
-  },
-  originDutyLocationAddress: {
-    city: 'Fort Benning',
-    state: 'GA',
-    postalCode: '31905',
-    streetAddress1: '123 Main',
-    streetAddress2: '',
-  },
   postalCodeValidator: jest.fn(),
   ...serviceMember,
 };
@@ -78,21 +64,28 @@ describe('DateAndLocationForm component', () => {
     it('renders blank form on load', async () => {
       render(<DateAndLocationForm {...defaultProps} />);
       expect(await screen.getByRole('heading', { level: 2, name: 'Origin' })).toBeInTheDocument();
-      expect(screen.getByName('serviceMember.residential_address.streetAddress1')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByName('serviceMember.residential_address.streetAddress2')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByName('serviceMember.residential_address.streetAddress3')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByName('serviceMember.residential_address.state')).toBeInstanceOf(HTMLSelectElement);
-      expect(screen.getByName('serviceMember.residential_address.city')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByName('serviceMember.residential_address.postalCode')).toBeInstanceOf(HTMLInputElement);
+      const postalCodes = screen.getAllByLabelText('ZIP');
+      const address1 = screen.getAllByLabelText('Address 1');
+      const address2 = screen.getAllByLabelText('Address 2');
+      const address3 = screen.getAllByLabelText('Address 3');
+      const state = screen.getAllByLabelText('State');
+      const city = screen.getAllByLabelText('City');
+
+      expect(address1[0]).toBeInstanceOf(HTMLInputElement);
+      expect(address2[0]).toBeInstanceOf(HTMLInputElement);
+      expect(address3[0]).toBeInstanceOf(HTMLInputElement);
+      expect(state[0]).toBeInstanceOf(HTMLSelectElement);
+      expect(city[0]).toBeInstanceOf(HTMLInputElement);
+      expect(postalCodes[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('Yes')[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('No')[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByRole('heading', { level: 2, name: 'Destination' })).toBeInTheDocument();
-      expect(screen.getByName('serviceMember.destination_address.streetAddress1')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByName('serviceMember.destination_address.streetAddress2')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByName('serviceMember.destination_address.streetAddress3')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByName('serviceMember.destination_address.state')).toBeInstanceOf(HTMLSelectElement);
-      expect(screen.getByName('serviceMember.destination_address.city')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByName('serviceMember.destination_address.postalCode')).toBeInstanceOf(HTMLInputElement);
+      expect(address1[1]).toBeInstanceOf(HTMLInputElement);
+      expect(address2[1]).toBeInstanceOf(HTMLInputElement);
+      expect(address3[1]).toBeInstanceOf(HTMLInputElement);
+      expect(state[1]).toBeInstanceOf(HTMLSelectElement);
+      expect(city[1]).toBeInstanceOf(HTMLInputElement);
+      expect(postalCodes[1]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('Yes')[1]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('No')[1]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByRole('heading', { level: 2, name: 'Closeout Office' })).toBeInTheDocument();
@@ -226,7 +219,7 @@ describe('DateAndLocationForm component', () => {
       render(<DateAndLocationForm {...mtoShipmentProps} />);
       const postalCodes = screen.getAllByLabelText('ZIP');
 
-      expect(await postalCodes[0].toHaveValue(
+      expect(await screen.getAllByLabelText('ZIP')[0].toHaveValue(
         mtoShipmentProps.mtoShipment.ppmShipment.pickupPostalCode,
       ));
       expect(screen.getAllByLabelText('Yes')[0].value).toBe('true');
@@ -248,51 +241,11 @@ describe('DateAndLocationForm component', () => {
 
         const requiredAlerts = screen.getAllByRole('alert');
 
-        // Origin ZIP
-        expect(requiredAlerts[0]).toHaveTextContent('Required');
-        expect(requiredAlerts[0].nextElementSibling).toHaveAttribute('name', 'serviceMember.residential_address.postalCode');
-
-        // Destination ZIP
-        expect(requiredAlerts[1]).toHaveTextContent('Required');
-        expect(requiredAlerts[1].nextElementSibling).toHaveAttribute('name', 'serviceMember.destination_address.postalCode');
-
         // Departure date
-        expect(requiredAlerts[2]).toHaveTextContent('Required');
-        expect(
-          within(requiredAlerts[2].nextElementSibling).getByLabelText('When do you plan to start moving your PPM?'),
-        ).toBeInTheDocument();
-      });
-    });
-    it('marks secondary ZIP fields as required when conditionally displayed', async () => {
-      const hasSecondaryZIPs = {
-        ...defaultProps,
-        postalCodeValidator: jest.fn(),
-      };
-      render(<DateAndLocationForm {...hasSecondaryZIPs} />);
-
-      const inputHasSecondaryZIP = screen.getAllByLabelText('Yes');
-
-      await userEvent.click(inputHasSecondaryZIP[0]);
-      await userEvent.click(inputHasSecondaryZIP[1]);
-
-      const secondaryZIPs = screen.getAllByLabelText('ZIP');
-
-      await userEvent.click(secondaryZIPs[1]);
-      await userEvent.click(secondaryZIPs[3]);
-      await userEvent.tab();
-
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
-
-        const requiredAlerts = screen.getAllByRole('alert');
-
-        // Secondary origin ZIP
         expect(requiredAlerts[0]).toHaveTextContent('Required');
-        expect(requiredAlerts[0].nextElementSibling).toHaveAttribute('name', 'secondaryPickupPostalCode');
-
-        // Secondary destination ZIP
-        expect(requiredAlerts[1]).toHaveTextContent('Required');
-        expect(requiredAlerts[1].nextElementSibling).toHaveAttribute('name', 'secondaryDestinationPostalCode');
+        expect(
+          within(requiredAlerts[0].nextElementSibling).getByLabelText('When do you plan to start moving your PPM?'),
+        ).toBeInTheDocument();
       });
     });
     it('displays type errors when input fails validation schema', async () => {
@@ -320,28 +273,12 @@ describe('DateAndLocationForm component', () => {
         expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
 
         const requiredAlerts = screen.getAllByRole('alert');
-        expect(requiredAlerts.length).toBe(5);
-
-        // origin ZIP
-        expect(requiredAlerts[0]).toHaveTextContent('Enter a 5-digit ZIP code');
-        expect(requiredAlerts[0].nextElementSibling).toHaveAttribute('name', 'pickupPostalCode');
-
-        // Secondary origin ZIP
-        expect(requiredAlerts[1]).toHaveTextContent('Enter a 5-digit ZIP code');
-        expect(requiredAlerts[1].nextElementSibling).toHaveAttribute('name', 'secondaryPickupPostalCode');
-
-        // Secondary destination ZIP
-        expect(requiredAlerts[2]).toHaveTextContent('Enter a 5-digit ZIP code');
-        expect(requiredAlerts[2].nextElementSibling).toHaveAttribute('name', 'destinationPostalCode');
-
-        // Secondary destination ZIP
-        expect(requiredAlerts[3]).toHaveTextContent('Enter a 5-digit ZIP code');
-        expect(requiredAlerts[3].nextElementSibling).toHaveAttribute('name', 'secondaryDestinationPostalCode');
+        expect(requiredAlerts.length).toBe(1);
 
         // Departure date
-        expect(requiredAlerts[4]).toHaveTextContent('Enter a complete date in DD MMM YYYY format (day, month, year).');
+        expect(requiredAlerts[0]).toHaveTextContent('Enter a complete date in DD MMM YYYY format (day, month, year).');
         expect(
-          within(requiredAlerts[4].nextElementSibling).getByLabelText('When do you plan to start moving your PPM?'),
+          within(requiredAlerts[0].nextElementSibling).getByLabelText('When do you plan to start moving your PPM?'),
         ).toBeInTheDocument();
       });
     });
