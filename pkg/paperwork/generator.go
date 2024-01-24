@@ -150,7 +150,7 @@ func (g *Generator) AddPdfBookmarks(inputFile afero.File, bookmarks []pdfcpu.Boo
 		return nil, errors.Wrap(err, "error pdfcpu.api.AddBookmarks")
 	}
 
-	tempFile, err := g.newTempFile()
+	tempFile, err := g.NewTempFile()
 	if err != nil {
 		return nil, err
 	}
@@ -500,14 +500,4 @@ func (g *Generator) MergeImagesToPDF(appCtx appcontext.AppContext, paths []strin
 	}
 
 	return g.PDFFromImages(appCtx, images)
-}
-
-// Get file information of a single PDF
-func (g *Generator) GetPdfFileInfo(fileName string) (*pdfcpu.PDFInfo, error) {
-	file, err := g.fs.Open(fileName)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-	return api.PDFInfo(file, fileName, nil, g.pdfConfig)
 }
