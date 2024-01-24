@@ -18,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -194,7 +195,16 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
 			}
+
 			mtoPayload := payloads.MoveTaskOrder(mto)
+			err = h.NotificationSender().SendNotification(appCtx,
+				notifications.NewPrimeCounselingComplete(*mtoPayload),
+			)
+			if err != nil {
+				return movetaskorderops.NewUpdateMTOPostCounselingInformationInternalServerError().WithPayload(
+					payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationOK().WithPayload(mtoPayload), nil
 		})
 }
