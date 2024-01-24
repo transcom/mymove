@@ -57,6 +57,7 @@ type Page1Values struct {
 	ActualObligationAdvance         string
 	ActualObligationSIT             string
 	MileageTotal                    string
+	MailingAddressW2                string
 }
 
 // Page2Values is an object representing a Shipment Summary Worksheet
@@ -114,6 +115,7 @@ type ShipmentSummaryFormData struct {
 	NewDutyLocation         models.DutyLocation
 	WeightAllotment         SSWMaxWeightEntitlement
 	PPMShipments            models.PPMShipments
+	W2Address               *models.Address
 	PreparationDate         time.Time
 	Obligations             Obligations
 	MovingExpenses          models.MovingExpenses

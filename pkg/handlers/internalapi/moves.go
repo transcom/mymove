@@ -227,7 +227,6 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 				return handlers.ResponseForError(logger, err), err
 			}
 
-			// Rework will begin here
 			page1Data, page2Data := h.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
 			if err != nil {
 				logger.Error("Error formatting data for SSW", zap.Error(err))

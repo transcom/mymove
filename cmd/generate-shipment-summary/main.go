@@ -57,7 +57,7 @@ func checkConfig(v *viper.Viper, logger *zap.Logger) error {
 func initFlags(flag *pflag.FlagSet) {
 
 	// Scenario config
-	flag.String(PPMShipmentIDFlag, "b9ae4c25-1376-4b9b-8781-106b5ae7ecab", "The PPMShipmentID to generate a shipment summary worksheet for")
+	flag.String(PPMShipmentIDFlag, "6d1d9d00-2e5e-4830-a3c1-5c21c951e9c1", "The PPMShipmentID to generate a shipment summary worksheet for")
 	flag.Bool(debugFlag, false, "show field debug output")
 
 	// DB Config
@@ -157,25 +157,8 @@ func main() {
 		log.Fatalf("%s", errors.Wrap(err, "Error calculating obligations "))
 	}
 
-	// Rework will begin here
 	page1Data, page2Data := ppmComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
 	noErr(err)
-
-	filename := fmt.Sprintf("shipment-summary-worksheet-%s.pdf", time.Now().Format(time.RFC3339))
-
-	output, err := os.Create(filename)
-	noErr(err)
-
-	defer func() {
-		if closeErr := output.Close(); closeErr != nil {
-			logger.Error("Could not close output file", zap.Error(closeErr))
-		}
-	}()
-
-	err = formFiller.Output(output)
-	noErr(err)
-
-	fmt.Println(filename)
 	ppmGenerator := shipmentsummaryworksheet.NewSSWPPMGenerator()
 	test, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
 	fmt.Println(test)

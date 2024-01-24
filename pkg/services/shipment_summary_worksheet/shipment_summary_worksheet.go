@@ -316,6 +316,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.PreferredEmail = derefStringTypes(sm.PersonalEmail)
 	page1.DODId = derefStringTypes(sm.Edipi)
 	page1.RankGrade = FormatRank(data.ServiceMember.Rank)
+	page1.MailingAddressW2 = FormatAddress(data.W2Address)
 
 	page1.IssuingBranchOrAgency = FormatServiceMemberAffiliation(sm.Affiliation)
 	page1.OrdersIssueDate = FormatDate(data.Order.IssueDate)
@@ -420,6 +421,37 @@ func FormatSignatureDate(signature models.SignedCertification) string {
 // FormatLocation formats AuthorizedOrigin and AuthorizedDestination for Shipment Summary Worksheet
 func FormatLocation(dutyLocation models.DutyLocation) string {
 	return fmt.Sprintf("%s, %s %s", dutyLocation.Name, dutyLocation.Address.State, dutyLocation.Address.PostalCode)
+}
+
+// FormatAddress retrieves a PPMShipment W2Address and formats it for the SSW Document
+// NEEDS TEST
+func FormatAddress(w2Address *models.Address) string {
+	var addressString string
+
+	if w2Address != nil {
+		addressString = fmt.Sprintf("%s, %s, %s, %s, %s %s %s",
+			w2Address.StreetAddress1,
+			nilOrValue(w2Address.StreetAddress2),
+			nilOrValue(w2Address.StreetAddress3),
+			w2Address.City,
+			w2Address.State,
+			nilOrValue(w2Address.Country),
+			w2Address.PostalCode,
+		)
+	} else {
+		return "" // Return an empty string if no W2 address
+	}
+
+	return addressString
+}
+
+// nilOrValue returns the dereferenced value if the pointer is not nil, otherwise an empty string.
+// NEEDS TEST
+func nilOrValue(str *string) string {
+	if str != nil {
+		return *str
+	}
+	return ""
 }
 
 // FormatServiceMemberFullName formats ServiceMember full name for Shipment Summary Worksheet
@@ -710,6 +742,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		NewDutyLocation:     ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation,
 		WeightAllotment:     weightAllotment,
 		PPMShipments:        ppmShipments,
+		W2Address:           ppmShipment.W2Address,
 		// SignedCertification:     *signedCertification,
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
 	}
@@ -726,6 +759,8 @@ type TextField struct {
 	Locked    bool   `json:"locked"`
 }
 
+// FillSSWPDFForm takes form data and fills an existing PDF form template with said data
+// NEEDS TEST
 func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values) (sswfile afero.File, err error) {
 
 	storer := storage.NewMemory(storage.NewMemoryParams("", ""))
@@ -842,6 +877,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 }
 
 // CreateTextFields formats the SSW Page data to match PDF-accepted JSON
+// NEEDS TEST
 func createTextFields(data interface{}, pages ...int) []TextField {
 	var textFields []TextField
 
@@ -866,6 +902,7 @@ func createTextFields(data interface{}, pages ...int) []TextField {
 }
 
 // MergeTextFields merges page 1 and page 2 data
+// NEEDS TEST
 func mergeTextFields(fields1, fields2 []TextField) []TextField {
 	return append(fields1, fields2...)
 }
