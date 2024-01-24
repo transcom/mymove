@@ -424,12 +424,11 @@ func FormatLocation(dutyLocation models.DutyLocation) string {
 }
 
 // FormatAddress retrieves a PPMShipment W2Address and formats it for the SSW Document
-// NEEDS TEST
 func FormatAddress(w2Address *models.Address) string {
 	var addressString string
 
 	if w2Address != nil {
-		addressString = fmt.Sprintf("%s, %s, %s, %s, %s %s %s",
+		addressString = fmt.Sprintf("%s, %s %s%s %s %s%s",
 			w2Address.StreetAddress1,
 			nilOrValue(w2Address.StreetAddress2),
 			nilOrValue(w2Address.StreetAddress3),
@@ -446,7 +445,6 @@ func FormatAddress(w2Address *models.Address) string {
 }
 
 // nilOrValue returns the dereferenced value if the pointer is not nil, otherwise an empty string.
-// NEEDS TEST
 func nilOrValue(str *string) string {
 	if str != nil {
 		return *str
@@ -877,7 +875,6 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 }
 
 // CreateTextFields formats the SSW Page data to match PDF-accepted JSON
-// NEEDS TEST
 func createTextFields(data interface{}, pages ...int) []TextField {
 	var textFields []TextField
 
@@ -902,7 +899,6 @@ func createTextFields(data interface{}, pages ...int) []TextField {
 }
 
 // MergeTextFields merges page 1 and page 2 data
-// NEEDS TEST
 func mergeTextFields(fields1, fields2 []TextField) []TextField {
 	return append(fields1, fields2...)
 }
