@@ -6,21 +6,17 @@ import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-us
 
 import styles from './OrdersInfoForm.module.scss';
 
-import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
 import { Form } from 'components/form/Form';
 import { DropdownArrayOf } from 'types';
-import { DutyLocationShape } from 'types/dutyLocation';
 import formStyles from 'styles/form.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
-import { formatLabelReportByDate, dropdownInputOptions } from 'utils/formatters';
+import { formatLabelReportByDate } from 'utils/formatters';
 
 const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) => {
-  const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
-
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -33,8 +29,6 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
       .required('Required'),
     has_dependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     new_duty_location: Yup.object().nullable().required('Required'),
-    grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
-    origin_duty_location: Yup.object().nullable().required('Required'),
   });
 
   return (
@@ -85,14 +79,6 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                   />
                 </div>
               </FormGroup>
-
-              <DutyLocationInput
-                label="Current duty location"
-                name="origin_duty_location"
-                id="origin_duty_location"
-                required
-              />
-
               {isRetirementOrSeparation ? (
                 <>
                   <h3 className={styles.calloutLabel}>Where are you entitled to move?</h3>
@@ -127,8 +113,6 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
               ) : (
                 <DutyLocationInput name="new_duty_location" label="New duty location" displayAddress={false} />
               )}
-
-              <DropdownInput label="Pay grade" name="grade" id="grade" required options={payGradeOptions} />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
@@ -153,8 +137,6 @@ OrdersInfoForm.propTypes = {
     report_by_date: PropTypes.string,
     has_dependents: PropTypes.string,
     new_duty_location: PropTypes.shape({}),
-    grade: PropTypes.string,
-    origin_duty_location: DutyLocationShape,
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,
