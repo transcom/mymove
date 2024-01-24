@@ -1029,13 +1029,16 @@ func ShipmentAddressUpdate(shipmentAddressUpdate *models.ShipmentAddressUpdate) 
 	}
 
 	payload := &ghcmessages.ShipmentAddressUpdate{
-		ID:                strfmt.UUID(shipmentAddressUpdate.ID.String()),
-		ShipmentID:        strfmt.UUID(shipmentAddressUpdate.ShipmentID.String()),
-		NewAddress:        Address(&shipmentAddressUpdate.NewAddress),
-		OriginalAddress:   Address(&shipmentAddressUpdate.OriginalAddress),
-		ContractorRemarks: shipmentAddressUpdate.ContractorRemarks,
-		OfficeRemarks:     shipmentAddressUpdate.OfficeRemarks,
-		Status:            ghcmessages.ShipmentAddressUpdateStatus(shipmentAddressUpdate.Status),
+		ID:                    strfmt.UUID(shipmentAddressUpdate.ID.String()),
+		ShipmentID:            strfmt.UUID(shipmentAddressUpdate.ShipmentID.String()),
+		NewAddress:            Address(&shipmentAddressUpdate.NewAddress),
+		OriginalAddress:       Address(&shipmentAddressUpdate.OriginalAddress),
+		SitOriginalAddress:    Address(shipmentAddressUpdate.SitOriginalAddress),
+		ContractorRemarks:     shipmentAddressUpdate.ContractorRemarks,
+		OfficeRemarks:         shipmentAddressUpdate.OfficeRemarks,
+		Status:                ghcmessages.ShipmentAddressUpdateStatus(shipmentAddressUpdate.Status),
+		NewSitDistanceBetween: handlers.FmtIntPtrToInt64(shipmentAddressUpdate.NewSitDistanceBetween),
+		OldSitDistanceBetween: handlers.FmtIntPtrToInt64(shipmentAddressUpdate.OldSitDistanceBetween),
 	}
 
 	return payload
