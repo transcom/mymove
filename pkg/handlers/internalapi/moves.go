@@ -23,7 +23,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/paperwork"
-	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 )
@@ -211,33 +210,37 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSummaryWorksheetParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			logger := appCtx.Logger()
 
-			moveID, _ := uuid.FromString(params.MoveID.String())
-
-			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
 			if err != nil {
+				logger.Error("Error fetching PPMShipment", zap.Error(err))
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
 
-			ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(*move))
+			ppmShipment, err := models.FetchPPMShipmentByPPMShipmentID(appCtx.DB(), ppmShipmentID)
+			if err != nil {
+				logger.Error("Error fetching PPMShipment", zap.Error(err))
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
 
-			ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(appCtx.DB(), appCtx.Session(), moveID)
+			ssfd, err := h.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipment.ID)
 			if err != nil {
 				logger.Error("Error fetching data for SSW", zap.Error(err))
 				return handlers.ResponseForError(logger, err), err
 			}
 
 			ssfd.PreparationDate = time.Time(params.PreparationDate)
-			ssfd.Obligations, err = ppmComputer.ComputeObligations(appCtx, ssfd, h.DTODPlanner())
+			ssfd.Obligations, err = h.SSWPPMComputer.ComputeObligations(appCtx, *ssfd, h.DTODPlanner())
 			if err != nil {
 				logger.Error("Error calculating obligations ", zap.Error(err))
 				return handlers.ResponseForError(logger, err), err
 			}
 
-			page1Data, page2Data, page3Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)
+			page1Data, page2Data, page3Data := h.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
 
 			if err != nil {
+				logger.Error("Error formatting data for SSW", zap.Error(err))
 				return handlers.ResponseForError(logger, err), err
 			}
 
@@ -308,6 +311,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 // ShowShipmentSummaryWorksheetHandler returns a Shipment Summary Worksheet PDF
 type ShowShipmentSummaryWorksheetHandler struct {
 	handlers.HandlerConfig
+	services.SSWPPMComputer
 }
 
 // SubmitAmendedOrdersHandler approves a move via POST /moves/{moveId}/submit
