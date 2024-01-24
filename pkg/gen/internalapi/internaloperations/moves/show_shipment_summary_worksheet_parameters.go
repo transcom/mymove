@@ -32,11 +32,11 @@ type ShowShipmentSummaryWorksheetParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*UUID of the ppmShipment
+	/*UUID of the move
 	  Required: true
 	  In: path
 	*/
-	PpmShipmentID strfmt.UUID
+	MoveID strfmt.UUID
 	/*The preparationDate of PDF
 	  Required: true
 	  In: query
@@ -55,8 +55,8 @@ func (o *ShowShipmentSummaryWorksheetParams) BindRequest(r *http.Request, route 
 
 	qs := runtime.Values(r.URL.Query())
 
-	rPpmShipmentID, rhkPpmShipmentID, _ := route.Params.GetOK("ppmShipmentId")
-	if err := o.bindPpmShipmentID(rPpmShipmentID, rhkPpmShipmentID, route.Formats); err != nil {
+	rMoveID, rhkMoveID, _ := route.Params.GetOK("moveId")
+	if err := o.bindMoveID(rMoveID, rhkMoveID, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -70,8 +70,8 @@ func (o *ShowShipmentSummaryWorksheetParams) BindRequest(r *http.Request, route 
 	return nil
 }
 
-// bindPpmShipmentID binds and validates parameter PpmShipmentID from path.
-func (o *ShowShipmentSummaryWorksheetParams) bindPpmShipmentID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindMoveID binds and validates parameter MoveID from path.
+func (o *ShowShipmentSummaryWorksheetParams) bindMoveID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -83,21 +83,21 @@ func (o *ShowShipmentSummaryWorksheetParams) bindPpmShipmentID(rawData []string,
 	// Format: uuid
 	value, err := formats.Parse("uuid", raw)
 	if err != nil {
-		return errors.InvalidType("ppmShipmentId", "path", "strfmt.UUID", raw)
+		return errors.InvalidType("moveId", "path", "strfmt.UUID", raw)
 	}
-	o.PpmShipmentID = *(value.(*strfmt.UUID))
+	o.MoveID = *(value.(*strfmt.UUID))
 
-	if err := o.validatePpmShipmentID(formats); err != nil {
+	if err := o.validateMoveID(formats); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// validatePpmShipmentID carries on validations for parameter PpmShipmentID
-func (o *ShowShipmentSummaryWorksheetParams) validatePpmShipmentID(formats strfmt.Registry) error {
+// validateMoveID carries on validations for parameter MoveID
+func (o *ShowShipmentSummaryWorksheetParams) validateMoveID(formats strfmt.Registry) error {
 
-	if err := validate.FormatOf("ppmShipmentId", "path", "uuid", o.PpmShipmentID.String(), formats); err != nil {
+	if err := validate.FormatOf("moveId", "path", "uuid", o.MoveID.String(), formats); err != nil {
 		return err
 	}
 	return nil

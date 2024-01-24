@@ -16,7 +16,7 @@ import (
 
 // ShowShipmentSummaryWorksheetURL generates an URL for the show shipment summary worksheet operation
 type ShowShipmentSummaryWorksheetURL struct {
-	PpmShipmentID strfmt.UUID
+	MoveID strfmt.UUID
 
 	PreparationDate strfmt.Date
 
@@ -44,13 +44,13 @@ func (o *ShowShipmentSummaryWorksheetURL) SetBasePath(bp string) {
 func (o *ShowShipmentSummaryWorksheetURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/moves/{ppmShipmentId}/shipment_summary_worksheet"
+	var _path = "/moves/{moveId}/shipment_summary_worksheet"
 
-	ppmShipmentID := o.PpmShipmentID.String()
-	if ppmShipmentID != "" {
-		_path = strings.Replace(_path, "{ppmShipmentId}", ppmShipmentID, -1)
+	moveID := o.MoveID.String()
+	if moveID != "" {
+		_path = strings.Replace(_path, "{moveId}", moveID, -1)
 	} else {
-		return nil, errors.New("ppmShipmentId is required on ShowShipmentSummaryWorksheetURL")
+		return nil, errors.New("moveId is required on ShowShipmentSummaryWorksheetURL")
 	}
 
 	_basePath := o._basePath
