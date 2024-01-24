@@ -1,5 +1,5 @@
 export const generalRoutes = {
-  HOME_PATH: '/',
+  MOVE_PATH: '/move',
   SIGN_IN_PATH: '/sign-in',
   MULTI_MOVES_LANDING_PAGE: '/moves',
   PRIVACY_SECURITY_POLICY_PATH: '/privacy-and-security-policy',

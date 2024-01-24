@@ -51,6 +51,7 @@ import AccessibilityStatement from 'components/Statements/AccessibilityStatement
 import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
 import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
 import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipment';
+import Dashboard from 'pages/MyMove/Dashboard';
 import Home from 'pages/MyMove/Home';
 import TitleAnnouncer from 'components/TitleAnnouncer/TitleAnnouncer';
 import MultiMovesLandingPage from 'pages/MyMove/Multi-Moves/MultiMovesLandingPage';
@@ -113,6 +114,8 @@ export class CustomerApp extends Component {
     const { props } = this;
     const { userIsLoggedIn, loginIsLoading } = props;
     const { hasError } = this.state;
+
+    const multiMoveWorkflow = props.context.flags.multiMove;
 
     return (
       <>
@@ -188,10 +191,14 @@ export class CustomerApp extends Component {
                 {/* <Route end path="/ppm" element={<PpmLanding />} /> */}
 
                 {/* ROOT */}
-                <Route path={generalRoutes.HOME_PATH} end element={<Home />} />
+                {/* If multiMove is enabled home page will route to dashboard element */}
+                {multiMoveWorkflow && <Route path={generalRoutes.HOME_PATH} end element={<Dashboard />} />}
+                {!multiMoveWorkflow && <Route path={generalRoutes.HOME_PATH} end element={<Home />} />}
 
                 {getWorkflowRoutes(props)}
 
+                {/* If multiMove is enabled then move path routes to the move path rendering the home element */}
+                {multiMoveWorkflow && <Route path={customerRoutes.MOVE_PATH} end element={<Home />} />}
                 <Route end path={customerRoutes.SHIPMENT_MOVING_INFO_PATH} element={<MovingInfo />} />
                 <Route end path="/moves/:moveId/edit" element={<Edit />} />
                 <Route end path={customerRoutes.EDIT_PROFILE_PATH} element={<EditProfile />} />
@@ -274,6 +281,7 @@ CustomerApp.propTypes = {
     flags: PropTypes.shape({
       hhgFlow: PropTypes.bool,
       ghcFlow: PropTypes.bool,
+      multiMove: PropTypes.bool,
     }),
   }).isRequired,
 };
@@ -289,6 +297,7 @@ CustomerApp.defaultProps = {
     flags: {
       hhgFlow: false,
       ghcFlow: false,
+      multiMove: false,
     },
   },
 };
