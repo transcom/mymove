@@ -39,7 +39,7 @@ describe('When given a created orders event for the orders table', () => {
       ['Origin duty location name', ': Los Angeles AFB'],
       ['New duty location name', ': Fairchild AFB'],
       ['Dependents included', ': Yes'],
-      ['Rank', ': E-1'],
+      ['Pay grade', ': E-1'],
     ])('displays the proper details value for %s', async (label, value) => {
       const result = getTemplate(item);
       render(result.getDetails(item));

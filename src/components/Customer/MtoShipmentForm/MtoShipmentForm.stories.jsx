@@ -28,13 +28,13 @@ const defaultProps = {
   mtoShipment: {
     destinationAddress: undefined,
   },
-  serviceMember: {
-    weight_allotment: {
-      total_weight_self: 5000,
-    },
-  },
   orders: {
     orders_type: 'PERMANENT_CHANGE_OF_STATION',
+    authorizedWeight: 5000,
+    entitlement: {
+      proGear: 1000,
+      proGearSpouse: 100,
+    },
   },
   isCreatePage: true,
 };
