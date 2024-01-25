@@ -53,25 +53,29 @@ func (suite *HandlerSuite) TestGetPPMCloseoutHandler() {
 		ProGearWeightCustomer := unit.Pound(1978)
 		ProGearWeightSpouse := unit.Pound(280)
 		UnpackPrice := unit.Cents(23800)
+		aoa := unit.Cents(50)
+		remainingIncentive := GrossIncentive - aoa
+		haulPrice := unit.Cents(2300)
+		haulFSC := unit.Cents(23)
 		ppmCloseoutObj := models.PPMCloseout{
 			ID:                    &ppmShipment.ID,
 			SITReimbursement:      &SITReimbursement,
 			ActualMoveDate:        nil,
 			ActualWeight:          &ActualWeight,
-			AOA:                   nil,
+			AOA:                   &aoa,
 			DDP:                   &DDP,
 			DOP:                   &DOP,
 			EstimatedWeight:       &EstimatedWeight,
 			GCC:                   nil,
 			GrossIncentive:        &GrossIncentive,
-			HaulFSC:               nil,
-			HaulPrice:             nil,
+			HaulFSC:               &haulFSC,
+			HaulPrice:             &haulPrice,
 			Miles:                 &Miles,
 			PackPrice:             &PackPrice,
 			PlannedMoveDate:       nil,
 			ProGearWeightCustomer: &ProGearWeightCustomer,
 			ProGearWeightSpouse:   &ProGearWeightSpouse,
-			RemainingIncentive:    nil,
+			RemainingIncentive:    &remainingIncentive,
 			UnpackPrice:           &UnpackPrice,
 		}
 		officeUser := factory.BuildOfficeUser(nil, nil, nil)
