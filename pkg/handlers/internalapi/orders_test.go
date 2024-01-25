@@ -506,5 +506,20 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 	updatedOrder, err := models.FetchOrder(suite.DB(), order.ID)
 	suite.NoError(err)
 	suite.Equal(payload.Grade, updatedOrder.Grade)
+	suite.Equal(*okResponse.Payload.AuthorizedWeight, int64(7000)) // E4 authorized weight is 7000, make sure we return that in the response
+	expectedUpdatedOrderWeightAllotment := models.GetWeightAllotment(*updatedOrder.Grade)
+	expectedUpdatedOrderAuthorizedWeight := expectedUpdatedOrderWeightAllotment.TotalWeightSelf
+	if *payload.HasDependents {
+		expectedUpdatedOrderAuthorizedWeight = expectedUpdatedOrderWeightAllotment.TotalWeightSelfPlusDependents
+	}
+
+	expectedOriginalOrderWeightAllotment := models.GetWeightAllotment(*order.Grade)
+	expectedOriginalOrderAuthorizedWeight := expectedOriginalOrderWeightAllotment.TotalWeightSelf
+	if *payload.HasDependents {
+		expectedUpdatedOrderAuthorizedWeight = expectedOriginalOrderWeightAllotment.TotalWeightSelfPlusDependents
+	}
+
+	suite.Equal(expectedUpdatedOrderAuthorizedWeight, 7000)  // Ensure that when GetWeightAllotment is recalculated that it also returns 7000. This ensures that the database stored the correct information
+	suite.Equal(expectedOriginalOrderAuthorizedWeight, 5000) // The order was created as an E1. Ensure that the E1 authorized weight is 5000.
 	suite.Equal(string(newOrdersType), string(updatedOrder.OrdersType))
 }
