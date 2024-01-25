@@ -194,7 +194,7 @@ const DateAndLocationForm = ({
                       <p>What address are the movers picking up from?</p>
                       <Checkbox
                         data-testid="useCurrentResidence"
-                        label="Use current address"
+                        label="Use my current origin address"
                         name="serviceMember.residential_address"
                         onChange={handleUseCurrentResidenceChange}
                         id="useCurrentResidence"
@@ -204,7 +204,7 @@ const DateAndLocationForm = ({
                       <FormGroup>
                         <Fieldset>
                           <legend className="usa-label">
-                            Will you add items to your PPM from a place in a different ZIP code?
+                          Will you add items to your PPM from a different address?
                           </legend>
                           <Field
                             as={Radio}
@@ -262,7 +262,7 @@ const DateAndLocationForm = ({
                       <FormGroup>
                         <Fieldset>
                           <legend className="usa-label">
-                            Will you add items to your PPM from a different address?
+                          Will you deliver part of your PPM to a different address?
                           </legend>
                           <Field
                             as={Radio}
