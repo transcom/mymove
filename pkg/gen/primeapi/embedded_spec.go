@@ -232,7 +232,7 @@ func init() {
         }
       }
     },
-    "/moves/{locator}/order/download": {
+    "/moves/{locator}/documents": {
       "get": {
         "description": "### Functionality\nThis endpoint downloads all uploaded move order documentations into one download file by locator.\n\n### Errors\n* The move must be in need counseling state.\n* The move client's origin duty location must not currently have gov counseling.\n",
         "produces": [
@@ -243,6 +243,27 @@ func init() {
         ],
         "summary": "Downloads move order as a PDF",
         "operationId": "downloadMoveOrder",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "the locator code for move order to be downloaded",
+            "name": "locator",
+            "in": "path",
+            "required": true
+          },
+          {
+            "enum": [
+              "ALL",
+              "ORDERS",
+              "AMENDMENTS"
+            ],
+            "type": "string",
+            "default": "ALL",
+            "description": "upload type",
+            "name": "type",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Move Order PDF",
@@ -273,16 +294,7 @@ func init() {
             "$ref": "#/responses/ServerError"
           }
         }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "the locator code for move order to be downloaded",
-          "name": "locator",
-          "in": "path",
-          "required": true
-        }
-      ]
+      }
     },
     "/mto-service-items": {
       "post": {
@@ -3893,12 +3905,22 @@ func init() {
         "newAddress": {
           "$ref": "#/definitions/Address"
         },
+        "newSitDistanceBetween": {
+          "description": "The distance between the original SIT address and requested new destination address of shipment",
+          "type": "integer",
+          "example": 88
+        },
         "officeRemarks": {
           "description": "The TOO comment on approval or rejection.",
           "type": "string",
           "title": "Office Remarks",
           "x-nullable": true,
           "example": "This is an office remark"
+        },
+        "oldSitDistanceBetween": {
+          "description": "The distance between the original SIT address and the previous/old destination address of shipment",
+          "type": "integer",
+          "example": 50
         },
         "originalAddress": {
           "$ref": "#/definitions/Address"
@@ -3908,6 +3930,9 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "sitOriginalAddress": {
+          "$ref": "#/definitions/Address"
         },
         "status": {
           "$ref": "#/definitions/ShipmentAddressUpdateStatus"
@@ -4939,7 +4964,7 @@ func init() {
         }
       }
     },
-    "/moves/{locator}/order/download": {
+    "/moves/{locator}/documents": {
       "get": {
         "description": "### Functionality\nThis endpoint downloads all uploaded move order documentations into one download file by locator.\n\n### Errors\n* The move must be in need counseling state.\n* The move client's origin duty location must not currently have gov counseling.\n",
         "produces": [
@@ -4950,6 +4975,27 @@ func init() {
         ],
         "summary": "Downloads move order as a PDF",
         "operationId": "downloadMoveOrder",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "the locator code for move order to be downloaded",
+            "name": "locator",
+            "in": "path",
+            "required": true
+          },
+          {
+            "enum": [
+              "ALL",
+              "ORDERS",
+              "AMENDMENTS"
+            ],
+            "type": "string",
+            "default": "ALL",
+            "description": "upload type",
+            "name": "type",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Move Order PDF",
@@ -4995,16 +5041,7 @@ func init() {
             }
           }
         }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "the locator code for move order to be downloaded",
-          "name": "locator",
-          "in": "path",
-          "required": true
-        }
-      ]
+      }
     },
     "/mto-service-items": {
       "post": {
@@ -8972,12 +9009,24 @@ func init() {
         "newAddress": {
           "$ref": "#/definitions/Address"
         },
+        "newSitDistanceBetween": {
+          "description": "The distance between the original SIT address and requested new destination address of shipment",
+          "type": "integer",
+          "minimum": 0,
+          "example": 88
+        },
         "officeRemarks": {
           "description": "The TOO comment on approval or rejection.",
           "type": "string",
           "title": "Office Remarks",
           "x-nullable": true,
           "example": "This is an office remark"
+        },
+        "oldSitDistanceBetween": {
+          "description": "The distance between the original SIT address and the previous/old destination address of shipment",
+          "type": "integer",
+          "minimum": 0,
+          "example": 50
         },
         "originalAddress": {
           "$ref": "#/definitions/Address"
@@ -8987,6 +9036,9 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "sitOriginalAddress": {
+          "$ref": "#/definitions/Address"
         },
         "status": {
           "$ref": "#/definitions/ShipmentAddressUpdateStatus"

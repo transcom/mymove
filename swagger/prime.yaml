@@ -1676,13 +1676,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /moves/{locator}/order/download:
-    parameters:
-      - description: the locator code for move order to be downloaded
-        in: path
-        name: locator
-        required: true
-        type: string
+  /moves/{locator}/documents:
     get:
       summary: Downloads move order as a PDF
       description: >
@@ -1703,6 +1697,22 @@ paths:
         - moveTaskOrder
       produces:
         - application/pdf
+      parameters:
+        - in: path
+          type: string
+          name: locator
+          description: the locator code for move order to be downloaded
+          required: true
+        - in: query
+          name: type
+          type: string
+          description: upload type
+          required: false
+          default: ALL
+          enum:
+            - ALL
+            - ORDERS
+            - AMENDMENTS
       responses:
         '200':
           headers:
@@ -4083,6 +4093,22 @@ definitions:
         $ref: '#/definitions/Address'
       newAddress:
         $ref: '#/definitions/Address'
+      sitOriginalAddress:
+        $ref: '#/definitions/Address'
+      oldSitDistanceBetween:
+        description: >-
+          The distance between the original SIT address and the previous/old
+          destination address of shipment
+        example: 50
+        minimum: 0
+        type: integer
+      newSitDistanceBetween:
+        description: >-
+          The distance between the original SIT address and requested new
+          destination address of shipment
+        example: 88
+        minimum: 0
+        type: integer
     required:
       - id
       - status
