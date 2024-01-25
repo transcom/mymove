@@ -6,12 +6,18 @@ import { mockMovesPCS } from '../MultiMovesTestData';
 
 import MultiMovesMoveContainer from './MultiMovesMoveContainer';
 
+import { MockProviders } from 'testUtils';
+
 describe('MultiMovesMoveContainer', () => {
   const mockCurrentMoves = mockMovesPCS.currentMove;
   const mockPreviousMoves = mockMovesPCS.previousMoves;
 
   it('renders current move list correctly', () => {
-    render(<MultiMovesMoveContainer moves={mockCurrentMoves} />);
+    render(
+      <MockProviders>
+        <MultiMovesMoveContainer moves={mockCurrentMoves} />
+      </MockProviders>,
+    );
 
     expect(screen.getByTestId('move-info-container')).toBeInTheDocument();
     expect(screen.getByText('#MOVECO')).toBeInTheDocument();
@@ -19,7 +25,11 @@ describe('MultiMovesMoveContainer', () => {
   });
 
   it('renders previous move list correctly', () => {
-    render(<MultiMovesMoveContainer moves={mockPreviousMoves} />);
+    render(
+      <MockProviders>
+        <MultiMovesMoveContainer moves={mockPreviousMoves} />
+      </MockProviders>,
+    );
 
     expect(screen.queryByText('#SAMPLE')).toBeInTheDocument();
     expect(screen.queryByText('#EXAMPL')).toBeInTheDocument();
@@ -27,7 +37,11 @@ describe('MultiMovesMoveContainer', () => {
   });
 
   it('expands and collapses moves correctly', () => {
-    render(<MultiMovesMoveContainer moves={mockCurrentMoves} />);
+    render(
+      <MockProviders>
+        <MultiMovesMoveContainer moves={mockCurrentMoves} />
+      </MockProviders>,
+    );
 
     // Initially, the move details should not be visible
     expect(screen.queryByText('Shipment')).not.toBeInTheDocument();

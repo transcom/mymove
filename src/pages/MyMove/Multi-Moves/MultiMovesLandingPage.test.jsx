@@ -2,7 +2,10 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 
 import '@testing-library/jest-dom/extend-expect'; // For additional matchers like toBeInTheDocument
+
 import MultiMovesLandingPage from './MultiMovesLandingPage';
+
+import { MockProviders } from 'testUtils';
 
 // Mock external dependencies
 jest.mock('utils/featureFlags', () => ({
@@ -22,11 +25,16 @@ jest.mock('shared/Swagger/ducks', () => ({
 }));
 
 describe('MultiMovesLandingPage', () => {
-  it('renders the component with retirement moves', () => {
-    render(<MultiMovesLandingPage />);
+  it('renders the component with moves', () => {
+    render(
+      <MockProviders>
+        <MultiMovesLandingPage />
+      </MockProviders>,
+    );
 
     // Check for specific elements
     expect(screen.getByTestId('customerHeader')).toBeInTheDocument();
+    expect(screen.getByTestId('helperText')).toBeInTheDocument();
     expect(screen.getByText('First Last')).toBeInTheDocument();
     expect(screen.getByText('Welcome to MilMove!')).toBeInTheDocument();
     expect(screen.getByText('Create a Move')).toBeInTheDocument();
@@ -37,7 +45,11 @@ describe('MultiMovesLandingPage', () => {
   });
 
   it('renders move data correctly', () => {
-    render(<MultiMovesLandingPage />);
+    render(
+      <MockProviders>
+        <MultiMovesLandingPage />
+      </MockProviders>,
+    );
 
     expect(screen.getByTestId('currentMoveHeader')).toBeInTheDocument();
     expect(screen.getByTestId('currentMoveContainer')).toBeInTheDocument();
