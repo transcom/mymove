@@ -200,47 +200,49 @@ const DateAndLocationForm = ({
                         id="useCurrentResidence"
                       />
                       {fields}
+                      <h4>Second pickup location</h4>
+                      <FormGroup>
+                        <Fieldset>
+                          <legend className="usa-label">
+                            Will you add items to your PPM from a place in a different ZIP code?
+                          </legend>
+                          <Field
+                            as={Radio}
+                            data-testid="yes-secondary-pickup-postal-code"
+                            id="yes-secondary-pickup-postal-code"
+                            label="Yes"
+                            name="hasSecondaryPickup"
+                            value="true"
+                            checked={values.hasSecondaryPickup === 'true'}
+                          />
+                          <Field
+                            as={Radio}
+                            data-testid="no-secondary-pickup-postal-code"
+                            id="no-secondary-pickup-postal-code"
+                            label="No"
+                            name="hasSecondaryPickup"
+                            value="false"
+                            checked={values.hasSecondaryPickup === 'false'}
+                          />
+                        </Fieldset>
+                      </FormGroup>
+                      {values.hasSecondaryPickup === 'true' && (
+                        <>
+                          <AddressFields name="mtoShipment.secondaryPickupAddress" />
+                          <Hint className={ppmStyles.hint}>
+                            <p>
+                              A second origin address could mean that your final incentive is lower than your estimate.
+                            </p>
+                            <p>
+                              Get separate weight tickets for each leg of the trip to show how the weight changes. Talk
+                              to your move counselor for more detailed information.
+                            </p>
+                          </Hint>
+                        </>
+                      )}
                     </>
                   )}
                 />
-
-                <FormGroup>
-                  <Fieldset>
-                    <legend className="usa-label">
-                      Will you add items to your PPM from a place in a different ZIP code?
-                    </legend>
-                    <Field
-                      as={Radio}
-                      data-testid="yes-secondary-pickup-postal-code"
-                      id="yes-secondary-pickup-postal-code"
-                      label="Yes"
-                      name="hasSecondaryPickup"
-                      value="true"
-                      checked={values.hasSecondaryPickup === 'true'}
-                    />
-                    <Field
-                      as={Radio}
-                      data-testid="no-secondary-pickup-postal-code"
-                      id="no-secondary-pickup-postal-code"
-                      label="No"
-                      name="hasSecondaryPickup"
-                      value="false"
-                      checked={values.hasSecondaryPickup === 'false'}
-                    />
-                  </Fieldset>
-                </FormGroup>
-                {values.hasSecondaryPickup === 'true' && (
-                  <>
-                    <AddressFields name="mtoShipment.secondaryPickupAddress" />
-                    <Hint className={ppmStyles.hint}>
-                      <p>A second origin address could mean that your final incentive is lower than your estimate.</p>
-                      <p>
-                        Get separate weight tickets for each leg of the trip to show how the weight changes. Talk to
-                        your move counselor for more detailed information.
-                      </p>
-                    </Hint>
-                  </>
-                )}
               </SectionWrapper>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Destination</h2>
@@ -257,84 +259,46 @@ const DateAndLocationForm = ({
                         id="useCurrentDestinationAddress"
                       />
                       {fields}
-                      {/* <TextField
-                  label="ZIP"
-                  id="destinationPostalCode"
-                  name="destinationPostalCode"
-                  maxLength={5}
-                  onChange={(e) => {
-                    handlePrefillPostalCodeChange(
-                      e.target.value,
-                      setFieldValue,
-                      'destinationPostalCode',
-                      destinationDutyLocationPostalCode,
-                      'useDestinationDutyLocationZIP',
-                      values.useDestinationDutyLocationZIP,
-                    );
-                  }}
-                  validate={(value) => postalCodeValidate(value, 'destination', 'destinationPostalCode')}
-                /> */}
+                      <FormGroup>
+                        <Fieldset>
+                          <legend className="usa-label">
+                            Will you add items to your PPM from a different address?
+                          </legend>
+                          <Field
+                            as={Radio}
+                            id="hasSecondaryDestinationPostalCodeYes"
+                            label="Yes"
+                            name="hasSecondaryDestinationPostalCode"
+                            value="true"
+                            checked={values.hasSecondaryDestinationPostalCode === 'true'}
+                          />
+                          <Field
+                            as={Radio}
+                            id="hasSecondaryDestinationPostalCodeNo"
+                            label="No"
+                            name="hasSecondaryDestinationPostalCode"
+                            value="false"
+                            checked={values.hasSecondaryDestinationPostalCode === 'false'}
+                          />
+                        </Fieldset>
+                      </FormGroup>
+                      {values.hasSecondaryDestinationPostalCode === 'true' && (
+                        <>
+                          <AddressFields name="mtoShipment.secondaryDestinationAddress" />
+                          <Hint className={ppmStyles.hint}>
+                            <p>
+                              A second destination ZIP could mean that your final incentive is lower than your estimate.
+                            </p>
+                            <p>
+                              Get separate weight tickets for each leg of the trip to show how the weight changes. Talk
+                              to your move counselor for more detailed information.
+                            </p>
+                          </Hint>
+                        </>
+                      )}
                     </>
                   )}
                 />
-                {/* <CheckboxField
-                  id="useDestinationDutyLocationZIP"
-                  name="useDestinationDutyLocationZIP"
-                  label={`Use the ZIP for my new duty location (${destinationDutyLocationPostalCode})`}
-                  onChange={() =>
-                    setZip(
-                      setFieldValue,
-                      'destinationPostalCode',
-                      destinationDutyLocationPostalCode,
-                      values.useDestinationDutyLocationZIP,
-                      'useDestinationDutyLocationZIP',
-                    )
-                  }
-                /> */}
-                {/* <Hint className={ppmStyles.hint}>
-                  Use the ZIP for your new address if you know it. Use the ZIP for your new duty location if you
-                  don&apos;t have a new address yet.
-                </Hint> */}
-                <FormGroup>
-                  <Fieldset>
-                    <legend className="usa-label">Will you add items to your PPM from a different address?</legend>
-                    <Field
-                      as={Radio}
-                      id="hasSecondaryDestinationPostalCodeYes"
-                      label="Yes"
-                      name="hasSecondaryDestinationPostalCode"
-                      value="true"
-                      checked={values.hasSecondaryDestinationPostalCode === 'true'}
-                    />
-                    <Field
-                      as={Radio}
-                      id="hasSecondaryDestinationPostalCodeNo"
-                      label="No"
-                      name="hasSecondaryDestinationPostalCode"
-                      value="false"
-                      checked={values.hasSecondaryDestinationPostalCode === 'false'}
-                    />
-                  </Fieldset>
-                </FormGroup>
-                {values.hasSecondaryDestinationPostalCode === 'true' && (
-                  <>
-                    <AddressFields name="mtoShipment.secondaryDestinationAddress" />
-                    {/* <TextField
-                      label="Second ZIP"
-                      id="secondaryDestinationPostalCode"
-                      name="secondaryDestinationPostalCode"
-                      maxLength={5}
-                      validate={(value) => postalCodeValidate(value, 'destination', 'secondaryDestinationPostalCode')}
-                    /> */}
-                    <Hint className={ppmStyles.hint}>
-                      <p>A second destination ZIP could mean that your final incentive is lower than your estimate.</p>
-                      <p>
-                        Get separate weight tickets for each leg of the trip to show how the weight changes. Talk to
-                        your move counselor for more detailed information.
-                      </p>
-                    </Hint>
-                  </>
-                )}
               </SectionWrapper>
               {showCloseoutOffice && (
                 <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>

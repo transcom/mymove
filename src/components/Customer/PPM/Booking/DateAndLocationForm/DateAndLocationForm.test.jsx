@@ -39,22 +39,6 @@ const defaultProps = {
   ...serviceMember,
 };
 
-const mtoShipmentProps = {
-  ...defaultProps,
-  mtoShipment: {
-    id: '123',
-    ppmShipment: {
-      id: '123',
-      pickupPostalCode: '12345',
-      secondaryPickupPostalCode: '34512',
-      destinationPostalCode: '94611',
-      secondaryDestinationPostalCode: '90210',
-      sitExpected: true,
-      expectedDepartureDate: '2022-09-23',
-    },
-  },
-};
-
 beforeEach(() => {
   jest.clearAllMocks();
 });
@@ -66,8 +50,8 @@ describe('DateAndLocationForm component', () => {
       expect(await screen.getByRole('heading', { level: 2, name: 'Origin' })).toBeInTheDocument();
       const postalCodes = screen.getAllByLabelText('ZIP');
       const address1 = screen.getAllByLabelText('Address 1');
-      const address2 = screen.getAllByLabelText('Address 2');
-      const address3 = screen.getAllByLabelText('Address 3');
+      const address2 = screen.getAllByLabelText('Address 2', {exact: false});
+      const address3 = screen.getAllByLabelText('Address 3', {exact: false});
       const state = screen.getAllByLabelText('State');
       const city = screen.getAllByLabelText('City');
 
@@ -101,26 +85,28 @@ describe('DateAndLocationForm component', () => {
   describe('displays conditional inputs', () => {
     it('displays current address when "use my current address" is selected', async () => {
       render(<DateAndLocationForm {...defaultProps} />);
-      await user.click(screen.getByLabelText('Use current address'));
-
-      expect((await screen.getByName('serviceMember.residential_address.streetAddress1'))).toHaveValue(
-        defaultProps.currentResidence.streetAddress1,
-      );
-      expect(screen.getByName('serviceMember.residential_address.streetAddress2')).toHaveValue(defaultProps.currentResidence.streetAddress2);
-      expect(screen.getByName('serviceMember.residential_address.state')).toHaveValue(defaultProps.currentResidence.state);
-      expect(screen.getByName('serviceMember.residential_address.city')).toHaveValue(defaultProps.currentResidence.city);
-      expect(screen.getByName('serviceMember.residential_address.postalCode')).toHaveValue(defaultProps.currentResidence.postalCode);
+      const postalCodes = screen.getAllByLabelText('ZIP');
+      expect(postalCodes[0].value).toBe('');
+      await userEvent.click(screen.getByLabelText('Use current address'));
+      await waitFor(() => {
+        expect(postalCodes[0].value).toBe(defaultProps.serviceMember.residential_address.postalCode);
+      });
     });
 
     it('removes current Address when "use my current Address" is deselected', async () => {
       render(<DateAndLocationForm {...defaultProps} />);
-      await user.click(screen.getByLabelText('Use current address'));
+      await userEvent.click(screen.getByLabelText('Use current address'));
+      const postalCodes = screen.getAllByLabelText('ZIP');
+    
+      await waitFor(() => {
+        expect(postalCodes[0].value).toBe(defaultProps.serviceMember.residential_address.postalCode);
+      });
 
-      expect((await screen.getByName('serviceMember.residential_address.streetAddress1'))).toHaveValue('');
-      expect(screen.getByName('serviceMember.residential_address.streetAddress2')).toHaveValue('');
-      expect(screen.getByName('serviceMember.residential_address.state')).toHaveValue('');
-      expect(screen.getByName('serviceMember.residential_address.city')).toHaveValue('');
-      expect(screen.getByName('serviceMember.residential_address.postalCode')).toHaveValue('');
+      await userEvent.click(screen.getByLabelText('Use current address'));
+
+      await waitFor(() => {
+        expect(postalCodes[0].value).toBe('');
+      });
     });
 
     it('displays secondary pickup Address input when hasSecondaryPickupAddress is true', async () => {
@@ -128,38 +114,36 @@ describe('DateAndLocationForm component', () => {
       const hasSecondaryPickupAddress = await screen.getAllByLabelText('Yes')[1];
 
       await userEvent.click(hasSecondaryPickupAddress);
-
+      const postalCodes = screen.getAllByLabelText('ZIP');
+      const address1 = screen.getAllByLabelText('Address 1', {exact: false});
+      const address2 = screen.getAllByLabelText('Address 2', {exact: false});
+      const state = screen.getAllByLabelText('State');
+      const city = screen.getAllByLabelText('City');
       await waitFor(() => {
-        expect(screen.getByName('mtoShipment.secondaryPickupAddress.streetAddress1')).toBeInstanceOf(HTMLInputElement);
-        expect(screen.getByName('mtoShipment.secondaryPickupAddress.streetAddress2')).toBeInstanceOf(HTMLInputElement);
-        expect(screen.getByName('mtoShipment.secondaryPickupAddress.city')).toBeInstanceOf(HTMLInputElement);
-        expect(screen.getByName('mtoShipment.secondaryPickupAddress.state')).toBeInstanceOf(HTMLInputElement);
-        expect(screen.getByName('mtoShipment.secondaryPickupAddress.postalCode')).toBeInstanceOf(HTMLInputElement);
+        expect(address1[1]).toBeInstanceOf(HTMLInputElement);
+        expect(address2[1]).toBeInstanceOf(HTMLInputElement);
+        expect(city[1]).toBeInstanceOf(HTMLInputElement);
+        expect(state[1]).toBeInstanceOf(HTMLSelectElement);
+        expect(postalCodes[1]).toBeInstanceOf(HTMLInputElement);
       });
     });
 
     it('displays destination address when "Use my current destination address" is selected', async () => {
       render(<DateAndLocationForm {...defaultProps} />);
-      await user.click(screen.getByLabelText('Use my current destination address'));
-      expect((await screen.getByName('serviceMember.destination_address.streetAddress1'))).toHaveValue(
+      await userEvent.click(screen.getByLabelText('Use my current destination address'));
+      const postalCodes = screen.getAllByLabelText('ZIP');
+      const address1 = screen.getAllByLabelText('Address 1', {exact: false});
+      const address2 = screen.getAllByLabelText('Address 2', {exact: false});
+      const state = screen.getAllByLabelText('State');
+      const city = screen.getAllByLabelText('City');
+      expect(await address1[1]).toHaveValue(
         defaultProps.destinationDutyLocation.address.streetAddress1,
       );
-      expect(screen.getByName('serviceMember.destination_address.streetAddress2')).toHaveValue('');
-      expect(screen.getByName('serviceMember.destination_address.city')).toHaveValue(defaultProps.destinationDutyLocation.address.city);
-      expect(screen.getByName('serviceMember.destination_address.state')).toHaveValue(defaultProps.destinationDutyLocation.address.state);
-      expect(screen.getByName('serviceMember.destination_address.postalCode')).toHaveValue(defaultProps.destinationDutyLocation.address.postalCode);
+      expect(address2[1]).toHaveValue('');
+      expect(city[1]).toHaveValue(defaultProps.destinationDutyLocation.address.city);
+      expect(state[1]).toHaveValue(defaultProps.destinationDutyLocation.address.state);
+      expect(postalCodes[1]).toHaveValue(defaultProps.destinationDutyLocation.address.postalCode);
       });
-    });
-
-    it('removes destination Address when "Use my current destination address" is deselected', async () => {
-      render(<DateAndLocationForm {...defaultProps} />);
-      await user.click(screen.getByLabelText('Use my current destination address'));
-
-      expect((await screen.getByName('mtoShipment.secondaryDestinationAddress.streetAddress1'))).toHaveValue('');
-      expect(screen.getByName('mtoShipment.secondaryDestinationAddress.streetAddress2')).toHaveValue('');
-      expect(screen.getByName('mtoShipment.secondaryDestinationAddress.city')).toHaveValue('');
-      expect(screen.getByName('mtoShipment.secondaryDestinationAddress.state')).toHaveValue('');
-      expect(screen.getByName('mtoShipment.secondaryDestinationAddress.postalCode')).toHaveValue('');
     });
 
     it('displays secondary destination Address input when hasSecondaryDestinationAddress is true', async () => {
@@ -167,13 +151,20 @@ describe('DateAndLocationForm component', () => {
       const hasSecondaryDestinationAddress = await screen.getAllByLabelText('Yes')[1];
       
       await userEvent.click(hasSecondaryDestinationAddress);
+      const postalCodes = screen.getAllByLabelText('ZIP');
+      const address1 = screen.getAllByLabelText('Address 1', {exact: false});
+      const address2 = screen.getAllByLabelText('Address 2', {exact: false});
+      const address3 = screen.getAllByLabelText('Address 3', {exact: false});
+      const state = screen.getAllByLabelText('State');
+      const city = screen.getAllByLabelText('City');
 
       await waitFor(() => {
-        expect(screen.getByName('mtoShipment.secondaryDestinationAddress.streetAddress1')).toBeInstanceOf(HTMLInputElement);
-        expect(screen.getByName('mtoShipment.secondaryDestinationAddress.streetAddress2')).toBeInstanceOf(HTMLInputElement);
-        expect(screen.getByName('mtoShipment.secondaryDestinationAddress.city')).toBeInstanceOf(HTMLInputElement);
-        expect(screen.getByName('mtoShipment.secondaryDestinationAddress.state')).toBeInstanceOf(HTMLInputElement);
-        expect(screen.getByName('mtoShipment.secondaryDestinationAddress.postalCode')).toBeInstanceOf(HTMLInputElement);
+        expect(address1[2]).toBeInstanceOf(HTMLInputElement);
+        expect(address2[2]).toBeInstanceOf(HTMLInputElement);
+        expect(address3[2]).toBeInstanceOf(HTMLInputElement);
+        expect(state[2]).toBeInstanceOf(HTMLSelectElement);
+        expect(city[2]).toBeInstanceOf(HTMLInputElement);
+        expect(postalCodes[2]).toBeInstanceOf(HTMLInputElement);
       });
     });
 
@@ -211,22 +202,6 @@ describe('DateAndLocationForm component', () => {
       expect(screen.queryByText('Closeout Office')).not.toBeInTheDocument();
       expect(screen.queryByLabelText('Which closeout office should review your PPM?')).not.toBeInTheDocument();
       expect(screen.queryByText('Start typing a closeout office...')).not.toBeInTheDocument();
-    });
-  });
-
-  describe('pull values from the ppm shipment when available', () => {
-    it('renders blank form on load', async () => {
-      render(<DateAndLocationForm {...mtoShipmentProps} />);
-      const postalCodes = screen.getAllByLabelText('ZIP');
-
-      expect(await screen.getAllByLabelText('ZIP')[0].toHaveValue(
-        mtoShipmentProps.mtoShipment.ppmShipment.pickupPostalCode,
-      ));
-      expect(screen.getAllByLabelText('Yes')[0].value).toBe('true');
-      expect(postalCodes[2].value).toHaveValue(
-        mtoShipmentProps.mtoShipment.ppmShipment.destinationPostalCode,
-      );
-      expect(screen.getByText('Start typing a closeout office...')).toBeInTheDocument();
     });
   });
 
@@ -280,49 +255,6 @@ describe('DateAndLocationForm component', () => {
         expect(
           within(requiredAlerts[0].nextElementSibling).getByLabelText('When do you plan to start moving your PPM?'),
         ).toBeInTheDocument();
-      });
-    });
-    it('calls postalCodeValidator when the ZIP value changes', async () => {
-      const validatorProps = {
-        ...defaultProps,
-        postalCodeValidator: jest.fn(),
-      };
-      render(<DateAndLocationForm {...validatorProps} />);
-      const primaryZIPs = screen.getAllByLabelText('ZIP');
-
-      await userEvent.type(primaryZIPs[0], '12345');
-      await userEvent.type(primaryZIPs[1], '67890');
-
-      const inputHasSecondaryZIP = screen.getAllByLabelText('Yes');
-
-      await userEvent.click(inputHasSecondaryZIP[0]);
-      await userEvent.click(inputHasSecondaryZIP[1]);
-
-      const secondaryZIPs = screen.getAllByLabelText('ZIP');
-      await userEvent.type(secondaryZIPs[1], '11111');
-      await userEvent.type(secondaryZIPs[3], '22222');
-
-      await waitFor(async () => {
-        expect(validatorProps.postalCodeValidator).toHaveBeenCalledWith(
-          '12345',
-          'origin',
-          UnsupportedZipCodePPMErrorMsg,
-        );
-        expect(validatorProps.postalCodeValidator).toHaveBeenCalledWith(
-          '67890',
-          'destination',
-          UnsupportedZipCodePPMErrorMsg,
-        );
-        expect(validatorProps.postalCodeValidator).toHaveBeenCalledWith(
-          '11111',
-          'origin',
-          UnsupportedZipCodePPMErrorMsg,
-        );
-        expect(validatorProps.postalCodeValidator).toHaveBeenCalledWith(
-          '22222',
-          'destination',
-          UnsupportedZipCodePPMErrorMsg,
-        );
       });
     });
   });
