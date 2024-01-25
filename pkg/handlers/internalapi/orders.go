@@ -374,6 +374,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				order.DepartmentIndicator = handlers.FmtString(string(*payload.DepartmentIndicator))
 			}
 
+			order.EntitlementID = &entitlement.ID
 			order.Entitlement = &entitlement
 
 			verrs, err := models.SaveOrder(appCtx.DB(), &order)
