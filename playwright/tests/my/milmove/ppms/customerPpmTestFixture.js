@@ -115,17 +115,17 @@ export class CustomerPpmPage extends CustomerPage {
    * @param {boolean} [options.isMoveSubmitted=false]
    * returns {Promise<void>}
    */
-  // async navigateFromHomePageToReviewPage(options = { isMoveSubmitted: false }) {
-  //   if (options?.isMoveSubmitted) {
-  //     await expect(this.page.getByRole('heading', { name: 'Next step: Your move gets approved' })).toBeVisible();
+  async navigateFromHomePageToReviewPage(options = { isMoveSubmitted: false }) {
+    if (options?.isMoveSubmitted) {
+      await expect(this.page.getByRole('heading', { name: 'Next step: Your move gets approved' })).toBeVisible();
 
-  //     await this.page.getByRole('button', { name: 'Review your request' }).click();
-  //   } else {
-  //     await expect(this.page.getByRole('heading', { name: 'Time to submit your move' })).toBeVisible();
+      await this.page.getByRole('button', { name: 'Review your request' }).click();
+    } else {
+      await expect(this.page.getByRole('heading', { name: 'Time to submit your move' })).toBeVisible();
 
-  //     await this.page.getByRole('button', { name: 'Review and submit' }).click();
-  //   }
-  // }
+      await this.page.getByRole('button', { name: 'Review and submit' }).click();
+    }
+  }
 
   /**
    * @param {Object} options
@@ -317,14 +317,14 @@ export class CustomerPpmPage extends CustomerPage {
   /**
    * returns {Promise<void>}
    */
-  // async navigateFromHomePageToExistingPPMDateAndLocationPage() {
-  //   await expect(this.page.getByRole('heading', { name: 'Time to submit your move' })).toBeVisible();
+  async navigateFromHomePageToExistingPPMDateAndLocationPage() {
+    await expect(this.page.getByRole('heading', { name: 'Time to submit your move' })).toBeVisible();
 
-  //   await this.page.locator('[data-testid="shipment-list-item-container"] button').getByText('Edit').click();
+    await this.page.locator('[data-testid="shipment-list-item-container"] button').getByText('Edit').click();
 
-  //   await expect(this.page.getByRole('heading', { name: 'PPM date & location' })).toBeVisible();
-  //   await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/edit/);
-  // }
+    await expect(this.page.getByRole('heading', { name: 'PPM date & location' })).toBeVisible();
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/edit/);
+  }
 
   /**
    * used for creating a new shipment
