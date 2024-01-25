@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useLocation, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 
 import styles from './MultiMovesLandingPage.module.scss';
 import MultiMovesMoveHeader from './MultiMovesMoveHeader/MultiMovesMoveHeader';
@@ -27,23 +27,7 @@ import { customerRoutes, generalRoutes } from 'constants/routes';
 
 const MultiMovesLandingPage = () => {
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
-  const { search } = useLocation();
   const navigate = useNavigate();
-  const searchParams = useMemo(() => new URLSearchParams(search), [search]);
-
-  const handleNewPathClick = (path, paramKey, paramValue) => {
-    if (!paramKey || !paramValue) {
-      navigate({
-        pathname: path,
-      });
-    } else {
-      searchParams.set(paramKey, paramValue);
-      navigate({
-        pathname: path,
-        search: searchParams.toString(),
-      });
-    }
-  };
 
   // ! This is just used for testing and viewing different variations of data that MilMove will use
   // user can add params of ?moveData=PCS, etc to view different views
@@ -103,12 +87,15 @@ const MultiMovesLandingPage = () => {
 
   const flags = detectFlags(process.env.NODE_ENV, window.location.host, window.location.search);
 
+  // handles logic when user clicks "Create a Move" button
+  // if they have previous moves, they'll need to validate their profile
+  // if they do not have previous moves, then they don't need to validate
   const handleCreateMoveBtnClick = () => {
     if (moves.previousMoves.length > 0) {
       const profileEditPath = customerRoutes.PROFILE_PATH;
-      handleNewPathClick(profileEditPath, 'verifyProfile', 'true');
+      navigate(profileEditPath, { state: { needsToVerifyProfile: true } });
     } else {
-      handleNewPathClick(generalRoutes.HOME_PATH);
+      navigate(generalRoutes.HOME_PATH);
     }
   };
 
@@ -123,13 +110,13 @@ const MultiMovesLandingPage = () => {
         </header>
         <div className={`usa-prose grid-container ${styles['grid-container']}`}>
           <Helper title="Welcome to MilMove!" className={styles['helper-paragraph-only']}>
-            <p>
+            <p data-testid="helperText">
               We can put information at the top here - potentially important contact info or basic instructions on how
               to start a move?
             </p>
           </Helper>
           <div className={styles.centeredContainer}>
-            <Button className={styles.createMoveBtn} onClick={handleCreateMoveBtnClick}>
+            <Button className={styles.createMoveBtn} onClick={handleCreateMoveBtnClick} data-testid="createMoveBtn">
               <span>Create a Move</span>
               <div>
                 <FontAwesomeIcon icon="plus" />
