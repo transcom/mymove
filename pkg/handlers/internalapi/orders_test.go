@@ -444,35 +444,43 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
 	})
 }
 
-// TODO: Fix now that we capture transaction error. May be a data setup problem
-/*
-func (suite *HandlerSuite) TestUpdateOrder() {
-	order := factory.BuildOrder(suite.DB(), nil, nil)
+func (suite *HandlerSuite) TestUpdateOrdersHandler() {
+	dutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+
+	order := factory.BuildOrder(suite.DB(), []factory.Customization{
+		{
+			Model:    dutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+
+	newDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+	newTransportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+	newDutyLocation.TransportationOffice = newTransportationOffice
+
+	newOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	newOrdersNumber := "123456"
+	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
+	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
+	deptIndicator := internalmessages.DeptIndicatorAIRANDSPACEFORCE
+
+	payload := &internalmessages.CreateUpdateOrders{
+		OrdersNumber:         handlers.FmtString(newOrdersNumber),
+		OrdersType:           &newOrdersType,
+		NewDutyLocationID:    handlers.FmtUUID(newDutyLocation.ID),
+		OriginDutyLocationID: *handlers.FmtUUID(*order.OriginDutyLocationID),
+		IssueDate:            handlers.FmtDate(issueDate),
+		ReportByDate:         handlers.FmtDate(reportByDate),
+		DepartmentIndicator:  &deptIndicator,
+		HasDependents:        handlers.FmtBool(false),
+		SpouseHasProGear:     handlers.FmtBool(false),
+		Grade:                models.ServiceMemberGradeE4.Pointer(),
+	}
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
 	req := httptest.NewRequest("PUT", path, nil)
 	req = suite.AuthenticateRequest(req, order.ServiceMember)
-
-	newOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-	newOrdersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
-	departmentIndicator := internalmessages.DeptIndicatorAIRANDSPACEFORCE
-	otherServiceMemberUUID := uuid.Must(uuid.NewV4())
-
-	payload := &internalmessages.CreateUpdateOrders{
-		OrdersNumber:        handlers.FmtString("123456"),
-		HasDependents:       handlers.FmtBool(order.HasDependents),
-		SpouseHasProGear:    handlers.FmtBool(order.SpouseHasProGear),
-		IssueDate:           handlers.FmtDate(order.IssueDate),
-		ReportByDate:        handlers.FmtDate(order.ReportByDate),
-		OrdersType:          newOrdersType,
-		OrdersTypeDetail:    &newOrdersTypeDetail,
-		NewDutyLocationID:    handlers.FmtUUID(order.NewDutyLocationID),
-		Tac:                 order.TAC,
-		Sac:                 handlers.FmtString("N3TEST"),
-		DepartmentIndicator: &departmentIndicator,
-		// Attempt to assign to another service member
-		ServiceMemberID: handlers.FmtUUID(otherServiceMemberUUID),
-	}
 
 	params := ordersop.UpdateOrdersParams{
 		HTTPRequest:  req,
@@ -481,19 +489,22 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	handlerConfig := handlers.NewHandlerCOnfig(suite.DB(), suite.TestLogger())
+	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
-	updateHandler := UpdateOrdersHandler{context}
 
-	response := updateHandler.Handle(params)
+	handler := UpdateOrdersHandler{handlerConfig}
 
-	suite.Assertions.IsType(&ordersop.UpdateOrdersOK{}, response)
+	response := handler.Handle(params)
+
+	suite.IsType(&ordersop.UpdateOrdersOK{}, response)
 	okResponse := response.(*ordersop.UpdateOrdersOK)
 
-	suite.Assertions.Equal(handlers.FmtString("123456"), okResponse.Payload.OrdersNumber)
-	suite.Assertions.Equal(order.ServiceMember.ID.String(), okResponse.Payload.ServiceMemberID.String(), "service member id should not change")
-	suite.Assertions.Equal(newOrdersType, okResponse.Payload.OrdersType)
-	suite.Assertions.Equal(newOrdersTypeDetail, *okResponse.Payload.OrdersTypeDetail)
-	suite.Assertions.Equal(handlers.FmtString("N3TEST"), okResponse.Payload.Sac)
+	suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+	suite.Equal(string(newOrdersType), string(*okResponse.Payload.OrdersType))
+	suite.Equal(newOrdersNumber, *okResponse.Payload.OrdersNumber)
+
+	updatedOrder, err := models.FetchOrder(suite.DB(), order.ID)
+	suite.NoError(err)
+	suite.Equal(payload.Grade, updatedOrder.Grade)
+	suite.Equal(string(newOrdersType), string(updatedOrder.OrdersType))
 }
-*/
