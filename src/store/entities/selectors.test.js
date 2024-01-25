@@ -1625,6 +1625,11 @@ describe('selectWeightAllotmentsForLoggedInUser', () => {
                 status: 'DRAFT',
                 has_dependents: true,
                 spouse_has_pro_gear: true,
+                authorizedWeight: 8000,
+                entitlement: {
+                  proGear: 2000,
+                  proGearSpouse: 500,
+                },
               },
             },
             user: {
@@ -1637,20 +1642,14 @@ describe('selectWeightAllotmentsForLoggedInUser', () => {
               serviceMemberId456: {
                 id: 'serviceMemberId456',
                 orders: ['orders8910'],
-                weight_allotment: {
-                  total_weight_self: 5000,
-                  total_weight_self_plus_dependents: 8000,
-                  pro_gear_weight: 2000,
-                  pro_gear_weight_spouse: 500,
-                },
               },
             },
           },
         };
 
         expect(selectWeightAllotmentsForLoggedInUser(testState)).toEqual({
-          pro_gear: 2000,
-          pro_gear_spouse: 500,
+          proGear: 2000,
+          proGearSpouse: 500,
           sum: 10500,
           weight: 8000,
         });
@@ -1669,6 +1668,11 @@ describe('selectWeightAllotmentsForLoggedInUser', () => {
                 status: 'DRAFT',
                 has_dependents: true,
                 spouse_has_pro_gear: false,
+                authorizedWeight: 8000,
+                entitlement: {
+                  proGear: 2000,
+                  proGearSpouse: 0,
+                },
               },
             },
             user: {
@@ -1681,20 +1685,14 @@ describe('selectWeightAllotmentsForLoggedInUser', () => {
               serviceMemberId456: {
                 id: 'serviceMemberId456',
                 orders: ['orders8910'],
-                weight_allotment: {
-                  total_weight_self: 5000,
-                  total_weight_self_plus_dependents: 8000,
-                  pro_gear_weight: 2000,
-                  pro_gear_weight_spouse: 500,
-                },
               },
             },
           },
         };
 
         expect(selectWeightAllotmentsForLoggedInUser(testState)).toEqual({
-          pro_gear: 2000,
-          pro_gear_spouse: 0,
+          proGear: 2000,
+          proGearSpouse: 0,
           sum: 10000,
           weight: 8000,
         });
@@ -1714,6 +1712,11 @@ describe('selectWeightAllotmentsForLoggedInUser', () => {
               status: 'DRAFT',
               has_dependents: false,
               spouse_has_pro_gear: false,
+              authorizedWeight: 5000,
+              entitlement: {
+                proGear: 2000,
+                proGearSpouse: 0,
+              },
             },
           },
           user: {
@@ -1726,20 +1729,14 @@ describe('selectWeightAllotmentsForLoggedInUser', () => {
             serviceMemberId456: {
               id: 'serviceMemberId456',
               orders: ['orders8910'],
-              weight_allotment: {
-                total_weight_self: 5000,
-                total_weight_self_plus_dependents: 8000,
-                pro_gear_weight: 2000,
-                pro_gear_weight_spouse: 500,
-              },
             },
           },
         },
       };
 
       expect(selectWeightAllotmentsForLoggedInUser(testState)).toEqual({
-        pro_gear: 2000,
-        pro_gear_spouse: 0,
+        proGear: 2000,
+        proGearSpouse: 0,
         sum: 7000,
         weight: 5000,
       });
