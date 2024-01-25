@@ -204,7 +204,7 @@ const DateAndLocationForm = ({
                       <FormGroup>
                         <Fieldset>
                           <legend className="usa-label">
-                          Will you add items to your PPM from a different address?
+                            Will you add items to your PPM from a different address?
                           </legend>
                           <Field
                             as={Radio}
@@ -262,7 +262,7 @@ const DateAndLocationForm = ({
                       <FormGroup>
                         <Fieldset>
                           <legend className="usa-label">
-                          Will you deliver part of your PPM to a different address?
+                            Will you deliver part of your PPM to a different address?
                           </legend>
                           <Field
                             as={Radio}
