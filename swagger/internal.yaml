@@ -1659,7 +1659,7 @@ definitions:
   OrderPayGrade:
     type: string
     x-nullable: true
-    title: Rank
+    title: Pay grade
     enum:
       - E_1
       - E_2
@@ -4818,7 +4818,7 @@ paths:
             $ref: '#/definitions/MovePayload'
         '500':
           description: server error
-  /moves/{moveId}/shipment_summary_worksheet:
+  /moves/{ppmShipmentId}/shipment_summary_worksheet:
     get:
       summary: Returns Shipment Summary Worksheet
       description: Generates pre-filled PDF using data already collected
@@ -4827,11 +4827,11 @@ paths:
         - moves
       parameters:
         - in: path
-          name: moveId
+          name: ppmShipmentId
           type: string
           format: uuid
           required: true
-          description: UUID of the move
+          description: UUID of the ppmShipment
         - in: query
           name: preparationDate
           type: string
