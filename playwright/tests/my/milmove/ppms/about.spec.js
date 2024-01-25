@@ -7,7 +7,7 @@
 // @ts-check
 import { test, forEachViewport } from './customerPpmTestFixture';
 
-test.describe.skip('About Your PPM', () => {
+test.describe('About Your PPM', () => {
   forEachViewport(async () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
