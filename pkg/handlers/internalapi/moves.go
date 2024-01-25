@@ -73,6 +73,58 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 	return movePayload, nil
 }
 
+func payloadMovesList(storer storage.FileStorer, previousMovesList models.Moves, currentMoveList models.Moves, movesList models.Moves) (*internalmessages.MovesList, error) {
+
+	// Convert currentMoves moves to internalmessages.MoveTaskOrder
+	var convertedCurrentMovesList []*internalmessages.InternalMove
+	moves := movesList
+	for _, move := range moves {
+
+		eTag := etag.GenerateEtag(move.UpdatedAt)
+		shipments := move.MTOShipments
+		var payloadShipments *internalmessages.MTOShipments = payloads.MTOShipments(storer, &shipments)
+		// var payloadOrders *internalmessages.Order = payloads
+
+		currentMove := &internalmessages.InternalMove{
+			CreatedAt:    *handlers.FmtDateTime(move.CreatedAt),
+			ETag:         eTag,
+			ID:           *handlers.FmtUUID(move.ID),
+			MtoShipments: *payloadShipments,
+			MoveCode:     move.Locator,
+			Orders:       move.Orders,
+		}
+
+		convertedCurrentMovesList = append(convertedCurrentMovesList, currentMove)
+	}
+
+	// Convert previousMoves moves to internalmessages.MoveTaskOrder
+	var convertedPreviousMovesList []*internalmessages.InternalMove
+	for _, move := range previousMovesList {
+
+		if currentMoveList[0].ID != move.ID {
+			eTag := etag.GenerateEtag(move.UpdatedAt)
+			shipments := move.MTOShipments
+			var payloadShipments *internalmessages.MTOShipments = payloads.MTOShipments(storer, &shipments)
+
+			currentMove := &internalmessages.InternalMove{
+				CreatedAt:    *handlers.FmtDateTime(move.CreatedAt),
+				ETag:         eTag,
+				ID:           *handlers.FmtUUID(move.ID),
+				MtoShipments: *payloadShipments,
+			}
+
+			convertedPreviousMovesList = append(convertedPreviousMovesList, currentMove)
+		}
+	}
+
+	movePayload := &internalmessages.MovesList{
+		CurrentMove:   convertedCurrentMovesList,
+		PreviousMoves: convertedPreviousMovesList,
+	}
+
+	return movePayload, nil
+}
+
 // ShowMoveHandler returns a move for a user and move ID
 type ShowMoveHandler struct {
 	handlers.HandlerConfig
@@ -364,6 +416,58 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			return moveop.NewGetAllMovesOK().WithPayload(nil), nil
+			// Grab service member ID from params
+			serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
+
+			// Grab the serviceMember by serviceMemberId
+			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			var movesList models.Moves
+			var latestMove models.Move
+			var previousMovesList models.Moves
+			var currentMovesList models.Moves
+
+			// Get All Moves for the ServiceMember
+			for _, order := range serviceMember.Orders {
+				moves, fetchErr := models.FetchMovesByOrderID(appCtx.DB(), order.ID)
+				if fetchErr != nil {
+					return handlers.ResponseForError(appCtx.Logger(), err), err
+				}
+
+				movesList = append(movesList, moves...)
+			}
+
+			// Find the move with the latest CreatedAt Date. That one will be the current move
+			var nilTime time.Time
+			for _, move := range movesList {
+				if latestMove.CreatedAt == nilTime {
+					latestMove = move
+					break
+				}
+				if move.CreatedAt.After(latestMove.CreatedAt) && move.CreatedAt != latestMove.CreatedAt {
+					latestMove = move
+				}
+			}
+
+			// Place latest move in currentMovesList array
+			currentMovesList = append(currentMovesList, latestMove)
+
+			// Populate previousMovesList
+			for _, move := range movesList {
+				if move.ID != latestMove.ID {
+					previousMovesList = append(previousMovesList, move)
+				}
+			}
+
+			// Build MovesList Payload
+			payload, err := payloadMovesList(h.FileStorer(), previousMovesList, currentMovesList, movesList)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			return moveop.NewGetAllMovesOK().WithPayload(payload), nil
 		})
 }

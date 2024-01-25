@@ -20,10 +20,10 @@ import (
 type MovesList struct {
 
 	// current move
-	CurrentMove []*MoveTaskOrder `json:"currentMove"`
+	CurrentMove []*InternalMove `json:"currentMove"`
 
 	// previous moves
-	PreviousMoves []*MoveTaskOrder `json:"previousMoves"`
+	PreviousMoves []*InternalMove `json:"previousMoves"`
 }
 
 // Validate validates this moves list
