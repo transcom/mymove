@@ -111,12 +111,8 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithGovCounse
   Taking the survey at each stage provides transparency and increases accountability of those assisting you with your relocation.
 </p>
 
-<p>
-  Thank you,
-</p>
-<p>
-  USTRANSCOM MilMove Team
-</p>
+Thank you,<br>
+USTRANSCOM MilMove Team
 <p>
   The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
 </p>
@@ -207,12 +203,8 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithoutGovCou
   Taking the survey at each stage provides transparency and increases accountability of those assisting you with your relocation.
 </p>
 
-<p>
-  Thank you,
-</p>
-<p>
-  USTRANSCOM MilMove Team
-</p>
+Thank you,<br>
+USTRANSCOM MilMove Team
 <p>
   The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
 </p>
@@ -300,12 +292,8 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyLocatio
   Taking the survey at each stage provides transparency and increases accountability of those assisting you with your relocation.
 </p>
 
-<p>
-  Thank you,
-</p>
-<p>
-  USTRANSCOM MilMove Team
-</p>
+Thank you,<br>
+USTRANSCOM MilMove Team
 <p>
   The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
 </p>
@@ -381,7 +369,6 @@ You will receive an invitation to take a quick customer satisfaction survey (CSS
 Taking the survey at each stage provides transparency and increases accountability of those assisting you with your relocation.
 
 Thank you,
-
 USTRANSCOM MilMove Team
 
 The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
