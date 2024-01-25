@@ -4404,18 +4404,6 @@ func init() {
       },
       "x-nullable": true
     },
-    "DestinationType": {
-      "type": "string",
-      "title": "Destination Type",
-      "enum": [
-        "HOME_OF_RECORD",
-        "HOME_OF_SELECTION",
-        "PLACE_ENTERED_ACTIVE_DUTY",
-        "OTHER_THAN_AUTHORIZED"
-      ],
-      "x-nullable": true,
-      "example": "OTHER_THAN_AUTHORIZED"
-    },
     "Document": {
       "type": "object",
       "required": [
@@ -4712,6 +4700,76 @@ func init() {
         "$ref": "#/definitions/ServiceMemberBackupContactPayload"
       }
     },
+    "InternalMove": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "excessWeightAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessWeightQualifiedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "a502b4f1-b9c4-4faf-8bdd-68292501bf26"
+        },
+        "moveCode": {
+          "type": "string",
+          "readOnly": true,
+          "example": "HYXFJF"
+        },
+        "mtoShipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "order": {
+          "$ref": "#/definitions/Order"
+        },
+        "orderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "orders": {
+          "type": "object"
+        },
+        "ppmEstimatedWeight": {
+          "type": "integer"
+        },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "referenceId": {
+          "type": "string",
+          "example": "1001-3456"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "InvalidRequestResponsePayload": {
       "type": "object",
       "properties": {
@@ -4816,75 +4874,9 @@ func init() {
         }
       }
     },
-    "MTOAgent-2": {
-      "type": "object",
-      "properties": {
-        "agentType": {
-          "$ref": "#/definitions/MTOAgentType-2"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "email": {
-          "type": "string",
-          "format": "x-email",
-          "pattern": "^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})?$",
-          "x-nullable": true
-        },
-        "firstName": {
-          "type": "string",
-          "x-nullable": true
-        },
-        "id": {
-          "description": "The ID of the agent.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "lastName": {
-          "type": "string",
-          "x-nullable": true
-        },
-        "mtoShipmentID": {
-          "description": "The ID of the shipment this agent is permitted to release/receive.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "phone": {
-          "type": "string",
-          "format": "telephone",
-          "pattern": "^([2-9]\\d{2}-\\d{3}-\\d{4})?$",
-          "x-nullable": true
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
     "MTOAgentType": {
       "type": "string",
       "title": "MTO Agent Type",
-      "enum": [
-        "RELEASING_AGENT",
-        "RECEIVING_AGENT"
-      ],
-      "example": "RELEASING_AGENT"
-    },
-    "MTOAgentType-2": {
-      "description": "The type for this agent. ` + "`" + `RELEASING` + "`" + ` means they have authority on pickup, ` + "`" + `RECEIVING` + "`" + ` means they can receive the shipment on delivery.\n",
-      "type": "string",
-      "title": "Agent Type",
       "enum": [
         "RELEASING_AGENT",
         "RECEIVING_AGENT"
@@ -4896,91 +4888,6 @@ func init() {
       "items": {
         "$ref": "#/definitions/MTOAgent"
       }
-    },
-    "MTOAgents-2": {
-      "description": "A list of the agents for a shipment. Agents are the people who the Prime contractor recognize as permitted to release (in the case of pickup) or receive (on delivery) a shipment.\n",
-      "type": "array",
-      "maxItems": 2,
-      "items": {
-        "$ref": "#/definitions/MTOAgent-2"
-      }
-    },
-    "MTOServiceItem": {
-      "description": "MTOServiceItem describes a base type of a service item. Polymorphic type.",
-      "type": "object",
-      "required": [
-        "modelType",
-        "moveTaskOrderID"
-      ],
-      "properties": {
-        "eTag": {
-          "description": "A hash unique to this service item that should be used as the \"If-Match\" header for any updates.",
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "description": "The ID of the service item.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "modelType": {
-          "$ref": "#/definitions/MTOServiceItemModelType"
-        },
-        "moveTaskOrderID": {
-          "description": "The ID of the move for this service item.",
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "mtoShipmentID": {
-          "description": "The ID of the shipment this service is for, if any. Optional.",
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "reServiceName": {
-          "description": "The full descriptive name of the service.",
-          "type": "string",
-          "readOnly": true
-        },
-        "rejectionReason": {
-          "description": "The reason why this service item was rejected by the TOO.",
-          "type": "string",
-          "x-nullable": true,
-          "readOnly": true,
-          "example": "item was too heavy"
-        },
-        "serviceRequestDocuments": {
-          "$ref": "#/definitions/ServiceRequestDocuments"
-        },
-        "status": {
-          "$ref": "#/definitions/MTOServiceItemStatus"
-        }
-      },
-      "discriminator": "modelType"
-    },
-    "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
-      "type": "string",
-      "enum": [
-        "MTOServiceItemBasic",
-        "MTOServiceItemOriginSIT",
-        "MTOServiceItemDestSIT",
-        "MTOServiceItemShuttle",
-        "MTOServiceItemDomesticCrating"
-      ]
-    },
-    "MTOServiceItemStatus": {
-      "description": "The status of a service item, indicating where it is in the TOO's approval process.",
-      "type": "string",
-      "enum": [
-        "SUBMITTED",
-        "APPROVED",
-        "REJECTED"
-      ],
-      "readOnly": true
     },
     "MTOShipment": {
       "properties": {
@@ -5090,268 +4997,10 @@ func init() {
       },
       "example": "HHG"
     },
-    "MTOShipmentType-2": {
-      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n",
-      "type": "string",
-      "title": "Shipment Type",
-      "enum": [
-        "BOAT_HAUL_AWAY",
-        "BOAT_TOW_AWAY",
-        "HHG",
-        "HHG_INTO_NTS_DOMESTIC",
-        "HHG_OUTOF_NTS_DOMESTIC",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB",
-        "MOTORHOME",
-        "PPM"
-      ],
-      "x-display-value": {
-        "HHG": "Household goods move (HHG)",
-        "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
-        "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
-        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)"
-      },
-      "example": "HHG"
-    },
-    "MTOShipmentWithoutServiceItems": {
-      "type": "object",
-      "properties": {
-        "actualDeliveryDate": {
-          "description": "The date when the Prime contractor actually delivered the shipment. Updated after-the-fact.",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "actualPickupDate": {
-          "description": "The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "agents": {
-          "$ref": "#/definitions/MTOAgents-2"
-        },
-        "approvedDate": {
-          "description": "The date when the Transportation Ordering Officer first approved this shipment for the move.",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
-        "counselorRemarks": {
-          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
-          "type": "string",
-          "x-nullable": true,
-          "readOnly": true,
-          "example": "handle with care"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "customerRemarks": {
-          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
-          "type": "string",
-          "x-nullable": true,
-          "readOnly": true,
-          "example": "handle with care"
-        },
-        "deliveryAddressUpdate": {
-          "$ref": "#/definitions/ShipmentAddressUpdate"
-        },
-        "destinationAddress": {
-          "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details\nduring onboarding, if they know their new address already.\n\nMay be blank when entered by the customer, required when entered by the Prime. May not represent the true\nfinal destination due to the shipment being diverted or placed in SIT.\n",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
-        },
-        "destinationType": {
-          "$ref": "#/definitions/DestinationType"
-        },
-        "diversion": {
-          "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
-          "type": "boolean"
-        },
-        "eTag": {
-          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
-          "type": "string",
-          "readOnly": true
-        },
-        "firstAvailableDeliveryDate": {
-          "description": "The date the Prime provides to the customer as the first possible delivery date so that they can plan their travel accordingly.\n",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "id": {
-          "description": "The ID of the shipment.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "moveTaskOrderID": {
-          "description": "The ID of the move for this shipment.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "ntsRecordedWeight": {
-          "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
-          "type": "integer",
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 4500
-        },
-        "pickupAddress": {
-          "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
-        },
-        "pointOfContact": {
-          "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
-          "type": "string"
-        },
-        "ppmShipment": {
-          "$ref": "#/definitions/PPMShipment-2"
-        },
-        "primeActualWeight": {
-          "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
-          "type": "integer",
-          "minimum": 1,
-          "x-nullable": true,
-          "example": 4500
-        },
-        "primeEstimatedWeight": {
-          "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
-          "type": "integer",
-          "minimum": 1,
-          "x-nullable": true,
-          "example": 4500
-        },
-        "primeEstimatedWeightRecordedDate": {
-          "description": "The date when the Prime contractor recorded the shipment's estimated weight.",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
-        "requestedDeliveryDate": {
-          "description": "The customer's preferred delivery date.",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
-        "requestedPickupDate": {
-          "description": "The date the customer selects during onboarding as their preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
-        "requiredDeliveryDate": {
-          "description": "The latest date by which the Prime can deliver a customer's shipment without violating the contract. This is calculated based on weight, distance, and the scheduled pickup date. It cannot be modified.\n",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
-        "reweigh": {
-          "$ref": "#/definitions/Reweigh"
-        },
-        "scheduledDeliveryDate": {
-          "description": "The date the Prime contractor scheduled to deliver this shipment after consultation with the customer.",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "scheduledPickupDate": {
-          "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "secondaryDeliveryAddress": {
-          "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
-        },
-        "secondaryPickupAddress": {
-          "description": "A second pickup address for this shipment, if the customer entered one. An optional field.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
-        },
-        "shipmentType": {
-          "$ref": "#/definitions/MTOShipmentType-2"
-        },
-        "sitExtensions": {
-          "$ref": "#/definitions/SITExtensions"
-        },
-        "status": {
-          "description": "The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the contractor in special circumstances.\n",
-          "type": "string",
-          "enum": [
-            "SUBMITTED",
-            "APPROVED",
-            "REJECTED",
-            "CANCELLATION_REQUESTED",
-            "CANCELED",
-            "DIVERSION_REQUESTED"
-          ],
-          "readOnly": true
-        },
-        "storageFacility": {
-          "allOf": [
-            {
-              "x-nullable": true
-            },
-            {
-              "$ref": "#/definitions/StorageFacility"
-            }
-          ]
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
     "MTOShipments": {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOShipment"
-      }
-    },
-    "MTOShipmentsWithoutServiceObjects": {
-      "description": "A list of shipments without their associated service items.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MTOShipmentWithoutServiceItems"
       }
     },
     "MethodOfReceipt": {
@@ -5861,120 +5510,19 @@ func init() {
         "SUBMITTED": "Submitted"
       }
     },
-    "MoveTaskOrder": {
-      "type": "object",
-      "required": [
-        "mtoShipments",
-        "mtoServiceItems",
-        "paymentRequests"
-      ],
-      "properties": {
-        "availableToPrimeAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "readOnly": true
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "excessWeightAcknowledgedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
-        "excessWeightQualifiedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
-        "excessWeightUploadId": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "a502b4f1-b9c4-4faf-8bdd-68292501bf26"
-        },
-        "moveCode": {
-          "type": "string",
-          "readOnly": true,
-          "example": "HYXFJF"
-        },
-        "mtoServiceItems": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
-        },
-        "mtoShipments": {
-          "$ref": "#/definitions/MTOShipmentsWithoutServiceObjects"
-        },
-        "order": {
-          "$ref": "#/definitions/Order"
-        },
-        "orderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "paymentRequests": {
-          "$ref": "#/definitions/PaymentRequests"
-        },
-        "ppmEstimatedWeight": {
-          "type": "integer"
-        },
-        "ppmType": {
-          "type": "string",
-          "enum": [
-            "PARTIAL",
-            "FULL"
-          ]
-        },
-        "primeCounselingCompletedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "readOnly": true
-        },
-        "referenceId": {
-          "type": "string",
-          "example": "1001-3456"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
     "MovesList": {
       "type": "object",
       "properties": {
         "currentMove": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/MoveTaskOrder"
+            "$ref": "#/definitions/InternalMove"
           }
         },
         "previousMoves": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/MoveTaskOrder"
+            "$ref": "#/definitions/InternalMove"
           }
         }
       }
@@ -6909,246 +6457,6 @@ func init() {
       },
       "x-nullable": true
     },
-    "PPMShipment-2": {
-      "description": "A personally procured move is a type of shipment that a service member moves themselves.",
-      "required": [
-        "id",
-        "shipmentId",
-        "createdAt",
-        "status",
-        "expectedDepartureDate",
-        "pickupPostalCode",
-        "destinationPostalCode",
-        "sitExpected",
-        "eTag"
-      ],
-      "properties": {
-        "actualDestinationPostalCode": {
-          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
-        "actualMoveDate": {
-          "description": "The actual start date of when the PPM shipment left the origin.",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "actualPickupPostalCode": {
-          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
-        "advanceAmountReceived": {
-          "description": "The amount received for an advance, or null if no advance is received.\n",
-          "type": "integer",
-          "format": "cents",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "advanceAmountRequested": {
-          "description": "The amount requested as an advance by the service member, up to a maximum percentage of the estimated incentive.\n",
-          "type": "integer",
-          "format": "cents",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "approvedAt": {
-          "description": "The timestamp of when the shipment was approved and the service member can begin their move.",
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "createdAt": {
-          "description": "The timestamp of when the PPM shipment was created (UTC)",
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "destinationPostalCode": {
-          "description": "The postal code of the destination location where goods are being delivered to.",
-          "type": "string",
-          "format": "zip",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
-        "eTag": {
-          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
-          "type": "string",
-          "readOnly": true
-        },
-        "estimatedIncentive": {
-          "description": "The estimated amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
-          "type": "integer",
-          "format": "cents",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "estimatedWeight": {
-          "description": "The estimated weight of the PPM shipment goods being moved in pounds.",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 4200
-        },
-        "expectedDepartureDate": {
-          "description": "Date the customer expects to begin moving from their origin.\n",
-          "type": "string",
-          "format": "date"
-        },
-        "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
-          "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "hasReceivedAdvance": {
-          "description": "Indicates whether an advance was received for the PPM shipment.\n",
-          "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "hasRequestedAdvance": {
-          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
-          "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "id": {
-          "description": "The primary unique identifier of this PPM shipment",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "pickupPostalCode": {
-          "description": "The postal code of the origin location where goods are being moved from.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
-        "proGearWeight": {
-          "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "reviewedAt": {
-          "description": "The timestamp of when the Service Counselor has reviewed all of the closeout documents.",
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "secondaryDestinationPostalCode": {
-          "description": "An optional secondary location near the destination where goods will be dropped off.",
-          "type": "string",
-          "format": "zip",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
-        "secondaryPickupPostalCode": {
-          "description": "An optional secondary pickup location near the origin where additional goods exist.",
-          "type": "string",
-          "format": "zip",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
-        "shipmentId": {
-          "description": "The id of the parent MTOShipment record",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "sitEstimatedCost": {
-          "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
-          "type": "integer",
-          "format": "cents",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "sitEstimatedDepartureDate": {
-          "description": "The date that goods will exit the storage location.",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "sitEstimatedEntryDate": {
-          "description": "The date that goods will first enter the storage location.",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "sitEstimatedWeight": {
-          "description": "The estimated weight of the goods being put into storage in pounds.",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 2000
-        },
-        "sitExpected": {
-          "description": "Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.\n\nMust be set to ` + "`" + `true` + "`" + ` when providing ` + "`" + `sitLocation` + "`" + `, ` + "`" + `sitEstimatedWeight` + "`" + `, ` + "`" + `sitEstimatedEntryDate` + "`" + `, and ` + "`" + `sitEstimatedDepartureDate` + "`" + ` values to calculate the ` + "`" + `sitEstimatedCost` + "`" + `.\n",
-          "type": "boolean"
-        },
-        "sitLocation": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/SITLocationType"
-            },
-            {
-              "x-nullable": true
-            },
-            {
-              "x-omitempty": false
-            }
-          ]
-        },
-        "spouseProGearWeight": {
-          "description": "The estimated weight of the pro-gear being moved belonging to a spouse in pounds.",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "status": {
-          "$ref": "#/definitions/PPMShipmentStatus"
-        },
-        "submittedAt": {
-          "description": "The timestamp of when the customer submitted their PPM documentation to the counselor for review.",
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "updatedAt": {
-          "description": "The timestamp of when a property of this object was last updated (UTC)",
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      },
-      "x-nullable": true
-    },
     "PPMShipmentStatus": {
       "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
       "type": "string",
@@ -7437,180 +6745,6 @@ func init() {
         "OTHER": {
           "type": "integer"
         }
-      }
-    },
-    "PaymentRequest": {
-      "type": "object",
-      "properties": {
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "isFinal": {
-          "type": "boolean",
-          "default": false
-        },
-        "moveTaskOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "paymentRequestNumber": {
-          "type": "string",
-          "readOnly": true,
-          "example": "1234-5678-1"
-        },
-        "paymentServiceItems": {
-          "$ref": "#/definitions/PaymentServiceItems"
-        },
-        "proofOfServiceDocs": {
-          "$ref": "#/definitions/ProofOfServiceDocs"
-        },
-        "recalculationOfPaymentRequestID": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "rejectionReason": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "documentation was incomplete"
-        },
-        "status": {
-          "$ref": "#/definitions/PaymentRequestStatus"
-        }
-      }
-    },
-    "PaymentRequestStatus": {
-      "type": "string",
-      "title": "Payment Request Status",
-      "enum": [
-        "PENDING",
-        "REVIEWED",
-        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
-        "SENT_TO_GEX",
-        "RECEIVED_BY_GEX",
-        "PAID",
-        "EDI_ERROR",
-        "DEPRECATED"
-      ]
-    },
-    "PaymentRequests": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/PaymentRequest"
-      }
-    },
-    "PaymentServiceItem": {
-      "type": "object",
-      "properties": {
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "mtoServiceItemID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "paymentRequestID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "paymentServiceItemParams": {
-          "$ref": "#/definitions/PaymentServiceItemParams"
-        },
-        "priceCents": {
-          "type": "integer",
-          "format": "cents",
-          "title": "Price of the service item in cents",
-          "x-nullable": true
-        },
-        "referenceID": {
-          "format": "string",
-          "readOnly": true,
-          "example": "1234-5678-c56a4180"
-        },
-        "rejectionReason": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "documentation was incomplete"
-        },
-        "status": {
-          "$ref": "#/definitions/PaymentServiceItemStatus"
-        }
-      }
-    },
-    "PaymentServiceItemParam": {
-      "type": "object",
-      "properties": {
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "key": {
-          "$ref": "#/definitions/ServiceItemParamName"
-        },
-        "origin": {
-          "$ref": "#/definitions/ServiceItemParamOrigin"
-        },
-        "paymentServiceItemID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "type": {
-          "$ref": "#/definitions/ServiceItemParamType"
-        },
-        "value": {
-          "type": "string",
-          "example": "3025"
-        }
-      }
-    },
-    "PaymentServiceItemParams": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/PaymentServiceItemParam"
-      }
-    },
-    "PaymentServiceItemStatus": {
-      "type": "string",
-      "title": "Payment Service Item Status",
-      "enum": [
-        "REQUESTED",
-        "APPROVED",
-        "DENIED",
-        "SENT_TO_GEX",
-        "PAID",
-        "EDI_ERROR"
-      ]
-    },
-    "PaymentServiceItems": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/PaymentServiceItem"
       }
     },
     "PersonallyProcuredMovePayload": {
@@ -7911,23 +7045,6 @@ func init() {
         }
       }
     },
-    "ProofOfServiceDoc": {
-      "type": "object",
-      "properties": {
-        "uploads": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/UploadWithOmissions"
-          }
-        }
-      }
-    },
-    "ProofOfServiceDocs": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/ProofOfServiceDoc"
-      }
-    },
     "RateEnginePostalCodePayload": {
       "type": "object",
       "required": [
@@ -8003,70 +7120,6 @@ func init() {
       ],
       "x-nullable": true
     },
-    "Reweigh": {
-      "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
-      "properties": {
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "requestedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "requestedBy": {
-          "$ref": "#/definitions/ReweighRequester"
-        },
-        "shipmentID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "verificationProvidedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "verificationReason": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The reweigh was not performed due to some justification provided by the Prime"
-        },
-        "weight": {
-          "type": "integer",
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 2000
-        }
-      }
-    },
-    "ReweighRequester": {
-      "type": "string",
-      "enum": [
-        "CUSTOMER",
-        "PRIME",
-        "SYSTEM",
-        "TOO"
-      ]
-    },
     "Role": {
       "type": "object",
       "required": [
@@ -8093,88 +7146,6 @@ func init() {
           "type": "string",
           "format": "date-time"
         }
-      }
-    },
-    "SITExtension": {
-      "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
-      "type": "object",
-      "properties": {
-        "approvedDays": {
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 30
-        },
-        "contractorRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "We need SIT additional days. The customer has not found a house yet."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "decisionDate": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "mtoShipmentID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "officeRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "requestReason": {
-          "type": "string",
-          "enum": [
-            "SERIOUS_ILLNESS_MEMBER",
-            "SERIOUS_ILLNESS_DEPENDENT",
-            "IMPENDING_ASSIGNEMENT",
-            "DIRECTED_TEMPORARY_DUTY",
-            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
-            "AWAITING_COMPLETION_OF_RESIDENCE",
-            "OTHER"
-          ]
-        },
-        "requestedDays": {
-          "type": "integer",
-          "example": 30
-        },
-        "status": {
-          "enum": [
-            "PENDING",
-            "APPROVED",
-            "DENIED"
-          ]
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "SITExtensions": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/SITExtension"
       }
     },
     "SITLocationType": {
@@ -8207,98 +7178,6 @@ func init() {
           "type": "string"
         }
       }
-    },
-    "ServiceItemParamName": {
-      "type": "string",
-      "enum": [
-        "ActualPickupDate",
-        "ContractCode",
-        "ContractYearName",
-        "CubicFeetBilled",
-        "CubicFeetCrating",
-        "DimensionHeight",
-        "DimensionLength",
-        "DimensionWidth",
-        "DistanceZip",
-        "DistanceZipSITDest",
-        "DistanceZipSITOrigin",
-        "EIAFuelPrice",
-        "EscalationCompounded",
-        "FSCMultiplier",
-        "FSCPriceDifferenceInCents",
-        "FSCWeightBasedDistanceMultiplier",
-        "IsPeak",
-        "MarketDest",
-        "MarketOrigin",
-        "MTOAvailableToPrimeAt",
-        "NTSPackingFactor",
-        "NumberDaysSIT",
-        "PriceAreaDest",
-        "PriceAreaIntlDest",
-        "PriceAreaIntlOrigin",
-        "PriceAreaOrigin",
-        "PriceRateOrFactor",
-        "PSI_LinehaulDom",
-        "PSI_LinehaulDomPrice",
-        "PSI_LinehaulShort",
-        "PSI_LinehaulShortPrice",
-        "PSI_PriceDomDest",
-        "PSI_PriceDomDestPrice",
-        "PSI_PriceDomOrigin",
-        "PSI_PriceDomOriginPrice",
-        "PSI_ShippingLinehaulIntlCO",
-        "PSI_ShippingLinehaulIntlCOPrice",
-        "PSI_ShippingLinehaulIntlOC",
-        "PSI_ShippingLinehaulIntlOCPrice",
-        "PSI_ShippingLinehaulIntlOO",
-        "PSI_ShippingLinehaulIntlOOPrice",
-        "RateAreaNonStdDest",
-        "RateAreaNonStdOrigin",
-        "ReferenceDate",
-        "RequestedPickupDate",
-        "ServiceAreaDest",
-        "ServiceAreaOrigin",
-        "ServicesScheduleDest",
-        "ServicesScheduleOrigin",
-        "SITPaymentRequestEnd",
-        "SITPaymentRequestStart",
-        "SITScheduleDest",
-        "SITScheduleOrigin",
-        "SITServiceAreaDest",
-        "SITServiceAreaOrigin",
-        "WeightAdjusted",
-        "WeightBilled",
-        "WeightEstimated",
-        "WeightOriginal",
-        "WeightReweigh",
-        "ZipDestAddress",
-        "ZipPickupAddress",
-        "ZipSITDestHHGFinalAddress",
-        "ZipSITDestHHGOriginalAddress",
-        "ZipSITOriginHHGActualAddress",
-        "ZipSITOriginHHGOriginalAddress"
-      ]
-    },
-    "ServiceItemParamOrigin": {
-      "type": "string",
-      "enum": [
-        "PRIME",
-        "SYSTEM",
-        "PRICER",
-        "PAYMENT_REQUEST"
-      ]
-    },
-    "ServiceItemParamType": {
-      "type": "string",
-      "enum": [
-        "STRING",
-        "DATE",
-        "INTEGER",
-        "DECIMAL",
-        "TIMESTAMP",
-        "PaymentServiceItemUUID",
-        "BOOLEAN"
-      ]
     },
     "ServiceMemberBackupContactPayload": {
       "type": "object",
@@ -8555,87 +7434,6 @@ func init() {
       },
       "x-nullable": true
     },
-    "ServiceRequestDocument": {
-      "type": "object",
-      "properties": {
-        "uploads": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/UploadWithOmissions"
-          }
-        }
-      }
-    },
-    "ServiceRequestDocuments": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/ServiceRequestDocument"
-      }
-    },
-    "ShipmentAddressUpdate": {
-      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
-      "type": "object",
-      "required": [
-        "id",
-        "status",
-        "shipmentID",
-        "originalAddress",
-        "newAddress",
-        "contractorRemarks"
-      ],
-      "properties": {
-        "contractorRemarks": {
-          "description": "The reason there is an address change.",
-          "type": "string",
-          "title": "Contractor Remarks",
-          "readOnly": true,
-          "example": "This is a contractor remark"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "officeRemarks": {
-          "description": "The TOO comment on approval or rejection.",
-          "type": "string",
-          "title": "Office Remarks",
-          "x-nullable": true,
-          "example": "This is an office remark"
-        },
-        "originalAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "shipmentID": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "status": {
-          "$ref": "#/definitions/ShipmentAddressUpdateStatus"
-        }
-      }
-    },
-    "ShipmentAddressUpdateStatus": {
-      "type": "string",
-      "title": "Status",
-      "enum": [
-        "REQUESTED",
-        "REJECTED",
-        "APPROVED"
-      ],
-      "x-display-value": {
-        "APPROVED": "APPROVED",
-        "REJECTED": "REJECTED",
-        "REQUESTED": "REQUESTED"
-      },
-      "readOnly": true
-    },
     "SignedCertification": {
       "description": "Signed certification",
       "type": "object",
@@ -8790,43 +7588,6 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/SignedCertificationPayload"
-      }
-    },
-    "StorageFacility": {
-      "description": "The Storage Facility information for the shipment",
-      "type": "object",
-      "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "email": {
-          "type": "string",
-          "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-          "x-nullable": true
-        },
-        "facilityName": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "lotNumber": {
-          "type": "string",
-          "x-nullable": true
-        },
-        "phone": {
-          "type": "string",
-          "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-          "x-nullable": true
-        }
       }
     },
     "SubmitMoveForApprovalPayload": {
@@ -9422,57 +8183,6 @@ func init() {
           "type": "string",
           "format": "uri",
           "readOnly": true,
-          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
-        }
-      }
-    },
-    "UploadWithOmissions": {
-      "description": "An uploaded file.",
-      "type": "object",
-      "required": [
-        "filename",
-        "contentType",
-        "bytes"
-      ],
-      "properties": {
-        "bytes": {
-          "type": "integer"
-        },
-        "contentType": {
-          "type": "string",
-          "format": "mime-type",
-          "example": "application/pdf"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "filename": {
-          "type": "string",
-          "example": "filename.pdf"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "INFECTED",
-            "CLEAN",
-            "PROCESSING"
-          ]
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "url": {
-          "type": "string",
-          "format": "uri",
           "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
@@ -14685,18 +13395,6 @@ func init() {
       },
       "x-nullable": true
     },
-    "DestinationType": {
-      "type": "string",
-      "title": "Destination Type",
-      "enum": [
-        "HOME_OF_RECORD",
-        "HOME_OF_SELECTION",
-        "PLACE_ENTERED_ACTIVE_DUTY",
-        "OTHER_THAN_AUTHORIZED"
-      ],
-      "x-nullable": true,
-      "example": "OTHER_THAN_AUTHORIZED"
-    },
     "Document": {
       "type": "object",
       "required": [
@@ -14993,6 +13691,76 @@ func init() {
         "$ref": "#/definitions/ServiceMemberBackupContactPayload"
       }
     },
+    "InternalMove": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "excessWeightAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessWeightQualifiedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "a502b4f1-b9c4-4faf-8bdd-68292501bf26"
+        },
+        "moveCode": {
+          "type": "string",
+          "readOnly": true,
+          "example": "HYXFJF"
+        },
+        "mtoShipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "order": {
+          "$ref": "#/definitions/Order"
+        },
+        "orderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "orders": {
+          "type": "object"
+        },
+        "ppmEstimatedWeight": {
+          "type": "integer"
+        },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "referenceId": {
+          "type": "string",
+          "example": "1001-3456"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "InvalidRequestResponsePayload": {
       "type": "object",
       "properties": {
@@ -15097,75 +13865,9 @@ func init() {
         }
       }
     },
-    "MTOAgent-2": {
-      "type": "object",
-      "properties": {
-        "agentType": {
-          "$ref": "#/definitions/MTOAgentType-2"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "email": {
-          "type": "string",
-          "format": "x-email",
-          "pattern": "^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})?$",
-          "x-nullable": true
-        },
-        "firstName": {
-          "type": "string",
-          "x-nullable": true
-        },
-        "id": {
-          "description": "The ID of the agent.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "lastName": {
-          "type": "string",
-          "x-nullable": true
-        },
-        "mtoShipmentID": {
-          "description": "The ID of the shipment this agent is permitted to release/receive.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "phone": {
-          "type": "string",
-          "format": "telephone",
-          "pattern": "^([2-9]\\d{2}-\\d{3}-\\d{4})?$",
-          "x-nullable": true
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
     "MTOAgentType": {
       "type": "string",
       "title": "MTO Agent Type",
-      "enum": [
-        "RELEASING_AGENT",
-        "RECEIVING_AGENT"
-      ],
-      "example": "RELEASING_AGENT"
-    },
-    "MTOAgentType-2": {
-      "description": "The type for this agent. ` + "`" + `RELEASING` + "`" + ` means they have authority on pickup, ` + "`" + `RECEIVING` + "`" + ` means they can receive the shipment on delivery.\n",
-      "type": "string",
-      "title": "Agent Type",
       "enum": [
         "RELEASING_AGENT",
         "RECEIVING_AGENT"
@@ -15177,91 +13879,6 @@ func init() {
       "items": {
         "$ref": "#/definitions/MTOAgent"
       }
-    },
-    "MTOAgents-2": {
-      "description": "A list of the agents for a shipment. Agents are the people who the Prime contractor recognize as permitted to release (in the case of pickup) or receive (on delivery) a shipment.\n",
-      "type": "array",
-      "maxItems": 2,
-      "items": {
-        "$ref": "#/definitions/MTOAgent-2"
-      }
-    },
-    "MTOServiceItem": {
-      "description": "MTOServiceItem describes a base type of a service item. Polymorphic type.",
-      "type": "object",
-      "required": [
-        "modelType",
-        "moveTaskOrderID"
-      ],
-      "properties": {
-        "eTag": {
-          "description": "A hash unique to this service item that should be used as the \"If-Match\" header for any updates.",
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "description": "The ID of the service item.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "modelType": {
-          "$ref": "#/definitions/MTOServiceItemModelType"
-        },
-        "moveTaskOrderID": {
-          "description": "The ID of the move for this service item.",
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "mtoShipmentID": {
-          "description": "The ID of the shipment this service is for, if any. Optional.",
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "reServiceName": {
-          "description": "The full descriptive name of the service.",
-          "type": "string",
-          "readOnly": true
-        },
-        "rejectionReason": {
-          "description": "The reason why this service item was rejected by the TOO.",
-          "type": "string",
-          "x-nullable": true,
-          "readOnly": true,
-          "example": "item was too heavy"
-        },
-        "serviceRequestDocuments": {
-          "$ref": "#/definitions/ServiceRequestDocuments"
-        },
-        "status": {
-          "$ref": "#/definitions/MTOServiceItemStatus"
-        }
-      },
-      "discriminator": "modelType"
-    },
-    "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
-      "type": "string",
-      "enum": [
-        "MTOServiceItemBasic",
-        "MTOServiceItemOriginSIT",
-        "MTOServiceItemDestSIT",
-        "MTOServiceItemShuttle",
-        "MTOServiceItemDomesticCrating"
-      ]
-    },
-    "MTOServiceItemStatus": {
-      "description": "The status of a service item, indicating where it is in the TOO's approval process.",
-      "type": "string",
-      "enum": [
-        "SUBMITTED",
-        "APPROVED",
-        "REJECTED"
-      ],
-      "readOnly": true
     },
     "MTOShipment": {
       "properties": {
@@ -15371,268 +13988,10 @@ func init() {
       },
       "example": "HHG"
     },
-    "MTOShipmentType-2": {
-      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n",
-      "type": "string",
-      "title": "Shipment Type",
-      "enum": [
-        "BOAT_HAUL_AWAY",
-        "BOAT_TOW_AWAY",
-        "HHG",
-        "HHG_INTO_NTS_DOMESTIC",
-        "HHG_OUTOF_NTS_DOMESTIC",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB",
-        "MOTORHOME",
-        "PPM"
-      ],
-      "x-display-value": {
-        "HHG": "Household goods move (HHG)",
-        "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
-        "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
-        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)"
-      },
-      "example": "HHG"
-    },
-    "MTOShipmentWithoutServiceItems": {
-      "type": "object",
-      "properties": {
-        "actualDeliveryDate": {
-          "description": "The date when the Prime contractor actually delivered the shipment. Updated after-the-fact.",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "actualPickupDate": {
-          "description": "The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "agents": {
-          "$ref": "#/definitions/MTOAgents-2"
-        },
-        "approvedDate": {
-          "description": "The date when the Transportation Ordering Officer first approved this shipment for the move.",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
-        "counselorRemarks": {
-          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
-          "type": "string",
-          "x-nullable": true,
-          "readOnly": true,
-          "example": "handle with care"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "customerRemarks": {
-          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
-          "type": "string",
-          "x-nullable": true,
-          "readOnly": true,
-          "example": "handle with care"
-        },
-        "deliveryAddressUpdate": {
-          "$ref": "#/definitions/ShipmentAddressUpdate"
-        },
-        "destinationAddress": {
-          "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details\nduring onboarding, if they know their new address already.\n\nMay be blank when entered by the customer, required when entered by the Prime. May not represent the true\nfinal destination due to the shipment being diverted or placed in SIT.\n",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
-        },
-        "destinationType": {
-          "$ref": "#/definitions/DestinationType"
-        },
-        "diversion": {
-          "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
-          "type": "boolean"
-        },
-        "eTag": {
-          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
-          "type": "string",
-          "readOnly": true
-        },
-        "firstAvailableDeliveryDate": {
-          "description": "The date the Prime provides to the customer as the first possible delivery date so that they can plan their travel accordingly.\n",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "id": {
-          "description": "The ID of the shipment.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "moveTaskOrderID": {
-          "description": "The ID of the move for this shipment.",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "ntsRecordedWeight": {
-          "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
-          "type": "integer",
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 4500
-        },
-        "pickupAddress": {
-          "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
-        },
-        "pointOfContact": {
-          "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
-          "type": "string"
-        },
-        "ppmShipment": {
-          "$ref": "#/definitions/PPMShipment-2"
-        },
-        "primeActualWeight": {
-          "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
-          "type": "integer",
-          "minimum": 1,
-          "x-nullable": true,
-          "example": 4500
-        },
-        "primeEstimatedWeight": {
-          "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
-          "type": "integer",
-          "minimum": 1,
-          "x-nullable": true,
-          "example": 4500
-        },
-        "primeEstimatedWeightRecordedDate": {
-          "description": "The date when the Prime contractor recorded the shipment's estimated weight.",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
-        "requestedDeliveryDate": {
-          "description": "The customer's preferred delivery date.",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
-        "requestedPickupDate": {
-          "description": "The date the customer selects during onboarding as their preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
-        "requiredDeliveryDate": {
-          "description": "The latest date by which the Prime can deliver a customer's shipment without violating the contract. This is calculated based on weight, distance, and the scheduled pickup date. It cannot be modified.\n",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
-        "reweigh": {
-          "$ref": "#/definitions/Reweigh"
-        },
-        "scheduledDeliveryDate": {
-          "description": "The date the Prime contractor scheduled to deliver this shipment after consultation with the customer.",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "scheduledPickupDate": {
-          "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "secondaryDeliveryAddress": {
-          "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
-        },
-        "secondaryPickupAddress": {
-          "description": "A second pickup address for this shipment, if the customer entered one. An optional field.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
-        },
-        "shipmentType": {
-          "$ref": "#/definitions/MTOShipmentType-2"
-        },
-        "sitExtensions": {
-          "$ref": "#/definitions/SITExtensions"
-        },
-        "status": {
-          "description": "The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the contractor in special circumstances.\n",
-          "type": "string",
-          "enum": [
-            "SUBMITTED",
-            "APPROVED",
-            "REJECTED",
-            "CANCELLATION_REQUESTED",
-            "CANCELED",
-            "DIVERSION_REQUESTED"
-          ],
-          "readOnly": true
-        },
-        "storageFacility": {
-          "allOf": [
-            {
-              "x-nullable": true
-            },
-            {
-              "$ref": "#/definitions/StorageFacility"
-            }
-          ]
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
     "MTOShipments": {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOShipment"
-      }
-    },
-    "MTOShipmentsWithoutServiceObjects": {
-      "description": "A list of shipments without their associated service items.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MTOShipmentWithoutServiceItems"
       }
     },
     "MethodOfReceipt": {
@@ -16144,120 +14503,19 @@ func init() {
         "SUBMITTED": "Submitted"
       }
     },
-    "MoveTaskOrder": {
-      "type": "object",
-      "required": [
-        "mtoShipments",
-        "mtoServiceItems",
-        "paymentRequests"
-      ],
-      "properties": {
-        "availableToPrimeAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "readOnly": true
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "excessWeightAcknowledgedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
-        "excessWeightQualifiedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
-        "excessWeightUploadId": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "a502b4f1-b9c4-4faf-8bdd-68292501bf26"
-        },
-        "moveCode": {
-          "type": "string",
-          "readOnly": true,
-          "example": "HYXFJF"
-        },
-        "mtoServiceItems": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
-        },
-        "mtoShipments": {
-          "$ref": "#/definitions/MTOShipmentsWithoutServiceObjects"
-        },
-        "order": {
-          "$ref": "#/definitions/Order"
-        },
-        "orderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "paymentRequests": {
-          "$ref": "#/definitions/PaymentRequests"
-        },
-        "ppmEstimatedWeight": {
-          "type": "integer"
-        },
-        "ppmType": {
-          "type": "string",
-          "enum": [
-            "PARTIAL",
-            "FULL"
-          ]
-        },
-        "primeCounselingCompletedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "readOnly": true
-        },
-        "referenceId": {
-          "type": "string",
-          "example": "1001-3456"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
     "MovesList": {
       "type": "object",
       "properties": {
         "currentMove": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/MoveTaskOrder"
+            "$ref": "#/definitions/InternalMove"
           }
         },
         "previousMoves": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/MoveTaskOrder"
+            "$ref": "#/definitions/InternalMove"
           }
         }
       }
@@ -17192,246 +15450,6 @@ func init() {
       },
       "x-nullable": true
     },
-    "PPMShipment-2": {
-      "description": "A personally procured move is a type of shipment that a service member moves themselves.",
-      "required": [
-        "id",
-        "shipmentId",
-        "createdAt",
-        "status",
-        "expectedDepartureDate",
-        "pickupPostalCode",
-        "destinationPostalCode",
-        "sitExpected",
-        "eTag"
-      ],
-      "properties": {
-        "actualDestinationPostalCode": {
-          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
-        "actualMoveDate": {
-          "description": "The actual start date of when the PPM shipment left the origin.",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "actualPickupPostalCode": {
-          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
-        "advanceAmountReceived": {
-          "description": "The amount received for an advance, or null if no advance is received.\n",
-          "type": "integer",
-          "format": "cents",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "advanceAmountRequested": {
-          "description": "The amount requested as an advance by the service member, up to a maximum percentage of the estimated incentive.\n",
-          "type": "integer",
-          "format": "cents",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "approvedAt": {
-          "description": "The timestamp of when the shipment was approved and the service member can begin their move.",
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "createdAt": {
-          "description": "The timestamp of when the PPM shipment was created (UTC)",
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "destinationPostalCode": {
-          "description": "The postal code of the destination location where goods are being delivered to.",
-          "type": "string",
-          "format": "zip",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
-        "eTag": {
-          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
-          "type": "string",
-          "readOnly": true
-        },
-        "estimatedIncentive": {
-          "description": "The estimated amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
-          "type": "integer",
-          "format": "cents",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "estimatedWeight": {
-          "description": "The estimated weight of the PPM shipment goods being moved in pounds.",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 4200
-        },
-        "expectedDepartureDate": {
-          "description": "Date the customer expects to begin moving from their origin.\n",
-          "type": "string",
-          "format": "date"
-        },
-        "hasProGear": {
-          "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
-          "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "hasReceivedAdvance": {
-          "description": "Indicates whether an advance was received for the PPM shipment.\n",
-          "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "hasRequestedAdvance": {
-          "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
-          "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "id": {
-          "description": "The primary unique identifier of this PPM shipment",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "pickupPostalCode": {
-          "description": "The postal code of the origin location where goods are being moved from.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
-        "proGearWeight": {
-          "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "reviewedAt": {
-          "description": "The timestamp of when the Service Counselor has reviewed all of the closeout documents.",
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "secondaryDestinationPostalCode": {
-          "description": "An optional secondary location near the destination where goods will be dropped off.",
-          "type": "string",
-          "format": "zip",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
-        "secondaryPickupPostalCode": {
-          "description": "An optional secondary pickup location near the origin where additional goods exist.",
-          "type": "string",
-          "format": "zip",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
-        "shipmentId": {
-          "description": "The id of the parent MTOShipment record",
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "sitEstimatedCost": {
-          "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
-          "type": "integer",
-          "format": "cents",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "sitEstimatedDepartureDate": {
-          "description": "The date that goods will exit the storage location.",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "sitEstimatedEntryDate": {
-          "description": "The date that goods will first enter the storage location.",
-          "type": "string",
-          "format": "date",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "sitEstimatedWeight": {
-          "description": "The estimated weight of the goods being put into storage in pounds.",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 2000
-        },
-        "sitExpected": {
-          "description": "Captures whether some or all of the PPM shipment will require temporary storage at the origin or destination.\n\nMust be set to ` + "`" + `true` + "`" + ` when providing ` + "`" + `sitLocation` + "`" + `, ` + "`" + `sitEstimatedWeight` + "`" + `, ` + "`" + `sitEstimatedEntryDate` + "`" + `, and ` + "`" + `sitEstimatedDepartureDate` + "`" + ` values to calculate the ` + "`" + `sitEstimatedCost` + "`" + `.\n",
-          "type": "boolean"
-        },
-        "sitLocation": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/SITLocationType"
-            },
-            {
-              "x-nullable": true
-            },
-            {
-              "x-omitempty": false
-            }
-          ]
-        },
-        "spouseProGearWeight": {
-          "description": "The estimated weight of the pro-gear being moved belonging to a spouse in pounds.",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "status": {
-          "$ref": "#/definitions/PPMShipmentStatus"
-        },
-        "submittedAt": {
-          "description": "The timestamp of when the customer submitted their PPM documentation to the counselor for review.",
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "updatedAt": {
-          "description": "The timestamp of when a property of this object was last updated (UTC)",
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      },
-      "x-nullable": true
-    },
     "PPMShipmentStatus": {
       "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
       "type": "string",
@@ -17722,180 +15740,6 @@ func init() {
         "OTHER": {
           "type": "integer"
         }
-      }
-    },
-    "PaymentRequest": {
-      "type": "object",
-      "properties": {
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "isFinal": {
-          "type": "boolean",
-          "default": false
-        },
-        "moveTaskOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "paymentRequestNumber": {
-          "type": "string",
-          "readOnly": true,
-          "example": "1234-5678-1"
-        },
-        "paymentServiceItems": {
-          "$ref": "#/definitions/PaymentServiceItems"
-        },
-        "proofOfServiceDocs": {
-          "$ref": "#/definitions/ProofOfServiceDocs"
-        },
-        "recalculationOfPaymentRequestID": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "rejectionReason": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "documentation was incomplete"
-        },
-        "status": {
-          "$ref": "#/definitions/PaymentRequestStatus"
-        }
-      }
-    },
-    "PaymentRequestStatus": {
-      "type": "string",
-      "title": "Payment Request Status",
-      "enum": [
-        "PENDING",
-        "REVIEWED",
-        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
-        "SENT_TO_GEX",
-        "RECEIVED_BY_GEX",
-        "PAID",
-        "EDI_ERROR",
-        "DEPRECATED"
-      ]
-    },
-    "PaymentRequests": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/PaymentRequest"
-      }
-    },
-    "PaymentServiceItem": {
-      "type": "object",
-      "properties": {
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "mtoServiceItemID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "paymentRequestID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "paymentServiceItemParams": {
-          "$ref": "#/definitions/PaymentServiceItemParams"
-        },
-        "priceCents": {
-          "type": "integer",
-          "format": "cents",
-          "title": "Price of the service item in cents",
-          "x-nullable": true
-        },
-        "referenceID": {
-          "format": "string",
-          "readOnly": true,
-          "example": "1234-5678-c56a4180"
-        },
-        "rejectionReason": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "documentation was incomplete"
-        },
-        "status": {
-          "$ref": "#/definitions/PaymentServiceItemStatus"
-        }
-      }
-    },
-    "PaymentServiceItemParam": {
-      "type": "object",
-      "properties": {
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "key": {
-          "$ref": "#/definitions/ServiceItemParamName"
-        },
-        "origin": {
-          "$ref": "#/definitions/ServiceItemParamOrigin"
-        },
-        "paymentServiceItemID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "type": {
-          "$ref": "#/definitions/ServiceItemParamType"
-        },
-        "value": {
-          "type": "string",
-          "example": "3025"
-        }
-      }
-    },
-    "PaymentServiceItemParams": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/PaymentServiceItemParam"
-      }
-    },
-    "PaymentServiceItemStatus": {
-      "type": "string",
-      "title": "Payment Service Item Status",
-      "enum": [
-        "REQUESTED",
-        "APPROVED",
-        "DENIED",
-        "SENT_TO_GEX",
-        "PAID",
-        "EDI_ERROR"
-      ]
-    },
-    "PaymentServiceItems": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/PaymentServiceItem"
       }
     },
     "PersonallyProcuredMovePayload": {
@@ -18199,23 +16043,6 @@ func init() {
         }
       }
     },
-    "ProofOfServiceDoc": {
-      "type": "object",
-      "properties": {
-        "uploads": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/UploadWithOmissions"
-          }
-        }
-      }
-    },
-    "ProofOfServiceDocs": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/ProofOfServiceDoc"
-      }
-    },
     "RateEnginePostalCodePayload": {
       "type": "object",
       "required": [
@@ -18291,70 +16118,6 @@ func init() {
       ],
       "x-nullable": true
     },
-    "Reweigh": {
-      "description": "A reweigh  is when a shipment is weighed for a second time due to the request of a customer, the contractor, system or TOO.",
-      "properties": {
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "requestedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "requestedBy": {
-          "$ref": "#/definitions/ReweighRequester"
-        },
-        "shipmentID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "verificationProvidedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "verificationReason": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The reweigh was not performed due to some justification provided by the Prime"
-        },
-        "weight": {
-          "type": "integer",
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 2000
-        }
-      }
-    },
-    "ReweighRequester": {
-      "type": "string",
-      "enum": [
-        "CUSTOMER",
-        "PRIME",
-        "SYSTEM",
-        "TOO"
-      ]
-    },
     "Role": {
       "type": "object",
       "required": [
@@ -18381,88 +16144,6 @@ func init() {
           "type": "string",
           "format": "date-time"
         }
-      }
-    },
-    "SITExtension": {
-      "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
-      "type": "object",
-      "properties": {
-        "approvedDays": {
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": 30
-        },
-        "contractorRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "We need SIT additional days. The customer has not found a house yet."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "decisionDate": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "mtoShipmentID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "officeRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "requestReason": {
-          "type": "string",
-          "enum": [
-            "SERIOUS_ILLNESS_MEMBER",
-            "SERIOUS_ILLNESS_DEPENDENT",
-            "IMPENDING_ASSIGNEMENT",
-            "DIRECTED_TEMPORARY_DUTY",
-            "NONAVAILABILITY_OF_CIVILIAN_HOUSING",
-            "AWAITING_COMPLETION_OF_RESIDENCE",
-            "OTHER"
-          ]
-        },
-        "requestedDays": {
-          "type": "integer",
-          "example": 30
-        },
-        "status": {
-          "enum": [
-            "PENDING",
-            "APPROVED",
-            "DENIED"
-          ]
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "SITExtensions": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/SITExtension"
       }
     },
     "SITLocationType": {
@@ -18495,98 +16176,6 @@ func init() {
           "type": "string"
         }
       }
-    },
-    "ServiceItemParamName": {
-      "type": "string",
-      "enum": [
-        "ActualPickupDate",
-        "ContractCode",
-        "ContractYearName",
-        "CubicFeetBilled",
-        "CubicFeetCrating",
-        "DimensionHeight",
-        "DimensionLength",
-        "DimensionWidth",
-        "DistanceZip",
-        "DistanceZipSITDest",
-        "DistanceZipSITOrigin",
-        "EIAFuelPrice",
-        "EscalationCompounded",
-        "FSCMultiplier",
-        "FSCPriceDifferenceInCents",
-        "FSCWeightBasedDistanceMultiplier",
-        "IsPeak",
-        "MarketDest",
-        "MarketOrigin",
-        "MTOAvailableToPrimeAt",
-        "NTSPackingFactor",
-        "NumberDaysSIT",
-        "PriceAreaDest",
-        "PriceAreaIntlDest",
-        "PriceAreaIntlOrigin",
-        "PriceAreaOrigin",
-        "PriceRateOrFactor",
-        "PSI_LinehaulDom",
-        "PSI_LinehaulDomPrice",
-        "PSI_LinehaulShort",
-        "PSI_LinehaulShortPrice",
-        "PSI_PriceDomDest",
-        "PSI_PriceDomDestPrice",
-        "PSI_PriceDomOrigin",
-        "PSI_PriceDomOriginPrice",
-        "PSI_ShippingLinehaulIntlCO",
-        "PSI_ShippingLinehaulIntlCOPrice",
-        "PSI_ShippingLinehaulIntlOC",
-        "PSI_ShippingLinehaulIntlOCPrice",
-        "PSI_ShippingLinehaulIntlOO",
-        "PSI_ShippingLinehaulIntlOOPrice",
-        "RateAreaNonStdDest",
-        "RateAreaNonStdOrigin",
-        "ReferenceDate",
-        "RequestedPickupDate",
-        "ServiceAreaDest",
-        "ServiceAreaOrigin",
-        "ServicesScheduleDest",
-        "ServicesScheduleOrigin",
-        "SITPaymentRequestEnd",
-        "SITPaymentRequestStart",
-        "SITScheduleDest",
-        "SITScheduleOrigin",
-        "SITServiceAreaDest",
-        "SITServiceAreaOrigin",
-        "WeightAdjusted",
-        "WeightBilled",
-        "WeightEstimated",
-        "WeightOriginal",
-        "WeightReweigh",
-        "ZipDestAddress",
-        "ZipPickupAddress",
-        "ZipSITDestHHGFinalAddress",
-        "ZipSITDestHHGOriginalAddress",
-        "ZipSITOriginHHGActualAddress",
-        "ZipSITOriginHHGOriginalAddress"
-      ]
-    },
-    "ServiceItemParamOrigin": {
-      "type": "string",
-      "enum": [
-        "PRIME",
-        "SYSTEM",
-        "PRICER",
-        "PAYMENT_REQUEST"
-      ]
-    },
-    "ServiceItemParamType": {
-      "type": "string",
-      "enum": [
-        "STRING",
-        "DATE",
-        "INTEGER",
-        "DECIMAL",
-        "TIMESTAMP",
-        "PaymentServiceItemUUID",
-        "BOOLEAN"
-      ]
     },
     "ServiceMemberBackupContactPayload": {
       "type": "object",
@@ -18843,87 +16432,6 @@ func init() {
       },
       "x-nullable": true
     },
-    "ServiceRequestDocument": {
-      "type": "object",
-      "properties": {
-        "uploads": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/UploadWithOmissions"
-          }
-        }
-      }
-    },
-    "ServiceRequestDocuments": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/ServiceRequestDocument"
-      }
-    },
-    "ShipmentAddressUpdate": {
-      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
-      "type": "object",
-      "required": [
-        "id",
-        "status",
-        "shipmentID",
-        "originalAddress",
-        "newAddress",
-        "contractorRemarks"
-      ],
-      "properties": {
-        "contractorRemarks": {
-          "description": "The reason there is an address change.",
-          "type": "string",
-          "title": "Contractor Remarks",
-          "readOnly": true,
-          "example": "This is a contractor remark"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "officeRemarks": {
-          "description": "The TOO comment on approval or rejection.",
-          "type": "string",
-          "title": "Office Remarks",
-          "x-nullable": true,
-          "example": "This is an office remark"
-        },
-        "originalAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "shipmentID": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "status": {
-          "$ref": "#/definitions/ShipmentAddressUpdateStatus"
-        }
-      }
-    },
-    "ShipmentAddressUpdateStatus": {
-      "type": "string",
-      "title": "Status",
-      "enum": [
-        "REQUESTED",
-        "REJECTED",
-        "APPROVED"
-      ],
-      "x-display-value": {
-        "APPROVED": "APPROVED",
-        "REJECTED": "REJECTED",
-        "REQUESTED": "REQUESTED"
-      },
-      "readOnly": true
-    },
     "SignedCertification": {
       "description": "Signed certification",
       "type": "object",
@@ -19078,43 +16586,6 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/SignedCertificationPayload"
-      }
-    },
-    "StorageFacility": {
-      "description": "The Storage Facility information for the shipment",
-      "type": "object",
-      "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "email": {
-          "type": "string",
-          "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-          "x-nullable": true
-        },
-        "facilityName": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "lotNumber": {
-          "type": "string",
-          "x-nullable": true
-        },
-        "phone": {
-          "type": "string",
-          "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-          "x-nullable": true
-        }
       }
     },
     "SubmitMoveForApprovalPayload": {
@@ -19718,57 +17189,6 @@ func init() {
           "type": "string",
           "format": "uri",
           "readOnly": true,
-          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
-        }
-      }
-    },
-    "UploadWithOmissions": {
-      "description": "An uploaded file.",
-      "type": "object",
-      "required": [
-        "filename",
-        "contentType",
-        "bytes"
-      ],
-      "properties": {
-        "bytes": {
-          "type": "integer"
-        },
-        "contentType": {
-          "type": "string",
-          "format": "mime-type",
-          "example": "application/pdf"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "filename": {
-          "type": "string",
-          "example": "filename.pdf"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "INFECTED",
-            "CLEAN",
-            "PROCESSING"
-          ]
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "url": {
-          "type": "string",
-          "format": "uri",
           "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
