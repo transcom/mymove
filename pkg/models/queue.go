@@ -66,7 +66,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
-			JOIN duty_locations as origin_duty_location ON sm.duty_location_id = origin_duty_location.id
+			JOIN duty_locations as origin_duty_location ON ord.origin_duty_location_id = origin_duty_location.id
 			JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
 			WHERE (moves.status = 'SUBMITTED'
 			OR (ppm.status = 'SUBMITTED'
@@ -96,7 +96,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
-			JOIN duty_locations as origin_duty_location ON sm.duty_location_id = origin_duty_location.id
+			JOIN duty_locations as origin_duty_location ON ord.origin_duty_location_id = origin_duty_location.id
 			JOIN duty_locations as destination_duty_location ON ord.new_duty_location_id = destination_duty_location.id
 			WHERE moves.show is true
 			and ppm.status = 'PAYMENT_REQUESTED'
@@ -123,7 +123,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
-			JOIN duty_locations as origin_duty_location ON sm.duty_location_id = origin_duty_location.id
+			JOIN duty_locations as origin_duty_location ON ord.origin_duty_location_id = origin_duty_location.id
 			JOIN duty_locations as destination_duty_location ON ord.new_duty_location_id = destination_duty_location.id
 			WHERE moves.show is true
 			and ppm.status = 'COMPLETED'
@@ -150,7 +150,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
-			JOIN duty_locations as origin_duty_location ON sm.duty_location_id = origin_duty_location.id
+			JOIN duty_locations as origin_duty_location ON ord.origin_duty_location_id = origin_duty_location.id
 			JOIN duty_locations as destination_duty_location ON ord.new_duty_location_id = destination_duty_location.id
 			WHERE moves.show is true
 			and ppm.status = 'APPROVED'
@@ -179,7 +179,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
-			JOIN duty_locations as origin_duty_location ON sm.duty_location_id = origin_duty_location.id
+			JOIN duty_locations as origin_duty_location ON ord.origin_duty_location_id = origin_duty_location.id
 			JOIN duty_locations as destination_duty_location ON ord.new_duty_location_id = destination_duty_location.id
 			WHERE moves.show is true
 		`
