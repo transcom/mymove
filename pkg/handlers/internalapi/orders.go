@@ -369,12 +369,12 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				order.DepartmentIndicator = handlers.FmtString(string(*payload.DepartmentIndicator))
 			}
 
+			order.Entitlement = &entitlement
+
 			verrs, err := models.SaveOrder(appCtx.DB(), &order)
 			if err != nil || verrs.HasAny() {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
 			}
-
-			order.Entitlement = &entitlement
 
 			orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
 			if err != nil {
