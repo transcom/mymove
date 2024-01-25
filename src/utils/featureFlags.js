@@ -25,7 +25,7 @@ const defaultFlags = {
 const environmentFlags = {
   development: {
     ...defaultFlags,
-    multiMove: false,
+    multiMove: true,
   },
 
   test: {
