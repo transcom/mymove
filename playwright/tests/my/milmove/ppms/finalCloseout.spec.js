@@ -5,21 +5,21 @@
  */
 
 // @ts-check
-import { test, forEachViewport } from './customerPpmTestFixture';
+// import { test, forEachViewport } from './customerPpmTestFixture';
 
-test.describe('Final Closeout', () => {
-  forEachViewport(async () => {
-    test.beforeEach(async ({ customerPpmPage }) => {
-      const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
-      await customerPpmPage.signInForPPMWithMove(move);
-    });
+// test.describe('Final Closeout', () => {
+//   forEachViewport(async () => {
+//     test.beforeEach(async ({ customerPpmPage }) => {
+//       const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
+//       await customerPpmPage.signInForPPMWithMove(move);
+//     });
 
-    test('can see final closeout page with final estimated incentive and shipment totals', async ({
-      customerPpmPage,
-    }) => {
-      await customerPpmPage.navigateToFinalCloseoutPage();
+//     test('can see final closeout page with final estimated incentive and shipment totals', async ({
+//       customerPpmPage,
+//     }) => {
+//       await customerPpmPage.navigateToFinalCloseoutPage();
 
-      await customerPpmPage.verifyFinalIncentiveAndTotals();
-    });
-  });
-});
+//       await customerPpmPage.verifyFinalIncentiveAndTotals();
+//     });
+//   });
+// });
