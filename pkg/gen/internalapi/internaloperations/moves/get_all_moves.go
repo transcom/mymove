@@ -30,7 +30,7 @@ func NewGetAllMoves(ctx *middleware.Context, handler GetAllMovesHandler) *GetAll
 }
 
 /*
-	GetAllMoves swagger:route GET /all_moves/{serviceMemberId} moves getAllMoves
+	GetAllMoves swagger:route GET /allmoves/{serviceMemberId} moves getAllMoves
 
 # Return the current and previous moves of a service member
 

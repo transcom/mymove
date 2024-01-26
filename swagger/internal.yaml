@@ -4478,7 +4478,7 @@ paths:
           description: payload is too large
         '500':
           description: server error
-  /all_moves/{serviceMemberId}:
+  /allmoves/{serviceMemberId}:
     get:
       summary: Return the current and previous moves of a service member
       description: |

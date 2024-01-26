@@ -959,7 +959,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/all_moves/{serviceMemberId}"] = moves.NewGetAllMoves(o.context, o.MovesGetAllMovesHandler)
+	o.handlers["GET"]["/allmoves/{serviceMemberId}"] = moves.NewGetAllMoves(o.context, o.MovesGetAllMovesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

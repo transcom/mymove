@@ -506,7 +506,7 @@ func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 		}, nil)
 
 		// // And: the context contains the auth values
-		req := httptest.NewRequest("GET", "/moves/all_moves", nil)
+		req := httptest.NewRequest("GET", "/moves/allmoves", nil)
 		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 		params := moveop.GetAllMovesParams{

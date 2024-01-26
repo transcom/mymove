@@ -79,7 +79,7 @@ func init() {
         }
       }
     },
-    "/all_moves/{serviceMemberId}": {
+    "/allmoves/{serviceMemberId}": {
       "get": {
         "description": "Gets all moves that belongs to the serviceMember\n",
         "produces": [
@@ -8640,7 +8640,7 @@ func init() {
         }
       }
     },
-    "/all_moves/{serviceMemberId}": {
+    "/allmoves/{serviceMemberId}": {
       "get": {
         "description": "Gets all moves that belongs to the serviceMember\n",
         "produces": [
