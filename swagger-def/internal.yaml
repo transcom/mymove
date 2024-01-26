@@ -2696,41 +2696,11 @@ definitions:
       currentMove:
         type: array
         items:
-          $ref: '#/definitions/InternalMove'
+          $ref: 'definitions/InternalMove.yaml'
       previousMoves:
         type: array
         items:
-          $ref: '#/definitions/InternalMove'
-  InternalMove:
-    type: object
-    properties:
-      id:
-        example: a502b4f1-b9c4-4faf-8bdd-68292501bf26
-        format: uuid
-        type: string
-      moveCode:
-        type: string
-        example: 'HYXFJF'
-        readOnly: true
-      createdAt:
-        format: date-time
-        type: string
-        readOnly: true
-      orderID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-      # orders:
-      #   type: object
-      updatedAt:
-        format: date-time
-        type: string
-        readOnly: true
-      # mtoShipments:
-      #   $ref: '#/definitions/MTOShipments'
-      eTag:
-        type: string
-        readOnly: true
+          $ref: 'definitions/InternalMove.yaml'
 paths:
   /estimates/ppm:
     get:
