@@ -174,7 +174,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 
 			payload := params.PatchServiceMemberPayload
 
-			if verrs, err = h.patchServiceMemberWithPayload(appCtx, &serviceMember, payload); verrs.HasAny() || err != nil {
+			if verrs, err = h.patchServiceMemberWithPayload(&serviceMember, payload); verrs.HasAny() || err != nil {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
 			}
 
@@ -203,7 +203,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		})
 }
 
-func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(appCtx appcontext.AppContext, serviceMember *models.ServiceMember, payload *internalmessages.PatchServiceMemberPayload) (*validate.Errors, error) {
+func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *models.ServiceMember, payload *internalmessages.PatchServiceMemberPayload) (*validate.Errors, error) {
 	if h.isDraftMove(serviceMember) {
 		if payload.Affiliation != nil {
 			serviceMember.Affiliation = (*models.ServiceMemberAffiliation)(payload.Affiliation)
