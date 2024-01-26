@@ -91,7 +91,7 @@ func payloadMovesList(storer storage.FileStorer, previousMovesList models.Moves,
 			ID:           *handlers.FmtUUID(move.ID),
 			MtoShipments: *payloadShipments,
 			MoveCode:     move.Locator,
-			Orders:       move.Orders,
+			// Orders:       move.Orders,
 		}
 
 		convertedCurrentMovesList = append(convertedCurrentMovesList, currentMove)

@@ -46,9 +46,6 @@ type InternalMove struct {
 	// Format: uuid
 	OrderID strfmt.UUID `json:"orderID,omitempty"`
 
-	// orders
-	Orders interface{} `json:"orders,omitempty"`
-
 	// updated at
 	// Read Only: true
 	// Format: date-time
