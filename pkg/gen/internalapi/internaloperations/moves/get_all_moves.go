@@ -34,7 +34,7 @@ func NewGetAllMoves(ctx *middleware.Context, handler GetAllMovesHandler) *GetAll
 
 # Return the current and previous moves of a service member
 
-Gets all moves that belongs to the serviceMember
+This endpoint gets all moves that belongs to the serviceMember by using the service members id. In a previous moves array and the current move in the current move array. The current move is the move with the latest CreatedAt date. All other moves will go into the previous move array.
 */
 type GetAllMoves struct {
 	Context *middleware.Context
