@@ -9,9 +9,10 @@ import DataTableWrapper from 'components/DataTableWrapper/index';
 
 const ImportantShipmentDates = ({
   requestedPickupDate,
+  plannedMoveDate,
   scheduledPickupDate,
+  actualMoveDate,
   requiredDeliveryDate,
-  actualPickupDate,
   requestedDeliveryDate,
   scheduledDeliveryDate,
   actualDeliveryDate,
@@ -19,17 +20,24 @@ const ImportantShipmentDates = ({
 }) => {
   const headerPlannedMoveDate = isPPM ? 'Planned Move Date' : 'Requested pick up date';
   const headerActualMoveDate = isPPM ? 'Actual Move Date' : 'Scheduled pick up date';
-  const headerActualArrivalDate = isPPM ? 'Actual Arrival Date' : 'Actual pick up date';
 
   const emDash = '\u2014';
   return (
     <div className={classnames('maxw-tablet', styles.shipmentDatesContainer)}>
       <DataTableWrapper className="table--data-point-group">
         {!isPPM && <DataTable columnHeaders={['Required Delivery Date']} dataRow={[requiredDeliveryDate || emDash]} />}
-        <DataTable
-          columnHeaders={[headerPlannedMoveDate, headerActualMoveDate, headerActualArrivalDate]}
-          dataRow={[requestedPickupDate || emDash, scheduledPickupDate || emDash, actualPickupDate || emDash]}
-        />
+        {!isPPM && (
+          <DataTable
+            columnHeaders={[headerPlannedMoveDate, headerActualMoveDate]}
+            dataRow={[requestedPickupDate || emDash, scheduledPickupDate || emDash]}
+          />
+        )}
+        {isPPM && (
+          <DataTable
+            columnHeaders={[headerPlannedMoveDate, headerActualMoveDate]}
+            dataRow={[plannedMoveDate || emDash, actualMoveDate || emDash]}
+          />
+        )}
         {!isPPM && (
           <DataTable
             columnHeaders={['Requested delivery date', 'Scheduled delivery date', 'Actual delivery date']}
@@ -45,7 +53,8 @@ ImportantShipmentDates.defaultProps = {
   requestedPickupDate: '',
   scheduledPickupDate: '',
   requiredDeliveryDate: '',
-  actualPickupDate: '',
+  plannedMoveDate: '',
+  actualMoveDate: '',
   requestedDeliveryDate: '',
   scheduledDeliveryDate: '',
   actualDeliveryDate: '',
@@ -55,8 +64,9 @@ ImportantShipmentDates.defaultProps = {
 ImportantShipmentDates.propTypes = {
   requestedPickupDate: PropTypes.string,
   scheduledPickupDate: PropTypes.string,
+  plannedMoveDate: PropTypes.string,
+  actualMoveDate: PropTypes.string,
   requiredDeliveryDate: PropTypes.string,
-  actualPickupDate: PropTypes.string,
   requestedDeliveryDate: PropTypes.string,
   scheduledDeliveryDate: PropTypes.string,
   actualDeliveryDate: PropTypes.string,

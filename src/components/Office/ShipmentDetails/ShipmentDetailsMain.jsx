@@ -49,7 +49,6 @@ const ShipmentDetailsMain = ({
   const {
     requestedPickupDate,
     scheduledPickupDate,
-    actualPickupDate,
     requestedDeliveryDate,
     scheduledDeliveryDate,
     actualDeliveryDate,
@@ -128,13 +127,13 @@ const ShipmentDetailsMain = ({
   let weightResult;
   let pickupRequestedDate;
   let pickupScheduledDate;
-  let pickupActualDate;
+  let plannedMoveDate;
+  let actualMoveDate;
 
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
       pickupRequestedDate = requestedPickupDate;
       pickupScheduledDate = scheduledPickupDate;
-      pickupActualDate = actualPickupDate;
       weightResult = primeEstimatedWeight;
       displayedPickupAddress = pickupAddress;
       displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
@@ -142,7 +141,6 @@ const ShipmentDetailsMain = ({
     case SHIPMENT_OPTIONS.NTS:
       pickupRequestedDate = requestedPickupDate;
       pickupScheduledDate = scheduledPickupDate;
-      pickupActualDate = actualPickupDate;
       weightResult = primeEstimatedWeight;
       displayedPickupAddress = pickupAddress;
       displayedDeliveryAddress = storageFacility ? storageFacility.address : null;
@@ -150,15 +148,13 @@ const ShipmentDetailsMain = ({
     case SHIPMENT_OPTIONS.NTSR:
       pickupRequestedDate = requestedPickupDate;
       pickupScheduledDate = scheduledPickupDate;
-      pickupActualDate = actualPickupDate;
       weightResult = primeEstimatedWeight;
       displayedPickupAddress = storageFacility ? storageFacility.address : null;
       displayedDeliveryAddress = destinationAddress;
       break;
     case SHIPMENT_OPTIONS.PPM:
-      pickupRequestedDate = ppmShipment.expectedDepartureDate;
-      pickupScheduledDate = ppmShipment.actualMoveDate;
-      pickupActualDate = scheduledDeliveryDate;
+      plannedMoveDate = ppmShipment.expectedDepartureDate;
+      actualMoveDate = ppmShipment.actualDeliveryDate;
       weightResult = ppmShipment.estimatedWeight;
       displayedPickupAddress = pickupAddress;
       displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
@@ -166,7 +162,6 @@ const ShipmentDetailsMain = ({
     default:
       pickupRequestedDate = requestedPickupDate;
       pickupScheduledDate = scheduledPickupDate;
-      pickupActualDate = actualPickupDate;
       weightResult = primeEstimatedWeight;
       displayedPickupAddress = pickupAddress;
       displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
@@ -212,16 +207,26 @@ const ShipmentDetailsMain = ({
           openConvertModalButton={openConvertModalButton}
         />
       )}
-      <ImportantShipmentDates
-        requestedPickupDate={requestedPickupDate ? formatDateWithUTC(pickupRequestedDate) : null}
-        scheduledPickupDate={scheduledPickupDate ? formatDateWithUTC(pickupScheduledDate) : null}
-        actualPickupDate={actualPickupDate ? formatDateWithUTC(pickupActualDate) : null}
-        requestedDeliveryDate={requestedDeliveryDate ? formatDateWithUTC(requestedDeliveryDate) : null}
-        scheduledDeliveryDate={scheduledDeliveryDate ? formatDateWithUTC(scheduledDeliveryDate) : null}
-        actualDeliveryDate={actualDeliveryDate ? formatDateWithUTC(actualDeliveryDate) : null}
-        requiredDeliveryDate={requiredDeliveryDate ? formatDateWithUTC(requiredDeliveryDate) : null}
-        isPPM={shipmentType === SHIPMENT_OPTIONS.PPM}
-      />
+      {shipmentType === SHIPMENT_OPTIONS.PPM && (
+        <ImportantShipmentDates
+          plannedMoveDate={plannedMoveDate ? formatDateWithUTC(plannedMoveDate) : null}
+          requestedDeliveryDate={requestedDeliveryDate ? formatDateWithUTC(requestedDeliveryDate) : null}
+          scheduledDeliveryDate={scheduledDeliveryDate ? formatDateWithUTC(scheduledDeliveryDate) : null}
+          actualDeliveryDate={actualMoveDate ? formatDateWithUTC(actualDeliveryDate) : null}
+          isPPM={shipmentType === SHIPMENT_OPTIONS.PPM}
+        />
+      )}
+      {shipmentType !== SHIPMENT_OPTIONS.PPM && (
+        <ImportantShipmentDates
+          requestedPickupDate={requestedPickupDate ? formatDateWithUTC(pickupRequestedDate) : null}
+          scheduledPickupDate={scheduledPickupDate ? formatDateWithUTC(pickupScheduledDate) : null}
+          requestedDeliveryDate={requestedDeliveryDate ? formatDateWithUTC(requestedDeliveryDate) : null}
+          scheduledDeliveryDate={scheduledDeliveryDate ? formatDateWithUTC(scheduledDeliveryDate) : null}
+          actualDeliveryDate={actualDeliveryDate ? formatDateWithUTC(actualDeliveryDate) : null}
+          requiredDeliveryDate={requiredDeliveryDate ? formatDateWithUTC(requiredDeliveryDate) : null}
+          isPPM={shipmentType === SHIPMENT_OPTIONS.PPM}
+        />
+      )}
       <ShipmentAddresses
         pickupAddress={displayedPickupAddress}
         destinationAddress={displayedDeliveryAddress}
