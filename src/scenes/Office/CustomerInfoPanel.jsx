@@ -31,8 +31,8 @@ const CustomerInfoDisplay = (props) => {
       <div className="editable-panel-column">
         <PanelField title="Name" value={name} />
         <PanelSwaggerField title="DoD ID" fieldName="edipi" {...fieldProps} />
-        <PanelField title="Branch & rank">
-          <SwaggerValue fieldName="affiliation" {...fieldProps} /> - <SwaggerValue fieldName="rank" {...fieldProps} />
+        <PanelField title="Branch & pay grade">
+          <SwaggerValue fieldName="affiliation" {...fieldProps} /> - <SwaggerValue fieldName="grade" {...fieldProps} />
         </PanelField>
       </div>
       <div className="editable-panel-column">
@@ -76,7 +76,7 @@ const CustomerInfoEdit = (props) => {
           <div className="editable-panel-column">
             <SwaggerField fieldName="edipi" swagger={schema} required />
             <SwaggerField fieldName="affiliation" swagger={schema} required />
-            <SwaggerField fieldName="rank" swagger={schema} required />
+            <SwaggerField fieldName="grade" swagger={schema} required />
           </div>
         </FormSection>
       </div>

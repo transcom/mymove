@@ -40,13 +40,6 @@ describe('EditOrders Page', () => {
         name: 'Fort Bragg',
         updated_at: '2020-10-19T17:01:16.114Z',
       },
-      rank: 'E_2',
-      weight_allotment: {
-        total_weight_self: 5000,
-        total_weight_self_plus_dependents: 8000,
-        pro_gear_weight: 2000,
-        pro_gear_weight_spouse: 500,
-      },
     },
     setFlashMessage: jest.fn(),
     updateOrders: jest.fn(),
@@ -77,6 +70,11 @@ describe('EditOrders Page', () => {
         updated_at: '2020-10-19T17:01:16.114Z',
       },
       moves: ['testMove'],
+      authorizedWeight: 8000,
+      entitlement: {
+        proGear: 2000,
+        proGearSpouse: 500,
+      },
     },
     currentMove: { status: 'DRAFT' },
     existingUploads: [

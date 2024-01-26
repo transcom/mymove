@@ -51,14 +51,14 @@ class ProfileReview extends Component {
   };
 
   render() {
-    const { serviceMember, schemaRank, schemaAffiliation, schemaOrdersType } = this.props;
+    const { serviceMember, schemaGrade, schemaAffiliation, schemaOrdersType } = this.props;
     return (
       <WizardPage handleSubmit={this.resumeMove} pageList={this.props.pages} pageKey={this.props.pageKey} pageIsValid>
         <h1>Review your Profile</h1>
-        <p>Has anything changed since your last move? Please check your info below, especially your Rank.</p>
+        <p>Has anything changed since your last move? Please check your info below, especially your pay grade.</p>
         <ServiceMemberSummary
           serviceMember={serviceMember}
-          schemaRank={schemaRank}
+          schemaGrade={schemaGrade}
           schemaAffiliation={schemaAffiliation}
           schemaOrdersType={schemaOrdersType}
         />
@@ -93,7 +93,7 @@ function mapStateToProps(state) {
     serviceMember,
     lastMoveIsCanceled: selectHasCanceledMove(state),
     conusStatus: selectConusStatus(state),
-    schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
+    schemaGrade: getInternalSwaggerDefinition(state, 'OrderPayGrade'),
     schemaOrdersType: getInternalSwaggerDefinition(state, 'OrdersType'),
     schemaAffiliation: getInternalSwaggerDefinition(state, 'Affiliation'),
     backupContacts: serviceMember?.backup_contacts || [],

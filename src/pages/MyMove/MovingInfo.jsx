@@ -138,9 +138,7 @@ MovingInfo.defaultProps = {
 function mapStateToProps(state) {
   const orders = selectCurrentOrders(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  const entitlementWeight = orders.has_dependents
-    ? serviceMember?.weight_allotment?.total_weight_self_plus_dependents
-    : serviceMember?.weight_allotment?.total_weight_self;
+  const entitlementWeight = orders.authorizedWeight;
   const serviceMemberId = serviceMember?.id;
 
   return {
