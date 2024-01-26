@@ -448,7 +448,7 @@ describe('DateAndLocation component', () => {
 
     //   expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
     //   const postalCodes = screen.getAllByLabelText('ZIP');
-      
+
     //   await waitFor(() => {
     //     expect(screen.getByLabelText('When do you plan to start moving your PPM?')).toHaveValue('31 Dec 2022');
     //   });
@@ -457,7 +457,7 @@ describe('DateAndLocation component', () => {
     //   expect(postalCodes[1]).toHaveValue('20004');
     //   expect(postalCodes[2]).toHaveValue('20003');
     //   expect(postalCodes[3]).toHaveValue('20005');
-      
+
     // });
 
     it('routes back to the home page screen when back is clicked', async () => {
@@ -511,7 +511,7 @@ describe('DateAndLocation component', () => {
 
       await userEvent.click(inputHasSecondaryZIP[0]);
       await userEvent.click(inputHasSecondaryZIP[1]);
-      
+
       const primaryPostalCodes = screen.getAllByLabelText('ZIP');
       await userEvent.clear(primaryPostalCodes[0]);
       await userEvent.type(primaryPostalCodes[0], '10001');
