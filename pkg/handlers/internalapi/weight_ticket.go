@@ -1,19 +1,15 @@
 package internalapi
 
 import (
-	"database/sql"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/db/utilities"
 	weightticketops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -168,42 +164,11 @@ func (h DeleteWeightTicketHandler) Handle(params weightticketops.DeleteWeightTic
 				return weightticketops.NewDeleteWeightTicketForbidden(), noServiceMemberIDErr
 			}
 
-			// Make sure the service member is not modifying another service member's PPM
 			ppmID := uuid.FromStringOrNil(params.PpmShipmentID.String())
-			var ppmShipment models.PPMShipment
-			err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
-				EagerPreload(
-					"Shipment.MoveTaskOrder.Orders",
-					"WeightTickets",
-				).
-				Find(&ppmShipment, ppmID)
-			if err != nil {
-				if err == sql.ErrNoRows {
-					return weightticketops.NewDeleteWeightTicketNotFound(), err
-				}
-				return weightticketops.NewDeleteWeightTicketInternalServerError(), err
-			}
-			if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID != appCtx.Session().ServiceMemberID {
-				wrongServiceMemberIDErr := apperror.NewSessionError("Attempted delete by wrong service member")
-				appCtx.Logger().Error("internalapi.DeleteWeightTicketHandler", zap.Error(wrongServiceMemberIDErr))
-				return weightticketops.NewDeleteWeightTicketForbidden(), wrongServiceMemberIDErr
-			}
 
 			weightTicketID := uuid.FromStringOrNil(params.WeightTicketID.String())
-			found := false
-			for _, lineItem := range ppmShipment.WeightTickets {
-				if lineItem.ID == weightTicketID {
-					found = true
-					break
-				}
-			}
-			if !found {
-				mismatchedPPMShipmentAndWeightTicketIDErr := apperror.NewSessionError("Weight ticket does not exist on ppm shipment")
-				appCtx.Logger().Error("internalapi.DeleteWeightTicketHandler", zap.Error(mismatchedPPMShipmentAndWeightTicketIDErr))
-				return weightticketops.NewDeleteWeightTicketNotFound(), mismatchedPPMShipmentAndWeightTicketIDErr
-			}
 
-			err = h.weightTicketDeleter.DeleteWeightTicket(appCtx, weightTicketID)
+			err := h.weightTicketDeleter.DeleteWeightTicket(appCtx, ppmID, weightTicketID)
 			if err != nil {
 				appCtx.Logger().Error("internalapi.DeleteWeightTicketHandler", zap.Error(err))
 
