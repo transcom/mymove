@@ -21,60 +21,9 @@ var correctPrimeCounselingData = PrimeCounselingCompleteData{
 }
 
 func (suite *NotificationSuite) TestPrimeCounselingComplete() {
-
-	// Create a move that is available to prime and has the counseling service item attached
-	// move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-	// reServiceCS := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
-	// serviceItemCS := models.MTOServiceItem{
-	// 	MoveTaskOrderID: move.ID,
-	// 	MoveTaskOrder:   move,
-	// 	ReService:       reServiceCS,
-	// 	Status: models.MTOServiceItemStatusApproved,
-	// }
-	// factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-	// 	{
-	// 		Model: move,
-	// 		LinkOnly: true,
-	// 	},
-	// 	{
-	// 		Model: serviceItemCS,
-	// 	},
-	// }, nil)
-	//serviceMember := factory.BuildServiceMember() // "leo_spaceman_sm@example.com"
-	// dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
-	// dutyLocation2 := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
-	// order := factory.BuildOrder(suite.DB(), []factory.Customization{
-	// 	{
-	// 		Model:    dutyLocation,
-	// 		LinkOnly: true,
-	// 		Type:     &factory.DutyLocations.OriginDutyLocation,
-	// 	},
-	// 	{
-	// 		Model:    dutyLocation2,
-	// 		LinkOnly: true,
-	// 		Type:     &factory.DutyLocations.NewDutyLocation,
-	// 	},
-	// 	{
-	// 		Model: 		serviceMember,
-	// 		Type:	 		&factory.ServiceMember,
-	// 	},
-	// }, nil)
-
-	// member := primemessages.Customer{Email: "test@example.com"}
-	// primeOrder := primemessages.Order {
-	// 	OriginDutyLocation: &primemessages.DutyLocation{Name: "Fort Origin"},
-	// 	DestinationDutyLocation: &primemessages.DutyLocation{Name: "Fort Destination"},
-	// 	Customer: &member,
-	// }
-	// payload := primemessages.MoveTaskOrder{
-	// 	MoveCode: "TEST00",
-	// 	Order: &primeOrder,
-	// }
-
-	///moveTaskOrder := payloads.MoveTaskOrder(&move)
 	notification := NewPrimeCounselingComplete(payload)
 
-	primeCounselingEmailData, err := GetEmailData(notification.moveTaskOrder, suite.AppContextForTest())
+	primeCounselingEmailData, err := notification.GetEmailData(notification.moveTaskOrder, suite.AppContextForTest())
 	suite.NoError(err)
 	suite.NotNil(primeCounselingEmailData)
 	suite.Equal(primeCounselingEmailData, correctPrimeCounselingData)
@@ -96,7 +45,7 @@ func (suite *NotificationSuite) TestPrimeCounselingComplete() {
 func (suite *NotificationSuite) TestPrimeCounselingCompleteTextTemplateRender() {
 	notification := NewPrimeCounselingComplete(payload)
 
-	primeCounselingEmailData, err := GetEmailData(notification.moveTaskOrder, suite.AppContextForTest())
+	primeCounselingEmailData, err := notification.GetEmailData(notification.moveTaskOrder, suite.AppContextForTest())
 	suite.NoError(err)
 	suite.NotNil(primeCounselingEmailData)
 	suite.Equal(primeCounselingEmailData, correctPrimeCounselingData)

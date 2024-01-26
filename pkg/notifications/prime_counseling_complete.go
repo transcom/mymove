@@ -47,19 +47,19 @@ func NewPrimeCounselingComplete(moveTaskOrder primemessages.MoveTaskOrder) *Prim
 
 // NotificationSendingContext expects a `notification` with an `emails` method,
 // so we implement `email` to satisfy that interface
-func (m PrimeCounselingComplete) emails(appCtx appcontext.AppContext) ([]emailContent, error) {
+func (p PrimeCounselingComplete) emails(appCtx appcontext.AppContext) ([]emailContent, error) {
 	var emails []emailContent
 
 	appCtx.Logger().Info("MTO (Move Task Order) Locator",
-		zap.String("uuid", m.moveTaskOrder.MoveCode),
+		zap.String("uuid", p.moveTaskOrder.MoveCode),
 	)
 
-	emailData, err := GetEmailData(m.moveTaskOrder, appCtx)
+	emailData, err := p.GetEmailData(p.moveTaskOrder, appCtx)
 	if err != nil {
 		return nil, err
 	}
 	var htmlBody, textBody string
-	htmlBody, textBody, err = m.renderTemplates(appCtx, emailData)
+	htmlBody, textBody, err = p.renderTemplates(appCtx, emailData)
 
 	if err != nil {
 		appCtx.Logger().Error("error rendering template", zap.Error(err))
@@ -75,7 +75,7 @@ func (m PrimeCounselingComplete) emails(appCtx appcontext.AppContext) ([]emailCo
 	return append(emails, primeCounselingEmail), nil
 }
 
-func GetEmailData(m primemessages.MoveTaskOrder, appCtx appcontext.AppContext) (PrimeCounselingCompleteData, error) {
+func (p PrimeCounselingComplete) GetEmailData(m primemessages.MoveTaskOrder, appCtx appcontext.AppContext) (PrimeCounselingCompleteData, error) {
 	if m.Order.Customer.Email == "" {
 		return PrimeCounselingCompleteData{}, fmt.Errorf("no email found for service member")
 	}
@@ -96,12 +96,12 @@ func GetEmailData(m primemessages.MoveTaskOrder, appCtx appcontext.AppContext) (
 	}, nil
 }
 
-func (m PrimeCounselingComplete) renderTemplates(appCtx appcontext.AppContext, data PrimeCounselingCompleteData) (string, string, error) {
-	htmlBody, err := m.RenderHTML(appCtx, data)
+func (p PrimeCounselingComplete) renderTemplates(appCtx appcontext.AppContext, data PrimeCounselingCompleteData) (string, string, error) {
+	htmlBody, err := p.RenderHTML(appCtx, data)
 	if err != nil {
 		return "", "", fmt.Errorf("error rendering html template using %#v", data)
 	}
-	textBody, err := m.RenderText(appCtx, data)
+	textBody, err := p.RenderText(appCtx, data)
 	if err != nil {
 		return "", "", fmt.Errorf("error rendering text template using %#v", data)
 	}
@@ -109,18 +109,18 @@ func (m PrimeCounselingComplete) renderTemplates(appCtx appcontext.AppContext, d
 }
 
 // RenderHTML renders the html for the email
-func (m PrimeCounselingComplete) RenderHTML(appCtx appcontext.AppContext, data PrimeCounselingCompleteData) (string, error) {
+func (p PrimeCounselingComplete) RenderHTML(appCtx appcontext.AppContext, data PrimeCounselingCompleteData) (string, error) {
 	var htmlBuffer bytes.Buffer
-	if err := m.htmlTemplate.Execute(&htmlBuffer, data); err != nil {
+	if err := p.htmlTemplate.Execute(&htmlBuffer, data); err != nil {
 		appCtx.Logger().Error("cant render html template ", zap.Error(err))
 	}
 	return htmlBuffer.String(), nil
 }
 
 // RenderText renders the text for the email
-func (m PrimeCounselingComplete) RenderText(appCtx appcontext.AppContext, data PrimeCounselingCompleteData) (string, error) {
+func (p PrimeCounselingComplete) RenderText(appCtx appcontext.AppContext, data PrimeCounselingCompleteData) (string, error) {
 	var textBuffer bytes.Buffer
-	if err := m.textTemplate.Execute(&textBuffer, data); err != nil {
+	if err := p.textTemplate.Execute(&textBuffer, data); err != nil {
 		appCtx.Logger().Error("cant render text template ", zap.Error(err))
 		return "", err
 	}
