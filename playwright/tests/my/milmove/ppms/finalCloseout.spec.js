@@ -7,14 +7,14 @@
 // @ts-check
 import { test, forEachViewport } from './customerPpmTestFixture';
 
-test.describe.skip('Final Closeout', () => {
+test.describe('Final Closeout', () => {
   forEachViewport(async () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
       await customerPpmPage.signInForPPMWithMove(move);
     });
 
-    test('can see final closeout page with final estimated incentive and shipment totals', async ({
+    test.skip('can see final closeout page with final estimated incentive and shipment totals', async ({
       customerPpmPage,
     }) => {
       await customerPpmPage.navigateToFinalCloseoutPage();

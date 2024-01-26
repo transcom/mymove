@@ -7,15 +7,15 @@
 // @ts-check
 import { expect, test, forEachViewport } from './customerPpmTestFixture';
 
-test.describe.skip('Progear', () => {
+test.describe('Progear', () => {
   forEachViewport(async () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPMProgearWeightTicket();
       await customerPpmPage.signInForPPMWithMove(move);
-      await customerPpmPage.navigateToProgearPage();
+      // await customerPpmPage.navigateToProgearPage();
     });
 
-    test(`progear page loads`, async ({ customerPpmPage, page }) => {
+    test.skip(`progear page loads`, async ({ customerPpmPage, page }) => {
       await customerPpmPage.submitProgearPage({ belongsToSelf: true });
 
       const set2Heading = page.getByRole('heading', { name: 'Set 2' });
