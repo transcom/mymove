@@ -222,9 +222,10 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			locator := strings.TrimSpace(params.Locator)
+			docType := strings.TrimSpace(*params.Type)
 
 			if len(locator) == 0 {
-				err := apperror.NewBadDataError("missing/empty required URI parameter: locator")
+				err := apperror.NewBadDataError("primeapi.DownloadMoveOrder: missing/empty required URI parameter: locator")
 				appCtx.Logger().Error(err.Error())
 				return movetaskorderops.NewDownloadMoveOrderBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
 					err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
@@ -235,7 +236,7 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 			}
 			moves, totalCount, err := h.MoveSearcher.SearchMoves(appCtx, &searchMovesParams)
 			if err != nil {
-				appCtx.Logger().Error("Unexpected server error", zap.Error(err))
+				appCtx.Logger().Error("primeapi.DownloadMoveOrder error", zap.Error(err))
 				return movetaskorderops.NewDownloadMoveOrderInternalServerError().WithPayload(
 					payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
@@ -253,8 +254,8 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 				// FALSE indicates the location requires PRIME/GHC counseling.
 				if move.Orders.OriginDutyLocation.ProvidesServicesCounseling {
 					unprocessableErr := apperror.NewUnprocessableEntityError(
-						fmt.Sprintf("Duty location of client's move currently does not have Prime counseling enabled, locator: %s", locator))
-					appCtx.Logger().Info(unprocessableErr.Error())
+						fmt.Sprintf("primeapi.DownloadMoveOrder: Duty location of client's move currently does not have Prime counseling enabled, locator: %s", locator))
+					appCtx.Logger().Warn(unprocessableErr.Error())
 					payload := payloads.ValidationError(unprocessableErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
 					return movetaskorderops.NewDownloadMoveOrderUnprocessableEntity().
 						WithPayload(payload), unprocessableErr
@@ -262,16 +263,44 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 			}
 
 			move := moves[len(moves)-1]
-			outputFile, err := h.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, services.MoveOrderUploadAll, move)
+
+			var moveOrderUploadType = services.MoveOrderUploadAll
+			if docType == "ORDERS" {
+				moveOrderUploadType = services.MoveOrderUpload
+			} else if docType == "AMENDMENTS" {
+				moveOrderUploadType = services.MoveOrderAmendmentUpload
+			}
+
+			outputFile, err := h.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, moveOrderUploadType, move)
 
 			if err != nil {
-				appCtx.Logger().Error("Error: generator.GeneratePdf", zap.Error(err))
-				return movetaskorderops.NewDownloadMoveOrderInternalServerError().WithPayload(
-					payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				switch e := err.(type) {
+				case apperror.UnprocessableEntityError:
+					appCtx.Logger().Warn("primeapi.DownloadMoveOrder warn", zap.Error(err))
+					payload := payloads.ValidationError(e.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
+					return movetaskorderops.NewDownloadMoveOrderUnprocessableEntity().WithPayload(payload), err
+				default:
+					appCtx.Logger().Error("primeapi.DownloadMoveOrder error", zap.Error(err))
+					return movetaskorderops.NewDownloadMoveOrderInternalServerError().WithPayload(
+						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				}
 			}
 
 			payload := io.NopCloser(outputFile)
-			filename := fmt.Sprintf("inline; filename=\"%s-%s.pdf\"", locator, time.Now().UTC().Format("2006-01-02T15:04:05.000Z"))
-			return movetaskorderops.NewDownloadMoveOrderOK().WithContentDisposition(filename).WithPayload(payload), nil
+
+			// Build fileName in format: Customer-{type}-for-MTO-{locator}-{TIMESTAMP}.pdf
+			// example:
+			// Customer-ORDERS,AMENDMENTS-for-MTO-PPMSIT-2024-01-11T17-02.pdf   (all)
+			// Customer-ORDERS-for-MTO-PPMSIT-2024-01-11T17-02.pdf
+			// Customer-AMENDMENTS-for-MTO-PPMSIT-2024-01-11T17-02.pdf
+			var fileNamePrefix = "Customer"
+			if docType == "ALL" {
+				fileNamePrefix += "-ORDERS,AMENDMENTS"
+			} else {
+				fileNamePrefix += "-" + docType
+			}
+			contentDisposition := fmt.Sprintf("inline; filename=\"%s-for-MTO-%s-%s.pdf\"", fileNamePrefix, locator, time.Now().UTC().Format("2006-01-02T15:04:05.000Z"))
+
+			return movetaskorderops.NewDownloadMoveOrderOK().WithContentDisposition(contentDisposition).WithPayload(payload), nil
 		})
 }
