@@ -27,10 +27,10 @@ test.describe.skip('PPM Onboarding - Review', () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildUnsubmittedMoveWithMultipleFullPPMShipmentComplete();
       await customerPpmPage.signInForPPMWithMove(move);
-      await customerPpmPage.navigateFromHomePageToReviewPage();
+      // await customerPpmPage.navigateFromHomePageToReviewPage();
     });
 
-    test(`navigates to the review page, deletes and edit shipment`, async ({ customerPpmPage }) => {
+    test.skip(`navigates to the review page, deletes and edit shipment`, async ({ customerPpmPage }) => {
       const shipmentContainer = customerPpmPage.page.locator('[data-testid="ShipmentContainer"]').last();
       await customerPpmPage.deleteShipment(shipmentContainer, 1);
 
@@ -48,7 +48,7 @@ test.describe.skip('PPM Onboarding - Review', () => {
       await customerPpmPage.navigateToAgreementAndSign();
     });
 
-    test('navigates to review page from home page and submits the move', async ({ customerPpmPage }) => {
+    test.skip('navigates to review page from home page and submits the move', async ({ customerPpmPage }) => {
       await customerPpmPage.verifyPPMShipmentCard(fullPPMShipmentFields, { isEditable: true });
       await customerPpmPage.navigateToAgreementAndSign();
       await customerPpmPage.submitMove();

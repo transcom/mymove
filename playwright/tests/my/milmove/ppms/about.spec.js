@@ -7,7 +7,7 @@
 // @ts-check
 import { test, forEachViewport } from './customerPpmTestFixture';
 
-test.describe.skip('About Your PPM', () => {
+test.describe('About Your PPM', () => {
   forEachViewport(async () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
@@ -16,7 +16,7 @@ test.describe.skip('About Your PPM', () => {
 
     [true, false].forEach((selectAdvance) => {
       const advanceText = selectAdvance ? 'with' : 'without';
-      test(`can submit actual PPM shipment info ${advanceText} an advance`, async ({ customerPpmPage }) => {
+      test.skip(`can submit actual PPM shipment info ${advanceText} an advance`, async ({ customerPpmPage }) => {
         await customerPpmPage.navigateToAboutPage({ selectAdvance });
       });
     });

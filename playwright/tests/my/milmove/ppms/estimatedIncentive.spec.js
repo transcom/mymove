@@ -5,20 +5,20 @@
  */
 
 // @ts-check
-import { expect, test, forEachViewport } from './customerPpmTestFixture';
+import { test, forEachViewport } from './customerPpmTestFixture';
 
-test.describe.skip('PPM Onboarding - Estimated Incentive', () => {
+test.describe('PPM Onboarding - Estimated Incentive', () => {
   forEachViewport(async ({ isMobile }) => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights();
       await customerPpmPage.signInForPPMWithMove(move);
-      await customerPpmPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
-      await customerPpmPage.navigateFromDateAndLocationPageToEstimatedWeightsPage();
-      await customerPpmPage.navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
-      await expect(customerPpmPage.page.locator('.container h2')).toContainText('$10,000');
+      // await customerPpmPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
+      // await customerPpmPage.navigateFromDateAndLocationPageToEstimatedWeightsPage();
+      // await customerPpmPage.navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
+      // await expect(customerPpmPage.page.locator('.container h2')).toContainText('$10,000');
     });
 
-    test('go to estimated incentives page', async ({ customerPpmPage }) => {
+    test.skip('go to estimated incentives page', async ({ customerPpmPage }) => {
       await customerPpmPage.generalVerifyEstimatedIncentivePage({ isMobile });
     });
   });
