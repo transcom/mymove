@@ -85,6 +85,8 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	}
 
 	internalAPI.MovesPatchMoveHandler = PatchMoveHandler{handlerConfig, closeoutOfficeUpdater}
+	internalAPI.MovesGetAllMovesHandler = GetAllMovesHandler{handlerConfig}
+
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler{handlerConfig}
 	internalAPI.MovesSubmitMoveForApprovalHandler = SubmitMoveHandler{
 		handlerConfig,

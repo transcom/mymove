@@ -445,3 +445,89 @@ func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 		suite.Assertions.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
 	})
 }
+
+func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
+	suite.Run("Gets all moves belonging to a service member", func() {
+
+		time := time.Now()
+		laterTime := time.AddDate(0, 0, 1)
+		// Given: A servicemember and a user
+		user := factory.BuildDefaultUser(suite.DB())
+
+		newServiceMember := factory.BuildExtendedServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model:    user,
+				LinkOnly: true,
+			},
+		}, nil)
+		suite.MustSave(&newServiceMember)
+
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model:    newServiceMember,
+				LinkOnly: true,
+				Type:     &factory.ServiceMember,
+			},
+		}, nil)
+
+		// Given: a set of orders, a move, user and service member
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model:    order,
+				LinkOnly: true,
+			},
+			{
+				Model:    newServiceMember,
+				LinkOnly: true,
+				Type:     &factory.ServiceMember,
+			},
+			{
+				Model: models.Move{
+					CreatedAt: time,
+				},
+			},
+		}, nil)
+
+		move2 := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model:    order,
+				LinkOnly: true,
+			},
+			{
+				Model:    newServiceMember,
+				LinkOnly: true,
+				Type:     &factory.ServiceMember,
+			},
+			{
+				Model: models.Move{
+					CreatedAt: laterTime,
+				},
+			},
+		}, nil)
+
+		// // And: the context contains the auth values
+		req := httptest.NewRequest("GET", "/moves/allmoves", nil)
+		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+
+		params := moveop.GetAllMovesParams{
+			HTTPRequest:     req,
+			ServiceMemberID: strfmt.UUID(newServiceMember.ID.String()),
+		}
+
+		// // And: a move is submitted
+		handlerConfig := suite.HandlerConfig()
+
+		handler := GetAllMovesHandler{handlerConfig}
+		response := handler.Handle(params)
+
+		// // Then: expect a 200 status code
+		suite.Assertions.IsType(&moveop.GetAllMovesOK{}, response)
+		okResponse := response.(*moveop.GetAllMovesOK)
+
+		suite.Greater(len(okResponse.Payload.CurrentMove), 0)
+		suite.Greater(len(okResponse.Payload.PreviousMoves), 0)
+		suite.Equal(okResponse.Payload.CurrentMove[0].ID.String(), move.ID.String())
+		suite.Equal(okResponse.Payload.PreviousMoves[0].ID.String(), move2.ID.String())
+
+	})
+}

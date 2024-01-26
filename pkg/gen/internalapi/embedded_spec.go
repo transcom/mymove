@@ -79,6 +79,46 @@ func init() {
         }
       }
     },
+    "/allmoves/{serviceMemberId}": {
+      "get": {
+        "description": "Gets all moves that belongs to the serviceMember\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moves"
+        ],
+        "summary": "Return the current and previous moves of a service member",
+        "operationId": "getAllMoves",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the service member",
+            "name": "serviceMemberId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved moves. A successful fetch might still return zero moves.",
+            "schema": {
+              "$ref": "#/definitions/MovesList"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/backup_contacts/{backupContactId}": {
       "get": {
         "description": "Returns the given service member backup contact",
@@ -4364,6 +4404,46 @@ func init() {
         "$ref": "#/definitions/ServiceMemberBackupContactPayload"
       }
     },
+    "InternalMove": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "a502b4f1-b9c4-4faf-8bdd-68292501bf26"
+        },
+        "moveCode": {
+          "type": "string",
+          "readOnly": true,
+          "example": "HYXFJF"
+        },
+        "mtoShipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "orderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "orders": {
+          "type": "object"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "InvalidRequestResponsePayload": {
       "type": "object",
       "properties": {
@@ -5102,6 +5182,23 @@ func init() {
         "CANCELED": "Canceled",
         "DRAFT": "Draft",
         "SUBMITTED": "Submitted"
+      }
+    },
+    "MovesList": {
+      "type": "object",
+      "properties": {
+        "currentMove": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InternalMove"
+          }
+        },
+        "previousMoves": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InternalMove"
+          }
+        }
       }
     },
     "MovingExpense": {
@@ -8020,6 +8117,55 @@ func init() {
           },
           "500": {
             "description": "server error"
+          }
+        }
+      }
+    },
+    "/allmoves/{serviceMemberId}": {
+      "get": {
+        "description": "Gets all moves that belongs to the serviceMember\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moves"
+        ],
+        "summary": "Return the current and previous moves of a service member",
+        "operationId": "getAllMoves",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the service member",
+            "name": "serviceMemberId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved moves. A successful fetch might still return zero moves.",
+            "schema": {
+              "$ref": "#/definitions/MovesList"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       }
@@ -12730,6 +12876,46 @@ func init() {
         "$ref": "#/definitions/ServiceMemberBackupContactPayload"
       }
     },
+    "InternalMove": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "a502b4f1-b9c4-4faf-8bdd-68292501bf26"
+        },
+        "moveCode": {
+          "type": "string",
+          "readOnly": true,
+          "example": "HYXFJF"
+        },
+        "mtoShipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "orderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "orders": {
+          "type": "object"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "InvalidRequestResponsePayload": {
       "type": "object",
       "properties": {
@@ -13470,6 +13656,23 @@ func init() {
         "CANCELED": "Canceled",
         "DRAFT": "Draft",
         "SUBMITTED": "Submitted"
+      }
+    },
+    "MovesList": {
+      "type": "object",
+      "properties": {
+        "currentMove": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InternalMove"
+          }
+        },
+        "previousMoves": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InternalMove"
+          }
+        }
       }
     },
     "MovingExpense": {

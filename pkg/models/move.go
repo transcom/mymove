@@ -407,6 +407,33 @@ func FetchMoveByOrderID(db *pop.Connection, orderID uuid.UUID) (Move, error) {
 	return move, nil
 }
 
+// FetchMovesByOrderID returns a Moves for a given id
+func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
+	var moves Moves
+
+	query := db.Where("orders_id = ?", orderID)
+	err := query.Eager(
+		"Orders",
+		"MTOShipments",
+		"Orders.ServiceMember.User",
+		"Orders.ServiceMember.DutyLocation.Address",
+		"Orders.ServiceMember.DutyLocation.TransportationOffice",
+		"Orders.ServiceMember.DutyLocation.TransportationOffice.Address",
+		"Orders.NewDutyLocation.Address",
+		"Orders.ServiceMember",
+		"Orders.NewDutyLocation.TransportationOffice",
+		"Orders.NewDutyLocation.TransportationOffice.Address",
+		"Orders.UploadedOrders",
+		"Orders.UploadedOrders.ServiceMember",
+		"Orders.UploadedOrders.ServiceMember.User",
+		"Orders.UploadedOrders.ServiceMember.DutyLocation",
+		"Orders.UploadedOrders.ServiceMember.DutyLocation.Address",
+		"Orders.UploadedOrders.ServiceMember.DutyLocation.TransportationOffice",
+		"Orders.UploadedOrders.ServiceMember.DutyLocation.TransportationOffice.Address",
+	).All(&moves)
+	return moves, err
+}
+
 // FetchMoveByMoveID returns a Move for a given id
 func FetchMoveByMoveID(db *pop.Connection, moveID uuid.UUID) (Move, error) {
 	var move Move
