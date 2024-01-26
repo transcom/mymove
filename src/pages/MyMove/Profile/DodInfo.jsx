@@ -21,7 +21,6 @@ export const DodInfo = ({ updateServiceMember, serviceMember }) => {
   const initialValues = {
     affiliation: serviceMember?.affiliation || '',
     edipi: serviceMember?.edipi || '',
-    grade: serviceMember?.rank || '',
   };
 
   const handleBack = () => {
@@ -37,14 +36,12 @@ export const DodInfo = ({ updateServiceMember, serviceMember }) => {
       id: serviceMember.id,
       affiliation: values.affiliation,
       edipi: values.edipi,
-      rank: values.grade,
     };
 
     return patchServiceMember(payload)
       .then(updateServiceMember)
       .then(handleNext)
       .catch((e) => {
-        // TODO - error handling - below is rudimentary error handling to approximate existing UX
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
         const { response } = e;
         const errorMessage = getResponseError(response, 'failed to update service member due to server error');

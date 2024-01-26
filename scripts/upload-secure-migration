@@ -63,7 +63,8 @@ fi
 FILESIZE=$(/usr/bin/stat -f%z "${1}")
 # 250MB in bytes
 BYTES_IN_MB=1048576
-MAX_FILESIZE=$((250 * "${BYTES_IN_MB}" ))
+# shellcheck disable=SC2004
+MAX_FILESIZE=$((250 * ${BYTES_IN_MB} ))
 if [[ ${FILESIZE} -gt ${MAX_FILESIZE} ]]; then
   FILESIZE_MB=$(( "${FILESIZE}" / "${BYTES_IN_MB}" ))
   echo "error: Max file size for upload is 250 MB, this file is too large for anti-virus to work."
