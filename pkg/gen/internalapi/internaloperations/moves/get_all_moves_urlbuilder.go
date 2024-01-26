@@ -42,7 +42,7 @@ func (o *GetAllMovesURL) SetBasePath(bp string) {
 func (o *GetAllMovesURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/all_moves/{serviceMemberId}"
+	var _path = "/allmoves/{serviceMemberId}"
 
 	serviceMemberID := o.ServiceMemberID.String()
 	if serviceMemberID != "" {
