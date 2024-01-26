@@ -428,33 +428,6 @@ export const useOrdersDocumentQueries = (moveCode) => {
   };
 };
 
-export const useAOAPacketDocumentQueries = (aoaPacketId) => {
-  // Get the packet using the aoa_packet_id (which is a document id)
-  const staleTime = 15 * 60000; // 15 * 60000 milliseconds = 15 mins
-  const cacheTime = staleTime;
-  const { data: { documents, aoaPacket } = {}, ...aoaPacketDocumentQuery } = useQuery(
-    [ORDERS_DOCUMENTS, aoaPacketId],
-    ({ queryKey }) => getDocument(...queryKey),
-    {
-      enabled: !!aoaPacketId,
-      staleTime,
-      cacheTime,
-      refetchOnWindowFocus: false,
-    },
-  );
-
-  // Check the status of all queries we have made
-  const { isLoading, isError, isSuccess } = getQueriesStatus([aoaPacketDocumentQuery]);
-
-  return {
-    documents,
-    aoaPacket,
-    isLoading,
-    isError,
-    isSuccess,
-  };
-};
-
 export const useMovesQueueQueries = ({
   sort,
   order,
