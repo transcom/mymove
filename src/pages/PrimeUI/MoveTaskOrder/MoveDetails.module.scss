@@ -46,4 +46,8 @@
     flex-direction: row;
     @include u-margin-bottom(2);
   }
+
+  :global(.usa-select) {
+    width: 20%;
+  }
 }
