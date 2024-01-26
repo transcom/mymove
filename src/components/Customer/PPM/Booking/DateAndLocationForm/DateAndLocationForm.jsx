@@ -7,8 +7,8 @@ import classnames from 'classnames';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { CheckboxField, DatePickerInput, DutyLocationInput } from 'components/form/fields';
-import TextField from 'components/form/fields/TextField/TextField';
+import { DatePickerInput, DutyLocationInput } from 'components/form/fields';
+//import TextField from 'components/form/fields/TextField/TextField';
 import Hint from 'components/Hint';
 import Fieldset from 'shared/Fieldset';
 import formStyles from 'styles/form.module.scss';
@@ -81,37 +81,37 @@ const DateAndLocationForm = ({
   // const residentialAddressPostalCode = serviceMember?.residential_address?.postalCode;
   // const destinationDutyLocationPostalCode = destinationDutyLocation?.address?.postalCode;
 
-  const postalCodeValidate = async (value, location, name) => {
-    if (value?.length !== 5) {
-      return undefined;
-    }
-    // only revalidate if the value has changed, editing other fields will re-validate unchanged ones
-    if (postalCodeValid[`${name}`]?.value !== value) {
-      const response = await postalCodeValidator(value, location, UnsupportedZipCodePPMErrorMsg);
-      setPostalCodeValid((state) => {
-        return {
-          ...state,
-          [name]: { value, isValid: !response },
-        };
-      });
-      return response;
-    }
-    return postalCodeValid[`${name}`]?.isValid ? undefined : UnsupportedZipCodePPMErrorMsg;
-  };
+  // const postalCodeValidate = async (value, location, name) => {
+  //   if (value?.length !== 5) {
+  //     return undefined;
+  //   }
+  //   // only revalidate if the value has changed, editing other fields will re-validate unchanged ones
+  //   if (postalCodeValid[`${name}`]?.value !== value) {
+  //     const response = await postalCodeValidator(value, location, UnsupportedZipCodePPMErrorMsg);
+  //     setPostalCodeValid((state) => {
+  //       return {
+  //         ...state,
+  //         [name]: { value, isValid: !response },
+  //       };
+  //     });
+  //     return response;
+  //   }
+  //   return postalCodeValid[`${name}`]?.isValid ? undefined : UnsupportedZipCodePPMErrorMsg;
+  // };
 
-  const handlePrefillPostalCodeChange = (
-    value,
-    setFieldValue,
-    postalCodeField,
-    prefillValue,
-    isCheckedField,
-    checkedFieldValue,
-  ) => {
-    if (checkedFieldValue && value !== prefillValue) {
-      setFieldValue(isCheckedField, false);
-    }
-    setFieldValue(postalCodeField, value);
-  };
+  // const handlePrefillPostalCodeChange = (
+  //   value,
+  //   setFieldValue,
+  //   postalCodeField,
+  //   prefillValue,
+  //   isCheckedField,
+  //   checkedFieldValue,
+  // ) => {
+  //   if (checkedFieldValue && value !== prefillValue) {
+  //     setFieldValue(isCheckedField, false);
+  //   }
+  //   setFieldValue(postalCodeField, value);
+  // };
 
   const showCloseoutOffice =
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.ARMY ||
@@ -124,7 +124,7 @@ const DateAndLocationForm = ({
 
   return (
     <Formik initialValues={initialValues} validationSchema={Yup.object().shape(validationShape)} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit, setFieldValue, setValues, values }) => {
+      {({ isValid, isSubmitting, handleSubmit, setValues, values }) => {
         const handleUseCurrentResidenceChange = (e) => {
           const { checked } = e.target;
           if (checked) {
