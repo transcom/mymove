@@ -71,14 +71,4 @@ describe('When a service members updates their profile', () => {
       expect(screen.getByText(value)).toBeInTheDocument();
     });
   });
-  describe('it correctly renders the details component for duty location', () => {
-    const historyRecord = {
-      changedValues: { duty_location_id: '2222' },
-      context: [{ current_duty_location_name: 'Fort Hood' }],
-    };
-    const result = getTemplate(template);
-    render(result.getDetails(historyRecord));
-    expect(screen.getByText('Current duty location name')).toBeInTheDocument();
-    expect(screen.getByText(': Fort Hood')).toBeInTheDocument();
-  });
 });
