@@ -23,7 +23,7 @@ var correctPrimeCounselingData = PrimeCounselingCompleteData{
 func (suite *NotificationSuite) TestPrimeCounselingComplete() {
 	notification := NewPrimeCounselingComplete(payload)
 
-	primeCounselingEmailData, err := GetEmailData(notification.moveTaskOrder, suite.AppContextForTest())
+	primeCounselingEmailData, err := notification.GetEmailData(notification.moveTaskOrder, suite.AppContextForTest())
 	suite.NoError(err)
 	suite.NotNil(primeCounselingEmailData)
 	suite.Equal(primeCounselingEmailData, correctPrimeCounselingData)
@@ -45,7 +45,7 @@ func (suite *NotificationSuite) TestPrimeCounselingComplete() {
 func (suite *NotificationSuite) TestPrimeCounselingCompleteTextTemplateRender() {
 	notification := NewPrimeCounselingComplete(payload)
 
-	primeCounselingEmailData, err := GetEmailData(notification.moveTaskOrder, suite.AppContextForTest())
+	primeCounselingEmailData, err := notification.GetEmailData(notification.moveTaskOrder, suite.AppContextForTest())
 	suite.NoError(err)
 	suite.NotNil(primeCounselingEmailData)
 	suite.Equal(primeCounselingEmailData, correctPrimeCounselingData)
