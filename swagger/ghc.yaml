@@ -7223,6 +7223,22 @@ definitions:
         $ref: '#/definitions/Address'
       newAddress:
         $ref: '#/definitions/Address'
+      sitOriginalAddress:
+        $ref: '#/definitions/Address'
+      oldSitDistanceBetween:
+        description: >-
+          The distance between the original SIT address and the previous/old
+          destination address of shipment
+        example: 50
+        minimum: 0
+        type: integer
+      newSitDistanceBetween:
+        description: >-
+          The distance between the original SIT address and requested new
+          destination address of shipment
+        example: 88
+        minimum: 0
+        type: integer
     required:
       - id
       - status
@@ -7492,9 +7508,10 @@ definitions:
         x-nullable: true
         x-omitempty: false
       actualWeight:
-        x-nullable: true
         example: 2000
         type: integer
+        x-nullable: true
+        x-omitempty: false
       proGearWeightCustomer:
         description: >-
           The estimated weight of the pro-gear being moved belonging to the

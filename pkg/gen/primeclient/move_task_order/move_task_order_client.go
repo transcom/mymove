@@ -103,7 +103,7 @@ func (a *Client) DownloadMoveOrder(params *DownloadMoveOrderParams, writer io.Wr
 	op := &runtime.ClientOperation{
 		ID:                 "downloadMoveOrder",
 		Method:             "GET",
-		PathPattern:        "/moves/{locator}/order/download",
+		PathPattern:        "/moves/{locator}/documents",
 		ProducesMediaTypes: []string{"application/pdf"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
