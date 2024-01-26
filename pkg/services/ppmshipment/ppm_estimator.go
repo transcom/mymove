@@ -332,7 +332,7 @@ func CalculateSITCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipm
 
 	additionalDaysInSIT := additionalDaysInSIT(*ppmShipment.SITEstimatedEntryDate, *ppmShipment.SITEstimatedDepartureDate)
 
-	serviceItemsToPrice := storageServiceItems(ppmShipment.ShipmentID, *ppmShipment.SITLocation, additionalDaysInSIT)
+	serviceItemsToPrice := StorageServiceItems(ppmShipment.ShipmentID, *ppmShipment.SITLocation, additionalDaysInSIT)
 
 	totalPrice := unit.Cents(0)
 	for _, serviceItem := range serviceItemsToPrice {
@@ -470,7 +470,7 @@ func BaseServiceItems(mtoShipmentID uuid.UUID) []models.MTOServiceItem {
 	}
 }
 
-func storageServiceItems(mtoShipmentID uuid.UUID, locationType models.SITLocationType, additionalDaysInSIT int) []models.MTOServiceItem {
+func StorageServiceItems(mtoShipmentID uuid.UUID, locationType models.SITLocationType, additionalDaysInSIT int) []models.MTOServiceItem {
 	if locationType == models.SITLocationTypeOrigin {
 		if additionalDaysInSIT > 0 {
 			return []models.MTOServiceItem{
