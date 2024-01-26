@@ -4582,9 +4582,6 @@ func init() {
           "readOnly": true,
           "example": "HYXFJF"
         },
-        "mtoShipments": {
-          "$ref": "#/definitions/MTOShipments"
-        },
         "orderID": {
           "type": "string",
           "format": "uuid",
@@ -13342,9 +13339,6 @@ func init() {
           "type": "string",
           "readOnly": true,
           "example": "HYXFJF"
-        },
-        "mtoShipments": {
-          "$ref": "#/definitions/MTOShipments"
         },
         "orderID": {
           "type": "string",

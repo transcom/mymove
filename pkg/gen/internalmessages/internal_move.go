@@ -38,9 +38,6 @@ type InternalMove struct {
 	// Read Only: true
 	MoveCode string `json:"moveCode,omitempty"`
 
-	// mto shipments
-	MtoShipments MTOShipments `json:"mtoShipments,omitempty"`
-
 	// order ID
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
@@ -61,10 +58,6 @@ func (m *InternalMove) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateMtoShipments(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -100,23 +93,6 @@ func (m *InternalMove) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *InternalMove) validateMtoShipments(formats strfmt.Registry) error {
-	if swag.IsZero(m.MtoShipments) { // not required
-		return nil
-	}
-
-	if err := m.MtoShipments.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("mtoShipments")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("mtoShipments")
-		}
 		return err
 	}
 
@@ -163,10 +139,6 @@ func (m *InternalMove) ContextValidate(ctx context.Context, formats strfmt.Regis
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateMtoShipments(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -198,20 +170,6 @@ func (m *InternalMove) contextValidateETag(ctx context.Context, formats strfmt.R
 func (m *InternalMove) contextValidateMoveCode(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "moveCode", "body", string(m.MoveCode)); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *InternalMove) contextValidateMtoShipments(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := m.MtoShipments.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("mtoShipments")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("mtoShipments")
-		}
 		return err
 	}
 
