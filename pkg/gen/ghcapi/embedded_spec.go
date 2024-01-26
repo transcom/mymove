@@ -7539,6 +7539,7 @@ func init() {
         "actualWeight": {
           "type": "integer",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         },
         "aoa": {
@@ -19111,6 +19112,7 @@ func init() {
         "actualWeight": {
           "type": "integer",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         },
         "aoa": {
