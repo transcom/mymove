@@ -1,0 +1,49 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
+
+.HeaderSection {
+  color: $base-darker;
+  @include u-margin-top(2);
+  display: flex;
+  flex-wrap: wrap;
+
+  :global(.usa-label) {
+      width: auto;
+      display: inline-block;
+      @include u-margin-top(.5);
+    }
+
+  h4 {
+    @include u-margin-y(2.5);
+  }
+}
+
+.Details {
+  display: block;
+  @include u-padding-x(1.5);
+
+  div {
+    display: grid;
+    grid-template-columns: 300px 200px;
+    align-items: center;
+    @include u-margin-y(1);
+
+    span {
+      @include u-margin-top(.5);
+    }
+  }
+}
+
+.toggleDrawer {
+  @include u-display(flex);
+  flex: 1;
+  justify-content: flex-end;
+
+  svg {
+    margin-right: 0.5em;
+  }
+
+  button {
+    @include u-padding-x(0);
+  }
+}
