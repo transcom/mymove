@@ -108,8 +108,8 @@ const MoveDetails = ({ setFlashMessage }) => {
         });
       } else {
         setErrorMessage({
-          title: 'Unexpected error',
-          detail: 'An unknown error has occurred, please check the move order document user uploads for this move.',
+          title: 'Unexpected error: ',
+          detail: 'Please check the move order document user uploads for this move.',
         });
       }
     },
@@ -196,7 +196,12 @@ const MoveDetails = ({ setFlashMessage }) => {
                   </div>
                   <div className={descriptionListStyles.row}>
                     <Button onClick={handleDownloadOrders}>Download Move Orders</Button>
-                    <select onChange={handleDocumentTypeChange} name="moveOrderDocumentType" id="moveOrderDocumentType">
+                    <select
+                      onChange={handleDocumentTypeChange}
+                      className="usa-select"
+                      name="moveOrderDocumentType"
+                      id="moveOrderDocumentType"
+                    >
                       <option value={MoveOrderDocumentType.ALL}>ALL</option>
                       <option value={MoveOrderDocumentType.ORDERS}>ORDERS</option>
                       <option value={MoveOrderDocumentType.AMENDMENTS}>AMENDMENTS</option>
