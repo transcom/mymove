@@ -55,13 +55,6 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 			},
 		},
 	}, nil)
-	location := factory.BuildDutyLocation(nil, []factory.Customization{
-		{
-			Model: DutyLocation{
-				ID: uuid.Must(uuid.NewV4()),
-			},
-		},
-	}, nil)
 
 	serviceMember := ServiceMember{
 		ID:                     uuid.Must(uuid.NewV4()),
@@ -74,7 +67,6 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 		PersonalEmail:          &email,
 		ResidentialAddressID:   &fakeAddress.ID,
 		BackupMailingAddressID: &fakeBackupAddress.ID,
-		DutyLocationID:         &location.ID,
 	}
 
 	suite.Equal(false, serviceMember.IsProfileComplete())
