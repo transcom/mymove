@@ -26,12 +26,16 @@ import (
 
 func (suite *HandlerSuite) TestCreateOrder() {
 	sm := factory.BuildExtendedServiceMember(suite.DB(), nil, nil)
+
+	originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name: "Not Yuma AFB",
+			},
+		},
+	}, nil)
 	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), dutyLocation.Address.PostalCode, "KKFA")
-	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-
-	originDutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
-	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), originDutyLocation.Address.PostalCode, "KKFA")
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	req := httptest.NewRequest("POST", "/orders", nil)
@@ -43,20 +47,20 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	deptIndicator := internalmessages.DeptIndicatorAIRANDSPACEFORCE
-	//orderPayGrade := internalmessages.OrderPayGradeE2
 	payload := &internalmessages.CreateUpdateOrders{
-		HasDependents:       handlers.FmtBool(hasDependents),
-		SpouseHasProGear:    handlers.FmtBool(spouseHasProGear),
-		IssueDate:           handlers.FmtDate(issueDate),
-		ReportByDate:        handlers.FmtDate(reportByDate),
-		OrdersType:          internalmessages.NewOrdersType(ordersType),
-		NewDutyLocationID:   handlers.FmtUUID(dutyLocation.ID),
-		ServiceMemberID:     handlers.FmtUUID(sm.ID),
-		OrdersNumber:        handlers.FmtString("123456"),
-		Tac:                 handlers.FmtString("E19A"),
-		Sac:                 handlers.FmtString("SacNumber"),
-		DepartmentIndicator: internalmessages.NewDeptIndicator(deptIndicator),
-		Grade:               models.ServiceMemberGradeE1.Pointer(),
+		HasDependents:        handlers.FmtBool(hasDependents),
+		SpouseHasProGear:     handlers.FmtBool(spouseHasProGear),
+		IssueDate:            handlers.FmtDate(issueDate),
+		ReportByDate:         handlers.FmtDate(reportByDate),
+		OrdersType:           internalmessages.NewOrdersType(ordersType),
+		OriginDutyLocationID: *handlers.FmtUUIDPtr(&originDutyLocation.ID),
+		NewDutyLocationID:    handlers.FmtUUID(dutyLocation.ID),
+		ServiceMemberID:      handlers.FmtUUID(sm.ID),
+		OrdersNumber:         handlers.FmtString("123456"),
+		Tac:                  handlers.FmtString("E19A"),
+		Sac:                  handlers.FmtString("SacNumber"),
+		DepartmentIndicator:  internalmessages.NewDeptIndicator(deptIndicator),
+		Grade:                models.ServiceMemberGradeE1.Pointer(),
 	}
 
 	params := ordersop.CreateOrdersParams{
@@ -83,7 +87,6 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	suite.Assertions.Equal(handlers.FmtString("E19A"), okResponse.Payload.Tac)
 	suite.Assertions.Equal(handlers.FmtString("SacNumber"), okResponse.Payload.Sac)
 	suite.Assertions.Equal(&deptIndicator, okResponse.Payload.DepartmentIndicator)
-	suite.Equal(sm.DutyLocationID, createdOrder.OriginDutyLocationID)
 	suite.Assertions.Equal(*models.Int64Pointer(8000), *okResponse.Payload.AuthorizedWeight)
 	suite.NotNil(&createdOrder.Entitlement)
 	suite.NotEmpty(createdOrder.SupplyAndServicesCostEstimate)

@@ -145,9 +145,6 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.EqualValues(payload.DepartmentIndicator, updatedOrder.DepartmentIndicator)
 		suite.Equal(payload.Tac, updatedOrder.TAC)
 		suite.Equal(payload.Sac.Value, updatedOrder.SAC)
-		suite.EqualValues(&updatedOriginDutyLocation.ID, fetchedSM.DutyLocationID)
-		suite.EqualValues(updatedOriginDutyLocation.ID, fetchedSM.DutyLocation.ID)
-		suite.EqualValues(updatedOriginDutyLocation.Name, fetchedSM.DutyLocation.Name)
 		suite.EqualValues(updatedGbloc.GBLOC, *updatedOrder.OriginDutyLocationGBLOC)
 
 		var moveInDB models.Move

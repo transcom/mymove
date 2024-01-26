@@ -204,7 +204,7 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		"Orders",
 		"Orders.NewDutyLocation.Address",
 		"Orders.ServiceMember",
-		"Orders.ServiceMember.DutyLocation.Address",
+		"Orders.OriginDutyLocation.Address",
 		"PersonallyProcuredMoves",
 	).Find(&move, moveID)
 

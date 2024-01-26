@@ -668,23 +668,14 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		suite.NoError(err)
 
 		verifyServiceMemberHistoryFound := false
-		verifyServiceMemberContextFound := false
 
 		for _, h := range moveHistoryData.AuditHistories {
 			if h.AuditedTable == "service_members" && *h.ObjectID == serviceMember.ID {
 				verifyServiceMemberHistoryFound = true
-
-				if h.Context != nil {
-					context := removeEscapeJSONtoArray(h.Context)
-					if context[0]["current_duty_location_name"] != "" {
-						verifyServiceMemberContextFound = true
-					}
-				}
 				break
 			}
 		}
 		suite.True(verifyServiceMemberHistoryFound, "AuditHistories contains an AuditHistory when a service member is created")
-		suite.True(verifyServiceMemberContextFound, "Service member creation AuditHistory contains a context with current duty location name")
 	})
 
 	suite.Run("has audit history records for mto_agents", func() {
