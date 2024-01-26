@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// InternalMove internal move
+// InternalMove Move informaion for a service member
 //
 // swagger:model InternalMove
 type InternalMove struct {

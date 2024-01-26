@@ -4561,6 +4561,7 @@ func init() {
       }
     },
     "InternalMove": {
+      "description": "Move informaion for a service member",
       "type": "object",
       "properties": {
         "createdAt": {
@@ -13319,6 +13320,7 @@ func init() {
       }
     },
     "InternalMove": {
+      "description": "Move informaion for a service member",
       "type": "object",
       "properties": {
         "createdAt": {
