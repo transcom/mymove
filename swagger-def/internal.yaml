@@ -2720,38 +2720,14 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-      order:
-        $ref: 'definitions/prime/Order.yaml'
       orders:
         type: object
-      referenceId:
-        example: 1001-3456
-        type: string
       updatedAt:
         format: date-time
         type: string
         readOnly: true
-      primeCounselingCompletedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-        readOnly: true
       mtoShipments:
         $ref: '#/definitions/MTOShipments'
-      ppmEstimatedWeight:
-        type: integer
-      excessWeightQualifiedAt:
-        type: string
-        format: date-time
-        readOnly: true
-        x-omitempty: false
-        x-nullable: true
-      excessWeightAcknowledgedAt:
-        type: string
-        format: date-time
-        readOnly: true
-        x-omitempty: false
-        x-nullable: true
       eTag:
         type: string
         readOnly: true
