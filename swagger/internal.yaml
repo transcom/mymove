@@ -2757,8 +2757,6 @@ definitions:
         format: date-time
         type: string
         readOnly: true
-      mtoShipments:
-        $ref: '#/definitions/MTOShipments'
       eTag:
         type: string
         readOnly: true
