@@ -4561,7 +4561,6 @@ func init() {
       }
     },
     "InternalMove": {
-      "description": "Move informaion for a service member",
       "type": "object",
       "properties": {
         "createdAt": {
@@ -4583,10 +4582,16 @@ func init() {
           "readOnly": true,
           "example": "HYXFJF"
         },
+        "mtoShipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
         "orderID": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "orders": {
+          "type": "object"
         },
         "updatedAt": {
           "type": "string",
@@ -13320,7 +13325,6 @@ func init() {
       }
     },
     "InternalMove": {
-      "description": "Move informaion for a service member",
       "type": "object",
       "properties": {
         "createdAt": {
@@ -13342,10 +13346,16 @@ func init() {
           "readOnly": true,
           "example": "HYXFJF"
         },
+        "mtoShipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
         "orderID": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "orders": {
+          "type": "object"
         },
         "updatedAt": {
           "type": "string",
