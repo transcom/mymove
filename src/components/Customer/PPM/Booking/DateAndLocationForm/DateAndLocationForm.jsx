@@ -8,14 +8,13 @@ import classnames from 'classnames';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { DatePickerInput, DutyLocationInput } from 'components/form/fields';
-//import TextField from 'components/form/fields/TextField/TextField';
 import Hint from 'components/Hint';
 import Fieldset from 'shared/Fieldset';
 import formStyles from 'styles/form.module.scss';
 import { DutyLocationShape } from 'types';
 import { MoveShape, ServiceMemberShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
-import { UnsupportedZipCodePPMErrorMsg, ZIP5_CODE_REGEX, InvalidZIPTypeError } from 'utils/validation';
+import { ZIP5_CODE_REGEX, InvalidZIPTypeError } from 'utils/validation';
 import { searchTransportationOffices } from 'services/internalApi';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
@@ -43,22 +42,8 @@ const validationShape = {
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .required('Required'),
 };
-const setZip = (setFieldValue, postalCodeField, postalCode, isChecked, isCheckedField) => {
-  setFieldValue(isCheckedField, !isChecked);
-  setFieldValue(postalCodeField, isChecked ? '' : postalCode);
-};
 
-const DateAndLocationForm = ({
-  mtoShipment,
-  destinationDutyLocation,
-  serviceMember,
-  move,
-  onBack,
-  onSubmit,
-  postalCodeValidator,
-}) => {
-  const [postalCodeValid, setPostalCodeValid] = useState({});
-
+const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMember, move, onBack, onSubmit }) => {
   const initialValues = {
     pickupPostalCode: mtoShipment?.ppmShipment?.pickupPostalCode || '',
     useCurrentResidence: false,
@@ -73,45 +58,10 @@ const DateAndLocationForm = ({
     sitExpected: mtoShipment?.ppmShipment?.sitExpected ? 'true' : 'false',
     expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
     closeoutOffice: move?.closeout_office,
-    // [residentialAddressName]: serviceMember?.residential_address,
   };
 
   const residentialAddress = serviceMember?.residential_address;
   const destinationAddress = destinationDutyLocation?.address;
-  // const residentialAddressPostalCode = serviceMember?.residential_address?.postalCode;
-  // const destinationDutyLocationPostalCode = destinationDutyLocation?.address?.postalCode;
-
-  // const postalCodeValidate = async (value, location, name) => {
-  //   if (value?.length !== 5) {
-  //     return undefined;
-  //   }
-  //   // only revalidate if the value has changed, editing other fields will re-validate unchanged ones
-  //   if (postalCodeValid[`${name}`]?.value !== value) {
-  //     const response = await postalCodeValidator(value, location, UnsupportedZipCodePPMErrorMsg);
-  //     setPostalCodeValid((state) => {
-  //       return {
-  //         ...state,
-  //         [name]: { value, isValid: !response },
-  //       };
-  //     });
-  //     return response;
-  //   }
-  //   return postalCodeValid[`${name}`]?.isValid ? undefined : UnsupportedZipCodePPMErrorMsg;
-  // };
-
-  // const handlePrefillPostalCodeChange = (
-  //   value,
-  //   setFieldValue,
-  //   postalCodeField,
-  //   prefillValue,
-  //   isCheckedField,
-  //   checkedFieldValue,
-  // ) => {
-  //   if (checkedFieldValue && value !== prefillValue) {
-  //     setFieldValue(isCheckedField, false);
-  //   }
-  //   setFieldValue(postalCodeField, value);
-  // };
 
   const showCloseoutOffice =
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.ARMY ||
@@ -401,7 +351,6 @@ DateAndLocationForm.propTypes = {
   destinationDutyLocation: DutyLocationShape.isRequired,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
-  postalCodeValidator: func.isRequired,
 };
 
 DateAndLocationForm.defaultProps = {
