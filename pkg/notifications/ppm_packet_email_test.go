@@ -107,7 +107,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpa
 	})
 	notification := NewPpmPacketEmail(ppmShipment.ID)
 
-	ppmEmailData, _, err := GetEmailData(*notification, suite.AppContextForTest())
+	ppmEmailData, _, err := notification.GetEmailData(suite.AppContextForTest())
 	suite.NoError(err)
 	suite.NotNil(ppmEmailData)
 
@@ -193,7 +193,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForArmy() {
 	})
 	notification := NewPpmPacketEmail(ppmShipment.ID)
 
-	ppmEmailData, _, err := GetEmailData(*notification, suite.AppContextForTest())
+	ppmEmailData, _, err := notification.GetEmailData(suite.AppContextForTest())
 	suite.NoError(err)
 	suite.NotNil(ppmEmailData)
 
@@ -279,7 +279,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForNavalBran
 	})
 	notification := NewPpmPacketEmail(ppmShipment.ID)
 
-	ppmEmailData, _, err := GetEmailData(*notification, suite.AppContextForTest())
+	ppmEmailData, _, err := notification.GetEmailData(suite.AppContextForTest())
 	suite.NoError(err)
 	suite.NotNil(ppmEmailData)
 
@@ -367,7 +367,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailTextTemplateRender() {
 
 	notification := NewPpmPacketEmail(ppmShipment.ID)
 
-	ppmEmailData, _, err := GetEmailData(*notification, suite.AppContextForTest())
+	ppmEmailData, _, err := notification.GetEmailData(suite.AppContextForTest())
 	suite.NoError(err)
 
 	expectedTextContent := `*** DO NOT REPLY directly to this email ***
@@ -432,7 +432,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailZipcodeFallback() {
 	})
 	notification := NewPpmPacketEmail(ppmShipment.ID)
 
-	ppmEmailData, _, err := GetEmailData(*notification, suite.AppContextForTest())
+	ppmEmailData, _, err := notification.GetEmailData(suite.AppContextForTest())
 	suite.NoError(err)
 	suite.NotNil(ppmEmailData)
 
