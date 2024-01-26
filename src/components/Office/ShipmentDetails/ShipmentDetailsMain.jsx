@@ -55,7 +55,6 @@ const ShipmentDetailsMain = ({
     requiredDeliveryDate,
     pickupAddress,
     destinationAddress,
-    ppmShipment,
     primeEstimatedWeight,
     ppmShipment,
     primeActualWeight,
@@ -125,6 +124,7 @@ const ShipmentDetailsMain = ({
 
   let displayedPickupAddress;
   let displayedDeliveryAddress;
+  // let weightResult;
   let pickupRequestedDate;
   let pickupScheduledDate;
   let plannedMoveDate;
@@ -134,33 +134,37 @@ const ShipmentDetailsMain = ({
     case SHIPMENT_OPTIONS.HHG:
       pickupRequestedDate = requestedPickupDate;
       pickupScheduledDate = scheduledPickupDate;
+      // weightResult = primeEstimatedWeight;
       displayedPickupAddress = pickupAddress;
       displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
       break;
     case SHIPMENT_OPTIONS.NTS:
       pickupRequestedDate = requestedPickupDate;
       pickupScheduledDate = scheduledPickupDate;
+      // weightResult = primeEstimatedWeight;
       displayedPickupAddress = pickupAddress;
       displayedDeliveryAddress = storageFacility ? storageFacility.address : null;
       break;
     case SHIPMENT_OPTIONS.NTSR:
       pickupRequestedDate = requestedPickupDate;
       pickupScheduledDate = scheduledPickupDate;
+      // weightResult = primeEstimatedWeight;
       displayedPickupAddress = storageFacility ? storageFacility.address : null;
       displayedDeliveryAddress = destinationAddress;
       break;
     case SHIPMENT_OPTIONS.PPM:
       plannedMoveDate = ppmShipment.expectedDepartureDate;
       actualMoveDate = ppmShipment.actualDeliveryDate;
+      // weightResult = ppmShipment.estimatedWeight;
       displayedPickupAddress = pickupAddress;
       displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
       break;
     default:
       pickupRequestedDate = requestedPickupDate;
       pickupScheduledDate = scheduledPickupDate;
+      // weightResult = primeEstimatedWeight;
       displayedPickupAddress = pickupAddress;
       displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
-      break;
   }
 
   return (
@@ -236,7 +240,7 @@ const ShipmentDetailsMain = ({
         handleDivertShipment={handleDivertShipment}
       />
       <ShipmentWeightDetails
-        estimatedWeight={weightResult}
+        estimatedWeight={primeEstimatedWeight}
         initialWeight={primeActualWeight}
         shipmentInfo={{
           shipmentID: shipment.id,
