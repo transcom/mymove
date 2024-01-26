@@ -4336,53 +4336,6 @@ func init() {
         }
       }
     },
-    "Customer": {
-      "type": "object",
-      "properties": {
-        "branch": {
-          "type": "string",
-          "example": "COAST_GUARD"
-        },
-        "currentAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "dodID": {
-          "type": "string"
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "email": {
-          "type": "string",
-          "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-          "example": "fake@example.com"
-        },
-        "firstName": {
-          "type": "string",
-          "example": "Vanya"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "lastName": {
-          "type": "string",
-          "example": "Petrovna"
-        },
-        "phone": {
-          "type": "string",
-          "format": "telephone"
-        },
-        "userID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        }
-      }
-    },
     "DeptIndicator": {
       "type": "string",
       "title": "Dept. indicator",
@@ -4427,32 +4380,6 @@ func init() {
           "items": {
             "$ref": "#/definitions/Upload"
           }
-        }
-      }
-    },
-    "DutyLocation": {
-      "type": "object",
-      "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "addressID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "name": {
-          "type": "string",
-          "example": "Fort Bragg North Station"
         }
       }
     },
@@ -4525,73 +4452,6 @@ func init() {
           "description": "Spouse's pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank\n",
           "type": "integer",
           "x-nullable": true,
-          "example": 500
-        }
-      }
-    },
-    "Entitlements": {
-      "type": "object",
-      "properties": {
-        "authorizedWeight": {
-          "type": "integer",
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
-        },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true,
-          "example": true
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "571008b1-b0de-454d-b843-d71be9f02c04"
-        },
-        "nonTemporaryStorage": {
-          "type": "boolean",
-          "x-nullable": true,
-          "example": false
-        },
-        "organizationalClothingAndIndividualEquipment": {
-          "type": "boolean",
-          "example": false
-        },
-        "privatelyOwnedVehicle": {
-          "type": "boolean",
-          "x-nullable": true,
-          "example": false
-        },
-        "proGearWeight": {
-          "type": "integer",
-          "x-formatting": "weight",
-          "example": 2000
-        },
-        "proGearWeightSpouse": {
-          "type": "integer",
-          "x-formatting": "weight",
-          "example": 500
-        },
-        "requiredMedicalEquipmentWeight": {
-          "type": "integer",
-          "x-formatting": "weight",
-          "example": 500
-        },
-        "storageInTransit": {
-          "type": "integer",
-          "example": 90
-        },
-        "totalDependents": {
-          "type": "integer",
-          "example": 2
-        },
-        "totalWeight": {
-          "type": "integer",
-          "x-formatting": "weight",
           "example": 500
         }
       }
@@ -4712,20 +4572,6 @@ func init() {
           "type": "string",
           "readOnly": true
         },
-        "excessWeightAcknowledgedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
-        "excessWeightQualifiedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -4739,9 +4585,6 @@ func init() {
         "mtoShipments": {
           "$ref": "#/definitions/MTOShipments"
         },
-        "order": {
-          "$ref": "#/definitions/Order"
-        },
         "orderID": {
           "type": "string",
           "format": "uuid",
@@ -4749,19 +4592,6 @@ func init() {
         },
         "orders": {
           "type": "object"
-        },
-        "ppmEstimatedWeight": {
-          "type": "integer"
-        },
-        "primeCounselingCompletedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "readOnly": true
-        },
-        "referenceId": {
-          "type": "string",
-          "example": "1001-3456"
         },
         "updatedAt": {
           "type": "string",
@@ -5822,63 +5652,6 @@ func init() {
       },
       "x-nullable": true,
       "x-omitempty": false
-    },
-    "Order": {
-      "type": "object",
-      "required": [
-        "orderNumber",
-        "rank",
-        "linesOfAccounting"
-      ],
-      "properties": {
-        "customer": {
-          "$ref": "#/definitions/Customer"
-        },
-        "customerID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "destinationDutyLocation": {
-          "$ref": "#/definitions/DutyLocation"
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "entitlement": {
-          "$ref": "#/definitions/Entitlements"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "linesOfAccounting": {
-          "type": "string"
-        },
-        "orderNumber": {
-          "type": "string"
-        },
-        "ordersType": {
-          "$ref": "#/definitions/OrdersType"
-        },
-        "originDutyLocation": {
-          "$ref": "#/definitions/DutyLocation"
-        },
-        "originDutyLocationGBLOC": {
-          "type": "string",
-          "example": "KKFA"
-        },
-        "rank": {
-          "type": "string",
-          "example": "E_5"
-        },
-        "reportByDate": {
-          "type": "string",
-          "format": "date"
-        }
-      }
     },
     "OrderPayGrade": {
       "type": "string",
@@ -13327,53 +13100,6 @@ func init() {
         }
       }
     },
-    "Customer": {
-      "type": "object",
-      "properties": {
-        "branch": {
-          "type": "string",
-          "example": "COAST_GUARD"
-        },
-        "currentAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "dodID": {
-          "type": "string"
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "email": {
-          "type": "string",
-          "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-          "example": "fake@example.com"
-        },
-        "firstName": {
-          "type": "string",
-          "example": "Vanya"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "lastName": {
-          "type": "string",
-          "example": "Petrovna"
-        },
-        "phone": {
-          "type": "string",
-          "format": "telephone"
-        },
-        "userID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        }
-      }
-    },
     "DeptIndicator": {
       "type": "string",
       "title": "Dept. indicator",
@@ -13418,32 +13144,6 @@ func init() {
           "items": {
             "$ref": "#/definitions/Upload"
           }
-        }
-      }
-    },
-    "DutyLocation": {
-      "type": "object",
-      "properties": {
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "addressID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "name": {
-          "type": "string",
-          "example": "Fort Bragg North Station"
         }
       }
     },
@@ -13516,73 +13216,6 @@ func init() {
           "description": "Spouse's pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank\n",
           "type": "integer",
           "x-nullable": true,
-          "example": 500
-        }
-      }
-    },
-    "Entitlements": {
-      "type": "object",
-      "properties": {
-        "authorizedWeight": {
-          "type": "integer",
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
-        },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true,
-          "example": true
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "571008b1-b0de-454d-b843-d71be9f02c04"
-        },
-        "nonTemporaryStorage": {
-          "type": "boolean",
-          "x-nullable": true,
-          "example": false
-        },
-        "organizationalClothingAndIndividualEquipment": {
-          "type": "boolean",
-          "example": false
-        },
-        "privatelyOwnedVehicle": {
-          "type": "boolean",
-          "x-nullable": true,
-          "example": false
-        },
-        "proGearWeight": {
-          "type": "integer",
-          "x-formatting": "weight",
-          "example": 2000
-        },
-        "proGearWeightSpouse": {
-          "type": "integer",
-          "x-formatting": "weight",
-          "example": 500
-        },
-        "requiredMedicalEquipmentWeight": {
-          "type": "integer",
-          "x-formatting": "weight",
-          "example": 500
-        },
-        "storageInTransit": {
-          "type": "integer",
-          "example": 90
-        },
-        "totalDependents": {
-          "type": "integer",
-          "example": 2
-        },
-        "totalWeight": {
-          "type": "integer",
-          "x-formatting": "weight",
           "example": 500
         }
       }
@@ -13703,20 +13336,6 @@ func init() {
           "type": "string",
           "readOnly": true
         },
-        "excessWeightAcknowledgedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
-        "excessWeightQualifiedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "readOnly": true
-        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -13730,9 +13349,6 @@ func init() {
         "mtoShipments": {
           "$ref": "#/definitions/MTOShipments"
         },
-        "order": {
-          "$ref": "#/definitions/Order"
-        },
         "orderID": {
           "type": "string",
           "format": "uuid",
@@ -13740,19 +13356,6 @@ func init() {
         },
         "orders": {
           "type": "object"
-        },
-        "ppmEstimatedWeight": {
-          "type": "integer"
-        },
-        "primeCounselingCompletedAt": {
-          "type": "string",
-          "format": "date-time",
-          "x-nullable": true,
-          "readOnly": true
-        },
-        "referenceId": {
-          "type": "string",
-          "example": "1001-3456"
         },
         "updatedAt": {
           "type": "string",
@@ -14815,63 +14418,6 @@ func init() {
       },
       "x-nullable": true,
       "x-omitempty": false
-    },
-    "Order": {
-      "type": "object",
-      "required": [
-        "orderNumber",
-        "rank",
-        "linesOfAccounting"
-      ],
-      "properties": {
-        "customer": {
-          "$ref": "#/definitions/Customer"
-        },
-        "customerID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "destinationDutyLocation": {
-          "$ref": "#/definitions/DutyLocation"
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "entitlement": {
-          "$ref": "#/definitions/Entitlements"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "linesOfAccounting": {
-          "type": "string"
-        },
-        "orderNumber": {
-          "type": "string"
-        },
-        "ordersType": {
-          "$ref": "#/definitions/OrdersType"
-        },
-        "originDutyLocation": {
-          "$ref": "#/definitions/DutyLocation"
-        },
-        "originDutyLocationGBLOC": {
-          "type": "string",
-          "example": "KKFA"
-        },
-        "rank": {
-          "type": "string",
-          "example": "E_5"
-        },
-        "reportByDate": {
-          "type": "string",
-          "format": "date"
-        }
-      }
     },
     "OrderPayGrade": {
       "type": "string",

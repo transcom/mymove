@@ -28,16 +28,6 @@ type InternalMove struct {
 	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
-	// excess weight acknowledged at
-	// Read Only: true
-	// Format: date-time
-	ExcessWeightAcknowledgedAt *strfmt.DateTime `json:"excessWeightAcknowledgedAt"`
-
-	// excess weight qualified at
-	// Read Only: true
-	// Format: date-time
-	ExcessWeightQualifiedAt *strfmt.DateTime `json:"excessWeightQualifiedAt"`
-
 	// id
 	// Example: a502b4f1-b9c4-4faf-8bdd-68292501bf26
 	// Format: uuid
@@ -51,9 +41,6 @@ type InternalMove struct {
 	// mto shipments
 	MtoShipments MTOShipments `json:"mtoShipments,omitempty"`
 
-	// order
-	Order *Order `json:"order,omitempty"`
-
 	// order ID
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
@@ -61,18 +48,6 @@ type InternalMove struct {
 
 	// orders
 	Orders interface{} `json:"orders,omitempty"`
-
-	// ppm estimated weight
-	PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
-
-	// prime counseling completed at
-	// Read Only: true
-	// Format: date-time
-	PrimeCounselingCompletedAt *strfmt.DateTime `json:"primeCounselingCompletedAt,omitempty"`
-
-	// reference Id
-	// Example: 1001-3456
-	ReferenceID string `json:"referenceId,omitempty"`
 
 	// updated at
 	// Read Only: true
@@ -88,14 +63,6 @@ func (m *InternalMove) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateExcessWeightAcknowledgedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateExcessWeightQualifiedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -104,15 +71,7 @@ func (m *InternalMove) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateOrder(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateOrderID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validatePrimeCounselingCompletedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -132,30 +91,6 @@ func (m *InternalMove) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *InternalMove) validateExcessWeightAcknowledgedAt(formats strfmt.Registry) error {
-	if swag.IsZero(m.ExcessWeightAcknowledgedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("excessWeightAcknowledgedAt", "body", "date-time", m.ExcessWeightAcknowledgedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *InternalMove) validateExcessWeightQualifiedAt(formats strfmt.Registry) error {
-	if swag.IsZero(m.ExcessWeightQualifiedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("excessWeightQualifiedAt", "body", "date-time", m.ExcessWeightQualifiedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -191,43 +126,12 @@ func (m *InternalMove) validateMtoShipments(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *InternalMove) validateOrder(formats strfmt.Registry) error {
-	if swag.IsZero(m.Order) { // not required
-		return nil
-	}
-
-	if m.Order != nil {
-		if err := m.Order.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("order")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("order")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (m *InternalMove) validateOrderID(formats strfmt.Registry) error {
 	if swag.IsZero(m.OrderID) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("orderID", "body", "uuid", m.OrderID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *InternalMove) validatePrimeCounselingCompletedAt(formats strfmt.Registry) error {
-	if swag.IsZero(m.PrimeCounselingCompletedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("primeCounselingCompletedAt", "body", "date-time", m.PrimeCounselingCompletedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -258,27 +162,11 @@ func (m *InternalMove) ContextValidate(ctx context.Context, formats strfmt.Regis
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateExcessWeightAcknowledgedAt(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateExcessWeightQualifiedAt(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateMoveCode(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.contextValidateMtoShipments(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateOrder(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidatePrimeCounselingCompletedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -310,24 +198,6 @@ func (m *InternalMove) contextValidateETag(ctx context.Context, formats strfmt.R
 	return nil
 }
 
-func (m *InternalMove) contextValidateExcessWeightAcknowledgedAt(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "excessWeightAcknowledgedAt", "body", m.ExcessWeightAcknowledgedAt); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *InternalMove) contextValidateExcessWeightQualifiedAt(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "excessWeightQualifiedAt", "body", m.ExcessWeightQualifiedAt); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *InternalMove) contextValidateMoveCode(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "moveCode", "body", string(m.MoveCode)); err != nil {
@@ -345,36 +215,6 @@ func (m *InternalMove) contextValidateMtoShipments(ctx context.Context, formats 
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("mtoShipments")
 		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *InternalMove) contextValidateOrder(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.Order != nil {
-
-		if swag.IsZero(m.Order) { // not required
-			return nil
-		}
-
-		if err := m.Order.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("order")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("order")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *InternalMove) contextValidatePrimeCounselingCompletedAt(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "primeCounselingCompletedAt", "body", m.PrimeCounselingCompletedAt); err != nil {
 		return err
 	}
 
