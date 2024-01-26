@@ -52,11 +52,15 @@ func (suite *FactorySuite) TestBuildOrder() {
 		// extended service members have backup contacts
 		suite.False(order.ServiceMemberID.IsNil())
 		suite.False(order.ServiceMember.ID.IsNil())
-		suite.False(order.OriginDutyLocationID.IsNil())
+		suite.False(order.ServiceMember.DutyLocationID.IsNil())
 		suite.NotEmpty(order.ServiceMember.BackupContacts)
 		serviceMemberCountInDB, err := suite.DB().Count(models.ServiceMember{})
 		suite.NoError(err)
 		suite.Equal(1, serviceMemberCountInDB)
+
+		// uses the same duty location name for service member and
+		// orders OriginDutyLocation
+		suite.Equal(order.ServiceMember.DutyLocation.Name, order.OriginDutyLocation.Name)
 
 		// uses the default orders NewDutyLocation
 		suite.Equal(order.NewDutyLocation.Name, "Fort Eisenhower, GA 30813")
@@ -135,9 +139,9 @@ func (suite *FactorySuite) TestBuildOrder() {
 		order := BuildOrder(suite.DB(), customs, nil)
 
 		suite.Equal(originDutyLocation.Name, order.OriginDutyLocation.Name)
-		suite.Equal(originDutyLocation.Name, order.OriginDutyLocation.Name)
+		suite.Equal(originDutyLocation.Name, order.ServiceMember.DutyLocation.Name)
 		suite.Equal(originDutyLocationTOName, order.OriginDutyLocation.TransportationOffice.Name)
-		suite.Equal(originDutyLocationTOName, order.OriginDutyLocation.TransportationOffice.Name)
+		suite.Equal(originDutyLocationTOName, order.ServiceMember.DutyLocation.TransportationOffice.Name)
 		suite.Equal(*serviceMember.FirstName, *order.ServiceMember.FirstName)
 		suite.Equal(*serviceMember.LastName, *order.ServiceMember.LastName)
 		suite.Equal(uploadedOrders.ID, order.UploadedOrdersID)

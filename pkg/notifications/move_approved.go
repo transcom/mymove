@@ -62,7 +62,7 @@ func (m MoveApproved) emails(appCtx appcontext.AppContext) ([]emailContent, erro
 	}
 
 	var originDutyLocation, originDutyLocationPhoneLine *string
-	dsTransportInfo, err := models.FetchDLContactInfo(appCtx.DB(), orders.OriginDutyLocationID)
+	dsTransportInfo, err := models.FetchDLContactInfo(appCtx.DB(), serviceMember.DutyLocationID)
 	if err != nil {
 		return emails, err
 	}

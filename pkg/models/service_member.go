@@ -63,6 +63,8 @@ type ServiceMember struct {
 	BackupMailingAddress   *Address                  `belongs_to:"address" fk_id:"backup_mailing_address_id"`
 	Orders                 Orders                    `has_many:"orders" fk_id:"service_member_id" order_by:"created_at desc" `
 	BackupContacts         BackupContacts            `has_many:"backup_contacts" fk_id:"service_member_id"`
+	DutyLocationID         *uuid.UUID                `json:"duty_location_id" db:"duty_location_id"`
+	DutyLocation           DutyLocation              `belongs_to:"duty_locations" fk_id:"duty_location_id"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -87,6 +89,9 @@ func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uui
 	err := db.Q().Eager("User",
 		"BackupMailingAddress",
 		"BackupContacts",
+		"DutyLocation.Address",
+		"DutyLocation.TransportationOffice",
+		"DutyLocation.TransportationOffice.PhoneLines",
 		"Orders.NewDutyLocation.TransportationOffice",
 		"Orders.OriginDutyLocation",
 		"Orders.UploadedOrders.UserUploads.Upload",
@@ -305,6 +310,9 @@ func (s *ServiceMember) IsProfileComplete() bool {
 		return false
 	}
 	if s.BackupMailingAddressID == nil {
+		return false
+	}
+	if s.DutyLocationID == nil {
 		return false
 	}
 	if len(s.BackupContacts) == 0 {

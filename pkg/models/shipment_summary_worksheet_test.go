@@ -309,15 +309,16 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	serviceBranch := models.AffiliationAIRFORCE
 	grade := models.ServiceMemberGradeE9
 	serviceMember := models.ServiceMember{
-		ID:            serviceMemberID,
-		FirstName:     models.StringPointer("Marcus"),
-		MiddleName:    models.StringPointer("Joseph"),
-		LastName:      models.StringPointer("Jenkins"),
-		Suffix:        models.StringPointer("Jr."),
-		Telephone:     models.StringPointer("444-555-8888"),
-		PersonalEmail: models.StringPointer("michael+ppm-expansion_1@truss.works"),
-		Edipi:         models.StringPointer("1234567890"),
-		Affiliation:   &serviceBranch,
+		ID:             serviceMemberID,
+		FirstName:      models.StringPointer("Marcus"),
+		MiddleName:     models.StringPointer("Joseph"),
+		LastName:       models.StringPointer("Jenkins"),
+		Suffix:         models.StringPointer("Jr."),
+		Telephone:      models.StringPointer("444-555-8888"),
+		PersonalEmail:  models.StringPointer("michael+ppm-expansion_1@truss.works"),
+		Edipi:          models.StringPointer("1234567890"),
+		Affiliation:    &serviceBranch,
+		DutyLocationID: &yuma.ID,
 	}
 
 	orderIssueDate := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)

@@ -382,8 +382,6 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
 			}
 
-			order.Entitlement = &entitlement
-
 			orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err

@@ -117,6 +117,8 @@ func makeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 		Affiliation:            affiliation,
 		ResidentialAddressID:   &residentialAddress.ID,
 		BackupMailingAddressID: &backupMailingAddress.ID,
+		DutyLocationID:         &dutyLocation.ID,
+		DutyLocation:           dutyLocation,
 		EmailIsPreferred:       models.BoolPointer(true),
 		Telephone:              models.StringPointer("555-555-5555"),
 	}
