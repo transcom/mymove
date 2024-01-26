@@ -55,6 +55,7 @@ const ShipmentDetailsMain = ({
     requiredDeliveryDate,
     pickupAddress,
     destinationAddress,
+    ppmShipment,
     primeEstimatedWeight,
     ppmShipment,
     primeActualWeight,
@@ -159,6 +160,7 @@ const ShipmentDetailsMain = ({
       pickupScheduledDate = scheduledPickupDate;
       displayedPickupAddress = pickupAddress;
       displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
+      break;
   }
 
   return (
@@ -234,7 +236,7 @@ const ShipmentDetailsMain = ({
         handleDivertShipment={handleDivertShipment}
       />
       <ShipmentWeightDetails
-        estimatedWeight={primeEstimatedWeight}
+        estimatedWeight={weightResult}
         initialWeight={primeActualWeight}
         shipmentInfo={{
           shipmentID: shipment.id,
