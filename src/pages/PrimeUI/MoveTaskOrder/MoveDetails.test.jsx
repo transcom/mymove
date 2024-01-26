@@ -6,7 +6,7 @@ import MoveDetails from './MoveDetails';
 
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { MockProviders } from 'testUtils';
-import { completeCounseling, deleteShipment } from 'services/primeApi';
+import { completeCounseling, deleteShipment, downloadMoveOrder } from 'services/primeApi';
 import { primeSimulatorRoutes } from 'constants/routes';
 
 const mockRequestedMoveCode = 'LN4T89';
@@ -18,6 +18,7 @@ jest.mock('hooks/queries', () => ({
 jest.mock('services/primeApi', () => ({
   completeCounseling: jest.fn(),
   deleteShipment: jest.fn(),
+  downloadMoveOrder: jest.fn(),
 }));
 
 const moveTaskOrder = {
@@ -257,6 +258,24 @@ describe('PrimeUI MoveDetails page', () => {
 
       const modalDeleteButton = screen.getByText('Delete shipment', { selector: 'button.usa-button--destructive' });
       await userEvent.click(modalDeleteButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Error title/)).toBeInTheDocument();
+        expect(screen.getByText('Error detail')).toBeInTheDocument();
+      });
+    });
+
+    it('error when download move orders', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+      downloadMoveOrder.mockRejectedValue({
+        response: { body: { title: 'Error title', detail: 'Error detail' } },
+      });
+
+      renderWithProviders(<MoveDetails />);
+
+      const downloadMoveOrderButton = screen.getByText(/Download Move Orders/, { selector: 'button' });
+      expect(downloadMoveOrderButton).toBeInTheDocument();
+      await userEvent.click(downloadMoveOrderButton);
 
       await waitFor(() => {
         expect(screen.getByText(/Error title/)).toBeInTheDocument();
