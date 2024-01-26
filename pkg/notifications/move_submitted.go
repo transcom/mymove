@@ -63,7 +63,7 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		return emails, err
 	}
 
-	originDSTransportInfo, err := models.FetchDLContactInfo(appCtx.DB(), serviceMember.DutyLocationID)
+	originDSTransportInfo, err := models.FetchDLContactInfo(appCtx.DB(), orders.OriginDutyLocationID)
 	if err != nil {
 		return emails, err
 	}
@@ -75,7 +75,7 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 
 	}
 
-	totalEntitlement := models.GetWeightAllotment(*serviceMember.Rank)
+	totalEntitlement := models.GetWeightAllotment(*orders.Grade)
 
 	weight := totalEntitlement.TotalWeightSelf
 	if orders.HasDependents {

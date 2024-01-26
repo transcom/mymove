@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -36,7 +37,6 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	// And: a service member is incompletely initialized with almost all required values
 	edipi := "12345567890"
 	affiliation := AffiliationARMY
-	rank := ServiceMemberRankE5
 	firstName := "bob"
 	lastName := "sally"
 	telephone := "510 555-5555"
@@ -55,27 +55,18 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 			},
 		},
 	}, nil)
-	location := factory.BuildDutyLocation(nil, []factory.Customization{
-		{
-			Model: DutyLocation{
-				ID: uuid.Must(uuid.NewV4()),
-			},
-		},
-	}, nil)
 
 	serviceMember := ServiceMember{
 		ID:                     uuid.Must(uuid.NewV4()),
 		UserID:                 user1.ID,
 		Edipi:                  &edipi,
 		Affiliation:            &affiliation,
-		Rank:                   &rank,
 		FirstName:              &firstName,
 		LastName:               &lastName,
 		Telephone:              &telephone,
 		PersonalEmail:          &email,
 		ResidentialAddressID:   &fakeAddress.ID,
 		BackupMailingAddressID: &fakeBackupAddress.ID,
-		DutyLocationID:         &location.ID,
 	}
 
 	suite.Equal(false, serviceMember.IsProfileComplete())
@@ -185,6 +176,7 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 		contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 		packingAndShippingInstructions := InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + InstructionsAfterContractNumber
 
+		grade := models.ServiceMemberGradeE1
 		order := Order{
 			ServiceMemberID:                serviceMember.ID,
 			ServiceMember:                  serviceMember,
@@ -204,7 +196,7 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 			TAC:                            &TAC,
 			SAC:                            &SAC,
 			DepartmentIndicator:            &deptIndicator,
-			Grade:                          StringPointer("E-1"),
+			Grade:                          &grade,
 			SupplyAndServicesCostEstimate:  SupplyAndServicesCostEstimate,
 			MethodOfPayment:                MethodOfPayment,
 			NAICS:                          NAICS,

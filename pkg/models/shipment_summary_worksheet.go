@@ -204,7 +204,7 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		"Orders",
 		"Orders.NewDutyLocation.Address",
 		"Orders.ServiceMember",
-		"Orders.ServiceMember.DutyLocation.Address",
+		"Orders.OriginDutyLocation.Address",
 		"PersonallyProcuredMoves",
 	).Find(&move, moveID)
 
@@ -234,11 +234,9 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 	}
 
 	serviceMember := move.Orders.ServiceMember
-	var rank ServiceMemberRank
 	var weightAllotment SSWMaxWeightEntitlement
-	if serviceMember.Rank != nil {
-		rank = ServiceMemberRank(*serviceMember.Rank)
-		weightAllotment = SSWGetEntitlement(rank, move.Orders.HasDependents, move.Orders.SpouseHasProGear)
+	if move.Orders.Grade != nil {
+		weightAllotment = SSWGetEntitlement(*move.Orders.Grade, move.Orders.HasDependents, move.Orders.SpouseHasProGear)
 	}
 
 	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, weightAllotment.TotalWeight)
@@ -257,7 +255,7 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 	ssd := ShipmentSummaryFormData{
 		ServiceMember:           serviceMember,
 		Order:                   move.Orders,
-		CurrentDutyLocation:     serviceMember.DutyLocation,
+		CurrentDutyLocation:     *move.Orders.OriginDutyLocation,
 		NewDutyLocation:         move.Orders.NewDutyLocation,
 		WeightAllotment:         weightAllotment,
 		PersonallyProcuredMoves: move.PersonallyProcuredMoves,
@@ -287,9 +285,9 @@ func (wa *SSWMaxWeightEntitlement) addLineItem(field string, value int) {
 
 // SSWGetEntitlement calculates the entitlement for the shipment summary worksheet based on the parameters of
 // a move (hasDependents, spouseHasProGear)
-func SSWGetEntitlement(rank ServiceMemberRank, hasDependents bool, spouseHasProGear bool) SSWMaxWeightEntitlement {
+func SSWGetEntitlement(grade internalmessages.OrderPayGrade, hasDependents bool, spouseHasProGear bool) SSWMaxWeightEntitlement {
 	sswEntitlements := SSWMaxWeightEntitlement{}
-	entitlements := GetWeightAllotment(rank)
+	entitlements := GetWeightAllotment(grade)
 	sswEntitlements.addLineItem("ProGear", entitlements.ProGearWeight)
 	if !hasDependents {
 		sswEntitlements.addLineItem("Entitlement", entitlements.TotalWeightSelf)
@@ -344,7 +342,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.ServiceBranch = FormatServiceMemberAffiliation(sm.Affiliation)
 	page1.PreferredEmail = derefStringTypes(sm.PersonalEmail)
 	page1.DODId = derefStringTypes(sm.Edipi)
-	page1.RankGrade = FormatRank(data.ServiceMember.Rank)
+	page1.RankGrade = FormatRank(data.Order.Grade)
 
 	page1.IssuingBranchOrAgency = FormatServiceMemberAffiliation(sm.Affiliation)
 	page1.OrdersIssueDate = FormatDate(data.Order.IssueDate)
@@ -391,40 +389,40 @@ func formatActualObligationAdvance(data ShipmentSummaryFormData) string {
 }
 
 // FormatRank formats the service member's rank for Shipment Summary Worksheet
-func FormatRank(rank *ServiceMemberRank) string {
-	var rankDisplayValue = map[ServiceMemberRank]string{
-		ServiceMemberRankE1:                      "E-1",
-		ServiceMemberRankE2:                      "E-2",
-		ServiceMemberRankE3:                      "E-3",
-		ServiceMemberRankE4:                      "E-4",
-		ServiceMemberRankE5:                      "E-5",
-		ServiceMemberRankE6:                      "E-6",
-		ServiceMemberRankE7:                      "E-7",
-		ServiceMemberRankE8:                      "E-8",
-		ServiceMemberRankE9:                      "E-9",
-		ServiceMemberRankE9SPECIALSENIORENLISTED: "E-9 (Special Senior Enlisted)",
-		ServiceMemberRankO1ACADEMYGRADUATE:       "O-1 or Service Academy Graduate",
-		ServiceMemberRankO2:                      "O-2",
-		ServiceMemberRankO3:                      "O-3",
-		ServiceMemberRankO4:                      "O-4",
-		ServiceMemberRankO5:                      "O-5",
-		ServiceMemberRankO6:                      "O-6",
-		ServiceMemberRankO7:                      "O-7",
-		ServiceMemberRankO8:                      "O-8",
-		ServiceMemberRankO9:                      "O-9",
-		ServiceMemberRankO10:                     "O-10",
-		ServiceMemberRankW1:                      "W-1",
-		ServiceMemberRankW2:                      "W-2",
-		ServiceMemberRankW3:                      "W-3",
-		ServiceMemberRankW4:                      "W-4",
-		ServiceMemberRankW5:                      "W-5",
-		ServiceMemberRankAVIATIONCADET:           "Aviation Cadet",
-		ServiceMemberRankCIVILIANEMPLOYEE:        "Civilian Employee",
-		ServiceMemberRankACADEMYCADET:            "Service Academy Cadet",
-		ServiceMemberRankMIDSHIPMAN:              "Midshipman",
+func FormatRank(grade *internalmessages.OrderPayGrade) string {
+	var gradeDisplayValue = map[internalmessages.OrderPayGrade]string{
+		ServiceMemberGradeE1:                      "E-1",
+		ServiceMemberGradeE2:                      "E-2",
+		ServiceMemberGradeE3:                      "E-3",
+		ServiceMemberGradeE4:                      "E-4",
+		ServiceMemberGradeE5:                      "E-5",
+		ServiceMemberGradeE6:                      "E-6",
+		ServiceMemberGradeE7:                      "E-7",
+		ServiceMemberGradeE8:                      "E-8",
+		ServiceMemberGradeE9:                      "E-9",
+		ServiceMemberGradeE9SPECIALSENIORENLISTED: "E-9 (Special Senior Enlisted)",
+		ServiceMemberGradeO1ACADEMYGRADUATE:       "O-1 or Service Academy Graduate",
+		ServiceMemberGradeO2:                      "O-2",
+		ServiceMemberGradeO3:                      "O-3",
+		ServiceMemberGradeO4:                      "O-4",
+		ServiceMemberGradeO5:                      "O-5",
+		ServiceMemberGradeO6:                      "O-6",
+		ServiceMemberGradeO7:                      "O-7",
+		ServiceMemberGradeO8:                      "O-8",
+		ServiceMemberGradeO9:                      "O-9",
+		ServiceMemberGradeO10:                     "O-10",
+		ServiceMemberGradeW1:                      "W-1",
+		ServiceMemberGradeW2:                      "W-2",
+		ServiceMemberGradeW3:                      "W-3",
+		ServiceMemberGradeW4:                      "W-4",
+		ServiceMemberGradeW5:                      "W-5",
+		ServiceMemberGradeAVIATIONCADET:           "Aviation Cadet",
+		ServiceMemberGradeCIVILIANEMPLOYEE:        "Civilian Employee",
+		ServiceMemberGradeACADEMYCADET:            "Service Academy Cadet",
+		ServiceMemberGradeMIDSHIPMAN:              "Midshipman",
 	}
-	if rank != nil {
-		return rankDisplayValue[*rank]
+	if grade != nil {
+		return gradeDisplayValue[*grade]
 	}
 	return ""
 }
