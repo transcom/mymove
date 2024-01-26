@@ -371,9 +371,40 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			}
 			order.Grade = payload.Grade
 
+			weightAllotment := models.GetWeightAllotment(*order.Grade)
+			weight := weightAllotment.TotalWeightSelf
+			if *payload.HasDependents {
+				weight = weightAllotment.TotalWeightSelfPlusDependents
+			}
+
+			// Assign default SIT allowance based on customer type.
+			// We only have service members right now, but once we introduce more, this logic will have to change.
+			sitDaysAllowance := models.DefaultServiceMemberSITDaysAllowance
+
+			entitlement := models.Entitlement{
+				DependentsAuthorized: payload.HasDependents,
+				DBAuthorizedWeight:   models.IntPointer(weight),
+				StorageInTransit:     models.IntPointer(sitDaysAllowance),
+				ProGearWeight:        weightAllotment.ProGearWeight,
+				ProGearWeightSpouse:  weightAllotment.ProGearWeightSpouse,
+			}
+
+			/*
+				IF you get that to work you'll still have to add conditionals for all the places the entitlement is used because it
+				isn't inheritly clear if it's using the spouse weight or not. So you'll be creating new variables and conditionals
+				in move_dats.go, move_weights, and move_submitted, etc
+			*/
+
+			if saveEntitlementErr := appCtx.DB().Save(&entitlement); saveEntitlementErr != nil {
+				return handlers.ResponseForError(appCtx.Logger(), saveEntitlementErr), saveEntitlementErr
+			}
+
 			if payload.DepartmentIndicator != nil {
 				order.DepartmentIndicator = handlers.FmtString(string(*payload.DepartmentIndicator))
 			}
+
+			order.EntitlementID = &entitlement.ID
+			order.Entitlement = &entitlement
 
 			verrs, err := models.SaveOrder(appCtx.DB(), &order)
 			if err != nil || verrs.HasAny() {

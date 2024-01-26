@@ -32,6 +32,8 @@ const defaultProps = {
   newDutyLocationName: 'Fort Knox',
   hasDependents: true,
   uploads: [{ id: 1 }, { id: 2 }, { id: 3 }],
+  payGrade: 'E-5',
+  originDutyLocationName: 'Buckley AFB',
 };
 
 const OrdersTableTemplate = (args) => <OrdersTable {...args} />;

@@ -224,7 +224,7 @@ const ordersInfo = {
 
 const allowancesInfo = {
   branch: 'Navy',
-  rank: 'E-6',
+  grade: 'E-6',
   weightAllowance: 11000,
   authorizedWeight: 11000,
   progear: 2000,
