@@ -331,12 +331,7 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async submitsDateAndLocation() {
-    await this.page.locator('input[name="pickupPostalCode"]').clear();
-    await this.page.locator('input[name="pickupPostalCode"]').type('90210');
-    await this.page.locator('input[name="pickupPostalCode"]').blur();
-
-    await this.page.locator('input[name="destinationPostalCode"]').clear();
-    await this.page.locator('input[name="destinationPostalCode"]').type('76127');
+    // TODO: B-18434 update this to fill out addresses
 
     await this.page.locator('input[name="expectedDepartureDate"]').clear();
     await this.page.locator('input[name="expectedDepartureDate"]').type('01 Feb 2022');
