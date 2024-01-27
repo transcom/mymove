@@ -14,7 +14,6 @@ const mockNavigate = jest.fn();
 
 const mockMoveId = 'move123';
 const mockRoutingParams = { moveId: mockMoveId };
-const mockNewShipmentId = 'newShipment123';
 
 const mockMove = {
   id: mockMoveId,
