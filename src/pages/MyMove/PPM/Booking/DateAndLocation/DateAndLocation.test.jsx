@@ -1,14 +1,12 @@
 import React from 'react';
-import { waitFor, screen } from '@testing-library/react'; //add fireEvent if needed
+import { waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router';
-//import selectEvent from 'react-select-event';
-//import { act } from 'react-dom/test-utils';
 
 import DateAndLocation from 'pages/MyMove/PPM/Booking/DateAndLocation/DateAndLocation';
 import { customerRoutes, generalRoutes } from 'constants/routes';
-import { patchMTOShipment, patchMove, searchTransportationOffices } from 'services/internalApi'; //add createMTOShipment if needed
-import { updateMTOShipment, updateMove } from 'store/entities/actions';
+import { patchMTOShipment, patchMove, searchTransportationOffices } from 'services/internalApi';
+import { updateMTOShipment } from 'store/entities/actions';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { renderWithRouter } from 'testUtils';
 
