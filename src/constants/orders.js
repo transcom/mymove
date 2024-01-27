@@ -32,7 +32,7 @@ export const ORDERS_TYPE_DETAILS_OPTIONS = {
   DELAYED_APPROVAL: 'Delayed Approval 20 Weeks or More',
 };
 
-export const ORDERS_RANK_OPTIONS = {
+export const ORDERS_PAY_GRADE_OPTIONS = {
   E_1: 'E-1',
   E_2: 'E-2',
   E_3: 'E-3',

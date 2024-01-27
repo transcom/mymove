@@ -259,7 +259,7 @@ executors:
 
 commands:
   create_dot_go_version:
-    description: "Creates a .go-version file (if needed) which can be used for cache keys specific to golang"
+    description: 'Creates a .go-version file (if needed) which can be used for cache keys specific to golang'
     steps:
       - run:
           name: Create a .go-version file
@@ -447,27 +447,27 @@ commands:
       - run:
           name: Get Digest from filesystem
           command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app-tasks_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
-      - deploy:
+      - run:
           name: Deploy connect to GEX via SFTP service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container connect-to-gex-via-sftp "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
-      - deploy:
+      - run:
           name: Deploy GHC fuel price data task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
-      - deploy:
+      - run:
           name: Deploy payment reminder email task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
-      - deploy:
+      - run:
           name: Deploy post to GEX service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container post-file-to-gex "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
-      - deploy:
+      - run:
           name: Deploy process EDIs service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container process-edis "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
@@ -484,12 +484,12 @@ commands:
       - run:
           name: Get Digest from filesystem
           command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app-tasks_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
-      - deploy:
+      - run:
           name: Deploy GHC fuel price data task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
-      - deploy:
+      - run:
           name: Deploy payment reminder email task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
@@ -520,7 +520,7 @@ commands:
             echo "export OTEL_ECR_DIGEST=${OTEL_ECR_DIGEST}" | tee -a "${BASH_ENV}"
 
             echo "export OTEL_COLLECTOR_IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/otel-collector@${OTEL_ECR_DIGEST}" | tee -a "${BASH_ENV}"
-      - deploy:
+      - run:
           name: Deploy app service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
           no_output_timeout: 20m
@@ -559,7 +559,7 @@ commands:
             echo "export OTEL_ECR_DIGEST=${OTEL_ECR_DIGEST}" | tee -a "${BASH_ENV}"
 
             echo "export OTEL_COLLECTOR_IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/otel-collector@${OTEL_ECR_DIGEST}" | tee -a "${BASH_ENV}"
-      - deploy:
+      - run:
           name: Deploy app-client-tls service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
           no_output_timeout: 20m
@@ -584,7 +584,7 @@ commands:
       - attach_workspace:
           at: /tmp/storybook
       - checkout
-      - deploy:
+      - run:
           name: Push Storybook build to S3
           command: scripts/push-storybook-assets "<< parameters.s3_bucket>>"
 
@@ -1237,7 +1237,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v6-spectral-lint-
+            - v8-spectral-lint-
       - run:
           name: Save Baseline Spectral Lint
           command: |
@@ -1296,7 +1296,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v6-spectral-lint-{{ .BuildNum }}
+                key: v8-spectral-lint-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/spectral
       - store_artifacts:
@@ -1447,7 +1447,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v7-server-tests-coverage-
+            - v8-server-tests-coverage-
       - run:
           name: Ensure Test Coverage Increasing
           command: |
@@ -1581,7 +1581,7 @@ jobs:
           # The trailing hyphen in restore_cache seems important
           # according to the page linked above
           keys:
-            - v5-client-tests-coverage-
+            - v6-client-tests-coverage-
       - run:
           name: Ensure Test Coverage Increasing
           command: |

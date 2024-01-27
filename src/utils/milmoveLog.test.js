@@ -1,6 +1,6 @@
 import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
 
-import { configureLogger } from './milmoveLog';
+import { configureLogger, configureGlobalLogger } from './milmoveLog';
 import { OtelLogger } from './otelLogger';
 
 describe('configureLogger', () => {
@@ -12,6 +12,10 @@ describe('configureLogger', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  it('should configure GlobalLogger', async () => {
+    configureGlobalLogger();
   });
 
   it('should configure OtelLogger', async () => {
