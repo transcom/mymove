@@ -1,6 +1,6 @@
 import React from 'react';
 import { string, bool } from 'prop-types';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import serviceInfoDisplayStyles from './ServiceInfoDisplay.module.scss';
 
@@ -19,11 +19,16 @@ const ServiceInfoDisplay = ({
   editURL,
   payGrade,
 }) => {
+  const { state } = useLocation();
   return (
     <div className={serviceInfoDisplayStyles.serviceInfoContainer}>
       <div className={serviceInfoDisplayStyles.header}>
         <h2>Service info</h2>
-        {isEditable && <Link to={editURL}>Edit</Link>}
+        {isEditable && (
+          <Link to={editURL} state={state}>
+            Edit
+          </Link>
+        )}
       </div>
       {!isEditable && showMessage && (
         <div className={serviceInfoDisplayStyles.whoToContactContainer}>
