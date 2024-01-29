@@ -63,13 +63,15 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
       moveTaskOrderID: moveId,
       shipmentType: SHIPMENT_OPTIONS.PPM,
       ppmShipment: {
-        pickupPostalCode: values.pickupPostalCode,
+        pickupPostalCode: values.pickupAddress.address.postalCode,
         hasSecondaryPickupPostalCode, // I think sending this is necessary so we know if the customer wants to clear their previously secondary ZIPs, or we could send nulls for those fields.
-        secondaryPickupPostalCode: hasSecondaryPickupPostalCode ? values.secondaryPickupPostalCode : null,
-        destinationPostalCode: values.destinationPostalCode,
+        secondaryPickupPostalCode: hasSecondaryPickupPostalCode
+          ? values.secondaryPickupAddress.address.postalCode
+          : null,
+        destinationPostalCode: values.destinationAddress.address.postalCode,
         hasSecondaryDestinationPostalCode,
         secondaryDestinationPostalCode: hasSecondaryDestinationPostalCode
-          ? values.secondaryDestinationPostalCode
+          ? values.secondaryDestinationAddress.address.postalCode
           : null,
         sitExpected: values.sitExpected === 'true',
         expectedDepartureDate: formatDateForSwagger(values.expectedDepartureDate),
