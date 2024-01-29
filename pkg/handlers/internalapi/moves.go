@@ -141,10 +141,18 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 	return movePayload, nil
 }
 
-func payloadMovesList(storer storage.FileStorer, previousMovesList models.Moves, currentMoveList models.Moves) (*internalmessages.MovesList, error) {
+func payloadMovesList(storer storage.FileStorer, previousMovesList models.Moves, currentMoveList models.Moves, movesList models.Moves) (*internalmessages.MovesList, error) {
 
 	// Convert currentMoves moves to internalmessages.MoveTaskOrder
 	var convertedCurrentMovesList []*internalmessages.InternalMove
+	var convertedPreviousMovesList []*internalmessages.InternalMove
+
+	if len(movesList) == 0 {
+		return &internalmessages.MovesList{
+			CurrentMove:   []*internalmessages.InternalMove{},
+			PreviousMoves: []*internalmessages.InternalMove{},
+		}, nil
+	}
 
 	if len(currentMoveList) == 0 {
 		convertedCurrentMovesList = []*internalmessages.InternalMove{}
@@ -169,7 +177,6 @@ func payloadMovesList(storer storage.FileStorer, previousMovesList models.Moves,
 	}
 
 	// Convert previousMoves moves to internalmessages.MoveTaskOrder
-	var convertedPreviousMovesList []*internalmessages.InternalMove
 	if len(previousMovesList) == 0 {
 		convertedPreviousMovesList = []*internalmessages.InternalMove{}
 	} else {
@@ -543,7 +550,7 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 			}
 
 			// Build MovesList Payload
-			payload, err := payloadMovesList(h.FileStorer(), previousMovesList, currentMovesList)
+			payload, err := payloadMovesList(h.FileStorer(), previousMovesList, currentMovesList, movesList)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
