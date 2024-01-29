@@ -69,7 +69,7 @@ describe('MultiMovesLandingPage', () => {
 
     // Check for specific elements
     expect(screen.getByTestId('customerHeader')).toBeInTheDocument();
-    expect(screen.getByTestId('helperText')).toBeInTheDocument();
+    expect(screen.getByTestId('welcomeHeader')).toBeInTheDocument();
     expect(screen.getByText('First Last')).toBeInTheDocument();
     expect(screen.getByText('Welcome to MilMove!')).toBeInTheDocument();
     expect(screen.getByText('Create a Move')).toBeInTheDocument();
