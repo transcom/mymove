@@ -112,13 +112,14 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpa
 	suite.NotNil(ppmEmailData)
 
 	suite.EqualExportedValues(ppmEmailData, PpmPacketEmailData{
-		OriginCity:       &pickupAddress.City,
-		OriginState:      &pickupAddress.State,
-		DestinationCity:  &destinationAddress.City,
-		DestinationState: &destinationAddress.State,
-		SubmitLocation:   allOtherSubmitLocation,
-		ServiceBranch:    affiliationDisplayValue[*serviceMember.Affiliation],
-		Locator:          move.Locator,
+		OriginCity:                        &pickupAddress.City,
+		OriginState:                       &pickupAddress.State,
+		DestinationCity:                   &destinationAddress.City,
+		DestinationState:                  &destinationAddress.State,
+		SubmitLocation:                    allOtherSubmitLocation,
+		ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
+		Locator:                           move.Locator,
+		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 	})
 
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
@@ -198,13 +199,14 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForArmy() {
 	suite.NotNil(ppmEmailData)
 
 	suite.EqualExportedValues(ppmEmailData, PpmPacketEmailData{
-		OriginCity:       &pickupAddress.City,
-		OriginState:      &pickupAddress.State,
-		DestinationCity:  &destinationAddress.City,
-		DestinationState: &destinationAddress.State,
-		SubmitLocation:   armySubmitLocation,
-		ServiceBranch:    affiliationDisplayValue[*serviceMember.Affiliation],
-		Locator:          move.Locator,
+		OriginCity:                        &pickupAddress.City,
+		OriginState:                       &pickupAddress.State,
+		DestinationCity:                   &destinationAddress.City,
+		DestinationState:                  &destinationAddress.State,
+		SubmitLocation:                    armySubmitLocation,
+		ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
+		Locator:                           move.Locator,
+		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 	})
 
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
@@ -284,13 +286,14 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForNavalBran
 	suite.NotNil(ppmEmailData)
 
 	suite.EqualExportedValues(ppmEmailData, PpmPacketEmailData{
-		OriginCity:       &pickupAddress.City,
-		OriginState:      &pickupAddress.State,
-		DestinationCity:  &destinationAddress.City,
-		DestinationState: &destinationAddress.State,
-		SubmitLocation:   allOtherSubmitLocation,
-		ServiceBranch:    affiliationDisplayValue[*serviceMember.Affiliation],
-		Locator:          move.Locator,
+		OriginCity:                        &pickupAddress.City,
+		OriginState:                       &pickupAddress.State,
+		DestinationCity:                   &destinationAddress.City,
+		DestinationState:                  &destinationAddress.State,
+		SubmitLocation:                    allOtherSubmitLocation,
+		ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
+		Locator:                           move.Locator,
+		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 	})
 
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
@@ -437,11 +440,12 @@ func (suite *NotificationSuite) TestPpmPacketEmailZipcodeFallback() {
 	suite.NotNil(ppmEmailData)
 
 	suite.EqualExportedValues(ppmEmailData, PpmPacketEmailData{
-		OriginZIP:      &customPPM.PickupPostalCode,
-		DestinationZIP: &customPPM.DestinationPostalCode,
-		SubmitLocation: allOtherSubmitLocation,
-		ServiceBranch:  affiliationDisplayValue[*serviceMember.Affiliation],
-		Locator:        move.Locator,
+		OriginZIP:                         &customPPM.PickupPostalCode,
+		DestinationZIP:                    &customPPM.DestinationPostalCode,
+		SubmitLocation:                    allOtherSubmitLocation,
+		ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
+		Locator:                           move.Locator,
+		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 	})
 
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>

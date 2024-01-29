@@ -31,15 +31,16 @@ type PpmPacketEmail struct {
 // ppmPacketEmailData is used to render an email template
 // Uses ZIPs only if no city/state data is provided
 type PpmPacketEmailData struct {
-	OriginZIP        *string
-	OriginCity       *string
-	OriginState      *string
-	DestinationZIP   *string
-	DestinationCity  *string
-	DestinationState *string
-	SubmitLocation   string
-	ServiceBranch    string
-	Locator          string
+	OriginZIP                         *string
+	OriginCity                        *string
+	OriginState                       *string
+	DestinationZIP                    *string
+	DestinationCity                   *string
+	DestinationState                  *string
+	SubmitLocation                    string
+	ServiceBranch                     string
+	Locator                           string
+	OneSourceTransportationOfficeLink string
 }
 
 // Used to get logging data from GetEmailData
@@ -156,13 +157,14 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 		}
 
 		return PpmPacketEmailData{
-				OriginCity:       &pickupAddress.City,
-				OriginState:      &pickupAddress.State,
-				DestinationCity:  &destinationAddress.City,
-				DestinationState: &destinationAddress.State,
-				SubmitLocation:   submitLocation,
-				ServiceBranch:    affiliationDisplayValue[*serviceMember.Affiliation],
-				Locator:          move.Locator,
+				OriginCity:                        &pickupAddress.City,
+				OriginState:                       &pickupAddress.State,
+				DestinationCity:                   &destinationAddress.City,
+				DestinationState:                  &destinationAddress.State,
+				SubmitLocation:                    submitLocation,
+				ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
+				Locator:                           move.Locator,
+				OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 			},
 			LoggerData{
 				ServiceMember: *serviceMember,
@@ -173,11 +175,12 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 
 	// Fallback to using ZIPs if the above if-block for city,state doesn't happen
 	return PpmPacketEmailData{
-			OriginZIP:      &ppmShipment.PickupPostalCode,
-			DestinationZIP: &ppmShipment.DestinationPostalCode,
-			SubmitLocation: submitLocation,
-			ServiceBranch:  affiliationDisplayValue[*serviceMember.Affiliation],
-			Locator:        move.Locator,
+			OriginZIP:                         &ppmShipment.PickupPostalCode,
+			DestinationZIP:                    &ppmShipment.DestinationPostalCode,
+			SubmitLocation:                    submitLocation,
+			ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
+			Locator:                           move.Locator,
+			OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 		},
 		LoggerData{
 			ServiceMember: *serviceMember,
