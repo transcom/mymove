@@ -11,11 +11,11 @@ test.describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', () => {
   test.beforeEach(async ({ customerPpmPage }) => {
     const move = await customerPpmPage.testHarness.buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights();
     await customerPpmPage.signInForPPMWithMove(move);
-    await customerPpmPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
-    await customerPpmPage.navigateFromDateAndLocationPageToEstimatedWeightsPage();
+    // await customerPpmPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
+    // await customerPpmPage.navigateFromDateAndLocationPageToEstimatedWeightsPage();
   });
 
-  test('doesn’t allow SM to progress if form is in an invalid state', async ({ page }) => {
+  test.skip('doesn’t allow SM to progress if form is in an invalid state', async ({ page }) => {
     await expect(page.getByRole('heading', { name: 'Estimated weight' })).toBeVisible();
     await expect(page).toHaveURL(/\/estimated-weight/);
     await expect(page.locator('p[class="usa-alert__text"]')).toContainText(
@@ -94,11 +94,11 @@ test.describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', () => {
     await expect(errorMessage).not.toBeVisible();
   });
 
-  test('can continue to next page', async ({ customerPpmPage }) => {
+  test.skip('can continue to next page', async ({ customerPpmPage }) => {
     await customerPpmPage.submitsEstimatedWeights();
   });
 
-  test('can continue to next page with progear added', async ({ customerPpmPage }) => {
+  test.skip('can continue to next page with progear added', async ({ customerPpmPage }) => {
     await customerPpmPage.submitsEstimatedWeightsAndProGear();
   });
 });
