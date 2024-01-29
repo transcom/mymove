@@ -15,10 +15,11 @@ var payload = primemessages.MoveTaskOrder{
 	Order:    &primeOrder,
 }
 var correctPrimeCounselingData = PrimeCounselingCompleteData{
-	CustomerEmail:           member.Email,
-	Locator:                 payload.MoveCode,
-	OriginDutyLocation:      primeOrder.OriginDutyLocation.Name,
-	DestinationDutyLocation: primeOrder.DestinationDutyLocation.Name,
+	CustomerEmail:                     member.Email,
+	Locator:                           payload.MoveCode,
+	OriginDutyLocation:                primeOrder.OriginDutyLocation.Name,
+	DestinationDutyLocation:           primeOrder.DestinationDutyLocation.Name,
+	OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 }
 
 func (suite *NotificationSuite) TestPrimeCounselingComplete() {
@@ -30,10 +31,11 @@ func (suite *NotificationSuite) TestPrimeCounselingComplete() {
 	suite.Equal(primeCounselingEmailData, correctPrimeCounselingData)
 
 	suite.EqualExportedValues(primeCounselingEmailData, PrimeCounselingCompleteData{
-		CustomerEmail:           member.Email,
-		OriginDutyLocation:      primeOrder.OriginDutyLocation.Name,
-		DestinationDutyLocation: primeOrder.DestinationDutyLocation.Name,
-		Locator:                 payload.MoveCode,
+		CustomerEmail:                     member.Email,
+		OriginDutyLocation:                primeOrder.OriginDutyLocation.Name,
+		DestinationDutyLocation:           primeOrder.DestinationDutyLocation.Name,
+		Locator:                           payload.MoveCode,
+		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 	})
 
 	expectedHTMLContent := getCorrectEmailTemplate(primeCounselingEmailData)
@@ -53,10 +55,11 @@ func (suite *NotificationSuite) TestPrimeCounselingCompleteTextTemplateRender() 
 	suite.Equal(primeCounselingEmailData, correctPrimeCounselingData)
 
 	suite.EqualExportedValues(primeCounselingEmailData, PrimeCounselingCompleteData{
-		CustomerEmail:           member.Email,
-		OriginDutyLocation:      primeOrder.OriginDutyLocation.Name,
-		DestinationDutyLocation: primeOrder.DestinationDutyLocation.Name,
-		Locator:                 payload.MoveCode,
+		CustomerEmail:                     member.Email,
+		OriginDutyLocation:                primeOrder.OriginDutyLocation.Name,
+		DestinationDutyLocation:           primeOrder.DestinationDutyLocation.Name,
+		Locator:                           payload.MoveCode,
+		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 	})
 
 	expectedTextContent := getCorrectTextTemplate(primeCounselingEmailData)
