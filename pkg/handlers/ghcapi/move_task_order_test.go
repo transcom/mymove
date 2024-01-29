@@ -257,6 +257,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler() {
 	setupTestData := func() UpdateMTOStatusServiceCounselingCompletedHandlerFunc {
 		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)

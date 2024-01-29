@@ -190,6 +190,7 @@ func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params move
 
 			eTag := params.IfMatch
 			moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+
 			mto, err := h.moveTaskOrderStatusUpdater.UpdateStatusServiceCounselingCompleted(appCtx, moveTaskOrderID, eTag)
 
 			if err != nil {
@@ -215,6 +216,11 @@ func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params move
 			})
 			if err != nil {
 				appCtx.Logger().Error("ghcapi.UpdateMTOStatusServiceCounselingCompletedHandlerFunc could not generate the event")
+			}
+
+			err = h.NotificationSender().SendNotification(appCtx, notifications.NewMoveCounseled(moveTaskOrderID))
+			if err != nil {
+				appCtx.Logger().Error("problem sending email to user", zap.Error(err))
 			}
 
 			return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedOK().WithPayload(moveTaskOrderPayload), nil
