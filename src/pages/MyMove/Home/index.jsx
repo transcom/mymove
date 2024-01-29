@@ -141,6 +141,26 @@ export class Home extends Component {
     return mtoShipments?.filter((s) => s.shipmentType === SHIPMENT_OPTIONS.PPM)?.every((s) => isPPMShipmentComplete(s));
   }
 
+  get hasAdvanceApproved() {
+    const { mtoShipments } = this.props;
+    // determine if at least one advance was APPROVED (advance_status in ppm_shipments table is not nil)
+    const appovedAdvances = mtoShipments.filter((shipment) => shipment?.ppmShipment?.advanceStatus === 'APPROVED');
+    return !!appovedAdvances.length;
+  }
+
+  get hasAllAdvancesRejected() {
+    // check to see if all advance_status are REJECTED
+    const { mtoShipments } = this.props;
+    const rejectedAdvances = mtoShipments.filter((shipment) => shipment?.ppmShipment?.advanceStatus === 'REJECTED');
+    return !this.hasAdvanceApproved && rejectedAdvances.length > 0;
+  }
+
+  get hasAdvanceRequested() {
+    const { mtoShipments } = this.props;
+    const requestedAdvances = mtoShipments.filter((shipment) => shipment?.ppmShipment?.hasRequestedAdvance);
+    return !!requestedAdvances.length;
+  }
+
   get isMoveApproved() {
     const { move } = this.props;
     return move.status === MOVE_STATUSES.APPROVED;
@@ -384,6 +404,7 @@ export class Home extends Component {
 
     // eslint-disable-next-line camelcase
     const currentLocation = current_location;
+    const shipmentNumbersByType = {};
 
     return (
       <>
@@ -535,8 +556,85 @@ export class Home extends Component {
                       </Description>
                     )}
                   </Step>
+                  {!!ppmShipments.length && this.hasSubmittedMove && this.hasAdvanceRequested && (
+                    <Step
+                      complete={this.hasAdvanceApproved || this.hasAllAdvancesRejected}
+                      completedHeaderText={
+                        this.hasAllAdvancesRejected ? 'Advance request denied' : 'Advance request reviewed'
+                      }
+                      headerText="Advance request submitted"
+                      step="5"
+                    >
+                      <SectionWrapper className={styles['ppm-shipment']}>
+                        {this.hasAdvanceApproved && (
+                          <>
+                            <Description>
+                              Your Advance Operating Allowance (AOA) request has been reviewed. Download the paperwork
+                              for approved requests and submit it to your Finance Office to receive your advance.
+                              <br />
+                              <br /> The amount you receive will be deducted from your PPM incentive payment. If your
+                              incentive ends up being less than your advance, you will be required to pay back the
+                              difference.
+                              <br />
+                              <br />
+                            </Description>
+                            {ppmShipments.map((shipment) => {
+                              const { shipmentType } = shipment;
+                              if (shipmentNumbersByType[shipmentType]) {
+                                shipmentNumbersByType[shipmentType] += 1;
+                              } else {
+                                shipmentNumbersByType[shipmentType] = 1;
+                              }
+                              const shipmentNumber = shipmentNumbersByType[shipmentType];
+                              return (
+                                <>
+                                  <strong>
+                                    {shipmentTypes[shipment.shipmentType]}
+                                    {` ${shipmentNumber} `}
+                                  </strong>
+                                  {shipment?.ppmShipment?.advanceStatus === 'APPROVED' && (
+                                    // TODO: B-18060 will add link to method that will create the AOA packet and return for download
+                                    <p className={styles.downloadLink}>
+                                      <a href="">
+                                        <span>Download AOA Paperwork (PDF)</span>
+                                      </a>
+                                    </p>
+                                  )}
+                                  {shipment?.ppmShipment?.advanceStatus === 'REJECTED' && (
+                                    <Description>Advance request denied</Description>
+                                  )}
+                                </>
+                              );
+                            })}
+                          </>
+                        )}
+                        {this.hasAllAdvancesRejected && (
+                          <Description>
+                            Your Advance Operating Allowance (AOA) request has been denied. You may be able to use your
+                            Government Travel Charge Card (GTCC). Contact your local transportation office to verify
+                            GTCC usage authorization or ask any questions.
+                          </Description>
+                        )}
+                        {!this.hasAdvanceApproved && !this.hasAllAdvancesRejected && (
+                          <Description>
+                            Your service will review your request for an Advance Operating Allowance (AOA). If approved,
+                            you will be able to download the paperwork for your request and submit it to your Finance
+                            Office to receive your advance.
+                            <br />
+                            <br /> The amount you receive will be deducted from your PPM incentive payment. If your
+                            incentive ends up being less than your advance, you will be required to pay back the
+                            difference.
+                          </Description>
+                        )}
+                      </SectionWrapper>
+                    </Step>
+                  )}
                   {!!ppmShipments.length && this.hasSubmittedMove && (
-                    <Step headerText="Manage your PPM" completedHeaderText="Manage your PPM" step="5">
+                    <Step
+                      headerText="Manage your PPM"
+                      completedHeaderText="Manage your PPM"
+                      step={this.hasAdvanceRequested ? '6' : '5'}
+                    >
                       <PPMSummaryList shipments={ppmShipments} onUploadClick={this.handlePPMUploadClick} />
                     </Step>
                   )}
