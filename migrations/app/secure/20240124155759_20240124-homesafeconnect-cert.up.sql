@@ -1,4 +1,3 @@
-
 -- This migration allows a CAC cert to have read/write access to all orders and the prime API.
 -- The Orders API and the Prime API use client certificate authentication. Only certificates
 -- signed by a trusted CA (such as DISA) are allowed which includes CACs.

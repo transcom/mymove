@@ -224,7 +224,27 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
 
-		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.AppContextForTest().DB(), nil, nil)
+		days := 90
+		sitLocation := models.SITLocationTypeOrigin
+		var date = time.Now()
+		weight := unit.Pound(1000)
+		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.AppContextForTest().DB(), nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					SITDaysAllowance: &days,
+				},
+			},
+			{
+				Model: models.PPMShipment{
+					SITLocation:               &sitLocation,
+					SITEstimatedEntryDate:     &date,
+					SITEstimatedDepartureDate: &date,
+					SITEstimatedWeight:        &weight,
+				},
+			},
+		})
+
+		ppmShipment.Shipment.SITDaysAllowance = &days
 
 		ppmCloseoutObj, err := ppmCloseoutFetcher.GetPPMCloseout(appCtx, ppmShipment.ID)
 		if err != nil {
