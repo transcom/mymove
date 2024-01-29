@@ -375,6 +375,26 @@ describe('selectCurrentDutyLocation', () => {
   it('returns the service member’s current duty location', () => {
     const testState = {
       entities: {
+        orders: {
+          orders789: {
+            id: 'orders789',
+            service_member_id: 'serviceMemberId456',
+            origin_duty_location: {
+              address: {
+                city: 'Colorado Springs',
+                country: 'United States',
+                postalCode: '80913',
+                state: 'CO',
+                streetAddress1: 'n/a',
+              },
+              affiliation: 'ARMY',
+              created_at: '2018-05-20T18:36:45.034Z',
+              id: '28f63a9d-8fff-4a0f-84ef-661c5c8c354e',
+              name: 'Ft Carson',
+              updated_at: '2018-05-20T18:36:45.034Z',
+            },
+          },
+        },
         user: {
           userId123: {
             id: 'userId123',
@@ -384,17 +404,13 @@ describe('selectCurrentDutyLocation', () => {
         serviceMembers: {
           serviceMemberId456: {
             id: 'serviceMemberId456',
-            current_location: {
-              id: 'dutyLocationId890',
-            },
+            orders: ['orders789', 'orders8910'],
           },
         },
       },
     };
 
-    expect(selectCurrentDutyLocation(testState)).toEqual(
-      testState.entities.serviceMembers.serviceMemberId456.current_location,
-    );
+    expect(selectCurrentDutyLocation(testState)).toEqual(testState.entities.orders.orders789.origin_duty_location);
   });
 
   it('returns null if there is the service member has no current location', () => {

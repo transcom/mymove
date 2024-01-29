@@ -28,11 +28,6 @@ export const selectServiceMemberFromLoggedInUser = (state) => {
   return state.entities.serviceMembers?.[`${user.service_member}`] || null;
 };
 
-export const selectCurrentDutyLocation = (state) => {
-  const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  return serviceMember?.current_location || null;
-};
-
 export const selectServiceMemberAffiliation = (state) => {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   return serviceMember?.affiliation || null;
@@ -119,6 +114,11 @@ export const selectUploadsForCurrentOrders = (state) => {
 export const selectUploadsForCurrentAmendedOrders = (state) => {
   const orders = selectCurrentOrders(state);
   return orders ? orders.uploaded_amended_orders?.uploads : [];
+};
+
+export const selectCurrentDutyLocation = (state) => {
+  const orders = selectCurrentOrders(state);
+  return orders?.origin_duty_location || null;
 };
 
 /** Moves */
