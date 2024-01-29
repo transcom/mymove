@@ -3773,6 +3773,9 @@ func init() {
         "sitExpected"
       ],
       "properties": {
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "destinationPostalCode": {
           "type": "string",
           "format": "zip",
@@ -3785,6 +3788,9 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "pickupPostalCode": {
           "description": "zip code",
           "type": "string",
@@ -3793,12 +3799,18 @@ func init() {
           "pattern": "^(\\d{5})$",
           "example": "90210"
         },
+        "secondaryDestinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "secondaryDestinationPostalCode": {
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "$ref": "#/definitions/NullableString",
           "example": "90210"
+        },
+        "secondaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "secondaryPickupPostalCode": {
           "format": "zip",
@@ -7449,6 +7461,9 @@ func init() {
           "format": "cents",
           "x-nullable": true
         },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "destinationPostalCode": {
           "type": "string",
           "format": "zip",
@@ -7491,6 +7506,9 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "pickupPostalCode": {
           "description": "zip code",
           "type": "string",
@@ -7504,12 +7522,18 @@ func init() {
           "type": "integer",
           "x-nullable": true
         },
+        "secondaryDestinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "secondaryDestinationPostalCode": {
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "$ref": "#/definitions/NullableString",
           "example": "90210"
+        },
+        "secondaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "secondaryPickupPostalCode": {
           "format": "zip",
@@ -12427,6 +12451,9 @@ func init() {
         "sitExpected"
       ],
       "properties": {
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "destinationPostalCode": {
           "type": "string",
           "format": "zip",
@@ -12439,6 +12466,9 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "pickupPostalCode": {
           "description": "zip code",
           "type": "string",
@@ -12447,12 +12477,18 @@ func init() {
           "pattern": "^(\\d{5})$",
           "example": "90210"
         },
+        "secondaryDestinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "secondaryDestinationPostalCode": {
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "$ref": "#/definitions/NullableString",
           "example": "90210"
+        },
+        "secondaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "secondaryPickupPostalCode": {
           "format": "zip",
@@ -16114,6 +16150,9 @@ func init() {
           "format": "cents",
           "x-nullable": true
         },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "destinationPostalCode": {
           "type": "string",
           "format": "zip",
@@ -16156,6 +16195,9 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "pickupPostalCode": {
           "description": "zip code",
           "type": "string",
@@ -16169,12 +16211,18 @@ func init() {
           "type": "integer",
           "x-nullable": true
         },
+        "secondaryDestinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "secondaryDestinationPostalCode": {
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "$ref": "#/definitions/NullableString",
           "example": "90210"
+        },
+        "secondaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "secondaryPickupPostalCode": {
           "format": "zip",

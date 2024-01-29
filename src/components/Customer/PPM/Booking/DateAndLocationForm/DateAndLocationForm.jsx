@@ -8,7 +8,7 @@ import classnames from 'classnames';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { DatePickerInput, DutyLocationInput } from 'components/form/fields';
-//import TextField from 'components/form/fields/TextField/TextField';
+// import TextField from 'components/form/fields/TextField/TextField';
 import Hint from 'components/Hint';
 import Fieldset from 'shared/Fieldset';
 import formStyles from 'styles/form.module.scss';
@@ -20,29 +20,32 @@ import { searchTransportationOffices } from 'services/internalApi';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 
-// export const residentialAddressName = 'residential_address';
+const blankAddress = {
+  address: {
+    streetAddress1: '',
+    streetAddress2: '',
+    city: '',
+    state: '',
+    postalCode: '',
+  },
+};
 
+// TODO -- map new address fields and deprecate OLD ZIP implementation
 const validationShape = {
-  pickupPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
   useCurrentResidence: Yup.boolean(),
-  hasSecondaryPickup: Yup.boolean(),
+  hasSecondaryPickupAddress: Yup.boolean(),
   useCurrentDestinationAddress: Yup.boolean(),
-  secondaryPickupPostalCode: Yup.string().when('hasSecondaryPickup', {
-    is: true,
-    then: (schema) => schema.matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
-  }),
-  useDestinationDutyLocationZIP: Yup.boolean(),
-  destinationPostalCode: Yup.string().matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
-  hasSecondaryDestinationPostalCode: Yup.boolean().required('Required'),
-  secondaryDestinationPostalCode: Yup.string().when('hasSecondaryDestinationPostalCode', {
-    is: true,
-    then: (schema) => schema.matches(ZIP5_CODE_REGEX, InvalidZIPTypeError).required('Required'),
-  }),
+  hasSecondaryDestinationAddress: Yup.boolean(),
+  // pickupAddress
+  // secondaryPickupAddress
+  // destinationAddress
+  // secondaryDestinationAddress
   sitExpected: Yup.boolean().required('Required'),
   expectedDepartureDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .required('Required'),
 };
+
 const setZip = (setFieldValue, postalCodeField, postalCode, isChecked, isCheckedField) => {
   setFieldValue(isCheckedField, !isChecked);
   setFieldValue(postalCodeField, isChecked ? '' : postalCode);
@@ -62,56 +65,23 @@ const DateAndLocationForm = ({
   const initialValues = {
     pickupPostalCode: mtoShipment?.ppmShipment?.pickupPostalCode || '',
     useCurrentResidence: false,
-    secondaryPickupAddress: mtoShipment?.ppmShipment?.secondaryPickupAddress || '',
-    hasSecondaryPickup: mtoShipment?.ppmShipment?.hasSecondaryPickup ? 'true' : 'false',
+    pickupAddress: mtoShipment?.ppmShipment?.pickupAddress || {},
+    secondaryPickupAddress: mtoShipment?.ppmShipment?.secondaryPickupAddress || {},
+    hasSecondaryPickupAddress: mtoShipment?.ppmShipment?.secondaryPickupAddress ? 'true' : 'false',
     secondaryPickupPostalCode: mtoShipment?.ppmShipment?.secondaryPickupPostalCode || '',
     useCurrentDestinationAddress: false,
     destinationPostalCode: mtoShipment?.ppmShipment?.destinationPostalCode || '',
-    hasSecondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode ? 'true' : 'false',
-    secondaryDestinationAddress: mtoShipment?.ppmShipment?.secondaryPickupAddress || '',
+    hasSecondaryDestinationAddress: mtoShipment?.ppmShipment?.secondaryDestinationAddress ? 'true' : 'false',
+    destinationAddress: mtoShipment?.ppmShipment?.destinationAddress || {},
+    secondaryDestinationAddress: mtoShipment?.ppmShipment?.secondaryDestinationAddress || {},
     secondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode || '',
     sitExpected: mtoShipment?.ppmShipment?.sitExpected ? 'true' : 'false',
     expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
     closeoutOffice: move?.closeout_office,
-    // [residentialAddressName]: serviceMember?.residential_address,
   };
 
   const residentialAddress = serviceMember?.residential_address;
   const destinationAddress = destinationDutyLocation?.address;
-  // const residentialAddressPostalCode = serviceMember?.residential_address?.postalCode;
-  // const destinationDutyLocationPostalCode = destinationDutyLocation?.address?.postalCode;
-
-  // const postalCodeValidate = async (value, location, name) => {
-  //   if (value?.length !== 5) {
-  //     return undefined;
-  //   }
-  //   // only revalidate if the value has changed, editing other fields will re-validate unchanged ones
-  //   if (postalCodeValid[`${name}`]?.value !== value) {
-  //     const response = await postalCodeValidator(value, location, UnsupportedZipCodePPMErrorMsg);
-  //     setPostalCodeValid((state) => {
-  //       return {
-  //         ...state,
-  //         [name]: { value, isValid: !response },
-  //       };
-  //     });
-  //     return response;
-  //   }
-  //   return postalCodeValid[`${name}`]?.isValid ? undefined : UnsupportedZipCodePPMErrorMsg;
-  // };
-
-  // const handlePrefillPostalCodeChange = (
-  //   value,
-  //   setFieldValue,
-  //   postalCodeField,
-  //   prefillValue,
-  //   isCheckedField,
-  //   checkedFieldValue,
-  // ) => {
-  //   if (checkedFieldValue && value !== prefillValue) {
-  //     setFieldValue(isCheckedField, false);
-  //   }
-  //   setFieldValue(postalCodeField, value);
-  // };
 
   const showCloseoutOffice =
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.ARMY ||
@@ -123,7 +93,8 @@ const DateAndLocationForm = ({
   }
 
   return (
-    <Formik initialValues={initialValues} validationSchema={Yup.object().shape(validationShape)} onSubmit={onSubmit}>
+    // <Formik initialValues={initialValues} validationSchema={Yup.object().shape(validationShape)} onSubmit={onSubmit}>
+    <Formik initialValues={initialValues} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit, setValues, values }) => {
         const handleUseCurrentResidenceChange = (e) => {
           const { checked } = e.target;
@@ -131,24 +102,18 @@ const DateAndLocationForm = ({
             // use current residence
             setValues({
               ...values,
-              serviceMember: {
-                ...values.serviceMember,
-                residential_address: residentialAddress,
+              pickupAddress: {
+                ...values.pickupAddress,
+                address: residentialAddress,
               },
             });
           } else {
             // Revert address
             setValues({
               ...values,
-              serviceMember: {
-                ...values.serviceMember,
-                residential_address: {
-                  streetAddress1: '',
-                  streetAddress2: '',
-                  city: '',
-                  state: '',
-                  postalCode: '',
-                },
+              pickupAddress: {
+                ...values.pickupAddress,
+                blankAddress,
               },
             });
           }
@@ -160,24 +125,18 @@ const DateAndLocationForm = ({
             // use current residence
             setValues({
               ...values,
-              serviceMember: {
-                ...values.serviceMember,
-                destination_address: destinationAddress,
+              destinationAddress: {
+                ...values.destinationAddress,
+                address: destinationAddress,
               },
             });
           } else {
             // Revert address
             setValues({
               ...values,
-              serviceMember: {
-                ...values.serviceMember,
-                destination_address: {
-                  streetAddress1: '',
-                  streetAddress2: '',
-                  city: '',
-                  state: '',
-                  postalCode: '',
-                },
+              destinationAddress: {
+                ...values.destinationAddress,
+                blankAddress,
               },
             });
           }
@@ -188,14 +147,14 @@ const DateAndLocationForm = ({
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection, 'origin')}>
                 <h2>Origin</h2>
                 <AddressFields
-                  name="serviceMember.residential_address"
+                  name="pickupAddress.address"
                   render={(fields) => (
                     <>
                       <p>What address are the movers picking up from?</p>
                       <Checkbox
                         data-testid="useCurrentResidence"
                         label="Use my current origin address"
-                        name="serviceMember.residential_address"
+                        name="useCurrentResidence"
                         onChange={handleUseCurrentResidenceChange}
                         id="useCurrentResidence"
                       />
@@ -208,27 +167,27 @@ const DateAndLocationForm = ({
                           </legend>
                           <Field
                             as={Radio}
-                            data-testid="yes-secondary-pickup-postal-code"
-                            id="yes-secondary-pickup-postal-code"
+                            data-testid="yes-secondary-pickup-code"
+                            id="yes-secondary-pickup-code"
                             label="Yes"
-                            name="hasSecondaryPickup"
+                            name="hasSecondaryPickupAddress"
                             value="true"
-                            checked={values.hasSecondaryPickup === 'true'}
+                            checked={values.hasSecondaryPickupAddress === 'true'}
                           />
                           <Field
                             as={Radio}
-                            data-testid="no-secondary-pickup-postal-code"
-                            id="no-secondary-pickup-postal-code"
+                            data-testid="no-secondary-pickup-code"
+                            id="no-secondary-pickup-code"
                             label="No"
-                            name="hasSecondaryPickup"
+                            name="hasSecondaryPickupAddress"
                             value="false"
-                            checked={values.hasSecondaryPickup === 'false'}
+                            checked={values.hasSecondaryPickupAddress === 'false'}
                           />
                         </Fieldset>
                       </FormGroup>
-                      {values.hasSecondaryPickup === 'true' && (
+                      {values.hasSecondaryPickupAddress === 'true' && (
                         <>
-                          <AddressFields name="mtoShipment.secondaryPickupAddress" />
+                          <AddressFields name="secondaryPickupAddress.address" />
                           <Hint className={ppmStyles.hint}>
                             <p>
                               A second origin address could mean that your final incentive is lower than your estimate.
@@ -247,14 +206,14 @@ const DateAndLocationForm = ({
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Destination</h2>
                 <AddressFields
-                  name="serviceMember.destination_address"
+                  name="destinationAddress.address"
                   render={(fields) => (
                     <>
                       <p>Please input Delivery Address</p>
                       <Checkbox
                         data-testid="useCurrentDestinationAddress"
                         label="Use my current destination address"
-                        name="serviceMember.destination_address"
+                        name="useCurrentDestinationAddress"
                         onChange={handleUseDestinationAddress}
                         id="useCurrentDestinationAddress"
                       />
@@ -268,23 +227,23 @@ const DateAndLocationForm = ({
                             as={Radio}
                             id="hasSecondaryDestinationPostalCodeYes"
                             label="Yes"
-                            name="hasSecondaryDestinationPostalCode"
+                            name="hasSecondaryDestinationAddress"
                             value="true"
-                            checked={values.hasSecondaryDestinationPostalCode === 'true'}
+                            checked={values.hasSecondaryDestinationAddress === 'true'}
                           />
                           <Field
                             as={Radio}
                             id="hasSecondaryDestinationPostalCodeNo"
                             label="No"
-                            name="hasSecondaryDestinationPostalCode"
+                            name="hasSecondaryDestinationAddress"
                             value="false"
-                            checked={values.hasSecondaryDestinationPostalCode === 'false'}
+                            checked={values.hasSecondaryDestinationAddress === 'false'}
                           />
                         </Fieldset>
                       </FormGroup>
-                      {values.hasSecondaryDestinationPostalCode === 'true' && (
+                      {values.hasSecondaryDestinationAddress === 'true' && (
                         <>
-                          <AddressFields name="mtoShipment.secondaryDestinationAddress" />
+                          <AddressFields name="secondaryDestinationAddress.address" />
                           <Hint className={ppmStyles.hint}>
                             <p>
                               A second destination ZIP could mean that your final incentive is lower than your estimate.

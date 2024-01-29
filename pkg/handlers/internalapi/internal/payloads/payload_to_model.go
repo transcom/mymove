@@ -155,12 +155,28 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		ppmModel.ExpectedDepartureDate = *handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)
 	}
 
+	if ppmShipment.PickupPostalCode != nil {
+		ppmModel.PickupPostalCode = *ppmShipment.PickupPostalCode
+	}
+
+	if ppmShipment.PickupAddress != nil {
+		ppmModel.PickupAddress = AddressModel(ppmShipment.PickupAddress)
+	}
+
+	if ppmShipment.SecondaryPickupAddress != nil {
+		ppmModel.SecondaryPickupAddress = AddressModel(ppmShipment.SecondaryPickupAddress)
+	}
+
 	if ppmShipment.DestinationPostalCode != nil {
 		ppmModel.DestinationPostalCode = *ppmShipment.DestinationPostalCode
 	}
 
-	if ppmShipment.PickupPostalCode != nil {
-		ppmModel.PickupPostalCode = *ppmShipment.PickupPostalCode
+	if ppmShipment.DestinationAddress != nil {
+		ppmModel.DestinationAddress = AddressModel(ppmShipment.DestinationAddress)
+	}
+
+	if ppmShipment.SecondaryDestinationAddress != nil {
+		ppmModel.SecondaryDestinationAddress = AddressModel(ppmShipment.SecondaryDestinationAddress)
 	}
 
 	if ppmShipment.FinalIncentive != nil {

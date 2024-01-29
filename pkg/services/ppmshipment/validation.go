@@ -101,6 +101,42 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 		}
 	}
 
+	if newPPMShipment.PickupAddress != nil {
+		ppmShipment.PickupAddress = newPPMShipment.PickupAddress
+		if ppmShipment.PickupAddressID != nil {
+			ppmShipment.PickupAddress.ID = *&ppmShipment.PickupAddress.ID
+		} else {
+			ppmShipment.PickupAddress.ID = uuid.Nil
+		}
+	}
+
+	if newPPMShipment.SecondaryPickupAddress != nil {
+		ppmShipment.SecondaryPickupAddress = newPPMShipment.SecondaryPickupAddress
+		if ppmShipment.SecondaryPickupAddressID != nil {
+			ppmShipment.SecondaryPickupAddress.ID = *&ppmShipment.SecondaryPickupAddress.ID
+		} else {
+			ppmShipment.SecondaryPickupAddress.ID = uuid.Nil
+		}
+	}
+
+	if newPPMShipment.DestinationAddress != nil {
+		ppmShipment.DestinationAddress = newPPMShipment.DestinationAddress
+		if ppmShipment.DestinationAddressID != nil {
+			ppmShipment.DestinationAddress.ID = *&ppmShipment.DestinationAddress.ID
+		} else {
+			ppmShipment.DestinationAddress.ID = uuid.Nil
+		}
+	}
+
+	if newPPMShipment.SecondaryDestinationAddress != nil {
+		ppmShipment.SecondaryDestinationAddress = newPPMShipment.SecondaryDestinationAddress
+		if ppmShipment.SecondaryDestinationAddressID != nil {
+			ppmShipment.SecondaryDestinationAddress.ID = *&ppmShipment.SecondaryDestinationAddress.ID
+		} else {
+			ppmShipment.SecondaryDestinationAddress.ID = uuid.Nil
+		}
+	}
+
 	if ppmShipment.SITExpected != nil && !*ppmShipment.SITExpected {
 		ppmShipment.SITLocation = nil
 		ppmShipment.SITEstimatedWeight = nil

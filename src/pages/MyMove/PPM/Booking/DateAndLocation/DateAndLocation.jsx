@@ -56,25 +56,66 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
   const handleSubmit = async (values, { setSubmitting }) => {
     setErrorMessage(null);
 
-    const hasSecondaryPickupPostalCode = values.hasSecondaryPickupPostalCode === 'true';
-    const hasSecondaryDestinationPostalCode = values.hasSecondaryDestinationPostalCode === 'true';
+    // const hasSecondaryPickupPostalCode = values.hasSecondaryPickupPostalCode === 'true';
+    // const hasSecondaryDestinationPostalCode = values.hasSecondaryDestinationPostalCode === 'true';
+
+    // const createOrUpdateShipment = {
+    //   moveTaskOrderID: moveId,
+    //   shipmentType: SHIPMENT_OPTIONS.PPM,
+    //   ppmShipment: {
+    //     pickupPostalCode: values.pickupPostalCode,
+    //     hasSecondaryPickupPostalCode, // I think sending this is necessary so we know if the customer wants to clear their previously secondary ZIPs, or we could send nulls for those fields.
+    //     secondaryPickupPostalCode: hasSecondaryPickupPostalCode ? values.secondaryPickupPostalCode : null,
+    //     destinationPostalCode: values.destinationPostalCode,
+    //     hasSecondaryDestinationPostalCode,
+    //     secondaryDestinationPostalCode: hasSecondaryDestinationPostalCode
+    //       ? values.secondaryDestinationPostalCode
+    //       : null,
+    //     sitExpected: values.sitExpected === 'true',
+    //     expectedDepartureDate: formatDateForSwagger(values.expectedDepartureDate),
+    //   },
+    // };
+
+    const hasSecondaryPickupPostalAddress = values.hasSecondaryPickupAddress === 'true';
+    const hasSecondaryDestinationAddress = values.hasSecondaryDestinationAddress === 'true';
+
+    const pickupPostalCode = values.pickupAddress.address.postalCode;
+    const destinationPostalCode = values.destinationAddress.address.postalCode;
+
+    let secondaryPickupPostalCode = null;
+    if (hasSecondaryPickupPostalAddress) {
+      secondaryPickupPostalCode = values.secondaryPickupAddress.address.postalCode;
+    }
+
+    let secondaryDestinationPostalCode = null;
+    if (hasSecondaryDestinationAddress) {
+      secondaryDestinationPostalCode = values.secondaryDestinationAddress.address.postalCode;
+    }
 
     const createOrUpdateShipment = {
       moveTaskOrderID: moveId,
       shipmentType: SHIPMENT_OPTIONS.PPM,
       ppmShipment: {
-        pickupPostalCode: values.pickupPostalCode,
-        hasSecondaryPickupPostalCode, // I think sending this is necessary so we know if the customer wants to clear their previously secondary ZIPs, or we could send nulls for those fields.
-        secondaryPickupPostalCode: hasSecondaryPickupPostalCode ? values.secondaryPickupPostalCode : null,
-        destinationPostalCode: values.destinationPostalCode,
-        hasSecondaryDestinationPostalCode,
-        secondaryDestinationPostalCode: hasSecondaryDestinationPostalCode
-          ? values.secondaryDestinationPostalCode
-          : null,
+        pickupPostalCode,
+        pickupAddress: values.pickupAddress.address,
+        hasSecondaryPickupPostalCode: hasSecondaryPickupPostalAddress, // I think sending this is necessary so we know if the customer wants to clear their previously secondary ZIPs, or we could send nulls for those fields.
+        secondaryPickupPostalCode,
+        destinationPostalCode,
+        destinationAddress: values.destinationAddress.address,
+        hasSecondaryDestinationPostalCode: hasSecondaryDestinationAddress,
+        secondaryDestinationPostalCode,
         sitExpected: values.sitExpected === 'true',
         expectedDepartureDate: formatDateForSwagger(values.expectedDepartureDate),
       },
     };
+
+    if (hasSecondaryPickupPostalAddress) {
+      createOrUpdateShipment.ppmShipment.secondaryPickupAddress = values.secondaryPickupAddress.address;
+    }
+
+    if (hasSecondaryDestinationAddress) {
+      createOrUpdateShipment.ppmShipment.secondaryDestinationAddress = values.secondaryDestinationAddress.address;
+    }
 
     if (isNewShipment) {
       createMTOShipment(createOrUpdateShipment)

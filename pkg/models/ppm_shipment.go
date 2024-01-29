@@ -145,10 +145,18 @@ type PPMShipment struct {
 	W2Address                      *Address             `belongs_to:"addresses" fk_id:"w2_address_id"`
 	W2AddressID                    *uuid.UUID           `db:"w2_address_id"`
 	PickupPostalCode               string               `json:"pickup_postal_code" db:"pickup_postal_code"`
+	PickupAddress                  *Address             `belongs_to:"addresses" fk_id:"pickup_postal_address_id"`
+	PickupAddressID                *uuid.UUID           `db:"pickup_postal_address_id"`
 	SecondaryPickupPostalCode      *string              `json:"secondary_pickup_postal_code" db:"secondary_pickup_postal_code"`
+	SecondaryPickupAddress         *Address             `belongs_to:"addresses" fk_id:"secondary_pickup_postal_address_id"`
+	SecondaryPickupAddressID       *uuid.UUID           `db:"secondary_pickup_postal_address_id"`
 	ActualPickupPostalCode         *string              `json:"actual_pickup_postal_code" db:"actual_pickup_postal_code"`
 	DestinationPostalCode          string               `json:"destination_postal_code" db:"destination_postal_code"`
+	DestinationAddress             *Address             `belongs_to:"addresses" fk_id:"destination_postal_address_id"`
+	DestinationAddressID           *uuid.UUID           `db:"destination_postal_address_id"`
 	SecondaryDestinationPostalCode *string              `json:"secondary_destination_postal_code" db:"secondary_destination_postal_code"`
+	SecondaryDestinationAddress    *Address             `belongs_to:"addresses" fk_id:"secondary_destination_postal_address_id"`
+	SecondaryDestinationAddressID  *uuid.UUID           `db:"secondary_destination_postal_address_id"`
 	ActualDestinationPostalCode    *string              `json:"actual_destination_postal_code" db:"actual_destination_postal_code"`
 	EstimatedWeight                *unit.Pound          `json:"estimated_weight" db:"estimated_weight"`
 	HasProGear                     *bool                `json:"has_pro_gear" db:"has_pro_gear"`
@@ -200,10 +208,14 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&OptionalTimeIsPresent{Name: "ApprovedAt", Field: p.ApprovedAt},
 		&OptionalUUIDIsPresent{Name: "W2AddressID", Field: p.W2AddressID},
 		&validators.StringIsPresent{Name: "PickupPostalCode", Field: p.PickupPostalCode},
+		&OptionalUUIDIsPresent{Name: "PickupAddressID", Field: p.PickupAddressID},
 		&StringIsNilOrNotBlank{Name: "SecondaryPickupPostalCode", Field: p.SecondaryPickupPostalCode},
+		&OptionalUUIDIsPresent{Name: "SecondaryPickupAddressID", Field: p.SecondaryPickupAddressID},
 		&StringIsNilOrNotBlank{Name: "ActualPickupPostalCode", Field: p.ActualPickupPostalCode},
 		&validators.StringIsPresent{Name: "DestinationPostalCode", Field: p.DestinationPostalCode},
+		&OptionalUUIDIsPresent{Name: "DestinationAddressID", Field: p.DestinationAddressID},
 		&StringIsNilOrNotBlank{Name: "SecondaryDestinationPostalCode", Field: p.SecondaryDestinationPostalCode},
+		&OptionalUUIDIsPresent{Name: "SecondaryDestinationAddressID", Field: p.SecondaryDestinationAddressID},
 		&StringIsNilOrNotBlank{Name: "ActualDestinationPostalCode", Field: p.ActualDestinationPostalCode},
 		&OptionalPoundIsNonNegative{Name: "EstimatedWeight", Field: p.EstimatedWeight},
 		&OptionalPoundIsNonNegative{Name: "ProGearWeight", Field: p.ProGearWeight},
