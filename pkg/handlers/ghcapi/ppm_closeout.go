@@ -38,9 +38,9 @@ func (h GetPPMCloseoutHandler) Handle(params ppmcloseoutops.GetPPMCloseoutParams
 				case apperror.ForbiddenError:
 					return ppmcloseoutops.NewGetPPMCloseoutForbidden().WithPayload(payload), err
 				case apperror.QueryError:
-					return ppmcloseoutops.NewGetPPMCloseoutInternalServerError(), err
+					return ppmcloseoutops.NewGetPPMCloseoutInternalServerError().WithPayload(payload), err
 				default:
-					return ppmcloseoutops.NewGetPPMCloseoutInternalServerError(), err
+					return ppmcloseoutops.NewGetPPMCloseoutInternalServerError().WithPayload(payload), err
 				}
 			}
 			errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))

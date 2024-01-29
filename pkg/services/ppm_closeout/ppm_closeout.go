@@ -66,6 +66,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		EagerPreload(
 			"ID",
 			"ShipmentID",
+			"Status",
 			"ExpectedDepartureDate",
 			"ActualMoveDate",
 			"EstimatedWeight",
@@ -294,6 +295,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		case "DDP":
 			destinationPrice += centsValue
 		case "DSH", "DLH":
+			logger.Debug(string(serviceItem.ReService.Code))
 			haulPrice += centsValue
 		case "FSC":
 			haulFSC += centsValue
@@ -316,8 +318,8 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	}
 
 	ppmCloseoutObj.ID = &ppmShipmentID
-	ppmCloseoutObj.PlannedMoveDate = mtoShipment.ScheduledPickupDate
-	ppmCloseoutObj.ActualMoveDate = mtoShipment.ActualPickupDate
+	ppmCloseoutObj.PlannedMoveDate = &ppmShipment.ExpectedDepartureDate
+	ppmCloseoutObj.ActualMoveDate = ppmShipment.ActualMoveDate
 	ppmCloseoutObj.Miles = (*int)(mtoShipment.Distance)
 	ppmCloseoutObj.EstimatedWeight = ppmShipment.EstimatedWeight
 	ppmCloseoutObj.ActualWeight = mtoShipment.PrimeActualWeight
