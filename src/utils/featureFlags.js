@@ -51,6 +51,11 @@ const environmentFlags = {
   production: {
     ...defaultFlags,
   },
+
+  loadTest: {
+    ...defaultFlags,
+    multiMove: true,
+  },
 };
 
 const validateFlag = (name) => {
@@ -102,6 +107,10 @@ export function detectEnvironment(nodeEnv, host) {
     case 'office.demo.dp3.us':
     case 'admin.demo.dp3.us':
       return 'demo';
+    case 'my.loadtest.dp3.us':
+    case 'office.loadtest.dp3.us':
+    case 'admin.loadtest.dp3.us':
+      return 'loadtest';
     default:
       return 'development';
   }
