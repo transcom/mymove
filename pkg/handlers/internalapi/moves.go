@@ -154,7 +154,6 @@ func payloadMovesList(storer storage.FileStorer, previousMovesList models.Moves,
 			eTag := etag.GenerateEtag(move.UpdatedAt)
 			shipments := move.MTOShipments
 			var payloadShipments *internalmessages.MTOShipments = payloads.MTOShipments(storer, &shipments)
-			// var payloadOrders *internalmessages.Order = payloads
 
 			currentMove := &internalmessages.InternalMove{
 				CreatedAt:    *handlers.FmtDateTime(move.CreatedAt),
