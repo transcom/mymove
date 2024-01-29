@@ -67,9 +67,7 @@ const getSectionMarkup = (sectionInfo) => {
           <div>
             <Label>Advance received</Label>
             <span className={styles.light}>
-              {sectionInfo.hasReceivedAdvance
-                ? `$${formatCents(sectionInfo.advanceAmountReceived)}`
-                : 'Not requested/received.'}
+              {sectionInfo.aoa > 0 ? `$${formatCents(sectionInfo.advanceAmountReceived)}` : 'Not requested/received.'}
             </span>
           </div>
         </div>

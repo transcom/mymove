@@ -13,7 +13,7 @@ import styles from './ReviewProGear.module.scss';
 
 import { ErrorMessage } from 'components/form';
 import { patchProGearWeightTicket } from 'services/ghcApi';
-import { ProGearTicketShape, ShipmentShape } from 'types/shipment';
+import { ProGearTicketShape } from 'types/shipment';
 import Fieldset from 'shared/Fieldset';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import formStyles from 'styles/form.module.scss';
@@ -38,14 +38,13 @@ const validationSchema = Yup.object().shape({
   }),
 });
 
-export default function ReviewProGear({ mtoShipment, proGear, tripNumber, ppmNumber, onError, onSuccess, formRef }) {
+export default function ReviewProGear({ ppmCloseout, proGear, tripNumber, ppmNumber, onError, onSuccess, formRef }) {
   const [canEditRejection, setCanEditRejection] = useState(true);
 
   const { mutate: patchProGearMutation } = useMutation(patchProGearWeightTicket, {
     onSuccess,
     onError,
   });
-  const ppmShipment = mtoShipment?.ppmShipment;
 
   const { belongsToSelf, description, hasWeightTickets, weight, status, reason } = proGear || {};
 
@@ -111,7 +110,7 @@ export default function ReviewProGear({ mtoShipment, proGear, tripNumber, ppmNum
 
           return (
             <Form className={classnames(formStyles.form, styles.reviewProGear)}>
-              <PPMHeaderSummary ppmShipment={ppmShipment} ppmNumber={ppmNumber} />
+              <PPMHeaderSummary ppmCloseout={ppmCloseout} ppmNumber={ppmNumber} />
               <hr />
               <h3 className={styles.tripNumber}>Pro-gear {tripNumber}</h3>
               <FormGroup>
@@ -260,7 +259,6 @@ export default function ReviewProGear({ mtoShipment, proGear, tripNumber, ppmNum
 
 ReviewProGear.propTypes = {
   proGear: ProGearTicketShape,
-  mtoShipment: ShipmentShape,
   tripNumber: number.isRequired,
   ppmNumber: number.isRequired,
   onSuccess: func,
@@ -269,7 +267,6 @@ ReviewProGear.propTypes = {
 
 ReviewProGear.defaultProps = {
   proGear: null,
-  mtoShipment: null,
   onSuccess: null,
   formRef: null,
 };

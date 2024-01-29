@@ -21,6 +21,7 @@ import ReviewExpense from 'components/Office/PPM/ReviewExpense/ReviewExpense';
 import { DOCUMENTS } from 'constants/queryKeys';
 import ReviewProGear from 'components/Office/PPM/ReviewProGear/ReviewProGear';
 import { roleTypes } from 'constants/userRoles';
+import { getPPMCloseout } from 'services/ghcApi';
 
 // TODO: This should be in src/constants/ppms.js, but it's causing a lot of errors in unrelated tests, so I'll leave
 //  this here for now.
@@ -35,6 +36,7 @@ export const ReviewDocuments = () => {
   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
 
   const { mtoShipment, documents, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
+  const ppmCloseout = getPPMCloseout(mtoShipment?.ppmShipment);
 
   const order = Object.values(orders)?.[0];
   const [currentTotalWeight, setCurrentTotalWeight] = useState(0);
@@ -239,6 +241,7 @@ export const ReviewDocuments = () => {
             (showOverview ? (
               <ReviewDocumentsSidePanel
                 ppmShipment={mtoShipment.ppmShipment}
+                ppmCloseout={ppmCloseout}
                 weightTickets={weightTickets}
                 proGearTickets={proGearWeightTickets}
                 expenseTickets={movingExpenses}
@@ -251,6 +254,7 @@ export const ReviewDocuments = () => {
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET && (
                   <ReviewWeightTicket
                     weightTicket={currentDocumentSet.documentSet}
+                    ppmCloseout={ppmCloseout}
                     ppmNumber={1}
                     tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
@@ -265,6 +269,7 @@ export const ReviewDocuments = () => {
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (
                   <ReviewProGear
                     proGear={currentDocumentSet.documentSet}
+                    ppmCloseout={ppmCloseout}
                     ppmNumber={1}
                     tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
@@ -276,6 +281,7 @@ export const ReviewDocuments = () => {
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && (
                   <ReviewExpense
                     expense={currentDocumentSet.documentSet}
+                    ppmCloseout={ppmCloseout}
                     categoryIndex={currentDocumentCategoryIndex}
                     ppmNumber={1}
                     tripNumber={currentTripNumber}

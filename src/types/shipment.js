@@ -36,7 +36,7 @@ export const GCCFactorsShape = shape({
 export const incentivesShape = shape({
   grossIncentive: number,
   gcc: number,
-  remainingReimbursement: number,
+  remi: number,
 });
 
 export const PPMShipmentShape = shape({
@@ -76,6 +76,28 @@ export const PPMShipmentShape = shape({
   incentives: incentivesShape,
   gcc: GCCFactorsShape,
   miles: number,
+});
+
+export const PPMCloseoutShape = shape({
+  id: string,
+  plannedMoveDate: string,
+  actualMoveDate: string,
+  miles: number,
+  estimatedWeight: number,
+  actualWeight: number,
+  proGearWeightCustomer: number,
+  proGearWeightSpouse: number,
+  grossIncentive: number,
+  gcc: number,
+  aoa: number,
+  RemainingIncentive: number,
+  haulPrice: number,
+  haulFSC: number,
+  dop: number,
+  ddp: number,
+  packPrice: number,
+  unpackPrice: number,
+  sitReimbursement: number,
 });
 
 // This type is badly defined because we have code that overloads the destinationType field on the shipment object as

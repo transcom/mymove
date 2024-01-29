@@ -5,9 +5,30 @@ import classnames from 'classnames';
 import HeaderSection, { sectionTypes } from './HeaderSection';
 import styles from './PPMHeaderSummary.module.scss';
 
-import { PPMShipmentShape } from 'types/shipment';
+import { PPMCloseoutShape } from 'types/shipment';
 
-export default function PPMHeaderSummary({ ppmShipment, ppmNumber, showAllFields }) {
+export default function PPMHeaderSummary({ ppmCloseout, ppmNumber, showAllFields }) {
+  const shipmentInfo = {
+    plannedMoveDate: ppmCloseout.plannedMoveDate,
+    actualMoveDate: ppmCloseout.actualMoveDate,
+    actualPickupPostalCode: ppmCloseout.actualPickupPostalCode,
+    actualDestinationPostalCode: ppmCloseout.actualDestinationPostalCode,
+    miles: ppmCloseout.miles,
+    estimatedWeight: ppmCloseout.estimatedWeight,
+    aoa: ppmCloseout.aoa,
+  };
+  const incentives = {
+    grossIncentive: ppmCloseout.grossIncentive,
+    gcc: ppmCloseout.gcc,
+    remainingIncentive: ppmCloseout.remainingIncentive,
+  };
+  const gccFactors = {
+    lineHaulPrice: ppmCloseout.lineHaulPrice,
+    lineHaulFuelSurcharge: ppmCloseout.lineHaulFuelSurcharge,
+    shorthaulPrice: ppmCloseout.shorthaulPrice,
+    shorthaulFuelSurcharge: ppmCloseout.shorthaulFuelSurcharge,
+    fullPackUnpackCharge: ppmCloseout.packPrice + ppmCloseout.unpackPrice,
+  };
   return (
     <header className={classnames(styles.PPMHeaderSummary)}>
       <div className={styles.header}>
@@ -16,7 +37,7 @@ export default function PPMHeaderSummary({ ppmShipment, ppmNumber, showAllFields
           <HeaderSection
             sectionInfo={{
               type: sectionTypes.shipmentInfo,
-              ...ppmShipment,
+              ...shipmentInfo,
             }}
           />
         </section>
@@ -26,15 +47,11 @@ export default function PPMHeaderSummary({ ppmShipment, ppmNumber, showAllFields
             <HeaderSection
               sectionInfo={{
                 type: sectionTypes.incentives,
-                estimatedIncentive: ppmShipment.estimatedIncentive,
-                hasRequestedAdvance: ppmShipment.hasRequestedAdvance,
-                hasReceivedAdvance: ppmShipment.hasReceivedAdvance,
-                advanceAmountReceived: ppmShipment.advanceAmountReceived,
-                ...ppmShipment.incentives,
+                ...incentives,
               }}
             />
             <hr />
-            <HeaderSection sectionInfo={{ type: sectionTypes.gcc, ...ppmShipment.gcc }} />
+            <HeaderSection sectionInfo={{ type: sectionTypes.gcc, ...gccFactors }} />
           </>
         )}
       </div>
@@ -43,13 +60,13 @@ export default function PPMHeaderSummary({ ppmShipment, ppmNumber, showAllFields
 }
 
 PPMHeaderSummary.propTypes = {
-  ppmShipment: PPMShipmentShape,
+  ppmCloseout: PPMCloseoutShape,
   ppmNumber: number.isRequired,
   showAllFields: bool.isRequired,
 };
 
 PPMHeaderSummary.defaultProps = {
-  ppmShipment: undefined,
+  ppmCloseout: undefined,
 };
 
 // TODO: Add shape/propType/defaults for incentives and GCC components here.
