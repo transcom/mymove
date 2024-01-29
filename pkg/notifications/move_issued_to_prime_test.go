@@ -34,7 +34,7 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 		originDutyLocation := "origDutyLocation"
 
 		s := moveIssuedToPrimeEmailData{
-			MilitaryOneSourceLink:        "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL",
+			MilitaryOneSourceLink:        OneSourceTransportationOfficeLink,
 			OriginDutyLocation:           &originDutyLocation,
 			DestinationDutyLocation:      "destDutyLocation",
 			Locator:                      "abc123",
@@ -95,7 +95,7 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 <p>
   If you are unsatisfied at any time, contact a government transportation office.
   You can see a listing of transportation offices on Military One Source here:
-  <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a>.
+  <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a>.
 </p>
 
 <p>Thank you,</p>
@@ -123,7 +123,7 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 		notification := NewMoveIssuedToPrime(move.ID)
 
 		s := moveIssuedToPrimeEmailData{
-			MilitaryOneSourceLink:        "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL",
+			MilitaryOneSourceLink:        OneSourceTransportationOfficeLink,
 			DestinationDutyLocation:      "destDutyLocation",
 			Locator:                      "abc123",
 			ProvidesGovernmentCounseling: true,
@@ -183,7 +183,7 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 <p>
   If you are unsatisfied at any time, contact a government transportation office.
   You can see a listing of transportation offices on Military One Source here:
-  <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a>.
+  <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a>.
 </p>
 
 <p>Thank you,</p>
@@ -212,7 +212,7 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 		originDutyLocation := "origDutyLocation"
 
 		s := moveIssuedToPrimeEmailData{
-			MilitaryOneSourceLink:        "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL",
+			MilitaryOneSourceLink:        OneSourceTransportationOfficeLink,
 			OriginDutyLocation:           &originDutyLocation,
 			DestinationDutyLocation:      "destDutyLocation",
 			Locator:                      "abc123",
@@ -278,7 +278,7 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeHTMLTemplateRender() {
 <p>
   If you are unsatisfied at any time, contact a government transportation office.
   You can see a listing of transportation offices on Military One Source here:
-  <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a>.
+  <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a>.
 </p>
 
 <p>Thank you,</p>
@@ -309,7 +309,7 @@ func (suite *NotificationSuite) TestMoveIssuedToPrimeTextTemplateRender() {
 		originDutyLocation := "origDutyLocation"
 
 		s := moveIssuedToPrimeEmailData{
-			MilitaryOneSourceLink:        "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL",
+			MilitaryOneSourceLink:        OneSourceTransportationOfficeLink,
 			OriginDutyLocation:           &originDutyLocation,
 			DestinationDutyLocation:      "destDutyLocation",
 			Locator:                      "abc123",
@@ -346,7 +346,7 @@ Utilize your HomeSafe Customer Care Representative:
 
 If you are unsatisfied at any time, contact a government transportation office.
 You can see a listing of transportation offices on Military One Source here:
-https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL.
+` + OneSourceTransportationOfficeLink + `.
 
 Thank you,
 
@@ -371,7 +371,7 @@ under the Privacy Act of 1974. Failure to protect Privacy Act information could 
 		notification := NewMoveIssuedToPrime(move.ID)
 
 		s := moveIssuedToPrimeEmailData{
-			MilitaryOneSourceLink:        "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL",
+			MilitaryOneSourceLink:        OneSourceTransportationOfficeLink,
 			DestinationDutyLocation:      "destDutyLocation",
 			Locator:                      "abc123",
 			ProvidesGovernmentCounseling: true,
@@ -407,7 +407,7 @@ Utilize your HomeSafe Customer Care Representative:
 
 If you are unsatisfied at any time, contact a government transportation office.
 You can see a listing of transportation offices on Military One Source here:
-https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL.
+` + OneSourceTransportationOfficeLink + `.
 
 Thank you,
 
@@ -433,7 +433,7 @@ under the Privacy Act of 1974. Failure to protect Privacy Act information could 
 		originDutyLocation := "origDutyLocation"
 
 		s := moveIssuedToPrimeEmailData{
-			MilitaryOneSourceLink:        "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL",
+			MilitaryOneSourceLink:        OneSourceTransportationOfficeLink,
 			OriginDutyLocation:           &originDutyLocation,
 			DestinationDutyLocation:      "destDutyLocation",
 			Locator:                      "abc123",
@@ -473,7 +473,7 @@ Utilize your HomeSafe Customer Care Representative:
 
 If you are unsatisfied at any time, contact a government transportation office.
 You can see a listing of transportation offices on Military One Source here:
-https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL.
+` + OneSourceTransportationOfficeLink + `.
 
 Thank you,
 

@@ -3,13 +3,13 @@ package paperwork
 // ShipmentSummaryPage1Layout specifies the layout and template of a
 // Shipment Summary Worksheet
 var ShipmentSummaryPage1Layout = FormLayout{
-	TemplateImagePath: "paperwork/formtemplates/shipment_summary_worksheet_page1.png",
+	TemplateImagePath: "paperwork/formtemplates/ssw1.png",
 
 	// For now only lists a single shipment. Will need to update to accommodate multiple shipments
 	FieldsLayout: map[string]FieldPos{
-		"CUIBanner":                       FormField(0, 1.5, 216, floatPtr(10), nil, stringPtr("CM")),
+		"CUIBanner":                       FormField(0, 1.6, 216, floatPtr(10), nil, stringPtr("CM")),
 		"PreparationDate":                 FormField(155.5, 23, 46, floatPtr(10), nil, nil),
-		"ServiceMemberName":               FormField(10, 43, 90, floatPtr(10), nil, nil),
+		"ServiceMemberName":               FormField(5, 50, 153, floatPtr(10), nil, nil),
 		"DODId":                           FormField(153.5, 43, 60, floatPtr(10), nil, nil),
 		"ServiceBranch":                   FormField(10, 54, 40, floatPtr(10), nil, nil),
 		"RankGrade":                       FormField(54, 54, 44, floatPtr(10), nil, nil),
@@ -53,7 +53,7 @@ var ShipmentSummaryPage1Layout = FormLayout{
 // Shipment Summary Worksheet
 var ShipmentSummaryPage2Layout = FormLayout{
 
-	TemplateImagePath: "paperwork/formtemplates/shipment_summary_worksheet_page2.png",
+	TemplateImagePath: "paperwork/formtemplates/ssw2.png",
 
 	FieldsLayout: map[string]FieldPos{
 		"CUIBanner":                   FormField(0, 2, 216, floatPtr(10), nil, stringPtr("CM")),
