@@ -35,12 +35,13 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithGovCounse
 	originDutyLocationPhoneLine := "555-555-5555"
 
 	s := moveSubmittedEmailData{
-		OriginDutyLocation:           &originDutyLocation,
-		DestinationDutyLocation:      "destDutyLocation",
-		OriginDutyLocationPhoneLine:  &originDutyLocationPhoneLine,
-		Locator:                      "abc123",
-		WeightAllowance:              "7,999",
-		ProvidesGovernmentCounseling: true,
+		OriginDutyLocation:                &originDutyLocation,
+		DestinationDutyLocation:           "destDutyLocation",
+		OriginDutyLocationPhoneLine:       &originDutyLocationPhoneLine,
+		Locator:                           "abc123",
+		WeightAllowance:                   "7,999",
+		ProvidesGovernmentCounseling:      true,
+		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 	}
 	expectedHTMLContent := `<p>
   *** DO NOT REPLY directly to this email ***
@@ -135,12 +136,13 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithoutGovCou
 	originDutyLocationPhoneLine := "555-555-5555"
 
 	s := moveSubmittedEmailData{
-		OriginDutyLocation:           &originDutyLocation,
-		DestinationDutyLocation:      "destDutyLocation",
-		OriginDutyLocationPhoneLine:  &originDutyLocationPhoneLine,
-		Locator:                      "abc123",
-		WeightAllowance:              "7,999",
-		ProvidesGovernmentCounseling: false,
+		OriginDutyLocation:                &originDutyLocation,
+		DestinationDutyLocation:           "destDutyLocation",
+		OriginDutyLocationPhoneLine:       &originDutyLocationPhoneLine,
+		Locator:                           "abc123",
+		WeightAllowance:                   "7,999",
+		ProvidesGovernmentCounseling:      false,
+		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 	}
 	expectedHTMLContent := `<p>
   *** DO NOT REPLY directly to this email ***
@@ -223,12 +225,13 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyLocatio
 	notification := NewMoveSubmitted(move.ID)
 
 	s := moveSubmittedEmailData{
-		OriginDutyLocation:           nil,
-		DestinationDutyLocation:      "destDutyLocation",
-		OriginDutyLocationPhoneLine:  nil,
-		Locator:                      "abc123",
-		WeightAllowance:              "7,999",
-		ProvidesGovernmentCounseling: false,
+		OriginDutyLocation:                nil,
+		DestinationDutyLocation:           "destDutyLocation",
+		OriginDutyLocationPhoneLine:       nil,
+		Locator:                           "abc123",
+		WeightAllowance:                   "7,999",
+		ProvidesGovernmentCounseling:      false,
+		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 	}
 	expectedHTMLContent := `<p>
   *** DO NOT REPLY directly to this email ***
@@ -316,12 +319,13 @@ func (suite *NotificationSuite) TestMoveSubmittedTextTemplateRender() {
 	originDutyLocationPhoneLine := "555-555-5555"
 
 	s := moveSubmittedEmailData{
-		OriginDutyLocation:           &originDutyLocation,
-		DestinationDutyLocation:      "destDutyLocation",
-		OriginDutyLocationPhoneLine:  &originDutyLocationPhoneLine,
-		Locator:                      "abc123",
-		WeightAllowance:              "7,999",
-		ProvidesGovernmentCounseling: true,
+		OriginDutyLocation:                &originDutyLocation,
+		DestinationDutyLocation:           "destDutyLocation",
+		OriginDutyLocationPhoneLine:       &originDutyLocationPhoneLine,
+		Locator:                           "abc123",
+		WeightAllowance:                   "7,999",
+		ProvidesGovernmentCounseling:      true,
+		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 	}
 
 	expectedTextContent := `*** DO NOT REPLY directly to this email ***
