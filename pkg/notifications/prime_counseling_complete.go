@@ -34,6 +34,7 @@ type PrimeCounselingCompleteData struct {
 	DestinationDutyLocation           string
 	Locator                           string
 	OneSourceTransportationOfficeLink string
+	MyMoveLink                        string
 }
 
 // NewPrimeCounselingComplete returns a new payment reminder notification 14 days after actual move in date
@@ -95,6 +96,7 @@ func (p PrimeCounselingComplete) GetEmailData(m primemessages.MoveTaskOrder, app
 		DestinationDutyLocation:           m.Order.DestinationDutyLocation.Name,
 		Locator:                           m.MoveCode,
 		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
+		MyMoveLink:                        MyMoveLink,
 	}, nil
 }
 

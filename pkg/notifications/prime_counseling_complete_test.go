@@ -20,6 +20,7 @@ var correctPrimeCounselingData = PrimeCounselingCompleteData{
 	OriginDutyLocation:                primeOrder.OriginDutyLocation.Name,
 	DestinationDutyLocation:           primeOrder.DestinationDutyLocation.Name,
 	OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
+	MyMoveLink:                        MyMoveLink,
 }
 
 func (suite *NotificationSuite) TestPrimeCounselingComplete() {
@@ -36,6 +37,7 @@ func (suite *NotificationSuite) TestPrimeCounselingComplete() {
 		DestinationDutyLocation:           primeOrder.DestinationDutyLocation.Name,
 		Locator:                           payload.MoveCode,
 		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
+		MyMoveLink:                        MyMoveLink,
 	})
 
 	expectedHTMLContent := getCorrectEmailTemplate(primeCounselingEmailData)
@@ -60,6 +62,7 @@ func (suite *NotificationSuite) TestPrimeCounselingCompleteTextTemplateRender() 
 		DestinationDutyLocation:           primeOrder.DestinationDutyLocation.Name,
 		Locator:                           payload.MoveCode,
 		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
+		MyMoveLink:                        MyMoveLink,
 	})
 
 	expectedTextContent := getCorrectTextTemplate(primeCounselingEmailData)
@@ -79,11 +82,11 @@ func getCorrectEmailTemplate(emailData PrimeCounselingCompleteData) string {
 <ul>
 <li>Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform.  If you do not upload legible certified weight tickets, your PPM incentive could be affected.</li>
 
-<li>If you are requesting an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into <a href="https://my.move.mil">MilMove</a> to download your AOA packet. You must obtain signature approval on the AOA packet from a government transportation office before submitting it to finance. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.</li>
+<li>If you are requesting an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into <a href="` + MyMoveLink + `">MilMove</a> to download your AOA packet. You must obtain signature approval on the AOA packet from a government transportation office before submitting it to finance. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.</li>
 
 <li>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a></li>
 
-<li>Once you complete your PPM, log into <a href="https://my.move.mil">MilMove</a>, upload your receipts and weight tickets, and submit your PPM for review.</li>
+<li>Once you complete your PPM, log into <a href="` + MyMoveLink + `">MilMove</a>, upload your receipts and weight tickets, and submit your PPM for review.</li>
 </ul>
 <h4>Next steps for government arranged shipments:</h4>
 <ul>
@@ -111,11 +114,11 @@ If you are doing a Personally Procured Move (PPM), you can start moving your per
 Next steps for a PPM:
 • Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform.  If you do not upload legible certified weight tickets, your PPM incentive could be affected.
 
-• If you are requesting an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into MilMove <https://my.move.mil/> to download your AOA packet. You must obtain signature approval on the AOA packet from a government transportation office before submitting it to finance. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.
+• If you are requesting an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into MilMove <` + MyMoveLink + `/> to download your AOA packet. You must obtain signature approval on the AOA packet from a government transportation office before submitting it to finance. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.
 
 • If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <` + OneSourceTransportationOfficeLink + `>
 
-• Once you complete your PPM, log into MilMove <https://my.move.mil/>, upload your receipts and weight tickets, and submit your PPM for review.
+• Once you complete your PPM, log into MilMove <` + MyMoveLink + `/>, upload your receipts and weight tickets, and submit your PPM for review.
 
 Next steps for government arranged shipments:
 • If additional services were identified during counseling, HomeSafe will send the request to the responsible government transportation office for review. Your HomeSafe Customer Care Representative should keep you informed on the status of the request.
