@@ -74,6 +74,7 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		OriginDutyLocation:      originDutyLocationName,
 		DestinationDutyLocation: orders.NewDutyLocation.Name,
 		Locator:                 move.Locator,
+		MyMoveLink:              MyMoveLink,
 	})
 
 	if err != nil {
@@ -110,6 +111,7 @@ type MoveCounseledEmailData struct {
 	OriginDutyLocation      *string
 	DestinationDutyLocation string
 	Locator                 string
+	MyMoveLink              string
 }
 
 // RenderHTML renders the html for the email

@@ -41,6 +41,7 @@ type PpmPacketEmailData struct {
 	ServiceBranch                     string
 	Locator                           string
 	OneSourceTransportationOfficeLink string
+	MyMoveLink                        string
 }
 
 // Used to get logging data from GetEmailData
@@ -165,6 +166,7 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 				ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
 				Locator:                           move.Locator,
 				OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
+				MyMoveLink:                        MyMoveLink,
 			},
 			LoggerData{
 				ServiceMember: *serviceMember,
@@ -181,6 +183,7 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 			ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
 			Locator:                           move.Locator,
 			OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
+			MyMoveLink:                        MyMoveLink,
 		},
 		LoggerData{
 			ServiceMember: *serviceMember,
