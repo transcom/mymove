@@ -377,6 +377,16 @@ func allowanceFromTOOPayload(existingOrder models.Order, payload ghcmessages.Upd
 		order.Grade = &grade
 	}
 
+	// Calculate new DBWeightAuthorized based on the new grade
+	weightAllotment := models.GetWeightAllotment(*order.Grade)
+	weight := weightAllotment.TotalWeightSelf
+	// Payload does not have this information, retrieve dependents from the existing order
+	if existingOrder.HasDependents && *payload.DependentsAuthorized {
+		// Only utilize dependent weight authorized if dependents are both present and authorized
+		weight = weightAllotment.TotalWeightSelfPlusDependents
+	}
+	order.Entitlement.DBAuthorizedWeight = &weight
+
 	if payload.OrganizationalClothingAndIndividualEquipment != nil {
 		order.Entitlement.OrganizationalClothingAndIndividualEquipment = *payload.OrganizationalClothingAndIndividualEquipment
 	}
