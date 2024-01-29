@@ -21,7 +21,7 @@ const ImportantShipmentDates = ({
 }) => {
   const headerPlannedMoveDate = isPPM ? 'Planned Move Date' : 'Requested pick up date';
   const headerActualMoveDate = isPPM ? 'Actual Move Date' : 'Scheduled pick up date';
-  const headerActualArrivalDate = isPPM ? '' : 'Actual Arrival Date';
+  const headerActualPickupDate = isPPM ? '' : 'Actual Pickup Date';
 
   const emDash = '\u2014';
   return (
@@ -30,7 +30,7 @@ const ImportantShipmentDates = ({
         {!isPPM && <DataTable columnHeaders={['Required Delivery Date']} dataRow={[requiredDeliveryDate || emDash]} />}
         {!isPPM && (
           <DataTable
-            columnHeaders={[headerPlannedMoveDate, headerActualMoveDate, headerActualArrivalDate]}
+            columnHeaders={[headerPlannedMoveDate, headerActualMoveDate, headerActualPickupDate]}
             dataRow={[requestedPickupDate || emDash, scheduledPickupDate || emDash, actualPickupDate || emDash]}
           />
         )}
