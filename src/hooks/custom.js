@@ -18,6 +18,11 @@ export const includedStatusesForCalculatingWeights = (status) => {
 };
 
 const addressesMatch = (address1, address2) => {
+  // Null or undefined check. This resolves I-12397
+  if (!address1 || !address2) {
+    return false;
+  }
+
   return (
     address1.city === address2.city &&
     address1.postalCode === address2.postalCode &&
