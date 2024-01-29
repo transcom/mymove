@@ -536,7 +536,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
-	suite.Run("Updates the allowance when all fields are valid", func() {
+	suite.Run("Updates the allowance when all fields are valid and no dependents", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil).Orders
@@ -572,6 +572,49 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		suite.Equal(*payload.ProGearWeightSpouse, int64(updatedOrder.Entitlement.ProGearWeightSpouse))
 		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
 		suite.Equal(*payload.OrganizationalClothingAndIndividualEquipment, updatedOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
+		suite.Equal(*updatedOrder.Entitlement.DBAuthorizedWeight, 16000)
+	})
+
+	suite.Run("Updates the allowance when all fields are valid with dependents", func() {
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
+		// Build with dependents trait
+		order := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, []factory.Trait{
+			factory.GetTraitHasDependents,
+		}).Orders
+
+		grade := ghcmessages.GradeO5
+		affiliation := ghcmessages.AffiliationAIRFORCE
+		ocie := false
+		proGearWeight := models.Int64Pointer(100)
+		proGearWeightSpouse := models.Int64Pointer(10)
+		rmeWeight := models.Int64Pointer(10000)
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		payload := ghcmessages.UpdateAllowancePayload{
+			Agency:               &affiliation,
+			DependentsAuthorized: models.BoolPointer(true),
+			Grade:                &grade,
+			OrganizationalClothingAndIndividualEquipment: &ocie,
+			ProGearWeight:                  proGearWeight,
+			ProGearWeightSpouse:            proGearWeightSpouse,
+			RequiredMedicalEquipmentWeight: rmeWeight,
+		}
+
+		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
+		suite.NoError(err)
+
+		var orderInDB models.Order
+		err = suite.DB().Find(&orderInDB, order.ID)
+
+		suite.NoError(err)
+		suite.Equal(order.ID.String(), updatedOrder.ID.String())
+		suite.Equal(payload.DependentsAuthorized, updatedOrder.Entitlement.DependentsAuthorized)
+		suite.Equal(*payload.ProGearWeight, int64(updatedOrder.Entitlement.ProGearWeight))
+		suite.Equal(*payload.ProGearWeightSpouse, int64(updatedOrder.Entitlement.ProGearWeightSpouse))
+		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
+		suite.Equal(*payload.OrganizationalClothingAndIndividualEquipment, updatedOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
+		suite.Equal(*updatedOrder.Entitlement.DBAuthorizedWeight, 17500)
 	})
 }
 
@@ -604,7 +647,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
-	suite.Run("Updates the allowance when all fields are valid", func() {
+	suite.Run("Updates the allowance when all fields are valid with dependents authorized but not present", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil).Orders
@@ -644,6 +687,52 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
 		suite.Equal(*payload.OrganizationalClothingAndIndividualEquipment, updatedOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
 		suite.EqualValues(payload.Agency, fetchedSM.Affiliation)
+		suite.Equal(*updatedOrder.Entitlement.DBAuthorizedWeight, 16000)
+	})
+
+	suite.Run("Updates the allowance when all fields are valid with dependents present and authorized", func() {
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
+		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, []factory.Trait{
+			factory.GetTraitHasDependents,
+		}).Orders
+
+		grade := ghcmessages.GradeO5
+		affiliation := ghcmessages.AffiliationAIRFORCE
+		ocie := false
+		proGearWeight := models.Int64Pointer(100)
+		proGearWeightSpouse := models.Int64Pointer(10)
+		rmeWeight := models.Int64Pointer(10000)
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		payload := ghcmessages.CounselingUpdateAllowancePayload{
+			Agency:               &affiliation,
+			DependentsAuthorized: models.BoolPointer(true),
+			Grade:                &grade,
+			OrganizationalClothingAndIndividualEquipment: &ocie,
+			ProGearWeight:                  proGearWeight,
+			ProGearWeightSpouse:            proGearWeightSpouse,
+			RequiredMedicalEquipmentWeight: rmeWeight,
+		}
+
+		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
+		suite.NoError(err)
+
+		var orderInDB models.Order
+		err = suite.DB().Find(&orderInDB, order.ID)
+
+		fetchedSM := models.ServiceMember{}
+		_ = suite.DB().Find(&fetchedSM, order.ServiceMember.ID)
+
+		suite.NoError(err)
+		suite.Equal(order.ID.String(), updatedOrder.ID.String())
+		suite.Equal(payload.DependentsAuthorized, updatedOrder.Entitlement.DependentsAuthorized)
+		suite.Equal(*payload.ProGearWeight, int64(updatedOrder.Entitlement.ProGearWeight))
+		suite.Equal(*payload.ProGearWeightSpouse, int64(updatedOrder.Entitlement.ProGearWeightSpouse))
+		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
+		suite.Equal(*payload.OrganizationalClothingAndIndividualEquipment, updatedOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
+		suite.EqualValues(payload.Agency, fetchedSM.Affiliation)
+		suite.Equal(*updatedOrder.Entitlement.DBAuthorizedWeight, 17500)
 	})
 
 	suite.Run("Updates the allowance when move needs service counseling and order fields are missing", func() {
