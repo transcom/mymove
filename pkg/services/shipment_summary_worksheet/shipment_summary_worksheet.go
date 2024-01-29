@@ -55,54 +55,6 @@ type textField struct {
 	Locked    bool   `json:"locked"`
 }
 
-// Header represents the header section of the JSON.
-type header struct {
-	Source   string `json:"source"`
-	Version  string `json:"version"`
-	Creation string `json:"creation"`
-	Producer string `json:"producer"`
-}
-
-// Checkbox represents a checkbox within a form.
-type checkbox struct {
-	Pages   []int  `json:"pages"`
-	ID      string `json:"id"`
-	Name    string `json:"name"`
-	Default bool   `json:"value"`
-	Value   bool   `json:"multiline"`
-	Locked  bool   `json:"locked"`
-}
-
-// Forms represents a form containing text fields.
-type form struct {
-	TextField []textField `json:"textfield"`
-	Checkbox  []checkbox  `json:"checkbox"`
-}
-
-// PDFData represents the entire JSON structure.
-type pDFData struct {
-	Header header `json:"header"`
-	Forms  []form `json:"forms"`
-}
-
-var sswHeader = header{
-	Source:   "SSWPDFTemplate.pdf",
-	Version:  "pdfcpu v0.6.0 dev",
-	Creation: "2024-01-22 21:49:12 UTC",
-	Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
-}
-
-var sswCheckbox = []checkbox{
-	{
-		Pages:   []int{2},
-		ID:      "797",
-		Name:    "EDOther",
-		Value:   true,
-		Default: false,
-		Locked:  false,
-	},
-}
-
 var newline = "\n\n"
 
 // NewSSWPPMGenerator creates a SSWPPMGenerator
@@ -834,6 +786,54 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 
 // FillSSWPDFForm takes form data and fills an existing PDF form template with said data
 func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values) (sswfile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
+
+	// Header represents the header section of the JSON.
+	type header struct {
+		Source   string `json:"source"`
+		Version  string `json:"version"`
+		Creation string `json:"creation"`
+		Producer string `json:"producer"`
+	}
+
+	// Checkbox represents a checkbox within a form.
+	type checkbox struct {
+		Pages   []int  `json:"pages"`
+		ID      string `json:"id"`
+		Name    string `json:"name"`
+		Default bool   `json:"value"`
+		Value   bool   `json:"multiline"`
+		Locked  bool   `json:"locked"`
+	}
+
+	// Forms represents a form containing text fields.
+	type form struct {
+		TextField []textField `json:"textfield"`
+		Checkbox  []checkbox  `json:"checkbox"`
+	}
+
+	// PDFData represents the entire JSON structure.
+	type pDFData struct {
+		Header header `json:"header"`
+		Forms  []form `json:"forms"`
+	}
+
+	var sswHeader = header{
+		Source:   "SSWPDFTemplate.pdf",
+		Version:  "pdfcpu v0.6.0 dev",
+		Creation: "2024-01-22 21:49:12 UTC",
+		Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
+	}
+
+	var sswCheckbox = []checkbox{
+		{
+			Pages:   []int{2},
+			ID:      "797",
+			Name:    "EDOther",
+			Value:   true,
+			Default: false,
+			Locked:  false,
+		},
+	}
 
 	formData := pDFData{ // This is unique to each PDF template, must be found for new templates using PDFCPU's export function used on the template (can be done through CLI)
 		Header: sswHeader,
