@@ -16,7 +16,7 @@ You can now log into MilMove <https://my.move.mil/> and download your payment pa
 
 {{if eq .ServiceBranch "Air Force and Space Force"}}Note: The Transportation Office does not determine claimable expenses. Claimable expenses will be determined by finance{{else if eq .ServiceBranch "Army"}}Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.{{end}}{{end}}
 
-If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL>
+If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: {{.OneSourceTransportationOfficeLink}}
 
 Thank you,
 
