@@ -190,7 +190,6 @@ export class CustomerApp extends Component {
 
                 {/* If multiMove is enabled then move path routes to the move path rendering the home element */}
                 {multiMoveWorkflow && <Route path={customerRoutes.MOVE_HOME_PAGE} end element={<Home />} />}
-
                 <Route end path={customerRoutes.SHIPMENT_MOVING_INFO_PATH} element={<MovingInfo />} />
                 <Route end path="/moves/:moveId/edit" element={<Edit />} />
                 <Route end path={customerRoutes.EDIT_PROFILE_PATH} element={<EditProfile />} />

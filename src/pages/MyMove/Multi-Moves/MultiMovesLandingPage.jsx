@@ -118,8 +118,8 @@ const MultiMovesLandingPage = () => {
           </div>
         </header>
         <div className={`usa-prose grid-container ${styles['grid-container']}`}>
-          <Helper title="Welcome to MilMove!" className={styles['helper-paragraph-only']}>
-            <p data-testid="helperText">
+          <Helper data-testid="welcomeHeader" title="Welcome to MilMove!" className={styles['helper-paragraph-only']}>
+            <p>
               We can put information at the top here - potentially important contact info or basic instructions on how
               to start a move?
             </p>
