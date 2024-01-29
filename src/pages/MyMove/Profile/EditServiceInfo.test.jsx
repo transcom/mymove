@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { EditServiceInfo } from './EditServiceInfo';
 
 import { patchServiceMember } from 'services/internalApi';
+import { MockProviders } from 'testUtils';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -33,21 +34,28 @@ describe('EditServiceInfo page', () => {
   };
 
   it('renders the EditServiceInfo form', async () => {
-    render(<EditServiceInfo {...testProps} />);
+    render(
+      <MockProviders>
+        <EditServiceInfo {...testProps} />
+      </MockProviders>,
+    );
 
     expect(await screen.findByRole('heading', { name: 'Edit service info', level: 1 })).toBeInTheDocument();
   });
 
   it('the cancel button goes back to the profile page', async () => {
-    render(<EditServiceInfo {...testProps} />);
-
+    render(
+      <MockProviders>
+        <EditServiceInfo {...testProps} />
+      </MockProviders>,
+    );
     const cancelButton = await screen.findByText('Cancel');
     await waitFor(() => {
       expect(cancelButton).toBeInTheDocument();
     });
 
     await userEvent.click(cancelButton);
-    expect(mockNavigate).toHaveBeenCalledWith('/service-member/profile');
+    expect(mockNavigate).toHaveBeenCalledWith('/service-member/profile', { state: null });
   });
 
   it('save button submits the form and goes to the profile page', async () => {
@@ -79,15 +87,17 @@ describe('EditServiceInfo page', () => {
 
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
     render(
-      <EditServiceInfo
-        {...testProps}
-        serviceMember={testServiceMemberValues}
-        currentOrders={{
-          has_dependents: false,
-          grade: testServiceMemberValues.rank,
-          origin_duty_location: testServiceMemberValues.current_location,
-        }}
-      />,
+      <MockProviders>
+        <EditServiceInfo
+          {...testProps}
+          serviceMember={testServiceMemberValues}
+          currentOrders={{
+            has_dependents: false,
+            grade: testServiceMemberValues.rank,
+            origin_duty_location: testServiceMemberValues.current_location,
+          }}
+        />
+      </MockProviders>,
     );
 
     const submitButton = await screen.findByText('Save');
@@ -106,7 +116,7 @@ describe('EditServiceInfo page', () => {
       'Your changes have been saved.',
     );
 
-    expect(mockNavigate).toHaveBeenCalledWith('/service-member/profile');
+    expect(mockNavigate).toHaveBeenCalledWith('/service-member/profile', { state: null });
   });
 
   it('displays a flash message about entitlement when the pay grade changes', async () => {
@@ -174,15 +184,17 @@ describe('EditServiceInfo page', () => {
 
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
     render(
-      <EditServiceInfo
-        {...testProps}
-        serviceMember={testServiceMemberValues}
-        currentOrders={{
-          grade: testServiceMemberValues.rank,
-          has_dependents: true,
-          origin_duty_location: testServiceMemberValues.current_location,
-        }}
-      />,
+      <MockProviders>
+        <EditServiceInfo
+          {...testProps}
+          serviceMember={testServiceMemberValues}
+          currentOrders={{
+            grade: testServiceMemberValues.rank,
+            has_dependents: true,
+            origin_duty_location: testServiceMemberValues.current_location,
+          }}
+        />
+      </MockProviders>,
     );
 
     const payGradeInput = await screen.findByLabelText('Pay grade');
@@ -204,7 +216,7 @@ describe('EditServiceInfo page', () => {
       'Your changes have been saved. Note that the entitlement has also changed.',
     );
 
-    expect(mockNavigate).toHaveBeenCalledWith('/service-member/profile');
+    expect(mockNavigate).toHaveBeenCalledWith('/service-member/profile', { state: null });
   });
 
   it('shows an error if the API returns an error', async () => {
@@ -253,14 +265,16 @@ describe('EditServiceInfo page', () => {
 
     // Need to provide complete & valid initial values because we aren't testing the form here, and just want to submit immediately
     render(
-      <EditServiceInfo
-        {...testProps}
-        serviceMember={testServiceMemberValues}
-        currentOrders={{
-          grade: testServiceMemberValues.rank,
-          origin_duty_location: testServiceMemberValues.current_location,
-        }}
-      />,
+      <MockProviders>
+        <EditServiceInfo
+          {...testProps}
+          serviceMember={testServiceMemberValues}
+          currentOrders={{
+            grade: testServiceMemberValues.rank,
+            origin_duty_location: testServiceMemberValues.current_location,
+          }}
+        />
+      </MockProviders>,
     );
 
     const submitButton = await screen.findByText('Save');
@@ -279,7 +293,11 @@ describe('EditServiceInfo page', () => {
 
   describe('if the current move has been submitted', () => {
     it('redirects to the home page', async () => {
-      render(<EditServiceInfo {...testProps} moveIsInDraft={false} />);
+      render(
+        <MockProviders>
+          <EditServiceInfo {...testProps} moveIsInDraft={false} />
+        </MockProviders>,
+      );
 
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledWith('/');

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { GridContainer, Alert } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import ServiceInfoForm from 'components/Customer/ServiceInfoForm/ServiceInfoForm';
 import { patchServiceMember, patchOrders, getResponseError } from 'services/internalApi';
@@ -32,6 +32,7 @@ export const EditServiceInfo = ({
 }) => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
+  const { state } = useLocation();
 
   useEffect(() => {
     if (!moveIsInDraft) {
@@ -84,7 +85,7 @@ export const EditServiceInfo = ({
           setFlashMessage('EDIT_SERVICE_INFO_SUCCESS', 'success', '', 'Your changes have been saved.');
         }
 
-        navigate(customerRoutes.PROFILE_PATH);
+        navigate(customerRoutes.PROFILE_PATH, { state });
       })
       .catch((e) => {
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
@@ -122,7 +123,7 @@ export const EditServiceInfo = ({
           setFlashMessage('EDIT_SERVICE_INFO_SUCCESS', 'success', '', 'Your changes have been saved.');
         }
 
-        navigate(customerRoutes.PROFILE_PATH);
+        navigate(customerRoutes.PROFILE_PATH, { state });
       })
       .catch((e) => {
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
@@ -133,7 +134,7 @@ export const EditServiceInfo = ({
   };
 
   const handleCancel = () => {
-    navigate(customerRoutes.PROFILE_PATH);
+    navigate(customerRoutes.PROFILE_PATH, { state });
   };
 
   return (
