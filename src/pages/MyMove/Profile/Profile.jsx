@@ -63,7 +63,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
       <div className="grid-row">
         <div className="grid-col-12">
           {needsToVerifyProfile ? (
-            <Link to={generalRoutes.MULTI_MOVES_LANDING_PAGE}>Return to Dashboard</Link>
+            <Link to={generalRoutes.HOME_PATH}>Return to Dashboard</Link>
           ) : (
             <Link to={generalRoutes.HOME_PATH}>Return to Move</Link>
           )}
