@@ -54,6 +54,7 @@ const environmentFlags = {
 
   loadtest: {
     ...defaultFlags,
+    multiMove: true,
   },
 };
 
