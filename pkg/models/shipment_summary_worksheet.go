@@ -252,10 +252,14 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		return ShipmentSummaryFormData{},
 			errors.New("shipment summary worksheet: signed certification is nil")
 	}
+	if move.Orders.OriginDutyLocation == nil {
+		return ShipmentSummaryFormData{},
+			errors.New("shipment summary worksheet: orders origin duty location is nil")
+	}
 	ssd := ShipmentSummaryFormData{
 		ServiceMember:           serviceMember,
 		Order:                   move.Orders,
-		CurrentDutyLocation:     serviceMember.DutyLocation,
+		CurrentDutyLocation:     *move.Orders.OriginDutyLocation,
 		NewDutyLocation:         move.Orders.NewDutyLocation,
 		WeightAllotment:         weightAllotment,
 		PersonallyProcuredMoves: move.PersonallyProcuredMoves,
