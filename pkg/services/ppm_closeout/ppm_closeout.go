@@ -36,8 +36,6 @@ func NewPPMCloseoutFetcher(planner route.Planner, paymentRequestHelper paymentre
 func (p *ppmCloseoutFetcher) calculateGCC(appCtx appcontext.AppContext, mtoShipment models.MTOShipment, ppmShipment models.PPMShipment, fullEntitlementWeight unit.Pound) (unit.Cents, error) {
 	logger := appCtx.Logger()
 
-	// var totalPrice unit.Cents
-	//TODO: check if additional days in sit value passed in is right... its null
 	serviceItemsToPrice := ppmshipment.StorageServiceItems(mtoShipment.ID, *ppmShipment.SITLocation, *ppmShipment.Shipment.SITDaysAllowance)
 	serviceItemsDebug, err := json.MarshalIndent(serviceItemsToPrice, "", "    ")
 	if err != nil {
@@ -131,7 +129,6 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		}
 	}
 
-	//TODO: combine using dBeaver join query
 	var moveModel models.Move
 	moveID := &mtoShipment.MoveTaskOrderID
 
@@ -343,7 +340,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 
 func paramsForServiceCode(code models.ReServiceCode, serviceParams models.ServiceParams) models.ServiceParams {
 	var serviceItemParams models.ServiceParams
-	for _, serviceParam := range serviceParams { // TODO: Crashs when trying to get DOFSIT, ZipSITOriginHHGOriginalAddress
+	for _, serviceParam := range serviceParams {
 		if serviceParam.Service.Code == code {
 			serviceItemParams = append(serviceItemParams, serviceParam)
 		}
