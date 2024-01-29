@@ -10,7 +10,7 @@ import ButtonDropdownMenu from '../../../../components/ButtonDropdownMenu/Button
 import styles from './MultiMovesMoveContainer.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
-import { generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 
 const MultiMovesMoveContainer = ({ moves }) => {
   const [expandedMoves, setExpandedMoves] = useState({});
@@ -68,7 +68,7 @@ const MultiMovesMoveContainer = ({ moves }) => {
 
   // sends user to the move page when clicking "Go to Move" btn
   const handleGoToMoveClick = () => {
-    navigate(generalRoutes.HOME_PATH);
+    navigate(customerRoutes.MOVE_HOME_PAGE);
   };
 
   const moveList = moves.map((m, index) => (
