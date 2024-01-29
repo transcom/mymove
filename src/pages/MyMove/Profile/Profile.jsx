@@ -50,7 +50,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
   }, [state]);
 
   const handleCreateMoveClick = () => {
-    navigate(generalRoutes.HOME_PATH);
+    navigate(customerRoutes.MOVE_HOME_PAGE);
   };
 
   // displays the profile data for MilMove & Okta
