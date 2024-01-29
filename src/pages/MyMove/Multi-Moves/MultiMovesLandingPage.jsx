@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useNavigate } from 'react-router';
+import { connect } from 'react-redux';
 
 import styles from './MultiMovesLandingPage.module.scss';
 import MultiMovesMoveHeader from './MultiMovesMoveHeader/MultiMovesMoveHeader';
@@ -23,7 +24,21 @@ import { loadInternalSchema } from 'shared/Swagger/ducks';
 import { loadUser } from 'store/auth/actions';
 import { initOnboarding } from 'store/onboarding/actions';
 import Helper from 'components/Customer/Home/Helper';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
+import { withContext } from 'shared/AppContext';
+import withRouter from 'utils/routing';
+import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
+import { profileStates } from 'constants/customerStates';
+import {
+  selectCurrentMove,
+  selectCurrentOrders,
+  selectIsProfileComplete,
+  selectMTOShipmentsForCurrentMove,
+  selectServiceMemberFromLoggedInUser,
+  selectUploadsForCurrentAmendedOrders,
+  selectUploadsForCurrentOrders,
+} from 'store/entities/selectors';
+import { selectSignedCertification } from 'shared/Entities/modules/signed_certifications';
 
 const MultiMovesLandingPage = () => {
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
@@ -95,7 +110,7 @@ const MultiMovesLandingPage = () => {
       const profileEditPath = customerRoutes.PROFILE_PATH;
       navigate(profileEditPath, { state: { needsToVerifyProfile: true } });
     } else {
-      navigate(generalRoutes.HOME_PATH);
+      navigate(customerRoutes.MOVE_HOME_PAGE);
     }
   };
 
@@ -165,4 +180,46 @@ const MultiMovesLandingPage = () => {
   ) : null;
 };
 
-export default MultiMovesLandingPage;
+MultiMovesLandingPage.defaultProps = {
+  orders: {},
+  serviceMember: null,
+  signedCertification: {},
+  uploadedAmendedOrderDocuments: [],
+  router: {},
+};
+
+const mapStateToProps = (state) => {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const move = selectCurrentMove(state) || {};
+
+  return {
+    isProfileComplete: selectIsProfileComplete(state),
+    orders: selectCurrentOrders(state) || {},
+    uploadedOrderDocuments: selectUploadsForCurrentOrders(state),
+    uploadedAmendedOrderDocuments: selectUploadsForCurrentAmendedOrders(state),
+    serviceMember,
+    backupContacts: serviceMember?.backup_contacts || [],
+    signedCertification: selectSignedCertification(state),
+    mtoShipments: selectMTOShipmentsForCurrentMove(state),
+    move,
+  };
+};
+
+const mapDispatchToProps = {};
+
+// in order to avoid setting up proxy server only for storybook, pass in stub function so API requests don't fail
+const mergeProps = (stateProps, dispatchProps, ownProps) => ({
+  ...stateProps,
+  ...dispatchProps,
+  ...ownProps,
+});
+
+export default withContext(
+  withRouter(
+    connect(
+      mapStateToProps,
+      mapDispatchToProps,
+      mergeProps,
+    )(requireCustomerState(MultiMovesLandingPage, profileStates.BACKUP_CONTACTS_COMPLETE)),
+  ),
+);
