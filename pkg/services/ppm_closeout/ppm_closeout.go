@@ -33,7 +33,6 @@ func NewPPMCloseoutFetcher(planner route.Planner, paymentRequestHelper paymentre
 	}
 }
 
-// TODO: check if p is valid
 func (p *ppmCloseoutFetcher) calculateGCC(appCtx appcontext.AppContext, mtoShipment models.MTOShipment, ppmShipment models.PPMShipment, fullEntitlementWeight unit.Pound) (unit.Cents, error) {
 	logger := appCtx.Logger()
 
@@ -52,83 +51,11 @@ func (p *ppmCloseoutFetcher) calculateGCC(appCtx appcontext.AppContext, mtoShipm
 		return unit.Cents(0), errFetch
 	}
 
-	// paramsForServiceItems, paramErr := p.paymentRequestHelper.FetchServiceParamsForServiceItems(appCtx, serviceItemsToPrice)
-	// if paramErr != nil {
-	// 	return nil, paramErr
-	// }
-
 	fullEntitlementPPM := ppmShipment
 	fullEntitlementPPM.SITEstimatedWeight = &fullEntitlementWeight
 
 	sitCost, err := ppmshipment.CalculateSITCost(appCtx, &ppmShipment, contract)
 	return *sitCost, err
-
-	// for _, serviceItem := range serviceItemsToPrice {
-	// 	pricer, err2 := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code)
-	// 	if err2 != nil {
-	// 		logger.Error("unable to find pricer for service item", zap.Error(err2))
-	// 		return nil, err2
-	// 	}
-
-	// 	// For the non-accessorial service items there isn't any initialization that is going to change between lookups
-	// 	// for the same param. However, this is how the payment request does things and we'd want to know if it breaks
-	// 	// rather than optimizing I think.
-	// 	serviceItemLookups := serviceparamvaluelookups.InitializeLookups(ppmToMtoShipment, serviceItem)
-
-	// 	// This is the struct that gets passed to every param lookup() method that was initialized above
-	// 	// TODO: keyData.MTOServiceItem and keyData.MTOServiceItem.MTOShipment have nil addresses here
-	// 	keyData := serviceparamvaluelookups.NewServiceItemParamKeyData(p.planner, serviceItemLookups, serviceItem, mtoShipment, contract.Code)
-
-	// 	// The distance value gets saved to the mto shipment model to reduce repeated api calls.
-	// 	// var shipmentWithDistance models.MTOShipment
-	// 	// err := appCtx.DB().Find(&shipmentWithDistance, mtoShipment.ID)
-	// 	// if err != nil {
-	// 	// 	logger.Error("could not find shipment in the database")
-	// 	// 	return nil, err
-	// 	// }
-	// 	// TODO: service Item SIT postal code is still null, should set that instead of pickup and dest address?
-	// 	serviceItem.MTOShipment = ppmToMtoShipment
-	// 	// set this to avoid potential eTag errors because the MTOShipment.Distance field was likely updated
-	// 	// ppmShipment.Shipment = shipmentWithDistance
-
-	// 	var paramValues models.PaymentServiceItemParams
-	// 	for _, param := range paramsForServiceCode(serviceItem.ReService.Code, paramsForServiceItems) {
-	// 		paramKey := param.ServiceItemParamKey
-	// 		// This is where the lookup() method of each service item param is actually evaluated
-	// 		paramValue, serviceParamErr := keyData.ServiceParamValue(appCtx, paramKey.Key) // Fails with "DistanceZip" param?
-	// 		if serviceParamErr != nil {
-	// 			logger.Error("could not calculate param value lookup", zap.Error(serviceParamErr))
-	// 			return nil, serviceParamErr
-	// 		}
-
-	// 		// Gather all the param values for the service item to pass to the pricer's Price() method
-	// 		paymentServiceItemParam := models.PaymentServiceItemParam{
-	// 			// Some pricers like Fuel Surcharge try to requery the shipment through the service item, this is a
-	// 			// workaround to avoid a not found error because our PPM shipment has no service items saved in the db.
-	// 			// I think the FSC service item should really be relying on one of the zip distance params.
-	// 			PaymentServiceItem: models.PaymentServiceItem{
-	// 				MTOServiceItem: serviceItem,
-	// 			},
-	// 			ServiceItemParamKey: paramKey,
-	// 			Value:               paramValue,
-	// 		}
-	// 		paramValues = append(paramValues, paymentServiceItemParam)
-	// 	}
-
-	// 	if len(paramValues) == 0 {
-	// 		return nil, fmt.Errorf("no params were found for service item %s", serviceItem.ReService.Code)
-	// 	}
-
-	// 	// Middle var here can give you info on payment params like FSC multiplier, price rate/factor, etc. if needed.
-	// 	centsValue, _, err := pricer.PriceUsingParams(appCtx, paramValues)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-
-	// 	totalPrice = totalPrice.AddCents(centsValue)
-	// }
-
-	// return &totalPrice, nil
 }
 
 func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.PPMCloseout, error) {
@@ -390,8 +317,6 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
 		gcc, _ = p.calculateGCC(appCtx, mtoShipment, ppmShipment, fullEntitlementWeight)
 	}
-
-	// gcc, _ := p.calculateGCC(appCtx, ppmToMtoShipment, mtoShipment, ppmShipment, *ppmShipment.EstimatedWeight)
 
 	ppmCloseoutObj.ID = &ppmShipmentID
 	ppmCloseoutObj.PlannedMoveDate = mtoShipment.ScheduledPickupDate
