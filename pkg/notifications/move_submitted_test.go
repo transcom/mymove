@@ -55,7 +55,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithGovCounse
 </p>
 
 <p>
-  To change any information about your move, or to add or cancel shipments, you should contact 555-555-5555 or visit your <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">local transportation office</a>.
+  To change any information about your move, or to add or cancel shipments, you should contact 555-555-5555 or visit your <a href="` + OneSourceTransportationOfficeLink + `">local transportation office</a>.
 </p>
 
 <p>
@@ -155,7 +155,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithoutGovCou
 </p>
 
 <p>
-  To change any information about your move, or to add or cancel shipments, you should contact 555-555-5555 or visit your <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">local transportation office</a>.
+  To change any information about your move, or to add or cancel shipments, you should contact 555-555-5555 or visit your <a href="` + OneSourceTransportationOfficeLink + `">local transportation office</a>.
 </p>
 
 <p>
@@ -243,7 +243,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyLocatio
 </p>
 
 <p>
-  To change any information about your move, or to add or cancel shipments, you should contact your nearest transportation office. You can find the contact information using the <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">directory of PCS-related contacts</a>.
+  To change any information about your move, or to add or cancel shipments, you should contact your nearest transportation office. You can find the contact information using the <a href="` + OneSourceTransportationOfficeLink + `">directory of PCS-related contacts</a>.
 </p>
 
 <p>
@@ -330,7 +330,7 @@ This is a confirmation that you have submitted the details for your move from or
 
 We have assigned you a move code: abc123. You can use this code when talking to any representative about your move.
 
-To change any information about your move, or to add or cancel shipments, you should contact 555-555-5555 or visit your local transportation office (https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL) .
+To change any information about your move, or to add or cancel shipments, you should contact 555-555-5555 or visit your local transportation office (` + OneSourceTransportationOfficeLink + `) .
 
 Your weight allowance: 7,999 pounds. That is how much combined weight the government will pay for all movements between authorized locations under your orders.
 
