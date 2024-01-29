@@ -3,6 +3,7 @@ package ghcapi
 import (
 	"fmt"
 	"net/http/httptest"
+	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -57,22 +58,25 @@ func (suite *HandlerSuite) TestGetPPMCloseoutHandler() {
 		remainingIncentive := GrossIncentive - aoa
 		haulPrice := unit.Cents(2300)
 		haulFSC := unit.Cents(23)
+		gcc := unit.Cents(500)
+		actualMoveDate := time.Now()
+		plannedMoveDate := time.Now()
 		ppmCloseoutObj := models.PPMCloseout{
 			ID:                    &ppmShipment.ID,
 			SITReimbursement:      &SITReimbursement,
-			ActualMoveDate:        nil,
+			ActualMoveDate:        &actualMoveDate,
 			ActualWeight:          &ActualWeight,
 			AOA:                   &aoa,
 			DDP:                   &DDP,
 			DOP:                   &DOP,
 			EstimatedWeight:       &EstimatedWeight,
-			GCC:                   nil,
+			GCC:                   &gcc,
 			GrossIncentive:        &GrossIncentive,
 			HaulFSC:               &haulFSC,
 			HaulPrice:             &haulPrice,
 			Miles:                 &Miles,
 			PackPrice:             &PackPrice,
-			PlannedMoveDate:       nil,
+			PlannedMoveDate:       &plannedMoveDate,
 			ProGearWeightCustomer: &ProGearWeightCustomer,
 			ProGearWeightSpouse:   &ProGearWeightSpouse,
 			RemainingIncentive:    &remainingIncentive,
