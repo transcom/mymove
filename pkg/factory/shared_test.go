@@ -354,7 +354,6 @@ func (suite *FactorySuite) TestNestedModelsCheck() {
 				EmailIsPreferred:       models.BoolPointer(false),
 				ResidentialAddressID:   &testid,
 				BackupMailingAddressID: &testid,
-				DutyLocationID:         &testid,
 			},
 			Type: &ServiceMember,
 		}
