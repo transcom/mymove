@@ -15,20 +15,22 @@ var payload = primemessages.MoveTaskOrder{
 	Order:    &primeOrder,
 }
 var correctPrimeCounselingData = PrimeCounselingCompleteData{
-	Locator:                 "TEST00",
-	OriginDutyLocation:      "Fort Origin",
-	DestinationDutyLocation: "Fort Destination",
+	CustomerEmail:           member.Email,
+	Locator:                 payload.MoveCode,
+	OriginDutyLocation:      primeOrder.OriginDutyLocation.Name,
+	DestinationDutyLocation: primeOrder.DestinationDutyLocation.Name,
 }
 
 func (suite *NotificationSuite) TestPrimeCounselingComplete() {
 	notification := NewPrimeCounselingComplete(payload)
 
-	primeCounselingEmailData, err := GetEmailData(notification.moveTaskOrder, suite.AppContextForTest())
+	primeCounselingEmailData, err := notification.GetEmailData(notification.moveTaskOrder, suite.AppContextForTest())
 	suite.NoError(err)
 	suite.NotNil(primeCounselingEmailData)
 	suite.Equal(primeCounselingEmailData, correctPrimeCounselingData)
 
 	suite.EqualExportedValues(primeCounselingEmailData, PrimeCounselingCompleteData{
+		CustomerEmail:           member.Email,
 		OriginDutyLocation:      primeOrder.OriginDutyLocation.Name,
 		DestinationDutyLocation: primeOrder.DestinationDutyLocation.Name,
 		Locator:                 payload.MoveCode,
@@ -45,12 +47,13 @@ func (suite *NotificationSuite) TestPrimeCounselingComplete() {
 func (suite *NotificationSuite) TestPrimeCounselingCompleteTextTemplateRender() {
 	notification := NewPrimeCounselingComplete(payload)
 
-	primeCounselingEmailData, err := GetEmailData(notification.moveTaskOrder, suite.AppContextForTest())
+	primeCounselingEmailData, err := notification.GetEmailData(notification.moveTaskOrder, suite.AppContextForTest())
 	suite.NoError(err)
 	suite.NotNil(primeCounselingEmailData)
 	suite.Equal(primeCounselingEmailData, correctPrimeCounselingData)
 
 	suite.EqualExportedValues(primeCounselingEmailData, PrimeCounselingCompleteData{
+		CustomerEmail:           member.Email,
 		OriginDutyLocation:      primeOrder.OriginDutyLocation.Name,
 		DestinationDutyLocation: primeOrder.DestinationDutyLocation.Name,
 		Locator:                 payload.MoveCode,
@@ -75,7 +78,7 @@ func getCorrectEmailTemplate(emailData PrimeCounselingCompleteData) string {
 
 <li>If you are requesting an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into <a href="https://my.move.mil">MilMove</a> to download your AOA packet. You must obtain signature approval on the AOA packet from a government transportation office before submitting it to finance. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.</li>
 
-<li>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a></li>
+<li>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a></li>
 
 <li>Once you complete your PPM, log into <a href="https://my.move.mil">MilMove</a>, upload your receipts and weight tickets, and submit your PPM for review.</li>
 </ul>
@@ -87,7 +90,7 @@ func getCorrectEmailTemplate(emailData PrimeCounselingCompleteData) string {
 
 <li>HomeSafe is your primary point of contact. If any information changes during the move, immediately notify your HomeSafe Customer Care Representative of the changes. Remember to keep your contact information updated in MilMove.</li>
 </ul>
-<p>If you are unsatisfied at any time, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a></p>
+<p>If you are unsatisfied at any time, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a></p>
 <p>Thank you,</p>
 
 <p>USTRANSCOM MilMove Team</p>
@@ -107,7 +110,7 @@ Next steps for a PPM:
 
 • If you are requesting an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into MilMove <https://my.move.mil/> to download your AOA packet. You must obtain signature approval on the AOA packet from a government transportation office before submitting it to finance. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.
 
-• If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL>
+• If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <` + OneSourceTransportationOfficeLink + `>
 
 • Once you complete your PPM, log into MilMove <https://my.move.mil/>, upload your receipts and weight tickets, and submit your PPM for review.
 
@@ -118,7 +121,7 @@ Next steps for government arranged shipments:
 
 • HomeSafe is your primary point of contact. If any information changes during the move, immediately notify your HomeSafe Customer Care Representative of the changes. Remember to keep your contact information updated in MilMove.
 
-If you are unsatisfied at any time, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL.
+If you are unsatisfied at any time, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: ` + OneSourceTransportationOfficeLink + `.
 
 Thank you,
 
