@@ -15,9 +15,10 @@ var payload = primemessages.MoveTaskOrder{
 	Order:    &primeOrder,
 }
 var correctPrimeCounselingData = PrimeCounselingCompleteData{
-	Locator:                 "TEST00",
-	OriginDutyLocation:      "Fort Origin",
-	DestinationDutyLocation: "Fort Destination",
+	CustomerEmail:           member.Email,
+	Locator:                 payload.MoveCode,
+	OriginDutyLocation:      primeOrder.OriginDutyLocation.Name,
+	DestinationDutyLocation: primeOrder.DestinationDutyLocation.Name,
 }
 
 func (suite *NotificationSuite) TestPrimeCounselingComplete() {
@@ -29,6 +30,7 @@ func (suite *NotificationSuite) TestPrimeCounselingComplete() {
 	suite.Equal(primeCounselingEmailData, correctPrimeCounselingData)
 
 	suite.EqualExportedValues(primeCounselingEmailData, PrimeCounselingCompleteData{
+		CustomerEmail:           member.Email,
 		OriginDutyLocation:      primeOrder.OriginDutyLocation.Name,
 		DestinationDutyLocation: primeOrder.DestinationDutyLocation.Name,
 		Locator:                 payload.MoveCode,
@@ -51,6 +53,7 @@ func (suite *NotificationSuite) TestPrimeCounselingCompleteTextTemplateRender() 
 	suite.Equal(primeCounselingEmailData, correctPrimeCounselingData)
 
 	suite.EqualExportedValues(primeCounselingEmailData, PrimeCounselingCompleteData{
+		CustomerEmail:           member.Email,
 		OriginDutyLocation:      primeOrder.OriginDutyLocation.Name,
 		DestinationDutyLocation: primeOrder.DestinationDutyLocation.Name,
 		Locator:                 payload.MoveCode,
