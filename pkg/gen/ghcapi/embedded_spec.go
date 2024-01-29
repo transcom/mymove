@@ -7637,7 +7637,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "remainingReimbursementOwed": {
+        "remainingIncentive": {
           "description": "The remaining reimbursement amount that is still owed to the customer.",
           "type": "integer",
           "format": "cents",
@@ -19208,7 +19208,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "remainingReimbursementOwed": {
+        "remainingIncentive": {
           "description": "The remaining reimbursement amount that is still owed to the customer.",
           "type": "integer",
           "format": "cents",
