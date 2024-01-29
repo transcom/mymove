@@ -29,10 +29,11 @@ type PrimeCounselingComplete struct {
 
 // PrimeCounselingCompleteData is used to render an email template
 type PrimeCounselingCompleteData struct {
-	CustomerEmail           string
-	OriginDutyLocation      string
-	DestinationDutyLocation string
-	Locator                 string
+	CustomerEmail                     string
+	OriginDutyLocation                string
+	DestinationDutyLocation           string
+	Locator                           string
+	OneSourceTransportationOfficeLink string
 }
 
 // NewPrimeCounselingComplete returns a new payment reminder notification 14 days after actual move in date
@@ -89,10 +90,11 @@ func (p PrimeCounselingComplete) GetEmailData(m primemessages.MoveTaskOrder, app
 	)
 
 	return PrimeCounselingCompleteData{
-		CustomerEmail:           m.Order.Customer.Email,
-		OriginDutyLocation:      m.Order.OriginDutyLocation.Name,
-		DestinationDutyLocation: m.Order.DestinationDutyLocation.Name,
-		Locator:                 m.MoveCode,
+		CustomerEmail:                     m.Order.Customer.Email,
+		OriginDutyLocation:                m.Order.OriginDutyLocation.Name,
+		DestinationDutyLocation:           m.Order.DestinationDutyLocation.Name,
+		Locator:                           m.MoveCode,
+		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 	}, nil
 }
 
