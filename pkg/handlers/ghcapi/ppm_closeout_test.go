@@ -3,6 +3,7 @@ package ghcapi
 import (
 	"fmt"
 	"net/http/httptest"
+	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -53,26 +54,33 @@ func (suite *HandlerSuite) TestGetPPMCloseoutHandler() {
 		ProGearWeightCustomer := unit.Pound(1978)
 		ProGearWeightSpouse := unit.Pound(280)
 		UnpackPrice := unit.Cents(23800)
+		aoa := unit.Cents(50)
+		remainingIncentive := GrossIncentive - aoa
+		haulPrice := unit.Cents(2300)
+		haulFSC := unit.Cents(23)
+		gcc := unit.Cents(500)
+		actualMoveDate := time.Now()
+		plannedMoveDate := time.Now()
 		ppmCloseoutObj := models.PPMCloseout{
-			ID:                         &ppmShipment.ID,
-			SITReimbursement:           &SITReimbursement,
-			ActualMoveDate:             nil,
-			ActualWeight:               &ActualWeight,
-			AOA:                        nil,
-			DDP:                        &DDP,
-			DOP:                        &DOP,
-			EstimatedWeight:            &EstimatedWeight,
-			GCC:                        nil,
-			GrossIncentive:             &GrossIncentive,
-			HaulFSC:                    nil,
-			HaulPrice:                  nil,
-			Miles:                      &Miles,
-			PackPrice:                  &PackPrice,
-			PlannedMoveDate:            nil,
-			ProGearWeightCustomer:      &ProGearWeightCustomer,
-			ProGearWeightSpouse:        &ProGearWeightSpouse,
-			RemainingReimbursementOwed: nil,
-			UnpackPrice:                &UnpackPrice,
+			ID:                    &ppmShipment.ID,
+			SITReimbursement:      &SITReimbursement,
+			ActualMoveDate:        &actualMoveDate,
+			ActualWeight:          &ActualWeight,
+			AOA:                   &aoa,
+			DDP:                   &DDP,
+			DOP:                   &DOP,
+			EstimatedWeight:       &EstimatedWeight,
+			GCC:                   &gcc,
+			GrossIncentive:        &GrossIncentive,
+			HaulFSC:               &haulFSC,
+			HaulPrice:             &haulPrice,
+			Miles:                 &Miles,
+			PackPrice:             &PackPrice,
+			PlannedMoveDate:       &plannedMoveDate,
+			ProGearWeightCustomer: &ProGearWeightCustomer,
+			ProGearWeightSpouse:   &ProGearWeightSpouse,
+			RemainingIncentive:    &remainingIncentive,
+			UnpackPrice:           &UnpackPrice,
 		}
 		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 		fetcher := setUpMockCloseoutFetcher(&ppmCloseoutObj, nil)
