@@ -1,7 +1,6 @@
 package internalapi
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"time"
@@ -14,7 +13,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/etag"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -22,8 +20,8 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
-	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services"
+	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -286,91 +284,33 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 				logger.Error("Error fetching PPMShipment", zap.Error(err))
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-
-			ppmShipment, err := models.FetchPPMShipmentByPPMShipmentID(appCtx.DB(), ppmShipmentID)
-			if err != nil {
-				logger.Error("Error fetching PPMShipment", zap.Error(err))
-				return handlers.ResponseForError(appCtx.Logger(), err), err
-			}
-
-			ssfd, err := h.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipment.ID)
+			ssfd, err := h.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentID)
 			if err != nil {
 				logger.Error("Error fetching data for SSW", zap.Error(err))
 				return handlers.ResponseForError(logger, err), err
 			}
 
-			ssfd.PreparationDate = time.Time(params.PreparationDate)
 			ssfd.Obligations, err = h.SSWPPMComputer.ComputeObligations(appCtx, *ssfd, h.DTODPlanner())
 			if err != nil {
 				logger.Error("Error calculating obligations ", zap.Error(err))
 				return handlers.ResponseForError(logger, err), err
 			}
 
-			page1Data, page2Data, page3Data := h.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
-
+			page1Data, page2Data := h.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
 			if err != nil {
 				logger.Error("Error formatting data for SSW", zap.Error(err))
 				return handlers.ResponseForError(logger, err), err
 			}
 
-			formFiller := paperwork.NewFormFiller()
-
-			// page 1
-			page1Layout := paperwork.ShipmentSummaryPage1Layout
-			page1Template, err := assets.Asset(page1Layout.TemplateImagePath)
-
+			ppmGenerator := shipmentsummaryworksheet.NewSSWPPMGenerator()
+			SSWPPMWorksheet, SSWPDFInfo, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
 			if err != nil {
-				appCtx.Logger().Error("Error reading page 1 template file", zap.String("asset", page1Layout.TemplateImagePath), zap.Error(err))
-				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
+				return nil, err
 			}
-
-			page1Reader := bytes.NewReader(page1Template)
-			err = formFiller.AppendPage(page1Reader, page1Layout.FieldsLayout, page1Data)
-			if err != nil {
-				appCtx.Logger().Error("Error appending page 1 to PDF", zap.Error(err))
-				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
+			if SSWPDFInfo.PageCount != 2 {
+				return nil, errors.Wrap(err, "SSWGenerator output a corrupted or incorretly altered PDF")
 			}
-
-			// page 2
-			page2Layout := paperwork.ShipmentSummaryPage2Layout
-			page2Template, err := assets.Asset(page2Layout.TemplateImagePath)
-
-			if err != nil {
-				appCtx.Logger().Error("Error reading page 2 template file", zap.String("asset", page2Layout.TemplateImagePath), zap.Error(err))
-				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
-			}
-
-			page2Reader := bytes.NewReader(page2Template)
-			err = formFiller.AppendPage(page2Reader, page2Layout.FieldsLayout, page2Data)
-			if err != nil {
-				appCtx.Logger().Error("Error appending 2 page to PDF", zap.Error(err))
-				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
-			}
-
-			// page 3
-			page3Layout := paperwork.ShipmentSummaryPage3Layout
-			page3Template, err := assets.Asset(page3Layout.TemplateImagePath)
-
-			if err != nil {
-				appCtx.Logger().Error("Error reading page 3 template file", zap.String("asset", page3Layout.TemplateImagePath), zap.Error(err))
-				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
-			}
-
-			page3Reader := bytes.NewReader(page3Template)
-			err = formFiller.AppendPage(page3Reader, page3Layout.FieldsLayout, page3Data)
-			if err != nil {
-				appCtx.Logger().Error("Error appending page 3 to PDF", zap.Error(err))
-				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
-			}
-
-			buf := new(bytes.Buffer)
-			err = formFiller.Output(buf)
-			if err != nil {
-				appCtx.Logger().Error("Error writing out PDF", zap.Error(err))
-				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
-			}
-
-			payload := io.NopCloser(buf)
+			payload := io.NopCloser(SSWPPMWorksheet)
 			filename := fmt.Sprintf("inline; filename=\"%s-%s-ssw-%s.pdf\"", *ssfd.ServiceMember.FirstName, *ssfd.ServiceMember.LastName, time.Now().Format("01-02-2006"))
 
 			return moveop.NewShowShipmentSummaryWorksheetOK().WithContentDisposition(filename).WithPayload(payload), nil
