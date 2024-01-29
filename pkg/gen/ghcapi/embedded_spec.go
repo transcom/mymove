@@ -6008,9 +6008,6 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "ppmEstimatedWeight": {
-          "type": "integer"
-        },
         "ppmType": {
           "type": "string",
           "enum": [
@@ -7539,6 +7536,7 @@ func init() {
         "actualWeight": {
           "type": "integer",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         },
         "aoa": {
@@ -7639,7 +7637,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "remainingReimbursementOwed": {
+        "remainingIncentive": {
           "description": "The remaining reimbursement amount that is still owed to the customer.",
           "type": "integer",
           "format": "cents",
@@ -17580,9 +17578,6 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "ppmEstimatedWeight": {
-          "type": "integer"
-        },
         "ppmType": {
           "type": "string",
           "enum": [
@@ -19111,6 +19106,7 @@ func init() {
         "actualWeight": {
           "type": "integer",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         },
         "aoa": {
@@ -19212,7 +19208,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "remainingReimbursementOwed": {
+        "remainingIncentive": {
           "description": "The remaining reimbursement amount that is still owed to the customer.",
           "type": "integer",
           "format": "cents",
