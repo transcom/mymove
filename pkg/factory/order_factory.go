@@ -304,3 +304,18 @@ func BuildOrder(db *pop.Connection, customs []Customization, traits []Trait) mod
 func BuildOrderWithoutDefaults(db *pop.Connection, customs []Customization, traits []Trait) models.Order {
 	return buildOrderWithBuildType(db, customs, traits, orderBuildWithoutDefaults)
 }
+
+// ------------------------
+//      TRAITS
+// ------------------------
+
+// GetTraitHasDependents returns a customization to enable dependents on an order
+func GetTraitHasDependents() []Customization {
+	return []Customization{
+		{
+			Model: models.Order{
+				HasDependents: true,
+			},
+		},
+	}
+}
