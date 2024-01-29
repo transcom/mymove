@@ -1843,9 +1843,12 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 }
 
 func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
+	uri := "/moves/%s/documents"
+	paramTypeAll := "ALL"
 	suite.Run("Successful DownloadMoveOrder - 200", func() {
 		mockMoveSearcher := mocks.MoveSearcher{}
 		mockOrderFetcher := mocks.OrderFetcher{}
+		mockPrimeDownloadMoveUploadPDFGenerator := mocks.PrimeDownloadMoveUploadPDFGenerator{}
 
 		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
 
@@ -1856,9 +1859,10 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 
 		handlerConfig := suite.HandlerConfig()
 		handler := DownloadMoveOrderHandler{
-			HandlerConfig: handlerConfig,
-			MoveSearcher:  &mockMoveSearcher,
-			OrderFetcher:  &mockOrderFetcher,
+			HandlerConfig:                       handlerConfig,
+			MoveSearcher:                        &mockMoveSearcher,
+			OrderFetcher:                        &mockOrderFetcher,
+			PrimeDownloadMoveUploadPDFGenerator: &mockPrimeDownloadMoveUploadPDFGenerator,
 		}
 
 		mockMoveSearcher.On("SearchMoves",
@@ -1868,38 +1872,100 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
+		// mock to return nil Errro
+		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
+			mock.AnythingOfType("*appcontext.appContext"),
+			services.MoveOrderUploadAll,
+			mock.AnythingOfType("models.Move")).Return(nil, nil)
+
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
 		locator := "test"
-		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/order/download", locator), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf(uri, locator), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
 		params := movetaskorderops.DownloadMoveOrderParams{
 			HTTPRequest: request,
 			Locator:     locator,
+			Type:        &paramTypeAll,
 		}
 		response := handler.Handle(params)
 		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderOK)
 
 		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderOK{}, downloadMoveOrderResponse)
-
-		// TODO: verify payload is PDF
 	})
 
-	suite.Run("BadRequest DownloadMoveOrder - missing/empty locator - verify 400", func() {
+	suite.Run("Successful DownloadMoveOrder - error generating PDF - 500", func() {
+		mockMoveSearcher := mocks.MoveSearcher{}
+		mockOrderFetcher := mocks.OrderFetcher{}
+		mockPrimeDownloadMoveUploadPDFGenerator := mocks.PrimeDownloadMoveUploadPDFGenerator{}
+
+		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil)
+
+		// Hardcode to true to indicate duty location does not provide GOV counseling
+		move.Orders.OriginDutyLocation.ProvidesServicesCounseling = false
+
+		moves := models.Moves{move}
+
 		handlerConfig := suite.HandlerConfig()
 		handler := DownloadMoveOrderHandler{
-			HandlerConfig: handlerConfig,
+			HandlerConfig:                       handlerConfig,
+			MoveSearcher:                        &mockMoveSearcher,
+			OrderFetcher:                        &mockOrderFetcher,
+			PrimeDownloadMoveUploadPDFGenerator: &mockPrimeDownloadMoveUploadPDFGenerator,
 		}
-		requestUser := factory.BuildUser(nil, nil, nil)
 
-		locator := ""
-		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/order/download", locator), nil)
+		mockMoveSearcher.On("SearchMoves",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+				return true
+			}),
+		).Return(moves, 1, nil)
+
+		// mock to return nil Errro
+		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("services.MoveOrderUploadType"),
+			mock.AnythingOfType("models.Move")).Return(nil, errors.New("error"))
+
+		// make the request
+		requestUser := factory.BuildUser(nil, nil, nil)
+		locator := "test"
+		request := httptest.NewRequest("GET", fmt.Sprintf(uri, locator), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
 		params := movetaskorderops.DownloadMoveOrderParams{
 			HTTPRequest: request,
 			Locator:     locator,
+			Type:        &paramTypeAll,
+		}
+		response := handler.Handle(params)
+		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderInternalServerError)
+
+		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderInternalServerError{}, downloadMoveOrderResponse)
+	})
+
+	suite.Run("BadRequest DownloadMoveOrder - missing/empty locator - verify 400", func() {
+		mockMoveSearcher := mocks.MoveSearcher{}
+		mockOrderFetcher := mocks.OrderFetcher{}
+		mockPrimeDownloadMoveUploadPDFGenerator := mocks.PrimeDownloadMoveUploadPDFGenerator{}
+
+		handlerConfig := suite.HandlerConfig()
+		handler := DownloadMoveOrderHandler{
+			HandlerConfig:                       handlerConfig,
+			MoveSearcher:                        &mockMoveSearcher,
+			OrderFetcher:                        &mockOrderFetcher,
+			PrimeDownloadMoveUploadPDFGenerator: &mockPrimeDownloadMoveUploadPDFGenerator,
 		}
 
+		// make the request
+		requestUser := factory.BuildUser(nil, nil, nil)
+		locator := ""
+		request := httptest.NewRequest("GET", fmt.Sprintf(uri, locator), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := movetaskorderops.DownloadMoveOrderParams{
+			HTTPRequest: request,
+			Locator:     locator,
+			Type:        &paramTypeAll,
+		}
 		response := handler.Handle(params)
 		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderBadRequest)
 		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderBadRequest{}, downloadMoveOrderResponse)
@@ -1927,52 +1993,16 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
 		locator := "test"
-		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/order/download", locator), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf(uri, locator), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
 		params := movetaskorderops.DownloadMoveOrderParams{
 			HTTPRequest: request,
 			Locator:     locator,
+			Type:        &paramTypeAll,
 		}
 		response := handler.Handle(params)
 		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderNotFound)
 		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderNotFound{}, downloadMoveOrderResponse)
-	})
-
-	suite.Run("DownloadMoveOrder: move did not request counseling  - 422", func() {
-		mockMoveSearcher := mocks.MoveSearcher{}
-		mockOrderFetcher := mocks.OrderFetcher{}
-
-		move := factory.BuildMove(suite.DB(), nil, nil)
-		move.Status = models.MoveStatusCANCELED
-
-		moves := models.Moves{move}
-
-		handlerConfig := suite.HandlerConfig()
-		handler := DownloadMoveOrderHandler{
-			HandlerConfig: handlerConfig,
-			MoveSearcher:  &mockMoveSearcher,
-			OrderFetcher:  &mockOrderFetcher,
-		}
-
-		mockMoveSearcher.On("SearchMoves",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
-				return true
-			}),
-		).Return(moves, 1, nil)
-
-		// make the request
-		requestUser := factory.BuildUser(nil, nil, nil)
-		locator := "test"
-		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/order/download", locator), nil)
-		request = suite.AuthenticateUserRequest(request, requestUser)
-		params := movetaskorderops.DownloadMoveOrderParams{
-			HTTPRequest: request,
-			Locator:     locator,
-		}
-		response := handler.Handle(params)
-		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderUnprocessableEntity)
-		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderUnprocessableEntity{}, downloadMoveOrderResponse)
 	})
 
 	suite.Run("DownloadMoveOrder: move requires counseling but origin duty location does have GOV counseling,  Prime counseling is not needed - 422", func() {
@@ -1981,7 +2011,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 
 		move := factory.BuildMove(suite.DB(), nil, nil)
 		// Hardcode to MoveStatusNeedsServiceCounseling status
-		move.Status = models.MoveStatusNeedsServiceCounseling
+		//move.Status = models.MoveStatusNeedsServiceCounseling
 		// Hardcode to TRUE. TRUE whens GOV counseling available and PRIME counseling NOT needed.
 		move.Orders.OriginDutyLocation.ProvidesServicesCounseling = true
 
@@ -2004,11 +2034,12 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
 		locator := "test"
-		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/order/download", locator), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf(uri, locator), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
 		params := movetaskorderops.DownloadMoveOrderParams{
 			HTTPRequest: request,
 			Locator:     locator,
+			Type:        &paramTypeAll,
 		}
 		response := handler.Handle(params)
 		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderUnprocessableEntity)
@@ -2037,15 +2068,247 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
 		locator := "test"
-		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/order/download", locator), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf(uri, locator), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
 		params := movetaskorderops.DownloadMoveOrderParams{
 			HTTPRequest: request,
 			Locator:     locator,
+			Type:        &paramTypeAll,
 		}
 		response := handler.Handle(params)
 		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderInternalServerError)
 
+		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderInternalServerError{}, downloadMoveOrderResponse)
+	})
+
+	suite.Run("DownloadMoveOrder: service returns unprocessrntity error - 422", func() {
+		mockMoveSearcher := mocks.MoveSearcher{}
+		mockOrderFetcher := mocks.OrderFetcher{}
+		mockPrimeDownloadMoveUploadPDFGenerator := mocks.PrimeDownloadMoveUploadPDFGenerator{}
+
+		move := factory.BuildMove(suite.DB(), nil, nil)
+
+		moves := models.Moves{move}
+
+		handlerConfig := suite.HandlerConfig()
+		handler := DownloadMoveOrderHandler{
+			HandlerConfig:                       handlerConfig,
+			MoveSearcher:                        &mockMoveSearcher,
+			OrderFetcher:                        &mockOrderFetcher,
+			PrimeDownloadMoveUploadPDFGenerator: &mockPrimeDownloadMoveUploadPDFGenerator,
+		}
+
+		mockMoveSearcher.On("SearchMoves",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+				return true
+			}),
+		).Return(moves, 1, nil)
+
+		// mock to return nil Errro
+		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("services.MoveOrderUploadType"),
+			mock.AnythingOfType("models.Move")).Return(nil, apperror.NewUnprocessableEntityError("test"))
+
+		// make the request
+		requestUser := factory.BuildUser(nil, nil, nil)
+		locator := "test"
+		request := httptest.NewRequest("GET", fmt.Sprintf(uri, locator), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := movetaskorderops.DownloadMoveOrderParams{
+			HTTPRequest: request,
+			Locator:     locator,
+			Type:        &paramTypeAll,
+		}
+		response := handler.Handle(params)
+		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderUnprocessableEntity)
+		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderUnprocessableEntity{}, downloadMoveOrderResponse)
+	})
+
+	suite.Run("DownloadMoveOrder: service returns internal server error - 500", func() {
+		mockMoveSearcher := mocks.MoveSearcher{}
+		mockOrderFetcher := mocks.OrderFetcher{}
+		mockPrimeDownloadMoveUploadPDFGenerator := mocks.PrimeDownloadMoveUploadPDFGenerator{}
+
+		move := factory.BuildMove(suite.DB(), nil, nil)
+
+		moves := models.Moves{move}
+
+		handlerConfig := suite.HandlerConfig()
+		handler := DownloadMoveOrderHandler{
+			HandlerConfig:                       handlerConfig,
+			MoveSearcher:                        &mockMoveSearcher,
+			OrderFetcher:                        &mockOrderFetcher,
+			PrimeDownloadMoveUploadPDFGenerator: &mockPrimeDownloadMoveUploadPDFGenerator,
+		}
+
+		mockMoveSearcher.On("SearchMoves",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+				return true
+			}),
+		).Return(moves, 1, nil)
+
+		// mock to return nil Errro
+		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("services.MoveOrderUploadType"),
+			mock.AnythingOfType("models.Move")).Return(nil, errors.New("test"))
+
+		// make the request
+		requestUser := factory.BuildUser(nil, nil, nil)
+		locator := "test"
+		request := httptest.NewRequest("GET", fmt.Sprintf(uri, locator), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := movetaskorderops.DownloadMoveOrderParams{
+			HTTPRequest: request,
+			Locator:     locator,
+			Type:        &paramTypeAll,
+		}
+
+		response := handler.Handle(params)
+		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderInternalServerError)
+		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderInternalServerError{}, downloadMoveOrderResponse)
+	})
+
+	suite.Run("DownloadMoveOrder: ALL - service returns unprocess entity - 422", func() {
+		mockMoveSearcher := mocks.MoveSearcher{}
+		mockOrderFetcher := mocks.OrderFetcher{}
+		mockPrimeDownloadMoveUploadPDFGenerator := mocks.PrimeDownloadMoveUploadPDFGenerator{}
+
+		move := factory.BuildMove(suite.DB(), nil, nil)
+
+		moves := models.Moves{move}
+
+		handlerConfig := suite.HandlerConfig()
+		handler := DownloadMoveOrderHandler{
+			HandlerConfig:                       handlerConfig,
+			MoveSearcher:                        &mockMoveSearcher,
+			OrderFetcher:                        &mockOrderFetcher,
+			PrimeDownloadMoveUploadPDFGenerator: &mockPrimeDownloadMoveUploadPDFGenerator,
+		}
+
+		mockMoveSearcher.On("SearchMoves",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+				return true
+			}),
+		).Return(moves, 1, nil)
+
+		// mock to return nil Errro
+		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
+			mock.AnythingOfType("*appcontext.appContext"),
+			services.MoveOrderUploadAll, //Verify ALL enum is used
+			mock.AnythingOfType("models.Move")).Return(nil, errors.New("test"))
+
+		// make the request
+		requestUser := factory.BuildUser(nil, nil, nil)
+		locator := "test"
+		request := httptest.NewRequest("GET", fmt.Sprintf(uri, locator), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := movetaskorderops.DownloadMoveOrderParams{
+			HTTPRequest: request,
+			Locator:     locator,
+			Type:        &paramTypeAll,
+		}
+
+		response := handler.Handle(params)
+		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderInternalServerError)
+		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderInternalServerError{}, downloadMoveOrderResponse)
+	})
+
+	suite.Run("DownloadMoveOrder: Orders Only - service returns unprocess entity - 422", func() {
+		mockMoveSearcher := mocks.MoveSearcher{}
+		mockOrderFetcher := mocks.OrderFetcher{}
+		mockPrimeDownloadMoveUploadPDFGenerator := mocks.PrimeDownloadMoveUploadPDFGenerator{}
+
+		move := factory.BuildMove(suite.DB(), nil, nil)
+
+		moves := models.Moves{move}
+
+		handlerConfig := suite.HandlerConfig()
+		handler := DownloadMoveOrderHandler{
+			HandlerConfig:                       handlerConfig,
+			MoveSearcher:                        &mockMoveSearcher,
+			OrderFetcher:                        &mockOrderFetcher,
+			PrimeDownloadMoveUploadPDFGenerator: &mockPrimeDownloadMoveUploadPDFGenerator,
+		}
+
+		mockMoveSearcher.On("SearchMoves",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+				return true
+			}),
+		).Return(moves, 1, nil)
+
+		// mock to return nil Errro
+		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
+			mock.AnythingOfType("*appcontext.appContext"),
+			services.MoveOrderUpload, //Verify Order only enum is used
+			mock.AnythingOfType("models.Move")).Return(nil, errors.New("test"))
+
+		// make the request
+		requestUser := factory.BuildUser(nil, nil, nil)
+		locator := "test"
+		request := httptest.NewRequest("GET", fmt.Sprintf(uri, locator), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		paramTypeOrders := "ORDERS"
+		params := movetaskorderops.DownloadMoveOrderParams{
+			HTTPRequest: request,
+			Locator:     locator,
+			Type:        &paramTypeOrders,
+		}
+
+		response := handler.Handle(params)
+		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderInternalServerError)
+		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderInternalServerError{}, downloadMoveOrderResponse)
+	})
+
+	suite.Run("DownloadMoveOrder: Orders Only - service returns unprocess entity - 422", func() {
+		mockMoveSearcher := mocks.MoveSearcher{}
+		mockOrderFetcher := mocks.OrderFetcher{}
+		mockPrimeDownloadMoveUploadPDFGenerator := mocks.PrimeDownloadMoveUploadPDFGenerator{}
+
+		move := factory.BuildMove(suite.DB(), nil, nil)
+
+		moves := models.Moves{move}
+
+		handlerConfig := suite.HandlerConfig()
+		handler := DownloadMoveOrderHandler{
+			HandlerConfig:                       handlerConfig,
+			MoveSearcher:                        &mockMoveSearcher,
+			OrderFetcher:                        &mockOrderFetcher,
+			PrimeDownloadMoveUploadPDFGenerator: &mockPrimeDownloadMoveUploadPDFGenerator,
+		}
+
+		mockMoveSearcher.On("SearchMoves",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+				return true
+			}),
+		).Return(moves, 1, nil)
+
+		// mock to return nil Errro
+		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
+			mock.AnythingOfType("*appcontext.appContext"),
+			services.MoveOrderAmendmentUpload, //Verify Amendment only enum is used
+			mock.AnythingOfType("models.Move")).Return(nil, errors.New("test"))
+
+		// make the request
+		requestUser := factory.BuildUser(nil, nil, nil)
+		locator := "test"
+		request := httptest.NewRequest("GET", fmt.Sprintf(uri, locator), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		paramTypeAmendments := "AMENDMENTS"
+		params := movetaskorderops.DownloadMoveOrderParams{
+			HTTPRequest: request,
+			Locator:     locator,
+			Type:        &paramTypeAmendments,
+		}
+
+		response := handler.Handle(params)
+		downloadMoveOrderResponse := response.(*movetaskorderops.DownloadMoveOrderInternalServerError)
 		suite.Assertions.IsType(&movetaskorderops.DownloadMoveOrderInternalServerError{}, downloadMoveOrderResponse)
 	})
 }
