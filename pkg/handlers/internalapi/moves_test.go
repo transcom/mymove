@@ -505,7 +505,7 @@ func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 			},
 		}, nil)
 
-		// // And: the context contains the auth values
+		// And: the context contains the auth values
 		req := httptest.NewRequest("GET", "/moves/allmoves", nil)
 		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
@@ -514,13 +514,13 @@ func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 			ServiceMemberID: strfmt.UUID(newServiceMember.ID.String()),
 		}
 
-		// // And: a move is submitted
+		// And: a move is submitted
 		handlerConfig := suite.HandlerConfig()
 
 		handler := GetAllMovesHandler{handlerConfig}
 		response := handler.Handle(params)
 
-		// // Then: expect a 200 status code
+		// Then: expect a 200 status code
 		suite.Assertions.IsType(&moveop.GetAllMovesOK{}, response)
 		okResponse := response.(*moveop.GetAllMovesOK)
 
