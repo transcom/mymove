@@ -18,6 +18,7 @@ import { MoveShape, ServiceMemberShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { validatePostalCode } from 'utils/validation';
+import { formatAddressForAPI } from 'utils/formatMtoShipment';
 
 const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, move }) => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -56,65 +57,38 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
   const handleSubmit = async (values, { setSubmitting }) => {
     setErrorMessage(null);
 
-    // const hasSecondaryPickupPostalCode = values.hasSecondaryPickupPostalCode === 'true';
-    // const hasSecondaryDestinationPostalCode = values.hasSecondaryDestinationPostalCode === 'true';
-
-    // const createOrUpdateShipment = {
-    //   moveTaskOrderID: moveId,
-    //   shipmentType: SHIPMENT_OPTIONS.PPM,
-    //   ppmShipment: {
-    //     pickupPostalCode: values.pickupPostalCode,
-    //     hasSecondaryPickupPostalCode, // I think sending this is necessary so we know if the customer wants to clear their previously secondary ZIPs, or we could send nulls for those fields.
-    //     secondaryPickupPostalCode: hasSecondaryPickupPostalCode ? values.secondaryPickupPostalCode : null,
-    //     destinationPostalCode: values.destinationPostalCode,
-    //     hasSecondaryDestinationPostalCode,
-    //     secondaryDestinationPostalCode: hasSecondaryDestinationPostalCode
-    //       ? values.secondaryDestinationPostalCode
-    //       : null,
-    //     sitExpected: values.sitExpected === 'true',
-    //     expectedDepartureDate: formatDateForSwagger(values.expectedDepartureDate),
-    //   },
-    // };
-
-    const hasSecondaryPickupPostalAddress = values.hasSecondaryPickupAddress === 'true';
+    const hasSecondaryPickupAddress = values.hasSecondaryPickupAddress === 'true';
     const hasSecondaryDestinationAddress = values.hasSecondaryDestinationAddress === 'true';
-
-    const pickupPostalCode = values.pickupAddress.address.postalCode;
-    const destinationPostalCode = values.destinationAddress.address.postalCode;
-
-    let secondaryPickupPostalCode = null;
-    if (hasSecondaryPickupPostalAddress) {
-      secondaryPickupPostalCode = values.secondaryPickupAddress.address.postalCode;
-    }
-
-    let secondaryDestinationPostalCode = null;
-    if (hasSecondaryDestinationAddress) {
-      secondaryDestinationPostalCode = values.secondaryDestinationAddress.address.postalCode;
-    }
 
     const createOrUpdateShipment = {
       moveTaskOrderID: moveId,
       shipmentType: SHIPMENT_OPTIONS.PPM,
       ppmShipment: {
-        pickupPostalCode,
-        pickupAddress: values.pickupAddress.address,
-        hasSecondaryPickupPostalCode: hasSecondaryPickupPostalAddress, // I think sending this is necessary so we know if the customer wants to clear their previously secondary ZIPs, or we could send nulls for those fields.
-        secondaryPickupPostalCode,
-        destinationPostalCode,
-        destinationAddress: values.destinationAddress.address,
-        hasSecondaryDestinationPostalCode: hasSecondaryDestinationAddress,
-        secondaryDestinationPostalCode,
+        pickupPostalCode: values.pickupAddress.address.postalCode,
+        pickupAddress: formatAddressForAPI(values.pickupAddress.address),
+        hasSecondaryPickupAddress, // I think sending this is necessary so we know if the customer wants to clear their previously secondary ZIPs, or we could send nulls for those fields.
+        secondaryPickupPostalCode: hasSecondaryPickupAddress ? values.secondaryPickupAddress.address.postalCode : null,
+        destinationPostalCode: values.destinationAddress.address.postalCode,
+        destinationAddress: formatAddressForAPI(values.destinationAddress.address),
+        hasSecondaryDestinationAddress,
+        secondaryDestinationPostalCode: hasSecondaryDestinationAddress
+          ? values.secondaryDestinationAddress.address.postalCode
+          : null,
         sitExpected: values.sitExpected === 'true',
         expectedDepartureDate: formatDateForSwagger(values.expectedDepartureDate),
       },
     };
 
-    if (hasSecondaryPickupPostalAddress) {
-      createOrUpdateShipment.ppmShipment.secondaryPickupAddress = values.secondaryPickupAddress.address;
+    if (hasSecondaryPickupAddress) {
+      createOrUpdateShipment.ppmShipment.secondaryPickupAddress = formatAddressForAPI(
+        values.secondaryPickupAddress.address,
+      );
     }
 
     if (hasSecondaryDestinationAddress) {
-      createOrUpdateShipment.ppmShipment.secondaryDestinationAddress = values.secondaryDestinationAddress.address;
+      createOrUpdateShipment.ppmShipment.secondaryDestinationAddress = formatAddressForAPI(
+        values.secondaryDestinationAddress.address,
+      );
     }
 
     if (isNewShipment) {

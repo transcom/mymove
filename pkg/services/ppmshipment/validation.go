@@ -117,6 +117,9 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 		} else {
 			ppmShipment.SecondaryPickupAddress.ID = uuid.Nil
 		}
+	} else {
+		ppmShipment.SecondaryPickupAddress = nil
+		ppmShipment.SecondaryPickupAddressID = nil
 	}
 
 	if newPPMShipment.DestinationAddress != nil {
@@ -135,6 +138,9 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 		} else {
 			ppmShipment.SecondaryDestinationAddress.ID = uuid.Nil
 		}
+	} else {
+		ppmShipment.SecondaryDestinationAddress = nil
+		ppmShipment.SecondaryDestinationAddressID = nil
 	}
 
 	if ppmShipment.SITExpected != nil && !*ppmShipment.SITExpected {

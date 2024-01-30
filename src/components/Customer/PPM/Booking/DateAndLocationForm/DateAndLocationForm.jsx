@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { func } from 'prop-types';
 import * as Yup from 'yup';
 import { Formik, Field } from 'formik';
@@ -8,80 +8,89 @@ import classnames from 'classnames';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { DatePickerInput, DutyLocationInput } from 'components/form/fields';
-// import TextField from 'components/form/fields/TextField/TextField';
 import Hint from 'components/Hint';
 import Fieldset from 'shared/Fieldset';
 import formStyles from 'styles/form.module.scss';
 import { DutyLocationShape } from 'types';
 import { MoveShape, ServiceMemberShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
-import { UnsupportedZipCodePPMErrorMsg, ZIP5_CODE_REGEX, InvalidZIPTypeError } from 'utils/validation';
 import { searchTransportationOffices } from 'services/internalApi';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 
-const blankAddress = {
-  address: {
-    streetAddress1: '',
-    streetAddress2: '',
-    city: '',
-    state: '',
-    postalCode: '',
-  },
-};
-
-// TODO -- map new address fields and deprecate OLD ZIP implementation
 const validationShape = {
   useCurrentResidence: Yup.boolean(),
   hasSecondaryPickupAddress: Yup.boolean(),
   useCurrentDestinationAddress: Yup.boolean(),
   hasSecondaryDestinationAddress: Yup.boolean(),
-  // pickupAddress
-  // secondaryPickupAddress
-  // destinationAddress
-  // secondaryDestinationAddress
   sitExpected: Yup.boolean().required('Required'),
   expectedDepartureDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .required('Required'),
 };
 
-const setZip = (setFieldValue, postalCodeField, postalCode, isChecked, isCheckedField) => {
-  setFieldValue(isCheckedField, !isChecked);
-  setFieldValue(postalCodeField, isChecked ? '' : postalCode);
+const emptyAddressShape = {
+  streetAddress1: '',
+  streetAddress2: '',
+  city: '',
+  state: '',
+  postalCode: '',
 };
 
-const DateAndLocationForm = ({
-  mtoShipment,
-  destinationDutyLocation,
-  serviceMember,
-  move,
-  onBack,
-  onSubmit,
-  postalCodeValidator,
-}) => {
-  const [postalCodeValid, setPostalCodeValid] = useState({});
-
+const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMember, move, onBack, onSubmit }) => {
+  // const initialValues = {
+  //   pickupPostalCode: mtoShipment?.ppmShipment?.pickupPostalCode || '',
+  //   useCurrentResidence: false,
+  //   pickupAddress: mtoShipment?.ppmShipment?.pickupAddress || {},
+  //   secondaryPickupAddress: mtoShipment?.ppmShipment?.secondaryPickupAddress || {},
+  //   hasSecondaryPickupAddress: mtoShipment?.ppmShipment?.hasSecondaryPickup ? 'true' : 'false',
+  //   secondaryPickupPostalCode: mtoShipment?.ppmShipment?.secondaryPickupPostalCode || '',
+  //   useCurrentDestinationAddress: false,
+  //   destinationPostalCode: mtoShipment?.ppmShipment?.destinationPostalCode || '',
+  //   hasSecondaryDestinationAddress: mtoShipment?.ppmShipment?.secondaryDestinationAddress ? 'true' : 'false',
+  //   destinationAddress: mtoShipment?.ppmShipment?.destinationAddress || {},
+  //   secondaryDestinationAddress: mtoShipment?.ppmShipment?.secondaryDestinationAddress || {},
+  //   secondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode || '',
+  //   sitExpected: mtoShipment?.ppmShipment?.sitExpected ? 'true' : 'false',
+  //   expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
+  //   closeoutOffice: move?.closeout_office,
+  // };
   const initialValues = {
     pickupPostalCode: mtoShipment?.ppmShipment?.pickupPostalCode || '',
     useCurrentResidence: false,
-    pickupAddress: mtoShipment?.ppmShipment?.pickupAddress || {},
-    secondaryPickupAddress: mtoShipment?.ppmShipment?.secondaryPickupAddress || {},
+    pickupAddress: {},
+    secondaryPickupAddress: {},
     hasSecondaryPickupAddress: mtoShipment?.ppmShipment?.secondaryPickupAddress ? 'true' : 'false',
     secondaryPickupPostalCode: mtoShipment?.ppmShipment?.secondaryPickupPostalCode || '',
     useCurrentDestinationAddress: false,
     destinationPostalCode: mtoShipment?.ppmShipment?.destinationPostalCode || '',
     hasSecondaryDestinationAddress: mtoShipment?.ppmShipment?.secondaryDestinationAddress ? 'true' : 'false',
-    destinationAddress: mtoShipment?.ppmShipment?.destinationAddress || {},
-    secondaryDestinationAddress: mtoShipment?.ppmShipment?.secondaryDestinationAddress || {},
+    destinationAddress: {},
+    secondaryDestinationAddress: { address: { ...emptyAddressShape } },
     secondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode || '',
     sitExpected: mtoShipment?.ppmShipment?.sitExpected ? 'true' : 'false',
     expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
     closeoutOffice: move?.closeout_office,
   };
 
+  if (mtoShipment?.ppmShipment?.pickupAddress) {
+    initialValues.pickupAddress = { address: { ...mtoShipment.ppmShipment.pickupAddress } };
+  }
+
+  if (mtoShipment?.ppmShipment?.secondaryPickupAddress) {
+    initialValues.secondaryPickupAddress = { address: { ...mtoShipment.ppmShipment.secondaryPickupAddress } };
+  }
+
+  if (mtoShipment?.ppmShipment?.destinationAddress) {
+    initialValues.destinationAddress = { address: { ...mtoShipment.ppmShipment.destinationAddress } };
+  }
+
+  if (mtoShipment?.ppmShipment?.secondaryDestinationAddress) {
+    initialValues.secondaryDestinationAddress = { address: { ...mtoShipment.ppmShipment.secondaryDestinationAddress } };
+  }
+
   const residentialAddress = serviceMember?.residential_address;
-  const destinationAddress = destinationDutyLocation?.address;
+  const destinationDutyAddress = destinationDutyLocation?.address;
 
   const showCloseoutOffice =
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.ARMY ||
@@ -103,7 +112,6 @@ const DateAndLocationForm = ({
             setValues({
               ...values,
               pickupAddress: {
-                ...values.pickupAddress,
                 address: residentialAddress,
               },
             });
@@ -112,8 +120,13 @@ const DateAndLocationForm = ({
             setValues({
               ...values,
               pickupAddress: {
-                ...values.pickupAddress,
-                blankAddress,
+                address: {
+                  streetAddress1: '',
+                  streetAddress2: '',
+                  city: '',
+                  state: '',
+                  postalCode: '',
+                },
               },
             });
           }
@@ -126,8 +139,7 @@ const DateAndLocationForm = ({
             setValues({
               ...values,
               destinationAddress: {
-                ...values.destinationAddress,
-                address: destinationAddress,
+                address: destinationDutyAddress,
               },
             });
           } else {
@@ -135,8 +147,13 @@ const DateAndLocationForm = ({
             setValues({
               ...values,
               destinationAddress: {
-                ...values.destinationAddress,
-                blankAddress,
+                address: {
+                  streetAddress1: '',
+                  streetAddress2: '',
+                  city: '',
+                  state: '',
+                  postalCode: '',
+                },
               },
             });
           }
@@ -167,8 +184,8 @@ const DateAndLocationForm = ({
                           </legend>
                           <Field
                             as={Radio}
-                            data-testid="yes-secondary-pickup-code"
-                            id="yes-secondary-pickup-code"
+                            data-testid="yes-secondary-pickup-address"
+                            id="yes-secondary-pickup-address"
                             label="Yes"
                             name="hasSecondaryPickupAddress"
                             value="true"
@@ -176,8 +193,8 @@ const DateAndLocationForm = ({
                           />
                           <Field
                             as={Radio}
-                            data-testid="no-secondary-pickup-code"
-                            id="no-secondary-pickup-code"
+                            data-testid="no-secondary-pickup-address"
+                            id="no-secondary-pickup-address"
                             label="No"
                             name="hasSecondaryPickupAddress"
                             value="false"
@@ -225,7 +242,8 @@ const DateAndLocationForm = ({
                           </legend>
                           <Field
                             as={Radio}
-                            id="hasSecondaryDestinationPostalCodeYes"
+                            data-testid="yes-secondary-destination-address"
+                            id="hasSecondaryDestinationAddressYes"
                             label="Yes"
                             name="hasSecondaryDestinationAddress"
                             value="true"
@@ -233,7 +251,8 @@ const DateAndLocationForm = ({
                           />
                           <Field
                             as={Radio}
-                            id="hasSecondaryDestinationPostalCodeNo"
+                            data-testid="no-secondary-destination-address"
+                            id="hasSecondaryDestinationAddressNo"
                             label="No"
                             name="hasSecondaryDestinationAddress"
                             value="false"
@@ -360,7 +379,6 @@ DateAndLocationForm.propTypes = {
   destinationDutyLocation: DutyLocationShape.isRequired,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
-  postalCodeValidator: func.isRequired,
 };
 
 DateAndLocationForm.defaultProps = {
