@@ -1,0 +1,14 @@
+swagger: "2.0"
+info:
+  title: MilMove GHC V2 API
+  license:
+    name: MIT
+    url: 'https://opensource.org/licenses/MIT'
+  contact:
+    email: milmove-developers@caci.com
+  description:
+    $ref: 'info/ghc_v2_description.md'
+  version: 0.0.1
+basePath: /ghc/v2
+schemes:
+  - https
