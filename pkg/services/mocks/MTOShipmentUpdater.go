@@ -40,8 +40,8 @@ func (_m *MTOShipmentUpdater) MTOShipmentsMTOAvailableToPrime(appCtx appcontext.
 	return r0, r1
 }
 
-// UpdateMTOShipment provides a mock function with given fields: appCtx, mtoShipment, eTag
-func (_m *MTOShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+// UpdateMTOShipmentV1 provides a mock function with given fields: appCtx, mtoShipment, eTag
+func (_m *MTOShipmentUpdater) UpdateMTOShipmentV1(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
 	ret := _m.Called(appCtx, mtoShipment, eTag)
 
 	var r0 *models.MTOShipment

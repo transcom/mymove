@@ -24,8 +24,10 @@ type MTOShipmentFetcher interface {
 //
 //go:generate mockery --name MTOShipmentUpdater
 type MTOShipmentUpdater interface {
+	// UpdateMTOShipment received a new version "V2" when updating service item addresses was removed from the `updateMTOShipment` endpoint
+	// V1 will still update service item destination address while V2 will not
 	MTOShipmentsMTOAvailableToPrime(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (bool, error)
-	UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
+	UpdateMTOShipmentV1(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
 }
 
 // BillableWeightInputs is a type for capturing what should be returned when a shipments billable weight is calculated
