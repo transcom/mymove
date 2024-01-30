@@ -785,23 +785,45 @@ paths:
   /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}:
     patch:
       summary: updateMTOShipment
-      description: |
+      description: >
+        _[Deprecated: sunset on 2024-05-06]_ This endpoint is deprecated and
+        will be removed in a future version.
+
+        Please use the new endpoint at `/ghc/v2/updateMTOShipment` instead.
+
+
         Updates a specified MTO shipment.
+
         Required fields include:
+
         * MTO Shipment ID required in path
+
         * If-Match required in headers
+
         * No fields required in body
+
         Optional fields include:
+
         * New shipment status type
+
         * Shipment Type
+
         * Customer requested pick-up date
+
         * Pick-up Address
+
         * Delivery Address
+
         * Secondary Pick-up Address
+
         * SecondaryDelivery Address
+
         * Delivery Address Type
+
         * Customer Remarks
+
         * Counselor Remarks
+
         * Releasing / Receiving agents
       consumes:
         - application/json

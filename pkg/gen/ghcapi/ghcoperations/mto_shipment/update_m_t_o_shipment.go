@@ -34,6 +34,9 @@ func NewUpdateMTOShipment(ctx *middleware.Context, handler UpdateMTOShipmentHand
 
 updateMTOShipment
 
+_[Deprecated: sunset on 2024-05-06]_ This endpoint is deprecated and will be removed in a future version.
+Please use the new endpoint at `/ghc/v2/updateMTOShipment` instead.
+
 Updates a specified MTO shipment.
 Required fields include:
 * MTO Shipment ID required in path
