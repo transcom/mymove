@@ -30,15 +30,6 @@ const validationShape = {
     .required('Required'),
 };
 
-// const addressValidator = {
-//   streetAddress1: Yup.string().required('Required'),
-//   streetAddress2: Yup.string(),
-//   streetAddress3: Yup.string(),
-//   city: Yup.string().required('Required'),
-//   state: Yup.string().length(2, 'Must use state abbreviation').required('Required'),
-//   postalCode: Yup.string().matches(ZIP5_CODE_REGEX, 'Must be valid zip code').required('Required'),
-// };
-
 const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMember, move, onBack, onSubmit }) => {
   const initialValues = {
     pickupPostalCode: mtoShipment?.ppmShipment?.pickupPostalCode || '',
@@ -170,7 +161,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                           />
                         </Fieldset>
                       </FormGroup>
-                      {values.hasSecondaryPickup === 'true' && (
+                      {values.hasSecondaryPickupAddress === 'true' && (
                         <>
                           <AddressFields name="secondaryPickupAddress.address" />
                           <Hint className={ppmStyles.hint}>
@@ -228,7 +219,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                           />
                         </Fieldset>
                       </FormGroup>
-                      {values.hasSecondaryDestinationPostalCode === 'true' && (
+                      {values.hasSecondaryDestinationAddress === 'true' && (
                         <>
                           <AddressFields name="secondaryDestinationAddress.address" />
                           <Hint className={ppmStyles.hint}>
