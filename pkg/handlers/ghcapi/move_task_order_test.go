@@ -25,6 +25,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/notifications"
@@ -338,7 +339,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
-		suite.IsType(&movetaskorderops.UpdateMTOStatusServiceCounselingCompletedNotFound{}, response)
+		suite.IsType(&handlers.ErrResponse{}, response)
 		payload := response.(*movetaskorderops.UpdateMTOStatusServiceCounselingCompletedNotFound).Payload
 
 		// Validate outgoing payload: nil payload
