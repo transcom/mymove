@@ -36,24 +36,30 @@ func NewPPMCloseoutFetcher(planner route.Planner, paymentRequestHelper paymentre
 func (p *ppmCloseoutFetcher) calculateGCC(appCtx appcontext.AppContext, mtoShipment models.MTOShipment, ppmShipment models.PPMShipment, fullEntitlementWeight unit.Pound) (unit.Cents, error) {
 	logger := appCtx.Logger()
 
-	serviceItemsToPrice := ppmshipment.StorageServiceItems(mtoShipment.ID, *ppmShipment.SITLocation, *ppmShipment.Shipment.SITDaysAllowance)
-	serviceItemsDebug, err := json.MarshalIndent(serviceItemsToPrice, "", "    ")
-	if err != nil {
-		logger.Error("unable to marshal serviceItemsToPrice", zap.Error(err))
+	if ppmShipment.Shipment.SITDaysAllowance != nil && ppmShipment.SITLocation != nil &&
+		ppmShipment.SITEstimatedEntryDate != nil &&
+		ppmShipment.SITEstimatedDepartureDate != nil {
+
+		serviceItemsToPrice := ppmshipment.StorageServiceItems(mtoShipment.ID, *ppmShipment.SITLocation, *ppmShipment.Shipment.SITDaysAllowance)
+		serviceItemsDebug, err := json.MarshalIndent(serviceItemsToPrice, "", "    ")
+		if err != nil {
+			logger.Error("unable to marshal serviceItemsToPrice", zap.Error(err))
+		}
+		logger.Debug(string(serviceItemsDebug))
+
+		contractDate := ppmShipment.ExpectedDepartureDate
+		contract, errFetch := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
+		if errFetch != nil {
+			return unit.Cents(0), errFetch
+		}
+
+		fullEntitlementPPM := ppmShipment
+		fullEntitlementPPM.SITEstimatedWeight = &fullEntitlementWeight
+
+		sitCost, err := ppmshipment.CalculateSITCost(appCtx, &ppmShipment, contract)
+		return *sitCost, err
 	}
-	logger.Debug(string(serviceItemsDebug))
-
-	contractDate := ppmShipment.ExpectedDepartureDate
-	contract, errFetch := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
-	if errFetch != nil {
-		return unit.Cents(0), errFetch
-	}
-
-	fullEntitlementPPM := ppmShipment
-	fullEntitlementPPM.SITEstimatedWeight = &fullEntitlementWeight
-
-	sitCost, err := ppmshipment.CalculateSITCost(appCtx, &ppmShipment, contract)
-	return *sitCost, err
+	return unit.Cents(0), nil
 }
 
 func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.PPMCloseout, error) {
@@ -307,7 +313,11 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		return nil, errTest4
 	}
 
-	remainingIncentive := unit.Cents(ppmShipment.FinalIncentive.Int() - ppmShipment.AdvanceAmountReceived.Int())
+	var remainingIncentive unit.Cents
+	if *ppmShipment.HasRequestedAdvance {
+		remainingIncentive = unit.Cents(ppmShipment.FinalIncentive.Int() - ppmShipment.AdvanceAmountReceived.Int())
+	}
+	remainingIncentive = *ppmShipment.FinalIncentive
 
 	gcc := unit.Cents(0)
 	if fullEntitlementWeight > 0 {
