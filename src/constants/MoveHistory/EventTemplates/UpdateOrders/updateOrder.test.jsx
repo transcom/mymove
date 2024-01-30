@@ -63,7 +63,7 @@ describe('when given an Order update history record', () => {
       ['Origin duty location name', ': Los Angeles AFB', historyRecord.RELOCATION],
       ['New duty location name', ': Fairchild AFB', historyRecord.RELOCATION],
       ['Dependents included', ': Yes', historyRecord.RELOCATION],
-      ['Rank', ': E-2', historyRecord.RELOCATION],
+      ['Pay grade', ': E-2', historyRecord.RELOCATION],
       ['Date of separation', ': 12 Oct 2022', historyRecord.SEPARATION],
       ['Orders type', ': Retirement', historyRecord.RETIREMENT],
       ['Date of retirement', ': 12 Oct 2022', historyRecord.RETIREMENT],

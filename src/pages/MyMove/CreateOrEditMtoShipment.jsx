@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { func, number, shape } from 'prop-types';
+import { func } from 'prop-types';
 import qs from 'query-string';
 
 import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm';
@@ -15,7 +15,7 @@ import {
 } from 'store/entities/selectors';
 import { fetchCustomerData as fetchCustomerDataAction } from 'store/onboarding/actions';
 import { AddressShape, SimpleAddressShape } from 'types/address';
-import { MoveShape, OrdersShape } from 'types/customerShapes';
+import { MoveShape, OrdersShape, ServiceMemberShape } from 'types/customerShapes';
 import { RouterShape } from 'types/index';
 import { ShipmentShape } from 'types/shipment';
 import { selectMove } from 'shared/Entities/modules/moves';
@@ -78,11 +78,7 @@ CreateOrEditMtoShipment.propTypes = {
   currentResidence: AddressShape.isRequired,
   newDutyLocationAddress: SimpleAddressShape,
   updateMTOShipment: func.isRequired,
-  serviceMember: shape({
-    weight_allotment: shape({
-      total_weight_self: number,
-    }),
-  }).isRequired,
+  serviceMember: ServiceMemberShape,
   orders: OrdersShape,
   move: MoveShape,
 };
@@ -105,6 +101,7 @@ CreateOrEditMtoShipment.defaultProps = {
     state: '',
     postalCode: '',
   },
+  serviceMember: {},
   orders: {},
   move: {},
 };

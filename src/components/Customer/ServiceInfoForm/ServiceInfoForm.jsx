@@ -4,12 +4,10 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { Grid } from '@trussworks/react-uswds';
 
-import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 import { Form } from 'components/form/Form';
 import TextField from 'components/form/fields/TextField/TextField';
 import { DropdownInput } from 'components/form/fields/DropdownInput';
-import { DutyLocationInput } from 'components/form/fields/DutyLocationInput';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { dropdownInputOptions } from 'utils/formatters';
@@ -18,7 +16,6 @@ import { DutyLocationShape } from 'types/dutyLocation';
 
 const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
-  const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
   const validationSchema = Yup.object().shape({
     first_name: Yup.string().required('Required'),
@@ -29,8 +26,6 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
     edipi: Yup.string()
       .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
       .required('Required'),
-    grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
-    current_location: Yup.object().required('Required'),
   });
 
   return (
@@ -72,12 +67,6 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
 
               <Grid row gap>
                 <Grid mobileLg={{ col: 6 }}>
-                  <DropdownInput label="Pay grade" name="grade" id="grade" required options={payGradeOptions} />
-                </Grid>
-              </Grid>
-
-              <Grid row gap>
-                <Grid mobileLg={{ col: 6 }}>
                   <TextField
                     label="DoD ID number"
                     name="edipi"
@@ -89,8 +78,6 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                   />
                 </Grid>
               </Grid>
-
-              <DutyLocationInput label="Current duty location" name="current_location" id="current_location" required />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>

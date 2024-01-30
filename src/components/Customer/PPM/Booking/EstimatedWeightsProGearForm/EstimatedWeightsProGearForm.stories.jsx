@@ -30,10 +30,10 @@ BlankEstimatedWeightsProGear.args = {
   onBack: action('back button clicked'),
   orders: {
     has_dependents: true,
-  },
-  serviceMember: {
-    weight_allotment: {
-      total_weight_self_plus_dependents: 8000,
+    authorizedWeight: 8000,
+    entitlement: {
+      proGear: 2000,
+      proGearSpouse: 500,
     },
   },
 };
@@ -44,10 +44,10 @@ WarningForOverweightEstimatedWeightProGear.args = {
   onBack: action('back button clicked'),
   orders: {
     has_dependents: true,
-  },
-  serviceMember: {
-    weight_allotment: {
-      total_weight_self_plus_dependents: 5000,
+    authorizedWeight: 8000,
+    entitlement: {
+      proGear: 2000,
+      proGearSpouse: 500,
     },
   },
   mtoShipment: {
@@ -65,10 +65,10 @@ MTOShipmentEstimatedWeightProGear.args = {
   onBack: action('back button clicked'),
   orders: {
     has_dependents: true,
-  },
-  serviceMember: {
-    weight_allotment: {
-      total_weight_self_plus_dependents: 5000,
+    authorizedWeight: 5000,
+    entitlement: {
+      proGear: 1000,
+      proGearSpouse: 100,
     },
   },
   mtoShipment: {
@@ -89,10 +89,10 @@ ErrorEstimatedWeightsProGear.args = {
   onBack: action('back button clicked'),
   orders: {
     has_dependents: true,
-  },
-  serviceMember: {
-    weight_allotment: {
-      total_weight_self_plus_dependents: 5000,
+    authorizedWeight: 5000,
+    entitlement: {
+      proGear: 1000,
+      proGearSpouse: 100,
     },
   },
 };
