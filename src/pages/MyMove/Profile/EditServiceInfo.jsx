@@ -53,7 +53,7 @@ export const EditServiceInfo = ({ serviceMember, currentOrders, updateServiceMem
     patchServiceMember(payload)
       .then((response) => {
         updateServiceMember(response);
-        navigate(customerRoutes.PROFILE_PATH);
+        navigate(customerRoutes.PROFILE_PATH, { state });
       })
       .catch((e) => {
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
