@@ -20,18 +20,17 @@ const defaultProps = {
   currentResidence: {},
   serviceMember: {
     id: '1234',
-    weight_allotment: {
-      total_weight_self: 5000,
-      total_weight_self_plus_dependents: 7500,
-      pro_gear_weight: 2000,
-      pro_gear_weight_spouse: 500,
-    },
   },
   orders: {
     new_duty_location: {
       address: {
         postalCode: '20050',
       },
+    },
+    authorizedWeight: 5000,
+    entitlement: {
+      proGear: 2000,
+      proGearSpouse: 500,
     },
   },
 };
