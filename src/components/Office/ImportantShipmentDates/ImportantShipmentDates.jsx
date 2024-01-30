@@ -21,7 +21,7 @@ const ImportantShipmentDates = ({
 }) => {
   const headerPlannedMoveDate = isPPM ? 'Planned Move Date' : 'Requested pick up date';
   const headerActualMoveDate = isPPM ? 'Actual Move Date' : 'Scheduled pick up date';
-  const headerActualPickupDate = isPPM ? '' : 'Actual Pickup Date';
+  const headerActualPickupDate = isPPM ? '' : 'Actual pick up date';
 
   const emDash = '\u2014';
   return (
