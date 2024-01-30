@@ -399,60 +399,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	// fields w/ no expenses should format as $0.00, but must be temporarily removed until string function is replaced
 }
 
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSummaryWorksheetFormPage3() {
-	signatureDate := time.Date(2019, time.January, 26, 14, 40, 0, 0, time.UTC)
-	sm := models.ServiceMember{
-		FirstName: models.StringPointer("John"),
-		LastName:  models.StringPointer("Smith"),
-	}
-	paidWithGTCC := false
-	tollExpense := models.MovingExpenseReceiptTypeTolls
-	oilExpense := models.MovingExpenseReceiptTypeOil
-	amount := unit.Cents(10000)
-	movingExpenses := models.MovingExpenses{
-		{
-			MovingExpenseType: &tollExpense,
-			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
-		},
-		{
-			MovingExpenseType: &oilExpense,
-			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
-		},
-		{
-			MovingExpenseType: &oilExpense,
-			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
-		},
-		{
-			MovingExpenseType: &oilExpense,
-			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
-		},
-		{
-			MovingExpenseType: &tollExpense,
-			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
-		},
-	}
-	signature := models.SignedCertification{
-		Date: signatureDate,
-	}
-
-	ssd := services.ShipmentSummaryFormData{
-		ServiceMember:       sm,
-		SignedCertification: signature,
-		MovingExpenses:      movingExpenses,
-	}
-
-	sswPage3 := FormatValuesShipmentSummaryWorksheetFormPage3(ssd)
-
-	suite.Equal("", sswPage3.AmountsPaid)
-	suite.Equal("John Smith electronically signed", sswPage3.ServiceMemberSignature)
-	suite.Equal("26 Jan 2019 at 2:40pm", sswPage3.SignatureDate)
-}
-
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestGroupExpenses() {
 	paidWithGTCC := false
 	tollExpense := models.MovingExpenseReceiptTypeTolls
@@ -734,4 +680,161 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignatureDate() {
 	formattedDate := FormatSignatureDate(sswfd.SignedCertification)
 
 	suite.Equal("26 Jan 2019 at 2:40pm", formattedDate)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAddress() {
+	// Test case 1: Valid W2 address
+	validAddress := &models.Address{
+		StreetAddress1: "123 Main St",
+		City:           "Cityville",
+		State:          "ST",
+		PostalCode:     "12345",
+	}
+
+	expectedValidResult := "123 Main St,  Cityville ST 12345"
+
+	resultValid := FormatAddress(validAddress)
+
+	suite.Equal(expectedValidResult, resultValid)
+
+	// Test case 2: Nil W2 address
+	nilAddress := (*models.Address)(nil)
+
+	expectedNilResult := ""
+
+	resultNil := FormatAddress(nilAddress)
+
+	suite.Equal(expectedNilResult, resultNil)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestNilOrValue() {
+	// Test case 1: Non-nil pointer
+	validPointer := "ValidValue"
+	validResult := nilOrValue(&validPointer)
+	expectedValidResult := "ValidValue"
+
+	if validResult != expectedValidResult {
+		suite.Equal(expectedValidResult, validResult)
+	}
+
+	// Test case 2: Nil pointer
+	nilPointer := (*string)(nil)
+	nilResult := nilOrValue(nilPointer)
+	expectedNilResult := ""
+
+	if nilResult != expectedNilResult {
+		suite.Equal(expectedNilResult, nilResult)
+	}
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestMergeTextFields() {
+	// Test case 1: Non-empty input slices
+	fields1 := []textField{
+		{Pages: []int{1, 2}, ID: "1", Name: "Field1", Value: "Value1", Multiline: false, Locked: true},
+		{Pages: []int{3, 4}, ID: "2", Name: "Field2", Value: "Value2", Multiline: true, Locked: false},
+	}
+
+	fields2 := []textField{
+		{Pages: []int{5, 6}, ID: "3", Name: "Field3", Value: "Value3", Multiline: true, Locked: false},
+		{Pages: []int{7, 8}, ID: "4", Name: "Field4", Value: "Value4", Multiline: false, Locked: true},
+	}
+
+	mergedResult := mergeTextFields(fields1, fields2)
+
+	expectedMergedResult := []textField{
+		{Pages: []int{1, 2}, ID: "1", Name: "Field1", Value: "Value1", Multiline: false, Locked: true},
+		{Pages: []int{3, 4}, ID: "2", Name: "Field2", Value: "Value2", Multiline: true, Locked: false},
+		{Pages: []int{5, 6}, ID: "3", Name: "Field3", Value: "Value3", Multiline: true, Locked: false},
+		{Pages: []int{7, 8}, ID: "4", Name: "Field4", Value: "Value4", Multiline: false, Locked: true},
+	}
+
+	suite.Equal(mergedResult, expectedMergedResult)
+
+	// Test case 2: Empty input slices
+	emptyResult := mergeTextFields([]textField{}, []textField{})
+	expectedEmptyResult := []textField{}
+
+	suite.Equal(emptyResult, expectedEmptyResult)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestCreateTextFields() {
+	// Test case 1: Non-empty input
+	type TestData struct {
+		Field1 string
+		Field2 int
+		Field3 bool
+	}
+
+	testData := TestData{"Value1", 42, true}
+	pages := []int{1, 2}
+
+	result := createTextFields(testData, pages...)
+
+	expectedResult := []textField{
+		{Pages: pages, ID: "1", Name: "Field1", Value: "Value1", Multiline: false, Locked: false},
+		{Pages: pages, ID: "2", Name: "Field2", Value: "42", Multiline: false, Locked: false},
+		{Pages: pages, ID: "3", Name: "Field3", Value: "true", Multiline: false, Locked: false},
+	}
+
+	suite.Equal(result, expectedResult)
+
+	// Test case 2: Empty input
+	emptyResult := createTextFields(struct{}{})
+
+	suite.Nil(emptyResult)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
+	SSWPPMComputer := NewSSWPPMComputer()
+	ppmGenerator := NewSSWPPMGenerator()
+
+	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
+	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
+	rank := models.ServiceMemberRankE9
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				OrdersType: ordersType,
+			},
+		},
+		{
+			Model:    fortGordon,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
+		},
+		{
+			Model:    yuma,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.ServiceMember{
+				Rank: &rank,
+			},
+		},
+		{
+			Model: models.SignedCertification{},
+		},
+	}, nil)
+
+	ppmShipmentID := ppmShipment.ID
+
+	serviceMemberID := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID
+
+	session := auth.Session{
+		UserID:          ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID,
+		ServiceMemberID: serviceMemberID,
+		ApplicationName: auth.MilApp,
+	}
+
+	models.SaveMoveDependencies(suite.DB(), &ppmShipment.Shipment.MoveTaskOrder)
+
+	ssd, err := SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, ppmShipmentID)
+	suite.NoError(err)
+	page1Data, page2Data := SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssd)
+	test, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
+	suite.NoError(err)
+	println(test.Name())           // ensures was generated with temp filesystem
+	suite.Equal(info.PageCount, 2) // ensures PDF is not corrupted
 }
