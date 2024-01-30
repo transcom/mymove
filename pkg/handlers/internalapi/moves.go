@@ -154,26 +154,22 @@ func payloadMovesList(storer storage.FileStorer, previousMovesList models.Moves,
 		}
 	}
 
-	if len(currentMoveList) == 0 {
-		convertedCurrentMovesList = []*internalmessages.InternalMove{}
-	} else {
-		for _, move := range currentMoveList {
+	for _, move := range currentMoveList {
 
-			eTag := etag.GenerateEtag(move.UpdatedAt)
-			shipments := move.MTOShipments
-			var payloadShipments *internalmessages.MTOShipments = payloads.MTOShipments(storer, &shipments)
+		eTag := etag.GenerateEtag(move.UpdatedAt)
+		shipments := move.MTOShipments
+		var payloadShipments *internalmessages.MTOShipments = payloads.MTOShipments(storer, &shipments)
 
-			currentMove := &internalmessages.InternalMove{
-				CreatedAt:    *handlers.FmtDateTime(move.CreatedAt),
-				ETag:         eTag,
-				ID:           *handlers.FmtUUID(move.ID),
-				MtoShipments: *payloadShipments,
-				MoveCode:     move.Locator,
-				Orders:       move.Orders,
-			}
-
-			convertedCurrentMovesList = append(convertedCurrentMovesList, currentMove)
+		currentMove := &internalmessages.InternalMove{
+			CreatedAt:    *handlers.FmtDateTime(move.CreatedAt),
+			ETag:         eTag,
+			ID:           *handlers.FmtUUID(move.ID),
+			MtoShipments: *payloadShipments,
+			MoveCode:     move.Locator,
+			Orders:       move.Orders,
 		}
+
+		convertedCurrentMovesList = append(convertedCurrentMovesList, currentMove)
 	}
 
 	// Convert previousMoves moves to internalmessages.MoveTaskOrder
