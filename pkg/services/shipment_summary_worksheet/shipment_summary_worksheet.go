@@ -732,7 +732,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		"Shipment.MoveTaskOrder",
 		"Shipment.MoveTaskOrder.Orders",
 		"Shipment.MoveTaskOrder.Orders.NewDutyLocation.Address",
-		"Shipment.MoveTaskOrder.Orders.ServiceMember.DutyLocation.Address",
+		"Shipment.MoveTaskOrder.Orders.OriginDutyLocation.Address",
 	).Find(&ppmShipment, ppmShipmentID)
 
 	if dbQErr != nil {
