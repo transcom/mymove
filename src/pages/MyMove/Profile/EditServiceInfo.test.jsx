@@ -78,13 +78,15 @@ describe('EditServiceInfo page', () => {
 
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
     render(
-      <EditServiceInfo
-        {...testProps}
-        serviceMember={testServiceMemberValues}
-        currentOrders={{
-          has_dependents: false,
-        }}
-      />,
+      <MockProviders>
+        <EditServiceInfo
+          {...testProps}
+          serviceMember={testServiceMemberValues}
+          currentOrders={{
+            has_dependents: false,
+          }}
+        />
+      </MockProviders>,
     );
 
     const submitButton = await screen.findByText('Save');
@@ -138,7 +140,11 @@ describe('EditServiceInfo page', () => {
     );
 
     // Need to provide complete & valid initial values because we aren't testing the form here, and just want to submit immediately
-    render(<EditServiceInfo {...testProps} serviceMember={testServiceMemberValues} currentOrders={{}} />);
+    render(
+      <MockProviders>
+        <EditServiceInfo {...testProps} serviceMember={testServiceMemberValues} currentOrders={{}} />{' '}
+      </MockProviders>,
+    );
 
     const submitButton = await screen.findByText('Save');
     expect(submitButton).toBeInTheDocument();
