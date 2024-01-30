@@ -413,8 +413,9 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 
 	query := db.Where("orders_id = ?", orderID)
 	err := query.Eager(
-		"Orders",
 		"MTOShipments",
+		"Orders",
+		"Orders.UploadedOrders",
 		"Orders.ServiceMember",
 		"Orders.ServiceMember.User",
 		"Orders.OriginDutyLocation.TransportationOffice",
@@ -422,13 +423,6 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"Orders.NewDutyLocation.Address",
 		"Orders.NewDutyLocation.TransportationOffice",
 		"Orders.NewDutyLocation.TransportationOffice.Address",
-		"Orders.UploadedOrders",
-		"Orders.UploadedOrders.ServiceMember",
-		"Orders.UploadedOrders.ServiceMember.User",
-		"Orders.UploadedOrders.ServiceMember.DutyLocation",
-		"Orders.UploadedOrders.ServiceMember.DutyLocation.Address",
-		"Orders.UploadedOrders.ServiceMember.DutyLocation.TransportationOffice",
-		"Orders.UploadedOrders.ServiceMember.DutyLocation.TransportationOffice.Address",
 	).All(&moves)
 	return moves, err
 }
