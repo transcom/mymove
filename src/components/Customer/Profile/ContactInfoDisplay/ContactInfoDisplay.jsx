@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import styles from './ContactInfoDisplay.module.scss';
 
@@ -28,11 +28,15 @@ const ContactInfoDisplay = ({
     preferredContactMethod = 'Email';
   }
 
+  const { state } = useLocation();
+
   return (
     <div className={styles.contactInfoContainer}>
       <div className={styles.contactInfoHeader}>
         <h2>Contact info</h2>
-        <Link to={editURL}>Edit</Link>
+        <Link to={editURL} state={state}>
+          Edit
+        </Link>
       </div>
 
       <div className={styles.contactInfoSection}>
