@@ -141,7 +141,6 @@ describe('selectServiceMemberProfileState', () => {
           serviceMemberId456: {
             id: 'serviceMemberId456',
             affiliation: 'ARMY',
-            rank: 'O_4_W_4',
             edipi: '1234567890',
           },
         },
@@ -164,7 +163,6 @@ describe('selectServiceMemberProfileState', () => {
           serviceMemberId456: {
             id: 'serviceMemberId456',
             affiliation: 'ARMY',
-            rank: 'O_4_W_4',
             edipi: '1234567890',
             first_name: 'Erin',
             last_name: 'Stanfill',
@@ -177,7 +175,7 @@ describe('selectServiceMemberProfileState', () => {
     expect(selectServiceMemberProfileState(testState)).toEqual(profileStates.NAME_COMPLETE);
   });
 
-  it('returns CONTACT_INFO_COMPLETE if there is no duty location data', () => {
+  it('returns CONTACT_INFO_COMPLETE if there is no residential address data', () => {
     const testState = {
       entities: {
         user: {
@@ -190,7 +188,6 @@ describe('selectServiceMemberProfileState', () => {
           serviceMemberId456: {
             id: 'serviceMemberId456',
             affiliation: 'ARMY',
-            rank: 'O_4_W_4',
             edipi: '1234567890',
             first_name: 'Erin',
             last_name: 'Stanfill',
@@ -260,7 +257,6 @@ describe('selectServiceMemberProfileState', () => {
           serviceMemberId456: {
             id: 'serviceMemberId456',
             affiliation: 'ARMY',
-            rank: 'O_4_W_4',
             edipi: '1234567890',
             first_name: 'Erin',
             last_name: 'Stanfill',
@@ -316,7 +312,6 @@ describe('selectServiceMemberProfileState', () => {
           serviceMemberId456: {
             id: 'serviceMemberId456',
             affiliation: 'ARMY',
-            rank: 'O_4_W_4',
             edipi: '1234567890',
             first_name: 'Erin',
             last_name: 'Stanfill',
@@ -397,7 +392,6 @@ describe('selectServiceMemberProfileState', () => {
             middle_name: '',
             personal_email: 'erin@truss.works',
             phone_is_preferred: true,
-            rank: 'O_4_W_4',
             residential_address: {
               city: 'Somewhere',
               postalCode: '80913',
@@ -421,6 +415,26 @@ describe('selectCurrentDutyLocation', () => {
   it('returns the service member’s current duty location', () => {
     const testState = {
       entities: {
+        orders: {
+          orders789: {
+            id: 'orders789',
+            service_member_id: 'serviceMemberId456',
+            origin_duty_location: {
+              address: {
+                city: 'Colorado Springs',
+                country: 'United States',
+                postalCode: '80913',
+                state: 'CO',
+                streetAddress1: 'n/a',
+              },
+              affiliation: 'ARMY',
+              created_at: '2018-05-20T18:36:45.034Z',
+              id: '28f63a9d-8fff-4a0f-84ef-661c5c8c354e',
+              name: 'Ft Carson',
+              updated_at: '2018-05-20T18:36:45.034Z',
+            },
+          },
+        },
         user: {
           userId123: {
             id: 'userId123',
@@ -430,17 +444,13 @@ describe('selectCurrentDutyLocation', () => {
         serviceMembers: {
           serviceMemberId456: {
             id: 'serviceMemberId456',
-            current_location: {
-              id: 'dutyLocationId890',
-            },
+            orders: ['orders789', 'orders8910'],
           },
         },
       },
     };
 
-    expect(selectCurrentDutyLocation(testState)).toEqual(
-      testState.entities.serviceMembers.serviceMemberId456.current_location,
-    );
+    expect(selectCurrentDutyLocation(testState)).toEqual(testState.entities.orders.orders789.origin_duty_location);
   });
 
   it('returns null if there is the service member has no current location', () => {
@@ -564,7 +574,6 @@ describe('selectIsProfileComplete', () => {
     middle_name: '',
     personal_email: 'erin@truss.works',
     phone_is_preferred: true,
-    rank: 'O_4_W_4',
     residential_address: {
       city: 'Somewhere',
       postalCode: '80913',
@@ -1672,6 +1681,11 @@ describe('selectWeightAllotmentsForLoggedInUser', () => {
                 status: 'DRAFT',
                 has_dependents: true,
                 spouse_has_pro_gear: true,
+                authorizedWeight: 8000,
+                entitlement: {
+                  proGear: 2000,
+                  proGearSpouse: 500,
+                },
               },
             },
             user: {
@@ -1684,20 +1698,14 @@ describe('selectWeightAllotmentsForLoggedInUser', () => {
               serviceMemberId456: {
                 id: 'serviceMemberId456',
                 orders: ['orders8910'],
-                weight_allotment: {
-                  total_weight_self: 5000,
-                  total_weight_self_plus_dependents: 8000,
-                  pro_gear_weight: 2000,
-                  pro_gear_weight_spouse: 500,
-                },
               },
             },
           },
         };
 
         expect(selectWeightAllotmentsForLoggedInUser(testState)).toEqual({
-          pro_gear: 2000,
-          pro_gear_spouse: 500,
+          proGear: 2000,
+          proGearSpouse: 500,
           sum: 10500,
           weight: 8000,
         });
@@ -1716,6 +1724,11 @@ describe('selectWeightAllotmentsForLoggedInUser', () => {
                 status: 'DRAFT',
                 has_dependents: true,
                 spouse_has_pro_gear: false,
+                authorizedWeight: 8000,
+                entitlement: {
+                  proGear: 2000,
+                  proGearSpouse: 0,
+                },
               },
             },
             user: {
@@ -1728,20 +1741,14 @@ describe('selectWeightAllotmentsForLoggedInUser', () => {
               serviceMemberId456: {
                 id: 'serviceMemberId456',
                 orders: ['orders8910'],
-                weight_allotment: {
-                  total_weight_self: 5000,
-                  total_weight_self_plus_dependents: 8000,
-                  pro_gear_weight: 2000,
-                  pro_gear_weight_spouse: 500,
-                },
               },
             },
           },
         };
 
         expect(selectWeightAllotmentsForLoggedInUser(testState)).toEqual({
-          pro_gear: 2000,
-          pro_gear_spouse: 0,
+          proGear: 2000,
+          proGearSpouse: 0,
           sum: 10000,
           weight: 8000,
         });
@@ -1761,6 +1768,11 @@ describe('selectWeightAllotmentsForLoggedInUser', () => {
               status: 'DRAFT',
               has_dependents: false,
               spouse_has_pro_gear: false,
+              authorizedWeight: 5000,
+              entitlement: {
+                proGear: 2000,
+                proGearSpouse: 0,
+              },
             },
           },
           user: {
@@ -1773,20 +1785,14 @@ describe('selectWeightAllotmentsForLoggedInUser', () => {
             serviceMemberId456: {
               id: 'serviceMemberId456',
               orders: ['orders8910'],
-              weight_allotment: {
-                total_weight_self: 5000,
-                total_weight_self_plus_dependents: 8000,
-                pro_gear_weight: 2000,
-                pro_gear_weight_spouse: 500,
-              },
             },
           },
         },
       };
 
       expect(selectWeightAllotmentsForLoggedInUser(testState)).toEqual({
-        pro_gear: 2000,
-        pro_gear_spouse: 0,
+        proGear: 2000,
+        proGearSpouse: 0,
         sum: 7000,
         weight: 5000,
       });
