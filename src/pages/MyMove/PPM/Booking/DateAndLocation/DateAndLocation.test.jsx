@@ -165,17 +165,11 @@ describe('DateAndLocation component', () => {
       renderDateAndLocation();
 
       await act(async () => {
-        await userEvent.type(
-          document.querySelector('input[name="pickupAddress.address.postalCode"]'),
-          '10001',
-        );
+        await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '10001');
       });
 
       await act(async () => {
-        await userEvent.type(
-          document.querySelector('input[name="destinationAddress.address.postalCode"]'),
-          '10002',
-        );
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
       });
 
       await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
@@ -214,17 +208,11 @@ describe('DateAndLocation component', () => {
       renderDateAndLocation();
 
       await act(async () => {
-        await userEvent.type(
-          document.querySelector('input[name="pickupAddress.address.postalCode"]'),
-          '10001',
-        );
+        await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '10001');
       });
 
       await act(async () => {
-        await userEvent.type(
-          document.querySelector('input[name="destinationAddress.address.postalCode"]'),
-          '10002',
-        );
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
       });
 
       await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
@@ -268,10 +256,7 @@ describe('DateAndLocation component', () => {
       });
 
       await act(async () => {
-        await userEvent.type(
-          document.querySelector('input[name="pickupAddress.address.postalCode"]'),
-          '10001',
-        );
+        await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '10001');
       });
 
       await act(async () => {
@@ -282,10 +267,7 @@ describe('DateAndLocation component', () => {
       });
 
       await act(async () => {
-        await userEvent.type(
-          document.querySelector('input[name="destinationAddress.address.postalCode"]'),
-          '10002',
-        );
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
       });
 
       await act(async () => {
@@ -376,17 +358,11 @@ describe('DateAndLocation component', () => {
 
       // Fill in form
       await act(async () => {
-        await userEvent.type(
-          document.querySelector('input[name="pickupAddress.address.postalCode"]'),
-          '10001',
-        );
+        await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '10001');
       });
 
       await act(async () => {
-        await userEvent.type(
-          document.querySelector('input[name="destinationAddress.address.postalCode"]'),
-          '10002',
-        );
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
       });
 
       await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
@@ -426,17 +402,11 @@ describe('DateAndLocation component', () => {
 
       // Fill in form
       await act(async () => {
-        await userEvent.type(
-          document.querySelector('input[name="pickupAddress.address.postalCode"]'),
-          '10001',
-        );
+        await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '10001');
       });
 
       await act(async () => {
-        await userEvent.type(
-          document.querySelector('input[name="destinationAddress.address.postalCode"]'),
-          '10002',
-        );
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
       });
 
       await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
@@ -476,17 +446,11 @@ describe('DateAndLocation component', () => {
 
       // Fill in form
       await act(async () => {
-        await userEvent.type(
-          document.querySelector('input[name="pickupAddress.address.postalCode"]'),
-          '10001',
-        );
+        await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '10001');
       });
 
       await act(async () => {
-        await userEvent.type(
-          document.querySelector('input[name="destinationAddress.address.postalCode"]'),
-          '10002',
-        );
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
       });
 
       await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
