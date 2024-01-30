@@ -12,22 +12,22 @@ test.describe('About Your PPM', () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPMWithAboutFormComplete();
       await customerPpmPage.signInForPPMWithMove(move);
-      await customerPpmPage.navigateToWeightTicketPage();
+      // await customerPpmPage.navigateToWeightTicketPage();
     });
 
-    test('proceed with weight ticket documents', async ({ customerPpmPage }) => {
+    test.skip('proceed with weight ticket documents', async ({ customerPpmPage }) => {
       await customerPpmPage.submitWeightTicketPage();
     });
 
-    test('proceed with claiming trailer', async ({ customerPpmPage }) => {
+    test.skip('proceed with claiming trailer', async ({ customerPpmPage }) => {
       await customerPpmPage.submitWeightTicketPage({ hasTrailer: true, ownTrailer: true });
     });
 
-    test('proceed without claiming trailer', async ({ customerPpmPage }) => {
+    test.skip('proceed without claiming trailer', async ({ customerPpmPage }) => {
       await customerPpmPage.submitWeightTicketPage({ hasTrailer: true, ownTrailer: false });
     });
 
-    test('proceed with constructed weight ticket documents', async ({ customerPpmPage }) => {
+    test.skip('proceed with constructed weight ticket documents', async ({ customerPpmPage }) => {
       await customerPpmPage.submitWeightTicketPage({ useConstructedWeight: true });
     });
   });

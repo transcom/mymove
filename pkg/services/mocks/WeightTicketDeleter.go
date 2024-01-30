@@ -14,13 +14,13 @@ type WeightTicketDeleter struct {
 	mock.Mock
 }
 
-// DeleteWeightTicket provides a mock function with given fields: appCtx, weightTicketID
-func (_m *WeightTicketDeleter) DeleteWeightTicket(appCtx appcontext.AppContext, weightTicketID uuid.UUID) error {
-	ret := _m.Called(appCtx, weightTicketID)
+// DeleteWeightTicket provides a mock function with given fields: appCtx, ppmID, weightTicketID
+func (_m *WeightTicketDeleter) DeleteWeightTicket(appCtx appcontext.AppContext, ppmID uuid.UUID, weightTicketID uuid.UUID) error {
+	ret := _m.Called(appCtx, ppmID, weightTicketID)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) error); ok {
-		r0 = rf(appCtx, weightTicketID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) error); ok {
+		r0 = rf(appCtx, ppmID, weightTicketID)
 	} else {
 		r0 = ret.Error(0)
 	}

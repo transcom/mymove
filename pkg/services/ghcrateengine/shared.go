@@ -21,6 +21,8 @@ var (
 	peakEnd   = dateInYear{time.September, 30}
 )
 
+func GetMinDomesticWeight() unit.Pound { return minDomesticWeight }
+
 // addDate performs the same function as time.Time's AddDate, but ignores the year
 func (d dateInYear) addDate(months int, days int) dateInYear {
 	// Pick a year so we can use the time.Time functions (just about any year should work)
