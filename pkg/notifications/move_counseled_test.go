@@ -40,7 +40,7 @@ func (suite *NotificationSuite) TestMoveCounseledHTMLTemplateRender() {
 		OriginDutyLocation:      &originDutyLocation,
 		DestinationDutyLocation: "destDutyLocation",
 		Locator:                 "abc123",
-		MyMoveLink:              "MoveLink",
+		MyMoveLink:              MyMoveLink,
 	}
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
 
@@ -89,7 +89,7 @@ func (suite *NotificationSuite) TestMoveCounseledTextTemplateRender() {
 		OriginDutyLocation:      &originDutyLocation,
 		DestinationDutyLocation: "destDutyLocation",
 		Locator:                 "abc123",
-		MyMoveLink:              "MoveLink",
+		MyMoveLink:              MyMoveLink,
 	}
 
 	expectedTextContent := `*** DO NOT REPLY directly to this email ***
@@ -137,7 +137,7 @@ func (suite *NotificationSuite) TestMoveCounseledTextTemplateRenderWithMissingMo
 		OriginDutyLocation:      &originDutyLocation,
 		DestinationDutyLocation: "",
 		Locator:                 locator,
-		MyMoveLink:              "MoveLink",
+		MyMoveLink:              MyMoveLink,
 	}
 
 	expectedTextContent := `*** DO NOT REPLY directly to this email ***
