@@ -134,8 +134,6 @@ func (suite *HandlerSuite) TestShowOrder() {
 	suite.Assertions.Equal(*order.Grade, *okResponse.Payload.Grade)
 	suite.Assertions.Equal(*order.TAC, *okResponse.Payload.Tac)
 	suite.Assertions.Equal(*order.DepartmentIndicator, string(*okResponse.Payload.DepartmentIndicator))
-	//suite.Assertions.Equal(order.IssueDate.String(), okResponse.Payload.IssueDate.String()) // TODO: get date formats aligned
-	//suite.Assertions.Equal(order.ReportByDate.String(), okResponse.Payload.ReportByDate.String())
 	suite.Assertions.Equal(order.HasDependents, *okResponse.Payload.HasDependents)
 	suite.Assertions.Equal(order.SpouseHasProGear, *okResponse.Payload.SpouseHasProGear)
 }
