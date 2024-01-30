@@ -35,12 +35,13 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithGovCounse
 	originDutyLocationPhoneLine := "555-555-5555"
 
 	s := moveSubmittedEmailData{
-		OriginDutyLocation:           &originDutyLocation,
-		DestinationDutyLocation:      "destDutyLocation",
-		OriginDutyLocationPhoneLine:  &originDutyLocationPhoneLine,
-		Locator:                      "abc123",
-		WeightAllowance:              "7,999",
-		ProvidesGovernmentCounseling: true,
+		OriginDutyLocation:                &originDutyLocation,
+		DestinationDutyLocation:           "destDutyLocation",
+		OriginDutyLocationPhoneLine:       &originDutyLocationPhoneLine,
+		Locator:                           "abc123",
+		WeightAllowance:                   "7,999",
+		ProvidesGovernmentCounseling:      true,
+		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 	}
 	expectedHTMLContent := `<p>
   *** DO NOT REPLY directly to this email ***
@@ -55,7 +56,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithGovCounse
 </p>
 
 <p>
-  To change any information about your move, or to add or cancel shipments, you should contact 555-555-5555 or visit your <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">local transportation office</a>.
+  To change any information about your move, or to add or cancel shipments, you should contact 555-555-5555 or visit your <a href="` + OneSourceTransportationOfficeLink + `">local transportation office</a>.
 </p>
 
 <p>
@@ -95,6 +96,10 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithGovCounse
   HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes.
 </p>
 
+<p>
+  If you have requested a PPM, <strong>DO NOT</strong> start your PPM until your counselor has approved it in MilMove. You will receive an email when that is complete.
+</p>
+
 <h4>
   IMPORTANT: Take the Customer Satisfaction Survey
 </h4>
@@ -106,14 +111,10 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithGovCounse
   Taking the survey at each stage provides transparency and increases accountability of those assisting you with your relocation.
 </p>
 
+Thank you,<br>
+USTRANSCOM MilMove Team
 <p>
-  Thank you,
-</p>
-<p>
-  Defense Personal Property Program’s MilMove Team
-</p>
-<p>
-  The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
+  The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
 </p>
 `
 
@@ -135,12 +136,13 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithoutGovCou
 	originDutyLocationPhoneLine := "555-555-5555"
 
 	s := moveSubmittedEmailData{
-		OriginDutyLocation:           &originDutyLocation,
-		DestinationDutyLocation:      "destDutyLocation",
-		OriginDutyLocationPhoneLine:  &originDutyLocationPhoneLine,
-		Locator:                      "abc123",
-		WeightAllowance:              "7,999",
-		ProvidesGovernmentCounseling: false,
+		OriginDutyLocation:                &originDutyLocation,
+		DestinationDutyLocation:           "destDutyLocation",
+		OriginDutyLocationPhoneLine:       &originDutyLocationPhoneLine,
+		Locator:                           "abc123",
+		WeightAllowance:                   "7,999",
+		ProvidesGovernmentCounseling:      false,
+		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 	}
 	expectedHTMLContent := `<p>
   *** DO NOT REPLY directly to this email ***
@@ -155,7 +157,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithoutGovCou
 </p>
 
 <p>
-  To change any information about your move, or to add or cancel shipments, you should contact 555-555-5555 or visit your <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">local transportation office</a>.
+  To change any information about your move, or to add or cancel shipments, you should contact 555-555-5555 or visit your <a href="` + OneSourceTransportationOfficeLink + `">local transportation office</a>.
 </p>
 
 <p>
@@ -176,7 +178,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithoutGovCou
 </h4>
 
 <p>
-  Your move request will be reviewed by the responsible personal property shipping office and an move task order for services will be placed with HomeSafe Alliance.
+  Your move request will be reviewed by the responsible personal property shipping office and a move task order for services will be placed with HomeSafe Alliance.
 </p>
 <p>
   Once this order is placed, you will receive an invitation to create an account in HomeSafe Connect. This is the system you will use for your counseling session. You will also schedule your pre-move survey during this session.
@@ -184,6 +186,10 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithoutGovCou
 
 <p>
   HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes.
+</p>
+
+<p>
+  If you have requested a PPM, <strong>DO NOT</strong> start your PPM until your counselor has approved it in MilMove. You will receive an email when that is complete.
 </p>
 
 <h4>
@@ -197,14 +203,10 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithoutGovCou
   Taking the survey at each stage provides transparency and increases accountability of those assisting you with your relocation.
 </p>
 
+Thank you,<br>
+USTRANSCOM MilMove Team
 <p>
-  Thank you,
-</p>
-<p>
-  Defense Personal Property Program’s MilMove Team
-</p>
-<p>
-  The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
+  The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
 </p>
 `
 
@@ -223,12 +225,13 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyLocatio
 	notification := NewMoveSubmitted(move.ID)
 
 	s := moveSubmittedEmailData{
-		OriginDutyLocation:           nil,
-		DestinationDutyLocation:      "destDutyLocation",
-		OriginDutyLocationPhoneLine:  nil,
-		Locator:                      "abc123",
-		WeightAllowance:              "7,999",
-		ProvidesGovernmentCounseling: false,
+		OriginDutyLocation:                nil,
+		DestinationDutyLocation:           "destDutyLocation",
+		OriginDutyLocationPhoneLine:       nil,
+		Locator:                           "abc123",
+		WeightAllowance:                   "7,999",
+		ProvidesGovernmentCounseling:      false,
+		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 	}
 	expectedHTMLContent := `<p>
   *** DO NOT REPLY directly to this email ***
@@ -243,7 +246,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyLocatio
 </p>
 
 <p>
-  To change any information about your move, or to add or cancel shipments, you should contact your nearest transportation office. You can find the contact information using the <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">directory of PCS-related contacts</a>.
+  To change any information about your move, or to add or cancel shipments, you should contact your nearest transportation office. You can find the contact information using the <a href="` + OneSourceTransportationOfficeLink + `">directory of PCS-related contacts</a>.
 </p>
 
 <p>
@@ -264,7 +267,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyLocatio
 </h4>
 
 <p>
-  Your move request will be reviewed by the responsible personal property shipping office and an move task order for services will be placed with HomeSafe Alliance.
+  Your move request will be reviewed by the responsible personal property shipping office and a move task order for services will be placed with HomeSafe Alliance.
 </p>
 <p>
   Once this order is placed, you will receive an invitation to create an account in HomeSafe Connect. This is the system you will use for your counseling session. You will also schedule your pre-move survey during this session.
@@ -272,6 +275,10 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyLocatio
 
 <p>
   HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes.
+</p>
+
+<p>
+  If you have requested a PPM, <strong>DO NOT</strong> start your PPM until your counselor has approved it in MilMove. You will receive an email when that is complete.
 </p>
 
 <h4>
@@ -285,14 +292,10 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyLocatio
   Taking the survey at each stage provides transparency and increases accountability of those assisting you with your relocation.
 </p>
 
+Thank you,<br>
+USTRANSCOM MilMove Team
 <p>
-  Thank you,
-</p>
-<p>
-  Defense Personal Property Program’s MilMove Team
-</p>
-<p>
-  The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
+  The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
 </p>
 `
 
@@ -316,12 +319,13 @@ func (suite *NotificationSuite) TestMoveSubmittedTextTemplateRender() {
 	originDutyLocationPhoneLine := "555-555-5555"
 
 	s := moveSubmittedEmailData{
-		OriginDutyLocation:           &originDutyLocation,
-		DestinationDutyLocation:      "destDutyLocation",
-		OriginDutyLocationPhoneLine:  &originDutyLocationPhoneLine,
-		Locator:                      "abc123",
-		WeightAllowance:              "7,999",
-		ProvidesGovernmentCounseling: true,
+		OriginDutyLocation:                &originDutyLocation,
+		DestinationDutyLocation:           "destDutyLocation",
+		OriginDutyLocationPhoneLine:       &originDutyLocationPhoneLine,
+		Locator:                           "abc123",
+		WeightAllowance:                   "7,999",
+		ProvidesGovernmentCounseling:      true,
+		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 	}
 
 	expectedTextContent := `*** DO NOT REPLY directly to this email ***
@@ -330,7 +334,7 @@ This is a confirmation that you have submitted the details for your move from or
 
 We have assigned you a move code: abc123. You can use this code when talking to any representative about your move.
 
-To change any information about your move, or to add or cancel shipments, you should contact 555-555-5555 or visit your local transportation office (https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL) .
+To change any information about your move, or to add or cancel shipments, you should contact 555-555-5555 or visit your local transportation office (` + OneSourceTransportationOfficeLink + `) .
 
 Your weight allowance: 7,999 pounds. That is how much combined weight the government will pay for all movements between authorized locations under your orders.
 
@@ -354,6 +358,8 @@ Once your counseling is complete, your request will be reviewed by the responsib
 
 HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes.
 
+If you have requested a PPM, DO NOT start your PPM until your counselor has approved it in MilMove. You will receive an email when that is complete.
+
 
 ** IMPORTANT: Take the Customer Satisfaction Survey
 ------------------------------------------------------------
@@ -363,8 +369,7 @@ You will receive an invitation to take a quick customer satisfaction survey (CSS
 Taking the survey at each stage provides transparency and increases accountability of those assisting you with your relocation.
 
 Thank you,
-
-Defense Personal Property Program’s MilMove Team
+USTRANSCOM MilMove Team
 
 The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
 `

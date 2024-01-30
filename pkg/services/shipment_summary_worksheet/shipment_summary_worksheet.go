@@ -1,13 +1,19 @@
 package shipmentsummaryworksheet
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
+	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pkg/errors"
+	"github.com/spf13/afero"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
@@ -16,9 +22,12 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/unit"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 // SSWPPMComputer is the concrete struct implementing the services.shipmentsummaryworksheet interface
@@ -30,13 +39,69 @@ func NewSSWPPMComputer() services.SSWPPMComputer {
 	return &SSWPPMComputer{}
 }
 
+// SSWPPMGenerator is the concrete struct implementing the services.shipmentsummaryworksheet interface
+type SSWPPMGenerator struct {
+	templateReader io.ReadSeeker
+	generator      paperwork.Generator
+}
+
+// TextField represents a text field within a form.
+type textField struct {
+	Pages     []int  `json:"pages"`
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Value     string `json:"value"`
+	Multiline bool   `json:"multiline"`
+	Locked    bool   `json:"locked"`
+}
+
+var newline = "\n\n"
+
+// NewSSWPPMGenerator creates a SSWPPMGenerator
+func NewSSWPPMGenerator() services.SSWPPMGenerator {
+	pdfTemplatePath, err := filepath.Abs("pkg/assets/paperwork/formtemplates/SSWPDFTemplate.pdf")
+	if err != nil {
+		panic(err)
+	}
+
+	// NOTE: The testing suite is based on a different filesystem, relative filepaths will not work.
+	// Additionally, the function runs at a different file location. Therefore, when ran from testing,
+	// the PDF template path needs to be reconfigured relative to where the test runs from.
+	if strings.HasSuffix(os.Args[0], ".test") {
+		pdfTemplatePath, err = filepath.Abs("../../../pkg/assets/paperwork/formtemplates/SSWPDFTemplate.pdf")
+		if err != nil {
+			panic(err)
+		}
+
+	}
+
+	templateReader, err := afero.NewOsFs().Open(pdfTemplatePath)
+	if err != nil {
+		panic(err)
+	}
+	// Generator and dependencies must be initiated to handle memory filesystem for AWS
+	storer := storage.NewMemory(storage.NewMemoryParams("", ""))
+	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
+	if err != nil {
+		panic(err)
+	}
+	generator, err := paperwork.NewGenerator(userUploader.Uploader())
+	if err != nil {
+		panic(err)
+	}
+
+	return &SSWPPMGenerator{
+		templateReader: templateReader,
+		generator:      *generator,
+	}
+}
+
 // FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
-func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData services.ShipmentSummaryFormData) (services.Page1Values, services.Page2Values, services.Page3Values) {
+func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData services.ShipmentSummaryFormData) (services.Page1Values, services.Page2Values) {
 	page1 := FormatValuesShipmentSummaryWorksheetFormPage1(shipmentSummaryFormData)
 	page2 := FormatValuesShipmentSummaryWorksheetFormPage2(shipmentSummaryFormData)
-	page3 := FormatValuesShipmentSummaryWorksheetFormPage3(shipmentSummaryFormData)
 
-	return page1, page2, page3
+	return page1, page2
 }
 
 // Page1Values is an object representing a Shipment Summary Worksheet
@@ -288,6 +353,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.PreferredEmail = derefStringTypes(sm.PersonalEmail)
 	page1.DODId = derefStringTypes(sm.Edipi)
 	page1.RankGrade = FormatRank(data.ServiceMember.Rank)
+	page1.MailingAddressW2 = FormatAddress(data.W2Address)
 
 	page1.IssuingBranchOrAgency = FormatServiceMemberAffiliation(sm.Affiliation)
 	page1.OrdersIssueDate = FormatDate(data.Order.IssueDate)
@@ -306,6 +372,12 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.ShipmentNumberAndTypes = formattedShipments.ShipmentNumberAndTypes
 	page1.ShipmentPickUpDates = formattedShipments.PickUpDates
 	page1.ShipmentCurrentShipmentStatuses = formattedShipments.CurrentShipmentStatuses
+	formattedSIT := FormatAllSITS(data.PPMShipments)
+
+	page1.SITDaysInStorage = formattedSIT.DaysInStorage
+	page1.SITEntryDates = formattedSIT.EntryDates
+	page1.SITEndDates = formattedSIT.EndDates
+	// page1.SITNumberAndTypes
 	page1.ShipmentWeights = formattedShipments.ShipmentWeights
 	// Obligations cannot be used at this time, require new computer setup.
 	page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
@@ -363,17 +435,9 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 	page2.PreparationDate = FormatDate(data.PreparationDate)
 	page2.TotalMemberPaidRepeated = page2.TotalMemberPaid
 	page2.TotalGTCCPaidRepeated = page2.TotalGTCCPaid
+	page2.ServiceMemberSignature = FormatSignature(data.ServiceMember)
+	page2.SignatureDate = FormatSignatureDate(data.SignedCertification)
 	return page2
-}
-
-// FormatValuesShipmentSummaryWorksheetFormPage3 formats the data for page 2 of the Shipment Summary Worksheet
-func FormatValuesShipmentSummaryWorksheetFormPage3(data services.ShipmentSummaryFormData) services.Page3Values {
-	page3 := services.Page3Values{}
-	page3.CUIBanner = controlledUnclassifiedInformationText
-	page3.PreparationDate = FormatDate(data.PreparationDate)
-	page3.ServiceMemberSignature = FormatSignature(data.ServiceMember)
-	page3.SignatureDate = FormatSignatureDate(data.SignedCertification)
-	return page3
 }
 
 // FormatSignature formats a service member's signature for the Shipment Summary Worksheet
@@ -394,6 +458,35 @@ func FormatSignatureDate(signature models.SignedCertification) string {
 // FormatLocation formats AuthorizedOrigin and AuthorizedDestination for Shipment Summary Worksheet
 func FormatLocation(dutyLocation models.DutyLocation) string {
 	return fmt.Sprintf("%s, %s %s", dutyLocation.Name, dutyLocation.Address.State, dutyLocation.Address.PostalCode)
+}
+
+// FormatAddress retrieves a PPMShipment W2Address and formats it for the SSW Document
+func FormatAddress(w2Address *models.Address) string {
+	var addressString string
+
+	if w2Address != nil {
+		addressString = fmt.Sprintf("%s, %s %s%s %s %s%s",
+			w2Address.StreetAddress1,
+			nilOrValue(w2Address.StreetAddress2),
+			nilOrValue(w2Address.StreetAddress3),
+			w2Address.City,
+			w2Address.State,
+			nilOrValue(w2Address.Country),
+			w2Address.PostalCode,
+		)
+	} else {
+		return "" // Return an empty string if no W2 address
+	}
+
+	return addressString
+}
+
+// nilOrValue returns the dereferenced value if the pointer is not nil, otherwise an empty string.
+func nilOrValue(str *string) string {
+	if str != nil {
+		return *str
+	}
+	return ""
 }
 
 // FormatServiceMemberFullName formats ServiceMember full name for Shipment Summary Worksheet
@@ -426,12 +519,37 @@ func FormatAllShipments(ppms models.PPMShipments) WorkSheetShipments {
 		shipmentNumber++
 	}
 
-	formattedShipments.ShipmentNumberAndTypes = strings.Join(formattedNumberAndTypes, "\n\n")
-	formattedShipments.PickUpDates = strings.Join(formattedPickUpDates, "\n\n")
-	formattedShipments.ShipmentWeights = strings.Join(formattedShipmentWeights, "\n\n")
-	formattedShipments.CurrentShipmentStatuses = strings.Join(formattedShipmentStatuses, "\n\n")
-
+	formattedShipments.ShipmentNumberAndTypes = strings.Join(formattedNumberAndTypes, newline)
+	formattedShipments.PickUpDates = strings.Join(formattedPickUpDates, newline)
+	formattedShipments.ShipmentWeights = strings.Join(formattedShipmentWeights, newline)
+	formattedShipments.CurrentShipmentStatuses = strings.Join(formattedShipmentStatuses, newline)
 	return formattedShipments
+}
+
+// FormatAllSITs formats SIT line items for the Shipment Summary Worksheet
+func FormatAllSITS(ppms models.PPMShipments) WorkSheetSIT {
+	totalSITS := len(ppms)
+	formattedSIT := WorkSheetSIT{}
+	formattedSITNumberAndTypes := make([]string, totalSITS)
+	formattedSITEntryDates := make([]string, totalSITS)
+	formattedSITEndDates := make([]string, totalSITS)
+	formattedSITDaysInStorage := make([]string, totalSITS)
+	var sitNumber int
+
+	for _, ppm := range ppms {
+		// formattedSITNumberAndTypes[sitNumber] = FormatPPMNumberAndType(sitNumber)
+		formattedSITEntryDates[sitNumber] = FormatSITEntryDate(ppm)
+		formattedSITEndDates[sitNumber] = FormatSITEndDate(ppm)
+		formattedSITDaysInStorage[sitNumber] = FormatSITDaysInStorage(ppm)
+
+		sitNumber++
+	}
+	formattedSIT.NumberAndTypes = strings.Join(formattedSITNumberAndTypes, newline)
+	formattedSIT.EntryDates = strings.Join(formattedSITEntryDates, newline)
+	formattedSIT.EndDates = strings.Join(formattedSITEndDates, newline)
+	formattedSIT.DaysInStorage = strings.Join(formattedSITDaysInStorage, newline)
+
+	return formattedSIT
 }
 
 // FetchMovingExpensesShipmentSummaryWorksheet fetches moving expenses for the Shipment Summary Worksheet
@@ -480,6 +598,11 @@ func FormatPPMNumberAndType(i int) string {
 	return fmt.Sprintf("%02d - PPM", i+1)
 }
 
+// FormatSITNumberAndType formats FormatSITNumberAndType for the Shipment Summary Worksheet
+func FormatSITNumberAndType(i int) string {
+	return fmt.Sprintf("%02d - SIT", i+1)
+}
+
 // FormatPPMWeight formats a ppms NetWeight for the Shipment Summary Worksheet
 func FormatPPMWeight(ppm models.PPMShipment) string {
 	if ppm.EstimatedWeight != nil {
@@ -492,6 +615,34 @@ func FormatPPMWeight(ppm models.PPMShipment) string {
 // FormatPPMPickupDate formats a shipments ActualPickupDate for the Shipment Summary Worksheet
 func FormatPPMPickupDate(ppm models.PPMShipment) string {
 	return FormatDate(ppm.ExpectedDepartureDate)
+}
+
+// FormatSITEntryDate formats a SIT EstimatedEntryDate for the Shipment Summary Worksheet
+func FormatSITEntryDate(ppm models.PPMShipment) string {
+	if ppm.SITEstimatedEntryDate == nil {
+		return "No Entry Data" // Return string if no SIT attached
+	}
+	return FormatDate(*ppm.SITEstimatedEntryDate)
+}
+
+// FormatSITEndDate formats a SIT EstimatedPickupDate for the Shipment Summary Worksheet
+func FormatSITEndDate(ppm models.PPMShipment) string {
+	if ppm.SITEstimatedDepartureDate == nil {
+		return "No Departure Data" // Return string if no SIT attached
+	}
+	return FormatDate(*ppm.SITEstimatedDepartureDate)
+}
+
+// FormatSITDaysInStorage formats a SIT DaysInStorage for the Shipment Summary Worksheet
+func FormatSITDaysInStorage(ppm models.PPMShipment) string {
+	if ppm.SITEstimatedEntryDate == nil || ppm.SITEstimatedDepartureDate == nil {
+		return "No Entry/Departure Data" // Return string if no SIT attached
+	}
+	firstDate := ppm.SITEstimatedDepartureDate
+	secondDate := *ppm.SITEstimatedEntryDate
+	difference := firstDate.Sub(secondDate)
+	formattedDifference := fmt.Sprintf("Days: %d\n", int64(difference.Hours()/24))
+	return formattedDifference
 }
 
 // FormatOrdersTypeAndOrdersNumber formats OrdersTypeAndOrdersNumber for Shipment Summary Worksheet
@@ -626,8 +777,123 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		NewDutyLocation:     ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation,
 		WeightAllotment:     weightAllotment,
 		PPMShipments:        ppmShipments,
+		W2Address:           ppmShipment.W2Address,
 		// SignedCertification:     *signedCertification,
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
 	}
 	return &ssd, nil
+}
+
+// FillSSWPDFForm takes form data and fills an existing PDF form template with said data
+func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values) (sswfile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
+
+	// Header represents the header section of the JSON.
+	type header struct {
+		Source   string `json:"source"`
+		Version  string `json:"version"`
+		Creation string `json:"creation"`
+		Producer string `json:"producer"`
+	}
+
+	// Checkbox represents a checkbox within a form.
+	type checkbox struct {
+		Pages   []int  `json:"pages"`
+		ID      string `json:"id"`
+		Name    string `json:"name"`
+		Default bool   `json:"value"`
+		Value   bool   `json:"multiline"`
+		Locked  bool   `json:"locked"`
+	}
+
+	// Forms represents a form containing text fields.
+	type form struct {
+		TextField []textField `json:"textfield"`
+		Checkbox  []checkbox  `json:"checkbox"`
+	}
+
+	// PDFData represents the entire JSON structure.
+	type pDFData struct {
+		Header header `json:"header"`
+		Forms  []form `json:"forms"`
+	}
+
+	var sswHeader = header{
+		Source:   "SSWPDFTemplate.pdf",
+		Version:  "pdfcpu v0.6.0 dev",
+		Creation: "2024-01-22 21:49:12 UTC",
+		Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
+	}
+
+	var sswCheckbox = []checkbox{
+		{
+			Pages:   []int{2},
+			ID:      "797",
+			Name:    "EDOther",
+			Value:   true,
+			Default: false,
+			Locked:  false,
+		},
+	}
+
+	formData := pDFData{ // This is unique to each PDF template, must be found for new templates using PDFCPU's export function used on the template (can be done through CLI)
+		Header: sswHeader,
+		Forms: []form{
+			{ // Dynamically loops, creates, and aggregates json for text fields, merges page 1 and 2
+				TextField: mergeTextFields(createTextFields(Page1Values, 1), createTextFields(Page2Values, 2)),
+			},
+			// The following is the structure for using a Checkbox field
+			{
+				Checkbox: sswCheckbox,
+			},
+		},
+	}
+
+	// Marshal the FormData struct into a JSON-encoded byte slice
+	jsonData, err := json.MarshalIndent(formData, "", "  ")
+	if err != nil {
+		fmt.Println("Error marshaling JSON:", err)
+		return
+	}
+	SSWWorksheet, err := SSWPPMGenerator.generator.FillPDFForm(jsonData, SSWPPMGenerator.templateReader)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// pdfInfo.PageCount is a great way to tell whether returned PDF is corrupted
+	pdfInfoResult, err := SSWPPMGenerator.generator.GetPdfFileInfo(SSWWorksheet.Name())
+	if err != nil || pdfInfoResult.PageCount != 2 {
+		return nil, nil, errors.Wrap(err, "SSWGenerator output a corrupted or incorretly altered PDF")
+	}
+	// Return PDFInfo for additional testing in other functions
+	pdfInfo = pdfInfoResult
+	return SSWWorksheet, pdfInfo, err
+}
+
+// CreateTextFields formats the SSW Page data to match PDF-accepted JSON
+func createTextFields(data interface{}, pages ...int) []textField {
+	var textFields []textField
+
+	val := reflect.ValueOf(data)
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Type().Field(i)
+		value := val.Field(i).Interface()
+
+		var textFieldEntry = textField{
+			Pages:     pages,
+			ID:        fmt.Sprintf("%d", len(textFields)+1),
+			Name:      field.Name,
+			Value:     fmt.Sprintf("%v", value),
+			Multiline: false,
+			Locked:    false,
+		}
+
+		textFields = append(textFields, textFieldEntry)
+	}
+
+	return textFields
+}
+
+// MergeTextFields merges page 1 and page 2 data
+func mergeTextFields(fields1, fields2 []textField) []textField {
+	return append(fields1, fields2...)
 }
