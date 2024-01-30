@@ -7512,6 +7512,7 @@ definitions:
         x-nullable: true
         x-omitempty: false
       actualWeight:
+        x-nullable: true
         example: 2000
         type: integer
       proGearWeightCustomer:
