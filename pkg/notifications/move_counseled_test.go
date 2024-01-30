@@ -52,8 +52,8 @@ If you are doing a Personally Procured Move (PPM), you can start moving your per
 <p><strong>Next steps for a PPM:</strong>
 <ul>
 	<li>Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform. If you do not upload legible certified weight tickets, your PPM incentive could be affected.</li>
-	<li>If your counselor approved an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into <a href="` + MyMoveLink + `">MilMove</a> to download your AOA Packet, and submit it to finance according to the instructions provided by your counselor. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.</li>
-	<li>Once you complete your PPM, log into <a href="` + MyMoveLink + `">MilMove</a>, upload your receipts and weight tickets, and submit your PPM for review.</li>
+	<li>If your counselor approved an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into <a href="MoveLink">MilMove</a> to download your AOA Packet, and submit it to finance according to the instructions provided by your counselor. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.</li>
+	<li>Once you complete your PPM, log into <a href="MoveLink">MilMove</a>, upload your receipts and weight tickets, and submit your PPM for review.</li>
 </ul>
 
 <p><strong>Next steps for government arranged shipments:</strong></br>
@@ -101,8 +101,8 @@ If you are doing a Personally Procured Move (PPM), you can start moving your per
 
 Next steps for a PPM:
 	* Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform. If you do not upload legible certified weight tickets, your PPM incentive could be affected.
-	* If your counselor approved an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into MilMove <` + MyMoveLink + `/> to download your AOA Packet, and submit it to finance according to the instructions provided by your counselor. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.
-	* Once you complete your PPM, log into MilMove <` + MyMoveLink + `/>, upload your receipts and weight tickets, and submit your PPM for review.
+	* If your counselor approved an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into MilMove <MoveLink/> to download your AOA Packet, and submit it to finance according to the instructions provided by your counselor. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.
+	* Once you complete your PPM, log into MilMove <MoveLink/>, upload your receipts and weight tickets, and submit your PPM for review.
 
 Next steps for government arranged shipments:
 	* Your move request will be reviewed by the responsible personal property shipping office and a move task order for services will be placed with HomeSafe Alliance.
@@ -149,8 +149,8 @@ If you are doing a Personally Procured Move (PPM), you can start moving your per
 
 Next steps for a PPM:
 	* Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform. If you do not upload legible certified weight tickets, your PPM incentive could be affected.
-	* If your counselor approved an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into MilMove <` + MyMoveLink + `/> to download your AOA Packet, and submit it to finance according to the instructions provided by your counselor. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.
-	* Once you complete your PPM, log into MilMove <` + MyMoveLink + `/>, upload your receipts and weight tickets, and submit your PPM for review.
+	* If your counselor approved an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into MilMove <MoveLink/> to download your AOA Packet, and submit it to finance according to the instructions provided by your counselor. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.
+	* Once you complete your PPM, log into MilMove <MoveLink/>, upload your receipts and weight tickets, and submit your PPM for review.
 
 Next steps for government arranged shipments:
 	* Your move request will be reviewed by the responsible personal property shipping office and a move task order for services will be placed with HomeSafe Alliance.
@@ -184,6 +184,7 @@ func (suite *NotificationSuite) TestMoveCounseledTextTemplateRenderWithMissingOr
 		OriginDutyLocation:      &originDutyLocation,
 		DestinationDutyLocation: "destDutyLocation",
 		Locator:                 "abc123",
+		MyMoveLink:              "MoveLink",
 	}
 
 	expectedTextContent := `*** DO NOT REPLY directly to this email ***
@@ -195,8 +196,8 @@ If you are doing a Personally Procured Move (PPM), you can start moving your per
 
 Next steps for a PPM:
 	* Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform. If you do not upload legible certified weight tickets, your PPM incentive could be affected.
-	* If your counselor approved an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into MilMove </> to download your AOA Packet, and submit it to finance according to the instructions provided by your counselor. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.
-	* Once you complete your PPM, log into MilMove </>, upload your receipts and weight tickets, and submit your PPM for review.
+	* If your counselor approved an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into MilMove <MoveLink/> to download your AOA Packet, and submit it to finance according to the instructions provided by your counselor. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.
+	* Once you complete your PPM, log into MilMove <MoveLink/>, upload your receipts and weight tickets, and submit your PPM for review.
 
 Next steps for government arranged shipments:
 	* Your move request will be reviewed by the responsible personal property shipping office and a move task order for services will be placed with HomeSafe Alliance.
