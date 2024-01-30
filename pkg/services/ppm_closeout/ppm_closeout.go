@@ -33,147 +33,21 @@ func NewPPMCloseoutFetcher(planner route.Planner, paymentRequestHelper paymentre
 	}
 }
 
-func (p *ppmCloseoutFetcher) calculateGCC(appCtx appcontext.AppContext, mtoShipment models.MTOShipment, ppmShipment models.PPMShipment, fullEntitlementWeight unit.Pound) (unit.Cents, error) {
-	logger := appCtx.Logger()
-
-	serviceItemsToPrice := ppmshipment.StorageServiceItems(mtoShipment.ID, *ppmShipment.SITLocation, *ppmShipment.Shipment.SITDaysAllowance)
-	serviceItemsDebug, err := json.MarshalIndent(serviceItemsToPrice, "", "    ")
-	if err != nil {
-		logger.Error("unable to marshal serviceItemsToPrice", zap.Error(err))
-	}
-	logger.Debug(string(serviceItemsDebug))
-
-	contractDate := ppmShipment.ExpectedDepartureDate
-	contract, errFetch := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
-	if errFetch != nil {
-		return unit.Cents(0), errFetch
-	}
-
-	fullEntitlementPPM := ppmShipment
-	fullEntitlementPPM.SITEstimatedWeight = &fullEntitlementWeight
-
-	sitCost, err := ppmshipment.CalculateSITCost(appCtx, &ppmShipment, contract)
-	return *sitCost, err
-}
-
 func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.PPMCloseout, error) {
 	var ppmCloseoutObj models.PPMCloseout
-	var ppmShipment models.PPMShipment
-	var mtoShipment models.MTOShipment
-	var err error
-
-	err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
-		EagerPreload(
-			"ID",
-			"ShipmentID",
-			"ExpectedDepartureDate",
-			"ActualMoveDate",
-			"EstimatedWeight",
-			"HasProGear",
-			"ProGearWeight",
-			"SpouseProGearWeight",
-			"FinalIncentive",
-			"AdvanceAmountReceived",
-			"SITLocation",
-			"Shipment.SITDaysAllowance",
-		).
-		Find(&ppmShipment, ppmShipmentID)
-
-	// Check if PPM shipment is in "NEEDS_PAYMENT_APPROVAL" status, if not, it's not ready for closeout, so return
-	if ppmShipment.Status != models.PPMShipmentStatusNeedsPaymentApproval {
-		return nil, apperror.NewPPMNotReadyForCloseoutError(ppmShipmentID, "")
-	}
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(ppmShipmentID, "while looking for PPMShipment")
-		default:
-			return nil, apperror.NewQueryError("PPMShipment", err, "unable to find PPMShipment")
-		}
-	}
-
-	var expenseItems []models.MovingExpense
-	storageExpensePrice := unit.Cents(0)
-
-	err = appCtx.DB().Where("ppm_shipment_id = ?", ppmShipmentID).All(&expenseItems)
+	ppmShipment, err := p.GetPPMShipment(appCtx, ppmShipmentID)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, movingExpense := range expenseItems {
-		if movingExpense.MovingExpenseType != nil && *movingExpense.MovingExpenseType == models.MovingExpenseReceiptTypeStorage {
-			storageExpensePrice += *movingExpense.Amount
-		}
-	}
-
-	mtoShipmentID := &ppmShipment.ShipmentID
-	err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
-		EagerPreload(
-			"ID",
-			"ScheduledPickupDate",
-			"ActualPickupDate",
-			"Distance",
-			"PrimeActualWeight",
-			"MoveTaskOrder",
-			"MoveTaskOrderID",
-		).
-		Find(&mtoShipment, mtoShipmentID)
-
+	storageExpensePrice, err := p.GetExpenseStoragePrice(appCtx, ppmShipmentID)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(*mtoShipmentID, "while looking for MTOShipment")
-		default:
-			return nil, apperror.NewQueryError("MTOShipment", err, "unable to find MTOShipment")
-		}
+		return nil, err
 	}
 
-	var moveModel models.Move
-	moveID := &mtoShipment.MoveTaskOrderID
-
-	errMove := appCtx.DB().EagerPreload(
-		"OrdersID",
-	).
-		Find(&moveModel, moveID)
-
-	if errMove != nil {
-		switch errMove {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(*moveID, "while looking for Move")
-		default:
-			return nil, apperror.NewQueryError("Move", errMove, "unable to find Move")
-		}
-	}
-
-	var order models.Order
-	orderID := &moveModel.OrdersID
-	errOrder := appCtx.DB().EagerPreload(
-		"EntitlementID",
-	).Find(&order, orderID)
-
-	if errOrder != nil {
-		switch errOrder {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(*orderID, "while looking for Order")
-		default:
-			return nil, apperror.NewQueryError("Order", errOrder, "unable to find Order")
-		}
-	}
-
-	var entitlement models.Entitlement
-	entitlementID := order.EntitlementID
-	errEntitlement := appCtx.DB().EagerPreload(
-		"DBAuthorizedWeight",
-	).Find(&entitlement, entitlementID)
-
-	if errEntitlement != nil {
-		switch errEntitlement {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(*entitlementID, "while looking for Entitlement")
-		default:
-			return nil, apperror.NewQueryError("Entitlement", errEntitlement, "unable to find Entitlement")
-		}
+	entitlement, err := p.GetEntitlement(appCtx, ppmShipment.Shipment.MoveTaskOrderID)
+	if err != nil {
+		return nil, err
 	}
 
 	// Get all DLH, FSC, DOP, DDP, DPK, and DUPK service items for the shipment
@@ -216,10 +90,10 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 
 	if totalWeight > 0 {
 		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
-		ppmToMtoShipment = ppmshipment.MapPPMShipmentFinalFields(ppmShipment, *ppmShipment.EstimatedWeight)
+		ppmToMtoShipment = ppmshipment.MapPPMShipmentFinalFields(*ppmShipment, *ppmShipment.EstimatedWeight)
 	} else {
 		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
-		ppmToMtoShipment = ppmshipment.MapPPMShipmentEstimatedFields(ppmShipment)
+		ppmToMtoShipment = ppmshipment.MapPPMShipmentEstimatedFields(*ppmShipment)
 	}
 
 	for _, serviceItem := range serviceItemsToPrice {
@@ -235,11 +109,11 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		serviceItemLookups := serviceparamvaluelookups.InitializeLookups(ppmToMtoShipment, serviceItem)
 
 		// This is the struct that gets passed to every param lookup() method that was initialized above
-		keyData := serviceparamvaluelookups.NewServiceItemParamKeyData(p.planner, serviceItemLookups, serviceItem, mtoShipment, contract.Code)
+		keyData := serviceparamvaluelookups.NewServiceItemParamKeyData(p.planner, serviceItemLookups, serviceItem, ppmShipment.Shipment, contract.Code)
 
 		// The distance value gets saved to the mto shipment model to reduce repeated api calls.
 		var shipmentWithDistance models.MTOShipment
-		err = appCtx.DB().Find(&shipmentWithDistance, mtoShipment.ID)
+		err = appCtx.DB().Find(&shipmentWithDistance, ppmShipment.ShipmentID)
 		if err != nil {
 			logger.Error("could not find shipment in the database")
 			return nil, err
@@ -301,7 +175,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	}
 	// get all mtoServiceItems IDs that share a mtoShipmentID
 	var mtoServiceItems models.MTOServiceItems
-	errTest4 := appCtx.DB().Eager("ID").Where("mto_service_items.mto_shipment_id = ?", &mtoShipmentID).All(&mtoServiceItems)
+	errTest4 := appCtx.DB().Eager("ID").Where("mto_service_items.mto_shipment_id = ?", &ppmShipment.ShipmentID).All(&mtoServiceItems)
 
 	if errTest4 != nil {
 		return nil, errTest4
@@ -312,15 +186,15 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	gcc := unit.Cents(0)
 	if fullEntitlementWeight > 0 {
 		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
-		gcc, _ = p.calculateGCC(appCtx, mtoShipment, ppmShipment, fullEntitlementWeight)
+		gcc, _ = p.calculateGCC(appCtx, ppmShipment.Shipment, *ppmShipment, fullEntitlementWeight)
 	}
 
 	ppmCloseoutObj.ID = &ppmShipmentID
-	ppmCloseoutObj.PlannedMoveDate = mtoShipment.ScheduledPickupDate
-	ppmCloseoutObj.ActualMoveDate = mtoShipment.ActualPickupDate
-	ppmCloseoutObj.Miles = (*int)(mtoShipment.Distance)
+	ppmCloseoutObj.PlannedMoveDate = ppmShipment.Shipment.ScheduledPickupDate
+	ppmCloseoutObj.ActualMoveDate = ppmShipment.Shipment.ActualPickupDate
+	ppmCloseoutObj.Miles = (*int)(ppmShipment.Shipment.Distance)
 	ppmCloseoutObj.EstimatedWeight = ppmShipment.EstimatedWeight
-	ppmCloseoutObj.ActualWeight = mtoShipment.PrimeActualWeight
+	ppmCloseoutObj.ActualWeight = ppmShipment.Shipment.PrimeActualWeight
 	ppmCloseoutObj.ProGearWeightCustomer = ppmShipment.ProGearWeight
 	ppmCloseoutObj.ProGearWeightSpouse = ppmShipment.SpouseProGearWeight
 	ppmCloseoutObj.GrossIncentive = ppmShipment.FinalIncentive
@@ -336,6 +210,133 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	ppmCloseoutObj.SITReimbursement = &storageExpensePrice
 
 	return &ppmCloseoutObj, nil
+}
+
+func (p *ppmCloseoutFetcher) calculateGCC(appCtx appcontext.AppContext, mtoShipment models.MTOShipment, ppmShipment models.PPMShipment, fullEntitlementWeight unit.Pound) (unit.Cents, error) {
+	logger := appCtx.Logger()
+
+	serviceItemsToPrice := ppmshipment.StorageServiceItems(mtoShipment.ID, *ppmShipment.SITLocation, *ppmShipment.Shipment.SITDaysAllowance)
+	serviceItemsDebug, err := json.MarshalIndent(serviceItemsToPrice, "", "    ")
+	if err != nil {
+		logger.Error("unable to marshal serviceItemsToPrice", zap.Error(err))
+	}
+	logger.Debug(string(serviceItemsDebug))
+
+	contractDate := ppmShipment.ExpectedDepartureDate
+	contract, errFetch := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
+	if errFetch != nil {
+		return unit.Cents(0), errFetch
+	}
+
+	fullEntitlementPPM := ppmShipment
+	fullEntitlementPPM.SITEstimatedWeight = &fullEntitlementWeight
+
+	sitCost, err := ppmshipment.CalculateSITCost(appCtx, &ppmShipment, contract)
+	return *sitCost, err
+}
+
+func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.PPMShipment, error) {
+	var ppmShipment models.PPMShipment
+	err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
+		EagerPreload(
+			"ID",
+			"ShipmentID",
+			"ExpectedDepartureDate",
+			"ActualMoveDate",
+			"EstimatedWeight",
+			"HasProGear",
+			"ProGearWeight",
+			"SpouseProGearWeight",
+			"FinalIncentive",
+			"AdvanceAmountReceived",
+			"SITLocation",
+			"Shipment.SITDaysAllowance",
+			"Shipment.ScheduledPickupDate",
+			"Shipment.ActualPickupDate",
+			"Shipment.Distance",
+			"Shipment.PrimeActualWeight",
+			"Shipment.MoveTaskOrder",
+			"Shipment.MoveTaskOrderID",
+		).
+		Find(&ppmShipment, ppmShipmentID)
+
+	// Check if PPM shipment is in "NEEDS_PAYMENT_APPROVAL" status, if not, it's not ready for closeout
+	if ppmShipment.Status != models.PPMShipmentStatusNeedsPaymentApproval {
+		return nil, apperror.NewPPMNotReadyForCloseoutError(ppmShipmentID, "")
+	}
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(ppmShipmentID, "while looking for PPMShipment")
+		default:
+			return nil, apperror.NewQueryError("PPMShipment", err, "unable to find PPMShipment")
+		}
+	}
+	return &ppmShipment, err
+}
+
+func (p *ppmCloseoutFetcher) GetExpenseStoragePrice(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (unit.Cents, error) {
+	var expenseItems []models.MovingExpense
+	var storageExpensePrice unit.Cents
+	err := appCtx.DB().Where("ppm_shipment_id = ?", ppmShipmentID).All(&expenseItems)
+	if err != nil {
+		return unit.Cents(0), err
+	}
+
+	for _, movingExpense := range expenseItems {
+		if movingExpense.MovingExpenseType != nil && *movingExpense.MovingExpenseType == models.MovingExpenseReceiptTypeStorage {
+			storageExpensePrice += *movingExpense.Amount
+		}
+	}
+	return storageExpensePrice, err
+}
+
+func (p *ppmCloseoutFetcher) GetEntitlement(appCtx appcontext.AppContext, moveID uuid.UUID) (*models.Entitlement, error) {
+	var moveModel models.Move
+	err := appCtx.DB().EagerPreload(
+		"OrdersID",
+	).Find(&moveModel, moveID)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(moveID, "while looking for Move")
+		default:
+			return nil, apperror.NewQueryError("Move", err, "unable to find Move")
+		}
+	}
+
+	var order models.Order
+	orderID := &moveModel.OrdersID
+	errOrder := appCtx.DB().EagerPreload(
+		"EntitlementID",
+	).Find(&order, orderID)
+
+	if errOrder != nil {
+		switch errOrder {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(*orderID, "while looking for Order")
+		default:
+			return nil, apperror.NewQueryError("Order", errOrder, "unable to find Order")
+		}
+	}
+
+	var entitlement models.Entitlement
+	entitlementID := order.EntitlementID
+	errEntitlement := appCtx.DB().EagerPreload(
+		"DBAuthorizedWeight",
+	).Find(&entitlement, entitlementID)
+
+	if errEntitlement != nil {
+		switch errEntitlement {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(*entitlementID, "while looking for Entitlement")
+		default:
+			return nil, apperror.NewQueryError("Entitlement", errEntitlement, "unable to find Entitlement")
+		}
+	}
+	return &entitlement, nil
 }
 
 func paramsForServiceCode(code models.ReServiceCode, serviceParams models.ServiceParams) models.ServiceParams {
