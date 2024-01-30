@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useNavigate } from 'react-router';
+import { connect } from 'react-redux';
 
 import styles from './MultiMovesLandingPage.module.scss';
 import MultiMovesMoveHeader from './MultiMovesMoveHeader/MultiMovesMoveHeader';
@@ -22,9 +24,20 @@ import { loadInternalSchema } from 'shared/Swagger/ducks';
 import { loadUser } from 'store/auth/actions';
 import { initOnboarding } from 'store/onboarding/actions';
 import Helper from 'components/Customer/Home/Helper';
+import { customerRoutes } from 'constants/routes';
+import { withContext } from 'shared/AppContext';
+import withRouter from 'utils/routing';
+import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
+import {
+  selectCurrentMove,
+  selectIsProfileComplete,
+  selectServiceMemberFromLoggedInUser,
+} from 'store/entities/selectors';
 
 const MultiMovesLandingPage = () => {
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
+  const navigate = useNavigate();
+
   // ! This is just used for testing and viewing different variations of data that MilMove will use
   // user can add params of ?moveData=PCS, etc to view different views
   let moves;
@@ -83,6 +96,18 @@ const MultiMovesLandingPage = () => {
 
   const flags = detectFlags(process.env.NODE_ENV, window.location.host, window.location.search);
 
+  // handles logic when user clicks "Create a Move" button
+  // if they have previous moves, they'll need to validate their profile
+  // if they do not have previous moves, then they don't need to validate
+  const handleCreateMoveBtnClick = () => {
+    if (moves.previousMoves.length > 0) {
+      const profileEditPath = customerRoutes.PROFILE_PATH;
+      navigate(profileEditPath, { state: { needsToVerifyProfile: true } });
+    } else {
+      navigate(customerRoutes.MOVE_HOME_PAGE);
+    }
+  };
+
   // ! WILL ONLY SHOW IF MULTIMOVE FLAG IS TRUE
   return flags.multiMove ? (
     <div>
@@ -94,13 +119,13 @@ const MultiMovesLandingPage = () => {
         </header>
         <div className={`usa-prose grid-container ${styles['grid-container']}`}>
           <Helper title="Welcome to MilMove!" className={styles['helper-paragraph-only']}>
-            <p>
+            <p data-testid="welcomeHeader">
               We can put information at the top here - potentially important contact info or basic instructions on how
               to start a move?
             </p>
           </Helper>
           <div className={styles.centeredContainer}>
-            <Button className={styles.createMoveBtn}>
+            <Button className={styles.createMoveBtn} onClick={handleCreateMoveBtnClick} data-testid="createMoveBtn">
               <span>Create a Move</span>
               <div>
                 <FontAwesomeIcon icon="plus" />
@@ -149,4 +174,28 @@ const MultiMovesLandingPage = () => {
   ) : null;
 };
 
-export default MultiMovesLandingPage;
+MultiMovesLandingPage.defaultProps = {
+  serviceMember: null,
+};
+
+const mapStateToProps = (state) => {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const move = selectCurrentMove(state) || {};
+
+  return {
+    isProfileComplete: selectIsProfileComplete(state),
+    serviceMember,
+    move,
+  };
+};
+
+// in order to avoid setting up proxy server only for storybook, pass in stub function so API requests don't fail
+const mergeProps = (stateProps, dispatchProps, ownProps) => ({
+  ...stateProps,
+  ...dispatchProps,
+  ...ownProps,
+});
+
+export default withContext(
+  withRouter(connect(mapStateToProps, mergeProps)(requireCustomerState(MultiMovesLandingPage))),
+);

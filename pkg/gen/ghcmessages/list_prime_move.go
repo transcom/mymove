@@ -49,9 +49,6 @@ type ListPrimeMove struct {
 	// Format: uuid
 	OrderID strfmt.UUID `json:"orderID,omitempty"`
 
-	// ppm estimated weight
-	PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
-
 	// ppm type
 	// Enum: [FULL PARTIAL]
 	PpmType string `json:"ppmType,omitempty"`
