@@ -14,7 +14,6 @@ import formStyles from 'styles/form.module.scss';
 import { DutyLocationShape } from 'types';
 import { MoveShape, ServiceMemberShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
-import { ZIP5_CODE_REGEX } from 'utils/validation';
 import { searchTransportationOffices } from 'services/internalApi';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
