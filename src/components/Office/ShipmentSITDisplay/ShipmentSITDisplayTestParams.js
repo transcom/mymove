@@ -73,6 +73,21 @@ export const SITStatusOrigin = {
   },
 };
 
+export const SITStatusOriginAuthorized = {
+  totalSITDaysUsed: 45,
+  totalDaysRemaining: 60,
+  calculatedTotalDaysInSIT: 45,
+  currentSIT: {
+    location: LOCATION_VALUES.ORIGIN,
+    daysInSIT: 15,
+    sitEntryDate: '2021-08-13',
+    sitAllowanceEndDate: '2021-08-28',
+    sitAuthorizedEndDate: '2021-08-13',
+    sitCustomerContacted: '2021-08-26',
+    sitRequestedDelivery: '2021-08-30',
+  },
+};
+
 export const SITStatusShowConvert = {
   totalSITDaysUsed: 45,
   totalDaysRemaining: 30,
