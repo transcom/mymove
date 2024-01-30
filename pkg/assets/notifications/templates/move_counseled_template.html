@@ -1,6 +1,6 @@
 <p>*** DO NOT REPLY directly to this email ***</p>
 
-<p>This is a confirmation that your counselor has approved move details for the <strong>assigned move code{{if not .Locator}}</strong>{{end}}{{if .Locator}} {{.Locator}}</strong>{{end}}{{if .OriginDutyLocation}} from {{.OriginDutyLocation}}{{end}}{{if .DestinationDutyLocation}} to {{.DestinationDutyLocation}}{{end}} in the MilMove system.</p>
+<p>This is a confirmation that your counselor has approved move details for the <strong>assigned move code{{if or (not .Locator) (lt (len .Locator) 1)}}</strong>{{end}}{{if gt (len .Locator) 0}} {{.Locator}}</strong>{{end}}{{if .OriginDutyLocation}} from {{.OriginDutyLocation}}{{end}}{{if gt (len .DestinationDutyLocation) 0}} to {{.DestinationDutyLocation}}{{end}} in the MilMove system.</p>
 
 <p>What this means to you:</br>
 If you are doing a Personally Procured Move (PPM), you can start moving your personal property.</p>
