@@ -250,13 +250,14 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 			"FinalIncentive",
 			"AdvanceAmountReceived",
 			"SITLocation",
-			"Shipment.SITDaysAllowance",
-			"Shipment.ScheduledPickupDate",
-			"Shipment.ActualPickupDate",
-			"Shipment.Distance",
-			"Shipment.PrimeActualWeight",
-			"Shipment.MoveTaskOrder",
-			"Shipment.MoveTaskOrderID",
+			"Shipment",
+			// "Shipment.SITDaysAllowance",
+			// "Shipment.ScheduledPickupDate",
+			// "Shipment.ActualPickupDate",
+			// "Shipment.Distance",
+			// "Shipment.PrimeActualWeight",
+			// "Shipment.MoveTaskOrder",
+			// "Shipment.MoveTaskOrderID",
 		).
 		Find(&ppmShipment, ppmShipmentID)
 
