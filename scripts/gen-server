@@ -46,6 +46,7 @@ function generate_client () {
 generate_server swagger/admin.yaml    adminmessages    adminapi    adminoperations
 generate_server swagger/api.yaml      apimessages      restapi     apioperations
 generate_server swagger/ghc.yaml      ghcmessages      ghcapi      ghcoperations
+generate_server swagger-def/ghc_v2.yaml      ghcv2messages      ghcv2api      ghcv2operations
 generate_server swagger/internal.yaml internalmessages internalapi internaloperations
 generate_server swagger/orders.yaml   ordersmessages   ordersapi   ordersoperations
 generate_server swagger/prime.yaml    primemessages    primeapi    primeoperations
