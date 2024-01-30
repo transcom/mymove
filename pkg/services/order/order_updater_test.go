@@ -145,9 +145,6 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.EqualValues(payload.DepartmentIndicator, updatedOrder.DepartmentIndicator)
 		suite.Equal(payload.Tac, updatedOrder.TAC)
 		suite.Equal(payload.Sac.Value, updatedOrder.SAC)
-		suite.EqualValues(&updatedOriginDutyLocation.ID, fetchedSM.DutyLocationID)
-		suite.EqualValues(updatedOriginDutyLocation.ID, fetchedSM.DutyLocation.ID)
-		suite.EqualValues(updatedOriginDutyLocation.Name, fetchedSM.DutyLocation.Name)
 		suite.EqualValues(updatedGbloc.GBLOC, *updatedOrder.OriginDutyLocationGBLOC)
 
 		var moveInDB models.Move
@@ -646,7 +643,6 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.Equal(*payload.ProGearWeightSpouse, int64(updatedOrder.Entitlement.ProGearWeightSpouse))
 		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
 		suite.Equal(*payload.OrganizationalClothingAndIndividualEquipment, updatedOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
-		suite.EqualValues(*payload.Grade, *fetchedSM.Rank)
 		suite.EqualValues(payload.Agency, fetchedSM.Affiliation)
 	})
 
@@ -695,7 +691,6 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.Equal(*payload.ProGearWeightSpouse, int64(updatedOrder.Entitlement.ProGearWeightSpouse))
 		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
 		suite.Equal(*payload.OrganizationalClothingAndIndividualEquipment, updatedOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
-		suite.EqualValues(*payload.Grade, *fetchedSM.Rank)
 		suite.EqualValues(payload.Agency, fetchedSM.Affiliation)
 
 		// make sure that there are missing submission fields and move is in correct status

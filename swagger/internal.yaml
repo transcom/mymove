@@ -1129,9 +1129,9 @@ definitions:
       affiliation:
         $ref: '#/definitions/Affiliation'
         title: Branch
-      rank:
-        $ref: '#/definitions/ServiceMemberRank'
-        title: Rank
+      grade:
+        $ref: '#/definitions/OrderPayGrade'
+        title: Grade
       first_name:
         type: string
         example: John
@@ -1181,8 +1181,6 @@ definitions:
         type: boolean
         x-nullable: true
         title: Email
-      current_location:
-        $ref: '#/definitions/DutyLocationPayload'
       residential_address:
         $ref: '#/definitions/Address'
         title: Residential Address
@@ -1224,8 +1222,8 @@ definitions:
         title: DoD ID number
       affiliation:
         $ref: '#/definitions/Affiliation'
-      rank:
-        $ref: '#/definitions/ServiceMemberRank'
+      grade:
+        $ref: '#/definitions/OrderPayGrade'
       first_name:
         type: string
         example: John
@@ -1302,8 +1300,6 @@ definitions:
         title: DoD ID number
       affiliation:
         $ref: '#/definitions/Affiliation'
-      rank:
-        $ref: '#/definitions/ServiceMemberRank'
       first_name:
         type: string
         example: John
@@ -1592,74 +1588,10 @@ definitions:
       - S
       - M
       - L
-  ServiceMemberRank:
-    type: string
-    x-nullable: true
-    title: Rank
-    enum:
-      - E_1
-      - E_2
-      - E_3
-      - E_4
-      - E_5
-      - E_6
-      - E_7
-      - E_8
-      - E_9
-      - E_9_SPECIAL_SENIOR_ENLISTED
-      - O_1_ACADEMY_GRADUATE
-      - O_2
-      - O_3
-      - O_4
-      - O_5
-      - O_6
-      - O_7
-      - O_8
-      - O_9
-      - O_10
-      - W_1
-      - W_2
-      - W_3
-      - W_4
-      - W_5
-      - AVIATION_CADET
-      - CIVILIAN_EMPLOYEE
-      - ACADEMY_CADET
-      - MIDSHIPMAN
-    x-display-value:
-      E_1: E-1
-      E_2: E-2
-      E_3: E-3
-      E_4: E-4
-      E_5: E-5
-      E_6: E-6
-      E_7: E-7
-      E_8: E-8
-      E_9: E-9
-      E_9_SPECIAL_SENIOR_ENLISTED: E-9 (Special Senior Enlisted)
-      O_1_ACADEMY_GRADUATE: O-1 or Service Academy Graduate
-      O_2: O-2
-      O_3: O-3
-      O_4: O-4
-      O_5: O-5
-      O_6: O-6
-      O_7: O-7
-      O_8: O-8
-      O_9: O-9
-      O_10: O-10
-      W_1: W-1
-      W_2: W-2
-      W_3: W-3
-      W_4: W-4
-      W_5: W-5
-      AVIATION_CADET: Aviation Cadet
-      CIVILIAN_EMPLOYEE: Civilian Employee
-      ACADEMY_CADET: Service Academy Cadet
-      MIDSHIPMAN: Midshipman
   OrderPayGrade:
     type: string
     x-nullable: true
-    title: Rank
+    title: Grade
     enum:
       - E_1
       - E_2
@@ -1879,9 +1811,7 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       grade:
-        type: string
-        example: O-6
-        x-nullable: true
+        $ref: '#/definitions/OrderPayGrade'
       issue_date:
         type: string
         description: The date and time that these orders were cut.
@@ -1977,14 +1907,14 @@ definitions:
         x-nullable: true
         description: >
           Pro-gear weight limit as set by an Office user, distinct from the
-          service member's default weight allotment determined by rank
+          service member's default weight allotment determined by pay grade
       proGearSpouse:
         type: integer
         example: 500
         x-nullable: true
         description: >
           Spouse's pro-gear weight limit as set by an Office user, distinct from
-          the service member's default weight allotment determined by rank
+          the service member's default weight allotment determined by pay grade
   CreateUpdateOrders:
     type: object
     properties:
@@ -2096,8 +2026,8 @@ definitions:
         maxLength: 10
         example: '5789345789'
         title: 'DoD ID #'
-      rank:
-        $ref: '#/definitions/ServiceMemberRank'
+      grade:
+        $ref: '#/definitions/OrderPayGrade'
       orders_type:
         type: string
         title: Move Type
@@ -2178,7 +2108,7 @@ definitions:
       - locator
       - customer_name
       - edipi
-      - rank
+      - grade
       - orders_type
       - branch_of_service
       - last_modified_date

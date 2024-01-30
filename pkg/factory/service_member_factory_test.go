@@ -9,7 +9,6 @@ import (
 func (suite *FactorySuite) TestBuildServiceMember() {
 	defaultEmail := "leo_spaceman_sm@example.com"
 	defaultAgency := models.AffiliationARMY
-	defaultRank := models.ServiceMemberRankE1
 	suite.Run("Successful creation of default ServiceMember", func() {
 		// Under test:      BuildServiceMember
 		// Mocked:          None
@@ -21,7 +20,6 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 			FirstName:     models.StringPointer("Leo"),
 			LastName:      models.StringPointer("Spacemen"),
 			Telephone:     models.StringPointer("212-123-4567"),
-			Rank:          &defaultRank,
 			PersonalEmail: &defaultEmail,
 			Affiliation:   &defaultAgency,
 		}
@@ -42,7 +40,6 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		// VALIDATE RESULTS
 		suite.Equal(defaultServiceMember.FirstName, serviceMember.FirstName)
 		suite.Equal(defaultServiceMember.LastName, serviceMember.LastName)
-		suite.Equal(defaultServiceMember.Rank, serviceMember.Rank)
 		suite.Equal(defaultServiceMember.PersonalEmail, serviceMember.PersonalEmail)
 		suite.Equal(defaultServiceMember.Telephone, serviceMember.Telephone)
 		suite.Equal(defaultServiceMember.Affiliation, serviceMember.Affiliation)
@@ -60,7 +57,6 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		// Set up:          Create a Service Member and pass custom fields
 		// Expected outcome:serviceMember should be created with custom fields
 		// SETUP
-		customRank := models.ServiceMemberRankE3
 		customAffiliation := models.AffiliationAIRFORCE
 
 		customServiceMember := models.ServiceMember{
@@ -69,7 +65,6 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 			Telephone:          models.StringPointer("999-999-9999"),
 			SecondaryTelephone: models.StringPointer("123-555-9999"),
 			PersonalEmail:      models.StringPointer("peyton@example.com"),
-			Rank:               &customRank,
 			Edipi:              models.StringPointer("1000011111"),
 			Affiliation:        &customAffiliation,
 			Suffix:             models.StringPointer("Random suffix string"),
@@ -98,7 +93,6 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		suite.Equal(customServiceMember.Telephone, serviceMember.Telephone)
 		suite.Equal(customServiceMember.SecondaryTelephone, serviceMember.SecondaryTelephone)
 		suite.Equal(customServiceMember.PersonalEmail, serviceMember.PersonalEmail)
-		suite.Equal(customServiceMember.Rank, serviceMember.Rank)
 		suite.Equal(customServiceMember.Edipi, serviceMember.Edipi)
 		suite.Equal(customServiceMember.Affiliation, serviceMember.Affiliation)
 		suite.Equal(customServiceMember.Suffix, serviceMember.Suffix)
@@ -118,7 +112,6 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		// Expected outcome:serviceMember should be created with custom residential address different from address attached backup mailing address
 
 		// SETUP
-		customRank := models.ServiceMemberRankE3
 		customAffiliation := models.AffiliationAIRFORCE
 
 		customResidentialAddress := models.Address{
@@ -135,7 +128,6 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 			Telephone:          models.StringPointer("999-999-9999"),
 			SecondaryTelephone: models.StringPointer("123-555-9999"),
 			PersonalEmail:      models.StringPointer("peyton@example.com"),
-			Rank:               &customRank,
 			Edipi:              models.StringPointer("1000011111"),
 			Affiliation:        &customAffiliation,
 			Suffix:             models.StringPointer("Random suffix string"),
@@ -156,7 +148,6 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		suite.Equal(customServiceMember.Telephone, serviceMember.Telephone)
 		suite.Equal(customServiceMember.SecondaryTelephone, serviceMember.SecondaryTelephone)
 		suite.Equal(customServiceMember.PersonalEmail, serviceMember.PersonalEmail)
-		suite.Equal(customServiceMember.Rank, serviceMember.Rank)
 		suite.Equal(customServiceMember.Edipi, serviceMember.Edipi)
 		suite.Equal(customServiceMember.Affiliation, serviceMember.Affiliation)
 		suite.Equal(customServiceMember.Suffix, serviceMember.Suffix)
@@ -242,7 +233,6 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		// members and a backupContact should be created
 
 		// SETUP
-		customRank := models.ServiceMemberRankE3
 		customAffiliation := models.AffiliationAIRFORCE
 
 		customServiceMember := models.ServiceMember{
@@ -251,7 +241,6 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 			Telephone:          models.StringPointer("999-999-9999"),
 			SecondaryTelephone: models.StringPointer("123-555-9999"),
 			PersonalEmail:      models.StringPointer("peyton@example.com"),
-			Rank:               &customRank,
 			Edipi:              models.StringPointer("1000011111"),
 			Affiliation:        &customAffiliation,
 			Suffix:             models.StringPointer("Random suffix string"),
@@ -288,7 +277,6 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		suite.Equal(customServiceMember.Telephone, serviceMember.Telephone)
 		suite.Equal(customServiceMember.SecondaryTelephone, serviceMember.SecondaryTelephone)
 		suite.Equal(customServiceMember.PersonalEmail, serviceMember.PersonalEmail)
-		suite.Equal(customServiceMember.Rank, serviceMember.Rank)
 		suite.Equal(customServiceMember.Edipi, serviceMember.Edipi)
 		suite.Equal(customServiceMember.Affiliation, serviceMember.Affiliation)
 		suite.Equal(customServiceMember.Suffix, serviceMember.Suffix)
@@ -328,10 +316,6 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		suite.Equal(customBackupAddress.PostalCode,
 			serviceMember.BackupMailingAddress.PostalCode)
 
-		ordersDutyLocation := FetchOrBuildCurrentDutyLocation(suite.DB())
-		suite.Equal(ordersDutyLocation.ID, serviceMember.DutyLocation.ID)
-		suite.Equal(ordersDutyLocation.Name, serviceMember.DutyLocation.Name)
-
 		// Check that backup contact was made and appended to service member
 		suite.Equal(1, len(serviceMember.BackupContacts))
 		suite.Equal(models.BackupContactPermissionEDIT, serviceMember.BackupContacts[0].Permission)
@@ -345,8 +329,7 @@ func (suite *FactorySuite) TestBuildServiceMember() {
 		precount, err := suite.DB().Count(&models.ServiceMember{})
 		suite.NoError(err)
 
-		serviceMember := BuildExtendedServiceMember(nil, nil, nil)
-		suite.Equal("Yuma AFB", serviceMember.DutyLocation.Name)
+		BuildExtendedServiceMember(nil, nil, nil)
 
 		count, err := suite.DB().Count(&models.ServiceMember{})
 		suite.Equal(precount, count)
