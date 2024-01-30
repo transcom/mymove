@@ -38,23 +38,6 @@ const emptyAddressShape = {
 };
 
 const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMember, move, onBack, onSubmit }) => {
-  // const initialValues = {
-  //   pickupPostalCode: mtoShipment?.ppmShipment?.pickupPostalCode || '',
-  //   useCurrentResidence: false,
-  //   pickupAddress: mtoShipment?.ppmShipment?.pickupAddress || {},
-  //   secondaryPickupAddress: mtoShipment?.ppmShipment?.secondaryPickupAddress || {},
-  //   hasSecondaryPickupAddress: mtoShipment?.ppmShipment?.hasSecondaryPickup ? 'true' : 'false',
-  //   secondaryPickupPostalCode: mtoShipment?.ppmShipment?.secondaryPickupPostalCode || '',
-  //   useCurrentDestinationAddress: false,
-  //   destinationPostalCode: mtoShipment?.ppmShipment?.destinationPostalCode || '',
-  //   hasSecondaryDestinationAddress: mtoShipment?.ppmShipment?.secondaryDestinationAddress ? 'true' : 'false',
-  //   destinationAddress: mtoShipment?.ppmShipment?.destinationAddress || {},
-  //   secondaryDestinationAddress: mtoShipment?.ppmShipment?.secondaryDestinationAddress || {},
-  //   secondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode || '',
-  //   sitExpected: mtoShipment?.ppmShipment?.sitExpected ? 'true' : 'false',
-  //   expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
-  //   closeoutOffice: move?.closeout_office,
-  // };
   const initialValues = {
     pickupPostalCode: mtoShipment?.ppmShipment?.pickupPostalCode || '',
     useCurrentResidence: false,
