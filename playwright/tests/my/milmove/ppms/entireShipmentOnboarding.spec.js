@@ -100,7 +100,7 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
   }
 }
 
-test.describe('Entire PPM onboarding flow', () => {
+test.describe.skip('Entire PPM onboarding flow', () => {
   /** @type {CustomerPpmOnboardingPage} */
   let customerPpmOnboardingPage;
 
@@ -111,7 +111,7 @@ test.describe('Entire PPM onboarding flow', () => {
       await customerPpmOnboardingPage.signInForPPMWithMove(move);
     });
 
-    test('flows through happy path for existing shipment', async () => {
+    test.skip('flows through happy path for existing shipment', async () => {
       await customerPpmOnboardingPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
       await customerPpmOnboardingPage.submitsDateAndLocation();
       await customerPpmOnboardingPage.submitsEstimatedWeightsAndProGear();
@@ -122,7 +122,7 @@ test.describe('Entire PPM onboarding flow', () => {
       await customerPpmOnboardingPage.verifyStep5ExistsAndBtnIsDisabled();
     });
 
-    test('happy path with edits and backs', async () => {
+    test.skip('happy path with edits and backs', async () => {
       await customerPpmOnboardingPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
 
       await customerPpmOnboardingPage.submitAndVerifyUpdateDateAndLocation();

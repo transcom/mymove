@@ -1889,54 +1889,6 @@ func init() {
         }
       }
     },
-    "/personally_procured_moves/{personallyProcuredMoveId}/approve": {
-      "post": {
-        "description": "Sets the status of the PPM to APPROVED.",
-        "tags": [
-          "office"
-        ],
-        "summary": "Approves the PPM",
-        "operationId": "approvePPM",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the PPM being updated",
-            "name": "personallyProcuredMoveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "approvePersonallyProcuredMovePayload",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/ApprovePersonallyProcuredMovePayload"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "updated instance of personally_procured_move",
-            "schema": {
-              "$ref": "#/definitions/PersonallyProcuredMovePayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      }
-    },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses": {
       "post": {
         "description": "Creates a moving expense document for the PPM shipment",
@@ -3443,20 +3395,6 @@ func init() {
       },
       "x-nullable": true
     },
-    "ApprovePersonallyProcuredMovePayload": {
-      "type": "object",
-      "required": [
-        "approve_date"
-      ],
-      "properties": {
-        "approve_date": {
-          "type": "string",
-          "format": "date-time",
-          "title": "When was the ppm move approved?",
-          "example": "2019-03-26T13:19:56-04:00"
-        }
-      }
-    },
     "AvailableMoveDates": {
       "type": "object",
       "required": [
@@ -3622,107 +3560,6 @@ func init() {
         },
         "sitExpected": {
           "type": "boolean"
-        }
-      }
-    },
-    "CreatePersonallyProcuredMovePayload": {
-      "type": "object",
-      "properties": {
-        "additional_pickup_postal_code": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP code",
-          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-          "x-nullable": true,
-          "example": "90210"
-        },
-        "advance": {
-          "$ref": "#/definitions/CreateReimbursement"
-        },
-        "advance_worksheet": {
-          "$ref": "#/definitions/Document"
-        },
-        "days_in_storage": {
-          "type": "integer",
-          "title": "How many days of storage do you think you'll need?",
-          "maximum": 90,
-          "x-nullable": true
-        },
-        "destination_postal_code": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP code",
-          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-          "x-nullable": true,
-          "example": "90210"
-        },
-        "estimated_storage_reimbursement": {
-          "type": "string",
-          "title": "Estimated Storage Reimbursement",
-          "x-nullable": true
-        },
-        "has_additional_postal_code": {
-          "type": "boolean",
-          "title": "Will you move anything from another pickup location?",
-          "x-nullable": true
-        },
-        "has_pro_gear": {
-          "type": "string",
-          "title": "Has Pro-Gear",
-          "enum": [
-            "NOT SURE",
-            "YES",
-            "NO"
-          ],
-          "x-nullable": true
-        },
-        "has_pro_gear_over_thousand": {
-          "type": "string",
-          "title": "Has Pro-Gear Over Thousand Pounds",
-          "enum": [
-            "NOT SURE",
-            "YES",
-            "NO"
-          ],
-          "x-nullable": true
-        },
-        "has_requested_advance": {
-          "type": "boolean",
-          "title": "Would you like an advance of up to 60% of your PPM incentive?"
-        },
-        "has_sit": {
-          "type": "boolean",
-          "title": "Will you put anything in storage?",
-          "x-nullable": true
-        },
-        "net_weight": {
-          "type": "integer",
-          "title": "Net Weight",
-          "minimum": 1,
-          "x-nullable": true
-        },
-        "original_move_date": {
-          "type": "string",
-          "format": "date",
-          "title": "When do you plan to move?",
-          "x-nullable": true,
-          "example": "2018-04-26"
-        },
-        "pickup_postal_code": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP code",
-          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-          "x-nullable": true,
-          "example": "90210"
-        },
-        "size": {
-          "$ref": "#/definitions/TShirtSize"
-        },
-        "weight_estimate": {
-          "type": "integer",
-          "title": "Weight Estimate",
-          "x-nullable": true
         }
       }
     },
@@ -5709,23 +5546,6 @@ func init() {
         }
       }
     },
-    "PPMIncentive": {
-      "type": "object",
-      "required": [
-        "gcc",
-        "incentive_percentage"
-      ],
-      "properties": {
-        "gcc": {
-          "type": "integer",
-          "title": "GCC"
-        },
-        "incentive_percentage": {
-          "type": "integer",
-          "title": "PPM Incentive @ 95%"
-        }
-      }
-    },
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service member moves themselves.",
       "required": [
@@ -7263,120 +7083,6 @@ func init() {
         "w2Address": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
-        }
-      }
-    },
-    "UpdatePersonallyProcuredMovePayload": {
-      "type": "object",
-      "properties": {
-        "actual_move_date": {
-          "type": "string",
-          "format": "date",
-          "title": "When did you actually move?",
-          "x-nullable": true,
-          "example": "2018-04-26"
-        },
-        "additional_pickup_postal_code": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP code",
-          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-          "x-nullable": true,
-          "example": "90210"
-        },
-        "advance": {
-          "$ref": "#/definitions/Reimbursement"
-        },
-        "advance_worksheet": {
-          "$ref": "#/definitions/Document"
-        },
-        "days_in_storage": {
-          "type": "integer",
-          "title": "How many days of storage do you think you'll need?",
-          "maximum": 90,
-          "x-nullable": true
-        },
-        "destination_postal_code": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP code",
-          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-          "x-nullable": true,
-          "example": "90210"
-        },
-        "estimated_storage_reimbursement": {
-          "type": "string",
-          "title": "Estimated Storage Reimbursement",
-          "x-nullable": true
-        },
-        "has_additional_postal_code": {
-          "type": "boolean",
-          "title": "Will you move anything from another pickup location?",
-          "x-nullable": true
-        },
-        "has_pro_gear": {
-          "type": "string",
-          "title": "Has Pro-Gear",
-          "enum": [
-            "NOT SURE",
-            "YES",
-            "NO"
-          ],
-          "x-nullable": true
-        },
-        "has_pro_gear_over_thousand": {
-          "type": "string",
-          "title": "Has Pro-Gear Over Thousand Pounds",
-          "enum": [
-            "NOT SURE",
-            "YES",
-            "NO"
-          ],
-          "x-nullable": true
-        },
-        "has_requested_advance": {
-          "type": "boolean",
-          "title": "Would you like an advance of up to 60% of your PPM incentive?",
-          "default": false
-        },
-        "has_sit": {
-          "type": "boolean",
-          "title": "Will you put anything in storage?",
-          "x-nullable": true
-        },
-        "net_weight": {
-          "type": "integer",
-          "title": "Net Weight",
-          "minimum": 1,
-          "x-nullable": true
-        },
-        "original_move_date": {
-          "type": "string",
-          "format": "date",
-          "title": "When do you plan to move?",
-          "x-nullable": true,
-          "example": "2018-04-26"
-        },
-        "pickup_postal_code": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP code",
-          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-          "x-nullable": true,
-          "example": "90210"
-        },
-        "size": {
-          "$ref": "#/definitions/TShirtSize"
-        },
-        "total_sit_cost": {
-          "type": "integer",
-          "title": "How much does your storage cost?",
-          "x-nullable": true
-        },
-        "weight_estimate": {
-          "type": "integer",
-          "title": "Weight Estimate",
-          "x-nullable": true
         }
       }
     },
@@ -9945,54 +9651,6 @@ func init() {
         }
       }
     },
-    "/personally_procured_moves/{personallyProcuredMoveId}/approve": {
-      "post": {
-        "description": "Sets the status of the PPM to APPROVED.",
-        "tags": [
-          "office"
-        ],
-        "summary": "Approves the PPM",
-        "operationId": "approvePPM",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the PPM being updated",
-            "name": "personallyProcuredMoveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "approvePersonallyProcuredMovePayload",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/ApprovePersonallyProcuredMovePayload"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "updated instance of personally_procured_move",
-            "schema": {
-              "$ref": "#/definitions/PersonallyProcuredMovePayload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      }
-    },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses": {
       "post": {
         "description": "Creates a moving expense document for the PPM shipment",
@@ -11840,20 +11498,6 @@ func init() {
       },
       "x-nullable": true
     },
-    "ApprovePersonallyProcuredMovePayload": {
-      "type": "object",
-      "required": [
-        "approve_date"
-      ],
-      "properties": {
-        "approve_date": {
-          "type": "string",
-          "format": "date-time",
-          "title": "When was the ppm move approved?",
-          "example": "2019-03-26T13:19:56-04:00"
-        }
-      }
-    },
     "AvailableMoveDates": {
       "type": "object",
       "required": [
@@ -12019,109 +11663,6 @@ func init() {
         },
         "sitExpected": {
           "type": "boolean"
-        }
-      }
-    },
-    "CreatePersonallyProcuredMovePayload": {
-      "type": "object",
-      "properties": {
-        "additional_pickup_postal_code": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP code",
-          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-          "x-nullable": true,
-          "example": "90210"
-        },
-        "advance": {
-          "$ref": "#/definitions/CreateReimbursement"
-        },
-        "advance_worksheet": {
-          "$ref": "#/definitions/Document"
-        },
-        "days_in_storage": {
-          "type": "integer",
-          "title": "How many days of storage do you think you'll need?",
-          "maximum": 90,
-          "minimum": 0,
-          "x-nullable": true
-        },
-        "destination_postal_code": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP code",
-          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-          "x-nullable": true,
-          "example": "90210"
-        },
-        "estimated_storage_reimbursement": {
-          "type": "string",
-          "title": "Estimated Storage Reimbursement",
-          "x-nullable": true
-        },
-        "has_additional_postal_code": {
-          "type": "boolean",
-          "title": "Will you move anything from another pickup location?",
-          "x-nullable": true
-        },
-        "has_pro_gear": {
-          "type": "string",
-          "title": "Has Pro-Gear",
-          "enum": [
-            "NOT SURE",
-            "YES",
-            "NO"
-          ],
-          "x-nullable": true
-        },
-        "has_pro_gear_over_thousand": {
-          "type": "string",
-          "title": "Has Pro-Gear Over Thousand Pounds",
-          "enum": [
-            "NOT SURE",
-            "YES",
-            "NO"
-          ],
-          "x-nullable": true
-        },
-        "has_requested_advance": {
-          "type": "boolean",
-          "title": "Would you like an advance of up to 60% of your PPM incentive?"
-        },
-        "has_sit": {
-          "type": "boolean",
-          "title": "Will you put anything in storage?",
-          "x-nullable": true
-        },
-        "net_weight": {
-          "type": "integer",
-          "title": "Net Weight",
-          "minimum": 1,
-          "x-nullable": true
-        },
-        "original_move_date": {
-          "type": "string",
-          "format": "date",
-          "title": "When do you plan to move?",
-          "x-nullable": true,
-          "example": "2018-04-26"
-        },
-        "pickup_postal_code": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP code",
-          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-          "x-nullable": true,
-          "example": "90210"
-        },
-        "size": {
-          "$ref": "#/definitions/TShirtSize"
-        },
-        "weight_estimate": {
-          "type": "integer",
-          "title": "Weight Estimate",
-          "minimum": 0,
-          "x-nullable": true
         }
       }
     },
@@ -14112,23 +13653,6 @@ func init() {
         }
       }
     },
-    "PPMIncentive": {
-      "type": "object",
-      "required": [
-        "gcc",
-        "incentive_percentage"
-      ],
-      "properties": {
-        "gcc": {
-          "type": "integer",
-          "title": "GCC"
-        },
-        "incentive_percentage": {
-          "type": "integer",
-          "title": "PPM Incentive @ 95%"
-        }
-      }
-    },
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service member moves themselves.",
       "required": [
@@ -15669,123 +15193,6 @@ func init() {
         "w2Address": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
-        }
-      }
-    },
-    "UpdatePersonallyProcuredMovePayload": {
-      "type": "object",
-      "properties": {
-        "actual_move_date": {
-          "type": "string",
-          "format": "date",
-          "title": "When did you actually move?",
-          "x-nullable": true,
-          "example": "2018-04-26"
-        },
-        "additional_pickup_postal_code": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP code",
-          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-          "x-nullable": true,
-          "example": "90210"
-        },
-        "advance": {
-          "$ref": "#/definitions/Reimbursement"
-        },
-        "advance_worksheet": {
-          "$ref": "#/definitions/Document"
-        },
-        "days_in_storage": {
-          "type": "integer",
-          "title": "How many days of storage do you think you'll need?",
-          "maximum": 90,
-          "minimum": 0,
-          "x-nullable": true
-        },
-        "destination_postal_code": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP code",
-          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-          "x-nullable": true,
-          "example": "90210"
-        },
-        "estimated_storage_reimbursement": {
-          "type": "string",
-          "title": "Estimated Storage Reimbursement",
-          "x-nullable": true
-        },
-        "has_additional_postal_code": {
-          "type": "boolean",
-          "title": "Will you move anything from another pickup location?",
-          "x-nullable": true
-        },
-        "has_pro_gear": {
-          "type": "string",
-          "title": "Has Pro-Gear",
-          "enum": [
-            "NOT SURE",
-            "YES",
-            "NO"
-          ],
-          "x-nullable": true
-        },
-        "has_pro_gear_over_thousand": {
-          "type": "string",
-          "title": "Has Pro-Gear Over Thousand Pounds",
-          "enum": [
-            "NOT SURE",
-            "YES",
-            "NO"
-          ],
-          "x-nullable": true
-        },
-        "has_requested_advance": {
-          "type": "boolean",
-          "title": "Would you like an advance of up to 60% of your PPM incentive?",
-          "default": false
-        },
-        "has_sit": {
-          "type": "boolean",
-          "title": "Will you put anything in storage?",
-          "x-nullable": true
-        },
-        "net_weight": {
-          "type": "integer",
-          "title": "Net Weight",
-          "minimum": 1,
-          "x-nullable": true
-        },
-        "original_move_date": {
-          "type": "string",
-          "format": "date",
-          "title": "When do you plan to move?",
-          "x-nullable": true,
-          "example": "2018-04-26"
-        },
-        "pickup_postal_code": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP code",
-          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-          "x-nullable": true,
-          "example": "90210"
-        },
-        "size": {
-          "$ref": "#/definitions/TShirtSize"
-        },
-        "total_sit_cost": {
-          "type": "integer",
-          "title": "How much does your storage cost?",
-          "minimum": 0,
-          "x-nullable": true
-        },
-        "weight_estimate": {
-          "type": "integer",
-          "title": "Weight Estimate",
-          "minimum": 0,
-          "x-nullable": true
         }
       }
     },

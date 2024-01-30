@@ -5104,8 +5104,6 @@ definitions:
         enum:
           - FULL
           - PARTIAL
-      ppmEstimatedWeight:
-        type: integer
       eTag:
         type: string
         readOnly: true
@@ -6382,6 +6380,10 @@ definitions:
             type: string
             format: date
             x-nullable: true
+          sitAuthorizedEndDate:
+            type: string
+            format: date
+            x-nullable: true
           sitCustomerContacted:
             type: string
             format: date
@@ -7548,7 +7550,7 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
-      remainingReimbursementOwed:
+      remainingIncentive:
         description: The remaining reimbursement amount that is still owed to the customer.
         type: integer
         format: cents
