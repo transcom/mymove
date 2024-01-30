@@ -66,6 +66,9 @@ properties:
     title: ZIP
     example: '90210'
     pattern: ^(\d{5})$
+  pickupAddress:
+    x-nullable: true
+    $ref: 'Address.yaml'
   secondaryPickupPostalCode:
     format: An optional secondary pickup location near the origin where additional goods exist.
     type: string
@@ -74,6 +77,9 @@ properties:
     pattern: ^(\d{5})$
     x-nullable: true
     x-omitempty: false
+  secondaryPickupAddress:
+    x-nullable: true
+    $ref: 'Address.yaml'
   actualPickupPostalCode:
     description: >
       The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.
@@ -91,6 +97,9 @@ properties:
     title: ZIP
     example: '90210'
     pattern: ^(\d{5})$
+  destinationAddress:
+    x-nullable: true
+    $ref: 'Address.yaml'
   secondaryDestinationPostalCode:
     description: An optional secondary location near the destination where goods will be dropped off.
     format: zip
@@ -100,6 +109,9 @@ properties:
     pattern: ^(\d{5})$
     x-nullable: true
     x-omitempty: false
+  secondaryDestinationAddress:
+    x-nullable: true
+    $ref: 'Address.yaml'
   actualDestinationPostalCode:
     description: >
       The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.
@@ -232,6 +244,8 @@ required:
   - status
   - expectedDepartureDate
   - pickupPostalCode
+  - pickupAddress
   - destinationPostalCode
+  - destinationAddress
   - sitExpected
   - eTag

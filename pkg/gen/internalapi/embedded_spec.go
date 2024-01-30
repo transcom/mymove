@@ -5877,7 +5877,9 @@ func init() {
         "status",
         "expectedDepartureDate",
         "pickupPostalCode",
+        "pickupAddress",
         "destinationPostalCode",
+        "destinationAddress",
         "sitExpected",
         "eTag"
       ],
@@ -5938,6 +5940,10 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "destinationAddress": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         },
         "destinationPostalCode": {
           "description": "The postal code of the destination location where goods are being delivered to.",
@@ -6011,6 +6017,10 @@ func init() {
             "$ref": "#/definitions/MovingExpense"
           }
         },
+        "pickupAddress": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",
           "type": "string",
@@ -6039,6 +6049,10 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "secondaryDestinationAddress": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
         "secondaryDestinationPostalCode": {
           "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
@@ -6048,6 +6062,10 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": "90210"
+        },
+        "secondaryPickupAddress": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         },
         "secondaryPickupPostalCode": {
           "type": "string",
@@ -14561,7 +14579,9 @@ func init() {
         "status",
         "expectedDepartureDate",
         "pickupPostalCode",
+        "pickupAddress",
         "destinationPostalCode",
+        "destinationAddress",
         "sitExpected",
         "eTag"
       ],
@@ -14622,6 +14642,10 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "destinationAddress": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         },
         "destinationPostalCode": {
           "description": "The postal code of the destination location where goods are being delivered to.",
@@ -14695,6 +14719,10 @@ func init() {
             "$ref": "#/definitions/MovingExpense"
           }
         },
+        "pickupAddress": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",
           "type": "string",
@@ -14723,6 +14751,10 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "secondaryDestinationAddress": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
         "secondaryDestinationPostalCode": {
           "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
@@ -14732,6 +14764,10 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": "90210"
+        },
+        "secondaryPickupAddress": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         },
         "secondaryPickupPostalCode": {
           "type": "string",

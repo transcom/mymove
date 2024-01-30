@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -18,7 +19,8 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 
 	// One-time test setup
 	ppmEstimator := mocks.PPMEstimator{}
-	ppmShipmentCreator := NewPPMShipmentCreator(&ppmEstimator)
+	addressCreator := address.NewAddressCreator()
+	ppmShipmentCreator := NewPPMShipmentCreator(&ppmEstimator, addressCreator)
 
 	type createShipmentSubtestData struct {
 		move           models.Move

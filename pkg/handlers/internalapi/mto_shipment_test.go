@@ -63,10 +63,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	// Setup in this area should only be for objects that can be created once for all the sub-tests. Any model data,
 	// mocks, or objects that can be modified in subtests should instead be set up in makeCreateSubtestData.
 	testMTOShipmentObjects := suite.setUpMTOShipmentObjects()
-
+	addressCreator := address.NewAddressCreator()
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreatorV1(testMTOShipmentObjects.builder, testMTOShipmentObjects.fetcher, testMTOShipmentObjects.moveRouter)
 	ppmEstimator := mocks.PPMEstimator{}
-	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
+	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
 
 	shipmentRouter := mtoshipment.NewShipmentRouter()
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(

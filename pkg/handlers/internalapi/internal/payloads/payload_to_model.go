@@ -124,6 +124,22 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 		ExpectedDepartureDate:          handlers.FmtDatePtrToPop(ppmShipment.ExpectedDepartureDate),
 	}
 
+	if ppmShipment.PickupAddress != nil {
+		model.PickupAddress = AddressModel(ppmShipment.PickupAddress)
+	}
+
+	if ppmShipment.SecondaryPickupAddress != nil {
+		model.SecondaryPickupAddress = AddressModel(ppmShipment.SecondaryPickupAddress)
+	}
+
+	if ppmShipment.DestinationAddress != nil {
+		model.DestinationAddress = AddressModel(ppmShipment.DestinationAddress)
+	}
+
+	if ppmShipment.SecondaryDestinationAddress != nil {
+		model.SecondaryDestinationAddress = AddressModel(ppmShipment.SecondaryDestinationAddress)
+	}
+
 	return model
 }
 
