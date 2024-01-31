@@ -119,7 +119,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		// Set invalid data, can't pass in blank to the generator above (it'll default to HHG if blank) so we're setting it afterward.
 		shipment.ShipmentType = ""
 
-		updatedShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt))
+		updatedShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipmentV1(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt))
 
 		suite.Nil(updatedShipment)
 
@@ -166,7 +166,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 
 			// Need to start a transaction so we can assert the call with the correct appCtx
 			err := appCtx.NewTransaction(func(txAppCtx appcontext.AppContext) error {
-				mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(txAppCtx, &shipment, eTag)
+				mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipmentV1(txAppCtx, &shipment, eTag)
 
 				suite.NoError(err)
 				suite.NotNil(mtoShipment)
@@ -223,7 +223,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		// set new field to update
 		shipment.PPMShipment.HasProGear = models.BoolPointer(false)
 
-		mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt))
+		mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipmentV1(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt))
 
 		suite.NoError(err)
 
@@ -280,7 +280,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 				}, nil)
 			}
 
-			mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt))
+			mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipmentV1(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt))
 
 			suite.Nil(mtoShipment)
 
@@ -304,7 +304,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 
-		mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, eTag)
+		mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipmentV1(appCtx, &shipment, eTag)
 
 		suite.Nil(mtoShipment)
 

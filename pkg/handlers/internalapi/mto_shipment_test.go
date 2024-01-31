@@ -1305,7 +1305,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		err := errors.New("ServerError")
 
-		mockUpdater.On("UpdateShipment",
+		mockUpdater.On("UpdateShipmentV1",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.MTOShipment"),
 			mock.AnythingOfType("string"),

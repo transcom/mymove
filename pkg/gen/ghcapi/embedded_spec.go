@@ -1458,7 +1458,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/UpdateShipment"
+              "$ref": "#/definitions/UpdateShipmentV1"
             }
           }
         ],
@@ -9784,7 +9784,7 @@ func init() {
         }
       }
     },
-    "UpdateShipment": {
+    "UpdateShipmentV1": {
       "type": "object",
       "properties": {
         "agents": {
@@ -12192,7 +12192,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/UpdateShipment"
+              "$ref": "#/definitions/UpdateShipmentV1"
             }
           }
         ],
@@ -21400,7 +21400,7 @@ func init() {
         }
       }
     },
-    "UpdateShipment": {
+    "UpdateShipmentV1": {
       "type": "object",
       "properties": {
         "agents": {

@@ -66,6 +66,32 @@ func (_m *MTOShipmentUpdater) UpdateMTOShipmentV1(appCtx appcontext.AppContext, 
 	return r0, r1
 }
 
+// UpdateMTOShipmentV2 provides a mock function with given fields: appCtx, mtoShipment, eTag
+func (_m *MTOShipmentUpdater) UpdateMTOShipmentV2(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+	ret := _m.Called(appCtx, mtoShipment, eTag)
+
+	var r0 *models.MTOShipment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, string) (*models.MTOShipment, error)); ok {
+		return rf(appCtx, mtoShipment, eTag)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, string) *models.MTOShipment); ok {
+		r0 = rf(appCtx, mtoShipment, eTag)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.MTOShipment)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipment, string) error); ok {
+		r1 = rf(appCtx, mtoShipment, eTag)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // NewMTOShipmentUpdater creates a new instance of MTOShipmentUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMTOShipmentUpdater(t interface {

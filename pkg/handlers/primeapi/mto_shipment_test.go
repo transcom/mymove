@@ -832,7 +832,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			mock.Anything,
 		).Return(true, nil)
 
-		mockUpdater.On("UpdateShipment",
+		mockUpdater.On("UpdateShipmentV1",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,

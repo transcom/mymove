@@ -43,6 +43,72 @@ type mtoShipmentUpdater struct {
 	checks       []validator
 }
 
+// UpdateMTOShipmentV2 updates the mto shipment with logic configured for V2 endpoints
+func (f *mtoShipmentUpdater) UpdateMTOShipmentV2(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+	eagerAssociations := []string{"MoveTaskOrder",
+		"PickupAddress",
+		"DestinationAddress",
+		"SecondaryPickupAddress",
+		"SecondaryDeliveryAddress",
+		"SITDurationUpdates",
+		"MTOServiceItems.ReService",
+		"MTOServiceItems.Dimensions",
+		"MTOServiceItems.CustomerContacts",
+		"StorageFacility.Address",
+		"Reweigh",
+	}
+
+	oldShipment, err := FindShipment(appCtx, mtoShipment.ID, eagerAssociations...)
+	if err != nil {
+		return nil, err
+	}
+
+	var agents []models.MTOAgent
+	err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Where("mto_shipment_id = ?", mtoShipment.ID).All(&agents)
+	if err != nil {
+		return nil, err
+	}
+	oldShipment.MTOAgents = agents
+
+	// run the (read-only) validations
+	if verr := validateShipment(appCtx, mtoShipment, oldShipment, f.checks...); verr != nil {
+		return nil, verr
+	}
+
+	// save the original db version, oldShipment will be modified
+	var dbShipment models.MTOShipment
+	err = copier.CopyWithOption(&dbShipment, oldShipment, copier.Option{IgnoreEmpty: true, DeepCopy: true})
+	if err != nil {
+		return nil, fmt.Errorf("error copying shipment data %w", err)
+	}
+	setNewShipmentFields(appCtx, oldShipment, mtoShipment)
+	newShipment := oldShipment // old shipment has now been updated with requested changes
+	// db version is used to check if agents need creating or updating
+	err = f.updateShipmentRecord(appCtx, &dbShipment, newShipment, eTag)
+	if err != nil {
+		switch err.(type) {
+		case StaleIdentifierError:
+			return nil, apperror.NewPreconditionFailedError(mtoShipment.ID, err)
+		default:
+			return nil, err
+		}
+	}
+
+	updatedShipment, err := FindShipment(appCtx, mtoShipment.ID, eagerAssociations...)
+	if err != nil {
+		return nil, err
+	}
+
+	var updatedAgents []models.MTOAgent
+	err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Where("mto_shipment_id = ?", mtoShipment.ID).All(&updatedAgents)
+	if err != nil {
+		return nil, err
+	}
+	updatedShipment.MTOAgents = updatedAgents
+
+	return updatedShipment, nil
+}
+
 // NewMTOShipmentUpdater creates a new struct with the service dependencies
 func NewMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights, sender notifications.NotificationSender, recalculator services.PaymentRequestShipmentRecalculator) services.MTOShipmentUpdater {
 	return &mtoShipmentUpdater{
@@ -295,7 +361,8 @@ func (e StaleIdentifierError) Error() string {
 	return fmt.Sprintf("stale identifier: %s", e.StaleIdentifier)
 }
 
-// UpdateMTOShipmentV1 updates the mto shipment
+// UpdateMTOShipmentV1 updates the mto shipment with V1 specific logic
+// ! This should no longer be updated, utilize V2 instead
 func (f *mtoShipmentUpdater) UpdateMTOShipmentV1(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
 	eagerAssociations := []string{"MoveTaskOrder",
 		"PickupAddress",

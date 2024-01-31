@@ -452,7 +452,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		err := errors.New("ServerError")
 
-		mockUpdater.On("UpdateShipment",
+		mockUpdater.On("UpdateShipmentV1",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,

@@ -16,5 +16,6 @@ type ShipmentCreator interface {
 //
 //go:generate mockery --name ShipmentUpdater
 type ShipmentUpdater interface {
-	UpdateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
+	UpdateShipmentV1(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
+	UpdateShipmentV2(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
 }

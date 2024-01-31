@@ -28,6 +28,7 @@ type MTOShipmentUpdater interface {
 	// V1 will still update service item destination address while V2 will not
 	MTOShipmentsMTOAvailableToPrime(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (bool, error)
 	UpdateMTOShipmentV1(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
+	UpdateMTOShipmentV2(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
 }
 
 // BillableWeightInputs is a type for capturing what should be returned when a shipments billable weight is calculated

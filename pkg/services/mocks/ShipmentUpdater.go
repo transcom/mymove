@@ -14,8 +14,34 @@ type ShipmentUpdater struct {
 	mock.Mock
 }
 
-// UpdateShipment provides a mock function with given fields: appCtx, shipment, eTag
-func (_m *ShipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+// UpdateShipmentV1 provides a mock function with given fields: appCtx, shipment, eTag
+func (_m *ShipmentUpdater) UpdateShipmentV1(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+	ret := _m.Called(appCtx, shipment, eTag)
+
+	var r0 *models.MTOShipment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, string) (*models.MTOShipment, error)); ok {
+		return rf(appCtx, shipment, eTag)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, string) *models.MTOShipment); ok {
+		r0 = rf(appCtx, shipment, eTag)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.MTOShipment)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipment, string) error); ok {
+		r1 = rf(appCtx, shipment, eTag)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UpdateShipmentV2 provides a mock function with given fields: appCtx, shipment, eTag
+func (_m *ShipmentUpdater) UpdateShipmentV2(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
 	ret := _m.Called(appCtx, shipment, eTag)
 
 	var r0 *models.MTOShipment

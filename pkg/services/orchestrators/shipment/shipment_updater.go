@@ -22,8 +22,9 @@ func NewShipmentUpdater(mtoShipmentUpdater services.MTOShipmentUpdater, ppmShipm
 	}
 }
 
-// UpdateShipment updates a shipment, taking into account different shipment types and their needs.
-func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+// UpdateShipmentV1 updates a shipment, taking into account different shipment types and their needs.
+// This only applies to V1 endpoints.
+func (s *shipmentUpdater) UpdateShipmentV1(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
 	if err := validateShipment(appCtx, *shipment, s.checks...); err != nil {
 		return nil, err
 	}
@@ -32,6 +33,49 @@ func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment 
 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) (err error) {
 		mtoShipment, err = s.mtoShipmentUpdater.UpdateMTOShipmentV1(txnAppCtx, shipment, eTag)
+
+		if err != nil {
+			return err
+		}
+
+		if shipment.ShipmentType != models.MTOShipmentTypePPM {
+			return nil
+		}
+
+		shipment.PPMShipment.ShipmentID = mtoShipment.ID
+		shipment.PPMShipment.Shipment = *mtoShipment
+
+		ppmShipment, err := s.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(txnAppCtx, shipment.PPMShipment, mtoShipment.ID)
+
+		if err != nil {
+			return err
+		}
+
+		// Update variables with latest versions
+		mtoShipment = &ppmShipment.Shipment
+		mtoShipment.PPMShipment = ppmShipment
+
+		return nil
+	})
+
+	if txErr != nil {
+		return nil, txErr
+	}
+
+	return mtoShipment, nil
+}
+
+// UpdateShipmentV2 updates a shipment, taking into account different shipment types and their needs.
+// This only applies to V2 endpoints.
+func (s *shipmentUpdater) UpdateShipmentV2(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+	if err := validateShipment(appCtx, *shipment, s.checks...); err != nil {
+		return nil, err
+	}
+
+	var mtoShipment *models.MTOShipment
+
+	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) (err error) {
+		mtoShipment, err = s.mtoShipmentUpdater.UpdateMTOShipmentV2(txnAppCtx, shipment, eTag)
 
 		if err != nil {
 			return err

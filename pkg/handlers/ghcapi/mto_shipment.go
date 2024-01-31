@@ -287,7 +287,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 					), err
 				}
 			}
-			updatedMtoShipment, err := h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch)
+			updatedMtoShipment, err := h.ShipmentUpdater.UpdateShipmentV1(appCtx, mtoShipment, params.IfMatch)
 			if err != nil {
 				return handleError(err)
 			}
