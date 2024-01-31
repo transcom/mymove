@@ -194,6 +194,40 @@ const ppmShipmentWithCompleteWeightTicket = {
   },
 };
 
+const approvedAdvancePPMShipment = {
+  ...incompletePPMShipment,
+  ppmShipment: {
+    ...incompletePPMShipment.ppmShipment,
+    sitExpected: false,
+    estimatedWeight: 4000,
+    hasProGear: false,
+    estimatedIncentive: 10000000,
+    hasRequestedAdvance: true,
+    advanceAmountRequested: 30000,
+    advanceStatus: 'APPROVED',
+    status: ppmShipmentStatuses.SUBMITTED,
+    updatedAt: ppmShipmentUpdatedDate.toISOString(),
+    eTag: window.btoa(ppmShipmentUpdatedDate.toISOString()),
+  },
+};
+
+const rejectedAdvancePPMShipment = {
+  ...incompletePPMShipment,
+  ppmShipment: {
+    ...incompletePPMShipment.ppmShipment,
+    sitExpected: false,
+    estimatedWeight: 4000,
+    hasProGear: false,
+    estimatedIncentive: 10000000,
+    hasRequestedAdvance: true,
+    advanceAmountRequested: 30000,
+    advanceStatus: 'REJECTED',
+    status: ppmShipmentStatuses.SUBMITTED,
+    updatedAt: ppmShipmentUpdatedDate.toISOString(),
+    eTag: window.btoa(ppmShipmentUpdatedDate.toISOString()),
+  },
+};
+
 const mountHomeWithProviders = (props = {}) => {
   return mount(
     <MockProviders>
@@ -493,7 +527,7 @@ describe('Home component', () => {
       const mtoShipments = [submittedPPMShipment];
 
       const wrapper = mountHomeWithProviders({ ...propUpdates, mtoShipments });
-
+      
       const props = { ...defaultProps, ...propUpdates, mtoShipments };
 
       it('renders the SubmittedMove helper', () => {
@@ -510,7 +544,7 @@ describe('Home component', () => {
         expect(ordersStep.prop('editBtnLabel')).toEqual('Upload documents');
       });
 
-      it('renders Step 5', () => {
+      it('renders Manage your PPM Step', () => {
         render(<Home {...props} />);
         expect(screen.getByText('Manage your PPM')).toBeInTheDocument();
       });
@@ -518,6 +552,65 @@ describe('Home component', () => {
       it('add shipments button no longer present', () => {
         render(<Home {...props} />);
         expect(screen.queryByRole('button', { name: 'Add another shipment' })).not.toBeInTheDocument();
+      });
+    });
+
+    describe('for advance request approved PPM', () => {
+      it('renders advance request submitted for PPM', () => {
+        const mtoShipments = [submittedPPMShipment];
+        const props = { ...defaultProps, ...propUpdates, mtoShipments };
+        render(<Home {...props} />);
+        expect(screen.getByText('Advance request submitted')).toBeInTheDocument();
+      });
+
+      it('renders advance request submitted for PPM', () => {
+        const mtoShipments = [approvedAdvancePPMShipment];
+        const props =  { ...defaultProps, ...propUpdates, mtoShipments };
+        render(<Home {...props} />);
+        expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
+      });
+
+      it('renders advance request reviewed with 1 approved PPM', () => {
+        const mtoShipments = [approvedAdvancePPMShipment];
+        const wrapper = mountHomeWithProviders({...propUpdates, mtoShipments });
+        const advanceStep = wrapper.find('Step[step="5"]');
+        expect(advanceStep.prop('completedHeaderText')).toEqual('Advance request reviewed');
+        
+        const props =  { ...defaultProps, ...propUpdates, mtoShipments };
+        render(<Home {...props} />);
+        expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
+      });
+
+      it('renders advance request reviewed for approved advance for PPM with HHG', () => {
+        const mtoShipments = [{ id: v4(), shipmentType: SHIPMENT_OPTIONS.HHG }, approvedAdvancePPMShipment];
+        const wrapper = mountHomeWithProviders({...propUpdates, mtoShipments });
+        const advanceStep = wrapper.find('Step[step="5"]');
+        expect(advanceStep.prop('completedHeaderText')).toEqual('Advance request reviewed');
+        
+        const props =  { ...defaultProps, ...propUpdates, mtoShipments };
+        render(<Home {...props} />);
+        expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
+      });
+
+      it('renders advance request reviewed with 1 approved and 1 rejected advance', () => {
+        const mtoShipments = [approvedAdvancePPMShipment, rejectedAdvancePPMShipment];
+        const wrapper = mountHomeWithProviders({ ...propUpdates, mtoShipments });
+        const advanceStep = wrapper.find('Step[step="5"]');
+
+        expect(advanceStep.prop('completedHeaderText')).toEqual('Advance request reviewed');
+
+        const props =  { ...defaultProps, ...propUpdates, mtoShipments };
+        render(<Home {...props} />);
+        expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
+        expect(screen.getByText('Advance request denied')).toBeInTheDocument();
+      });
+
+      it('renders advance request denied for PPM', () => {
+        const mtoShipments = [rejectedAdvancePPMShipment];
+        const wrapper = mountHomeWithProviders({ ...propUpdates, mtoShipments });
+        const advanceStep = wrapper.find('Step[step="5"]');
+
+        expect(advanceStep.prop('completedHeaderText')).toEqual('Advance request denied');
       });
     });
 
@@ -542,7 +635,7 @@ describe('Home component', () => {
         expect(ordersStep.prop('editBtnLabel')).toEqual('Upload documents');
       });
 
-      it('does not render Step 5', () => {
+      it('does not render Manage your PPM Step', () => {
         render(<Home {...props} />);
         expect(screen.queryByText('Manage your PPM')).not.toBeInTheDocument();
       });
@@ -574,7 +667,7 @@ describe('Home component', () => {
         expect(ordersStep.prop('editBtnLabel')).toEqual('Upload documents');
       });
 
-      it('does not render Step 5', () => {
+      it('does not render Manage your PPM Step', () => {
         render(<Home {...props} />);
         expect(screen.queryByText('Manage your PPM')).not.toBeInTheDocument();
       });
@@ -618,7 +711,7 @@ describe('Home component', () => {
         expect(ordersStep.prop('editBtnLabel')).toEqual('Upload documents');
       });
 
-      it('renders Step 5', () => {
+      it('renders Manage your PPM Step', () => {
         render(<Home {...props} />);
         expect(screen.getByText('Manage your PPM')).toBeInTheDocument();
       });
