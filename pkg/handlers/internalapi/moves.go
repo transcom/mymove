@@ -157,6 +157,7 @@ func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*int
 			CreatedAt:    *handlers.FmtDateTime(move.CreatedAt),
 			ETag:         eTag,
 			ID:           *handlers.FmtUUID(move.ID),
+			Status:       string(move.Status),
 			MtoShipments: *payloadShipments,
 			MoveCode:     move.Locator,
 			Orders:       move.Orders,

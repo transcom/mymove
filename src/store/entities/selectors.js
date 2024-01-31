@@ -145,6 +145,11 @@ export const selectCurrentMove = (state) => {
   return activeMove || moves[0] || null;
 };
 
+export const selectAllMoves = (state) => {
+  if (state.entities.serviceMemberMoves) return state.entities.serviceMemberMoves;
+  return { currentMove: [], previousMoves: [] };
+};
+
 export const selectMoveIsApproved = createSelector(selectCurrentMove, (move) => move?.status === 'APPROVED');
 
 export const selectMoveIsInDraft = createSelector(selectCurrentMove, (move) => move?.status === MOVE_STATUSES.DRAFT);
