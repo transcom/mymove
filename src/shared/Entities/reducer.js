@@ -45,6 +45,7 @@ const initialState = {
   personallyProcuredMoves: {},
   mtoShipments: {},
   reimbursements: {},
+  serviceMemberMoves: {},
   signedCertifications: {},
   oktaUser: {},
 };
@@ -77,5 +78,6 @@ export function entitiesReducer(state = initialState, action) {
       oktaUser: action.oktaUser || {},
     };
   }
+
   return state;
 }

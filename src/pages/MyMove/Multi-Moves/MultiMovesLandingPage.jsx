@@ -28,15 +28,12 @@ import { customerRoutes } from 'constants/routes';
 import { withContext } from 'shared/AppContext';
 import withRouter from 'utils/routing';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
-import {
-  selectCurrentMove,
-  selectIsProfileComplete,
-  selectServiceMemberFromLoggedInUser,
-} from 'store/entities/selectors';
+import { selectIsProfileComplete, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
-const MultiMovesLandingPage = () => {
+const MultiMovesLandingPage = ({ serviceMemberMoves }) => {
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
   const navigate = useNavigate();
+  console.log('serviceMemberMoves', serviceMemberMoves);
 
   // ! This is just used for testing and viewing different variations of data that MilMove will use
   // user can add params of ?moveData=PCS, etc to view different views
@@ -180,12 +177,12 @@ MultiMovesLandingPage.defaultProps = {
 
 const mapStateToProps = (state) => {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  const move = selectCurrentMove(state) || {};
+  const { serviceMemberMoves } = state.entities;
 
   return {
     isProfileComplete: selectIsProfileComplete(state),
     serviceMember,
-    move,
+    serviceMemberMoves,
   };
 };
 
