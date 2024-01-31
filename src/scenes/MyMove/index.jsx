@@ -40,19 +40,13 @@ import InfectedUpload from 'shared/Uploader/InfectedUpload';
 import ProcessingUpload from 'shared/Uploader/ProcessingUpload';
 import Edit from 'scenes/Review/Edit';
 import EditProfile from 'scenes/Review/EditProfile';
-import WeightTicket from 'scenes/Moves/Ppm/WeightTicket';
-import ExpensesLanding from 'scenes/Moves/Ppm/ExpensesLanding';
-import ExpensesUpload from 'scenes/Moves/Ppm/ExpensesUpload';
-import AllowableExpenses from 'scenes/Moves/Ppm/AllowableExpenses';
-import WeightTicketExamples from 'scenes/Moves/Ppm/WeightTicketExamples';
 import NotFound from 'components/NotFound/NotFound';
 import PrivacyPolicyStatement from 'components/Statements/PrivacyAndPolicyStatement';
 import AccessibilityStatement from 'components/Statements/AccessibilityStatement';
-import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
-import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
 import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipment';
 import Home from 'pages/MyMove/Home';
 import TitleAnnouncer from 'components/TitleAnnouncer/TitleAnnouncer';
+import MultiMovesLandingPage from 'pages/MyMove/Multi-Moves/MultiMovesLandingPage';
 // Pages should be lazy-loaded (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
@@ -112,6 +106,8 @@ export class CustomerApp extends Component {
     const { props } = this;
     const { userIsLoggedIn, loginIsLoading } = props;
     const { hasError } = this.state;
+
+    const multiMoveWorkflow = props.context.flags.multiMove;
 
     return (
       <>
@@ -186,10 +182,14 @@ export class CustomerApp extends Component {
                 {/* <Route end path="/ppm" element={<PpmLanding />} /> */}
 
                 {/* ROOT */}
-                <Route path={generalRoutes.HOME_PATH} end element={<Home />} />
+                {/* If multiMove is enabled home page will route to dashboard element */}
+                {multiMoveWorkflow && <Route path={generalRoutes.HOME_PATH} end element={<MultiMovesLandingPage />} />}
+                {!multiMoveWorkflow && <Route path={customerRoutes.MOVE_HOME_PAGE} end element={<Home />} />}
 
                 {getWorkflowRoutes(props)}
 
+                {/* If multiMove is enabled then move path routes to the move path rendering the home element */}
+                {multiMoveWorkflow && <Route path={customerRoutes.MOVE_HOME_PAGE} end element={<Home />} />}
                 <Route end path={customerRoutes.SHIPMENT_MOVING_INFO_PATH} element={<MovingInfo />} />
                 <Route end path="/moves/:moveId/edit" element={<Edit />} />
                 <Route end path={customerRoutes.EDIT_PROFILE_PATH} element={<EditProfile />} />
@@ -215,17 +215,10 @@ export class CustomerApp extends Component {
                 <Route end path={customerRoutes.SHIPMENT_PPM_COMPLETE_PATH} element={<PPMFinalCloseout />} />
                 <Route path={customerRoutes.ORDERS_EDIT_PATH} element={<EditOrders />} />
                 <Route path={customerRoutes.ORDERS_AMEND_PATH} element={<AmendOrders />} />
-                <Route end path="/weight-ticket-examples" element={<WeightTicketExamples />} />
-                <Route end path="/trailer-criteria" element={<TrailerCriteria />} />
-                <Route end path="/allowable-expenses" element={<AllowableExpenses />} />
                 <Route end path="/infected-upload" element={<InfectedUpload />} />
                 <Route end path="/processing-upload" element={<ProcessingUpload />} />
-                <Route path="/moves/:moveId/ppm-weight-ticket" element={<WeightTicket />} />
-                <Route path="/moves/:moveId/ppm-expenses-intro" element={<ExpensesLanding />} />
-                <Route path="/moves/:moveId/ppm-expenses" element={<ExpensesUpload />} />
                 <Route end path={customerRoutes.SHIPMENT_PPM_PRO_GEAR_PATH} element={<ProGear />} />
                 <Route end path={customerRoutes.SHIPMENT_PPM_PRO_GEAR_EDIT_PATH} element={<ProGear />} />
-                <Route end path="/ppm-customer-agreement" element={<CustomerAgreementLegalese />} />
 
                 {/* Errors */}
                 <Route
@@ -272,6 +265,7 @@ CustomerApp.propTypes = {
     flags: PropTypes.shape({
       hhgFlow: PropTypes.bool,
       ghcFlow: PropTypes.bool,
+      multiMove: PropTypes.bool,
     }),
   }).isRequired,
 };
@@ -287,6 +281,7 @@ CustomerApp.defaultProps = {
     flags: {
       hhgFlow: false,
       ghcFlow: false,
+      multiMove: false,
     },
   },
 };

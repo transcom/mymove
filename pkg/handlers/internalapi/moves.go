@@ -1,7 +1,6 @@
 package internalapi
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"time"
@@ -14,7 +13,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/etag"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -22,11 +20,79 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
-	"github.com/transcom/mymove/pkg/paperwork"
-	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/services"
+	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
 	"github.com/transcom/mymove/pkg/storage"
 )
+
+func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models.PersonallyProcuredMove) (*internalmessages.PersonallyProcuredMovePayload, error) {
+
+	documentPayload, err := payloads.PayloadForDocumentModel(storer, personallyProcuredMove.AdvanceWorksheet)
+	var hasProGear *string
+	if personallyProcuredMove.HasProGear != nil {
+		hpg := string(*personallyProcuredMove.HasProGear)
+		hasProGear = &hpg
+	}
+	var hasProGearOverThousand *string
+	if personallyProcuredMove.HasProGearOverThousand != nil {
+		hpgot := string(*personallyProcuredMove.HasProGearOverThousand)
+		hasProGearOverThousand = &hpgot
+	}
+	if err != nil {
+		return nil, err
+	}
+	ppmPayload := internalmessages.PersonallyProcuredMovePayload{
+		ID:                            handlers.FmtUUID(personallyProcuredMove.ID),
+		MoveID:                        *handlers.FmtUUID(personallyProcuredMove.MoveID),
+		CreatedAt:                     handlers.FmtDateTime(personallyProcuredMove.CreatedAt),
+		UpdatedAt:                     handlers.FmtDateTime(personallyProcuredMove.UpdatedAt),
+		WeightEstimate:                handlers.FmtPoundPtr(personallyProcuredMove.WeightEstimate),
+		OriginalMoveDate:              handlers.FmtDatePtr(personallyProcuredMove.OriginalMoveDate),
+		ActualMoveDate:                handlers.FmtDatePtr(personallyProcuredMove.ActualMoveDate),
+		SubmitDate:                    handlers.FmtDateTimePtr(personallyProcuredMove.SubmitDate),
+		ApproveDate:                   handlers.FmtDateTimePtr(personallyProcuredMove.ApproveDate),
+		PickupPostalCode:              personallyProcuredMove.PickupPostalCode,
+		HasAdditionalPostalCode:       personallyProcuredMove.HasAdditionalPostalCode,
+		AdditionalPickupPostalCode:    personallyProcuredMove.AdditionalPickupPostalCode,
+		DestinationPostalCode:         personallyProcuredMove.DestinationPostalCode,
+		HasSit:                        personallyProcuredMove.HasSit,
+		DaysInStorage:                 personallyProcuredMove.DaysInStorage,
+		EstimatedStorageReimbursement: personallyProcuredMove.EstimatedStorageReimbursement,
+		Status:                        internalmessages.PPMStatus(personallyProcuredMove.Status),
+		HasRequestedAdvance:           &personallyProcuredMove.HasRequestedAdvance,
+		Advance:                       payloadForReimbursementModel(personallyProcuredMove.Advance),
+		AdvanceWorksheet:              documentPayload,
+		Mileage:                       personallyProcuredMove.Mileage,
+		TotalSitCost:                  handlers.FmtCost(personallyProcuredMove.TotalSITCost),
+		HasProGear:                    hasProGear,
+		HasProGearOverThousand:        hasProGearOverThousand,
+	}
+	if personallyProcuredMove.IncentiveEstimateMin != nil {
+		min := (*personallyProcuredMove.IncentiveEstimateMin).Int64()
+		ppmPayload.IncentiveEstimateMin = &min
+	}
+	if personallyProcuredMove.IncentiveEstimateMax != nil {
+		max := (*personallyProcuredMove.IncentiveEstimateMax).Int64()
+		ppmPayload.IncentiveEstimateMax = &max
+	}
+	if personallyProcuredMove.PlannedSITMax != nil {
+		max := (*personallyProcuredMove.PlannedSITMax).Int64()
+		ppmPayload.PlannedSitMax = &max
+	}
+	if personallyProcuredMove.SITMax != nil {
+		max := (*personallyProcuredMove.SITMax).Int64()
+		ppmPayload.SitMax = &max
+	}
+	if personallyProcuredMove.HasProGear != nil {
+		hasProGear := string(*personallyProcuredMove.HasProGear)
+		ppmPayload.HasProGear = &hasProGear
+	}
+	if personallyProcuredMove.HasProGearOverThousand != nil {
+		hasProGearOverThousand := string(*personallyProcuredMove.HasProGearOverThousand)
+		ppmPayload.HasProGearOverThousand = &hasProGearOverThousand
+	}
+	return &ppmPayload, nil
+}
 
 func payloadForMoveModel(storer storage.FileStorer, order models.Order, move models.Move) (*internalmessages.MovePayload, error) {
 
@@ -71,6 +137,49 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		movePayload.CloseoutOffice = payloads.TransportationOffice(*move.CloseoutOffice)
 	}
 	return movePayload, nil
+}
+
+func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*internalmessages.InternalMove {
+	var convertedCurrentMovesList []*internalmessages.InternalMove = []*internalmessages.InternalMove{}
+
+	if len(list) == 0 {
+		return convertedCurrentMovesList
+	}
+
+	// Convert moveList to internalmessages.InternalMove
+	for _, move := range list {
+
+		eTag := etag.GenerateEtag(move.UpdatedAt)
+		shipments := move.MTOShipments
+		var payloadShipments *internalmessages.MTOShipments = payloads.MTOShipments(storer, &shipments)
+
+		currentMove := &internalmessages.InternalMove{
+			CreatedAt:    *handlers.FmtDateTime(move.CreatedAt),
+			ETag:         eTag,
+			ID:           *handlers.FmtUUID(move.ID),
+			MtoShipments: *payloadShipments,
+			MoveCode:     move.Locator,
+			Orders:       move.Orders,
+		}
+
+		convertedCurrentMovesList = append(convertedCurrentMovesList, currentMove)
+	}
+	return convertedCurrentMovesList
+}
+
+func payloadForMovesList(storer storage.FileStorer, previousMovesList models.Moves, currentMoveList models.Moves, movesList models.Moves) *internalmessages.MovesList {
+
+	if len(movesList) == 0 {
+		return &internalmessages.MovesList{
+			CurrentMove:   []*internalmessages.InternalMove{},
+			PreviousMoves: []*internalmessages.InternalMove{},
+		}
+	}
+
+	return &internalmessages.MovesList{
+		CurrentMove:   payloadForInternalMove(storer, currentMoveList),
+		PreviousMoves: payloadForInternalMove(storer, previousMovesList),
+	}
 }
 
 // ShowMoveHandler returns a move for a user and move ID
@@ -211,94 +320,40 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSummaryWorksheetParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			logger := appCtx.Logger()
 
-			moveID, _ := uuid.FromString(params.MoveID.String())
-
-			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
 			if err != nil {
+				logger.Error("Error fetching PPMShipment", zap.Error(err))
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
-
-			ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(*move))
-
-			ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(appCtx.DB(), appCtx.Session(), moveID)
+			ssfd, err := h.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentID)
 			if err != nil {
 				logger.Error("Error fetching data for SSW", zap.Error(err))
 				return handlers.ResponseForError(logger, err), err
 			}
 
-			ssfd.PreparationDate = time.Time(params.PreparationDate)
-			ssfd.Obligations, err = ppmComputer.ComputeObligations(appCtx, ssfd, h.DTODPlanner())
+			ssfd.Obligations, err = h.SSWPPMComputer.ComputeObligations(appCtx, *ssfd, h.DTODPlanner())
 			if err != nil {
 				logger.Error("Error calculating obligations ", zap.Error(err))
 				return handlers.ResponseForError(logger, err), err
 			}
 
-			page1Data, page2Data, page3Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)
-
+			page1Data, page2Data := h.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
 			if err != nil {
+				logger.Error("Error formatting data for SSW", zap.Error(err))
 				return handlers.ResponseForError(logger, err), err
 			}
 
-			formFiller := paperwork.NewFormFiller()
-
-			// page 1
-			page1Layout := paperwork.ShipmentSummaryPage1Layout
-			page1Template, err := assets.Asset(page1Layout.TemplateImagePath)
-
+			ppmGenerator := shipmentsummaryworksheet.NewSSWPPMGenerator()
+			SSWPPMWorksheet, SSWPDFInfo, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
 			if err != nil {
-				appCtx.Logger().Error("Error reading page 1 template file", zap.String("asset", page1Layout.TemplateImagePath), zap.Error(err))
-				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
+				return nil, err
 			}
-
-			page1Reader := bytes.NewReader(page1Template)
-			err = formFiller.AppendPage(page1Reader, page1Layout.FieldsLayout, page1Data)
-			if err != nil {
-				appCtx.Logger().Error("Error appending page 1 to PDF", zap.Error(err))
-				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
+			if SSWPDFInfo.PageCount != 2 {
+				return nil, errors.Wrap(err, "SSWGenerator output a corrupted or incorretly altered PDF")
 			}
-
-			// page 2
-			page2Layout := paperwork.ShipmentSummaryPage2Layout
-			page2Template, err := assets.Asset(page2Layout.TemplateImagePath)
-
-			if err != nil {
-				appCtx.Logger().Error("Error reading page 2 template file", zap.String("asset", page2Layout.TemplateImagePath), zap.Error(err))
-				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
-			}
-
-			page2Reader := bytes.NewReader(page2Template)
-			err = formFiller.AppendPage(page2Reader, page2Layout.FieldsLayout, page2Data)
-			if err != nil {
-				appCtx.Logger().Error("Error appending 2 page to PDF", zap.Error(err))
-				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
-			}
-
-			// page 3
-			page3Layout := paperwork.ShipmentSummaryPage3Layout
-			page3Template, err := assets.Asset(page3Layout.TemplateImagePath)
-
-			if err != nil {
-				appCtx.Logger().Error("Error reading page 3 template file", zap.String("asset", page3Layout.TemplateImagePath), zap.Error(err))
-				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
-			}
-
-			page3Reader := bytes.NewReader(page3Template)
-			err = formFiller.AppendPage(page3Reader, page3Layout.FieldsLayout, page3Data)
-			if err != nil {
-				appCtx.Logger().Error("Error appending page 3 to PDF", zap.Error(err))
-				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
-			}
-
-			buf := new(bytes.Buffer)
-			err = formFiller.Output(buf)
-			if err != nil {
-				appCtx.Logger().Error("Error writing out PDF", zap.Error(err))
-				return moveop.NewShowShipmentSummaryWorksheetInternalServerError(), err
-			}
-
-			payload := io.NopCloser(buf)
+			payload := io.NopCloser(SSWPPMWorksheet)
 			filename := fmt.Sprintf("inline; filename=\"%s-%s-ssw-%s.pdf\"", *ssfd.ServiceMember.FirstName, *ssfd.ServiceMember.LastName, time.Now().Format("01-02-2006"))
 
 			return moveop.NewShowShipmentSummaryWorksheetOK().WithContentDisposition(filename).WithPayload(payload), nil
@@ -308,6 +363,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 // ShowShipmentSummaryWorksheetHandler returns a Shipment Summary Worksheet PDF
 type ShowShipmentSummaryWorksheetHandler struct {
 	handlers.HandlerConfig
+	services.SSWPPMComputer
 }
 
 // SubmitAmendedOrdersHandler approves a move via POST /moves/{moveId}/submit
@@ -352,5 +408,64 @@ func (h SubmitAmendedOrdersHandler) Handle(params moveop.SubmitAmendedOrdersPara
 				return handlers.ResponseForError(logger, err), err
 			}
 			return moveop.NewSubmitAmendedOrdersOK().WithPayload(movePayload), nil
+		})
+}
+
+type GetAllMovesHandler struct {
+	handlers.HandlerConfig
+}
+
+// GetAllMovesHandler returns the current and all previous moves of a service member
+func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			// Grab service member ID from params
+			serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
+
+			// Grab the serviceMember by serviceMemberId
+			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			var movesList models.Moves
+			var latestMove models.Move
+			var previousMovesList models.Moves
+			var currentMovesList models.Moves
+
+			// Get All Moves for the ServiceMember
+			for _, order := range serviceMember.Orders {
+				moves, fetchErr := models.FetchMovesByOrderID(appCtx.DB(), order.ID)
+				if fetchErr != nil {
+					return handlers.ResponseForError(appCtx.Logger(), err), err
+				}
+
+				movesList = append(movesList, moves...)
+			}
+
+			// Find the move with the latest CreatedAt Date. That one will be the current move
+			var nilTime time.Time
+			for _, move := range movesList {
+				if latestMove.CreatedAt == nilTime {
+					latestMove = move
+					break
+				}
+				if move.CreatedAt.After(latestMove.CreatedAt) && move.CreatedAt != latestMove.CreatedAt {
+					latestMove = move
+				}
+			}
+
+			// Place latest move in currentMovesList array
+			currentMovesList = append(currentMovesList, latestMove)
+
+			// Populate previousMovesList
+			for _, move := range movesList {
+				if move.ID != latestMove.ID {
+					previousMovesList = append(previousMovesList, move)
+				}
+			}
+
+			return moveop.NewGetAllMovesOK().WithPayload(payloadForMovesList(h.FileStorer(), previousMovesList, currentMovesList, movesList)), nil
 		})
 }
