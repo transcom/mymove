@@ -593,8 +593,9 @@ export class Home extends Component {
                                     {` ${shipmentNumber} `}
                                   </strong>
                                   {shipment?.ppmShipment?.advanceStatus === 'APPROVED' && (
+                                    // TODO: B-18060 will add link to method that will create the AOA packet and return for download
                                     <p className={styles.downloadLink}>
-                                      <a href="" download>
+                                      <a href="">
                                         <span>Download AOA Paperwork (PDF)</span>
                                       </a>
                                     </p>
