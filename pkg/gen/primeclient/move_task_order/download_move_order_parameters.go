@@ -67,6 +67,14 @@ type DownloadMoveOrderParams struct {
 	*/
 	Locator string
 
+	/* Type.
+
+	   upload type
+
+	   Default: "ALL"
+	*/
+	Type *string
+
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
@@ -84,7 +92,18 @@ func (o *DownloadMoveOrderParams) WithDefaults() *DownloadMoveOrderParams {
 //
 // All values with no default are reset to their zero value.
 func (o *DownloadMoveOrderParams) SetDefaults() {
-	// no default values defined for this parameter
+	var (
+		typeVarDefault = string("ALL")
+	)
+
+	val := DownloadMoveOrderParams{
+		Type: &typeVarDefault,
+	}
+
+	val.timeout = o.timeout
+	val.Context = o.Context
+	val.HTTPClient = o.HTTPClient
+	*o = val
 }
 
 // WithTimeout adds the timeout to the download move order params
@@ -131,6 +150,17 @@ func (o *DownloadMoveOrderParams) SetLocator(locator string) {
 	o.Locator = locator
 }
 
+// WithType adds the typeVar to the download move order params
+func (o *DownloadMoveOrderParams) WithType(typeVar *string) *DownloadMoveOrderParams {
+	o.SetType(typeVar)
+	return o
+}
+
+// SetType adds the type to the download move order params
+func (o *DownloadMoveOrderParams) SetType(typeVar *string) {
+	o.Type = typeVar
+}
+
 // WriteToRequest writes these params to a swagger request
 func (o *DownloadMoveOrderParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 
@@ -142,6 +172,23 @@ func (o *DownloadMoveOrderParams) WriteToRequest(r runtime.ClientRequest, reg st
 	// path param locator
 	if err := r.SetPathParam("locator", o.Locator); err != nil {
 		return err
+	}
+
+	if o.Type != nil {
+
+		// query param type
+		var qrType string
+
+		if o.Type != nil {
+			qrType = *o.Type
+		}
+		qType := qrType
+		if qType != "" {
+
+			if err := r.SetQueryParam("type", qType); err != nil {
+				return err
+			}
+		}
 	}
 
 	if len(res) > 0 {

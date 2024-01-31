@@ -6,11 +6,11 @@ export const generalRoutes = {
 };
 
 export const customerRoutes = {
+  MOVE_HOME_PAGE: '/move',
   CONUS_OCONUS_PATH: '/service-member/conus-oconus',
   DOD_INFO_PATH: '/service-member/dod-info',
   NAME_PATH: '/service-member/name',
   CONTACT_INFO_PATH: '/service-member/contact-info',
-  CURRENT_DUTY_LOCATION_PATH: '/service-member/current-duty',
   CURRENT_ADDRESS_PATH: '/service-member/current-address',
   BACKUP_ADDRESS_PATH: '/service-member/backup-address',
   BACKUP_CONTACTS_PATH: '/service-member/backup-contact',

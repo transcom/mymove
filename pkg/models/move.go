@@ -67,7 +67,6 @@ type Move struct {
 	AvailableToPrimeAt           *time.Time              `db:"available_to_prime_at"`
 	ContractorID                 *uuid.UUID              `db:"contractor_id"`
 	Contractor                   *Contractor             `belongs_to:"contractors" fk_id:"contractor_id"`
-	PPMEstimatedWeight           *unit.Pound             `db:"ppm_estimated_weight"`
 	PPMType                      *string                 `db:"ppm_type"`
 	MTOServiceItems              MTOServiceItems         `has_many:"mto_service_items" fk_id:"move_id"`
 	PaymentRequests              PaymentRequests         `has_many:"payment_requests" fk_id:"move_id"`
@@ -207,17 +206,15 @@ func (m Move) CreateSignedCertification(db *pop.Connection,
 	certificationText string,
 	signature string,
 	date time.Time,
-	ppmID *uuid.UUID,
 	certificationType *SignedCertificationType) (*SignedCertification, *validate.Errors, error) {
 
 	newSignedCertification := SignedCertification{
-		MoveID:                   m.ID,
-		PersonallyProcuredMoveID: ppmID,
-		CertificationType:        certificationType,
-		SubmittingUserID:         submittingUserID,
-		CertificationText:        certificationText,
-		Signature:                signature,
-		Date:                     date,
+		MoveID:            m.ID,
+		CertificationType: certificationType,
+		SubmittingUserID:  submittingUserID,
+		CertificationText: certificationText,
+		Signature:         signature,
+		Date:              date,
 	}
 
 	verrs, err := db.ValidateAndCreate(&newSignedCertification)
@@ -406,6 +403,26 @@ func FetchMoveByOrderID(db *pop.Connection, orderID uuid.UUID) (Move, error) {
 		return Move{}, err
 	}
 	return move, nil
+}
+
+// FetchMovesByOrderID returns a Moves for a given id
+func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
+	var moves Moves
+
+	query := db.Where("orders_id = ?", orderID)
+	err := query.Eager(
+		"MTOShipments",
+		"Orders",
+		"Orders.UploadedOrders",
+		"Orders.ServiceMember",
+		"Orders.ServiceMember.User",
+		"Orders.OriginDutyLocation.TransportationOffice",
+		"Orders.OriginDutyLocation.TransportationOffice.Address",
+		"Orders.NewDutyLocation.Address",
+		"Orders.NewDutyLocation.TransportationOffice",
+		"Orders.NewDutyLocation.TransportationOffice.Address",
+	).All(&moves)
+	return moves, err
 }
 
 // FetchMoveByMoveID returns a Move for a given id
