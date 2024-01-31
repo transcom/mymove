@@ -527,7 +527,7 @@ describe('Home component', () => {
       const mtoShipments = [submittedPPMShipment];
 
       const wrapper = mountHomeWithProviders({ ...propUpdates, mtoShipments });
-      
+
       const props = { ...defaultProps, ...propUpdates, mtoShipments };
 
       it('renders the SubmittedMove helper', () => {
@@ -565,29 +565,29 @@ describe('Home component', () => {
 
       it('renders advance request submitted for PPM', () => {
         const mtoShipments = [approvedAdvancePPMShipment];
-        const props =  { ...defaultProps, ...propUpdates, mtoShipments };
+        const props = { ...defaultProps, ...propUpdates, mtoShipments };
         render(<Home {...props} />);
         expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
       });
 
       it('renders advance request reviewed with 1 approved PPM', () => {
         const mtoShipments = [approvedAdvancePPMShipment];
-        const wrapper = mountHomeWithProviders({...propUpdates, mtoShipments });
+        const wrapper = mountHomeWithProviders({ ...propUpdates, mtoShipments });
         const advanceStep = wrapper.find('Step[step="5"]');
         expect(advanceStep.prop('completedHeaderText')).toEqual('Advance request reviewed');
-        
-        const props =  { ...defaultProps, ...propUpdates, mtoShipments };
+
+        const props = { ...defaultProps, ...propUpdates, mtoShipments };
         render(<Home {...props} />);
         expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
       });
 
       it('renders advance request reviewed for approved advance for PPM with HHG', () => {
         const mtoShipments = [{ id: v4(), shipmentType: SHIPMENT_OPTIONS.HHG }, approvedAdvancePPMShipment];
-        const wrapper = mountHomeWithProviders({...propUpdates, mtoShipments });
+        const wrapper = mountHomeWithProviders({ ...propUpdates, mtoShipments });
         const advanceStep = wrapper.find('Step[step="5"]');
         expect(advanceStep.prop('completedHeaderText')).toEqual('Advance request reviewed');
-        
-        const props =  { ...defaultProps, ...propUpdates, mtoShipments };
+
+        const props = { ...defaultProps, ...propUpdates, mtoShipments };
         render(<Home {...props} />);
         expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
       });
@@ -599,7 +599,7 @@ describe('Home component', () => {
 
         expect(advanceStep.prop('completedHeaderText')).toEqual('Advance request reviewed');
 
-        const props =  { ...defaultProps, ...propUpdates, mtoShipments };
+        const props = { ...defaultProps, ...propUpdates, mtoShipments };
         render(<Home {...props} />);
         expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
         expect(screen.getByText('Advance request denied')).toBeInTheDocument();
