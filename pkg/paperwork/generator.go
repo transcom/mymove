@@ -462,8 +462,8 @@ func (g *Generator) MergeImagesToPDF(appCtx appcontext.AppContext, paths []strin
 	return g.PDFFromImages(appCtx, images)
 }
 
-func (g *Generator) FillPDFFormForSSW(jsonData []byte, templateReader io.ReadSeeker) (SSWWorksheet afero.File, err error) {
-	var conf *model.Configuration
+func (g *Generator) FillPDFForm(jsonData []byte, templateReader io.ReadSeeker) (SSWWorksheet afero.File, err error) {
+	var conf = g.pdfConfig
 	// Change type to reader
 	readJSON := strings.NewReader(string(jsonData))
 	buf := new(bytes.Buffer)
@@ -485,11 +485,11 @@ func (g *Generator) FillPDFFormForSSW(jsonData []byte, templateReader io.ReadSee
 	}
 
 	// Reload the file from memstore
-	SSWWorksheetOutput, err := g.FileSystem().Open(tempFile.Name())
+	outputFile, err := g.FileSystem().Open(tempFile.Name())
 	if err != nil {
 		return nil, errors.Wrap(err, "error g.fs.Open on reload from memstore")
 	}
-	return SSWWorksheetOutput, nil
+	return outputFile, nil
 
 }
 
