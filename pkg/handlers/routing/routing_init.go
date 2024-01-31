@@ -98,6 +98,8 @@ type Config struct {
 	ServeGHC bool
 	// The path to the ghc api swagger definition
 	GHCSwaggerPath string
+	// The path to the ghc v2 api swagger definition
+	GHCV2SwaggerPath string
 
 	// Should devlocal auth be enabled? Definitely never enabled in
 	// production
@@ -528,6 +530,31 @@ func mountGHCAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.R
 			r.Method("GET", "/swagger.yaml",
 				handlers.NewFileHandler(routingConfig.FileSystem,
 					routingConfig.GHCSwaggerPath))
+			if routingConfig.ServeSwaggerUI {
+				appCtx.Logger().Info("GHC API Swagger UI serving is enabled")
+				r.Method("GET", "/docs",
+					handlers.NewFileHandler(routingConfig.FileSystem,
+						path.Join(routingConfig.BuildRoot, "swagger-ui", "ghc.html")))
+			} else {
+				r.Method("GET", "/docs", http.NotFoundHandler())
+			}
+
+			// Mux for GHC API that enforces auth
+			r.Route("/", func(rAuth chi.Router) {
+				rAuth.Use(userAuthMiddleware)
+				rAuth.Use(addAuditUserToRequestContextMiddleware)
+				rAuth.Use(middleware.NoCache())
+				api := ghcapi.NewGhcAPIHandler(routingConfig.HandlerConfig)
+				permissionsMiddleware := authentication.PermissionsMiddleware(appCtx, api)
+				rAuth.Use(permissionsMiddleware)
+				tracingMiddleware := middleware.OpenAPITracing(api)
+				rAuth.Mount("/", api.Serve(tracingMiddleware))
+			})
+		})
+		site.Route("/ghc/v2", func(r chi.Router) {
+			r.Method("GET", "/swagger.yaml",
+				handlers.NewFileHandler(routingConfig.FileSystem,
+					routingConfig.GHCV2SwaggerPath))
 			if routingConfig.ServeSwaggerUI {
 				appCtx.Logger().Info("GHC API Swagger UI serving is enabled")
 				r.Method("GET", "/docs",

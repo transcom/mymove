@@ -407,6 +407,7 @@ func initializeRouteOptions(v *viper.Viper, routingConfig *routing.Config) {
 	routingConfig.ServeGHC = v.GetBool(cli.ServeGHCFlag)
 	if routingConfig.ServeGHC {
 		routingConfig.GHCSwaggerPath = v.GetString(cli.GHCSwaggerFlag)
+		routingConfig.GHCV2SwaggerPath = v.GetString(cli.GHCV2SwaggerFlag)
 	}
 	routingConfig.ServeDevlocalAuth = v.GetBool(cli.DevlocalAuthFlag)
 
