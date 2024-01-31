@@ -38,7 +38,6 @@ import {
   selectSignedCertification,
 } from 'shared/Entities/modules/signed_certifications';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { updateMTOShipments } from 'store/entities/actions';
 import {
   selectCurrentMove,
@@ -53,7 +52,6 @@ import { MoveShape, OrdersShape, UploadShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import { formatCustomerDate, formatWeight } from 'utils/formatters';
 import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete } from 'utils/shipments';
-import { useAOAPacketDocumentQueries } from 'hooks/queries';
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types/router';
 
@@ -587,9 +585,6 @@ export class Home extends Component {
                               } else {
                                 shipmentNumbersByType[shipmentType] = 1;
                               }
-                              // if(shipment?.ppmShipment?.advanceStatus === 'APPROVED') {
-                              //   aoaPacketNumber += 1;
-                              // }
                               const shipmentNumber = shipmentNumbersByType[shipmentType];
                               return (
                                 <>
