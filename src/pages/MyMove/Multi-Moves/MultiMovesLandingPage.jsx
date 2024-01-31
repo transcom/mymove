@@ -21,9 +21,17 @@ import { loadInternalSchema } from 'shared/Swagger/ducks';
 import { loadUser } from 'store/auth/actions';
 import { initOnboarding } from 'store/onboarding/actions';
 import Helper from 'components/Customer/Home/Helper';
+import { customerRoutes } from 'constants/routes';
+import { withContext } from 'shared/AppContext';
+import withRouter from 'utils/routing';
+import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
+import { selectIsProfileComplete, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
-const MultiMovesLandingPage = () => {
+const MultiMovesLandingPage = ({ serviceMemberMoves }) => {
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
+  const navigate = useNavigate();
+  console.log('serviceMemberMoves', serviceMemberMoves);
+
   // ! This is just used for testing and viewing different variations of data that MilMove will use
   // user can add params of ?moveData=PCS, etc to view different views
   let moves;
@@ -146,4 +154,28 @@ const MultiMovesLandingPage = () => {
   );
 };
 
-export default MultiMovesLandingPage;
+MultiMovesLandingPage.defaultProps = {
+  serviceMember: null,
+};
+
+const mapStateToProps = (state) => {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const { serviceMemberMoves } = state.entities;
+
+  return {
+    isProfileComplete: selectIsProfileComplete(state),
+    serviceMember,
+    serviceMemberMoves,
+  };
+};
+
+// in order to avoid setting up proxy server only for storybook, pass in stub function so API requests don't fail
+const mergeProps = (stateProps, dispatchProps, ownProps) => ({
+  ...stateProps,
+  ...dispatchProps,
+  ...ownProps,
+});
+
+export default withContext(
+  withRouter(connect(mapStateToProps, mergeProps)(requireCustomerState(MultiMovesLandingPage))),
+);
