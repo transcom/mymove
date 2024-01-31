@@ -139,6 +139,49 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 	return movePayload, nil
 }
 
+func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*internalmessages.InternalMove {
+	var convertedCurrentMovesList []*internalmessages.InternalMove = []*internalmessages.InternalMove{}
+
+	if len(list) == 0 {
+		return convertedCurrentMovesList
+	}
+
+	// Convert moveList to internalmessages.InternalMove
+	for _, move := range list {
+
+		eTag := etag.GenerateEtag(move.UpdatedAt)
+		shipments := move.MTOShipments
+		var payloadShipments *internalmessages.MTOShipments = payloads.MTOShipments(storer, &shipments)
+
+		currentMove := &internalmessages.InternalMove{
+			CreatedAt:    *handlers.FmtDateTime(move.CreatedAt),
+			ETag:         eTag,
+			ID:           *handlers.FmtUUID(move.ID),
+			MtoShipments: *payloadShipments,
+			MoveCode:     move.Locator,
+			Orders:       move.Orders,
+		}
+
+		convertedCurrentMovesList = append(convertedCurrentMovesList, currentMove)
+	}
+	return convertedCurrentMovesList
+}
+
+func payloadForMovesList(storer storage.FileStorer, previousMovesList models.Moves, currentMoveList models.Moves, movesList models.Moves) *internalmessages.MovesList {
+
+	if len(movesList) == 0 {
+		return &internalmessages.MovesList{
+			CurrentMove:   []*internalmessages.InternalMove{},
+			PreviousMoves: []*internalmessages.InternalMove{},
+		}
+	}
+
+	return &internalmessages.MovesList{
+		CurrentMove:   payloadForInternalMove(storer, currentMoveList),
+		PreviousMoves: payloadForInternalMove(storer, previousMovesList),
+	}
+}
+
 // ShowMoveHandler returns a move for a user and move ID
 type ShowMoveHandler struct {
 	handlers.HandlerConfig
@@ -365,5 +408,64 @@ func (h SubmitAmendedOrdersHandler) Handle(params moveop.SubmitAmendedOrdersPara
 				return handlers.ResponseForError(logger, err), err
 			}
 			return moveop.NewSubmitAmendedOrdersOK().WithPayload(movePayload), nil
+		})
+}
+
+type GetAllMovesHandler struct {
+	handlers.HandlerConfig
+}
+
+// GetAllMovesHandler returns the current and all previous moves of a service member
+func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			// Grab service member ID from params
+			serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
+
+			// Grab the serviceMember by serviceMemberId
+			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			var movesList models.Moves
+			var latestMove models.Move
+			var previousMovesList models.Moves
+			var currentMovesList models.Moves
+
+			// Get All Moves for the ServiceMember
+			for _, order := range serviceMember.Orders {
+				moves, fetchErr := models.FetchMovesByOrderID(appCtx.DB(), order.ID)
+				if fetchErr != nil {
+					return handlers.ResponseForError(appCtx.Logger(), err), err
+				}
+
+				movesList = append(movesList, moves...)
+			}
+
+			// Find the move with the latest CreatedAt Date. That one will be the current move
+			var nilTime time.Time
+			for _, move := range movesList {
+				if latestMove.CreatedAt == nilTime {
+					latestMove = move
+					break
+				}
+				if move.CreatedAt.After(latestMove.CreatedAt) && move.CreatedAt != latestMove.CreatedAt {
+					latestMove = move
+				}
+			}
+
+			// Place latest move in currentMovesList array
+			currentMovesList = append(currentMovesList, latestMove)
+
+			// Populate previousMovesList
+			for _, move := range movesList {
+				if move.ID != latestMove.ID {
+					previousMovesList = append(previousMovesList, move)
+				}
+			}
+
+			return moveop.NewGetAllMovesOK().WithPayload(payloadForMovesList(h.FileStorer(), previousMovesList, currentMovesList, movesList)), nil
 		})
 }
