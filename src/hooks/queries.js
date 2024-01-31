@@ -428,6 +428,60 @@ export const useOrdersDocumentQueries = (moveCode) => {
   };
 };
 
+export const useAOADocumentQueries = (moveCode) => {
+  // Get the ppm shipment info so we can get the aoa_packet_id (which is a document id)
+  
+
+
+  // const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], ({ queryKey }) => getMove(...queryKey));
+
+  // const orderId = move?.ordersId;
+
+  // // get orders
+  // const { data: { orders } = {}, ...orderQuery } = useQuery(
+  //   [ORDERS, orderId],
+  //   ({ queryKey }) => getOrder(...queryKey),
+  //   {
+  //     enabled: !!orderId,
+  //   },
+  // );
+
+  // const order = orders && orders[`${orderId}`];
+  // // eslint-disable-next-line camelcase
+  // const documentId = order?.uploaded_order_id;
+
+  // Get the AOA packet document
+  const staleTime = 15 * 60000; // 15 * 60000 milliseconds = 15 mins
+  const cacheTime = staleTime;
+  const { data: { documents, upload } = {}, ...aoaPacketDocumentQuery } = useQuery(
+    [ORDERS_DOCUMENTS, documentId],
+    ({ queryKey }) => getDocument(...queryKey),
+    {
+      enabled: !!documentId,
+      staleTime,
+      cacheTime,
+      refetchOnWindowFocus: false,
+    },
+  );
+
+  // Check the status of all queries we have made
+  const { isLoading, isError, isSuccess } = getQueriesStatus([
+    moveQuery,
+    orderQuery,
+    aoaPacketDocumentQuery,
+  ]);
+
+  return {
+    move,
+    orders,
+    documents,
+    upload,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
 export const useMovesQueueQueries = ({
   sort,
   order,
