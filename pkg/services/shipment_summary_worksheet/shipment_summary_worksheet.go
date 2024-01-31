@@ -816,29 +816,33 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		Forms  []form `json:"forms"`
 	}
 
-	formData := pdFData{ // This is unique to each PDF template, must be found for new templates using PDFCPU's export function used on the template (can be done through CLI)
-		Header: header{
-			Source:   "SSWPDFTemplate.pdf",
-			Version:  "pdfcpu v0.6.0 dev",
-			Creation: "2024-01-22 21:49:12 UTC",
-			Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
+	var sswHeader = header{
+		Source:   "SSWPDFTemplate.pdf",
+		Version:  "pdfcpu v0.6.0 dev",
+		Creation: "2024-01-22 21:49:12 UTC",
+		Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
+	}
+
+	var sswCheckbox = []checkbox{
+		{
+			Pages:   []int{2},
+			ID:      "797",
+			Name:    "EDOther",
+			Value:   true,
+			Default: false,
+			Locked:  false,
 		},
+	}
+
+	formData := pdFData{ // This is unique to each PDF template, must be found for new templates using PDFCPU's export function used on the template (can be done through CLI)
+		Header: sswHeader,
 		Forms: []form{
 			{ // Dynamically loops, creates, and aggregates json for text fields, merges page 1 and 2
 				TextField: mergeTextFields(createTextFields(Page1Values, 1), createTextFields(Page2Values, 2)),
 			},
 			// The following is the structure for using a Checkbox field
 			{
-				Checkbox: []checkbox{
-					{
-						Pages:   []int{2},
-						ID:      "797",
-						Name:    "EDOther",
-						Value:   true,
-						Default: false,
-						Locked:  false,
-					},
-				},
+				Checkbox: sswCheckbox,
 			},
 		},
 	}
