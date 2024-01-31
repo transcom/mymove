@@ -18,6 +18,7 @@ import (
 
 func (suite *PPMShipmentSuite) TestCreateAOAPacket() {
 	mockPPMShipmentFetcher := &mocks.PPMShipmentFetcher{}
+	mockSSWPPMGenerator := &mocks.SSWPPMGenerator{}
 	mockUserUploadToPDFConverter := &mocks.UserUploadToPDFConverter{}
 	mockPDFMerger := &mocks.PDFMerger{}
 	mockPPMShipmentUpdater := &mocks.PPMShipmentUpdater{}
@@ -28,7 +29,7 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacket() {
 
 	suite.FatalNoError(uploaderErr)
 
-	aoaPacketCreator := NewAOAPacketCreator(mockPPMShipmentFetcher, mockUserUploadToPDFConverter, mockPDFMerger, mockPPMShipmentUpdater, userUploader)
+	aoaPacketCreator := NewAOAPacketCreator(mockPPMShipmentFetcher, mockSSWPPMGenerator, mockUserUploadToPDFConverter, mockPDFMerger, mockPPMShipmentUpdater, userUploader)
 
 	setUpMockPPMShipmentFetcherForAOA := func(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, returnValue ...interface{}) {
 		setUpMockPPMShipmentFetcher(

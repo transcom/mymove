@@ -16,7 +16,7 @@ import (
 // aoaPacketCreator is the concrete struct implementing the AOAPacketCreator interface
 type aoaPacketCreator struct {
 	services.PPMShipmentFetcher
-	// TODO: Add the SSW PDF generation service object here.
+	services.SSWPPMGenerator
 	services.UserUploadToPDFConverter
 	services.PDFMerger
 	services.PPMShipmentUpdater
@@ -26,6 +26,7 @@ type aoaPacketCreator struct {
 // NewAOAPacketCreator creates a new AOAPacketCreator with all of its dependencies
 func NewAOAPacketCreator(
 	ppmShipmentFetcher services.PPMShipmentFetcher,
+	sswPPMGenerator services.SSWPPMGenerator,
 	userUploadToPDFConverter services.UserUploadToPDFConverter,
 	pdfMerger services.PDFMerger,
 	ppmShipmentUpdater services.PPMShipmentUpdater,
@@ -33,6 +34,7 @@ func NewAOAPacketCreator(
 ) services.AOAPacketCreator {
 	return &aoaPacketCreator{
 		ppmShipmentFetcher,
+		sswPPMGenerator,
 		userUploadToPDFConverter,
 		pdfMerger,
 		ppmShipmentUpdater,
