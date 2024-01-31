@@ -729,19 +729,19 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestNilOrValue() {
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestMergeTextFields() {
 	// Test case 1: Non-empty input slices
-	fields1 := []TextField{
+	fields1 := []textField{
 		{Pages: []int{1, 2}, ID: "1", Name: "Field1", Value: "Value1", Multiline: false, Locked: true},
 		{Pages: []int{3, 4}, ID: "2", Name: "Field2", Value: "Value2", Multiline: true, Locked: false},
 	}
 
-	fields2 := []TextField{
+	fields2 := []textField{
 		{Pages: []int{5, 6}, ID: "3", Name: "Field3", Value: "Value3", Multiline: true, Locked: false},
 		{Pages: []int{7, 8}, ID: "4", Name: "Field4", Value: "Value4", Multiline: false, Locked: true},
 	}
 
 	mergedResult := mergeTextFields(fields1, fields2)
 
-	expectedMergedResult := []TextField{
+	expectedMergedResult := []textField{
 		{Pages: []int{1, 2}, ID: "1", Name: "Field1", Value: "Value1", Multiline: false, Locked: true},
 		{Pages: []int{3, 4}, ID: "2", Name: "Field2", Value: "Value2", Multiline: true, Locked: false},
 		{Pages: []int{5, 6}, ID: "3", Name: "Field3", Value: "Value3", Multiline: true, Locked: false},
@@ -751,8 +751,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestMergeTextFields() {
 	suite.Equal(mergedResult, expectedMergedResult)
 
 	// Test case 2: Empty input slices
-	emptyResult := mergeTextFields([]TextField{}, []TextField{})
-	expectedEmptyResult := []TextField{}
+	emptyResult := mergeTextFields([]textField{}, []textField{})
+	expectedEmptyResult := []textField{}
 
 	suite.Equal(emptyResult, expectedEmptyResult)
 }
@@ -770,7 +770,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestCreateTextFields() {
 
 	result := createTextFields(testData, pages...)
 
-	expectedResult := []TextField{
+	expectedResult := []textField{
 		{Pages: pages, ID: "1", Name: "Field1", Value: "Value1", Multiline: false, Locked: false},
 		{Pages: pages, ID: "2", Name: "Field2", Value: "42", Multiline: false, Locked: false},
 		{Pages: pages, ID: "3", Name: "Field3", Value: "true", Multiline: false, Locked: false},
