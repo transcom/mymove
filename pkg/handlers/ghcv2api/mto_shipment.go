@@ -19,23 +19,6 @@ import (
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
 
-// ListMTOShipmentsHandler returns a list of MTO Shipments
-type ListMTOShipmentsHandler struct {
-	handlers.HandlerConfig
-	services.MTOShipmentFetcher
-	services.ShipmentSITStatus
-}
-
-// GetMTOShipmentHandler is the handler to fetch a single MTO shipment by ID
-type GetMTOShipmentHandler struct {
-	handlers.HandlerConfig
-}
-
-// CreateMTOShipmentHandler is the handler to create MTO shipments
-type CreateMTOShipmentHandler struct {
-	handlers.HandlerConfig
-}
-
 // UpdateShipmentHandler updates shipments
 type UpdateShipmentHandler struct {
 	handlers.HandlerConfig
