@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -25,5 +26,5 @@ type ProgearWeightTicketUpdater interface {
 //
 //go:generate mockery --name ProgearWeightTicketDeleter
 type ProgearWeightTicketDeleter interface {
-	DeleteProgearWeightTicket(appCtx appcontext.AppContext, ppmID uuid.UUID, progearWeightTicketID uuid.UUID) error
+	DeleteProgearWeightTicket(appCtx appcontext.AppContext, ppmID uuid.UUID, progearWeightTicketID uuid.UUID) (middleware.Responder, error)
 }

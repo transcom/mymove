@@ -153,26 +153,16 @@ func (h DeleteProGearWeightTicketHandler) Handle(params progearops.DeleteProGear
 				return progearops.NewDeleteProGearWeightTicketForbidden(), noServiceMemberIDErr
 			}
 
-			// Make sure the service member is not modifying another service member's PPM
 			ppmID := uuid.FromStringOrNil(params.PpmShipmentID.String())
-
 			progearWeightTicketID := uuid.FromStringOrNil(params.ProGearWeightTicketID.String())
-			err := h.progearDeleter.DeleteProgearWeightTicket(appCtx, ppmID, progearWeightTicketID)
-			if err != nil {
-				appCtx.Logger().Error("internalapi.DeleteProgearWeightTicketHandler", zap.Error(err))
 
-				switch err.(type) {
-				case apperror.NotFoundError:
-					return progearops.NewDeleteProGearWeightTicketNotFound(), err
-				case apperror.ConflictError:
-					return progearops.NewDeleteProGearWeightTicketConflict(), err
-				case apperror.ForbiddenError:
-					return progearops.NewDeleteProGearWeightTicketForbidden(), err
-				case apperror.UnprocessableEntityError:
-					return progearops.NewDeleteProGearWeightTicketUnprocessableEntity(), err
-				default:
-					return progearops.NewDeleteProGearWeightTicketInternalServerError(), err
-				}
+			response, err := h.progearDeleter.DeleteProgearWeightTicket(appCtx, ppmID, progearWeightTicketID)
+			if response != nil {
+				return response, err
+			}
+
+			if err != nil {
+				return progearops.NewDeleteProGearWeightTicketInternalServerError(), err
 			}
 
 			return progearops.NewDeleteProGearWeightTicketNoContent(), nil

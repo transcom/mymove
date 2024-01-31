@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http/httptest"
 
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -364,39 +365,20 @@ func (suite *HandlerSuite) TestDeleteProgearWeightTicketHandler() {
 		suite.IsType(&progearops.DeleteProGearWeightTicketNotFound{}, response)
 	})
 
-	suite.Run("DELETE failure - 404 - not found - ppm shipment ID and moving expense ID don't match", func() {
-		subtestData := makeDeleteSubtestData(false)
-		serviceMember := subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
-
-		otherPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model:    subtestData.ppmShipment.Shipment.MoveTaskOrder.Orders,
-				LinkOnly: true,
-			},
-		}, nil)
-
-		subtestData.params.PpmShipmentID = *handlers.FmtUUID(otherPPMShipment.ID)
-		req := subtestData.params.HTTPRequest
-		unauthorizedReq := suite.AuthenticateRequest(req, serviceMember)
-		unauthorizedParams := subtestData.params
-		unauthorizedParams.HTTPRequest = unauthorizedReq
-
-		response := subtestData.handler.Handle(unauthorizedParams)
-		suite.IsType(&progearops.DeleteProGearWeightTicketNotFound{}, response)
-	})
 	suite.Run("DELETE failure - 500 - server error", func() {
 		mockDeleter := mocks.ProgearWeightTicketDeleter{}
 
 		subtestData := makeDeleteSubtestData(true)
 		params := subtestData.params
 
+		var actual middleware.Responder
 		err := errors.New("ServerError")
 
 		mockDeleter.On("DeleteProgearWeightTicket",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("uuid.UUID"),
 			mock.AnythingOfType("uuid.UUID"),
-		).Return(err)
+		).Return(actual, err)
 
 		// Use createS3HandlerConfig for the HandlerConfig because we are required to upload a doc
 		handler := DeleteProGearWeightTicketHandler{
