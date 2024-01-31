@@ -216,6 +216,9 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		} else {
 			return nil, err
 		}
+	} else {
+		addressUpdate.OriginalAddressID = *shipment.DestinationAddressID
+		addressUpdate.OriginalAddress = *shipment.DestinationAddress
 	}
 
 	addressUpdate.Status = models.ShipmentAddressUpdateStatusApproved
@@ -299,6 +302,12 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 			}
 		} else {
 			shipment.DestinationAddressID = &addressUpdate.NewAddressID
+
+			// Update MTO Shipment Destination Service Items
+			err = mtoshipment.UpdateDestinationSITServiceItemsAddress(appCtx, &shipment)
+			if err != nil {
+				return err
+			}
 		}
 
 		// If the request needs TOO review, this will just update the UpdatedAt timestamp on the shipment
