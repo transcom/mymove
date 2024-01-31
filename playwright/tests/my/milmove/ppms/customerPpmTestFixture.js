@@ -5,7 +5,6 @@
  */
 
 // @ts-check
-import { isNil } from 'lodash';
 import {
   expect,
   test as customerTest,
