@@ -42,6 +42,14 @@ export const move = new schema.Entity('moves', {
 });
 export const moves = new schema.Array(move);
 
+export const currentMove = new schema.Array(move);
+export const previousMoves = new schema.Array(move);
+
+export const multiMoves = new schema.Entity('multiMoves', {
+  currentMove: currentMove,
+  previousMoves: previousMoves,
+});
+
 // Orders
 
 export const order = new schema.Entity('orders');
