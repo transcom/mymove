@@ -1,6 +1,7 @@
 package paperwork
 
 import (
+	"bytes"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -121,7 +122,7 @@ type inputFile struct {
 	ContentType string
 }
 
-func (g *Generator) NewTempFile() (afero.File, error) {
+func (g *Generator) newTempFile() (afero.File, error) {
 	outputFile, err := g.fs.TempFile(g.workDir, "temp")
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -193,7 +194,7 @@ func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads mo
 			}
 		}()
 
-		outputFile, err := g.NewTempFile()
+		outputFile, err := g.newTempFile()
 
 		if err != nil {
 			return nil, errors.Wrap(err, "Creating temp file")
@@ -255,7 +256,7 @@ func ReduceUnusedSpace(_ appcontext.AppContext, file afero.File, g *Generator, c
 
 	// If the image is landscape, then turn it to portrait orientation
 	if w > h {
-		newFile, newTemplateFileErr := g.NewTempFile()
+		newFile, newTemplateFileErr := g.newTempFile()
 		if newTemplateFileErr != nil {
 			return nil, 0.0, 0.0, errors.Wrap(newTemplateFileErr, "Creating temp file for image rotation")
 		}
@@ -314,7 +315,7 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 
 	appCtx.Logger().Debug("generating PDF from image files", zap.Any("images", images))
 
-	outputFile, err := g.NewTempFile()
+	outputFile, err := g.newTempFile()
 	if err != nil {
 		return "", err
 	}
@@ -342,7 +343,7 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 		if img.ContentType == uploader.FileTypePNG {
 			appCtx.Logger().Debug("Converting png to 8-bit")
 			// gofpdf isn't able to process 16-bit PNGs, so to be safe we convert all PNGs to an 8-bit color depth
-			newFile, newTemplateFileErr := g.NewTempFile()
+			newFile, newTemplateFileErr := g.newTempFile()
 			if newTemplateFileErr != nil {
 				return "", errors.Wrap(newTemplateFileErr, "Creating temp file for png conversion")
 			}
@@ -415,7 +416,7 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 // MergePDFFiles Merges a slice of paths to PDF files into a single PDF
 func (g *Generator) MergePDFFiles(_ appcontext.AppContext, paths []string) (afero.File, error) {
 	var err error
-	mergedFile, err := g.NewTempFile()
+	mergedFile, err := g.newTempFile()
 	if err != nil {
 		return mergedFile, err
 	}
@@ -459,6 +460,37 @@ func (g *Generator) MergeImagesToPDF(appCtx appcontext.AppContext, paths []strin
 	}
 
 	return g.PDFFromImages(appCtx, images)
+}
+
+func (g *Generator) FillPDFFormForSSW(jsonData []byte, templateReader io.ReadSeeker) (SSWWorksheet afero.File, err error) {
+	var conf *model.Configuration
+	// Change type to reader
+	readJSON := strings.NewReader(string(jsonData))
+	buf := new(bytes.Buffer)
+	// Fills form using the template reader with json reader, outputs to byte, to be saved to afero file.
+	formerr := api.FillForm(templateReader, readJSON, buf, conf)
+	if formerr != nil {
+		return nil, err
+	}
+
+	tempFile, err := g.newTempFile() // Will use g.newTempFile for proper memory usage
+	if err != nil {
+		return nil, err
+	}
+
+	// copy byte[] to temp file
+	_, err = io.Copy(tempFile, buf)
+	if err != nil {
+		return nil, errors.Wrap(err, "error io.Copy on byte[] to temp")
+	}
+
+	// Reload the file from memstore
+	SSWWorksheetOutput, err := g.FileSystem().Open(tempFile.Name())
+	if err != nil {
+		return nil, errors.Wrap(err, "error g.fs.Open on reload from memstore")
+	}
+	return SSWWorksheetOutput, nil
+
 }
 
 // Get file information of a single PDF
