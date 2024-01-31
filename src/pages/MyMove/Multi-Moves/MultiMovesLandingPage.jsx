@@ -7,14 +7,6 @@ import { connect } from 'react-redux';
 import styles from './MultiMovesLandingPage.module.scss';
 import MultiMovesMoveHeader from './MultiMovesMoveHeader/MultiMovesMoveHeader';
 import MultiMovesMoveContainer from './MultiMovesMoveContainer/MultiMovesMoveContainer';
-import {
-  mockMovesPCS,
-  mockMovesSeparation,
-  mockMovesRetirement,
-  mockMovesNoPreviousMoves,
-  mockMovesNoCurrentMoveWithPreviousMoves,
-  mockMovesNoCurrentOrPreviousMoves,
-} from './MultiMovesTestData';
 
 import { detectFlags } from 'utils/featureFlags';
 import { generatePageTitle } from 'hooks/custom';
@@ -28,42 +20,12 @@ import { customerRoutes } from 'constants/routes';
 import { withContext } from 'shared/AppContext';
 import withRouter from 'utils/routing';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
-import { selectIsProfileComplete, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectAllMoves, selectIsProfileComplete, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
-const MultiMovesLandingPage = ({ serviceMemberMoves }) => {
+const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves }) => {
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
   const navigate = useNavigate();
-  console.log('serviceMemberMoves', serviceMemberMoves);
 
-  // ! This is just used for testing and viewing different variations of data that MilMove will use
-  // user can add params of ?moveData=PCS, etc to view different views
-  let moves;
-  const currentUrl = new URL(window.location.href);
-  const moveDataSource = currentUrl.searchParams.get('moveData');
-  switch (moveDataSource) {
-    case 'PCS':
-      moves = mockMovesPCS;
-      break;
-    case 'retirement':
-      moves = mockMovesRetirement;
-      break;
-    case 'separation':
-      moves = mockMovesSeparation;
-      break;
-    case 'noPreviousMoves':
-      moves = mockMovesNoPreviousMoves;
-      break;
-    case 'noCurrentMove':
-      moves = mockMovesNoCurrentMoveWithPreviousMoves;
-      break;
-    case 'noMoves':
-      moves = mockMovesNoCurrentOrPreviousMoves;
-      break;
-    default:
-      moves = mockMovesPCS;
-      break;
-  }
-  // ! end of test data
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -71,11 +33,6 @@ const MultiMovesLandingPage = ({ serviceMemberMoves }) => {
         loadUser();
         initOnboarding();
         document.title = generatePageTitle('MilMove');
-
-        const script = document.createElement('script');
-        script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
-        script.async = true;
-        document.body.appendChild(script);
       } catch (error) {
         const { message } = error;
         milmoveLogger.error({ message, info: null });
@@ -97,7 +54,7 @@ const MultiMovesLandingPage = ({ serviceMemberMoves }) => {
   // if they have previous moves, they'll need to validate their profile
   // if they do not have previous moves, then they don't need to validate
   const handleCreateMoveBtnClick = () => {
-    if (moves.previousMoves.length > 0) {
+    if (serviceMemberMoves && serviceMemberMoves.previousMoves && serviceMemberMoves.previousMoves.length !== 0) {
       const profileEditPath = customerRoutes.PROFILE_PATH;
       navigate(profileEditPath, { state: { needsToVerifyProfile: true } });
     } else {
@@ -111,16 +68,33 @@ const MultiMovesLandingPage = ({ serviceMemberMoves }) => {
       <div className={styles.homeContainer}>
         <header data-testid="customerHeader" className={styles.customerHeader}>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
-            <h2>First Last</h2>
+            <h2>
+              {serviceMember.first_name} {serviceMember.last_name}
+            </h2>
           </div>
         </header>
         <div className={`usa-prose grid-container ${styles['grid-container']}`}>
-          <Helper title="Welcome to MilMove!" className={styles['helper-paragraph-only']}>
-            <p data-testid="welcomeHeader">
-              We can put information at the top here - potentially important contact info or basic instructions on how
-              to start a move?
-            </p>
-          </Helper>
+          {serviceMemberMoves && serviceMemberMoves.previousMoves && serviceMemberMoves.previousMoves.length === 0 ? (
+            <Helper title="Welcome to MilMove!" className={styles['helper-paragraph-only']}>
+              <p data-testid="welcomeHeader">
+                Select &quot;Create a Move&quot; to get started. <br />
+                <br />
+                If you encounter any issues please contact your local Transportation Office or the Help Desk for further
+                assistance.
+              </p>
+            </Helper>
+          ) : (
+            <Helper title="Welcome to MilMove!" className={styles['helper-paragraph-only']}>
+              <p data-testid="welcomeHeader">
+                Select &quot;Create a Move&quot; to get started. <br />
+                <br />
+                Once you have validated your profile, pleasee click the &quot;Validate&quot; button and proceed to
+                starting your move. <br />
+                If you encounter any issues please contact your local Transportation Office or the Help Desk for further
+                assistance.
+              </p>
+            </Helper>
+          )}
           <div className={styles.centeredContainer}>
             <Button className={styles.createMoveBtn} onClick={handleCreateMoveBtnClick} data-testid="createMoveBtn">
               <span>Create a Move</span>
@@ -130,13 +104,13 @@ const MultiMovesLandingPage = ({ serviceMemberMoves }) => {
             </Button>
           </div>
           <div className={styles.movesContainer}>
-            {moves.currentMove.length > 0 ? (
+            {serviceMemberMoves && serviceMemberMoves.currentMove && serviceMemberMoves.currentMove.length !== 0 ? (
               <>
                 <div data-testid="currentMoveHeader">
                   <MultiMovesMoveHeader title="Current Move" />
                 </div>
                 <div data-testid="currentMoveContainer">
-                  <MultiMovesMoveContainer moves={moves.currentMove} />
+                  <MultiMovesMoveContainer moves={serviceMemberMoves.currentMove} />
                 </div>
               </>
             ) : (
@@ -147,13 +121,13 @@ const MultiMovesLandingPage = ({ serviceMemberMoves }) => {
                 <div>You do not have a current move.</div>
               </>
             )}
-            {moves.previousMoves.length > 0 ? (
+            {serviceMemberMoves && serviceMemberMoves.previousMoves && serviceMemberMoves.previousMoves.length !== 0 ? (
               <>
                 <div data-testid="prevMovesHeader">
                   <MultiMovesMoveHeader title="Previous Moves" />
                 </div>
                 <div data-testid="prevMovesContainer">
-                  <MultiMovesMoveContainer moves={moves.previousMoves} />
+                  <MultiMovesMoveContainer moves={serviceMemberMoves.previousMoves} />
                 </div>
               </>
             ) : (
@@ -177,7 +151,7 @@ MultiMovesLandingPage.defaultProps = {
 
 const mapStateToProps = (state) => {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  const { serviceMemberMoves } = state.entities;
+  const serviceMemberMoves = selectAllMoves(state);
 
   return {
     isProfileComplete: selectIsProfileComplete(state),
