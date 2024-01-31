@@ -1,6 +1,7 @@
 package paperwork
 
 import (
+	"bytes"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -12,6 +13,7 @@ import (
 	"github.com/disintegration/imaging"
 	"github.com/jung-kurt/gofpdf"
 	"github.com/pdfcpu/pdfcpu/pkg/api"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -19,6 +21,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -90,8 +93,13 @@ func convertTo8BitPNG(in io.Reader, out io.Writer) error {
 
 // NewGenerator creates a new Generator.
 func NewGenerator(uploader *uploader.Uploader) (*Generator, error) {
-	afs := uploader.Storer.FileSystem()
+	// Use in memory filesystem for generation. Purpose is to not write
+	// to hard disk due to restrictions in AWS storage. May need better long term solution.
+	afs := storage.NewMemory(storage.NewMemoryParams("", "")).FileSystem()
 
+	// Disable ConfiDir for AWS deployment purposes.
+	// PDFCPU will attempt to create temp dir using os.create(hard disk).This will prevent it.
+	api.DisableConfigDir()
 	pdfConfig := model.NewDefaultConfiguration()
 	pdfCPU := pdfCPUWrapper{Configuration: pdfConfig}
 
@@ -125,6 +133,16 @@ func (g *Generator) newTempFile() (afero.File, error) {
 // Cleanup removes filesystem working dir
 func (g *Generator) Cleanup(_ appcontext.AppContext) error {
 	return g.fs.RemoveAll(g.workDir)
+}
+
+// Get PDF Configuration (For Testing)
+func (g *Generator) FileSystem() *afero.Afero {
+	return g.fs
+}
+
+// Get PDF Configuration (For Testing)
+func (g *Generator) PdfConfiguration() *model.Configuration {
+	return g.pdfConfig
 }
 
 // CreateMergedPDFUpload converts Uploads to PDF and merges them into a single PDF
@@ -442,4 +460,45 @@ func (g *Generator) MergeImagesToPDF(appCtx appcontext.AppContext, paths []strin
 	}
 
 	return g.PDFFromImages(appCtx, images)
+}
+
+func (g *Generator) FillPDFForm(jsonData []byte, templateReader io.ReadSeeker) (SSWWorksheet afero.File, err error) {
+	var conf = g.pdfConfig
+	// Change type to reader
+	readJSON := strings.NewReader(string(jsonData))
+	buf := new(bytes.Buffer)
+	// Fills form using the template reader with json reader, outputs to byte, to be saved to afero file.
+	formerr := api.FillForm(templateReader, readJSON, buf, conf)
+	if formerr != nil {
+		return nil, err
+	}
+
+	tempFile, err := g.newTempFile() // Will use g.newTempFile for proper memory usage
+	if err != nil {
+		return nil, err
+	}
+
+	// copy byte[] to temp file
+	_, err = io.Copy(tempFile, buf)
+	if err != nil {
+		return nil, errors.Wrap(err, "error io.Copy on byte[] to temp")
+	}
+
+	// Reload the file from memstore
+	outputFile, err := g.FileSystem().Open(tempFile.Name())
+	if err != nil {
+		return nil, errors.Wrap(err, "error g.fs.Open on reload from memstore")
+	}
+	return outputFile, nil
+
+}
+
+// Get file information of a single PDF
+func (g *Generator) GetPdfFileInfo(fileName string) (*pdfcpu.PDFInfo, error) {
+	file, err := g.fs.Open(fileName)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	return api.PDFInfo(file, fileName, nil, g.pdfConfig)
 }
