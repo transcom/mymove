@@ -599,8 +599,8 @@ export class Home extends Component {
                                   </strong>
                                   {shipment?.ppmShipment?.advanceStatus === 'APPROVED' && (
                                     <p className={styles.downloadLink}>
-                                      <a href={`documents/${shipment?.ppmShipment?.aoa_packet_id}`} download>
-                                        <span>Download AOA Paperwork (PDF) NEED AOA PACKET URL HERE</span>
+                                      <a href="" download>
+                                        <span>Download AOA Paperwork (PDF)</span>
                                       </a>
                                     </p>
                                   )}
