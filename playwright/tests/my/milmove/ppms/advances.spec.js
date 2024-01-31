@@ -11,13 +11,14 @@ test.describe('About Your PPM', () => {
   test.beforeEach(async ({ customerPpmPage }) => {
     const move = await customerPpmPage.testHarness.buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights();
     await customerPpmPage.signInForPPMWithMove(move);
-    // await customerPpmPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
-    // await customerPpmPage.navigateFromDateAndLocationPageToEstimatedWeightsPage();
-    // await customerPpmPage.navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
-    // await customerPpmPage.navigateFromEstimatedIncentivePageToAdvancesPage();
+    await customerPpmPage.page.getByTestId('goToMoveBtn').click();
+    await customerPpmPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
+    await customerPpmPage.navigateFromDateAndLocationPageToEstimatedWeightsPage();
+    await customerPpmPage.navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
+    await customerPpmPage.navigateFromEstimatedIncentivePageToAdvancesPage();
   });
 
-  test.skip('does not allow SM to progress if form is in an invalid state', async ({ page }) => {
+  test('does not allow SM to progress if form is in an invalid state', async ({ page }) => {
     await page.locator('label[for="hasRequestedAdvanceYes"]').click();
 
     // missing advance
@@ -76,7 +77,7 @@ test.describe('About Your PPM', () => {
   forEachViewport(async ({ isMobile }) => {
     [true, false].forEach((addAdvance) => {
       const advanceText = addAdvance ? 'request' : 'opt to not receive';
-      test.skip(`can ${advanceText} an advance`, async ({ customerPpmPage }) => {
+      test(`can ${advanceText} an advance`, async ({ customerPpmPage }) => {
         await customerPpmPage.submitsAdvancePage({ addAdvance, isMobile });
       });
     });
