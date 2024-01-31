@@ -603,7 +603,9 @@ export class Home extends Component {
                                   {shipment?.ppmShipment?.advanceStatus === 'REJECTED' && (
                                     <Description>Advance request denied</Description>
                                   )}
-                                  {shipment?.ppmShipment?.advanceStatus == null && <Description>Advance request pending</Description>}
+                                  {shipment?.ppmShipment?.advanceStatus == null && (
+                                    <Description>Advance request pending</Description>
+                                  )}
                                 </>
                               );
                             })}
