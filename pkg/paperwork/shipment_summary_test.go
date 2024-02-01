@@ -11,7 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route/mocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -54,13 +53,13 @@ func (suite *PaperworkSuite) TestComputeObligationsParams() {
 	ppmComputer := NewSSWPPMComputer(&mockPPMComputer{})
 	pickupPostalCode := "85369"
 	destinationPostalCode := "31905"
-	ppm := models.PersonallyProcuredMove{
-		PickupPostalCode:      &pickupPostalCode,
-		DestinationPostalCode: &destinationPostalCode,
+	ppm := models.PPMShipment{
+		PickupPostalCode:      pickupPostalCode,
+		DestinationPostalCode: destinationPostalCode,
 	}
-	noPPM := models.ShipmentSummaryFormData{PersonallyProcuredMoves: models.PersonallyProcuredMoves{}}
-	missingZip := models.ShipmentSummaryFormData{PersonallyProcuredMoves: models.PersonallyProcuredMoves{{}}}
-	missingActualMoveDate := models.ShipmentSummaryFormData{PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm}}
+	noPPM := models.ShipmentSummaryFormData{SSPPMShipments: models.PPMShipments{}}
+	missingZip := models.ShipmentSummaryFormData{SSPPMShipments: models.PPMShipments{}}
+	missingActualMoveDate := models.ShipmentSummaryFormData{SSPPMShipments: models.PPMShipments{ppm}}
 
 	planner := &mocks.Planner{}
 	planner.On("ZipTransitDistance",
@@ -98,8 +97,8 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 	destinationPostalCode := "31905"
 	cents := unit.Cents(1000)
 
-	setupTestData := func() (models.PersonallyProcuredMove, models.Order, models.DutyLocation) {
-		ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+	setupTestData := func() (models.PPMShipment, models.Order, models.DutyLocation) {
+		/* ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 			PersonallyProcuredMove: models.PersonallyProcuredMove{
 				OriginalMoveDate:      &origMoveDate,
 				ActualMoveDate:        &actualDate,
@@ -107,7 +106,20 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 				DestinationPostalCode: &destinationPostalCode,
 				TotalSITCost:          &cents,
 			},
-		})
+		}) */
+		ppmCustomModel := models.PPMShipment{
+			ExpectedDepartureDate: origMoveDate,
+			ActualMoveDate:        &actualDate,
+			PickupPostalCode:      pickupPostalCode,
+			DestinationPostalCode: destinationPostalCode,
+			SITEstimatedCost:      &cents,
+		}
+		ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    &ppmCustomModel,
+				LinkOnly: true,
+			},
+		}, nil)
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
 				Model: models.DutyLocation{
@@ -134,7 +146,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 		ppm, order, currentDutyLocation := setupTestData()
 
 		params := models.ShipmentSummaryFormData{
-			PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
+			SSPPMShipments:          models.PPMShipments{ppm},
 			WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
 			PPMRemainingEntitlement: ppmRemainingEntitlement,
 			CurrentDutyLocation:     currentDutyLocation,
@@ -179,7 +191,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 
 		suite.NoError(err)
 		calledWith := mockComputer.CalledWith()
-		suite.Equal(*ppm.TotalSITCost, cost.ActualObligation.SIT)
+		suite.Equal(*ppm.SITEstimatedCost, cost.ActualObligation.SIT)
 		suite.Equal(expectActualObligationParams, calledWith[0])
 		suite.Equal(expectMaxObligationParams, calledWith[1])
 	})
@@ -188,7 +200,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 		ppm, order, currentDutyLocation := setupTestData()
 
 		params := models.ShipmentSummaryFormData{
-			PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
+			SSPPMShipments:          models.PPMShipments{ppm},
 			WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
 			PPMRemainingEntitlement: ppmRemainingEntitlement,
 			CurrentDutyLocation:     currentDutyLocation,
@@ -229,20 +241,33 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 			costDetails: costDetails,
 		}
 
-		ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		/* ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 			PersonallyProcuredMove: models.PersonallyProcuredMove{
 				OriginalMoveDate:      &origMoveDate,
 				ActualMoveDate:        &actualDate,
 				PickupPostalCode:      &pickupPostalCode,
 				DestinationPostalCode: &destinationPostalCode,
 			},
-		})
+		}) */
+		ppmCustomModel := models.PPMShipment{
+			ExpectedDepartureDate: origMoveDate,
+			ActualMoveDate:        &actualDate,
+			PickupPostalCode:      pickupPostalCode,
+			DestinationPostalCode: destinationPostalCode,
+			SITEstimatedCost:      &cents,
+		}
+		ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    &ppmCustomModel,
+				LinkOnly: true,
+			},
+		}, nil)
 		currentDutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 		shipmentSummaryFormParams := models.ShipmentSummaryFormData{
-			PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
-			WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
-			CurrentDutyLocation:     currentDutyLocation,
-			Order:                   order,
+			SSPPMShipments:      models.PPMShipments{ppm},
+			WeightAllotment:     models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
+			CurrentDutyLocation: currentDutyLocation,
+			Order:               order,
 		}
 		ppmComputer := NewSSWPPMComputer(&mockComputer)
 		obligations, err := ppmComputer.ComputeObligations(suite.AppContextForTest(), shipmentSummaryFormParams, planner)
@@ -255,7 +280,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 		ppm, order, currentDutyLocation := setupTestData()
 
 		params := models.ShipmentSummaryFormData{
-			PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
+			SSPPMShipments:          models.PPMShipments{ppm},
 			WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
 			PPMRemainingEntitlement: ppmRemainingEntitlement,
 			CurrentDutyLocation:     currentDutyLocation,

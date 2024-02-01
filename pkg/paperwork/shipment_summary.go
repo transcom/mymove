@@ -38,7 +38,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(appCtx appcontext.AppCo
 	originDutyLocationZip := ssfd.CurrentDutyLocation.Address.PostalCode
 	destDutyLocationZip := ssfd.Order.NewDutyLocation.Address.PostalCode
 
-	distanceMilesFromPickupZip, err := planner.ZipTransitDistance(appCtx, *firstPPM.PickupPostalCode, destDutyLocationZip)
+	distanceMilesFromPickupZip, err := planner.ZipTransitDistance(appCtx, firstPPM.W2Address.PostalCode, destDutyLocationZip)
 	if err != nil {
 		return models.Obligations{}, errors.New("error calculating distance")
 	}
@@ -51,12 +51,12 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(appCtx appcontext.AppCo
 	actualCosts, err := sswPpmComputer.ComputePPMMoveCosts(
 		appCtx,
 		ssfd.PPMRemainingEntitlement,
-		*firstPPM.PickupPostalCode,
+		firstPPM.PickupPostalCode,
 		originDutyLocationZip,
 		destDutyLocationZip,
 		distanceMilesFromPickupZip,
 		distanceMilesFromDutyLocationZip,
-		*firstPPM.OriginalMoveDate,
+		firstPPM.ExpectedDepartureDate,
 		0,
 	)
 	if err != nil {
@@ -66,12 +66,12 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(appCtx appcontext.AppCo
 	maxCosts, err := sswPpmComputer.ComputePPMMoveCosts(
 		appCtx,
 		ssfd.WeightAllotment.TotalWeight,
-		*firstPPM.PickupPostalCode,
+		firstPPM.PickupPostalCode,
 		originDutyLocationZip,
 		destDutyLocationZip,
 		distanceMilesFromPickupZip,
 		distanceMilesFromDutyLocationZip,
-		*firstPPM.OriginalMoveDate,
+		firstPPM.ExpectedDepartureDate,
 		0,
 	)
 	if err != nil {
@@ -84,8 +84,8 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(appCtx appcontext.AppCo
 	nonWinningMaxCost := rateengine.GetNonWinningCostMove(maxCosts)
 
 	var actualSIT unit.Cents
-	if firstPPM.TotalSITCost != nil {
-		actualSIT = *firstPPM.TotalSITCost
+	if firstPPM.SITEstimatedCost != nil {
+		actualSIT = *firstPPM.SITEstimatedCost
 	}
 
 	if actualSIT > maxCost.SITMax {
@@ -101,16 +101,16 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(appCtx appcontext.AppCo
 	return obligations, nil
 }
 
-func (sswPpmComputer *SSWPPMComputer) nilCheckPPM(ssfd models.ShipmentSummaryFormData) (models.PersonallyProcuredMove, error) {
-	if len(ssfd.PersonallyProcuredMoves) == 0 {
-		return models.PersonallyProcuredMove{}, errors.New("missing ppm")
+func (sswPpmComputer *SSWPPMComputer) nilCheckPPM(ssfd models.ShipmentSummaryFormData) (models.PPMShipment, error) {
+	if len(ssfd.SSPPMShipments) == 0 {
+		return models.PPMShipment{}, errors.New("missing ppm")
 	}
-	firstPPM := ssfd.PersonallyProcuredMoves[0]
-	if firstPPM.PickupPostalCode == nil || firstPPM.DestinationPostalCode == nil {
-		return models.PersonallyProcuredMove{}, errors.New("missing required address parameter")
+	firstPPM := ssfd.SSPPMShipments[0]
+	if firstPPM.PickupPostalCode == "" || firstPPM.DestinationPostalCode == "" {
+		return models.PPMShipment{}, errors.New("missing required address parameter")
 	}
-	if firstPPM.OriginalMoveDate == nil {
-		return models.PersonallyProcuredMove{}, errors.New("missing required original move date parameter")
+	if firstPPM.ActualMoveDate == nil {
+		return models.PPMShipment{}, errors.New("missing required original move date parameter")
 	}
 	return firstPPM, nil
 }

@@ -154,7 +154,7 @@ type ShipmentSummaryFormData struct {
 	CurrentDutyLocation     DutyLocation
 	NewDutyLocation         DutyLocation
 	WeightAllotment         SSWMaxWeightEntitlement
-	PersonallyProcuredMoves PersonallyProcuredMoves
+	SSPPMShipments          PPMShipments
 	PreparationDate         time.Time
 	Obligations             Obligations
 	MovingExpenses          []MovingExpense
@@ -339,7 +339,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.WeightAllotmentProgearSpouse = FormatWeights(data.WeightAllotment.SpouseProGear)
 	page1.TotalWeightAllotment = FormatWeights(data.WeightAllotment.TotalWeight)
 
-	formattedShipments := FormatAllShipments(data.PersonallyProcuredMoves)
+	formattedShipments := FormatAllShipments(data.SSPPMShipments)
 	page1.ShipmentNumberAndTypes = formattedShipments.ShipmentNumberAndTypes
 	page1.ShipmentPickUpDates = formattedShipments.PickUpDates
 	page1.ShipmentCurrentShipmentStatuses = formattedShipments.CurrentShipmentStatuses
@@ -363,8 +363,8 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 }
 
 func formatActualObligationAdvance(data ShipmentSummaryFormData) string {
-	if len(data.PersonallyProcuredMoves) > 0 && data.PersonallyProcuredMoves[0].Advance != nil {
-		advance := data.PersonallyProcuredMoves[0].Advance.RequestedAmount.ToDollarFloatNoRound()
+	if len(data.SSPPMShipments) > 0 && data.SSPPMShipments[0].AdvanceAmountRequested != nil {
+		advance := data.SSPPMShipments[0].AdvanceAmountRequested.ToDollarFloatNoRound()
 		return FormatDollars(advance)
 	}
 	return FormatDollars(0)
@@ -464,7 +464,7 @@ func FormatServiceMemberFullName(serviceMember ServiceMember) string {
 }
 
 // FormatAllShipments formats Shipment line items for the Shipment Summary Worksheet
-func FormatAllShipments(ppms PersonallyProcuredMoves) ShipmentSummaryWorkSheetShipments {
+func FormatAllShipments(ppms PPMShipments) ShipmentSummaryWorkSheetShipments {
 	totalShipments := len(ppms)
 	formattedShipments := ShipmentSummaryWorkSheetShipments{}
 	formattedNumberAndTypes := make([]string, totalShipments)
@@ -476,7 +476,7 @@ func FormatAllShipments(ppms PersonallyProcuredMoves) ShipmentSummaryWorkSheetSh
 	for _, ppm := range ppms {
 		formattedNumberAndTypes[shipmentNumber] = FormatPPMNumberAndType(shipmentNumber)
 		formattedPickUpDates[shipmentNumber] = FormatPPMPickupDate(ppm)
-		formattedShipmentWeights[shipmentNumber] = FormatPPMWeight(ppm)
+		//formattedShipmentWeights[shipmentNumber] = FormatPPMWeight(ppm)
 		formattedShipmentStatuses[shipmentNumber] = FormatCurrentPPMStatus(ppm)
 		shipmentNumber++
 	}
@@ -523,7 +523,7 @@ func getExpenseType(expense MovingExpense) string {
 }
 
 // FormatCurrentPPMStatus formats FormatCurrentPPMStatus for the Shipment Summary Worksheet
-func FormatCurrentPPMStatus(ppm PersonallyProcuredMove) string {
+func FormatCurrentPPMStatus(ppm PPMShipment) string {
 	if ppm.Status == "PAYMENT_REQUESTED" {
 		return "At destination"
 	}
@@ -536,18 +536,18 @@ func FormatPPMNumberAndType(i int) string {
 }
 
 // FormatPPMWeight formats a ppms NetWeight for the Shipment Summary Worksheet
-func FormatPPMWeight(ppm PersonallyProcuredMove) string {
+/* func FormatPPMWeight(ppm PPMShipment) string {
 	if ppm.NetWeight != nil {
 		wtg := FormatWeights(unit.Pound(*ppm.NetWeight))
 		return fmt.Sprintf("%s lbs - FINAL", wtg)
 	}
 	return ""
-}
+} */
 
 // FormatPPMPickupDate formats a shipments ActualPickupDate for the Shipment Summary Worksheet
-func FormatPPMPickupDate(ppm PersonallyProcuredMove) string {
-	if ppm.OriginalMoveDate != nil {
-		return FormatDate(*ppm.OriginalMoveDate)
+func FormatPPMPickupDate(ppm PPMShipment) string {
+	if ppm.ActualMoveDate != nil {
+		return FormatDate(*ppm.ActualMoveDate)
 	}
 	return ""
 }
