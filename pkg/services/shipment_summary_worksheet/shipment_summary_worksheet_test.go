@@ -56,6 +56,17 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 		},
 	}, nil)
 
+	var expenseAmount unit.Cents = 1000.00
+	var currentExpenseType = models.MovingExpenseReceiptTypeOther
+	paidGTCC := true
+	movingExpense := models.MovingExpense{
+		Amount:            &expenseAmount,
+		MovingExpenseType: &currentExpenseType,
+		PaidWithGTCC:      &paidGTCC,
+	}
+
+	factory.AddMovingExpenseToPPMShipment(suite.DB(), &ppmShipment, nil, &movingExpense)
+
 	ppmShipmentID := ppmShipment.ID
 
 	serviceMemberID := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID

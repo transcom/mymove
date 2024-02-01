@@ -421,7 +421,7 @@ func FormatAllShipments(ppms models.PPMShipments) WorkSheetShipments {
 	for _, ppm := range ppms {
 		formattedNumberAndTypes[shipmentNumber] = FormatPPMNumberAndType(shipmentNumber)
 		formattedPickUpDates[shipmentNumber] = FormatPPMPickupDate(ppm)
-		formattedShipmentWeights[shipmentNumber] = FormatPPMWeight(ppm)
+		//formattedShipmentWeights[shipmentNumber] = FormatPPMWeight(ppm)
 		formattedShipmentStatuses[shipmentNumber] = FormatCurrentPPMStatus(ppm)
 		shipmentNumber++
 	}

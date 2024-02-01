@@ -336,7 +336,6 @@ func FetchLatestOrder(session *auth.Session, db *pop.Connection) (Order, error) 
 		"NewDutyLocation.Address",
 		"UploadedOrders",
 		"UploadedAmendedOrders",
-		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications",
 		"Entitlement").
 		First(&order)
