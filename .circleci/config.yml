@@ -2014,14 +2014,17 @@ jobs:
   # `prod_auth_check` checks if approved before going to prod
   prod_auth_check:
     executor: mymove_pusher
-    when: # All must be true to trigger
-      or:
-        - equal: [ josiahzimmerman-caci, <<pipeline.trigger_parameters.circleci.actor_id>> ]
-        - equal: [ deandreJones, <<pipeline.trigger_parameters.circleci.actor_id>> ]
-        - equal: [ cameroncaci, <<pipeline.trigger_parameters.circleci.actor_id>> ]
-      steps:
-        - run: echo "build approved by <<pipeline.trigger_parameters.circleci.actor_id>>"
-        - announce_failure
+    steps:
+      when: # All must be true to trigger
+          condition:
+            or:
+              equal: [ josiahzimmerman-caci, <<pipeline.trigger_parameters.circleci.actor_id>> ]
+              equal: [ deandreJones, <<pipeline.trigger_parameters.circleci.actor_id>> ]
+              equal: [ cameroncaci, <<pipeline.trigger_parameters.circleci.actor_id>> ]
+            steps:    
+              - run: echo "build approved by <<pipeline.trigger_parameters.circleci.actor_id>>"    
+              - announce_failure
+    - announce_failure              
 
   # All of the deploy tasks need to checkout the code so they can run the `scripts/do-exclusively` script
 
