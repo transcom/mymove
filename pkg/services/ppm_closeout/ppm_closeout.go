@@ -45,16 +45,16 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	ppmCloseoutObj.ProGearWeightCustomer = ppmShipment.ProGearWeight
 	ppmCloseoutObj.ProGearWeightSpouse = ppmShipment.SpouseProGearWeight
 	ppmCloseoutObj.GrossIncentive = ppmShipment.FinalIncentive
-	// ppmCloseoutObj.GCC = &gcc
+	ppmCloseoutObj.GCC = nil
 	ppmCloseoutObj.AOA = ppmShipment.AdvanceAmountReceived
-	// ppmCloseoutObj.RemainingIncentive = &remainingIncentive
-	// ppmCloseoutObj.HaulPrice = &haulPrice
-	// ppmCloseoutObj.HaulFSC = &haulFSC
-	// ppmCloseoutObj.DOP = &originPrice
-	// ppmCloseoutObj.DDP = &destinationPrice
-	// ppmCloseoutObj.PackPrice = &packPrice
-	// ppmCloseoutObj.UnpackPrice = &unpackPrice
-	// ppmCloseoutObj.SITReimbursement = &storageExpensePrice
+	ppmCloseoutObj.RemainingIncentive = nil
+	ppmCloseoutObj.HaulPrice = nil
+	ppmCloseoutObj.HaulFSC = nil
+	ppmCloseoutObj.DOP = nil
+	ppmCloseoutObj.DDP = nil
+	ppmCloseoutObj.PackPrice = nil
+	ppmCloseoutObj.UnpackPrice = nil
+	ppmCloseoutObj.SITReimbursement = nil
 
 	return &ppmCloseoutObj, nil
 }
