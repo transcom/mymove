@@ -35,6 +35,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	}
 
 	actualWeight := p.GetActualWeight(*ppmShipment)
+	proGearWeightCustomer, proGearWeightSpouse := p.GetProGearWeights(*ppmShipment)
 
 	ppmCloseoutObj.ID = &ppmShipmentID
 	ppmCloseoutObj.PlannedMoveDate = &ppmShipment.ExpectedDepartureDate
@@ -42,8 +43,8 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	ppmCloseoutObj.Miles = (*int)(ppmShipment.Shipment.Distance)
 	ppmCloseoutObj.EstimatedWeight = ppmShipment.EstimatedWeight
 	ppmCloseoutObj.ActualWeight = &actualWeight
-	ppmCloseoutObj.ProGearWeightCustomer = ppmShipment.ProGearWeight
-	ppmCloseoutObj.ProGearWeightSpouse = ppmShipment.SpouseProGearWeight
+	ppmCloseoutObj.ProGearWeightCustomer = &proGearWeightCustomer
+	ppmCloseoutObj.ProGearWeightSpouse = &proGearWeightSpouse
 	ppmCloseoutObj.GrossIncentive = ppmShipment.FinalIncentive
 	ppmCloseoutObj.GCC = nil
 	ppmCloseoutObj.AOA = ppmShipment.AdvanceAmountReceived
@@ -57,6 +58,25 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	ppmCloseoutObj.SITReimbursement = nil
 
 	return &ppmCloseoutObj, nil
+}
+
+/*
+* returns
+* customer pro gear weight, spouse pro gear weight
+ */
+func (p *ppmCloseoutFetcher) GetProGearWeights(ppmShipment models.PPMShipment) (unit.Pound, unit.Pound) {
+	var totalWeightCustomer unit.Pound
+	var totalWeightSpouse unit.Pound
+	if len(ppmShipment.ProgearWeightTickets) >= 1 {
+		for _, weightTicket := range ppmShipment.ProgearWeightTickets {
+			if weightTicket.Status != nil && *weightTicket.BelongsToSelf && weightTicket.Weight != nil && *weightTicket.Status != models.PPMDocumentStatusRejected {
+				totalWeightCustomer += *weightTicket.Weight
+			} else if !*weightTicket.BelongsToSelf {
+				totalWeightSpouse += *weightTicket.Weight
+			}
+		}
+	}
+	return totalWeightCustomer, totalWeightSpouse
 }
 
 func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.PPMShipment, error) {
