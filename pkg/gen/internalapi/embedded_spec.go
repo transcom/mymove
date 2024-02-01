@@ -3769,7 +3769,9 @@ func init() {
       "required": [
         "expectedDepartureDate",
         "pickupPostalCode",
+        "pickupAddress",
         "destinationPostalCode",
+        "destinationAddress",
         "sitExpected"
       ],
       "properties": {
@@ -5877,9 +5879,7 @@ func init() {
         "status",
         "expectedDepartureDate",
         "pickupPostalCode",
-        "pickupAddress",
         "destinationPostalCode",
-        "destinationAddress",
         "sitExpected",
         "eTag"
       ],
@@ -12465,7 +12465,9 @@ func init() {
       "required": [
         "expectedDepartureDate",
         "pickupPostalCode",
+        "pickupAddress",
         "destinationPostalCode",
+        "destinationAddress",
         "sitExpected"
       ],
       "properties": {
@@ -14579,9 +14581,7 @@ func init() {
         "status",
         "expectedDepartureDate",
         "pickupPostalCode",
-        "pickupAddress",
         "destinationPostalCode",
-        "destinationAddress",
         "sitExpected",
         "eTag"
       ],

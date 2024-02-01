@@ -217,6 +217,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 
 		params := subtestData.params
 		ppmShipmentType := internalmessages.MTOShipmentTypePPM
+
+		// create puckupAddress
+		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
+
 		// pointers
 		expectedDepartureDate := strfmt.Date(*subtestData.mtoShipment.RequestedPickupDate)
 		pickupPostal := "11111"
@@ -230,6 +235,24 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 				PickupPostalCode:      &pickupPostal,
 				DestinationPostalCode: &destinationPostalCode,
 				SitExpected:           &sitExpected,
+				PickupAddress: &internalmessages.Address{
+					City:           &pickupAddress.City,
+					Country:        pickupAddress.Country,
+					PostalCode:     &pickupAddress.PostalCode,
+					State:          &pickupAddress.State,
+					StreetAddress1: &pickupAddress.StreetAddress1,
+					StreetAddress2: pickupAddress.StreetAddress2,
+					StreetAddress3: pickupAddress.StreetAddress3,
+				},
+				DestinationAddress: &internalmessages.Address{
+					City:           &destinationAddress.City,
+					Country:        destinationAddress.Country,
+					PostalCode:     &destinationAddress.PostalCode,
+					State:          &destinationAddress.State,
+					StreetAddress1: &destinationAddress.StreetAddress1,
+					StreetAddress2: destinationAddress.StreetAddress2,
+					StreetAddress3: destinationAddress.StreetAddress3,
+				},
 			},
 			ShipmentType: &ppmShipmentType,
 		}
@@ -260,6 +283,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		suite.Equal(*params.Body.PpmShipment.DestinationPostalCode, *createdShipment.PpmShipment.DestinationPostalCode)
 		suite.Nil(createdShipment.PpmShipment.SecondaryDestinationPostalCode)
 		suite.Equal(*params.Body.PpmShipment.SitExpected, *createdShipment.PpmShipment.SitExpected)
+		suite.Equal(*params.Body.PpmShipment.PickupAddress.StreetAddress1, *createdShipment.PpmShipment.PickupAddress.StreetAddress1)
+		suite.Equal(*params.Body.PpmShipment.DestinationAddress.StreetAddress1, *createdShipment.PpmShipment.DestinationAddress.StreetAddress1)
 	})
 
 	suite.Run("Successful POST - Integration Test - PPM optional fields", func() {
@@ -272,6 +297,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		pickupPostal := "11111"
 		destinationPostalCode := "41414"
 		sitExpected := false
+
+		// create  PPM addressed
+		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+		secondaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+
 		// reset Body params to have PPM fields
 		params.Body = &internalmessages.CreateShipment{
 			MoveTaskOrderID: handlers.FmtUUID(subtestData.mtoShipment.MoveTaskOrderID),
@@ -282,6 +314,42 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 				DestinationPostalCode:          &destinationPostalCode,
 				SecondaryDestinationPostalCode: nullable.NewString("41415"),
 				SitExpected:                    &sitExpected,
+				PickupAddress: &internalmessages.Address{
+					City:           &pickupAddress.City,
+					Country:        pickupAddress.Country,
+					PostalCode:     &pickupAddress.PostalCode,
+					State:          &pickupAddress.State,
+					StreetAddress1: &pickupAddress.StreetAddress1,
+					StreetAddress2: pickupAddress.StreetAddress2,
+					StreetAddress3: pickupAddress.StreetAddress3,
+				},
+				DestinationAddress: &internalmessages.Address{
+					City:           &destinationAddress.City,
+					Country:        destinationAddress.Country,
+					PostalCode:     &destinationAddress.PostalCode,
+					State:          &destinationAddress.State,
+					StreetAddress1: &destinationAddress.StreetAddress1,
+					StreetAddress2: destinationAddress.StreetAddress2,
+					StreetAddress3: destinationAddress.StreetAddress3,
+				},
+				SecondaryPickupAddress: &internalmessages.Address{
+					City:           &secondaryPickupAddress.City,
+					Country:        secondaryPickupAddress.Country,
+					PostalCode:     &secondaryPickupAddress.PostalCode,
+					State:          &secondaryPickupAddress.State,
+					StreetAddress1: &secondaryPickupAddress.StreetAddress1,
+					StreetAddress2: secondaryPickupAddress.StreetAddress2,
+					StreetAddress3: secondaryPickupAddress.StreetAddress3,
+				},
+				SecondaryDestinationAddress: &internalmessages.Address{
+					City:           &secondaryDestinationAddress.City,
+					Country:        secondaryDestinationAddress.Country,
+					PostalCode:     &secondaryDestinationAddress.PostalCode,
+					State:          &secondaryDestinationAddress.State,
+					StreetAddress1: &secondaryDestinationAddress.StreetAddress1,
+					StreetAddress2: secondaryDestinationAddress.StreetAddress2,
+					StreetAddress3: secondaryDestinationAddress.StreetAddress3,
+				},
 			},
 			ShipmentType: &ppmShipmentType,
 		}
@@ -312,6 +380,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		suite.Equal(*params.Body.PpmShipment.DestinationPostalCode, *createdShipment.PpmShipment.DestinationPostalCode)
 		suite.Equal(*params.Body.PpmShipment.SecondaryDestinationPostalCode.Value, *createdShipment.PpmShipment.SecondaryDestinationPostalCode)
 		suite.Equal(*params.Body.PpmShipment.SitExpected, *createdShipment.PpmShipment.SitExpected)
+		suite.Equal(*params.Body.PpmShipment.PickupAddress.StreetAddress1, *createdShipment.PpmShipment.PickupAddress.StreetAddress1)
+		suite.Equal(*params.Body.PpmShipment.DestinationAddress.StreetAddress1, *createdShipment.PpmShipment.DestinationAddress.StreetAddress1)
+		suite.Equal(*params.Body.PpmShipment.SecondaryPickupAddress.StreetAddress1, *createdShipment.PpmShipment.SecondaryPickupAddress.StreetAddress1)
+		suite.Equal(*params.Body.PpmShipment.SecondaryDestinationAddress.StreetAddress1, *createdShipment.PpmShipment.SecondaryDestinationAddress.StreetAddress1)
 	})
 
 	suite.Run("Successful POST - Integration Test - NTS-Release", func() {

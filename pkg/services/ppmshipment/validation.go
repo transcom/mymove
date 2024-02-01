@@ -104,7 +104,7 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	if newPPMShipment.PickupAddress != nil {
 		ppmShipment.PickupAddress = newPPMShipment.PickupAddress
 		if ppmShipment.PickupAddressID != nil {
-			ppmShipment.PickupAddress.ID = *&ppmShipment.PickupAddress.ID
+			ppmShipment.PickupAddress.ID = *ppmShipment.PickupAddressID
 		} else {
 			ppmShipment.PickupAddress.ID = uuid.Nil
 		}
@@ -113,7 +113,7 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	if newPPMShipment.SecondaryPickupAddress != nil {
 		ppmShipment.SecondaryPickupAddress = newPPMShipment.SecondaryPickupAddress
 		if ppmShipment.SecondaryPickupAddressID != nil {
-			ppmShipment.SecondaryPickupAddress.ID = *&ppmShipment.SecondaryPickupAddress.ID
+			ppmShipment.SecondaryPickupAddress.ID = *ppmShipment.SecondaryPickupAddressID
 		} else {
 			ppmShipment.SecondaryPickupAddress.ID = uuid.Nil
 		}
@@ -125,7 +125,7 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	if newPPMShipment.DestinationAddress != nil {
 		ppmShipment.DestinationAddress = newPPMShipment.DestinationAddress
 		if ppmShipment.DestinationAddressID != nil {
-			ppmShipment.DestinationAddress.ID = *&ppmShipment.DestinationAddress.ID
+			ppmShipment.DestinationAddress.ID = *ppmShipment.DestinationAddressID
 		} else {
 			ppmShipment.DestinationAddress.ID = uuid.Nil
 		}
@@ -134,7 +134,7 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	if newPPMShipment.SecondaryDestinationAddress != nil {
 		ppmShipment.SecondaryDestinationAddress = newPPMShipment.SecondaryDestinationAddress
 		if ppmShipment.SecondaryDestinationAddressID != nil {
-			ppmShipment.SecondaryDestinationAddress.ID = *&ppmShipment.SecondaryDestinationAddress.ID
+			ppmShipment.SecondaryDestinationAddress.ID = *ppmShipment.SecondaryDestinationAddressID
 		} else {
 			ppmShipment.SecondaryDestinationAddress.ID = uuid.Nil
 		}

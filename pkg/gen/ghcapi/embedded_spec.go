@@ -7701,9 +7701,7 @@ func init() {
         "status",
         "expectedDepartureDate",
         "pickupPostalCode",
-        "pickupAddress",
         "destinationPostalCode",
-        "destinationAddress",
         "sitExpected",
         "eTag"
       ],
@@ -19279,9 +19277,7 @@ func init() {
         "status",
         "expectedDepartureDate",
         "pickupPostalCode",
-        "pickupAddress",
         "destinationPostalCode",
-        "destinationAddress",
         "sitExpected",
         "eTag"
       ],

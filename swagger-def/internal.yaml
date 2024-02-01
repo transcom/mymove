@@ -2507,7 +2507,9 @@ definitions:
     required:
       - expectedDepartureDate
       - pickupPostalCode
+      - pickupAddress
       - destinationPostalCode
+      - destinationAddress
       - sitExpected
   UpdatePPMShipment:
     type: object

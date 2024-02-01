@@ -62,8 +62,7 @@ type PPMShipment struct {
 	CreatedAt strfmt.DateTime `json:"createdAt"`
 
 	// destination address
-	// Required: true
-	DestinationAddress *Address `json:"destinationAddress"`
+	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
 	// ZIP
 	//
@@ -119,8 +118,7 @@ type PPMShipment struct {
 	MovingExpenses []*MovingExpense `json:"movingExpenses"`
 
 	// pickup address
-	// Required: true
-	PickupAddress *Address `json:"pickupAddress"`
+	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
 	// ZIP
 	//
@@ -431,9 +429,8 @@ func (m *PPMShipment) validateCreatedAt(formats strfmt.Registry) error {
 }
 
 func (m *PPMShipment) validateDestinationAddress(formats strfmt.Registry) error {
-
-	if err := validate.Required("destinationAddress", "body", m.DestinationAddress); err != nil {
-		return err
+	if swag.IsZero(m.DestinationAddress) { // not required
+		return nil
 	}
 
 	if m.DestinationAddress != nil {
@@ -525,9 +522,8 @@ func (m *PPMShipment) validateMovingExpenses(formats strfmt.Registry) error {
 }
 
 func (m *PPMShipment) validatePickupAddress(formats strfmt.Registry) error {
-
-	if err := validate.Required("pickupAddress", "body", m.PickupAddress); err != nil {
-		return err
+	if swag.IsZero(m.PickupAddress) { // not required
+		return nil
 	}
 
 	if m.PickupAddress != nil {
@@ -935,6 +931,10 @@ func (m *PPMShipment) contextValidateDestinationAddress(ctx context.Context, for
 
 	if m.DestinationAddress != nil {
 
+		if swag.IsZero(m.DestinationAddress) { // not required
+			return nil
+		}
+
 		if err := m.DestinationAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("destinationAddress")
@@ -1003,6 +1003,10 @@ func (m *PPMShipment) contextValidateMovingExpenses(ctx context.Context, formats
 func (m *PPMShipment) contextValidatePickupAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.PickupAddress != nil {
+
+		if swag.IsZero(m.PickupAddress) { // not required
+			return nil
+		}
 
 		if err := m.PickupAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

@@ -29,14 +29,6 @@ const validationShape = {
     .required('Required'),
 };
 
-const emptyAddressShape = {
-  streetAddress1: '',
-  streetAddress2: '',
-  city: '',
-  state: '',
-  postalCode: '',
-};
-
 const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMember, move, onBack, onSubmit }) => {
   const initialValues = {
     pickupPostalCode: mtoShipment?.ppmShipment?.pickupPostalCode || '',
@@ -49,7 +41,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
     destinationPostalCode: mtoShipment?.ppmShipment?.destinationPostalCode || '',
     hasSecondaryDestinationAddress: mtoShipment?.ppmShipment?.secondaryDestinationAddress ? 'true' : 'false',
     destinationAddress: {},
-    secondaryDestinationAddress: { address: { ...emptyAddressShape } },
+    secondaryDestinationAddress: {},
     secondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode || '',
     sitExpected: mtoShipment?.ppmShipment?.sitExpected ? 'true' : 'false',
     expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',

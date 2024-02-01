@@ -166,14 +166,47 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		estimatedWeight := unit.Pound(2450)
 		hasProGear := false
 		estimatedIncentive := unit.Cents(123456)
+
+		pickupAddress := models.Address{
+			StreetAddress1: "123 Any Pickup Street",
+			City:           "SomeCity",
+			State:          "CA",
+			PostalCode:     "90210",
+		}
+
+		secondaryPickupAddress := models.Address{
+			StreetAddress1: "123 Any Secondary Pickup Street",
+			City:           "SomeCity",
+			State:          "CA",
+			PostalCode:     "90210",
+		}
+
+		destinationAddress := models.Address{
+			StreetAddress1: "123 Any Destination Street",
+			City:           "SomeCity",
+			State:          "CA",
+			PostalCode:     "90210",
+		}
+
+		secondaryDestinationAddress := models.Address{
+			StreetAddress1: "123 Any Secondary Destination Street",
+			City:           "SomeCity",
+			State:          "CA",
+			PostalCode:     "90210",
+		}
+
 		subtestData := createSubtestData(models.PPMShipment{
-			Status:                models.PPMShipmentStatusSubmitted,
-			ExpectedDepartureDate: expectedDepartureDate,
-			PickupPostalCode:      pickupPostalCode,
-			DestinationPostalCode: destinationPostalCode,
-			SITExpected:           &sitExpected,
-			EstimatedWeight:       &estimatedWeight,
-			HasProGear:            &hasProGear,
+			Status:                      models.PPMShipmentStatusSubmitted,
+			ExpectedDepartureDate:       expectedDepartureDate,
+			PickupPostalCode:            pickupPostalCode,
+			DestinationPostalCode:       destinationPostalCode,
+			SITExpected:                 &sitExpected,
+			EstimatedWeight:             &estimatedWeight,
+			HasProGear:                  &hasProGear,
+			PickupAddress:               &pickupAddress,
+			DestinationAddress:          &destinationAddress,
+			SecondaryPickupAddress:      &secondaryPickupAddress,
+			SecondaryDestinationAddress: &secondaryDestinationAddress,
 		}, nil)
 
 		ppmEstimator.On(
@@ -199,6 +232,14 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			suite.Equal(&estimatedIncentive, createdPPMShipment.EstimatedIncentive)
 			suite.NotZero(createdPPMShipment.CreatedAt)
 			suite.NotZero(createdPPMShipment.UpdatedAt)
+			suite.Equal(pickupAddress.StreetAddress1, createdPPMShipment.PickupAddress.StreetAddress1)
+			suite.Equal(secondaryPickupAddress.StreetAddress1, createdPPMShipment.SecondaryPickupAddress.StreetAddress1)
+			suite.Equal(destinationAddress.StreetAddress1, createdPPMShipment.DestinationAddress.StreetAddress1)
+			suite.Equal(secondaryDestinationAddress.StreetAddress1, createdPPMShipment.SecondaryDestinationAddress.StreetAddress1)
+			suite.NotNil(createdPPMShipment.PickupAddressID)
+			suite.NotNil(createdPPMShipment.DestinationAddressID)
+			suite.NotNil(createdPPMShipment.SecondaryPickupAddressID)
+			suite.NotNil(createdPPMShipment.SecondaryDestinationAddressID)
 		}
 	})
 }

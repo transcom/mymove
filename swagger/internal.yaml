@@ -2536,7 +2536,9 @@ definitions:
     required:
       - expectedDepartureDate
       - pickupPostalCode
+      - pickupAddress
       - destinationPostalCode
+      - destinationAddress
       - sitExpected
   UpdatePPMShipment:
     type: object
@@ -3902,9 +3904,7 @@ definitions:
       - status
       - expectedDepartureDate
       - pickupPostalCode
-      - pickupAddress
       - destinationPostalCode
-      - destinationAddress
       - sitExpected
       - eTag
   PpmID:
