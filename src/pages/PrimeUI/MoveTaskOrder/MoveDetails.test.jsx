@@ -282,5 +282,40 @@ describe('PrimeUI MoveDetails page', () => {
         expect(screen.getByText('Error detail')).toBeInTheDocument();
       });
     });
+
+    it('success when downloading move orders', async () => {
+      global.URL.createObjectURL = jest.fn();
+      const mockResponse = {
+        ok: true,
+        headers: {
+          'content-disposition': 'filename="test.pdf"',
+        },
+        status: 200,
+        data: null,
+      };
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+
+      downloadMoveOrder.mockReturnValue(mockResponse);
+      renderWithProviders(<MoveDetails />);
+
+      const downloadMoveOrderButton = screen.getByText(/Download Move Orders/, { selector: 'button' });
+      expect(downloadMoveOrderButton).toBeInTheDocument();
+
+      jest.spyOn(document.body, 'appendChild');
+      jest.spyOn(document, 'createElement');
+
+      await userEvent.click(downloadMoveOrderButton);
+
+      // verify hyperlink was created
+      expect(document.createElement).toBeCalledWith('a');
+
+      // verify hypelink element was created with correct
+      // default file name from content-disposition
+      expect(document.body.appendChild).toBeCalledWith(
+        expect.objectContaining({
+          download: 'test.pdf',
+        }),
+      );
+    });
   });
 });
