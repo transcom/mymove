@@ -18,7 +18,6 @@ import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 
 const ShipmentAddresses = ({
-  pickupAddress,
   destinationAddress,
   originDutyLocation,
   destinationDutyLocation,
@@ -69,7 +68,7 @@ const ShipmentAddresses = ({
       <DataTable
         columnHeaders={[pickupHeader, destinationHeader]}
         dataRow={[
-          pickupAddress ? formatAddress(pickupAddress, shipmentInfo.shipmentType) : '—',
+          originDutyLocation ? formatAddress(originDutyLocation, shipmentInfo.shipmentType) : '—',
           destinationAddress ? formatAddress(destinationAddress, shipmentInfo.shipmentType) : '—',
         ]}
         icon={<FontAwesomeIcon icon="arrow-right" />}
@@ -80,7 +79,6 @@ const ShipmentAddresses = ({
 };
 
 ShipmentAddresses.propTypes = {
-  pickupAddress: AddressShape,
   destinationAddress: AddressShape,
   originDutyLocation: AddressShape,
   destinationDutyLocation: AddressShape,
@@ -94,7 +92,6 @@ ShipmentAddresses.propTypes = {
 };
 
 ShipmentAddresses.defaultProps = {
-  pickupAddress: {},
   destinationAddress: {},
   originDutyLocation: {},
   destinationDutyLocation: {},
