@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router';
 
 import { EditServiceInfo } from './EditServiceInfo';
 
@@ -86,7 +87,11 @@ describe('EditServiceInfo page updates orders table information', () => {
     };
     createOrders.mockImplementation(() => Promise.resolve(testOrdersValues));
 
-    render(<EditServiceInfo {...testProps} serviceMember={testServiceMemberValues} currentOrders={testOrdersValues} />);
+    render(
+      <MemoryRouter>
+        <EditServiceInfo {...testProps} serviceMember={testServiceMemberValues} currentOrders={testOrdersValues} />
+      </MemoryRouter>,
+    );
 
     getOrdersForServiceMember.mockImplementation(() => Promise.resolve(testOrdersValues));
     patchOrders.mockImplementation(() => Promise.resolve(testOrdersValues));
@@ -169,7 +174,11 @@ describe('EditServiceInfo page updates orders table information', () => {
     };
     createOrders.mockImplementation(() => Promise.resolve(testOrdersValues));
 
-    render(<EditServiceInfo {...testProps} serviceMember={testServiceMemberValues} currentOrders={testOrdersValues} />);
+    render(
+      <MemoryRouter>
+        <EditServiceInfo {...testProps} serviceMember={testServiceMemberValues} currentOrders={testOrdersValues} />
+      </MemoryRouter>,
+    );
 
     getOrdersForServiceMember.mockImplementation(() => Promise.resolve(testOrdersValues));
     patchOrders.mockImplementation(() => Promise.resolve(testOrdersValues));

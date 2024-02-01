@@ -1,6 +1,6 @@
 import React from 'react';
 import { string, PropTypes } from 'prop-types';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import oktaLogo from '../../../../shared/images/okta_logo.png';
 
@@ -9,11 +9,13 @@ import oktaInfoDisplayStyles from './OktaInfoDisplay.module.scss';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 
 const OktaInfoDisplay = ({ editURL, oktaUsername, oktaEmail, oktaFirstName, oktaLastName, oktaEdipi }) => {
+  const { state } = useLocation();
+
   return (
     <div className={oktaInfoDisplayStyles.serviceInfoContainer}>
       <div className={oktaInfoDisplayStyles.header}>
         <img className={oktaInfoDisplayStyles.oktaLogo} src={oktaLogo} alt="Okta logo" />
-        <Link className={oktaInfoDisplayStyles.oktaEditLink} to={editURL}>
+        <Link className={oktaInfoDisplayStyles.oktaEditLink} to={editURL} state={state}>
           Edit
         </Link>
       </div>

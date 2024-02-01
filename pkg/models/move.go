@@ -206,17 +206,15 @@ func (m Move) CreateSignedCertification(db *pop.Connection,
 	certificationText string,
 	signature string,
 	date time.Time,
-	ppmID *uuid.UUID,
 	certificationType *SignedCertificationType) (*SignedCertification, *validate.Errors, error) {
 
 	newSignedCertification := SignedCertification{
-		MoveID:                   m.ID,
-		PersonallyProcuredMoveID: ppmID,
-		CertificationType:        certificationType,
-		SubmittingUserID:         submittingUserID,
-		CertificationText:        certificationText,
-		Signature:                signature,
-		Date:                     date,
+		MoveID:            m.ID,
+		CertificationType: certificationType,
+		SubmittingUserID:  submittingUserID,
+		CertificationText: certificationText,
+		Signature:         signature,
+		Date:              date,
 	}
 
 	verrs, err := db.ValidateAndCreate(&newSignedCertification)
@@ -405,6 +403,26 @@ func FetchMoveByOrderID(db *pop.Connection, orderID uuid.UUID) (Move, error) {
 		return Move{}, err
 	}
 	return move, nil
+}
+
+// FetchMovesByOrderID returns a Moves for a given id
+func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
+	var moves Moves
+
+	query := db.Where("orders_id = ?", orderID)
+	err := query.Eager(
+		"MTOShipments",
+		"Orders",
+		"Orders.UploadedOrders",
+		"Orders.ServiceMember",
+		"Orders.ServiceMember.User",
+		"Orders.OriginDutyLocation.TransportationOffice",
+		"Orders.OriginDutyLocation.TransportationOffice.Address",
+		"Orders.NewDutyLocation.Address",
+		"Orders.NewDutyLocation.TransportationOffice",
+		"Orders.NewDutyLocation.TransportationOffice.Address",
+	).All(&moves)
+	return moves, err
 }
 
 // FetchMoveByMoveID returns a Move for a given id
