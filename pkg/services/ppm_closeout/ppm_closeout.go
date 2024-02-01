@@ -94,7 +94,7 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 			"FinalIncentive",
 			"AdvanceAmountReceived",
 			"SITLocation",
-			"Shipment",
+			"Shipment.Distance",
 		).
 		Find(&ppmShipment, ppmShipmentID)
 
