@@ -140,9 +140,48 @@ func (g *Generator) FileSystem() *afero.Afero {
 	return g.fs
 }
 
+// Add bookmarks into a single PDF
+func (g *Generator) AddPdfBookmarks(inputFile afero.File, bookmarks []pdfcpu.Bookmark) (afero.File, error) {
+	tempFile, err := g.newTempFile()
+	if err != nil {
+		return nil, err
+	}
+
+	buf := new(bytes.Buffer)
+	replace := true
+	err = api.AddBookmarks(inputFile, buf, bookmarks, replace, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "error pdfcpu.api.AddBookmarks")
+	}
+
+	// copy byte[] to temp file
+	_, err = io.Copy(tempFile, buf)
+	if err != nil {
+		return nil, errors.Wrap(err, "error io.Copy on byte[] to temp")
+	}
+
+	// Reload the file from memstore
+	pdfWithBookmarks, err := g.fs.Open(tempFile.Name())
+	if err != nil {
+		return nil, errors.Wrap(err, "error g.fs.Open on reload from memstore")
+	}
+
+	return pdfWithBookmarks, nil
+}
+
 // Get PDF Configuration (For Testing)
 func (g *Generator) PdfConfiguration() *model.Configuration {
 	return g.pdfConfig
+}
+
+// Get file information of a single PDF
+func (g *Generator) GetPdfFileInfo(fileName string) (*pdfcpu.PDFInfo, error) {
+	file, err := g.fs.Open(fileName)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	return api.PDFInfo(file, fileName, nil, g.pdfConfig)
 }
 
 // CreateMergedPDFUpload converts Uploads to PDF and merges them into a single PDF
@@ -490,15 +529,4 @@ func (g *Generator) FillPDFForm(jsonData []byte, templateReader io.ReadSeeker) (
 		return nil, errors.Wrap(err, "error g.fs.Open on reload from memstore")
 	}
 	return outputFile, nil
-
-}
-
-// Get file information of a single PDF
-func (g *Generator) GetPdfFileInfo(fileName string) (*pdfcpu.PDFInfo, error) {
-	file, err := g.fs.Open(fileName)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-	return api.PDFInfo(file, fileName, nil, g.pdfConfig)
 }
