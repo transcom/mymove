@@ -180,6 +180,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		DutyLocationsSearchDutyLocationsHandler: duty_locations.SearchDutyLocationsHandlerFunc(func(params duty_locations.SearchDutyLocationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation duty_locations.SearchDutyLocations has not yet been implemented")
 		}),
+		PpmShowAOAPacketHandler: ppm.ShowAOAPacketHandlerFunc(func(params ppm.ShowAOAPacketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.ShowAOAPacket has not yet been implemented")
+		}),
 		AddressesShowAddressHandler: addresses.ShowAddressHandlerFunc(func(params addresses.ShowAddressParams) middleware.Responder {
 			return middleware.NotImplemented("operation addresses.ShowAddress has not yet been implemented")
 		}),
@@ -399,6 +402,8 @@ type MymoveAPI struct {
 	PpmResubmitPPMShipmentDocumentationHandler ppm.ResubmitPPMShipmentDocumentationHandler
 	// DutyLocationsSearchDutyLocationsHandler sets the operation handler for the search duty locations operation
 	DutyLocationsSearchDutyLocationsHandler duty_locations.SearchDutyLocationsHandler
+	// PpmShowAOAPacketHandler sets the operation handler for the show a o a packet operation
+	PpmShowAOAPacketHandler ppm.ShowAOAPacketHandler
 	// AddressesShowAddressHandler sets the operation handler for the show address operation
 	AddressesShowAddressHandler addresses.ShowAddressHandler
 	// CalendarShowAvailableMoveDatesHandler sets the operation handler for the show available move dates operation
@@ -659,6 +664,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.DutyLocationsSearchDutyLocationsHandler == nil {
 		unregistered = append(unregistered, "duty_locations.SearchDutyLocationsHandler")
+	}
+	if o.PpmShowAOAPacketHandler == nil {
+		unregistered = append(unregistered, "ppm.ShowAOAPacketHandler")
 	}
 	if o.AddressesShowAddressHandler == nil {
 		unregistered = append(unregistered, "addresses.ShowAddressHandler")
@@ -1003,6 +1011,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/aoa-packet/download"] = ppm.NewShowAOAPacket(o.context, o.PpmShowAOAPacketHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/addresses/{addressId}"] = addresses.NewShowAddress(o.context, o.AddressesShowAddressHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1067,7 +1079,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/moves/{ppmShipmentId}/shipment_summary_worksheet"] = moves.NewShowShipmentSummaryWorksheet(o.context, o.MovesShowShipmentSummaryWorksheetHandler)
+	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/shipment_summary_worksheet"] = moves.NewShowShipmentSummaryWorksheet(o.context, o.MovesShowShipmentSummaryWorksheetHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

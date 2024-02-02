@@ -247,3 +247,53 @@ func (h ResubmitPPMShipmentDocumentationHandler) Handle(params ppmops.ResubmitPP
 			return ppmops.NewResubmitPPMShipmentDocumentationOK().WithPayload(returnPayload), nil
 		})
 }
+
+// // ShowShipmentSummaryWorksheetHandler returns a Shipment Summary Worksheet PDF
+// type showAOAPacket struct {
+// 	handlers.HandlerConfig
+// 	services.SSWPPMComputer
+// }
+
+// // Handle returns a generated PDF
+// func (h showAOAPacket) Handle(params ppmops.ShowAOAPacketParams) middleware.Responder {
+// 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+// 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+// 			logger := appCtx.Logger()
+
+// 			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID)
+// 			if err != nil {
+// 				logger.Error("Error fetching PPMShipment", zap.Error(err))
+// 				return handlers.ResponseForError(appCtx.Logger(), err), err
+// 			}
+// 			ssfd, err := h.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentID)
+// 			if err != nil {
+// 				logger.Error("Error fetching data for SSW", zap.Error(err))
+// 				return handlers.ResponseForError(logger, err), err
+// 			}
+
+// 			ssfd.Obligations, err = h.SSWPPMComputer.ComputeObligations(appCtx, *ssfd, h.DTODPlanner())
+// 			if err != nil {
+// 				logger.Error("Error calculating obligations ", zap.Error(err))
+// 				return handlers.ResponseForError(logger, err), err
+// 			}
+
+// 			page1Data, page2Data := h.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
+// 			if err != nil {
+// 				logger.Error("Error formatting data for SSW", zap.Error(err))
+// 				return handlers.ResponseForError(logger, err), err
+// 			}
+
+// 			ppmGenerator := shipmentsummaryworksheet.NewSSWPPMGenerator()
+// 			SSWPPMWorksheet, SSWPDFInfo, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
+// 			if err != nil {
+// 				return nil, err
+// 			}
+// 			if SSWPDFInfo.PageCount != 2 {
+// 				return nil, errors.Wrap(err, "SSWGenerator output a corrupted or incorretly altered PDF")
+// 			}
+// 			payload := io.NopCloser(SSWPPMWorksheet)
+// 			filename := fmt.Sprintf("inline; filename=\"%s-%s-ssw-%s.pdf\"", *ssfd.ServiceMember.FirstName, *ssfd.ServiceMember.LastName, time.Now().Format("01-02-2006"))
+
+// 			return ppmops.NewShowAOAPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
+// 		})
+// }
