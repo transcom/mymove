@@ -126,16 +126,16 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               editURL={customerRoutes.EDIT_OKTA_PROFILE_PATH}
             />
           </SectionWrapper>
-          <SectionWrapper data-testid="validateProfileContainer" className={styles.validateProfileBtnContainer}>
-            <Button
-              onClick={handleValidateProfileClick}
-              className={styles.validateProfileBtn}
-              data-testid="validateProfileBtn"
-              disabled={profileValidated}
-            >
-              {profileValidated ? 'Profile Validated' : 'Validate Profile'}
-            </Button>
-            {needsToVerifyProfile && (
+          {needsToVerifyProfile && (
+            <SectionWrapper data-testid="validateProfileContainer" className={styles.validateProfileBtnContainer}>
+              <Button
+                onClick={handleValidateProfileClick}
+                className={styles.validateProfileBtn}
+                data-testid="validateProfileBtn"
+                disabled={profileValidated}
+              >
+                {profileValidated ? 'Profile Validated' : 'Validate Profile'}
+              </Button>
               <Button
                 className={styles.createMoveBtn}
                 onClick={handleCreateMoveClick}
@@ -144,8 +144,8 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               >
                 <span>Create a Move</span>
               </Button>
-            )}
-          </SectionWrapper>
+            </SectionWrapper>
+          )}
         </div>
       </div>
     </div>
