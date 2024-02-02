@@ -2013,16 +2013,17 @@ jobs:
   
   # `prod_auth_check` checks if approved before going to prod
   prod_auth_check:
-    when: # All must be true to trigger
-        condition:
-          or:
-            equal: [ josiahzimmerman-caci, <<pipeline.trigger_parameters.circleci.actor_id>> ]
-            equal: [ deandreJones, <<pipeline.trigger_parameters.circleci.actor_id>> ]
-            equal: [ cameroncaci, <<pipeline.trigger_parameters.circleci.actor_id>> ]
-          steps:    
-            - run: echo "build approved by <<pipeline.trigger_parameters.circleci.actor_id>>"    
-            - announce_failure          
-
+    executor: tls_small
+    steps:
+      - run:
+          name: Check if Prod approval has rights
+          command: |
+            if [[ <<pipeline.trigger_parameters.circleci.actor_id>> != "josiahzimmerman-caci" OR  <<pipeline.trigger_parameters.circleci.actor_id>>!= "deandrejones" OR  <<pipeline.trigger_parameters.circleci.actor_id>> != "cameroncaci" ]]; then
+              circleci-agent step halt
+            fi
+      - run: echo "build approved by <<pipeline.trigger_parameters.circleci.actor_id>>"    
+      - announce_failure                                 
+  
   # All of the deploy tasks need to checkout the code so they can run the `scripts/do-exclusively` script
 
   # `deploy_dp3_migrations` deploys migrations to the dp3 environment
@@ -2584,7 +2585,7 @@ workflows:
            - approve_prd_deploy
           filters:
             branches:
-              only: main     
+              only: main            
 
       - deploy_storybook_dp3:
           requires:
