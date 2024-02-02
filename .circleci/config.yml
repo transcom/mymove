@@ -1115,7 +1115,6 @@ jobs:
       - checkout
       - restore_cache_for_go
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      - run: echo "build approved by $CIRCLE_USERNAME"    
       - run:
           name: Install dependencies
           command: for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
@@ -2009,19 +2008,7 @@ jobs:
           image_name: tasks
           tag: dev
           repo: app-tasks
-      - announce_failure
-
-  # `approve_build_test` checks if approved before going to prod
-  approve_build_test:
-    executor: tls_small
-    steps:
-      - run: echo "build approved by $CIRCLE_USERNAME"  
-      - run:
-          name: Check if Prod approval has rights
-          command: |
-            if [[ $CIRCLE_USERNAME != "josiahzimmerman" && $CIRCLE_USERNAME != "deandreJones" && $CIRCLE_USERNAME != "cameroncaci" ]]; then
-               exit 1
-            fi                 
+      - announce_failure             
   
   # `prod_auth_check` checks if approved before going to prod
   prod_auth_check:
@@ -2263,20 +2250,17 @@ workflows:
       # https://circleci.com/docs/configuration-reference/
       - compile_app_client:
           requires:
-            - anti_virus       
-            - approve_build_test                 
+            - anti_virus                    
 
       - check_generated_code:
           requires:
-            - pre_deps_golang
-            - approve_build_test              
+            - pre_deps_golang           
           filters:
             branches:
               ignore: [*integration-mtls-ignore-branch, *integration-ignore-branch]
 
       - pre_test:
-          requires:
-            - approve_build_test              
+          requires:            
             - pre_deps_golang
             - pre_deps_yarn
             - check_tls_certificate_dp3
@@ -2595,24 +2579,12 @@ workflows:
             - deploy_stg_app
             - deploy_stg_app_client_tls
 
-      - approve_test_deploy:
-          type: approval
-          context:
-            - Production Workflow Approvers
-
       - prod_auth_check:
           requires:
            - approve_prd_deploy
           filters:
             branches:
               only: main            
-
-      - approve_build_test:
-          requires:
-           - approve_test_deploy
-          filters:
-            branches:
-              only: update-circle-ci-prod-hold    
 
       - deploy_storybook_dp3:
           requires:
