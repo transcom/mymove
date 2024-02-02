@@ -2010,6 +2010,19 @@ jobs:
           tag: dev
           repo: app-tasks
       - announce_failure
+
+  # `approve_build_test` checks if approved before going to prod
+  approve_build_test:
+    executor: tls_small
+    steps:
+      - run:
+          name: Check if Prod approval has rights
+          command: |
+            if [[ $CIRCLE_USERNAME != "josiahzimmerman-caci" OR $CIRCLE_USERNAME != "deandrejones" OR  $CIRCLE_USERNAME != "cameroncaci" ]]; then
+              circleci-agent step halt
+            fi
+      - run: echo "build approved by $CIRCLE_USERNAME"    
+      - announce_failure            
   
   # `prod_auth_check` checks if approved before going to prod
   prod_auth_check:
@@ -2250,8 +2263,8 @@ workflows:
       # https://circleci.com/docs/configuration-reference/
       - compile_app_client:
           requires:
-            - base_noop
             - anti_virus
+            - approve_test_deploy
 
       - check_generated_code:
           requires:
@@ -2579,13 +2592,27 @@ workflows:
             - deploy_stg_tasks
             - deploy_stg_app
             - deploy_stg_app_client_tls
-      
+
+      - approve_test_deploy:
+          type: approval
+          context:
+            - Production Workflow Approvers
+          requires:
+            - base_noop
+
       - prod_auth_check:
           requires:
            - approve_prd_deploy
           filters:
             branches:
               only: main            
+
+      - approve_build_test:
+          requires:
+           - approve_test_deploy
+          filters:
+            branches:
+              only: update-circle-ci-prod-hold    
 
       - deploy_storybook_dp3:
           requires:
