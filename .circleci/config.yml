@@ -2019,7 +2019,7 @@ jobs:
       - run:
           name: Check if Prod approval has rights
           command: |
-            if [[ $CIRCLE_USERNAME != "josiahzimmerman-caci" && $CIRCLE_USERNAME != "deandreJones" && $CIRCLE_USERNAME != "cameroncaci" ]]; then
+            if [[ $CIRCLE_USERNAME != "josiahzimmerman" && $CIRCLE_USERNAME != "deandreJones" && $CIRCLE_USERNAME != "cameroncaci" ]]; then
                exit 1
             fi                 
   
