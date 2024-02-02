@@ -1,8 +1,6 @@
 package internalapi
 
 import (
-	"fmt"
-	"io"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -21,7 +19,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
-	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -202,56 +199,6 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 			}
 			return moveop.NewSubmitMoveForApprovalOK().WithPayload(movePayload), nil
 		})
-}
-
-// Handle returns a generated PDF
-func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSummaryWorksheetParams) middleware.Responder {
-	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			logger := appCtx.Logger()
-
-			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
-			if err != nil {
-				logger.Error("Error fetching PPMShipment", zap.Error(err))
-				return handlers.ResponseForError(appCtx.Logger(), err), err
-			}
-			ssfd, err := h.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentID)
-			if err != nil {
-				logger.Error("Error fetching data for SSW", zap.Error(err))
-				return handlers.ResponseForError(logger, err), err
-			}
-
-			ssfd.Obligations, err = h.SSWPPMComputer.ComputeObligations(appCtx, *ssfd, h.DTODPlanner())
-			if err != nil {
-				logger.Error("Error calculating obligations ", zap.Error(err))
-				return handlers.ResponseForError(logger, err), err
-			}
-
-			page1Data, page2Data := h.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
-			if err != nil {
-				logger.Error("Error formatting data for SSW", zap.Error(err))
-				return handlers.ResponseForError(logger, err), err
-			}
-
-			ppmGenerator := shipmentsummaryworksheet.NewSSWPPMGenerator()
-			SSWPPMWorksheet, SSWPDFInfo, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
-			if err != nil {
-				return nil, err
-			}
-			if SSWPDFInfo.PageCount != 2 {
-				return nil, errors.Wrap(err, "SSWGenerator output a corrupted or incorretly altered PDF")
-			}
-			payload := io.NopCloser(SSWPPMWorksheet)
-			filename := fmt.Sprintf("inline; filename=\"%s-%s-ssw-%s.pdf\"", *ssfd.ServiceMember.FirstName, *ssfd.ServiceMember.LastName, time.Now().Format("01-02-2006"))
-
-			return moveop.NewShowShipmentSummaryWorksheetOK().WithContentDisposition(filename).WithPayload(payload), nil
-		})
-}
-
-// ShowShipmentSummaryWorksheetHandler returns a Shipment Summary Worksheet PDF
-type ShowShipmentSummaryWorksheetHandler struct {
-	handlers.HandlerConfig
-	services.SSWPPMComputer
 }
 
 // SubmitAmendedOrdersHandler approves a move via POST /moves/{moveId}/submit

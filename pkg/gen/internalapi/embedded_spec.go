@@ -1415,64 +1415,6 @@ func init() {
         }
       }
     },
-    "/moves/{ppmShipmentId}/shipment_summary_worksheet": {
-      "get": {
-        "description": "Generates pre-filled PDF using data already collected",
-        "produces": [
-          "application/pdf"
-        ],
-        "tags": [
-          "moves"
-        ],
-        "summary": "Returns Shipment Summary Worksheet",
-        "operationId": "showShipmentSummaryWorksheet",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the ppmShipment",
-            "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "date",
-            "description": "The preparationDate of PDF",
-            "name": "preparationDate",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Pre-filled worksheet PDF",
-            "schema": {
-              "type": "file",
-              "format": "binary"
-            },
-            "headers": {
-              "Content-Disposition": {
-                "type": "string",
-                "description": "File name to download"
-              }
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      }
-    },
     "/mto-shipments/{mtoShipmentId}": {
       "delete": {
         "description": "Soft deletes a shipment by ID",
@@ -2510,6 +2452,64 @@ func init() {
           "$ref": "#/parameters/ppmShipmentId"
         }
       ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/shipment_summary_worksheet": {
+      "get": {
+        "description": "Generates pre-filled PDF using data already collected",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Returns Shipment Summary Worksheet",
+        "operationId": "showShipmentSummaryWorksheet",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppmShipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "description": "The preparationDate of PDF",
+            "name": "preparationDate",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pre-filled worksheet PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
     },
     "/ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation": {
       "post": {
@@ -9668,64 +9668,6 @@ func init() {
         }
       }
     },
-    "/moves/{ppmShipmentId}/shipment_summary_worksheet": {
-      "get": {
-        "description": "Generates pre-filled PDF using data already collected",
-        "produces": [
-          "application/pdf"
-        ],
-        "tags": [
-          "moves"
-        ],
-        "summary": "Returns Shipment Summary Worksheet",
-        "operationId": "showShipmentSummaryWorksheet",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the ppmShipment",
-            "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "date",
-            "description": "The preparationDate of PDF",
-            "name": "preparationDate",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Pre-filled worksheet PDF",
-            "schema": {
-              "type": "file",
-              "format": "binary"
-            },
-            "headers": {
-              "Content-Disposition": {
-                "type": "string",
-                "description": "File name to download"
-              }
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      }
-    },
     "/mto-shipments/{mtoShipmentId}": {
       "delete": {
         "description": "Soft deletes a shipment by ID",
@@ -11027,6 +10969,64 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/shipment_summary_worksheet": {
+      "get": {
+        "description": "Generates pre-filled PDF using data already collected",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Returns Shipment Summary Worksheet",
+        "operationId": "showShipmentSummaryWorksheet",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppmShipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "description": "The preparationDate of PDF",
+            "name": "preparationDate",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pre-filled worksheet PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
     },
     "/ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation": {
       "post": {

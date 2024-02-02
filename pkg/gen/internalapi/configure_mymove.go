@@ -337,9 +337,9 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation service_members.ShowServiceMemberOrders has not yet been implemented")
 		})
 	}
-	if api.MovesShowShipmentSummaryWorksheetHandler == nil {
-		api.MovesShowShipmentSummaryWorksheetHandler = moves.ShowShipmentSummaryWorksheetHandlerFunc(func(params moves.ShowShipmentSummaryWorksheetParams) middleware.Responder {
-			return middleware.NotImplemented("operation moves.ShowShipmentSummaryWorksheet has not yet been implemented")
+	if api.PpmShowShipmentSummaryWorksheetHandler == nil {
+		api.PpmShowShipmentSummaryWorksheetHandler = ppm.ShowShipmentSummaryWorksheetHandlerFunc(func(params ppm.ShowShipmentSummaryWorksheetParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.ShowShipmentSummaryWorksheet has not yet been implemented")
 		})
 	}
 	if api.MovesSubmitAmendedOrdersHandler == nil {
