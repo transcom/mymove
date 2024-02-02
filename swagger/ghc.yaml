@@ -5104,8 +5104,6 @@ definitions:
         enum:
           - FULL
           - PARTIAL
-      ppmEstimatedWeight:
-        type: integer
       eTag:
         type: string
         readOnly: true
@@ -6379,6 +6377,10 @@ definitions:
             format: date
             x-nullable: true
           sitAllowanceEndDate:
+            type: string
+            format: date
+            x-nullable: true
+          sitAuthorizedEndDate:
             type: string
             format: date
             x-nullable: true
