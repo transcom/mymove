@@ -2231,8 +2231,7 @@ workflows:
       - anti_virus:
           filters:
             branches:
-              only: main
-          
+              only: main          
 
       # compile_app_client does not rely on pre_deps_yarn
       # anymore so that it can start sooner. This helps the
@@ -2250,17 +2249,18 @@ workflows:
       # https://circleci.com/docs/configuration-reference/
       - compile_app_client:
           requires:
-            - anti_virus                    
+            - base_noop
+            - anti_virus                
 
       - check_generated_code:
           requires:
-            - pre_deps_golang           
+            - pre_deps_golang  
           filters:
             branches:
               ignore: [*integration-mtls-ignore-branch, *integration-ignore-branch]
 
       - pre_test:
-          requires:            
+          requires:
             - pre_deps_golang
             - pre_deps_yarn
             - check_tls_certificate_dp3
