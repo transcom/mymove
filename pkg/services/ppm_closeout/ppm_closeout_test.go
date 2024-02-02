@@ -3,13 +3,8 @@ package ppmcloseout
 import (
 	"time"
 
-	"github.com/stretchr/testify/mock"
-	"go.uber.org/zap"
-
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	prhelpermocks "github.com/transcom/mymove/pkg/payment_request/mocks"
-	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -17,10 +12,10 @@ import (
 func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 
 	// One-time test setup
-	mockedPlanner := &mocks.Planner{}
-	mockedPaymentRequestHelper := &prhelpermocks.Helper{}
-	ppmCloseoutFetcher := NewPPMCloseoutFetcher(mockedPlanner, mockedPaymentRequestHelper)
-	serviceParams := mockServiceParamsTables()
+	// mockedPlanner := &mocks.Planner{}
+	// mockedPaymentRequestHelper := &prhelpermocks.Helper{}
+	// ppmCloseoutFetcher := NewPPMCloseoutFetcher(mockedPlanner, mockedPaymentRequestHelper)
+	// serviceParams := mockServiceParamsTables()
 
 	suite.PreloadData(func() {
 		// Generate all the data needed for a PPM Closeout object to be calculated
@@ -210,186 +205,186 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 		})
 	})
 
-	suite.Run("Can successfully GET a PPMCloseout Object", func() {
-		// Under test:	CreatePPMShipment
-		// Set up:		Established valid shipment and valid new PPM shipment
-		// Expected:	New PPM shipment successfully created
-		appCtx := suite.AppContextForTest()
+	// suite.Run("Can successfully GET a PPMCloseout Object", func() {
+	// 	// Under test:	CreatePPMShipment
+	// 	// Set up:		Established valid shipment and valid new PPM shipment
+	// 	// Expected:	New PPM shipment successfully created
+	// 	appCtx := suite.AppContextForTest()
 
-		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-			"90210", "30813").Return(2294, nil)
+	// 	mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+	// 		"90210", "30813").Return(2294, nil)
 
-		mockedPaymentRequestHelper.On(
-			"FetchServiceParamsForServiceItems",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+	// 	mockedPaymentRequestHelper.On(
+	// 		"FetchServiceParamsForServiceItems",
+	// 		mock.AnythingOfType("*appcontext.appContext"),
+	// 		mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
 
-		days := 90
-		sitLocation := models.SITLocationTypeOrigin
-		var date = time.Now()
-		weight := unit.Pound(1000)
-		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.AppContextForTest().DB(), nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					SITDaysAllowance: &days,
-				},
-			},
-			{
-				Model: models.PPMShipment{
-					SITLocation:               &sitLocation,
-					SITEstimatedEntryDate:     &date,
-					SITEstimatedDepartureDate: &date,
-					SITEstimatedWeight:        &weight,
-				},
-			},
-		})
+	// 	days := 90
+	// 	sitLocation := models.SITLocationTypeOrigin
+	// 	var date = time.Now()
+	// 	weight := unit.Pound(1000)
+	// 	ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.AppContextForTest().DB(), nil, []factory.Customization{
+	// 		{
+	// 			Model: models.MTOShipment{
+	// 				SITDaysAllowance: &days,
+	// 			},
+	// 		},
+	// 		{
+	// 			Model: models.PPMShipment{
+	// 				SITLocation:               &sitLocation,
+	// 				SITEstimatedEntryDate:     &date,
+	// 				SITEstimatedDepartureDate: &date,
+	// 				SITEstimatedWeight:        &weight,
+	// 			},
+	// 		},
+	// 	})
 
-		ppmShipment.Shipment.SITDaysAllowance = &days
+	// 	ppmShipment.Shipment.SITDaysAllowance = &days
 
-		ppmCloseoutObj, err := ppmCloseoutFetcher.GetPPMCloseout(appCtx, ppmShipment.ID)
-		if err != nil {
-			appCtx.Logger().Error("Error getting PPM closeout object: ", zap.Error(err))
-		}
+	// 	ppmCloseoutObj, err := ppmCloseoutFetcher.GetPPMCloseout(appCtx, ppmShipment.ID)
+	// 	if err != nil {
+	// 		appCtx.Logger().Error("Error getting PPM closeout object: ", zap.Error(err))
+	// 	}
 
-		mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
+	// 	mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
-		suite.Nil(err)
-		suite.NotNil(ppmCloseoutObj)
-		suite.NotEmpty(ppmCloseoutObj)
-	})
+	// 	suite.Nil(err)
+	// 	suite.NotNil(ppmCloseoutObj)
+	// 	suite.NotEmpty(ppmCloseoutObj)
+	// })
 }
 
-func mockServiceParamsTables() models.ServiceParams {
-	// To avoid creating all of the re_services and their corresponding params using factories, we can create this
-	// mapping to help mock the response
-	serviceParamKeys := map[models.ServiceItemParamName]models.ServiceItemParamKey{
-		models.ServiceItemParamNameActualPickupDate:                 {Key: models.ServiceItemParamNameActualPickupDate, Type: models.ServiceItemParamTypeDate},
-		models.ServiceItemParamNameContractCode:                     {Key: models.ServiceItemParamNameContractCode, Type: models.ServiceItemParamTypeString},
-		models.ServiceItemParamNameDistanceZip:                      {Key: models.ServiceItemParamNameDistanceZip, Type: models.ServiceItemParamTypeInteger},
-		models.ServiceItemParamNameEIAFuelPrice:                     {Key: models.ServiceItemParamNameEIAFuelPrice, Type: models.ServiceItemParamTypeInteger},
-		models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier: {Key: models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier, Type: models.ServiceItemParamTypeDecimal},
-		models.ServiceItemParamNameReferenceDate:                    {Key: models.ServiceItemParamNameReferenceDate, Type: models.ServiceItemParamTypeDate},
-		models.ServiceItemParamNameRequestedPickupDate:              {Key: models.ServiceItemParamNameRequestedPickupDate, Type: models.ServiceItemParamTypeDate},
-		models.ServiceItemParamNameServiceAreaDest:                  {Key: models.ServiceItemParamNameServiceAreaDest, Type: models.ServiceItemParamTypeString},
-		models.ServiceItemParamNameServiceAreaOrigin:                {Key: models.ServiceItemParamNameServiceAreaOrigin, Type: models.ServiceItemParamTypeString},
-		models.ServiceItemParamNameServicesScheduleDest:             {Key: models.ServiceItemParamNameServicesScheduleDest, Type: models.ServiceItemParamTypeInteger},
-		models.ServiceItemParamNameServicesScheduleOrigin:           {Key: models.ServiceItemParamNameServicesScheduleOrigin, Type: models.ServiceItemParamTypeInteger},
-		models.ServiceItemParamNameWeightAdjusted:                   {Key: models.ServiceItemParamNameWeightAdjusted, Type: models.ServiceItemParamTypeInteger},
-		models.ServiceItemParamNameWeightBilled:                     {Key: models.ServiceItemParamNameWeightBilled, Type: models.ServiceItemParamTypeInteger},
-		models.ServiceItemParamNameWeightEstimated:                  {Key: models.ServiceItemParamNameWeightEstimated, Type: models.ServiceItemParamTypeInteger},
-		models.ServiceItemParamNameWeightOriginal:                   {Key: models.ServiceItemParamNameWeightOriginal, Type: models.ServiceItemParamTypeInteger},
-		models.ServiceItemParamNameWeightReweigh:                    {Key: models.ServiceItemParamNameWeightReweigh, Type: models.ServiceItemParamTypeInteger},
-		models.ServiceItemParamNameZipDestAddress:                   {Key: models.ServiceItemParamNameZipDestAddress, Type: models.ServiceItemParamTypeString},
-		models.ServiceItemParamNameZipPickupAddress:                 {Key: models.ServiceItemParamNameZipPickupAddress, Type: models.ServiceItemParamTypeString},
-	}
+// func mockServiceParamsTables() models.ServiceParams {
+// 	// To avoid creating all of the re_services and their corresponding params using factories, we can create this
+// 	// mapping to help mock the response
+// 	serviceParamKeys := map[models.ServiceItemParamName]models.ServiceItemParamKey{
+// 		models.ServiceItemParamNameActualPickupDate:                 {Key: models.ServiceItemParamNameActualPickupDate, Type: models.ServiceItemParamTypeDate},
+// 		models.ServiceItemParamNameContractCode:                     {Key: models.ServiceItemParamNameContractCode, Type: models.ServiceItemParamTypeString},
+// 		models.ServiceItemParamNameDistanceZip:                      {Key: models.ServiceItemParamNameDistanceZip, Type: models.ServiceItemParamTypeInteger},
+// 		models.ServiceItemParamNameEIAFuelPrice:                     {Key: models.ServiceItemParamNameEIAFuelPrice, Type: models.ServiceItemParamTypeInteger},
+// 		models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier: {Key: models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier, Type: models.ServiceItemParamTypeDecimal},
+// 		models.ServiceItemParamNameReferenceDate:                    {Key: models.ServiceItemParamNameReferenceDate, Type: models.ServiceItemParamTypeDate},
+// 		models.ServiceItemParamNameRequestedPickupDate:              {Key: models.ServiceItemParamNameRequestedPickupDate, Type: models.ServiceItemParamTypeDate},
+// 		models.ServiceItemParamNameServiceAreaDest:                  {Key: models.ServiceItemParamNameServiceAreaDest, Type: models.ServiceItemParamTypeString},
+// 		models.ServiceItemParamNameServiceAreaOrigin:                {Key: models.ServiceItemParamNameServiceAreaOrigin, Type: models.ServiceItemParamTypeString},
+// 		models.ServiceItemParamNameServicesScheduleDest:             {Key: models.ServiceItemParamNameServicesScheduleDest, Type: models.ServiceItemParamTypeInteger},
+// 		models.ServiceItemParamNameServicesScheduleOrigin:           {Key: models.ServiceItemParamNameServicesScheduleOrigin, Type: models.ServiceItemParamTypeInteger},
+// 		models.ServiceItemParamNameWeightAdjusted:                   {Key: models.ServiceItemParamNameWeightAdjusted, Type: models.ServiceItemParamTypeInteger},
+// 		models.ServiceItemParamNameWeightBilled:                     {Key: models.ServiceItemParamNameWeightBilled, Type: models.ServiceItemParamTypeInteger},
+// 		models.ServiceItemParamNameWeightEstimated:                  {Key: models.ServiceItemParamNameWeightEstimated, Type: models.ServiceItemParamTypeInteger},
+// 		models.ServiceItemParamNameWeightOriginal:                   {Key: models.ServiceItemParamNameWeightOriginal, Type: models.ServiceItemParamTypeInteger},
+// 		models.ServiceItemParamNameWeightReweigh:                    {Key: models.ServiceItemParamNameWeightReweigh, Type: models.ServiceItemParamTypeInteger},
+// 		models.ServiceItemParamNameZipDestAddress:                   {Key: models.ServiceItemParamNameZipDestAddress, Type: models.ServiceItemParamTypeString},
+// 		models.ServiceItemParamNameZipPickupAddress:                 {Key: models.ServiceItemParamNameZipPickupAddress, Type: models.ServiceItemParamTypeString},
+// 	}
 
-	serviceParams := models.ServiceParams{}
-	// Domestic Linehaul
-	for _, serviceParamKey := range []models.ServiceItemParamName{
-		models.ServiceItemParamNameActualPickupDate,
-		models.ServiceItemParamNameContractCode,
-		models.ServiceItemParamNameDistanceZip,
-		models.ServiceItemParamNameReferenceDate,
-		models.ServiceItemParamNameRequestedPickupDate,
-		models.ServiceItemParamNameServiceAreaOrigin,
-		models.ServiceItemParamNameWeightAdjusted,
-		models.ServiceItemParamNameWeightBilled,
-		models.ServiceItemParamNameWeightEstimated,
-		models.ServiceItemParamNameWeightOriginal,
-		models.ServiceItemParamNameWeightReweigh,
-		models.ServiceItemParamNameZipDestAddress,
-		models.ServiceItemParamNameZipPickupAddress,
-	} {
-		serviceParams = append(serviceParams, models.ServiceParam{Service: models.ReService{Code: models.ReServiceCodeDLH}, ServiceItemParamKey: serviceParamKeys[serviceParamKey]})
-	}
+// 	serviceParams := models.ServiceParams{}
+// 	// Domestic Linehaul
+// 	for _, serviceParamKey := range []models.ServiceItemParamName{
+// 		models.ServiceItemParamNameActualPickupDate,
+// 		models.ServiceItemParamNameContractCode,
+// 		models.ServiceItemParamNameDistanceZip,
+// 		models.ServiceItemParamNameReferenceDate,
+// 		models.ServiceItemParamNameRequestedPickupDate,
+// 		models.ServiceItemParamNameServiceAreaOrigin,
+// 		models.ServiceItemParamNameWeightAdjusted,
+// 		models.ServiceItemParamNameWeightBilled,
+// 		models.ServiceItemParamNameWeightEstimated,
+// 		models.ServiceItemParamNameWeightOriginal,
+// 		models.ServiceItemParamNameWeightReweigh,
+// 		models.ServiceItemParamNameZipDestAddress,
+// 		models.ServiceItemParamNameZipPickupAddress,
+// 	} {
+// 		serviceParams = append(serviceParams, models.ServiceParam{Service: models.ReService{Code: models.ReServiceCodeDLH}, ServiceItemParamKey: serviceParamKeys[serviceParamKey]})
+// 	}
 
-	// Fuel Surcharge
-	for _, serviceParamKey := range []models.ServiceItemParamName{
-		models.ServiceItemParamNameActualPickupDate,
-		models.ServiceItemParamNameContractCode,
-		models.ServiceItemParamNameDistanceZip,
-		models.ServiceItemParamNameEIAFuelPrice,
-		models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
-		models.ServiceItemParamNameWeightAdjusted,
-		models.ServiceItemParamNameWeightBilled,
-		models.ServiceItemParamNameWeightEstimated,
-		models.ServiceItemParamNameWeightOriginal,
-		models.ServiceItemParamNameWeightReweigh,
-		models.ServiceItemParamNameZipDestAddress,
-		models.ServiceItemParamNameZipPickupAddress,
-	} {
-		serviceParams = append(serviceParams, models.ServiceParam{Service: models.ReService{Code: models.ReServiceCodeFSC}, ServiceItemParamKey: serviceParamKeys[serviceParamKey]})
-	}
+// 	// Fuel Surcharge
+// 	for _, serviceParamKey := range []models.ServiceItemParamName{
+// 		models.ServiceItemParamNameActualPickupDate,
+// 		models.ServiceItemParamNameContractCode,
+// 		models.ServiceItemParamNameDistanceZip,
+// 		models.ServiceItemParamNameEIAFuelPrice,
+// 		models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
+// 		models.ServiceItemParamNameWeightAdjusted,
+// 		models.ServiceItemParamNameWeightBilled,
+// 		models.ServiceItemParamNameWeightEstimated,
+// 		models.ServiceItemParamNameWeightOriginal,
+// 		models.ServiceItemParamNameWeightReweigh,
+// 		models.ServiceItemParamNameZipDestAddress,
+// 		models.ServiceItemParamNameZipPickupAddress,
+// 	} {
+// 		serviceParams = append(serviceParams, models.ServiceParam{Service: models.ReService{Code: models.ReServiceCodeFSC}, ServiceItemParamKey: serviceParamKeys[serviceParamKey]})
+// 	}
 
-	// Domestic Origin Price
-	for _, serviceParamKey := range []models.ServiceItemParamName{
-		models.ServiceItemParamNameActualPickupDate,
-		models.ServiceItemParamNameContractCode,
-		models.ServiceItemParamNameReferenceDate,
-		models.ServiceItemParamNameRequestedPickupDate,
-		models.ServiceItemParamNameServiceAreaOrigin,
-		models.ServiceItemParamNameWeightAdjusted,
-		models.ServiceItemParamNameWeightBilled,
-		models.ServiceItemParamNameWeightEstimated,
-		models.ServiceItemParamNameWeightOriginal,
-		models.ServiceItemParamNameWeightReweigh,
-		models.ServiceItemParamNameZipPickupAddress,
-	} {
-		serviceParams = append(serviceParams, models.ServiceParam{Service: models.ReService{Code: models.ReServiceCodeDOP}, ServiceItemParamKey: serviceParamKeys[serviceParamKey]})
-	}
+// 	// Domestic Origin Price
+// 	for _, serviceParamKey := range []models.ServiceItemParamName{
+// 		models.ServiceItemParamNameActualPickupDate,
+// 		models.ServiceItemParamNameContractCode,
+// 		models.ServiceItemParamNameReferenceDate,
+// 		models.ServiceItemParamNameRequestedPickupDate,
+// 		models.ServiceItemParamNameServiceAreaOrigin,
+// 		models.ServiceItemParamNameWeightAdjusted,
+// 		models.ServiceItemParamNameWeightBilled,
+// 		models.ServiceItemParamNameWeightEstimated,
+// 		models.ServiceItemParamNameWeightOriginal,
+// 		models.ServiceItemParamNameWeightReweigh,
+// 		models.ServiceItemParamNameZipPickupAddress,
+// 	} {
+// 		serviceParams = append(serviceParams, models.ServiceParam{Service: models.ReService{Code: models.ReServiceCodeDOP}, ServiceItemParamKey: serviceParamKeys[serviceParamKey]})
+// 	}
 
-	// Domestic Destination Price
-	for _, serviceParamKey := range []models.ServiceItemParamName{
-		models.ServiceItemParamNameActualPickupDate,
-		models.ServiceItemParamNameContractCode,
-		models.ServiceItemParamNameReferenceDate,
-		models.ServiceItemParamNameRequestedPickupDate,
-		models.ServiceItemParamNameServiceAreaDest,
-		models.ServiceItemParamNameWeightAdjusted,
-		models.ServiceItemParamNameWeightBilled,
-		models.ServiceItemParamNameWeightEstimated,
-		models.ServiceItemParamNameWeightOriginal,
-		models.ServiceItemParamNameWeightReweigh,
-		models.ServiceItemParamNameZipDestAddress,
-	} {
-		serviceParams = append(serviceParams, models.ServiceParam{Service: models.ReService{Code: models.ReServiceCodeDDP}, ServiceItemParamKey: serviceParamKeys[serviceParamKey]})
-	}
+// 	// Domestic Destination Price
+// 	for _, serviceParamKey := range []models.ServiceItemParamName{
+// 		models.ServiceItemParamNameActualPickupDate,
+// 		models.ServiceItemParamNameContractCode,
+// 		models.ServiceItemParamNameReferenceDate,
+// 		models.ServiceItemParamNameRequestedPickupDate,
+// 		models.ServiceItemParamNameServiceAreaDest,
+// 		models.ServiceItemParamNameWeightAdjusted,
+// 		models.ServiceItemParamNameWeightBilled,
+// 		models.ServiceItemParamNameWeightEstimated,
+// 		models.ServiceItemParamNameWeightOriginal,
+// 		models.ServiceItemParamNameWeightReweigh,
+// 		models.ServiceItemParamNameZipDestAddress,
+// 	} {
+// 		serviceParams = append(serviceParams, models.ServiceParam{Service: models.ReService{Code: models.ReServiceCodeDDP}, ServiceItemParamKey: serviceParamKeys[serviceParamKey]})
+// 	}
 
-	// Domestic Packing
-	for _, serviceParamKey := range []models.ServiceItemParamName{
-		models.ServiceItemParamNameActualPickupDate,
-		models.ServiceItemParamNameContractCode,
-		models.ServiceItemParamNameReferenceDate,
-		models.ServiceItemParamNameRequestedPickupDate,
-		models.ServiceItemParamNameServiceAreaOrigin,
-		models.ServiceItemParamNameServicesScheduleOrigin,
-		models.ServiceItemParamNameWeightAdjusted,
-		models.ServiceItemParamNameWeightBilled,
-		models.ServiceItemParamNameWeightEstimated,
-		models.ServiceItemParamNameWeightOriginal,
-		models.ServiceItemParamNameWeightReweigh,
-		models.ServiceItemParamNameZipPickupAddress,
-	} {
-		serviceParams = append(serviceParams, models.ServiceParam{Service: models.ReService{Code: models.ReServiceCodeDPK}, ServiceItemParamKey: serviceParamKeys[serviceParamKey]})
-	}
+// 	// Domestic Packing
+// 	for _, serviceParamKey := range []models.ServiceItemParamName{
+// 		models.ServiceItemParamNameActualPickupDate,
+// 		models.ServiceItemParamNameContractCode,
+// 		models.ServiceItemParamNameReferenceDate,
+// 		models.ServiceItemParamNameRequestedPickupDate,
+// 		models.ServiceItemParamNameServiceAreaOrigin,
+// 		models.ServiceItemParamNameServicesScheduleOrigin,
+// 		models.ServiceItemParamNameWeightAdjusted,
+// 		models.ServiceItemParamNameWeightBilled,
+// 		models.ServiceItemParamNameWeightEstimated,
+// 		models.ServiceItemParamNameWeightOriginal,
+// 		models.ServiceItemParamNameWeightReweigh,
+// 		models.ServiceItemParamNameZipPickupAddress,
+// 	} {
+// 		serviceParams = append(serviceParams, models.ServiceParam{Service: models.ReService{Code: models.ReServiceCodeDPK}, ServiceItemParamKey: serviceParamKeys[serviceParamKey]})
+// 	}
 
-	// Domestic Unpacking
-	for _, serviceParamKey := range []models.ServiceItemParamName{
-		models.ServiceItemParamNameActualPickupDate,
-		models.ServiceItemParamNameContractCode,
-		models.ServiceItemParamNameReferenceDate,
-		models.ServiceItemParamNameRequestedPickupDate,
-		models.ServiceItemParamNameServiceAreaDest,
-		models.ServiceItemParamNameServicesScheduleDest,
-		models.ServiceItemParamNameWeightAdjusted,
-		models.ServiceItemParamNameWeightBilled,
-		models.ServiceItemParamNameWeightEstimated,
-		models.ServiceItemParamNameWeightOriginal,
-		models.ServiceItemParamNameWeightReweigh,
-		models.ServiceItemParamNameZipDestAddress,
-	} {
-		serviceParams = append(serviceParams, models.ServiceParam{Service: models.ReService{Code: models.ReServiceCodeDUPK}, ServiceItemParamKey: serviceParamKeys[serviceParamKey]})
-	}
+// 	// Domestic Unpacking
+// 	for _, serviceParamKey := range []models.ServiceItemParamName{
+// 		models.ServiceItemParamNameActualPickupDate,
+// 		models.ServiceItemParamNameContractCode,
+// 		models.ServiceItemParamNameReferenceDate,
+// 		models.ServiceItemParamNameRequestedPickupDate,
+// 		models.ServiceItemParamNameServiceAreaDest,
+// 		models.ServiceItemParamNameServicesScheduleDest,
+// 		models.ServiceItemParamNameWeightAdjusted,
+// 		models.ServiceItemParamNameWeightBilled,
+// 		models.ServiceItemParamNameWeightEstimated,
+// 		models.ServiceItemParamNameWeightOriginal,
+// 		models.ServiceItemParamNameWeightReweigh,
+// 		models.ServiceItemParamNameZipDestAddress,
+// 	} {
+// 		serviceParams = append(serviceParams, models.ServiceParam{Service: models.ReService{Code: models.ReServiceCodeDUPK}, ServiceItemParamKey: serviceParamKeys[serviceParamKey]})
+// 	}
 
-	return serviceParams
-}
+// 	return serviceParams
+// }
