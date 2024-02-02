@@ -4203,6 +4203,10 @@ func init() {
         "orders": {
           "type": "object"
         },
+        "status": {
+          "type": "string",
+          "readOnly": true
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
@@ -12307,6 +12311,10 @@ func init() {
         },
         "orders": {
           "type": "object"
+        },
+        "status": {
+          "type": "string",
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",
