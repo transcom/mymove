@@ -54,6 +54,7 @@ import { formatCustomerDate, formatWeight } from 'utils/formatters';
 import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete } from 'utils/shipments';
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types/router';
+import { ADVANCE_STATUSES } from 'constants/ppms';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -144,14 +145,18 @@ export class Home extends Component {
   get hasAdvanceApproved() {
     const { mtoShipments } = this.props;
     // determine if at least one advance was APPROVED (advance_status in ppm_shipments table is not nil)
-    const appovedAdvances = mtoShipments.filter((shipment) => shipment?.ppmShipment?.advanceStatus === 'APPROVED');
+    const appovedAdvances = mtoShipments.filter(
+      (shipment) => shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue,
+    );
     return !!appovedAdvances.length;
   }
 
   get hasAllAdvancesRejected() {
     // check to see if all advance_status are REJECTED
     const { mtoShipments } = this.props;
-    const rejectedAdvances = mtoShipments.filter((shipment) => shipment?.ppmShipment?.advanceStatus === 'REJECTED');
+    const rejectedAdvances = mtoShipments.filter(
+      (shipment) => shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.REJECTED.apiValue,
+    );
     return !this.hasAdvanceApproved && rejectedAdvances.length > 0;
   }
 
@@ -592,7 +597,7 @@ export class Home extends Component {
                                     {shipmentTypes[shipment.shipmentType]}
                                     {` ${shipmentNumber} `}
                                   </strong>
-                                  {shipment?.ppmShipment?.advanceStatus === 'APPROVED' && (
+                                  {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue && (
                                     // TODO: B-18060 will add link to method that will create the AOA packet and return for download
                                     <p className={styles.downloadLink}>
                                       <a href="">
@@ -600,7 +605,7 @@ export class Home extends Component {
                                       </a>
                                     </p>
                                   )}
-                                  {shipment?.ppmShipment?.advanceStatus === 'REJECTED' && (
+                                  {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.REJECTED.apiValue && (
                                     <Description>Advance request denied</Description>
                                   )}
                                   {shipment?.ppmShipment?.advanceStatus == null && (
