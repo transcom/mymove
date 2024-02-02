@@ -1115,7 +1115,6 @@ jobs:
       - checkout
       - restore_cache_for_go
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      - run: echo "build approved by <<pipeline.trigger_parameters.circleci.actor_id>>"
       - run:
           name: Install dependencies
           command: for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
@@ -2018,10 +2017,10 @@ jobs:
       - run:
           name: Check if Prod approval has rights
           command: |
-            if [[ <<pipeline.trigger_parameters.circleci.actor_id>> != "josiahzimmerman-caci" OR  <<pipeline.trigger_parameters.circleci.actor_id>>!= "deandrejones" OR  <<pipeline.trigger_parameters.circleci.actor_id>> != "cameroncaci" ]]; then
+            if [[ $CIRCLE_USERNAME != "josiahzimmerman-caci" OR $CIRCLE_USERNAME != "deandrejones" OR  $CIRCLE_USERNAME != "cameroncaci" ]]; then
               circleci-agent step halt
             fi
-      - run: echo "build approved by <<pipeline.trigger_parameters.circleci.actor_id>>"    
+      - run: echo "build approved by $CIRCLE_USERNAME"    
       - announce_failure                                 
   
   # All of the deploy tasks need to checkout the code so they can run the `scripts/do-exclusively` script
