@@ -2019,8 +2019,8 @@ jobs:
       - run:
           name: Check if Prod approval has rights
           command: |
-            if [[ $CIRCLE_USERNAME != "josiahzimmerman-caci" || $CIRCLE_USERNAME != "deandrejones" ||  $CIRCLE_USERNAME != "cameroncaci" ]]; then
-              circleci-agent step halt
+            if [[ $CIRCLE_USERNAME != "josiahzimmerman-caci" || $CIRCLE_USERNAME != "deandreJones" ||  $CIRCLE_USERNAME != "cameroncaci" ]]; then
+              exit 1
             fi
       - announce_failure            
   
@@ -2033,7 +2033,7 @@ jobs:
           name: Check if Prod approval has rights
           command: |
             if [[ $CIRCLE_USERNAME != "josiahzimmerman-caci" || $CIRCLE_USERNAME != "deandrejones" ||  $CIRCLE_USERNAME != "cameroncaci" ]]; then
-              circleci-agent step halt
+              exit 1
             fi
       - announce_failure                                 
   
