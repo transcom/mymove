@@ -18,15 +18,18 @@ import formStyles from 'styles/form.module.scss';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
-import { completeCounseling, deleteShipment } from 'services/primeApi';
+import { completeCounseling, deleteShipment, downloadMoveOrder } from 'services/primeApi';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import scrollToTop from 'shared/scrollToTop';
 import { SIT_SERVICE_ITEMS_ALLOWED_UPDATE } from 'constants/serviceItems';
+import { MoveOrderDocumentType } from 'shared/constants';
 
 const MoveDetails = ({ setFlashMessage }) => {
   const { moveCodeOrID } = useParams();
 
   const [errorMessage, setErrorMessage] = useState();
+
+  const [documentTypeKey, setDocumentTypeKey] = useState(MoveOrderDocumentType.ALL);
 
   const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
 
@@ -60,6 +63,55 @@ const MoveDetails = ({ setFlashMessage }) => {
         });
       }
       scrollToTop();
+    },
+  });
+
+  const { mutate: downloadMoveOrderMutation } = useMutation(downloadMoveOrder, {
+    onSuccess: (response) => {
+      // dynamically update DOM to trigger browser to display SAVE AS download file modal
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      const disposition = response.headers['content-disposition'];
+      const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+      let filename = 'moverOrder.pdf';
+      const matches = filenameRegex.exec(disposition);
+      if (matches != null && matches[1]) {
+        filename = matches[1].replace(/['"]/g, '');
+      }
+      link.setAttribute('download', filename);
+
+      // Append to html link element page
+      document.body.appendChild(link);
+
+      // Start download
+      link.click();
+
+      // Clean up and remove the link
+      link.parentNode.removeChild(link);
+
+      // erase error messages from previous if exists
+      setErrorMessage(null);
+    },
+    onError: (error) => {
+      const { response: { body } = {} } = error;
+
+      if (body) {
+        setErrorMessage({
+          title: `Prime API: ${body.title} `,
+          detail: `${body.detail}`,
+        });
+      } else if (error.response.status === 422) {
+        setErrorMessage({
+          title: 'Unprocessable Entity Error: ',
+          detail: `There are no ${documentTypeKey} for this move to download.`,
+        });
+      } else {
+        setErrorMessage({
+          title: 'Unexpected error: ',
+          detail: 'Please check the move order document user uploads for this move.',
+        });
+      }
     },
   });
 
@@ -101,6 +153,14 @@ const MoveDetails = ({ setFlashMessage }) => {
 
   const { mtoShipments, paymentRequests, mtoServiceItems } = moveTaskOrder;
 
+  const handleDownloadOrders = () => {
+    downloadMoveOrderMutation({ locator: moveTaskOrder.moveCode, type: documentTypeKey });
+  };
+
+  const handleDocumentTypeChange = (e) => {
+    setDocumentTypeKey(e.target.value);
+  };
+
   return (
     <div>
       <div className={classnames('grid-container-desktop-lg', 'usa-prose', styles.MoveDetails)}>
@@ -133,6 +193,19 @@ const MoveDetails = ({ setFlashMessage }) => {
                   <div className={descriptionListStyles.row}>
                     <dt>Move Id:</dt>
                     <dd>{moveTaskOrder.id}</dd>
+                  </div>
+                  <div className={descriptionListStyles.row}>
+                    <Button onClick={handleDownloadOrders}>Download Move Orders</Button>
+                    <select
+                      onChange={handleDocumentTypeChange}
+                      className="usa-select"
+                      name="moveOrderDocumentType"
+                      id="moveOrderDocumentType"
+                    >
+                      <option value={MoveOrderDocumentType.ALL}>ALL</option>
+                      <option value={MoveOrderDocumentType.ORDERS}>ORDERS</option>
+                      <option value={MoveOrderDocumentType.AMENDMENTS}>AMENDMENTS</option>
+                    </select>
                   </div>
                   {moveTaskOrder.primeCounselingCompletedAt && (
                     <div className={descriptionListStyles.row}>
