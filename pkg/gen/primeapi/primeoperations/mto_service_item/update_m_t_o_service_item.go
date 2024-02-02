@@ -41,8 +41,10 @@ This endpoint supports different body definitions. In the modelType field below,
 	to the service item you wish to update and the documentation will update with the new definition.
 
 * Addresses: To update a destination service item's SIT destination final address, update the shipment destination address.
+For approved shipments, please use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).
+For shipments not yet approved, please use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).
 
-To create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.
+To create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.
 */
 type UpdateMTOServiceItem struct {
 	Context *middleware.Context
