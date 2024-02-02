@@ -41,6 +41,7 @@ const MultiMovesMoveInfoList = ({ move }) => {
     return 'Destination Duty Location';
   };
 
+  // converts return from API to camelCase to avoid linter errors
   const toCamelCase = (str) => {
     return str.replace(/_([a-z])/g, (match, letter) => letter.toUpperCase());
   };
@@ -53,7 +54,7 @@ const MultiMovesMoveInfoList = ({ move }) => {
 
     const { streetAddress1, streetAddress2, streetAddress3, city, state, postalCode, id } = camelCaseAddress;
 
-    // Check for empty UUID
+    // Check for empty UUID (no address provided)
     const isIdEmpty = id === '00000000-0000-0000-0000-000000000000';
 
     // Check for null values and empty UUID
@@ -91,7 +92,7 @@ const MultiMovesMoveInfoList = ({ move }) => {
           </div>
 
           <div className={descriptionListStyles.row}>
-            <dt>{getReportByLabel(orders.ordersType)}</dt>
+            <dt>{getReportByLabel(orders.orders_type)}</dt>
             <dd>{formatDateForDatePicker(orders.report_by_date) || '-'}</dd>
           </div>
 
@@ -101,7 +102,7 @@ const MultiMovesMoveInfoList = ({ move }) => {
           </div>
 
           <div className={descriptionListStyles.row}>
-            <dt>{getDestinationDutyLocationLabel(orders.ordersType)}</dt>
+            <dt>{getDestinationDutyLocationLabel(orders.orders_type)}</dt>
             <dd>{formatAddress(orders.NewDutyLocation.Address) || '-'}</dd>
           </div>
         </dl>
