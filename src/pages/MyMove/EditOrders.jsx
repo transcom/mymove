@@ -95,7 +95,10 @@ export const EditOrders = ({
   };
 
   const submitOrders = (fieldValues) => {
-    const hasDependents = fieldValues.has_dependents === 'yes';
+    let hasDependents = false;
+    if (fieldValues.has_dependents === 'yes') {
+      hasDependents = true;
+    }
     const entitlementCouldChange =
       hasDependents !== currentOrders.has_dependents || fieldValues.grade !== currentOrders.grade;
     const newDutyLocationId = fieldValues.new_duty_location.id;
