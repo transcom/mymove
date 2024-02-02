@@ -8,12 +8,12 @@ describe('MultiMovesMoveInfoList', () => {
   const mockMoveSeparation = {
     status: 'DRAFT',
     orders: {
-      date_issued: '2022-01-01',
-      ordersType: 'SEPARATION',
-      reportByDate: '2022-02-01',
-      originDutyLocation: {
+      issue_date: '2022-01-01',
+      orders_type: 'SEPARATION',
+      report_by_date: '2022-02-01',
+      OriginDutyLocation: {
         name: 'Fort Bragg North Station',
-        address: {
+        Address: {
           streetAddress1: '123 Main Ave',
           streetAddress2: 'Apartment 9000',
           streetAddress3: '',
@@ -23,9 +23,9 @@ describe('MultiMovesMoveInfoList', () => {
           country: 'USA',
         },
       },
-      destinationDutyLocation: {
+      NewDutyLocation: {
         name: 'Fort Bragg North Station',
-        address: {
+        Address: {
           streetAddress1: '123 Main Ave',
           streetAddress2: 'Apartment 9000',
           streetAddress3: '',
@@ -41,12 +41,12 @@ describe('MultiMovesMoveInfoList', () => {
   const mockMoveRetirement = {
     status: 'DRAFT',
     orders: {
-      date_issued: '2022-01-01',
-      ordersType: 'RETIREMENT',
-      reportByDate: '2022-02-01',
-      originDutyLocation: {
+      issue_date: '2022-01-01',
+      orders_type: 'RETIREMENT',
+      report_by_date: '2022-02-01',
+      OriginDutyLocation: {
         name: 'Fort Bragg North Station',
-        address: {
+        Address: {
           streetAddress1: '123 Main Ave',
           streetAddress2: 'Apartment 9000',
           streetAddress3: '',
@@ -56,9 +56,9 @@ describe('MultiMovesMoveInfoList', () => {
           country: 'USA',
         },
       },
-      destinationDutyLocation: {
+      NewDutyLocation: {
         name: 'Fort Bragg North Station',
-        address: {
+        Address: {
           streetAddress1: '123 Main Ave',
           streetAddress2: 'Apartment 9000',
           streetAddress3: '',
@@ -74,12 +74,12 @@ describe('MultiMovesMoveInfoList', () => {
   const mockMovePCS = {
     status: 'DRAFT',
     orders: {
-      date_issued: '2022-01-01',
-      ordersType: 'PERMANENT_CHANGE_OF_DUTY_STATION',
-      reportByDate: '2022-02-01',
-      originDutyLocation: {
+      issue_date: '2022-01-01',
+      orders_type: 'PERMANENT_CHANGE_OF_DUTY_STATION',
+      report_by_date: '2022-02-01',
+      OriginDutyLocation: {
         name: 'Fort Bragg North Station',
-        address: {
+        Address: {
           streetAddress1: '123 Main Ave',
           streetAddress2: 'Apartment 9000',
           streetAddress3: '',
@@ -89,9 +89,9 @@ describe('MultiMovesMoveInfoList', () => {
           country: 'USA',
         },
       },
-      destinationDutyLocation: {
+      NewDutyLocation: {
         name: 'Fort Bragg North Station',
-        address: {
+        Address: {
           streetAddress1: '123 Main Ave',
           streetAddress2: 'Apartment 9000',
           streetAddress3: '',
@@ -111,13 +111,13 @@ describe('MultiMovesMoveInfoList', () => {
     expect(getByText('DRAFT')).toBeInTheDocument();
 
     expect(getByText('Orders Issue Date')).toBeInTheDocument();
-    expect(getByText('2022-01-01')).toBeInTheDocument();
+    expect(getByText('01 Jan 2022')).toBeInTheDocument();
 
     expect(getByText('Orders Type')).toBeInTheDocument();
-    expect(getByText('SEPARATION')).toBeInTheDocument();
+    expect(getByText('Separation')).toBeInTheDocument();
 
     expect(getByText('Separation Date')).toBeInTheDocument();
-    expect(getByText('2022-02-01')).toBeInTheDocument();
+    expect(getByText('01 Feb 2022')).toBeInTheDocument();
 
     expect(getByText('Current Duty Location')).toBeInTheDocument();
     expect(getByText('HOR or PLEAD')).toBeInTheDocument();
@@ -130,13 +130,13 @@ describe('MultiMovesMoveInfoList', () => {
     expect(getByText('DRAFT')).toBeInTheDocument();
 
     expect(getByText('Orders Issue Date')).toBeInTheDocument();
-    expect(getByText('2022-01-01')).toBeInTheDocument();
+    expect(getByText('01 Jan 2022')).toBeInTheDocument();
 
     expect(getByText('Orders Type')).toBeInTheDocument();
-    expect(getByText('RETIREMENT')).toBeInTheDocument();
+    expect(getByText('Retirement')).toBeInTheDocument();
 
     expect(getByText('Retirement Date')).toBeInTheDocument();
-    expect(getByText('2022-02-01')).toBeInTheDocument();
+    expect(getByText('01 Feb 2022')).toBeInTheDocument();
 
     expect(getByText('Current Duty Location')).toBeInTheDocument();
     expect(getByText('HOR, HOS, or PLEAD')).toBeInTheDocument();
@@ -149,13 +149,13 @@ describe('MultiMovesMoveInfoList', () => {
     expect(getByText('DRAFT')).toBeInTheDocument();
 
     expect(getByText('Orders Issue Date')).toBeInTheDocument();
-    expect(getByText('2022-01-01')).toBeInTheDocument();
+    expect(getByText('01 Jan 2022')).toBeInTheDocument();
 
     expect(getByText('Orders Type')).toBeInTheDocument();
-    expect(getByText('PERMANENT_CHANGE_OF_DUTY_STATION')).toBeInTheDocument();
+    expect(getByText('Permanent Change of Station')).toBeInTheDocument();
 
     expect(getByText('Report by Date')).toBeInTheDocument();
-    expect(getByText('2022-02-01')).toBeInTheDocument();
+    expect(getByText('01 Feb 2022')).toBeInTheDocument();
 
     expect(getByText('Current Duty Location')).toBeInTheDocument();
 
