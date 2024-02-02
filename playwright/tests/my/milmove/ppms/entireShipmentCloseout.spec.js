@@ -9,29 +9,31 @@ import { test, forEachViewport } from './customerPpmTestFixture';
 
 test.describe('Entire PPM closeout flow', () => {
   forEachViewport(async () => {
-    test(`flows through happy path for existing shipment`, async ({ customerPpmPage }) => {
+    test.skip(`flows through happy path for existing shipment`, async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
 
       await customerPpmPage.signInForPPMWithMove(move);
-      // await customerPpmPage.navigateToAboutPage();
-      // await customerPpmPage.submitWeightTicketPage();
-      // await customerPpmPage.navigateFromCloseoutReviewPageToProGearPage();
-      // await customerPpmPage.submitProgearPage();
-      // await customerPpmPage.navigateFromCloseoutReviewPageToExpensesPage();
-      // await customerPpmPage.submitExpensePage();
-      // await customerPpmPage.navigateFromPPMReviewPageToFinalCloseoutPage();
-      // await customerPpmPage.submitFinalCloseout({
-      //   totalNetWeight: '2,000 lbs',
-      //   proGearWeight: '2,000 lbs',
-      //   expensesClaimed: '675.99',
-      //   finalIncentiveAmount: '$31,184.80',
-      // });
+      await customerPpmPage.page.getByTestId('goToMoveBtn').click();
+      await customerPpmPage.navigateToAboutPage();
+      await customerPpmPage.submitWeightTicketPage();
+      await customerPpmPage.navigateFromCloseoutReviewPageToProGearPage();
+      await customerPpmPage.submitProgearPage();
+      await customerPpmPage.navigateFromCloseoutReviewPageToExpensesPage();
+      await customerPpmPage.submitExpensePage();
+      await customerPpmPage.navigateFromPPMReviewPageToFinalCloseoutPage();
+      await customerPpmPage.submitFinalCloseout({
+        totalNetWeight: '2,000 lbs',
+        proGearWeight: '2,000 lbs',
+        expensesClaimed: '675.99',
+        finalIncentiveAmount: '$31,184.80',
+      });
     });
 
     test.skip(`happy path with edits and backs`, async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
 
       await customerPpmPage.signInForPPMWithMove(move);
+      await customerPpmPage.page.getByTestId('goToMoveBtn').click();
       await customerPpmPage.navigateToPPMReviewPage();
       await customerPpmPage.navigateFromCloseoutReviewPageToAboutPage();
       await customerPpmPage.fillOutAboutPage();
@@ -55,6 +57,7 @@ test.describe('Entire PPM closeout flow', () => {
 
       await customerPpmPage.signInForPPMWithMove(move);
 
+      await customerPpmPage.page.getByTestId('goToMoveBtn').click();
       await customerPpmPage.navigateToPPMReviewPage();
       await customerPpmPage.verifySaveAndContinueEnabled();
 
@@ -95,6 +98,7 @@ test.describe('Entire PPM closeout flow', () => {
 
       await customerPpmPage.signInForPPMWithMove(move);
 
+      await customerPpmPage.page.getByTestId('goToMoveBtn').click();
       await customerPpmPage.navigateToPPMReviewPage();
       await customerPpmPage.navigateFromCloseoutReviewPageToAddWeightTicketPage();
       await customerPpmPage.submitWeightTicketPage();

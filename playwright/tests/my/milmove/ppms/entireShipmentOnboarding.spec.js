@@ -112,6 +112,7 @@ test.describe.skip('Entire PPM onboarding flow', () => {
     });
 
     test.skip('flows through happy path for existing shipment', async () => {
+      await customerPpmOnboardingPage.page.getByTestId('goToMoveBtn').click();
       await customerPpmOnboardingPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
       await customerPpmOnboardingPage.submitsDateAndLocation();
       await customerPpmOnboardingPage.submitsEstimatedWeightsAndProGear();

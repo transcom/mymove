@@ -12,10 +12,11 @@ test.describe('Progear', () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPMProgearWeightTicket();
       await customerPpmPage.signInForPPMWithMove(move);
-      // await customerPpmPage.navigateToProgearPage();
+      await customerPpmPage.page.getByTestId('goToMoveBtn').click();
+      await customerPpmPage.navigateToProgearPage();
     });
 
-    test.skip(`progear page loads`, async ({ customerPpmPage, page }) => {
+    test(`progear page loads`, async ({ customerPpmPage, page }) => {
       await customerPpmPage.submitProgearPage({ belongsToSelf: true });
 
       const set2Heading = page.getByRole('heading', { name: 'Set 2' });

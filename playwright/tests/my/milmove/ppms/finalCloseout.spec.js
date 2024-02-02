@@ -12,9 +12,10 @@ test.describe('Final Closeout', () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
       await customerPpmPage.signInForPPMWithMove(move);
+      await customerPpmPage.page.getByTestId('goToMoveBtn').click();
     });
 
-    test.skip('can see final closeout page with final estimated incentive and shipment totals', async ({
+    test('can see final closeout page with final estimated incentive and shipment totals', async ({
       customerPpmPage,
     }) => {
       await customerPpmPage.navigateToFinalCloseoutPage();
