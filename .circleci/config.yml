@@ -2018,7 +2018,7 @@ jobs:
       - run:
           name: Check if Prod approval has rights
           command: |
-            if [[ $CIRCLE_USERNAME != "josiahzimmerman-caci" OR $CIRCLE_USERNAME != "deandrejones" OR  $CIRCLE_USERNAME != "cameroncaci" ]]; then
+            if [[ $CIRCLE_USERNAME != "josiahzimmerman-caci" || $CIRCLE_USERNAME != "deandrejones" ||  $CIRCLE_USERNAME != "cameroncaci" ]]; then
               circleci-agent step halt
             fi
       - run: echo "build approved by $CIRCLE_USERNAME"    
@@ -2031,7 +2031,7 @@ jobs:
       - run:
           name: Check if Prod approval has rights
           command: |
-            if [[ $CIRCLE_USERNAME != "josiahzimmerman-caci" OR $CIRCLE_USERNAME != "deandrejones" OR  $CIRCLE_USERNAME != "cameroncaci" ]]; then
+            if [[ $CIRCLE_USERNAME != "josiahzimmerman-caci" || $CIRCLE_USERNAME != "deandrejones" ||  $CIRCLE_USERNAME != "cameroncaci" ]]; then
               circleci-agent step halt
             fi
       - run: echo "build approved by $CIRCLE_USERNAME"    
