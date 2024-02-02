@@ -20,6 +20,7 @@ const ServiceInfoDisplay = ({
   payGrade,
 }) => {
   const { state } = useLocation();
+
   return (
     <div className={serviceInfoDisplayStyles.serviceInfoContainer}>
       <div className={serviceInfoDisplayStyles.header}>
