@@ -51,6 +51,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	fetcher := fetch.NewFetcher(builder)
 	moveRouter := move.NewMoveRouter()
 	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer()
+	SSWPPMGenerator := shipmentsummaryworksheet.NewSSWPPMGenerator()
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
@@ -127,7 +128,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	internalAPI.CalendarShowAvailableMoveDatesHandler = ShowAvailableMoveDatesHandler{handlerConfig}
 
-	internalAPI.MovesShowShipmentSummaryWorksheetHandler = ShowShipmentSummaryWorksheetHandler{handlerConfig, SSWPPMComputer}
+	internalAPI.PpmShowShipmentSummaryWorksheetHandler = ShowShipmentSummaryWorksheetHandler{handlerConfig, SSWPPMComputer, SSWPPMGenerator}
 
 	internalAPI.RegisterProducer(uploader.FileTypePDF, PDFProducer())
 

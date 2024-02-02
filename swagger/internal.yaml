@@ -4824,7 +4824,7 @@ paths:
       description: Generates pre-filled PDF using data already collected
       operationId: showShipmentSummaryWorksheet
       tags:
-        - moves
+        - ppm
       parameters:
         - in: path
           name: ppmShipmentId

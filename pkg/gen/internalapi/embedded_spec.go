@@ -2512,7 +2512,7 @@ func init() {
           "application/pdf"
         ],
         "tags": [
-          "moves"
+          "ppm"
         ],
         "summary": "Returns Shipment Summary Worksheet",
         "operationId": "showShipmentSummaryWorksheet",
@@ -11096,7 +11096,7 @@ func init() {
           "application/pdf"
         ],
         "tags": [
-          "moves"
+          "ppm"
         ],
         "summary": "Returns Shipment Summary Worksheet",
         "operationId": "showShipmentSummaryWorksheet",
