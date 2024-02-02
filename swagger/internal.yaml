@@ -4858,7 +4858,7 @@ paths:
           description: user is not authorized
         '500':
           description: internal server error
-  /ppm-shipments/{ppmShipmentId}/aoa-packet/download:
+  /ppm-shipments/{ppmShipmentId}/aoa-packet:
     parameters:
       - description: the id for the ppmshipment with aoa to be downloaded
         in: path
