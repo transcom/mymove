@@ -2019,9 +2019,8 @@ jobs:
       - run:
           name: Check if Prod approval has rights
           command: |
-            if [[ $CIRCLE_USERNAME != "josiahzimmerman-caci" || $CIRCLE_USERNAME != "deandreJones" ||  $CIRCLE_USERNAME != "cameroncaci" ]]; then
+            [[ $CIRCLE_USERNAME != "josiahzimmerman-caci" ]] || [[ $CIRCLE_USERNAME != "deandreJones" ]] || [[ $CIRCLE_USERNAME != "cameroncaci" ]]
               exit 1
-            fi
       - announce_failure            
   
   # `prod_auth_check` checks if approved before going to prod
@@ -2032,9 +2031,8 @@ jobs:
       - run:
           name: Check if Prod approval has rights
           command: |
-            if [[ $CIRCLE_USERNAME != "josiahzimmerman-caci" || $CIRCLE_USERNAME != "deandrejones" ||  $CIRCLE_USERNAME != "cameroncaci" ]]; then
-              exit 1
-            fi
+            [[ $CIRCLE_USERNAME != "josiahzimmerman-caci" ]] || [[ $CIRCLE_USERNAME != "deandreJones" ]] || [[ $CIRCLE_USERNAME != "cameroncaci" ]]
+              exit 1        
       - announce_failure                                 
   
   # All of the deploy tasks need to checkout the code so they can run the `scripts/do-exclusively` script
