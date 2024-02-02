@@ -2320,6 +2320,10 @@ workflows:
       - integration_tests_load:
           requires:
             - compile_app_server
+            # limiting this run to integrationBranch only due to multiple branch pipeline
+          filters:
+              branches:
+                only: integrationTesting
 
       - client_test:
           requires:
