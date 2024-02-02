@@ -6,7 +6,7 @@ import MoveDetails from './MoveDetails';
 
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { MockProviders } from 'testUtils';
-import { completeCounseling, deleteShipment } from 'services/primeApi';
+import { completeCounseling, deleteShipment, downloadMoveOrder } from 'services/primeApi';
 import { primeSimulatorRoutes } from 'constants/routes';
 
 const mockRequestedMoveCode = 'LN4T89';
@@ -18,6 +18,7 @@ jest.mock('hooks/queries', () => ({
 jest.mock('services/primeApi', () => ({
   completeCounseling: jest.fn(),
   deleteShipment: jest.fn(),
+  downloadMoveOrder: jest.fn(),
 }));
 
 const moveTaskOrder = {
@@ -262,6 +263,59 @@ describe('PrimeUI MoveDetails page', () => {
         expect(screen.getByText(/Error title/)).toBeInTheDocument();
         expect(screen.getByText('Error detail')).toBeInTheDocument();
       });
+    });
+
+    it('error when download move orders', async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+      downloadMoveOrder.mockRejectedValue({
+        response: { body: { title: 'Error title', detail: 'Error detail' } },
+      });
+
+      renderWithProviders(<MoveDetails />);
+
+      const downloadMoveOrderButton = screen.getByText(/Download Move Orders/, { selector: 'button' });
+      expect(downloadMoveOrderButton).toBeInTheDocument();
+      await userEvent.click(downloadMoveOrderButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Error title/)).toBeInTheDocument();
+        expect(screen.getByText('Error detail')).toBeInTheDocument();
+      });
+    });
+
+    it('success when downloading move orders', async () => {
+      global.URL.createObjectURL = jest.fn();
+      const mockResponse = {
+        ok: true,
+        headers: {
+          'content-disposition': 'filename="test.pdf"',
+        },
+        status: 200,
+        data: null,
+      };
+      usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
+
+      downloadMoveOrder.mockReturnValue(mockResponse);
+      renderWithProviders(<MoveDetails />);
+
+      const downloadMoveOrderButton = screen.getByText(/Download Move Orders/, { selector: 'button' });
+      expect(downloadMoveOrderButton).toBeInTheDocument();
+
+      jest.spyOn(document.body, 'appendChild');
+      jest.spyOn(document, 'createElement');
+
+      await userEvent.click(downloadMoveOrderButton);
+
+      // verify hyperlink was created
+      expect(document.createElement).toBeCalledWith('a');
+
+      // verify hypelink element was created with correct
+      // default file name from content-disposition
+      expect(document.body.appendChild).toBeCalledWith(
+        expect.objectContaining({
+          download: 'test.pdf',
+        }),
+      );
     });
   });
 });
