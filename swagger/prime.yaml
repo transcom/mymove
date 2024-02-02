@@ -1238,9 +1238,15 @@ paths:
         * Addresses: To update a destination service item's SIT destination
         final address, update the shipment destination address.
 
+        For approved shipments, please use
+        [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).
+
+        For shipments not yet approved, please use
+        [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).
+
 
         To create a service item, please use
-        [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.
+        [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.
       operationId: updateMTOServiceItem
       tags:
         - mtoServiceItem
