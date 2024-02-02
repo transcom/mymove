@@ -12,7 +12,6 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      @include u-margin-top(-1);
       span {
         @include u-margin-right(.5em)
       }
@@ -32,4 +31,9 @@
 
 .verifyProfileAlert {
     margin-bottom: -1rem;
+}
+
+.validateProfileBtnContainer {
+  display: flex;
+  justify-content: center;
 }
