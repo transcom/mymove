@@ -2015,26 +2015,26 @@ jobs:
   approve_build_test:
     executor: tls_small
     steps:
+      - run: echo "build approved by $CIRCLE_USERNAME"  
       - run:
           name: Check if Prod approval has rights
           command: |
             if [[ $CIRCLE_USERNAME != "josiahzimmerman-caci" || $CIRCLE_USERNAME != "deandrejones" ||  $CIRCLE_USERNAME != "cameroncaci" ]]; then
               circleci-agent step halt
             fi
-      - run: echo "build approved by $CIRCLE_USERNAME"    
       - announce_failure            
   
   # `prod_auth_check` checks if approved before going to prod
   prod_auth_check:
     executor: tls_small
     steps:
+      - run: echo "build approved by $CIRCLE_USERNAME"   
       - run:
           name: Check if Prod approval has rights
           command: |
             if [[ $CIRCLE_USERNAME != "josiahzimmerman-caci" || $CIRCLE_USERNAME != "deandrejones" ||  $CIRCLE_USERNAME != "cameroncaci" ]]; then
               circleci-agent step halt
             fi
-      - run: echo "build approved by $CIRCLE_USERNAME"    
       - announce_failure                                 
   
   # All of the deploy tasks need to checkout the code so they can run the `scripts/do-exclusively` script
@@ -2246,6 +2246,7 @@ workflows:
           filters:
             branches:
               only: main
+          
 
       # compile_app_client does not rely on pre_deps_yarn
       # anymore so that it can start sooner. This helps the
@@ -2263,18 +2264,20 @@ workflows:
       # https://circleci.com/docs/configuration-reference/
       - compile_app_client:
           requires:
-            - anti_virus
-            - approve_test_deploy
+            - anti_virus       
+            - approve_build_test                 
 
       - check_generated_code:
           requires:
             - pre_deps_golang
+            - approve_build_test              
           filters:
             branches:
               ignore: [*integration-mtls-ignore-branch, *integration-ignore-branch]
 
       - pre_test:
           requires:
+            - approve_build_test              
             - pre_deps_golang
             - pre_deps_yarn
             - check_tls_certificate_dp3
@@ -2597,8 +2600,6 @@ workflows:
           type: approval
           context:
             - Production Workflow Approvers
-          requires:
-            - base_noop
 
       - prod_auth_check:
           requires:
