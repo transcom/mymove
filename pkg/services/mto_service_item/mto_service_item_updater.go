@@ -383,7 +383,10 @@ func calculateSITAuthorizedAndRequirededDates(appCtx appcontext.AppContext, serv
 		}
 	}
 
-	if serviceItem.SITRequestedDelivery.After(*oldServiceItem.SITAuthorizedEndDate) {
+	sitStatus, err := sitstatus.NewShipmentSITStatus().CalculateShipmentSITStatus(appCtx, shipment)
+
+	if (oldServiceItem.SITAuthorizedEndDate == nil && serviceItem.SITRequestedDelivery.After(sitStatus.CurrentSIT.SITAllowanceEndDate)) ||
+		(oldServiceItem.SITAuthorizedEndDate != nil && serviceItem.SITRequestedDelivery.After(*oldServiceItem.SITAuthorizedEndDate)) {
 		return apperror.NewUnprocessableEntityError("customer requested delivery date cannot be after authorized end date")
 	}
 

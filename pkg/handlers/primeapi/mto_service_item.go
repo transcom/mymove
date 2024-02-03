@@ -181,6 +181,10 @@ func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOSe
 					}
 					return mtoserviceitemops.NewUpdateMTOServiceItemInternalServerError().WithPayload(
 						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.UnprocessableEntityError:
+					verrs := validate.NewErrors()
+					return mtoserviceitemops.NewUpdateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
+						err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs)), verrs
 				default:
 					return mtoserviceitemops.NewUpdateMTOServiceItemInternalServerError().WithPayload(
 						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
