@@ -116,14 +116,14 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(ppmShipmentID, "while looking for PPMShipment")
+			return nil, apperror.NewNotFoundError(ppmShipmentID, "unable to find PPMShipment")
 		default:
-			return nil, apperror.NewQueryError("PPMShipment", err, "unable to find PPMShipment")
+			return nil, apperror.NewQueryError("PPMShipment", err, "while looking for PPMShipment")
 		}
 	}
 
-	// Check if PPM shipment is in "NEEDS_PAYMENT_APPROVAL" status, if not, it's not ready for closeout
-	if ppmShipment.Status != models.PPMShipmentStatusNeedsPaymentApproval {
+	// Check if PPM shipment is in "NEEDS_PAYMENT_APPROVAL" or "PAYMENT_APPROVED" status, if not, it's not ready for closeout
+	if ppmShipment.Status != models.PPMShipmentStatusNeedsPaymentApproval && ppmShipment.Status != models.PPMShipmentStatusPaymentApproved {
 		return nil, apperror.NewPPMNotReadyForCloseoutError(ppmShipmentID, "")
 	}
 
@@ -220,10 +220,12 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 	var serviceItemsToPrice []models.MTOServiceItem
 	var returnPriceObj serviceItemPrices
 	logger := appCtx.Logger()
+
 	err := appCtx.DB().Where("mto_shipment_id = ?", ppmShipment.ShipmentID).All(&serviceItemsToPrice)
 	if err != nil {
 		return serviceItemPrices{}, err
 	}
+
 	serviceItemsToPrice = ppmshipment.BaseServiceItems(ppmShipment.ShipmentID)
 	contractDate := ppmShipment.ExpectedDepartureDate
 	contract, err := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
@@ -250,9 +252,10 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 			}
 		}
 	}
+
 	if totalWeight > 0 {
 		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
-		ppmToMtoShipment = ppmshipment.MapPPMShipmentFinalFields(ppmShipment, *ppmShipment.EstimatedWeight)
+		ppmToMtoShipment = ppmshipment.MapPPMShipmentFinalFields(ppmShipment, totalWeight)
 	} else {
 		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
 		ppmToMtoShipment = ppmshipment.MapPPMShipmentEstimatedFields(ppmShipment)
