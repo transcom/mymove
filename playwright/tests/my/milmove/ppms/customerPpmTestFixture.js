@@ -331,12 +331,7 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async submitsDateAndLocation() {
-    await this.page.locator('input[name="pickupPostalCode"]').clear();
-    await this.page.locator('input[name="pickupPostalCode"]').type('90210');
-    await this.page.locator('input[name="pickupPostalCode"]').blur();
-
-    await this.page.locator('input[name="destinationPostalCode"]').clear();
-    await this.page.locator('input[name="destinationPostalCode"]').type('76127');
+    // TODO: B-18434 update this to fill out addresses
 
     await this.page.locator('input[name="expectedDepartureDate"]').clear();
     await this.page.locator('input[name="expectedDepartureDate"]').type('01 Feb 2022');
@@ -908,7 +903,12 @@ export class CustomerPpmPage extends CustomerPage {
 
     await expect(this.page.locator('.usa-alert--success')).toContainText('You submitted documentation for review.');
 
-    const stepContainer = this.page.locator('[data-testid="stepContainer5"]');
+    const stepContainer = this.page.locator('[data-testid="stepContainer6"]');
+
+    if (stepContainer == null) {
+      this.page.locator('[data-testid="stepContainer5"]');
+    }
+
     await expect(stepContainer.getByRole('button', { name: 'Download Incentive Packet' })).toBeDisabled();
     await expect(stepContainer.getByText(/PPM documentation submitted: \d{2} \w{3} \d{4}/)).toBeVisible();
   }

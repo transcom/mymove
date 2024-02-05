@@ -11,6 +11,7 @@ import {
   getLoggedInUser,
   getMTOShipmentsForMove,
   createServiceMember as createServiceMemberApi,
+  getAllMoves,
 } from 'services/internalApi';
 import { addEntities } from 'shared/Entities/actions';
 
@@ -19,7 +20,6 @@ export function* fetchCustomerData() {
   const user = yield call(getLoggedInUser);
   yield put(addEntities(user));
 
-  // TODO - fork/spawn additional API calls
   // Load MTO shipments if there is a move
   const { moves } = user;
   if (moves && Object.keys(moves).length > 0) {
@@ -28,6 +28,13 @@ export function* fetchCustomerData() {
     const mtoShipments = yield call(getMTOShipmentsForMove, moveId);
     yield put(addEntities(mtoShipments));
   }
+
+  // loading serviceMemberMoves for the user
+  const { serviceMembers } = user;
+  const key = Object.keys(serviceMembers)[0];
+  const serviceMemberId = serviceMembers[key].id;
+  const allMoves = yield call(getAllMoves, serviceMemberId);
+  yield put(addEntities({ serviceMemberMoves: allMoves }));
 
   return user;
 }
