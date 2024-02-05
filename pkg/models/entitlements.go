@@ -213,7 +213,7 @@ func getEntitlement(grade internalmessages.OrderPayGrade) (WeightAllotment, erro
 	if entitlement, ok := entitlements[grade]; ok {
 		return entitlement, nil
 	}
-	return WeightAllotment{}, fmt.Errorf("no entitlement found for rank %s", grade)
+	return WeightAllotment{}, fmt.Errorf("no entitlement found for pay grade %s", grade)
 }
 
 // AllWeightAllotments returns all the weight allotments for each rank.
