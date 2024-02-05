@@ -100,14 +100,14 @@ What this means to you:
 If you are doing a Personally Procured Move (PPM), you can start moving your personal property.
 
 Next steps for a PPM:
-	* Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform. If you do not upload legible certified weight tickets, your PPM incentive could be affected.
-	* If your counselor approved an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into MilMove <MoveLink/> to download your AOA Packet, and submit it to finance according to the instructions provided by your counselor. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.
-	* Once you complete your PPM, log into MilMove <MoveLink/>, upload your receipts and weight tickets, and submit your PPM for review.
+    * Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform. If you do not upload legible certified weight tickets, your PPM incentive could be affected.
+    * If your counselor approved an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into MilMove <MoveLink/> to download your AOA Packet, and submit it to finance according to the instructions provided by your counselor. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.
+    * Once you complete your PPM, log into MilMove <MoveLink/>, upload your receipts and weight tickets, and submit your PPM for review.
 
 Next steps for government arranged shipments:
-	* Your move request will be reviewed by the responsible personal property shipping office and a move task order for services will be placed with HomeSafe Alliance.
-	* Once this order is placed, you will receive an e-mail invitation to create an account in HomeSafe Connect (check your spam or junk folder). This is the system you will use to schedule your pre-move survey.
-	* HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes. Remember to keep your contact information updated in MilMove.
+    * Your move request will be reviewed by the responsible personal property shipping office and a move task order for services will be placed with HomeSafe Alliance.
+    * Once this order is placed, you will receive an e-mail invitation to create an account in HomeSafe Connect (check your spam or junk folder). This is the system you will use to schedule your pre-move survey.
+    * HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes. Remember to keep your contact information updated in MilMove.
 
 Thank you,
 USTRANSCOM MilMove Team
@@ -142,20 +142,20 @@ func (suite *NotificationSuite) TestMoveCounseledTextTemplateRenderWithMissingAl
 
 	expectedTextContent := `*** DO NOT REPLY directly to this email ***
 
-This is a confirmation that your counselor has approved move details for the assigned move code.
+This is a confirmation that your counselor has approved move details for the assigned move code in the MilMove system.
 
 What this means to you:
 If you are doing a Personally Procured Move (PPM), you can start moving your personal property.
 
 Next steps for a PPM:
-	* Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform. If you do not upload legible certified weight tickets, your PPM incentive could be affected.
-	* If your counselor approved an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into MilMove <MoveLink/> to download your AOA Packet, and submit it to finance according to the instructions provided by your counselor. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.
-	* Once you complete your PPM, log into MilMove <MoveLink/>, upload your receipts and weight tickets, and submit your PPM for review.
+    * Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform. If you do not upload legible certified weight tickets, your PPM incentive could be affected.
+    * If your counselor approved an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into MilMove <MoveLink/> to download your AOA Packet, and submit it to finance according to the instructions provided by your counselor. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.
+    * Once you complete your PPM, log into MilMove <MoveLink/>, upload your receipts and weight tickets, and submit your PPM for review.
 
 Next steps for government arranged shipments:
-	* Your move request will be reviewed by the responsible personal property shipping office and a move task order for services will be placed with HomeSafe Alliance.
-	* Once this order is placed, you will receive an e-mail invitation to create an account in HomeSafe Connect (check your spam or junk folder). This is the system you will use to schedule your pre-move survey.
-	* HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes. Remember to keep your contact information updated in MilMove.
+    * Your move request will be reviewed by the responsible personal property shipping office and a move task order for services will be placed with HomeSafe Alliance.
+    * Once this order is placed, you will receive an e-mail invitation to create an account in HomeSafe Connect (check your spam or junk folder). This is the system you will use to schedule your pre-move survey.
+    * HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes. Remember to keep your contact information updated in MilMove.
 
 Thank you,
 USTRANSCOM MilMove Team
@@ -189,20 +189,20 @@ func (suite *NotificationSuite) TestMoveCounseledTextTemplateRenderWithMissingOr
 
 	expectedTextContent := `*** DO NOT REPLY directly to this email ***
 
-This is a confirmation that your counselor has approved move details for the assigned move code abc123 to destDutyLocation in the MilMove system.
+This is a confirmation that your counselor has approved move details for the assigned move code abc123 destDutyLocation in the MilMove system.
 
 What this means to you:
 If you are doing a Personally Procured Move (PPM), you can start moving your personal property.
 
 Next steps for a PPM:
-	* Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform. If you do not upload legible certified weight tickets, your PPM incentive could be affected.
-	* If your counselor approved an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into MilMove <MoveLink/> to download your AOA Packet, and submit it to finance according to the instructions provided by your counselor. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.
-	* Once you complete your PPM, log into MilMove <MoveLink/>, upload your receipts and weight tickets, and submit your PPM for review.
+    * Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform. If you do not upload legible certified weight tickets, your PPM incentive could be affected.
+    * If your counselor approved an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into MilMove <MoveLink/> to download your AOA Packet, and submit it to finance according to the instructions provided by your counselor. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.
+    * Once you complete your PPM, log into MilMove <MoveLink/>, upload your receipts and weight tickets, and submit your PPM for review.
 
 Next steps for government arranged shipments:
-	* Your move request will be reviewed by the responsible personal property shipping office and a move task order for services will be placed with HomeSafe Alliance.
-	* Once this order is placed, you will receive an e-mail invitation to create an account in HomeSafe Connect (check your spam or junk folder). This is the system you will use to schedule your pre-move survey.
-	* HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes. Remember to keep your contact information updated in MilMove.
+    * Your move request will be reviewed by the responsible personal property shipping office and a move task order for services will be placed with HomeSafe Alliance.
+    * Once this order is placed, you will receive an e-mail invitation to create an account in HomeSafe Connect (check your spam or junk folder). This is the system you will use to schedule your pre-move survey.
+    * HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes. Remember to keep your contact information updated in MilMove.
 
 Thank you,
 USTRANSCOM MilMove Team
