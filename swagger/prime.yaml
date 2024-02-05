@@ -1663,7 +1663,7 @@ paths:
         [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress)
 
         For shipments in any other status, you can use
-        [updateShipmentAddress](#mtoShipment/updateShipmentAddress)
+        [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress)
       operationId: createSITAddressUpdateRequest
       tags:
         - sitAddressUpdate
