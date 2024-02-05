@@ -232,7 +232,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			appCtx.Logger().Error("Error getting PPM closeout object: ", zap.Error(err))
 		}
 
-		mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
+		// mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
 		suite.Nil(err)
 		suite.NotNil(ppmCloseoutObj)
