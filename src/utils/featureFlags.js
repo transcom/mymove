@@ -19,19 +19,23 @@ const defaultFlags = {
   hhgFlow: true,
   ghcFlow: true,
   markerIO: false,
+  multiMove: false,
 };
 
 const environmentFlags = {
   development: {
     ...defaultFlags,
+    multiMove: true,
   },
 
   test: {
     ...defaultFlags,
+    multiMove: true,
   },
 
   experimental: {
     ...defaultFlags,
+    multiMove: true,
   },
 
   staging: {
@@ -46,6 +50,11 @@ const environmentFlags = {
 
   production: {
     ...defaultFlags,
+  },
+
+  loadtest: {
+    ...defaultFlags,
+    multiMove: true,
   },
 };
 
@@ -98,6 +107,10 @@ export function detectEnvironment(nodeEnv, host) {
     case 'office.demo.dp3.us':
     case 'admin.demo.dp3.us':
       return 'demo';
+    case 'my.loadtest.dp3.us':
+    case 'office.loadtest.dp3.us':
+    case 'admin.loadtest.dp3.us':
+      return 'loadtest';
     default:
       return 'development';
   }

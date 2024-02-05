@@ -7,7 +7,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -141,6 +140,7 @@ type CurrentSIT struct {
 	SITEntryDate         time.Time
 	SITDepartureDate     *time.Time
 	SITAllowanceEndDate  time.Time
+	SITAuthorizedEndDate *time.Time
 	SITCustomerContacted *time.Time
 	SITRequestedDelivery *time.Time
 }
@@ -152,6 +152,4 @@ type ShipmentSITStatus interface {
 	CalculateShipmentsSITStatuses(appCtx appcontext.AppContext, shipments []models.MTOShipment) map[string]SITStatus
 	CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*SITStatus, error)
 	CalculateShipmentSITAllowance(appCtx appcontext.AppContext, shipment models.MTOShipment) (int, error)
-	CalculateSITAllowanceRequestedDates(appCtx appcontext.AppContext, shipment models.MTOShipment, planner route.Planner,
-		sitCustomerContacted *time.Time, sitRequestedDelivery *time.Time, eTag string) (*SITStatus, error)
 }

@@ -46,6 +46,7 @@ func (suite *NotificationSuite) TestMoveApprovedHTMLTemplateRender() {
 		DestinationDutyLocation:     "destDutyLocation",
 		OriginDutyLocationPhoneLine: &originDutyLocationPhoneLine,
 		Locator:                     "abc123",
+		MyMoveLink:                  MyMoveLink,
 	}
 	expectedHTMLContent := `<p><strong>You're all set to move!</strong></p>
 
@@ -68,7 +69,7 @@ func (suite *NotificationSuite) TestMoveApprovedHTMLTemplateRender() {
 
 <p>If you have any questions, call the origDutyLocation PPPO at 555-555-5555 and reference your move locator code: abc123</p>
 
-<p>You can <a href="https://my.move.mil">check the status of your move</a> anytime at https://my.move.mil"</p>
+<p>You can <a href="` + MyMoveLink + `">check the status of your move</a> anytime at ` + MyMoveLink + `"</p>
 `
 
 	htmlContent, err := notification.RenderHTML(suite.AppContextWithSessionForTest(&auth.Session{}), s)
@@ -87,6 +88,7 @@ func (suite *NotificationSuite) TestMoveApprovedHTMLTemplateRenderNoOriginDutyLo
 		DestinationDutyLocation:     "destDutyLocation",
 		OriginDutyLocationPhoneLine: nil,
 		Locator:                     "abc123",
+		MyMoveLink:                  MyMoveLink,
 	}
 	expectedHTMLContent := `<p><strong>You're all set to move!</strong></p>
 
@@ -109,7 +111,7 @@ func (suite *NotificationSuite) TestMoveApprovedHTMLTemplateRenderNoOriginDutyLo
 
 
 
-<p>You can <a href="https://my.move.mil">check the status of your move</a> anytime at https://my.move.mil"</p>
+<p>You can <a href="` + MyMoveLink + `">check the status of your move</a> anytime at ` + MyMoveLink + `"</p>
 `
 
 	htmlContent, err := notification.RenderHTML(suite.AppContextWithSessionForTest(&auth.Session{}), s)
@@ -131,6 +133,7 @@ func (suite *NotificationSuite) TestMoveApprovedTextTemplateRender() {
 		DestinationDutyLocation:     "destDutyLocation",
 		OriginDutyLocationPhoneLine: &originDutyLocationPhoneLine,
 		Locator:                     "abc123",
+		MyMoveLink:                  MyMoveLink,
 	}
 	expectedTextContent := `You're all set to move!
 
@@ -146,7 +149,7 @@ Be sure to save your weight tickets and any receipts associated with your move. 
 
 If you have any questions, call the origDutyLocation PPPO at 555-555-5555 and reference move locator code: abc123.
 
-You can check the status of your move anytime at https://my.move.mil"
+You can check the status of your move anytime at ` + MyMoveLink + `"
 `
 
 	textContent, err := notification.RenderText(suite.AppContextWithSessionForTest(&auth.Session{}), s)

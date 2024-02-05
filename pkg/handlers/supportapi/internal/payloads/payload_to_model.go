@@ -6,11 +6,11 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/event"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 // CustomerModel converts payload to model - currently does not tackle addresses
@@ -46,7 +46,8 @@ func OrderModel(orderPayload *supportmessages.Order) *models.Order {
 	}
 
 	if orderPayload.Rank != nil {
-		model.Grade = models.StringPointer((string)(*orderPayload.Rank))
+		grade := internalmessages.OrderPayGrade(*orderPayload.Rank) // Convert support API "Rank" into our internal tracking of "Grade"
+		model.Grade = &grade
 	}
 
 	customerID := uuid.FromStringOrNil(orderPayload.CustomerID.String())
@@ -99,13 +100,12 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.Move 
 	if mtoPayload == nil {
 		return nil
 	}
-	ppmEstimatedWeight := unit.Pound(mtoPayload.PpmEstimatedWeight)
+
 	contractorID := uuid.FromStringOrNil(mtoPayload.ContractorID.String())
 	model := &models.Move{
-		ReferenceID:        &mtoPayload.ReferenceID,
-		PPMEstimatedWeight: &ppmEstimatedWeight,
-		PPMType:            &mtoPayload.PpmType,
-		ContractorID:       &contractorID,
+		ReferenceID:  &mtoPayload.ReferenceID,
+		PPMType:      &mtoPayload.PpmType,
+		ContractorID: &contractorID,
 	}
 
 	if mtoPayload.AvailableToPrimeAt != nil {

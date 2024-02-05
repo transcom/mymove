@@ -37,9 +37,9 @@ func (h IndexEntitlementsHandler) Handle(params entitlementop.IndexEntitlementsP
 			entitlements := models.AllWeightAllotments()
 			payload := make(map[string]internalmessages.WeightAllotment)
 			for k, v := range entitlements {
-				rank := string(k)
+				grade := string(k)
 				allotment := payloadForEntitlementModel(v)
-				payload[rank] = allotment
+				payload[grade] = allotment
 			}
 			return entitlementop.NewIndexEntitlementsOK().WithPayload(payload), nil
 		})
