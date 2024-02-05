@@ -101,16 +101,14 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 	err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
 		EagerPreload(
 			"ID",
-			"ShipmentID",
+			"Shipment",
 			"ExpectedDepartureDate",
 			"ActualMoveDate",
 			"EstimatedWeight",
 			"WeightTickets",
-			"ProGearWeight",
-			"SpouseProGearWeight",
+			"ProgearWeightTickets",
 			"FinalIncentive",
 			"AdvanceAmountReceived",
-			"SITLocation",
 			"Shipment.Distance",
 		).
 		Find(&ppmShipment, ppmShipmentID)
