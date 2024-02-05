@@ -253,7 +253,6 @@ const approvedMoveTaskOrder = {
         id: '0ecd8fb1-0551-44c8-a15e-83c5f4e3ae0f',
         name: 'XOXhgDSIRS',
       },
-      rank: 'E_1',
       reportByDate: '2018-08-01',
     },
     orderID: '8cda4825-283c-4910-89f4-1741e2fd9cb7',
