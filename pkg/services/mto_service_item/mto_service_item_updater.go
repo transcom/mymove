@@ -431,7 +431,7 @@ func calculateSITAuthorizedAndRequirededDates(appCtx appcontext.AppContext, serv
 
 	if (oldServiceItem.SITAuthorizedEndDate == nil && sitAuthorizedEndDate.After(sitStatus.CurrentSIT.SITAllowanceEndDate)) ||
 		(oldServiceItem.SITAuthorizedEndDate != nil && sitAuthorizedEndDate.After(*oldServiceItem.SITAuthorizedEndDate)) {
-		return apperror.NewUnprocessableEntityError("customer requested delivery date cannot be after authorized end date")
+		return apperror.NewUnprocessableEntityError("dates entered cannot extend authorized end date beyond its current date")
 	}
 
 	// For Origin SIT we need to update the Required Delivery Date which is stored with the shipment instead of the service item
