@@ -28,11 +28,6 @@ export const selectServiceMemberFromLoggedInUser = (state) => {
   return state.entities.serviceMembers?.[`${user.service_member}`] || null;
 };
 
-export const selectCurrentDutyLocation = (state) => {
-  const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  return serviceMember?.current_location || null;
-};
-
 export const selectServiceMemberAffiliation = (state) => {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   return serviceMember?.affiliation || null;
@@ -119,6 +114,11 @@ export const selectUploadsForCurrentOrders = (state) => {
 export const selectUploadsForCurrentAmendedOrders = (state) => {
   const orders = selectCurrentOrders(state);
   return orders ? orders.uploaded_amended_orders?.uploads : [];
+};
+
+export const selectCurrentDutyLocation = (state) => {
+  const orders = selectCurrentOrders(state);
+  return orders?.origin_duty_location || null;
 };
 
 /** Moves */
@@ -248,17 +248,13 @@ export const selectWeightAllotmentsForLoggedInUser = createSelector(
   selectCurrentOrders,
   (serviceMember, orders) => {
     const weightAllotment = {
-      pro_gear: serviceMember.weight_allotment?.pro_gear_weight,
-      pro_gear_spouse: orders?.spouse_has_pro_gear ? serviceMember.weight_allotment?.pro_gear_weight_spouse : 0,
+      proGear: orders?.entitlement.proGear,
+      proGearSpouse: orders?.entitlement.proGearSpouse,
     };
 
-    if (orders?.has_dependents) {
-      weightAllotment.weight = serviceMember.weight_allotment?.total_weight_self_plus_dependents;
-    } else {
-      weightAllotment.weight = serviceMember.weight_allotment?.total_weight_self;
-    }
+    weightAllotment.weight = orders.authorizedWeight;
 
-    weightAllotment.sum = [weightAllotment.weight, weightAllotment.pro_gear, weightAllotment.pro_gear_spouse].reduce(
+    weightAllotment.sum = [weightAllotment.weight, weightAllotment.proGear, weightAllotment.proGearSpouse].reduce(
       (acc, num) => acc + num,
       0,
     );

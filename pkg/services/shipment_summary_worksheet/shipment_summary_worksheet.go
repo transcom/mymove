@@ -295,7 +295,7 @@ func (wa *SSWMaxWeightEntitlement) addLineItem(field string, value int) {
 
 // SSWGetEntitlement calculates the entitlement for the shipment summary worksheet based on the parameters of
 // a move (hasDependents, spouseHasProGear)
-func SSWGetEntitlement(rank models.ServiceMemberRank, hasDependents bool, spouseHasProGear bool) services.SSWMaxWeightEntitlement {
+func SSWGetEntitlement(rank internalmessages.OrderPayGrade, hasDependents bool, spouseHasProGear bool) services.SSWMaxWeightEntitlement {
 	sswEntitlements := SSWMaxWeightEntitlement{}
 	entitlements := models.GetWeightAllotment(rank)
 	sswEntitlements.addLineItem("ProGear", entitlements.ProGearWeight)
@@ -352,7 +352,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.ServiceBranch = FormatServiceMemberAffiliation(sm.Affiliation)
 	page1.PreferredEmail = derefStringTypes(sm.PersonalEmail)
 	page1.DODId = derefStringTypes(sm.Edipi)
-	page1.RankGrade = FormatRank(data.ServiceMember.Rank)
+	page1.RankGrade = FormatGrade(data.Order.Grade)
 	page1.MailingAddressW2 = FormatAddress(data.W2Address)
 
 	page1.IssuingBranchOrAgency = FormatServiceMemberAffiliation(sm.Affiliation)
@@ -387,41 +387,41 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	return page1
 }
 
-// FormatRank formats the service member's rank for Shipment Summary Worksheet
-func FormatRank(rank *models.ServiceMemberRank) string {
-	var rankDisplayValue = map[models.ServiceMemberRank]string{
-		models.ServiceMemberRankE1:                      "E-1",
-		models.ServiceMemberRankE2:                      "E-2",
-		models.ServiceMemberRankE3:                      "E-3",
-		models.ServiceMemberRankE4:                      "E-4",
-		models.ServiceMemberRankE5:                      "E-5",
-		models.ServiceMemberRankE6:                      "E-6",
-		models.ServiceMemberRankE7:                      "E-7",
-		models.ServiceMemberRankE8:                      "E-8",
-		models.ServiceMemberRankE9:                      "E-9",
-		models.ServiceMemberRankE9SPECIALSENIORENLISTED: "E-9 (Special Senior Enlisted)",
-		models.ServiceMemberRankO1ACADEMYGRADUATE:       "O-1 or Service Academy Graduate",
-		models.ServiceMemberRankO2:                      "O-2",
-		models.ServiceMemberRankO3:                      "O-3",
-		models.ServiceMemberRankO4:                      "O-4",
-		models.ServiceMemberRankO5:                      "O-5",
-		models.ServiceMemberRankO6:                      "O-6",
-		models.ServiceMemberRankO7:                      "O-7",
-		models.ServiceMemberRankO8:                      "O-8",
-		models.ServiceMemberRankO9:                      "O-9",
-		models.ServiceMemberRankO10:                     "O-10",
-		models.ServiceMemberRankW1:                      "W-1",
-		models.ServiceMemberRankW2:                      "W-2",
-		models.ServiceMemberRankW3:                      "W-3",
-		models.ServiceMemberRankW4:                      "W-4",
-		models.ServiceMemberRankW5:                      "W-5",
-		models.ServiceMemberRankAVIATIONCADET:           "Aviation Cadet",
-		models.ServiceMemberRankCIVILIANEMPLOYEE:        "Civilian Employee",
-		models.ServiceMemberRankACADEMYCADET:            "Service Academy Cadet",
-		models.ServiceMemberRankMIDSHIPMAN:              "Midshipman",
+// FormatGrade formats the service member's pay grade for Shipment Summary Worksheet
+func FormatGrade(grade *internalmessages.OrderPayGrade) string {
+	var rankDisplayValue = map[internalmessages.OrderPayGrade]string{
+		models.ServiceMemberPayGradeE1:                      "E-1",
+		models.ServiceMemberPayGradeE2:                      "E-2",
+		models.ServiceMemberPayGradeE3:                      "E-3",
+		models.ServiceMemberPayGradeE4:                      "E-4",
+		models.ServiceMemberPayGradeE5:                      "E-5",
+		models.ServiceMemberPayGradeE6:                      "E-6",
+		models.ServiceMemberPayGradeE7:                      "E-7",
+		models.ServiceMemberPayGradeE8:                      "E-8",
+		models.ServiceMemberPayGradeE9:                      "E-9",
+		models.ServiceMemberPayGradeE9SPECIALSENIORENLISTED: "E-9 (Special Senior Enlisted)",
+		models.ServiceMemberPayGradeO1ACADEMYGRADUATE:       "O-1 or Service Academy Graduate",
+		models.ServiceMemberPayGradeO2:                      "O-2",
+		models.ServiceMemberPayGradeO3:                      "O-3",
+		models.ServiceMemberPayGradeO4:                      "O-4",
+		models.ServiceMemberPayGradeO5:                      "O-5",
+		models.ServiceMemberPayGradeO6:                      "O-6",
+		models.ServiceMemberPayGradeO7:                      "O-7",
+		models.ServiceMemberPayGradeO8:                      "O-8",
+		models.ServiceMemberPayGradeO9:                      "O-9",
+		models.ServiceMemberPayGradeO10:                     "O-10",
+		models.ServiceMemberPayGradeW1:                      "W-1",
+		models.ServiceMemberPayGradeW2:                      "W-2",
+		models.ServiceMemberPayGradeW3:                      "W-3",
+		models.ServiceMemberPayGradeW4:                      "W-4",
+		models.ServiceMemberPayGradeW5:                      "W-5",
+		models.ServiceMemberPayGradeAVIATIONCADET:           "Aviation Cadet",
+		models.ServiceMemberPayGradeCIVILIANEMPLOYEE:        "Civilian Employee",
+		models.ServiceMemberPayGradeACADEMYCADET:            "Service Academy Cadet",
+		models.ServiceMemberPayGradeMIDSHIPMAN:              "Midshipman",
 	}
-	if rank != nil {
-		return rankDisplayValue[*rank]
+	if grade != nil {
+		return rankDisplayValue[*grade]
 	}
 	return ""
 }
@@ -732,7 +732,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		"Shipment.MoveTaskOrder",
 		"Shipment.MoveTaskOrder.Orders",
 		"Shipment.MoveTaskOrder.Orders.NewDutyLocation.Address",
-		"Shipment.MoveTaskOrder.Orders.ServiceMember.DutyLocation.Address",
+		"Shipment.MoveTaskOrder.Orders.OriginDutyLocation.Address",
 	).Find(&ppmShipment, ppmShipmentID)
 
 	if dbQErr != nil {
@@ -743,11 +743,9 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 	}
 
 	serviceMember := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
-	var rank models.ServiceMemberRank
 	var weightAllotment services.SSWMaxWeightEntitlement
-	if serviceMember.Rank != nil {
-		rank = models.ServiceMemberRank(*serviceMember.Rank)
-		weightAllotment = SSWGetEntitlement(rank, ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear)
+	if ppmShipment.Shipment.MoveTaskOrder.Orders.Grade != nil {
+		weightAllotment = SSWGetEntitlement(*ppmShipment.Shipment.MoveTaskOrder.Orders.Grade, ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear)
 	}
 
 	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(ppmShipment.Shipment.MoveTaskOrder, weightAllotment.TotalWeight)
@@ -755,30 +753,19 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		return nil, err
 	}
 
-	// Signed Certification needs to be updated
-	// signedCertification, err := models.FetchSignedCertificationsPPMPayment(appCtx.DB(), session, ppmShipment.Shipment.MoveTaskOrderID)
-	// if err != nil {
-	// 	return ShipmentSummaryFormData{}, err
-	// }
-	// if signedCertification == nil {
-	// 	return ShipmentSummaryFormData{},
-	// 		errors.New("shipment summary worksheet: signed certification is nil")
-	// }
-
 	var ppmShipments []models.PPMShipment
 
 	ppmShipments = append(ppmShipments, ppmShipment)
 
 	ssd := services.ShipmentSummaryFormData{
-		ServiceMember:       serviceMember,
-		Order:               ppmShipment.Shipment.MoveTaskOrder.Orders,
-		Move:                ppmShipment.Shipment.MoveTaskOrder,
-		CurrentDutyLocation: serviceMember.DutyLocation,
-		NewDutyLocation:     ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation,
-		WeightAllotment:     weightAllotment,
-		PPMShipments:        ppmShipments,
-		W2Address:           ppmShipment.W2Address,
-		// SignedCertification:     *signedCertification,
+		ServiceMember:           serviceMember,
+		Order:                   ppmShipment.Shipment.MoveTaskOrder.Orders,
+		Move:                    ppmShipment.Shipment.MoveTaskOrder,
+		CurrentDutyLocation:     *ppmShipment.Shipment.MoveTaskOrder.Orders.OriginDutyLocation,
+		NewDutyLocation:         ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation,
+		WeightAllotment:         weightAllotment,
+		PPMShipments:            ppmShipments,
+		W2Address:               ppmShipment.W2Address,
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
 	}
 	return &ssd, nil
