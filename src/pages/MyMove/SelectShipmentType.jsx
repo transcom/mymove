@@ -10,7 +10,7 @@ import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoMod
 import SelectableCard from 'components/Customer/SelectableCard';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
-import { generalRoutes, customerRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import styles from 'pages/MyMove/SelectShipmentType.module.scss';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { loadMTOShipments as loadMTOShipmentsAction } from 'shared/Entities/modules/mtoShipments';
@@ -98,7 +98,7 @@ export class SelectShipmentType extends Component {
 
     const handleBack = () => {
       const backPath = shipmentInfo.hasShipment
-        ? generalRoutes.HOME_PATH
+        ? customerRoutes.MOVE_HOME_PAGE
         : generatePath(customerRoutes.SHIPMENT_MOVING_INFO_PATH, { moveId: move.id });
 
       navigate(backPath);

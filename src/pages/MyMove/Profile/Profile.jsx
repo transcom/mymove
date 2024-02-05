@@ -69,7 +69,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
           {needsToVerifyProfile ? (
             <Link to={generalRoutes.HOME_PATH}>Return to Dashboard</Link>
           ) : (
-            <Link to={generalRoutes.HOME_PATH}>Return to Move</Link>
+            <Link to={customerRoutes.MOVE_HOME_PAGE}>Return to Move</Link>
           )}
           <div className={styles.profileHeader}>
             <h1>Profile</h1>

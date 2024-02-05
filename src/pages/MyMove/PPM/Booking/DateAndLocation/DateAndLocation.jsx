@@ -6,7 +6,7 @@ import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import { shipmentTypes } from 'constants/shipments';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import { createMTOShipment, patchMove, patchMTOShipment } from 'services/internalApi';
@@ -33,7 +33,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
     if (isNewShipment) {
       navigate(generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId }));
     } else {
-      navigate(generalRoutes.HOME_PATH);
+      navigate(customerRoutes.MOVE_HOME_PAGE);
     }
   };
 
