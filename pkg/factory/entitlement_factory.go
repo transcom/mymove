@@ -29,7 +29,7 @@ func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trai
 
 	// Find an Orders customization if available - to extract the grade
 	var grade *internalmessages.OrderPayGrade
-	defaultGrade := models.ServiceMemberGradeE1
+	defaultGrade := models.ServiceMemberPayGradeE1
 	var order models.Order
 	result := findValidCustomization(customs, Order)
 	if result != nil {

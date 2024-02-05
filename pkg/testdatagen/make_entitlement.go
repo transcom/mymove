@@ -18,7 +18,7 @@ func makeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 	proGearWeightSpouse := 500
 
 	if grade == nil || *grade == "" {
-		grade = models.ServiceMemberGradeE1.Pointer()
+		grade = models.ServiceMemberPayGradeE1.Pointer()
 	}
 
 	entitlement := models.Entitlement{

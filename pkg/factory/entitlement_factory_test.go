@@ -134,7 +134,7 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 		// Now DBAuthorizedWeight should be appropriate for O_9 grade
 
 		// FUNCTION UNDER TEST
-		grade := internalmessages.OrderPayGrade(models.ServiceMemberGradeO9)
+		grade := internalmessages.OrderPayGrade(models.ServiceMemberPayGradeO9)
 		entitlement := BuildEntitlement(suite.DB(), []Customization{
 			{Model: models.Order{
 				Grade: &grade,

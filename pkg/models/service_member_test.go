@@ -176,7 +176,7 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 		contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 		packingAndShippingInstructions := InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + InstructionsAfterContractNumber
 
-		grade := models.ServiceMemberGradeE1
+		grade := models.ServiceMemberPayGradeE1
 		order := Order{
 			ServiceMemberID:                serviceMember.ID,
 			ServiceMember:                  serviceMember,
