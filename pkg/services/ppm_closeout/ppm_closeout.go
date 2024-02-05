@@ -37,6 +37,12 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	actualWeight := p.GetActualWeight(*ppmShipment)
 	proGearWeightCustomer, proGearWeightSpouse := p.GetProGearWeights(*ppmShipment)
 
+	var remainingIncentive unit.Cents
+	if *ppmShipment.HasRequestedAdvance {
+		remainingIncentive = unit.Cents(ppmShipment.FinalIncentive.Int() - ppmShipment.AdvanceAmountReceived.Int())
+	}
+	remainingIncentive = *ppmShipment.FinalIncentive
+
 	ppmCloseoutObj.ID = &ppmShipmentID
 	ppmCloseoutObj.PlannedMoveDate = &ppmShipment.ExpectedDepartureDate
 	ppmCloseoutObj.ActualMoveDate = ppmShipment.ActualMoveDate
@@ -48,7 +54,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	ppmCloseoutObj.GrossIncentive = ppmShipment.FinalIncentive
 	ppmCloseoutObj.GCC = nil
 	ppmCloseoutObj.AOA = ppmShipment.AdvanceAmountReceived
-	ppmCloseoutObj.RemainingIncentive = nil
+	ppmCloseoutObj.RemainingIncentive = &remainingIncentive
 	ppmCloseoutObj.HaulPrice = nil
 	ppmCloseoutObj.HaulFSC = nil
 	ppmCloseoutObj.DOP = nil
