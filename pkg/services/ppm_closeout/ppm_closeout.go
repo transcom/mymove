@@ -72,7 +72,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	ppmCloseoutObj.DDP = serviceItems.ddp
 	ppmCloseoutObj.PackPrice = serviceItems.packPrice
 	ppmCloseoutObj.UnpackPrice = serviceItems.unpackPrice
-	ppmCloseoutObj.SITReimbursement = nil
+	ppmCloseoutObj.SITReimbursement = serviceItems.storageReimbursementCosts
 
 	return &ppmCloseoutObj, nil
 }
@@ -337,7 +337,7 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 			originPrice += centsValue
 		case "DDP":
 			destinationPrice += centsValue
-			// TODO: Others (Konstance?) can put cases h
+			// TODO: Others (Konstance?) can put cases here
 		}
 	}
 	returnPriceObj.ddp = &destinationPrice
