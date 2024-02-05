@@ -269,7 +269,28 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 		return serviceItemPrices{}, err
 	}
 
+	validCodes := []models.ReServiceCode{
+		models.ReServiceCodeDPK,
+		models.ReServiceCodeDUPK,
+		models.ReServiceCodeDOP,
+		models.ReServiceCodeDDP}
+
+	// If service item is of a type we need for a specific calculation, return true
+	isValidCode := func(search models.ReServiceCode) bool {
+		for _, value := range validCodes {
+			if value == search {
+				return true
+			}
+		}
+		return false
+	}
+
+	// If service item is of a type we need for a specific calculation, get its price
 	for _, serviceItem := range serviceItemsToPrice {
+		if !isValidCode(serviceItem.ReService.Code) {
+			continue
+		} // Next iteration of loop if we don't need this service type
+
 		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code)
 		if err != nil {
 			logger.Error("unable to find pricer for service item", zap.Error(err))
@@ -332,15 +353,14 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 		totalPrice = totalPrice.AddCents(centsValue)
 
 		switch serviceItem.ReService.Code {
-		case "DPK":
+		case models.ReServiceCodeDPK:
 			packPrice += centsValue
-		case "DUPK":
+		case models.ReServiceCodeDUPK:
 			unpackPrice += centsValue
-		case "DOP":
+		case models.ReServiceCodeDOP:
 			originPrice += centsValue
-		case "DDP":
+		case models.ReServiceCodeDDP:
 			destinationPrice += centsValue
-			// TODO: Others (Konstance?) can put cases here
 		}
 	}
 	returnPriceObj.ddp = &destinationPrice
