@@ -372,24 +372,6 @@ func calculateSITAuthorizedAndRequirededDates(appCtx appcontext.AppContext, serv
 	var verrs *validate.Errors
 	location := DestinationSITLocation
 
-	// We retrieve the old service item so we can get the required values to update with the new value for Authorized End Date
-	oldServiceItem, err := models.FetchServiceItem(appCtx.DB(), serviceItem.ID)
-	if err != nil {
-		switch err {
-		case models.ErrFetchNotFound:
-			return apperror.NewNotFoundError(serviceItem.ID, "while looking for MTOServiceItem")
-		default:
-			return apperror.NewQueryError("MTOServiceItem", err, "")
-		}
-	}
-
-	sitStatus, err := sitstatus.NewShipmentSITStatus().CalculateShipmentSITStatus(appCtx, shipment)
-
-	if (oldServiceItem.SITAuthorizedEndDate == nil && serviceItem.SITRequestedDelivery.After(sitStatus.CurrentSIT.SITAllowanceEndDate)) ||
-		(oldServiceItem.SITAuthorizedEndDate != nil && serviceItem.SITRequestedDelivery.After(*oldServiceItem.SITAuthorizedEndDate)) {
-		return apperror.NewUnprocessableEntityError("customer requested delivery date cannot be after authorized end date")
-	}
-
 	if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT {
 		location = OriginSITLocation
 	}
@@ -428,6 +410,28 @@ func calculateSITAuthorizedAndRequirededDates(appCtx appcontext.AppContext, serv
 		if sitDepartureDate == nil || calculatedAuthorizedEndDate.Before(*sitDepartureDate) {
 			sitAuthorizedEndDate = &calculatedAuthorizedEndDate
 		}
+	}
+
+	// We retrieve the old service item so we can get the required values to update with the new value for Authorized End Date
+	oldServiceItem, err := models.FetchServiceItem(appCtx.DB(), serviceItem.ID)
+	if err != nil {
+		switch err {
+		case models.ErrFetchNotFound:
+			return apperror.NewNotFoundError(serviceItem.ID, "while looking for MTOServiceItem")
+		default:
+			return apperror.NewQueryError("MTOServiceItem", err, "")
+		}
+	}
+
+	sitStatus, err := sitstatus.NewShipmentSITStatus().CalculateShipmentSITStatus(appCtx, shipment)
+
+	if err != nil {
+		return apperror.NewNotFoundError(serviceItem.ID, "while looking for shipment sit status")
+	}
+
+	if (oldServiceItem.SITAuthorizedEndDate == nil && sitAuthorizedEndDate.After(sitStatus.CurrentSIT.SITAllowanceEndDate)) ||
+		(oldServiceItem.SITAuthorizedEndDate != nil && sitAuthorizedEndDate.After(*oldServiceItem.SITAuthorizedEndDate)) {
+		return apperror.NewUnprocessableEntityError("customer requested delivery date cannot be after authorized end date")
 	}
 
 	// For Origin SIT we need to update the Required Delivery Date which is stored with the shipment instead of the service item
