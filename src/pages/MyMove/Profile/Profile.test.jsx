@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { useLocation } from 'react-router-dom';
 
 import ConnectedProfile from './Profile';
@@ -395,10 +395,24 @@ describe('Profile component', () => {
     const returnToDashboardLink = screen.getByText('Return to Dashboard');
     expect(returnToDashboardLink).toBeInTheDocument();
 
+    const validateProfileContainer = screen.getByTestId('validateProfileContainer');
+    expect(validateProfileContainer).toBeInTheDocument();
+
     const createMoveBtn = screen.getByTestId('createMoveBtn');
     expect(createMoveBtn).toBeInTheDocument();
+    expect(createMoveBtn).toBeDisabled();
+
+    const validateProfileBtn = screen.getByTestId('validateProfileBtn');
+    expect(validateProfileBtn).toBeInTheDocument();
+    expect(validateProfileBtn).toBeEnabled();
 
     const profileConfirmAlert = screen.getByTestId('profileConfirmAlert');
     expect(profileConfirmAlert).toBeInTheDocument();
+
+    // user validates their profile, which enables create move btn
+    fireEvent.click(validateProfileBtn);
+    expect(createMoveBtn).toBeEnabled();
+    expect(validateProfileBtn).toBeDisabled();
+    expect(screen.getByText('Profile Validated')).toBeInTheDocument();
   });
 });

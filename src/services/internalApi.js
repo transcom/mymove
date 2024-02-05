@@ -239,6 +239,18 @@ export async function deleteUpload(uploadId) {
 }
 
 /** MOVES */
+export async function getAllMoves(serviceMemberId) {
+  return makeInternalRequest(
+    'moves.getAllMoves',
+    {
+      serviceMemberId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function getMove(moveId) {
   return makeInternalRequest(
     'moves.showMove',
