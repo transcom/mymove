@@ -352,8 +352,8 @@ test.describe('TOO user', () => {
       // await expect(page.locator('[data-testid="ocie"]')).toContainText('Unauthorized');
 
       // await expect(page.locator('[data-testid="authorizedWeight"]')).toContainText('11,111');
-      // await expect(page.locator('[data-testid="branchRank"]')).toContainText('Navy');
-      // await expect(page.locator('[data-testid="branchRank"]')).toContainText('W-2');
+      // await expect(page.locator('[data-testid="branchGrade"]')).toContainText('Navy');
+      // await expect(page.locator('[data-testid="branchGrade"]')).toContainText('W-2');
       // await expect(page.locator('[data-testid="dependents"]')).toContainText('Unauthorized');
 
       // // Edit allowances page | Cancel

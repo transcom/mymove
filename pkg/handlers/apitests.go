@@ -103,6 +103,7 @@ func (suite *BaseHandlerTestSuite) HandlerConfig() *Config {
 		db:                 suite.DB(),
 		logger:             suite.Logger(),
 		appNames:           ApplicationTestServername(),
+		notificationSender: suite.TestNotificationSender(),
 		sessionManagers:    setupSessionManagers(),
 		featureFlagFetcher: mockFeatureFlagFetcher,
 	}

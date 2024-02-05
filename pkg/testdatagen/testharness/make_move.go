@@ -2285,9 +2285,11 @@ func MakeHHGMoveWithRetireeForTOO(appCtx appcontext.AppContext) models.Move {
 	retirement := internalmessages.OrdersTypeRETIREMENT
 	hhg := models.MTOShipmentTypeHHG
 	hor := models.DestinationTypeHomeOfRecord
+	originDutyLocation := factory.FetchOrBuildCurrentDutyLocation(appCtx.DB())
 	move := scenario.CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 		Order: models.Order{
-			OrdersType: retirement,
+			OrdersType:         retirement,
+			OriginDutyLocation: &originDutyLocation,
 		},
 		MTOShipment: models.MTOShipment{
 			ShipmentType:    hhg,
@@ -2671,6 +2673,33 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
 
+	pickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				ID:             uuid.Must(uuid.NewV4()),
+				StreetAddress1: "1 First St",
+				StreetAddress2: models.StringPointer("Apt 1"),
+				City:           "Miami Gardens",
+				State:          "FL",
+				PostalCode:     "33169",
+				Country:        models.StringPointer("US"),
+			},
+		},
+	}, nil)
+	destinationAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				ID:             uuid.Must(uuid.NewV4()),
+				StreetAddress1: "2 Second St",
+				StreetAddress2: models.StringPointer("Bldg 2"),
+				City:           "Key West",
+				State:          "FL",
+				PostalCode:     "33040",
+				Country:        models.StringPointer("US"),
+			},
+		},
+	}, nil)
+
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
 		Move: models.Move{
@@ -2686,6 +2715,8 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
+			PickupPostalAddressID:       &pickupAddress.ID,
+			DestinationPostalAddressID:  &destinationAddress.ID,
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
@@ -5266,10 +5297,10 @@ func MakeHHGMoveWithAddressChangeRequestAndUnknownDeliveryAddress(appCtx appcont
 	destinationAddress := factory.BuildMinimalAddress(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Address{
-				City:       customer.DutyLocation.Address.City,
-				State:      customer.DutyLocation.Address.State,
-				PostalCode: customer.DutyLocation.Address.PostalCode,
-				Country:    customer.DutyLocation.Address.Country,
+				City:       orders.OriginDutyLocation.Address.City,
+				State:      orders.OriginDutyLocation.Address.State,
+				PostalCode: orders.OriginDutyLocation.Address.PostalCode,
+				Country:    orders.OriginDutyLocation.Address.Country,
 			},
 		},
 	}, nil)

@@ -87,10 +87,6 @@ func ListMove(move *models.Move) *ghcmessages.ListPrimeMove {
 		ETag:               etag.GenerateEtag(move.UpdatedAt),
 	}
 
-	if move.PPMEstimatedWeight != nil {
-		payload.PpmEstimatedWeight = int64(*move.PPMEstimatedWeight)
-	}
-
 	if move.PPMType != nil {
 		payload.PpmType = *move.PPMType
 	}
@@ -472,7 +468,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(*order.Grade)
+		order.Entitlement.SetWeightAllotment(string(*order.Grade))
 	}
 	entitlements := Entitlement(order.Entitlement)
 
@@ -718,6 +714,7 @@ func currentSIT(currentSIT *services.CurrentSIT) *ghcmessages.SITStatusCurrentSI
 		SitEntryDate:         handlers.FmtDate(currentSIT.SITEntryDate),
 		SitDepartureDate:     handlers.FmtDatePtr(currentSIT.SITDepartureDate),
 		SitAllowanceEndDate:  handlers.FmtDate(currentSIT.SITAllowanceEndDate),
+		SitAuthorizedEndDate: handlers.FmtDatePtr(currentSIT.SITAuthorizedEndDate),
 		SitCustomerContacted: handlers.FmtDatePtr(currentSIT.SITCustomerContacted),
 		SitRequestedDelivery: handlers.FmtDatePtr(currentSIT.SITRequestedDelivery),
 	}
@@ -1032,13 +1029,16 @@ func ShipmentAddressUpdate(shipmentAddressUpdate *models.ShipmentAddressUpdate) 
 	}
 
 	payload := &ghcmessages.ShipmentAddressUpdate{
-		ID:                strfmt.UUID(shipmentAddressUpdate.ID.String()),
-		ShipmentID:        strfmt.UUID(shipmentAddressUpdate.ShipmentID.String()),
-		NewAddress:        Address(&shipmentAddressUpdate.NewAddress),
-		OriginalAddress:   Address(&shipmentAddressUpdate.OriginalAddress),
-		ContractorRemarks: shipmentAddressUpdate.ContractorRemarks,
-		OfficeRemarks:     shipmentAddressUpdate.OfficeRemarks,
-		Status:            ghcmessages.ShipmentAddressUpdateStatus(shipmentAddressUpdate.Status),
+		ID:                    strfmt.UUID(shipmentAddressUpdate.ID.String()),
+		ShipmentID:            strfmt.UUID(shipmentAddressUpdate.ShipmentID.String()),
+		NewAddress:            Address(&shipmentAddressUpdate.NewAddress),
+		OriginalAddress:       Address(&shipmentAddressUpdate.OriginalAddress),
+		SitOriginalAddress:    Address(shipmentAddressUpdate.SitOriginalAddress),
+		ContractorRemarks:     shipmentAddressUpdate.ContractorRemarks,
+		OfficeRemarks:         shipmentAddressUpdate.OfficeRemarks,
+		Status:                ghcmessages.ShipmentAddressUpdateStatus(shipmentAddressUpdate.Status),
+		NewSitDistanceBetween: handlers.FmtIntPtrToInt64(shipmentAddressUpdate.NewSitDistanceBetween),
+		OldSitDistanceBetween: handlers.FmtIntPtrToInt64(shipmentAddressUpdate.OldSitDistanceBetween),
 	}
 
 	return payload
