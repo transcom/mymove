@@ -894,4 +894,5 @@
 20240123213917_update_shipment_address_update_table_sit_and_distance_columns.up.sql
 20240124153121_remove_ppmid_from_signedcertification_table.up.sql
 20240124155759_20240124-homesafeconnect-cert.up.sql
+20240129153006_20240129-homesafeconnect-cert.up.sql
 20240201201343_update_duty_location_names.up.sql

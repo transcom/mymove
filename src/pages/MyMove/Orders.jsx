@@ -10,7 +10,6 @@ import {
   getOrdersForServiceMember,
   createOrders,
   patchOrders,
-  patchServiceMember,
   getResponseError,
 } from 'services/internalApi';
 import {
@@ -86,21 +85,6 @@ export class Orders extends Component {
         origin_duty_location_id: values.origin_duty_location.id,
         spouse_has_pro_gear: false,
       };
-
-      const payload = {
-        id: serviceMemberId,
-        rank: values.grade,
-        current_location_id: values.origin_duty_location.id,
-      };
-
-      patchServiceMember(payload)
-        .then(updateServiceMember)
-        .catch((e) => {
-          // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
-          const { response } = e;
-          const errorMessage = getResponseError(response, 'failed to update service member due to server error');
-          this.setState({ serverError: errorMessage });
-        });
 
       if (currentOrders?.id) {
         pendingValues.id = currentOrders.id;
