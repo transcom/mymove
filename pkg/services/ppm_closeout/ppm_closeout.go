@@ -106,7 +106,7 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 			"ActualMoveDate",
 			"EstimatedWeight",
 			"WeightTickets",
-			"ProGearWeightTickets",
+			"ProgearWeightTickets",
 			"FinalIncentive",
 			"AdvanceAmountReceived",
 			"Shipment.Distance",
