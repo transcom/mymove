@@ -220,8 +220,8 @@ The information contained in this email may contain Privacy Act information and 
 }
 
 func trimExtraSpaces(input string) string {
-	// Replace consecutive white spaces with a single space
-	re := regexp.MustCompile(`\s+`)
-	// return the result without leading or trailing spaces
+	// Replace consecutive white spaces, tabs, and line breaks with a single space
+	re := regexp.MustCompile(`[\s\t\n]+`)
+	// Return the result without leading or trailing spaces
 	return strings.TrimSpace(re.ReplaceAllString(input, " "))
 }
