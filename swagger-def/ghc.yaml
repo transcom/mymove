@@ -1494,7 +1494,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /ppm-shipments/{ppmShipmentId}/aoa-packet/download:
+  /ppm-shipments/{ppmShipmentId}/aoa-packet:
     parameters:
       - description: the id for the ppmshipment with aoa to be downloaded
         in: path

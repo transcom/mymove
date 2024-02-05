@@ -2683,7 +2683,7 @@ func init() {
         ]
       }
     },
-    "/ppm-shipments/{ppmShipmentId}/aoa-packet/download": {
+    "/ppm-shipments/{ppmShipmentId}/aoa-packet": {
       "get": {
         "description": "### Functionality\nThis endpoint downloads all uploaded move order documentation combined with the Shipment Summary Worksheet into a single PDF.\n### Errors\n* The PPMShipment must have requested an AOA.\n* The PPMShipment AOA Request must have been approved.\n",
         "produces": [
@@ -13779,7 +13779,7 @@ func init() {
         ]
       }
     },
-    "/ppm-shipments/{ppmShipmentId}/aoa-packet/download": {
+    "/ppm-shipments/{ppmShipmentId}/aoa-packet": {
       "get": {
         "description": "### Functionality\nThis endpoint downloads all uploaded move order documentation combined with the Shipment Summary Worksheet into a single PDF.\n### Errors\n* The PPMShipment must have requested an AOA.\n* The PPMShipment AOA Request must have been approved.\n",
         "produces": [

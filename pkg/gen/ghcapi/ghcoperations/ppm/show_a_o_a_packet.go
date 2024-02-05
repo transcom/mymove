@@ -30,7 +30,7 @@ func NewShowAOAPacket(ctx *middleware.Context, handler ShowAOAPacketHandler) *Sh
 }
 
 /*
-	ShowAOAPacket swagger:route GET /ppm-shipments/{ppmShipmentId}/aoa-packet/download ppm showAOAPacket
+	ShowAOAPacket swagger:route GET /ppm-shipments/{ppmShipmentId}/aoa-packet ppm showAOAPacket
 
 # Downloads AOA Packet form PPMShipment as a PDF
 

@@ -7,7 +7,6 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -16,7 +15,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services"
-	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
 )
 
 // SubmitPPMShipmentDocumentationHandler is the handler to save a PPMShipment signature and route the PPM shipment to the office
@@ -290,14 +288,16 @@ func (h showAOAPacketHandler) Handle(params ppmops.ShowAOAPacketParams) middlewa
 				return handlers.ResponseForError(logger, err), err
 			}
 
-			ppmGenerator := shipmentsummaryworksheet.NewSSWPPMGenerator()
-			SSWPPMWorksheet, SSWPDFInfo, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
+			SSWPPMWorksheet, SSWPDFInfo, err := h.SSWPPMGenerator.FillSSWPDFForm(page1Data, page2Data)
 			if err != nil {
-				return nil, err
+				logger.Error("Error filling SSW", zap.Error(err))
+				return handlers.ResponseForError(logger, err), err
 			}
 			if SSWPDFInfo.PageCount != 2 {
-				return nil, errors.Wrap(err, "SSWGenerator output a corrupted or incorretly altered PDF")
+				logger.Error("Error filling SSW: PDF is corrupt", zap.Error(err))
+				return handlers.ResponseForError(logger, err), err
 			}
+
 			payload := io.NopCloser(SSWPPMWorksheet)
 			filename := fmt.Sprintf("inline; filename=\"%s-%s-ssw-%s.pdf\"", *ssfd.ServiceMember.FirstName, *ssfd.ServiceMember.LastName, time.Now().Format("01-02-2006"))
 
@@ -336,10 +336,12 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params ppmops.ShowShipmentSu
 
 			SSWPPMWorksheet, SSWPDFInfo, err := h.SSWPPMGenerator.FillSSWPDFForm(page1Data, page2Data)
 			if err != nil {
-				return nil, err
+				logger.Error("Error filling SSW", zap.Error(err))
+				return handlers.ResponseForError(logger, err), err
 			}
 			if SSWPDFInfo.PageCount != 2 {
-				return nil, errors.Wrap(err, "SSWGenerator output a corrupted or incorretly altered PDF")
+				logger.Error("Error filling SSW: PDF is corrupt", zap.Error(err))
+				return handlers.ResponseForError(logger, err), err
 			}
 			payload := io.NopCloser(SSWPPMWorksheet)
 			filename := fmt.Sprintf("inline; filename=\"%s-%s-ssw-%s.pdf\"", *ssfd.ServiceMember.FirstName, *ssfd.ServiceMember.LastName, time.Now().Format("01-02-2006"))
