@@ -12070,3 +12070,99 @@ func createRandomMove(
 
 	return move
 }
+
+func createMultipleMovesTwoMovesHHGAndPPMShipments(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	db := appCtx.DB()
+	filterFile := &[]string{"150Kb.png"}
+	serviceMember := makeServiceMember(appCtx)
+
+	// Move A
+	// Status: MoveStatusNeedsServiceCounseling
+	// One HHG shipment
+	ordersA := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
+	moveA := makeMoveForOrders(appCtx, ordersA, "MMOVEA", models.MoveStatusNeedsServiceCounseling)
+	moveA.CreatedAt = time.Now()
+
+	// HHG shipment
+	requestedPickupDateMoveA := moveA.CreatedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDateMoveA := requestedPickupDateMoveA.Add(7 * 24 * time.Hour)
+	destinationAddressMoveA := factory.BuildAddress(db, nil, nil)
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    moveA,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDateMoveA,
+				RequestedDeliveryDate: &requestedDeliveryDateMoveA,
+			},
+		},
+		{
+			Model:    destinationAddressMoveA,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// Move B
+	// Status: Approved
+	// One HHG shipment, two PPM shipments
+	ordersB := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
+	moveB := makeMoveForOrders(appCtx, ordersB, "MMOVEB", models.MoveStatusAPPROVALSREQUESTED)
+	moveB.CreatedAt = moveA.CreatedAt.AddDate(-1, 0, 3)
+
+	// HHG shipment
+	requestedPickupDateMoveB := moveB.CreatedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDateMoveB := requestedPickupDateMoveB.Add(7 * 24 * time.Hour)
+	destinationAddressMoveB := factory.BuildAddress(db, nil, nil)
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    moveB,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDateMoveB,
+				RequestedDeliveryDate: &requestedDeliveryDateMoveB,
+			},
+		},
+		{
+			Model:    destinationAddressMoveB,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// PPM shipment one
+	factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    moveB,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+
+	// PPM shipment two
+	factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    moveB,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+}
