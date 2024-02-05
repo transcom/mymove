@@ -48,7 +48,9 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	}
 
 	actualWeight := p.GetActualWeight(*ppmShipment)
+
 	proGearWeightCustomer, proGearWeightSpouse := p.GetProGearWeights(*ppmShipment)
+
 	serviceItems, err := p.getServiceItemPrices(appCtx, *ppmShipment)
 	if err != nil {
 		return nil, err
