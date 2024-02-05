@@ -428,7 +428,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.Run("adding to n9 header", func() {
-		grade := models.ServiceMemberGradeE1
+		grade := models.ServiceMemberPayGradeE1
 		setupTestData(&grade)
 		testData := []struct {
 			TestName      string
@@ -2075,35 +2075,35 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 			grade           internalmessages.OrderPayGrade
 			expectedLoaCode string
 		}{
-			{models.ServiceMemberGradeE1, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberGradeE2, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberGradeE3, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberGradeE4, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberGradeE5, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberGradeE6, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberGradeE7, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberGradeE8, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberGradeE9, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberGradeE9SPECIALSENIORENLISTED, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
-			{models.ServiceMemberGradeO1ACADEMYGRADUATE, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeO2, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeO3, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeO4, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeO5, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeO6, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeO7, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeO8, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeO9, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeO10, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeW1, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeW2, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeW3, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeW4, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeW5, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeAVIATIONCADET, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeCIVILIANEMPLOYEE, models.LineOfAccountingHouseholdGoodsCodeCivilian},
-			{models.ServiceMemberGradeACADEMYCADET, models.LineOfAccountingHouseholdGoodsCodeOfficer},
-			{models.ServiceMemberGradeMIDSHIPMAN, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberPayGradeE1, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberPayGradeE2, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberPayGradeE3, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberPayGradeE4, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberPayGradeE5, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberPayGradeE6, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberPayGradeE7, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberPayGradeE8, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberPayGradeE9, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberPayGradeE9SPECIALSENIORENLISTED, models.LineOfAccountingHouseholdGoodsCodeEnlisted},
+			{models.ServiceMemberPayGradeO1ACADEMYGRADUATE, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberPayGradeO2, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberPayGradeO3, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberPayGradeO4, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberPayGradeO5, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberPayGradeO6, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberPayGradeO7, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberPayGradeO8, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberPayGradeO9, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberPayGradeO10, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberPayGradeW1, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberPayGradeW2, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberPayGradeW3, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberPayGradeW4, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberPayGradeW5, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberPayGradeAVIATIONCADET, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberPayGradeCIVILIANEMPLOYEE, models.LineOfAccountingHouseholdGoodsCodeCivilian},
+			{models.ServiceMemberPayGradeACADEMYCADET, models.LineOfAccountingHouseholdGoodsCodeOfficer},
+			{models.ServiceMemberPayGradeMIDSHIPMAN, models.LineOfAccountingHouseholdGoodsCodeOfficer},
 		}
 
 		for _, testCase := range gradeTestCases {

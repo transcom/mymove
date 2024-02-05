@@ -198,7 +198,7 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 	defaultOrdersNumber := "ORDER3"
 	defaultTACNumber := "F8E1"
 	defaultDepartmentIndicator := "AIR_AND_SPACE_FORCE"
-	defaultGrade := models.ServiceMemberGradeE1
+	defaultGrade := models.ServiceMemberPayGradeE1
 	defaultHasDependents := false
 	defaultSpouseHasProGear := false
 	defaultOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION

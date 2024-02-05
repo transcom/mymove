@@ -27,7 +27,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
-	grade := models.ServiceMemberGradeE9
+	grade := models.ServiceMemberPayGradeE9
 	SSWPPMComputer := NewSSWPPMComputer()
 
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
@@ -96,7 +96,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
-	grade := models.ServiceMemberGradeE9
+	grade := models.ServiceMemberPayGradeE9
 	SSWPPMComputer := NewSSWPPMComputer()
 
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
@@ -153,7 +153,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
-	grade := models.ServiceMemberGradeE9
+	grade := models.ServiceMemberPayGradeE9
 	SSWPPMComputer := NewSSWPPMComputer()
 
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
@@ -225,7 +225,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 
 	serviceMemberID, _ := uuid.NewV4()
 	serviceBranch := models.AffiliationAIRFORCE
-	grade := models.ServiceMemberGradeE9
+	grade := models.ServiceMemberPayGradeE9
 	serviceMember := models.ServiceMember{
 		ID:            serviceMemberID,
 		FirstName:     models.StringPointer("Marcus"),
@@ -499,9 +499,9 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementPP
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWGetEntitlement() {
 	spouseHasProGear := true
 	hasDependants := true
-	allotment := models.GetWeightAllotment(models.ServiceMemberGradeE1)
+	allotment := models.GetWeightAllotment(models.ServiceMemberPayGradeE1)
 	expectedTotalWeight := allotment.TotalWeightSelfPlusDependents + allotment.ProGearWeight + allotment.ProGearWeightSpouse
-	sswEntitlement := SSWGetEntitlement(models.ServiceMemberGradeE1, hasDependants, spouseHasProGear)
+	sswEntitlement := SSWGetEntitlement(models.ServiceMemberPayGradeE1, hasDependants, spouseHasProGear)
 
 	suite.Equal(unit.Pound(expectedTotalWeight), sswEntitlement.TotalWeight)
 	suite.Equal(unit.Pound(allotment.TotalWeightSelfPlusDependents), sswEntitlement.Entitlement)
@@ -512,9 +512,9 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWGetEntitlement()
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWGetEntitlementNoDependants() {
 	spouseHasProGear := false
 	hasDependants := false
-	allotment := models.GetWeightAllotment(models.ServiceMemberGradeE1)
+	allotment := models.GetWeightAllotment(models.ServiceMemberPayGradeE1)
 	expectedTotalWeight := allotment.TotalWeightSelf + allotment.ProGearWeight
-	sswEntitlement := SSWGetEntitlement(models.ServiceMemberGradeE1, hasDependants, spouseHasProGear)
+	sswEntitlement := SSWGetEntitlement(models.ServiceMemberPayGradeE1, hasDependants, spouseHasProGear)
 
 	suite.Equal(unit.Pound(expectedTotalWeight), sswEntitlement.TotalWeight)
 	suite.Equal(unit.Pound(allotment.TotalWeightSelf), sswEntitlement.Entitlement)
@@ -555,8 +555,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatCurrentPPMStatus() 
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatRank() {
-	e9 := models.ServiceMemberGradeE9
-	multipleGrades := models.ServiceMemberGradeO1ACADEMYGRADUATE
+	e9 := models.ServiceMemberPayGradeE9
+	multipleGrades := models.ServiceMemberPayGradeO1ACADEMYGRADUATE
 
 	suite.Equal("E-9", FormatGrade(&e9))
 	suite.Equal("O-1 or Service Academy Graduate", FormatGrade(&multipleGrades))
@@ -778,7 +778,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
-	grade := models.ServiceMemberGradeE9
+	grade := models.ServiceMemberPayGradeE9
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{

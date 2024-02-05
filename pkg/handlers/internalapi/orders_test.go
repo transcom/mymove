@@ -60,7 +60,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		Tac:                  handlers.FmtString("E19A"),
 		Sac:                  handlers.FmtString("SacNumber"),
 		DepartmentIndicator:  internalmessages.NewDeptIndicator(deptIndicator),
-		Grade:                models.ServiceMemberGradeE1.Pointer(),
+		Grade:                models.ServiceMemberPayGradeE1.Pointer(),
 	}
 
 	params := ordersop.CreateOrdersParams{
@@ -473,7 +473,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		DepartmentIndicator:  &deptIndicator,
 		HasDependents:        handlers.FmtBool(false),
 		SpouseHasProGear:     handlers.FmtBool(false),
-		Grade:                models.ServiceMemberGradeE4.Pointer(),
+		Grade:                models.ServiceMemberPayGradeE4.Pointer(),
 	}
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())

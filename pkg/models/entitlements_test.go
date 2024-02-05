@@ -5,7 +5,7 @@ import (
 )
 
 func (suite *ModelSuite) TestGetEntitlementWithValidValues() {
-	E1 := models.ServiceMemberGradeE1
+	E1 := models.ServiceMemberPayGradeE1
 
 	suite.Run("E1 with dependents", func() {
 		E1FullLoad := models.GetWeightAllotment(E1)

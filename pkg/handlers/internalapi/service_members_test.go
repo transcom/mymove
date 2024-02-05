@@ -222,7 +222,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		},
 	}, nil)
 
-	orderGrade := models.ServiceMemberGradeE5
+	orderGrade := models.ServiceMemberPayGradeE5
 	factory.BuildMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
