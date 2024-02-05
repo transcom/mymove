@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { arrayOf, bool } from 'prop-types';
 import { Alert, Button } from '@trussworks/react-uswds';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './Profile.module.scss';
 
@@ -37,6 +36,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
     email: currentBackupContacts[0]?.email || '',
   };
   const [needsToVerifyProfile, setNeedsToVerifyProfile] = useState(false);
+  const [profileValidated, setProfileValidated] = useState(false);
 
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -51,6 +51,10 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
 
   const handleCreateMoveClick = () => {
     navigate(customerRoutes.MOVE_HOME_PAGE);
+  };
+
+  const handleValidateProfileClick = () => {
+    setProfileValidated(true);
   };
 
   // displays the profile data for MilMove & Okta
@@ -69,14 +73,6 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
           )}
           <div className={styles.profileHeader}>
             <h1>Profile</h1>
-            {needsToVerifyProfile && (
-              <Button className={styles.createMoveBtn} onClick={handleCreateMoveClick} data-testid="createMoveBtn">
-                <span>Create a Move</span>
-                <div>
-                  <FontAwesomeIcon icon="plus" />
-                </div>
-              </Button>
-            )}
           </div>
           {showMessages && (
             <Alert headingLevel="h4" type="info">
@@ -85,7 +81,11 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
           )}
           {needsToVerifyProfile && (
             <Alert type="info" className={styles.verifyProfileAlert} data-testid="profileConfirmAlert">
-              <strong>Please verify & confirm your profile before starting the process of creating your move.</strong>
+              <strong>
+                Please confirm your profile information is accurate prior to starting a new move. When all information
+                is up to date, click the &quot;Validate Profile&quot; button at the bottom of the page and you may begin
+                your move.
+              </strong>
             </Alert>
           )}
           <SectionWrapper className={formStyles.formSection}>
@@ -126,6 +126,26 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               editURL={customerRoutes.EDIT_OKTA_PROFILE_PATH}
             />
           </SectionWrapper>
+          {needsToVerifyProfile && (
+            <SectionWrapper data-testid="validateProfileContainer" className={styles.validateProfileBtnContainer}>
+              <Button
+                onClick={handleValidateProfileClick}
+                className={styles.validateProfileBtn}
+                data-testid="validateProfileBtn"
+                disabled={profileValidated}
+              >
+                {profileValidated ? 'Profile Validated' : 'Validate Profile'}
+              </Button>
+              <Button
+                className={styles.createMoveBtn}
+                onClick={handleCreateMoveClick}
+                data-testid="createMoveBtn"
+                disabled={!profileValidated}
+              >
+                <span>Create a Move</span>
+              </Button>
+            </SectionWrapper>
+          )}
         </div>
       </div>
     </div>

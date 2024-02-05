@@ -110,24 +110,28 @@ const MultiMovesMoveContainer = ({ moves }) => {
             <div className={styles.moveInfoListExpanded}>
               <MultiMovesMoveInfoList move={m} />
               <h3 className={styles.shipmentH3}>Shipments</h3>
-              {m.mtoShipments.map((s, sIndex) => (
-                <React.Fragment key={sIndex}>
-                  <div className={styles.shipment}>
-                    <ShipmentContainer
-                      key={s.id}
-                      shipmentType={s.shipmentType}
-                      className={classnames(styles.previewShipment)}
-                    >
-                      <div className={styles.innerWrapper}>
-                        <div className={styles.shipmentTypeHeading}>
-                          <h4>{generateShipmentTypeTitle(s.shipmentType)}</h4>
-                          <h5>#{m.moveCode}</h5>
+              {m.mtoShipments && m.mtoShipments.length > 0 ? (
+                m.mtoShipments.map((s, sIndex) => (
+                  <React.Fragment key={sIndex}>
+                    <div className={styles.shipment}>
+                      <ShipmentContainer
+                        key={s.id}
+                        shipmentType={s.shipmentType}
+                        className={classnames(styles.previewShipment)}
+                      >
+                        <div className={styles.innerWrapper}>
+                          <div className={styles.shipmentTypeHeading}>
+                            <h4>{generateShipmentTypeTitle(s.shipmentType)}</h4>
+                            <h5>#{m.moveCode}</h5>
+                          </div>
                         </div>
-                      </div>
-                    </ShipmentContainer>
-                  </div>
-                </React.Fragment>
-              ))}
+                      </ShipmentContainer>
+                    </div>
+                  </React.Fragment>
+                ))
+              ) : (
+                <div className={styles.shipment}>No shipments in move yet.</div>
+              )}
             </div>
           )}
         </div>
