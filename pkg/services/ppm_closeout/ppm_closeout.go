@@ -2,22 +2,35 @@ package ppmcloseout
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/models"
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
+	serviceparamvaluelookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
 type ppmCloseoutFetcher struct {
 	planner              route.Planner
 	paymentRequestHelper paymentrequesthelper.Helper
+}
+
+type serviceItemPrices struct {
+	ddp                       *unit.Cents
+	dop                       *unit.Cents
+	packPrice                 *unit.Cents
+	unpackPrice               *unit.Cents
+	storageReimbursementCosts *unit.Cents
 }
 
 func NewPPMCloseoutFetcher(planner route.Planner, paymentRequestHelper paymentrequesthelper.Helper) services.PPMCloseoutFetcher {
@@ -36,6 +49,10 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 
 	actualWeight := p.GetActualWeight(*ppmShipment)
 	proGearWeightCustomer, proGearWeightSpouse := p.GetProGearWeights(*ppmShipment)
+	serviceItems, err := p.getServiceItemPrices(appCtx, *ppmShipment)
+	if err != nil {
+		return nil, err
+	}
 
 	ppmCloseoutObj.ID = &ppmShipmentID
 	ppmCloseoutObj.PlannedMoveDate = &ppmShipment.ExpectedDepartureDate
@@ -51,10 +68,10 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	ppmCloseoutObj.RemainingIncentive = nil
 	ppmCloseoutObj.HaulPrice = nil
 	ppmCloseoutObj.HaulFSC = nil
-	ppmCloseoutObj.DOP = nil
-	ppmCloseoutObj.DDP = nil
-	ppmCloseoutObj.PackPrice = nil
-	ppmCloseoutObj.UnpackPrice = nil
+	ppmCloseoutObj.DOP = serviceItems.dop
+	ppmCloseoutObj.DDP = serviceItems.ddp
+	ppmCloseoutObj.PackPrice = serviceItems.packPrice
+	ppmCloseoutObj.UnpackPrice = serviceItems.unpackPrice
 	ppmCloseoutObj.SITReimbursement = nil
 
 	return &ppmCloseoutObj, nil
@@ -188,4 +205,146 @@ func (p *ppmCloseoutFetcher) GetEntitlement(appCtx appcontext.AppContext, moveID
 		}
 	}
 	return &entitlement, nil
+}
+
+func paramsForServiceCode(code models.ReServiceCode, serviceParams models.ServiceParams) models.ServiceParams {
+	var serviceItemParams models.ServiceParams
+	for _, serviceParam := range serviceParams {
+		if serviceParam.Service.Code == code {
+			serviceItemParams = append(serviceItemParams, serviceParam)
+		}
+	}
+	return serviceItemParams
+}
+
+func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, ppmShipment models.PPMShipment) (serviceItemPrices, error) {
+	// Get all DLH, FSC, DOP, DDP, DPK, and DUPK service items for the shipment
+	var serviceItemsToPrice []models.MTOServiceItem
+	var returnPriceObj serviceItemPrices
+	logger := appCtx.Logger()
+	err := appCtx.DB().Where("mto_shipment_id = ?", ppmShipment.ShipmentID).All(&serviceItemsToPrice)
+	if err != nil {
+		return serviceItemPrices{}, err
+	}
+	serviceItemsToPrice = ppmshipment.BaseServiceItems(ppmShipment.ShipmentID)
+	contractDate := ppmShipment.ExpectedDepartureDate
+	contract, err := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
+	if err != nil {
+		return serviceItemPrices{}, err
+	}
+
+	paramsForServiceItems, paramErr := p.paymentRequestHelper.FetchServiceParamsForServiceItems(appCtx, serviceItemsToPrice)
+	if paramErr != nil {
+		return serviceItemPrices{}, paramErr
+	}
+	var totalPrice, packPrice, unpackPrice, destinationPrice, originPrice unit.Cents
+	var totalWeight unit.Pound
+	var ppmToMtoShipment models.MTOShipment
+
+	if len(ppmShipment.WeightTickets) >= 1 {
+		for _, weightTicket := range ppmShipment.WeightTickets {
+			if weightTicket.Status != nil && *weightTicket.Status == models.PPMDocumentStatusRejected {
+				totalWeight += 0
+			} else if weightTicket.AdjustedNetWeight != nil {
+				totalWeight += *weightTicket.AdjustedNetWeight
+			} else if weightTicket.FullWeight != nil && weightTicket.EmptyWeight != nil {
+				totalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+			}
+		}
+	}
+	if totalWeight > 0 {
+		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
+		ppmToMtoShipment = ppmshipment.MapPPMShipmentFinalFields(ppmShipment, *ppmShipment.EstimatedWeight)
+	} else {
+		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
+		ppmToMtoShipment = ppmshipment.MapPPMShipmentEstimatedFields(ppmShipment)
+	}
+
+	sitCosts, err := p.GetExpenseStoragePrice(appCtx, ppmShipment.ID)
+	if err != nil {
+		logger.Error("Error calculating SIT Reimbursement Costs", zap.Error(err))
+		return serviceItemPrices{}, err
+	}
+
+	for _, serviceItem := range serviceItemsToPrice {
+		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code)
+		if err != nil {
+			logger.Error("unable to find pricer for service item", zap.Error(err))
+			return serviceItemPrices{}, err
+		}
+
+		// For the non-accessorial service items there isn't any initialization that is going to change between lookups
+		// for the same param. However, this is how the payment request does things and we'd want to know if it breaks
+		// rather than optimizing I think.
+		serviceItemLookups := serviceparamvaluelookups.InitializeLookups(ppmToMtoShipment, serviceItem)
+
+		// This is the struct that gets passed to every param lookup() method that was initialized above
+		keyData := serviceparamvaluelookups.NewServiceItemParamKeyData(p.planner, serviceItemLookups, serviceItem, ppmToMtoShipment, contract.Code)
+
+		// The distance value gets saved to the mto shipment model to reduce repeated api calls.
+		var shipmentWithDistance models.MTOShipment
+		err = appCtx.DB().Find(&shipmentWithDistance, ppmShipment.Shipment.ID)
+		if err != nil {
+			logger.Error("could not find shipment in the database")
+			return serviceItemPrices{}, err
+		}
+		serviceItem.MTOShipment = shipmentWithDistance
+		// set this to avoid potential eTag errors because the MTOShipment.Distance field was likely updated
+		ppmShipment.Shipment = shipmentWithDistance
+
+		var paramValues models.PaymentServiceItemParams
+		for _, param := range paramsForServiceCode(serviceItem.ReService.Code, paramsForServiceItems) {
+			paramKey := param.ServiceItemParamKey
+			// This is where the lookup() method of each service item param is actually evaluated
+			paramValue, serviceParamErr := keyData.ServiceParamValue(appCtx, paramKey.Key) // Fails with "DistanceZip" param?
+			if serviceParamErr != nil {
+				logger.Error("could not calculate param value lookup", zap.Error(serviceParamErr))
+				return serviceItemPrices{}, serviceParamErr
+			}
+
+			// Gather all the param values for the service item to pass to the pricer's Price() method
+			paymentServiceItemParam := models.PaymentServiceItemParam{
+				// Some pricers like Fuel Surcharge try to requery the shipment through the service item, this is a
+				// workaround to avoid a not found error because our PPM shipment has no service items saved in the db.
+				// I think the FSC service item should really be relying on one of the zip distance params.
+				PaymentServiceItem: models.PaymentServiceItem{
+					MTOServiceItem: serviceItem,
+				},
+				ServiceItemParamKey: paramKey,
+				Value:               paramValue,
+			}
+			paramValues = append(paramValues, paymentServiceItemParam)
+		}
+
+		if len(paramValues) == 0 {
+			return serviceItemPrices{}, fmt.Errorf("no params were found for service item %s", serviceItem.ReService.Code)
+		}
+
+		// Middle var here can give you info on payment params like FSC multiplier, price rate/factor, etc. if needed.
+		centsValue, _, err := pricer.PriceUsingParams(appCtx, paramValues)
+		if err != nil {
+			return serviceItemPrices{}, err
+		}
+
+		totalPrice = totalPrice.AddCents(centsValue)
+
+		switch serviceItem.ReService.Code {
+		case "DPK":
+			packPrice += centsValue
+		case "DUPK":
+			unpackPrice += centsValue
+		case "DOP":
+			originPrice += centsValue
+		case "DDP":
+			destinationPrice += centsValue
+			// TODO: Others (Konstance?) can put cases h
+		}
+	}
+	returnPriceObj.ddp = &destinationPrice
+	returnPriceObj.dop = &originPrice
+	returnPriceObj.packPrice = &packPrice
+	returnPriceObj.unpackPrice = &unpackPrice
+	returnPriceObj.storageReimbursementCosts = &sitCosts
+
+	return returnPriceObj, nil
 }
