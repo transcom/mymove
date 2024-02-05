@@ -39,16 +39,15 @@ const estimatedIncentivePath = generatePath(customerRoutes.SHIPMENT_PPM_ESTIMATE
 
 const mockOrders = {
   has_dependents: false,
+  authorizedWeight: 5000,
+  entitlement: {
+    proGear: 2000,
+    proGearSpouse: 500,
+  },
 };
 
 const mockServiceMember = {
   id: uuidv4(),
-  weight_allotment: {
-    total_weight_self: 5000,
-    total_weight_self_plus_dependents: 8000,
-    pro_gear_weight: 2000,
-    pro_gear_weight_spouse: 500,
-  },
 };
 
 const mockMTOShipment = {

@@ -75,7 +75,7 @@ func makeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	}
 	hasDependents := assertions.Order.HasDependents || false
 	spouseHasProGear := assertions.Order.SpouseHasProGear || false
-	grade := "E_1"
+	grade := models.ServiceMemberPayGradeE1
 
 	entitlement := assertions.Entitlement
 	if isZeroUUID(entitlement.ID) {

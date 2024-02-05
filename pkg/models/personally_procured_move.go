@@ -134,7 +134,7 @@ func (p *PersonallyProcuredMove) Cancel() error {
 // FetchPersonallyProcuredMove Fetches and Validates a PPM model
 func FetchPersonallyProcuredMove(db *pop.Connection, _ *auth.Session, id uuid.UUID) (*PersonallyProcuredMove, error) {
 	var ppm PersonallyProcuredMove
-	err := db.Q().Eager("Move.Orders.ServiceMember.DutyLocation.Address", "Move.Orders.NewDutyLocation.Address", "Advance").Find(&ppm, id)
+	err := db.Q().Eager("Move.Orders.OriginDutyLocation.Address", "Move.Orders.NewDutyLocation.Address", "Advance").Find(&ppm, id)
 	if err != nil {
 		// Otherwise, it's an unexpected err so we return that.
 		return nil, err
