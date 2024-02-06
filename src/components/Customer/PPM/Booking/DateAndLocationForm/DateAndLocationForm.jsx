@@ -148,7 +148,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
         };
         return (
           <div className={ppmStyles.formContainer}>
-            <Form className={(formStyles.form, ppmStyles.form)}>
+            <Form className={formStyles.form}>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection, 'origin')}>
                 <h2>Origin</h2>
                 <AddressFields
