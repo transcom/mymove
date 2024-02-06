@@ -60,7 +60,6 @@ import {
   MTO_SHIPMENT,
   DOCUMENTS,
   PRIME_SIMULATOR_AVAILABLE_MOVES,
-  PPMCLOSEOUT,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -252,7 +251,7 @@ export const usePPMShipmentDocsQueries = (shipmentId) => {
 
   const ppmShipmentId = mtoShipment?.ppmShipment.id;
   const { data: ppmCloseout = {}, ...ppmCloseoutQuery } = useQuery(
-    [PPMCLOSEOUT, ppmShipmentId],
+    [MOVES, ppmShipmentId],
     ({ queryKey }) => getPPMCloseout(...queryKey),
     {
       enabled: !!ppmShipmentId,
