@@ -21,7 +21,6 @@ import ReviewExpense from 'components/Office/PPM/ReviewExpense/ReviewExpense';
 import { DOCUMENTS } from 'constants/queryKeys';
 import ReviewProGear from 'components/Office/PPM/ReviewProGear/ReviewProGear';
 import { roleTypes } from 'constants/userRoles';
-import { getPPMCloseout } from 'services/ghcApi';
 
 // TODO: This should be in src/constants/ppms.js, but it's causing a lot of errors in unrelated tests, so I'll leave
 //  this here for now.
@@ -34,9 +33,7 @@ const DOCUMENT_TYPES = {
 export const ReviewDocuments = () => {
   const { shipmentId, moveCode } = useParams();
   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
-
-  const { mtoShipment, documents, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
-  const ppmCloseout = getPPMCloseout(mtoShipment?.ppmShipment);
+  const { mtoShipment, documents, ppmCloseout, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
   const order = Object.values(orders)?.[0];
   const [currentTotalWeight, setCurrentTotalWeight] = useState(0);
