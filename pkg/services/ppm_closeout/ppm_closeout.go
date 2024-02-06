@@ -53,6 +53,11 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 
 	proGearWeightCustomer, proGearWeightSpouse := p.GetProGearWeights(*ppmShipment)
 
+	serviceItems, err := p.getServiceItemPrices(appCtx, *ppmShipment)
+	if err != nil {
+		return nil, err
+	}
+
 	var remainingIncentive unit.Cents
 	if *ppmShipment.HasRequestedAdvance {
 		remainingIncentive = unit.Cents(ppmShipment.FinalIncentive.Int() - ppmShipment.AdvanceAmountReceived.Int())
@@ -60,10 +65,8 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		remainingIncentive = *ppmShipment.FinalIncentive
 	}
 
-	serviceItems, err := p.getServiceItemPrices(appCtx, *ppmShipment)
-	if err != nil {
-		return nil, err
-	}
+	fullEntitlementWeight, _ := p.GetEntitlement(appCtx, ppmShipment.Shipment.MoveTaskOrderID)
+	gcc, _ := p.calculateGCC(appCtx, *ppmShipment, unit.Pound(*fullEntitlementWeight.DBAuthorizedWeight))
 
 	ppmCloseoutObj.ID = &ppmShipmentID
 	ppmCloseoutObj.PlannedMoveDate = &ppmShipment.ExpectedDepartureDate
@@ -74,7 +77,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	ppmCloseoutObj.ProGearWeightCustomer = &proGearWeightCustomer
 	ppmCloseoutObj.ProGearWeightSpouse = &proGearWeightSpouse
 	ppmCloseoutObj.GrossIncentive = ppmShipment.FinalIncentive
-	ppmCloseoutObj.GCC = nil
+	ppmCloseoutObj.GCC = &gcc
 	ppmCloseoutObj.AOA = ppmShipment.AdvanceAmountReceived
 	ppmCloseoutObj.RemainingIncentive = &remainingIncentive
 	ppmCloseoutObj.HaulPrice = serviceItems.haulPrice
@@ -86,6 +89,29 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	ppmCloseoutObj.SITReimbursement = serviceItems.storageReimbursementCosts
 
 	return &ppmCloseoutObj, nil
+}
+
+/*
+* returns calculated gcc
+ */
+func (p *ppmCloseoutFetcher) calculateGCC(appCtx appcontext.AppContext, ppmShipment models.PPMShipment, fullEntitlementWeight unit.Pound) (unit.Cents, error) {
+	if ppmShipment.Shipment.SITDaysAllowance != nil && ppmShipment.SITLocation != nil &&
+		ppmShipment.SITEstimatedEntryDate != nil &&
+		ppmShipment.SITEstimatedDepartureDate != nil {
+
+		contractDate := ppmShipment.ExpectedDepartureDate
+		contract, errFetch := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
+		if errFetch != nil {
+			return unit.Cents(0), errFetch
+		}
+
+		fullEntitlementPPM := ppmShipment
+		fullEntitlementPPM.SITEstimatedWeight = &fullEntitlementWeight
+
+		gcc, err := ppmshipment.CalculateSITCost(appCtx, &fullEntitlementPPM, contract)
+		return *gcc, err
+	}
+	return unit.Cents(0), nil
 }
 
 /*
@@ -375,9 +401,8 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 			destinationPrice += centsValue
 		case models.ReServiceCodeDSH, models.ReServiceCodeDLH:
 			haulPrice += centsValue
-		case models.ReServiceCodeFSC, models.ReServiceCodeDDSFSC, models.ReServiceCodeDOSFSC:
+		case models.ReServiceCodeFSC:
 			haulFSC += centsValue
-
 		}
 	}
 	returnPriceObj.ddp = &destinationPrice
