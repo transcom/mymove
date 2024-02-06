@@ -15,20 +15,24 @@ const ImportantShipmentDates = ({
   requestedDeliveryDate,
   scheduledDeliveryDate,
   actualDeliveryDate,
+  isPPM,
 }) => {
   const emDash = '\u2014';
   return (
     <div className={classnames('maxw-tablet', styles.shipmentDatesContainer)}>
       <DataTableWrapper className="table--data-point-group">
-        <DataTable columnHeaders={['Required Delivery Date']} dataRow={[requiredDeliveryDate || emDash]} />
+        {!isPPM && <DataTable columnHeaders={['Required Delivery Date']} dataRow={[requiredDeliveryDate || emDash]} />};
         <DataTable
           columnHeaders={['Requested pick up date', 'Scheduled pick up date', 'Actual pick up date']}
           dataRow={[requestedPickupDate || emDash, scheduledPickupDate || emDash, actualPickupDate || emDash]}
         />
-        <DataTable
-          columnHeaders={['Requested delivery date', 'Scheduled delivery date', 'Actual delivery date']}
-          dataRow={[requestedDeliveryDate || emDash, scheduledDeliveryDate || emDash, actualDeliveryDate || emDash]}
-        />
+        {!isPPM && (
+          <DataTable
+            columnHeaders={['Requested delivery date', 'Scheduled delivery date', 'Actual delivery date']}
+            dataRow={[requestedDeliveryDate || emDash, scheduledDeliveryDate || emDash, actualDeliveryDate || emDash]}
+          />
+        )}
+        ;
       </DataTableWrapper>
     </div>
   );
@@ -42,6 +46,7 @@ ImportantShipmentDates.defaultProps = {
   requestedDeliveryDate: '',
   scheduledDeliveryDate: '',
   actualDeliveryDate: '',
+  isPPM: false,
 };
 
 ImportantShipmentDates.propTypes = {
@@ -52,6 +57,7 @@ ImportantShipmentDates.propTypes = {
   requestedDeliveryDate: PropTypes.string,
   scheduledDeliveryDate: PropTypes.string,
   actualDeliveryDate: PropTypes.string,
+  isPPM: PropTypes.bool,
 };
 
 export default ImportantShipmentDates;
