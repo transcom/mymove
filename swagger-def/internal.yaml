@@ -1327,7 +1327,7 @@ definitions:
   OrderPayGrade:
     type: string
     x-nullable: true
-    title: Rank
+    title: Pay grade
     enum:
       - E_1
       - E_2
