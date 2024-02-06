@@ -16,6 +16,8 @@ export const findNextServiceMemberStep = (profileState) => {
       return customerRoutes.BACKUP_ADDRESS_PATH;
     case profileStates.BACKUP_ADDRESS_COMPLETE:
       return customerRoutes.BACKUP_CONTACTS_PATH;
+    case profileStates.BACKUP_CONTACTS_COMPLETE:
+      return customerRoutes.MOVE_HOME_PAGE;
     default:
       return generalRoutes.HOME_PATH;
   }
