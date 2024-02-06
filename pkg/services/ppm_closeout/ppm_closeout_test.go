@@ -412,21 +412,29 @@ func (suite *PPMCloseoutSuite) mockPPMShipmentForCloseoutTest() models.PPMShipme
 		},
 	}
 
+	sitDaysAllowance := 20
+	sitLocation := models.SITLocationTypeOrigin
+	date := time.Now()
+
 	ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.AppContextForTest().DB(), nil, []factory.Customization{
 		{
 			Model: models.MTOShipment{
-				Distance: &miles,
+				Distance:         &miles,
+				SITDaysAllowance: &sitDaysAllowance,
 			},
 		},
 		{
 			Model: models.PPMShipment{
-				ID:                    ppmID,
-				ExpectedDepartureDate: *expectedDepartureDate,
-				ActualMoveDate:        &actualMoveDate,
-				EstimatedWeight:       &estWeight,
-				WeightTickets:         weightTickets,
-				ProgearWeightTickets:  progearWeightTickets,
-				FinalIncentive:        &finalIncentive,
+				ID:                        ppmID,
+				ExpectedDepartureDate:     *expectedDepartureDate,
+				ActualMoveDate:            &actualMoveDate,
+				EstimatedWeight:           &estWeight,
+				WeightTickets:             weightTickets,
+				ProgearWeightTickets:      progearWeightTickets,
+				FinalIncentive:            &finalIncentive,
+				SITLocation:               &sitLocation,
+				SITEstimatedEntryDate:     &date,
+				SITEstimatedDepartureDate: &date,
 			},
 		},
 	})
