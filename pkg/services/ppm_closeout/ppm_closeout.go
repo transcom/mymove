@@ -316,8 +316,8 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 
 	// If service item is of a type we need for a specific calculation, get its price
 	for _, serviceItem := range serviceItemsToPrice {
-		_, found := validCodes[serviceItem.ReService.Code]
-		if !found {
+		_, isValidCode := validCodes[serviceItem.ReService.Code]
+		if !isValidCode {
 			continue
 		} // Next iteration of loop if we don't need this service type
 
