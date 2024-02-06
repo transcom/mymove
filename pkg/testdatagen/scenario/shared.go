@@ -12074,19 +12074,161 @@ func createRandomMove(
 func createMultipleMovesTwoMovesHHGAndPPMShipments(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
 	filterFile := &[]string{"150Kb.png"}
-	serviceMember := makeServiceMember(appCtx)
+
+	userID := uuid.Must(uuid.NewV4())
+	oktaID := uuid.Must(uuid.NewV4())
+	email := "multiplemoves_bobbysmith@example.com"
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				ID:        userID,
+				OktaID:    oktaID.String(),
+				OktaEmail: email,
+				Active:    true,
+			}},
+	}, nil)
+
+	affiliation := models.AffiliationARMY
+
+	serviceMember := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation:   &affiliation,
+				FirstName:     models.StringPointer("Bobby"),
+				LastName:      models.StringPointer("Smith"),
+				Edipi:         models.StringPointer("8362534853"),
+				PersonalEmail: models.StringPointer(email),
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
 
 	// Move A
 	// Status: MoveStatusNeedsServiceCounseling
 	// One HHG shipment
-	ordersA := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
-	moveA := makeMoveForOrders(appCtx, ordersA, "MMOVEA", models.MoveStatusNeedsServiceCounseling)
-	moveA.CreatedAt = time.Now()
+	//ordersA := makeOrdersForServiceMember(appCtx, serviceMember, userUploader, filterFile)
+	pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	hhgPermitted := internalmessages.OrdersTypeDetailHHGPERMITTED
+	ordersNumber := "8675309"
+	departmentIndicator := "ARMY"
+	tac := "E19A"
+
+	// originDutyLocation := models.DutyLocation{
+	// 	Name: "Custom Origin",
+	// }
+	// address := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+	// 	{
+	// 		Model: models.Address{
+	// 			StreetAddress1: "2 Second St",
+	// 			StreetAddress2: models.StringPointer("Apt 2"),
+	// 			StreetAddress3: models.StringPointer("Suite B"),
+	// 			City:           "Columbia",
+	// 			State:          "SC",
+	// 			PostalCode:     "29212",
+	// 			Country:        models.StringPointer("US"),
+	// 		},
+	// 	},
+	// }, nil)
+
+	// originDutyLocation := factory.BuildDutyLocation(appCtx.DB(), []factory.Customization{
+	// 	{
+	// 		Model:    address,
+	// 		LinkOnly: true,
+	// 	},
+	// }, nil)
+	originDutyLocationTOName := "origin duty location transportation office"
+
+	ordersA := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model:    serviceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
+
+			// Model: models.DutyLocation {
+			// 	Model: models.Address{
+			// 		StreetAddress1: "2 Second St",
+			// 		StreetAddress2: models.StringPointer("Apt 2"),
+			// 		StreetAddress3: models.StringPointer("Suite B"),
+			// 		City:           "Columbia",
+			// 		State:          "SC",
+			// 		PostalCode:     "29212",
+			// 		Country:        models.StringPointer("US"),
+			// 	},
+			// } ,
+			// Type:  &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.TransportationOffice{
+				Name: originDutyLocationTOName,
+			},
+			Type: &factory.TransportationOffices.OriginDutyLocation,
+		},
+		//},
+		{
+			Model: models.Order{
+				OrdersType:          pcos,
+				OrdersTypeDetail:    &hhgPermitted,
+				OrdersNumber:        &ordersNumber,
+				DepartmentIndicator: &departmentIndicator,
+				TAC:                 &tac,
+			},
+		},
+	}, nil)
+
+	//moveA := makeMoveForOrders(appCtx, ordersA, "MMOVEA", models.MoveStatusNeedsServiceCounseling)
+	// moveA.CreatedAt = time.Now()
+
+	moveAOriginDutyLocation := factory.BuildDutyLocation(db, []factory.Customization{
+		{
+			Model: models.Address{PostalCode: "40356"}, // 89523 = LKNQ
+		},
+	}, nil)
+
+	var moveADetails models.Move
+	moveADetails.Status = models.MoveStatusAPPROVED
+	moveADetails.AvailableToPrimeAt = models.TimePointer(time.Now())
+	moveADetails.Locator = "MMOVEA"
+	moveA := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: moveADetails,
+		},
+		{
+			Model:    ordersA,
+			LinkOnly: true,
+		},
+		{
+			Model:    moveAOriginDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
 
 	// HHG shipment
 	requestedPickupDateMoveA := moveA.CreatedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDateMoveA := requestedPickupDateMoveA.Add(7 * 24 * time.Hour)
-	destinationAddressMoveA := factory.BuildAddress(db, nil, nil)
+	destinationAddressMoveA := factory.BuildAddress(db, []factory.Customization{
+		{
+			Model: models.Address{
+				PostalCode: "89523", // LKNQ
+			},
+		},
+	}, nil)
+	// pickupAddressMoveA := factory.BuildAddress(db, []factory.Customization{
+	// 	{
+	// 		Model: models.Address{
+	// 			PostalCode: "89523", // LKNQ
+	// 		},
+	// 	},
+	// }, nil)
 	factory.BuildMTOShipment(db, []factory.Customization{
 		{
 			Model:    moveA,
@@ -12101,8 +12243,10 @@ func createMultipleMovesTwoMovesHHGAndPPMShipments(appCtx appcontext.AppContext,
 			},
 		},
 		{
-			Model:    destinationAddressMoveA,
-			Type:     &factory.Addresses.DeliveryAddress,
+			Model: destinationAddressMoveA, // this sets the shipment to LKNQ
+			Type:  &factory.Addresses.DeliveryAddress,
+			// Model: 	  pickupAddressMoveA,
+			// Type:     &factory.Addresses.PickupAddress,
 			LinkOnly: true,
 		},
 	}, nil)
