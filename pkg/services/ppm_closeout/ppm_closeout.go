@@ -304,28 +304,20 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 		return serviceItemPrices{}, err
 	}
 
-	validCodes := []models.ReServiceCode{
-		models.ReServiceCodeDPK,
-		models.ReServiceCodeDUPK,
-		models.ReServiceCodeDOP,
-		models.ReServiceCodeDDP,
-		models.ReServiceCodeDSH,
-		models.ReServiceCodeDLH,
-		models.ReServiceCodeFSC}
-
-	// If service item is of a type we need for a specific calculation, return true
-	isValidCode := func(search models.ReServiceCode) bool {
-		for _, value := range validCodes {
-			if value == search {
-				return true
-			}
-		}
-		return false
+	validCodes := map[models.ReServiceCode]string{
+		models.ReServiceCodeDPK:  "DPK",
+		models.ReServiceCodeDUPK: "DUPK",
+		models.ReServiceCodeDOP:  "DOP",
+		models.ReServiceCodeDDP:  "DDP",
+		models.ReServiceCodeDSH:  "DSH",
+		models.ReServiceCodeDLH:  "DLH",
+		models.ReServiceCodeFSC:  "FSC",
 	}
 
 	// If service item is of a type we need for a specific calculation, get its price
 	for _, serviceItem := range serviceItemsToPrice {
-		if !isValidCode(serviceItem.ReService.Code) {
+		_, found := validCodes[serviceItem.ReService.Code]
+		if !found {
 			continue
 		} // Next iteration of loop if we don't need this service type
 
