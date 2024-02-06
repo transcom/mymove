@@ -74,9 +74,6 @@ func Customer(customer *models.ServiceMember) *supportmessages.Customer {
 		UserID:         strfmt.UUID(customer.UserID.String()),
 		ETag:           etag.GenerateEtag(customer.UpdatedAt),
 	}
-	if customer.Rank != nil {
-		payload.Rank = supportmessages.NewRank(supportmessages.Rank(*customer.Rank))
-	}
 	return &payload
 }
 
@@ -89,7 +86,7 @@ func Order(order *models.Order) *supportmessages.Order {
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	uploadedOrders := Document(&order.UploadedOrders)
 	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(*order.Grade)
+		order.Entitlement.SetWeightAllotment(string(*order.Grade))
 	}
 
 	reportByDate := strfmt.Date(order.ReportByDate)
@@ -113,8 +110,8 @@ func Order(order *models.Order) *supportmessages.Order {
 	}
 
 	if order.Grade != nil {
-		rank := (supportmessages.Rank)(*order.Grade)
-		payload.Rank = &rank
+		grade := (supportmessages.Rank)(*order.Grade)
+		payload.Rank = &grade // Convert support API "Rank" into our internal tracking of "Grade"
 	}
 	if order.OriginDutyLocationID != nil {
 		payload.OriginDutyLocationID = handlers.FmtUUID(*order.OriginDutyLocationID)

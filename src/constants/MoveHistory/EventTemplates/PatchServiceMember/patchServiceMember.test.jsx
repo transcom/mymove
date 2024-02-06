@@ -6,7 +6,6 @@ import patchServiceMember from 'constants/MoveHistory/EventTemplates/PatchServic
 const PROFILE = {
   branch: {
     affiliation: 'AIR_FORCE',
-    rank: 'E_4',
     edipi: '123456789',
   },
   name: { first_name: 'Leslie', last_name: 'Knope', middle_name: 'Barbara' },
@@ -36,10 +35,7 @@ describe('When a service members updates their profile', () => {
     expect(result).toMatchObject(patchServiceMember);
   });
   describe('it correctly renders the details component for the branch form', () => {
-    it.each([
-      ['Branch', ': Air Force'],
-      ['Rank', ': E-4'],
-    ])('displays the correct details value for %s', async (label, value) => {
+    it.each([['Branch', ': Air Force']])('displays the correct details value for %s', async (label, value) => {
       const historyRecord = { changedValues: PROFILE.branch };
       const result = getTemplate(template);
       render(result.getDetails(historyRecord));
@@ -74,15 +70,5 @@ describe('When a service members updates their profile', () => {
       expect(screen.getByText(label)).toBeInTheDocument();
       expect(screen.getByText(value)).toBeInTheDocument();
     });
-  });
-  describe('it correctly renders the details component for duty location', () => {
-    const historyRecord = {
-      changedValues: { duty_location_id: '2222' },
-      context: [{ current_duty_location_name: 'Fort Hood' }],
-    };
-    const result = getTemplate(template);
-    render(result.getDetails(historyRecord));
-    expect(screen.getByText('Current duty location name')).toBeInTheDocument();
-    expect(screen.getByText(': Fort Hood')).toBeInTheDocument();
   });
 });
