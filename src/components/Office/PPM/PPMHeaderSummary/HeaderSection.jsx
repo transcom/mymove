@@ -67,7 +67,7 @@ const getSectionMarkup = (sectionInfo) => {
           </div>
           <div>
             <Label>Actual Net Weight</Label>
-            <span className={styles.light}>{formatWeight(sectionInfo.actualWeight) ?? `TEST VAL`}</span>
+            <span className={styles.light}>{formatWeight(sectionInfo.actualWeight)}</span>
           </div>
         </div>
       );
