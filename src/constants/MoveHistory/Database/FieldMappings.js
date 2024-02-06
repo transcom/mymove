@@ -59,6 +59,7 @@ export default {
   sit_postal_code: 'SIT postal code',
   sit_destination_address_final: 'Final SIT delivery address',
   sit_destination_address_initial: 'Initial SIT delivery address',
+  sit_requested_delivery: 'Requested SIT delivery date ',
   contractor_remarks: 'Contractor remarks',
   office_remarks: 'Office remarks',
   item_size: 'Item size',
