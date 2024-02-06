@@ -15,6 +15,7 @@ export default function PPMHeaderSummary({ ppmCloseout, ppmNumber, showAllFields
     actualDestinationPostalCode: ppmCloseout.actualDestinationPostalCode,
     miles: ppmCloseout.miles,
     estimatedWeight: ppmCloseout.estimatedWeight,
+    actualWeight: ppmCloseout.actualWeight,
     advanceRequested: ppmCloseout.advanceRequested,
     advanceReceived: ppmCloseout.advanceReceived,
     aoa: ppmCloseout.aoa,

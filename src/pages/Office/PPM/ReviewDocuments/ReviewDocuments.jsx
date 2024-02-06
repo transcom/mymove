@@ -45,7 +45,7 @@ export const ReviewDocuments = () => {
   const weightTickets = documents?.WeightTickets ?? [];
   const proGearWeightTickets = documents?.ProGearWeightTickets ?? [];
   const movingExpenses = documents?.MovingExpenses ?? [];
-
+  ppmCloseout.fullWeight = currentTotalWeight;
   const updateTotalWeight = (newWeight) => {
     setCurrentTotalWeight(newWeight);
   };
