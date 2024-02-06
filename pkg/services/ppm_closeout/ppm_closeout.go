@@ -31,6 +31,8 @@ type serviceItemPrices struct {
 	packPrice                 *unit.Cents
 	unpackPrice               *unit.Cents
 	storageReimbursementCosts *unit.Cents
+	haulPrice                 *unit.Cents
+	haulFSC                   *unit.Cents
 }
 
 func NewPPMCloseoutFetcher(planner route.Planner, paymentRequestHelper paymentrequesthelper.Helper) services.PPMCloseoutFetcher {
@@ -51,6 +53,13 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 
 	proGearWeightCustomer, proGearWeightSpouse := p.GetProGearWeights(*ppmShipment)
 
+	var remainingIncentive unit.Cents
+	if *ppmShipment.HasRequestedAdvance {
+		remainingIncentive = unit.Cents(ppmShipment.FinalIncentive.Int() - ppmShipment.AdvanceAmountReceived.Int())
+	} else {
+		remainingIncentive = *ppmShipment.FinalIncentive
+	}
+
 	serviceItems, err := p.getServiceItemPrices(appCtx, *ppmShipment)
 	if err != nil {
 		return nil, err
@@ -67,9 +76,9 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	ppmCloseoutObj.GrossIncentive = ppmShipment.FinalIncentive
 	ppmCloseoutObj.GCC = nil
 	ppmCloseoutObj.AOA = ppmShipment.AdvanceAmountReceived
-	ppmCloseoutObj.RemainingIncentive = nil
-	ppmCloseoutObj.HaulPrice = nil
-	ppmCloseoutObj.HaulFSC = nil
+	ppmCloseoutObj.RemainingIncentive = &remainingIncentive
+	ppmCloseoutObj.HaulPrice = serviceItems.haulPrice
+	ppmCloseoutObj.HaulFSC = serviceItems.haulFSC
 	ppmCloseoutObj.DOP = serviceItems.dop
 	ppmCloseoutObj.DDP = serviceItems.ddp
 	ppmCloseoutObj.PackPrice = serviceItems.packPrice
@@ -239,7 +248,7 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 	if paramErr != nil {
 		return serviceItemPrices{}, paramErr
 	}
-	var totalPrice, packPrice, unpackPrice, destinationPrice, originPrice unit.Cents
+	var totalPrice, packPrice, unpackPrice, destinationPrice, originPrice, haulPrice, haulFSC unit.Cents
 	var totalWeight unit.Pound
 	var ppmToMtoShipment models.MTOShipment
 
@@ -273,7 +282,10 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 		models.ReServiceCodeDPK,
 		models.ReServiceCodeDUPK,
 		models.ReServiceCodeDOP,
-		models.ReServiceCodeDDP}
+		models.ReServiceCodeDDP,
+		models.ReServiceCodeDSH,
+		models.ReServiceCodeDLH,
+		models.ReServiceCodeFSC}
 
 	// If service item is of a type we need for a specific calculation, return true
 	isValidCode := func(search models.ReServiceCode) bool {
@@ -361,6 +373,11 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 			originPrice += centsValue
 		case models.ReServiceCodeDDP:
 			destinationPrice += centsValue
+		case models.ReServiceCodeDSH, models.ReServiceCodeDLH:
+			haulPrice += centsValue
+		case models.ReServiceCodeFSC, models.ReServiceCodeDDSFSC, models.ReServiceCodeDOSFSC:
+			haulFSC += centsValue
+
 		}
 	}
 	returnPriceObj.ddp = &destinationPrice
@@ -368,6 +385,8 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 	returnPriceObj.packPrice = &packPrice
 	returnPriceObj.unpackPrice = &unpackPrice
 	returnPriceObj.storageReimbursementCosts = &sitCosts
+	returnPriceObj.haulPrice = &haulPrice
+	returnPriceObj.haulFSC = &haulFSC
 
 	return returnPriceObj, nil
 }
