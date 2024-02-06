@@ -1049,7 +1049,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
       "post": {
-        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\nThis does not change addresses on SIT service items.\nAddress updates will be automatically approved unless they change:\n  - the service area\n  - Mileage bracket for direct delivery\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\nIf automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
         "consumes": [
           "application/json"
         ],
@@ -1059,8 +1059,8 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "createNonSITAddressUpdateRequest",
-        "operationId": "createNonSITAddressUpdateRequest",
+        "summary": "updateShipmentDestinationAddress",
+        "operationId": "updateShipmentDestinationAddress",
         "parameters": [
           {
             "type": "string",
@@ -1075,7 +1075,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/CreateNonSITAddressUpdateRequest"
+              "$ref": "#/definitions/UpdateShipmentDestinationAddress"
             }
           },
           {
@@ -1314,7 +1314,7 @@ func init() {
     },
     "/payment-requests": {
       "post": {
-        "description": "Creates a new instance of a paymentRequest and is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items, the shipment *must*\nbe updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n\n**FSC - Fuel Surcharge** service items require ` + "`" + `ActualPickupDate` + "`" + ` to be updated on the shipment.\n\nA service item can be on several payment requests in the case of partial payment requests and payments.\n\nIn the request, if no params are necessary, then just the ` + "`" + `serviceItem` + "`" + ` ` + "`" + `id` + "`" + ` is required. For example:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"isFinal\": false,\n  \"moveTaskOrderID\": \"uuid\",\n  \"serviceItems\": [\n    {\n      \"id\": \"uuid\",\n    },\n    {\n      \"id\": \"uuid\",\n      \"params\": [\n        {\n          \"key\": \"Service Item Parameter Name\",\n          \"value\": \"Service Item Parameter Value\"\n        }\n      ]\n    }\n  ],\n  \"pointOfContact\": \"string\"\n}\n` + "`" + `` + "`" + `` + "`" + `\n\nSIT Service Items \u0026 Accepted Payment Request Parameters:\n---\nIf ` + "`" + `WeightBilled` + "`" + ` is not provided then the full shipment weight (` + "`" + `PrimeActualWeight` + "`" + `) will be considered in the calculation.\n\n**DOFSIT - Domestic origin 1st day SIT**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOASIT - Domestic origin add'l SIT** *(SITPaymentRequestStart \u0026 SITPaymentRequestEnd are **REQUIRED**)*\n*To create a paymentRequest for this service item, the ` + "`" + `SITPaymentRequestStart` + "`" + ` and ` + "`" + `SITPaymentRequestEnd` + "`" + ` dates must not overlap previously requested SIT dates.*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    },\n    {\n      \"key\": \"SITPaymentRequestStart\",\n      \"value\": \"date\"\n    },\n    {\n      \"key\": \"SITPaymentRequestEnd\",\n      \"value\": \"date\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOPSIT - Domestic origin SIT pickup**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOSHUT - Domestic origin shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDFSIT - Domestic destination 1st day SIT**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDASIT - Domestic destination add'l SIT** *(SITPaymentRequestStart \u0026 SITPaymentRequestEnd are **REQUIRED**)*\n*To create a paymentRequest for this service item, the ` + "`" + `SITPaymentRequestStart` + "`" + ` and ` + "`" + `SITPaymentRequestEnd` + "`" + ` dates must not overlap previously requested SIT dates.*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    },\n    {\n      \"key\": \"SITPaymentRequestStart\",\n      \"value\": \"date\"\n    },\n    {\n      \"key\": \"SITPaymentRequestEnd\",\n      \"value\": \"date\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDDSIT - Domestic destination SIT delivery**\n*To create a paymentRequest for this service item, it must first have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDSHUT - Domestic destination shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n---\n",
+        "description": "Creates a new instance of a paymentRequest and is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items, the shipment *must*\nbe updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n\n**FSC - Fuel Surcharge** service items require ` + "`" + `ActualPickupDate` + "`" + ` to be updated on the shipment.\n\nA service item can be on several payment requests in the case of partial payment requests and payments.\n\nIn the request, if no params are necessary, then just the ` + "`" + `serviceItem` + "`" + ` ` + "`" + `id` + "`" + ` is required. For example:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"isFinal\": false,\n  \"moveTaskOrderID\": \"uuid\",\n  \"serviceItems\": [\n    {\n      \"id\": \"uuid\",\n    },\n    {\n      \"id\": \"uuid\",\n      \"params\": [\n        {\n          \"key\": \"Service Item Parameter Name\",\n          \"value\": \"Service Item Parameter Value\"\n        }\n      ]\n    }\n  ],\n  \"pointOfContact\": \"string\"\n}\n` + "`" + `` + "`" + `` + "`" + `\n\nSIT Service Items \u0026 Accepted Payment Request Parameters:\n---\nIf ` + "`" + `WeightBilled` + "`" + ` is not provided then the full shipment weight (` + "`" + `PrimeActualWeight` + "`" + `) will be considered in the calculation.\n\n**NOTE**: Diversions have a unique calcuation for payment requests without a ` + "`" + `WeightBilled` + "`" + ` parameter.\n\nIf you created a payment request for a diversion and ` + "`" + `WeightBilled` + "`" + ` is not provided, then the following will be used in the calculation:\n- The lowest shipment weight (` + "`" + `PrimeActualWeight` + "`" + `) found in the diverted shipment chain.\n- The lowest reweigh weight found in the diverted shipment chain.\n\nThe diverted shipment chain is created by referencing the ` + "`" + `diversion` + "`" + ` boolean, ` + "`" + `divertedFromShipmentId` + "`" + ` UUID, and matching destination to pickup addresses.\nIf the chain cannot be established it will fall back to the ` + "`" + `PrimeActualWeight` + "`" + ` of the current shipment. This is utilized because diverted shipments are all one single shipment, but going to different locations.\nThe lowest weight found is the true shipment weight, and thus we search the chain of shipments for the lowest weight found.\n\n**DOFSIT - Domestic origin 1st day SIT**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOASIT - Domestic origin add'l SIT** *(SITPaymentRequestStart \u0026 SITPaymentRequestEnd are **REQUIRED**)*\n*To create a paymentRequest for this service item, the ` + "`" + `SITPaymentRequestStart` + "`" + ` and ` + "`" + `SITPaymentRequestEnd` + "`" + ` dates must not overlap previously requested SIT dates.*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    },\n    {\n      \"key\": \"SITPaymentRequestStart\",\n      \"value\": \"date\"\n    },\n    {\n      \"key\": \"SITPaymentRequestEnd\",\n      \"value\": \"date\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOPSIT - Domestic origin SIT pickup**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOSHUT - Domestic origin shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDFSIT - Domestic destination 1st day SIT**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDASIT - Domestic destination add'l SIT** *(SITPaymentRequestStart \u0026 SITPaymentRequestEnd are **REQUIRED**)*\n*To create a paymentRequest for this service item, the ` + "`" + `SITPaymentRequestStart` + "`" + ` and ` + "`" + `SITPaymentRequestEnd` + "`" + ` dates must not overlap previously requested SIT dates.*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    },\n    {\n      \"key\": \"SITPaymentRequestStart\",\n      \"value\": \"date\"\n    },\n    {\n      \"key\": \"SITPaymentRequestEnd\",\n      \"value\": \"date\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDDSIT - Domestic destination SIT delivery**\n*To create a paymentRequest for this service item, it must first have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDSHUT - Domestic destination shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n---\n",
         "consumes": [
           "application/json"
         ],
@@ -1435,7 +1435,7 @@ func init() {
     },
     "/sit-address-updates": {
       "post": {
-        "description": "**Functionality:**\nCreates an update request for a SIT service item's final delivery address.\nA newly created update request is assigned the status 'REQUESTED'  if the change in address\nis \u003e 50 miles and automatically approved otherwise.\n\n**Limitations:**\nThe update can be requested for APPROVED SIT service items only.\nOnly ONE request is allowed per approved SIT service item.\n",
+        "description": "**Functionality:**\nCreates an update request for a SIT service item's final delivery address.\nA newly created update request is assigned the status 'REQUESTED'  if the change in address\nis \u003e 50 miles and automatically approved otherwise.\n\n**Limitations:**\nThe update can be requested for APPROVED SIT service items only.\nOnly ONE request is allowed per approved SIT service item.\n\n**DEPRECATION ON AUGUST 5TH, 2024**\nFollowing deprecation, when updating a service item's final delivery address, you will need to update the shipment's destination address. This will update the destination SIT service items' final delivery address upon approval.\nFor ` + "`" + `APPROVED` + "`" + ` shipments, you can use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress)\nFor shipments in any other status, you can use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress)\n",
         "consumes": [
           "application/json"
         ],
@@ -1752,24 +1752,6 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
-        }
-      }
-    },
-    "CreateNonSITAddressUpdateRequest": {
-      "description": "CreateNonSITAddressUpdateRequest contains the fields required for the prime to create a non SIT address update request.",
-      "type": "object",
-      "required": [
-        "contractorRemarks",
-        "newAddress"
-      ],
-      "properties": {
-        "contractorRemarks": {
-          "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
-          "type": "string",
-          "example": "Customer reached out to me this week and let me know they want to move somewhere else."
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
         }
       }
     },
@@ -4617,6 +4599,24 @@ func init() {
         }
       }
     },
+    "UpdateShipmentDestinationAddress": {
+      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment.",
+      "type": "object",
+      "required": [
+        "contractorRemarks",
+        "newAddress"
+      ],
+      "properties": {
+        "contractorRemarks": {
+          "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
+          "type": "string",
+          "example": "Customer reached out to me this week and let me know they want to move somewhere else."
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        }
+      }
+    },
     "UploadWithOmissions": {
       "description": "An uploaded file.",
       "type": "object",
@@ -4771,7 +4771,7 @@ func init() {
       "name": "paymentRequest"
     },
     {
-      "description": "A **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance less than or equal to 50 miles will be automatically\napproved while a distance greater than 50 miles will typically require office user approval.\n",
+      "description": "**THIS ENDPOINT WILL BE DEPRECATED ON AUGUST 5TH, 2024 - REFER TO DESCRIPTION FOR DETAILS**\n\nA **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance less than or equal to 50 miles will be automatically\napproved while a distance greater than 50 miles will typically require office user approval.\n",
       "name": "sitAddressUpdate"
     }
   ],
@@ -6120,7 +6120,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
       "post": {
-        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\nThis does not change addresses on SIT service items.\nAddress updates will be automatically approved unless they change:\n  - the service area\n  - Mileage bracket for direct delivery\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\nIf automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
         "consumes": [
           "application/json"
         ],
@@ -6130,8 +6130,8 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "createNonSITAddressUpdateRequest",
-        "operationId": "createNonSITAddressUpdateRequest",
+        "summary": "updateShipmentDestinationAddress",
+        "operationId": "updateShipmentDestinationAddress",
         "parameters": [
           {
             "type": "string",
@@ -6146,7 +6146,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/CreateNonSITAddressUpdateRequest"
+              "$ref": "#/definitions/UpdateShipmentDestinationAddress"
             }
           },
           {
@@ -6477,7 +6477,7 @@ func init() {
     },
     "/payment-requests": {
       "post": {
-        "description": "Creates a new instance of a paymentRequest and is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items, the shipment *must*\nbe updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n\n**FSC - Fuel Surcharge** service items require ` + "`" + `ActualPickupDate` + "`" + ` to be updated on the shipment.\n\nA service item can be on several payment requests in the case of partial payment requests and payments.\n\nIn the request, if no params are necessary, then just the ` + "`" + `serviceItem` + "`" + ` ` + "`" + `id` + "`" + ` is required. For example:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"isFinal\": false,\n  \"moveTaskOrderID\": \"uuid\",\n  \"serviceItems\": [\n    {\n      \"id\": \"uuid\",\n    },\n    {\n      \"id\": \"uuid\",\n      \"params\": [\n        {\n          \"key\": \"Service Item Parameter Name\",\n          \"value\": \"Service Item Parameter Value\"\n        }\n      ]\n    }\n  ],\n  \"pointOfContact\": \"string\"\n}\n` + "`" + `` + "`" + `` + "`" + `\n\nSIT Service Items \u0026 Accepted Payment Request Parameters:\n---\nIf ` + "`" + `WeightBilled` + "`" + ` is not provided then the full shipment weight (` + "`" + `PrimeActualWeight` + "`" + `) will be considered in the calculation.\n\n**DOFSIT - Domestic origin 1st day SIT**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOASIT - Domestic origin add'l SIT** *(SITPaymentRequestStart \u0026 SITPaymentRequestEnd are **REQUIRED**)*\n*To create a paymentRequest for this service item, the ` + "`" + `SITPaymentRequestStart` + "`" + ` and ` + "`" + `SITPaymentRequestEnd` + "`" + ` dates must not overlap previously requested SIT dates.*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    },\n    {\n      \"key\": \"SITPaymentRequestStart\",\n      \"value\": \"date\"\n    },\n    {\n      \"key\": \"SITPaymentRequestEnd\",\n      \"value\": \"date\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOPSIT - Domestic origin SIT pickup**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOSHUT - Domestic origin shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDFSIT - Domestic destination 1st day SIT**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDASIT - Domestic destination add'l SIT** *(SITPaymentRequestStart \u0026 SITPaymentRequestEnd are **REQUIRED**)*\n*To create a paymentRequest for this service item, the ` + "`" + `SITPaymentRequestStart` + "`" + ` and ` + "`" + `SITPaymentRequestEnd` + "`" + ` dates must not overlap previously requested SIT dates.*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    },\n    {\n      \"key\": \"SITPaymentRequestStart\",\n      \"value\": \"date\"\n    },\n    {\n      \"key\": \"SITPaymentRequestEnd\",\n      \"value\": \"date\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDDSIT - Domestic destination SIT delivery**\n*To create a paymentRequest for this service item, it must first have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDSHUT - Domestic destination shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n---\n",
+        "description": "Creates a new instance of a paymentRequest and is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n\nIf a ` + "`" + `PENDING` + "`" + ` payment request is recalculated,\na new payment request is created and the original request is\nmarked with the status ` + "`" + `DEPRECATED` + "`" + `.\n\n**NOTE**: In order to create a payment request for most service items, the shipment *must*\nbe updated with the ` + "`" + `PrimeActualWeight` + "`" + ` value via [updateMTOShipment](#operation/updateMTOShipment).\n\n**FSC - Fuel Surcharge** service items require ` + "`" + `ActualPickupDate` + "`" + ` to be updated on the shipment.\n\nA service item can be on several payment requests in the case of partial payment requests and payments.\n\nIn the request, if no params are necessary, then just the ` + "`" + `serviceItem` + "`" + ` ` + "`" + `id` + "`" + ` is required. For example:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"isFinal\": false,\n  \"moveTaskOrderID\": \"uuid\",\n  \"serviceItems\": [\n    {\n      \"id\": \"uuid\",\n    },\n    {\n      \"id\": \"uuid\",\n      \"params\": [\n        {\n          \"key\": \"Service Item Parameter Name\",\n          \"value\": \"Service Item Parameter Value\"\n        }\n      ]\n    }\n  ],\n  \"pointOfContact\": \"string\"\n}\n` + "`" + `` + "`" + `` + "`" + `\n\nSIT Service Items \u0026 Accepted Payment Request Parameters:\n---\nIf ` + "`" + `WeightBilled` + "`" + ` is not provided then the full shipment weight (` + "`" + `PrimeActualWeight` + "`" + `) will be considered in the calculation.\n\n**NOTE**: Diversions have a unique calcuation for payment requests without a ` + "`" + `WeightBilled` + "`" + ` parameter.\n\nIf you created a payment request for a diversion and ` + "`" + `WeightBilled` + "`" + ` is not provided, then the following will be used in the calculation:\n- The lowest shipment weight (` + "`" + `PrimeActualWeight` + "`" + `) found in the diverted shipment chain.\n- The lowest reweigh weight found in the diverted shipment chain.\n\nThe diverted shipment chain is created by referencing the ` + "`" + `diversion` + "`" + ` boolean, ` + "`" + `divertedFromShipmentId` + "`" + ` UUID, and matching destination to pickup addresses.\nIf the chain cannot be established it will fall back to the ` + "`" + `PrimeActualWeight` + "`" + ` of the current shipment. This is utilized because diverted shipments are all one single shipment, but going to different locations.\nThe lowest weight found is the true shipment weight, and thus we search the chain of shipments for the lowest weight found.\n\n**DOFSIT - Domestic origin 1st day SIT**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOASIT - Domestic origin add'l SIT** *(SITPaymentRequestStart \u0026 SITPaymentRequestEnd are **REQUIRED**)*\n*To create a paymentRequest for this service item, the ` + "`" + `SITPaymentRequestStart` + "`" + ` and ` + "`" + `SITPaymentRequestEnd` + "`" + ` dates must not overlap previously requested SIT dates.*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    },\n    {\n      \"key\": \"SITPaymentRequestStart\",\n      \"value\": \"date\"\n    },\n    {\n      \"key\": \"SITPaymentRequestEnd\",\n      \"value\": \"date\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOPSIT - Domestic origin SIT pickup**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DOSHUT - Domestic origin shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDFSIT - Domestic destination 1st day SIT**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDASIT - Domestic destination add'l SIT** *(SITPaymentRequestStart \u0026 SITPaymentRequestEnd are **REQUIRED**)*\n*To create a paymentRequest for this service item, the ` + "`" + `SITPaymentRequestStart` + "`" + ` and ` + "`" + `SITPaymentRequestEnd` + "`" + ` dates must not overlap previously requested SIT dates.*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    },\n    {\n      \"key\": \"SITPaymentRequestStart\",\n      \"value\": \"date\"\n    },\n    {\n      \"key\": \"SITPaymentRequestEnd\",\n      \"value\": \"date\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDDSIT - Domestic destination SIT delivery**\n*To create a paymentRequest for this service item, it must first have a final address set via [updateMTOServiceItem](#operation/updateMTOServiceItem).*\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n\n**DDSHUT - Domestic destination shuttle service**\n` + "`" + `` + "`" + `` + "`" + `json\n  \"params\": [\n    {\n      \"key\": \"WeightBilled\",\n      \"value\": \"integer\"\n    }\n  ]\n` + "`" + `` + "`" + `` + "`" + `\n---\n",
         "consumes": [
           "application/json"
         ],
@@ -6634,7 +6634,7 @@ func init() {
     },
     "/sit-address-updates": {
       "post": {
-        "description": "**Functionality:**\nCreates an update request for a SIT service item's final delivery address.\nA newly created update request is assigned the status 'REQUESTED'  if the change in address\nis \u003e 50 miles and automatically approved otherwise.\n\n**Limitations:**\nThe update can be requested for APPROVED SIT service items only.\nOnly ONE request is allowed per approved SIT service item.\n",
+        "description": "**Functionality:**\nCreates an update request for a SIT service item's final delivery address.\nA newly created update request is assigned the status 'REQUESTED'  if the change in address\nis \u003e 50 miles and automatically approved otherwise.\n\n**Limitations:**\nThe update can be requested for APPROVED SIT service items only.\nOnly ONE request is allowed per approved SIT service item.\n\n**DEPRECATION ON AUGUST 5TH, 2024**\nFollowing deprecation, when updating a service item's final delivery address, you will need to update the shipment's destination address. This will update the destination SIT service items' final delivery address upon approval.\nFor ` + "`" + `APPROVED` + "`" + ` shipments, you can use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress)\nFor shipments in any other status, you can use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress)\n",
         "consumes": [
           "application/json"
         ],
@@ -6972,24 +6972,6 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
-        }
-      }
-    },
-    "CreateNonSITAddressUpdateRequest": {
-      "description": "CreateNonSITAddressUpdateRequest contains the fields required for the prime to create a non SIT address update request.",
-      "type": "object",
-      "required": [
-        "contractorRemarks",
-        "newAddress"
-      ],
-      "properties": {
-        "contractorRemarks": {
-          "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
-          "type": "string",
-          "example": "Customer reached out to me this week and let me know they want to move somewhere else."
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
         }
       }
     },
@@ -9883,6 +9865,24 @@ func init() {
         }
       }
     },
+    "UpdateShipmentDestinationAddress": {
+      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment.",
+      "type": "object",
+      "required": [
+        "contractorRemarks",
+        "newAddress"
+      ],
+      "properties": {
+        "contractorRemarks": {
+          "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
+          "type": "string",
+          "example": "Customer reached out to me this week and let me know they want to move somewhere else."
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        }
+      }
+    },
     "UploadWithOmissions": {
       "description": "An uploaded file.",
       "type": "object",
@@ -10037,7 +10037,7 @@ func init() {
       "name": "paymentRequest"
     },
     {
-      "description": "A **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance less than or equal to 50 miles will be automatically\napproved while a distance greater than 50 miles will typically require office user approval.\n",
+      "description": "**THIS ENDPOINT WILL BE DEPRECATED ON AUGUST 5TH, 2024 - REFER TO DESCRIPTION FOR DETAILS**\n\nA **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance less than or equal to 50 miles will be automatically\napproved while a distance greater than 50 miles will typically require office user approval.\n",
       "name": "sitAddressUpdate"
     }
   ],

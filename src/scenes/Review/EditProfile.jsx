@@ -6,8 +6,9 @@ import { Field, reduxForm } from 'redux-form';
 import SaveCancelButtons from './SaveCancelButtons';
 import profileImage from './images/profile.png';
 
-import { getResponseError, patchServiceMember } from 'services/internalApi';
+import { getResponseError, patchOrders, patchServiceMember } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
+import { updateOrders as updateOrderAction } from 'store/entities/actions';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -74,7 +75,7 @@ let EditProfileForm = (props) => {
                   originTransportationOfficeName={transportationOfficeName}
                   originTransportationOfficePhone={transportationOfficePhone}
                   affiliation={initialValues.affiliation}
-                  rank={initialValues.rank}
+                  payGrade={initialValues.rank}
                   edipi={initialValues.edipi}
                   isEditable={false}
                 />
@@ -109,11 +110,12 @@ class EditProfile extends Component {
 
     fieldValues.current_location_id = fieldValues.current_location.id;
     fieldValues.id = this.props.serviceMember.id;
-    if (fieldValues.rank !== this.props.serviceMember.rank) {
+
+    if (fieldValues.rank !== this.props.currentOrders.grade) {
       entitlementCouldChange = true;
     }
 
-    return patchServiceMember(fieldValues)
+    patchServiceMember(fieldValues)
       .then((response) => {
         // Update Redux with new data
         this.props.updateServiceMember(response);
@@ -143,6 +145,36 @@ class EditProfile extends Component {
 
         scrollToTop();
       });
+
+    patchOrders(fieldValues)
+      .then((response) => {
+        // Update Redux with new data
+        this.props.updateOrders(response);
+
+        if (entitlementCouldChange) {
+          setFlashMessage(
+            'EDIT_PROFILE_SUCCESS',
+            'info',
+            `Your weight entitlement is now ${entitlement.sum.toLocaleString()} lbs.`,
+            'Your changes have been saved. Note that the entitlement has also changed.',
+          );
+        } else {
+          setFlashMessage('EDIT_PROFILE_SUCCESS', 'success', '', 'Your changes have been saved.');
+        }
+
+        const { router: navigate } = this.props;
+        navigate(-1);
+      })
+      .catch((e) => {
+        // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
+        const { response } = e;
+        const errorMessage = getResponseError(response, 'failed to update orders due to server error');
+        this.setState({
+          errorMessage,
+        });
+
+        scrollToTop();
+      });
   };
 
   render() {
@@ -150,8 +182,8 @@ class EditProfile extends Component {
     const { errorMessage } = this.state;
     const initialValues = {
       ...serviceMember,
-      rank: currentOrders ? currentOrders.grade : serviceMember.rank,
-      current_location: currentOrders ? currentOrders.origin_duty_location : serviceMember.current_location,
+      payGrade: currentOrders.grade,
+      current_location: currentOrders.origin_duty_location,
     };
     return (
       <div className="usa-grid">
@@ -190,7 +222,7 @@ function mapStateToProps(state) {
     // The move still counts as in draft if there are no orders.
     moveIsInDraft: selectMoveIsInDraft(state) || !selectCurrentOrders(state),
     isPpm: selectHasCurrentPPM(state),
-    schemaRank: get(state, 'swaggerInternal.spec.definitions.ServiceMemberRank', {}),
+    schemaGrade: get(state, 'swaggerInternal.spec.definitions.OrderPayGrade', {}),
     schemaAffiliation: get(state, 'swaggerInternal.spec.definitions.Affiliation', {}),
     entitlement: selectWeightAllotmentsForLoggedInUser(state),
   };
@@ -198,6 +230,7 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = {
   updateServiceMember: updateServiceMemberAction,
+  updateOrders: updateOrderAction,
   setFlashMessage: setFlashMessageAction,
 };
 

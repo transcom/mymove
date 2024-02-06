@@ -17,7 +17,7 @@ const ProfileTable = ({
   lastName,
   onEditClick,
   postalCode,
-  rank,
+  payGrade,
   state,
   streetAddress1,
   streetAddress2,
@@ -57,7 +57,7 @@ const ProfileTable = ({
           </tr>
           <tr>
             <th scope="row">Pay grade</th>
-            <td>{rank}</td>
+            <td>{payGrade}</td>
           </tr>
           <tr>
             <th scope="row">DOD ID#</th>
@@ -103,7 +103,7 @@ ProfileTable.propTypes = {
   lastName: string.isRequired,
   onEditClick: func.isRequired,
   postalCode: string.isRequired,
-  rank: string.isRequired,
+  payGrade: string.isRequired,
   state: string.isRequired,
   streetAddress1: string.isRequired,
   streetAddress2: string,
