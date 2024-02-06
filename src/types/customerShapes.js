@@ -5,18 +5,15 @@ import { TransportationOfficeShape } from './user';
 import { AddressShape } from 'types/address';
 import { DutyLocationShape } from 'types/dutyLocation';
 
-export const WeightAllotment = shape({
-  total_weight_self: number.isRequired,
-  total_weight_self_plus_dependents: number.isRequired,
-  pro_gear_weight: number.isRequired,
-  pro_gear_weight_spouse: number.isRequired,
+export const Entitlements = shape({
+  proGear: number.isRequired,
+  proGearSpouse: number.isRequired,
 });
 
 export const ServiceMemberShape = shape({
   id: string.isRequired,
   affiliation: string,
   edipi: string,
-  rank: string,
   first_name: string,
   middle_name: string,
   last_name: string,
@@ -28,7 +25,6 @@ export const ServiceMemberShape = shape({
   phone_is_preferred: bool,
   residential_address: AddressShape,
   backup_mailing_address: AddressShape,
-  weight_allotment: WeightAllotment,
 });
 
 export const MoveShape = shape({
@@ -57,6 +53,7 @@ export const OrdersShape = shape({
   id: string,
   issue_date: string,
   moves: arrayOf(string),
+  origin_duty_location: DutyLocationShape,
   new_duty_location: DutyLocationShape,
   orders_type: string,
   report_by_date: string,
@@ -72,6 +69,9 @@ export const OrdersShape = shape({
     id: string,
     uploads: UploadsShape,
   }),
+  grade: string,
+  authorizedWeight: number,
+  entitlement: Entitlements,
 });
 
 export const BackupContactShape = shape({
