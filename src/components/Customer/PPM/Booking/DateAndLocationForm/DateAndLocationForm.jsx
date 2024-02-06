@@ -17,6 +17,8 @@ import { ShipmentShape } from 'types/shipment';
 import { searchTransportationOffices } from 'services/internalApi';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
+import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
+import { requiredAddressSchema } from 'utils/validation';
 
 const validationShape = {
   useCurrentResidence: Yup.boolean(),
@@ -27,6 +29,18 @@ const validationShape = {
   expectedDepartureDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .required('Required'),
+  pickupAddress: Yup.object().shape({
+    address: requiredAddressSchema,
+  }),
+  destinationAddress: Yup.object().shape({
+    address: requiredAddressSchema,
+  }),
+  secondaryPickupAddress: Yup.object().shape({
+    address: OptionalAddressSchema,
+  }),
+  secondaryDestinationAddress: Yup.object().shape({
+    address: OptionalAddressSchema,
+  }),
 };
 
 const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMember, move, onBack, onSubmit }) => {
@@ -77,8 +91,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
   }
 
   return (
-    // <Formik initialValues={initialValues} validationSchema={Yup.object().shape(validationShape)} onSubmit={onSubmit}>
-    <Formik initialValues={initialValues} onSubmit={onSubmit}>
+    <Formik initialValues={initialValues} validationSchema={Yup.object().shape(validationShape)} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit, setValues, values }) => {
         const handleUseCurrentResidenceChange = (e) => {
           const { checked } = e.target;
