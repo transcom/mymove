@@ -113,5 +113,4 @@ export default {
   sit_end_date: 'SIT End Date',
   weight: 'Weight',
   belongs_to_self: 'Service member',
-  //todo
 };
