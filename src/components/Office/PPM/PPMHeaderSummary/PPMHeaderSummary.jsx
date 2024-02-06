@@ -15,6 +15,8 @@ export default function PPMHeaderSummary({ ppmCloseout, ppmNumber, showAllFields
     actualDestinationPostalCode: ppmCloseout.actualDestinationPostalCode,
     miles: ppmCloseout.miles,
     estimatedWeight: ppmCloseout.estimatedWeight,
+    advanceRequested: ppmCloseout.advanceRequested,
+    advanceReceived: ppmCloseout.advanceReceived,
     aoa: ppmCloseout.aoa,
   };
   const incentives = {

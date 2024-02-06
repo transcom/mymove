@@ -193,6 +193,11 @@ export const ReviewDocuments = () => {
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
+  ppmCloseout.actualPickupPostalCode = mtoShipment.ppmShipment.actualPickupPostalCode;
+  ppmCloseout.actualDestinationPostalCode = mtoShipment.ppmShipment.actualDestinationPostalCode;
+  ppmCloseout.advanceRequested = mtoShipment.ppmShipment.hasRequestedAdvance;
+  ppmCloseout.advanceReceived = mtoShipment.ppmShipment.hasReceivedAdvance;
+  ppmCloseout.aoa = mtoShipment.ppmShipment.advanceReceived;
 
   const currentDocumentSet = documentSets[documentSetIndex];
   const disableBackButton = documentSetIndex === 0 && !showOverview;

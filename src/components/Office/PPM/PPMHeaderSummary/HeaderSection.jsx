@@ -28,17 +28,22 @@ const getSectionTitle = (sectionInfo) => {
 
 // Returns the markup needed for a specific section
 const getSectionMarkup = (sectionInfo) => {
+  let aoaValue;
+  if (sectionInfo.advanceRequested) {
+    if (sectionInfo.advanceReceived) {
+      aoaValue = formatCents(sectionInfo.aoa);
+    } else aoaValue = 'Not yet received';
+  } else {
+    aoaValue = 'Not requested';
+  }
+
   switch (sectionInfo.type) {
     case sectionTypes.shipmentInfo:
       return (
         <div className={classnames(styles.Details)}>
           <div>
             <Label>Planned Move Start Date</Label>
-            <span className={styles.light}>
-              {sectionInfo.expectedDepartureDate
-                ? formatDate(sectionInfo.expectedDepartureDate, null, 'DD-MMM-YYYY')
-                : `TEST DATE`}
-            </span>
+            <span className={styles.light}>{formatDate(sectionInfo.plannedMoveDate, null, 'DD-MMM-YYYY')}</span>
           </div>
           <div>
             <Label>Actual Move Start Date</Label>
@@ -66,9 +71,7 @@ const getSectionMarkup = (sectionInfo) => {
           </div>
           <div>
             <Label>Advance received</Label>
-            <span className={styles.light}>
-              {sectionInfo.aoa > 0 ? `$${formatCents(sectionInfo.advanceAmountReceived)}` : 'Not requested/received.'}
-            </span>
+            <span className={styles.light}>{aoaValue}</span>
           </div>
         </div>
       );
