@@ -60,7 +60,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 
 	var remainingIncentive unit.Cents
 	if *ppmShipment.HasRequestedAdvance {
-		remainingIncentive = unit.Cents(ppmShipment.FinalIncentive.Int() - ppmShipment.AdvanceAmountReceived.Int())
+		remainingIncentive = *ppmShipment.FinalIncentive - *ppmShipment.AdvanceAmountReceived
 	} else {
 		remainingIncentive = *ppmShipment.FinalIncentive
 	}
