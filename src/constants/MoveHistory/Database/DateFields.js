@@ -18,4 +18,5 @@ export default {
   sit_estimated_entry_date: 'sit_estimated_entry_date',
   sit_start_date: 'sit_start_date',
   sit_end_date: 'sit_end_date',
+  sit_customer_contacted: 'sit_customer_contacted',
 };
