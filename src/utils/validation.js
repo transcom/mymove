@@ -52,9 +52,9 @@ export const validatePostalCode = async (value, postalCodeType, errMsg = Unsuppo
 /** Yup validation schemas */
 
 export const requiredAddressSchema = Yup.object().shape({
-  streetAddress1: Yup.string().required('Required'),
+  streetAddress1: Yup.string().trim().required('Required'),
   streetAddress2: Yup.string(),
-  city: Yup.string().required('Required'),
+  city: Yup.string().trim().required('Required'),
   state: Yup.string().length(2, 'Must use state abbreviation').required('Required'),
   postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code').required('Required'),
 });
