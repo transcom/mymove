@@ -45,8 +45,8 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			ReContractYear: models.ReContractYear{
 				Contract:             originDomesticServiceArea.Contract,
 				ContractID:           originDomesticServiceArea.ContractID,
-				StartDate:            time.Date(2019, time.June, 1, 0, 0, 0, 0, time.UTC),
-				EndDate:              time.Date(2020, time.May, 31, 0, 0, 0, 0, time.UTC),
+				StartDate:            time.Now(),
+				EndDate:              time.Now().Add(time.Hour * 8760),
 				Escalation:           1.0,
 				EscalationCompounded: 1.0,
 			},
