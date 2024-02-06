@@ -69,10 +69,6 @@ const getSectionMarkup = (sectionInfo) => {
             <Label>Actual Net Weight</Label>
             <span className={styles.light}>{formatWeight(sectionInfo.actualWeight) ?? `TEST VAL`}</span>
           </div>
-          <div>
-            <Label>Advance received</Label>
-            <span className={styles.light}>{aoaValue}</span>
-          </div>
         </div>
       );
 
@@ -87,6 +83,10 @@ const getSectionMarkup = (sectionInfo) => {
           <div>
             <Label>Government Constructive Cost (GCC)</Label>
             <span className={styles.light}>${formatCents(sectionInfo.gcc) ?? `TEST VAL`}</span>
+          </div>
+          <div>
+            <Label>Advance received</Label>
+            <span className={styles.light}>{aoaValue}</span>
           </div>
           <div>
             <Label>Remaining Incentive</Label>
