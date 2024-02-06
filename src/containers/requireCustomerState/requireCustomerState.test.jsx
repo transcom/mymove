@@ -215,7 +215,7 @@ describe('requireCustomerState HOC', () => {
     );
 
     expect(wrapper.exists()).toBe(true);
-    expect(mockNavigate).toHaveBeenCalledWith('/');
+    expect(mockNavigate).toHaveBeenCalledWith('/move');
   });
 
   it('does not redirect if profile is complete and required state is the completed profile state', () => {

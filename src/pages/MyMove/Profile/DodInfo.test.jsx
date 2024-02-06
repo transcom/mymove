@@ -229,7 +229,7 @@ describe('requireCustomerState DodInfo', () => {
     );
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/');
+      expect(mockNavigate).toHaveBeenCalledWith('/move');
     });
   });
 });

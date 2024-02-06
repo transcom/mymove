@@ -310,7 +310,7 @@ describe('requireCustomerState BackupAddress', () => {
     );
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/');
+      expect(mockNavigate).toHaveBeenCalledWith('/move');
     });
   });
 });

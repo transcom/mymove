@@ -369,7 +369,7 @@ describe('requireCustomerState ResidentialAddress', () => {
     expect(h1).toBeInTheDocument();
 
     await waitFor(async () => {
-      expect(mockNavigate).toHaveBeenCalledWith('/');
+      expect(mockNavigate).toHaveBeenCalledWith('/move');
     });
   });
 });

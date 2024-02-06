@@ -273,6 +273,6 @@ describe('requireCustomerState Name', () => {
 
     expect(await screen.findByRole('heading', { name: 'Name', level: 1 })).toBeInTheDocument();
 
-    expect(mockNavigate).toHaveBeenCalledWith('/');
+    expect(mockNavigate).toHaveBeenCalledWith('/move');
   });
 });

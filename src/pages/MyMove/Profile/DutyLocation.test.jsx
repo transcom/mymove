@@ -306,7 +306,7 @@ describe('requireCustomerState DutyLocation', () => {
     );
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/');
+      expect(mockNavigate).toHaveBeenCalledWith('/move');
     });
   });
 });

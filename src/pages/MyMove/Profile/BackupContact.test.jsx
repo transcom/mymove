@@ -84,7 +84,7 @@ describe('BackupContact page', () => {
       expect(testProps.updateBackupContact).toHaveBeenCalledWith(testBackupContactValues);
       expect(getServiceMember).toHaveBeenCalledWith(testProps.serviceMember.id);
       expect(testProps.updateServiceMember).toHaveBeenCalledWith(testProps.serviceMember);
-      expect(mockNavigate).toHaveBeenCalledWith('/');
+      expect(mockNavigate).toHaveBeenCalledWith('/move');
     });
 
     it('shows an error if the API returns an error', async () => {
@@ -141,7 +141,7 @@ describe('BackupContact page', () => {
       expect(testProps.updateBackupContact).toHaveBeenCalledWith(testBackupContactValues);
       expect(getServiceMember).toHaveBeenCalledWith(testProps.serviceMember.id);
       expect(testProps.updateServiceMember).toHaveBeenCalledWith(testProps.serviceMember);
-      expect(mockNavigate).toHaveBeenCalledWith('/');
+      expect(mockNavigate).toHaveBeenCalledWith('/move');
     });
 
     it('shows an error if the API returns an error', async () => {
@@ -333,7 +333,7 @@ describe('requireCustomerState BackupContact', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Backup contact');
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/');
+      expect(mockNavigate).toHaveBeenCalledWith('/move');
     });
   });
 });
