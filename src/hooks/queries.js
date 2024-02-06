@@ -29,6 +29,7 @@ import {
   getMTOShipmentByID,
   getServicesCounselingPPMQueue,
   getPrimeSimulatorAvailableMoves,
+  getPPMCloseout,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorMove } from 'services/primeApi';
@@ -248,6 +249,15 @@ export const usePPMShipmentDocsQueries = (shipmentId) => {
     getMTOShipmentByID(...queryKey),
   );
 
+  const ppmShipmentId = mtoShipment?.ppmShipment.id;
+  const { data: ppmCloseout = {}, ...ppmCloseoutQuery } = useQuery(
+    [MOVES, ppmShipmentId],
+    ({ queryKey }) => getPPMCloseout(...queryKey),
+    {
+      enabled: !!ppmShipmentId,
+    },
+  );
+
   const { data: documents, ...documentsQuery } = useQuery(
     [DOCUMENTS, shipmentId],
     ({ queryKey }) => getPPMDocuments(...queryKey),
@@ -256,10 +266,11 @@ export const usePPMShipmentDocsQueries = (shipmentId) => {
     },
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([mtoShipmentQuery, documentsQuery]);
+  const { isLoading, isError, isSuccess } = getQueriesStatus([mtoShipmentQuery, ppmCloseoutQuery, documentsQuery]);
   return {
     mtoShipment,
     documents,
+    ppmCloseout,
     isLoading,
     isError,
     isSuccess,
