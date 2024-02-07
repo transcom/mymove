@@ -266,18 +266,12 @@ func (h showAOAPacketHandler) Handle(params ppmops.ShowAOAPacketParams) middlewa
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			logger := appCtx.Logger()
 
-			if len(params.PpmShipmentID) == 0 {
+			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID)
+			if err != nil {
 				err := apperror.NewBadDataError("missing/empty required URI parameter: PPMShipmentID")
 				appCtx.Logger().Error(err.Error())
 				return ppmops.NewShowAOAPacketBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
 					err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
-			}
-
-			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID)
-			if err != nil {
-				appCtx.Logger().Error(err.Error())
-				return ppmops.NewShowAOAPacketNotFound().WithPayload(
-					payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
 			AOAPacket, err := h.AOAPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID)
