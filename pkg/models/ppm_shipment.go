@@ -49,6 +49,8 @@ const (
 	PPMShipmentStatusNeedsPaymentApproval PPMShipmentStatus = "NEEDS_PAYMENT_APPROVAL"
 	// PPMShipmentStatusPaymentApproved captures enum value "PAYMENT_APPROVED"
 	PPMShipmentStatusPaymentApproved PPMShipmentStatus = "PAYMENT_APPROVED"
+	// PPMStatusCOMPLETED captures enum value "COMPLETED"
+	PPMShipmentStatusComplete PPMStatus = "COMPLETED"
 )
 
 // AllowedPPMShipmentStatuses is a list of all the allowed values for the Status of a PPMShipment as strings. Needed for
@@ -104,6 +106,8 @@ var AllowedSITLocationTypes = []string{
 type PPMDocumentStatus string
 
 const (
+	// PPMDocumentStatusApproved captures enum value "DRAFT"
+	PPMDocumentStatusDRAFT PPMDocumentStatus = "DRAFT"
 	// PPMDocumentStatusApproved captures enum value "APPROVED"
 	PPMDocumentStatusApproved PPMDocumentStatus = "APPROVED"
 	// PPMDocumentStatusExcluded captures enum value "EXCLUDED"

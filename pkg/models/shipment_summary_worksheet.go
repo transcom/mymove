@@ -199,13 +199,21 @@ func (obligation Obligation) MaxAdvance() float64 {
 
 // FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
 func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth.Session, moveID uuid.UUID) (ShipmentSummaryFormData, error) {
+	if moveID == uuid.Nil {
+		return ShipmentSummaryFormData{}, ErrInvalidMoveID
+	}
 	move := Move{}
 	dbQErr := db.Q().Eager(
 		"Orders",
 		"Orders.NewDutyLocation.Address",
 		"Orders.ServiceMember",
 		"Orders.ServiceMember.DutyLocation.Address",
-		"PersonallyProcuredMoves",
+		"MTOShipments",
+		"MTOShipments.MoveTaskOrder",
+		"MTOShipments.PPMShipment",
+		"MTOShipments.PPMShipment.Status",
+		"MTOShipments.PPMShipment.SignedCertification",
+		"MTOShipments.PPMShipment.MovingExpenses",
 	).Find(&move, moveID)
 
 	if dbQErr != nil {
@@ -232,22 +240,27 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 	if err != nil {
 		return ShipmentSummaryFormData{}, err
 	}
+	var signedCertification SignedCertification
+	var allPPMShipments PPMShipments
+	for _, shipment := range move.MTOShipments {
+		// get the first signed certification found
+		if shipment.PPMShipment.SignedCertification != nil {
+			signedCertification = *shipment.PPMShipment.SignedCertification
+		}
+		if shipment.PPMShipment != nil {
+			allPPMShipments = append(allPPMShipments, *shipment.PPMShipment)
+		}
 
-	signedCertification, err := FetchSignedCertificationsPPMPayment(db, session, moveID)
-	if err != nil {
-		return ShipmentSummaryFormData{}, err
 	}
-	if signedCertification == nil {
-		return ShipmentSummaryFormData{},
-			errors.New("shipment summary worksheet: signed certification is nil")
-	}
+
 	ssd := ShipmentSummaryFormData{
 		ServiceMember:           serviceMember,
 		Order:                   move.Orders,
 		CurrentDutyLocation:     serviceMember.DutyLocation,
 		NewDutyLocation:         move.Orders.NewDutyLocation,
 		WeightAllotment:         weightAllotment,
-		SignedCertification:     *signedCertification,
+		SignedCertification:     signedCertification,
+		SSPPMShipments:          allPPMShipments,
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
 	}
 	return ssd, nil
@@ -476,7 +489,7 @@ func FormatAllShipments(ppms PPMShipments) ShipmentSummaryWorkSheetShipments {
 	for _, ppm := range ppms {
 		formattedNumberAndTypes[shipmentNumber] = FormatPPMNumberAndType(shipmentNumber)
 		formattedPickUpDates[shipmentNumber] = FormatPPMPickupDate(ppm)
-		//formattedShipmentWeights[shipmentNumber] = FormatPPMWeight(ppm)
+		formattedShipmentWeights[shipmentNumber] = FormatPPMWeight(ppm)
 		formattedShipmentStatuses[shipmentNumber] = FormatCurrentPPMStatus(ppm)
 		shipmentNumber++
 	}
@@ -524,7 +537,7 @@ func getExpenseType(expense MovingExpense) string {
 
 // FormatCurrentPPMStatus formats FormatCurrentPPMStatus for the Shipment Summary Worksheet
 func FormatCurrentPPMStatus(ppm PPMShipment) string {
-	if ppm.Status == "PAYMENT_REQUESTED" {
+	if ppm.Status == "NEEDS_PAYMENT_APPROVAL" {
 		return "At destination"
 	}
 	return FormatEnum(string(ppm.Status), " ")
@@ -536,13 +549,19 @@ func FormatPPMNumberAndType(i int) string {
 }
 
 // FormatPPMWeight formats a ppms NetWeight for the Shipment Summary Worksheet
-/* func FormatPPMWeight(ppm PPMShipment) string {
-	if ppm.NetWeight != nil {
-		wtg := FormatWeights(unit.Pound(*ppm.NetWeight))
-		return fmt.Sprintf("%s lbs - FINAL", wtg)
+func FormatPPMWeight(ppm PPMShipment) string {
+	totalWeight := getNetWeightForWeightTicketsInPPMShipment(ppm)
+	wtg := FormatWeights(unit.Pound(totalWeight))
+	return fmt.Sprintf("%s lbs - FINAL", wtg)
+
+}
+func getNetWeightForWeightTicketsInPPMShipment(ppm PPMShipment) unit.Pound {
+	var totalNetWeight unit.Pound
+	for _, weightTicket := range ppm.WeightTickets {
+		totalNetWeight += *weightTicket.AdjustedNetWeight
 	}
-	return ""
-} */
+	return totalNetWeight
+}
 
 // FormatPPMPickupDate formats a shipments ActualPickupDate for the Shipment Summary Worksheet
 func FormatPPMPickupDate(ppm PPMShipment) string {

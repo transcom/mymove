@@ -53,12 +53,29 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 		},
 	}, nil)
 
-	ppmshipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+	mtoShipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
 		{
-			Model:    &move,
-			LinkOnly: true,
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
 		},
 	}, nil)
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model: models.SignedCertification{
+				MoveID: move.ID,
+			},
+		},
+	}, nil)
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.PPMShipment{
+				ShipmentID: mtoShipment.ID,
+			},
+		},
+	}, nil)
+	factory.AddSignedCertificationToPPMShipment(suite.DB(), &ppmShipment, newSignedCertification)
+	factory.AddPPMShipmentToMTOShipment(suite.DB(), &move.MTOShipments[0], ppmShipment)
 	var expenseAmount unit.Cents = 1000.00
 	var currentExpenseType = models.MovingExpenseReceiptTypeOther
 	paidGTCC := true
@@ -68,7 +85,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 		PaidWithGTCC:      &paidGTCC,
 	}
 
-	factory.AddMovingExpenseToPPMShipment(suite.DB(), &ppmshipment, nil, &movingExpense)
+	factory.AddMovingExpenseToPPMShipment(suite.DB(), move.MTOShipments[0].PPMShipment, nil, &movingExpense)
 
 	moveID := move.ID
 	serviceMemberID := move.Orders.ServiceMemberID
@@ -78,12 +95,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 		ApplicationName: auth.MilApp,
 	}
 	moveRouter := moverouter.NewMoveRouter()
-	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-	}, nil)
+
 	moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 	moveRouter.Approve(suite.AppContextForTest(), &move)
 
@@ -91,7 +103,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 
 	suite.NoError(err)
 	suite.Equal(move.Orders.ID, ssd.Order.ID)
-	suite.Equal(ppmshipment.ID, ssd.SSPPMShipments[0].ID)
+	suite.Equal(move.MTOShipments[0].PPMShipment.ID, ssd.SSPPMShipments[0].ID)
 	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
 	suite.Equal(yuma.ID, ssd.CurrentDutyLocation.ID)
 	suite.Equal(yuma.Address.ID, ssd.CurrentDutyLocation.Address.ID)
@@ -109,9 +121,9 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
 	//suite.Equal(ppm.NetWeight, ssd.SSPPMShipments[0].NetWeight)
 	suite.Require().NotNil(ssd.SSPPMShipments[0].MovingExpenses[0])
-	suite.Equal(ppmshipment.MovingExpenses[0].ID, ssd.SSPPMShipments[0].MovingExpenses[0].ID)
-	suite.Equal(unit.Cents(1000), ssd.SSPPMShipments[0].MovingExpenses[0].Amount)
-	//suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
+	suite.Equal(move.MTOShipments[0].PPMShipment.MovingExpenses[0].ID, ssd.SSPPMShipments[0].MovingExpenses[0].ID)
+	suite.Equal(unit.Cents(1000), *ssd.SSPPMShipments[0].MovingExpenses[0].Amount)
+	suite.Equal(move.MTOShipments[0].PPMShipment.SignedCertification.ID, ssd.SignedCertification.ID)
 }
 
 func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetWithErrorNoMove() {
@@ -204,21 +216,35 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 		},
 	}, nil)
 
-	moveID := move.ID
 	serviceMemberID := move.Orders.ServiceMemberID
-	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
-	netWeight := unit.Pound(10000)
-	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			MoveID:              move.ID,
-			NetWeight:           &netWeight,
-			HasRequestedAdvance: true,
-			AdvanceID:           &advance.ID,
-			Advance:             &advance,
+	mtoShipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+			},
 		},
-	})
-	// Save advance in reimbursements table by saving ppm
-	models.SavePersonallyProcuredMove(suite.DB(), &ppm)
+	}, nil)
+	certificationType := models.SignedCertificationTypePPMPAYMENT
+	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+		{
+			Model: models.SignedCertification{
+				CertificationType: &certificationType,
+				CertificationText: "LEGAL",
+				Signature:         "ACCEPT",
+				Date:              testdatagen.NextValidMoveDate,
+				MoveID:            move.ID,
+			},
+		},
+	}, nil)
+	advanceAmount := unit.Cents(1000)
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.PPMShipment{
+				ShipmentID:             mtoShipment.ID,
+				AdvanceAmountRequested: &advanceAmount,
+			},
+		},
+	}, nil)
 
 	session := auth.Session{
 		UserID:          move.Orders.ServiceMember.UserID,
@@ -226,38 +252,30 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 		ApplicationName: auth.MilApp,
 	}
 	moveRouter := moverouter.NewMoveRouter()
-	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-	}, nil)
-	moveRouter.Submit(suite.AppContextForTest(), &ppm.Move, &newSignedCertification)
-	moveRouter.Approve(suite.AppContextForTest(), &ppm.Move)
+	factory.AddSignedCertificationToPPMShipment(suite.DB(), &ppmShipment, newSignedCertification)
+	factory.AddPPMShipmentToMTOShipment(suite.DB(), &move.MTOShipments[0], ppmShipment)
+	var expenseAmount unit.Cents = 1000.00
+	var currentExpenseType = models.MovingExpenseReceiptTypeOther
+	paidGTCC := true
+	movingExpense := models.MovingExpense{
+		Amount:            &expenseAmount,
+		MovingExpenseType: &currentExpenseType,
+		PaidWithGTCC:      &paidGTCC,
+	}
+
+	factory.AddMovingExpenseToPPMShipment(suite.DB(), move.MTOShipments[0].PPMShipment, nil, &movingExpense)
+
+	moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
+	moveRouter.Approve(suite.AppContextForTest(), &move)
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
-	models.SaveMoveDependencies(suite.DB(), &ppm.Move)
-	certificationType := models.SignedCertificationTypePPMPAYMENT
-	signedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-		{
-			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &ppm.ID,
-				CertificationType:        &certificationType,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
-			},
-		},
-	}, nil)
-	ssd, err := models.FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
+	models.SaveMoveDependencies(suite.DB(), &move)
+	factory.AddSignedCertificationToPPMShipment(suite.DB(), &ppmShipment, newSignedCertification)
+	ssd, err := models.FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, move.ID)
 
 	suite.NoError(err)
 	suite.Equal(move.Orders.ID, ssd.Order.ID)
 	suite.Require().Len(ssd.SSPPMShipments, 1)
-	suite.Equal(ppm.ID, ssd.SSPPMShipments[0].ID)
+	suite.Equal(move.MTOShipments[0].PPMShipment.ID, ssd.SSPPMShipments[0].ID)
 	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
 	suite.Equal(yuma.ID, ssd.CurrentDutyLocation.ID)
 	suite.Equal(yuma.Address.ID, ssd.CurrentDutyLocation.Address.ID)
@@ -273,10 +291,10 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
 	//suite.Equal(ppm.NetWeight, ssd.SSPPMShipments[0].NetWeight)
-	//suite.Require().NotNil(ssd.SSPPMShipments[0].Advance)
-	//suite.Equal(ppm.Advance.ID, ssd.SSPPMShipments[0].Advance.ID)
-	suite.Equal(unit.Cents(1000), ssd.SSPPMShipments[0].AdvanceAmountRequested)
-	suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
+	suite.Require().NotNil(ssd.SSPPMShipments[0].MovingExpenses)
+	suite.Equal(move.MTOShipments[0].PPMShipment.MovingExpenses[0].ID, ssd.SSPPMShipments[0].MovingExpenses[0].ID)
+	suite.Equal(unit.Cents(1000), *ssd.SSPPMShipments[0].AdvanceAmountRequested)
+	suite.Equal(newSignedCertification.ID, ssd.SSPPMShipments[0].SignedCertification.ID)
 	suite.Require().Len(ssd.MovingExpenses, 0)
 }
 
@@ -319,12 +337,27 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 		SpouseHasProGear:  true,
 	}
 	pickupDate := time.Date(2019, time.January, 11, 0, 0, 0, 0, time.UTC)
-	//advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
-	personallyProcuredMoves := []models.PPMShipment{
+	reimbursementAmount := unit.Cents(1000)
+	weightTicketWeight := unit.Pound(4000)
+	paidWithGTCC := true
+	ppmDocumentStatus := models.PPMDocumentStatusDRAFT
+	ppmShipment := []models.PPMShipment{
 		{
-			ActualMoveDate: &pickupDate,
-			Status:         models.PPMShipmentStatusNeedsPaymentApproval,
-			//Advance:          &advance,
+			ActualMoveDate:         &pickupDate,
+			Status:                 models.PPMShipmentStatusNeedsPaymentApproval,
+			AdvanceAmountRequested: &reimbursementAmount,
+			MovingExpenses: models.MovingExpenses{
+				{
+					Amount:       &reimbursementAmount,
+					PaidWithGTCC: &paidWithGTCC,
+					Status:       &ppmDocumentStatus,
+				},
+			},
+			WeightTickets: models.WeightTickets{
+				{
+					AdjustedNetWeight: &weightTicketWeight,
+				},
+			},
 		},
 	}
 	ssd := models.ShipmentSummaryFormData{
@@ -335,7 +368,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 		PPMRemainingEntitlement: 3000,
 		WeightAllotment:         wtgEntitlements,
 		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
-		SSPPMShipments:          personallyProcuredMoves,
+		SSPPMShipments:          ppmShipment,
 		Obligations: models.Obligations{
 			MaxObligation:              models.Obligation{Gcc: unit.Cents(600000), SIT: unit.Cents(53000)},
 			ActualObligation:           models.Obligation{Gcc: unit.Cents(500000), SIT: unit.Cents(30000), Miles: unit.Miles(4050)},
@@ -658,7 +691,7 @@ func (suite *ModelSuite) TestFormatServiceMemberFullName() {
 
 func (suite *ModelSuite) TestFormatCurrentPPMStatus() {
 	paymentRequested := models.PPMShipment{Status: models.PPMShipmentStatusNeedsPaymentApproval}
-	completed := models.PPMShipment{Status: models.PPMShipmentStatus(models.PPMStatusCOMPLETED)}
+	completed := models.PPMShipment{Status: models.PPMShipmentStatus(models.PPMShipmentStatusComplete)}
 
 	suite.Equal("At destination", models.FormatCurrentPPMStatus(paymentRequested))
 	suite.Equal("Completed", models.FormatCurrentPPMStatus(completed))
