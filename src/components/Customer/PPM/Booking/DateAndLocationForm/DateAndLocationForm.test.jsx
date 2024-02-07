@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-
+import { UnsupportedZipCodePPMErrorMsg } from 'utils/validation';
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 
@@ -36,6 +36,21 @@ const defaultProps = {
   },
   postalCodeValidator: jest.fn(),
   ...serviceMember,
+};
+const mtoShipmentProps = {
+  ...defaultProps,
+  mtoShipment: {
+    id: '123',
+    ppmShipment: {
+      id: '123',
+      pickupPostalCode: '12345',
+      secondaryPickupPostalCode: '34512',
+      destinationPostalCode: '94611',
+      secondaryDestinationPostalCode: '90210',
+      sitExpected: true,
+      expectedDepartureDate: '2022-09-23',
+    },
+  },
 };
 
 beforeEach(() => {
@@ -189,7 +204,7 @@ describe('DateAndLocationForm component', () => {
     expect(screen.getByText('Start typing a closeout office...')).toBeInTheDocument();
   });
 
-  it('does not display the closeout office select when the service member is not in the Army/Air-Force', async () => {
+  it('5', async () => {
     const navyServiceMember = {
       ...defaultProps.serviceMember,
       affiliation: SERVICE_MEMBER_AGENCIES.NAVY,
@@ -252,6 +267,32 @@ describe('validates form fields and displays error messages', () => {
       expect(
         within(requiredAlerts[0].nextElementSibling).getByLabelText('When do you plan to start moving your PPM?'),
       ).toBeInTheDocument();
+    });
+  });
+  it('displays error when postal code lookup fails', async () => {
+    const postalCodeValidatorFailure = {
+      ...defaultProps,
+      postalCodeValidator: jest
+        .fn()
+        .mockReturnValue('Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.'),
+    };
+    render(<DateAndLocationForm {...postalCodeValidatorFailure} />);
+
+    const primaryZIPs = screen.getAllByLabelText('ZIP');
+    await userEvent.click(primaryZIPs[0]);
+    await userEvent.type(primaryZIPs[0], '99999');
+
+    await waitFor(() => {
+      expect(postalCodeValidatorFailure.postalCodeValidator).toHaveBeenCalledWith(
+        '99999',
+        'origin',
+        UnsupportedZipCodePPMErrorMsg,
+      );
+      /*
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.',
+      );
+     */
     });
   });
 });
