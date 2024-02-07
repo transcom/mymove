@@ -184,6 +184,16 @@ func (g *Generator) GetPdfFileInfo(fileName string) (*pdfcpu.PDFInfo, error) {
 	return api.PDFInfo(file, fileName, nil, g.pdfConfig)
 }
 
+// Get file information of a single PDF
+func (g *Generator) GetPdfFileInfoByContents(file afero.File) (*pdfcpu.PDFInfo, error) {
+	// file, err := g.fs.Open(fileName)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// defer file.Close()
+	return api.PDFInfo(file, file.Name(), nil, g.pdfConfig)
+}
+
 // CreateMergedPDFUpload converts Uploads to PDF and merges them into a single PDF
 func (g *Generator) CreateMergedPDFUpload(appCtx appcontext.AppContext, uploads models.Uploads) (afero.File, error) {
 	pdfs, err := g.ConvertUploadsToPDF(appCtx, uploads)
