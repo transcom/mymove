@@ -915,57 +915,6 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /mto-shipments/{mtoShipmentID}/sit-delivery:
-    patch:
-      summary: >-
-        Update the SIT Customer Contact and SIT Requested Delivery Dates for a
-        service item currently in SIT
-      description: >
-        ### Functionality
-
-        This endpoint can be used to update the Authorized End Date for
-        shipments in Origin or Destination SIT and the Required
-
-        Delivery Date for shipments in Origin SIT. The provided Customer Contact
-        Date and the Customer Requested Delivery Date are
-
-        used to calculate the new Authorized End Date and Required Delivery
-        Date.
-      operationId: updateSITDeliveryRequest
-      tags:
-        - mtoShipment
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: mtoShipmentID
-          description: UUID of the shipment associated with the agent
-          required: true
-          format: uuid
-          type: string
-        - $ref: '#/parameters/ifMatch'
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/SITDeliveryUpdate'
-      responses:
-        '200':
-          description: Successfully updated the shipment's authorized end date.
-          schema:
-            $ref: '#/definitions/SITStatus'
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '404':
-          $ref: '#/responses/NotFound'
-        '412':
-          $ref: '#/responses/PreconditionFailed'
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/responses/ServerError'
   /mto-shipments/{mtoShipmentID}/sit-extensions:
     post:
       summary: createSITExtension
@@ -4478,55 +4427,6 @@ definitions:
                 type: string
         required:
           - invalidFields
-  SITDeliveryUpdate:
-    properties:
-      sitCustomerContacted:
-        type: string
-        format: date
-      sitRequestedDelivery:
-        type: string
-        format: date
-    required:
-      - sitCustomerContacted
-      - sitRequestedDelivery
-  SITStatus:
-    properties:
-      totalSITDaysUsed:
-        type: integer
-        minimum: 0
-      totalDaysRemaining:
-        type: integer
-        minimum: 0
-      currentSIT:
-        type: object
-        properties:
-          location:
-            enum:
-              - ORIGIN
-              - DESTINATION
-          daysInSIT:
-            type: integer
-            minimum: 0
-          sitEntryDate:
-            type: string
-            format: date
-            x-nullable: true
-          sitDepartureDate:
-            type: string
-            format: date
-            x-nullable: true
-          sitAllowanceEndDate:
-            type: string
-            format: date
-            x-nullable: true
-          sitCustomerContacted:
-            type: string
-            format: date
-            x-nullable: true
-          sitRequestedDelivery:
-            type: string
-            format: date
-            x-nullable: true
   SitAddressUpdateStatus:
     description: >-
       The status of a SIT address update, indicating where it is in the TOO's
