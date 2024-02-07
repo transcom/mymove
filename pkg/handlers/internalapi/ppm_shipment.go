@@ -1,6 +1,10 @@
 package internalapi
 
 import (
+	"fmt"
+	"io"
+	"time"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -246,4 +250,100 @@ func (h ResubmitPPMShipmentDocumentationHandler) Handle(params ppmops.ResubmitPP
 
 			return ppmops.NewResubmitPPMShipmentDocumentationOK().WithPayload(returnPayload), nil
 		})
+}
+
+// ShowAOAPacketHandler returns a Shipment Summary Worksheet PDF
+type showAOAPacketHandler struct {
+	handlers.HandlerConfig
+	services.SSWPPMComputer
+	services.SSWPPMGenerator
+	services.AOAPacketCreator
+}
+
+// Handle returns a generated PDF
+func (h showAOAPacketHandler) Handle(params ppmops.ShowAOAPacketParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			logger := appCtx.Logger()
+
+			if len(params.PpmShipmentID) == 0 {
+				err := apperror.NewBadDataError("missing/empty required URI parameter: PPMShipmentID")
+				appCtx.Logger().Error(err.Error())
+				return ppmops.NewShowAOAPacketBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
+					err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+
+			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID)
+			if err != nil {
+				appCtx.Logger().Error(err.Error())
+				return ppmops.NewShowAOAPacketNotFound().WithPayload(
+					payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+
+			AOAPacket, err := h.AOAPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID)
+			if err != nil {
+				logger.Error("Error creating AOA", zap.Error(err))
+				aoaError := err.Error()
+				payload := payloads.InternalServerError(&aoaError, h.GetTraceIDFromRequest(params.HTTPRequest))
+				return ppmops.NewShowAOAPacketInternalServerError().
+					WithPayload(payload), err
+			}
+
+			payload := io.NopCloser(AOAPacket)
+			filename := fmt.Sprintf("inline; filename=\"AOA-%s.pdf\"", time.Now().Format("01-02-2006"))
+
+			return ppmops.NewShowAOAPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
+		})
+}
+
+// Handle returns a generated PDF
+func (h ShowShipmentSummaryWorksheetHandler) Handle(params ppmops.ShowShipmentSummaryWorksheetParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			logger := appCtx.Logger()
+
+			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
+			if err != nil {
+				logger.Error("Error fetching PPMShipment", zap.Error(err))
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+			ssfd, err := h.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentID)
+			if err != nil {
+				logger.Error("Error fetching data for SSW", zap.Error(err))
+				return handlers.ResponseForError(logger, err), err
+			}
+
+			ssfd.Obligations, err = h.SSWPPMComputer.ComputeObligations(appCtx, *ssfd, h.DTODPlanner())
+			if err != nil {
+				logger.Error("Error calculating obligations ", zap.Error(err))
+				return handlers.ResponseForError(logger, err), err
+			}
+
+			page1Data, page2Data := h.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
+			if err != nil {
+				logger.Error("Error formatting data for SSW", zap.Error(err))
+				return handlers.ResponseForError(logger, err), err
+			}
+
+			SSWPPMWorksheet, SSWPDFInfo, err := h.SSWPPMGenerator.FillSSWPDFForm(page1Data, page2Data)
+			if err != nil {
+				logger.Error("Error filling SSW", zap.Error(err))
+				return handlers.ResponseForError(logger, err), err
+			}
+			if SSWPDFInfo.PageCount != 2 {
+				logger.Error("Error filling SSW: PDF is corrupt", zap.Error(err))
+				return handlers.ResponseForError(logger, err), err
+			}
+			payload := io.NopCloser(SSWPPMWorksheet)
+			filename := fmt.Sprintf("inline; filename=\"%s-%s-ssw-%s.pdf\"", *ssfd.ServiceMember.FirstName, *ssfd.ServiceMember.LastName, time.Now().Format("01-02-2006"))
+
+			return ppmops.NewShowShipmentSummaryWorksheetOK().WithContentDisposition(filename).WithPayload(payload), nil
+		})
+}
+
+// ShowShipmentSummaryWorksheetHandler returns a Shipment Summary Worksheet PDF
+type ShowShipmentSummaryWorksheetHandler struct {
+	handlers.HandlerConfig
+	services.SSWPPMComputer
+	services.SSWPPMGenerator
 }

@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/gofrs/uuid"
+	"github.com/spf13/afero"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -81,7 +82,7 @@ type PPMShipmentUpdatedSubmitter interface {
 //
 //go:generate mockery --name AOAPacketCreator
 type AOAPacketCreator interface {
-	CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) error
+	CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (afero.File, error)
 }
 
 // PaymentPacketCreator creates a payment packet for a PPM shipment

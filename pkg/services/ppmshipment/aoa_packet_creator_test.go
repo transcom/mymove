@@ -18,6 +18,9 @@ import (
 
 func (suite *PPMShipmentSuite) TestCreateAOAPacket() {
 	mockPPMShipmentFetcher := &mocks.PPMShipmentFetcher{}
+	mockSSWPPMGenerator := &mocks.SSWPPMGenerator{}
+	mockSSWPPMComputer := &mocks.SSWPPMComputer{}
+	mockPrimeDownloadMoveUploadPDFGenerator := &mocks.PrimeDownloadMoveUploadPDFGenerator{}
 	mockUserUploadToPDFConverter := &mocks.UserUploadToPDFConverter{}
 	mockPDFMerger := &mocks.PDFMerger{}
 	mockPPMShipmentUpdater := &mocks.PPMShipmentUpdater{}
@@ -28,7 +31,7 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacket() {
 
 	suite.FatalNoError(uploaderErr)
 
-	aoaPacketCreator := NewAOAPacketCreator(mockPPMShipmentFetcher, mockUserUploadToPDFConverter, mockPDFMerger, mockPPMShipmentUpdater, userUploader)
+	aoaPacketCreator := NewAOAPacketCreator(mockSSWPPMGenerator, mockSSWPPMComputer, mockPrimeDownloadMoveUploadPDFGenerator, userUploader)
 
 	setUpMockPPMShipmentFetcherForAOA := func(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, returnValue ...interface{}) {
 		setUpMockPPMShipmentFetcher(
@@ -85,7 +88,7 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacket() {
 
 		setUpMockPPMShipmentFetcherForAOA(appCtx, ppmShipmentID, nil, fakeErr)
 
-		err := aoaPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID)
+		AOAPacket, err := aoaPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID)
 
 		if suite.Error(err) {
 			suite.ErrorIs(err, fakeErr)
@@ -129,7 +132,7 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacket() {
 			fakeErr,
 		)
 
-		err := aoaPacketCreator.CreateAOAPacket(appCtx, ppmShipment.ID)
+		AOAPacket, err := aoaPacketCreator.CreateAOAPacket(appCtx, ppmShipment.ID)
 
 		if suite.Error(err) {
 			suite.ErrorIs(err, fakeErr)
@@ -167,7 +170,7 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacket() {
 
 		setUpMockPDFMerger(mockPDFMerger, appCtx, pdfStreams, nil, fakeErr)
 
-		err := aoaPacketCreator.CreateAOAPacket(appCtx, ppmShipment.ID)
+		AOAPacket, err := aoaPacketCreator.CreateAOAPacket(appCtx, ppmShipment.ID)
 
 		if suite.Error(err) {
 			suite.ErrorIs(err, fakeErr)
@@ -215,7 +218,7 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacket() {
 
 		setUpMockPDFMerger(mockPDFMerger, appCtx, pdfStreams, mockMergedPDF, nil)
 
-		err := aoaPacketCreator.CreateAOAPacket(appCtx, ppmShipment.ID)
+		AOAPacket, err := aoaPacketCreator.CreateAOAPacket(appCtx, ppmShipment.ID)
 
 		if suite.Error(err) {
 			suite.ErrorContains(err, "error creating AOA packet: failed to save AOA packet")
@@ -267,7 +270,7 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacket() {
 				},
 			)
 
-			err := aoaPacketCreator.CreateAOAPacket(txnAppCtx, ppmShipment.ID)
+			AOAPacket, err := aoaPacketCreator.CreateAOAPacket(txnAppCtx, ppmShipment.ID)
 
 			if suite.NoError(err) {
 				suite.NotNil(ppmShipment.AOAPacketID)

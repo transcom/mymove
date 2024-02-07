@@ -4818,20 +4818,20 @@ paths:
             $ref: '#/definitions/MovePayload'
         '500':
           description: server error
-  /moves/{moveId}/shipment_summary_worksheet:
+  /ppm-shipments/{ppmShipmentId}/shipment_summary_worksheet:
     get:
       summary: Returns Shipment Summary Worksheet
       description: Generates pre-filled PDF using data already collected
       operationId: showShipmentSummaryWorksheet
       tags:
-        - moves
+        - ppm
       parameters:
         - in: path
-          name: moveId
+          name: ppmShipmentId
           type: string
           format: uuid
           required: true
-          description: UUID of the move
+          description: UUID of the ppmShipment
         - in: query
           name: preparationDate
           type: string
@@ -4858,6 +4858,51 @@ paths:
           description: user is not authorized
         '500':
           description: internal server error
+  /ppm-shipments/{ppmShipmentId}/aoa-packet:
+    parameters:
+      - description: the id for the ppmshipment with aoa to be downloaded
+        in: path
+        name: ppmShipmentId
+        required: true
+        type: string
+    get:
+      summary: Downloads AOA Packet form PPMShipment as a PDF
+      description: >
+        ### Functionality
+
+        This endpoint downloads all uploaded move order documentation combined
+        with the Shipment Summary Worksheet into a single PDF.
+
+        ### Errors
+
+        * The PPMShipment must have requested an AOA.
+
+        * The PPMShipment AOA Request must have been approved.
+      operationId: showAOAPacket
+      tags:
+        - ppm
+      produces:
+        - application/pdf
+      responses:
+        '200':
+          headers:
+            Content-Disposition:
+              type: string
+              description: File name to download
+          description: AOA PDF
+          schema:
+            format: binary
+            type: file
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /personally_procured_moves/{personallyProcuredMoveId}/approve:
     post:
       summary: Approves the PPM

@@ -2,6 +2,8 @@ package ghcapi
 
 import (
 	"fmt"
+	"io"
+	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -131,5 +133,38 @@ func (h FinishDocumentReviewHandler) Handle(params ppmdocumentops.FinishDocument
 			returnPayload := payloads.PPMShipment(h.FileStorer(), ppmShipment)
 
 			return ppmdocumentops.NewFinishDocumentReviewOK().WithPayload(returnPayload), nil
+		})
+}
+
+// ShowAOAPacketHandler returns a Shipment Summary Worksheet PDF
+type showAOAPacketHandler struct {
+	handlers.HandlerConfig
+	services.SSWPPMComputer
+	services.SSWPPMGenerator
+	services.AOAPacketCreator
+}
+
+// Handle returns a generated PDF
+func (h showAOAPacketHandler) Handle(params ppmdocumentops.ShowAOAPacketParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			logger := appCtx.Logger()
+
+			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID)
+			if err != nil {
+				logger.Error("Error fetching PPMShipment", zap.Error(err))
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			AOAPacket, err := h.AOAPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID)
+			if err != nil {
+				logger.Error("Error creating AOA", zap.Error(err))
+				return handlers.ResponseForError(logger, err), err
+			}
+
+			payload := io.NopCloser(AOAPacket)
+			filename := fmt.Sprintf("inline; filename=\"AOA-%s.pdf\"", time.Now().Format("01-02-2006"))
+
+			return ppmdocumentops.NewShowAOAPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
 		})
 }

@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/office_user/customer"
 	"github.com/transcom/mymove/pkg/services/orchestrators/shipment"
 	order "github.com/transcom/mymove/pkg/services/order"
+	"github.com/transcom/mymove/pkg/services/paperwork"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	paymentserviceitem "github.com/transcom/mymove/pkg/services/payment_service_item"
 	ppmcloseout "github.com/transcom/mymove/pkg/services/ppm_closeout"
@@ -32,11 +33,13 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	reportviolation "github.com/transcom/mymove/pkg/services/report_violation"
 	shipmentaddressupdate "github.com/transcom/mymove/pkg/services/shipment_address_update"
+	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
 	sitentrydateupdate "github.com/transcom/mymove/pkg/services/sit_entry_date_update"
 	sitextension "github.com/transcom/mymove/pkg/services/sit_extension"
 	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 // NewGhcAPIHandler returns a handler for the GHC API
@@ -55,6 +58,14 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
 		moveRouter,
 	)
+	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	SSWPPMGenerator := shipmentsummaryworksheet.NewSSWPPMGenerator()
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	transportationOfficeFetcher := transportationoffice.NewTransportationOfficesFetcher()
 	closeoutOfficeUpdater := move.NewCloseoutOfficeUpdater(move.NewMoveFetcher(), transportationOfficeFetcher)
@@ -254,8 +265,26 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		fetch.NewFetcher(queryBuilder),
 		moveRouter,
 	)
+
+	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	primeDownloadMoveUploadPDFGenerator, err := paperwork.NewMoveUserUploadToPDFDownloader(userUploader)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	AOAPacketCreator := ppmshipment.NewAOAPacketCreator(SSWPPMGenerator, SSWPPMComputer, primeDownloadMoveUploadPDFGenerator, userUploader)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(ppmEstimator)
+	ghcAPI.PpmShowAOAPacketHandler = showAOAPacketHandler{handlerConfig, SSWPPMComputer, SSWPPMGenerator, AOAPacketCreator}
+
 	shipmentRouter := mtoshipment.NewShipmentRouter()
 	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
 	ghcAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{

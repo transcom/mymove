@@ -222,6 +222,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveSetFinancialReviewFlagHandler: move.SetFinancialReviewFlagHandlerFunc(func(params move.SetFinancialReviewFlagParams) middleware.Responder {
 			return middleware.NotImplemented("operation move.SetFinancialReviewFlag has not yet been implemented")
 		}),
+		PpmShowAOAPacketHandler: ppm.ShowAOAPacketHandlerFunc(func(params ppm.ShowAOAPacketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.ShowAOAPacket has not yet been implemented")
+		}),
 		EvaluationReportsSubmitEvaluationReportHandler: evaluation_reports.SubmitEvaluationReportHandlerFunc(func(params evaluation_reports.SubmitEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.SubmitEvaluationReport has not yet been implemented")
 		}),
@@ -437,6 +440,8 @@ type MymoveAPI struct {
 	MoveSearchMovesHandler move.SearchMovesHandler
 	// MoveSetFinancialReviewFlagHandler sets the operation handler for the set financial review flag operation
 	MoveSetFinancialReviewFlagHandler move.SetFinancialReviewFlagHandler
+	// PpmShowAOAPacketHandler sets the operation handler for the show a o a packet operation
+	PpmShowAOAPacketHandler ppm.ShowAOAPacketHandler
 	// EvaluationReportsSubmitEvaluationReportHandler sets the operation handler for the submit evaluation report operation
 	EvaluationReportsSubmitEvaluationReportHandler evaluation_reports.SubmitEvaluationReportHandler
 	// TacTacValidationHandler sets the operation handler for the tac validation operation
@@ -719,6 +724,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MoveSetFinancialReviewFlagHandler == nil {
 		unregistered = append(unregistered, "move.SetFinancialReviewFlagHandler")
+	}
+	if o.PpmShowAOAPacketHandler == nil {
+		unregistered = append(unregistered, "ppm.ShowAOAPacketHandler")
 	}
 	if o.EvaluationReportsSubmitEvaluationReportHandler == nil {
 		unregistered = append(unregistered, "evaluation_reports.SubmitEvaluationReportHandler")
@@ -1088,6 +1096,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/moves/{moveID}/financial-review-flag"] = move.NewSetFinancialReviewFlag(o.context, o.MoveSetFinancialReviewFlagHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/aoa-packet"] = ppm.NewShowAOAPacket(o.context, o.PpmShowAOAPacketHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

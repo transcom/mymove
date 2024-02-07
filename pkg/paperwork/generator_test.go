@@ -211,6 +211,33 @@ func (suite *PaperworkSuite) TestCreateMergedPDF() {
 	suite.Equal(3, ctx.PageCount)
 }
 
+func (suite *PaperworkSuite) TestCreateMergedPDFByContents() {
+	generator, err := NewGenerator(suite.userUploader.Uploader())
+
+	file1, err := suite.openLocalFile("testdata/orders1.pdf", generator.fs)
+	suite.FatalNil(err)
+
+	file2, err := suite.openLocalFile("testdata/orders1.pdf", generator.fs)
+	suite.FatalNil(err)
+
+	var files []io.ReadSeeker
+
+	files = append(files, file1)
+	files = append(files, file2)
+
+	file, err := generator.MergePDFFilesByContents(suite.AppContextForTest(), files)
+	suite.FatalNil(err)
+
+	// Read merged file and verify page count
+	ctx, err := api.ReadContext(file, generator.pdfConfig)
+	suite.FatalNil(err)
+
+	err = validate.XRefTable(ctx.XRefTable)
+	suite.FatalNil(err)
+
+	suite.Equal(2, ctx.PageCount)
+}
+
 func (suite *PaperworkSuite) TestCleanup() {
 	generator, order := suite.setupOrdersDocument()
 
