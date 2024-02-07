@@ -893,3 +893,4 @@
 20240129153006_20240129-homesafeconnect-cert.up.sql
 20240201174442_20240201_homesafe_prd_cert.up.sql
 20240207173709_updateTransportationOffices.up.sql
+20240206173201_update_shipment_address_update_table_sit_and_distance_columns.up.sql
