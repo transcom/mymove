@@ -4,11 +4,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useNavigate } from 'react-router';
 import { connect } from 'react-redux';
 
+import { isMultiMoveEnabled } from '../../../utils/featureFlags';
+
 import styles from './MultiMovesLandingPage.module.scss';
 import MultiMovesMoveHeader from './MultiMovesMoveHeader/MultiMovesMoveHeader';
 import MultiMovesMoveContainer from './MultiMovesMoveContainer/MultiMovesMoveContainer';
 
-import { detectFlags } from 'utils/featureFlags';
 import { generatePageTitle } from 'hooks/custom';
 import { milmoveLogger } from 'utils/milmoveLog';
 import retryPageLoading from 'utils/retryPageLoading';
@@ -24,6 +25,7 @@ import { selectAllMoves, selectIsProfileComplete, selectServiceMemberFromLoggedI
 
 const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves }) => {
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
+  const [multiMoveEnabled, setIsMultiMoveEnabled] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,6 +35,8 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves }) => {
         loadUser();
         initOnboarding();
         document.title = generatePageTitle('MilMove');
+        const isEnabled = await isMultiMoveEnabled();
+        setIsMultiMoveEnabled(isEnabled);
       } catch (error) {
         const { message } = error;
         milmoveLogger.error({ message, info: null });
@@ -48,8 +52,6 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves }) => {
     fetchData();
   }, [setErrorState]);
 
-  const flags = detectFlags(process.env.NODE_ENV, window.location.host, window.location.search);
-
   // handles logic when user clicks "Create a Move" button
   // if they have previous moves, they'll need to validate their profile
   // if they do not have previous moves, then they don't need to validate
@@ -63,7 +65,7 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves }) => {
   };
 
   // ! WILL ONLY SHOW IF MULTIMOVE FLAG IS TRUE
-  return flags.multiMove ? (
+  return multiMoveEnabled ? (
     <div>
       <div className={styles.homeContainer}>
         <header data-testid="customerHeader" className={styles.customerHeader}>
