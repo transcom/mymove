@@ -331,14 +331,19 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async submitsDateAndLocation() {
-    // TODO: B-18434 update this to fill out addresses
+    await this.page.locator('input[name="pickupAddress.address.postalCode"]').clear();
+    await this.page.locator('input[name="pickupAddress.address.postalCode"]').type('90210');
+    await this.page.locator('input[name="pickupAddress.address.postalCode"]').blur();
+
+    await this.page.locator('input[name="destinationAddress.address.postalCode"]').clear();
+    await this.page.locator('input[name="destinationAddress.address.postalCode"]').type('76127');
 
     await this.page.locator('input[name="expectedDepartureDate"]').clear();
     await this.page.locator('input[name="expectedDepartureDate"]').type('01 Feb 2022');
     await this.page.locator('input[name="expectedDepartureDate"]').blur();
 
     // Select closeout office
-    await this.selectDutyLocation('Fort Bragg', 'closeoutOffice');
+    await this.selectDutyLocation('PPPO Scott AFB-USAF', 'closeoutOffice');
 
     await this.navigateFromDateAndLocationPageToEstimatedWeightsPage();
   }
