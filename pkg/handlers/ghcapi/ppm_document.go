@@ -157,7 +157,7 @@ func (h showAOAPacketHandler) Handle(params ppmdocumentops.ShowAOAPacketParams) 
 				errPayload := &ghcmessages.Error{Message: &errInstance}
 
 				appCtx.Logger().Error(err.Error())
-				return ppmdocumentops.NewShowAOAPacketNotFound().WithPayload(errPayload), err //Change to bad request
+				return ppmdocumentops.NewShowAOAPacketBadRequest().WithPayload(errPayload), err
 			}
 
 			AOAPacket, err := h.AOAPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID)
