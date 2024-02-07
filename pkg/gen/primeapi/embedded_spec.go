@@ -1435,7 +1435,7 @@ func init() {
     },
     "/sit-address-updates": {
       "post": {
-        "description": "**Functionality:**\nCreates an update request for a SIT service item's final delivery address.\nA newly created update request is assigned the status 'REQUESTED'  if the change in address\nis \u003e 50 miles and automatically approved otherwise.\n\n**Limitations:**\nThe update can be requested for APPROVED SIT service items only.\nOnly ONE request is allowed per approved SIT service item.\n",
+        "description": "**Functionality:**\nCreates an update request for a SIT service item's final delivery address.\nA newly created update request is assigned the status 'REQUESTED'  if the change in address\nis \u003e 50 miles and automatically approved otherwise.\n\n**Limitations:**\nThe update can be requested for APPROVED SIT service items only.\nOnly ONE request is allowed per approved SIT service item.\n\n**DEPRECATION ON AUGUST 5TH, 2024**\nFollowing deprecation, when updating a service item's final delivery address, you will need to update the shipment's destination address. This will update the destination SIT service items' final delivery address upon approval.\nFor ` + "`" + `APPROVED` + "`" + ` shipments, you can use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress)\nFor shipments in any other status, you can use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress)\n",
         "consumes": [
           "application/json"
         ],
@@ -4771,7 +4771,7 @@ func init() {
       "name": "paymentRequest"
     },
     {
-      "description": "A **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance less than or equal to 50 miles will be automatically\napproved while a distance greater than 50 miles will typically require office user approval.\n",
+      "description": "**THIS ENDPOINT WILL BE DEPRECATED ON AUGUST 5TH, 2024 - REFER TO DESCRIPTION FOR DETAILS**\n\nA **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance less than or equal to 50 miles will be automatically\napproved while a distance greater than 50 miles will typically require office user approval.\n",
       "name": "sitAddressUpdate"
     }
   ],
@@ -6634,7 +6634,7 @@ func init() {
     },
     "/sit-address-updates": {
       "post": {
-        "description": "**Functionality:**\nCreates an update request for a SIT service item's final delivery address.\nA newly created update request is assigned the status 'REQUESTED'  if the change in address\nis \u003e 50 miles and automatically approved otherwise.\n\n**Limitations:**\nThe update can be requested for APPROVED SIT service items only.\nOnly ONE request is allowed per approved SIT service item.\n",
+        "description": "**Functionality:**\nCreates an update request for a SIT service item's final delivery address.\nA newly created update request is assigned the status 'REQUESTED'  if the change in address\nis \u003e 50 miles and automatically approved otherwise.\n\n**Limitations:**\nThe update can be requested for APPROVED SIT service items only.\nOnly ONE request is allowed per approved SIT service item.\n\n**DEPRECATION ON AUGUST 5TH, 2024**\nFollowing deprecation, when updating a service item's final delivery address, you will need to update the shipment's destination address. This will update the destination SIT service items' final delivery address upon approval.\nFor ` + "`" + `APPROVED` + "`" + ` shipments, you can use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress)\nFor shipments in any other status, you can use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress)\n",
         "consumes": [
           "application/json"
         ],
@@ -10037,7 +10037,7 @@ func init() {
       "name": "paymentRequest"
     },
     {
-      "description": "A **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance less than or equal to 50 miles will be automatically\napproved while a distance greater than 50 miles will typically require office user approval.\n",
+      "description": "**THIS ENDPOINT WILL BE DEPRECATED ON AUGUST 5TH, 2024 - REFER TO DESCRIPTION FOR DETAILS**\n\nA **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance less than or equal to 50 miles will be automatically\napproved while a distance greater than 50 miles will typically require office user approval.\n",
       "name": "sitAddressUpdate"
     }
   ],
