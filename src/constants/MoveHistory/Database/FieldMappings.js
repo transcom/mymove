@@ -116,4 +116,7 @@ export default {
   weight: 'Weight',
   belongs_to_self: 'Service member',
   sit_customer_contacted: 'Customer contacted',
+  sit_location: 'SIT Location',
+  sit_estimated_cost: 'SIT Estimated Cost',
+  estimated_incentive: 'PPM Estimated Incentive',
 };
