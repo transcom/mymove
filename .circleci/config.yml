@@ -2014,14 +2014,14 @@ jobs:
   prod_auth_check:
     executor: tls_small
     steps:
-      - run: echo "build approved by $CIRCLE_USERNAME"   
+      - run: echo "build approved by $CIRCLE_USERNAME"
       - run:
           name: Check if Prod approval has rights
           command: |
             if [[ $CIRCLE_USERNAME != "josiahzimmerman-caci" && $CIRCLE_USERNAME != "deandreJones" && $CIRCLE_USERNAME != "cameroncaci" ]]; then
                exit 1
-            fi      
-      - announce_failure     
+            fi
+      - announce_failure
   # All of the deploy tasks need to checkout the code so they can run the `scripts/do-exclusively` script
 
   # `deploy_dp3_migrations` deploys migrations to the dp3 environment
@@ -2583,7 +2583,7 @@ workflows:
            - approve_prd_deploy
           filters:
             branches:
-              only: main        
+              only: main
 
       - deploy_storybook_dp3:
           requires:
