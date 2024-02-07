@@ -210,9 +210,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmShowPPMEstimateHandler: ppm.ShowPPMEstimateHandlerFunc(func(params ppm.ShowPPMEstimateParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.ShowPPMEstimate has not yet been implemented")
 		}),
-		PpmShowPPMIncentiveHandler: ppm.ShowPPMIncentiveHandlerFunc(func(params ppm.ShowPPMIncentiveParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.ShowPPMIncentive has not yet been implemented")
-		}),
 		PpmShowPPMSitEstimateHandler: ppm.ShowPPMSitEstimateHandlerFunc(func(params ppm.ShowPPMSitEstimateParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.ShowPPMSitEstimate has not yet been implemented")
 		}),
@@ -419,8 +416,6 @@ type MymoveAPI struct {
 	OrdersShowOrdersHandler orders.ShowOrdersHandler
 	// PpmShowPPMEstimateHandler sets the operation handler for the show p p m estimate operation
 	PpmShowPPMEstimateHandler ppm.ShowPPMEstimateHandler
-	// PpmShowPPMIncentiveHandler sets the operation handler for the show p p m incentive operation
-	PpmShowPPMIncentiveHandler ppm.ShowPPMIncentiveHandler
 	// PpmShowPPMSitEstimateHandler sets the operation handler for the show p p m sit estimate operation
 	PpmShowPPMSitEstimateHandler ppm.ShowPPMSitEstimateHandler
 	// QueuesShowQueueHandler sets the operation handler for the show queue operation
@@ -689,9 +684,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PpmShowPPMEstimateHandler == nil {
 		unregistered = append(unregistered, "ppm.ShowPPMEstimateHandler")
-	}
-	if o.PpmShowPPMIncentiveHandler == nil {
-		unregistered = append(unregistered, "ppm.ShowPPMIncentiveHandler")
 	}
 	if o.PpmShowPPMSitEstimateHandler == nil {
 		unregistered = append(unregistered, "ppm.ShowPPMSitEstimateHandler")
@@ -1040,10 +1032,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/estimates/ppm"] = ppm.NewShowPPMEstimate(o.context, o.PpmShowPPMEstimateHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/personally_procured_moves/incentive"] = ppm.NewShowPPMIncentive(o.context, o.PpmShowPPMIncentiveHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
