@@ -544,7 +544,7 @@ func (g *Generator) MergePDFFilesByContents(_ appcontext.AppContext, fileReaders
 
 	// Merge files
 	if err = g.pdfLib.Merge(fileReaders, mergedFile); err != nil {
-		return mergedFile, err
+		return nil, err
 	}
 
 	// Reload the merged file
