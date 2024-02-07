@@ -1009,11 +1009,14 @@ func subScenarioPrimeUserAndClientCert(appCtx appcontext.AppContext) func() {
 	}
 }
 
-func subScenarioMultipleMoves(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
+func subScenarioMultipleMoves(appCtx appcontext.AppContext) func() {
 	// notice that we're returning a function here
 	// this is to create a closure function so we can use the params passed in for later in the sub-scenario list
 	return func() {
 		// code that seeds data
-		createMultipleMovesTwoMovesHHGAndPPMShipments(appCtx, userUploader)
+		createMultipleMovesTwoMovesHHGAndPPMShipments(appCtx)
+		createMultipleMovesThreeMovesHHGPPMNTSShipments(appCtx)
+		createMultipleMovesThreeMovesNTSHHGShipments(appCtx)
+		createMultipleMovesThreeMovesPPMShipments(appCtx)
 	}
 }
