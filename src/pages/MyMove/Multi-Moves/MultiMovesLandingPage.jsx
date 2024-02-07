@@ -14,7 +14,6 @@ import {
   mockMovesNoCurrentOrPreviousMoves,
 } from './MultiMovesTestData';
 
-import { detectFlags } from 'utils/featureFlags';
 import { generatePageTitle } from 'hooks/custom';
 import { milmoveLogger } from 'utils/milmoveLog';
 import retryPageLoading from 'utils/retryPageLoading';
@@ -81,10 +80,7 @@ const MultiMovesLandingPage = () => {
     fetchData();
   }, [setErrorState]);
 
-  const flags = detectFlags(process.env.NODE_ENV, window.location.host, window.location.search);
-
-  // ! WILL ONLY SHOW IF MULTIMOVE FLAG IS TRUE
-  return flags.multiMove ? (
+  return (
     <div>
       <div className={styles.homeContainer}>
         <header data-testid="customerHeader" className={styles.customerHeader}>
@@ -146,7 +142,7 @@ const MultiMovesLandingPage = () => {
         </div>
       </div>
     </div>
-  ) : null;
+  );
 };
 
 export default MultiMovesLandingPage;
