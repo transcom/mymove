@@ -4,7 +4,6 @@ This is a confirmation that a move task order has been placed for your move (Mov
 {{if .OriginDutyLocation}}from {{.OriginDutyLocation}} {{ end }}to {{.DestinationDutyLocation}}.
 
 What this means to you:
-
 {{ if .ProvidesGovernmentCounseling }}
 Your government-arranged shipment(s) will be managed by HomeSafe Alliance,
 the DoD contractor under the Global Household Goods Contract (GHC).
@@ -12,6 +11,7 @@ the DoD contractor under the Global Household Goods Contract (GHC).
 *** Next steps for your government-arranged shipment(s): ***
 
 HomeSafe will send you an e-mail invitation (check your spam or junk folder) to log in to their system, HomeSafe Connect.
+
 * Log in to HomeSafe Connect as soon as possible to schedule your pre-move survey. You can request either a virtual,
 or in-person pre-move survey.
 
