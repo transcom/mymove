@@ -12,12 +12,12 @@
 //   await page.getByRole('button', { name: 'Add orders' }).click();
 //   await customerPage.waitForPage.ordersDetails();
 
-//   // Fill in orders details
-//   await page.getByTestId('dropdown').selectOption({ label: 'Permanent Change Of Station (PCS)' });
-//   await page.getByLabel('Orders date').fill('6/2/2018');
-//   await page.getByLabel('Orders date').blur();
-//   await page.getByLabel('Report by date').fill('8/9/2018');
-//   await page.getByLabel('Report by date').blur();
+// Fill in orders details
+// await page.getByLabel('Orders type').selectOption({ label: 'Permanent Change Of Station (PCS)' });
+// await page.getByLabel('Orders date').fill('6/2/2018');
+// await page.getByLabel('Orders date').blur();
+// await page.getByLabel('Report by date').fill('8/9/2018');
+// await page.getByLabel('Report by date').blur();
 
 //   // UGH
 //   // because of the styling of this input item, we cannot use a
@@ -29,12 +29,20 @@
 //   //
 //   await page.locator('div:has(label:has-text("Are dependents")) >> div.usa-radio').getByText('No').click();
 
-//   await customerPage.selectDutyLocation('Yuma AFB', 'new_duty_location');
-//   await page.keyboard.press('Backspace'); // tests if backspace clears the duty location field
-//   await expect(page.getByLabel('New duty location')).toBeEmpty();
-//   await customerPage.selectDutyLocation('Yuma AFB', 'new_duty_location');
-//   await customerPage.navigateForward();
-//   await customerPage.waitForPage.ordersUpload();
+// await customerPage.selectDutyLocation('Yuma AFB', 'new_duty_location');
+// await page.keyboard.press('Backspace'); // tests if backspace clears the duty location field
+// await expect(page.getByLabel('New duty location')).toBeEmpty();
+// await customerPage.selectDutyLocation('Yuma AFB', 'new_duty_location');
+
+// await customerPage.selectDutyLocation('Yuma AFB', 'origin_duty_location');
+// await page.keyboard.press('Backspace'); // tests if backspace clears the duty location field
+// await expect(page.getByLabel('Current duty location')).toBeEmpty();
+// await customerPage.selectDutyLocation('Yuma AFB', 'origin_duty_location');
+
+// await page.getByRole('combobox', { name: 'Pay grade' }).selectOption({ label: 'E-7' });
+
+// await customerPage.navigateForward();
+// await customerPage.waitForPage.ordersUpload();
 
 //   // Upload an orders document, then submit
 //   // Annoyingly, there's no test IDs or labeling text for this control, so the only way to access it is .locator
