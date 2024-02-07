@@ -3,7 +3,6 @@ package ppmshipment
 import (
 	"fmt"
 	"io"
-	"strings"
 
 	"github.com/gofrs/uuid"
 	"github.com/spf13/afero"
@@ -18,7 +17,6 @@ import (
 
 // aoaPacketCreator is the concrete struct implementing the AOAPacketCreator interface
 type aoaPacketCreator struct {
-	services.PPMShipmentFetcher
 	services.SSWPPMGenerator
 	services.SSWPPMComputer
 	services.PrimeDownloadMoveUploadPDFGenerator
@@ -28,7 +26,6 @@ type aoaPacketCreator struct {
 
 // NewAOAPacketCreator creates a new AOAPacketCreator with all of its dependencies
 func NewAOAPacketCreator(
-	ppmShipmentFetcher services.PPMShipmentFetcher,
 	sswPPMGenerator services.SSWPPMGenerator,
 	sswPPMComputer services.SSWPPMComputer,
 	primeDownloadMoveUploadPDFGenerator services.PrimeDownloadMoveUploadPDFGenerator,
@@ -39,7 +36,6 @@ func NewAOAPacketCreator(
 		return nil
 	}
 	return &aoaPacketCreator{
-		ppmShipmentFetcher,
 		sswPPMGenerator,
 		sswPPMComputer,
 		primeDownloadMoveUploadPDFGenerator,
@@ -56,69 +52,53 @@ func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShip
 	// First we begin by fetching SSW Data, computing obligations, formatting, and filling the SSWPDF
 	ssfd, err := a.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
 	page1Data, page2Data := a.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
 	SSWPPMWorksheet, SSWPDFInfo, err := a.SSWPPMGenerator.FillSSWPDFForm(page1Data, page2Data)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 	// Ensure SSW PDF is not corrupted
 	if SSWPDFInfo.PageCount != 2 {
-		return nil, err
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
-	// Now that SSW is retrieved, find and append all orders and amendments
-
+	// Now that SSW is retrieved, find, convert to pdf, and append all orders and amendments
+	// Query move, orders by ppm shipment
 	ppmShipment := models.PPMShipment{}
 	dbQErr := appCtx.DB().Q().Eager(
 		"Shipment.MoveTaskOrder",
 		"Shipment.MoveTaskOrder.Orders.ID",
 	).Find(&ppmShipment, ppmShipmentID)
 
-	if dbQErr != nil {
-		return nil, dbQErr
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, dbQErr)
 	}
 
 	// Find move attached to PPM Shipment
 	move := models.Move(ppmShipment.Shipment.MoveTaskOrder)
-	// This function retrieves all orders and amendments, merges them into one PDF with bookmarks
-	outputFile, err := a.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, services.MoveOrderUploadAll, move)
+	// This function retrieves all orders and amendments, converts and merges them into one PDF with bookmarks
+	ordersFile, err := a.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, services.MoveOrderUploadAll, move)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
-	var sswName = SSWPPMWorksheet.Name()
-	var uploadsName = outputFile.Name()
+	// Calling the PDF merge function in Generator with these filepaths creates issues due to instancing of the memory filesystem
+	// Instead, we use a readseeker to pass in file information to merge the files in Generator.
+	var files []io.ReadSeeker
 
-	var pdfFileNames []string
-
-	pdfFileNames = append(pdfFileNames, sswName)
-	pdfFileNames = append(pdfFileNames, uploadsName)
-	a.pdfGenerator.FileSystem().Fs.Open(SSWPPMWorksheet.Name())
-	if err != nil {
-		return nil, err
-	}
-	println("FILE 1 OPENED")
-	a.pdfGenerator.FileSystem().Fs.Open(outputFile.Name())
-	if err != nil {
-		return nil, err
-	}
-	println("FILE 2 OPENED")
+	files = append(files, SSWPPMWorksheet)
+	files = append(files, ordersFile)
 	// Take all of generated PDFs and merge into a single PDF.
-	mergedPdf, err := a.pdfGenerator.MergeTwoPDFFilesWithReload(appCtx, SSWPPMWorksheet, outputFile)
+	mergedPdf, err := a.pdfGenerator.MergePDFFilesByContents(appCtx, files)
 	if err != nil {
-		return nil, err
-	}
-
-	concatenatedString := strings.Join(pdfFileNames, " ")
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w, %s", errMsgPrefix, err, concatenatedString)
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
 	return mergedPdf, nil

@@ -532,42 +532,26 @@ func (g *Generator) FillPDFForm(jsonData []byte, templateReader io.ReadSeeker) (
 }
 
 // MergePDFFiles Merges a slice of paths to PDF files into a single PDF
-func (g *Generator) MergeTwoPDFFilesWithReload(_ appcontext.AppContext, file1 io.ReadSeeker, file2 io.ReadSeeker) (afero.File, error) {
+func (g *Generator) MergePDFFilesByContents(_ appcontext.AppContext, fileReaders []io.ReadSeeker) (afero.File, error) {
 	var err error
-	//Create 2 temp files to hold contents
-	tempfile1, err := g.newTempFile()
-	tempfile2, err := g.newTempFile()
-	_, err = io.Copy(tempfile1, file1)
-	_, err = io.Copy(tempfile2, file2)
-	var files []io.ReadSeeker
-	files = append(files, tempfile1)
-	files = append(files, tempfile2)
-	var paths []string
-	paths = append(paths, tempfile1.Name())
-	paths = append(paths, tempfile2.Name())
 
+	// Create a merged file
 	mergedFile, err := g.newTempFile()
 	if err != nil {
-		return mergedFile, err
+		return nil, err
+	}
+	defer mergedFile.Close() // Close merged file after finishing
+
+	// Merge files
+	if err = g.pdfLib.Merge(fileReaders, mergedFile); err != nil {
+		return nil, err
 	}
 
-	for _, p := range paths {
-		f, fileOpenErr := g.fs.Open(p)
-		if fileOpenErr != nil {
-			return mergedFile, fileOpenErr
-		}
-		files = append(files, f)
-	}
-	if err = g.pdfLib.Merge(files, mergedFile); err != nil {
-		return mergedFile, err
-	}
-
-	// Reload the file from memstore
+	// Reload the merged file
 	mergedFile, err = g.fs.Open(mergedFile.Name())
 	if err != nil {
-		return mergedFile, err
+		return nil, err
 	}
 
 	return mergedFile, nil
-
 }

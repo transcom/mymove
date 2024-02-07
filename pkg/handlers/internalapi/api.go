@@ -81,7 +81,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		log.Fatalln(err)
 	}
 	ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
-	AOAPacketCreator := ppmshipment.NewAOAPacketCreator(ppmShipmentFetcher, SSWPPMGenerator, SSWPPMComputer, primeDownloadMoveUploadPDFGenerator, userUploader)
+	AOAPacketCreator := ppmshipment.NewAOAPacketCreator(SSWPPMGenerator, SSWPPMComputer, primeDownloadMoveUploadPDFGenerator, userUploader)
 	if err != nil {
 		log.Fatalln(err)
 	}

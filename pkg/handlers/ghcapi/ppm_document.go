@@ -141,6 +141,7 @@ type showAOAPacketHandler struct {
 	handlers.HandlerConfig
 	services.SSWPPMComputer
 	services.SSWPPMGenerator
+	services.AOAPacketCreator
 }
 
 // Handle returns a generated PDF
@@ -154,36 +155,15 @@ func (h showAOAPacketHandler) Handle(params ppmdocumentops.ShowAOAPacketParams) 
 				logger.Error("Error fetching PPMShipment", zap.Error(err))
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-			ssfd, err := h.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentID)
+
+			AOAPacket, err := h.AOAPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID)
 			if err != nil {
-				logger.Error("Error fetching data for SSW", zap.Error(err))
+				logger.Error("Error creating AOA", zap.Error(err))
 				return handlers.ResponseForError(logger, err), err
 			}
 
-			ssfd.Obligations, err = h.SSWPPMComputer.ComputeObligations(appCtx, *ssfd, h.DTODPlanner())
-			if err != nil {
-				logger.Error("Error calculating obligations ", zap.Error(err))
-				return handlers.ResponseForError(logger, err), err
-			}
-
-			page1Data, page2Data := h.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
-			if err != nil {
-				logger.Error("Error formatting data for SSW", zap.Error(err))
-				return handlers.ResponseForError(logger, err), err
-			}
-
-			SSWPPMWorksheet, SSWPDFInfo, err := h.SSWPPMGenerator.FillSSWPDFForm(page1Data, page2Data)
-			if err != nil {
-				logger.Error("Error filling SSW", zap.Error(err))
-				return handlers.ResponseForError(logger, err), err
-			}
-			if SSWPDFInfo.PageCount != 2 {
-				logger.Error("Error filling SSW: PDF is corrupt", zap.Error(err))
-				return handlers.ResponseForError(logger, err), err
-			}
-
-			payload := io.NopCloser(SSWPPMWorksheet)
-			filename := fmt.Sprintf("inline; filename=\"%s-%s-ssw-%s.pdf\"", *ssfd.ServiceMember.FirstName, *ssfd.ServiceMember.LastName, time.Now().Format("01-02-2006"))
+			payload := io.NopCloser(AOAPacket)
+			filename := fmt.Sprintf("inline; filename=\"AOA-%s.pdf\"", time.Now().Format("01-02-2006"))
 
 			return ppmdocumentops.NewShowAOAPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
 		})
