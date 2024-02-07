@@ -760,7 +760,14 @@ func GetTraitApprovedPPMShipment() []Customization {
 		},
 	}
 }
-
+func AddSignedCertificationToPPMShipment(db *pop.Connection, ppmShipment *models.PPMShipment, signedCertification models.SignedCertification) {
+	if db == nil && ppmShipment.ID.IsNil() {
+		// need to create an ID so we can use the ppmShipment as
+		// LinkOnly
+		ppmShipment.ID = uuid.Must(uuid.NewV4())
+	}
+	ppmShipment.SignedCertification = &signedCertification
+}
 func GetTraitApprovedPPMWithActualInfo() []Customization {
 	submittedTime := time.Now()
 	approvedTime := submittedTime.AddDate(0, 0, 3)
