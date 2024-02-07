@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { mount } from 'enzyme';
 import moment from 'moment';
@@ -23,6 +23,9 @@ import {
   createPPMShipmentWithFinalIncentive,
   createSubmittedPPMShipment,
 } from 'utils/test/factories/ppmShipment';
+import { MemoryRouter } from 'react-router-dom';
+import { downloadPPMAOAPacket } from 'services/internalApi';
+import { JSDOM } from 'jsdom';
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -34,6 +37,10 @@ const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
+}));
+
+jest.mock('services/internalApi', () => ({
+  downloadPPMAOAPacket: jest.fn(),
 }));
 
 const defaultProps = {
@@ -566,7 +573,11 @@ describe('Home component', () => {
       it('renders advance request submitted for PPM', () => {
         const mtoShipments = [approvedAdvancePPMShipment];
         const props = { ...defaultProps, ...propUpdates, mtoShipments };
-        render(<Home {...props} />);
+        render(
+          <MemoryRouter>
+            <Home {...props} />
+          </MemoryRouter>,
+        );
         expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
       });
 
@@ -577,7 +588,11 @@ describe('Home component', () => {
         expect(advanceStep.prop('completedHeaderText')).toEqual('Advance request reviewed');
 
         const props = { ...defaultProps, ...propUpdates, mtoShipments };
-        render(<Home {...props} />);
+        render(
+          <MemoryRouter>
+            <Home {...props} />
+          </MemoryRouter>,
+        );
         expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
       });
 
@@ -588,7 +603,11 @@ describe('Home component', () => {
         expect(advanceStep.prop('completedHeaderText')).toEqual('Advance request reviewed');
 
         const props = { ...defaultProps, ...propUpdates, mtoShipments };
-        render(<Home {...props} />);
+        render(
+          <MemoryRouter>
+            <Home {...props} />
+          </MemoryRouter>,
+        );
         expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
       });
 
@@ -600,7 +619,11 @@ describe('Home component', () => {
         expect(advanceStep.prop('completedHeaderText')).toEqual('Advance request reviewed');
 
         const props = { ...defaultProps, ...propUpdates, mtoShipments };
-        render(<Home {...props} />);
+        render(
+          <MemoryRouter>
+            <Home {...props} />
+          </MemoryRouter>,
+        );
         expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
         expect(screen.getByText('Advance request denied')).toBeInTheDocument();
       });
@@ -611,6 +634,109 @@ describe('Home component', () => {
         const advanceStep = wrapper.find('Step[step="5"]');
 
         expect(advanceStep.prop('completedHeaderText')).toEqual('Advance request denied');
+      });
+
+      it('Download AOA Packet PPM - Error', async () => {
+        downloadPPMAOAPacket.mockRejectedValue({
+          response: { body: { title: 'Error title', detail: 'Error detail' } },
+        });
+
+        setTimeout(() => {
+          console.log('Delayed for 1 second.');
+        }, '1000');
+
+        const mtoShipments = [approvedAdvancePPMShipment];
+        const props = { ...defaultProps, ...propUpdates, mtoShipments };
+        render(
+          <MemoryRouter>
+            <Home {...props} />
+          </MemoryRouter>,
+        );
+        expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
+
+        const downloadAOAButton = screen.getByText('Download AOA Paperwork (PDF)');
+        expect(downloadAOAButton).toBeInTheDocument();
+        await userEvent.click(downloadAOAButton);
+
+        await waitFor(() => {
+          expect(
+            screen.getByText(
+              /Something went wrong downloading PPM AOA paperwork. Please try again later or contact your counselor/,
+            ),
+          ).toBeInTheDocument();
+        });
+      });
+
+      it('Download AOA Packet PPM - Success', async () => {
+        global.URL.createObjectURL = jest.fn();
+        const mockResponse = {
+          ok: true,
+          headers: {
+            'content-disposition': 'filename="test.pdf"',
+          },
+          status: 200,
+          data: null,
+        };
+        downloadPPMAOAPacket.mockImplementation(() => Promise.resolve(mockResponse));
+
+        setTimeout(() => {
+          console.log('Delayed for 1 second.');
+        }, '1000');
+
+        const mtoShipments = [approvedAdvancePPMShipment];
+        const props = { ...defaultProps, ...propUpdates, mtoShipments };
+
+        render(
+          <MemoryRouter>
+            <Home {...props} />
+          </MemoryRouter>,
+        );
+
+        expect(screen.getByText('Download AOA Paperwork (PDF)')).toBeInTheDocument();
+
+        const downloadAOAButton = screen.getByText('Download AOA Paperwork (PDF)');
+        expect(downloadAOAButton).toBeInTheDocument();
+
+        function makeAnchor(target) {
+          return {
+            target,
+            setAttribute: jest.fn((key, value) => (target[key] = value)),
+            click: jest.fn(),
+            remove: jest.fn(),
+            parentNode: {
+              removeChild: jest.fn(),
+            },
+          };
+        }
+        let anchor = makeAnchor({ href: '#', download: '' });
+        let createElementMock = jest.spyOn(document, 'createElement').mockReturnValue(anchor);
+        let clickSpy = jest.spyOn(anchor, 'click');
+
+        // jest.spyOn(document.body, 'appendChild').mockReturnValue(anchor);
+
+        await userEvent.click(downloadAOAButton);
+
+        // verify hyperlink was created
+        expect(document.createElement).toBeCalledWith('a');
+
+        // // verify hypelink element was created with correct
+        // // default file name from content-disposition
+        // expect(document).toBeCalledWith(
+        //   expect.objectContaining({
+        //     download: 'test.pdf',
+        //   }),
+        // );
+        expect(clickSpy).toHaveBeenCalledTimes(1);
+
+        await waitFor(() => {
+          // Verify no error message display
+          expect(() =>
+            screen.getByText(
+              /Something went wrong downloading PPM AOA paperwork. Please try again later or contact your counselor/,
+            ),
+          ).toThrow();
+        });
+        createElementMock.mockRestore(); // restore document.createElement so that it is unchanged in other tests
       });
     });
 

@@ -1,6 +1,6 @@
 import Swagger from 'swagger-client';
 
-import { makeSwaggerRequest, requestInterceptor, responseInterceptor } from './swaggerRequest';
+import { makeSwaggerRequest, requestInterceptor, responseInterceptor, makeSwaggerRequestRaw } from './swaggerRequest';
 
 let internalClient = null;
 
@@ -26,6 +26,11 @@ export function getResponseError(response, defaultErrorMessage) {
 export async function makeInternalRequest(operationPath, params = {}, options = {}) {
   const client = await getInternalClient();
   return makeSwaggerRequest(client, operationPath, params, options);
+}
+
+export async function makeInternalRequestRaw(operationPath, params = {}) {
+  const client = await getInternalClient();
+  return makeSwaggerRequestRaw(client, operationPath, params);
 }
 
 export async function getLoggedInUser(normalize = true) {
@@ -526,4 +531,8 @@ export async function submitPPMShipmentSignedCertification(ppmShipmentId, payloa
 
 export async function searchTransportationOffices(search) {
   return makeInternalRequest('transportation_offices.getTransportationOffices', { search }, { normalize: false });
+}
+
+export async function downloadPPMAOAPacket(ppmShipmentId) {
+  return makeInternalRequestRaw('ppm.showAOAPacket', { ppmShipmentId });
 }

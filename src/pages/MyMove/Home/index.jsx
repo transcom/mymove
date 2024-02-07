@@ -3,7 +3,7 @@ import { arrayOf, bool, func, node, shape, string } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { Alert, Button } from '@trussworks/react-uswds';
-import { generatePath } from 'react-router-dom';
+import { generatePath, Link } from 'react-router-dom';
 
 import styles from './Home.module.scss';
 import {
@@ -30,7 +30,7 @@ import MOVE_STATUSES from 'constants/moves';
 import { customerRoutes } from 'constants/routes';
 import { ppmShipmentStatuses, shipmentTypes } from 'constants/shipments';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { deleteMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
+import { deleteMTOShipment, getMTOShipmentsForMove, downloadPPMAOAPacket } from 'services/internalApi';
 import { withContext } from 'shared/AppContext';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import {
@@ -81,6 +81,7 @@ export class Home extends Component {
       targetShipmentId: null,
       showDeleteSuccessAlert: false,
       showDeleteErrorAlert: false,
+      showDownloadPPMAOAPaperworkErrorAlert: false,
     };
   }
 
@@ -360,6 +361,49 @@ export class Home extends Component {
   };
 
   // eslint-disable-next-line class-methods-use-this
+  handlePPMAOAPacketDownloadClick = (shipmentId) => {
+    downloadPPMAOAPacket(shipmentId)
+      .then((response) => {
+        // dynamically update DOM to trigger browser to display SAVE AS download file modal
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        const disposition = response.headers['content-disposition'];
+        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        let filename = 'ppmAOAPacket.pdf';
+        const matches = filenameRegex.exec(disposition);
+        if (matches != null && matches[1]) {
+          filename = matches[1].replace(/['"]/g, '');
+        }
+        link.setAttribute('download', filename);
+
+        try {
+          // Append to html link element page
+          // Hack alert: wrap around try/catch for unit testing,
+          // document.body not available during standalone unit testing testing
+          document.body.appendChild(link);
+        } catch (e) {
+          console.log(e);
+        }
+
+        // Start download
+        link.click();
+
+        // Clean up and remove the link
+        link.parentNode.removeChild(link);
+
+        this.setState({
+          showDownloadPPMAOAPaperworkErrorAlert: false,
+        });
+      })
+      .catch(() => {
+        this.setState({
+          showDownloadPPMAOAPaperworkErrorAlert: true,
+        });
+      });
+  };
+
+  // eslint-disable-next-line class-methods-use-this
   sortAllShipments = (mtoShipments) => {
     const allShipments = JSON.parse(JSON.stringify(mtoShipments));
     allShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
@@ -377,7 +421,13 @@ export class Home extends Component {
     const { isProfileComplete, move, mtoShipments, serviceMember, signedCertification, uploadedOrderDocuments } =
       this.props;
 
-    const { showDeleteModal, targetShipmentId, showDeleteSuccessAlert, showDeleteErrorAlert } = this.state;
+    const {
+      showDeleteModal,
+      targetShipmentId,
+      showDeleteSuccessAlert,
+      showDeleteErrorAlert,
+      showDownloadPPMAOAPaperworkErrorAlert,
+    } = this.state;
 
     // early return if loading user/service member
     if (!serviceMember) {
@@ -441,6 +491,11 @@ export class Home extends Component {
             {showDeleteErrorAlert && (
               <Alert headingLevel="h4" slim type="error">
                 Something went wrong, and your changes were not saved. Please try again later or contact your counselor.
+              </Alert>
+            )}
+            {showDownloadPPMAOAPaperworkErrorAlert && (
+              <Alert headingLevel="h4" slim type="error">
+                Something went wrong downloading PPM AOA paperwork. Please try again later or contact your counselor.
               </Alert>
             )}
             <ConnectedFlashMessage />
@@ -598,11 +653,12 @@ export class Home extends Component {
                                     {` ${shipmentNumber} `}
                                   </strong>
                                   {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue && (
-                                    // TODO: B-18060 will add link to method that will create the AOA packet and return for download
                                     <p className={styles.downloadLink}>
-                                      <a href="">
-                                        <span>Download AOA Paperwork (PDF)</span>
-                                      </a>
+                                      <Link
+                                        onClick={() => this.handlePPMAOAPacketDownloadClick(shipment?.ppmShipment.id)}
+                                      >
+                                        Download AOA Paperwork (PDF)
+                                      </Link>
                                     </p>
                                   )}
                                   {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.REJECTED.apiValue && (
