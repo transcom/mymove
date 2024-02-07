@@ -152,14 +152,21 @@ func (h showAOAPacketHandler) Handle(params ppmdocumentops.ShowAOAPacketParams) 
 
 			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID)
 			if err != nil {
-				logger.Error("Error fetching PPMShipment", zap.Error(err))
-				return handlers.ResponseForError(appCtx.Logger(), err), err
+				errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
+
+				errPayload := &ghcmessages.Error{Message: &errInstance}
+
+				appCtx.Logger().Error(err.Error())
+				return ppmdocumentops.NewShowAOAPacketBadRequest().WithPayload(errPayload), err
 			}
 
 			AOAPacket, err := h.AOAPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID)
 			if err != nil {
 				logger.Error("Error creating AOA", zap.Error(err))
-				return handlers.ResponseForError(logger, err), err
+				errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
+				errPayload := &ghcmessages.Error{Message: &errInstance}
+				return ppmdocumentops.NewShowAOAPacketInternalServerError().
+					WithPayload(errPayload), err
 			}
 
 			payload := io.NopCloser(AOAPacket)
