@@ -26,7 +26,7 @@ const requireCustomerState = (Component, requiredState) => {
       // Only verify state on mount (once)
       const isAllowedState = getIsAllowedProfileState(requiredState, currentProfileState);
 
-      if (!isAllowedState) {
+      if (!isAllowedState && requiredState !== undefined) {
         const redirectTo = findNextServiceMemberStep(currentProfileState);
         navigate(redirectTo);
       }
