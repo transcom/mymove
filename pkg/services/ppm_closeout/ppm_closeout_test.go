@@ -45,8 +45,8 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			ReContractYear: models.ReContractYear{
 				Contract:             originDomesticServiceArea.Contract,
 				ContractID:           originDomesticServiceArea.ContractID,
-				StartDate:            time.Date(2019, time.June, 1, 0, 0, 0, 0, time.UTC),
-				EndDate:              time.Date(2020, time.May, 31, 0, 0, 0, 0, time.UTC),
+				StartDate:            time.Now(),
+				EndDate:              time.Now().Add(time.Hour * 8760),
 				Escalation:           1.0,
 				EscalationCompounded: 1.0,
 			},
@@ -412,21 +412,29 @@ func (suite *PPMCloseoutSuite) mockPPMShipmentForCloseoutTest() models.PPMShipme
 		},
 	}
 
+	sitDaysAllowance := 20
+	sitLocation := models.SITLocationTypeOrigin
+	date := time.Now()
+
 	ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.AppContextForTest().DB(), nil, []factory.Customization{
 		{
 			Model: models.MTOShipment{
-				Distance: &miles,
+				Distance:         &miles,
+				SITDaysAllowance: &sitDaysAllowance,
 			},
 		},
 		{
 			Model: models.PPMShipment{
-				ID:                    ppmID,
-				ExpectedDepartureDate: *expectedDepartureDate,
-				ActualMoveDate:        &actualMoveDate,
-				EstimatedWeight:       &estWeight,
-				WeightTickets:         weightTickets,
-				ProgearWeightTickets:  progearWeightTickets,
-				FinalIncentive:        &finalIncentive,
+				ID:                        ppmID,
+				ExpectedDepartureDate:     *expectedDepartureDate,
+				ActualMoveDate:            &actualMoveDate,
+				EstimatedWeight:           &estWeight,
+				WeightTickets:             weightTickets,
+				ProgearWeightTickets:      progearWeightTickets,
+				FinalIncentive:            &finalIncentive,
+				SITLocation:               &sitLocation,
+				SITEstimatedEntryDate:     &date,
+				SITEstimatedDepartureDate: &date,
 			},
 		},
 	})
