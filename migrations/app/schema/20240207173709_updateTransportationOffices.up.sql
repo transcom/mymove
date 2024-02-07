@@ -6,9 +6,9 @@ INSERT INTO addresses
     VALUES ('f933c50f-6625-4991-8c81-705a222840c6', '3376 Albacore Alley', 'San Diego', 'CA', '92136', now(), now(), 'United States');
 
 insert into transportation_offices
-    (id, name, gbloc, address_id, created_at, updated_at, provides_ppm_closeout)
+    (id, name, gbloc, address_id, latitude, longitude, created_at, updated_at, provides_ppm_closeout)
 values
-    ('e4a02d40-2ad9-44c5-a357-202d4ff0b51d', 'PPPO NAVSUP FLC San Diego - USN', 'LKNQ', 'f933c50f-6625-4991-8c81-705a222840c6', now(), now(), TRUE);
+    ('e4a02d40-2ad9-44c5-a357-202d4ff0b51d', 'PPPO NAVSUP FLC San Diego - USN', 'LKNQ', 'f933c50f-6625-4991-8c81-705a222840c6','32.67540','-117.12142', now(), now(), TRUE);
 
 insert into office_phone_lines
     (id, transportation_office_id, number, created_at, updated_at)
@@ -24,12 +24,12 @@ values
 
 INSERT INTO addresses
     (id, street_address_1,  city, state, postal_code, created_at, updated_at, country)
-    VALUES ('6aa77b74-41a7-4a4c-ab29-986f3263495a', '626 Swift Road', 'West Point', 'NY', now(), now(), 'United States');
+    VALUES ('6aa77b74-41a7-4a4c-ab29-986f3263495a', '626 Swift Road', 'West Point', 'NY', '10996', now(), now(), 'United States');
 
 insert into transportation_offices
-    (id, name, gbloc, address_id, created_at, updated_at, provides_ppm_closeout)
+    (id, name, gbloc, address_id, latitude, longitude, created_at, updated_at, provides_ppm_closeout)
 values
-    ('dd043073-4f1b-460f-8f8c-74403619dbaa', 'PPPO West Point/ USMA - USA', 'BGAC', '6aa77b74-41a7-4a4c-ab29-986f3263495a', now(), now(), TRUE);
+    ('dd043073-4f1b-460f-8f8c-74403619dbaa', 'PPPO West Point/ USMA - USA', 'BGAC', '6aa77b74-41a7-4a4c-ab29-986f3263495a','41.39400','-73.97232', now(), now(), TRUE);
 insert into office_phone_lines
     (id, transportation_office_id, number, created_at, updated_at)
 values
@@ -46,9 +46,9 @@ INSERT INTO addresses
     VALUES ('09058d36-2966-496a-aaf5-55c024404396', '15610 SW 117TH AVE', 'Miami', 'FL', '33177-1630', now(), now(), 'United States');
 
 insert into transportation_offices
-    (id, name, gbloc, address_id, created_at, updated_at, provides_ppm_closeout)
+    (id, name, gbloc, address_id, latitude, longitude, created_at, updated_at, provides_ppm_closeout)
 values
-    ('4f10d0f5-6017-4de2-8cfb-ee9252e492d5', 'PPPO USAG Miami - USA', 'CLPK', '09058d36-2966-496a-aaf5-55c024404396', now(), now(), TRUE);
+    ('4f10d0f5-6017-4de2-8cfb-ee9252e492d5', 'PPPO USAG Miami - USA', 'CLPK', '09058d36-2966-496a-aaf5-55c024404396','25.59788','-80.40353', now(), now(), TRUE);
 
 insert into office_phone_lines
     (id, transportation_office_id, number, created_at, updated_at)
