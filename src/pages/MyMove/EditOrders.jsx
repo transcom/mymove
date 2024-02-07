@@ -52,6 +52,7 @@ export const EditOrders = ({
     new_duty_location: currentOrders?.new_duty_location || null,
     uploaded_orders: existingUploads || [],
     move_status: currentMove.status,
+    grade: currentOrders?.grade || null,
   };
 
   // Only allow PCS unless feature flag is on
@@ -93,6 +94,7 @@ export const EditOrders = ({
     const hasDependents = fieldValues.has_dependents === 'yes';
     const entitlementCouldChange = hasDependents !== currentOrders.has_dependents;
     const newDutyLocationId = fieldValues.new_duty_location.id;
+    const newPayGrade = fieldValues.grade;
 
     return patchOrders({
       ...fieldValues,
@@ -102,6 +104,7 @@ export const EditOrders = ({
       new_duty_location_id: newDutyLocationId,
       issue_date: formatDateForSwagger(fieldValues.issue_date),
       report_by_date: formatDateForSwagger(fieldValues.report_by_date),
+      grade: newPayGrade,
       // spouse_has_pro_gear is not updated by this form but is a required value because the endpoint is shared with the
       // ppm office edit orders
       spouse_has_pro_gear: currentOrders.spouse_has_pro_gear,

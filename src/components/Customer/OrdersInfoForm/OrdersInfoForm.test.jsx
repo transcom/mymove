@@ -138,6 +138,7 @@ const testProps = {
     { key: 'SEPARATION', value: 'Separation' },
   ],
   currentDutyLocation: {},
+  grade: 'E_1',
 };
 
 describe('OrdersInfoForm component', () => {
@@ -154,6 +155,7 @@ describe('OrdersInfoForm component', () => {
       expect(getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText('New duty location')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText('Pay grade')).toBeInstanceOf(HTMLSelectElement);
     });
   });
 
@@ -183,6 +185,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
+    await userEvent.selectOptions(screen.getByLabelText('Pay grade'), ['E_5']);
 
     // Test Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
@@ -205,12 +208,13 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(screen.getByLabelText('Orders type'));
     await userEvent.click(screen.getByLabelText('Orders date'));
     await userEvent.click(screen.getByLabelText('Report by date'));
+    await userEvent.click(screen.getByLabelText('Pay grade'));
 
     const submitBtn = getByRole('button', { name: 'Next' });
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(getAllByText('Required').length).toBe(3);
+      expect(getAllByText('Required').length).toBe(4);
     });
     expect(testProps.onSubmit).not.toHaveBeenCalled();
   });
@@ -222,6 +226,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
+    await userEvent.selectOptions(screen.getByLabelText('Pay grade'), ['E_5']);
 
     // Test Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
@@ -260,6 +265,7 @@ describe('OrdersInfoForm component', () => {
             name: 'Luke AFB',
             updated_at: '2021-02-11T16:48:04.117Z',
           },
+          grade: 'E_5',
         }),
         expect.anything(),
       );
@@ -301,6 +307,7 @@ describe('OrdersInfoForm component', () => {
         name: 'Yuma AFB',
         updated_at: '2020-10-19T17:01:16.114Z',
       },
+      grade: 'E_1',
     };
 
     it('pre-fills the inputs', async () => {
@@ -319,6 +326,7 @@ describe('OrdersInfoForm component', () => {
         expect(getByLabelText('Yes')).not.toBeChecked();
         expect(getByLabelText('No')).toBeChecked();
         expect(queryByText('Yuma AFB')).toBeInTheDocument();
+        expect(getByLabelText('Pay grade')).toHaveValue(testInitialValues.grade);
       });
     });
   });
