@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import { isMultiMoveEnabled } from '../../../utils/featureFlags';
+
 import styles from './MultiMovesLandingPage.module.scss';
 import MultiMovesMoveHeader from './MultiMovesMoveHeader/MultiMovesMoveHeader';
 import MultiMovesMoveContainer from './MultiMovesMoveContainer/MultiMovesMoveContainer';
@@ -14,7 +16,6 @@ import {
   mockMovesNoCurrentOrPreviousMoves,
 } from './MultiMovesTestData';
 
-import { detectFlags } from 'utils/featureFlags';
 import { generatePageTitle } from 'hooks/custom';
 import { milmoveLogger } from 'utils/milmoveLog';
 import retryPageLoading from 'utils/retryPageLoading';
@@ -54,6 +55,8 @@ const MultiMovesLandingPage = () => {
       break;
   }
   // ! end of test data
+  const [multiMoveEnabled, setIsMultiMoveEnabled] = useState(false);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -66,6 +69,8 @@ const MultiMovesLandingPage = () => {
         script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
         script.async = true;
         document.body.appendChild(script);
+        const isEnabled = await isMultiMoveEnabled();
+        setIsMultiMoveEnabled(isEnabled);
       } catch (error) {
         const { message } = error;
         milmoveLogger.error({ message, info: null });
@@ -81,10 +86,8 @@ const MultiMovesLandingPage = () => {
     fetchData();
   }, [setErrorState]);
 
-  const flags = detectFlags(process.env.NODE_ENV, window.location.host, window.location.search);
-
   // ! WILL ONLY SHOW IF MULTIMOVE FLAG IS TRUE
-  return flags.multiMove ? (
+  return multiMoveEnabled ? (
     <div>
       <div className={styles.homeContainer}>
         <header data-testid="customerHeader" className={styles.customerHeader}>
