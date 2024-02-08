@@ -307,11 +307,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.ShowPPMEstimate has not yet been implemented")
 		})
 	}
-	if api.PpmShowPPMIncentiveHandler == nil {
-		api.PpmShowPPMIncentiveHandler = ppm.ShowPPMIncentiveHandlerFunc(func(params ppm.ShowPPMIncentiveParams) middleware.Responder {
-			return middleware.NotImplemented("operation ppm.ShowPPMIncentive has not yet been implemented")
-		})
-	}
 	if api.PpmShowPPMSitEstimateHandler == nil {
 		api.PpmShowPPMSitEstimateHandler = ppm.ShowPPMSitEstimateHandlerFunc(func(params ppm.ShowPPMSitEstimateParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.ShowPPMSitEstimate has not yet been implemented")
