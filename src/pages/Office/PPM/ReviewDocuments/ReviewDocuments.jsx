@@ -197,7 +197,8 @@ export const ReviewDocuments = () => {
   ppmCloseout.actualDestinationPostalCode = mtoShipment.ppmShipment.actualDestinationPostalCode;
   ppmCloseout.advanceRequested = mtoShipment.ppmShipment.hasRequestedAdvance;
   ppmCloseout.advanceReceived = mtoShipment.ppmShipment.hasReceivedAdvance;
-  ppmCloseout.aoa = mtoShipment.ppmShipment.advanceReceived;
+  ppmCloseout.advanceAmountRequested = mtoShipment.ppmShipment.advanceAmountRequested;
+  ppmCloseout.aoa = mtoShipment.ppmShipment.advanceAmountReceived;
 
   const currentDocumentSet = documentSets[documentSetIndex];
   const disableBackButton = documentSetIndex === 0 && !showOverview;

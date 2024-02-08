@@ -16,20 +16,19 @@ export default function PPMHeaderSummary({ ppmCloseout, ppmNumber, showAllFields
     miles: ppmCloseout.miles,
     estimatedWeight: ppmCloseout.estimatedWeight,
     actualWeight: ppmCloseout.actualWeight,
-    advanceRequested: ppmCloseout.advanceRequested,
-    advanceReceived: ppmCloseout.advanceReceived,
-    aoa: ppmCloseout.aoa,
   };
   const incentives = {
+    isAdvanceRequested: ppmCloseout.advanceRequested,
+    isAdvanceReceived: ppmCloseout.advanceReceived,
+    advanceAmountRequested: ppmCloseout.advanceAmountRequested,
+    advanceAmountReceived: ppmCloseout.aoa,
     grossIncentive: ppmCloseout.grossIncentive,
     gcc: ppmCloseout.gcc,
     remainingIncentive: ppmCloseout.remainingIncentive,
   };
   const gccFactors = {
-    lineHaulPrice: ppmCloseout.lineHaulPrice,
-    lineHaulFuelSurcharge: ppmCloseout.lineHaulFuelSurcharge,
-    shorthaulPrice: ppmCloseout.shorthaulPrice,
-    shorthaulFuelSurcharge: ppmCloseout.shorthaulFuelSurcharge,
+    haulPrice: ppmCloseout.haulPrice,
+    haulFSC: ppmCloseout.haulFSC,
     fullPackUnpackCharge: ppmCloseout.packPrice + ppmCloseout.unpackPrice,
   };
   return (
