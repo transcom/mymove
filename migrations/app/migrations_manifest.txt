@@ -898,3 +898,4 @@
 20240201201343_update_duty_location_names.up.sql
 20240201174442_20240201_homesafe_prd_cert.up.sql
 20240206173201_update_shipment_address_update_table_sit_and_distance_columns.up.sql
+20240207173709_updateTransportationOffices.up.sql
