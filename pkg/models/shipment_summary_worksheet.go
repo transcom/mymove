@@ -154,7 +154,7 @@ type ShipmentSummaryFormData struct {
 	CurrentDutyLocation     DutyLocation
 	NewDutyLocation         DutyLocation
 	WeightAllotment         SSWMaxWeightEntitlement
-	PersonallyProcuredMoves PersonallyProcuredMoves
+	PPMShipments            PPMShipments
 	PreparationDate         time.Time
 	Obligations             Obligations
 	MovingExpenses          []MovingExpense
@@ -271,7 +271,7 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		NewDutyLocation:         move.Orders.NewDutyLocation,
 		WeightAllotment:         weightAllotment,
 		SignedCertification:     signedCertification,
-		SSPPMShipments:          allPPMShipments,
+		PPMShipments:            allPPMShipments,
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
 	}
 	return ssd, nil
@@ -369,7 +369,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.WeightAllotmentProgearSpouse = FormatWeights(data.WeightAllotment.SpouseProGear)
 	page1.TotalWeightAllotment = FormatWeights(data.WeightAllotment.TotalWeight)
 
-	formattedShipments := FormatAllShipments(data.PersonallyProcuredMoves)
+	formattedShipments := FormatAllShipments(data.PPMShipments)
 	page1.ShipmentNumberAndTypes = formattedShipments.ShipmentNumberAndTypes
 	page1.ShipmentPickUpDates = formattedShipments.PickUpDates
 	page1.ShipmentCurrentShipmentStatuses = formattedShipments.CurrentShipmentStatuses
@@ -393,8 +393,8 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 }
 
 func formatActualObligationAdvance(data ShipmentSummaryFormData) string {
-	if len(data.PersonallyProcuredMoves) > 0 && data.PersonallyProcuredMoves[0].Advance != nil {
-		advance := data.PersonallyProcuredMoves[0].Advance.RequestedAmount.ToDollarFloatNoRound()
+	if len(data.PPMShipments) > 0 && data.PPMShipments[0].AdvanceAmountRequested != nil {
+		advance := data.PPMShipments[0].AdvanceAmountRequested.ToDollarFloatNoRound()
 		return FormatDollars(advance)
 	}
 	return FormatDollars(0)
