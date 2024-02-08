@@ -269,6 +269,7 @@ describe('validates form fields and displays error messages', () => {
       ).toBeInTheDocument();
     });
   });
+
   it('displays error when postal code lookup fails', async () => {
     const postalCodeValidatorFailure = {
       ...defaultProps,
@@ -280,19 +281,19 @@ describe('validates form fields and displays error messages', () => {
 
     const primaryZIPs = screen.getAllByLabelText('ZIP');
     await userEvent.click(primaryZIPs[0]);
-    await userEvent.type(primaryZIPs[0], '99999');
+    await userEvent.type(primaryZIPs[0], "99999");
 
     await waitFor(() => {
       expect(postalCodeValidatorFailure.postalCodeValidator).toHaveBeenCalledWith(
-        '99999',
+        "99999",
         'origin',
         UnsupportedZipCodePPMErrorMsg,
-      );
-      /*
-      expect(screen.getByRole('alert')).toHaveTextContent(
-        'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.',
-      );
-     */
+      ); 
+  //     /*
+  //     expect(screen.getByRole('alert')).toHaveTextContent(
+  //       'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.',
+  //     );
+  //    */
     });
   });
 });
