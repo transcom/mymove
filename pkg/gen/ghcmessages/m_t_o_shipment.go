@@ -75,6 +75,10 @@ type MTOShipment struct {
 	// destination type
 	DestinationType *DestinationType `json:"destinationType,omitempty"`
 
+	// distance
+	// Example: 500
+	Distance *int64 `json:"distance,omitempty"`
+
 	// diversion
 	// Example: true
 	Diversion bool `json:"diversion,omitempty"`

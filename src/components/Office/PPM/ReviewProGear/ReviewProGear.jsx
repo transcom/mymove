@@ -38,7 +38,15 @@ const validationSchema = Yup.object().shape({
   }),
 });
 
-export default function ReviewProGear({ ppmCloseout, proGear, tripNumber, ppmNumber, onError, onSuccess, formRef }) {
+export default function ReviewProGear({
+  ppmShipmentInfo,
+  proGear,
+  tripNumber,
+  ppmNumber,
+  onError,
+  onSuccess,
+  formRef,
+}) {
   const [canEditRejection, setCanEditRejection] = useState(true);
 
   const { mutate: patchProGearMutation } = useMutation(patchProGearWeightTicket, {
@@ -110,7 +118,7 @@ export default function ReviewProGear({ ppmCloseout, proGear, tripNumber, ppmNum
 
           return (
             <Form className={classnames(formStyles.form, styles.reviewProGear)}>
-              <PPMHeaderSummary ppmCloseout={ppmCloseout} ppmNumber={ppmNumber} />
+              <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} />
               <hr />
               <h3 className={styles.tripNumber}>Pro-gear {tripNumber}</h3>
               <FormGroup>

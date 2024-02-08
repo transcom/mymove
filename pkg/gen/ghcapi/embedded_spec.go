@@ -6550,6 +6550,11 @@ func init() {
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
+        "distance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
+        },
         "diversion": {
           "type": "boolean",
           "example": true
@@ -18124,6 +18129,11 @@ func init() {
         },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
+        },
+        "distance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
         },
         "diversion": {
           "type": "boolean",

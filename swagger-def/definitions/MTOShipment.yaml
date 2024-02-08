@@ -72,6 +72,10 @@ properties:
   diversion:
     type: boolean
     example: true
+  distance:
+    type: integer
+    x-nullable: true
+    example: 500
   pickupAddress:
     x-nullable: true
     $ref: 'Address.yaml'

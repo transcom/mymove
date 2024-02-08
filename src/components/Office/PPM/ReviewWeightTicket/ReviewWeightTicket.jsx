@@ -48,7 +48,7 @@ const validationSchema = Yup.object().shape({
 
 function ReviewWeightTicket({
   mtoShipment,
-  ppmCloseout,
+  ppmShipmentInfo,
   mtoShipments,
   order,
   weightTicket,
@@ -226,7 +226,7 @@ function ReviewWeightTicket({
 
           return (
             <Form className={classnames(formStyles.form, styles.ReviewWeightTicket)}>
-              <PPMHeaderSummary ppmCloseout={ppmCloseout} ppmNumber={ppmNumber} />
+              <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} />
               <hr />
               <h3 className={styles.tripNumber}>Trip {tripNumber}</h3>
               <legend className={classnames('usa-label', styles.label)}>Vehicle description</legend>

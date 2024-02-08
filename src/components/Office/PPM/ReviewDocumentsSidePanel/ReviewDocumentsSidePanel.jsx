@@ -20,7 +20,7 @@ import { formatDate, formatCents } from 'utils/formatters';
 
 export default function ReviewDocumentsSidePanel({
   ppmShipment,
-  ppmCloseout,
+  ppmShipmentInfo,
   fullWeight,
   ppmNumber,
   formRef,
@@ -96,7 +96,12 @@ export default function ReviewDocumentsSidePanel({
     <Formik initialValues innerRef={formRef} onSubmit={handleSubmit}>
       <div className={classnames(styles.container, 'container--accent--ppm')}>
         <Form className={classnames(formStyles.form, styles.ReviewDocumentsSidePanel)}>
-          <PPMHeaderSummary ppmCloseout={ppmCloseout} fullWeight={fullWeight} ppmNumber={ppmNumber} showAllFields />
+          <PPMHeaderSummary
+            ppmShipmentInfo={ppmShipmentInfo}
+            fullWeight={fullWeight}
+            ppmNumber={ppmNumber}
+            showAllFields
+          />
           <hr />
           <h3 className={styles.send}>Send to customer?</h3>
           <DocumentViewerSidebar.Content className={styles.sideBar}>

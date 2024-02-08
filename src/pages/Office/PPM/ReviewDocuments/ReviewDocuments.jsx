@@ -33,7 +33,7 @@ const DOCUMENT_TYPES = {
 export const ReviewDocuments = () => {
   const { shipmentId, moveCode } = useParams();
   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
-  const { mtoShipment, documents, ppmCloseout, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
+  const { mtoShipment, documents, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
   const order = Object.values(orders)?.[0];
   const [currentTotalWeight, setCurrentTotalWeight] = useState(0);
@@ -45,7 +45,6 @@ export const ReviewDocuments = () => {
   const weightTickets = documents?.WeightTickets ?? [];
   const proGearWeightTickets = documents?.ProGearWeightTickets ?? [];
   const movingExpenses = documents?.MovingExpenses ?? [];
-  ppmCloseout.fullWeight = currentTotalWeight;
   const updateTotalWeight = (newWeight) => {
     setCurrentTotalWeight(newWeight);
   };
@@ -193,13 +192,8 @@ export const ReviewDocuments = () => {
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
-  ppmCloseout.actualPickupPostalCode = mtoShipment.ppmShipment.actualPickupPostalCode;
-  ppmCloseout.actualDestinationPostalCode = mtoShipment.ppmShipment.actualDestinationPostalCode;
-  ppmCloseout.advanceRequested = mtoShipment.ppmShipment.hasRequestedAdvance;
-  ppmCloseout.advanceReceived = mtoShipment.ppmShipment.hasReceivedAdvance;
-  ppmCloseout.advanceAmountRequested = mtoShipment.ppmShipment.advanceAmountRequested;
-  ppmCloseout.aoa = mtoShipment.ppmShipment.advanceAmountReceived;
-
+  const ppmShipmentInfo = mtoShipment.ppmShipment;
+  ppmShipmentInfo.miles = mtoShipment.distance;
   const currentDocumentSet = documentSets[documentSetIndex];
   const disableBackButton = documentSetIndex === 0 && !showOverview;
 
@@ -244,7 +238,7 @@ export const ReviewDocuments = () => {
             (showOverview ? (
               <ReviewDocumentsSidePanel
                 ppmShipment={mtoShipment.ppmShipment}
-                ppmCloseout={ppmCloseout}
+                ppmShipmentInfo={ppmShipmentInfo}
                 weightTickets={weightTickets}
                 proGearTickets={proGearWeightTickets}
                 expenseTickets={movingExpenses}
@@ -257,7 +251,7 @@ export const ReviewDocuments = () => {
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET && (
                   <ReviewWeightTicket
                     weightTicket={currentDocumentSet.documentSet}
-                    ppmCloseout={ppmCloseout}
+                    ppmShipmentInfo={ppmShipmentInfo}
                     ppmNumber={1}
                     tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
@@ -272,7 +266,7 @@ export const ReviewDocuments = () => {
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (
                   <ReviewProGear
                     proGear={currentDocumentSet.documentSet}
-                    ppmCloseout={ppmCloseout}
+                    ppmShipmentInfo={ppmShipmentInfo}
                     ppmNumber={1}
                     tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
@@ -284,7 +278,7 @@ export const ReviewDocuments = () => {
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && (
                   <ReviewExpense
                     expense={currentDocumentSet.documentSet}
-                    ppmCloseout={ppmCloseout}
+                    ppmShipmentInfo={ppmShipmentInfo}
                     categoryIndex={currentDocumentCategoryIndex}
                     ppmNumber={1}
                     tripNumber={currentTripNumber}

@@ -23,6 +23,7 @@ import (
 type ppmCloseoutFetcher struct {
 	planner              route.Planner
 	paymentRequestHelper paymentrequesthelper.Helper
+	estimator            services.PPMEstimator
 }
 
 type serviceItemPrices struct {
@@ -35,10 +36,11 @@ type serviceItemPrices struct {
 	haulFSC                   *unit.Cents
 }
 
-func NewPPMCloseoutFetcher(planner route.Planner, paymentRequestHelper paymentrequesthelper.Helper) services.PPMCloseoutFetcher {
+func NewPPMCloseoutFetcher(planner route.Planner, paymentRequestHelper paymentrequesthelper.Helper, estimator services.PPMEstimator) services.PPMCloseoutFetcher {
 	return &ppmCloseoutFetcher{
-		planner:              planner,
-		paymentRequestHelper: paymentRequestHelper,
+		planner,
+		paymentRequestHelper,
+		estimator,
 	}
 }
 
@@ -65,8 +67,16 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		remainingIncentive = *ppmShipment.FinalIncentive
 	}
 
+	proGearCustomerMax := unit.Pound(2000)
+	proGearSpouseMax := unit.Pound(500)
 	fullEntitlementWeight, _ := p.GetEntitlement(appCtx, ppmShipment.Shipment.MoveTaskOrderID)
-	gcc, _ := p.calculateGCC(appCtx, *ppmShipment, unit.Pound(*fullEntitlementWeight.DBAuthorizedWeight))
+	fullWeightGCCShipment := ppmShipment
+	// fullWeightGCCShipment.ActualWeight = fullEntitlementWeight
+
+	// Set pro gear werights for the GCC calculation to the max allowed before calculating GCC price
+	fullWeightGCCShipment.ProGearWeight = &proGearCustomerMax
+	fullWeightGCCShipment.SpouseProGearWeight = &proGearSpouseMax
+	gcc, _ := p.calculateGCC(appCtx, *fullWeightGCCShipment, unit.Pound(*fullEntitlementWeight.DBAuthorizedWeight))
 
 	ppmCloseoutObj.ID = &ppmShipmentID
 	ppmCloseoutObj.PlannedMoveDate = &ppmShipment.ExpectedDepartureDate
@@ -95,23 +105,36 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 * returns calculated gcc
  */
 func (p *ppmCloseoutFetcher) calculateGCC(appCtx appcontext.AppContext, ppmShipment models.PPMShipment, fullEntitlementWeight unit.Pound) (unit.Cents, error) {
+	var gcc unit.Cents
+	fullEntitlementPPM := ppmShipment
+	fullEntitlementPPM.SITEstimatedWeight = &fullEntitlementWeight
+
 	if ppmShipment.Shipment.SITDaysAllowance != nil && ppmShipment.SITLocation != nil &&
 		ppmShipment.SITEstimatedEntryDate != nil &&
 		ppmShipment.SITEstimatedDepartureDate != nil {
 
-		contractDate := ppmShipment.ExpectedDepartureDate
+		contractDate := fullEntitlementPPM.ExpectedDepartureDate
 		contract, errFetch := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
 		if errFetch != nil {
-			return unit.Cents(0), errFetch
+			return gcc, errFetch
 		}
 
-		fullEntitlementPPM := ppmShipment
-		fullEntitlementPPM.SITEstimatedWeight = &fullEntitlementWeight
-
-		gcc, err := ppmshipment.CalculateSITCost(appCtx, &fullEntitlementPPM, contract)
-		return *gcc, err
+		sitCost, err := ppmshipment.CalculateSITCost(appCtx, &fullEntitlementPPM, contract)
+		gcc = gcc.AddCents(*sitCost)
+		return gcc, err
 	}
-	return unit.Cents(0), nil
+
+	// Put max weight on all weight ticket items
+	if len(fullEntitlementPPM.WeightTickets) >= 1 {
+		for i, weightTicket := range fullEntitlementPPM.WeightTickets {
+			maxWeight := unit.Pound(weightTicket.AllowableWeight.Int())
+			fullEntitlementPPM.WeightTickets[i].AdjustedNetWeight = &maxWeight
+		}
+	}
+
+	finalIncentive, err := p.estimator.FinalIncentiveWithDefaultChecks(appCtx, ppmShipment, &fullEntitlementPPM)
+	gcc = gcc.AddCents(*finalIncentive)
+	return gcc, err
 }
 
 /*
