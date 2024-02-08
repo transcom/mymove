@@ -140,6 +140,7 @@ type CurrentSIT struct {
 	SITEntryDate         time.Time
 	SITDepartureDate     *time.Time
 	SITAllowanceEndDate  time.Time
+	SITAuthorizedEndDate *time.Time
 	SITCustomerContacted *time.Time
 	SITRequestedDelivery *time.Time
 }

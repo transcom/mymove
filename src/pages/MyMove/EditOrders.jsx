@@ -107,36 +107,6 @@ export const EditOrders = ({
     const newPayGrade = fieldValues.grade;
     const newOriginDutyLocationId = fieldValues.origin_duty_location.id;
 
-    const payload = {
-      id: serviceMemberId,
-      rank: newPayGrade,
-      current_location_id: newOriginDutyLocationId,
-    };
-
-    patchServiceMember(payload)
-      .then((response) => {
-        updateServiceMember(response);
-        if (entitlementCouldChange) {
-          const weightAllowance = currentOrders?.has_dependents
-            ? response.weight_allotment.total_weight_self_plus_dependents
-            : response.weight_allotment.total_weight_self;
-          setFlashMessage(
-            'EDIT_ORDERS_SUCCESS',
-            'info',
-            `Your weight entitlement is now ${formatWeight(weightAllowance)}.`,
-            'Your changes have been saved. Note that the entitlement has also changed.',
-          );
-        } else {
-          setFlashMessage('EDIT_SERVICE_INFO_SUCCESS', 'success', '', 'Your changes have been saved.');
-        }
-      })
-      .catch((e) => {
-        // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
-        const { response } = e;
-        const errorMessage = getResponseError(response, 'failed to update service member due to server error');
-        setServerError(errorMessage);
-      });
-
     return patchOrders({
       ...fieldValues,
       id: currentOrders.id,
@@ -154,9 +124,7 @@ export const EditOrders = ({
       .then((response) => {
         updateOrders(response);
         if (entitlementCouldChange) {
-          const weightAllowance = hasDependents
-            ? serviceMember.weight_allotment.total_weight_self_plus_dependents
-            : serviceMember.weight_allotment.total_weight_self;
+          const weightAllowance = response.authorizedWeight;
           setFlashMessage(
             'EDIT_ORDERS_SUCCESS',
             'info',

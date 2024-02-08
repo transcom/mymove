@@ -11,7 +11,7 @@ describe('When a service counselor updates shipping allowances', () => {
     eventNameDisplay: 'Updated profile',
     changedValues: {
       affiliation: 'NAVY',
-      rank: 'E_4',
+      grade: 'E_4',
     },
   };
   it('it correctly matches the event that updates the service member profile ', () => {
@@ -22,7 +22,7 @@ describe('When a service counselor updates shipping allowances', () => {
   describe('it correctly renders the details component for the branch form', () => {
     it.each([
       ['Branch', ': Navy'],
-      ['Rank', ': E-4'],
+      ['Pay grade', ': E-4'],
     ])('displays the correct details value for %s', async (label, value) => {
       const result = getTemplate(historyRecord);
       render(result.getDetails(historyRecord));

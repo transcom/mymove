@@ -341,7 +341,7 @@ export const ordersInfo = {
 
 export const allowancesInfo = {
   branch: ORDERS_BRANCH_OPTIONS.NAVY,
-  rank: ORDERS_PAY_GRADE_OPTIONS.E_6,
+  grade: ORDERS_PAY_GRADE_OPTIONS.E_6,
   weightAllowance: 11000,
   authorizedWeight: 11000,
   progear: 2000,

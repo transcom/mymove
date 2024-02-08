@@ -26,13 +26,12 @@ func BuildSignedCertification(db *pop.Connection, customs []Customization, trait
 
 	certificationType := models.SignedCertificationTypeSHIPMENT
 	signedCertification := models.SignedCertification{
-		MoveID:                   move.ID,
-		SubmittingUserID:         move.Orders.ServiceMember.UserID,
-		PersonallyProcuredMoveID: nil,
-		CertificationType:        &certificationType,
-		CertificationText:        "LEGAL TEXT",
-		Signature:                "SIGNATURE",
-		Date:                     testdatagen.NextValidMoveDate,
+		MoveID:            move.ID,
+		SubmittingUserID:  move.Orders.ServiceMember.UserID,
+		CertificationType: &certificationType,
+		CertificationText: "LEGAL TEXT",
+		Signature:         "SIGNATURE",
+		Date:              testdatagen.NextValidMoveDate,
 	}
 
 	// Overwrite values with those from customizations

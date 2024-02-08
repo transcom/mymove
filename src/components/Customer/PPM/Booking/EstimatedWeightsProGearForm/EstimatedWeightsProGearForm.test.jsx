@@ -8,16 +8,15 @@ const defaultProps = {
   onSubmit: jest.fn(),
   onBack: jest.fn(),
   orders: {
-    has_dependents: true,
+    has_dependents: false,
+    authorizedWeight: 5000,
+    entitlement: {
+      proGearWeight: 2000,
+      spouseProGearWeight: 500,
+    },
   },
   serviceMember: {
     id: '10',
-    weight_allotment: {
-      total_weight_self: 5000,
-      total_weight_self_plus_dependents: 7000,
-      pro_gear_weight: 2000,
-      pro_gear_weight_spouse: 500,
-    },
   },
   mtoShipment: {
     id: '123',

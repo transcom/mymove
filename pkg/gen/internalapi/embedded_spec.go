@@ -79,6 +79,46 @@ func init() {
         }
       }
     },
+    "/allmoves/{serviceMemberId}": {
+      "get": {
+        "description": "This endpoint gets all moves that belongs to the serviceMember by using the service members id. In a previous moves array and the current move in the current move array. The current move is the move with the latest CreatedAt date. All other moves will go into the previous move array.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moves"
+        ],
+        "summary": "Return the current and previous moves of a service member",
+        "operationId": "getAllMoves",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the service member",
+            "name": "serviceMemberId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved moves. A successful fetch might still return zero moves.",
+            "schema": {
+              "$ref": "#/definitions/MovesList"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/backup_contacts/{backupContactId}": {
       "get": {
         "description": "Returns the given service member backup contact",
@@ -1064,64 +1104,6 @@ func init() {
           },
           "404": {
             "description": "move not found"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      }
-    },
-    "/moves/{moveId}/shipment_summary_worksheet": {
-      "get": {
-        "description": "Generates pre-filled PDF using data already collected",
-        "produces": [
-          "application/pdf"
-        ],
-        "tags": [
-          "moves"
-        ],
-        "summary": "Returns Shipment Summary Worksheet",
-        "operationId": "showShipmentSummaryWorksheet",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "date",
-            "description": "The preparationDate of PDF",
-            "name": "preparationDate",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Pre-filled worksheet PDF",
-            "schema": {
-              "type": "file",
-              "format": "binary"
-            },
-            "headers": {
-              "Content-Disposition": {
-                "type": "string",
-                "description": "File name to download"
-              }
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
           },
           "500": {
             "description": "internal server error"
@@ -3614,6 +3596,9 @@ func init() {
           "x-nullable": true,
           "example": "John"
         },
+        "grade": {
+          "$ref": "#/definitions/OrderPayGrade"
+        },
         "last_name": {
           "type": "string",
           "title": "Last name",
@@ -3638,9 +3623,6 @@ func init() {
           "type": "boolean",
           "title": "Phone",
           "x-nullable": true
-        },
-        "rank": {
-          "$ref": "#/definitions/ServiceMemberRank"
         },
         "residential_address": {
           "$ref": "#/definitions/Address"
@@ -4013,13 +3995,13 @@ func init() {
       "type": "object",
       "properties": {
         "proGear": {
-          "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank\n",
+          "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade\n",
           "type": "integer",
           "x-nullable": true,
           "example": 2000
         },
         "proGearSpouse": {
-          "description": "Spouse's pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank\n",
+          "description": "Spouse's pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade\n",
           "type": "integer",
           "x-nullable": true,
           "example": 500
@@ -4128,6 +4110,50 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/ServiceMemberBackupContactPayload"
+      }
+    },
+    "InternalMove": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "a502b4f1-b9c4-4faf-8bdd-68292501bf26"
+        },
+        "moveCode": {
+          "type": "string",
+          "readOnly": true,
+          "example": "HYXFJF"
+        },
+        "mtoShipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "orderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "orders": {
+          "type": "object"
+        },
+        "status": {
+          "type": "string",
+          "readOnly": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
       }
     },
     "InvalidRequestResponsePayload": {
@@ -4706,7 +4732,7 @@ func init() {
         "locator",
         "customer_name",
         "edipi",
-        "rank",
+        "grade",
         "orders_type",
         "branch_of_service",
         "last_modified_date",
@@ -4763,6 +4789,9 @@ func init() {
           "title": "GBL Number",
           "x-nullable": true,
           "example": "LNK12345"
+        },
+        "grade": {
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "hhg_status": {
           "type": "string",
@@ -4834,9 +4863,6 @@ func init() {
           "x-nullable": true,
           "example": "PAYMENT_REQUESTED"
         },
-        "rank": {
-          "$ref": "#/definitions/ServiceMemberRank"
-        },
         "status": {
           "type": "string",
           "example": "APPROVED"
@@ -4868,6 +4894,23 @@ func init() {
         "CANCELED": "Canceled",
         "DRAFT": "Draft",
         "SUBMITTED": "Submitted"
+      }
+    },
+    "MovesList": {
+      "type": "object",
+      "properties": {
+        "currentMove": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InternalMove"
+          }
+        },
+        "previousMoves": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InternalMove"
+          }
+        }
       }
     },
     "MovingExpense": {
@@ -5169,6 +5212,7 @@ func init() {
     "OrderPayGrade": {
       "type": "string",
       "title": "Pay grade",
+      "title": "Grade",
       "enum": [
         "E_1",
         "E_2",
@@ -5265,9 +5309,7 @@ func init() {
           "$ref": "#/definitions/Entitlement"
         },
         "grade": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "O-6"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "has_dependents": {
           "type": "boolean",
@@ -5845,9 +5887,6 @@ func init() {
           "title": "Phone",
           "x-nullable": true
         },
-        "rank": {
-          "$ref": "#/definitions/ServiceMemberRank"
-        },
         "residential_address": {
           "$ref": "#/definitions/Address"
         },
@@ -6407,9 +6446,6 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
-        "current_location": {
-          "$ref": "#/definitions/DutyLocationPayload"
-        },
         "edipi": {
           "type": "string",
           "format": "edipi",
@@ -6430,6 +6466,10 @@ func init() {
           "title": "First name",
           "x-nullable": true,
           "example": "John"
+        },
+        "grade": {
+          "title": "Grade",
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "id": {
           "type": "string",
@@ -6470,10 +6510,6 @@ func init() {
           "title": "Telephone",
           "x-nullable": true
         },
-        "rank": {
-          "title": "Rank",
-          "$ref": "#/definitions/ServiceMemberRank"
-        },
         "residential_address": {
           "title": "Residential Address",
           "$ref": "#/definitions/Address"
@@ -6513,73 +6549,6 @@ func init() {
           "$ref": "#/definitions/WeightAllotment"
         }
       }
-    },
-    "ServiceMemberRank": {
-      "type": "string",
-      "title": "Rank",
-      "enum": [
-        "E_1",
-        "E_2",
-        "E_3",
-        "E_4",
-        "E_5",
-        "E_6",
-        "E_7",
-        "E_8",
-        "E_9",
-        "E_9_SPECIAL_SENIOR_ENLISTED",
-        "O_1_ACADEMY_GRADUATE",
-        "O_2",
-        "O_3",
-        "O_4",
-        "O_5",
-        "O_6",
-        "O_7",
-        "O_8",
-        "O_9",
-        "O_10",
-        "W_1",
-        "W_2",
-        "W_3",
-        "W_4",
-        "W_5",
-        "AVIATION_CADET",
-        "CIVILIAN_EMPLOYEE",
-        "ACADEMY_CADET",
-        "MIDSHIPMAN"
-      ],
-      "x-display-value": {
-        "ACADEMY_CADET": "Service Academy Cadet",
-        "AVIATION_CADET": "Aviation Cadet",
-        "CIVILIAN_EMPLOYEE": "Civilian Employee",
-        "E_1": "E-1",
-        "E_2": "E-2",
-        "E_3": "E-3",
-        "E_4": "E-4",
-        "E_5": "E-5",
-        "E_6": "E-6",
-        "E_7": "E-7",
-        "E_8": "E-8",
-        "E_9": "E-9",
-        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
-        "MIDSHIPMAN": "Midshipman",
-        "O_10": "O-10",
-        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
-        "O_2": "O-2",
-        "O_3": "O-3",
-        "O_4": "O-4",
-        "O_5": "O-5",
-        "O_6": "O-6",
-        "O_7": "O-7",
-        "O_8": "O-8",
-        "O_9": "O-9",
-        "W_1": "W-1",
-        "W_2": "W-2",
-        "W_3": "W-3",
-        "W_4": "W-4",
-        "W_5": "W-5"
-      },
-      "x-nullable": true
     },
     "SignedCertification": {
       "description": "Signed certification",
@@ -7659,6 +7628,55 @@ func init() {
         }
       }
     },
+    "/allmoves/{serviceMemberId}": {
+      "get": {
+        "description": "This endpoint gets all moves that belongs to the serviceMember by using the service members id. In a previous moves array and the current move in the current move array. The current move is the move with the latest CreatedAt date. All other moves will go into the previous move array.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moves"
+        ],
+        "summary": "Return the current and previous moves of a service member",
+        "operationId": "getAllMoves",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the service member",
+            "name": "serviceMemberId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved moves. A successful fetch might still return zero moves.",
+            "schema": {
+              "$ref": "#/definitions/MovesList"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/backup_contacts/{backupContactId}": {
       "get": {
         "description": "Returns the given service member backup contact",
@@ -8655,64 +8673,6 @@ func init() {
         }
       }
     },
-    "/moves/{moveId}/shipment_summary_worksheet": {
-      "get": {
-        "description": "Generates pre-filled PDF using data already collected",
-        "produces": [
-          "application/pdf"
-        ],
-        "tags": [
-          "moves"
-        ],
-        "summary": "Returns Shipment Summary Worksheet",
-        "operationId": "showShipmentSummaryWorksheet",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move",
-            "name": "moveId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "date",
-            "description": "The preparationDate of PDF",
-            "name": "preparationDate",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Pre-filled worksheet PDF",
-            "schema": {
-              "type": "file",
-              "format": "binary"
-            },
-            "headers": {
-              "Content-Disposition": {
-                "type": "string",
-                "description": "File name to download"
-              }
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      }
-    },
     "/moves/{moveId}/signed_certifications": {
       "get": {
         "description": "returns a list of all signed_certifications associated with the move ID",
@@ -9003,6 +8963,64 @@ func init() {
             "schema": {
               "$ref": "#/definitions/Error"
             }
+          }
+        }
+      }
+    },
+    "/moves/{ppmShipmentId}/shipment_summary_worksheet": {
+      "get": {
+        "description": "Generates pre-filled PDF using data already collected",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "moves"
+        ],
+        "summary": "Returns Shipment Summary Worksheet",
+        "operationId": "showShipmentSummaryWorksheet",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppmShipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "description": "The preparationDate of PDF",
+            "name": "preparationDate",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pre-filled worksheet PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       }
@@ -11611,6 +11629,9 @@ func init() {
           "x-nullable": true,
           "example": "John"
         },
+        "grade": {
+          "$ref": "#/definitions/OrderPayGrade"
+        },
         "last_name": {
           "type": "string",
           "title": "Last name",
@@ -11635,9 +11656,6 @@ func init() {
           "type": "boolean",
           "title": "Phone",
           "x-nullable": true
-        },
-        "rank": {
-          "$ref": "#/definitions/ServiceMemberRank"
         },
         "residential_address": {
           "$ref": "#/definitions/Address"
@@ -12012,13 +12030,13 @@ func init() {
       "type": "object",
       "properties": {
         "proGear": {
-          "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank\n",
+          "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade\n",
           "type": "integer",
           "x-nullable": true,
           "example": 2000
         },
         "proGearSpouse": {
-          "description": "Spouse's pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank\n",
+          "description": "Spouse's pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade\n",
           "type": "integer",
           "x-nullable": true,
           "example": 500
@@ -12127,6 +12145,50 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/ServiceMemberBackupContactPayload"
+      }
+    },
+    "InternalMove": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "a502b4f1-b9c4-4faf-8bdd-68292501bf26"
+        },
+        "moveCode": {
+          "type": "string",
+          "readOnly": true,
+          "example": "HYXFJF"
+        },
+        "mtoShipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "orderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "orders": {
+          "type": "object"
+        },
+        "status": {
+          "type": "string",
+          "readOnly": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
       }
     },
     "InvalidRequestResponsePayload": {
@@ -12707,7 +12769,7 @@ func init() {
         "locator",
         "customer_name",
         "edipi",
-        "rank",
+        "grade",
         "orders_type",
         "branch_of_service",
         "last_modified_date",
@@ -12764,6 +12826,9 @@ func init() {
           "title": "GBL Number",
           "x-nullable": true,
           "example": "LNK12345"
+        },
+        "grade": {
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "hhg_status": {
           "type": "string",
@@ -12835,9 +12900,6 @@ func init() {
           "x-nullable": true,
           "example": "PAYMENT_REQUESTED"
         },
-        "rank": {
-          "$ref": "#/definitions/ServiceMemberRank"
-        },
         "status": {
           "type": "string",
           "example": "APPROVED"
@@ -12869,6 +12931,23 @@ func init() {
         "CANCELED": "Canceled",
         "DRAFT": "Draft",
         "SUBMITTED": "Submitted"
+      }
+    },
+    "MovesList": {
+      "type": "object",
+      "properties": {
+        "currentMove": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InternalMove"
+          }
+        },
+        "previousMoves": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InternalMove"
+          }
+        }
       }
     },
     "MovingExpense": {
@@ -13266,9 +13345,7 @@ func init() {
           "$ref": "#/definitions/Entitlement"
         },
         "grade": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "O-6"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "has_dependents": {
           "type": "boolean",
@@ -13846,9 +13923,6 @@ func init() {
           "title": "Phone",
           "x-nullable": true
         },
-        "rank": {
-          "$ref": "#/definitions/ServiceMemberRank"
-        },
         "residential_address": {
           "$ref": "#/definitions/Address"
         },
@@ -14411,9 +14485,6 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
-        "current_location": {
-          "$ref": "#/definitions/DutyLocationPayload"
-        },
         "edipi": {
           "type": "string",
           "format": "edipi",
@@ -14434,6 +14505,10 @@ func init() {
           "title": "First name",
           "x-nullable": true,
           "example": "John"
+        },
+        "grade": {
+          "title": "Grade",
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "id": {
           "type": "string",
@@ -14474,10 +14549,6 @@ func init() {
           "title": "Telephone",
           "x-nullable": true
         },
-        "rank": {
-          "title": "Rank",
-          "$ref": "#/definitions/ServiceMemberRank"
-        },
         "residential_address": {
           "title": "Residential Address",
           "$ref": "#/definitions/Address"
@@ -14517,73 +14588,6 @@ func init() {
           "$ref": "#/definitions/WeightAllotment"
         }
       }
-    },
-    "ServiceMemberRank": {
-      "type": "string",
-      "title": "Rank",
-      "enum": [
-        "E_1",
-        "E_2",
-        "E_3",
-        "E_4",
-        "E_5",
-        "E_6",
-        "E_7",
-        "E_8",
-        "E_9",
-        "E_9_SPECIAL_SENIOR_ENLISTED",
-        "O_1_ACADEMY_GRADUATE",
-        "O_2",
-        "O_3",
-        "O_4",
-        "O_5",
-        "O_6",
-        "O_7",
-        "O_8",
-        "O_9",
-        "O_10",
-        "W_1",
-        "W_2",
-        "W_3",
-        "W_4",
-        "W_5",
-        "AVIATION_CADET",
-        "CIVILIAN_EMPLOYEE",
-        "ACADEMY_CADET",
-        "MIDSHIPMAN"
-      ],
-      "x-display-value": {
-        "ACADEMY_CADET": "Service Academy Cadet",
-        "AVIATION_CADET": "Aviation Cadet",
-        "CIVILIAN_EMPLOYEE": "Civilian Employee",
-        "E_1": "E-1",
-        "E_2": "E-2",
-        "E_3": "E-3",
-        "E_4": "E-4",
-        "E_5": "E-5",
-        "E_6": "E-6",
-        "E_7": "E-7",
-        "E_8": "E-8",
-        "E_9": "E-9",
-        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
-        "MIDSHIPMAN": "Midshipman",
-        "O_10": "O-10",
-        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
-        "O_2": "O-2",
-        "O_3": "O-3",
-        "O_4": "O-4",
-        "O_5": "O-5",
-        "O_6": "O-6",
-        "O_7": "O-7",
-        "O_8": "O-8",
-        "O_9": "O-9",
-        "W_1": "W-1",
-        "W_2": "W-2",
-        "W_3": "W-3",
-        "W_4": "W-4",
-        "W_5": "W-5"
-      },
-      "x-nullable": true
     },
     "SignedCertification": {
       "description": "Signed certification",
