@@ -6380,6 +6380,10 @@ definitions:
             type: string
             format: date
             x-nullable: true
+          sitAuthorizedEndDate:
+            type: string
+            format: date
+            x-nullable: true
           sitCustomerContacted:
             type: string
             format: date
@@ -7324,6 +7328,10 @@ definitions:
       diversion:
         type: boolean
         example: true
+      distance:
+        type: integer
+        x-nullable: true
+        example: 500
       pickupAddress:
         x-nullable: true
         $ref: '#/definitions/Address'

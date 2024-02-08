@@ -5,23 +5,24 @@ import classnames from 'classnames';
 import HeaderSection, { sectionTypes } from './HeaderSection';
 import styles from './PPMHeaderSummary.module.scss';
 
-import { PPMCloseoutShape } from 'types/shipment';
+import { usePPMCloseoutQuery } from 'hooks/queries';
 
-export default function PPMHeaderSummary({ ppmCloseout, ppmNumber, showAllFields }) {
+export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFields }) {
+  const ppmCloseout = usePPMCloseoutQuery(ppmNumber);
   const shipmentInfo = {
-    plannedMoveDate: ppmCloseout.plannedMoveDate,
-    actualMoveDate: ppmCloseout.actualMoveDate,
-    actualPickupPostalCode: ppmCloseout.actualPickupPostalCode,
-    actualDestinationPostalCode: ppmCloseout.actualDestinationPostalCode,
-    miles: ppmCloseout.miles,
-    estimatedWeight: ppmCloseout.estimatedWeight,
-    actualWeight: ppmCloseout.actualWeight,
+    plannedMoveDate: ppmShipmentInfo.expectedDepartureDate,
+    actualMoveDate: ppmShipmentInfo.actualMoveDate,
+    actualPickupPostalCode: ppmShipmentInfo.actualPickupPostalCode,
+    actualDestinationPostalCode: ppmShipmentInfo.actualDestinationPostalCode,
+    miles: ppmShipmentInfo.miles,
+    estimatedWeight: ppmShipmentInfo.estimatedWeight,
+    actualWeight: ppmShipmentInfo.actualWeight,
   };
   const incentives = {
-    isAdvanceRequested: ppmCloseout.advanceRequested,
-    isAdvanceReceived: ppmCloseout.advanceReceived,
-    advanceAmountRequested: ppmCloseout.advanceAmountRequested,
-    advanceAmountReceived: ppmCloseout.aoa,
+    isAdvanceRequested: ppmShipmentInfo.hasRequestedAdvance,
+    isAdvanceReceived: ppmShipmentInfo.hasReceivedAdvance,
+    advanceAmountRequested: ppmShipmentInfo.advanceAmountRequested,
+    advanceAmountReceived: ppmShipmentInfo.advanceAmountReceived,
     grossIncentive: ppmCloseout.grossIncentive,
     gcc: ppmCloseout.gcc,
     remainingIncentive: ppmCloseout.remainingIncentive,
@@ -29,7 +30,7 @@ export default function PPMHeaderSummary({ ppmCloseout, ppmNumber, showAllFields
   const gccFactors = {
     haulPrice: ppmCloseout.haulPrice,
     haulFSC: ppmCloseout.haulFSC,
-    fullPackUnpackCharge: ppmCloseout.packPrice + ppmCloseout.unpackPrice,
+    fullPackUnpackCharge: ppmCloseout.packPrice + ppmShipmentInfo.unpackPrice,
   };
   return (
     <header className={classnames(styles.PPMHeaderSummary)}>
@@ -62,13 +63,10 @@ export default function PPMHeaderSummary({ ppmCloseout, ppmNumber, showAllFields
 }
 
 PPMHeaderSummary.propTypes = {
-  ppmCloseout: PPMCloseoutShape,
   ppmNumber: number.isRequired,
   showAllFields: bool.isRequired,
 };
 
-PPMHeaderSummary.defaultProps = {
-  ppmCloseout: undefined,
-};
+PPMHeaderSummary.defaultProps = {};
 
 // TODO: Add shape/propType/defaults for incentives and GCC components here.

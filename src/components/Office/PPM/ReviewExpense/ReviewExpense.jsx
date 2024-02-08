@@ -51,7 +51,7 @@ const validationSchema = Yup.object().shape({
 });
 
 export default function ReviewExpense({
-  ppmCloseout,
+  ppmShipmentInfo,
   expense,
   categoryIndex,
   tripNumber,
@@ -126,7 +126,7 @@ export default function ReviewExpense({
               : '##';
           return (
             <Form className={classnames(formStyles.form, styles.ReviewExpense)}>
-              <PPMHeaderSummary ppmCloseout={ppmCloseout} ppmNumber={ppmNumber} />
+              <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} />
               <hr />
               <h3 className={styles.tripNumber}>{`Receipt ${tripNumber}`}</h3>
               <legend className={classnames('usa-label', styles.label)}>Expense Type</legend>
