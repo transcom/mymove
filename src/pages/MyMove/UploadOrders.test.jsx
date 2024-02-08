@@ -129,7 +129,7 @@ describe('Orders Upload page', () => {
       });
       await userEvent.click(getByRole('button', { name: 'Next' }));
 
-      expect(mockNavigate).toHaveBeenCalledWith('/');
+      expect(mockNavigate).toHaveBeenCalledWith('/move');
     });
   });
 

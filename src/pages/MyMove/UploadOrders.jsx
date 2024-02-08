@@ -19,7 +19,7 @@ import {
 import { OrdersShape, UploadsShape } from 'types/customerShapes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import formStyles from 'styles/form.module.scss';
 import { RouterShape } from 'types';
 import withRouter from 'utils/routing';
@@ -85,7 +85,7 @@ export class UploadOrders extends Component {
       navigate(customerRoutes.ORDERS_INFO_PATH);
     };
     const handleNext = () => {
-      navigate(generalRoutes.HOME_PATH);
+      navigate(customerRoutes.MOVE_HOME_PAGE);
     };
 
     const { isLoading, serverError } = this.state;
