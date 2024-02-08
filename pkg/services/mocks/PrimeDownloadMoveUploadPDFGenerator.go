@@ -43,6 +43,32 @@ func (_m *PrimeDownloadMoveUploadPDFGenerator) GenerateDownloadMoveUserUploadPDF
 	return r0, r1
 }
 
+// GenerateOrdersWithoutBookmarks provides a mock function with given fields: appCtx, moveOrderUploadType, move
+func (_m *PrimeDownloadMoveUploadPDFGenerator) GenerateOrdersWithoutBookmarks(appCtx appcontext.AppContext, moveOrderUploadType services.MoveOrderUploadType, move models.Move) (afero.File, error) {
+	ret := _m.Called(appCtx, moveOrderUploadType, move)
+
+	var r0 afero.File
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, services.MoveOrderUploadType, models.Move) (afero.File, error)); ok {
+		return rf(appCtx, moveOrderUploadType, move)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, services.MoveOrderUploadType, models.Move) afero.File); ok {
+		r0 = rf(appCtx, moveOrderUploadType, move)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(afero.File)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, services.MoveOrderUploadType, models.Move) error); ok {
+		r1 = rf(appCtx, moveOrderUploadType, move)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // NewPrimeDownloadMoveUploadPDFGenerator creates a new instance of PrimeDownloadMoveUploadPDFGenerator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewPrimeDownloadMoveUploadPDFGenerator(t interface {
