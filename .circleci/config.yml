@@ -747,6 +747,8 @@ commands:
 
 
             make server_test
+          no_output_timeout: 20m
+
           environment:
             APPLICATION: '<< parameters.application >>'
             # 8 since this runs on xlarge with 8 CPUs
@@ -1727,6 +1729,7 @@ jobs:
           command: |
             export REACT_APP_ERROR_LOGGING=otel
             make client_build
+          no_output_timeout: 20m
       # only save the cache on default branch builds so that PRs don't pollute
       # the cache
       - when:
