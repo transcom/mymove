@@ -114,7 +114,7 @@ export default {
   sit_end_date: 'SIT end date',
   shipment_weight: 'Shipment weight',
   belongs_to_self: 'Service member',
-  sit_customer_contacted: 'Customer contacted',
+  sit_customer_contacted: 'SIT customer contacted',
   sit_location: 'SIT location',
   sit_estimated_cost: 'SIT estimated cost',
   estimated_incentive: 'PPM estimated incentive',
