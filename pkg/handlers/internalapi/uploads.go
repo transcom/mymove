@@ -32,7 +32,7 @@ type CreatePPMUploadHandler struct {
 func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			rollbackErr := fmt.Errorf("Error creating upload")
+			rollbackErr := fmt.Errorf("error creating upload")
 
 			file, ok := params.File.(*runtime.File)
 			if !ok {
@@ -173,7 +173,7 @@ func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middle
 func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			rollbackErr := fmt.Errorf("Error creating upload")
+			rollbackErr := fmt.Errorf("error creating upload")
 
 			file, ok := params.File.(*runtime.File)
 			if !ok {
