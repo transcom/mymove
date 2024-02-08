@@ -107,8 +107,6 @@ export class CustomerApp extends Component {
     const { userIsLoggedIn, loginIsLoading } = props;
     const { hasError } = this.state;
 
-    const multiMoveWorkflow = props.context.flags.multiMove;
-
     return (
       <>
         <div className="my-move site" id="app-root">
@@ -183,13 +181,11 @@ export class CustomerApp extends Component {
 
                 {/* ROOT */}
                 {/* If multiMove is enabled home page will route to dashboard element */}
-                {multiMoveWorkflow && <Route path={generalRoutes.HOME_PATH} end element={<MultiMovesLandingPage />} />}
-                {!multiMoveWorkflow && <Route path={customerRoutes.MOVE_HOME_PAGE} end element={<Home />} />}
+                <Route path={generalRoutes.HOME_PATH} end element={<MultiMovesLandingPage />} />
 
                 {getWorkflowRoutes(props)}
 
-                {/* If multiMove is enabled then move path routes to the move path rendering the home element */}
-                {multiMoveWorkflow && <Route path={customerRoutes.MOVE_HOME_PAGE} end element={<Home />} />}
+                <Route end path={customerRoutes.MOVE_HOME_PAGE} element={<Home />} />
                 <Route end path={customerRoutes.SHIPMENT_MOVING_INFO_PATH} element={<MovingInfo />} />
                 <Route end path="/moves/:moveId/edit" element={<Edit />} />
                 <Route end path={customerRoutes.EDIT_PROFILE_PATH} element={<EditProfile />} />

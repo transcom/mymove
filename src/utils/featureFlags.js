@@ -11,6 +11,8 @@ import { milmoveLogger } from 'utils/milmoveLog';
 // make client_test -> test
 // make client_build -> branches based on hostname, see switch statement below
 
+// Please do not utilize these default / environment flags. These flags have been deprecated in place of Flipt.
+// Refer to the feature flag documentation within this project's docs.
 const defaultFlags = {
   ppm: true,
   documentViewer: true,
@@ -21,23 +23,19 @@ const defaultFlags = {
   hhgFlow: true,
   ghcFlow: true,
   markerIO: false,
-  multiMove: false,
 };
 
 const environmentFlags = {
   development: {
     ...defaultFlags,
-    multiMove: true,
   },
 
   test: {
     ...defaultFlags,
-    multiMove: true,
   },
 
   experimental: {
     ...defaultFlags,
-    multiMove: true,
   },
 
   staging: {
@@ -56,7 +54,6 @@ const environmentFlags = {
 
   loadtest: {
     ...defaultFlags,
-    multiMove: true,
   },
 };
 

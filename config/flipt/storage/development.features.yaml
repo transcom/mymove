@@ -4,7 +4,7 @@ flags:
 - key: multi_move
   name: Multi move feature flag
   type: BOOLEAN_FLAG_TYPE
-  enabled: true
+  enabled: false
   rollouts:
   - segment:
       key: mil-app
