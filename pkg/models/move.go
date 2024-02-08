@@ -51,41 +51,41 @@ var locatorLetters = []rune("346789BCDFGHJKMPQRTVWXY")
 
 // Move is an object representing a move
 type Move struct {
-	ID                           uuid.UUID               `json:"id" db:"id"`
-	Locator                      string                  `json:"locator" db:"locator"`
-	CreatedAt                    time.Time               `json:"created_at" db:"created_at"`
-	UpdatedAt                    time.Time               `json:"updated_at" db:"updated_at"`
-	SubmittedAt                  *time.Time              `json:"submitted_at" db:"submitted_at"`
-	OrdersID                     uuid.UUID               `json:"orders_id" db:"orders_id"`
-	Orders                       Order                   `belongs_to:"orders" fk_id:"orders_id"`
-	PersonallyProcuredMoves      PersonallyProcuredMoves `has_many:"personally_procured_moves" fk_id:"move_id" order_by:"created_at desc"`
-	Status                       MoveStatus              `json:"status" db:"status"`
-	SignedCertifications         SignedCertifications    `has_many:"signed_certifications" fk_id:"move_id" order_by:"created_at desc"`
-	CancelReason                 *string                 `json:"cancel_reason" db:"cancel_reason"`
-	Show                         *bool                   `json:"show" db:"show"`
-	TIORemarks                   *string                 `db:"tio_remarks"`
-	AvailableToPrimeAt           *time.Time              `db:"available_to_prime_at"`
-	ContractorID                 *uuid.UUID              `db:"contractor_id"`
-	Contractor                   *Contractor             `belongs_to:"contractors" fk_id:"contractor_id"`
-	PPMType                      *string                 `db:"ppm_type"`
-	MTOServiceItems              MTOServiceItems         `has_many:"mto_service_items" fk_id:"move_id"`
-	PaymentRequests              PaymentRequests         `has_many:"payment_requests" fk_id:"move_id"`
-	MTOShipments                 MTOShipments            `has_many:"mto_shipments" fk_id:"move_id"`
-	ReferenceID                  *string                 `db:"reference_id"`
-	ServiceCounselingCompletedAt *time.Time              `db:"service_counseling_completed_at"`
-	PrimeCounselingCompletedAt   *time.Time              `db:"prime_counseling_completed_at"`
-	ExcessWeightQualifiedAt      *time.Time              `db:"excess_weight_qualified_at"`
-	ExcessWeightUploadID         *uuid.UUID              `db:"excess_weight_upload_id"`
-	ExcessWeightUpload           *Upload                 `belongs_to:"uploads" fk_id:"excess_weight_upload_id"`
-	ExcessWeightAcknowledgedAt   *time.Time              `db:"excess_weight_acknowledged_at"`
-	BillableWeightsReviewedAt    *time.Time              `db:"billable_weights_reviewed_at"`
-	FinancialReviewFlag          bool                    `db:"financial_review_flag"`
-	FinancialReviewFlagSetAt     *time.Time              `db:"financial_review_flag_set_at"`
-	FinancialReviewRemarks       *string                 `db:"financial_review_remarks"`
-	ShipmentGBLOC                MoveToGBLOCs            `has_many:"move_to_gbloc" fk_id:"move_id"`
-	CloseoutOfficeID             *uuid.UUID              `db:"closeout_office_id"`
-	CloseoutOffice               *TransportationOffice   `belongs_to:"transportation_offices" fk_id:"closeout_office_id"`
-	ApprovalsRequestedAt         *time.Time              `db:"approvals_requested_at"`
+	ID                           uuid.UUID             `json:"id" db:"id"`
+	Locator                      string                `json:"locator" db:"locator"`
+	CreatedAt                    time.Time             `json:"created_at" db:"created_at"`
+	UpdatedAt                    time.Time             `json:"updated_at" db:"updated_at"`
+	SubmittedAt                  *time.Time            `json:"submitted_at" db:"submitted_at"`
+	OrdersID                     uuid.UUID             `json:"orders_id" db:"orders_id"`
+	Orders                       Order                 `belongs_to:"orders" fk_id:"orders_id"`
+	Status                       MoveStatus            `json:"status" db:"status"`
+	SignedCertifications         SignedCertifications  `has_many:"signed_certifications" fk_id:"move_id" order_by:"created_at desc"`
+	CancelReason                 *string               `json:"cancel_reason" db:"cancel_reason"`
+	Show                         *bool                 `json:"show" db:"show"`
+	TIORemarks                   *string               `db:"tio_remarks"`
+	AvailableToPrimeAt           *time.Time            `db:"available_to_prime_at"`
+	ContractorID                 *uuid.UUID            `db:"contractor_id"`
+	Contractor                   *Contractor           `belongs_to:"contractors" fk_id:"contractor_id"`
+	PPMEstimatedWeight           *unit.Pound           `db:"ppm_estimated_weight"`
+	PPMType                      *string               `db:"ppm_type"`
+	MTOServiceItems              MTOServiceItems       `has_many:"mto_service_items" fk_id:"move_id"`
+	PaymentRequests              PaymentRequests       `has_many:"payment_requests" fk_id:"move_id"`
+	MTOShipments                 MTOShipments          `has_many:"mto_shipments" fk_id:"move_id"`
+	ReferenceID                  *string               `db:"reference_id"`
+	ServiceCounselingCompletedAt *time.Time            `db:"service_counseling_completed_at"`
+	PrimeCounselingCompletedAt   *time.Time            `db:"prime_counseling_completed_at"`
+	ExcessWeightQualifiedAt      *time.Time            `db:"excess_weight_qualified_at"`
+	ExcessWeightUploadID         *uuid.UUID            `db:"excess_weight_upload_id"`
+	ExcessWeightUpload           *Upload               `belongs_to:"uploads" fk_id:"excess_weight_upload_id"`
+	ExcessWeightAcknowledgedAt   *time.Time            `db:"excess_weight_acknowledged_at"`
+	BillableWeightsReviewedAt    *time.Time            `db:"billable_weights_reviewed_at"`
+	FinancialReviewFlag          bool                  `db:"financial_review_flag"`
+	FinancialReviewFlagSetAt     *time.Time            `db:"financial_review_flag_set_at"`
+	FinancialReviewRemarks       *string               `db:"financial_review_remarks"`
+	ShipmentGBLOC                MoveToGBLOCs          `has_many:"move_to_gbloc" fk_id:"move_id"`
+	CloseoutOfficeID             *uuid.UUID            `db:"closeout_office_id"`
+	CloseoutOffice               *TransportationOffice `belongs_to:"transportation_offices" fk_id:"closeout_office_id"`
+	ApprovalsRequestedAt         *time.Time            `db:"approvals_requested_at"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -265,12 +265,12 @@ func createNewMove(db *pop.Connection,
 	var contractor Contractor
 	err := db.Where("type='Prime'").First(&contractor)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Could not find contractor: %w", err)
+		return nil, nil, fmt.Errorf("could not find contractor: %w", err)
 	}
 
 	referenceID, err := GenerateReferenceID(db)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Could not generate a unique ReferenceID: %w", err)
+		return nil, nil, fmt.Errorf("could not generate a unique ReferenceID: %w", err)
 	}
 
 	for i := 0; i < maxLocatorAttempts; i++ {
@@ -348,21 +348,6 @@ func generateReferenceIDHelper(db *pop.Connection) (string, error) {
 func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
-
-	for _, ppm := range move.PersonallyProcuredMoves {
-		copyOfPpm := ppm // Make copy to avoid implicit memory aliasing of items from a range statement.
-		if copyOfPpm.Advance != nil {
-			if verrs, err := db.ValidateAndSave(copyOfPpm.Advance); verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				responseError = errors.Wrap(err, "Error Saving Advance")
-			}
-		}
-
-		if verrs, err := db.ValidateAndSave(&copyOfPpm); verrs.HasAny() || err != nil {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error Saving PPM")
-		}
-	}
 
 	if verrs, err := db.ValidateAndSave(&move.Orders); verrs.HasAny() || err != nil {
 		responseVErrors.Append(verrs)

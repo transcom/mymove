@@ -15,6 +15,7 @@ import (
 )
 
 // OrderPayGrade Grade
+// OrderPayGrade Pay grade
 //
 // swagger:model OrderPayGrade
 type OrderPayGrade string

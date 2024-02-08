@@ -154,7 +154,7 @@ type ShipmentSummaryFormData struct {
 	CurrentDutyLocation     DutyLocation
 	NewDutyLocation         DutyLocation
 	WeightAllotment         SSWMaxWeightEntitlement
-	PersonallyProcuredMoves PersonallyProcuredMoves
+	PPMShipments            PPMShipments
 	PreparationDate         time.Time
 	Obligations             Obligations
 	MovingExpenses          []MovingExpense
@@ -199,13 +199,21 @@ func (obligation Obligation) MaxAdvance() float64 {
 
 // FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
 func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth.Session, moveID uuid.UUID) (ShipmentSummaryFormData, error) {
+	if moveID == uuid.Nil {
+		return ShipmentSummaryFormData{}, ErrInvalidMoveID
+	}
 	move := Move{}
 	dbQErr := db.Q().Eager(
 		"Orders",
 		"Orders.NewDutyLocation.Address",
 		"Orders.ServiceMember",
 		"Orders.OriginDutyLocation.Address",
-		"PersonallyProcuredMoves",
+		"MTOShipments",
+		"MTOShipments.MoveTaskOrder",
+		"MTOShipments.PPMShipment",
+		"MTOShipments.PPMShipment.Status",
+		"MTOShipments.PPMShipment.SignedCertification",
+		"MTOShipments.PPMShipment.MovingExpenses",
 	).Find(&move, moveID)
 
 	if dbQErr != nil {
@@ -213,19 +221,6 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 			return ShipmentSummaryFormData{}, ErrFetchNotFound
 		}
 		return ShipmentSummaryFormData{}, dbQErr
-	}
-
-	for i, ppm := range move.PersonallyProcuredMoves {
-		ppmDetails, err := FetchPersonallyProcuredMove(db, session, ppm.ID)
-		if err != nil {
-			return ShipmentSummaryFormData{}, err
-		}
-		if ppmDetails.Advance != nil {
-			status := ppmDetails.Advance.Status
-			if status == ReimbursementStatusAPPROVED || status == ReimbursementStatusPAID {
-				move.PersonallyProcuredMoves[i].Advance = ppmDetails.Advance
-			}
-		}
 	}
 
 	_, authErr := FetchOrderForUser(db, session, move.OrdersID)
@@ -239,19 +234,23 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		weightAllotment = SSWGetEntitlement(*move.Orders.Grade, move.Orders.HasDependents, move.Orders.SpouseHasProGear)
 	}
 
-	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, weightAllotment.TotalWeight)
+	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(weightAllotment.TotalWeight)
 	if err != nil {
 		return ShipmentSummaryFormData{}, err
+	}
+	var signedCertification SignedCertification
+	var allPPMShipments PPMShipments
+	for _, shipment := range move.MTOShipments {
+		// get the first signed certification found
+		if shipment.PPMShipment.SignedCertification != nil {
+			signedCertification = *shipment.PPMShipment.SignedCertification
+		}
+		if shipment.PPMShipment != nil {
+			allPPMShipments = append(allPPMShipments, *shipment.PPMShipment)
+		}
+
 	}
 
-	signedCertification, err := FetchSignedCertificationsPPMPayment(db, session, moveID)
-	if err != nil {
-		return ShipmentSummaryFormData{}, err
-	}
-	if signedCertification == nil {
-		return ShipmentSummaryFormData{},
-			errors.New("shipment summary worksheet: signed certification is nil")
-	}
 	if move.Orders.OriginDutyLocation == nil {
 		return ShipmentSummaryFormData{},
 			errors.New("shipment summary worksheet: orders origin duty location is nil")
@@ -262,8 +261,8 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		CurrentDutyLocation:     *move.Orders.OriginDutyLocation,
 		NewDutyLocation:         move.Orders.NewDutyLocation,
 		WeightAllotment:         weightAllotment,
-		PersonallyProcuredMoves: move.PersonallyProcuredMoves,
-		SignedCertification:     *signedCertification,
+		SignedCertification:     signedCertification,
+		PPMShipments:            allPPMShipments,
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
 	}
 	return ssd, nil
@@ -306,16 +305,10 @@ func SSWGetEntitlement(grade internalmessages.OrderPayGrade, hasDependents bool,
 
 // CalculateRemainingPPMEntitlement calculates the remaining PPM entitlement for PPM moves
 // a PPMs remaining entitlement weight is equal to total entitlement - hhg weight
-func CalculateRemainingPPMEntitlement(move Move, totalEntitlement unit.Pound) (unit.Pound, error) {
+func CalculateRemainingPPMEntitlement(totalEntitlement unit.Pound) (unit.Pound, error) {
 	var hhgActualWeight unit.Pound
 
 	var ppmActualWeight unit.Pound
-	if len(move.PersonallyProcuredMoves) > 0 {
-		if move.PersonallyProcuredMoves[0].NetWeight == nil {
-			return ppmActualWeight, errors.Errorf("PPM %s does not have NetWeight", move.PersonallyProcuredMoves[0].ID)
-		}
-		ppmActualWeight = unit.Pound(*move.PersonallyProcuredMoves[0].NetWeight)
-	}
 
 	switch ppmRemainingEntitlement := totalEntitlement - hhgActualWeight; {
 	case ppmActualWeight < ppmRemainingEntitlement:
@@ -361,7 +354,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.WeightAllotmentProgearSpouse = FormatWeights(data.WeightAllotment.SpouseProGear)
 	page1.TotalWeightAllotment = FormatWeights(data.WeightAllotment.TotalWeight)
 
-	formattedShipments := FormatAllShipments(data.PersonallyProcuredMoves)
+	formattedShipments := FormatAllShipments(data.PPMShipments)
 	page1.ShipmentNumberAndTypes = formattedShipments.ShipmentNumberAndTypes
 	page1.ShipmentPickUpDates = formattedShipments.PickUpDates
 	page1.ShipmentCurrentShipmentStatuses = formattedShipments.CurrentShipmentStatuses
@@ -385,8 +378,8 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 }
 
 func formatActualObligationAdvance(data ShipmentSummaryFormData) string {
-	if len(data.PersonallyProcuredMoves) > 0 && data.PersonallyProcuredMoves[0].Advance != nil {
-		advance := data.PersonallyProcuredMoves[0].Advance.RequestedAmount.ToDollarFloatNoRound()
+	if len(data.PPMShipments) > 0 && data.PPMShipments[0].AdvanceAmountRequested != nil {
+		advance := data.PPMShipments[0].AdvanceAmountRequested.ToDollarFloatNoRound()
 		return FormatDollars(advance)
 	}
 	return FormatDollars(0)
@@ -486,7 +479,7 @@ func FormatServiceMemberFullName(serviceMember ServiceMember) string {
 }
 
 // FormatAllShipments formats Shipment line items for the Shipment Summary Worksheet
-func FormatAllShipments(ppms PersonallyProcuredMoves) ShipmentSummaryWorkSheetShipments {
+func FormatAllShipments(ppms PPMShipments) ShipmentSummaryWorkSheetShipments {
 	totalShipments := len(ppms)
 	formattedShipments := ShipmentSummaryWorkSheetShipments{}
 	formattedNumberAndTypes := make([]string, totalShipments)
@@ -545,8 +538,8 @@ func getExpenseType(expense MovingExpense) string {
 }
 
 // FormatCurrentPPMStatus formats FormatCurrentPPMStatus for the Shipment Summary Worksheet
-func FormatCurrentPPMStatus(ppm PersonallyProcuredMove) string {
-	if ppm.Status == "PAYMENT_REQUESTED" {
+func FormatCurrentPPMStatus(ppm PPMShipment) string {
+	if ppm.Status == "NEEDS_PAYMENT_APPROVAL" {
 		return "At destination"
 	}
 	return FormatEnum(string(ppm.Status), " ")
@@ -558,18 +551,24 @@ func FormatPPMNumberAndType(i int) string {
 }
 
 // FormatPPMWeight formats a ppms NetWeight for the Shipment Summary Worksheet
-func FormatPPMWeight(ppm PersonallyProcuredMove) string {
-	if ppm.NetWeight != nil {
-		wtg := FormatWeights(unit.Pound(*ppm.NetWeight))
-		return fmt.Sprintf("%s lbs - FINAL", wtg)
+func FormatPPMWeight(ppm PPMShipment) string {
+	totalWeight := getNetWeightForWeightTicketsInPPMShipment(ppm)
+	wtg := FormatWeights(unit.Pound(totalWeight))
+	return fmt.Sprintf("%s lbs - FINAL", wtg)
+
+}
+func getNetWeightForWeightTicketsInPPMShipment(ppm PPMShipment) unit.Pound {
+	var totalNetWeight unit.Pound
+	for _, weightTicket := range ppm.WeightTickets {
+		totalNetWeight += *weightTicket.AdjustedNetWeight
 	}
-	return ""
+	return totalNetWeight
 }
 
 // FormatPPMPickupDate formats a shipments ActualPickupDate for the Shipment Summary Worksheet
-func FormatPPMPickupDate(ppm PersonallyProcuredMove) string {
-	if ppm.OriginalMoveDate != nil {
-		return FormatDate(*ppm.OriginalMoveDate)
+func FormatPPMPickupDate(ppm PPMShipment) string {
+	if ppm.ActualMoveDate != nil {
+		return FormatDate(*ppm.ActualMoveDate)
 	}
 	return ""
 }

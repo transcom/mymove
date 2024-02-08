@@ -398,7 +398,6 @@ describe('when getting the next incomplete page', () => {
             report_by_date: '2019-02-01',
             new_duty_location: { id: 'something' },
             origin_duty_location: { id: 'something' },
-            grade: 'E_4',
           },
           move: { id: 'bar' },
           context: ppmContext,
