@@ -1,6 +1,7 @@
 import React, { Component, lazy } from 'react';
 import PropTypes from 'prop-types';
 import { Route, Routes, Navigate } from 'react-router-dom';
+import { isMultiMoveEnabled } from '../../utils/featureFlags';
 import { connect } from 'react-redux';
 import { GovBanner } from '@trussworks/react-uswds';
 
@@ -73,7 +74,12 @@ export class CustomerApp extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { hasError: false, error: undefined, info: undefined };
+    this.state = {
+      hasError: false,
+      error: undefined,
+      info: undefined,
+      multiMoveFeatureFlag: false,
+    };
   }
 
   componentDidMount() {
@@ -82,6 +88,11 @@ export class CustomerApp extends Component {
     loadInternalSchema();
     loadUser();
     initOnboarding();
+    isMultiMoveEnabled().then((enabled) => {
+      this.setState({
+        multiMoveFeatureFlag: enabled,
+      });
+    });
     document.title = generatePageTitle('Sign In');
     const script = document.createElement('script');
 
@@ -105,7 +116,7 @@ export class CustomerApp extends Component {
   render() {
     const { props } = this;
     const { userIsLoggedIn, loginIsLoading } = props;
-    const { hasError } = this.state;
+    const { hasError, multiMoveFeatureFlag } = this.state;
 
     return (
       <>
@@ -181,8 +192,12 @@ export class CustomerApp extends Component {
                 {/* <Route end path="/ppm" element={<PpmLanding />} /> */}
 
                 {/* ROOT */}
-                {/* If multiMove is enabled home page will route to dashboard element */}
-                <Route path={generalRoutes.HOME_PATH} end element={<MultiMovesLandingPage />} />
+                {/* If multiMove is enabled home page will route to dashboard element. Otherwise, it will route to the move page. */}
+                {multiMoveFeatureFlag ? (
+                  <Route path={generalRoutes.HOME_PATH} end element={<MultiMovesLandingPage />} />
+                ) : (
+                  <Route path={generalRoutes.HOME_PATH} end element={<Home />} />
+                )}
 
                 {getWorkflowRoutes(props)}
 
