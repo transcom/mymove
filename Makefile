@@ -1216,4 +1216,56 @@ nonato_deploy_restore:  ## Restore placeholders in config after deploy to a non-
 # ----- END NON-ATO DEPLOYMENT TARGETS -----
 #
 
+#
+# ----- START SETUP MULTI BRANCH -----
+#
+
+clone_repo:
+	@git clone https://github.com/transcom/mymove.git "$(CURDIR)2"
+
+modify_envrc_local_clone:
+	@if [ ! -f "$(CURDIR)2/.envrc.local" ]; then \
+		cp "$(CURDIR)2/.envrc" "$(CURDIR)2/.envrc.local"; \
+	fi; \
+	sed -i '' -e 's/^export GIN_PORT=.*/export GIN_PORT=9002/' "$(CURDIR)2/.envrc.local"; \
+	sed -i '' '/if \[ -e .envrc.local \]/,/fi/d' "$(CURDIR)2/.envrc.local";
+
+modify_envrc_local_in_original_folder:
+	@if [ ! -f "$(CURDIR)/.envrc.local" ]; then \
+		cp "$(CURDIR)/.envrc" "$(CURDIR)/.envrc.local"; \
+	fi; \
+	sed -i '' -e 's/^export GIN_PORT=.*/export GIN_PORT=9001/' "$(CURDIR)/.envrc.local"; \
+	sed -i '' '/if \[ -e .envrc.local \]/,/fi/d' "$(CURDIR)/.envrc.local";
+
+success_message:
+	@echo "2 independent project folders created successfully."
+
+.PHONY: multi_branch
+multi_branch: clone_repo modify_envrc_local_clone modify_envrc_local_in_original_folder success_message ## Sets up 2 folders which can each target a different branch on the repo
+
+# clone_repo:
+# 	@git clone https://github.com/transcom/mymove.git "$(CURDIR)2"
+
+# modify_envrc_local_clone:
+# 	@if [ ! -f "$(CURDIR)2/.envrc.local" ]; then \
+# 		cp "$(CURDIR)2/.envrc" "$(CURDIR)2/.envrc.local"; \
+# 	fi; \
+# 	sed -i '' -e 's/^export GIN_PORT=.*/export GIN_PORT=9002/' -e 's/if \[[^\]]*\](\s+([A-Za-z]+\s+)+)source_env .envrc.local\s+fi/# loop fixed/' "$(CURDIR)2/.envrc.local";
+
+# modify_envrc_local_in_original_folder:
+# 	@if [ ! -f "$(CURDIR)/.envrc.local" ]; then \
+# 		cp "$(CURDIR)/.envrc" "$(CURDIR)/.envrc.local"; \
+# 	fi; \
+# 	sed -i '' -e 's/^export GIN_PORT=.*/export GIN_PORT=9001/' -e 's/if \[[^\]]*\](\s+([A-Za-z]+\s+)+)source_env .envrc.local\s+fi/# loop fixed/' "$(CURDIR)/.envrc.local";
+
+# success_message:
+# 	@echo "2 independent project folders created successfully."
+
+# .PHONY: multi_branch
+# multi_branch: clone_repo modify_envrc_local_clone modify_envrc_local_in_original_folder success_message ## Sets up 2 folders which can each target a different branch on the repo
+
+#
+# ----- END SETUP MULTI BRANCH -----
+#
+
 default: help
