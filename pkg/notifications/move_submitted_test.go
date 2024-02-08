@@ -41,6 +41,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithGovCounse
 		Locator:                      "abc123",
 		WeightAllowance:              "7,999",
 		ProvidesGovernmentCounseling: true,
+		MilitaryOneSourceLink:        "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL",
 	}
 	expectedHTMLContent := `<p>
   *** DO NOT REPLY directly to this email ***
@@ -95,6 +96,10 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithGovCounse
   HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes.
 </p>
 
+<p>
+  If you have requested a PPM, <strong>DO NOT</strong> start your PPM until your counselor has approved it in MilMove. You will receive an email when that is complete.
+</p>
+
 <h4>
   IMPORTANT: Take the Customer Satisfaction Survey
 </h4>
@@ -106,14 +111,10 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithGovCounse
   Taking the survey at each stage provides transparency and increases accountability of those assisting you with your relocation.
 </p>
 
+Thank you,<br>
+USTRANSCOM MilMove Team
 <p>
-  Thank you,
-</p>
-<p>
-  Defense Personal Property Program’s MilMove Team
-</p>
-<p>
-  The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
+  The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
 </p>
 `
 
@@ -141,6 +142,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithoutGovCou
 		Locator:                      "abc123",
 		WeightAllowance:              "7,999",
 		ProvidesGovernmentCounseling: false,
+		MilitaryOneSourceLink:        "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL",
 	}
 	expectedHTMLContent := `<p>
   *** DO NOT REPLY directly to this email ***
@@ -176,7 +178,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithoutGovCou
 </h4>
 
 <p>
-  Your move request will be reviewed by the responsible personal property shipping office and an move task order for services will be placed with HomeSafe Alliance.
+  Your move request will be reviewed by the responsible personal property shipping office and a move task order for services will be placed with HomeSafe Alliance.
 </p>
 <p>
   Once this order is placed, you will receive an invitation to create an account in HomeSafe Connect. This is the system you will use for your counseling session. You will also schedule your pre-move survey during this session.
@@ -184,6 +186,10 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithoutGovCou
 
 <p>
   HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes.
+</p>
+
+<p>
+  If you have requested a PPM, <strong>DO NOT</strong> start your PPM until your counselor has approved it in MilMove. You will receive an email when that is complete.
 </p>
 
 <h4>
@@ -197,14 +203,10 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithoutGovCou
   Taking the survey at each stage provides transparency and increases accountability of those assisting you with your relocation.
 </p>
 
+Thank you,<br>
+USTRANSCOM MilMove Team
 <p>
-  Thank you,
-</p>
-<p>
-  Defense Personal Property Program’s MilMove Team
-</p>
-<p>
-  The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
+  The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
 </p>
 `
 
@@ -229,6 +231,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyLocatio
 		Locator:                      "abc123",
 		WeightAllowance:              "7,999",
 		ProvidesGovernmentCounseling: false,
+		MilitaryOneSourceLink:        "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL",
 	}
 	expectedHTMLContent := `<p>
   *** DO NOT REPLY directly to this email ***
@@ -264,7 +267,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyLocatio
 </h4>
 
 <p>
-  Your move request will be reviewed by the responsible personal property shipping office and an move task order for services will be placed with HomeSafe Alliance.
+  Your move request will be reviewed by the responsible personal property shipping office and a move task order for services will be placed with HomeSafe Alliance.
 </p>
 <p>
   Once this order is placed, you will receive an invitation to create an account in HomeSafe Connect. This is the system you will use for your counseling session. You will also schedule your pre-move survey during this session.
@@ -272,6 +275,10 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyLocatio
 
 <p>
   HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes.
+</p>
+
+<p>
+  If you have requested a PPM, <strong>DO NOT</strong> start your PPM until your counselor has approved it in MilMove. You will receive an email when that is complete.
 </p>
 
 <h4>
@@ -285,14 +292,10 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyLocatio
   Taking the survey at each stage provides transparency and increases accountability of those assisting you with your relocation.
 </p>
 
+Thank you,<br>
+USTRANSCOM MilMove Team
 <p>
-  Thank you,
-</p>
-<p>
-  Defense Personal Property Program’s MilMove Team
-</p>
-<p>
-  The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
+  The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
 </p>
 `
 
@@ -322,6 +325,7 @@ func (suite *NotificationSuite) TestMoveSubmittedTextTemplateRender() {
 		Locator:                      "abc123",
 		WeightAllowance:              "7,999",
 		ProvidesGovernmentCounseling: true,
+		MilitaryOneSourceLink:        "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL",
 	}
 
 	expectedTextContent := `*** DO NOT REPLY directly to this email ***
@@ -354,6 +358,8 @@ Once your counseling is complete, your request will be reviewed by the responsib
 
 HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes.
 
+If you have requested a PPM, DO NOT start your PPM until your counselor has approved it in MilMove. You will receive an email when that is complete.
+
 
 ** IMPORTANT: Take the Customer Satisfaction Survey
 ------------------------------------------------------------
@@ -363,8 +369,7 @@ You will receive an invitation to take a quick customer satisfaction survey (CSS
 Taking the survey at each stage provides transparency and increases accountability of those assisting you with your relocation.
 
 Thank you,
-
-Defense Personal Property Program’s MilMove Team
+USTRANSCOM MilMove Team
 
 The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
 `
