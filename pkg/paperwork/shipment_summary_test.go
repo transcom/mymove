@@ -53,12 +53,16 @@ func (suite *PaperworkSuite) TestComputeObligationsParams() {
 	ppmComputer := NewSSWPPMComputer(&mockPPMComputer{})
 	pickupPostalCode := "85369"
 	destinationPostalCode := "31905"
+
 	ppm := models.PPMShipment{
 		PickupPostalCode:      pickupPostalCode,
 		DestinationPostalCode: destinationPostalCode,
 	}
+
 	noPPM := models.ShipmentSummaryFormData{SSPPMShipments: models.PPMShipments{}}
-	missingZip := models.ShipmentSummaryFormData{SSPPMShipments: models.PPMShipments{}}
+	missingZip := models.ShipmentSummaryFormData{SSPPMShipments: models.PPMShipments{
+		models.PPMShipment{},
+	}}
 	missingActualMoveDate := models.ShipmentSummaryFormData{SSPPMShipments: models.PPMShipments{ppm}}
 
 	planner := &mocks.Planner{}
@@ -107,19 +111,20 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 				TotalSITCost:          &cents,
 			},
 		}) */
-		ppmCustomModel := models.PPMShipment{
-			ExpectedDepartureDate: origMoveDate,
-			ActualMoveDate:        &actualDate,
-			PickupPostalCode:      pickupPostalCode,
-			DestinationPostalCode: destinationPostalCode,
-			SITEstimatedCost:      &cents,
-		}
+		w2Address := factory.BuildAddress(suite.DB(), []factory.Customization{}, nil)
 		ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
-				Model:    &ppmCustomModel,
-				LinkOnly: true,
+				Model: models.PPMShipment{
+					ExpectedDepartureDate: origMoveDate,
+					ActualMoveDate:        &actualDate,
+					PickupPostalCode:      pickupPostalCode,
+					DestinationPostalCode: destinationPostalCode,
+					SITEstimatedCost:      &cents,
+				},
 			},
 		}, nil)
+		ppm.W2Address = &w2Address
+		ppm.W2AddressID = &w2Address.ID
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
 				Model: models.DutyLocation{
@@ -240,28 +245,19 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 		mockComputer := mockPPMComputer{
 			costDetails: costDetails,
 		}
-
-		/* ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{
-				OriginalMoveDate:      &origMoveDate,
-				ActualMoveDate:        &actualDate,
-				PickupPostalCode:      &pickupPostalCode,
-				DestinationPostalCode: &destinationPostalCode,
-			},
-		}) */
-		ppmCustomModel := models.PPMShipment{
-			ExpectedDepartureDate: origMoveDate,
-			ActualMoveDate:        &actualDate,
-			PickupPostalCode:      pickupPostalCode,
-			DestinationPostalCode: destinationPostalCode,
-			SITEstimatedCost:      &cents,
-		}
 		ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
-				Model:    &ppmCustomModel,
-				LinkOnly: true,
+				Model: models.PPMShipment{
+					ExpectedDepartureDate: origMoveDate,
+					ActualMoveDate:        &actualDate,
+					PickupPostalCode:      pickupPostalCode,
+					DestinationPostalCode: destinationPostalCode,
+				},
 			},
 		}, nil)
+		w2Address := factory.BuildAddress(suite.DB(), []factory.Customization{}, nil)
+		ppm.W2Address = &w2Address
+		ppm.W2AddressID = &w2Address.ID
 		currentDutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 		shipmentSummaryFormParams := models.ShipmentSummaryFormData{
 			SSPPMShipments:      models.PPMShipments{ppm},
