@@ -447,9 +447,13 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 			PaidWithGTCC:      &paidWithGTCC,
 		},
 	}
-	signature := models.SignedCertification{
-		Date: signatureDate,
-	}
+	signature := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+		{
+			Model: models.SignedCertification{
+				Date: signatureDate,
+			},
+		},
+	}, nil)
 
 	ssd := services.ShipmentSummaryFormData{
 		ServiceMember:       sm,
