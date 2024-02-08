@@ -29,12 +29,14 @@ const getSectionTitle = (sectionInfo) => {
 // Returns the markup needed for a specific section
 const getSectionMarkup = (sectionInfo) => {
   let aoaValue;
-  if (sectionInfo.advanceRequested) {
-    if (sectionInfo.advanceReceived) {
-      aoaValue = formatCents(sectionInfo.aoa);
+  let aoaRequestedValue;
+  if (sectionInfo.isAdvanceRequested) {
+    aoaRequestedValue = `$${formatCents(sectionInfo.advanceAmountRequested)}`;
+    if (sectionInfo.isAdvanceReceived) {
+      aoaValue = `$${formatCents(sectionInfo.advanceAmountReceived)}`;
     } else aoaValue = 'Not yet received';
   } else {
-    aoaValue = 'Not requested';
+    aoaRequestedValue = 'Not requested';
   }
 
   switch (sectionInfo.type) {
@@ -78,16 +80,24 @@ const getSectionMarkup = (sectionInfo) => {
           <div>
             <Label>Gross Incentive</Label>
             {/** TODO: Is estimatedIncentive (sent from ppmShipment in PPMHeaderSummary) actually the correct value? */}
-            <span className={styles.light}>${formatCents(sectionInfo.estimatedIncentive)}</span>
+            <span className={styles.light}>${formatCents(sectionInfo.grossIncentive)}</span>
           </div>
           <div>
             <Label>Government Constructive Cost (GCC)</Label>
             <span className={styles.light}>${formatCents(sectionInfo.gcc) ?? `TEST VAL`}</span>
           </div>
-          <div>
-            <Label>Advance received</Label>
-            <span className={styles.light}>{aoaValue}</span>
-          </div>
+          {sectionInfo.isAdvanceRequested && (
+            <>
+              <div>
+                <Label>Advance Requested</Label>
+                <span className={styles.light}>{aoaRequestedValue}</span>
+              </div>
+              <div>
+                <Label>Advance received</Label>
+                <span className={styles.light}>{aoaValue}</span>
+              </div>
+            </>
+          )}
           <div>
             <Label>Remaining Incentive</Label>
             <span className={styles.light}>${formatCents(sectionInfo.remainingIncentive) ?? `TEST VAL`}</span>
@@ -99,20 +109,12 @@ const getSectionMarkup = (sectionInfo) => {
       return (
         <div className={classnames(styles.Details)}>
           <div>
-            <Label>Linehaul Price</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.linehaulPrice) ?? `TEST VAL`}</span>
+            <Label>Haul Price</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.haulPrice)}</span>
           </div>
           <div>
-            <Label>Linehaul Fuel Surcharge</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.linehaulFuelSurcharge) ?? `TEST VAL`}</span>
-          </div>
-          <div>
-            <Label>Shorthaul Price</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.shorthaulPrice) ?? `TEST VAL`}</span>
-          </div>
-          <div>
-            <Label>Shorthaul Fuel Surcharge</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.shorthaulFuelSurcharge) ?? `TEST VAL`}</span>
+            <Label>Haul Fuel Surcharge</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.haulFSC) ?? `TEST VAL`}</span>
           </div>
           <div>
             <Label>Full Pack/Unpack Charge</Label>
