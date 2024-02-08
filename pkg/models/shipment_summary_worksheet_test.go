@@ -103,7 +103,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 
 	suite.NoError(err)
 	suite.Equal(move.Orders.ID, ssd.Order.ID)
-	suite.Equal(move.MTOShipments[0].PPMShipment.ID, ssd.SSPPMShipments[0].ID)
+	suite.Equal(move.MTOShipments[0].PPMShipment.ID, ssd.PPMShipments[0].ID)
 	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
 	suite.Equal(yuma.ID, ssd.CurrentDutyLocation.ID)
 	suite.Equal(yuma.Address.ID, ssd.CurrentDutyLocation.Address.ID)
@@ -120,9 +120,9 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	suite.Require().Nil(err)
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
 	//suite.Equal(ppm.NetWeight, ssd.SSPPMShipments[0].NetWeight)
-	suite.Require().NotNil(ssd.SSPPMShipments[0].MovingExpenses[0])
-	suite.Equal(move.MTOShipments[0].PPMShipment.MovingExpenses[0].ID, ssd.SSPPMShipments[0].MovingExpenses[0].ID)
-	suite.Equal(unit.Cents(1000), *ssd.SSPPMShipments[0].MovingExpenses[0].Amount)
+	suite.Require().NotNil(ssd.PPMShipments[0].MovingExpenses[0])
+	suite.Equal(move.MTOShipments[0].PPMShipment.MovingExpenses[0].ID, ssd.PPMShipments[0].MovingExpenses[0].ID)
+	suite.Equal(unit.Cents(1000), *ssd.PPMShipments[0].MovingExpenses[0].Amount)
 	suite.Equal(move.MTOShipments[0].PPMShipment.SignedCertification.ID, ssd.SignedCertification.ID)
 }
 
@@ -274,8 +274,8 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 
 	suite.NoError(err)
 	suite.Equal(move.Orders.ID, ssd.Order.ID)
-	suite.Require().Len(ssd.SSPPMShipments, 1)
-	suite.Equal(move.MTOShipments[0].PPMShipment.ID, ssd.SSPPMShipments[0].ID)
+	suite.Require().Len(ssd.PPMShipments, 1)
+	suite.Equal(move.MTOShipments[0].PPMShipment.ID, ssd.PPMShipments[0].ID)
 	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
 	suite.Equal(yuma.ID, ssd.CurrentDutyLocation.ID)
 	suite.Equal(yuma.Address.ID, ssd.CurrentDutyLocation.Address.ID)
@@ -291,10 +291,10 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
 	//suite.Equal(ppm.NetWeight, ssd.SSPPMShipments[0].NetWeight)
-	suite.Require().NotNil(ssd.SSPPMShipments[0].MovingExpenses)
-	suite.Equal(move.MTOShipments[0].PPMShipment.MovingExpenses[0].ID, ssd.SSPPMShipments[0].MovingExpenses[0].ID)
-	suite.Equal(unit.Cents(1000), *ssd.SSPPMShipments[0].AdvanceAmountRequested)
-	suite.Equal(newSignedCertification.ID, ssd.SSPPMShipments[0].SignedCertification.ID)
+	suite.Require().NotNil(ssd.PPMShipments[0].MovingExpenses)
+	suite.Equal(move.MTOShipments[0].PPMShipment.MovingExpenses[0].ID, ssd.PPMShipments[0].MovingExpenses[0].ID)
+	suite.Equal(unit.Cents(1000), *ssd.PPMShipments[0].AdvanceAmountRequested)
+	suite.Equal(newSignedCertification.ID, ssd.PPMShipments[0].SignedCertification.ID)
 	suite.Require().Len(ssd.MovingExpenses, 0)
 }
 
@@ -368,7 +368,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 		PPMRemainingEntitlement: 3000,
 		WeightAllotment:         wtgEntitlements,
 		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
-		SSPPMShipments:          ppmShipment,
+		PPMShipments:            ppmShipment,
 		Obligations: models.Obligations{
 			MaxObligation:              models.Obligation{Gcc: unit.Cents(600000), SIT: unit.Cents(53000)},
 			ActualObligation:           models.Obligation{Gcc: unit.Cents(500000), SIT: unit.Cents(30000), Miles: unit.Miles(4050)},
@@ -538,9 +538,13 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage3() {
 			PaidWithGTCC:      &paidWithGTCC,
 		},
 	}
-	signature := models.SignedCertification{
-		Date: signatureDate,
-	}
+	signature := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+		{
+			Model: models.SignedCertification{
+				Date: signatureDate,
+			},
+		},
+	}, nil)
 
 	ssd := models.ShipmentSummaryFormData{
 		ServiceMember:       sm,
@@ -774,10 +778,13 @@ func (suite *ModelSuite) TestFormatSignature() {
 
 func (suite *ModelSuite) TestFormatSignatureDate() {
 	signatureDate := time.Date(2019, time.January, 26, 14, 40, 0, 0, time.UTC)
-
-	signature := models.SignedCertification{
-		Date: signatureDate,
-	}
+	signature := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+		{
+			Model: models.SignedCertification{
+				Date: signatureDate,
+			},
+		},
+	}, nil)
 	sswfd := models.ShipmentSummaryFormData{
 		SignedCertification: signature,
 	}

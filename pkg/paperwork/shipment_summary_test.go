@@ -59,11 +59,11 @@ func (suite *PaperworkSuite) TestComputeObligationsParams() {
 		DestinationPostalCode: destinationPostalCode,
 	}
 
-	noPPM := models.ShipmentSummaryFormData{SSPPMShipments: models.PPMShipments{}}
-	missingZip := models.ShipmentSummaryFormData{SSPPMShipments: models.PPMShipments{
+	noPPM := models.ShipmentSummaryFormData{PPMShipments: models.PPMShipments{}}
+	missingZip := models.ShipmentSummaryFormData{PPMShipments: models.PPMShipments{
 		models.PPMShipment{},
 	}}
-	missingActualMoveDate := models.ShipmentSummaryFormData{SSPPMShipments: models.PPMShipments{ppm}}
+	missingActualMoveDate := models.ShipmentSummaryFormData{PPMShipments: models.PPMShipments{ppm}}
 
 	planner := &mocks.Planner{}
 	planner.On("ZipTransitDistance",
@@ -151,7 +151,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 		ppm, order, currentDutyLocation := setupTestData()
 
 		params := models.ShipmentSummaryFormData{
-			SSPPMShipments:          models.PPMShipments{ppm},
+			PPMShipments:            models.PPMShipments{ppm},
 			WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
 			PPMRemainingEntitlement: ppmRemainingEntitlement,
 			CurrentDutyLocation:     currentDutyLocation,
@@ -205,7 +205,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 		ppm, order, currentDutyLocation := setupTestData()
 
 		params := models.ShipmentSummaryFormData{
-			SSPPMShipments:          models.PPMShipments{ppm},
+			PPMShipments:            models.PPMShipments{ppm},
 			WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
 			PPMRemainingEntitlement: ppmRemainingEntitlement,
 			CurrentDutyLocation:     currentDutyLocation,
@@ -260,7 +260,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 		ppm.W2AddressID = &w2Address.ID
 		currentDutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 		shipmentSummaryFormParams := models.ShipmentSummaryFormData{
-			SSPPMShipments:      models.PPMShipments{ppm},
+			PPMShipments:        models.PPMShipments{ppm},
 			WeightAllotment:     models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
 			CurrentDutyLocation: currentDutyLocation,
 			Order:               order,
@@ -276,7 +276,7 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 		ppm, order, currentDutyLocation := setupTestData()
 
 		params := models.ShipmentSummaryFormData{
-			SSPPMShipments:          models.PPMShipments{ppm},
+			PPMShipments:            models.PPMShipments{ppm},
 			WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
 			PPMRemainingEntitlement: ppmRemainingEntitlement,
 			CurrentDutyLocation:     currentDutyLocation,

@@ -102,10 +102,10 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(appCtx appcontext.AppCo
 }
 
 func (sswPpmComputer *SSWPPMComputer) nilCheckPPM(ssfd models.ShipmentSummaryFormData) (models.PPMShipment, error) {
-	if len(ssfd.SSPPMShipments) == 0 {
+	if len(ssfd.PPMShipments) == 0 {
 		return models.PPMShipment{}, errors.New("missing ppm")
 	}
-	firstPPM := ssfd.SSPPMShipments[0]
+	firstPPM := ssfd.PPMShipments[0]
 	if firstPPM.PickupPostalCode == "" || firstPPM.DestinationPostalCode == "" {
 		return models.PPMShipment{}, errors.New("missing required address parameter")
 	}

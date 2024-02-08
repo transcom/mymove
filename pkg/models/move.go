@@ -267,12 +267,12 @@ func createNewMove(db *pop.Connection,
 	var contractor Contractor
 	err := db.Where("type='Prime'").First(&contractor)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Could not find contractor: %w", err)
+		return nil, nil, fmt.Errorf("could not find contractor: %w", err)
 	}
 
 	referenceID, err := GenerateReferenceID(db)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Could not generate a unique ReferenceID: %w", err)
+		return nil, nil, fmt.Errorf("could not generate a unique ReferenceID: %w", err)
 	}
 
 	for i := 0; i < maxLocatorAttempts; i++ {
