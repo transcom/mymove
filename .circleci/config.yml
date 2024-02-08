@@ -885,6 +885,7 @@ commands:
             --workers << parameters.workers >> \
             --shard="${SHARD}/${CIRCLE_NODE_TOTAL}" \
             << parameters.path >>
+          no_output_timeout: 60m
       - store_artifacts:
           path: playwright-report
       - run:
@@ -1347,6 +1348,7 @@ jobs:
             echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)' >> $BASH_ENV
             source $BASH_ENV
             make db_dev_fresh
+          no_output_timeout: 60m
           environment:
             APPLICATION: app
             DB_PASSWORD: mysecretpassword
