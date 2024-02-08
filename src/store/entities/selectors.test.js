@@ -12,9 +12,7 @@ import {
   selectCurrentMove,
   selectCurrentPPM,
   selectPPMForMove,
-  selectPPMEstimateRange,
   selectPPMSitEstimate,
-  selectReimbursementById,
   selectWeightAllotmentsForLoggedInUser,
   selectWeightTicketAndIndexById,
 } from './selectors';
@@ -1537,33 +1535,6 @@ describe('selectCurrentPPM', () => {
   });
 });
 
-describe('selectPPMEstimateRange', () => {
-  it('returns the only PPM estimate range stored in entities', () => {
-    const testState = {
-      entities: {
-        ppmEstimateRanges: {
-          undefined: {
-            range_min: 1000,
-            range_max: 2400,
-          },
-        },
-      },
-    };
-
-    expect(selectPPMEstimateRange(testState)).toEqual(testState.entities.ppmEstimateRanges.undefined);
-  });
-
-  it('returns null if there is no PPM estimate range in entities', () => {
-    const testState = {
-      entities: {
-        ppmEstimateRanges: {},
-      },
-    };
-
-    expect(selectPPMEstimateRange(testState)).toEqual(null);
-  });
-});
-
 describe('selectPPMSitEstimate', () => {
   it('returns the only PPM SIT estimate stored in entities', () => {
     const testState = {
@@ -1587,34 +1558,6 @@ describe('selectPPMSitEstimate', () => {
     };
 
     expect(selectPPMSitEstimate(testState)).toEqual(null);
-  });
-});
-
-describe('selectReimbursementById', () => {
-  it('returns the only PPM SIT estimate stored in entities', () => {
-    const testState = {
-      entities: {
-        reimbursements: {
-          testReimbursement123: {
-            id: 'testReimbursement123',
-          },
-        },
-      },
-    };
-
-    expect(selectReimbursementById(testState, 'testReimbursement123')).toEqual(
-      testState.entities.reimbursements.testReimbursement123,
-    );
-  });
-
-  it('returns null if there is no reimbursement in entities', () => {
-    const testState = {
-      entities: {
-        ppmSitEstimate: {},
-      },
-    };
-
-    expect(selectReimbursementById(testState, 'testReimbursement123')).toEqual(null);
   });
 });
 
