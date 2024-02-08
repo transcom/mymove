@@ -93,6 +93,7 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		Locator:                      move.Locator,
 		WeightAllowance:              humanize.Comma(int64(weight)),
 		ProvidesGovernmentCounseling: providesGovernmentCounseling,
+		MilitaryOneSourceLink:        "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL",
 	})
 
 	if err != nil {
@@ -132,6 +133,7 @@ type moveSubmittedEmailData struct {
 	Locator                      string
 	WeightAllowance              string
 	ProvidesGovernmentCounseling bool
+	MilitaryOneSourceLink        string
 }
 
 // RenderHTML renders the html for the email
