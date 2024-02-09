@@ -362,7 +362,7 @@ describe('Orders page', () => {
     });
 
     await userEvent.click(backButton);
-    expect(mockNavigate).toHaveBeenCalledWith('/');
+    expect(mockNavigate).toHaveBeenCalledWith('/move');
   });
 
   it('shows an error if the API returns an error', async () => {

@@ -24,7 +24,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { selectServiceMemberFromLoggedInUser, selectCurrentOrders } from 'store/entities/selectors';
 import { DutyLocationShape, RouterShape } from 'types';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import withRouter from 'utils/routing';
 
 export class Orders extends Component {
@@ -66,7 +66,7 @@ export class Orders extends Component {
     if (isLoading) return <LoadingPlaceholder />;
 
     const handleBack = () => {
-      navigate(generalRoutes.HOME_PATH);
+      navigate(customerRoutes.MOVE_HOME_PAGE);
     };
 
     const handleNext = () => {
