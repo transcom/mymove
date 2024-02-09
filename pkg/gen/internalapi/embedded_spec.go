@@ -2505,9 +2505,9 @@ func init() {
         }
       ]
     },
-    "/ppm-shipments/{ppmShipmentId}/shipment_summary_worksheet": {
+    "/ppm-shipments/{ppmShipmentId}/shipment-summary-worksheet": {
       "get": {
-        "description": "Generates pre-filled PDF using data already collected",
+        "description": "### Functionality\nThis endpoint downloads a generated and filled Shipment Summary Worksheet based on the pdf in the code\nand information pulled and formatted via services. Will not return unless PDF is readable.\n",
         "produces": [
           "application/pdf"
         ],
@@ -11089,9 +11089,9 @@ func init() {
         }
       ]
     },
-    "/ppm-shipments/{ppmShipmentId}/shipment_summary_worksheet": {
+    "/ppm-shipments/{ppmShipmentId}/shipment-summary-worksheet": {
       "get": {
-        "description": "Generates pre-filled PDF using data already collected",
+        "description": "### Functionality\nThis endpoint downloads a generated and filled Shipment Summary Worksheet based on the pdf in the code\nand information pulled and formatted via services. Will not return unless PDF is readable.\n",
         "produces": [
           "application/pdf"
         ],
