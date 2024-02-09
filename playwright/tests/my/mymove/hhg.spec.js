@@ -8,7 +8,7 @@ test('A customer can create, edit, and delete an HHG shipment', async ({ custome
   await customerPage.signInAsExistingCustomer(userId);
 
   // Navigate to create a new shipment
-  // await customerPage.waitForPage.multiMoveLandingPage(); // Commenting out as B-18459 will address this test
+  await customerPage.waitForPage.multiMoveLandingPage();
   // await page.getByTestId('shipment-selection-btn').click();
   // await customerPage.waitForPage.aboutShipments();
   // await customerPage.navigateForward();
