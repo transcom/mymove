@@ -763,7 +763,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 // FillSSWPDFForm takes form data and fills an existing PDF form template with said data
 func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values) (sswfile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
 
-	pdfTemplatePath, err := filepath.Abs("/pkg/assets/paperwork/formtemplates/SSWPDFTemplate.pdf")
+	pdfTemplatePath, err := filepath.Abs("pkg/assets/paperwork/formtemplates/SSWPDFTemplate.pdf")
 	if err != nil {
 		panic(err)
 	}
