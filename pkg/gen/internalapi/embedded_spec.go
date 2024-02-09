@@ -1849,35 +1849,6 @@ func init() {
         }
       }
     },
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Made calculation of PPM incentive",
-            "schema": {
-              "$ref": "#/definitions/PPMIncentive"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "409": {
-            "description": "distance is less than 50 miles (no short haul moves)"
-          "404": {
-            "description": "ppm is not found"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      }
-    },
     "/personally_procured_moves/{personallyProcuredMoveId}/approve": {
       "post": {
         "description": "Sets the status of the PPM to APPROVED.",
