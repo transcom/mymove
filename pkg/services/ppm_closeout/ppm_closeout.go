@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/gofrs/uuid"
+	"github.com/jinzhu/copier"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -106,7 +107,11 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
  */
 func (p *ppmCloseoutFetcher) calculateGCC(appCtx appcontext.AppContext, ppmShipment models.PPMShipment, fullEntitlementWeight unit.Pound) (unit.Cents, error) {
 	var gcc unit.Cents
-	fullEntitlementPPM := ppmShipment
+	var fullEntitlementPPM models.PPMShipment
+	err := copier.CopyWithOption(&fullEntitlementPPM, ppmShipment, copier.Option{IgnoreEmpty: false, DeepCopy: true})
+	if err != nil {
+		return unit.Cents(0), err
+	}
 	fullEntitlementPPM.SITEstimatedWeight = &fullEntitlementWeight
 
 	if ppmShipment.Shipment.SITDaysAllowance != nil && ppmShipment.SITLocation != nil &&
@@ -119,16 +124,15 @@ func (p *ppmCloseoutFetcher) calculateGCC(appCtx appcontext.AppContext, ppmShipm
 			return gcc, errFetch
 		}
 
-		sitCost, err := ppmshipment.CalculateSITCost(appCtx, &fullEntitlementPPM, contract)
+		sitCost, sitCalcErr := ppmshipment.CalculateSITCost(appCtx, &fullEntitlementPPM, contract)
 		gcc = gcc.AddCents(*sitCost)
-		return gcc, err
+		return gcc, sitCalcErr
 	}
 
 	// Put max weight on all weight ticket items
 	if len(fullEntitlementPPM.WeightTickets) >= 1 {
-		for i, weightTicket := range fullEntitlementPPM.WeightTickets {
-			maxWeight := unit.Pound(weightTicket.AllowableWeight.Int())
-			fullEntitlementPPM.WeightTickets[i].AdjustedNetWeight = &maxWeight
+		for i := range fullEntitlementPPM.WeightTickets {
+			fullEntitlementPPM.WeightTickets[i].AdjustedNetWeight = &fullEntitlementWeight
 		}
 	}
 
