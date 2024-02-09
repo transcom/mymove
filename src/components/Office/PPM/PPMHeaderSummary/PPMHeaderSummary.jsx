@@ -11,9 +11,6 @@ import { usePPMCloseoutQuery } from 'hooks/queries';
 
 const GCCAndIncentiveInfo = ({ ppmShipmentInfo }) => {
   const { ppmCloseout, isLoading, isError } = usePPMCloseoutQuery(ppmShipmentInfo.id);
-  // useEffect(() => {
-  //   return null;
-  // }, []);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
