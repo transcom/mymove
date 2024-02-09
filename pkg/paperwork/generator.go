@@ -542,7 +542,7 @@ func (g *Generator) FillPDFForm(jsonData []byte, templateReader io.ReadSeeker) (
 }
 
 // MergePDFFiles Merges a slice of paths to PDF files into a single PDF
-func (g *Generator) MergePDFFilesByContents(_ appcontext.AppContext, fileReaders []io.ReadSeeker) (afero.File, error) {
+func (g *Generator) MergePDFFilesByContents(appCtx appcontext.AppContext, fileReaders []io.ReadSeeker) (afero.File, error) {
 	var err error
 
 	// Create a merged file

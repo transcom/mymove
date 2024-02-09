@@ -30,11 +30,8 @@ func NewAOAPacketCreator(
 	sswPPMComputer services.SSWPPMComputer,
 	primeDownloadMoveUploadPDFGenerator services.PrimeDownloadMoveUploadPDFGenerator,
 	userUploader *uploader.UserUploader,
+	pdfGenerator *paperwork.Generator,
 ) services.AOAPacketCreator {
-	pdfGenerator, err := paperwork.NewGenerator(userUploader.Uploader())
-	if err != nil {
-		return nil
-	}
 	return &aoaPacketCreator{
 		sswPPMGenerator,
 		sswPPMComputer,
@@ -56,9 +53,6 @@ func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShip
 	}
 
 	page1Data, page2Data := a.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
-	}
 
 	SSWPPMWorksheet, SSWPDFInfo, err := a.SSWPPMGenerator.FillSSWPDFForm(page1Data, page2Data)
 	if err != nil {
@@ -88,14 +82,14 @@ func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShip
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
-	// Ensure SSW PDF is not corrupted
-	ordersFileInfo, err := a.pdfGenerator.GetPdfFileInfoByContents(ordersFile)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
-	}
-	if !(ordersFileInfo.PageCount > 0) {
-		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
-	}
+	// // Ensure SSW PDF is not corrupted
+	// ordersFileInfo, err := a.pdfGenerator.GetPdfFileInfoByContents(ordersFile)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+	// }
+	// if !(ordersFileInfo.PageCount > 0) {
+	// 	return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+	// }
 
 	// Calling the PDF merge function in Generator with these filepaths creates issues due to instancing of the memory filesystem
 	// Instead, we use a readseeker to pass in file information to merge the files in Generator.

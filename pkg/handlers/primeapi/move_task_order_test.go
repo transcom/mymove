@@ -1872,7 +1872,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
-		// mock to return nil Errro
+		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
@@ -1920,7 +1920,7 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
-		// mock to return nil Errro
+		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),

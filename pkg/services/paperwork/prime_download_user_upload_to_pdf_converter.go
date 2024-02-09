@@ -158,6 +158,15 @@ func (g *moveUserUploadToPDFDownloader) GenerateOrdersWithoutBookmarks(appCtx ap
 		return nil, errors.Wrap(err, "error merging PDF files into one")
 	}
 
+	// // Ensure Orders PDF is not corrupted
+	// ordersFileInfo, err := g.pdfGenerator.GetPdfFileInfo(mergedPdf.Name())
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// if !(ordersFileInfo.PageCount > 0) {
+	// 	return nil, err
+	// }
+
 	return mergedPdf, nil
 }
 

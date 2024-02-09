@@ -62,6 +62,55 @@ func (suite *PaperworkServiceSuite) TestPrimeDownloadMoveUploadPDFGenerator() {
 	suite.AfterTest()
 }
 
+func (suite *PaperworkServiceSuite) TestGenerateOrdersWithoutBookmarks() {
+	service, order := suite.setupOrdersDocument()
+
+	pdfGenerator, err := paperwork.NewGenerator(suite.userUploader.Uploader())
+	suite.FatalNil(err)
+
+	locator := "AAAA"
+
+	customMoveWithOnlyOrders := models.Move{
+		Locator: locator,
+		Orders:  order,
+	}
+
+	pdfFileTest1, err := service.GenerateOrdersWithoutBookmarks(suite.AppContextForTest(), services.MoveOrderUploadAll, customMoveWithOnlyOrders)
+	suite.FatalNil(err)
+	// Verify generated files have 3 pages. see setup data for upload count
+	fileInfo, err := suite.pdfFileInfo(pdfGenerator, pdfFileTest1)
+	suite.FatalNil(err)
+	suite.Equal(3, fileInfo.PageCount)
+
+	// Point amendments doc to UploadedOrdersID.
+	order.UploadedAmendedOrdersID = &order.UploadedOrdersID
+	customMoveWithOrdersAndAmendments := models.Move{
+		Locator: locator,
+		Orders:  order,
+	}
+	pdfFileTest2, err := service.GenerateOrdersWithoutBookmarks(suite.AppContextForTest(), services.MoveOrderUploadAll, customMoveWithOrdersAndAmendments)
+	suite.FatalNil(err)
+	// Verify generated files have (3 x 2) pages for both orders and amendments. see setup data for upload count
+	fileInfoAll, err := suite.pdfFileInfo(pdfGenerator, pdfFileTest2)
+	suite.FatalNil(err)
+	suite.Equal(6, fileInfoAll.PageCount)
+
+	pdfFileTest3, err := service.GenerateOrdersWithoutBookmarks(suite.AppContextForTest(), services.MoveOrderUpload, customMoveWithOrdersAndAmendments)
+	suite.FatalNil(err)
+	// Verify generated files have (3 x 1) pages for order. see setup data for upload count
+	fileInfoAll1, err := suite.pdfFileInfo(pdfGenerator, pdfFileTest3)
+	suite.FatalNil(err)
+	suite.Equal(3, fileInfoAll1.PageCount)
+
+	pdfFileTest4, err := service.GenerateOrdersWithoutBookmarks(suite.AppContextForTest(), services.MoveOrderAmendmentUpload, customMoveWithOrdersAndAmendments)
+	suite.FatalNil(err)
+	// Verify only amendments are generated
+	fileInfoOnlyAmendments, err := suite.pdfFileInfo(pdfGenerator, pdfFileTest4)
+	suite.FatalNil(err)
+	suite.Equal(3, fileInfoOnlyAmendments.PageCount)
+	suite.AfterTest()
+}
+
 func (suite *PaperworkServiceSuite) TestPrimeDownloadMoveUploadPDFGeneratorUnprocessableEntityError() {
 	service, _ := NewMoveUserUploadToPDFDownloader(suite.userUploader)
 
