@@ -4,8 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useNavigate } from 'react-router';
 import { connect } from 'react-redux';
 
-import { isMultiMoveEnabled } from '../../../utils/featureFlags';
-
 import styles from './MultiMovesLandingPage.module.scss';
 import MultiMovesMoveHeader from './MultiMovesMoveHeader/MultiMovesMoveHeader';
 import MultiMovesMoveContainer from './MultiMovesMoveContainer/MultiMovesMoveContainer';
@@ -25,7 +23,6 @@ import { selectAllMoves, selectIsProfileComplete, selectServiceMemberFromLoggedI
 
 const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves }) => {
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
-  const [multiMoveEnabled, setIsMultiMoveEnabled] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,8 +32,6 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves }) => {
         loadUser();
         initOnboarding();
         document.title = generatePageTitle('MilMove');
-        const isEnabled = await isMultiMoveEnabled();
-        setIsMultiMoveEnabled(isEnabled);
       } catch (error) {
         const { message } = error;
         milmoveLogger.error({ message, info: null });
@@ -65,7 +60,7 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves }) => {
   };
 
   // ! WILL ONLY SHOW IF MULTIMOVE FLAG IS TRUE
-  return multiMoveEnabled ? (
+  return (
     <div>
       <div className={styles.homeContainer}>
         <header data-testid="customerHeader" className={styles.customerHeader}>
@@ -144,7 +139,7 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves }) => {
         </div>
       </div>
     </div>
-  ) : null;
+  );
 };
 
 MultiMovesLandingPage.defaultProps = {
