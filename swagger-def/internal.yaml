@@ -3575,10 +3575,13 @@ paths:
             $ref: '#/definitions/MovePayload'
         '500':
           description: server error
-  /ppm-shipments/{ppmShipmentId}/shipment_summary_worksheet:
+  /ppm-shipments/{ppmShipmentId}/shipment-summary-worksheet:
     get:
       summary: Returns Shipment Summary Worksheet
-      description: Generates pre-filled PDF using data already collected
+      description:    |
+        ### Functionality
+        This endpoint downloads a generated and filled Shipment Summary Worksheet based on the pdf in the code
+        and information pulled and formatted via services. Will not return unless PDF is readable.
       operationId: showShipmentSummaryWorksheet
       tags:
         - ppm

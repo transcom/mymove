@@ -6,11 +6,11 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/spf13/afero"
-	"github.com/transcom/mymove/pkg/paperwork"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -30,11 +30,8 @@ func NewAOAPacketCreator(
 	sswPPMComputer services.SSWPPMComputer,
 	primeDownloadMoveUploadPDFGenerator services.PrimeDownloadMoveUploadPDFGenerator,
 	userUploader *uploader.UserUploader,
+	pdfGenerator *paperwork.Generator,
 ) services.AOAPacketCreator {
-	pdfGenerator, err := paperwork.NewGenerator(userUploader.Uploader())
-	if err != nil {
-		return nil
-	}
 	return &aoaPacketCreator{
 		sswPPMGenerator,
 		sswPPMComputer,
@@ -56,9 +53,6 @@ func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShip
 	}
 
 	page1Data, page2Data := a.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
-	}
 
 	SSWPPMWorksheet, SSWPDFInfo, err := a.SSWPPMGenerator.FillSSWPDFForm(page1Data, page2Data)
 	if err != nil {
@@ -77,14 +71,14 @@ func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShip
 		"Shipment.MoveTaskOrder.Orders.ID",
 	).Find(&ppmShipment, ppmShipmentID)
 
-	if err != nil {
+	if dbQErr != nil {
 		return nil, fmt.Errorf("%s: %w", errMsgPrefix, dbQErr)
 	}
 
 	// Find move attached to PPM Shipment
 	move := models.Move(ppmShipment.Shipment.MoveTaskOrder)
 	// This function retrieves all orders and amendments, converts and merges them into one PDF with bookmarks
-	ordersFile, err := a.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, services.MoveOrderUploadAll, move)
+	ordersFile, err := a.PrimeDownloadMoveUploadPDFGenerator.GenerateOrdersWithoutBookmarks(appCtx, services.MoveOrderUploadAll, move)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}

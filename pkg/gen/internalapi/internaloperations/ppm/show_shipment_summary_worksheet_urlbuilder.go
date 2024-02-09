@@ -44,7 +44,7 @@ func (o *ShowShipmentSummaryWorksheetURL) SetBasePath(bp string) {
 func (o *ShowShipmentSummaryWorksheetURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/ppm-shipments/{ppmShipmentId}/shipment_summary_worksheet"
+	var _path = "/ppm-shipments/{ppmShipmentId}/shipment-summary-worksheet"
 
 	ppmShipmentID := o.PpmShipmentID.String()
 	if ppmShipmentID != "" {

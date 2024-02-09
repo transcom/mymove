@@ -3,7 +3,6 @@ package shipmentsummaryworksheet
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -41,32 +40,11 @@ func NewSSWPPMComputer() services.SSWPPMComputer {
 
 // SSWPPMGenerator is the concrete struct implementing the services.shipmentsummaryworksheet interface
 type SSWPPMGenerator struct {
-	templateReader io.ReadSeeker
-	generator      paperwork.Generator
+	generator paperwork.Generator
 }
 
 // NewSSWPPMGenerator creates a SSWPPMGenerator
 func NewSSWPPMGenerator() services.SSWPPMGenerator {
-	pdfTemplatePath, err := filepath.Abs("pkg/assets/paperwork/formtemplates/SSWPDFTemplate.pdf")
-	if err != nil {
-		panic(err)
-	}
-
-	// NOTE: The testing suite is based on a different filesystem, relative filepaths will not work.
-	// Additionally, the function runs at a different file location. Therefore, when ran from testing,
-	// the PDF template path needs to be reconfigured relative to where the test runs from.
-	if strings.HasSuffix(os.Args[0], ".test") {
-		pdfTemplatePath, err = filepath.Abs("../../../pkg/assets/paperwork/formtemplates/SSWPDFTemplate.pdf")
-		if err != nil {
-			panic(err)
-		}
-
-	}
-
-	templateReader, err := afero.NewOsFs().Open(pdfTemplatePath)
-	if err != nil {
-		panic(err)
-	}
 	// Generator and dependencies must be initiated to handle memory filesystem for AWS
 	storer := storage.NewMemory(storage.NewMemoryParams("", ""))
 	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
@@ -78,8 +56,7 @@ func NewSSWPPMGenerator() services.SSWPPMGenerator {
 		panic(err)
 	}
 	return &SSWPPMGenerator{
-		templateReader: templateReader,
-		generator:      *generator,
+		generator: *generator,
 	}
 }
 
@@ -786,6 +763,27 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 // FillSSWPDFForm takes form data and fills an existing PDF form template with said data
 func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values) (sswfile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
 
+	pdfTemplatePath, err := filepath.Abs("/pkg/assets/paperwork/formtemplates/SSWPDFTemplate.pdf")
+	if err != nil {
+		panic(err)
+	}
+
+	// NOTE: The testing suite is based on a different filesystem, relative filepaths will not work.
+	// Additionally, the function runs at a different file location. Therefore, when ran from testing,
+	// the PDF template path needs to be reconfigured relative to where the test runs from.
+	if strings.HasSuffix(os.Args[0], ".test") {
+		pdfTemplatePath, err = filepath.Abs("../../../pkg/assets/paperwork/formtemplates/SSWPDFTemplate.pdf")
+		if err != nil {
+			panic(err)
+		}
+
+	}
+
+	templateReader, err := afero.NewOsFs().Open(pdfTemplatePath)
+	if err != nil {
+		panic(err)
+	}
+
 	// header represents the header section of the JSON.
 	type header struct {
 		Source   string `json:"source"`
@@ -853,7 +851,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		fmt.Println("Error marshaling JSON:", err)
 		return
 	}
-	SSWWorksheet, err := SSWPPMGenerator.generator.FillPDFForm(jsonData, SSWPPMGenerator.templateReader)
+	SSWWorksheet, err := SSWPPMGenerator.generator.FillPDFForm(jsonData, templateReader)
 	if err != nil {
 		return nil, nil, err
 	}

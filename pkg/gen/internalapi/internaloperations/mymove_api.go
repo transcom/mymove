@@ -1079,7 +1079,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/shipment_summary_worksheet"] = ppm.NewShowShipmentSummaryWorksheet(o.context, o.PpmShowShipmentSummaryWorksheetHandler)
+	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/shipment-summary-worksheet"] = ppm.NewShowShipmentSummaryWorksheet(o.context, o.PpmShowShipmentSummaryWorksheetHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

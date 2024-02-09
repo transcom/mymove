@@ -30,11 +30,13 @@ func NewShowShipmentSummaryWorksheet(ctx *middleware.Context, handler ShowShipme
 }
 
 /*
-	ShowShipmentSummaryWorksheet swagger:route GET /ppm-shipments/{ppmShipmentId}/shipment_summary_worksheet ppm showShipmentSummaryWorksheet
+	ShowShipmentSummaryWorksheet swagger:route GET /ppm-shipments/{ppmShipmentId}/shipment-summary-worksheet ppm showShipmentSummaryWorksheet
 
 # Returns Shipment Summary Worksheet
 
-Generates pre-filled PDF using data already collected
+### Functionality
+This endpoint downloads a generated and filled Shipment Summary Worksheet based on the pdf in the code
+and information pulled and formatted via services. Will not return unless PDF is readable.
 */
 type ShowShipmentSummaryWorksheet struct {
 	Context *middleware.Context
