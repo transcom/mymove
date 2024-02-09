@@ -286,107 +286,6 @@ definitions:
           - 'YES'
           - 'NO'
         x-nullable: true
-  PatchPersonallyProcuredMovePayload:
-    type: object
-    properties:
-      size:
-        $ref: '#/definitions/TShirtSize'
-      original_move_date:
-        type: string
-        example: '2018-04-26'
-        format: date
-        title: When do you plan to move?
-        x-nullable: true
-      actual_move_date:
-        type: string
-        example: '2018-04-26'
-        format: date
-        title: When did you actually move?
-        x-nullable: true
-      pickup_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
-        x-nullable: true
-      has_additional_postal_code:
-        type: boolean
-        x-nullable: true
-        title: Will you move anything from another pickup location?
-      additional_pickup_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
-        x-nullable: true
-      destination_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
-        x-nullable: true
-      has_sit:
-        type: boolean
-        x-nullable: true
-        title: Will you put anything in storage?
-      days_in_storage:
-        type: integer
-        title: How many days of storage do you think you'll need?
-        minimum: 0
-        maximum: 90
-        x-nullable: true
-      total_sit_cost:
-        type: integer
-        minimum: 1
-        title: How much does your storage cost?
-        x-nullable: true
-      weight_estimate:
-        type: integer
-        minimum: 0
-        title: Weight Estimate
-        x-nullable: true
-      net_weight:
-        type: integer
-        minimum: 1
-        title: Net Weight
-        x-nullable: true
-      incentive_estimate_max:
-        type: integer
-        minimum: 1
-        title: Incentive Estimate Max
-        x-nullable: true
-      incentive_estimate_min:
-        type: integer
-        minimum: 1
-        title: Incentive Estimate Min
-        x-nullable: true
-      has_requested_advance:
-        type: boolean
-        default: false
-        title: Would you like an advance of up to 60% of your PPM incentive?
-      advance:
-        $ref: '#/definitions/Reimbursement'
-      advance_worksheet:
-        $ref: 'definitions/Document.yaml'
-      has_pro_gear:
-        type: string
-        title: Has Pro-Gear
-        enum:
-          - NOT SURE
-          - 'YES'
-          - 'NO'
-        x-nullable: true
-      has_pro_gear_over_thousand:
-        type: string
-        title: Has Pro-Gear Over Thousand Pounds
-        enum:
-          - NOT SURE
-          - 'YES'
-          - 'NO'
-        x-nullable: true
   PersonallyProcuredMovePayload:
     type: object
     properties:
@@ -549,16 +448,6 @@ definitions:
     properties:
       certificate:
         $ref: '#/definitions/CreateSignedCertificationPayload'
-  SubmitPersonallyProcuredMovePayload:
-    type: object
-    properties:
-      submit_date:
-        type: string
-        format: date-time
-        title: When was the ppm move submitted?
-        example: '2019-03-26T13:19:56-04:00'
-    required:
-      - submit_date
   PPMSitEstimate:
     type: object
     properties:
@@ -1638,7 +1527,7 @@ definitions:
   OrderPayGrade:
     type: string
     x-nullable: true
-    title: Rank
+    title: Pay grade
     enum:
       - E_1
       - E_2
@@ -3163,111 +3052,6 @@ paths:
           description: move not found
         '500':
           description: internal server error
-  /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}:
-    patch:
-      summary: Patches the PPM
-      description: Any fields sent in this request will be set on the PPM referenced
-      operationId: patchPersonallyProcuredMove
-      tags:
-        - ppm
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
-        - in: path
-          name: personallyProcuredMoveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the PPM being patched
-        - in: body
-          name: patchPersonallyProcuredMovePayload
-          required: true
-          schema:
-            $ref: '#/definitions/PatchPersonallyProcuredMovePayload'
-      responses:
-        '200':
-          description: updated instance of personally_procured_move
-          schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '404':
-          description: ppm is not found or ppm discount not found for provided postal codes and original move date
-        '422':
-          description: cannot process request with given information
-        '500':
-          description: internal server error
-  /personally_procured_move/{personallyProcuredMoveId}/submit:
-    post:
-      summary: Submits a PPM for approval
-      description: Submits a PPM for approval by the office. The status of the PPM will be updated to SUBMITTED
-      operationId: submitPersonallyProcuredMove
-      tags:
-        - ppm
-      parameters:
-        - in: path
-          name: personallyProcuredMoveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the PPM being submitted
-        - name: submitPersonallyProcuredMovePayload
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/SubmitPersonallyProcuredMovePayload'
-      responses:
-        '200':
-          description: updated instance of personally_procured_move
-          schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '404':
-          description: ppm is not found
-        '500':
-          description: internal server error
-  /personally_procured_move/{personallyProcuredMoveId}/request_payment:
-    post:
-      summary: Moves the PPM and the move into the PAYMENT_REQUESTED state
-      description: Moves the PPM and the move into the PAYMENT_REQUESTED state
-      operationId: requestPPMPayment
-      tags:
-        - ppm
-      parameters:
-        - in: path
-          name: personallyProcuredMoveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the PPM
-      responses:
-        '200':
-          description: Sucesssfully requested payment
-          schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '404':
-          description: move not found
-        '500':
-          description: server error
   /reimbursement/{reimbursementId}/approve:
     post:
       summary: Approves the reimbursement
@@ -3645,55 +3429,6 @@ paths:
           description: request requires user authentication
         '403':
           description: user is not authorized
-        '500':
-          description: internal server error
-  /personally_procured_moves/incentive:
-    get:
-      summary: Return a PPM incentive value
-      description: Calculates incentive for a PPM move (excluding SIT)
-      operationId: showPPMIncentive
-      tags:
-        - ppm
-      parameters:
-        - in: query
-          name: original_move_date
-          type: string
-          format: date
-          required: true
-        - in: query
-          name: origin_zip
-          type: string
-          format: zip
-          pattern: '^(\d{5}([\-]\d{4})?)$'
-          required: true
-        - in: query
-          name: origin_duty_location_zip
-          type: string
-          format: zip
-          pattern: '^(\d{5}([\-]\d{4})?)$'
-          required: true
-        - in: query
-          name: orders_id
-          type: string
-          format: uuid
-          required: true
-        - in: query
-          name: weight
-          type: integer
-          required: true
-      responses:
-        '200':
-          description: Made calculation of PPM incentive
-          schema:
-            $ref: '#/definitions/PPMIncentive'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '409':
-          description: distance is less than 50 miles (no short haul moves)
         '500':
           description: internal server error
   /documents:
