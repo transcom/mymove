@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './MovingInfo.module.scss';
 
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { fetchLatestOrders as fetchLatestOrdersAction } from 'shared/Entities/modules/orders';
@@ -113,7 +113,7 @@ export class MovingInfo extends Component {
                 navigate(nextPath);
               }}
               onCancelClick={() => {
-                navigate(generalRoutes.HOME_PATH);
+                navigate(customerRoutes.MOVE_HOME_PAGE);
               }}
             />
           </Grid>
