@@ -7,7 +7,7 @@ import { selectMTOShipmentById, selectProGearWeightTicketAndIndexById } from 'st
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import {
   createUploadForPPMDocument,
   createProGearWeightTicket,
@@ -23,7 +23,7 @@ const ProGear = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleBack = () => {
-    navigate(generalRoutes.HOME_PATH);
+    navigate(customerRoutes.MOVE_HOME_PAGE);
   };
   const [errorMessage, setErrorMessage] = useState(null);
   const { moveId, mtoShipmentId, proGearId } = useParams();

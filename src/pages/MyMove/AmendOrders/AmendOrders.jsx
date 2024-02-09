@@ -28,7 +28,7 @@ import {
   selectUploadsForCurrentAmendedOrders,
 } from 'store/entities/selectors';
 import { updateOrders as updateOrdersAction } from 'store/entities/actions';
-import { generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 
 export const AmendOrders = ({ uploads, updateOrders, serviceMemberId, currentOrders }) => {
   const [isLoading, setLoading] = useState(true);
@@ -62,7 +62,7 @@ export const AmendOrders = ({ uploads, updateOrders, serviceMemberId, currentOrd
   const handleSave = () => {
     return submitAmendedOrders(currentOrders?.moves[0])
       .then(() => {
-        navigate(generalRoutes.HOME_PATH);
+        navigate(customerRoutes.MOVE_HOME_PAGE);
       })
       .catch((e) => {
         // TODO - error handling - below is rudimentary error handling to approximate existing UX
@@ -76,7 +76,7 @@ export const AmendOrders = ({ uploads, updateOrders, serviceMemberId, currentOrd
   };
   const handleCancel = () => {
     // TODO (After MB-8336 is complete) Delete amended orders files before navigating away
-    navigate(generalRoutes.HOME_PATH);
+    navigate(customerRoutes.MOVE_HOME_PAGE);
   };
 
   useEffect(() => {

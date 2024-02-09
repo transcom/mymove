@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { AmendOrders } from './AmendOrders';
 
 import { getOrdersForServiceMember, submitAmendedOrders } from 'services/internalApi';
-import { generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -97,7 +97,7 @@ describe('Amended Orders Upload page', () => {
       await userEvent.click(cancelButton);
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith(generalRoutes.HOME_PATH);
+        expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.MOVE_HOME_PAGE);
       });
     });
   });
@@ -112,7 +112,7 @@ describe('Amended Orders Upload page', () => {
       await userEvent.click(saveButton);
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith(generalRoutes.HOME_PATH);
+        expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.MOVE_HOME_PAGE);
       });
     });
 

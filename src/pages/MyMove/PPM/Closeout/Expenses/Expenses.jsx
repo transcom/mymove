@@ -12,7 +12,7 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import ExpenseForm from 'components/Customer/PPM/Closeout/ExpenseForm/ExpenseForm';
 import { selectExpenseAndIndexById, selectMTOShipmentById } from 'store/entities/selectors';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import {
   createUploadForPPMDocument,
@@ -98,7 +98,7 @@ const Expenses = () => {
   };
 
   const handleBack = () => {
-    navigate(generalRoutes.HOME_PATH);
+    navigate(customerRoutes.MOVE_HOME_PAGE);
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {

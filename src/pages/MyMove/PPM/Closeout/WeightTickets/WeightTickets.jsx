@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
 import { selectMTOShipmentById, selectWeightTicketAndIndexById } from 'store/entities/selectors';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import { createUploadForPPMDocument, createWeightTicket, deleteUpload, patchWeightTicket } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
@@ -93,7 +93,7 @@ const WeightTickets = () => {
   };
 
   const handleBack = () => {
-    navigate(generalRoutes.HOME_PATH);
+    navigate(customerRoutes.MOVE_HOME_PAGE);
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {

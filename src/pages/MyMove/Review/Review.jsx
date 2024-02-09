@@ -10,7 +10,7 @@ import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import ConnectedSummary from 'components/Customer/Review/Summary/Summary';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import MOVE_STATUSES from 'constants/moves';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import 'scenes/Review/Review.css';
 import { selectCurrentMove, selectMTOShipmentsForCurrentMove } from 'store/entities/selectors';
 import formStyles from 'styles/form.module.scss';
@@ -25,7 +25,7 @@ const Review = ({ currentMove, mtoShipments }) => {
   const navigate = useNavigate();
   const { moveId } = useParams();
   const handleCancel = () => {
-    navigate(generalRoutes.HOME_PATH);
+    navigate(customerRoutes.MOVE_HOME_PAGE);
   };
 
   const handleNext = () => {

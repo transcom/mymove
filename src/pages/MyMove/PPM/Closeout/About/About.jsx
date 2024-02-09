@@ -10,7 +10,7 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { shipmentTypes } from 'constants/shipments';
 import AboutForm from 'components/Customer/PPM/Closeout/AboutForm/AboutForm';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import { validatePostalCode } from 'utils/validation';
 import { formatDateForSwagger } from 'shared/dates';
@@ -47,7 +47,7 @@ const About = () => {
   }
 
   const handleBack = () => {
-    navigate(generalRoutes.HOME_PATH);
+    navigate(customerRoutes.MOVE_HOME_PAGE);
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
