@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import PPMShipmentInfoList from './PPMShipmentInfoList';
 
@@ -9,7 +10,6 @@ import { permissionTypes } from 'constants/permissions';
 import { ADVANCE_STATUSES } from 'constants/ppms';
 import { downloadPPMAOAPacket } from 'services/ghcApi';
 import { downloadPPMAOAPacketOnSuccessHandler } from 'utils/download';
-import userEvent from '@testing-library/user-event';
 
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),

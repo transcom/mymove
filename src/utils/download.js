@@ -2,7 +2,7 @@
  * On REST onsuccess handler for PPM AOA packet download.
  * @param {httpResponse} response
  */
-export function downloadPPMAOAPacketOnSuccessHandler(response) {
+export const downloadPPMAOAPacketOnSuccessHandler = (response) => {
   // dynamically update DOM to trigger browser to display SAVE AS download file modal
   const url = window.URL.createObjectURL(new Blob([response.data]));
 
@@ -24,5 +24,6 @@ export function downloadPPMAOAPacketOnSuccessHandler(response) {
 
   // Clean up and remove the link
   link.parentNode.removeChild(link);
-}
+};
 
+export default downloadPPMAOAPacketOnSuccessHandler;

@@ -4,7 +4,7 @@ import { render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { mount } from 'enzyme';
 import moment from 'moment';
-import { generatePath } from 'react-router-dom';
+import { generatePath, MemoryRouter } from 'react-router-dom';
 import { v4 } from 'uuid';
 
 import { Home } from './index';
@@ -23,7 +23,6 @@ import {
   createPPMShipmentWithFinalIncentive,
   createSubmittedPPMShipment,
 } from 'utils/test/factories/ppmShipment';
-import { MemoryRouter } from 'react-router-dom';
 import { downloadPPMAOAPacket } from 'services/internalApi';
 import { downloadPPMAOAPacketOnSuccessHandler } from 'utils/download';
 

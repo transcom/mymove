@@ -374,8 +374,7 @@ export class Home extends Component {
       .then((response) => {
         downloadPPMAOAPacketOnSuccessHandler(response);
       })
-      .catch((err) => {
-        console.log(err);
+      .catch(() => {
         this.toggleDownloadAOAErrorModal();
       });
   };
