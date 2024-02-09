@@ -5269,7 +5269,6 @@ func init() {
     },
     "OrderPayGrade": {
       "type": "string",
-      "title": "Grade",
       "title": "Pay grade",
       "enum": [
         "E_1",
@@ -13306,7 +13305,7 @@ func init() {
     },
     "OrderPayGrade": {
       "type": "string",
-      "title": "Grade",
+      "title": "Pay grade",
       "enum": [
         "E_1",
         "E_2",

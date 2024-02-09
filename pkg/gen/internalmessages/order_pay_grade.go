@@ -14,7 +14,6 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// OrderPayGrade Grade
 // OrderPayGrade Pay grade
 //
 // swagger:model OrderPayGrade

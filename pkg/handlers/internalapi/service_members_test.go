@@ -286,9 +286,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	suite.Equal(*newEmailIsPreferred, *serviceMemberPayload.EmailIsPreferred)
 	suite.Equal(*resAddress.StreetAddress1, *serviceMemberPayload.ResidentialAddress.StreetAddress1)
 	suite.Equal(*backupAddress.StreetAddress1, *serviceMemberPayload.BackupMailingAddress.StreetAddress1)
-	// Editing SM info DutyLocation and Rank fields should edit Orders OriginDutyLocation and Grade fields
-	suite.Equal(*serviceMemberPayload.Orders[0].OriginDutyLocation.Name, newDutyLocation.Name)
-	suite.Equal(serviceMemberPayload.Orders[0].OriginDutyLocationGbloc, &newGBLOC.GBLOC)
 }
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {

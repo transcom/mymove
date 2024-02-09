@@ -154,8 +154,6 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			var originDutyLocation models.DutyLocation
-
 			if payload.OriginDutyLocationID != "" {
 				originDutyLocationID, errorOrigin := uuid.FromString(payload.OriginDutyLocationID.String())
 				if errorOrigin != nil {
@@ -178,10 +176,9 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				}
 			}
 
-			grade := (*string)(payload.Grade)
-			serviceMember.Rank = (*models.ServiceMemberRank)(payload.Grade)
+			grade := payload.Grade
 
-			weightAllotment := models.GetWeightAllotment(*serviceMember.Rank)
+			weightAllotment := models.GetWeightAllotment(*grade)
 
 			weight := weightAllotment.TotalWeightSelf
 			if *payload.HasDependents {

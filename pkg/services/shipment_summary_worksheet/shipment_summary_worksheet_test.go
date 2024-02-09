@@ -472,11 +472,21 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestGroupExpenses() {
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementPPMGreaterThanRemainingEntitlement() {
 	ppmWeight := unit.Pound(1100)
+	ppm := models.PPMShipment{
+		WeightTickets: models.WeightTickets{
+			models.WeightTicket{
+				AdjustedNetWeight: &ppmWeight,
+			},
+		},
+	}
 	totalEntitlement := unit.Pound(1000)
 	move := models.Move{
-		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
+		MTOShipments: models.MTOShipments{
+			models.MTOShipment{
+				PPMShipment: &ppm,
+			},
+		},
 	}
-
 	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, totalEntitlement)
 	suite.NoError(err)
 
@@ -486,8 +496,19 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementPP
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementPPMLessThanRemainingEntitlement() {
 	ppmWeight := unit.Pound(500)
 	totalEntitlement := unit.Pound(1000)
+	ppm := models.PPMShipment{
+		WeightTickets: models.WeightTickets{
+			{
+				AdjustedNetWeight: &ppmWeight,
+			},
+		},
+	}
 	move := models.Move{
-		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
+		MTOShipments: models.MTOShipments{
+			{
+				PPMShipment: &ppm,
+			},
+		},
 	}
 
 	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, totalEntitlement)
@@ -620,8 +641,19 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatPPMWeight() {
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementNoHHGPPMLessThanMaxEntitlement() {
 	ppmWeight := unit.Pound(900)
 	totalEntitlement := unit.Pound(1000)
+	ppm := models.PPMShipment{
+		WeightTickets: models.WeightTickets{
+			{
+				AdjustedNetWeight: &ppmWeight,
+			},
+		},
+	}
 	move := models.Move{
-		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
+		MTOShipments: models.MTOShipments{
+			{
+				PPMShipment: &ppm,
+			},
+		},
 	}
 
 	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, totalEntitlement)
@@ -633,8 +665,19 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementNo
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementNoHHGPPMGreaterThanMaxEntitlement() {
 	ppmWeight := unit.Pound(1100)
 	totalEntitlement := unit.Pound(1000)
+	ppm := models.PPMShipment{
+		WeightTickets: models.WeightTickets{
+			{
+				AdjustedNetWeight: &ppmWeight,
+			},
+		},
+	}
 	move := models.Move{
-		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
+		MTOShipments: models.MTOShipments{
+			{
+				PPMShipment: &ppm,
+			},
+		},
 	}
 
 	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, totalEntitlement)

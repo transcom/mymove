@@ -38,10 +38,6 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), dutyLocation.Address.PostalCode, "KKFA")
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
-	originDutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
-	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), originDutyLocation.Address.PostalCode, "KKFA")
-	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-
 	req := httptest.NewRequest("POST", "/orders", nil)
 	req = suite.AuthenticateRequest(req, sm)
 
