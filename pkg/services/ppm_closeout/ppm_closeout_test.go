@@ -229,7 +229,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 
 		ppmShipment := suite.mockPPMShipmentForCloseoutTest()
 
-		ppmCloseoutObj, err := ppmCloseoutFetcher.GetPPMCloseout(appCtx, ppmShipment.ID)
+		ppmCloseoutObj, err := ppmCloseoutFetcher.GetPPMCloseout(appCtx, ppmShipment.ID, nil)
 		if err != nil {
 			appCtx.Logger().Error("Error getting PPM closeout object: ", zap.Error(err))
 		}

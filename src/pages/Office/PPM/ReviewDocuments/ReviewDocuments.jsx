@@ -37,6 +37,7 @@ export const ReviewDocuments = () => {
 
   const order = Object.values(orders)?.[0];
   const [currentTotalWeight, setCurrentTotalWeight] = useState(0);
+  const [currentAllowableWeight, setCurrentAllowableWeight] = useState(0);
 
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
   const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
@@ -194,6 +195,10 @@ export const ReviewDocuments = () => {
   if (isError) return <SomethingWentWrong />;
   const ppmShipmentInfo = mtoShipment.ppmShipment;
   ppmShipmentInfo.miles = mtoShipment.distance;
+  const updateAllowableWeight = (newWeight) => {
+    setCurrentAllowableWeight(newWeight);
+    ppmShipmentInfo.allowableWeight = currentAllowableWeight;
+  };
   const currentDocumentSet = documentSets[documentSetIndex];
   const disableBackButton = documentSetIndex === 0 && !showOverview;
 
@@ -245,6 +250,7 @@ export const ReviewDocuments = () => {
                 onError={onError}
                 onSuccess={onConfirmSuccess}
                 formRef={formRef}
+                allowableWeight={currentAllowableWeight}
               />
             ) : (
               <>
@@ -261,6 +267,7 @@ export const ReviewDocuments = () => {
                     onSuccess={onSuccess}
                     formRef={formRef}
                     updateTotalWeight={updateTotalWeight}
+                    updateAllowableWeight={updateAllowableWeight}
                   />
                 )}
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (

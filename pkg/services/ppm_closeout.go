@@ -11,5 +11,5 @@ import (
 //
 //go:generate mockery --name PPMCloseoutFetcher
 type PPMCloseoutFetcher interface {
-	GetPPMCloseout(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.PPMCloseout, error)
+	GetPPMCloseout(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, allowableWeight *int64) (*models.PPMCloseout, error)
 }
