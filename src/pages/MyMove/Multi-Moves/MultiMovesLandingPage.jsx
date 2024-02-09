@@ -53,6 +53,7 @@ const MultiMovesLandingPage = () => {
       break;
   }
   // ! end of test data
+
   useEffect(() => {
     const fetchData = async () => {
       try {
