@@ -13,7 +13,6 @@ import Home from 'pages/MyMove/Home';
 import ConusOrNot from 'pages/MyMove/ConusOrNot';
 import DodInfo from 'pages/MyMove/Profile/DodInfo';
 import SMName from 'pages/MyMove/Profile/Name';
-import DutyLocation from 'pages/MyMove/Profile/DutyLocation';
 import ContactInfo from 'pages/MyMove/Profile/ContactInfo';
 import Orders from 'pages/MyMove/Orders';
 import UploadOrders from 'pages/MyMove/UploadOrders';
@@ -68,7 +67,7 @@ const isCurrentMoveSubmitted = ({ move }) => {
 const pages = {
   [customerRoutes.CONUS_OCONUS_PATH]: {
     isInFlow: inGhcFlow,
-    isComplete: ({ sm }) => sm.is_profile_complete || every([sm.rank, sm.edipi, sm.affiliation]),
+    isComplete: ({ sm }) => sm.is_profile_complete || every([sm.edipi, sm.affiliation]),
     render: (key, pages, description, props) => {
       return (
         <WizardPage
@@ -84,7 +83,7 @@ const pages = {
   },
   [customerRoutes.DOD_INFO_PATH]: {
     isInFlow: myFirstRodeo,
-    isComplete: ({ sm }) => sm.is_profile_complete || every([sm.rank, sm.edipi, sm.affiliation]),
+    isComplete: ({ sm }) => sm.is_profile_complete || every([sm.edipi, sm.affiliation]),
     render: () => <DodInfo />,
   },
   [customerRoutes.NAME_PATH]: {
@@ -98,15 +97,6 @@ const pages = {
       sm.is_profile_complete ||
       (every([sm.telephone, sm.personal_email]) && some([sm.phone_is_preferred, sm.email_is_preferred])),
     render: () => <ContactInfo />,
-  },
-  [customerRoutes.CURRENT_DUTY_LOCATION_PATH]: {
-    isInFlow: myFirstRodeo,
-
-    // api for duty location always returns an object, even when duty location is not set
-    // if there is no duty location, that object will have a null uuid
-    isComplete: ({ sm }) => sm.is_profile_complete || get(sm, 'current_location.id', NULL_UUID) !== NULL_UUID,
-    render: () => <DutyLocation />,
-    description: 'current duty location',
   },
   [customerRoutes.CURRENT_ADDRESS_PATH]: {
     isInFlow: myFirstRodeo,
@@ -148,6 +138,8 @@ const pages = {
         orders.issue_date,
         orders.report_by_date,
         get(orders, 'new_duty_location.id', NULL_UUID) !== NULL_UUID,
+        get(orders, 'origin_duty_location.id', NULL_UUID) !== NULL_UUID,
+        orders.grade,
       ]),
     render: (key, pages) => <Orders />,
   },

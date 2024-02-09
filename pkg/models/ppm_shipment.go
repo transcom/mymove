@@ -13,25 +13,25 @@ import (
 )
 
 type PPMCloseout struct {
-	ID                         *uuid.UUID
-	PlannedMoveDate            *time.Time
-	ActualMoveDate             *time.Time
-	Miles                      *int
-	EstimatedWeight            *unit.Pound
-	ActualWeight               *unit.Pound
-	ProGearWeightCustomer      *unit.Pound
-	ProGearWeightSpouse        *unit.Pound
-	GrossIncentive             *unit.Cents
-	GCC                        *unit.Cents
-	AOA                        *unit.Cents
-	RemainingReimbursementOwed *unit.Cents
-	HaulPrice                  *unit.Cents
-	HaulFSC                    *unit.Cents
-	DOP                        *unit.Cents
-	DDP                        *unit.Cents
-	PackPrice                  *unit.Cents
-	UnpackPrice                *unit.Cents
-	SITReimbursement           *unit.Cents
+	ID                    *uuid.UUID
+	PlannedMoveDate       *time.Time
+	ActualMoveDate        *time.Time
+	Miles                 *int
+	EstimatedWeight       *unit.Pound
+	ActualWeight          *unit.Pound
+	ProGearWeightCustomer *unit.Pound
+	ProGearWeightSpouse   *unit.Pound
+	GrossIncentive        *unit.Cents
+	GCC                   *unit.Cents
+	AOA                   *unit.Cents
+	RemainingIncentive    *unit.Cents
+	HaulPrice             *unit.Cents
+	HaulFSC               *unit.Cents
+	DOP                   *unit.Cents
+	DDP                   *unit.Cents
+	PackPrice             *unit.Cents
+	UnpackPrice           *unit.Cents
+	SITReimbursement      *unit.Cents
 }
 
 // PPMShipmentStatus represents the status of an order record's lifecycle
@@ -151,6 +151,8 @@ type PPMShipment struct {
 	DestinationPostalCode          string               `json:"destination_postal_code" db:"destination_postal_code"`
 	SecondaryDestinationPostalCode *string              `json:"secondary_destination_postal_code" db:"secondary_destination_postal_code"`
 	ActualDestinationPostalCode    *string              `json:"actual_destination_postal_code" db:"actual_destination_postal_code"`
+	PickupPostalAddressID          *uuid.UUID           `json:"pickup_postal_address_id" db:"pickup_postal_address_id"`
+	DestinationPostalAddressID     *uuid.UUID           `json:"destination_postal_address_id" db:"destination_postal_address_id"`
 	EstimatedWeight                *unit.Pound          `json:"estimated_weight" db:"estimated_weight"`
 	HasProGear                     *bool                `json:"has_pro_gear" db:"has_pro_gear"`
 	ProGearWeight                  *unit.Pound          `json:"pro_gear_weight" db:"pro_gear_weight"`

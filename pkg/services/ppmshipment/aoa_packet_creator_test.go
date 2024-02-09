@@ -99,7 +99,7 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacketFull() {
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
-	rank := models.ServiceMemberRankE9
+	// rank := models.ServiceMemberRankE9
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
@@ -118,11 +118,11 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacketFull() {
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
-		{
-			Model: models.ServiceMember{
-				Rank: &rank,
-			},
-		},
+		// {
+		// 	Model: models.ServiceMember{
+		// 		Rank: &rank,
+		// 	},
+		// },
 		{
 			Model: models.SignedCertification{},
 		},
