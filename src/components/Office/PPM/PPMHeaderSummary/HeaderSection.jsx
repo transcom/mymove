@@ -78,12 +78,12 @@ const getSectionMarkup = (sectionInfo) => {
       return (
         <div className={classnames(styles.Details)}>
           <div>
-            <Label>Gross Incentive</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.grossIncentive)}</span>
-          </div>
-          <div>
             <Label>Government Constructive Cost (GCC)</Label>
             <span className={styles.light}>${formatCents(sectionInfo.gcc) ?? `TEST VAL`}</span>
+          </div>
+          <div>
+            <Label>Gross Incentive</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.grossIncentive)}</span>
           </div>
           {sectionInfo.isAdvanceRequested && (
             <>

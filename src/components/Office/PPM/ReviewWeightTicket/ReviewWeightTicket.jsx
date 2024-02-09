@@ -165,14 +165,16 @@ function ReviewWeightTicket({
     rejectionReason: reason || '',
   };
 
-  updateAllowableWeight(currentAllowableWeight.current);
-
   useEffect(() => {
     if (formRef?.current) {
       formRef.current.resetForm();
       formRef.current.validateForm();
     }
   }, [formRef, weightTicket, currentMtoShipments]);
+
+  useEffect(() => {
+    updateAllowableWeight(currentAllowableWeight.current);
+  }, [currentAllowableWeight, updateAllowableWeight]);
 
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
@@ -207,7 +209,6 @@ function ReviewWeightTicket({
             }
             if (event.target.name === 'allowableWeight') {
               currentAllowableWeight.current = `${removeCommas(event.target.value)}`;
-              updateAllowableWeight(currentAllowableWeight.current);
             }
             if (mtoShipments !== undefined && mtoShipments.length > 0) {
               getNewNetWeightCalculation(mtoShipments, values);
