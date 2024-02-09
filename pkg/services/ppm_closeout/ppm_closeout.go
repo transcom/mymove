@@ -45,7 +45,7 @@ func NewPPMCloseoutFetcher(planner route.Planner, paymentRequestHelper paymentre
 	}
 }
 
-func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.PPMCloseout, error) {
+func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, allowableWeight *int64) (*models.PPMCloseout, error) {
 	var ppmCloseoutObj models.PPMCloseout
 	ppmShipment, err := p.GetPPMShipment(appCtx, ppmShipmentID)
 	if err != nil {
@@ -70,14 +70,20 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 
 	proGearCustomerMax := unit.Pound(2000)
 	proGearSpouseMax := unit.Pound(500)
-	fullEntitlementWeight, _ := p.GetEntitlement(appCtx, ppmShipment.Shipment.MoveTaskOrderID)
+	var fullAllowableWeight unit.Pound
+	if allowableWeight != nil {
+		fullAllowableWeight = unit.Pound(int(*allowableWeight))
+	} else {
+		fullEntitlementWeight, _ := p.GetEntitlement(appCtx, ppmShipment.Shipment.MoveTaskOrderID)
+		fullAllowableWeight = unit.Pound(*fullEntitlementWeight.DBAuthorizedWeight)
+	}
 	fullWeightGCCShipment := ppmShipment
 	// fullWeightGCCShipment.ActualWeight = fullEntitlementWeight
 
 	// Set pro gear werights for the GCC calculation to the max allowed before calculating GCC price
 	fullWeightGCCShipment.ProGearWeight = &proGearCustomerMax
 	fullWeightGCCShipment.SpouseProGearWeight = &proGearSpouseMax
-	gcc, _ := p.calculateGCC(appCtx, *fullWeightGCCShipment, unit.Pound(*fullEntitlementWeight.DBAuthorizedWeight))
+	gcc, _ := p.calculateGCC(appCtx, *fullWeightGCCShipment, fullAllowableWeight)
 
 	ppmCloseoutObj.ID = &ppmShipmentID
 	ppmCloseoutObj.PlannedMoveDate = &ppmShipment.ExpectedDepartureDate

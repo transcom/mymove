@@ -268,9 +268,10 @@ export const usePPMShipmentDocsQueries = (shipmentId) => {
   };
 };
 
-export const usePPMCloseoutQuery = (ppmShipmentId) => {
-  const { data: ppmCloseout = {}, ...ppmCloseoutQuery } = useQuery([PPMCLOSEOUT, ppmShipmentId], ({ queryKey }) =>
-    getPPMCloseout(...queryKey),
+export const usePPMCloseoutQuery = (ppmShipmentId, allowableWeight) => {
+  const { data: ppmCloseout = {}, ...ppmCloseoutQuery } = useQuery(
+    [PPMCLOSEOUT, ppmShipmentId, allowableWeight],
+    ({ queryKey }) => getPPMCloseout(...queryKey),
   );
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([ppmCloseoutQuery]);

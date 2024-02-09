@@ -58,6 +58,7 @@ function ReviewWeightTicket({
   onSuccess,
   formRef,
   updateTotalWeight,
+  updateAllowableWeight,
 }) {
   const {
     vehicleDescription,
@@ -164,6 +165,8 @@ function ReviewWeightTicket({
     rejectionReason: reason || '',
   };
 
+  updateAllowableWeight(currentAllowableWeight.current);
+
   useEffect(() => {
     if (formRef?.current) {
       formRef.current.resetForm();
@@ -204,6 +207,7 @@ function ReviewWeightTicket({
             }
             if (event.target.name === 'allowableWeight') {
               currentAllowableWeight.current = `${removeCommas(event.target.value)}`;
+              updateAllowableWeight(currentAllowableWeight.current);
             }
             if (mtoShipments !== undefined && mtoShipments.length > 0) {
               getNewNetWeightCalculation(mtoShipments, values);
