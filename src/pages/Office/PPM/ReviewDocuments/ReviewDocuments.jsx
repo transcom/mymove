@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Grid } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
@@ -191,14 +191,17 @@ export const ReviewDocuments = () => {
     }
   };
 
+  const updateAllowableWeight = useCallback((newWeight) => {
+    setCurrentAllowableWeight(newWeight);
+  }, []);
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
+
   const ppmShipmentInfo = mtoShipment.ppmShipment;
   ppmShipmentInfo.miles = mtoShipment.distance;
-  const updateAllowableWeight = (newWeight) => {
-    setCurrentAllowableWeight(newWeight);
-    ppmShipmentInfo.allowableWeight = currentAllowableWeight;
-  };
+  ppmShipmentInfo.actualWeight = currentTotalWeight;
+
   const currentDocumentSet = documentSets[documentSetIndex];
   const disableBackButton = documentSetIndex === 0 && !showOverview;
 
