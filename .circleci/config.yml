@@ -447,27 +447,27 @@ commands:
       - run:
           name: Get Digest from filesystem
           command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app-tasks_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
-      - deploy:
+      - run:
           name: Deploy connect to GEX via SFTP service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container connect-to-gex-via-sftp "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
-      - deploy:
+      - run:
           name: Deploy GHC fuel price data task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
-      - deploy:
+      - run:
           name: Deploy payment reminder email task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
-      - deploy:
+      - run:
           name: Deploy post to GEX service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container post-file-to-gex "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
-      - deploy:
+      - run:
           name: Deploy process EDIs service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container process-edis "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
@@ -484,12 +484,12 @@ commands:
       - run:
           name: Get Digest from filesystem
           command: echo 'export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app-tasks_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
-      - deploy:
+      - run:
           name: Deploy GHC fuel price data task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
-      - deploy:
+      - run:
           name: Deploy payment reminder email task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
@@ -520,7 +520,7 @@ commands:
             echo "export OTEL_ECR_DIGEST=${OTEL_ECR_DIGEST}" | tee -a "${BASH_ENV}"
 
             echo "export OTEL_COLLECTOR_IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/otel-collector@${OTEL_ECR_DIGEST}" | tee -a "${BASH_ENV}"
-      - deploy:
+      - run:
           name: Deploy app service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
           no_output_timeout: 20m
@@ -559,7 +559,7 @@ commands:
             echo "export OTEL_ECR_DIGEST=${OTEL_ECR_DIGEST}" | tee -a "${BASH_ENV}"
 
             echo "export OTEL_COLLECTOR_IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/otel-collector@${OTEL_ECR_DIGEST}" | tee -a "${BASH_ENV}"
-      - deploy:
+      - run:
           name: Deploy app-client-tls service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
           no_output_timeout: 20m
@@ -584,7 +584,7 @@ commands:
       - attach_workspace:
           at: /tmp/storybook
       - checkout
-      - deploy:
+      - run:
           name: Push Storybook build to S3
           command: scripts/push-storybook-assets "<< parameters.s3_bucket>>"
 
@@ -747,6 +747,8 @@ commands:
 
 
             make server_test
+          no_output_timeout: 20m
+
           environment:
             APPLICATION: '<< parameters.application >>'
             # 8 since this runs on xlarge with 8 CPUs
@@ -883,6 +885,7 @@ commands:
             --workers << parameters.workers >> \
             --shard="${SHARD}/${CIRCLE_NODE_TOTAL}" \
             << parameters.path >>
+          no_output_timeout: 60m
       - store_artifacts:
           path: playwright-report
       - run:
@@ -1237,7 +1240,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v7-spectral-lint-
+            - v8-spectral-lint-
       - run:
           name: Save Baseline Spectral Lint
           command: |
@@ -1296,7 +1299,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v7-spectral-lint-{{ .BuildNum }}
+                key: v8-spectral-lint-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/spectral
       - store_artifacts:
@@ -1345,6 +1348,7 @@ jobs:
             echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)' >> $BASH_ENV
             source $BASH_ENV
             make db_dev_fresh
+          no_output_timeout: 60m
           environment:
             APPLICATION: app
             DB_PASSWORD: mysecretpassword
@@ -1447,7 +1451,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v7-server-tests-coverage-
+            - v8-server-tests-coverage-
       - run:
           name: Ensure Test Coverage Increasing
           command: |
@@ -1581,7 +1585,7 @@ jobs:
           # The trailing hyphen in restore_cache seems important
           # according to the page linked above
           keys:
-            - v5-client-tests-coverage-
+            - v6-client-tests-coverage-
       - run:
           name: Ensure Test Coverage Increasing
           command: |
@@ -1727,6 +1731,7 @@ jobs:
           command: |
             export REACT_APP_ERROR_LOGGING=otel
             make client_build
+          no_output_timeout: 20m
       # only save the cache on default branch builds so that PRs don't pollute
       # the cache
       - when:
@@ -2010,6 +2015,18 @@ jobs:
           repo: app-tasks
       - announce_failure
 
+  # `prod_auth_check` checks if approved before going to prod
+  prod_auth_check:
+    executor: tls_small
+    steps:
+      - run: echo "build approved by $CIRCLE_USERNAME"
+      - run:
+          name: Check if Prod approval has rights
+          command: |
+            if [[ $CIRCLE_USERNAME != "josiahzimmerman-caci" && $CIRCLE_USERNAME != "deandreJones" && $CIRCLE_USERNAME != "cameroncaci" ]]; then
+               exit 1
+            fi
+      - announce_failure
   # All of the deploy tasks need to checkout the code so they can run the `scripts/do-exclusively` script
 
   # `deploy_dp3_migrations` deploys migrations to the dp3 environment
@@ -2320,6 +2337,10 @@ workflows:
       - integration_tests_load:
           requires:
             - compile_app_server
+            # limiting this run to integrationBranch only due to multiple branch pipeline
+          filters:
+              branches:
+                only: integrationTesting
 
       - client_test:
           requires:
@@ -2562,6 +2583,13 @@ workflows:
             - deploy_stg_app
             - deploy_stg_app_client_tls
 
+      - prod_auth_check:
+          requires:
+           - approve_prd_deploy
+          filters:
+            branches:
+              only: main
+
       - deploy_storybook_dp3:
           requires:
             - build_storybook
@@ -2576,28 +2604,28 @@ workflows:
 
       - push_otel_collector_image_prd:
           requires:
-            - approve_prd_deploy
+            - prod_auth_check
           filters:
             branches:
               only: main
 
       - push_app_prd:
           requires:
-            - approve_prd_deploy
+            - prod_auth_check
           filters:
             branches:
               only: main
 
       - push_migrations_prd:
           requires:
-            - approve_prd_deploy
+            - prod_auth_check
           filters:
             branches:
               only: main
 
       - push_tasks_prd:
           requires:
-            - approve_prd_deploy
+            - prod_auth_check
           filters:
             branches:
               only: main

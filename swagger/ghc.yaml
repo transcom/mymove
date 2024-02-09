@@ -1587,6 +1587,35 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.shipment
+  /ppm-shipments/{ppmShipmentId}/closeout:
+    parameters:
+      - $ref: '#/parameters/ppmShipmentId'
+    get:
+      summary: Get the closeout calcuations for the specified PPM shipment
+      description: |
+        Retrieves the closeout calculations for the specified PPM shipment.
+      operationId: getPPMCloseout
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Returns closeout for the specified PPM shipment.
+          schema:
+            $ref: '#/definitions/PPMCloseout'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents:
     parameters:
       - description: ID of move task order
@@ -5075,8 +5104,6 @@ definitions:
         enum:
           - FULL
           - PARTIAL
-      ppmEstimatedWeight:
-        type: integer
       eTag:
         type: string
         readOnly: true
@@ -7194,6 +7221,22 @@ definitions:
         $ref: '#/definitions/Address'
       newAddress:
         $ref: '#/definitions/Address'
+      sitOriginalAddress:
+        $ref: '#/definitions/Address'
+      oldSitDistanceBetween:
+        description: >-
+          The distance between the original SIT address and the previous/old
+          destination address of shipment
+        example: 50
+        minimum: 0
+        type: integer
+      newSitDistanceBetween:
+        description: >-
+          The distance between the original SIT address and requested new
+          destination address of shipment
+        example: 88
+        minimum: 0
+        type: integer
     required:
       - id
       - status
@@ -7425,6 +7468,136 @@ definitions:
       APPROVED: Approved
       EXCLUDED: Excluded
       REJECTED: Rejected
+  PPMCloseout:
+    description: >-
+      The calculations needed in the "Review Documents" section of a PPM
+      closeout. LIst of all expenses/reimbursements related toa PPM shipment.
+    properties:
+      id:
+        description: Primary auto-generated unique identifier of the PPM shipment object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      plannedMoveDate:
+        description: |
+          Date the customer expects to begin their move.
+        format: date
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      actualMoveDate:
+        description: The actual start date of when the PPM shipment left the origin.
+        format: date
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      miles:
+        description: The distance between the old address and the new address in miles.
+        example: 54
+        minimum: 0
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      estimatedWeight:
+        description: The estimated weight of the PPM shipment goods being moved.
+        type: integer
+        example: 4200
+        x-nullable: true
+        x-omitempty: false
+      actualWeight:
+        x-nullable: true
+        example: 2000
+        type: integer
+      proGearWeightCustomer:
+        description: >-
+          The estimated weight of the pro-gear being moved belonging to the
+          service member.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      proGearWeightSpouse:
+        description: >-
+          The estimated weight of the pro-gear being moved belonging to a
+          spouse.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      grossIncentive:
+        description: >
+          The final calculated incentive for the PPM shipment. This does not
+          include **SIT** as it is a reimbursement.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+        readOnly: true
+      gcc:
+        description: Government Constructive Cost (GCC)
+        type: integer
+        title: GCC
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      aoa:
+        description: Advance Operating Allowance (AOA).
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      remainingReimbursementOwed:
+        description: The remaining reimbursement amount that is still owed to the customer.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      haulPrice:
+        description: The price of the linehaul or shorthaul.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      haulFSC:
+        description: The linehaul/shorthaul Fuel Surcharge (FSC).
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      dop:
+        description: The Domestic Origin Price (DOP).
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      ddp:
+        description: The Domestic Destination Price (DDP).
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      packPrice:
+        description: The full price of all packing/unpacking services.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      unpackPrice:
+        description: The full price of all packing/unpacking services.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      SITReimbursement:
+        description: >-
+          The estimated amount that the government will pay the service member
+          to put their goods into storage. This estimated storage cost is
+          separate from the estimated incentive.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+    required:
+      - id
   MTOServiceItemSingle:
     type: object
     properties:

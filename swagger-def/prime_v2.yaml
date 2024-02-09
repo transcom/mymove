@@ -637,8 +637,8 @@ definitions:
         type: string
         x-nullable: true
         x-omitempty: false
-  CreateNonSITAddressUpdateRequest:
-    description: CreateNonSITAddressUpdateRequest contains the fields required for the prime to create a non SIT address update request.
+  UpdateShipmentDestinationAddress:
+    description: UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment.
     type: object
     properties:
       newAddress:

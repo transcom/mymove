@@ -87,10 +87,6 @@ func ListMove(move *models.Move) *ghcmessages.ListPrimeMove {
 		ETag:               etag.GenerateEtag(move.UpdatedAt),
 	}
 
-	if move.PPMEstimatedWeight != nil {
-		payload.PpmEstimatedWeight = int64(*move.PPMEstimatedWeight)
-	}
-
 	if move.PPMType != nil {
 		payload.PpmType = *move.PPMType
 	}
@@ -995,6 +991,36 @@ func PPMDocuments(storer storage.FileStorer, ppmDocuments *models.PPMDocuments) 
 	return payload
 }
 
+// PPMCloseout payload
+func PPMCloseout(ppmCloseout *models.PPMCloseout) *ghcmessages.PPMCloseout {
+	if ppmCloseout == nil {
+		return nil
+	}
+	payload := &ghcmessages.PPMCloseout{
+		ID:                         strfmt.UUID(ppmCloseout.ID.String()),
+		PlannedMoveDate:            handlers.FmtDatePtr(ppmCloseout.PlannedMoveDate),
+		ActualMoveDate:             handlers.FmtDatePtr(ppmCloseout.ActualMoveDate),
+		Miles:                      handlers.FmtIntPtrToInt64(ppmCloseout.Miles),
+		EstimatedWeight:            handlers.FmtPoundPtr(ppmCloseout.EstimatedWeight),
+		ActualWeight:               handlers.FmtPoundPtr(ppmCloseout.ActualWeight),
+		ProGearWeightCustomer:      handlers.FmtPoundPtr(ppmCloseout.ProGearWeightCustomer),
+		ProGearWeightSpouse:        handlers.FmtPoundPtr(ppmCloseout.ProGearWeightSpouse),
+		GrossIncentive:             handlers.FmtCost(ppmCloseout.GrossIncentive),
+		Gcc:                        handlers.FmtCost(ppmCloseout.GCC),
+		Aoa:                        handlers.FmtCost(ppmCloseout.AOA),
+		RemainingReimbursementOwed: handlers.FmtCost(ppmCloseout.RemainingReimbursementOwed),
+		HaulPrice:                  handlers.FmtCost(ppmCloseout.HaulPrice),
+		HaulFSC:                    handlers.FmtCost(ppmCloseout.HaulFSC),
+		Dop:                        handlers.FmtCost(ppmCloseout.DOP),
+		Ddp:                        handlers.FmtCost(ppmCloseout.DDP),
+		PackPrice:                  handlers.FmtCost(ppmCloseout.PackPrice),
+		UnpackPrice:                handlers.FmtCost(ppmCloseout.UnpackPrice),
+		SITReimbursement:           handlers.FmtCost(ppmCloseout.SITReimbursement),
+	}
+
+	return payload
+}
+
 // ShipmentAddressUpdate payload
 func ShipmentAddressUpdate(shipmentAddressUpdate *models.ShipmentAddressUpdate) *ghcmessages.ShipmentAddressUpdate {
 	if shipmentAddressUpdate == nil || shipmentAddressUpdate.ID.IsNil() {
@@ -1002,13 +1028,16 @@ func ShipmentAddressUpdate(shipmentAddressUpdate *models.ShipmentAddressUpdate) 
 	}
 
 	payload := &ghcmessages.ShipmentAddressUpdate{
-		ID:                strfmt.UUID(shipmentAddressUpdate.ID.String()),
-		ShipmentID:        strfmt.UUID(shipmentAddressUpdate.ShipmentID.String()),
-		NewAddress:        Address(&shipmentAddressUpdate.NewAddress),
-		OriginalAddress:   Address(&shipmentAddressUpdate.OriginalAddress),
-		ContractorRemarks: shipmentAddressUpdate.ContractorRemarks,
-		OfficeRemarks:     shipmentAddressUpdate.OfficeRemarks,
-		Status:            ghcmessages.ShipmentAddressUpdateStatus(shipmentAddressUpdate.Status),
+		ID:                    strfmt.UUID(shipmentAddressUpdate.ID.String()),
+		ShipmentID:            strfmt.UUID(shipmentAddressUpdate.ShipmentID.String()),
+		NewAddress:            Address(&shipmentAddressUpdate.NewAddress),
+		OriginalAddress:       Address(&shipmentAddressUpdate.OriginalAddress),
+		SitOriginalAddress:    Address(shipmentAddressUpdate.SitOriginalAddress),
+		ContractorRemarks:     shipmentAddressUpdate.ContractorRemarks,
+		OfficeRemarks:         shipmentAddressUpdate.OfficeRemarks,
+		Status:                ghcmessages.ShipmentAddressUpdateStatus(shipmentAddressUpdate.Status),
+		NewSitDistanceBetween: handlers.FmtIntPtrToInt64(shipmentAddressUpdate.NewSitDistanceBetween),
+		OldSitDistanceBetween: handlers.FmtIntPtrToInt64(shipmentAddressUpdate.OldSitDistanceBetween),
 	}
 
 	return payload

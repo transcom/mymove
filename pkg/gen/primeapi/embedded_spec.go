@@ -1049,7 +1049,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
       "post": {
-        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\nThis does not change addresses on SIT service items.\nAddress updates will be automatically approved unless they change:\n  - the service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\nIf automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
         "consumes": [
           "application/json"
         ],
@@ -1059,8 +1059,8 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "createNonSITAddressUpdateRequest",
-        "operationId": "createNonSITAddressUpdateRequest",
+        "summary": "updateShipmentDestinationAddress",
+        "operationId": "updateShipmentDestinationAddress",
         "parameters": [
           {
             "type": "string",
@@ -1075,7 +1075,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/CreateNonSITAddressUpdateRequest"
+              "$ref": "#/definitions/UpdateShipmentDestinationAddress"
             }
           },
           {
@@ -1107,66 +1107,6 @@ func init() {
           },
           "409": {
             "$ref": "#/responses/Conflict"
-          },
-          "412": {
-            "$ref": "#/responses/PreconditionFailed"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      }
-    },
-    "/mto-shipments/{mtoShipmentID}/sit-delivery": {
-      "patch": {
-        "description": "### Functionality\nThis endpoint can be used to update the Authorized End Date for shipments in Origin or Destination SIT and the Required\nDelivery Date for shipments in Origin SIT. The provided Customer Contact Date and the Customer Requested Delivery Date are\nused to calculate the new Authorized End Date and Required Delivery Date.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoShipment"
-        ],
-        "summary": "Update the SIT Customer Contact and SIT Requested Delivery Dates for a service item currently in SIT",
-        "operationId": "updateSITDeliveryRequest",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the shipment associated with the agent",
-            "name": "mtoShipmentID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "$ref": "#/parameters/ifMatch"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/SITDeliveryUpdate"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully updated the shipment's authorized end date.",
-            "schema": {
-              "$ref": "#/definitions/SITStatus"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
           },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
@@ -1435,7 +1375,7 @@ func init() {
     },
     "/sit-address-updates": {
       "post": {
-        "description": "**Functionality:**\nCreates an update request for a SIT service item's final delivery address.\nA newly created update request is assigned the status 'REQUESTED'  if the change in address\nis \u003e 50 miles and automatically approved otherwise.\n\n**Limitations:**\nThe update can be requested for APPROVED SIT service items only.\nOnly ONE request is allowed per approved SIT service item.\n",
+        "description": "**Functionality:**\nCreates an update request for a SIT service item's final delivery address.\nA newly created update request is assigned the status 'REQUESTED'  if the change in address\nis \u003e 50 miles and automatically approved otherwise.\n\n**Limitations:**\nThe update can be requested for APPROVED SIT service items only.\nOnly ONE request is allowed per approved SIT service item.\n\n**DEPRECATION ON AUGUST 5TH, 2024**\nFollowing deprecation, when updating a service item's final delivery address, you will need to update the shipment's destination address. This will update the destination SIT service items' final delivery address upon approval.\nFor ` + "`" + `APPROVED` + "`" + ` shipments, you can use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress)\nFor shipments in any other status, you can use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress)\n",
         "consumes": [
           "application/json"
         ],
@@ -1752,24 +1692,6 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
-        }
-      }
-    },
-    "CreateNonSITAddressUpdateRequest": {
-      "description": "CreateNonSITAddressUpdateRequest contains the fields required for the prime to create a non SIT address update request.",
-      "type": "object",
-      "required": [
-        "contractorRemarks",
-        "newAddress"
-      ],
-      "properties": {
-        "contractorRemarks": {
-          "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
-          "type": "string",
-          "example": "Customer reached out to me this week and let me know they want to move somewhere else."
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
         }
       }
     },
@@ -2200,9 +2122,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "ppmEstimatedWeight": {
-          "type": "integer"
         },
         "ppmType": {
           "type": "string",
@@ -3713,22 +3632,6 @@ func init() {
         "TOO"
       ]
     },
-    "SITDeliveryUpdate": {
-      "required": [
-        "sitCustomerContacted",
-        "sitRequestedDelivery"
-      ],
-      "properties": {
-        "sitCustomerContacted": {
-          "type": "string",
-          "format": "date"
-        },
-        "sitRequestedDelivery": {
-          "type": "string",
-          "format": "date"
-        }
-      }
-    },
     "SITExtension": {
       "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
       "type": "object",
@@ -3818,55 +3721,6 @@ func init() {
         "ORIGIN",
         "DESTINATION"
       ]
-    },
-    "SITStatus": {
-      "properties": {
-        "currentSIT": {
-          "type": "object",
-          "properties": {
-            "daysInSIT": {
-              "type": "integer"
-            },
-            "location": {
-              "enum": [
-                "ORIGIN",
-                "DESTINATION"
-              ]
-            },
-            "sitAllowanceEndDate": {
-              "type": "string",
-              "format": "date",
-              "x-nullable": true
-            },
-            "sitCustomerContacted": {
-              "type": "string",
-              "format": "date",
-              "x-nullable": true
-            },
-            "sitDepartureDate": {
-              "type": "string",
-              "format": "date",
-              "x-nullable": true
-            },
-            "sitEntryDate": {
-              "type": "string",
-              "format": "date",
-              "x-nullable": true
-            },
-            "sitRequestedDelivery": {
-              "type": "string",
-              "format": "date",
-              "x-nullable": true
-            }
-          }
-        },
-        "totalDaysRemaining": {
-          "type": "integer"
-        },
-        "totalSITDaysUsed": {
-          "type": "integer"
-        }
-      }
     },
     "ServiceItem": {
       "type": "object",
@@ -4036,12 +3890,22 @@ func init() {
         "newAddress": {
           "$ref": "#/definitions/Address"
         },
+        "newSitDistanceBetween": {
+          "description": "The distance between the original SIT address and requested new destination address of shipment",
+          "type": "integer",
+          "example": 88
+        },
         "officeRemarks": {
           "description": "The TOO comment on approval or rejection.",
           "type": "string",
           "title": "Office Remarks",
           "x-nullable": true,
           "example": "This is an office remark"
+        },
+        "oldSitDistanceBetween": {
+          "description": "The distance between the original SIT address and the previous/old destination address of shipment",
+          "type": "integer",
+          "example": 50
         },
         "originalAddress": {
           "$ref": "#/definitions/Address"
@@ -4051,6 +3915,9 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "sitOriginalAddress": {
+          "$ref": "#/definitions/Address"
         },
         "status": {
           "$ref": "#/definitions/ShipmentAddressUpdateStatus"
@@ -4617,6 +4484,24 @@ func init() {
         }
       }
     },
+    "UpdateShipmentDestinationAddress": {
+      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment.",
+      "type": "object",
+      "required": [
+        "contractorRemarks",
+        "newAddress"
+      ],
+      "properties": {
+        "contractorRemarks": {
+          "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
+          "type": "string",
+          "example": "Customer reached out to me this week and let me know they want to move somewhere else."
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        }
+      }
+    },
     "UploadWithOmissions": {
       "description": "An uploaded file.",
       "type": "object",
@@ -4771,7 +4656,7 @@ func init() {
       "name": "paymentRequest"
     },
     {
-      "description": "A **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance less than or equal to 50 miles will be automatically\napproved while a distance greater than 50 miles will typically require office user approval.\n",
+      "description": "**THIS ENDPOINT WILL BE DEPRECATED ON AUGUST 5TH, 2024 - REFER TO DESCRIPTION FOR DETAILS**\n\nA **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance less than or equal to 50 miles will be automatically\napproved while a distance greater than 50 miles will typically require office user approval.\n",
       "name": "sitAddressUpdate"
     }
   ],
@@ -6120,7 +6005,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
       "post": {
-        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\nThis does not change addresses on SIT service items.\nAddress updates will be automatically approved unless they change:\n  - the service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\nIf automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
         "consumes": [
           "application/json"
         ],
@@ -6130,8 +6015,8 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "createNonSITAddressUpdateRequest",
-        "operationId": "createNonSITAddressUpdateRequest",
+        "summary": "updateShipmentDestinationAddress",
+        "operationId": "updateShipmentDestinationAddress",
         "parameters": [
           {
             "type": "string",
@@ -6146,7 +6031,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/CreateNonSITAddressUpdateRequest"
+              "$ref": "#/definitions/UpdateShipmentDestinationAddress"
             }
           },
           {
@@ -6190,85 +6075,6 @@ func init() {
           },
           "409": {
             "description": "The request could not be processed because of conflict in the current state of the resource.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "412": {
-            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "422": {
-            "description": "The request was unprocessable, likely due to bad input from the requester.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
-    "/mto-shipments/{mtoShipmentID}/sit-delivery": {
-      "patch": {
-        "description": "### Functionality\nThis endpoint can be used to update the Authorized End Date for shipments in Origin or Destination SIT and the Required\nDelivery Date for shipments in Origin SIT. The provided Customer Contact Date and the Customer Requested Delivery Date are\nused to calculate the new Authorized End Date and Required Delivery Date.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoShipment"
-        ],
-        "summary": "Update the SIT Customer Contact and SIT Requested Delivery Dates for a service item currently in SIT",
-        "operationId": "updateSITDeliveryRequest",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the shipment associated with the agent",
-            "name": "mtoShipmentID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/SITDeliveryUpdate"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully updated the shipment's authorized end date.",
-            "schema": {
-              "$ref": "#/definitions/SITStatus"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
@@ -6634,7 +6440,7 @@ func init() {
     },
     "/sit-address-updates": {
       "post": {
-        "description": "**Functionality:**\nCreates an update request for a SIT service item's final delivery address.\nA newly created update request is assigned the status 'REQUESTED'  if the change in address\nis \u003e 50 miles and automatically approved otherwise.\n\n**Limitations:**\nThe update can be requested for APPROVED SIT service items only.\nOnly ONE request is allowed per approved SIT service item.\n",
+        "description": "**Functionality:**\nCreates an update request for a SIT service item's final delivery address.\nA newly created update request is assigned the status 'REQUESTED'  if the change in address\nis \u003e 50 miles and automatically approved otherwise.\n\n**Limitations:**\nThe update can be requested for APPROVED SIT service items only.\nOnly ONE request is allowed per approved SIT service item.\n\n**DEPRECATION ON AUGUST 5TH, 2024**\nFollowing deprecation, when updating a service item's final delivery address, you will need to update the shipment's destination address. This will update the destination SIT service items' final delivery address upon approval.\nFor ` + "`" + `APPROVED` + "`" + ` shipments, you can use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress)\nFor shipments in any other status, you can use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress)\n",
         "consumes": [
           "application/json"
         ],
@@ -6972,24 +6778,6 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
-        }
-      }
-    },
-    "CreateNonSITAddressUpdateRequest": {
-      "description": "CreateNonSITAddressUpdateRequest contains the fields required for the prime to create a non SIT address update request.",
-      "type": "object",
-      "required": [
-        "contractorRemarks",
-        "newAddress"
-      ],
-      "properties": {
-        "contractorRemarks": {
-          "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
-          "type": "string",
-          "example": "Customer reached out to me this week and let me know they want to move somewhere else."
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
         }
       }
     },
@@ -7420,9 +7208,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "ppmEstimatedWeight": {
-          "type": "integer"
         },
         "ppmType": {
           "type": "string",
@@ -8933,22 +8718,6 @@ func init() {
         "TOO"
       ]
     },
-    "SITDeliveryUpdate": {
-      "required": [
-        "sitCustomerContacted",
-        "sitRequestedDelivery"
-      ],
-      "properties": {
-        "sitCustomerContacted": {
-          "type": "string",
-          "format": "date"
-        },
-        "sitRequestedDelivery": {
-          "type": "string",
-          "format": "date"
-        }
-      }
-    },
     "SITExtension": {
       "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
       "type": "object",
@@ -9038,98 +8807,6 @@ func init() {
         "ORIGIN",
         "DESTINATION"
       ]
-    },
-    "SITStatus": {
-      "properties": {
-        "currentSIT": {
-          "type": "object",
-          "properties": {
-            "daysInSIT": {
-              "type": "integer",
-              "minimum": 0
-            },
-            "location": {
-              "enum": [
-                "ORIGIN",
-                "DESTINATION"
-              ]
-            },
-            "sitAllowanceEndDate": {
-              "type": "string",
-              "format": "date",
-              "x-nullable": true
-            },
-            "sitCustomerContacted": {
-              "type": "string",
-              "format": "date",
-              "x-nullable": true
-            },
-            "sitDepartureDate": {
-              "type": "string",
-              "format": "date",
-              "x-nullable": true
-            },
-            "sitEntryDate": {
-              "type": "string",
-              "format": "date",
-              "x-nullable": true
-            },
-            "sitRequestedDelivery": {
-              "type": "string",
-              "format": "date",
-              "x-nullable": true
-            }
-          }
-        },
-        "totalDaysRemaining": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "totalSITDaysUsed": {
-          "type": "integer",
-          "minimum": 0
-        }
-      }
-    },
-    "SITStatusCurrentSIT": {
-      "type": "object",
-      "properties": {
-        "daysInSIT": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "location": {
-          "enum": [
-            "ORIGIN",
-            "DESTINATION"
-          ]
-        },
-        "sitAllowanceEndDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "sitCustomerContacted": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "sitDepartureDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "sitEntryDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "sitRequestedDelivery": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        }
-      }
     },
     "ServiceItem": {
       "type": "object",
@@ -9302,12 +8979,24 @@ func init() {
         "newAddress": {
           "$ref": "#/definitions/Address"
         },
+        "newSitDistanceBetween": {
+          "description": "The distance between the original SIT address and requested new destination address of shipment",
+          "type": "integer",
+          "minimum": 0,
+          "example": 88
+        },
         "officeRemarks": {
           "description": "The TOO comment on approval or rejection.",
           "type": "string",
           "title": "Office Remarks",
           "x-nullable": true,
           "example": "This is an office remark"
+        },
+        "oldSitDistanceBetween": {
+          "description": "The distance between the original SIT address and the previous/old destination address of shipment",
+          "type": "integer",
+          "minimum": 0,
+          "example": 50
         },
         "originalAddress": {
           "$ref": "#/definitions/Address"
@@ -9317,6 +9006,9 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "sitOriginalAddress": {
+          "$ref": "#/definitions/Address"
         },
         "status": {
           "$ref": "#/definitions/ShipmentAddressUpdateStatus"
@@ -9883,6 +9575,24 @@ func init() {
         }
       }
     },
+    "UpdateShipmentDestinationAddress": {
+      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment.",
+      "type": "object",
+      "required": [
+        "contractorRemarks",
+        "newAddress"
+      ],
+      "properties": {
+        "contractorRemarks": {
+          "description": "This is the remark the Prime has entered, which would be the reason there is an address change.",
+          "type": "string",
+          "example": "Customer reached out to me this week and let me know they want to move somewhere else."
+        },
+        "newAddress": {
+          "$ref": "#/definitions/Address"
+        }
+      }
+    },
     "UploadWithOmissions": {
       "description": "An uploaded file.",
       "type": "object",
@@ -10037,7 +9747,7 @@ func init() {
       "name": "paymentRequest"
     },
     {
-      "description": "A **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance less than or equal to 50 miles will be automatically\napproved while a distance greater than 50 miles will typically require office user approval.\n",
+      "description": "**THIS ENDPOINT WILL BE DEPRECATED ON AUGUST 5TH, 2024 - REFER TO DESCRIPTION FOR DETAILS**\n\nA **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance less than or equal to 50 miles will be automatically\napproved while a distance greater than 50 miles will typically require office user approval.\n",
       "name": "sitAddressUpdate"
     }
   ],
