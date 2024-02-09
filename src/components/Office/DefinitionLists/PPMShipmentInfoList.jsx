@@ -1,6 +1,7 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { Link } from 'react-router-dom';
 
 import shipmentDefinitionListsStyles from './ShipmentDefinitionLists.module.scss';
 
@@ -13,6 +14,8 @@ import { ADVANCE_STATUSES } from 'constants/ppms';
 import affiliation from 'content/serviceMemberAgencies';
 import { permissionTypes } from 'constants/permissions';
 import Restricted from 'components/Restricted/Restricted';
+import { downloadPPMAOAPacket } from 'services/ghcApi';
+import { downloadPPMAOAPacketOnSuccessHandler } from 'utils/download';
 
 const PPMShipmentInfoList = ({
   className,
@@ -22,6 +25,7 @@ const PPMShipmentInfoList = ({
   showWhenCollapsed,
   isExpanded,
   isForEvaluationReport,
+  onErrorModalToggle,
 }) => {
   const {
     hasRequestedAdvance,
@@ -66,6 +70,17 @@ const PPMShipmentInfoList = ({
 
   const showElement = (elementFlags) => {
     return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
+  };
+
+  const handlePPMAOAPacketDownloadClick = (shipmentId) => {
+    downloadPPMAOAPacket(shipmentId)
+      .then((response) => {
+        downloadPPMAOAPacketOnSuccessHandler(response);
+      })
+      .catch((err) => {
+        console.log(err);
+        onErrorModalToggle();
+      });
   };
 
   const expectedDepartureDateElementFlags = getDisplayFlags('expectedDepartureDate');
@@ -187,9 +202,9 @@ const PPMShipmentInfoList = ({
       <dt>AOA Packet</dt>
       <dd data-testid="aoaPacketDownload">
         <p className={styles.downloadLink}>
-          <a href="">
-            <span>Download AOA Paperwork (PDF)</span>
-          </a>
+          <Link onClick={() => handlePPMAOAPacketDownloadClick(shipment?.ppmShipment.id)}>
+            Download AOA Paperwork (PDF)
+          </Link>
         </p>
       </dd>
     </div>
@@ -277,6 +292,7 @@ PPMShipmentInfoList.propTypes = {
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
   isExpanded: PropTypes.bool,
   isForEvaluationReport: PropTypes.bool,
+  onErrorModalToggle: PropTypes.func,
 };
 
 PPMShipmentInfoList.defaultProps = {
@@ -286,6 +302,7 @@ PPMShipmentInfoList.defaultProps = {
   showWhenCollapsed: [],
   isExpanded: false,
   isForEvaluationReport: false,
+  onErrorModalToggle: undefined,
 };
 
 export default PPMShipmentInfoList;

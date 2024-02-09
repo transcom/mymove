@@ -25,7 +25,7 @@ import {
 } from 'utils/test/factories/ppmShipment';
 import { MemoryRouter } from 'react-router-dom';
 import { downloadPPMAOAPacket } from 'services/internalApi';
-import { JSDOM } from 'jsdom';
+import { downloadPPMAOAPacketOnSuccessHandler } from 'utils/download';
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -40,7 +40,13 @@ jest.mock('react-router-dom', () => ({
 }));
 
 jest.mock('services/internalApi', () => ({
+  ...jest.requireActual('services/internalApi'),
   downloadPPMAOAPacket: jest.fn(),
+}));
+
+jest.mock('utils/download', () => ({
+  ...jest.requireActual('utils/download'),
+  downloadPPMAOAPacketOnSuccessHandler: jest.fn(),
 }));
 
 const defaultProps = {
@@ -641,10 +647,6 @@ describe('Home component', () => {
           response: { body: { title: 'Error title', detail: 'Error detail' } },
         });
 
-        setTimeout(() => {
-          console.log('Delayed for 1 second.');
-        }, '1000');
-
         const mtoShipments = [approvedAdvancePPMShipment];
         const props = { ...defaultProps, ...propUpdates, mtoShipments };
         render(
@@ -660,15 +662,14 @@ describe('Home component', () => {
 
         await waitFor(() => {
           expect(
-            screen.getByText(
-              /Something went wrong downloading PPM AOA paperwork. Please try again later or contact your counselor/,
-            ),
+            screen.getByText(/Something went wrong downloading PPM AOA paperwork./, { exact: false }),
           ).toBeInTheDocument();
+          expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
+          expect(downloadPPMAOAPacketOnSuccessHandler).toHaveBeenCalledTimes(0);
         });
       });
 
       it('Download AOA Packet PPM - Success', async () => {
-        global.URL.createObjectURL = jest.fn();
         const mockResponse = {
           ok: true,
           headers: {
@@ -678,10 +679,6 @@ describe('Home component', () => {
           data: null,
         };
         downloadPPMAOAPacket.mockImplementation(() => Promise.resolve(mockResponse));
-
-        setTimeout(() => {
-          console.log('Delayed for 1 second.');
-        }, '1000');
 
         const mtoShipments = [approvedAdvancePPMShipment];
         const props = { ...defaultProps, ...propUpdates, mtoShipments };
@@ -697,46 +694,12 @@ describe('Home component', () => {
         const downloadAOAButton = screen.getByText('Download AOA Paperwork (PDF)');
         expect(downloadAOAButton).toBeInTheDocument();
 
-        function makeAnchor(target) {
-          return {
-            target,
-            setAttribute: jest.fn((key, value) => (target[key] = value)),
-            click: jest.fn(),
-            remove: jest.fn(),
-            parentNode: {
-              removeChild: jest.fn(),
-            },
-          };
-        }
-        let anchor = makeAnchor({ href: '#', download: '' });
-        let createElementMock = jest.spyOn(document, 'createElement').mockReturnValue(anchor);
-        let clickSpy = jest.spyOn(anchor, 'click');
-
-        // jest.spyOn(document.body, 'appendChild').mockReturnValue(anchor);
-
         await userEvent.click(downloadAOAButton);
 
-        // verify hyperlink was created
-        expect(document.createElement).toBeCalledWith('a');
-
-        // // verify hypelink element was created with correct
-        // // default file name from content-disposition
-        // expect(document).toBeCalledWith(
-        //   expect.objectContaining({
-        //     download: 'test.pdf',
-        //   }),
-        // );
-        expect(clickSpy).toHaveBeenCalledTimes(1);
-
         await waitFor(() => {
-          // Verify no error message display
-          expect(() =>
-            screen.getByText(
-              /Something went wrong downloading PPM AOA paperwork. Please try again later or contact your counselor/,
-            ),
-          ).toThrow();
+          expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
+          expect(downloadPPMAOAPacketOnSuccessHandler).toHaveBeenCalledTimes(1);
         });
-        createElementMock.mockRestore(); // restore document.createElement so that it is unchanged in other tests
       });
     });
 

@@ -52,9 +52,11 @@ import { MoveShape, OrdersShape, UploadShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import { formatCustomerDate, formatWeight } from 'utils/formatters';
 import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete } from 'utils/shipments';
+import { downloadPPMAOAPacketOnSuccessHandler } from 'utils/download';
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types/router';
 import { ADVANCE_STATUSES } from 'constants/ppms';
+import DownloadAOAErrorModal from 'shared/DownloadAOAErrorModal/DownloadAOAErrorModal';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -360,46 +362,21 @@ export class Home extends Component {
     navigate(path);
   };
 
+  toggleDownloadAOAErrorModal = () => {
+    this.setState((prevState) => ({
+      showDownloadPPMAOAPaperworkErrorAlert: !prevState.showDownloadPPMAOAPaperworkErrorAlert,
+    }));
+  };
+
   // eslint-disable-next-line class-methods-use-this
   handlePPMAOAPacketDownloadClick = (shipmentId) => {
     downloadPPMAOAPacket(shipmentId)
       .then((response) => {
-        // dynamically update DOM to trigger browser to display SAVE AS download file modal
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        const disposition = response.headers['content-disposition'];
-        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-        let filename = 'ppmAOAPacket.pdf';
-        const matches = filenameRegex.exec(disposition);
-        if (matches != null && matches[1]) {
-          filename = matches[1].replace(/['"]/g, '');
-        }
-        link.setAttribute('download', filename);
-
-        try {
-          // Append to html link element page
-          // Hack alert: wrap around try/catch for unit testing,
-          // document.body not available during standalone unit testing testing
-          document.body.appendChild(link);
-        } catch (e) {
-          console.log(e);
-        }
-
-        // Start download
-        link.click();
-
-        // Clean up and remove the link
-        link.parentNode.removeChild(link);
-
-        this.setState({
-          showDownloadPPMAOAPaperworkErrorAlert: false,
-        });
+        downloadPPMAOAPacketOnSuccessHandler(response);
       })
-      .catch(() => {
-        this.setState({
-          showDownloadPPMAOAPaperworkErrorAlert: true,
-        });
+      .catch((err) => {
+        console.log(err);
+        this.toggleDownloadAOAErrorModal();
       });
   };
 
@@ -473,6 +450,10 @@ export class Home extends Component {
           submitText="Yes, Delete"
           closeText="No, Keep It"
         />
+        <DownloadAOAErrorModal
+          isOpen={showDownloadPPMAOAPaperworkErrorAlert}
+          closeModal={this.toggleDownloadAOAErrorModal}
+        />
         <div className={styles.homeContainer}>
           <header data-testid="customer-header" className={styles['customer-header']}>
             <div className={`usa-prose grid-container ${styles['grid-container']}`}>
@@ -491,11 +472,6 @@ export class Home extends Component {
             {showDeleteErrorAlert && (
               <Alert headingLevel="h4" slim type="error">
                 Something went wrong, and your changes were not saved. Please try again later or contact your counselor.
-              </Alert>
-            )}
-            {showDownloadPPMAOAPaperworkErrorAlert && (
-              <Alert headingLevel="h4" slim type="error">
-                Something went wrong downloading PPM AOA paperwork. Please try again later or contact your counselor.
               </Alert>
             )}
             <ConnectedFlashMessage />
