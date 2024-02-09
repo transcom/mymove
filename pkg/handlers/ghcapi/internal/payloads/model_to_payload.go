@@ -1067,7 +1067,6 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		MtoAgents:                   *MTOAgents(&mtoShipment.MTOAgents),
 		MtoServiceItems:             MTOServiceItemModels(mtoShipment.MTOServiceItems, storer),
 		Diversion:                   mtoShipment.Diversion,
-		Distance:                    handlers.FmtInt64(int64(*mtoShipment.Distance)),
 		Reweigh:                     Reweigh(mtoShipment.Reweigh, sitStatusPayload),
 		CreatedAt:                   strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                   strfmt.DateTime(mtoShipment.UpdatedAt),
@@ -1083,6 +1082,10 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		StorageFacility:             StorageFacility(mtoShipment.StorageFacility),
 		PpmShipment:                 PPMShipment(storer, mtoShipment.PPMShipment),
 		DeliveryAddressUpdate:       ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
+	}
+
+	if mtoShipment.Distance != nil {
+		payload.Distance = handlers.FmtInt64(int64(*mtoShipment.Distance))
 	}
 
 	if sitStatusPayload != nil {
