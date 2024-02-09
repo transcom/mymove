@@ -6,11 +6,11 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/spf13/afero"
-	"github.com/transcom/mymove/pkg/paperwork"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -82,14 +82,14 @@ func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShip
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
-	// // Ensure SSW PDF is not corrupted
-	// ordersFileInfo, err := a.pdfGenerator.GetPdfFileInfoByContents(ordersFile)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
-	// }
-	// if !(ordersFileInfo.PageCount > 0) {
-	// 	return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
-	// }
+	// Ensure SSW PDF is not corrupted
+	ordersFileInfo, err := a.pdfGenerator.GetPdfFileInfoByContents(ordersFile)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+	}
+	if !(ordersFileInfo.PageCount > 0) {
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+	}
 
 	// Calling the PDF merge function in Generator with these filepaths creates issues due to instancing of the memory filesystem
 	// Instead, we use a readseeker to pass in file information to merge the files in Generator.

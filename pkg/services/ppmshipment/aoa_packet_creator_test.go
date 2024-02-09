@@ -10,11 +10,11 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/mock"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	paperworkgenerator "github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -144,10 +144,12 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacketFull() {
 		pdfGenerator:                        generator,
 	}
 
-	models.SaveMoveDependencies(suite.DB(), &ppmShipment.Shipment.MoveTaskOrder)
+	_, err = models.SaveMoveDependencies(suite.DB(), &ppmShipment.Shipment.MoveTaskOrder)
+	suite.NoError(err)
+
 	packet, err := a.CreateAOAPacket(appCtx, ppmShipmentID)
 	suite.NoError(err)
-	println(packet.Name()) // ensures was generated with temp filesystem
+	suite.NotNil(packet) // ensures was generated with temp filesystem
 }
 
 func (suite *PPMShipmentSuite) TestSaveAOAPacket() {

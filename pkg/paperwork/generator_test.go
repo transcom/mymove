@@ -213,6 +213,7 @@ func (suite *PaperworkSuite) TestCreateMergedPDF() {
 
 func (suite *PaperworkSuite) TestCreateMergedPDFByContents() {
 	generator, err := NewGenerator(suite.userUploader.Uploader())
+	suite.FatalNil(err)
 
 	file1, err := suite.openLocalFile("testdata/orders1.pdf", generator.fs)
 	suite.FatalNil(err)
