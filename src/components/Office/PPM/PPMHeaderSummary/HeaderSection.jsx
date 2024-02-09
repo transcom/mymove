@@ -79,7 +79,6 @@ const getSectionMarkup = (sectionInfo) => {
         <div className={classnames(styles.Details)}>
           <div>
             <Label>Gross Incentive</Label>
-            {/** TODO: Is estimatedIncentive (sent from ppmShipment in PPMHeaderSummary) actually the correct value? */}
             <span className={styles.light}>${formatCents(sectionInfo.grossIncentive)}</span>
           </div>
           <div>

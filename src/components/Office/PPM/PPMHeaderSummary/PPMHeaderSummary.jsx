@@ -1,23 +1,22 @@
-import React from 'react';
+import { React } from 'react';
 import { number, bool } from 'prop-types';
 import classnames from 'classnames';
 
 import HeaderSection, { sectionTypes } from './HeaderSection';
 import styles from './PPMHeaderSummary.module.scss';
 
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { usePPMCloseoutQuery } from 'hooks/queries';
 
-export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFields }) {
-  const ppmCloseout = usePPMCloseoutQuery(ppmNumber);
-  const shipmentInfo = {
-    plannedMoveDate: ppmShipmentInfo.expectedDepartureDate,
-    actualMoveDate: ppmShipmentInfo.actualMoveDate,
-    actualPickupPostalCode: ppmShipmentInfo.actualPickupPostalCode,
-    actualDestinationPostalCode: ppmShipmentInfo.actualDestinationPostalCode,
-    miles: ppmShipmentInfo.miles,
-    estimatedWeight: ppmShipmentInfo.estimatedWeight,
-    actualWeight: ppmShipmentInfo.actualWeight,
-  };
+const GCCAndIncentiveInfo = ({ ppmShipmentInfo }) => {
+  const { ppmCloseout, isLoading, isError } = usePPMCloseoutQuery(ppmShipmentInfo.id);
+  // useEffect(() => {
+  //   return null;
+  // }, []);
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
   const incentives = {
     isAdvanceRequested: ppmShipmentInfo.hasRequestedAdvance,
     isAdvanceReceived: ppmShipmentInfo.hasReceivedAdvance,
@@ -30,8 +29,33 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFi
   const gccFactors = {
     haulPrice: ppmCloseout.haulPrice,
     haulFSC: ppmCloseout.haulFSC,
-    fullPackUnpackCharge: ppmCloseout.packPrice + ppmShipmentInfo.unpackPrice,
+    fullPackUnpackCharge: ppmCloseout.packPrice + ppmCloseout.unpackPrice,
   };
+
+  return (
+    <>
+      <HeaderSection
+        sectionInfo={{
+          type: sectionTypes.incentives,
+          ...incentives,
+        }}
+      />
+      <hr />
+      <HeaderSection sectionInfo={{ type: sectionTypes.gcc, ...gccFactors }} />
+    </>
+  );
+};
+export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFields }) {
+  const shipmentInfo = {
+    plannedMoveDate: ppmShipmentInfo.expectedDepartureDate,
+    actualMoveDate: ppmShipmentInfo.actualMoveDate,
+    actualPickupPostalCode: ppmShipmentInfo.actualPickupPostalCode,
+    actualDestinationPostalCode: ppmShipmentInfo.actualDestinationPostalCode,
+    miles: ppmShipmentInfo.miles,
+    estimatedWeight: ppmShipmentInfo.estimatedWeight,
+    actualWeight: ppmShipmentInfo.actualWeight,
+  };
+
   return (
     <header className={classnames(styles.PPMHeaderSummary)}>
       <div className={styles.header}>
@@ -45,18 +69,7 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFi
           />
         </section>
         <hr />
-        {showAllFields && (
-          <>
-            <HeaderSection
-              sectionInfo={{
-                type: sectionTypes.incentives,
-                ...incentives,
-              }}
-            />
-            <hr />
-            <HeaderSection sectionInfo={{ type: sectionTypes.gcc, ...gccFactors }} />
-          </>
-        )}
+        {showAllFields && <GCCAndIncentiveInfo ppmShipmentInfo={ppmShipmentInfo} />}
       </div>
     </header>
   );
