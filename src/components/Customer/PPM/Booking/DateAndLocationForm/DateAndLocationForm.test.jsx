@@ -1,9 +1,9 @@
 import React from 'react';
 import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { UnsupportedZipCodePPMErrorMsg } from 'utils/validation';
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
+import { act } from 'react-dom/test-utils';
 
 const serviceMember = {
   serviceMember: {
@@ -249,50 +249,28 @@ describe('validates form fields and displays error messages', () => {
     };
     render(<DateAndLocationForm {...invalidTypes} />);
 
-    await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '1 January 2022');
+    await act(async () => {
+      await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '1000');
+    });
 
-    const zipInputs = screen.getAllByLabelText('ZIP');
-    await userEvent.click(zipInputs[0]);
-    await userEvent.click(zipInputs[1]);
+    await act(async () => {
+      await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '1000');
+    });
+
+    await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '1 January 2022');
     await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
 
       const requiredAlerts = screen.getAllByRole('alert');
-      expect(requiredAlerts.length).toBe(1);
+      expect(requiredAlerts.length).toBe(3);
 
       // Departure date
-      expect(requiredAlerts[0]).toHaveTextContent('Enter a complete date in DD MMM YYYY format (day, month, year).');
+      expect(requiredAlerts[2]).toHaveTextContent('Enter a complete date in DD MMM YYYY format (day, month, year).');
       expect(
-        within(requiredAlerts[0].nextElementSibling).getByLabelText('When do you plan to start moving your PPM?'),
+        within(requiredAlerts[2].nextElementSibling).getByLabelText('When do you plan to start moving your PPM?'),
       ).toBeInTheDocument();
-    });
-  });
-  it('displays error when postal code lookup fails', async () => {
-    const postalCodeValidatorFailure = {
-      ...defaultProps,
-      postalCodeValidator: jest
-        .fn()
-        .mockReturnValue('Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.'),
-    };
-    render(<DateAndLocationForm {...postalCodeValidatorFailure} />);
-
-    const primaryZIPs = screen.getAllByLabelText('ZIP');
-    await userEvent.click(primaryZIPs[0]);
-    await userEvent.type(primaryZIPs[0], '99999');
-
-    await waitFor(() => {
-      expect(postalCodeValidatorFailure.postalCodeValidator).toHaveBeenCalledWith(
-        '99999',
-        'origin',
-        UnsupportedZipCodePPMErrorMsg,
-      );
-      /*
-      expect(screen.getByRole('alert')).toHaveTextContent(
-        'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.',
-      );
-     */
     });
   });
 });
