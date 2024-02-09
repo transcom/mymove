@@ -2123,9 +2123,6 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "ppmEstimatedWeight": {
-          "type": "integer"
-        },
         "ppmType": {
           "type": "string",
           "enum": [
@@ -7211,9 +7208,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "ppmEstimatedWeight": {
-          "type": "integer"
         },
         "ppmType": {
           "type": "string",
