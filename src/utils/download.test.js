@@ -8,6 +8,7 @@ describe('downloadPPMAOAPacketOnSuccessHandler', () => {
   it('success - downloadPPMAOAPacketOnSuccessHandler', () => {
     const expectedResponseData = 'MOCK_PDF_DATA';
     const expectedFileName = 'test.pdf';
+    const expectedContentType = 'application/pdf';
 
     global.URL.createObjectURL = jest.fn();
 
@@ -15,6 +16,7 @@ describe('downloadPPMAOAPacketOnSuccessHandler', () => {
       ok: true,
       headers: {
         'content-disposition': `filename="${expectedFileName}"`,
+        'content-type': expectedContentType
       },
       status: 200,
       data: expectedResponseData,
@@ -46,7 +48,9 @@ describe('downloadPPMAOAPacketOnSuccessHandler', () => {
     downloadPPMAOAPacketOnSuccessHandler(mockResponse);
 
     // verify response.data is used for blob
-    expect(blobSpy).toBeCalledWith([expectedResponseData]);
+    expect(blobSpy).toBeCalledWith([expectedResponseData], {
+      type: expectedContentType
+    });
 
     // verify hyperlink was created
     expect(document.createElement).toBeCalledWith('a');
