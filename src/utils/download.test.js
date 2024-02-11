@@ -16,7 +16,7 @@ describe('downloadPPMAOAPacketOnSuccessHandler', () => {
       ok: true,
       headers: {
         'content-disposition': `filename="${expectedFileName}"`,
-        'content-type': expectedContentType
+        'content-type': expectedContentType,
       },
       status: 200,
       data: expectedResponseData,
@@ -49,7 +49,7 @@ describe('downloadPPMAOAPacketOnSuccessHandler', () => {
 
     // verify response.data is used for blob
     expect(blobSpy).toBeCalledWith([expectedResponseData], {
-      type: expectedContentType
+      type: expectedContentType,
     });
 
     // verify hyperlink was created

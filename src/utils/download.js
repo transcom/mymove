@@ -5,9 +5,11 @@
 export const downloadPPMAOAPacketOnSuccessHandler = (response) => {
   // dynamically update DOM to trigger browser to display SAVE AS download file modal
   const contentType = response.headers['content-type'];
-  const url = window.URL.createObjectURL(new Blob([response.data], {
-    type: contentType
-  }));
+  const url = window.URL.createObjectURL(
+    new Blob([response.data], {
+      type: contentType,
+    }),
+  );
 
   const link = document.createElement('a');
   link.href = url;
