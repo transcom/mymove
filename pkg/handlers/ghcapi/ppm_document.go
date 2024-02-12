@@ -170,7 +170,7 @@ func (h showAOAPacketHandler) Handle(params ppmdocumentops.ShowAOAPacketParams) 
 			}
 
 			payload := io.NopCloser(AOAPacket)
-			filename := fmt.Sprintf("inline; filename=\"AOA-%s.pdf\"", time.Now().Format("01-02-2006"))
+			filename := fmt.Sprintf("inline; filename=\"AOA-%s.pdf\"", time.Now().Format("01-02-2006_15-04-05"))
 
 			return ppmdocumentops.NewShowAOAPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
 		})
