@@ -3873,6 +3873,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			mock.Anything,
 		).Return(nil, err)
 
 		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
