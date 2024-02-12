@@ -251,7 +251,7 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 			}
 
 			move := moves[len(moves)-1]
-			outputFile, err := h.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, services.MoveOrderUploadAll, move)
+			outputFile, err := h.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, services.MoveOrderUploadAll, move, true)
 
 			if err != nil {
 				appCtx.Logger().Error("Error: generator.GeneratePdf", zap.Error(err))

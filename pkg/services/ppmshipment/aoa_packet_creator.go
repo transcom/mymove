@@ -78,7 +78,7 @@ func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShip
 	// Find move attached to PPM Shipment
 	move := models.Move(ppmShipment.Shipment.MoveTaskOrder)
 	// This function retrieves all orders and amendments, converts and merges them into one PDF with bookmarks
-	ordersFile, err := a.PrimeDownloadMoveUploadPDFGenerator.GenerateOrdersWithoutBookmarks(appCtx, services.MoveOrderUploadAll, move)
+	ordersFile, err := a.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, services.MoveOrderUploadAll, move, false)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
