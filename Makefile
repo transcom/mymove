@@ -1220,49 +1220,39 @@ nonato_deploy_restore:  ## Restore placeholders in config after deploy to a non-
 # ----- START SETUP MULTI BRANCH -----
 #
 
+HAS_ENVRC_LOCAL := $(shell [ -f .envrc.local ] && echo 1 || echo 0)
+HAS_ENVRC_CLONED := $(shell [ -f $(CURDIR)2/.envrc.local ] && echo 1 || echo 0)
+
+check_local_env:
+ifeq (HAS_ENVRC_LOCAL,1)
+	@echo "Local .envrc.local found."; \
+	sed -i '' -e 's/^export GIN_PORT=.*/export GIN_PORT=9001/' "$(CURDIR)/.envrc.local"
+else
+	@echo "Local .envrc.local NOT found. Creating file."; \
+	echo "export GIN_PORT=9001" > "$(CURDIR)/.envrc.local"
+endif
+
+check_cloned_env:
+ifeq (HAS_ENVRC_CLONED,1)
+	@echo "Cloned .envrc.local found."; \
+	sed -i '' -e 's/^export GIN_PORT=.*/export GIN_PORT=9002/' "$(CURDIR)2/.envrc.local"
+else
+	@echo "Cloned .envrc.local NOT found. Creating file."; \
+	echo "export GIN_PORT=9002" > "$(CURDIR)2/.envrc.local"
+endif
+
 clone_repo:
-	@git clone https://github.com/transcom/mymove.git "$(CURDIR)2"
-
-modify_envrc_local_clone:
-	@if [ ! -f "$(CURDIR)2/.envrc.local" ]; then \
-		cp "$(CURDIR)2/.envrc" "$(CURDIR)2/.envrc.local"; \
+	@if [ -d "$(CURDIR)2" ]; then \
+		echo "Error: Folder $(CURDIR)2 already exists."; \
+		exit 1; \
 	fi; \
-	sed -i '' -e 's/^export GIN_PORT=.*/export GIN_PORT=9002/' "$(CURDIR)2/.envrc.local"; \
-	sed -i '' '/if \[ -e .envrc.local \]/,/fi/d' "$(CURDIR)2/.envrc.local";
-
-modify_envrc_local_in_original_folder:
-	@if [ ! -f "$(CURDIR)/.envrc.local" ]; then \
-		cp "$(CURDIR)/.envrc" "$(CURDIR)/.envrc.local"; \
-	fi; \
-	sed -i '' -e 's/^export GIN_PORT=.*/export GIN_PORT=9001/' "$(CURDIR)/.envrc.local"; \
-	sed -i '' '/if \[ -e .envrc.local \]/,/fi/d' "$(CURDIR)/.envrc.local";
+	git clone https://github.com/transcom/mymove.git "$(CURDIR)2";
 
 success_message:
 	@echo "2 independent project folders created successfully."
 
 .PHONY: multi_branch
-multi_branch: clone_repo modify_envrc_local_clone modify_envrc_local_in_original_folder success_message ## Sets up 2 folders which can each target a different branch on the repo
-
-# clone_repo:
-# 	@git clone https://github.com/transcom/mymove.git "$(CURDIR)2"
-
-# modify_envrc_local_clone:
-# 	@if [ ! -f "$(CURDIR)2/.envrc.local" ]; then \
-# 		cp "$(CURDIR)2/.envrc" "$(CURDIR)2/.envrc.local"; \
-# 	fi; \
-# 	sed -i '' -e 's/^export GIN_PORT=.*/export GIN_PORT=9002/' -e 's/if \[[^\]]*\](\s+([A-Za-z]+\s+)+)source_env .envrc.local\s+fi/# loop fixed/' "$(CURDIR)2/.envrc.local";
-
-# modify_envrc_local_in_original_folder:
-# 	@if [ ! -f "$(CURDIR)/.envrc.local" ]; then \
-# 		cp "$(CURDIR)/.envrc" "$(CURDIR)/.envrc.local"; \
-# 	fi; \
-# 	sed -i '' -e 's/^export GIN_PORT=.*/export GIN_PORT=9001/' -e 's/if \[[^\]]*\](\s+([A-Za-z]+\s+)+)source_env .envrc.local\s+fi/# loop fixed/' "$(CURDIR)/.envrc.local";
-
-# success_message:
-# 	@echo "2 independent project folders created successfully."
-
-# .PHONY: multi_branch
-# multi_branch: clone_repo modify_envrc_local_clone modify_envrc_local_in_original_folder success_message ## Sets up 2 folders which can each target a different branch on the repo
+multi_branch: check_local_env clone_repo check_cloned_env success_message ## Sets up 2 folders which can each target a different branch on the repo
 
 #
 # ----- END SETUP MULTI BRANCH -----
