@@ -34,6 +34,7 @@ DELETE FROM users_roles
 where
 user_id = (select id from users where okta_email = '{{.Fingerprint}}@api.move.mil');
 
+UPDTE users
 SET active=false
 WHERE
 okta_email='{{.Fingerprint}}@api.move.mil';
