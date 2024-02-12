@@ -895,6 +895,7 @@
 20240124153121_remove_ppmid_from_signedcertification_table.up.sql
 20240124155759_20240124-homesafeconnect-cert.up.sql
 20240129153006_20240129-homesafeconnect-cert.up.sql
+20240201174442_20240201_homesafe_prd_cert.up.sql
 20240201201343_update_duty_location_names.up.sql
 20240205165638_remove_rank_and_duty_location_columns_from_service_members_table.up.sql
 20240207173709_updateTransportationOffices.up.sql
