@@ -1875,8 +1875,9 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
-			services.MoveOrderUploadAll,
-			mock.AnythingOfType("models.Move")).Return(nil, nil)
+			mock.AnythingOfType("services.MoveOrderUploadType"),
+			mock.AnythingOfType("models.Move"),
+			mock.AnythingOfType("bool")).Return(nil, nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -1925,7 +1926,8 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
-			mock.AnythingOfType("models.Move")).Return(nil, errors.New("error"))
+			mock.AnythingOfType("models.Move"),
+			mock.AnythingOfType("bool")).Return(nil, errors.New("error"))
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
