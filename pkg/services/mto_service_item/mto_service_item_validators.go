@@ -377,15 +377,16 @@ func (v *updateMTOServiceItemData) checkSITDestinationFinalAddress(_ appcontext.
 		return nil // the SITDestinationFinalAddress is being created, so we're fine here
 	}
 
-	if v.oldServiceItem.ReService.Code != models.ReServiceCodeDDDSIT {
-		return apperror.NewConflictError(v.updatedServiceItem.ID,
-			fmt.Sprintf("- SIT Destination Final Address may only be manually created for %s service items.", models.ReServiceCodeDDDSIT))
+	reServiceCodesDestination := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC}
+	if slices.Contains(reServiceCodesDestination, v.oldServiceItem.ReService.Code) {
+		v.verrs.Add("SITDestinationFinalAddress", "Update the shipment destination address to update the service item's SIT final destination address.")
+		return nil
 	}
 
 	if *v.oldServiceItem.SITDestinationFinalAddressID != uuid.Nil &&
 		v.updatedServiceItem.SITDestinationFinalAddress != nil &&
 		v.updatedServiceItem.SITDestinationFinalAddress.ID != *v.oldServiceItem.SITDestinationFinalAddressID {
-		v.verrs.Add("SITDestinationFinalAddress", "cannot be updated")
+		v.verrs.Add("SITDestinationFinalAddress", "Update the shipment destination address to update the service item's SIT final destination address.")
 	}
 
 	return nil

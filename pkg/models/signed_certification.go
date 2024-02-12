@@ -37,17 +37,16 @@ var AllowedSignedCertificationTypes = []string{
 
 // SignedCertification represents users acceptance
 type SignedCertification struct {
-	ID                       uuid.UUID                `json:"id" db:"id"`
-	SubmittingUserID         uuid.UUID                `json:"submitting_user_id" db:"submitting_user_id"`
-	MoveID                   uuid.UUID                `json:"move_id" db:"move_id"`
-	PersonallyProcuredMoveID *uuid.UUID               `json:"personally_procured_move_id" db:"personally_procured_move_id"`
-	PpmID                    *uuid.UUID               `json:"ppm_id" db:"ppm_id"`
-	CertificationType        *SignedCertificationType `json:"certification_type" db:"certification_type"`
-	CreatedAt                time.Time                `json:"created_at" db:"created_at"`
-	UpdatedAt                time.Time                `json:"updated_at" db:"updated_at"`
-	CertificationText        string                   `json:"certification_text" db:"certification_text"`
-	Signature                string                   `json:"signature" db:"signature"`
-	Date                     time.Time                `json:"date" db:"date"`
+	ID                uuid.UUID                `json:"id" db:"id"`
+	SubmittingUserID  uuid.UUID                `json:"submitting_user_id" db:"submitting_user_id"`
+	MoveID            uuid.UUID                `json:"move_id" db:"move_id"`
+	PpmID             *uuid.UUID               `json:"ppm_id" db:"ppm_id"`
+	CertificationType *SignedCertificationType `json:"certification_type" db:"certification_type"`
+	CreatedAt         time.Time                `json:"created_at" db:"created_at"`
+	UpdatedAt         time.Time                `json:"updated_at" db:"updated_at"`
+	CertificationText string                   `json:"certification_text" db:"certification_text"`
+	Signature         string                   `json:"signature" db:"signature"`
+	Date              time.Time                `json:"date" db:"date"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -64,7 +63,6 @@ func (s *SignedCertification) Validate(_ *pop.Connection) (*validate.Errors, err
 	return validate.Validate(
 		&validators.UUIDIsPresent{Name: "SubmittingUserID", Field: s.SubmittingUserID},
 		&validators.UUIDIsPresent{Name: "MoveID", Field: s.MoveID},
-		&OptionalUUIDIsPresent{Name: "PersonallyProcuredMoveID", Field: s.PersonallyProcuredMoveID},
 		&OptionalUUIDIsPresent{Name: "PpmID", Field: s.PpmID},
 		&OptionalStringInclusion{Name: "CertificationType", Field: (*string)(s.CertificationType), List: AllowedSignedCertificationTypes},
 		&validators.StringIsPresent{Name: "CertificationText", Field: s.CertificationText},
