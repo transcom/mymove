@@ -1188,17 +1188,18 @@ paths:
         field below, select the modelType corresponding
          to the service item you wish to update and the documentation will update with the new definition.
 
-        * Addresses: You can add a new SIT Destination final address using this
-        endpoint (and must use this endpoint to do so), but you cannot update an
-        existing one.
+        * Addresses: To update a destination service item's SIT destination
+        final address, update the shipment destination address.
 
-        Please use
-        [createSITAddressUpdateRequest](#operation/createSITAddressUpdateRequest)
-        instead.
+        For approved shipments, please use
+        [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).
+
+        For shipments not yet approved, please use
+        [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).
 
 
         To create a service item, please use
-        [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.
+        [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.
       operationId: updateMTOServiceItem
       tags:
         - mtoServiceItem
@@ -1694,13 +1695,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /moves/{locator}/order/download:
-    parameters:
-      - description: the locator code for move order to be downloaded
-        in: path
-        name: locator
-        required: true
-        type: string
+  /moves/{locator}/documents:
     get:
       summary: Downloads move order as a PDF
       description: >
@@ -1721,6 +1716,22 @@ paths:
         - moveTaskOrder
       produces:
         - application/pdf
+      parameters:
+        - in: path
+          type: string
+          name: locator
+          description: the locator code for move order to be downloaded
+          required: true
+        - in: query
+          name: type
+          type: string
+          description: upload type
+          required: false
+          default: ALL
+          enum:
+            - ALL
+            - ORDERS
+            - AMENDMENTS
       responses:
         '200':
           headers:
@@ -2027,8 +2038,6 @@ definitions:
         enum:
           - FULL
           - PARTIAL
-      ppmEstimatedWeight:
-        type: integer
       eTag:
         type: string
         readOnly: true
