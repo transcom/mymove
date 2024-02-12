@@ -43,7 +43,7 @@ export const Agreement = ({ moveId, updateMove, setFlashMessage }) => {
       .then((response) => {
         updateMove(response);
         setFlashMessage('MOVE_SUBMIT_SUCCESS', 'success', 'You’ve submitted your move request.');
-        navigate('/');
+        navigate('/move');
       })
       .catch((error) => {
         // TODO - log error internally?
