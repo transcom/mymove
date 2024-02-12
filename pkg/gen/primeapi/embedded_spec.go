@@ -232,7 +232,7 @@ func init() {
         }
       }
     },
-    "/moves/{locator}/order/download": {
+    "/moves/{locator}/documents": {
       "get": {
         "description": "### Functionality\nThis endpoint downloads all uploaded move order documentations into one download file by locator.\n\n### Errors\n* The move must be in need counseling state.\n* The move client's origin duty location must not currently have gov counseling.\n",
         "produces": [
@@ -243,6 +243,27 @@ func init() {
         ],
         "summary": "Downloads move order as a PDF",
         "operationId": "downloadMoveOrder",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "the locator code for move order to be downloaded",
+            "name": "locator",
+            "in": "path",
+            "required": true
+          },
+          {
+            "enum": [
+              "ALL",
+              "ORDERS",
+              "AMENDMENTS"
+            ],
+            "type": "string",
+            "default": "ALL",
+            "description": "upload type",
+            "name": "type",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Move Order PDF",
@@ -273,16 +294,7 @@ func init() {
             "$ref": "#/responses/ServerError"
           }
         }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "the locator code for move order to be downloaded",
-          "name": "locator",
-          "in": "path",
-          "required": true
-        }
-      ]
+      }
     },
     "/mto-service-items": {
       "post": {
@@ -4949,7 +4961,7 @@ func init() {
         }
       }
     },
-    "/moves/{locator}/order/download": {
+    "/moves/{locator}/documents": {
       "get": {
         "description": "### Functionality\nThis endpoint downloads all uploaded move order documentations into one download file by locator.\n\n### Errors\n* The move must be in need counseling state.\n* The move client's origin duty location must not currently have gov counseling.\n",
         "produces": [
@@ -4960,6 +4972,27 @@ func init() {
         ],
         "summary": "Downloads move order as a PDF",
         "operationId": "downloadMoveOrder",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "the locator code for move order to be downloaded",
+            "name": "locator",
+            "in": "path",
+            "required": true
+          },
+          {
+            "enum": [
+              "ALL",
+              "ORDERS",
+              "AMENDMENTS"
+            ],
+            "type": "string",
+            "default": "ALL",
+            "description": "upload type",
+            "name": "type",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Move Order PDF",
@@ -5005,16 +5038,7 @@ func init() {
             }
           }
         }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "the locator code for move order to be downloaded",
-          "name": "locator",
-          "in": "path",
-          "required": true
-        }
-      ]
+      }
     },
     "/mto-service-items": {
       "post": {
