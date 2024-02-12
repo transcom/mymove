@@ -202,10 +202,10 @@ export class OfficeApp extends Component {
                   Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
                   <br />
                   If that doesn&apos;t fix it, contact the{' '}
-                  <a className={styles.link} href="https://move.mil/customer-service#technical-help-desk">
+                  <a className={styles.link} href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@mail.mil">
                     Technical Help Desk
                   </a>{' '}
-                  and give them this code: <strong>{traceId}</strong>
+                  (usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@mail.mil) and give them this code: <strong>{traceId}</strong>
                 </SystemError>
               )}
               {oktaLoggedOut && <OktaLoggedOutBanner />}

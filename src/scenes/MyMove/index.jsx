@@ -46,6 +46,7 @@ import AccessibilityStatement from 'components/Statements/AccessibilityStatement
 import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipment';
 import Home from 'pages/MyMove/Home';
 import TitleAnnouncer from 'components/TitleAnnouncer/TitleAnnouncer';
+import MultiMovesLandingPage from 'pages/MyMove/Multi-Moves/MultiMovesLandingPage';
 // Pages should be lazy-loaded (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
@@ -172,6 +173,7 @@ export class CustomerApp extends Component {
               <Routes>
                 {/* no auth routes should still exist */}
                 <Route path={generalRoutes.SIGN_IN_PATH} element={<SignIn />} />
+                <Route path={generalRoutes.MULTI_MOVES_LANDING_PAGE} element={<MultiMovesLandingPage />} />
                 <Route path={generalRoutes.PRIVACY_SECURITY_POLICY_PATH} element={<PrivacyPolicyStatement />} />
                 <Route path={generalRoutes.ACCESSIBILITY_PATH} element={<AccessibilityStatement />} />
 
