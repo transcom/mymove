@@ -186,11 +186,6 @@ func (g *Generator) GetPdfFileInfo(fileName string) (*pdfcpu.PDFInfo, error) {
 
 // Get file information of a single PDF
 func (g *Generator) GetPdfFileInfoByContents(file afero.File) (*pdfcpu.PDFInfo, error) {
-	// file, err := g.fs.Open(fileName)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// defer file.Close()
 	return api.PDFInfo(file, file.Name(), nil, g.pdfConfig)
 }
 
