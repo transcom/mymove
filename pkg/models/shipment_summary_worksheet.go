@@ -236,7 +236,7 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		weightAllotment = SSWGetEntitlement(rank, move.Orders.HasDependents, move.Orders.SpouseHasProGear)
 	}
 
-	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(weightAllotment.TotalWeight)
+	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, weightAllotment.TotalWeight)
 	if err != nil {
 		return ShipmentSummaryFormData{}, err
 	}
@@ -303,10 +303,10 @@ func SSWGetEntitlement(rank ServiceMemberRank, hasDependents bool, spouseHasProG
 
 // CalculateRemainingPPMEntitlement calculates the remaining PPM entitlement for PPM moves
 // a PPMs remaining entitlement weight is equal to total entitlement - hhg weight
-func CalculateRemainingPPMEntitlement(totalEntitlement unit.Pound) (unit.Pound, error) {
+func CalculateRemainingPPMEntitlement(move Move, totalEntitlement unit.Pound) (unit.Pound, error) {
 	var hhgActualWeight unit.Pound
 
-	var ppmActualWeight unit.Pound
+	ppmActualWeight := GetTotalNetWeightForMove(move)
 
 	switch ppmRemainingEntitlement := totalEntitlement - hhgActualWeight; {
 	case ppmActualWeight < ppmRemainingEntitlement:
