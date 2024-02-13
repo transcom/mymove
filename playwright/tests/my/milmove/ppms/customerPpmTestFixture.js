@@ -908,10 +908,10 @@ export class CustomerPpmPage extends CustomerPage {
 
     await expect(this.page.locator('.usa-alert--success')).toContainText('You submitted documentation for review.');
 
-    const stepContainer = this.page.locator('[data-testid="stepContainer6"]');
+    var stepContainer = this.page.locator('[data-testid="stepContainer6"]');
 
     if (stepContainer == null) {
-      this.page.locator('[data-testid="stepContainer5"]');
+      stepContainer = this.page.locator('[data-testid="stepContainer5"]');
     }
 
     await expect(stepContainer.getByRole('button', { name: 'Download Incentive Packet' })).toBeDisabled();
