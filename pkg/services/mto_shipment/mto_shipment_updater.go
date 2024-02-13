@@ -296,7 +296,7 @@ func (e StaleIdentifierError) Error() string {
 }
 
 // UpdateMTOShipment updates the mto shipment
-func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string, api string) (*models.MTOShipment, error) {
 	eagerAssociations := []string{"MoveTaskOrder",
 		"PickupAddress",
 		"DestinationAddress",
@@ -358,9 +358,15 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 	}
 	updatedShipment.MTOAgents = updatedAgents
 
-	err = UpdateDestinationSITServiceItemsAddress(appCtx, updatedShipment)
-	if err != nil {
-		return nil, err
+	// As the API is passed through, we want to apply a breaking change without duplicating lots of code.
+	// 'prime' is the V1 version of this endpoint. All endpoints besides the prime should be utilizing new logic
+	// of this function where it no longer calls UpdateDestinationSITServiceItemsAddress. UpdateDestinationSITServiceItemsAddress
+	// has been deprecated out of this function per E-04819
+	if api == "prime" {
+		err = UpdateDestinationSITServiceItemsAddress(appCtx, updatedShipment)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return updatedShipment, nil
