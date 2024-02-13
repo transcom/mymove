@@ -382,18 +382,12 @@ func SignedCertificationFromSubmit(payload *internalmessages.SubmitMoveForApprov
 	date := time.Time(*payload.Certificate.Date)
 	certType := models.SignedCertificationType(*payload.Certificate.CertificationType)
 	newSignedCertification := models.SignedCertification{
-		MoveID:                   uuid.FromStringOrNil(moveID.String()),
-		PersonallyProcuredMoveID: nil,
-		CertificationType:        &certType,
-		SubmittingUserID:         userID,
-		CertificationText:        *payload.Certificate.CertificationText,
-		Signature:                *payload.Certificate.Signature,
-		Date:                     date,
-	}
-
-	if payload.Certificate.PersonallyProcuredMoveID != nil {
-		ppmID := uuid.FromStringOrNil(payload.Certificate.PersonallyProcuredMoveID.String())
-		newSignedCertification.PersonallyProcuredMoveID = &ppmID
+		MoveID:            uuid.FromStringOrNil(moveID.String()),
+		CertificationType: &certType,
+		SubmittingUserID:  userID,
+		CertificationText: *payload.Certificate.CertificationText,
+		Signature:         *payload.Certificate.Signature,
+		Date:              date,
 	}
 
 	return &newSignedCertification
