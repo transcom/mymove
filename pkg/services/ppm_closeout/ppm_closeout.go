@@ -141,6 +141,15 @@ func (p *ppmCloseoutFetcher) calculateGCC(appCtx appcontext.AppContext, ppmShipm
 		return gcc, sitCalcErr
 	}
 
+	// If SITExpected is set to true but the required fields (SITEstimatedStart, SITEstimatedEnd, SITEstimatedCost) are not set (bug/design issue with GUI workflow),
+	// then set SITExpected to false, or else the estimator will return an error.
+	if *ppmShipment.SITExpected && (ppmShipment.SITEstimatedEntryDate == nil || ppmShipment.SITEstimatedDepartureDate == nil ||
+		ppmShipment.SITEstimatedCost == nil || ppmShipment.SITEstimatedWeight == nil) {
+		newFalse := false
+		ppmShipment.SITExpected = &newFalse
+		fullEntitlementPPM.SITExpected = &newFalse
+	}
+
 	// Put max weight on all weight ticket items
 	if len(fullEntitlementPPM.WeightTickets) >= 1 {
 		for i := range fullEntitlementPPM.WeightTickets {
