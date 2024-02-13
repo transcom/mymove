@@ -287,8 +287,6 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
 
   const allowancesInfo = {
     branch: customer.agency,
-    // remove grade here
-    // rank: order.grade,
     weightAllowance: allowances.totalWeight,
     authorizedWeight: allowances.authorizedWeight,
     progear: allowances.proGearWeight,

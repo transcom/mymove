@@ -42,6 +42,7 @@ const OrdersList = ({ ordersInfo, showMissingWarnings }) => {
           <dt data-testid="reportByDateLabel">{reportDateRowLabel}</dt>
           <dd data-testid="reportByDate">{formatDate(ordersInfo.reportByDate, 'DD MMM YYYY')}</dd>
         </div>
+
         <div
           className={classnames(descriptionListStyles.row, {
             [styles.missingInfoError]: showMissingWarnings && !ordersInfo.payGrade,
