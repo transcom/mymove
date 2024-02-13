@@ -5,6 +5,7 @@ import { Formik } from 'formik';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { arrayOf, func, number, object } from 'prop-types';
+import moment from 'moment';
 
 import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 
@@ -28,7 +29,6 @@ export default function ReviewDocumentsSidePanel({
   expenseTickets,
   proGearTickets,
   weightTickets,
-  totalDaysInSIT,
 }) {
   let status;
   let showReason;
@@ -190,7 +190,12 @@ export default function ReviewDocumentsSidePanel({
                               </span>
                               <span>
                                 <dt>Total Days in SIT:</dt>
-                                <dl>{totalDaysInSIT ? { totalDaysInSIT } : `TEST VALUE`}</dl>
+                                <dl>
+                                  {moment(exp.sitEndDate, 'YYYY MM DD').diff(
+                                    moment(exp.sitStartDate, 'YYYY MM DD'),
+                                    'days',
+                                  )}
+                                </dl>
                               </span>
                             </dl>
                           ) : (
