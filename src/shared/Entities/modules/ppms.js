@@ -8,6 +8,21 @@ import { getClient } from 'shared/Swagger/api';
 export const downloadPPMAttachmentsLabel = 'PPMs.downloadAttachments';
 const approveReimbursementLabel = 'office.approveReimbursement';
 
+export function approvePPM(personallyProcuredMoveId, personallyProcuredMoveApproveDate, label = approvePpmLabel) {
+  const swaggerTag = 'office.approvePPM';
+  return swaggerRequest(
+    getClient,
+    swaggerTag,
+    {
+      personallyProcuredMoveId,
+      approvePersonallyProcuredMovePayload: {
+        approve_date: personallyProcuredMoveApproveDate,
+      },
+    },
+    { label },
+  );
+}
+
 export function approveReimbursement(reimbursementId, label = approveReimbursementLabel) {
   const swaggerTag = 'office.approveReimbursement';
   return swaggerRequest(getClient, swaggerTag, { reimbursementId }, { label });

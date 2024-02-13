@@ -89,11 +89,10 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.Shipment
 		},
 		{
 			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &ppm.ID,
-				CertificationType:        &certificationType,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
+				CertificationType: &certificationType,
+				CertificationText: "LEGAL",
+				Signature:         "ACCEPT",
+				Date:              testdatagen.NextValidMoveDate,
 			},
 		},
 	}, nil)

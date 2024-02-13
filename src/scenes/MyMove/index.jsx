@@ -1,6 +1,7 @@
 import React, { Component, lazy } from 'react';
 import PropTypes from 'prop-types';
 import { Route, Routes, Navigate } from 'react-router-dom';
+import { isMultiMoveEnabled } from '../../utils/featureFlags';
 import { connect } from 'react-redux';
 import { GovBanner } from '@trussworks/react-uswds';
 
@@ -46,6 +47,7 @@ import AccessibilityStatement from 'components/Statements/AccessibilityStatement
 import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipment';
 import Home from 'pages/MyMove/Home';
 import TitleAnnouncer from 'components/TitleAnnouncer/TitleAnnouncer';
+import MultiMovesLandingPage from 'pages/MyMove/Multi-Moves/MultiMovesLandingPage';
 // Pages should be lazy-loaded (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
@@ -72,7 +74,12 @@ export class CustomerApp extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { hasError: false, error: undefined, info: undefined };
+    this.state = {
+      hasError: false,
+      error: undefined,
+      info: undefined,
+      multiMoveFeatureFlag: false,
+    };
   }
 
   componentDidMount() {
@@ -81,6 +88,11 @@ export class CustomerApp extends Component {
     loadInternalSchema();
     loadUser();
     initOnboarding();
+    isMultiMoveEnabled().then((enabled) => {
+      this.setState({
+        multiMoveFeatureFlag: enabled,
+      });
+    });
     document.title = generatePageTitle('Sign In');
     const script = document.createElement('script');
 
@@ -104,7 +116,7 @@ export class CustomerApp extends Component {
   render() {
     const { props } = this;
     const { userIsLoggedIn, loginIsLoading } = props;
-    const { hasError } = this.state;
+    const { hasError, multiMoveFeatureFlag } = this.state;
 
     return (
       <>
@@ -172,6 +184,7 @@ export class CustomerApp extends Component {
               <Routes>
                 {/* no auth routes should still exist */}
                 <Route path={generalRoutes.SIGN_IN_PATH} element={<SignIn />} />
+                <Route path={generalRoutes.MULTI_MOVES_LANDING_PAGE} element={<MultiMovesLandingPage />} />
                 <Route path={generalRoutes.PRIVACY_SECURITY_POLICY_PATH} element={<PrivacyPolicyStatement />} />
                 <Route path={generalRoutes.ACCESSIBILITY_PATH} element={<AccessibilityStatement />} />
 
@@ -179,10 +192,14 @@ export class CustomerApp extends Component {
                 {/* <Route end path="/ppm" element={<PpmLanding />} /> */}
 
                 {/* ROOT */}
-                <Route path={generalRoutes.HOME_PATH} end element={<Home />} />
+                {/* If multiMove is enabled home page will route to dashboard element. Otherwise, it will route to the move page. */}
+                {multiMoveFeatureFlag ? (
+                  <Route path={generalRoutes.HOME_PATH} end element={<MultiMovesLandingPage />} />
+                ) : (
+                  <Route path={generalRoutes.HOME_PATH} end element={<Home />} />
+                )}
 
                 {getWorkflowRoutes(props)}
-
                 <Route end path={customerRoutes.SHIPMENT_MOVING_INFO_PATH} element={<MovingInfo />} />
                 <Route end path="/moves/:moveId/edit" element={<Edit />} />
                 <Route end path={customerRoutes.EDIT_PROFILE_PATH} element={<EditProfile />} />
