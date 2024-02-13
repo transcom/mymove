@@ -37,16 +37,3 @@ type FeatureFlagFetcher interface {
 	GetVariantFlagForUser(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (FeatureFlag, error)
 	GetVariantFlag(ctx context.Context, logger *zap.Logger, entityID string, key string, flagContext map[string]string) (FeatureFlag, error)
 }
-
-// EnvFetcher is the exported interface for environment sourced feature flags
-//
-// This service is an experimental implementation of feature flags until
-// we fully migrate to flipt. These flags will be managed at the code level via .envrc and config/env/*.env
-//
-//go:generate mockery --name EnvFetcher
-type EnvFetcher interface {
-	GetBooleanFlagForUser(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (FeatureFlag, error)
-	GetBooleanFlag(ctx context.Context, logger *zap.Logger, entityID string, key string, flagContext map[string]string) (FeatureFlag, error)
-	GetVariantFlagForUser(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (FeatureFlag, error)
-	GetVariantFlag(ctx context.Context, logger *zap.Logger, entityID string, key string, flagContext map[string]string) (FeatureFlag, error)
-}
