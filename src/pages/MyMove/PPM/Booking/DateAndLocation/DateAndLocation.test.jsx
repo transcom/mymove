@@ -66,7 +66,6 @@ jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   createMTOShipment: jest.fn(),
   patchMTOShipment: jest.fn(),
-  getResponseError: jest.fn(),
   patchMove: jest.fn(),
   searchTransportationOffices: jest.fn(),
 }));
@@ -202,7 +201,31 @@ describe('DateAndLocation component', () => {
       renderDateAndLocation();
 
       await act(async () => {
+        await userEvent.type(document.querySelector('input[name="pickupAddress.address.streetAddress1"]'), '123 Any St');
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="pickupAddress.address.city"]'), 'Norfolk');
+      });
+
+      await act(async () => {
+        await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA')
+      });
+
+      await act(async () => {
         await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '10001');
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.streetAddress1"]'), '123 Any St');
+      });
+
+      await act(async () => {
+        await userEvent.type(document.querySelector('input[name="destinationAddress.address.city"]'), 'Norfolk');
+      });
+
+      await act(async () => {
+        await userEvent.selectOptions(document.querySelector('select[name="destinationAddress.address.state"]'), 'VA');
       });
 
       await act(async () => {
@@ -328,6 +351,11 @@ describe('DateAndLocation component', () => {
       createMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
 
       renderDateAndLocation();
+
+      const radioElements = screen.getAllByLabelText('Yes');
+      await userEvent.click(radioElements[0]);
+      await userEvent.click(radioElements[1]);
+
       await act(async () => {
         await userEvent.click(document.querySelector('input[name="hasSecondaryPickupAddress"]'));
       });
@@ -403,6 +431,8 @@ describe('DateAndLocation component', () => {
       await act(async () => {
         await userEvent.type(document.querySelector('input[name="secondaryDestinationAddress.address.postalCode"]'), '10004');
       });
+
+      await userEvent.click(radioElements[2]);
 
       await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
 
