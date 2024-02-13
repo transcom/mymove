@@ -231,7 +231,7 @@ function ReviewWeightTicket({
 
           return (
             <Form className={classnames(formStyles.form, styles.ReviewWeightTicket)}>
-              <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} />
+              <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
               <hr />
               <h3 className={styles.tripNumber}>Trip {tripNumber}</h3>
               <legend className={classnames('usa-label', styles.label)}>Vehicle description</legend>
