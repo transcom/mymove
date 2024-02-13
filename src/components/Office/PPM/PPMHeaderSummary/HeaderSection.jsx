@@ -61,7 +61,7 @@ const getSectionMarkup = (sectionInfo) => {
           </div>
           <div>
             <Label>Miles</Label>
-            <span className={styles.light}>{sectionInfo.miles ?? `TEST VAL`}</span>
+            <span className={styles.light}>{sectionInfo.miles}</span>
           </div>
           <div>
             <Label>Estimated Net Weight</Label>
@@ -79,7 +79,7 @@ const getSectionMarkup = (sectionInfo) => {
         <div className={classnames(styles.Details)}>
           <div>
             <Label>Government Constructive Cost (GCC)</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.gcc) ?? `TEST VAL`}</span>
+            <span className={styles.light}>${formatCents(sectionInfo.gcc)}</span>
           </div>
           <div>
             <Label>Gross Incentive</Label>
@@ -99,7 +99,7 @@ const getSectionMarkup = (sectionInfo) => {
           )}
           <div>
             <Label>Remaining Incentive</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.remainingIncentive) ?? `TEST VAL`}</span>
+            <span className={styles.light}>${formatCents(sectionInfo.remainingIncentive)}</span>
           </div>
         </div>
       );
@@ -113,11 +113,11 @@ const getSectionMarkup = (sectionInfo) => {
           </div>
           <div>
             <Label>Haul Fuel Surcharge</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.haulFSC) ?? `TEST VAL`}</span>
+            <span className={styles.light}>${formatCents(sectionInfo.haulFSC)}</span>
           </div>
           <div>
             <Label>Full Pack/Unpack Charge</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.fullPackUnpackCharge) ?? `TEST VAL`}</span>
+            <span className={styles.light}>${formatCents(sectionInfo.fullPackUnpackCharge)}</span>
           </div>
         </div>
       );
