@@ -135,7 +135,7 @@ func genDisableCertsMigration(cmd *cobra.Command, args []string) error {
 		Fingerprint: fingerprint,
 	}
 
-	var t1 *template.Template = template.Must(template.New("disable_certs_migration").Parse(createDisableCertsMigration))
+	var t1 = template.Must(template.New("disable_certs_migration").Parse(createDisableCertsMigration))
 
 	secureMigrationName := fmt.Sprintf("%s_%s.up.sql", migrationVersion, migrationName)
 
