@@ -297,7 +297,16 @@ func (a *Client) UpdateMTOAgent(params *UpdateMTOAgentParams, opts ...ClientOpti
 /*
 	UpdateMTOShipment updates m t o shipment
 
-	Updates an existing shipment for a move.
+	_[Deprecated: sunset on August 5th, 2024]_ This endpoint is deprecated and will be removed in a future version.
+
+Please use the new endpoint at `/prime/v2/updateMTOShipment` instead.
+
+**DEPRECATION ON AUGUST 5TH, 2024**
+Following deprecation, there is an edge case scenario where a PPM shipment with no addresses could be updated and it would also update the final destination SIT address
+for SIT service items. This edge case has been removed as you should not be able to update items using this endpoint. Third-party APIs have confirmed they will require
+deprecation for this change.
+
+Updates an existing shipment for a move.
 
 Note that there are some restrictions on nested objects:
 
