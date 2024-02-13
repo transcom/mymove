@@ -138,9 +138,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmDeleteWeightTicketHandler: ppm.DeleteWeightTicketHandlerFunc(func(params ppm.DeleteWeightTicketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.DeleteWeightTicket has not yet been implemented")
 		}),
-		MovesGetAllMovesHandler: moves.GetAllMovesHandlerFunc(func(params moves.GetAllMovesParams) middleware.Responder {
-			return middleware.NotImplemented("operation moves.GetAllMoves has not yet been implemented")
-		}),
 		TransportationOfficesGetTransportationOfficesHandler: transportation_offices.GetTransportationOfficesHandlerFunc(func(params transportation_offices.GetTransportationOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_offices.GetTransportationOffices has not yet been implemented")
 		}),
@@ -359,8 +356,6 @@ type MymoveAPI struct {
 	UploadsDeleteUploadsHandler uploads.DeleteUploadsHandler
 	// PpmDeleteWeightTicketHandler sets the operation handler for the delete weight ticket operation
 	PpmDeleteWeightTicketHandler ppm.DeleteWeightTicketHandler
-	// MovesGetAllMovesHandler sets the operation handler for the get all moves operation
-	MovesGetAllMovesHandler moves.GetAllMovesHandler
 	// TransportationOfficesGetTransportationOfficesHandler sets the operation handler for the get transportation offices operation
 	TransportationOfficesGetTransportationOfficesHandler transportation_offices.GetTransportationOfficesHandler
 	// EntitlementsIndexEntitlementsHandler sets the operation handler for the index entitlements operation
@@ -597,9 +592,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PpmDeleteWeightTicketHandler == nil {
 		unregistered = append(unregistered, "ppm.DeleteWeightTicketHandler")
-	}
-	if o.MovesGetAllMovesHandler == nil {
-		unregistered = append(unregistered, "moves.GetAllMovesHandler")
 	}
 	if o.TransportationOfficesGetTransportationOfficesHandler == nil {
 		unregistered = append(unregistered, "transportation_offices.GetTransportationOfficesHandler")
@@ -915,10 +907,6 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/allmoves/{serviceMemberId}"] = moves.NewGetAllMoves(o.context, o.MovesGetAllMovesHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
 	o.handlers["GET"]["/transportation-offices"] = transportation_offices.NewGetTransportationOffices(o.context, o.TransportationOfficesGetTransportationOfficesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1023,7 +1011,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/moves/{ppmShipmentId}/shipment_summary_worksheet"] = moves.NewShowShipmentSummaryWorksheet(o.context, o.MovesShowShipmentSummaryWorksheetHandler)
+	o.handlers["GET"]["/moves/{moveId}/shipment_summary_worksheet"] = moves.NewShowShipmentSummaryWorksheet(o.context, o.MovesShowShipmentSummaryWorksheetHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
