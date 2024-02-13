@@ -118,7 +118,7 @@ export default function ReviewProGear({
 
           return (
             <Form className={classnames(formStyles.form, styles.reviewProGear)}>
-              <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} />
+              <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
               <hr />
               <h3 className={styles.tripNumber}>Pro-gear {tripNumber}</h3>
               <FormGroup>
