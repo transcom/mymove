@@ -142,16 +142,17 @@ func (g *Generator) FileSystem() *afero.Afero {
 
 // Add bookmarks into a single PDF
 func (g *Generator) AddPdfBookmarks(inputFile afero.File, bookmarks []pdfcpu.Bookmark) (afero.File, error) {
-	tempFile, err := g.newTempFile()
-	if err != nil {
-		return nil, err
-	}
 
 	buf := new(bytes.Buffer)
 	replace := true
-	err = api.AddBookmarks(inputFile, buf, bookmarks, replace, nil)
+	err := api.AddBookmarks(inputFile, buf, bookmarks, replace, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "error pdfcpu.api.AddBookmarks")
+	}
+
+	tempFile, err := g.newTempFile()
+	if err != nil {
+		return nil, err
 	}
 
 	// copy byte[] to temp file
