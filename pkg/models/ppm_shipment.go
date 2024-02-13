@@ -7,7 +7,6 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -231,16 +230,14 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 
 }
 
-// FetchMoveByMoveID returns a Move for a given id
-func FetchPPMShipmentByPPMShipmentID(db *pop.Connection, ppmShipmentID uuid.UUID) (*PPMShipment, error) {
-	var ppmShipment PPMShipment
-	err := db.Q().Find(&ppmShipment, ppmShipmentID)
-
-	if err != nil {
-		if errors.Cause(err).Error() == RecordNotFoundErrorString {
-			return nil, ErrFetchNotFound
+func GetPPMNetWeight(ppm PPMShipment) unit.Pound {
+	totalNetWeight := unit.Pound(0)
+	for _, weightTicket := range ppm.WeightTickets {
+		if weightTicket.AdjustedNetWeight != nil && *weightTicket.AdjustedNetWeight > 0 {
+			totalNetWeight += *weightTicket.AdjustedNetWeight
+		} else {
+			totalNetWeight += GetWeightTicketNetWeight(weightTicket)
 		}
-		return nil, err
 	}
-	return &ppmShipment, nil
+	return totalNetWeight
 }
