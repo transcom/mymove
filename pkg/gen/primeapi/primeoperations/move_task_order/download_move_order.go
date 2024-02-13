@@ -30,7 +30,7 @@ func NewDownloadMoveOrder(ctx *middleware.Context, handler DownloadMoveOrderHand
 }
 
 /*
-	DownloadMoveOrder swagger:route GET /moves/{locator}/order/download moveTaskOrder downloadMoveOrder
+	DownloadMoveOrder swagger:route GET /moves/{locator}/documents moveTaskOrder downloadMoveOrder
 
 # Downloads move order as a PDF
 
