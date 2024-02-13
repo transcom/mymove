@@ -6008,9 +6008,6 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "ppmEstimatedWeight": {
-          "type": "integer"
-        },
         "ppmType": {
           "type": "string",
           "enum": [
@@ -7763,10 +7760,6 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
-        "destinationAddress": {
-          "x-nullable": true,
-          "$ref": "#/definitions/Address"
-        },
         "destinationPostalCode": {
           "description": "The postal code of the destination location where goods are being delivered to.",
           "type": "string",
@@ -7839,10 +7832,6 @@ func init() {
             "$ref": "#/definitions/MovingExpense"
           }
         },
-        "pickupAddress": {
-          "x-nullable": true,
-          "$ref": "#/definitions/Address"
-        },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",
           "type": "string",
@@ -7871,10 +7860,6 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "secondaryDestinationAddress": {
-          "x-nullable": true,
-          "$ref": "#/definitions/Address"
-        },
         "secondaryDestinationPostalCode": {
           "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
@@ -7884,10 +7869,6 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": "90210"
-        },
-        "secondaryPickupAddress": {
-          "x-nullable": true,
-          "$ref": "#/definitions/Address"
         },
         "secondaryPickupPostalCode": {
           "type": "string",
@@ -9092,12 +9073,22 @@ func init() {
         "newAddress": {
           "$ref": "#/definitions/Address"
         },
+        "newSitDistanceBetween": {
+          "description": "The distance between the original SIT address and requested new destination address of shipment",
+          "type": "integer",
+          "example": 88
+        },
         "officeRemarks": {
           "description": "The TOO comment on approval or rejection.",
           "type": "string",
           "title": "Office Remarks",
           "x-nullable": true,
           "example": "This is an office remark"
+        },
+        "oldSitDistanceBetween": {
+          "description": "The distance between the original SIT address and the previous/old destination address of shipment",
+          "type": "integer",
+          "example": 50
         },
         "originalAddress": {
           "$ref": "#/definitions/Address"
@@ -9107,6 +9098,9 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "sitOriginalAddress": {
+          "$ref": "#/definitions/Address"
         },
         "status": {
           "$ref": "#/definitions/ShipmentAddressUpdateStatus"
@@ -17583,9 +17577,6 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "ppmEstimatedWeight": {
-          "type": "integer"
-        },
         "ppmType": {
           "type": "string",
           "enum": [
@@ -19339,10 +19330,6 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
-        "destinationAddress": {
-          "x-nullable": true,
-          "$ref": "#/definitions/Address"
-        },
         "destinationPostalCode": {
           "description": "The postal code of the destination location where goods are being delivered to.",
           "type": "string",
@@ -19415,10 +19402,6 @@ func init() {
             "$ref": "#/definitions/MovingExpense"
           }
         },
-        "pickupAddress": {
-          "x-nullable": true,
-          "$ref": "#/definitions/Address"
-        },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",
           "type": "string",
@@ -19447,10 +19430,6 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "secondaryDestinationAddress": {
-          "x-nullable": true,
-          "$ref": "#/definitions/Address"
-        },
         "secondaryDestinationPostalCode": {
           "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
@@ -19460,10 +19439,6 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": "90210"
-        },
-        "secondaryPickupAddress": {
-          "x-nullable": true,
-          "$ref": "#/definitions/Address"
         },
         "secondaryPickupPostalCode": {
           "type": "string",
@@ -20719,12 +20694,24 @@ func init() {
         "newAddress": {
           "$ref": "#/definitions/Address"
         },
+        "newSitDistanceBetween": {
+          "description": "The distance between the original SIT address and requested new destination address of shipment",
+          "type": "integer",
+          "minimum": 0,
+          "example": 88
+        },
         "officeRemarks": {
           "description": "The TOO comment on approval or rejection.",
           "type": "string",
           "title": "Office Remarks",
           "x-nullable": true,
           "example": "This is an office remark"
+        },
+        "oldSitDistanceBetween": {
+          "description": "The distance between the original SIT address and the previous/old destination address of shipment",
+          "type": "integer",
+          "minimum": 0,
+          "example": 50
         },
         "originalAddress": {
           "$ref": "#/definitions/Address"
@@ -20734,6 +20721,9 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "sitOriginalAddress": {
+          "$ref": "#/definitions/Address"
         },
         "status": {
           "$ref": "#/definitions/ShipmentAddressUpdateStatus"

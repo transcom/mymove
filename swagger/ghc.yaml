@@ -5104,8 +5104,6 @@ definitions:
         enum:
           - FULL
           - PARTIAL
-      ppmEstimatedWeight:
-        type: integer
       eTag:
         type: string
         readOnly: true
@@ -6976,9 +6974,6 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
-      pickupAddress:
-        x-nullable: true
-        $ref: '#/definitions/Address'
       secondaryPickupPostalCode:
         format: >-
           An optional secondary pickup location near the origin where additional
@@ -6989,9 +6984,6 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
-      secondaryPickupAddress:
-        x-nullable: true
-        $ref: '#/definitions/Address'
       actualPickupPostalCode:
         description: >
           The actual postal code where the PPM shipment started. To be filled
@@ -7012,9 +7004,6 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
-      destinationAddress:
-        x-nullable: true
-        $ref: '#/definitions/Address'
       secondaryDestinationPostalCode:
         description: >-
           An optional secondary location near the destination where goods will
@@ -7026,9 +7015,6 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
-      secondaryDestinationAddress:
-        x-nullable: true
-        $ref: '#/definitions/Address'
       actualDestinationPostalCode:
         description: >
           The actual postal code where the PPM shipment ended. To be filled once
@@ -7235,6 +7221,22 @@ definitions:
         $ref: '#/definitions/Address'
       newAddress:
         $ref: '#/definitions/Address'
+      sitOriginalAddress:
+        $ref: '#/definitions/Address'
+      oldSitDistanceBetween:
+        description: >-
+          The distance between the original SIT address and the previous/old
+          destination address of shipment
+        example: 50
+        minimum: 0
+        type: integer
+      newSitDistanceBetween:
+        description: >-
+          The distance between the original SIT address and requested new
+          destination address of shipment
+        example: 88
+        minimum: 0
+        type: integer
     required:
       - id
       - status

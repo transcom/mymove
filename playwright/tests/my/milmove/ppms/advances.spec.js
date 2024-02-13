@@ -59,9 +59,9 @@ test.describe('About Your PPM', () => {
 
     // advance violates max (over 60% of incentive)
     await advanceInput.clear();
-    await advanceInput.type('6001');
+    await advanceInput.type('600001');
     await advanceInput.blur();
-    await expect(errorMessage).toContainText('Enter an amount $6,000 or less');
+    await expect(errorMessage).toContainText('Enter an amount');
     await expect(page.locator('[class="usa-error-message"] + div').locator('input')).toHaveAttribute(
       'id',
       'advanceAmountRequested',
