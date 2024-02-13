@@ -14,6 +14,7 @@ const ordersInfo = {
   ordersTypeDetail: 'HHG_PERMITTED',
   tacMDC: '9999',
   sacSDN: '999 999999 999',
+  payGrade: 'E_7',
 };
 
 // what ordersInfo from above should be rendered as
@@ -28,6 +29,7 @@ const expectedRenderedOrdersInfo = {
   ordersTypeDetail: 'Shipment of HHG Permitted',
   tacMDC: '9999',
   sacSDN: '999 999999 999',
+  payGrade: 'E-7',
 };
 
 const ordersInfoMissing = {
@@ -41,6 +43,7 @@ const ordersInfoMissing = {
   ordersTypeDetail: '',
   tacMDC: '',
   sacSDN: '999 999999 999',
+  payGrade: '',
 };
 
 describe('OrdersList', () => {
@@ -58,6 +61,7 @@ describe('OrdersList', () => {
     expect(screen.getByTestId('ordersType').textContent).toEqual('Missing');
     expect(screen.getByTestId('ordersTypeDetail').textContent).toEqual('Missing');
     expect(screen.getByTestId('tacMDC').textContent).toEqual('Missing');
+    expect(screen.getByTestId('payGrade').textContent).toEqual('Missing');
   });
 
   it('renders missing orders info as dashes if showMissingWarnings is false', () => {
@@ -67,5 +71,6 @@ describe('OrdersList', () => {
     expect(screen.getByTestId('ordersType').textContent).toEqual('—');
     expect(screen.getByTestId('ordersTypeDetail').textContent).toEqual('—');
     expect(screen.getByTestId('tacMDC').textContent).toEqual('—');
+    expect(screen.getByTestId('payGrade').textContent).toEqual('—');
   });
 });

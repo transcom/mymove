@@ -12,7 +12,7 @@ import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { milmoveLogger } from 'utils/milmoveLog';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
-import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
@@ -26,6 +26,7 @@ import { LOA_TYPE } from 'shared/constants';
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
+const payGradeDropdownOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
 const ServicesCounselingOrders = () => {
   const navigate = useNavigate();
@@ -126,6 +127,7 @@ const ServicesCounselingOrders = () => {
       issueDate: formatSwaggerDate(values.issueDate),
       reportByDate: formatSwaggerDate(values.reportByDate),
       ordersType: values.ordersType,
+      payGrade: values.payGrade,
     };
     mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
   };
@@ -143,6 +145,7 @@ const ServicesCounselingOrders = () => {
     sac: order?.sac,
     ntsTac: order?.ntsTac,
     ntsSac: order?.ntsSac,
+    payGrade: order?.grade,
   };
 
   const tacWarningMsg =
@@ -188,6 +191,7 @@ const ServicesCounselingOrders = () => {
                     ntsTacWarning={ntsTacWarning}
                     validateHHGTac={handleHHGTacValidation}
                     validateNTSTac={handleNTSTacValidation}
+                    payGradeOptions={payGradeDropdownOptions}
                   />
                 </div>
                 <div className={styles.bottom}>

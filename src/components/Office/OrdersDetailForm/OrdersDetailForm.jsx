@@ -27,6 +27,7 @@ const OrdersDetailForm = ({
   showOrdersAcknowledgement,
   ordersType,
   setFieldValue,
+  payGradeOptions,
   formIsDisabled,
 }) => {
   const [formOrdersType, setFormOrdersType] = useState(ordersType);
@@ -46,6 +47,15 @@ const OrdersDetailForm = ({
         label={isRetirementOrSeparation ? 'HOR, HOS or PLEAD' : 'New duty location'}
         displayAddress={false}
         placeholder={isRetirementOrSeparation ? 'Enter a city or ZIP' : 'Start typing a duty location...'}
+        isDisabled={formIsDisabled}
+      />
+      <DropdownInput
+        data-testid="payGradeInput"
+        name="payGrade"
+        label="Pay grade"
+        id="payGradeInput"
+        options={payGradeOptions}
+        showDropdownPlaceholderText={false}
         isDisabled={formIsDisabled}
       />
       <DatePickerInput name="issueDate" label="Date issued" disabled={formIsDisabled} />
@@ -161,6 +171,7 @@ OrdersDetailForm.propTypes = {
   showOrdersAcknowledgement: bool,
   ordersType: string.isRequired,
   setFieldValue: func.isRequired,
+  payGradeOptions: DropdownArrayOf,
   formIsDisabled: bool,
 };
 
@@ -179,6 +190,7 @@ OrdersDetailForm.defaultProps = {
   showNTSTac: true,
   showNTSSac: true,
   showOrdersAcknowledgement: false,
+  payGradeOptions: null,
   formIsDisabled: false,
 };
 

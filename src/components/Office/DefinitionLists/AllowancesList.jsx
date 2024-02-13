@@ -6,7 +6,7 @@ import styles from './OfficeDefinitionLists.module.scss';
 
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { formatWeight } from 'utils/formatters';
-import friendlyBranchRank from 'utils/branchRankFormatters';
+import { ORDERS_BRANCH_OPTIONS } from 'constants/orders';
 
 const AllowancesList = ({ info, showVisualCues }) => {
   const visualCuesStyle = classNames(descriptionListStyles.row, {
@@ -17,8 +17,8 @@ const AllowancesList = ({ info, showVisualCues }) => {
     <div className={styles.OfficeDefinitionLists}>
       <dl className={descriptionListStyles.descriptionList}>
         <div className={descriptionListStyles.row}>
-          <dt>Branch, pay grade</dt>
-          <dd data-testid="branchRank">{friendlyBranchRank(info.branch, info.rank)}</dd>
+          <dt>Branch</dt>
+          <dd data-testid="branch">{info.branch ? ORDERS_BRANCH_OPTIONS[info.branch] : ''}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Weight allowance</dt>
