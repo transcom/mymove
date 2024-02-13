@@ -864,78 +864,6 @@ describe('DateAndLocation component', () => {
 
       renderDateAndLocation(fullShipmentProps);
 
-      await act(async () => {
-        await userEvent.click(document.querySelector('input[name="hasSecondaryPickupAddress"]'));
-      });
-
-      await act(async () => {
-        await userEvent.click(document.querySelector('input[name="hasSecondaryDestinationAddress"]'));
-      });
-
-      await act(async () => {
-        await userEvent.type(document.querySelector('input[name="pickupAddress.address.streetAddress1"]'), '234 Any St');
-      });
-  
-      await act(async () => {
-        await userEvent.type(document.querySelector('input[name="pickupAddress.address.city"]'), 'Richmond');
-      });
-  
-      await act(async () => {
-        await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA')
-      });
-  
-      await act(async () => {
-        await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '10001');
-      });
-  
-      await act(async () => {
-        await userEvent.type(document.querySelector('input[name="destinationAddress.address.streetAddress1"]'), '234 Any St');
-      });
-  
-      await act(async () => {
-        await userEvent.type(document.querySelector('input[name="destinationAddress.address.city"]'), 'Richmond');
-      });
-  
-      await act(async () => {
-        await userEvent.selectOptions(document.querySelector('select[name="destinationAddress.address.state"]'), 'VA');
-      });
-  
-      await act(async () => {
-        await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10003');
-      });
-
-      await act(async () => {
-        await userEvent.type(document.querySelector('input[name="secondaryPickupAddress.address.streetAddress1"]'), '234 Any St');
-      });
-  
-      await act(async () => {
-        await userEvent.type(document.querySelector('input[name="secondaryPickupAddress.address.city"]'), 'Richmond');
-      });
-  
-      await act(async () => {
-        await userEvent.selectOptions(document.querySelector('select[name="secondaryPickupAddress.address.state"]'), 'VA')
-      });
-  
-      await act(async () => {
-        await userEvent.type(document.querySelector('input[name="secondaryPickupAddress.address.postalCode"]'), '10002');
-      });
-  
-      await act(async () => {
-        await userEvent.type(document.querySelector('input[name="secondaryDestinationAddress.address.streetAddress1"]'), '234 Any St');
-      });
-  
-      await act(async () => {
-        await userEvent.type(document.querySelector('input[name="secondaryDestinationAddress.address.city"]'), 'Richmond');
-      });
-  
-      await act(async () => {
-        await userEvent.selectOptions(document.querySelector('select[name="secondaryDestinationAddress.address.state"]'), 'VA');
-      });
-  
-      await act(async () => {
-        await userEvent.type(document.querySelector('input[name="secondaryDestinationAddress.address.postalCode"]'), '10004');
-      });
-
       const expectedDepartureDate = screen.getByLabelText('When do you plan to start moving your PPM?');
       await userEvent.clear(expectedDepartureDate);
       await userEvent.type(expectedDepartureDate, '04 Jul 2022');
@@ -956,35 +884,35 @@ describe('DateAndLocation component', () => {
                 streetAddress2: '',
                 city: 'Richmond',
                 state: 'VA',
-                postalCode: '10001',
+                postalCode: '20002',
               },
               destinationAddress: {
                 streetAddress1: '234 Any St',
                 streetAddress2: '',
                 city: 'Richmond',
                 state: 'VA',
-                postalCode: '10003',
+                postalCode: '20003',
               },
               secondaryPickupAddress: {
                 streetAddress1: '234 Any St',
                 streetAddress2: '',
                 city: 'Richmond',
                 state: 'VA',
-                postalCode: '10002',
+                postalCode: '20004',
               },
               secondaryDestinationAddress: {
                 streetAddress1: '234 Any St',
                 streetAddress2: '',
                 city: 'Richmond',
                 state: 'VA',
-                postalCode: '10004',
+                postalCode: '20005',
               },
-              pickupPostalCode: '10001',
-              destinationPostalCode: '10002',
+              pickupPostalCode: '20002',
+              destinationPostalCode: '20003',
               hasSecondaryPickupAddress: true,
-              secondaryPickupPostalCode: '10003',
+              secondaryPickupPostalCode: '20004',
               hasSecondaryDestinationAddress: true,
-              secondaryDestinationPostalCode: '10004',
+              secondaryDestinationPostalCode: '20005',
               sitExpected: true,
               expectedDepartureDate: '2022-07-04',
             },
