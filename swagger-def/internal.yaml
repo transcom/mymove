@@ -108,184 +108,6 @@ definitions:
     type: array
     items:
       $ref: 'definitions/DutyLocationPayload.yaml'
-  CreatePersonallyProcuredMovePayload:
-    type: object
-    properties:
-      size:
-        $ref: '#/definitions/TShirtSize'
-      original_move_date:
-        type: string
-        example: '2018-04-26'
-        format: date
-        title: When do you plan to move?
-        x-nullable: true
-      pickup_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
-        x-nullable: true
-      has_additional_postal_code:
-        type: boolean
-        x-nullable: true
-        title: Will you move anything from another pickup location?
-      additional_pickup_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
-        x-nullable: true
-      destination_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
-        x-nullable: true
-      has_sit:
-        type: boolean
-        x-nullable: true
-        title: Will you put anything in storage?
-      days_in_storage:
-        type: integer
-        title: How many days of storage do you think you'll need?
-        minimum: 0
-        maximum: 90
-        x-nullable: true
-      estimated_storage_reimbursement:
-        type: string
-        title: Estimated Storage Reimbursement
-        x-nullable: true
-      weight_estimate:
-        type: integer
-        minimum: 0
-        title: Weight Estimate
-        x-nullable: true
-      net_weight:
-        type: integer
-        minimum: 1
-        title: Net Weight
-        x-nullable: true
-      has_requested_advance:
-        type: boolean
-        title: Would you like an advance of up to 60% of your PPM incentive?
-      advance:
-        $ref: '#/definitions/CreateReimbursement'
-      advance_worksheet:
-        $ref: 'definitions/Document.yaml'
-      has_pro_gear:
-        type: string
-        title: Has Pro-Gear
-        enum:
-          - NOT SURE
-          - 'YES'
-          - 'NO'
-        x-nullable: true
-      has_pro_gear_over_thousand:
-        type: string
-        title: Has Pro-Gear Over Thousand Pounds
-        enum:
-          - NOT SURE
-          - 'YES'
-          - 'NO'
-        x-nullable: true
-  UpdatePersonallyProcuredMovePayload:
-    type: object
-    properties:
-      size:
-        $ref: '#/definitions/TShirtSize'
-      original_move_date:
-        type: string
-        format: date
-        example: '2018-04-26'
-        title: When do you plan to move?
-        x-nullable: true
-      actual_move_date:
-        type: string
-        example: '2018-04-26'
-        format: date
-        title: When did you actually move?
-        x-nullable: true
-      pickup_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
-        x-nullable: true
-      has_additional_postal_code:
-        type: boolean
-        x-nullable: true
-        title: Will you move anything from another pickup location?
-      additional_pickup_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
-        x-nullable: true
-      destination_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
-        x-nullable: true
-      has_sit:
-        type: boolean
-        x-nullable: true
-        title: Will you put anything in storage?
-      days_in_storage:
-        type: integer
-        title: How many days of storage do you think you'll need?
-        minimum: 0
-        maximum: 90
-        x-nullable: true
-      total_sit_cost:
-        type: integer
-        title: How much does your storage cost?
-        minimum: 0
-        x-nullable: true
-      estimated_storage_reimbursement:
-        type: string
-        title: Estimated Storage Reimbursement
-        x-nullable: true
-      weight_estimate:
-        type: integer
-        minimum: 0
-        title: Weight Estimate
-        x-nullable: true
-      net_weight:
-        type: integer
-        minimum: 1
-        title: Net Weight
-        x-nullable: true
-      has_requested_advance:
-        type: boolean
-        default: false
-        title: Would you like an advance of up to 60% of your PPM incentive?
-      advance:
-        $ref: '#/definitions/Reimbursement'
-      advance_worksheet:
-        $ref: 'definitions/Document.yaml'
-      has_pro_gear:
-        type: string
-        title: Has Pro-Gear
-        enum:
-          - NOT SURE
-          - 'YES'
-          - 'NO'
-        x-nullable: true
-      has_pro_gear_over_thousand:
-        type: string
-        title: Has Pro-Gear Over Thousand Pounds
-        enum:
-          - NOT SURE
-          - 'YES'
-          - 'NO'
-        x-nullable: true
   PersonallyProcuredMovePayload:
     type: object
     properties:
@@ -468,18 +290,6 @@ definitions:
     required:
       - range_min
       - range_max
-  PPMIncentive:
-    type: object
-    properties:
-      gcc:
-        type: integer
-        title: GCC
-      incentive_percentage:
-        type: integer
-        title: PPM Incentive @ 95%
-    required:
-      - gcc
-      - incentive_percentage
   CategoryExpenseSummary:
     type: object
     properties:
@@ -498,16 +308,6 @@ definitions:
         type: integer
       GTCC:
         type: integer
-  ApprovePersonallyProcuredMovePayload:
-    type: object
-    properties:
-      approve_date:
-        type: string
-        format: date-time
-        title: When was the ppm move approved?
-        example: '2019-03-26T13:19:56-04:00'
-    required:
-      - approve_date
   IndexPersonallyProcuredMovePayload:
     type: array
     items:
@@ -3417,38 +3217,7 @@ paths:
           description: user is not authorized
         '500':
           description: internal server error
-  /personally_procured_moves/{personallyProcuredMoveId}/approve:
-    post:
-      summary: Approves the PPM
-      description: Sets the status of the PPM to APPROVED.
-      operationId: approvePPM
-      tags:
-        - office
-      parameters:
-        - in: path
-          name: personallyProcuredMoveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the PPM being updated
-        - name: approvePersonallyProcuredMovePayload
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/ApprovePersonallyProcuredMovePayload'
-      responses:
-        '200':
-          description: updated instance of personally_procured_move
-          schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '500':
-          description: internal server error
+
   /documents:
     post:
       summary: Create a new document
