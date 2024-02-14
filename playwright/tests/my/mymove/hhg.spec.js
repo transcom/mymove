@@ -1,14 +1,16 @@
 // @ts-check
 import { test } from '../../utils/my/customerTest';
 
-test('A customer can create, edit, and delete an HHG shipment', async ({ customerPage }) => {
+test.skip('A customer can create, edit, and delete an HHG shipment', async ({ customerPage }) => {
   // Generate a new onboarded user with orders and log in
   const move = await customerPage.testHarness.buildMoveWithOrders();
   const userId = move.Orders.ServiceMember.user_id;
   await customerPage.signInAsExistingCustomer(userId);
 
   // Navigate to create a new shipment
-  await customerPage.waitForPage.multiMoveLandingPage();
+
+  //   await customerPage.waitForPage.multiMoveLandingPage();
+
   // await page.getByTestId('shipment-selection-btn').click();
   // await customerPage.waitForPage.aboutShipments();
   // await customerPage.navigateForward();

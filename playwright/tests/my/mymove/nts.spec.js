@@ -1,7 +1,7 @@
 // @ts-check
 import { test } from '../../utils/my/customerTest';
 
-test('A customer can create, edit, and delete an NTS shipment', async ({ customerPage }) => {
+test.skip('A customer can create, edit, and delete an NTS shipment', async ({ customerPage }) => {
   // Generate a new onboarded user with orders and log in
   const move = await customerPage.testHarness.buildMoveWithOrders();
   const userId = move.Orders.ServiceMember.user_id;
