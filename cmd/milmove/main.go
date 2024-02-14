@@ -97,6 +97,17 @@ func main() {
 	initGenCertsMigrationFlags(genCertsMigrationCommand.Flags())
 	genCommand.AddCommand(genCertsMigrationCommand)
 
+	genDisableCertsMigrationCommand := &cobra.Command{
+		Use:                   "disable-certs-migration [ -f FINGERPRINT ] -n MIGRATION_NAME",
+		Short:                 "Generate migrations required for removing client certificates",
+		Long:                  "Generate migrations required for removing client certificates",
+		RunE:                  genDisableCertsMigration,
+		DisableFlagsInUseLine: true,
+		SilenceErrors:         true, // not needed
+	}
+	initGenDisableCertsMigrationFlags(genDisableCertsMigrationCommand.Flags())
+	genCommand.AddCommand(genDisableCertsMigrationCommand)
+
 	genDutyStationsMigrationCommand := &cobra.Command{
 		Use:                   "duty-stations-migration -f CSV_FILENAME -n MIGRATION_NAME",
 		Short:                 "Generate migrations required for adding duty stations",
