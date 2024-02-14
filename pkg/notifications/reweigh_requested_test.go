@@ -84,7 +84,6 @@ func (suite *NotificationSuite) TestReweighRequestedHTMLTemplateRender() {
 <p>Remember, your HomeSafe Alliance (HSA) Customer Care Representative is your first point of contact; however, if you are unsatisfied at any time, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a>.</p>
 <p>Thank you,</p>
 <p>USTRANSCOM MilMove Team</p>
-<p>USTRANSCOM MilMove Team</p>
 <p>The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.</p>
 `
 
@@ -145,7 +144,6 @@ Remember, your HomeSafe Alliance (HSA) Customer Care Representative is your firs
 
 Thank you,
 
-USTRANSCOM MilMove Team
 USTRANSCOM MilMove Team
 
 The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
