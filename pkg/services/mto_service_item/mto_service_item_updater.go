@@ -371,7 +371,7 @@ func calculateSITAuthorizedAndRequirededDates(appCtx appcontext.AppContext, serv
 	planner route.Planner) error {
 	location := DestinationSITLocation
 
-	if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT {
+	if serviceItem.ReService.Code == models.ReServiceCodeDOASIT {
 		location = OriginSITLocation
 	}
 
