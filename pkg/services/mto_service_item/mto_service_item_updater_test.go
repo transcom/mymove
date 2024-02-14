@@ -624,7 +624,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOFSIT,
+					Code: models.ReServiceCodeDOASIT,
 				},
 			},
 		}, nil)
@@ -695,7 +695,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOFSIT,
+					Code: models.ReServiceCodeDOASIT,
 				},
 			},
 		}, nil)
