@@ -1,0 +1,1 @@
+alter table signed_certifications drop column personally_procured_move_id; /* field is deprecrated */

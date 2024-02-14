@@ -99,11 +99,10 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 		},
 		{
 			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &ppm.ID,
-				CertificationType:        &certificationType,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
+				CertificationType: &certificationType,
+				CertificationText: "LEGAL",
+				Signature:         "ACCEPT",
+				Date:              testdatagen.NextValidMoveDate,
 			},
 		},
 	}, nil)
@@ -271,11 +270,10 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 		},
 		{
 			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &ppm.ID,
-				CertificationType:        &certificationType,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
+				CertificationType: &certificationType,
+				CertificationText: "LEGAL",
+				Signature:         "ACCEPT",
+				Date:              testdatagen.NextValidMoveDate,
 			},
 		},
 	}, nil)

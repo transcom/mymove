@@ -138,6 +138,20 @@ func (f *shipmentAddressUpdateRequester) doesDeliveryAddressUpdateChangeShipment
 	return true, nil
 }
 
+func (f *shipmentAddressUpdateRequester) doesShipmentContainDestinationSIT(shipment models.MTOShipment) bool {
+	if len(shipment.MTOServiceItems) > 0 {
+		serviceItems := shipment.MTOServiceItems
+
+		for _, serviceItem := range serviceItems {
+			serviceCode := serviceItem.ReService.Code
+			if serviceCode == models.ReServiceCodeDDASIT || serviceCode == models.ReServiceCodeDDDSIT || serviceCode == models.ReServiceCodeDDFSIT || serviceCode == models.ReServiceCodeDDSFSC {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func (f *shipmentAddressUpdateRequester) mapServiceItemWithUpdatedPriceRequirements(originalServiceItem models.MTOServiceItem) models.MTOServiceItem {
 	var reService models.ReService
 
@@ -187,7 +201,7 @@ func (f *shipmentAddressUpdateRequester) mapServiceItemWithUpdatedPriceRequireme
 func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, newAddress models.Address, contractorRemarks string, eTag string) (*models.ShipmentAddressUpdate, error) {
 	var addressUpdate models.ShipmentAddressUpdate
 	var shipment models.MTOShipment
-	err := appCtx.DB().EagerPreload("MoveTaskOrder", "PickupAddress", "MTOServiceItems.ReService", "DestinationAddress").Find(&shipment, shipmentID)
+	err := appCtx.DB().EagerPreload("MoveTaskOrder", "PickupAddress", "MTOServiceItems.ReService", "DestinationAddress", "MTOServiceItems.SITDestinationOriginalAddress").Find(&shipment, shipmentID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, apperror.NewNotFoundError(shipmentID, "looking for shipment")
@@ -204,6 +218,8 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	if eTag != etag.GenerateEtag(shipment.UpdatedAt) {
 		return nil, apperror.NewPreconditionFailedError(shipmentID, nil)
 	}
+
+	shipmentHasDestSIT := f.doesShipmentContainDestinationSIT(shipment)
 
 	err = appCtx.DB().EagerPreload("OriginalAddress", "NewAddress").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
 	if err != nil {
@@ -229,6 +245,54 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	}
 	addressUpdate.NewAddressID = address.ID
 	addressUpdate.NewAddress = *address
+
+	// if the shipment contains destination SIT service items, we need to update the addressUpdate data
+	// with the SIT original address and calculate the distances between the old & new shipment addresses
+	if shipmentHasDestSIT {
+		serviceItems := shipment.MTOServiceItems
+		for _, serviceItem := range serviceItems {
+			serviceCode := serviceItem.ReService.Code
+			if serviceCode == models.ReServiceCodeDDASIT || serviceCode == models.ReServiceCodeDDDSIT || serviceCode == models.ReServiceCodeDDFSIT || serviceCode == models.ReServiceCodeDDSFSC {
+				if serviceItem.SITDestinationOriginalAddressID != nil {
+					addressUpdate.SitOriginalAddressID = serviceItem.SITDestinationOriginalAddressID
+				}
+				if serviceItem.SITDestinationOriginalAddress != nil {
+					addressUpdate.SitOriginalAddress = serviceItem.SITDestinationOriginalAddress
+				}
+			}
+			// if we have updated the values we need, no need to keep looping through the service items
+			if addressUpdate.SitOriginalAddress != nil && addressUpdate.SitOriginalAddressID != nil {
+				break
+			}
+		}
+		if addressUpdate.SitOriginalAddress == nil {
+			return nil, apperror.NewUnprocessableEntityError("shipments with destination SIT must have a SIT destination original address")
+		}
+		var distanceBetweenNew int
+		var distanceBetweenOld int
+		// if there was data already in the table, we want the "new" mileage to be the "old" mileage
+		// if there is NOT, then we will calculate the distance between the original SIT dest address & the previous shipment address
+		if *addressUpdate.NewSitDistanceBetween != 0 {
+			distanceBetweenOld = *addressUpdate.NewSitDistanceBetween
+		} else {
+			distanceBetweenOld, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.OriginalAddress.PostalCode)
+		}
+		if err != nil {
+			return nil, err
+		}
+		// calculating distance between the new address update & the SIT
+		distanceBetweenNew, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode)
+		if err != nil {
+			return nil, err
+		}
+		addressUpdate.NewSitDistanceBetween = &distanceBetweenNew
+		addressUpdate.OldSitDistanceBetween = &distanceBetweenOld
+	} else {
+		addressUpdate.SitOriginalAddressID = nil
+		addressUpdate.SitOriginalAddress = nil
+		addressUpdate.NewSitDistanceBetween = nil
+		addressUpdate.OldSitDistanceBetween = nil
+	}
 
 	contract, err := serviceparamvaluelookups.FetchContract(appCtx, *shipment.MoveTaskOrder.AvailableToPrimeAt)
 	if err != nil {

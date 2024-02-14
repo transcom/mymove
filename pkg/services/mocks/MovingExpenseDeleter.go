@@ -14,13 +14,13 @@ type MovingExpenseDeleter struct {
 	mock.Mock
 }
 
-// DeleteMovingExpense provides a mock function with given fields: appCtx, movingExpenseID
-func (_m *MovingExpenseDeleter) DeleteMovingExpense(appCtx appcontext.AppContext, movingExpenseID uuid.UUID) error {
-	ret := _m.Called(appCtx, movingExpenseID)
+// DeleteMovingExpense provides a mock function with given fields: appCtx, ppmID, movingExpenseID
+func (_m *MovingExpenseDeleter) DeleteMovingExpense(appCtx appcontext.AppContext, ppmID uuid.UUID, movingExpenseID uuid.UUID) error {
+	ret := _m.Called(appCtx, ppmID, movingExpenseID)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) error); ok {
-		r0 = rf(appCtx, movingExpenseID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) error); ok {
+		r0 = rf(appCtx, ppmID, movingExpenseID)
 	} else {
 		r0 = ret.Error(0)
 	}
