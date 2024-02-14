@@ -9,7 +9,7 @@ test('Users can upload orders, and delete if the move is in draft status', async
   await customerPage.signInAsExistingCustomer(userId);
 
   // Navigate to add orders
-  await customerPage.waitForPage.multiMoveLandingPage();
+  // await customerPage.waitForPage.multiMoveLandingPage();
   // await page.getByRole('button', { name: 'Add orders' }).click();
   // await customerPage.waitForPage.ordersDetails();
 

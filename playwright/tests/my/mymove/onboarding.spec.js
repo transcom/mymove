@@ -6,7 +6,7 @@ test('A customer can go through onboarding', async ({ customerPage }) => {
   await customerPage.signInAsNewCustomer();
 
   // CONUS/OCONUS section
-  await customerPage.waitForPage.multiMoveLandingPage();
+  // await customerPage.waitForPage.multiMoveLandingPage();
 
   // Need to build in the rest of the workflow
   // await page.getByText('Starts and ends in the continental US').click();

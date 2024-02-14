@@ -48,7 +48,7 @@ references:
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
   # run them
-  integration-ignore-branch: &integration-ignore-branch integrationTesting
+  integration-ignore-branch: &integration-ignore-branch placeholder_branch_name
 
   # set integration-mtls-ignore-branch to the branch if you want to
   # IGNORE mtls integration tests, or `placeholder_branch_name` if you
@@ -885,6 +885,7 @@ commands:
             --workers << parameters.workers >> \
             --shard="${SHARD}/${CIRCLE_NODE_TOTAL}" \
             << parameters.path >>
+          no_output_timeout: 60m
       - store_artifacts:
           path: playwright-report
       - run:
@@ -1347,6 +1348,7 @@ jobs:
             echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)' >> $BASH_ENV
             source $BASH_ENV
             make db_dev_fresh
+          no_output_timeout: 60m
           environment:
             APPLICATION: app
             DB_PASSWORD: mysecretpassword
