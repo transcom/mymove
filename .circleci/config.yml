@@ -48,7 +48,7 @@ references:
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
   # run them
-  integration-ignore-branch: &integration-ignore-branch integrationTesting
+  integration-ignore-branch: &integration-ignore-branch placeholder_branch_name
 
   # set integration-mtls-ignore-branch to the branch if you want to
   # IGNORE mtls integration tests, or `placeholder_branch_name` if you
@@ -747,6 +747,8 @@ commands:
 
 
             make server_test
+          no_output_timeout: 20m
+
           environment:
             APPLICATION: '<< parameters.application >>'
             # 8 since this runs on xlarge with 8 CPUs
@@ -883,6 +885,7 @@ commands:
             --workers << parameters.workers >> \
             --shard="${SHARD}/${CIRCLE_NODE_TOTAL}" \
             << parameters.path >>
+          no_output_timeout: 60m
       - store_artifacts:
           path: playwright-report
       - run:
@@ -1345,6 +1348,7 @@ jobs:
             echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)' >> $BASH_ENV
             source $BASH_ENV
             make db_dev_fresh
+          no_output_timeout: 60m
           environment:
             APPLICATION: app
             DB_PASSWORD: mysecretpassword
@@ -1727,6 +1731,7 @@ jobs:
           command: |
             export REACT_APP_ERROR_LOGGING=otel
             make client_build
+          no_output_timeout: 20m
       # only save the cache on default branch builds so that PRs don't pollute
       # the cache
       - when:
@@ -2010,6 +2015,18 @@ jobs:
           repo: app-tasks
       - announce_failure
 
+  # `prod_auth_check` checks if approved before going to prod
+  prod_auth_check:
+    executor: tls_small
+    steps:
+      - run: echo "build approved by $CIRCLE_USERNAME"
+      - run:
+          name: Check if Prod approval has rights
+          command: |
+            if [[ $CIRCLE_USERNAME != "josiahzimmerman-caci" && $CIRCLE_USERNAME != "deandreJones" && $CIRCLE_USERNAME != "cameroncaci" ]]; then
+               exit 1
+            fi
+      - announce_failure
   # All of the deploy tasks need to checkout the code so they can run the `scripts/do-exclusively` script
 
   # `deploy_dp3_migrations` deploys migrations to the dp3 environment
@@ -2566,6 +2583,13 @@ workflows:
             - deploy_stg_app
             - deploy_stg_app_client_tls
 
+      - prod_auth_check:
+          requires:
+           - approve_prd_deploy
+          filters:
+            branches:
+              only: main
+
       - deploy_storybook_dp3:
           requires:
             - build_storybook
@@ -2580,28 +2604,28 @@ workflows:
 
       - push_otel_collector_image_prd:
           requires:
-            - approve_prd_deploy
+            - prod_auth_check
           filters:
             branches:
               only: main
 
       - push_app_prd:
           requires:
-            - approve_prd_deploy
+            - prod_auth_check
           filters:
             branches:
               only: main
 
       - push_migrations_prd:
           requires:
-            - approve_prd_deploy
+            - prod_auth_check
           filters:
             branches:
               only: main
 
       - push_tasks_prd:
           requires:
-            - approve_prd_deploy
+            - prod_auth_check
           filters:
             branches:
               only: main
