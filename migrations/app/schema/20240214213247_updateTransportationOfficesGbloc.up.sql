@@ -1,0 +1,1 @@
+update transportation_offices set gbloc = 'BGAC' where gbloc = 'BKAS';
