@@ -9,7 +9,7 @@ import ordersFormValidationSchema from './ordersFormValidationSchema';
 
 import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { milmoveLogger } from 'utils/milmoveLog';
-import { getTacValid, updateOrder } from 'services/ghcApi';
+import { getTacValid, updateOrder, updateAllowance } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { tooRoutes, tioRoutes } from 'constants/routes';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -50,6 +50,7 @@ const Orders = () => {
   const queryClient = useQueryClient();
   const { mutate: mutateOrders } = useMutation(updateOrder, {
     onSuccess: (data, variables) => {
+      console.log(data);
       const updatedOrder = data.orders[variables.orderID];
       queryClient.setQueryData([ORDERS, variables.orderID], {
         orders: {
@@ -57,6 +58,25 @@ const Orders = () => {
         },
       });
       queryClient.invalidateQueries(ORDERS);
+      handleClose();
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLogger.error(errorMsg);
+    },
+  });
+
+  const { mutate: mutateOrdersGrade } = useMutation(updateAllowance, {
+    onSuccess: (data, variables) => {
+      console.log('mutateallowances body');
+      console.log(data);
+      const updatedOrder = data.orders[variables.orderID];
+      queryClient.setQueryData([ORDERS, variables.orderID], {
+        orders: {
+          [`${variables.orderID}`]: updatedOrder,
+        },
+      });
+      queryClient.invalidateQueries([ORDERS, variables.orderID]);
       handleClose();
     },
     onError: (error) => {
@@ -137,6 +157,7 @@ const Orders = () => {
 
   const onSubmit = (values) => {
     const { originDutyLocation, newDutyLocation, payGrade, ...fields } = values;
+    console.log(payGrade);
     const body = {
       ...fields,
       originDutyLocationId: values.originDutyLocation.id,
@@ -149,7 +170,9 @@ const Orders = () => {
       organizationalClothingAndIndividualEquipment,
       grade: values.payGrade,
     };
+
     mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
+    mutateOrdersGrade({ orderID: orderId, ifMatchETag: order.eTag, body });
   };
 
   const tacWarningMsg =
