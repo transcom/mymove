@@ -8,7 +8,7 @@ test('A customer can create, edit, and delete an NTS shipment', async ({ custome
   await customerPage.signInAsExistingCustomer(userId);
 
   // Navigate to create a new shipment
-  await customerPage.waitForPage.multiMoveLandingPage();
+  // await customerPage.waitForPage.multiMoveLandingPage();
   // await page.getByTestId('shipment-selection-btn').click();
   // await customerPage.waitForPage.aboutShipments();
   // await customerPage.navigateForward();

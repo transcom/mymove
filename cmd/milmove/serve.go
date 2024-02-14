@@ -550,7 +550,6 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 	if err != nil {
 		appCtx.Logger().Fatal("Could not instantiate env fetcher", zap.Error(err))
 	}
-
 	routingConfig.HandlerConfig = handlers.NewHandlerConfig(
 		appCtx.DB(),
 		appCtx.Logger(),
