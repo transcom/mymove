@@ -10,7 +10,6 @@ import interceptorReducer from 'store/interceptor/reducer';
 import { swaggerReducerPublic, swaggerReducerInternal } from 'shared/Swagger/ducks';
 import { requestsReducer } from 'shared/Swagger/requestsReducer';
 import { entitiesReducer } from 'shared/Entities/reducer';
-import { officeFlashMessagesReducer } from 'scenes/Office/ducks';
 
 const authPersistConfig = {
   key: 'auth',
