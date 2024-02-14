@@ -903,7 +903,7 @@ export class CustomerPpmPage extends CustomerPage {
 
     await expect(this.page.locator('.usa-alert--success')).toContainText('You submitted documentation for review.');
 
-    var stepContainer = this.page.locator('[data-testid="stepContainer6"]');
+    let stepContainer = this.page.locator('[data-testid="stepContainer6"]');
 
     if (stepContainer == null) {
       stepContainer = this.page.locator('[data-testid="stepContainer5"]');
