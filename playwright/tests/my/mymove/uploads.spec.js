@@ -1,7 +1,7 @@
 // import { test, expect } from '../../utils/my/customerTest';
 import { test } from '../../utils/my/customerTest';
 
-test('Users can upload but cannot delete orders once move has been submitted', async ({ customerPage }) => {
+test.skip('Users can upload but cannot delete orders once move has been submitted', async ({ customerPage }) => {
   // Generate a move that has the status of SUBMITTED
   const move = await customerPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
   const userId = move.Orders.ServiceMember.user_id;

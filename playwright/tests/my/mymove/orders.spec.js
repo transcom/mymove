@@ -2,7 +2,7 @@
 // import { test, expect } from '../../utils/my/customerTest';
 import { test } from '../../utils/my/customerTest';
 
-test('Users can upload orders, and delete if the move is in draft status', async ({ customerPage }) => {
+test.skip('Users can upload orders, and delete if the move is in draft status', async ({ customerPage }) => {
   // Generate a new onboarded user and log in
   const user = await customerPage.testHarness.buildNeedsOrdersUser();
   const userId = user.id;

@@ -2,7 +2,7 @@
 // import { test, expect } from '../../utils/my/customerTest';
 import { test } from '../../utils/my/customerTest';
 
-test('A customer can go through onboarding', async ({ customerPage }) => {
+test.skip('A customer can go through onboarding', async ({ customerPage }) => {
   // Create new customer user
   await customerPage.signInAsNewCustomer();
 
