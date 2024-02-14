@@ -99,9 +99,6 @@ func (m ReweighRequested) renderTemplates(appCtx appcontext.AppContext, data rew
 type reweighRequestedEmailData struct {
 	MilitaryOneSourceLink string
 }
-type reweighRequestedEmailData struct {
-	MilitaryOneSourceLink string
-}
 
 // RenderHTML renders the html for the email
 func (m ReweighRequested) RenderHTML(appCtx appcontext.AppContext, data reweighRequestedEmailData) (string, error) {
