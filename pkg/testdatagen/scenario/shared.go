@@ -12070,3 +12070,1073 @@ func createRandomMove(
 
 	return move
 }
+
+func createMultipleMovesTwoMovesHHGAndPPMShipments(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
+	userID := uuid.Must(uuid.NewV4())
+	oktaID := uuid.Must(uuid.NewV4())
+	email := "multiplemoves@HHG_PPM.com"
+
+	originDutyLocation := factory.BuildDutyLocation(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name:                       "Woodbine, KY 40356",
+				ProvidesServicesCounseling: true,
+			},
+		},
+	}, nil)
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				ID:        userID,
+				OktaID:    oktaID.String(),
+				OktaEmail: email,
+				Active:    true,
+			}},
+	}, nil)
+
+	affiliation := models.AffiliationARMY
+	serviceMember := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation:   &affiliation,
+				FirstName:     models.StringPointer("Lola"),
+				LastName:      models.StringPointer("Smith"),
+				Edipi:         models.StringPointer("8362534853"),
+				PersonalEmail: models.StringPointer(email),
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+
+	// Move A
+	pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	hhgPermitted := internalmessages.OrdersTypeDetailHHGPERMITTED
+	ordersNumber := "8675309"
+	departmentIndicator := "ARMY"
+	tac := "E19A"
+	ordersA := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model:    serviceMember,
+			LinkOnly: true,
+		},
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Order{
+				OrdersType:          pcos,
+				OrdersTypeDetail:    &hhgPermitted,
+				OrdersNumber:        &ordersNumber,
+				DepartmentIndicator: &departmentIndicator,
+				TAC:                 &tac,
+			},
+		},
+	}, nil)
+
+	var moveADetails models.Move
+	moveADetails.Status = models.MoveStatusAPPROVED
+	moveADetails.AvailableToPrimeAt = models.TimePointer(time.Now())
+	moveADetails.Locator = "MMOVEA"
+	moveADetails.CreatedAt = time.Now().Add(time.Hour * 24)
+
+	moveA := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: moveADetails,
+		},
+		{
+			Model:    ordersA,
+			LinkOnly: true,
+		},
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+
+	requestedPickupDateMoveA := moveA.CreatedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDateMoveA := requestedPickupDateMoveA.Add(7 * 24 * time.Hour)
+	destinationAddressMoveA := factory.BuildAddress(db, nil, nil)
+
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    moveA,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDateMoveA,
+				RequestedDeliveryDate: &requestedDeliveryDateMoveA,
+			},
+		},
+		{
+			Model:    destinationAddressMoveA,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// Move B
+	ordersB := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model:    serviceMember,
+			LinkOnly: true,
+		},
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Order{
+				OrdersType:          pcos,
+				OrdersTypeDetail:    &hhgPermitted,
+				OrdersNumber:        &ordersNumber,
+				DepartmentIndicator: &departmentIndicator,
+				TAC:                 &tac,
+			},
+		},
+	}, nil)
+
+	var moveBDetails models.Move
+	moveBDetails.Status = models.MoveStatusAPPROVED
+	moveBDetails.AvailableToPrimeAt = models.TimePointer(time.Now())
+	moveBDetails.Locator = "MMOVEB"
+	moveBDetails.CreatedAt = time.Now().Add(time.Hour * -24)
+
+	moveB := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: moveBDetails,
+		},
+		{
+			Model:    ordersB,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	requestedPickupDateMoveB := moveB.CreatedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDateMoveB := requestedPickupDateMoveB.Add(7 * 24 * time.Hour)
+	destinationAddressMoveB := factory.BuildAddress(db, nil, nil)
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    moveB,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDateMoveB,
+				RequestedDeliveryDate: &requestedDeliveryDateMoveB,
+			},
+		},
+		{
+			Model:    destinationAddressMoveB,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    moveB,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    moveB,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+
+	// Move C
+	ordersC := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model:    serviceMember,
+			LinkOnly: true,
+		},
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Order{
+				OrdersType:          pcos,
+				OrdersTypeDetail:    &hhgPermitted,
+				OrdersNumber:        &ordersNumber,
+				DepartmentIndicator: &departmentIndicator,
+				TAC:                 &tac,
+			},
+		},
+	}, nil)
+
+	var moveCDetails models.Move
+	moveCDetails.Status = models.MoveStatusAPPROVED
+	moveCDetails.AvailableToPrimeAt = models.TimePointer(time.Now())
+	moveCDetails.Locator = "MMOVEC"
+	moveCDetails.CreatedAt = time.Now().Add(time.Hour * -48)
+
+	moveC := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: moveCDetails,
+		},
+		{
+			Model:    ordersC,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    moveC,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.NTSRaw,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+}
+
+func createMultipleMovesThreeMovesHHGPPMNTSShipments(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
+	userID := uuid.Must(uuid.NewV4())
+	oktaID := uuid.Must(uuid.NewV4())
+	email := "multiplemoves@HHG_PPM_NTS.com"
+
+	originDutyLocation := factory.BuildDutyLocation(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name:                       "Hope, KY 40356",
+				ProvidesServicesCounseling: true,
+			},
+		},
+	}, nil)
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				ID:        userID,
+				OktaID:    oktaID.String(),
+				OktaEmail: email,
+				Active:    true,
+			}},
+	}, nil)
+
+	affiliation := models.AffiliationAIRFORCE
+	serviceMember := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation:   &affiliation,
+				FirstName:     models.StringPointer("Hannah"),
+				LastName:      models.StringPointer("James"),
+				Edipi:         models.StringPointer("8362534857"),
+				PersonalEmail: models.StringPointer(email),
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+
+	// Move A
+	pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	hhgPermitted := internalmessages.OrdersTypeDetailHHGPERMITTED
+	ordersNumber := "8675309"
+	departmentIndicator := "AIR FORCE"
+	tac := "E13V"
+	ordersA := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model:    serviceMember,
+			LinkOnly: true,
+		},
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Order{
+				OrdersType:          pcos,
+				OrdersTypeDetail:    &hhgPermitted,
+				OrdersNumber:        &ordersNumber,
+				DepartmentIndicator: &departmentIndicator,
+				TAC:                 &tac,
+			},
+		},
+	}, nil)
+
+	var moveADetails models.Move
+	moveADetails.Status = models.MoveStatusNeedsServiceCounseling
+	moveADetails.AvailableToPrimeAt = models.TimePointer(time.Now())
+	moveADetails.Locator = "MMOVED"
+	moveADetails.CreatedAt = time.Now().Add(time.Hour * 24)
+
+	moveA := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: moveADetails,
+		},
+		{
+			Model:    ordersA,
+			LinkOnly: true,
+		},
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+
+	requestedPickupDateMoveA := moveA.CreatedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDateMoveA := requestedPickupDateMoveA.Add(7 * 24 * time.Hour)
+	destinationAddressMoveA := factory.BuildAddress(db, nil, nil)
+
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    moveA,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDateMoveA,
+				RequestedDeliveryDate: &requestedDeliveryDateMoveA,
+			},
+		},
+		{
+			Model:    destinationAddressMoveA,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// Move B
+	ordersB := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model:    serviceMember,
+			LinkOnly: true,
+		},
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Order{
+				OrdersType:          pcos,
+				OrdersTypeDetail:    &hhgPermitted,
+				OrdersNumber:        &ordersNumber,
+				DepartmentIndicator: &departmentIndicator,
+				TAC:                 &tac,
+			},
+		},
+	}, nil)
+
+	var moveBDetails models.Move
+	moveBDetails.Status = models.MoveStatusAPPROVED
+	moveBDetails.AvailableToPrimeAt = models.TimePointer(time.Now())
+	moveBDetails.Locator = "MMOVEE"
+	moveBDetails.CreatedAt = time.Now().Add(time.Hour * -24)
+
+	moveB := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: moveBDetails,
+		},
+		{
+			Model:    ordersB,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    moveB,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    moveB,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+
+	// Move C
+	ordersC := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model:    serviceMember,
+			LinkOnly: true,
+		},
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Order{
+				OrdersType:          pcos,
+				OrdersTypeDetail:    &hhgPermitted,
+				OrdersNumber:        &ordersNumber,
+				DepartmentIndicator: &departmentIndicator,
+				TAC:                 &tac,
+			},
+		},
+	}, nil)
+
+	var moveCDetails models.Move
+	moveCDetails.Status = models.MoveStatusAPPROVED
+	moveCDetails.AvailableToPrimeAt = models.TimePointer(time.Now())
+	moveCDetails.Locator = "MMOVEF"
+	moveCDetails.CreatedAt = time.Now().Add(time.Hour * -48)
+
+	moveC := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: moveCDetails,
+		},
+		{
+			Model:    ordersC,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    moveC,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.NTSRaw,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+}
+
+func createMultipleMovesThreeMovesNTSHHGShipments(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
+	userID := uuid.Must(uuid.NewV4())
+	oktaID := uuid.Must(uuid.NewV4())
+	email := "multiplemoves@NTS_HHG.com"
+
+	originDutyLocation := factory.BuildDutyLocation(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name:                       "Centre, KY 40356",
+				ProvidesServicesCounseling: true,
+			},
+		},
+	}, nil)
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				ID:        userID,
+				OktaID:    oktaID.String(),
+				OktaEmail: email,
+				Active:    true,
+			}},
+	}, nil)
+
+	affiliation := models.AffiliationNAVY
+	serviceMember := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation:   &affiliation,
+				FirstName:     models.StringPointer("Jenna"),
+				LastName:      models.StringPointer("Ken"),
+				Edipi:         models.StringPointer("8362534854"),
+				PersonalEmail: models.StringPointer(email),
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+
+	// Move A
+	pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	hhgPermitted := internalmessages.OrdersTypeDetailHHGPERMITTED
+	ordersNumber := "8675309"
+	departmentIndicator := "NAVY"
+	tac := "E13V"
+	ordersA := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model:    serviceMember,
+			LinkOnly: true,
+		},
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Order{
+				OrdersType:          pcos,
+				OrdersTypeDetail:    &hhgPermitted,
+				OrdersNumber:        &ordersNumber,
+				DepartmentIndicator: &departmentIndicator,
+				TAC:                 &tac,
+			},
+		},
+	}, nil)
+
+	var moveADetails models.Move
+	moveADetails.Status = models.MoveStatusAPPROVALSREQUESTED
+	moveADetails.AvailableToPrimeAt = models.TimePointer(time.Now())
+	moveADetails.Locator = "MMOVEG"
+	moveADetails.CreatedAt = time.Now().Add(time.Hour * 24)
+
+	moveA := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: moveADetails,
+		},
+		{
+			Model:    ordersA,
+			LinkOnly: true,
+		},
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+
+	requestedPickupDateMoveA := moveA.CreatedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDateMoveA := requestedPickupDateMoveA.Add(7 * 24 * time.Hour)
+	destinationAddressMoveA := factory.BuildAddress(db, nil, nil)
+
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    moveA,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDateMoveA,
+				RequestedDeliveryDate: &requestedDeliveryDateMoveA,
+			},
+		},
+		{
+			Model:    destinationAddressMoveA,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    moveA,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.NTSRaw,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+
+	// Move B
+	ordersB := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model:    serviceMember,
+			LinkOnly: true,
+		},
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Order{
+				OrdersType:          pcos,
+				OrdersTypeDetail:    &hhgPermitted,
+				OrdersNumber:        &ordersNumber,
+				DepartmentIndicator: &departmentIndicator,
+				TAC:                 &tac,
+			},
+		},
+	}, nil)
+
+	var moveBDetails models.Move
+	moveBDetails.Status = models.MoveStatusAPPROVED
+	moveBDetails.AvailableToPrimeAt = models.TimePointer(time.Now())
+	moveBDetails.Locator = "MMOVEH"
+	moveBDetails.CreatedAt = time.Now().Add(time.Hour * -24)
+
+	moveB := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: moveBDetails,
+		},
+		{
+			Model:    ordersB,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	requestedPickupDateMoveB := moveA.CreatedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDateMoveB := requestedPickupDateMoveA.Add(7 * 24 * time.Hour)
+	destinationAddressMoveB := factory.BuildAddress(db, nil, nil)
+
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    moveB,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDateMoveB,
+				RequestedDeliveryDate: &requestedDeliveryDateMoveB,
+			},
+		},
+		{
+			Model:    destinationAddressMoveB,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    moveB,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.NTSRaw,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+
+	factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    moveB,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.NTSRaw,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+
+	// Move C
+	ordersC := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model:    serviceMember,
+			LinkOnly: true,
+		},
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Order{
+				OrdersType:          pcos,
+				OrdersTypeDetail:    &hhgPermitted,
+				OrdersNumber:        &ordersNumber,
+				DepartmentIndicator: &departmentIndicator,
+				TAC:                 &tac,
+			},
+		},
+	}, nil)
+
+	var moveCDetails models.Move
+	moveCDetails.Status = models.MoveStatusAPPROVED
+	moveCDetails.AvailableToPrimeAt = models.TimePointer(time.Now())
+	moveCDetails.Locator = "MMOVEI"
+	moveCDetails.CreatedAt = time.Now().Add(time.Hour * -48)
+
+	moveC := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: moveCDetails,
+		},
+		{
+			Model:    ordersC,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	requestedPickupDateMoveC := moveA.CreatedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDateMoveC := requestedPickupDateMoveA.Add(7 * 24 * time.Hour)
+	destinationAddressMoveC := factory.BuildAddress(db, nil, nil)
+
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    moveC,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDateMoveC,
+				RequestedDeliveryDate: &requestedDeliveryDateMoveC,
+			},
+		},
+		{
+			Model:    destinationAddressMoveC,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    moveC,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.NTSRaw,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+}
+
+func createMultipleMovesThreeMovesPPMShipments(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
+	userID := uuid.Must(uuid.NewV4())
+	oktaID := uuid.Must(uuid.NewV4())
+	email := "multiplemoves@PPM.com"
+
+	originDutyLocation := factory.BuildDutyLocation(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name:                       "Marion, KY 40356",
+				ProvidesServicesCounseling: true,
+			},
+		},
+	}, nil)
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				ID:        userID,
+				OktaID:    oktaID.String(),
+				OktaEmail: email,
+				Active:    true,
+			}},
+	}, nil)
+
+	affiliation := models.AffiliationCOASTGUARD
+	serviceMember := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation:   &affiliation,
+				FirstName:     models.StringPointer("Tori"),
+				LastName:      models.StringPointer("Ross"),
+				Edipi:         models.StringPointer("8362534852"),
+				PersonalEmail: models.StringPointer(email),
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+
+	// Move A
+	pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	hhgPermitted := internalmessages.OrdersTypeDetailHHGPERMITTED
+	ordersNumber := "8675309"
+	departmentIndicator := "COAST GUARD"
+	tac := "E19A"
+	ordersA := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model:    serviceMember,
+			LinkOnly: true,
+		},
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Order{
+				OrdersType:          pcos,
+				OrdersTypeDetail:    &hhgPermitted,
+				OrdersNumber:        &ordersNumber,
+				DepartmentIndicator: &departmentIndicator,
+				TAC:                 &tac,
+			},
+		},
+	}, nil)
+
+	var moveADetails models.Move
+	moveADetails.Status = models.MoveStatusAPPROVED
+	moveADetails.AvailableToPrimeAt = models.TimePointer(time.Now())
+	moveADetails.Locator = "MMOVEJ"
+	moveADetails.CreatedAt = time.Now().Add(time.Hour * 24)
+
+	moveA := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: moveADetails,
+		},
+		{
+			Model:    ordersA,
+			LinkOnly: true,
+		},
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    moveA,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    moveA,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+
+	// Move B
+	ordersNumber = "8675302"
+	ordersB := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model:    serviceMember,
+			LinkOnly: true,
+		},
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Order{
+				OrdersType:          pcos,
+				OrdersTypeDetail:    &hhgPermitted,
+				OrdersNumber:        &ordersNumber,
+				DepartmentIndicator: &departmentIndicator,
+				TAC:                 &tac,
+			},
+		},
+	}, nil)
+
+	var moveBDetails models.Move
+	moveBDetails.Status = models.MoveStatusAPPROVED
+	moveBDetails.AvailableToPrimeAt = models.TimePointer(time.Now())
+	moveBDetails.Locator = "MMOVEK"
+	moveBDetails.CreatedAt = time.Now().Add(time.Hour * 24)
+
+	moveB := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: moveBDetails,
+		},
+		{
+			Model:    ordersB,
+			LinkOnly: true,
+		},
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    moveB,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    moveB,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+
+	// Move C
+	ordersNumber = "8675301"
+	ordersC := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model:    serviceMember,
+			LinkOnly: true,
+		},
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.Order{
+				OrdersType:          pcos,
+				OrdersTypeDetail:    &hhgPermitted,
+				OrdersNumber:        &ordersNumber,
+				DepartmentIndicator: &departmentIndicator,
+				TAC:                 &tac,
+			},
+		},
+	}, nil)
+
+	var moveCDetails models.Move
+	moveCDetails.Status = models.MoveStatusAPPROVED
+	moveCDetails.AvailableToPrimeAt = models.TimePointer(time.Now())
+	moveCDetails.Locator = "MMOVEL"
+	moveCDetails.CreatedAt = time.Now().Add(time.Hour * 24)
+
+	moveC := factory.BuildMove(db, []factory.Customization{
+		{
+			Model: moveCDetails,
+		},
+		{
+			Model:    ordersC,
+			LinkOnly: true,
+		},
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+
+	requestedPickupDateMoveB := moveB.CreatedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDateMoveB := requestedPickupDateMoveB.Add(7 * 24 * time.Hour)
+	destinationAddressMoveB := factory.BuildAddress(db, nil, nil)
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    moveB,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDateMoveB,
+				RequestedDeliveryDate: &requestedDeliveryDateMoveB,
+			},
+		},
+		{
+			Model:    destinationAddressMoveB,
+			Type:     &factory.Addresses.DeliveryAddress,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    moveC,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+
+	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model:    moveC,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypePPM,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+}
