@@ -66,10 +66,6 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{handlerConfig}
 	internalAPI.CertificationIndexSignedCertificationHandler = IndexSignedCertificationsHandler{handlerConfig}
 
-	internalAPI.PpmPatchPersonallyProcuredMoveHandler = PatchPersonallyProcuredMoveHandler{handlerConfig}
-	internalAPI.PpmSubmitPersonallyProcuredMoveHandler = SubmitPersonallyProcuredMoveHandler{handlerConfig}
-	internalAPI.PpmRequestPPMPaymentHandler = RequestPPMPaymentHandler{handlerConfig}
-
 	internalAPI.DutyLocationsSearchDutyLocationsHandler = SearchDutyLocationsHandler{handlerConfig}
 
 	internalAPI.AddressesShowAddressHandler = ShowAddressHandler{handlerConfig}
@@ -116,7 +112,6 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	internalAPI.QueuesShowQueueHandler = ShowQueueHandler{handlerConfig}
 	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler{handlerConfig, moveRouter}
-	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler{handlerConfig}
 	internalAPI.OfficeApproveReimbursementHandler = ApproveReimbursementHandler{handlerConfig}
 	internalAPI.OfficeCancelMoveHandler = CancelMoveHandler{handlerConfig, moveRouter}
 

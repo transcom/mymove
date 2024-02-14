@@ -82,9 +82,9 @@ describe('When given an updated expense document it', () => {
 
     const template = getTemplate(expenseRecord);
     render(template.getDetails(expenseRecord));
-    expect(screen.getByText('SIT Start Date')).toBeInTheDocument();
+    expect(screen.getByText('SIT start date')).toBeInTheDocument();
     expect(screen.getByText(': 12 Dec 2023')).toBeInTheDocument();
-    expect(screen.getByText('SIT End Date')).toBeInTheDocument();
+    expect(screen.getByText('SIT end date')).toBeInTheDocument();
     expect(screen.getByText(': 01 Jan 2024')).toBeInTheDocument();
   });
 });
