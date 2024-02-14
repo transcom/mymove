@@ -184,6 +184,7 @@ export class CustomerApp extends Component {
               <Routes>
                 {/* no auth routes should still exist */}
                 <Route path={generalRoutes.SIGN_IN_PATH} element={<SignIn />} />
+                <Route path={generalRoutes.MULTI_MOVES_LANDING_PAGE} element={<MultiMovesLandingPage />} />
                 <Route path={generalRoutes.PRIVACY_SECURITY_POLICY_PATH} element={<PrivacyPolicyStatement />} />
                 <Route path={generalRoutes.ACCESSIBILITY_PATH} element={<AccessibilityStatement />} />
 

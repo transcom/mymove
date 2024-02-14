@@ -23,11 +23,13 @@ const defaultFlags = {
   hhgFlow: true,
   ghcFlow: true,
   markerIO: false,
+  multiMove: false,
 };
 
 const environmentFlags = {
   development: {
     ...defaultFlags,
+    multiMove: true,
   },
 
   test: {
@@ -36,6 +38,7 @@ const environmentFlags = {
 
   experimental: {
     ...defaultFlags,
+    multiMove: true,
   },
 
   staging: {
