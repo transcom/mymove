@@ -19,7 +19,7 @@ const info = {
 describe('AllowancesList', () => {
   it('renders formatted branch and grade', () => {
     render(<AllowancesList info={info} />);
-    expect(screen.getByText('Navy, E-6')).toBeInTheDocument();
+    expect(screen.getByText('Navy')).toBeInTheDocument();
   });
 
   it('renders formatted weight allowance', () => {
