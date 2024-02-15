@@ -1226,6 +1226,9 @@ HAS_ENVRC_CLONED := $(shell [ -f $(CURDIR)2/.envrc.local ] && echo 1 || echo 0)
 check_local_env:
 ifeq (HAS_ENVRC_LOCAL,1)
 	@echo "Local .envrc.local found."; \
+	if [ -z "$$(grep -E '^export GIN_PORT=.*' $(CURDIR)/.envrc.local)" ]; then \
+		echo "export GIN_PORT=s" >> "$(CURDIR)/.envrc.local"; \
+	fi; \
 	sed -i '' -e 's/^export GIN_PORT=.*/export GIN_PORT=9001/' "$(CURDIR)/.envrc.local"
 else
 	@echo "Local .envrc.local NOT found. Creating file."; \
@@ -1235,6 +1238,9 @@ endif
 check_cloned_env:
 ifeq (HAS_ENVRC_CLONED,1)
 	@echo "Cloned .envrc.local found."; \
+	if [ -z "$$(grep -E '^export GIN_PORT=.*' $(CURDIR)2/.envrc.local)" ]; then \
+		echo "export GIN_PORT=s" >> "$(CURDIR)2/.envrc.local"; \
+	fi; \
 	sed -i '' -e 's/^export GIN_PORT=.*/export GIN_PORT=9002/' "$(CURDIR)2/.envrc.local"
 else
 	@echo "Cloned .envrc.local NOT found. Creating file."; \
