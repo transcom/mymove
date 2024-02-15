@@ -229,6 +229,10 @@ func orderFromTOOPayload(_ appcontext.AppContext, existingOrder models.Order, pa
 		order.AmendedOrdersAcknowledgedAt = &acknowledgedAt
 	}
 
+	if payload.Grade != nil {
+		order.Grade = (*string)(payload.Grade)
+	}
+
 	return order
 }
 
@@ -348,6 +352,10 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 
 	if payload.OrdersType != nil {
 		order.OrdersType = internalmessages.OrdersType(*payload.OrdersType)
+	}
+
+	if payload.Grade != nil {
+		order.Grade = (*string)(payload.Grade)
 	}
 
 	return order

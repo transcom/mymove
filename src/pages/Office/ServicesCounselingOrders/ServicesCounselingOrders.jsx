@@ -127,7 +127,7 @@ const ServicesCounselingOrders = () => {
       issueDate: formatSwaggerDate(values.issueDate),
       reportByDate: formatSwaggerDate(values.reportByDate),
       ordersType: values.ordersType,
-      payGrade: values.payGrade,
+      grade: values.payGrade,
     };
     mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
   };
