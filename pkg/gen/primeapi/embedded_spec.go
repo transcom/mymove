@@ -232,7 +232,7 @@ func init() {
         }
       }
     },
-    "/moves/{locator}/order/download": {
+    "/moves/{locator}/documents": {
       "get": {
         "description": "### Functionality\nThis endpoint downloads all uploaded move order documentations into one download file by locator.\n\n### Errors\n* The move must be in need counseling state.\n* The move client's origin duty location must not currently have gov counseling.\n",
         "produces": [
@@ -243,6 +243,27 @@ func init() {
         ],
         "summary": "Downloads move order as a PDF",
         "operationId": "downloadMoveOrder",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "the locator code for move order to be downloaded",
+            "name": "locator",
+            "in": "path",
+            "required": true
+          },
+          {
+            "enum": [
+              "ALL",
+              "ORDERS",
+              "AMENDMENTS"
+            ],
+            "type": "string",
+            "default": "ALL",
+            "description": "upload type",
+            "name": "type",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Move Order PDF",
@@ -273,16 +294,7 @@ func init() {
             "$ref": "#/responses/ServerError"
           }
         }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "the locator code for move order to be downloaded",
-          "name": "locator",
-          "in": "path",
-          "required": true
-        }
-      ]
+      }
     },
     "/mto-service-items": {
       "post": {
@@ -343,7 +355,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: You can add a new SIT Destination final address using this endpoint (and must use this endpoint to do so), but you cannot update an existing one.\nPlease use [createSITAddressUpdateRequest](#operation/createSITAddressUpdateRequest) instead.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n",
+        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: To update a destination service item's SIT destination final address, update the shipment destination address.\nFor approved shipments, please use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).\nFor shipments not yet approved, please use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).\n\nTo create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.\n",
         "consumes": [
           "application/json"
         ],
@@ -2122,9 +2134,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "ppmEstimatedWeight": {
-          "type": "integer"
         },
         "ppmType": {
           "type": "string",
@@ -4952,7 +4961,7 @@ func init() {
         }
       }
     },
-    "/moves/{locator}/order/download": {
+    "/moves/{locator}/documents": {
       "get": {
         "description": "### Functionality\nThis endpoint downloads all uploaded move order documentations into one download file by locator.\n\n### Errors\n* The move must be in need counseling state.\n* The move client's origin duty location must not currently have gov counseling.\n",
         "produces": [
@@ -4963,6 +4972,27 @@ func init() {
         ],
         "summary": "Downloads move order as a PDF",
         "operationId": "downloadMoveOrder",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "the locator code for move order to be downloaded",
+            "name": "locator",
+            "in": "path",
+            "required": true
+          },
+          {
+            "enum": [
+              "ALL",
+              "ORDERS",
+              "AMENDMENTS"
+            ],
+            "type": "string",
+            "default": "ALL",
+            "description": "upload type",
+            "name": "type",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Move Order PDF",
@@ -5008,16 +5038,7 @@ func init() {
             }
           }
         }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "the locator code for move order to be downloaded",
-          "name": "locator",
-          "in": "path",
-          "required": true
-        }
-      ]
+      }
     },
     "/mto-service-items": {
       "post": {
@@ -5099,7 +5120,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: You can add a new SIT Destination final address using this endpoint (and must use this endpoint to do so), but you cannot update an existing one.\nPlease use [createSITAddressUpdateRequest](#operation/createSITAddressUpdateRequest) instead.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n",
+        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: To update a destination service item's SIT destination final address, update the shipment destination address.\nFor approved shipments, please use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).\nFor shipments not yet approved, please use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).\n\nTo create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.\n",
         "consumes": [
           "application/json"
         ],
@@ -7211,9 +7232,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "ppmEstimatedWeight": {
-          "type": "integer"
         },
         "ppmType": {
           "type": "string",

@@ -1,0 +1,18 @@
+@import 'shared/styles/_variables';
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
+
+.moveInfoContainer {
+
+    .moveInfoSection {
+      dl {
+        dt {
+          @include u-width(33%);
+        }
+
+        dd {
+          @include u-width(67%);
+        }
+      }
+    }
+  }
