@@ -36,9 +36,6 @@ func MakePPM(db *pop.Connection, assertions Assertions) models.PersonallyProcure
 
 	mustCreate(db, &ppm, assertions.Stub)
 
-	// Add the ppm we just created to the move.ppm array
-	ppm.Move.PersonallyProcuredMoves = append(ppm.Move.PersonallyProcuredMoves, ppm)
-
 	return ppm
 }
 
