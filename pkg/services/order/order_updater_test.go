@@ -440,6 +440,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
 		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
+		grade := ghcmessages.GradeO5
 
 		body := ghcmessages.CounselingUpdateOrderPayload{
 			IssueDate:            &dateIssued,
@@ -452,6 +453,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 			OrdersTypeDetail:     &ordersTypeDetail,
 			Tac:                  handlers.FmtString("E19A"),
 			Sac:                  nullable.NewString("987654321"),
+			Grade:                &grade,
 		}
 
 		eTag := etag.GenerateEtag(order.UpdatedAt)
@@ -474,6 +476,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		suite.EqualValues(body.DepartmentIndicator, updatedOrder.DepartmentIndicator)
 		suite.EqualValues(body.Tac, updatedOrder.TAC)
 		suite.EqualValues(body.Sac.Value, updatedOrder.SAC)
+		suite.Equal(*updatedOrder.Entitlement.DBAuthorizedWeight, 16000)
 	})
 
 	suite.Run("Rolls back transaction if Order is invalid", func() {

@@ -230,8 +230,18 @@ func orderFromTOOPayload(_ appcontext.AppContext, existingOrder models.Order, pa
 	}
 
 	if payload.Grade != nil {
-		order.Grade = (*string)(payload.Grade)
+		order.Grade = (*internalmessages.OrderPayGrade)(payload.Grade)
 	}
+
+	// Calculate new DBWeightAuthorized based on the new grade
+	weightAllotment := models.GetWeightAllotment(*order.Grade)
+	weight := weightAllotment.TotalWeightSelf
+	// Payload does not have this information, retrieve dependents from the existing order
+	if existingOrder.HasDependents && *order.Entitlement.DependentsAuthorized {
+		// Only utilize dependent weight authorized if dependents are both present and authorized
+		weight = weightAllotment.TotalWeightSelfPlusDependents
+	}
+	order.Entitlement.DBAuthorizedWeight = &weight
 
 	return order
 }
@@ -355,8 +365,18 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 	}
 
 	if payload.Grade != nil {
-		order.Grade = (*string)(payload.Grade)
+		order.Grade = (*internalmessages.OrderPayGrade)(payload.Grade)
 	}
+
+	// Calculate new DBWeightAuthorized based on the new grade
+	weightAllotment := models.GetWeightAllotment(*order.Grade)
+	weight := weightAllotment.TotalWeightSelf
+	// Payload does not have this information, retrieve dependents from the existing order
+	if existingOrder.HasDependents && *order.Entitlement.DependentsAuthorized {
+		// Only utilize dependent weight authorized if dependents are both present and authorized
+		weight = weightAllotment.TotalWeightSelfPlusDependents
+	}
+	order.Entitlement.DBAuthorizedWeight = &weight
 
 	return order
 }
