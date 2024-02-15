@@ -206,6 +206,12 @@ func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params move
 				return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedInternalServerError(), err
 			}
 
+			errNotif := h.NotificationSender().SendNotification(appCtx, notifications.NewMoveCounseled(moveTaskOrderID))
+			if errNotif != nil {
+				appCtx.Logger().Error("problem sending email to user", zap.Error(errNotif))
+				return handlers.ResponseForError(appCtx.Logger(), errNotif), errNotif
+			}
+
 			_, err = event.TriggerEvent(event.Event{
 				EventKey:        event.MoveTaskOrderUpdateEventKey,
 				MtoID:           mto.ID,
@@ -218,10 +224,10 @@ func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params move
 				appCtx.Logger().Error("ghcapi.UpdateMTOStatusServiceCounselingCompletedHandlerFunc could not generate the event")
 			}
 
-			err = h.NotificationSender().SendNotification(appCtx, notifications.NewMoveCounseled(moveTaskOrderID))
-			if err != nil {
-				appCtx.Logger().Error("problem sending email to user", zap.Error(err))
-			}
+			// err = h.NotificationSender().SendNotification(appCtx, notifications.NewMoveCounseled(moveTaskOrderID))
+			// if err != nil {
+			// 	appCtx.Logger().Error("problem sending email to user", zap.Error(err))
+			// }
 
 			return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedOK().WithPayload(moveTaskOrderPayload), nil
 		})
