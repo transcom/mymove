@@ -194,6 +194,8 @@ function ReviewWeightTicket({
             if (newApprovalState === false) {
               setCanEditRejection(true);
               setFieldValue('rejectionReason', '');
+            } else if (newApprovalState === true) {
+              setFieldValue('rejectionReason', '');
             }
             handleChange(event);
           };

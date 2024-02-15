@@ -20,7 +20,7 @@ const getSectionTitle = (sectionInfo) => {
     case sectionTypes.shipmentInfo:
       return `Shipment Info`;
     case sectionTypes.gcc:
-      return `GCC Factors`;
+      return `Incentive Factors`;
     default:
       return <Alert>`Error getting section title!`</Alert>;
   }
