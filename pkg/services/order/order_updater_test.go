@@ -690,7 +690,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
 		suite.Equal(*payload.OrganizationalClothingAndIndividualEquipment, updatedOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
 		suite.EqualValues(payload.Agency, fetchedSM.Affiliation)
-		// suite.Equal(*updatedOrder.Entitlement.DBAuthorizedWeight, 16000)
+		suite.Equal(*updatedOrder.Entitlement.DBAuthorizedWeight, 16000)
 	})
 
 	suite.Run("Updates the allowance when all fields are valid with dependents present and authorized", func() {
