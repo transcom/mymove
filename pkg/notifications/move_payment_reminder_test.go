@@ -9,24 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// func (suite *NotificationSuite) createPaymentReminderMoves(assertions []models.PPMShipment) []models.PPMShipment {
-// 	//ppms := make([]models.PPMShipment, 0)
-// 	var ppms []models.PPMShipment
-// 	estimateIncentive := unit.Cents(1000)
-
-// 	for _, assertion := range assertions {
-// 		assertion.EstimatedIncentive = &estimateIncentive
-// 		assertion.Shipment.Status = models.MTOShipmentStatusApproved
-// 		assertion.ExpectedDepartureDate = offsetDate(-14)
-
-// 		//ppm2 := testdatagen.MakePPM(suite.DB(), assertion)
-// 		ppm := factory.BuildPPMShipment(suite.AppContextForTest().DB(), nil, nil)
-// 		ppms = append(ppms, ppm)
-// 		ppms = append(ppms, assertions...)
-// 	}
-// 	return ppms
-// }
-
 func offsetDate(dayOffset int) time.Time {
 	currentDatetime := time.Now()
 	return currentDatetime.AddDate(0, 0, dayOffset)
@@ -300,69 +282,69 @@ func (suite *NotificationSuite) TestPaymentReminderOnSuccess() {
 	suite.Equal("SESID", n.SESMessageID)
 }
 
-// func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
-// 	test := "https://my.move.mil/sign-in"
-// 	pr, err := NewPaymentReminder()
-// 	suite.NoError(err)
+func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
+	milMove := "https://my.move.mil"
+	pr, err := NewPaymentReminder()
+	suite.NoError(err)
 
-// 	name := "TEST PPPO"
-// 	phone := "555-555-5555"
-// 	s := PaymentReminderEmailData{
-// 		DestinationDutyLocation: "DestDutyLocation",
-// 		WeightEstimate:          "1500",
-// 		IncentiveEstimate:       "500",
-// 		IncentiveTxt:            "You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.",
-// 		TOName:                  &name,
-// 		TOPhone:                 &phone,
-// 		Locator:                 "abc123",
-// 	}
-// 	expectedHTMLContent := `<p>We hope your move to DestDutyLocation went well.</p>
+	name := "TEST PPPO"
+	phone := "555-555-5555"
+	s := PaymentReminderEmailData{
+		DestinationDutyLocation: "DestDutyLocation",
+		WeightEstimate:          "1500",
+		IncentiveEstimate:       "500",
+		IncentiveTxt:            "You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.",
+		TOName:                  &name,
+		TOPhone:                 &phone,
+		Locator:                 "abc123",
+	}
+	expectedHTMLContent := `<p>We hope your move to DestDutyLocation went well.</p>
 
-// <p>It’s been a couple of weeks, so we want to make sure you get paid for that move. You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.</p>
+<p>It’s been a couple of weeks, so we want to make sure you get paid for that move. You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.</p>
 
-// <p>To get your incentive, you need to request payment.</p>
+<p>To get your incentive, you need to request payment.</p>
 
-// <p>Log in to MilMove and request payment</p>
+<p>Log in to MilMove and request payment</p>
 
-// <p>We want to pay you for your PPM, but we can’t do that until you document expenses and request payment.</p>
+<p>We want to pay you for your PPM, but we can’t do that until you document expenses and request payment.</p>
 
-// <p>To do that</p>
+<p>To do that</p>
 
-// <ul>
-//   <li><a href="` + test + `">Log in to MilMove</a></li>
-//   <li>Click Request Payment</li>
-//   <li>Follow the instructions.</li>
-// </ul>
+<ul>
+  <li><a href="` + milMove + `">Log in to MilMove</a></li>
+  <li>Click Request Payment</li>
+  <li>Follow the instructions.</li>
+</ul>
 
-// <p>What documents do you need?</p>
+<p>What documents do you need?</p>
 
-// <p>To request payment, you should have copies of:</p>
-// <ul>
-//   <li>Weight tickets from certified scales, documenting empty and full weights for all vehicles and trailers you used for your move</li>
-//   <li>Receipts for reimbursable expenses (see our moving tips PDF for more info)</li>
-// </ul>
+<p>To request payment, you should have copies of:</p>
+<ul>
+  <li>Weight tickets from certified scales, documenting empty and full weights for all vehicles and trailers you used for your move</li>
+  <li>Receipts for reimbursable expenses (see our moving tips PDF for more info)</li>
+</ul>
 
-// <p>MilMove will ask you to upload copies of your documents as you complete your payment request.</p>
+<p>MilMove will ask you to upload copies of your documents as you complete your payment request.</p>
 
-// <p>What if you’re missing documents?</p>
+<p>What if you’re missing documents?</p>
 
-// <p>If you’re missing receipts, you can still request payment. You might not get reimbursement or a tax credit for those expenses.</p>
+<p>If you’re missing receipts, you can still request payment. You might not get reimbursement or a tax credit for those expenses.</p>
 
-// <p>If you’re missing certified weight tickets, your PPPO will have to help. Call TEST PPPO at 555-555-5555 to have them walk you through it. Reference your move locator code: abc123.</p>
+<p>If you’re missing certified weight tickets, your PPPO will have to help. Call TEST PPPO at 555-555-5555 to have them walk you through it. Reference your move locator code: abc123.</p>
 
-// <p>Log in to MilMove to complete your request and get paid.</p>
+<p>Log in to MilMove to complete your request and get paid.</p>
 
-// <p>Request payment within 45 days of your move date or you might not be able to get paid.</p>
+<p>Request payment within 45 days of your move date or you might not be able to get paid.</p>
 
-// <p>If you have any questions or concerns, you can talk to a human! Call your local PPPO at TEST PPPO at 555-555-5555. Reference your move locator code: abc123.</p>
-// `
+<p>If you have any questions or concerns, you can talk to a human! Call your local PPPO at TEST PPPO at 555-555-5555. Reference your move locator code: abc123.</p>
+`
 
-// 	htmlContent, err := pr.RenderHTML(suite.AppContextForTest(), s)
+	htmlContent, err := pr.RenderHTML(suite.AppContextForTest(), s)
 
-// 	suite.NoError(err)
-// 	suite.Equal(expectedHTMLContent, htmlContent)
+	suite.NoError(err)
+	suite.Equal(expectedHTMLContent, htmlContent)
 
-// }
+}
 
 func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRenderNoOriginDutyLocation() {
 	pr, err := NewPaymentReminder()

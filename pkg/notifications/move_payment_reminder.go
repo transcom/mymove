@@ -61,7 +61,7 @@ type PaymentReminderEmailInfo struct {
 // GetEmailInfo fetches payment email information
 // left joins on duty locations to allow for those fields to be null
 func (m PaymentReminder) GetEmailInfo(appCtx appcontext.AppContext) (PaymentReminderEmailInfos, error) {
-	query := `SELECT sm.id as id, sm.personal_email AS personal_email,
+	query := `SELECT DISTINCT sm.id as id, sm.personal_email AS personal_email,
 	COALESCE(ps.estimated_weight, 0) AS weight_estimate,
 	COALESCE(ps.estimated_incentive, 0) AS incentive_estimate,
 	ps.expected_departure_date  as move_date,
