@@ -7,6 +7,7 @@ import ShipmentDetailsMain from './ShipmentDetailsMain';
 
 import { createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShipment';
 import { MockProviders } from 'testUtils';
+import { formatDateWithUTC } from 'shared/dates';
 
 const shipmentDetailsMainParams = {
   handleDivertShipment: () => {},
@@ -69,5 +70,5 @@ it('does display PPM shipment', () => {
     </MockProviders>,
   );
 
-  expect(screen.queryByText('2/22/2024')).toBeInTheDocument();
+  expect(screen.queryByText(formatDateWithUTC('2-22-2024'))).toBeInTheDocument();
 });
