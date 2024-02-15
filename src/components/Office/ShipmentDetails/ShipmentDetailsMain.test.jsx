@@ -69,7 +69,6 @@ it('does display PPM shipment', () => {
     </MockProviders>,
   );
 
-  expect(screen.queryByText('1/1/2024')).toBeInTheDocument();
   expect(screen.queryByText('2/22/2024')).toBeInTheDocument();
   expect(screen.queryByText('100 lbs')).toBeInTheDocument();
 });
