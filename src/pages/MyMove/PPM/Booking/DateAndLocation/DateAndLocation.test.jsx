@@ -201,7 +201,10 @@ describe('DateAndLocation component', () => {
       renderDateAndLocation();
 
       await act(async () => {
-        await userEvent.type(document.querySelector('input[name="pickupAddress.address.streetAddress1"]'), '123 Any St');
+        await userEvent.type(
+          document.querySelector('input[name="pickupAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
       });
 
       await act(async () => {
@@ -209,7 +212,7 @@ describe('DateAndLocation component', () => {
       });
 
       await act(async () => {
-        await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA')
+        await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA');
       });
 
       await act(async () => {
@@ -217,7 +220,10 @@ describe('DateAndLocation component', () => {
       });
 
       await act(async () => {
-        await userEvent.type(document.querySelector('input[name="destinationAddress.address.streetAddress1"]'), '123 Any St');
+        await userEvent.type(
+          document.querySelector('input[name="destinationAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
       });
 
       await act(async () => {
@@ -242,16 +248,16 @@ describe('DateAndLocation component', () => {
           shipmentType: 'PPM',
           ppmShipment: {
             destinationAddress: {
-              city: "Norfolk",
-              postalCode: "10002",
-              state: "VA",
-              streetAddress1: "123 Any St",
+              city: 'Norfolk',
+              postalCode: '10002',
+              state: 'VA',
+              streetAddress1: '123 Any St',
             },
             pickupAddress: {
-              city: "Norfolk",
-              postalCode: "10001",
-              state: "VA",
-              streetAddress1: "123 Any St",
+              city: 'Norfolk',
+              postalCode: '10001',
+              state: 'VA',
+              streetAddress1: '123 Any St',
             },
             pickupPostalCode: '10001',
             destinationPostalCode: '10002',
@@ -280,7 +286,10 @@ describe('DateAndLocation component', () => {
 
       // Fill in form
       await act(async () => {
-        await userEvent.type(document.querySelector('input[name="pickupAddress.address.streetAddress1"]'), '123 Any St');
+        await userEvent.type(
+          document.querySelector('input[name="pickupAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
       });
 
       await act(async () => {
@@ -288,7 +297,7 @@ describe('DateAndLocation component', () => {
       });
 
       await act(async () => {
-        await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA')
+        await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA');
       });
 
       await act(async () => {
@@ -296,7 +305,10 @@ describe('DateAndLocation component', () => {
       });
 
       await act(async () => {
-        await userEvent.type(document.querySelector('input[name="destinationAddress.address.streetAddress1"]'), '123 Any St');
+        await userEvent.type(
+          document.querySelector('input[name="destinationAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
       });
 
       await act(async () => {
@@ -321,16 +333,16 @@ describe('DateAndLocation component', () => {
           shipmentType: 'PPM',
           ppmShipment: {
             destinationAddress: {
-              city: "Norfolk",
-              postalCode: "10002",
-              state: "VA",
-              streetAddress1: "123 Any St",
+              city: 'Norfolk',
+              postalCode: '10002',
+              state: 'VA',
+              streetAddress1: '123 Any St',
             },
             pickupAddress: {
-              city: "Norfolk",
-              postalCode: "10001",
-              state: "VA",
-              streetAddress1: "123 Any St",
+              city: 'Norfolk',
+              postalCode: '10001',
+              state: 'VA',
+              streetAddress1: '123 Any St',
             },
             pickupPostalCode: '10001',
             destinationPostalCode: '10002',
@@ -369,67 +381,94 @@ describe('DateAndLocation component', () => {
       });
 
       await act(async () => {
-        await userEvent.type(document.querySelector('input[name="pickupAddress.address.streetAddress1"]'), '123 Any St');
+        await userEvent.type(
+          document.querySelector('input[name="pickupAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
       });
-  
+
       await act(async () => {
         await userEvent.type(document.querySelector('input[name="pickupAddress.address.city"]'), 'Norfolk');
       });
-  
+
       await act(async () => {
-        await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA')
+        await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA');
       });
-  
+
       await act(async () => {
         await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '10001');
       });
-  
+
       await act(async () => {
-        await userEvent.type(document.querySelector('input[name="destinationAddress.address.streetAddress1"]'), '123 Any St');
+        await userEvent.type(
+          document.querySelector('input[name="destinationAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
       });
-  
+
       await act(async () => {
         await userEvent.type(document.querySelector('input[name="destinationAddress.address.city"]'), 'Norfolk');
       });
-  
+
       await act(async () => {
         await userEvent.selectOptions(document.querySelector('select[name="destinationAddress.address.state"]'), 'VA');
       });
-  
+
       await act(async () => {
         await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
       });
 
       await act(async () => {
-        await userEvent.type(document.querySelector('input[name="secondaryPickupAddress.address.streetAddress1"]'), '123 Any St');
+        await userEvent.type(
+          document.querySelector('input[name="secondaryPickupAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
       });
-  
+
       await act(async () => {
         await userEvent.type(document.querySelector('input[name="secondaryPickupAddress.address.city"]'), 'Norfolk');
       });
-  
+
       await act(async () => {
-        await userEvent.selectOptions(document.querySelector('select[name="secondaryPickupAddress.address.state"]'), 'VA')
+        await userEvent.selectOptions(
+          document.querySelector('select[name="secondaryPickupAddress.address.state"]'),
+          'VA',
+        );
       });
-  
+
       await act(async () => {
-        await userEvent.type(document.querySelector('input[name="secondaryPickupAddress.address.postalCode"]'), '10003');
+        await userEvent.type(
+          document.querySelector('input[name="secondaryPickupAddress.address.postalCode"]'),
+          '10003',
+        );
       });
-  
+
       await act(async () => {
-        await userEvent.type(document.querySelector('input[name="secondaryDestinationAddress.address.streetAddress1"]'), '123 Any St');
+        await userEvent.type(
+          document.querySelector('input[name="secondaryDestinationAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
       });
-  
+
       await act(async () => {
-        await userEvent.type(document.querySelector('input[name="secondaryDestinationAddress.address.city"]'), 'Norfolk');
+        await userEvent.type(
+          document.querySelector('input[name="secondaryDestinationAddress.address.city"]'),
+          'Norfolk',
+        );
       });
-  
+
       await act(async () => {
-        await userEvent.selectOptions(document.querySelector('select[name="secondaryDestinationAddress.address.state"]'), 'VA');
+        await userEvent.selectOptions(
+          document.querySelector('select[name="secondaryDestinationAddress.address.state"]'),
+          'VA',
+        );
       });
-  
+
       await act(async () => {
-        await userEvent.type(document.querySelector('input[name="secondaryDestinationAddress.address.postalCode"]'), '10004');
+        await userEvent.type(
+          document.querySelector('input[name="secondaryDestinationAddress.address.postalCode"]'),
+          '10004',
+        );
       });
 
       await userEvent.click(radioElements[2]);
@@ -444,28 +483,28 @@ describe('DateAndLocation component', () => {
           shipmentType: 'PPM',
           ppmShipment: {
             destinationAddress: {
-              city: "Norfolk",
-              postalCode: "10002",
-              state: "VA",
-              streetAddress1: "123 Any St",
+              city: 'Norfolk',
+              postalCode: '10002',
+              state: 'VA',
+              streetAddress1: '123 Any St',
             },
             pickupAddress: {
-              city: "Norfolk",
-              postalCode: "10001",
-              state: "VA",
-              streetAddress1: "123 Any St",
+              city: 'Norfolk',
+              postalCode: '10001',
+              state: 'VA',
+              streetAddress1: '123 Any St',
             },
             secondaryDestinationAddress: {
-              city: "Norfolk",
-              postalCode: "10004",
-              state: "VA",
-              streetAddress1: "123 Any St",
+              city: 'Norfolk',
+              postalCode: '10004',
+              state: 'VA',
+              streetAddress1: '123 Any St',
             },
             secondaryPickupAddress: {
-              city: "Norfolk",
-              postalCode: "10003",
-              state: "VA",
-              streetAddress1: "123 Any St",
+              city: 'Norfolk',
+              postalCode: '10003',
+              state: 'VA',
+              streetAddress1: '123 Any St',
             },
             pickupPostalCode: '10001',
             destinationPostalCode: '10002',
@@ -497,33 +536,39 @@ describe('DateAndLocation component', () => {
 
       // Fill in form
       await act(async () => {
-        await userEvent.type(document.querySelector('input[name="pickupAddress.address.streetAddress1"]'), '123 Any St');
+        await userEvent.type(
+          document.querySelector('input[name="pickupAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
       });
-  
+
       await act(async () => {
         await userEvent.type(document.querySelector('input[name="pickupAddress.address.city"]'), 'Norfolk');
       });
-  
+
       await act(async () => {
-        await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA')
+        await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA');
       });
-  
+
       await act(async () => {
         await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '10001');
       });
-  
+
       await act(async () => {
-        await userEvent.type(document.querySelector('input[name="destinationAddress.address.streetAddress1"]'), '123 Any St');
+        await userEvent.type(
+          document.querySelector('input[name="destinationAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
       });
-  
+
       await act(async () => {
         await userEvent.type(document.querySelector('input[name="destinationAddress.address.city"]'), 'Norfolk');
       });
-  
+
       await act(async () => {
         await userEvent.selectOptions(document.querySelector('select[name="destinationAddress.address.state"]'), 'VA');
       });
-  
+
       await act(async () => {
         await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
       });
@@ -568,29 +613,35 @@ describe('DateAndLocation component', () => {
 
       // Fill in form
       await act(async () => {
-        await userEvent.type(document.querySelector('input[name="pickupAddress.address.streetAddress1"]'), '123 Any St');
+        await userEvent.type(
+          document.querySelector('input[name="pickupAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
       });
-  
+
       await act(async () => {
         await userEvent.type(document.querySelector('input[name="pickupAddress.address.city"]'), 'Norfolk');
       });
-  
+
       await act(async () => {
-        await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA')
+        await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA');
       });
-  
+
       await act(async () => {
         await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '10001');
       });
-  
+
       await act(async () => {
-        await userEvent.type(document.querySelector('input[name="destinationAddress.address.streetAddress1"]'), '123 Any St');
+        await userEvent.type(
+          document.querySelector('input[name="destinationAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
       });
-  
+
       await act(async () => {
         await userEvent.type(document.querySelector('input[name="destinationAddress.address.city"]'), 'Norfolk');
       });
-  
+
       await act(async () => {
         await userEvent.selectOptions(document.querySelector('select[name="destinationAddress.address.state"]'), 'VA');
       });
@@ -636,7 +687,10 @@ describe('DateAndLocation component', () => {
 
       // Fill in form
       await act(async () => {
-        await userEvent.type(document.querySelector('input[name="pickupAddress.address.streetAddress1"]'), '123 Any St');
+        await userEvent.type(
+          document.querySelector('input[name="pickupAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
       });
 
       await act(async () => {
@@ -644,7 +698,7 @@ describe('DateAndLocation component', () => {
       });
 
       await act(async () => {
-        await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA')
+        await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA');
       });
 
       await act(async () => {
@@ -652,7 +706,10 @@ describe('DateAndLocation component', () => {
       });
 
       await act(async () => {
-        await userEvent.type(document.querySelector('input[name="destinationAddress.address.streetAddress1"]'), '123 Any St');
+        await userEvent.type(
+          document.querySelector('input[name="destinationAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
       });
 
       await act(async () => {
@@ -666,7 +723,7 @@ describe('DateAndLocation component', () => {
       await act(async () => {
         await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
       });
-      
+
       await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
 
       // Set Closeout office
@@ -704,7 +761,10 @@ describe('DateAndLocation component', () => {
 
       // Fill in form
       await act(async () => {
-        await userEvent.type(document.querySelector('input[name="pickupAddress.address.streetAddress1"]'), '123 Any St');
+        await userEvent.type(
+          document.querySelector('input[name="pickupAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
       });
 
       await act(async () => {
@@ -712,7 +772,7 @@ describe('DateAndLocation component', () => {
       });
 
       await act(async () => {
-        await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA')
+        await userEvent.selectOptions(document.querySelector('select[name="pickupAddress.address.state"]'), 'VA');
       });
 
       await act(async () => {
@@ -720,7 +780,10 @@ describe('DateAndLocation component', () => {
       });
 
       await act(async () => {
-        await userEvent.type(document.querySelector('input[name="destinationAddress.address.streetAddress1"]'), '123 Any St');
+        await userEvent.type(
+          document.querySelector('input[name="destinationAddress.address.streetAddress1"]'),
+          '123 Any St',
+        );
       });
 
       await act(async () => {
@@ -785,7 +848,6 @@ describe('DateAndLocation component', () => {
       expect(postalCodes[1]).toHaveValue('20004');
       expect(postalCodes[2]).toHaveValue('20003');
       expect(postalCodes[3]).toHaveValue('20005');
-
     });
 
     it('routes back to the home page screen when back is clicked', async () => {

@@ -1,9 +1,10 @@
 import React from 'react';
 import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { act } from 'react-dom/test-utils';
+
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
-import { act } from 'react-dom/test-utils';
 
 const serviceMember = {
   serviceMember: {
@@ -36,21 +37,6 @@ const defaultProps = {
   },
   postalCodeValidator: jest.fn(),
   ...serviceMember,
-};
-const mtoShipmentProps = {
-  ...defaultProps,
-  mtoShipment: {
-    id: '123',
-    ppmShipment: {
-      id: '123',
-      pickupPostalCode: '12345',
-      secondaryPickupPostalCode: '34512',
-      destinationPostalCode: '94611',
-      secondaryDestinationPostalCode: '90210',
-      sitExpected: true,
-      expectedDepartureDate: '2022-09-23',
-    },
-  },
 };
 
 beforeEach(() => {
