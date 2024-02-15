@@ -47,6 +47,64 @@ func (suite *PayloadsSuite) TestUpload() {
 	})
 }
 
+func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
+	id, _ := uuid.NewV4()
+	id2, _ := uuid.NewV4()
+
+	newAddress := models.Address{
+		StreetAddress1: "123 New St",
+		City:           "Beverly Hills",
+		State:          "CA",
+		PostalCode:     "89503",
+		Country:        models.StringPointer("United States"),
+	}
+
+	oldAddress := models.Address{
+		StreetAddress1: "123 Old St",
+		City:           "Beverly Hills",
+		State:          "CA",
+		PostalCode:     "89502",
+		Country:        models.StringPointer("United States"),
+	}
+
+	sitOriginalAddress := models.Address{
+		StreetAddress1: "123 SIT St",
+		City:           "Beverly Hills",
+		State:          "CA",
+		PostalCode:     "89501",
+		Country:        models.StringPointer("United States"),
+	}
+	officeRemarks := "some office remarks"
+	newSitDistanceBetween := 0
+	oldSitDistanceBetween := 0
+
+	shipmentAddressUpdate := models.ShipmentAddressUpdate{
+		ID:                    id,
+		ShipmentID:            id2,
+		NewAddress:            newAddress,
+		OriginalAddress:       oldAddress,
+		SitOriginalAddress:    &sitOriginalAddress,
+		ContractorRemarks:     "some remarks",
+		OfficeRemarks:         &officeRemarks,
+		Status:                models.ShipmentAddressUpdateStatusRequested,
+		NewSitDistanceBetween: &newSitDistanceBetween,
+		OldSitDistanceBetween: &oldSitDistanceBetween,
+	}
+
+	emptyShipmentAddressUpdate := models.ShipmentAddressUpdate{ID: uuid.Nil}
+
+	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct", func() {
+		returnedShipmentAddressUpdate := ShipmentAddressUpdate(&shipmentAddressUpdate)
+
+		suite.IsType(returnedShipmentAddressUpdate, &ghcmessages.ShipmentAddressUpdate{})
+	})
+	suite.Run("Failure - Returns nil", func() {
+		returnedShipmentAddressUpdate := ShipmentAddressUpdate(&emptyShipmentAddressUpdate)
+
+		suite.Nil(returnedShipmentAddressUpdate)
+	})
+}
+
 func (suite *PayloadsSuite) TestWeightTicketUpload() {
 	uploadID, _ := uuid.NewV4()
 	testURL := "https://testurl.com"
