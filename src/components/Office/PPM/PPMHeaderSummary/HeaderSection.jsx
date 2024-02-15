@@ -10,7 +10,7 @@ import { formatDate, formatCents, formatWeight } from 'utils/formatters';
 export const sectionTypes = {
   incentives: 'incentives',
   shipmentInfo: 'shipmentInfo',
-  gcc: 'gcc',
+  incentiveFactors: 'incentiveFactors',
 };
 
 const getSectionTitle = (sectionInfo) => {
@@ -19,7 +19,7 @@ const getSectionTitle = (sectionInfo) => {
       return `Incentives/Costs`;
     case sectionTypes.shipmentInfo:
       return `Shipment Info`;
-    case sectionTypes.gcc:
+    case sectionTypes.incentiveFactors:
       return `Incentive Factors`;
     default:
       return <Alert>`Error getting section title!`</Alert>;
@@ -79,7 +79,7 @@ const getSectionMarkup = (sectionInfo) => {
         <div className={classnames(styles.Details)}>
           <div>
             <Label>Government Constructive Cost (GCC)</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.gcc)}</span>
+            <span className={styles.light}>${formatCents(sectionInfo.incentiveFactors)}</span>
           </div>
           <div>
             <Label>Gross Incentive</Label>
@@ -104,7 +104,7 @@ const getSectionMarkup = (sectionInfo) => {
         </div>
       );
 
-    case sectionTypes.gcc:
+    case sectionTypes.incentiveFactors:
       return (
         <div className={classnames(styles.Details)}>
           <div>

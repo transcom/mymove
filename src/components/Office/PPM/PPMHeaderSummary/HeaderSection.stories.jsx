@@ -51,7 +51,7 @@ Incentives.args = {
 export const GCC = Template.bind({});
 GCC.args = {
   sectionInfo: {
-    type: sectionTypes.gcc,
+    type: sectionTypes.incentiveFactors,
     linehaulPrice: 60803,
     linehaulFuelSurcharge: 0,
     shorthaulPrice: 0,
