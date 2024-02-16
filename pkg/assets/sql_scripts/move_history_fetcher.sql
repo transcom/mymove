@@ -39,12 +39,18 @@ WITH move AS (
 	move_logs AS (
 		SELECT
 			audit_history.*,
-			NULL AS context,
+			jsonb_agg(jsonb_strip_nulls(
+				jsonb_build_object(
+					'closeout_office_name',
+					(SELECT transportation_offices.name FROM transportation_offices WHERE transportation_offices.id = uuid(c.closeout_office_id))
+				))
+			)::TEXT AS context,
 			NULL AS context_id
 		FROM
 			audit_history
 		JOIN move ON audit_history.object_id = move.id
-		WHERE audit_history.table_name = 'moves'
+		JOIN jsonb_to_record(audit_history.changed_data) as c(closeout_office_id TEXT) on TRUE
+		WHERE audit_history.table_name = 'moves' group by audit_history.id
 	),
 	move_orders AS (
 		SELECT

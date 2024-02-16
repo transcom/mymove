@@ -67,3 +67,4 @@ export { default as updateMovingExpense } from './UpdateMovingExpense/UpdateMovi
 export { default as updateWeightTicketProGear } from './UpdateWeightTicket/updateWeightTicketProGear';
 export { default as createMTOShipmentPPMDetails } from './CreateMTOShipment/createMTOShipmentPPMDetails';
 export { default as deleteShipmentPPM } from './DeleteShipment/DeleteShipmentPPM';
+export { default as updateCloseoutOffice } from './UpdateCloseoutOffice/updateCloseoutOffice';
