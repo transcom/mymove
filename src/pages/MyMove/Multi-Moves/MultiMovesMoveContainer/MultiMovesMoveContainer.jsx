@@ -11,6 +11,7 @@ import styles from './MultiMovesMoveContainer.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import { customerRoutes } from 'constants/routes';
+import { getMoveCodeLabel } from 'utils/shipmentDisplay';
 
 const MultiMovesMoveContainer = ({ moves }) => {
   const [expandedMoves, setExpandedMoves] = useState({});
@@ -67,8 +68,8 @@ const MultiMovesMoveContainer = ({ moves }) => {
   };
 
   // sends user to the move page when clicking "Go to Move" btn
-  const handleGoToMoveClick = () => {
-    navigate(customerRoutes.MOVE_HOME_PAGE);
+  const handleGoToMoveClick = (id) => {
+    navigate(`${customerRoutes.MOVE_HOME_PAGE}/${id}`);
   };
 
   const moveList = moves.map((m, index) => (
@@ -76,13 +77,15 @@ const MultiMovesMoveContainer = ({ moves }) => {
       <div className={styles.moveContainer}>
         <div className={styles.heading} key={index}>
           <h3>#{m.moveCode}</h3>
-          {m.status !== 'APPROVED' ? (
+          {m.status ? (
             <Button
               data-testid="goToMoveBtn"
               className={styles.goToMoveBtn}
               secondary
               outline
-              onClick={handleGoToMoveClick}
+              onClick={() => {
+                handleGoToMoveClick(m.id);
+              }}
             >
               Go to Move
             </Button>
@@ -122,7 +125,7 @@ const MultiMovesMoveContainer = ({ moves }) => {
                         <div className={styles.innerWrapper}>
                           <div className={styles.shipmentTypeHeading}>
                             <h4>{generateShipmentTypeTitle(s.shipmentType)}</h4>
-                            <h5>#{m.moveCode}</h5>
+                            <h5>#{getMoveCodeLabel(s.id)}</h5>
                           </div>
                         </div>
                       </ShipmentContainer>
