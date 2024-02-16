@@ -16,7 +16,7 @@ const info = {
 };
 
 describe('AllowancesList', () => {
-  it('renders formatted branch and rank', () => {
+  it('renders formatted branch', () => {
     render(<AllowancesList info={info} />);
     expect(screen.getByText('Navy')).toBeInTheDocument();
   });
