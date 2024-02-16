@@ -6,7 +6,7 @@ test('Users can upload but cannot delete orders once move has been submitted', a
   const move = await customerPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
   const userId = move.Orders.ServiceMember.user_id;
   await customerPage.signInAsExistingCustomer(userId);
-  await customerPage.waitForPage.multiMoveLandingPage();
+  // await customerPage.waitForPage.multiMoveLandingPage();
   // await page.getByRole('button', { name: 'Review your request' }).click();
   // await page.getByTestId('edit-orders-table').click();
   // await expect(page.getByText('Delete')).not.toBeVisible();

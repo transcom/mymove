@@ -92,11 +92,11 @@ export class WaitForCustomerPage extends WaitForPage {
   /**
    * @returns {Promise<void>}
    */
-  async multiMoveLandingPage() {
-    await this.runAccessibilityAudit();
-    await base.expect(this.page.getByText('Welcome to MilMove!')).toBeVisible();
-    await this.runAccessibilityAudit();
-  }
+  // async multiMoveLandingPage() {
+  //   await this.runAccessibilityAudit();
+  //   await base.expect(this.page.getByText('Welcome to MilMove!')).toBeVisible();
+  //   await this.runAccessibilityAudit();
+  // }
 
   /**
    * @returns {Promise<void>}

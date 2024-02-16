@@ -45,11 +45,16 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
 
   /**
    */
-  async verifyStep5ExistsAndBtnIsDisabled() {
-    const stepContainer5 = this.page.locator('[data-testid="stepContainer5"]');
-    await expect(stepContainer5.getByRole('button', { name: 'Upload PPM Documents' })).toBeDisabled();
+  async verifyManagePPMStepExistsAndBtnIsDisabled() {
+    const stepContainer = this.page.locator('[data-testid="stepContainer6"]');
+
+    if (stepContainer == null) {
+      this.page.locator('[data-testid="stepContainer5"]');
+    }
+
+    await expect(stepContainer.getByRole('button', { name: 'Upload PPM Documents' })).toBeDisabled();
     await expect(
-      stepContainer5.locator('p').getByText('After a counselor approves your PPM, you will be able to:'),
+      stepContainer.locator('p').getByText('After a counselor approves your PPM, you will be able to:'),
     ).toBeVisible();
   }
 
@@ -119,7 +124,7 @@ test.describe.skip('Entire PPM onboarding flow', () => {
       await customerPpmOnboardingPage.submitsAdvancePage({ addAdvance: true, isMobile });
       await customerPpmOnboardingPage.navigateToAgreementAndSign();
       await customerPpmOnboardingPage.submitMove();
-      await customerPpmOnboardingPage.verifyStep5ExistsAndBtnIsDisabled();
+      await customerPpmOnboardingPage.verifyManagePPMStepExistsAndBtnIsDisabled();
     });
 
     test.skip('happy path with edits and backs', async () => {
@@ -138,7 +143,7 @@ test.describe.skip('Entire PPM onboarding flow', () => {
       await customerPpmOnboardingPage.navigateToAgreementAndSign();
 
       await customerPpmOnboardingPage.submitMove();
-      await customerPpmOnboardingPage.verifyStep5ExistsAndBtnIsDisabled();
+      await customerPpmOnboardingPage.verifyManagePPMStepExistsAndBtnIsDisabled();
     });
   });
 });
