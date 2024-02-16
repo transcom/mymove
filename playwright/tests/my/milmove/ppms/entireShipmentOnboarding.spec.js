@@ -7,6 +7,8 @@
 // @ts-check
 import { expect, test, forEachViewport, CustomerPpmPage } from './customerPpmTestFixture';
 
+const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
+
 /**
  * CustomerPpmOnboardingPage test fixture. Our linting rules (like
  * no-use-before-define) pushes us towards grouping all these helpers
@@ -100,7 +102,8 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
   }
 }
 
-test.describe.skip('Entire PPM onboarding flow', () => {
+test.describe('Entire PPM onboarding flow', () => {
+  test.skip(multiMoveEnabled === 'true');
   /** @type {CustomerPpmOnboardingPage} */
   let customerPpmOnboardingPage;
 
@@ -111,7 +114,7 @@ test.describe.skip('Entire PPM onboarding flow', () => {
       await customerPpmOnboardingPage.signInForPPMWithMove(move);
     });
 
-    test.skip('flows through happy path for existing shipment', async () => {
+    test('flows through happy path for existing shipment', async () => {
       await customerPpmOnboardingPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
       await customerPpmOnboardingPage.submitsDateAndLocation();
       await customerPpmOnboardingPage.submitsEstimatedWeightsAndProGear();
@@ -122,7 +125,51 @@ test.describe.skip('Entire PPM onboarding flow', () => {
       await customerPpmOnboardingPage.verifyStep5ExistsAndBtnIsDisabled();
     });
 
-    test.skip('happy path with edits and backs', async () => {
+    test('happy path with edits and backs', async () => {
+      await customerPpmOnboardingPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
+
+      await customerPpmOnboardingPage.submitAndVerifyUpdateDateAndLocation();
+
+      await customerPpmOnboardingPage.submitsEstimatedWeightsAndProGear();
+      await customerPpmOnboardingPage.verifyEstimatedWeightsAndProGear();
+
+      await customerPpmOnboardingPage.verifyShipmentSpecificInfoOnEstimatedIncentivePage();
+      await customerPpmOnboardingPage.generalVerifyEstimatedIncentivePage({ isMobile });
+
+      await customerPpmOnboardingPage.submitsAdvancePage({ addAdvance: true, isMobile });
+
+      await customerPpmOnboardingPage.navigateToAgreementAndSign();
+
+      await customerPpmOnboardingPage.submitMove();
+      await customerPpmOnboardingPage.verifyStep5ExistsAndBtnIsDisabled();
+    });
+  });
+});
+
+test.describe('(MultiMove) Entire PPM onboarding flow', () => {
+  test.skip(multiMoveEnabled === 'false');
+  /** @type {CustomerPpmOnboardingPage} */
+  let customerPpmOnboardingPage;
+
+  forEachViewport(async ({ isMobile }) => {
+    test.beforeEach(async ({ customerPpmPage }) => {
+      const move = await customerPpmPage.testHarness.buildDraftMoveWithPPMWithDepartureDate();
+      customerPpmOnboardingPage = new CustomerPpmOnboardingPage(customerPpmPage);
+      await customerPpmOnboardingPage.signInForPPMWithMove(move);
+    });
+
+    test('flows through happy path for existing shipment', async () => {
+      await customerPpmOnboardingPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
+      await customerPpmOnboardingPage.submitsDateAndLocation();
+      await customerPpmOnboardingPage.submitsEstimatedWeightsAndProGear();
+      await customerPpmOnboardingPage.generalVerifyEstimatedIncentivePage({ isMobile });
+      await customerPpmOnboardingPage.submitsAdvancePage({ addAdvance: true, isMobile });
+      await customerPpmOnboardingPage.navigateToAgreementAndSign();
+      await customerPpmOnboardingPage.submitMove();
+      await customerPpmOnboardingPage.verifyStep5ExistsAndBtnIsDisabled();
+    });
+
+    test('happy path with edits and backs', async () => {
       await customerPpmOnboardingPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
 
       await customerPpmOnboardingPage.submitAndVerifyUpdateDateAndLocation();

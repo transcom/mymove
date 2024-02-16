@@ -10,6 +10,7 @@ import { test, forEachViewport } from './customerPpmTestFixture';
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 
 test.describe('About Your PPM', () => {
+  test.skip(multiMoveEnabled === 'true');
   forEachViewport(async () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
@@ -19,12 +20,24 @@ test.describe('About Your PPM', () => {
     [true, false].forEach((selectAdvance) => {
       const advanceText = selectAdvance ? 'with' : 'without';
       test(`can submit actual PPM shipment info ${advanceText} an advance`, async ({ customerPpmPage }) => {
-        if (multiMoveEnabled) {
-          // Need to have move show on multiMoveLanding Page. Click Go to Move, then ...
-          // await customerPpmPage.navigateToAboutPage({ selectAdvance });
-        } else {
-          await customerPpmPage.navigateToAboutPage({ selectAdvance });
-        }
+        await customerPpmPage.navigateToAboutPage({ selectAdvance });
+      });
+    });
+  });
+});
+
+test.describe('(MultiMove) About Your PPM', () => {
+  test.skip(multiMoveEnabled === 'false');
+  forEachViewport(async () => {
+    test.beforeEach(async ({ customerPpmPage }) => {
+      const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
+      await customerPpmPage.signInForPPMWithMove(move);
+    });
+
+    [true, false].forEach((selectAdvance) => {
+      const advanceText = selectAdvance ? 'with' : 'without';
+      test(`can submit actual PPM shipment info ${advanceText} an advance`, async ({ customerPpmPage }) => {
+        await customerPpmPage.navigateToAboutPage({ selectAdvance });
       });
     });
   });
