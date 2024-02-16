@@ -283,7 +283,7 @@ func (suite *NotificationSuite) TestPaymentReminderOnSuccess() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
-	milMove := "https://my.move.mil"
+	milMove := "https://my.move.mil/"
 	pr, err := NewPaymentReminder()
 	suite.NoError(err)
 
@@ -297,7 +297,7 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 		TOName:                  &name,
 		TOPhone:                 &phone,
 		Locator:                 "abc123",
-		MyMoveLink:              MyMoveLink,
+		MyMoveLink:              milMove,
 	}
 	expectedHTMLContent := `<p>We hope your move to DestDutyLocation went well.</p>
 
@@ -312,7 +312,7 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 <p>To do that</p>
 
 <ul>
-  <li><a href="` + milMove + `">Log in to MilMove</a></li>
+  <li><a href="` + MyMoveLink + `">Log in to MilMove</a></li>
   <li>Click Request Payment</li>
   <li>Follow the instructions.</li>
 </ul>
@@ -350,6 +350,7 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRenderNoOriginDutyLocation() {
 	pr, err := NewPaymentReminder()
 	suite.NoError(err)
+	milMove := "https://my.move.mil/"
 
 	s := PaymentReminderEmailData{
 		DestinationDutyLocation: "DestDutyLocation",
@@ -359,7 +360,7 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRenderNoOriginDut
 		TOName:                  nil,
 		TOPhone:                 nil,
 		Locator:                 "abc123",
-		MyMoveLink:              MyMoveLink,
+		MyMoveLink:              milMove,
 	}
 	expectedHTMLContent := `<p>We hope your move to DestDutyLocation went well.</p>
 
@@ -423,7 +424,6 @@ func (suite *NotificationSuite) TestPaymentReminderTextTemplateRender() {
 		TOName:                  &name,
 		TOPhone:                 &phone,
 		Locator:                 "abc123",
-		MyMoveLink:              MyMoveLink,
 	}
 	expectedTextContent := `We hope your move to DestDutyLocation went well.
 
@@ -492,6 +492,8 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 	name3 := "to3"
 	name4 := "to4"
 
+	milMove := "https://my.move.mil/"
+
 	emailInfos := PaymentReminderEmailInfos{
 		{
 			Email:               &email1,
@@ -549,7 +551,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			TOName:                  emailInfo.TOName,
 			TOPhone:                 emailInfo.TOPhone,
 			Locator:                 emailInfo.Locator,
-			MyMoveLink:              MyMoveLink,
+			MyMoveLink:              milMove,
 		}
 		htmlBody, err := pr.RenderHTML(suite.AppContextForTest(), data)
 		suite.NoError(err)

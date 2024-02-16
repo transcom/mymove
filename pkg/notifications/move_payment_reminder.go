@@ -35,7 +35,7 @@ func NewPaymentReminder() (*PaymentReminder, error) {
 
 	return &PaymentReminder{
 		emailAfter:    "14 DAYS",
-		noEmailBefore: "2023-06-01",
+		noEmailBefore: "2019-06-01",
 		htmlTemplate:  paymentReminderHTMLTemplate,
 		textTemplate:  paymentReminderTextTemplate,
 	}, nil
