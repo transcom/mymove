@@ -10,7 +10,7 @@ import { expect, test, forEachViewport } from './customerPpmTestFixture';
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 
 test.describe('PPM Request Payment - Begin providing documents flow', () => {
-  test.skip(multiMoveEnabled === 'true');
+  test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
   forEachViewport(async () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
@@ -28,7 +28,9 @@ test.describe('PPM Request Payment - Begin providing documents flow', () => {
 });
 
 test.describe('(MultiMove) PPM Request Payment - Begin providing documents flow', () => {
-  test.skip(multiMoveEnabled === 'false');
+  test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
+  test.fail(multiMoveEnabled === 'true');
+
   forEachViewport(async () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();

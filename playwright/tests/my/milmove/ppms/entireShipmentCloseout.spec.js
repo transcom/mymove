@@ -10,7 +10,7 @@ import { test, forEachViewport } from './customerPpmTestFixture';
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 
 test.describe('Entire PPM closeout flow', () => {
-  test.skip(multiMoveEnabled === 'true');
+  test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
   forEachViewport(async () => {
     test(`flows through happy path for existing shipment`, async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
@@ -125,25 +125,27 @@ test.describe('Entire PPM closeout flow', () => {
 });
 
 test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () => {
-  test.skip(multiMoveEnabled === 'false');
+  test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
+  test.fail(multiMoveEnabled === 'true');
+
   forEachViewport(async () => {
     test(`flows through happy path for existing shipment`, async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
 
       await customerPpmPage.signInForPPMWithMove(move);
-      // await customerPpmPage.navigateToAboutPage();
-      // await customerPpmPage.submitWeightTicketPage();
-      // await customerPpmPage.navigateFromCloseoutReviewPageToProGearPage();
-      // await customerPpmPage.submitProgearPage();
-      // await customerPpmPage.navigateFromCloseoutReviewPageToExpensesPage();
-      // await customerPpmPage.submitExpensePage();
-      // await customerPpmPage.navigateFromPPMReviewPageToFinalCloseoutPage();
-      // await customerPpmPage.submitFinalCloseout({
-      //   totalNetWeight: '2,000 lbs',
-      //   proGearWeight: '2,000 lbs',
-      //   expensesClaimed: '675.99',
-      //   finalIncentiveAmount: '$31,184.80',
-      // });
+      await customerPpmPage.navigateToAboutPage();
+      await customerPpmPage.submitWeightTicketPage();
+      await customerPpmPage.navigateFromCloseoutReviewPageToProGearPage();
+      await customerPpmPage.submitProgearPage();
+      await customerPpmPage.navigateFromCloseoutReviewPageToExpensesPage();
+      await customerPpmPage.submitExpensePage();
+      await customerPpmPage.navigateFromPPMReviewPageToFinalCloseoutPage();
+      await customerPpmPage.submitFinalCloseout({
+        totalNetWeight: '2,000 lbs',
+        proGearWeight: '2,000 lbs',
+        expensesClaimed: '675.99',
+        finalIncentiveAmount: '$31,184.80',
+      });
     });
 
     test(`happy path with edits and backs`, async ({ customerPpmPage }) => {

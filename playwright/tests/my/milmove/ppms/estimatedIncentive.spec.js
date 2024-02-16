@@ -10,7 +10,7 @@ import { expect, test, forEachViewport } from './customerPpmTestFixture';
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 
 test.describe('PPM Onboarding - Estimated Incentive', () => {
-  test.skip(multiMoveEnabled === 'true');
+  test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
   forEachViewport(async ({ isMobile }) => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights();
@@ -28,7 +28,9 @@ test.describe('PPM Onboarding - Estimated Incentive', () => {
 });
 
 test.describe('(MultiMove) PPM Onboarding - Estimated Incentive', () => {
-  test.skip(multiMoveEnabled === 'false');
+  test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
+  test.fail(multiMoveEnabled === 'true');
+
   forEachViewport(async ({ isMobile }) => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights();

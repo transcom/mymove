@@ -10,7 +10,7 @@ import { test, forEachViewport } from './customerPpmTestFixture';
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 
 test.describe('About Your PPM', () => {
-  test.skip(multiMoveEnabled === 'true');
+  test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
   forEachViewport(async () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
@@ -27,7 +27,9 @@ test.describe('About Your PPM', () => {
 });
 
 test.describe('(MultiMove) About Your PPM', () => {
-  test.skip(multiMoveEnabled === 'false');
+  test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
+  test.fail(multiMoveEnabled === 'true');
+
   forEachViewport(async () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();

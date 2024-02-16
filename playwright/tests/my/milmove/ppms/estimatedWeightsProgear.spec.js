@@ -10,7 +10,7 @@ import { expect, test } from './customerPpmTestFixture';
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 
 test.describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', () => {
-  test.skip(multiMoveEnabled === 'true');
+  test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
   test.beforeEach(async ({ customerPpmPage }) => {
     const move = await customerPpmPage.testHarness.buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights();
     await customerPpmPage.signInForPPMWithMove(move);
@@ -107,7 +107,9 @@ test.describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', () => {
 });
 
 test.describe('(MultiMove) PPM Onboarding - Add Estimated  Weight and Pro-gear', () => {
-  test.skip(multiMoveEnabled === 'false');
+  test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
+  test.fail(multiMoveEnabled === 'true');
+
   test.beforeEach(async ({ customerPpmPage }) => {
     const move = await customerPpmPage.testHarness.buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights();
     await customerPpmPage.signInForPPMWithMove(move);

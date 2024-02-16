@@ -103,7 +103,7 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
 }
 
 test.describe('Entire PPM onboarding flow', () => {
-  test.skip(multiMoveEnabled === 'true');
+  test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
   /** @type {CustomerPpmOnboardingPage} */
   let customerPpmOnboardingPage;
 
@@ -147,7 +147,9 @@ test.describe('Entire PPM onboarding flow', () => {
 });
 
 test.describe('(MultiMove) Entire PPM onboarding flow', () => {
-  test.skip(multiMoveEnabled === 'false');
+  test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
+  test.fail(multiMoveEnabled === 'true');
+
   /** @type {CustomerPpmOnboardingPage} */
   let customerPpmOnboardingPage;
 

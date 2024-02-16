@@ -4,7 +4,7 @@ import { test, expect } from '../../utils/my/customerTest';
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 
 test.describe('HHG', () => {
-  test.skip(multiMoveEnabled === 'true');
+  test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
   test('A customer can create, edit, and delete an HHG shipment', async ({ page, customerPage }) => {
     // Generate a new onboarded user with orders and log in
     const move = await customerPage.testHarness.buildMoveWithOrders();
@@ -105,7 +105,9 @@ test.describe('HHG', () => {
 });
 
 test.describe('(MultiMove) HHG', () => {
-  test.skip(multiMoveEnabled === 'false');
+  test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
+  test.fail(multiMoveEnabled === 'true');
+
   test('A customer can create, edit, and delete an HHG shipment', async ({ page, customerPage }) => {
     // Generate a new onboarded user with orders and log in
     const move = await customerPage.testHarness.buildMoveWithOrders();

@@ -10,7 +10,7 @@ import { expect, test } from './customerPpmTestFixture';
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 
 test.describe('PPM Onboarding - Add dates and location flow', () => {
-  test.skip(multiMoveEnabled === 'true');
+  test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
   test.beforeEach(async ({ customerPpmPage }) => {
     const move = await customerPpmPage.testHarness.buildSpouseProGearMove();
     await customerPpmPage.signInForPPMWithMove(move);
@@ -82,12 +82,13 @@ test.describe('PPM Onboarding - Add dates and location flow', () => {
   });
 });
 
-test.describe('MultiMove Workflow PPM Onboarding - Add dates and location flow', () => {
-  test.skip(multiMoveEnabled === 'false');
+test.describe.skip('(MultiMove) PPM Onboarding - Add dates and location flow', () => {
+  test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
+  test.fail(multiMoveEnabled === 'true', 'Need to complete MultiMove Workflow.');
   test.beforeEach(async ({ customerPpmPage }) => {
     const move = await customerPpmPage.testHarness.buildSpouseProGearMove();
     await customerPpmPage.signInForPPMWithMove(move);
-    // await customerPpmPage.customerStartsAddingAPPMShipment();
+    await customerPpmPage.customerStartsAddingAPPMShipment();
   });
 
   test('doesn’t allow SM to progress if form is in an invalid state', async ({ page }) => {

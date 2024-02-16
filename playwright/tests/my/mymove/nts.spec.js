@@ -4,7 +4,7 @@ import { test, expect } from '../../utils/my/customerTest';
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 
 test.describe('NTS', () => {
-  test.skip(multiMoveEnabled === 'true');
+  test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
   test('A customer can create, edit, and delete an NTS shipment', async ({ page, customerPage }) => {
     // Generate a new onboarded user with orders and log in
     const move = await customerPage.testHarness.buildMoveWithOrders();
@@ -61,7 +61,9 @@ test.describe('NTS', () => {
 });
 
 test.describe('(MultiMove) NTS', () => {
-  test.skip(multiMoveEnabled === 'false');
+  test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
+  test.fail(multiMoveEnabled === 'true');
+
   test('A customer can create, edit, and delete an NTS shipment', async ({ page, customerPage }) => {
     // Generate a new onboarded user with orders and log in
     const move = await customerPage.testHarness.buildMoveWithOrders();

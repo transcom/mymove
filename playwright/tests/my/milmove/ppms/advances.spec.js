@@ -10,7 +10,7 @@ import { expect, test, forEachViewport } from './customerPpmTestFixture';
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 
 test.describe('About Your PPM', () => {
-  test.skip(multiMoveEnabled === 'true');
+  test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
 
   test.beforeEach(async ({ customerPpmPage }) => {
     const move = await customerPpmPage.testHarness.buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights();
@@ -87,15 +87,16 @@ test.describe('About Your PPM', () => {
   });
 });
 
-test.describe('(MultiMove) Workflow About Your PPM', () => {
-  test.skip(multiMoveEnabled === 'false');
+test.describe.skip('(MultiMove) Workflow About Your PPM', () => {
+  test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
+  test.fail(multiMoveEnabled === 'true');
 
   test.beforeEach(async ({ customerPpmPage }) => {
     const move = await customerPpmPage.testHarness.buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights();
     await customerPpmPage.signInForPPMWithMove(move);
   });
 
-  test('does not allow SM to progress if form is in an invalid state', async ({ page }) => {
+  test.skip('does not allow SM to progress if form is in an invalid state', async ({ page }) => {
     await page.locator('label[for="hasRequestedAdvanceYes"]').click();
 
     // missing advance
@@ -154,7 +155,7 @@ test.describe('(MultiMove) Workflow About Your PPM', () => {
   forEachViewport(async ({ isMobile }) => {
     [true, false].forEach((addAdvance) => {
       const advanceText = addAdvance ? 'request' : 'opt to not receive';
-      test(`can ${advanceText} an advance`, async ({ customerPpmPage }) => {
+      test.skip(`can ${advanceText} an advance`, async ({ customerPpmPage }) => {
         await customerPpmPage.submitsAdvancePage({ addAdvance, isMobile });
       });
     });

@@ -4,7 +4,7 @@ import { test, expect } from '../../utils/my/customerTest';
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 
 test.describe('Orders', () => {
-  test.skip(multiMoveEnabled === 'true');
+  test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
   test('Users can upload orders, and delete if the move is in draft status', async ({ page, customerPage }) => {
     // Generate a new onboarded user and log in
     const user = await customerPage.testHarness.buildNeedsOrdersUser();
@@ -68,7 +68,9 @@ test.describe('Orders', () => {
 });
 
 test.describe('(MultiMove) Orders', () => {
-  test.skip(multiMoveEnabled === 'false');
+  test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
+  test.fail(multiMoveEnabled === 'true');
+
   test('Users can upload orders, and delete if the move is in draft status', async ({ page, customerPage }) => {
     // Generate a new onboarded user and log in
     const user = await customerPage.testHarness.buildNeedsOrdersUser();

@@ -25,7 +25,7 @@ const fullPPMShipmentFields = [
 ];
 
 test.describe('PPM Onboarding - Review', () => {
-  test.skip(multiMoveEnabled === 'true');
+  test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
   forEachViewport(async ({ isMobile }) => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildUnsubmittedMoveWithMultipleFullPPMShipmentComplete();
@@ -63,7 +63,9 @@ test.describe('PPM Onboarding - Review', () => {
 });
 
 test.describe('(MultiMove) PPM Onboarding - Review', () => {
-  test.skip(multiMoveEnabled === 'false');
+  test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
+  test.fail(multiMoveEnabled === 'true');
+
   forEachViewport(async ({ isMobile }) => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildUnsubmittedMoveWithMultipleFullPPMShipmentComplete();

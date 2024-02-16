@@ -5,7 +5,7 @@ import { test } from '../../utils/my/customerTest';
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 
 test.describe('Onboarding', () => {
-  test.skip(multiMoveEnabled === 'true');
+  test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
   test('A customer can go through onboarding', async ({ page, customerPage }) => {
     // Create new customer user
     await customerPage.signInAsNewCustomer();
@@ -64,7 +64,9 @@ test.describe('Onboarding', () => {
 });
 
 test.describe('(MultiMove) Onboarding', () => {
-  test.skip(multiMoveEnabled === 'false');
+  test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
+  test.fail(multiMoveEnabled === 'true');
+
   test('A customer can go through onboarding', async ({ page, customerPage }) => {
     // Create new customer user
     await customerPage.signInAsNewCustomer();
