@@ -1,8 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-
 import LabeledDetails from './LabeledDetails';
-
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import {
   formatCustomerDate,

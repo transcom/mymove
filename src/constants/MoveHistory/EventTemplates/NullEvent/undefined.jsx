@@ -21,6 +21,7 @@ export default {
       case t.addresses:
         return <> Updated shipment </>;
       case t.moves:
+        return <> Updated move </>;
       default:
         return <> Updated move </>;
     }

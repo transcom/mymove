@@ -18,13 +18,18 @@ import {
   toDollarString,
 } from 'utils/formatters';
 
-const retrieveTextToDisplay = (fieldName, value) => {
+export const retrieveTextToDisplay = (fieldName, value) => {
   const emptyValue = '—';
   const displayName = fieldMappings[fieldName];
   let displayValue = value;
 
-  if (displayName === fieldMappings.storage_in_transit) {
-    displayValue = `${displayValue} days`;
+  const fieldNameMap = {
+    [fieldMappings.distance]: (name, someValue) => `${someValue} mi`,
+    [fieldMappings.storage_in_transit]: (name, someValue) => `${someValue} days`,
+  };
+
+  if (fieldNameMap[displayName]) {
+    displayValue = fieldNameMap[displayName]?.call(null, displayName, value);
   } else if (weightFields[fieldName]) {
     // turn string value into number so it can be formatted correctly
     displayValue = formatWeight(Number(displayValue));
