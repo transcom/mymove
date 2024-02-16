@@ -83,11 +83,15 @@ FROM ppm_shipments ps
 		AND tos.id = opl2.transportation_office_id
 		LIMIT 1
 	)
-	LEFT JOIN notifications n ON sm.id = n.service_member_id
 	WHERE ps.status = 'WAITING_ON_CUSTOMER'::public."ppm_shipment_status"
 	AND ms.status = 'APPROVED'::public."mto_shipment_status"
 	AND ps.expected_departure_date <= now() - ($1)::interval
-	AND ps.expected_departure_date  >= $2`
+	AND ps.expected_departure_date  >= $2
+	AND NOT EXISTS (
+        SELECT 1 FROM notifications n
+        WHERE sm.id = n.service_member_id
+		AND n.notification_type  = 'MOVE_PAYMENT_REMINDER_EMAIL'
+    )`
 
 	paymentReminderEmailInfos := PaymentReminderEmailInfos{}
 	err := appCtx.DB().RawQuery(query, m.emailAfter, m.noEmailBefore).All(&paymentReminderEmailInfos)
@@ -178,17 +182,18 @@ func (m PaymentReminder) renderTemplates(appCtx appcontext.AppContext, data Paym
 // saves the svs the email info along with the SES mail id to the notifications table
 func (m PaymentReminder) OnSuccess(appCtx appcontext.AppContext, PaymentReminderEmailInfo PaymentReminderEmailInfo) func(string) error {
 	return func(msgID string) error {
-		n := models.Notification{
+		notification := models.Notification{
 			ServiceMemberID:  PaymentReminderEmailInfo.ServiceMemberID,
 			SESMessageID:     msgID,
 			NotificationType: models.MovePaymentReminderEmail,
 		}
-		err := appCtx.DB().Create(&n)
+		err := appCtx.DB().Create(&notification)
 		if err != nil {
-			dataString := fmt.Sprintf("%#v", n)
+			dataString := fmt.Sprintf("%#v", notification)
 			appCtx.Logger().Error("adding notification to notifications table", zap.String("notification", dataString))
 			return err
 		}
+
 		return nil
 	}
 }
