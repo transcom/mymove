@@ -136,7 +136,7 @@ const Orders = () => {
   if (isError) return <SomethingWentWrong />;
 
   const onSubmit = (values) => {
-    const { originDutyLocation, newDutyLocation, payGrade, ...fields } = values;
+    const { originDutyLocation, newDutyLocation, ...fields } = values;
     const body = {
       ...fields,
       originDutyLocationId: values.originDutyLocation.id,

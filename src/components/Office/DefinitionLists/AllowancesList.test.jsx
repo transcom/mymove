@@ -5,7 +5,6 @@ import AllowancesList from './AllowancesList';
 
 const info = {
   branch: 'NAVY',
-  grade: 'E_6',
   weightAllowance: 12000,
   authorizedWeight: 11000,
   progear: 2000,
@@ -17,7 +16,7 @@ const info = {
 };
 
 describe('AllowancesList', () => {
-  it('renders formatted branch and grade', () => {
+  it('renders formatted branch', () => {
     render(<AllowancesList info={info} />);
     expect(screen.getByText('Navy')).toBeInTheDocument();
   });
