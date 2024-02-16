@@ -21,17 +21,27 @@ import { withContext } from 'shared/AppContext';
 import withRouter from 'utils/routing';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { selectAllMoves, selectIsProfileComplete, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import { updateAllMoves } from 'store/entities/actions';
+import { profileStates } from 'constants/customerStates';
+import { getAllMoves } from 'services/internalApi';
 
 const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves }) => {
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
   const navigate = useNavigate();
 
+  // this will run on page load
+  // loads user info and move and updates if the serviceMember object in state changes
   useEffect(() => {
     const fetchData = async () => {
       try {
         loadInternalSchema();
         loadUser();
         initOnboarding();
+        if (serviceMember) {
+          const response = getAllMoves(serviceMember.id);
+          updateAllMoves(response);
+        }
         document.title = generatePageTitle('MilMove');
       } catch (error) {
         const { message } = error;
@@ -44,9 +54,8 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves }) => {
         retryPageLoading(error);
       }
     };
-
     fetchData();
-  }, [setErrorState]);
+  }, [setErrorState, serviceMember]);
 
   const flags = detectFlags(process.env.NODE_ENV, window.location.host, window.location.search);
 
@@ -61,6 +70,17 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves }) => {
       navigate(customerRoutes.MOVE_HOME_PAGE);
     }
   };
+
+  // early return while api call loads object
+  if (Object.keys(serviceMemberMoves).length === 0) {
+    return (
+      <div className={styles.homeContainer}>
+        <div className={`usa-prose grid-container ${styles['grid-container']}`}>
+          <LoadingPlaceholder />
+        </div>
+      </div>
+    );
+  }
 
   // ! WILL ONLY SHOW IF MULTIMOVE FLAG IS TRUE
   return flags.multiMove ? (
@@ -168,5 +188,10 @@ const mergeProps = (stateProps, dispatchProps, ownProps) => ({
 });
 
 export default withContext(
-  withRouter(connect(mapStateToProps, mergeProps)(requireCustomerState(MultiMovesLandingPage))),
+  withRouter(
+    connect(
+      mapStateToProps,
+      mergeProps,
+    )(requireCustomerState(MultiMovesLandingPage, profileStates.BACKUP_CONTACTS_COMPLETE)),
+  ),
 );

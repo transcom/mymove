@@ -17,6 +17,14 @@ jest.mock('store/auth/actions', () => ({
   loadUser: jest.fn(),
 }));
 
+jest.mock('store/entities/actions', () => ({
+  updateAllMoves: jest.fn(),
+}));
+
+jest.mock('services/internalApi', () => ({
+  getAllMoves: jest.fn(),
+}));
+
 jest.mock('store/onboarding/actions', () => ({
   initOnboarding: jest.fn(),
 }));
@@ -26,16 +34,47 @@ jest.mock('shared/Swagger/ducks', () => ({
 }));
 
 const defaultProps = {
-  serviceMember: {
-    id: v4(),
-    first_name: 'Jim',
-    last_name: 'Bean',
-  },
   showLoggedInUser: jest.fn(),
   isLoggedIn: true,
   loggedInUserIsLoading: false,
   loggedInUserSuccess: true,
   isProfileComplete: true,
+  serviceMember: {
+    affiliation: 'COAST_GUARD',
+    backup_contacts: ['bc0c2ec7-252f-41f6-b1ff-4c9bb270ef41'],
+    backup_mailing_address: {
+      city: 'Beverly Hills',
+      id: 'b1adf427-7743-4fbd-950c-d0fcc25168b9',
+      postalCode: '90210',
+      state: 'CA',
+      streetAddress1: '123 Any Street',
+      streetAddress2: 'P.O. Box 12345',
+    },
+    created_at: '2024-02-15T14:43:31.492Z',
+    edipi: '8362534852',
+    email_is_preferred: true,
+    first_name: 'Tori',
+    id: v4(),
+    is_profile_complete: true,
+    last_name: 'Ross',
+    orders: [
+      '444de44f-608e-4b99-b66b-dc1fce8a12fd',
+      'c1786dd4-771c-4b66-bdec-39960f57f890',
+      'a6ca098a-effd-492e-bb1c-edd76568c66b',
+    ],
+    personal_email: 'multiplemoves@PPM.com',
+    residential_address: {
+      city: 'Beverly Hills',
+      id: '8ace1b49-a1ea-4dd0-aa66-e786b2d220f9',
+      postalCode: '90210',
+      state: 'CA',
+      streetAddress1: '123 Any Street',
+      streetAddress2: 'P.O. Box 12345',
+    },
+    telephone: '212-123-4567',
+    updated_at: '2024-02-16T20:41:19.454Z',
+    user_id: '68f8baa7-ed00-4ad9-ad3c-a849688cb537',
+  },
   serviceMemberMoves: {
     currentMove: [
       {

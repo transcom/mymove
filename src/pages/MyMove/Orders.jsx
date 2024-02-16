@@ -12,8 +12,10 @@ import {
   patchOrders,
   patchServiceMember,
   getResponseError,
+  getAllMoves,
 } from 'services/internalApi';
 import {
+  updateAllMoves,
   updateOrders as updateOrdersAction,
   updateServiceMember as updateServiceMemberAction,
 } from 'store/entities/actions';
@@ -74,6 +76,11 @@ export class Orders extends Component {
       navigate(customerRoutes.ORDERS_UPLOAD_PATH);
     };
 
+    const getAndUpdateAllMoves = (id) => {
+      const response = getAllMoves(id);
+      updateAllMoves(response);
+    };
+
     const submitOrders = (values) => {
       const pendingValues = {
         ...values,
@@ -106,7 +113,8 @@ export class Orders extends Component {
         pendingValues.id = currentOrders.id;
         return patchOrders(pendingValues)
           .then(updateOrders)
-          .then(handleNext)
+          .then(getAndUpdateAllMoves(serviceMemberId))
+          .then.then(handleNext)
           .catch((e) => {
             // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
             const { response } = e;
@@ -119,6 +127,7 @@ export class Orders extends Component {
         .then(updateOrders)
         .then(() => getServiceMember(serviceMemberId))
         .then(updateServiceMember)
+        .then(getAndUpdateAllMoves(serviceMemberId))
         .then(handleNext)
         .catch((e) => {
           // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
