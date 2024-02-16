@@ -10,6 +10,8 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
+
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // ShowShipmentSummaryWorksheetOKCode is the HTTP code returned for type ShowShipmentSummaryWorksheetOK
@@ -150,6 +152,51 @@ func (o *ShowShipmentSummaryWorksheetForbidden) WriteResponse(rw http.ResponseWr
 	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(403)
+}
+
+// ShowShipmentSummaryWorksheetUnprocessableEntityCode is the HTTP code returned for type ShowShipmentSummaryWorksheetUnprocessableEntity
+const ShowShipmentSummaryWorksheetUnprocessableEntityCode int = 422
+
+/*
+ShowShipmentSummaryWorksheetUnprocessableEntity The payload was unprocessable.
+
+swagger:response showShipmentSummaryWorksheetUnprocessableEntity
+*/
+type ShowShipmentSummaryWorksheetUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *internalmessages.ValidationError `json:"body,omitempty"`
+}
+
+// NewShowShipmentSummaryWorksheetUnprocessableEntity creates ShowShipmentSummaryWorksheetUnprocessableEntity with default headers values
+func NewShowShipmentSummaryWorksheetUnprocessableEntity() *ShowShipmentSummaryWorksheetUnprocessableEntity {
+
+	return &ShowShipmentSummaryWorksheetUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the show shipment summary worksheet unprocessable entity response
+func (o *ShowShipmentSummaryWorksheetUnprocessableEntity) WithPayload(payload *internalmessages.ValidationError) *ShowShipmentSummaryWorksheetUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the show shipment summary worksheet unprocessable entity response
+func (o *ShowShipmentSummaryWorksheetUnprocessableEntity) SetPayload(payload *internalmessages.ValidationError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *ShowShipmentSummaryWorksheetUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(422)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }
 
 // ShowShipmentSummaryWorksheetInternalServerErrorCode is the HTTP code returned for type ShowShipmentSummaryWorksheetInternalServerError

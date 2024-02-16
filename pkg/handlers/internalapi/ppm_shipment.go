@@ -261,7 +261,6 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params ppmops.ShowShipmentSu
 
 			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
 			if err != nil {
-				logger.Error("Error fetching PPMShipment", zap.Error(err))
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 			ssfd, err := h.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentID)
@@ -282,7 +281,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params ppmops.ShowShipmentSu
 				return handlers.ResponseForError(logger, err), err
 			}
 
-			SSWPPMWorksheet, SSWPDFInfo, err := h.SSWPPMGenerator.FillSSWPDFForm(page1Data, page2Data)
+			SSWPPMWorksheet, SSWPDFInfo, err := h.SSWPPMGenerator.FillSSWPDFForm(page1Data, page2Data, appCtx)
 			if err != nil {
 				return nil, err
 			}
