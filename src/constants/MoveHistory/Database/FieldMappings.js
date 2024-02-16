@@ -119,4 +119,5 @@ export default {
   sit_location: 'SIT location',
   sit_estimated_cost: 'SIT estimated cost',
   estimated_incentive: 'PPM estimated incentive',
+  distance: 'Shipping distance',
 };
