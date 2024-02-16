@@ -7,6 +7,8 @@
 // @ts-check
 import { test, forEachViewport } from './customerPpmTestFixture';
 
+const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
+
 test.describe('About Your PPM', () => {
   forEachViewport(async () => {
     test.beforeEach(async ({ customerPpmPage }) => {
@@ -16,8 +18,13 @@ test.describe('About Your PPM', () => {
 
     [true, false].forEach((selectAdvance) => {
       const advanceText = selectAdvance ? 'with' : 'without';
-      test.skip(`can submit actual PPM shipment info ${advanceText} an advance`, async ({ customerPpmPage }) => {
-        await customerPpmPage.navigateToAboutPage({ selectAdvance });
+      test(`can submit actual PPM shipment info ${advanceText} an advance`, async ({ customerPpmPage }) => {
+        if (multiMoveEnabled) {
+          // Need to have move show on multiMoveLanding Page. Click Go to Move, then ...
+          // await customerPpmPage.navigateToAboutPage({ selectAdvance });
+        } else {
+          await customerPpmPage.navigateToAboutPage({ selectAdvance });
+        }
       });
     });
   });
