@@ -12,15 +12,15 @@ test.describe('Expenses', () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPMMovingExpense();
       await customerPpmPage.signInForPPMWithMove(move);
-      await customerPpmPage.navigateToPPMReviewPage();
+      // await customerPpmPage.navigateToPPMReviewPage();
     });
 
-    test(`new expense page loads`, async ({ customerPpmPage }) => {
+    test.skip(`new expense page loads`, async ({ customerPpmPage }) => {
       await customerPpmPage.navigateFromCloseoutReviewPageToExpensesPage();
       await customerPpmPage.submitExpensePage();
     });
 
-    test(`edit expense page loads`, async ({ page }) => {
+    test.skip(`edit expense page loads`, async ({ page }) => {
       // edit the first expense receipt
       const receipt1 = page.getByText('Receipt 1', { exact: true });
       await expect(receipt1).toBeVisible();

@@ -1,8 +1,6 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import selectEvent from 'react-select-event';
-import { act } from 'react-dom/test-utils';
 
 import ServiceInfoForm from './ServiceInfoForm';
 
@@ -166,12 +164,6 @@ describe('ServiceInfoForm', () => {
     const dodInput = await screen.findByLabelText('DoD ID number');
     expect(dodInput).toBeInstanceOf(HTMLInputElement);
     expect(dodInput).toBeRequired();
-
-    const payGradeInput = await screen.findByLabelText('Pay grade');
-    expect(payGradeInput).toBeInstanceOf(HTMLSelectElement);
-    expect(payGradeInput).toBeRequired();
-
-    expect(await screen.findByLabelText('Current duty location')).toBeInstanceOf(HTMLInputElement);
   });
 
   it('validates the DOD ID number on blur', async () => {
@@ -193,13 +185,12 @@ describe('ServiceInfoForm', () => {
     await userEvent.click(screen.getByLabelText('Last name'));
     await userEvent.click(screen.getByLabelText('Branch of service'));
     await userEvent.click(screen.getByLabelText('DoD ID number'));
-    await userEvent.click(screen.getByLabelText('Pay grade'));
 
     const submitBtn = screen.getByRole('button', { name: 'Save' });
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(screen.getAllByText('Required').length).toBe(5);
+      expect(screen.getAllByText('Required').length).toBe(4);
     });
     expect(testProps.onSubmit).not.toHaveBeenCalled();
   });
@@ -217,13 +208,6 @@ describe('ServiceInfoForm', () => {
     await userEvent.type(screen.getByLabelText('Last name'), 'Spaceman');
     await userEvent.selectOptions(screen.getByLabelText('Branch of service'), ['NAVY']);
     await userEvent.type(screen.getByLabelText('DoD ID number'), '1234567890');
-    await userEvent.selectOptions(screen.getByLabelText('Pay grade'), ['E_5']);
-    fireEvent.change(screen.getByLabelText('Current duty location'), { target: { value: 'AFB' } });
-    await act(() => selectEvent.select(screen.getByLabelText('Current duty location'), /Luke/));
-
-    expect(screen.getByRole('form')).toHaveFormValues({
-      current_location: 'Luke AFB',
-    });
 
     await userEvent.click(submitBtn);
 
@@ -234,22 +218,6 @@ describe('ServiceInfoForm', () => {
           last_name: 'Spaceman',
           affiliation: 'NAVY',
           edipi: '1234567890',
-          grade: 'E_5',
-          current_location: {
-            address: {
-              city: 'Test City',
-              id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
-              postalCode: '12345',
-              state: 'NY',
-              streetAddress1: '123 Main St',
-            },
-            address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
-            affiliation: 'AIR_FORCE',
-            created_at: '2021-02-11T16:48:04.117Z',
-            id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
-            name: 'Luke AFB',
-            updated_at: '2021-02-11T16:48:04.117Z',
-          },
         }),
         expect.anything(),
       );

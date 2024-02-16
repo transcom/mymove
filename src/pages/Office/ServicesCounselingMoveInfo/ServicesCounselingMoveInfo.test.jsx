@@ -114,10 +114,10 @@ describe('Services Counseling Move Info Container', () => {
 
       expect(screen.getByText('Technical Help Desk').closest('a')).toHaveAttribute(
         'href',
-        'https://move.mil/customer-service#technical-help-desk',
+        'mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@mail.mil',
       );
       expect(screen.getByTestId('system-error').textContent).toEqual(
-        "Something isn't working, but we're not sure what. Wait a minute and try again.If that doesn't fix it, contact the Technical Help Desk and give them this code: some-trace-id",
+        "Something isn't working, but we're not sure what. Wait a minute and try again.If that doesn't fix it, contact the Technical Help Desk (usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@mail.mil) and give them this code: some-trace-id",
       );
     });
 

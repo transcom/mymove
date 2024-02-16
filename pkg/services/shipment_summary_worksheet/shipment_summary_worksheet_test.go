@@ -27,13 +27,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
-	rank := models.ServiceMemberRankE9
+	grade := models.ServiceMemberPayGradeE9
 	SSWPPMComputer := NewSSWPPMComputer()
 
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
 				OrdersType: ordersType,
+				Grade:      &grade,
 			},
 		},
 		{
@@ -45,11 +46,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 			Model:    yuma,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
-		},
-		{
-			Model: models.ServiceMember{
-				Rank: &rank,
-			},
 		},
 		{
 			Model: models.SignedCertification{},
@@ -79,12 +75,12 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	suite.Equal(yuma.Address.ID, ssd.CurrentDutyLocation.Address.ID)
 	suite.Equal(fortGordon.ID, ssd.NewDutyLocation.ID)
 	suite.Equal(fortGordon.Address.ID, ssd.NewDutyLocation.Address.ID)
-	rankWtgAllotment := models.GetWeightAllotment(rank)
-	suite.Equal(unit.Pound(rankWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
-	suite.Equal(unit.Pound(rankWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
+	gradeWtgAllotment := models.GetWeightAllotment(grade)
+	suite.Equal(unit.Pound(gradeWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
+	suite.Equal(unit.Pound(gradeWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
 	suite.Equal(unit.Pound(0), ssd.WeightAllotment.SpouseProGear)
-	suite.Require().NotNil(ssd.ServiceMember.Rank)
-	weightAllotment := models.GetWeightAllotment(*ssd.ServiceMember.Rank)
+	suite.Require().NotNil(ssd.Order.Grade)
+	weightAllotment := models.GetWeightAllotment(*ssd.Order.Grade)
 	// E_9 rank, no dependents, no spouse pro-gear
 	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
 	suite.Require().Nil(err)
@@ -100,13 +96,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
-	rank := models.ServiceMemberRankE9
+	grade := models.ServiceMemberPayGradeE9
 	SSWPPMComputer := NewSSWPPMComputer()
 
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
 				OrdersType: ordersType,
+				Grade:      &grade,
 			},
 		},
 		{
@@ -118,11 +115,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 			Model:    yuma,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
-		},
-		{
-			Model: models.ServiceMember{
-				Rank: &rank,
-			},
 		},
 	}, nil)
 
@@ -161,13 +153,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
-	rank := models.ServiceMemberRankE9
+	grade := models.ServiceMemberPayGradeE9
 	SSWPPMComputer := NewSSWPPMComputer()
 
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
 				OrdersType: ordersType,
+				Grade:      &grade,
 			},
 		},
 		{
@@ -179,11 +172,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 			Model:    yuma,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
-		},
-		{
-			Model: models.ServiceMember{
-				Rank: &rank,
-			},
 		},
 		{
 			Model: models.SignedCertification{},
@@ -209,12 +197,12 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	suite.Equal(yuma.Address.ID, ssd.CurrentDutyLocation.Address.ID)
 	suite.Equal(fortGordon.ID, ssd.NewDutyLocation.ID)
 	suite.Equal(fortGordon.Address.ID, ssd.NewDutyLocation.Address.ID)
-	rankWtgAllotment := models.GetWeightAllotment(rank)
-	suite.Equal(unit.Pound(rankWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
-	suite.Equal(unit.Pound(rankWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
+	gradeWtgAllotment := models.GetWeightAllotment(grade)
+	suite.Equal(unit.Pound(gradeWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
+	suite.Equal(unit.Pound(gradeWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
 	suite.Equal(unit.Pound(0), ssd.WeightAllotment.SpouseProGear)
-	suite.Require().NotNil(ssd.ServiceMember.Rank)
-	weightAllotment := models.GetWeightAllotment(*ssd.ServiceMember.Rank)
+	suite.Require().NotNil(ssd.Order.Grade)
+	weightAllotment := models.GetWeightAllotment(*ssd.Order.Grade)
 	// E_9 rank, no dependents, no spouse pro-gear
 	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
@@ -237,19 +225,17 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 
 	serviceMemberID, _ := uuid.NewV4()
 	serviceBranch := models.AffiliationAIRFORCE
-	rank := models.ServiceMemberRankE9
+	grade := models.ServiceMemberPayGradeE9
 	serviceMember := models.ServiceMember{
-		ID:             serviceMemberID,
-		FirstName:      models.StringPointer("Marcus"),
-		MiddleName:     models.StringPointer("Joseph"),
-		LastName:       models.StringPointer("Jenkins"),
-		Suffix:         models.StringPointer("Jr."),
-		Telephone:      models.StringPointer("444-555-8888"),
-		PersonalEmail:  models.StringPointer("michael+ppm-expansion_1@truss.works"),
-		Edipi:          models.StringPointer("1234567890"),
-		Affiliation:    &serviceBranch,
-		Rank:           &rank,
-		DutyLocationID: &yuma.ID,
+		ID:            serviceMemberID,
+		FirstName:     models.StringPointer("Marcus"),
+		MiddleName:    models.StringPointer("Joseph"),
+		LastName:      models.StringPointer("Jenkins"),
+		Suffix:        models.StringPointer("Jr."),
+		Telephone:     models.StringPointer("444-555-8888"),
+		PersonalEmail: models.StringPointer("michael+ppm-expansion_1@truss.works"),
+		Edipi:         models.StringPointer("1234567890"),
+		Affiliation:   &serviceBranch,
 	}
 
 	orderIssueDate := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)
@@ -262,6 +248,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		SAC:               models.StringPointer("SAC"),
 		HasDependents:     true,
 		SpouseHasProGear:  true,
+		Grade:             &grade,
 	}
 	pickupDate := time.Date(2019, time.January, 11, 0, 0, 0, 0, time.UTC)
 	netWeight := unit.Pound(4000)
@@ -512,9 +499,9 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementPP
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWGetEntitlement() {
 	spouseHasProGear := true
 	hasDependants := true
-	allotment := models.GetWeightAllotment(models.ServiceMemberRankE1)
+	allotment := models.GetWeightAllotment(models.ServiceMemberPayGradeE1)
 	expectedTotalWeight := allotment.TotalWeightSelfPlusDependents + allotment.ProGearWeight + allotment.ProGearWeightSpouse
-	sswEntitlement := SSWGetEntitlement(models.ServiceMemberRankE1, hasDependants, spouseHasProGear)
+	sswEntitlement := SSWGetEntitlement(models.ServiceMemberPayGradeE1, hasDependants, spouseHasProGear)
 
 	suite.Equal(unit.Pound(expectedTotalWeight), sswEntitlement.TotalWeight)
 	suite.Equal(unit.Pound(allotment.TotalWeightSelfPlusDependents), sswEntitlement.Entitlement)
@@ -525,9 +512,9 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWGetEntitlement()
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWGetEntitlementNoDependants() {
 	spouseHasProGear := false
 	hasDependants := false
-	allotment := models.GetWeightAllotment(models.ServiceMemberRankE1)
+	allotment := models.GetWeightAllotment(models.ServiceMemberPayGradeE1)
 	expectedTotalWeight := allotment.TotalWeightSelf + allotment.ProGearWeight
-	sswEntitlement := SSWGetEntitlement(models.ServiceMemberRankE1, hasDependants, spouseHasProGear)
+	sswEntitlement := SSWGetEntitlement(models.ServiceMemberPayGradeE1, hasDependants, spouseHasProGear)
 
 	suite.Equal(unit.Pound(expectedTotalWeight), sswEntitlement.TotalWeight)
 	suite.Equal(unit.Pound(allotment.TotalWeightSelf), sswEntitlement.Entitlement)
@@ -568,11 +555,11 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatCurrentPPMStatus() 
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatRank() {
-	e9 := models.ServiceMemberRankE9
-	multipleRanks := models.ServiceMemberRankO1ACADEMYGRADUATE
+	e9 := models.ServiceMemberPayGradeE9
+	multipleGrades := models.ServiceMemberPayGradeO1ACADEMYGRADUATE
 
-	suite.Equal("E-9", FormatRank(&e9))
-	suite.Equal("O-1 or Service Academy Graduate", FormatRank(&multipleRanks))
+	suite.Equal("E-9", FormatGrade(&e9))
+	suite.Equal("O-1 or Service Academy Graduate", FormatGrade(&multipleGrades))
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipmentNumberAndType() {
@@ -791,11 +778,12 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
-	rank := models.ServiceMemberRankE9
+	grade := models.ServiceMemberPayGradeE9
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
 				OrdersType: ordersType,
+				Grade:      &grade,
 			},
 		},
 		{
@@ -807,11 +795,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 			Model:    yuma,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
-		},
-		{
-			Model: models.ServiceMember{
-				Rank: &rank,
-			},
 		},
 		{
 			Model: models.SignedCertification{},

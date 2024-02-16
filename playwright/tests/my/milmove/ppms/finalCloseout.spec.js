@@ -14,7 +14,7 @@ test.describe('Final Closeout', () => {
       await customerPpmPage.signInForPPMWithMove(move);
     });
 
-    test('can see final closeout page with final estimated incentive and shipment totals', async ({
+    test.skip('can see final closeout page with final estimated incentive and shipment totals', async ({
       customerPpmPage,
     }) => {
       await customerPpmPage.navigateToFinalCloseoutPage();

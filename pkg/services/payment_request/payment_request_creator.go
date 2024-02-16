@@ -324,10 +324,6 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(appCtx appcontext.A
 	if serviceMember.LastName == nil || *serviceMember.LastName == "" {
 		return nil, apperror.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing Last Name", moveTaskOrder.ID))
 	}
-	// Verify Rank
-	if serviceMember.Rank == nil || *serviceMember.Rank == "" {
-		return nil, apperror.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing Rank", moveTaskOrder.ID))
-	}
 	// Verify Affiliation
 	if serviceMember.Affiliation == nil || *serviceMember.Affiliation == "" {
 		return nil, apperror.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing Affiliation", moveTaskOrder.ID))

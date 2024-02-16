@@ -69,8 +69,8 @@ const ShipmentAddresses = ({
       <DataTable
         columnHeaders={[pickupHeader, destinationHeader]}
         dataRow={[
-          pickupAddress ? formatAddress(pickupAddress) : '—',
-          destinationAddress ? formatAddress(destinationAddress) : '—',
+          pickupAddress ? formatAddress(pickupAddress, shipmentInfo.shipmentType) : '—',
+          destinationAddress ? formatAddress(destinationAddress, shipmentInfo.shipmentType) : '—',
         ]}
         icon={<FontAwesomeIcon icon="arrow-right" />}
         data-testid="pickupDestinationAddress"

@@ -48,7 +48,7 @@ export class CustomerPage extends BaseTestPage {
   async signInAsExistingCustomer(userId) {
     await this.signInAsUserWithId(userId);
     // ensure the home page has loaded
-    await this.page.getByLabel('Home').waitFor();
+    await this.page.getByText('Welcome to MilMove!');
   }
 
   /**

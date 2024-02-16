@@ -2285,9 +2285,11 @@ func MakeHHGMoveWithRetireeForTOO(appCtx appcontext.AppContext) models.Move {
 	retirement := internalmessages.OrdersTypeRETIREMENT
 	hhg := models.MTOShipmentTypeHHG
 	hor := models.DestinationTypeHomeOfRecord
+	originDutyLocation := factory.FetchOrBuildCurrentDutyLocation(appCtx.DB())
 	move := scenario.CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 		Order: models.Order{
-			OrdersType: retirement,
+			OrdersType:         retirement,
+			OriginDutyLocation: &originDutyLocation,
 		},
 		MTOShipment: models.MTOShipment{
 			ShipmentType:    hhg,
@@ -2671,6 +2673,33 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
 
+	pickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				ID:             uuid.Must(uuid.NewV4()),
+				StreetAddress1: "1 First St",
+				StreetAddress2: models.StringPointer("Apt 1"),
+				City:           "Miami Gardens",
+				State:          "FL",
+				PostalCode:     "33169",
+				Country:        models.StringPointer("US"),
+			},
+		},
+	}, nil)
+	destinationAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				ID:             uuid.Must(uuid.NewV4()),
+				StreetAddress1: "2 Second St",
+				StreetAddress2: models.StringPointer("Bldg 2"),
+				City:           "Key West",
+				State:          "FL",
+				PostalCode:     "33040",
+				Country:        models.StringPointer("US"),
+			},
+		},
+	}, nil)
+
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
 		Move: models.Move{
@@ -2686,6 +2715,8 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
+			PickupPostalAddressID:       &pickupAddress.ID,
+			DestinationPostalAddressID:  &destinationAddress.ID,
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
@@ -2694,6 +2725,193 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 	}
 
 	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+
+	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.WeightTicket{
+				EmptyWeight: models.PoundPointer(14000),
+				FullWeight:  models.PoundPointer(18000),
+			},
+		},
+	}, nil)
+
+	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MovingExpense{
+				Amount: models.CentPointer(45000),
+			},
+		},
+	}, nil)
+
+	factory.BuildProgearWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ProgearWeightTicket{
+				Weight: models.PoundPointer(1500),
+			},
+		},
+	}, nil)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+
+	newmove.Orders.NewDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), newmove.Orders.NewDutyLocationID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch duty location: %w", err))
+	}
+	return *newmove
+}
+
+// This one is the actual function that's used for testdatagen harness(I think)
+func MakeMoveWithPPMShipmentReadyForFinalCloseoutWithSIT(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Gbloc: "KKFA", ProvidesCloseout: true},
+		},
+	}, nil)
+
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:           uuid.Must(uuid.NewV4()),
+		Email:            userInfo.email,
+		SmID:             uuid.Must(uuid.NewV4()),
+		FirstName:        userInfo.firstName,
+		LastName:         userInfo.lastName,
+		MoveID:           uuid.Must(uuid.NewV4()),
+		MoveLocator:      models.GenerateLocator(),
+		CloseoutOfficeID: &closeoutOffice.ID,
+	}
+
+	sitLocationType := models.SITLocationTypeOrigin
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+	sitDaysAllowance := 90
+	pickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				PostalCode: "42444",
+			},
+		},
+	}, nil)
+	destinationAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				PostalCode: "30813",
+			},
+		},
+	}, nil)
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			Status:               models.MTOShipmentStatusApproved,
+			SITDaysAllowance:     &sitDaysAllowance,
+			PickupAddressID:      &pickupAddress.ID,
+			DestinationAddressID: &destinationAddress.ID,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                          uuid.Must(uuid.NewV4()),
+			ApprovedAt:                  &approvedAt,
+			Status:                      models.PPMShipmentStatusWaitingOnCustomer,
+			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:      models.StringPointer("42444"),
+			ActualDestinationPostalCode: models.StringPointer("30813"),
+			HasReceivedAdvance:          models.BoolPointer(true),
+			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+			W2Address:                   &address,
+			FinalIncentive:              models.CentPointer(50000000),
+			SITExpected:                 models.BoolPointer(true),
+			SITEstimatedEntryDate:       models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			SITEstimatedDepartureDate:   models.TimePointer(time.Date(testdatagen.GHCTestYear, time.April, 16, 0, 0, 0, 0, time.UTC)),
+			SITEstimatedWeight:          models.PoundPointer(unit.Pound(1234)),
+			SITEstimatedCost:            models.CentPointer(unit.Cents(12345600)),
+			SITLocation:                 &sitLocationType,
+		},
+	}
+
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+
+	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
+	twoMonthsAgo := threeMonthsAgo.AddDate(0, 1, 0)
+	sitCost := unit.Cents(200000)
+	sitItems := factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment.Shipment, &threeMonthsAgo, &twoMonthsAgo)
+	sitItems = append(sitItems, factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment.Shipment, &twoMonthsAgo, nil)...)
+	paymentRequest := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:              uuid.Must(uuid.NewV4()),
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusReviewed,
+				RejectionReason: nil,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+	for i := range sitItems {
+		if sitItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
+			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
+				{
+					Model:    sitItems[i],
+					LinkOnly: true,
+				},
+			}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
+			originalAddress := sitAddressUpdate.OldAddress
+			sitItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
+			sitItems[i].SITDestinationFinalAddressID = &originalAddress.ID
+			err := appCtx.DB().Update(&sitItems[i])
+			if err != nil {
+				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
+			}
+		}
+		factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &sitCost,
+				},
+			}, {
+				Model:    paymentRequest,
+				LinkOnly: true,
+			}, {
+				Model:    sitItems[i],
+				LinkOnly: true,
+			},
+		}, nil)
+	}
+	scenario.MakeSITExtensionsForShipment(appCtx, shipment.Shipment)
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -5079,10 +5297,10 @@ func MakeHHGMoveWithAddressChangeRequestAndUnknownDeliveryAddress(appCtx appcont
 	destinationAddress := factory.BuildMinimalAddress(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Address{
-				City:       customer.DutyLocation.Address.City,
-				State:      customer.DutyLocation.Address.State,
-				PostalCode: customer.DutyLocation.Address.PostalCode,
-				Country:    customer.DutyLocation.Address.Country,
+				City:       orders.OriginDutyLocation.Address.City,
+				State:      orders.OriginDutyLocation.Address.State,
+				PostalCode: orders.OriginDutyLocation.Address.PostalCode,
+				Country:    orders.OriginDutyLocation.Address.Country,
 			},
 		},
 	}, nil)

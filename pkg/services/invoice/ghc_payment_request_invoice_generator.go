@@ -208,6 +208,17 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		return ediinvoice.Invoice858C{}, err
 	}
 
+	// Add order pay grade detail to header
+	if moveTaskOrder.Orders.Grade == nil {
+		// Nil check
+		return ediinvoice.Invoice858C{}, apperror.NewNotFoundError(moveTaskOrder.Orders.ID, "order pay grade not found")
+	}
+
+	edi858.Header.OrderPayGrade = edisegment.N9{
+		ReferenceIdentificationQualifier: "ML",
+		ReferenceIdentification:          string(*moveTaskOrder.Orders.Grade),
+	}
+
 	var paymentServiceItems models.PaymentServiceItems
 	err = appCtx.DB().Q().
 		Eager("MTOServiceItem.ReService", "MTOServiceItem.MTOShipment").
@@ -302,16 +313,6 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	header.ServiceMemberName = edisegment.N9{
 		ReferenceIdentificationQualifier: "1W",
 		ReferenceIdentification:          serviceMember.ReverseNameLineFormat(),
-	}
-
-	// rank
-	rank := serviceMember.Rank
-	if rank == nil {
-		return apperror.NewConflictError(serviceMember.ID, fmt.Sprintf("no rank found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
-	}
-	header.ServiceMemberRank = edisegment.N9{
-		ReferenceIdentificationQualifier: "ML",
-		ReferenceIdentification:          string(*rank),
 	}
 
 	// branch
@@ -718,17 +719,17 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 		//"HO" - O-1 Academy graduate through O-10, W1 - W5, Aviation Cadet, Academy Cadet, and Midshipman
 		//"HC" - Civilian employee
 
-		if orders.ServiceMember.Rank == nil {
-			return nil, apperror.NewConflictError(orders.ServiceMember.ID, "this service member has no rank")
+		if orders.Grade == nil {
+			return nil, apperror.NewConflictError(orders.ServiceMember.ID, "this service member has no pay grade for the specified order")
 		}
-		rank := *orders.ServiceMember.Rank
+		grade := *orders.Grade
 
 		hhgCode := ""
-		if rank[:2] == "E_" {
+		if grade[:2] == "E_" {
 			hhgCode = "HE"
-		} else if rank[:2] == "O_" || rank[:2] == "W_" || rank == models.ServiceMemberRankACADEMYCADET || rank == models.ServiceMemberRankAVIATIONCADET || rank == models.ServiceMemberRankMIDSHIPMAN {
+		} else if grade[:2] == "O_" || grade[:2] == "W_" || grade == models.ServiceMemberPayGradeACADEMYCADET || grade == models.ServiceMemberPayGradeAVIATIONCADET || grade == models.ServiceMemberPayGradeMIDSHIPMAN {
 			hhgCode = "HO"
-		} else if rank == models.ServiceMemberRankCIVILIANEMPLOYEE {
+		} else if grade == models.ServiceMemberPayGradeCIVILIANEMPLOYEE {
 			hhgCode = "HC"
 		} else {
 			return nil, apperror.NotImplementedError{}

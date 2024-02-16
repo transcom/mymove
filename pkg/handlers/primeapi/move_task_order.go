@@ -1,7 +1,6 @@
 package primeapi
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"strings"
@@ -18,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -194,7 +194,17 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
 			}
+
 			mtoPayload := payloads.MoveTaskOrder(mto)
+			err = h.NotificationSender().SendNotification(appCtx,
+				notifications.NewPrimeCounselingComplete(*mtoPayload),
+			)
+			if err != nil {
+				appCtx.Logger().Error(err.Error())
+				return movetaskorderops.NewUpdateMTOPostCounselingInformationInternalServerError().WithPayload(
+					payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationOK().WithPayload(mtoPayload), nil
 		})
 }
@@ -204,6 +214,7 @@ type DownloadMoveOrderHandler struct {
 	handlers.HandlerConfig
 	services.MoveSearcher
 	services.OrderFetcher
+	services.PrimeDownloadMoveUploadPDFGenerator
 }
 
 // Handler for downloading move order by locator as a PDF
@@ -211,9 +222,10 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			locator := strings.TrimSpace(params.Locator)
+			docType := strings.TrimSpace(*params.Type)
 
 			if len(locator) == 0 {
-				err := apperror.NewBadDataError("missing/empty required URI parameter: locator")
+				err := apperror.NewBadDataError("primeapi.DownloadMoveOrder: missing/empty required URI parameter: locator")
 				appCtx.Logger().Error(err.Error())
 				return movetaskorderops.NewDownloadMoveOrderBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
 					err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
@@ -224,7 +236,7 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 			}
 			moves, totalCount, err := h.MoveSearcher.SearchMoves(appCtx, &searchMovesParams)
 			if err != nil {
-				appCtx.Logger().Error("Unexpected server error", zap.Error(err))
+				appCtx.Logger().Error("primeapi.DownloadMoveOrder error", zap.Error(err))
 				return movetaskorderops.NewDownloadMoveOrderInternalServerError().WithPayload(
 					payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
@@ -238,36 +250,57 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 			}
 
 			for _, move := range moves {
-				var errMessage string
-				// Check if move has requested counseling
-				if move.Status != models.MoveStatusNeedsServiceCounseling {
-					errMessage = fmt.Sprintf("Move is not in 'needs counseling state', locator: %s ", locator)
-				}
-
 				// Note: OriginDutyLocation.ProvidesServicesCounseling == True means location has government based counseling.
 				// FALSE indicates the location requires PRIME/GHC counseling.
 				if move.Orders.OriginDutyLocation.ProvidesServicesCounseling {
-					errMessage = fmt.Sprintf("Duty location of client's move currently does not have Prime counseling enabled, locator: %s", locator)
-				}
-
-				if len(errMessage) > 0 {
-					unprocessableErr := apperror.NewUnprocessableEntityError(errMessage)
-					appCtx.Logger().Info(unprocessableErr.Error())
+					unprocessableErr := apperror.NewUnprocessableEntityError(
+						fmt.Sprintf("primeapi.DownloadMoveOrder: Duty location of client's move currently does not have Prime counseling enabled, locator: %s", locator))
+					appCtx.Logger().Warn(unprocessableErr.Error())
 					payload := payloads.ValidationError(unprocessableErr.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
 					return movetaskorderops.NewDownloadMoveOrderUnprocessableEntity().
 						WithPayload(payload), unprocessableErr
 				}
 			}
 
-			// For now return mock empty PDF file for 200 response.
-			// TODO: (B-18027) - https://www13.v1host.com/USTRANSCOM38/story.mvc/Summary?oidToken=Story%3A870406
-			// - Retrieve all uploaded move order docs
-			// - Create new PDF service layer to merge all uploaded docs in one payload
-			// - Wire up PDF service to generate response PDF payload
-			buf := new(bytes.Buffer)
-			payload := io.NopCloser(buf)
-			filename := fmt.Sprintf("inline; filename=\"%s QA-%s %s.pdf\"", "MOCK", locator, time.Now().Format("01-02-2006"))
+			move := moves[len(moves)-1]
 
-			return movetaskorderops.NewDownloadMoveOrderOK().WithContentDisposition(filename).WithPayload(payload), nil
+			var moveOrderUploadType = services.MoveOrderUploadAll
+			if docType == "ORDERS" {
+				moveOrderUploadType = services.MoveOrderUpload
+			} else if docType == "AMENDMENTS" {
+				moveOrderUploadType = services.MoveOrderAmendmentUpload
+			}
+
+			outputFile, err := h.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, moveOrderUploadType, move)
+
+			if err != nil {
+				switch e := err.(type) {
+				case apperror.UnprocessableEntityError:
+					appCtx.Logger().Warn("primeapi.DownloadMoveOrder warn", zap.Error(err))
+					payload := payloads.ValidationError(e.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
+					return movetaskorderops.NewDownloadMoveOrderUnprocessableEntity().WithPayload(payload), err
+				default:
+					appCtx.Logger().Error("primeapi.DownloadMoveOrder error", zap.Error(err))
+					return movetaskorderops.NewDownloadMoveOrderInternalServerError().WithPayload(
+						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				}
+			}
+
+			payload := io.NopCloser(outputFile)
+
+			// Build fileName in format: Customer-{type}-for-MTO-{locator}-{TIMESTAMP}.pdf
+			// example:
+			// Customer-ORDERS,AMENDMENTS-for-MTO-PPMSIT-2024-01-11T17-02.pdf   (all)
+			// Customer-ORDERS-for-MTO-PPMSIT-2024-01-11T17-02.pdf
+			// Customer-AMENDMENTS-for-MTO-PPMSIT-2024-01-11T17-02.pdf
+			var fileNamePrefix = "Customer"
+			if docType == "ALL" {
+				fileNamePrefix += "-ORDERS,AMENDMENTS"
+			} else {
+				fileNamePrefix += "-" + docType
+			}
+			contentDisposition := fmt.Sprintf("inline; filename=\"%s-for-MTO-%s-%s.pdf\"", fileNamePrefix, locator, time.Now().UTC().Format("2006-01-02T15:04:05.000Z"))
+
+			return movetaskorderops.NewDownloadMoveOrderOK().WithContentDisposition(contentDisposition).WithPayload(payload), nil
 		})
 }

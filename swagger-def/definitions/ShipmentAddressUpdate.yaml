@@ -30,6 +30,18 @@ properties:
     $ref: 'Address.yaml'
   newAddress:
     $ref: 'Address.yaml'
+  sitOriginalAddress:
+    $ref: 'Address.yaml'
+  oldSitDistanceBetween:
+    description: The distance between the original SIT address and the previous/old destination address of shipment
+    example: 50
+    minimum: 0
+    type: integer
+  newSitDistanceBetween:
+    description: The distance between the original SIT address and requested new destination address of shipment
+    example: 88
+    minimum: 0
+    type: integer
 required:
   - id
   - status
