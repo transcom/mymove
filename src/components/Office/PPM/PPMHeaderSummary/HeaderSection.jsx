@@ -79,7 +79,7 @@ const getSectionMarkup = (sectionInfo) => {
         <div className={classnames(styles.Details)}>
           <div>
             <Label>Government Constructive Cost (GCC)</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.incentiveFactors)}</span>
+            <span className={styles.light}>${formatCents(sectionInfo.gcc)}</span>
           </div>
           <div>
             <Label>Gross Incentive</Label>

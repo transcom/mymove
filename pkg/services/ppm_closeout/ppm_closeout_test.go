@@ -3,9 +3,11 @@ package ppmcloseout
 import (
 	"time"
 
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	prhelpermocks "github.com/transcom/mymove/pkg/payment_request/mocks"
@@ -15,13 +17,20 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+type ppmBuildType string
+
+const (
+	ppmBuildReadyForCloseout  = "readyForCloseout"
+	ppmBuildWaitingOnCustomer = "waitingOnCustomer"
+)
+
 func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 
 	// One-time test setup
 	mockedPlanner := &mocks.Planner{}
 	mockedPaymentRequestHelper := &prhelpermocks.Helper{}
-	ppmEstimator := &servicemocks.PPMEstimator{}
-	ppmCloseoutFetcher := NewPPMCloseoutFetcher(mockedPlanner, mockedPaymentRequestHelper, ppmEstimator)
+	mockPpmEstimator := &servicemocks.PPMEstimator{}
+	ppmCloseoutFetcher := NewPPMCloseoutFetcher(mockedPlanner, mockedPaymentRequestHelper, mockPpmEstimator)
 	serviceParams := mockServiceParamsTables()
 
 	suite.PreloadData(func() {
@@ -46,8 +55,8 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			ReContractYear: models.ReContractYear{
 				Contract:             originDomesticServiceArea.Contract,
 				ContractID:           originDomesticServiceArea.ContractID,
-				StartDate:            time.Date(2019, time.June, 1, 0, 0, 0, 0, time.UTC),
-				EndDate:              time.Date(2020, time.May, 31, 0, 0, 0, 0, time.UTC),
+				StartDate:            time.Now(),
+				EndDate:              time.Now().Add(time.Hour * 8760),
 				Escalation:           1.0,
 				EscalationCompounded: 1.0,
 			},
@@ -213,9 +222,9 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 	})
 
 	suite.Run("Can successfully GET a PPMCloseout Object", func() {
-		// Under test:	CreatePPMShipment
-		// Set up:		Established valid shipment and valid new PPM shipment
-		// Expected:	New PPM shipment successfully created
+		// Under test:	GetPPMCloseout
+		// Set up:		Established ZIPs, ReServices, and all pricing data
+		// Expected:	PPMCloseout Object successfully retrieved
 		appCtx := suite.AppContextForTest()
 
 		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
@@ -226,38 +235,46 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
 
-		days := 90
-		sitLocation := models.SITLocationTypeOrigin
-		var date = time.Now()
-		weight := unit.Pound(1000)
-		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.AppContextForTest().DB(), nil, []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					SITDaysAllowance: &days,
-				},
-			},
-			{
-				Model: models.PPMShipment{
-					SITLocation:               &sitLocation,
-					SITEstimatedEntryDate:     &date,
-					SITEstimatedDepartureDate: &date,
-					SITEstimatedWeight:        &weight,
-				},
-			},
-		})
+		mockIncentiveValue := unit.Cents(100000)
+		mockPpmEstimator.On(
+			"FinalIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).Return(&mockIncentiveValue, nil)
 
-		ppmShipment.Shipment.SITDaysAllowance = &days
+		ppmShipment := suite.mockPPMShipmentForCloseoutTest(ppmBuildReadyForCloseout)
 
 		ppmCloseoutObj, err := ppmCloseoutFetcher.GetPPMCloseout(appCtx, ppmShipment.ID, nil)
 		if err != nil {
 			appCtx.Logger().Error("Error getting PPM closeout object: ", zap.Error(err))
 		}
 
-		mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
-
 		suite.Nil(err)
 		suite.NotNil(ppmCloseoutObj)
 		suite.NotEmpty(ppmCloseoutObj)
+	})
+
+	suite.Run("Returns a \"NotFoundError\" if the PPM Shipment was not found using the given ID", func() {
+		appCtx := suite.AppContextForTest()
+		missingPpmID := uuid.Must(uuid.NewV4())
+		ppmCloseoutObj, err := ppmCloseoutFetcher.GetPPMCloseout(appCtx, missingPpmID, nil)
+
+		suite.NotNil(err)
+		suite.Nil(ppmCloseoutObj)
+		suite.IsType(err, apperror.NotFoundError{})
+	})
+
+	suite.Run("Returns a \"PPMNotReadyForCloseoutError\" if shipment is not marked as either \"NEEDS_PAYMENT_APPROVAL\" or \"APPROVED\"", func() {
+		appCtx := suite.AppContextForTest()
+		ppmShipment := suite.mockPPMShipmentForCloseoutTest(ppmBuildWaitingOnCustomer)
+		ppmShipment.Status = models.PPMShipmentStatusSubmitted
+
+		ppmCloseoutObj, err := ppmCloseoutFetcher.GetPPMCloseout(appCtx, ppmShipment.ID, nil)
+
+		suite.NotNil(err)
+		suite.Nil(ppmCloseoutObj)
+		appCtx.Logger().Debug("+%v", zap.Error(err))
+		suite.IsType(err, apperror.PPMNotReadyForCloseoutError{})
 	})
 }
 
@@ -394,4 +411,78 @@ func mockServiceParamsTables() models.ServiceParams {
 	}
 
 	return serviceParams
+}
+
+func (suite *PPMCloseoutSuite) mockPPMShipmentForCloseoutTest(buildType ppmBuildType) models.PPMShipment {
+	ppmID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
+	estWeight := unit.Pound(2000)
+	actualMoveDate := time.Now()
+	expectedDepartureDate := &actualMoveDate
+	miles := unit.Miles(200)
+	emptyWeight1 := unit.Pound(1000)
+	emptyWeight2 := unit.Pound(1200)
+	fullWeight1 := unit.Pound(1500)
+	fullWeight2 := unit.Pound(1500)
+	pgBoolCustomer := true
+	pgBoolSpouse := false
+	weightCustomer := unit.Pound(100)
+	weightSpouse := unit.Pound(120)
+	finalIncentive := unit.Cents(20000)
+
+	weightTickets := models.WeightTickets{
+		models.WeightTicket{
+			EmptyWeight: &emptyWeight1,
+			FullWeight:  &fullWeight1,
+		},
+		models.WeightTicket{
+			EmptyWeight: &emptyWeight2,
+			FullWeight:  &fullWeight2,
+		},
+	}
+	progearWeightTickets := models.ProgearWeightTickets{
+		models.ProgearWeightTicket{
+			BelongsToSelf: &pgBoolCustomer,
+			Weight:        &weightCustomer,
+		},
+		models.ProgearWeightTicket{
+			BelongsToSelf: &pgBoolSpouse,
+			Weight:        &weightSpouse,
+		},
+	}
+
+	sitDaysAllowance := 20
+	sitLocation := models.SITLocationTypeOrigin
+	date := time.Now()
+
+	ppmShipmentCustomization := []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Distance:         &miles,
+				SITDaysAllowance: &sitDaysAllowance,
+			},
+		},
+		{
+			Model: models.PPMShipment{
+				ID:                        ppmID,
+				ExpectedDepartureDate:     *expectedDepartureDate,
+				ActualMoveDate:            &actualMoveDate,
+				EstimatedWeight:           &estWeight,
+				WeightTickets:             weightTickets,
+				ProgearWeightTickets:      progearWeightTickets,
+				FinalIncentive:            &finalIncentive,
+				SITLocation:               &sitLocation,
+				SITEstimatedEntryDate:     &date,
+				SITEstimatedDepartureDate: &date,
+			},
+		},
+	}
+
+	var ppmShipment models.PPMShipment
+	if buildType == ppmBuildReadyForCloseout {
+		ppmShipment = factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.AppContextForTest().DB(), nil, ppmShipmentCustomization)
+	} else if buildType == ppmBuildWaitingOnCustomer {
+		ppmShipment = factory.BuildPPMShipment(suite.AppContextForTest().DB(), ppmShipmentCustomization, nil)
+	}
+
+	return ppmShipment
 }
