@@ -2686,9 +2686,6 @@ func init() {
     "/ppm-shipments/{ppmShipmentId}/closeout": {
       "get": {
         "description": "Retrieves the closeout calculations for the specified PPM shipment.\n",
-        "consumes": [
-          "application/json"
-        ],
         "produces": [
           "application/json"
         ],
@@ -2724,6 +2721,9 @@ func init() {
       "parameters": [
         {
           "$ref": "#/parameters/ppmShipmentId"
+        },
+        {
+          "$ref": "#/parameters/allowableWeight"
         }
       ]
     },
@@ -6553,6 +6553,11 @@ func init() {
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
+        "distance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
+        },
         "diversion": {
           "type": "boolean",
           "example": true
@@ -10217,6 +10222,12 @@ func init() {
     }
   },
   "parameters": {
+    "allowableWeight": {
+      "type": "integer",
+      "description": "Max allowable weight for the shipment (used to calculate GCC)",
+      "name": "allowableWeight",
+      "in": "query"
+    },
     "ifMatch": {
       "type": "string",
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
@@ -13752,9 +13763,6 @@ func init() {
     "/ppm-shipments/{ppmShipmentId}/closeout": {
       "get": {
         "description": "Retrieves the closeout calculations for the specified PPM shipment.\n",
-        "consumes": [
-          "application/json"
-        ],
         "produces": [
           "application/json"
         ],
@@ -13810,6 +13818,12 @@ func init() {
           "name": "ppmShipmentId",
           "in": "path",
           "required": true
+        },
+        {
+          "type": "integer",
+          "description": "Max allowable weight for the shipment (used to calculate GCC)",
+          "name": "allowableWeight",
+          "in": "query"
         }
       ]
     },
@@ -18134,6 +18148,11 @@ func init() {
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
+        "distance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
+        },
         "diversion": {
           "type": "boolean",
           "example": true
@@ -21873,6 +21892,12 @@ func init() {
     }
   },
   "parameters": {
+    "allowableWeight": {
+      "type": "integer",
+      "description": "Max allowable weight for the shipment (used to calculate GCC)",
+      "name": "allowableWeight",
+      "in": "query"
+    },
     "ifMatch": {
       "type": "string",
       "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
