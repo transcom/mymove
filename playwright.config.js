@@ -16,7 +16,7 @@ const defaultWorkers = process.arch.startsWith('arm') ? 4 : 2;
  * @type {import('@playwright/test').PlaywrightTestConfig}
  */
 const config = {
-  globalSetup: './globalSetup.js',
+  globalSetup: './src/globalSetup.js',
   testDir: './playwright/tests',
   /* Maximum time one test can run for. */
   timeout: 30 * 1000,
