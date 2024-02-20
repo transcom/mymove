@@ -1084,6 +1084,10 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		DeliveryAddressUpdate:       ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 	}
 
+	if mtoShipment.Distance != nil {
+		payload.Distance = handlers.FmtInt64(int64(*mtoShipment.Distance))
+	}
+
 	if sitStatusPayload != nil {
 		// If we have a sitStatusPayload, overwrite SitDaysAllowance from the shipment model.
 		totalSITAllowance := 0

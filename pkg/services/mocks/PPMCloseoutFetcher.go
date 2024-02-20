@@ -16,25 +16,25 @@ type PPMCloseoutFetcher struct {
 	mock.Mock
 }
 
-// GetPPMCloseout provides a mock function with given fields: appCtx, ppmShipmentID
-func (_m *PPMCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.PPMCloseout, error) {
-	ret := _m.Called(appCtx, ppmShipmentID)
+// GetPPMCloseout provides a mock function with given fields: appCtx, ppmShipmentID, allowableWeight
+func (_m *PPMCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, allowableWeight *int64) (*models.PPMCloseout, error) {
+	ret := _m.Called(appCtx, ppmShipmentID, allowableWeight)
 
 	var r0 *models.PPMCloseout
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.PPMCloseout, error)); ok {
-		return rf(appCtx, ppmShipmentID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *int64) (*models.PPMCloseout, error)); ok {
+		return rf(appCtx, ppmShipmentID, allowableWeight)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *models.PPMCloseout); ok {
-		r0 = rf(appCtx, ppmShipmentID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *int64) *models.PPMCloseout); ok {
+		r0 = rf(appCtx, ppmShipmentID, allowableWeight)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.PPMCloseout)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
-		r1 = rf(appCtx, ppmShipmentID)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *int64) error); ok {
+		r1 = rf(appCtx, ppmShipmentID, allowableWeight)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -5,6 +5,7 @@ import { Formik } from 'formik';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { arrayOf, func, number, object } from 'prop-types';
+import moment from 'moment';
 
 import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 
@@ -20,8 +21,7 @@ import { formatDate, formatCents } from 'utils/formatters';
 
 export default function ReviewDocumentsSidePanel({
   ppmShipment,
-  ppmCloseout,
-  fullWeight,
+  ppmShipmentInfo,
   ppmNumber,
   formRef,
   onSuccess,
@@ -29,7 +29,6 @@ export default function ReviewDocumentsSidePanel({
   expenseTickets,
   proGearTickets,
   weightTickets,
-  totalDaysInSIT,
 }) {
   let status;
   let showReason;
@@ -96,7 +95,7 @@ export default function ReviewDocumentsSidePanel({
     <Formik initialValues innerRef={formRef} onSubmit={handleSubmit}>
       <div className={classnames(styles.container, 'container--accent--ppm')}>
         <Form className={classnames(formStyles.form, styles.ReviewDocumentsSidePanel)}>
-          <PPMHeaderSummary ppmCloseout={ppmCloseout} fullWeight={fullWeight} ppmNumber={ppmNumber} showAllFields />
+          <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields />
           <hr />
           <h3 className={styles.send}>Send to customer?</h3>
           <DocumentViewerSidebar.Content className={styles.sideBar}>
@@ -191,7 +190,12 @@ export default function ReviewDocumentsSidePanel({
                               </span>
                               <span>
                                 <dt>Total Days in SIT:</dt>
-                                <dl>{totalDaysInSIT ? { totalDaysInSIT } : `TEST VALUE`}</dl>
+                                <dl>
+                                  {moment(exp.sitEndDate, 'YYYY MM DD').diff(
+                                    moment(exp.sitStartDate, 'YYYY MM DD'),
+                                    'days',
+                                  )}
+                                </dl>
                               </span>
                             </dl>
                           ) : (

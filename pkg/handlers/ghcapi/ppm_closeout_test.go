@@ -27,6 +27,7 @@ func (suite *HandlerSuite) TestGetPPMCloseoutHandler() {
 		mockPPMCloseoutFetcher.On("GetPPMCloseout",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("uuid.UUID"),
+			mock.AnythingOfType("*int64"),
 		).Return(returnValues...)
 
 		return mockPPMCloseoutFetcher
@@ -89,8 +90,9 @@ func (suite *HandlerSuite) TestGetPPMCloseoutHandler() {
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 
 		params := ppmcloseoutops.GetPPMCloseoutParams{
-			HTTPRequest:   request,
-			PpmShipmentID: strfmt.UUID(ppmShipment.ID.String()),
+			HTTPRequest:     request,
+			PpmShipmentID:   strfmt.UUID(ppmShipment.ID.String()),
+			AllowableWeight: nil,
 		}
 
 		response := handler.Handle(params)
@@ -107,13 +109,14 @@ func (suite *HandlerSuite) TestGetPPMCloseoutHandler() {
 		uuidForShipment, _ := uuid.NewV4()
 		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 		handlerConfig := suite.HandlerConfig()
-		fetcher := ppmcloseout.NewPPMCloseoutFetcher(suite.HandlerConfig().DTODPlanner(), &paymentrequest.RequestPaymentHelper{})
+		fetcher := ppmcloseout.NewPPMCloseoutFetcher(suite.HandlerConfig().DTODPlanner(), &paymentrequest.RequestPaymentHelper{}, &mocks.PPMEstimator{})
 		request := httptest.NewRequest("GET", fmt.Sprintf("/ppm-shipments/%s/closeout", uuidForShipment.String()), nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 
 		params := ppmcloseoutops.GetPPMCloseoutParams{
-			HTTPRequest:   request,
-			PpmShipmentID: strfmt.UUID(uuidForShipment.String()),
+			HTTPRequest:     request,
+			PpmShipmentID:   strfmt.UUID(uuidForShipment.String()),
+			AllowableWeight: nil,
 		}
 
 		handler := GetPPMCloseoutHandler{

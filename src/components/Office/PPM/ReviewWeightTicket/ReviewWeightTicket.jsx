@@ -48,7 +48,7 @@ const validationSchema = Yup.object().shape({
 
 function ReviewWeightTicket({
   mtoShipment,
-  ppmCloseout,
+  ppmShipmentInfo,
   mtoShipments,
   order,
   weightTicket,
@@ -58,6 +58,7 @@ function ReviewWeightTicket({
   onSuccess,
   formRef,
   updateTotalWeight,
+  updateAllowableWeight,
 }) {
   const {
     vehicleDescription,
@@ -171,6 +172,10 @@ function ReviewWeightTicket({
     }
   }, [formRef, weightTicket, currentMtoShipments]);
 
+  useEffect(() => {
+    updateAllowableWeight(currentAllowableWeight.current);
+  }, [currentAllowableWeight, updateAllowableWeight]);
+
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
       <Formik
@@ -188,6 +193,8 @@ function ReviewWeightTicket({
               updatedValue === ppmDocumentStatus.APPROVED && !isNullUndefinedOrWhitespace(updatedValue);
             if (newApprovalState === false) {
               setCanEditRejection(true);
+              setFieldValue('rejectionReason', '');
+            } else if (newApprovalState === true) {
               setFieldValue('rejectionReason', '');
             }
             handleChange(event);
@@ -226,7 +233,7 @@ function ReviewWeightTicket({
 
           return (
             <Form className={classnames(formStyles.form, styles.ReviewWeightTicket)}>
-              <PPMHeaderSummary ppmCloseout={ppmCloseout} ppmNumber={ppmNumber} />
+              <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
               <hr />
               <h3 className={styles.tripNumber}>Trip {tripNumber}</h3>
               <legend className={classnames('usa-label', styles.label)}>Vehicle description</legend>

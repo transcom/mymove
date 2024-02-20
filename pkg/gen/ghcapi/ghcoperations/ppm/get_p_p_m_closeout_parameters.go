@@ -9,8 +9,10 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
@@ -31,6 +33,10 @@ type GetPPMCloseoutParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
+	/*Max allowable weight for the shipment (used to calculate GCC)
+	  In: query
+	*/
+	AllowableWeight *int64
 	/*UUID of the PPM shipment
 	  Required: true
 	  In: path
@@ -47,6 +53,13 @@ func (o *GetPPMCloseoutParams) BindRequest(r *http.Request, route *middleware.Ma
 
 	o.HTTPRequest = r
 
+	qs := runtime.Values(r.URL.Query())
+
+	qAllowableWeight, qhkAllowableWeight, _ := qs.GetOK("allowableWeight")
+	if err := o.bindAllowableWeight(qAllowableWeight, qhkAllowableWeight, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	rPpmShipmentID, rhkPpmShipmentID, _ := route.Params.GetOK("ppmShipmentId")
 	if err := o.bindPpmShipmentID(rPpmShipmentID, rhkPpmShipmentID, route.Formats); err != nil {
 		res = append(res, err)
@@ -54,6 +67,29 @@ func (o *GetPPMCloseoutParams) BindRequest(r *http.Request, route *middleware.Ma
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// bindAllowableWeight binds and validates parameter AllowableWeight from query.
+func (o *GetPPMCloseoutParams) bindAllowableWeight(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	value, err := swag.ConvertInt64(raw)
+	if err != nil {
+		return errors.InvalidType("allowableWeight", "query", "int64", raw)
+	}
+	o.AllowableWeight = &value
+
 	return nil
 }
 
