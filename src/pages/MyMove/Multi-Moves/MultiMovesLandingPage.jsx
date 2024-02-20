@@ -105,7 +105,7 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves }) => {
             </Helper>
           ) : (
             <Helper title="Welcome to MilMove!" className={styles['helper-paragraph-only']}>
-              <p data-testid="welcomeHeader">
+              <p data-testid="welcomeHeaderPrevMoves">
                 Select &quot;Create a Move&quot; to get started. <br />
                 <br />
                 Once you have validated your profile, pleasee click the &quot;Validate&quot; button and proceed to
