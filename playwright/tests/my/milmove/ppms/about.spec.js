@@ -28,7 +28,6 @@ test.describe('About Your PPM', () => {
 
 test.describe('(MultiMove) About Your PPM', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-  test.fail(multiMoveEnabled === 'true');
 
   forEachViewport(async () => {
     test.beforeEach(async ({ customerPpmPage }) => {
@@ -39,6 +38,10 @@ test.describe('(MultiMove) About Your PPM', () => {
     [true, false].forEach((selectAdvance) => {
       const advanceText = selectAdvance ? 'with' : 'without';
       test(`can submit actual PPM shipment info ${advanceText} an advance`, async ({ customerPpmPage }) => {
+        test.fail(
+          multiMoveEnabled === 'true',
+          'Need to ba able to navigate to a move with PPM Shipment from the MultiMove landing page.',
+        );
         await customerPpmPage.navigateToAboutPage({ selectAdvance });
       });
     });

@@ -82,16 +82,17 @@ test.describe('PPM Onboarding - Add dates and location flow', () => {
   });
 });
 
-test.describe.skip('(MultiMove) PPM Onboarding - Add dates and location flow', () => {
+test.describe('(MultiMove) PPM Onboarding - Add dates and location flow', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-  test.fail(multiMoveEnabled === 'true', 'Need to complete MultiMove Workflow.');
+  test.fail(multiMoveEnabled === 'true', 'Need to complete navigating from MultiMove page to move.');
   test.beforeEach(async ({ customerPpmPage }) => {
     const move = await customerPpmPage.testHarness.buildSpouseProGearMove();
     await customerPpmPage.signInForPPMWithMove(move);
+    // Need to navigate from multimove page to a move
     await customerPpmPage.customerStartsAddingAPPMShipment();
   });
 
-  test('doesn’t allow SM to progress if form is in an invalid state', async ({ page }) => {
+  test.skip('doesn’t allow SM to progress if form is in an invalid state', async ({ page }) => {
     await expect(page.getByText('PPM date & location')).toBeVisible();
     expect(page.url()).toContain('/new-shipment');
 
@@ -151,7 +152,7 @@ test.describe.skip('(MultiMove) PPM Onboarding - Add dates and location flow', (
     await expect(errorMessage).not.toBeVisible();
   });
 
-  test('can continue to next page', async ({ customerPpmPage }) => {
+  test.skip('can continue to next page', async ({ customerPpmPage }) => {
     await customerPpmPage.submitsDateAndLocation();
   });
 });
