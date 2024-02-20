@@ -11,9 +11,9 @@ describe('MultiMovesMoveInfoList', () => {
       issue_date: '2022-01-01',
       orders_type: 'SEPARATION',
       report_by_date: '2022-02-01',
-      OriginDutyLocation: {
+      origin_duty_location: {
         name: 'Fort Bragg North Station',
-        Address: {
+        address: {
           streetAddress1: '123 Main Ave',
           streetAddress2: 'Apartment 9000',
           streetAddress3: '',
@@ -23,9 +23,9 @@ describe('MultiMovesMoveInfoList', () => {
           country: 'USA',
         },
       },
-      NewDutyLocation: {
+      new_duty_location: {
         name: 'Fort Bragg North Station',
-        Address: {
+        address: {
           streetAddress1: '123 Main Ave',
           streetAddress2: 'Apartment 9000',
           streetAddress3: '',
@@ -44,9 +44,9 @@ describe('MultiMovesMoveInfoList', () => {
       issue_date: '2022-01-01',
       orders_type: 'RETIREMENT',
       report_by_date: '2022-02-01',
-      OriginDutyLocation: {
+      origin_duty_location: {
         name: 'Fort Bragg North Station',
-        Address: {
+        address: {
           streetAddress1: '123 Main Ave',
           streetAddress2: 'Apartment 9000',
           streetAddress3: '',
@@ -56,9 +56,9 @@ describe('MultiMovesMoveInfoList', () => {
           country: 'USA',
         },
       },
-      NewDutyLocation: {
+      new_duty_location: {
         name: 'Fort Bragg North Station',
-        Address: {
+        address: {
           streetAddress1: '123 Main Ave',
           streetAddress2: 'Apartment 9000',
           streetAddress3: '',
@@ -77,9 +77,9 @@ describe('MultiMovesMoveInfoList', () => {
       issue_date: '2022-01-01',
       orders_type: 'PERMANENT_CHANGE_OF_DUTY_STATION',
       report_by_date: '2022-02-01',
-      OriginDutyLocation: {
+      origin_duty_location: {
         name: 'Fort Bragg North Station',
-        Address: {
+        address: {
           streetAddress1: '123 Main Ave',
           streetAddress2: 'Apartment 9000',
           streetAddress3: '',
@@ -89,9 +89,9 @@ describe('MultiMovesMoveInfoList', () => {
           country: 'USA',
         },
       },
-      NewDutyLocation: {
+      new_duty_location: {
         name: 'Fort Bragg North Station',
-        Address: {
+        address: {
           streetAddress1: '123 Main Ave',
           streetAddress2: 'Apartment 9000',
           streetAddress3: '',

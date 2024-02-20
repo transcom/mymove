@@ -7,10 +7,10 @@ export const mockMovesPCS = {
       status: 'DRAFT',
       orders: {
         id: 'testOrder1',
-        NewDutyLocation: {
+        new_duty_location: {
           id: 'testDDL1',
           name: 'Fort Bragg North Station',
-          Address: {
+          address: {
             streetAddress1: '123 Main Ave',
             streetAddress2: 'Apartment 9000',
             streetAddress3: '',
@@ -20,10 +20,10 @@ export const mockMovesPCS = {
             country: 'USA',
           },
         },
-        OriginDutyLocation: {
+        origin_duty_location: {
           id: 'testODL1',
           name: 'Fort Bragg North Station',
-          Address: {
+          address: {
             streetAddress1: '123 Main Ave',
             streetAddress2: 'Apartment 9000',
             streetAddress3: '',
@@ -93,10 +93,10 @@ export const mockMovesPCS = {
       status: 'APPROVED',
       orders: {
         id: 'testOrder2',
-        NewDutyLocation: {
+        new_duty_location: {
           id: 'testDDL2',
           name: 'Fort Bragg South Station',
-          Address: {
+          address: {
             streetAddress1: '456 Oak St',
             streetAddress2: 'Apartment 8000',
             streetAddress3: '',
@@ -106,10 +106,10 @@ export const mockMovesPCS = {
             country: 'USA',
           },
         },
-        OriginDutyLocation: {
+        origin_duty_location: {
           id: 'testODL2',
           name: 'Fort Bragg South Station',
-          Address: {
+          address: {
             streetAddress1: '456 Oak St',
             streetAddress2: 'Apartment 8000',
             streetAddress3: '',
@@ -177,10 +177,10 @@ export const mockMovesPCS = {
       status: 'APPROVED',
       orders: {
         id: 'testOrder3',
-        NewDutyLocation: {
+        new_duty_location: {
           id: 'testDDL3',
           name: 'Fort Bragg East Station',
-          Address: {
+          address: {
             streetAddress1: '789 Pine Ave',
             streetAddress2: 'Apartment 7000',
             streetAddress3: '',
@@ -190,10 +190,10 @@ export const mockMovesPCS = {
             country: 'USA',
           },
         },
-        OriginDutyLocation: {
+        origin_duty_location: {
           id: 'testODL3',
           name: 'Fort Bragg East Station',
-          Address: {
+          address: {
             streetAddress1: '789 Pine Ave',
             streetAddress2: 'Apartment 7000',
             streetAddress3: '',
@@ -266,10 +266,10 @@ export const mockMovesRetirement = {
       status: 'SUBMITTED',
       orders: {
         id: 'testOrder1',
-        NewDutyLocation: {
+        new_duty_location: {
           id: 'testDDL1',
           name: 'Fort Bragg North Station',
-          Address: {
+          address: {
             streetAddress1: '123 Main Ave',
             streetAddress2: 'Apartment 9000',
             streetAddress3: '',
@@ -279,10 +279,10 @@ export const mockMovesRetirement = {
             country: 'USA',
           },
         },
-        OriginDutyLocation: {
+        origin_duty_location: {
           id: 'testODL1',
           name: 'Fort Bragg North Station',
-          Address: {
+          address: {
             streetAddress1: '123 Main Ave',
             streetAddress2: 'Apartment 9000',
             streetAddress3: '',
@@ -352,10 +352,10 @@ export const mockMovesRetirement = {
       status: 'APPROVED',
       orders: {
         id: 'testOrder2',
-        NewDutyLocation: {
+        new_duty_location: {
           id: 'testDDL2',
           name: 'Fort Bragg South Station',
-          Address: {
+          address: {
             streetAddress1: '456 Oak St',
             streetAddress2: 'Apartment 8000',
             streetAddress3: '',
@@ -365,10 +365,10 @@ export const mockMovesRetirement = {
             country: 'USA',
           },
         },
-        OriginDutyLocation: {
+        origin_duty_location: {
           id: 'testODL2',
           name: 'Fort Bragg South Station',
-          Address: {
+          address: {
             streetAddress1: '456 Oak St',
             streetAddress2: 'Apartment 8000',
             streetAddress3: '',
@@ -436,10 +436,10 @@ export const mockMovesRetirement = {
       status: 'APPROVED',
       orders: {
         id: 'testOrder3',
-        NewDutyLocation: {
+        new_duty_location: {
           id: 'testDDL3',
           name: 'Fort Bragg East Station',
-          Address: {
+          address: {
             streetAddress1: '789 Pine Ave',
             streetAddress2: 'Apartment 7000',
             streetAddress3: '',
@@ -449,10 +449,10 @@ export const mockMovesRetirement = {
             country: 'USA',
           },
         },
-        OriginDutyLocation: {
+        origin_duty_location: {
           id: 'testODL3',
           name: 'Fort Bragg East Station',
-          Address: {
+          address: {
             streetAddress1: '789 Pine Ave',
             streetAddress2: 'Apartment 7000',
             streetAddress3: '',
@@ -525,10 +525,10 @@ export const mockMovesSeparation = {
       status: 'DRAFT',
       orders: {
         id: 'testOrder1',
-        NewDutyLocation: {
+        new_duty_location: {
           id: 'testDDL1',
           name: 'Fort Bragg North Station',
-          Address: {
+          address: {
             streetAddress1: '123 Main Ave',
             streetAddress2: 'Apartment 9000',
             streetAddress3: '',
@@ -538,10 +538,10 @@ export const mockMovesSeparation = {
             country: 'USA',
           },
         },
-        OriginDutyLocation: {
+        origin_duty_location: {
           id: 'testODL1',
           name: 'Fort Bragg North Station',
-          Address: {
+          address: {
             streetAddress1: '123 Main Ave',
             streetAddress2: 'Apartment 9000',
             streetAddress3: '',
@@ -611,10 +611,10 @@ export const mockMovesSeparation = {
       status: 'APPROVED',
       orders: {
         id: 'testOrder2',
-        NewDutyLocation: {
+        new_duty_location: {
           id: 'testDDL2',
           name: 'Fort Bragg South Station',
-          Address: {
+          address: {
             streetAddress1: '456 Oak St',
             streetAddress2: 'Apartment 8000',
             streetAddress3: '',
@@ -624,10 +624,10 @@ export const mockMovesSeparation = {
             country: 'USA',
           },
         },
-        OriginDutyLocation: {
+        origin_duty_location: {
           id: 'testODL2',
           name: 'Fort Bragg South Station',
-          Address: {
+          address: {
             streetAddress1: '456 Oak St',
             streetAddress2: 'Apartment 8000',
             streetAddress3: '',
@@ -695,10 +695,10 @@ export const mockMovesSeparation = {
       status: 'APPROVED',
       orders: {
         id: 'testOrder3',
-        NewDutyLocation: {
+        new_duty_location: {
           id: 'testDDL3',
           name: 'Fort Bragg East Station',
-          Address: {
+          address: {
             streetAddress1: '789 Pine Ave',
             streetAddress2: 'Apartment 7000',
             streetAddress3: '',
@@ -708,10 +708,10 @@ export const mockMovesSeparation = {
             country: 'USA',
           },
         },
-        OriginDutyLocation: {
+        origin_duty_location: {
           id: 'testODL3',
           name: 'Fort Bragg East Station',
-          Address: {
+          address: {
             streetAddress1: '789 Pine Ave',
             streetAddress2: 'Apartment 7000',
             streetAddress3: '',
@@ -784,10 +784,10 @@ export const mockMovesNoPreviousMoves = {
       status: 'DRAFT',
       orders: {
         id: 'testOrder1',
-        NewDutyLocation: {
+        new_duty_location: {
           id: 'testDDL1',
           name: 'Fort Bragg North Station',
-          Address: {
+          address: {
             streetAddress1: '123 Main Ave',
             streetAddress2: 'Apartment 9000',
             streetAddress3: '',
@@ -797,10 +797,10 @@ export const mockMovesNoPreviousMoves = {
             country: 'USA',
           },
         },
-        OriginDutyLocation: {
+        origin_duty_location: {
           id: 'testODL1',
           name: 'Fort Bragg North Station',
-          Address: {
+          address: {
             streetAddress1: '123 Main Ave',
             streetAddress2: 'Apartment 9000',
             streetAddress3: '',
@@ -875,10 +875,10 @@ export const mockMovesNoCurrentMoveWithPreviousMoves = {
       status: 'APPROVED',
       orders: {
         id: 'testOrder2',
-        NewDutyLocation: {
+        new_duty_location: {
           id: 'testDDL2',
           name: 'Fort Bragg South Station',
-          Address: {
+          address: {
             streetAddress1: '456 Oak St',
             streetAddress2: 'Apartment 8000',
             streetAddress3: '',
@@ -888,10 +888,10 @@ export const mockMovesNoCurrentMoveWithPreviousMoves = {
             country: 'USA',
           },
         },
-        OriginDutyLocation: {
+        origin_duty_location: {
           id: 'testODL2',
           name: 'Fort Bragg South Station',
-          Address: {
+          address: {
             streetAddress1: '456 Oak St',
             streetAddress2: 'Apartment 8000',
             streetAddress3: '',
@@ -959,10 +959,10 @@ export const mockMovesNoCurrentMoveWithPreviousMoves = {
       status: 'APPROVED',
       orders: {
         id: 'testOrder3',
-        NewDutyLocation: {
+        new_duty_location: {
           id: 'testDDL3',
           name: 'Fort Bragg East Station',
-          Address: {
+          address: {
             streetAddress1: '789 Pine Ave',
             streetAddress2: 'Apartment 7000',
             streetAddress3: '',
@@ -972,10 +972,10 @@ export const mockMovesNoCurrentMoveWithPreviousMoves = {
             country: 'USA',
           },
         },
-        OriginDutyLocation: {
+        origin_duty_location: {
           id: 'testODL3',
           name: 'Fort Bragg East Station',
-          Address: {
+          address: {
             streetAddress1: '789 Pine Ave',
             streetAddress2: 'Apartment 7000',
             streetAddress3: '',
