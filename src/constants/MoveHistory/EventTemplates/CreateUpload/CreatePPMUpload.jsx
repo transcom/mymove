@@ -5,21 +5,26 @@ import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
 import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
+import { formatDataForPPM } from 'utils/formatPPMData';
 
 const formatChangedValues = (historyRecord) => {
   const newChangedValues = {
-    belongs_to_self: historyRecord.oldValues.belongs_to_self,
     ...historyRecord.changedValues,
     ...getMtoShipmentLabel(historyRecord),
+    ...formatDataForPPM(historyRecord),
   };
 
   return { ...historyRecord, changedValues: newChangedValues };
 };
 
 export default {
-  action: a.UPDATE,
-  eventName: o.updateProGearWeightTicket,
-  tableName: t.progear_weight_tickets,
-  getEventNameDisplay: () => 'Updated pro-gear',
-  getDetails: (historyRecord) => <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />,
+  action: a.INSERT,
+  eventName: o.createPPMUpload,
+  tableName: t.user_uploads,
+  getEventNameDisplay: () => {
+    return <div>Uploaded document</div>;
+  },
+  getDetails: (historyRecord) => {
+    return <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />;
+  },
 };
