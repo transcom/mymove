@@ -93,13 +93,13 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpa
 	}, nil)
 
 	customPPM := models.PPMShipment{
-		ID:                         uuid.Must(uuid.NewV4()),
-		ShipmentID:                 shipment.ID,
-		Status:                     models.PPMShipmentStatusWaitingOnCustomer,
-		PickupPostalAddressID:      &pickupAddress.ID,
-		DestinationPostalAddressID: &destinationAddress.ID,
-		PickupPostalCode:           "79329",
-		DestinationPostalCode:      "90210",
+		ID:                    uuid.Must(uuid.NewV4()),
+		ShipmentID:            shipment.ID,
+		Status:                models.PPMShipmentStatusWaitingOnCustomer,
+		PickupAddressID:       &pickupAddress.ID,
+		DestinationAddressID:  &destinationAddress.ID,
+		PickupPostalCode:      "79329",
+		DestinationPostalCode: "90210",
 	}
 
 	ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, []factory.Customization{
@@ -179,13 +179,13 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForArmy() {
 	}, nil)
 
 	customPPM := models.PPMShipment{
-		ID:                         uuid.Must(uuid.NewV4()),
-		ShipmentID:                 shipment.ID,
-		Status:                     models.PPMShipmentStatusWaitingOnCustomer,
-		PickupPostalAddressID:      &pickupAddress.ID,
-		DestinationPostalAddressID: &destinationAddress.ID,
-		PickupPostalCode:           "79329",
-		DestinationPostalCode:      "90210",
+		ID:                    uuid.Must(uuid.NewV4()),
+		ShipmentID:            shipment.ID,
+		Status:                models.PPMShipmentStatusWaitingOnCustomer,
+		PickupAddressID:       &pickupAddress.ID,
+		DestinationAddressID:  &destinationAddress.ID,
+		PickupPostalCode:      "79329",
+		DestinationPostalCode: "90210",
 	}
 
 	ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, []factory.Customization{
@@ -265,13 +265,13 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForNavalBran
 	}, nil)
 
 	customPPM := models.PPMShipment{
-		ID:                         uuid.Must(uuid.NewV4()),
-		ShipmentID:                 shipment.ID,
-		Status:                     models.PPMShipmentStatusWaitingOnCustomer,
-		PickupPostalAddressID:      &pickupAddress.ID,
-		DestinationPostalAddressID: &destinationAddress.ID,
-		PickupPostalCode:           "79329",
-		DestinationPostalCode:      "90210",
+		ID:                    uuid.Must(uuid.NewV4()),
+		ShipmentID:            shipment.ID,
+		Status:                models.PPMShipmentStatusWaitingOnCustomer,
+		PickupAddressID:       &pickupAddress.ID,
+		DestinationAddressID:  &destinationAddress.ID,
+		PickupPostalCode:      "79329",
+		DestinationPostalCode: "90210",
 	}
 
 	ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, []factory.Customization{
@@ -352,13 +352,13 @@ func (suite *NotificationSuite) TestPpmPacketEmailTextTemplateRender() {
 	}, nil)
 
 	customPPM := models.PPMShipment{
-		ID:                         uuid.Must(uuid.NewV4()),
-		ShipmentID:                 shipment.ID,
-		Status:                     models.PPMShipmentStatusWaitingOnCustomer,
-		PickupPostalAddressID:      &pickupAddress.ID,
-		DestinationPostalAddressID: &destinationAddress.ID,
-		PickupPostalCode:           "79329",
-		DestinationPostalCode:      "90210",
+		ID:                    uuid.Must(uuid.NewV4()),
+		ShipmentID:            shipment.ID,
+		Status:                models.PPMShipmentStatusWaitingOnCustomer,
+		PickupAddressID:       &pickupAddress.ID,
+		DestinationAddressID:  &destinationAddress.ID,
+		PickupPostalCode:      "79329",
+		DestinationPostalCode: "90210",
 	}
 
 	ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, []factory.Customization{

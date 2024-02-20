@@ -144,25 +144,27 @@ func GetEmailData(p PpmPacketEmail, appCtx appcontext.AppContext) (PpmPacketEmai
 
 	// If address IDs are available for this PPM shipment, then do another query to get the city/state for origin and destination.
 	// Note: This is a conditional put in because this work was done before address_ids were added to the ppm_shipments table.
-	if ppmShipment.PickupPostalAddressID != nil && ppmShipment.DestinationPostalAddressID != nil {
+	if ppmShipment.PickupAddressID != nil && ppmShipment.DestinationAddressID != nil {
 		var pickupAddress, destinationAddress models.Address
-		err = appCtx.DB().Find(&pickupAddress, ppmShipment.PickupPostalAddressID)
+		err = appCtx.DB().Find(&pickupAddress, ppmShipment.PickupAddressID)
 		if err != nil {
 			return PpmPacketEmailData{}, LoggerData{}, err
 		}
-		err = appCtx.DB().Find(&destinationAddress, ppmShipment.DestinationPostalAddressID)
+		err = appCtx.DB().Find(&destinationAddress, ppmShipment.DestinationAddressID)
 		if err != nil {
 			return PpmPacketEmailData{}, LoggerData{}, err
 		}
 
 		return PpmPacketEmailData{
-				OriginCity:       &pickupAddress.City,
-				OriginState:      &pickupAddress.State,
+				OriginCity:  &pickupAddress.City,
+				OriginState: &pickupAddress.State,
+				//OriginZIP:      &ppmShipment.PickupPostalCode,
 				DestinationCity:  &destinationAddress.City,
 				DestinationState: &destinationAddress.State,
-				SubmitLocation:   submitLocation,
-				ServiceBranch:    affiliationDisplayValue[*serviceMember.Affiliation],
-				Locator:          move.Locator,
+				//DestinationZIP: &ppmShipment.DestinationPostalCode,
+				SubmitLocation: submitLocation,
+				ServiceBranch:  affiliationDisplayValue[*serviceMember.Affiliation],
+				Locator:        move.Locator,
 			},
 			LoggerData{
 				ServiceMember: *serviceMember,
