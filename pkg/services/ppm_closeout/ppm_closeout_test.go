@@ -3,7 +3,6 @@ package ppmcloseout
 import (
 	"time"
 
-	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 	"go.uber.org/zap"
 
@@ -45,8 +44,8 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			ReContractYear: models.ReContractYear{
 				Contract:             originDomesticServiceArea.Contract,
 				ContractID:           originDomesticServiceArea.ContractID,
-				StartDate:            time.Now(),
-				EndDate:              time.Now().Add(time.Hour * 8760),
+				StartDate:            time.Date(2019, time.June, 1, 0, 0, 0, 0, time.UTC),
+				EndDate:              time.Date(2020, time.May, 31, 0, 0, 0, 0, time.UTC),
 				Escalation:           1.0,
 				EscalationCompounded: 1.0,
 			},
@@ -225,14 +224,34 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
 
-		ppmShipment := suite.mockPPMShipmentForCloseoutTest()
+		days := 90
+		sitLocation := models.SITLocationTypeOrigin
+		var date = time.Now()
+		weight := unit.Pound(1000)
+		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.AppContextForTest().DB(), nil, []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					SITDaysAllowance: &days,
+				},
+			},
+			{
+				Model: models.PPMShipment{
+					SITLocation:               &sitLocation,
+					SITEstimatedEntryDate:     &date,
+					SITEstimatedDepartureDate: &date,
+					SITEstimatedWeight:        &weight,
+				},
+			},
+		})
+
+		ppmShipment.Shipment.SITDaysAllowance = &days
 
 		ppmCloseoutObj, err := ppmCloseoutFetcher.GetPPMCloseout(appCtx, ppmShipment.ID)
 		if err != nil {
 			appCtx.Logger().Error("Error getting PPM closeout object: ", zap.Error(err))
 		}
 
-		// mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
+		mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
 		suite.Nil(err)
 		suite.NotNil(ppmCloseoutObj)
@@ -373,71 +392,4 @@ func mockServiceParamsTables() models.ServiceParams {
 	}
 
 	return serviceParams
-}
-
-func (suite *PPMCloseoutSuite) mockPPMShipmentForCloseoutTest() models.PPMShipment {
-	ppmID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
-	estWeight := unit.Pound(2000)
-	actualMoveDate := time.Now()
-	expectedDepartureDate := &actualMoveDate
-	miles := unit.Miles(200)
-	emptyWeight1 := unit.Pound(1000)
-	emptyWeight2 := unit.Pound(1200)
-	fullWeight1 := unit.Pound(1500)
-	fullWeight2 := unit.Pound(1500)
-	pgBoolCustomer := true
-	pgBoolSpouse := false
-	weightCustomer := unit.Pound(100)
-	weightSpouse := unit.Pound(120)
-	finalIncentive := unit.Cents(20000)
-
-	weightTickets := models.WeightTickets{
-		models.WeightTicket{
-			EmptyWeight: &emptyWeight1,
-			FullWeight:  &fullWeight1,
-		},
-		models.WeightTicket{
-			EmptyWeight: &emptyWeight2,
-			FullWeight:  &fullWeight2,
-		},
-	}
-	progearWeightTickets := models.ProgearWeightTickets{
-		models.ProgearWeightTicket{
-			BelongsToSelf: &pgBoolCustomer,
-			Weight:        &weightCustomer,
-		},
-		models.ProgearWeightTicket{
-			BelongsToSelf: &pgBoolSpouse,
-			Weight:        &weightSpouse,
-		},
-	}
-
-	sitDaysAllowance := 20
-	sitLocation := models.SITLocationTypeOrigin
-	date := time.Now()
-
-	ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.AppContextForTest().DB(), nil, []factory.Customization{
-		{
-			Model: models.MTOShipment{
-				Distance:         &miles,
-				SITDaysAllowance: &sitDaysAllowance,
-			},
-		},
-		{
-			Model: models.PPMShipment{
-				ID:                        ppmID,
-				ExpectedDepartureDate:     *expectedDepartureDate,
-				ActualMoveDate:            &actualMoveDate,
-				EstimatedWeight:           &estWeight,
-				WeightTickets:             weightTickets,
-				ProgearWeightTickets:      progearWeightTickets,
-				FinalIncentive:            &finalIncentive,
-				SITLocation:               &sitLocation,
-				SITEstimatedEntryDate:     &date,
-				SITEstimatedDepartureDate: &date,
-			},
-		},
-	})
-
-	return ppmShipment
 }

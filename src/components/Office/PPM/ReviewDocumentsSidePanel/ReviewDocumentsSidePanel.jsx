@@ -10,14 +10,18 @@ import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 
 import styles from './ReviewDocumentsSidePanel.module.scss';
 
+import { expenseTypes } from 'constants/ppmExpenseTypes';
 import { patchPPMDocumentsSetStatus } from 'services/ghcApi';
 import { ExpenseShape, PPMShipmentShape, ProGearTicketShape, WeightTicketShape } from 'types/shipment';
 import formStyles from 'styles/form.module.scss';
 import DocumentViewerSidebar from 'pages/Office/DocumentViewerSidebar/DocumentViewerSidebar';
 import PPMDocumentsStatus from 'constants/ppms';
+import { formatDate, formatCents } from 'utils/formatters';
 
 export default function ReviewDocumentsSidePanel({
   ppmShipment,
+  ppmCloseout,
+  fullWeight,
   ppmNumber,
   formRef,
   onSuccess,
@@ -25,6 +29,7 @@ export default function ReviewDocumentsSidePanel({
   expenseTickets,
   proGearTickets,
   weightTickets,
+  totalDaysInSIT,
 }) {
   let status;
   let showReason;
@@ -91,7 +96,7 @@ export default function ReviewDocumentsSidePanel({
     <Formik initialValues innerRef={formRef} onSubmit={handleSubmit}>
       <div className={classnames(styles.container, 'container--accent--ppm')}>
         <Form className={classnames(formStyles.form, styles.ReviewDocumentsSidePanel)}>
-          <PPMHeaderSummary ppmShipment={ppmShipment} ppmNumber={ppmNumber} />
+          <PPMHeaderSummary ppmCloseout={ppmCloseout} fullWeight={fullWeight} ppmNumber={ppmNumber} showAllFields />
           <hr />
           <h3 className={styles.send}>Send to customer?</h3>
           <DocumentViewerSidebar.Content className={styles.sideBar}>
@@ -105,6 +110,27 @@ export default function ReviewDocumentsSidePanel({
                           {statusWithIcon(weight)}
                         </div>
                         {showReason ? <p>{weight.reason}</p> : null}
+
+                        <dl className={classnames(styles.ItemDetails)}>
+                          <span>
+                            <dt>Empty Weight:</dt>
+                            <dd>{weight.emptyWeight} lbs</dd>
+                          </span>
+                          <span>
+                            <dt>Full Weight:</dt>
+                            <dl>{weight.fullWeight} lbs</dl>
+                          </span>
+                          <span>
+                            <dt>Trailer Used:</dt>
+                            <dl>{weight.ownsTrailer ? `Yes` : `No`}</dl>
+                          </span>
+                          {weight.ownsTrailer && (
+                            <span>
+                              <dt>Trailer Claimable:</dt>
+                              <dl>{weight.trailerMeetsCriteria ? `Yes` : `No`}</dl>
+                            </span>
+                          )}
+                        </dl>
                       </li>
                     );
                   })
@@ -118,6 +144,22 @@ export default function ReviewDocumentsSidePanel({
                           {statusWithIcon(gear)}
                         </div>
                         {showReason ? <p>{gear.reason}</p> : null}
+
+                        <dl className={classnames(styles.ItemDetails)}>
+                          <span>
+                            <dt>Belongs To: </dt>
+                            <dd>{gear.selfProGear ? `Customer` : `Spouse`}</dd>
+                          </span>
+                          <span>
+                            <dt>Missing Weight Ticket (Constructed)?</dt>
+                            <dl>{gear.missingWeightTicket ? `Yes` : `No`}</dl>
+                          </span>
+                          <span>
+                            <dt>Pro-gear Weight:</dt>
+                            {/* TODO: proGearWeight shows empty for some reason? */}
+                            <dl>{gear.weight} lbs</dl>
+                          </span>
+                        </dl>
                       </li>
                     );
                   })
@@ -135,6 +177,30 @@ export default function ReviewDocumentsSidePanel({
                           {statusWithIcon(exp)}
                         </div>
                         {showReason ? <p>{exp.reason}</p> : null}
+
+                        <div className={classnames(styles.ItemDetails)}>
+                          {exp.movingExpenseType === expenseTypes.STORAGE ? (
+                            <dl>
+                              <span>
+                                <dt>SIT Start Date:</dt>
+                                <dd>{formatDate(exp.sitStartDate)}</dd>
+                              </span>
+                              <span>
+                                <dt>SIT End Date:</dt>
+                                <dl>{formatDate(exp.sitEndDate)}</dl>
+                              </span>
+                              <span>
+                                <dt>Total Days in SIT:</dt>
+                                <dl>{totalDaysInSIT ? { totalDaysInSIT } : `TEST VALUE`}</dl>
+                              </span>
+                            </dl>
+                          ) : (
+                            <span>
+                              <dt>Amount:</dt>
+                              <dl>${formatCents(exp.amount)}</dl>
+                            </span>
+                          )}
+                        </div>
                       </li>
                     );
                   })

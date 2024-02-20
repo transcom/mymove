@@ -1,56 +1,75 @@
 import React from 'react';
-import { number } from 'prop-types';
-import { Label } from '@trussworks/react-uswds';
+import { number, bool } from 'prop-types';
 import classnames from 'classnames';
 
+import HeaderSection, { sectionTypes } from './HeaderSection';
 import styles from './PPMHeaderSummary.module.scss';
 
-import { PPMShipmentShape } from 'types/shipment';
-import { formatDate, formatCentsTruncateWhole } from 'utils/formatters';
+import { PPMCloseoutShape } from 'types/shipment';
 
-export default function PPMHeaderSummary({ ppmShipment, ppmNumber }) {
-  const {
-    actualPickupPostalCode,
-    actualDestinationPostalCode,
-    actualMoveDate,
-    hasReceivedAdvance,
-    advanceAmountReceived,
-  } = ppmShipment || {};
-
+export default function PPMHeaderSummary({ ppmCloseout, ppmNumber, showAllFields }) {
+  const shipmentInfo = {
+    plannedMoveDate: ppmCloseout.plannedMoveDate,
+    actualMoveDate: ppmCloseout.actualMoveDate,
+    actualPickupPostalCode: ppmCloseout.actualPickupPostalCode,
+    actualDestinationPostalCode: ppmCloseout.actualDestinationPostalCode,
+    miles: ppmCloseout.miles,
+    estimatedWeight: ppmCloseout.estimatedWeight,
+    actualWeight: ppmCloseout.actualWeight,
+    advanceRequested: ppmCloseout.advanceRequested,
+    advanceReceived: ppmCloseout.advanceReceived,
+    aoa: ppmCloseout.aoa,
+  };
+  const incentives = {
+    grossIncentive: ppmCloseout.grossIncentive,
+    gcc: ppmCloseout.gcc,
+    remainingIncentive: ppmCloseout.remainingIncentive,
+  };
+  const gccFactors = {
+    lineHaulPrice: ppmCloseout.lineHaulPrice,
+    lineHaulFuelSurcharge: ppmCloseout.lineHaulFuelSurcharge,
+    shorthaulPrice: ppmCloseout.shorthaulPrice,
+    shorthaulFuelSurcharge: ppmCloseout.shorthaulFuelSurcharge,
+    fullPackUnpackCharge: ppmCloseout.packPrice + ppmCloseout.unpackPrice,
+  };
   return (
     <header className={classnames(styles.PPMHeaderSummary)}>
       <div className={styles.header}>
         <h3>PPM {ppmNumber}</h3>
         <section>
-          <div>
-            <Label className={styles.headerLabel}>Departure date</Label>
-            <span className={styles.light}>{formatDate(actualMoveDate, null, 'DD-MMM-YYYY')}</span>
-          </div>
-          <div>
-            <Label className={styles.headerLabel}>Starting ZIP</Label>
-            <span className={styles.light}>{actualPickupPostalCode}</span>
-          </div>
-          <div>
-            <Label className={styles.headerLabel}>Ending ZIP</Label>
-            <span className={styles.light}>{actualDestinationPostalCode}</span>
-          </div>
-          <div>
-            <Label className={styles.headerLabel}>Advance received</Label>
-            <span className={styles.light}>
-              {hasReceivedAdvance ? `Yes, $${formatCentsTruncateWhole(advanceAmountReceived)}` : 'No'}
-            </span>
-          </div>
+          <HeaderSection
+            sectionInfo={{
+              type: sectionTypes.shipmentInfo,
+              ...shipmentInfo,
+            }}
+          />
         </section>
+        <hr />
+        {showAllFields && (
+          <>
+            <HeaderSection
+              sectionInfo={{
+                type: sectionTypes.incentives,
+                ...incentives,
+              }}
+            />
+            <hr />
+            <HeaderSection sectionInfo={{ type: sectionTypes.gcc, ...gccFactors }} />
+          </>
+        )}
       </div>
     </header>
   );
 }
 
 PPMHeaderSummary.propTypes = {
-  ppmShipment: PPMShipmentShape,
+  ppmCloseout: PPMCloseoutShape,
   ppmNumber: number.isRequired,
+  showAllFields: bool.isRequired,
 };
 
 PPMHeaderSummary.defaultProps = {
-  ppmShipment: undefined,
+  ppmCloseout: undefined,
 };
+
+// TODO: Add shape/propType/defaults for incentives and GCC components here.
