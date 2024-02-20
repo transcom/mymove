@@ -19,7 +19,7 @@ test.describe('About Your PPM', () => {
 
     [true, false].forEach((selectAdvance) => {
       const advanceText = selectAdvance ? 'with' : 'without';
-      test.skip(`can submit actual PPM shipment info ${advanceText} an advance`, async ({ customerPpmPage }) => {
+      test(`can submit actual PPM shipment info ${advanceText} an advance`, async ({ customerPpmPage }) => {
         await customerPpmPage.navigateToAboutPage({ selectAdvance });
       });
     });

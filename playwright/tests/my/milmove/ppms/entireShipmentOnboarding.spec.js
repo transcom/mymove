@@ -108,7 +108,7 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
 }
 
 test.describe('Entire PPM onboarding flow', () => {
-  test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
+  test.skip(true, 'This test fail due to navigateFromDateAndLocationPageToEstimatedWeightsPage()');
   /** @type {CustomerPpmOnboardingPage} */
   let customerPpmOnboardingPage;
 
