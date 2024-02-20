@@ -10,10 +10,14 @@ import {
   getResponseError,
   getOrdersForServiceMember,
   patchOrders,
+  patchServiceMember,
   createUploadForDocument,
   deleteUpload,
 } from 'services/internalApi';
-import { updateOrders as updateOrdersAction } from 'store/entities/actions';
+import {
+  updateServiceMember as updateServiceMemberAction,
+  updateOrders as updateOrdersAction,
+} from 'store/entities/actions';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import {
   selectServiceMemberFromLoggedInUser,
@@ -35,6 +39,7 @@ export const EditOrders = ({
   currentOrders,
   currentMove,
   updateOrders,
+  updateServiceMember,
   existingUploads,
   moveIsApproved,
   setFlashMessage,
@@ -52,6 +57,8 @@ export const EditOrders = ({
     new_duty_location: currentOrders?.new_duty_location || null,
     uploaded_orders: existingUploads || [],
     move_status: currentMove.status,
+    grade: currentOrders?.grade || null,
+    origin_duty_location: currentOrders?.origin_duty_location || {},
   };
 
   // Only allow PCS unless feature flag is on
@@ -90,9 +97,45 @@ export const EditOrders = ({
   };
 
   const submitOrders = (fieldValues) => {
-    const hasDependents = fieldValues.has_dependents === 'yes';
-    const entitlementCouldChange = hasDependents !== currentOrders.has_dependents;
+    let hasDependents = false;
+    if (fieldValues.has_dependents === 'yes') {
+      hasDependents = true;
+    }
+    const entitlementCouldChange =
+      hasDependents !== currentOrders.has_dependents || fieldValues.grade !== currentOrders.grade;
     const newDutyLocationId = fieldValues.new_duty_location.id;
+    const newPayGrade = fieldValues.grade;
+    const newOriginDutyLocationId = fieldValues.origin_duty_location.id;
+
+    const payload = {
+      id: serviceMemberId,
+      rank: newPayGrade,
+      current_location_id: newOriginDutyLocationId,
+    };
+
+    patchServiceMember(payload)
+      .then((response) => {
+        updateServiceMember(response);
+        if (entitlementCouldChange) {
+          const weightAllowance = currentOrders?.has_dependents
+            ? response.weight_allotment.total_weight_self_plus_dependents
+            : response.weight_allotment.total_weight_self;
+          setFlashMessage(
+            'EDIT_ORDERS_SUCCESS',
+            'info',
+            `Your weight entitlement is now ${formatWeight(weightAllowance)}.`,
+            'Your changes have been saved. Note that the entitlement has also changed.',
+          );
+        } else {
+          setFlashMessage('EDIT_SERVICE_INFO_SUCCESS', 'success', '', 'Your changes have been saved.');
+        }
+      })
+      .catch((e) => {
+        // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
+        const { response } = e;
+        const errorMessage = getResponseError(response, 'failed to update service member due to server error');
+        setServerError(errorMessage);
+      });
 
     return patchOrders({
       ...fieldValues,
@@ -102,6 +145,8 @@ export const EditOrders = ({
       new_duty_location_id: newDutyLocationId,
       issue_date: formatDateForSwagger(fieldValues.issue_date),
       report_by_date: formatDateForSwagger(fieldValues.report_by_date),
+      grade: newPayGrade,
+      origin_duty_location_id: newOriginDutyLocationId,
       // spouse_has_pro_gear is not updated by this form but is a required value because the endpoint is shared with the
       // ppm office edit orders
       spouse_has_pro_gear: currentOrders.spouse_has_pro_gear,
@@ -124,7 +169,6 @@ export const EditOrders = ({
         navigate(-1);
       })
       .catch((e) => {
-        // TODO - error handling - below is rudimentary error handling to approximate existing UX
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
         const { response } = e;
         const errorMessage = getResponseError(response, 'failed to update orders due to server error');
@@ -212,6 +256,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
+  updateServiceMember: updateServiceMemberAction,
   updateOrders: updateOrdersAction,
   setFlashMessage: setFlashMessageAction,
 };

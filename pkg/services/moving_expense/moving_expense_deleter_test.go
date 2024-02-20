@@ -65,9 +65,10 @@ func (suite *MovingExpenseSuite) TestDeleteMovingExpense() {
 	}
 	suite.Run("Returns an error if the original doesn't exist", func() {
 		notFoundMovingExpenseID := uuid.Must(uuid.NewV4())
+		ppmID := uuid.Must(uuid.NewV4())
 		deleter := NewMovingExpenseDeleter()
 
-		err := deleter.DeleteMovingExpense(suite.AppContextWithSessionForTest(&auth.Session{}), notFoundMovingExpenseID)
+		err := deleter.DeleteMovingExpense(suite.AppContextWithSessionForTest(&auth.Session{}), ppmID, notFoundMovingExpenseID)
 
 		if suite.Error(err) {
 			suite.IsType(apperror.NotFoundError{}, err)
@@ -81,11 +82,12 @@ func (suite *MovingExpenseSuite) TestDeleteMovingExpense() {
 
 	suite.Run("Successfully deletes as a customer's moving expense", func() {
 		originalMovingExpense := setupForTest(nil, true)
-
 		deleter := NewMovingExpenseDeleter()
 
 		suite.Nil(originalMovingExpense.DeletedAt)
-		err := deleter.DeleteMovingExpense(suite.AppContextWithSessionForTest(&auth.Session{}), originalMovingExpense.ID)
+		err := deleter.DeleteMovingExpense(suite.AppContextWithSessionForTest(&auth.Session{
+			ServiceMemberID: originalMovingExpense.Document.ServiceMemberID,
+		}), originalMovingExpense.PPMShipmentID, originalMovingExpense.ID)
 		suite.NoError(err)
 
 		var movingExpenseInDB models.MovingExpense

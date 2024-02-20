@@ -4,10 +4,6 @@ export const UPDATE_MOVE = 'UPDATE_MOVE';
 export const UPDATE_MTO_SHIPMENT = 'UPDATE_MTO_SHIPMENT';
 export const UPDATE_MTO_SHIPMENTS = 'UPDATE_MTO_SHIPMENTS';
 export const UPDATE_ORDERS = 'UPDATE_ORDERS';
-export const UPDATE_PPMS = 'UPDATE_PPMS';
-export const UPDATE_PPM = 'UPDATE_PPM';
-export const UPDATE_PPM_ESTIMATE = 'UPDATE_PPM_ESTIMATE';
-export const UPDATE_PPM_SIT_ESTIMATE = 'UPDATE_PPM_SIT_ESTIMATE';
 export const UPDATE_OKTA_USER_STATE = 'SET_OKTA_USER';
 
 export const updateOktaUserState = (oktaUser) => ({
@@ -42,25 +38,5 @@ export const updateMTOShipments = (payload) => ({
 
 export const updateOrders = (payload) => ({
   type: UPDATE_ORDERS,
-  payload,
-});
-
-export const updatePPMs = (payload) => ({
-  type: UPDATE_PPMS,
-  payload,
-});
-
-export const updatePPM = (payload) => ({
-  type: UPDATE_PPM,
-  payload,
-});
-
-export const updatePPMEstimate = (payload) => ({
-  type: UPDATE_PPM_ESTIMATE,
-  payload,
-});
-
-export const updatePPMSitEstimate = (payload) => ({
-  type: UPDATE_PPM_SIT_ESTIMATE,
   payload,
 });
