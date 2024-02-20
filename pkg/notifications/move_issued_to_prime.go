@@ -56,7 +56,7 @@ func (m MoveIssuedToPrime) emails(appCtx appcontext.AppContext) ([]emailContent,
 		return emails, err
 	}
 
-	originDSTransportInfo, err := models.FetchDLContactInfo(appCtx.DB(), serviceMember.DutyLocationID)
+	originDSTransportInfo, err := models.FetchDLContactInfo(appCtx.DB(), orders.OriginDutyLocationID)
 	if err != nil {
 		return emails, err
 	}
@@ -76,7 +76,7 @@ func (m MoveIssuedToPrime) emails(appCtx appcontext.AppContext) ([]emailContent,
 	}
 
 	htmlBody, textBody, err := m.renderTemplates(appCtx, moveIssuedToPrimeEmailData{
-		MilitaryOneSourceLink:        "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL",
+		MilitaryOneSourceLink:        OneSourceTransportationOfficeLink,
 		OriginDutyLocation:           originDutyLocation,
 		DestinationDutyLocation:      orders.NewDutyLocation.Name,
 		ProvidesGovernmentCounseling: providesGovernmentCounseling,

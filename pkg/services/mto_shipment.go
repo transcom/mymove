@@ -24,7 +24,7 @@ type MTOShipmentFetcher interface {
 //go:generate mockery --name MTOShipmentUpdater
 type MTOShipmentUpdater interface {
 	MTOShipmentsMTOAvailableToPrime(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (bool, error)
-	UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
+	UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string, api string) (*models.MTOShipment, error)
 }
 
 // BillableWeightInputs is a type for capturing what should be returned when a shipments billable weight is calculated
@@ -140,6 +140,7 @@ type CurrentSIT struct {
 	SITEntryDate         time.Time
 	SITDepartureDate     *time.Time
 	SITAllowanceEndDate  time.Time
+	SITAuthorizedEndDate *time.Time
 	SITCustomerContacted *time.Time
 	SITRequestedDelivery *time.Time
 }

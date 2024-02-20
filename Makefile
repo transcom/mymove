@@ -1195,7 +1195,6 @@ else
 	$(error DEPLOY_ENV must be exp, loadtest, or demo)
 endif
 	sed -E -i '' "s#(&dp3-branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .circleci/config.yml
-	sed -E -i '' "s#(&integration-ignore-branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .circleci/config.yml
 	sed -E -i '' "s#(&integration-mtls-ignore-branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .circleci/config.yml
 	sed -E -i '' "s#(&client-ignore-branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .circleci/config.yml
 	sed -E -i '' "s#(&server-ignore-branch) placeholder_branch_name#\1 $(GIT_BRANCH)#" .circleci/config.yml

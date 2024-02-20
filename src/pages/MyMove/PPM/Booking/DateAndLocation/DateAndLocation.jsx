@@ -56,20 +56,20 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
   const handleSubmit = async (values, { setSubmitting }) => {
     setErrorMessage(null);
 
-    const hasSecondaryPickupPostalCode = values.hasSecondaryPickupPostalCode === 'true';
-    const hasSecondaryDestinationPostalCode = values.hasSecondaryDestinationPostalCode === 'true';
+    const hasSecondaryPickupAddress = values.hasSecondaryPickupAddress === 'true';
+    const hasSecondaryDestinationAddress = values.hasSecondaryDestinationAddress === 'true';
 
     const createOrUpdateShipment = {
       moveTaskOrderID: moveId,
       shipmentType: SHIPMENT_OPTIONS.PPM,
       ppmShipment: {
-        pickupPostalCode: values.pickupPostalCode,
-        hasSecondaryPickupPostalCode, // I think sending this is necessary so we know if the customer wants to clear their previously secondary ZIPs, or we could send nulls for those fields.
-        secondaryPickupPostalCode: hasSecondaryPickupPostalCode ? values.secondaryPickupPostalCode : null,
-        destinationPostalCode: values.destinationPostalCode,
-        hasSecondaryDestinationPostalCode,
-        secondaryDestinationPostalCode: hasSecondaryDestinationPostalCode
-          ? values.secondaryDestinationPostalCode
+        pickupPostalCode: values.pickupAddress.address.postalCode,
+        hasSecondaryPickupAddress, // I think sending this is necessary so we know if the customer wants to clear their previously secondary ZIPs, or we could send nulls for those fields.
+        secondaryPickupPostalCode: hasSecondaryPickupAddress ? values.secondaryPickupAddress.address.postalCode : null,
+        destinationPostalCode: values.destinationAddress.address.postalCode,
+        hasSecondaryDestinationAddress,
+        secondaryDestinationPostalCode: hasSecondaryDestinationAddress
+          ? values.secondaryDestinationAddress.address.postalCode
           : null,
         sitExpected: values.sitExpected === 'true',
         expectedDepartureDate: formatDateForSwagger(values.expectedDepartureDate),

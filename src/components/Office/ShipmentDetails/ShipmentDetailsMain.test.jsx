@@ -5,6 +5,7 @@ import { futureSITShipment, noSITShipment, SITShipment } from '../ShipmentSITDis
 
 import ShipmentDetailsMain from './ShipmentDetailsMain';
 
+import { createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShipment';
 import { MockProviders } from 'testUtils';
 
 const shipmentDetailsMainParams = {
@@ -49,5 +50,26 @@ describe('Shipment Details Main', () => {
     );
 
     expect(screen.queryByText('SIT (STORAGE IN TRANSIT)')).not.toBeInTheDocument();
+  });
+  it('does display PPM shipment', () => {
+    const ppmShipment = createPPMShipmentWithFinalIncentive({
+      ppmShipment: {
+        expectedDepartureDate: '2024-01-01',
+        actualMoveDate: '2024-02-22',
+        estimatedWeight: 100,
+        shipment: {
+          estimatedIncentive: 2000,
+        },
+      },
+    });
+    render(
+      <MockProviders>
+        <ShipmentDetailsMain {...shipmentDetailsMainParams} shipment={ppmShipment} />
+      </MockProviders>,
+    );
+
+    expect(screen.queryByText('1/1/2024')).toBeInTheDocument();
+    expect(screen.queryByText('2/22/2024')).toBeInTheDocument();
+    expect(screen.queryByText('100 lbs')).toBeInTheDocument();
   });
 });

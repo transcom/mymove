@@ -1,4 +1,5 @@
-import { test, expect } from '../../utils/my/customerTest';
+// import { test, expect } from '../../utils/my/customerTest';
+import { test } from '../../utils/my/customerTest';
 
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 

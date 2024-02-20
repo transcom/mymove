@@ -383,7 +383,7 @@ func FetchMoveForMoveDates(db *pop.Connection, moveID uuid.UUID) (Move, error) {
 	var move Move
 	err := db.
 		Eager(
-			"Orders.ServiceMember.DutyLocation.Address",
+			"Orders.OriginDutyLocation.Address",
 			"Orders.NewDutyLocation.Address",
 			"Orders.ServiceMember",
 		).
@@ -403,6 +403,27 @@ func FetchMoveByOrderID(db *pop.Connection, orderID uuid.UUID) (Move, error) {
 		return Move{}, err
 	}
 	return move, nil
+}
+
+// FetchMovesByOrderID returns a Moves for a given id
+func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
+	var moves Moves
+
+	query := db.Where("orders_id = ?", orderID)
+	err := query.Eager(
+		"MTOShipments",
+		"Orders",
+		"Orders.UploadedOrders",
+		"Orders.ServiceMember",
+		"Orders.ServiceMember.User",
+		"Orders.OriginDutyLocation.Address",
+		"Orders.OriginDutyLocation.TransportationOffice",
+		"Orders.OriginDutyLocation.TransportationOffice.Address",
+		"Orders.NewDutyLocation.Address",
+		"Orders.NewDutyLocation.TransportationOffice",
+		"Orders.NewDutyLocation.TransportationOffice.Address",
+	).All(&moves)
+	return moves, err
 }
 
 // FetchMoveByMoveID returns a Move for a given id

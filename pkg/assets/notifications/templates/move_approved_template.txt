@@ -12,4 +12,4 @@ Be sure to save your weight tickets and any receipts associated with your move. 
 
 {{if .OriginDutyLocation}}If you have any questions, call the {{.OriginDutyLocation}} PPPO at {{.OriginDutyLocationPhoneLine}} and reference move locator code: {{.Locator}}.{{end}}
 
-You can check the status of your move anytime at https://my.move.mil"
+You can check the status of your move anytime at {{.MyMoveLink}}"
