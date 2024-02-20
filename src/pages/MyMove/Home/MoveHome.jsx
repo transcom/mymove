@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { node, string } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
@@ -30,7 +30,7 @@ import MOVE_STATUSES from 'constants/moves';
 import { customerRoutes } from 'constants/routes';
 import { ppmShipmentStatuses, shipmentTypes } from 'constants/shipments';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { deleteMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
+import { deleteMTOShipment, getAllMoves, getMTOShipmentsForMove } from 'services/internalApi';
 import { withContext } from 'shared/AppContext';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import {
@@ -38,7 +38,7 @@ import {
   selectSignedCertification,
 } from 'shared/Entities/modules/signed_certifications';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import { updateMTOShipments } from 'store/entities/actions';
+import { updateMTOShipments, updateAllMoves as updateAllMovesAction } from 'store/entities/actions';
 import {
   selectAllMoves,
   selectCurrentOrders,
@@ -70,7 +70,7 @@ Description.defaultProps = {
   dataTestId: '',
 };
 
-const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signedCertification }) => {
+const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signedCertification, updateAllMoves }) => {
   // loading the moveId in params to select move details from serviceMemberMoves in state
   const { moveId } = useParams();
   const navigate = useNavigate();
@@ -79,6 +79,14 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const [targetShipmentId, setTargetShipmentId] = useState(null);
   const [showDeleteSuccessAlert, setShowDeleteSuccessAlert] = useState(false);
   const [showDeleteErrorAlert, setShowDeleteErrorAlert] = useState(false);
+
+  // fetching all move data on load since this component is dependent on that data
+  // this will run each time the component is loaded/accessed
+  useEffect(() => {
+    getAllMoves(serviceMember.id).then((response) => {
+      updateAllMoves(response);
+    });
+  }, [updateAllMoves, serviceMember]);
 
   // loading placeholder while data loads - this handles any async issues
   if (!serviceMemberMoves || !serviceMemberMoves.currentMove || !serviceMemberMoves.previousMoves) {
@@ -664,6 +672,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = {
   getSignedCertification: getSignedCertificationAction,
   updateShipmentList: updateMTOShipments,
+  updateAllMoves: updateAllMovesAction,
 };
 
 // in order to avoid setting up proxy server only for storybook, pass in stub function so API requests don't fail
