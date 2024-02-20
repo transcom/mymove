@@ -65,7 +65,6 @@ test.describe('Onboarding', () => {
 
 test.describe('(MultiMove) Onboarding', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-  test.fail(multiMoveEnabled === 'true');
 
   test('A customer can go through onboarding', async ({ page, customerPage }) => {
     // Create new customer user

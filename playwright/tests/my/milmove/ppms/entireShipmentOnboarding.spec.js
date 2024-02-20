@@ -153,7 +153,6 @@ test.describe('Entire PPM onboarding flow', () => {
 
 test.describe('(MultiMove) Entire PPM onboarding flow', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-  test.fail(multiMoveEnabled === 'true');
 
   /** @type {CustomerPpmOnboardingPage} */
   let customerPpmOnboardingPage;
@@ -165,7 +164,8 @@ test.describe('(MultiMove) Entire PPM onboarding flow', () => {
       await customerPpmOnboardingPage.signInForPPMWithMove(move);
     });
 
-    test.skip('flows through happy path for existing shipment', async () => {
+    test('flows through happy path for existing shipment', async () => {
+      test.skip(true, 'Test fails at navigateFromDateAndLocationPageToEstimatedWeightsPage()');
       await customerPpmOnboardingPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
       await customerPpmOnboardingPage.submitsDateAndLocation();
       await customerPpmOnboardingPage.submitsEstimatedWeightsAndProGear();
@@ -176,7 +176,8 @@ test.describe('(MultiMove) Entire PPM onboarding flow', () => {
       await customerPpmOnboardingPage.verifyManagePPMStepExistsAndBtnIsDisabled();
     });
 
-    test.skip('happy path with edits and backs', async () => {
+    test('happy path with edits and backs', async () => {
+      test.skip(true, 'Test fails at navigateFromHomePageToExistingPPMDateAndLocationPage()');
       await customerPpmOnboardingPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
 
       await customerPpmOnboardingPage.submitAndVerifyUpdateDateAndLocation();

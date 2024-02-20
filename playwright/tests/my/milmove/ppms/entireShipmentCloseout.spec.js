@@ -126,29 +126,28 @@ test.describe('Entire PPM closeout flow', () => {
 
 test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-  test.fail(multiMoveEnabled === 'true');
 
   forEachViewport(async () => {
     test(`flows through happy path for existing shipment`, async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
 
       await customerPpmPage.signInForPPMWithMove(move);
-      // await customerPpmPage.navigateToAboutPage();
-      // await customerPpmPage.submitWeightTicketPage();
-      // await customerPpmPage.navigateFromCloseoutReviewPageToProGearPage();
-      // await customerPpmPage.submitProgearPage();
-      // await customerPpmPage.navigateFromCloseoutReviewPageToExpensesPage();
-      // await customerPpmPage.submitExpensePage();
-      // await customerPpmPage.navigateFromPPMReviewPageToFinalCloseoutPage();
-      // await customerPpmPage.submitFinalCloseout({
-      //   totalNetWeight: '2,000 lbs',
-      //   proGearWeight: '2,000 lbs',
-      //   expensesClaimed: '675.99',
-      //   finalIncentiveAmount: '$31,184.80',
-      // });
+      await customerPpmPage.navigateToAboutPage();
+      await customerPpmPage.submitWeightTicketPage();
+      await customerPpmPage.navigateFromCloseoutReviewPageToProGearPage();
+      await customerPpmPage.submitProgearPage();
+      await customerPpmPage.navigateFromCloseoutReviewPageToExpensesPage();
+      await customerPpmPage.submitExpensePage();
+      await customerPpmPage.navigateFromPPMReviewPageToFinalCloseoutPage();
+      await customerPpmPage.submitFinalCloseout({
+        totalNetWeight: '2,000 lbs',
+        proGearWeight: '2,000 lbs',
+        expensesClaimed: '675.99',
+        finalIncentiveAmount: '$31,184.80',
+      });
     });
 
-    test.skip(`happy path with edits and backs`, async ({ customerPpmPage }) => {
+    test(`happy path with edits and backs`, async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
 
       await customerPpmPage.signInForPPMWithMove(move);
@@ -170,7 +169,7 @@ test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () =>
       });
     });
 
-    test.skip(`delete complete and incomplete line items`, async ({ customerPpmPage }) => {
+    test(`delete complete and incomplete line items`, async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
 
       await customerPpmPage.signInForPPMWithMove(move);
@@ -210,7 +209,7 @@ test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () =>
       await customerPpmPage.verifySaveAndContinueDisabled();
     });
 
-    test.skip(`deleting weight tickets updates final incentive`, async ({ customerPpmPage }) => {
+    test(`deleting weight tickets updates final incentive`, async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
 
       await customerPpmPage.signInForPPMWithMove(move);

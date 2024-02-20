@@ -62,7 +62,6 @@ test.describe('NTS', () => {
 
 test.describe('(MultiMove) NTS', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-  test.fail(multiMoveEnabled === 'true');
 
   test('A customer can create, edit, and delete an NTS shipment', async ({ page, customerPage }) => {
     // Generate a new onboarded user with orders and log in
