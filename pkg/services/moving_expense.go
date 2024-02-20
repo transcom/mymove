@@ -25,5 +25,5 @@ type MovingExpenseUpdater interface {
 //
 //go:generate mockery --name MovingExpenseDeleter
 type MovingExpenseDeleter interface {
-	DeleteMovingExpense(appCtx appcontext.AppContext, movingExpenseID uuid.UUID) error
+	DeleteMovingExpense(appCtx appcontext.AppContext, ppmID uuid.UUID, movingExpenseID uuid.UUID) error
 }

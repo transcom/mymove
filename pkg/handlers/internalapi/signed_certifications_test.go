@@ -150,11 +150,10 @@ func (suite *HandlerSuite) TestIndexSignedCertificationHandlerBadMoveID() {
 		},
 		{
 			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &ppm.ID,
-				CertificationType:        &ppmPayment,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
+				CertificationType: &ppmPayment,
+				CertificationText: "LEGAL",
+				Signature:         "ACCEPT",
+				Date:              testdatagen.NextValidMoveDate,
 			},
 		},
 	}, nil)
@@ -185,11 +184,10 @@ func (suite *HandlerSuite) TestIndexSignedCertificationHandlerMismatchedUser() {
 		},
 		{
 			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &ppm.ID,
-				CertificationType:        &ppmPayment,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
+				CertificationType: &ppmPayment,
+				CertificationText: "LEGAL",
+				Signature:         "ACCEPT",
+				Date:              testdatagen.NextValidMoveDate,
 			},
 		},
 	}, nil)
@@ -226,11 +224,10 @@ func (suite *HandlerSuite) TestIndexSignedCertificationHandler() {
 		},
 		{
 			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &ppm.ID,
-				CertificationType:        &ppmPayment,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
+				CertificationType: &ppmPayment,
+				CertificationText: "LEGAL",
+				Signature:         "ACCEPT",
+				Date:              testdatagen.NextValidMoveDate,
 			},
 		},
 	}, nil)

@@ -16,6 +16,8 @@ import (
 type DownloadMoveOrderURL struct {
 	Locator string
 
+	Type *string
+
 	_basePath string
 	// avoid unkeyed usage
 	_ struct{}
@@ -40,7 +42,7 @@ func (o *DownloadMoveOrderURL) SetBasePath(bp string) {
 func (o *DownloadMoveOrderURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/moves/{locator}/order/download"
+	var _path = "/moves/{locator}/documents"
 
 	locator := o.Locator
 	if locator != "" {
@@ -54,6 +56,18 @@ func (o *DownloadMoveOrderURL) Build() (*url.URL, error) {
 		_basePath = "/prime/v1"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
+
+	qs := make(url.Values)
+
+	var typeVarQ string
+	if o.Type != nil {
+		typeVarQ = *o.Type
+	}
+	if typeVarQ != "" {
+		qs.Set("type", typeVarQ)
+	}
+
+	_result.RawQuery = qs.Encode()
 
 	return &_result, nil
 }
