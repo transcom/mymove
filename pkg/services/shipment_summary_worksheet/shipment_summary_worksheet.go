@@ -1,6 +1,7 @@
 package shipmentsummaryworksheet
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"reflect"
@@ -16,8 +17,8 @@ import (
 	"golang.org/x/text/message"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
@@ -749,11 +750,10 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values, appCtx appcontext.AppContext) (sswfile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
 
 	appCtx.Logger().Info("Generating SSW, opening template file")
-	templateReader := factory.FixtureOpen("SSWPDFTemplate.pdf")
-	if templateReader == nil {
+	templateReader, err := createAssetByteReader("paperwork/formtemplates/SSWPDFTemplate.pdf")
+	if err != nil {
 		appCtx.Logger().Error("Error opening SSW PDF Template, generation failing")
-	} else {
-		appCtx.Logger().Info("SSW Template Successfully Opened")
+		return nil, nil, err
 	}
 
 	// header represents the header section of the JSON.
@@ -865,4 +865,15 @@ func createTextFields(data interface{}, pages ...int) []textField {
 // MergeTextFields merges page 1 and page 2 data
 func mergeTextFields(fields1, fields2 []textField) []textField {
 	return append(fields1, fields2...)
+}
+
+// createAssetByteReader creates a new byte reader based on the TemplateImagePath of the formLayout
+func createAssetByteReader(path string) (*bytes.Reader, error) {
+	asset, err := assets.Asset(path)
+	if err != nil {
+		return nil, errors.Wrap(err, "error creating asset from path; check image path : "+path)
+	}
+
+	templateBuffer := bytes.NewReader(asset)
+	return templateBuffer, nil
 }
