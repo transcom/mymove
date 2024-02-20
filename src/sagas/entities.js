@@ -11,7 +11,6 @@ import {
 } from 'store/entities/actions';
 import { normalizeResponse } from 'services/swaggerRequest';
 import { addEntities, updateMTOShipmentsEntity, setOktaUser } from 'shared/Entities/actions';
-import { getAllMoves } from 'services/internalApi';
 
 export function* updateOktaUserState(action) {
   const { payload } = action;
@@ -60,8 +59,8 @@ export function* updateMTOShipments(action) {
 
 export function* updateAllMoves(action) {
   const { payload } = action;
-  const allMoves = yield call(getAllMoves, payload);
-  yield put(addEntities({ serviceMemberMoves: allMoves }));
+
+  yield put(addEntities({ serviceMemberMoves: payload }));
 }
 
 export function* watchUpdateEntities() {

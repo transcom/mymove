@@ -77,7 +77,7 @@ const MultiMovesMoveContainer = ({ moves }) => {
       <div className={styles.moveContainer}>
         <div className={styles.heading} key={index}>
           <h3>#{m.moveCode}</h3>
-          {m.status ? (
+          {m.status !== 'APPROVED' ? (
             <Button
               data-testid="goToMoveBtn"
               className={styles.goToMoveBtn}
