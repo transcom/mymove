@@ -110,7 +110,15 @@ Shipments.args = {
       shipments={[
         { id: '0001', shipmentType: SHIPMENT_OPTIONS.HHG },
         { id: '0002', shipmentType: SHIPMENT_OPTIONS.NTS },
-        { id: '0003', shipmentType: SHIPMENT_OPTIONS.PPM },
+        {
+          id: '0003',
+          shipmentType: SHIPMENT_OPTIONS.PPM,
+          ppmShipment: {
+            id: 'incompletePPM',
+            hasRequestedAdvance: false,
+            weightTickets: [],
+          },
+        },
       ]}
       onShipmentClick={action('shipment edit icon clicked')}
       moveSubmitted={false}

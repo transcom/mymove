@@ -41,6 +41,10 @@ func (f *weightTicketUpdater) UpdateWeightTicket(appCtx appcontext.AppContext, w
 		return nil, err
 	}
 
+	if appCtx.Session().IsMilApp() && originalWeightTicket.EmptyDocument.ServiceMemberID != appCtx.Session().ServiceMemberID {
+		return nil, apperror.NewForbiddenError("not authorized to access weight ticket")
+	}
+
 	// verify ETag
 	if etag.GenerateEtag(originalWeightTicket.UpdatedAt) != eTag {
 		return nil, apperror.NewPreconditionFailedError(originalWeightTicket.ID, nil)

@@ -38,11 +38,21 @@ type ShipmentAddressUpdate struct {
 	// Required: true
 	NewAddress *Address `json:"newAddress"`
 
+	// The distance between the original SIT address and requested new destination address of shipment
+	// Example: 88
+	// Minimum: 0
+	NewSitDistanceBetween *int64 `json:"newSitDistanceBetween,omitempty"`
+
 	// Office Remarks
 	//
 	// The TOO comment on approval or rejection.
 	// Example: This is an office remark
 	OfficeRemarks *string `json:"officeRemarks,omitempty"`
+
+	// The distance between the original SIT address and the previous/old destination address of shipment
+	// Example: 50
+	// Minimum: 0
+	OldSitDistanceBetween *int64 `json:"oldSitDistanceBetween,omitempty"`
 
 	// original address
 	// Required: true
@@ -54,6 +64,9 @@ type ShipmentAddressUpdate struct {
 	// Read Only: true
 	// Format: uuid
 	ShipmentID strfmt.UUID `json:"shipmentID"`
+
+	// sit original address
+	SitOriginalAddress *Address `json:"sitOriginalAddress,omitempty"`
 
 	// status
 	// Required: true
@@ -76,11 +89,23 @@ func (m *ShipmentAddressUpdate) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateNewSitDistanceBetween(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOldSitDistanceBetween(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateOriginalAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateShipmentID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitOriginalAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -136,6 +161,30 @@ func (m *ShipmentAddressUpdate) validateNewAddress(formats strfmt.Registry) erro
 	return nil
 }
 
+func (m *ShipmentAddressUpdate) validateNewSitDistanceBetween(formats strfmt.Registry) error {
+	if swag.IsZero(m.NewSitDistanceBetween) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("newSitDistanceBetween", "body", *m.NewSitDistanceBetween, 0, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ShipmentAddressUpdate) validateOldSitDistanceBetween(formats strfmt.Registry) error {
+	if swag.IsZero(m.OldSitDistanceBetween) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("oldSitDistanceBetween", "body", *m.OldSitDistanceBetween, 0, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *ShipmentAddressUpdate) validateOriginalAddress(formats strfmt.Registry) error {
 
 	if err := validate.Required("originalAddress", "body", m.OriginalAddress); err != nil {
@@ -164,6 +213,25 @@ func (m *ShipmentAddressUpdate) validateShipmentID(formats strfmt.Registry) erro
 
 	if err := validate.FormatOf("shipmentID", "body", "uuid", m.ShipmentID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *ShipmentAddressUpdate) validateSitOriginalAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitOriginalAddress) { // not required
+		return nil
+	}
+
+	if m.SitOriginalAddress != nil {
+		if err := m.SitOriginalAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitOriginalAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitOriginalAddress")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -208,6 +276,10 @@ func (m *ShipmentAddressUpdate) ContextValidate(ctx context.Context, formats str
 	}
 
 	if err := m.contextValidateShipmentID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSitOriginalAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -277,6 +349,27 @@ func (m *ShipmentAddressUpdate) contextValidateShipmentID(ctx context.Context, f
 
 	if err := validate.ReadOnly(ctx, "shipmentID", "body", strfmt.UUID(m.ShipmentID)); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *ShipmentAddressUpdate) contextValidateSitOriginalAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SitOriginalAddress != nil {
+
+		if swag.IsZero(m.SitOriginalAddress) { // not required
+			return nil
+		}
+
+		if err := m.SitOriginalAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitOriginalAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitOriginalAddress")
+			}
+			return err
+		}
 	}
 
 	return nil
