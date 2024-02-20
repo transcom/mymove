@@ -1,4 +1,5 @@
 // globalSetup.js
+/* eslint-disable @typescript-eslint/no-var-requires */
 const dotenv = require('dotenv');
 
 async function globalSetup() {
