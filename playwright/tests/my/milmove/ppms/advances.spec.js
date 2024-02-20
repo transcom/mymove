@@ -92,7 +92,6 @@ test.describe('(MultiMove) Workflow About Your PPM', () => {
     multiMoveEnabled === 'false',
     'Skip if MultiMove workflow is enabled because need ability to navigate to a move.',
   );
-  // test.skip(true, 'Test fails at submitsAdvancePage');
 
   test.beforeEach(async ({ customerPpmPage }) => {
     const move = await customerPpmPage.testHarness.buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights();
