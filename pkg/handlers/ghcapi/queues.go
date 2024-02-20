@@ -247,6 +247,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				PPMType:                 params.PpmType,
 				CloseoutInitiated:       handlers.FmtDateTimePtrToPopPtr(params.CloseoutInitiated),
 				CloseoutLocation:        params.CloseoutLocation,
+				OrderType:               params.OrderType,
 			}
 
 			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {

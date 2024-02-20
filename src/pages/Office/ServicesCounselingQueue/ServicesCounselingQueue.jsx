@@ -28,7 +28,12 @@ const counselingColumns = () => [
   createHeader(
     'Customer name',
     (row) => {
-      return `${row.customer.last_name}, ${row.customer.first_name}`;
+      return (
+        <div>
+          {row.orderType === 'BLUEBARK' ? <span className={styles.specialMoves}>BLUEBARK</span> : null}
+          {`${row.customer.last_name}, ${row.customer.first_name}`}
+        </div>
+      );
     },
     {
       id: 'lastName',
@@ -106,7 +111,12 @@ const closeoutColumns = (ppmCloseoutGBLOC) => [
   createHeader(
     'Customer name',
     (row) => {
-      return `${row.customer.last_name}, ${row.customer.first_name}`;
+      return (
+        <div>
+          {row.orderType === 'BLUEBARK' ? <span className={styles.specialMoves}>BLUEBARK</span> : null}
+          {`${row.customer.last_name}, ${row.customer.first_name}`}
+        </div>
+      );
     },
     {
       id: 'lastName',

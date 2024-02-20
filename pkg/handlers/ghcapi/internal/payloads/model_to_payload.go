@@ -1670,6 +1670,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			PpmType:                 move.PPMType,
 			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
 			CloseoutLocation:        &closeoutLocation,
+			OrderType:               (*string)(move.Orders.OrdersType.Pointer()),
 		}
 	}
 	return &queueMoves
