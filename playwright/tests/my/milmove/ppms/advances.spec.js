@@ -89,7 +89,7 @@ test.describe('About Your PPM', () => {
 
 test.describe('(MultiMove) Workflow About Your PPM', () => {
   test.skip(
-    multiMoveEnabled === 'true',
+    multiMoveEnabled === 'false',
     'Skip if MultiMove workflow is enabled because need ability to navigate to a move.',
   );
   test.fail(multiMoveEnabled === 'true', 'Need to navigate from MultiMove Landing page to a move.');
@@ -101,7 +101,7 @@ test.describe('(MultiMove) Workflow About Your PPM', () => {
 
   test.skip('does not allow SM to progress if form is in an invalid state', async ({ page }) => {
     test.skip(
-      multiMoveEnabled === 'true',
+      multiMoveEnabled === 'false',
       'Skipping due to time out while looking label[for="hasRequestedAdvanceYes"].click',
     );
 
