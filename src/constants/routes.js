@@ -1,13 +1,13 @@
 export const generalRoutes = {
   HOME_PATH: '/',
   SIGN_IN_PATH: '/sign-in',
-  MULTI_MOVES_LANDING_PAGE: '/moves',
   PRIVACY_SECURITY_POLICY_PATH: '/privacy-and-security-policy',
   ACCESSIBILITY_PATH: '/accessibility',
 };
 
 export const customerRoutes = {
   MOVE_HOME_PAGE: '/move',
+  MOVE_HOME_PATH: '/move/:moveId',
   CONUS_OCONUS_PATH: '/service-member/conus-oconus',
   DOD_INFO_PATH: '/service-member/dod-info',
   NAME_PATH: '/service-member/name',
