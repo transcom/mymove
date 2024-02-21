@@ -19,4 +19,5 @@ export default {
   sit_start_date: 'sit_start_date',
   sit_end_date: 'sit_end_date',
   sit_customer_contacted: 'sit_customer_contacted',
+  actual_move_date: 'actual_move_date',
 };

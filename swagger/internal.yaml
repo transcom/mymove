@@ -2381,6 +2381,10 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+      submittedAt:
+        format: date-time
+        type: string
+        readOnly: true
       mtoShipments:
         $ref: '#/definitions/MTOShipments'
       eTag:
@@ -4405,13 +4409,13 @@ paths:
             $ref: '#/definitions/MovePayload'
         '500':
           description: server error
-  /moves/{ppmShipmentId}/shipment_summary_worksheet:
+  /ppm-shipments/{ppmShipmentId}/shipment_summary_worksheet:
     get:
       summary: Returns Shipment Summary Worksheet
       description: Generates pre-filled PDF using data already collected
       operationId: showShipmentSummaryWorksheet
       tags:
-        - moves
+        - ppm
       parameters:
         - in: path
           name: ppmShipmentId
@@ -4443,6 +4447,8 @@ paths:
           description: request requires user authentication
         '403':
           description: user is not authorized
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
         '500':
           description: internal server error
   /documents:
