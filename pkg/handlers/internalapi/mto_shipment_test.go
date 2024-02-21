@@ -1128,10 +1128,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 			"Allows updates to W2 Address": {
 				setUpOriginalPPM: func() models.PPMShipment {
-					address := factory.BuildAddress(suite.DB(), nil, nil)
+					buildAddress := factory.BuildAddress(suite.DB(), nil, nil)
 					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 						{
-							Model:    address,
+							Model:    buildAddress,
 							LinkOnly: true,
 							Type:     &factory.Addresses.W2Address,
 						},
@@ -1380,6 +1380,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		mockUpdater.On("UpdateShipment",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.MTOShipment"),
+			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
 		).Return(nil, err)
 
