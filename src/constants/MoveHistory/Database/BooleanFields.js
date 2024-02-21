@@ -7,4 +7,7 @@ export default {
   owns_trailer: 'Trailer',
   trailer_meets_criteria: 'Trailer meets criteria',
   belongs_to_self: 'belongs_to_self',
+  has_received_advance: 'has_received_advance',
+  paid_with_gtcc: 'paid_with_gtcc',
+  missing_receipt: 'missing_receipt',
 };
