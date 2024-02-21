@@ -1008,3 +1008,12 @@ func subScenarioPrimeUserAndClientCert(appCtx appcontext.AppContext) func() {
 		createDevClientCertForUser(appCtx, primeUser)
 	}
 }
+
+func subScenarioMultipleMoves(appCtx appcontext.AppContext) func() {
+	return func() {
+		createMultipleMovesTwoMovesHHGAndPPMShipments(appCtx)
+		createMultipleMovesThreeMovesHHGPPMNTSShipments(appCtx)
+		createMultipleMovesThreeMovesNTSHHGShipments(appCtx)
+		createMultipleMovesThreeMovesPPMShipments(appCtx)
+	}
+}
