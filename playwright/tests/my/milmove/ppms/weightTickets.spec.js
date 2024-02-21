@@ -36,7 +36,7 @@ test.describe('About Your PPM', () => {
   });
 });
 
-test.describe('(MultiMoe) About Your PPM', () => {
+test.describe('(MultiMove) About Your PPM', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
   test.fail(multiMoveEnabled === 'true');
 
