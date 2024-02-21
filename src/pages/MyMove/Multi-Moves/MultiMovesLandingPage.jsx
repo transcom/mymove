@@ -22,11 +22,11 @@ import withRouter from 'utils/routing';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { selectAllMoves, selectIsProfileComplete, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import { updateAllMoves } from 'store/entities/actions';
+import { updateAllMoves as updateAllMovesAction } from 'store/entities/actions';
 import { profileStates } from 'constants/customerStates';
 import { getAllMoves } from 'services/internalApi';
 
-const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves }) => {
+const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMoves }) => {
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
   const navigate = useNavigate();
 
@@ -38,10 +38,10 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves }) => {
         loadInternalSchema();
         loadUser();
         initOnboarding();
-        if (serviceMember) {
-          const response = getAllMoves(serviceMember.id);
+        getAllMoves(serviceMember.id).then((response) => {
           updateAllMoves(response);
-        }
+        });
+
         document.title = generatePageTitle('MilMove');
       } catch (error) {
         const { message } = error;
@@ -55,7 +55,7 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves }) => {
       }
     };
     fetchData();
-  }, [setErrorState, serviceMember]);
+  }, [setErrorState, serviceMember, updateAllMoves]);
 
   const flags = detectFlags(process.env.NODE_ENV, window.location.host, window.location.search);
 
@@ -180,6 +180,10 @@ const mapStateToProps = (state) => {
   };
 };
 
+const mapDispatchToProps = {
+  updateAllMoves: updateAllMovesAction,
+};
+
 // in order to avoid setting up proxy server only for storybook, pass in stub function so API requests don't fail
 const mergeProps = (stateProps, dispatchProps, ownProps) => ({
   ...stateProps,
@@ -191,6 +195,7 @@ export default withContext(
   withRouter(
     connect(
       mapStateToProps,
+      mapDispatchToProps,
       mergeProps,
     )(requireCustomerState(MultiMovesLandingPage, profileStates.BACKUP_CONTACTS_COMPLETE)),
   ),
