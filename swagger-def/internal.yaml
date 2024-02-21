@@ -3159,49 +3159,6 @@ paths:
             $ref: '#/definitions/MovePayload'
         '500':
           description: server error
-  /ppm-shipments/{ppmShipmentId}/shipment-summary-worksheet:
-    get:
-      summary: Returns Shipment Summary Worksheet
-      description:    |
-        ### Functionality
-        This endpoint downloads a generated and filled Shipment Summary Worksheet based on the pdf in the code
-        and information pulled and formatted via services. Will not return unless PDF is readable.
-      operationId: showShipmentSummaryWorksheet
-      tags:
-        - ppm
-      parameters:
-        - in: path
-          name: ppmShipmentId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the ppmShipment
-        - in: query
-          name: preparationDate
-          type: string
-          format: date
-          required: true
-          description: The preparationDate of PDF
-      produces:
-        - application/pdf
-      responses:
-        '200':
-          headers:
-            Content-Disposition:
-              type: string
-              description: File name to download
-          description: Pre-filled worksheet PDF
-          schema:
-            format: binary
-            type: file
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '500':
-          description: internal server error
   /ppm-shipments/{ppmShipmentId}/aoa-packet:
     parameters:
       - description: the id for the ppmshipment with aoa to be downloaded
