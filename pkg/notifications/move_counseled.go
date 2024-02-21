@@ -15,30 +15,30 @@ import (
 )
 
 var (
-	moveIssuedToPrimeRawTextTemplate = string(assets.MustAsset("notifications/templates/move_issued_to_prime_template.txt"))
-	moveIssuedToPrimeTextTemplate    = text.Must(text.New("text_template").Parse(moveIssuedToPrimeRawTextTemplate))
-	moveIssuedToPrimeRawHTMLTemplate = string(assets.MustAsset("notifications/templates/move_issued_to_prime_template.html"))
-	moveIssuedToPrimeHTMLTemplate    = html.Must(html.New("text_template").Parse(moveIssuedToPrimeRawHTMLTemplate))
+	moveCounseledRawTextTemplate = string(assets.MustAsset("notifications/templates/move_counseled_template.txt"))
+	moveCounseledTextTemplate    = text.Must(text.New("text_template").Parse(moveCounseledRawTextTemplate))
+	moveCounseledRawHTMLTemplate = string(assets.MustAsset("notifications/templates/move_counseled_template.html"))
+	moveCounseledHTMLTemplate    = html.Must(html.New("text_template").Parse(moveCounseledRawHTMLTemplate))
 )
 
-// MoveIssuedToPrime has notification content for submitted moves
-type MoveIssuedToPrime struct {
+// MoveCounseled has notification content for counseled moves (before TOO approval)
+type MoveCounseled struct {
 	moveID       uuid.UUID
 	htmlTemplate *html.Template
 	textTemplate *text.Template
 }
 
-// NewMoveIssuedToPrime returns a new move submitted notification
-func NewMoveIssuedToPrime(moveID uuid.UUID) *MoveIssuedToPrime {
+// NewMoveCounseled returns a new move counseled notification (before TOO approval)
+func NewMoveCounseled(moveID uuid.UUID) *MoveCounseled {
 
-	return &MoveIssuedToPrime{
+	return &MoveCounseled{
 		moveID:       moveID,
-		htmlTemplate: moveIssuedToPrimeHTMLTemplate,
-		textTemplate: moveIssuedToPrimeTextTemplate,
+		htmlTemplate: moveCounseledHTMLTemplate,
+		textTemplate: moveCounseledTextTemplate,
 	}
 }
 
-func (m MoveIssuedToPrime) emails(appCtx appcontext.AppContext) ([]emailContent, error) {
+func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, error) {
 	var emails []emailContent
 
 	move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), m.moveID)
@@ -61,26 +61,20 @@ func (m MoveIssuedToPrime) emails(appCtx appcontext.AppContext) ([]emailContent,
 		return emails, err
 	}
 
-	var originDutyLocation *string
+	var originDutyLocationName *string
 	if originDSTransportInfo != nil {
-		originDutyLocation = &originDSTransportInfo.Name
-	}
-
-	var providesGovernmentCounseling bool
-	if orders.OriginDutyLocation != nil {
-		providesGovernmentCounseling = orders.OriginDutyLocation.ProvidesServicesCounseling
+		originDutyLocationName = &originDSTransportInfo.Name
 	}
 
 	if serviceMember.PersonalEmail == nil {
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
-	htmlBody, textBody, err := m.renderTemplates(appCtx, moveIssuedToPrimeEmailData{
-		MilitaryOneSourceLink:        OneSourceTransportationOfficeLink,
-		OriginDutyLocation:           originDutyLocation,
-		DestinationDutyLocation:      orders.NewDutyLocation.Name,
-		ProvidesGovernmentCounseling: providesGovernmentCounseling,
-		Locator:                      move.Locator,
+	htmlBody, textBody, err := m.renderTemplates(appCtx, MoveCounseledEmailData{
+		OriginDutyLocation:      originDutyLocationName,
+		DestinationDutyLocation: orders.NewDutyLocation.Name,
+		Locator:                 move.Locator,
+		MyMoveLink:              MyMoveLink,
 	})
 
 	if err != nil {
@@ -89,19 +83,19 @@ func (m MoveIssuedToPrime) emails(appCtx appcontext.AppContext) ([]emailContent,
 
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
-		subject:        "Your personal property move has been ordered.",
+		subject:        "Your counselor has approved your move details",
 		htmlBody:       htmlBody,
 		textBody:       textBody,
 	}
 
-	appCtx.Logger().Info("Generated move issued to prime email",
+	appCtx.Logger().Info("Generated move counseled email",
 		zap.String("moveLocator", move.Locator))
 
 	// TODO: Send email to trusted contacts when that's supported
 	return append(emails, smEmail), nil
 }
 
-func (m MoveIssuedToPrime) renderTemplates(appCtx appcontext.AppContext, data moveIssuedToPrimeEmailData) (string, string, error) {
+func (m MoveCounseled) renderTemplates(appCtx appcontext.AppContext, data MoveCounseledEmailData) (string, string, error) {
 	htmlBody, err := m.RenderHTML(appCtx, data)
 	if err != nil {
 		return "", "", fmt.Errorf("error rendering html template using %#v", data)
@@ -113,16 +107,15 @@ func (m MoveIssuedToPrime) renderTemplates(appCtx appcontext.AppContext, data mo
 	return htmlBody, textBody, nil
 }
 
-type moveIssuedToPrimeEmailData struct {
-	MilitaryOneSourceLink        string
-	OriginDutyLocation           *string
-	DestinationDutyLocation      string
-	ProvidesGovernmentCounseling bool
-	Locator                      string
+type MoveCounseledEmailData struct {
+	OriginDutyLocation      *string
+	DestinationDutyLocation string
+	Locator                 string
+	MyMoveLink              string
 }
 
 // RenderHTML renders the html for the email
-func (m MoveIssuedToPrime) RenderHTML(appCtx appcontext.AppContext, data moveIssuedToPrimeEmailData) (string, error) {
+func (m MoveCounseled) RenderHTML(appCtx appcontext.AppContext, data MoveCounseledEmailData) (string, error) {
 	var htmlBuffer bytes.Buffer
 	if err := m.htmlTemplate.Execute(&htmlBuffer, data); err != nil {
 		appCtx.Logger().Error("cant render html template ", zap.Error(err))
@@ -131,7 +124,7 @@ func (m MoveIssuedToPrime) RenderHTML(appCtx appcontext.AppContext, data moveIss
 }
 
 // RenderText renders the text for the email
-func (m MoveIssuedToPrime) RenderText(appCtx appcontext.AppContext, data moveIssuedToPrimeEmailData) (string, error) {
+func (m MoveCounseled) RenderText(appCtx appcontext.AppContext, data MoveCounseledEmailData) (string, error) {
 	var textBuffer bytes.Buffer
 	if err := m.textTemplate.Execute(&textBuffer, data); err != nil {
 		appCtx.Logger().Error("cant render text template ", zap.Error(err))
