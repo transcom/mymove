@@ -2270,64 +2270,6 @@ func init() {
         }
       ]
     },
-    "/ppm-shipments/{ppmShipmentId}/shipment-summary-worksheet": {
-      "get": {
-        "description": "### Functionality\nThis endpoint downloads a generated and filled Shipment Summary Worksheet based on the pdf in the code\nand information pulled and formatted via services. Will not return unless PDF is readable.\n",
-        "produces": [
-          "application/pdf"
-        ],
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Returns Shipment Summary Worksheet",
-        "operationId": "showShipmentSummaryWorksheet",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the ppmShipment",
-            "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "date",
-            "description": "The preparationDate of PDF",
-            "name": "preparationDate",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Pre-filled worksheet PDF",
-            "schema": {
-              "type": "file",
-              "format": "binary"
-            },
-            "headers": {
-              "Content-Disposition": {
-                "type": "string",
-                "description": "File name to download"
-              }
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      }
-    },
     "/ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation": {
       "post": {
         "description": "Saves customer signature along with the text they agreed to, and then routes the PPM shipment to the service\ncounselor queue for review.\n",
@@ -10231,64 +10173,6 @@ func init() {
           "required": true
         }
       ]
-    },
-    "/ppm-shipments/{ppmShipmentId}/shipment-summary-worksheet": {
-      "get": {
-        "description": "### Functionality\nThis endpoint downloads a generated and filled Shipment Summary Worksheet based on the pdf in the code\nand information pulled and formatted via services. Will not return unless PDF is readable.\n",
-        "produces": [
-          "application/pdf"
-        ],
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Returns Shipment Summary Worksheet",
-        "operationId": "showShipmentSummaryWorksheet",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the ppmShipment",
-            "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "date",
-            "description": "The preparationDate of PDF",
-            "name": "preparationDate",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Pre-filled worksheet PDF",
-            "schema": {
-              "type": "file",
-              "format": "binary"
-            },
-            "headers": {
-              "Content-Disposition": {
-                "type": "string",
-                "description": "File name to download"
-              }
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      }
     },
     "/ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation": {
       "post": {

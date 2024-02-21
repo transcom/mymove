@@ -297,10 +297,3 @@ func (h showAOAPacketHandler) Handle(params ppmops.ShowAOAPacketParams) middlewa
 			return ppmops.NewShowAOAPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
 		})
 }
-
-// ShowShipmentSummaryWorksheetHandler returns a Shipment Summary Worksheet PDF
-type ShowShipmentSummaryWorksheetHandler struct {
-	handlers.HandlerConfig
-	services.SSWPPMComputer
-	services.SSWPPMGenerator
-}
