@@ -34,7 +34,7 @@ jest.mock('store/entities/actions', () => ({
 }));
 
 jest.mock('services/internalApi', () => ({
-  getAllMoves: jest.fn(),
+  getAllMoves: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 jest.mock('store/onboarding/actions', () => ({
@@ -47,6 +47,7 @@ jest.mock('shared/Swagger/ducks', () => ({
 
 const defaultProps = {
   showLoggedInUser: jest.fn(),
+  updateAllMoves: jest.fn(),
   isLoggedIn: true,
   loggedInUserIsLoading: false,
   loggedInUserSuccess: true,
@@ -231,6 +232,7 @@ const defaultProps = {
 
 const defaultPropsNoMoves = {
   showLoggedInUser: jest.fn(),
+  updateAllMoves: jest.fn(),
   isLoggedIn: true,
   loggedInUserIsLoading: false,
   loggedInUserSuccess: true,
@@ -279,6 +281,7 @@ const defaultPropsNoMoves = {
 
 const defaultPropsMultipleMove = {
   showLoggedInUser: jest.fn(),
+  updateAllMoves: jest.fn(),
   isLoggedIn: true,
   loggedInUserIsLoading: false,
   loggedInUserSuccess: true,
