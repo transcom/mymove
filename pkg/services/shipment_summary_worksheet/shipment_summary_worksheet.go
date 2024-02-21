@@ -12,6 +12,7 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+	"go.uber.org/zap"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
@@ -752,7 +753,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 	appCtx.Logger().Info("Generating SSW, opening template file")
 	templateReader, err := createAssetByteReader("paperwork/formtemplates/SSWPDFTemplate.pdf")
 	if err != nil {
-		appCtx.Logger().Error("Error opening SSW PDF Template, generation failing")
+		appCtx.Logger().Error("Error opening SSW PDF Template, generation failing", zap.Error(err))
 		return nil, nil, err
 	}
 
@@ -874,6 +875,5 @@ func createAssetByteReader(path string) (*bytes.Reader, error) {
 		return nil, errors.Wrap(err, "error creating asset from path; check image path : "+path)
 	}
 
-	templateBuffer := bytes.NewReader(asset)
-	return templateBuffer, nil
+	return bytes.NewReader(asset), nil
 }
