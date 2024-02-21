@@ -1,10 +1,9 @@
 package shipmentsummaryworksheet
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
 	"reflect"
 	"strings"
 	"time"
@@ -13,11 +12,13 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+	"go.uber.org/zap"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -761,27 +762,13 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 }
 
 // FillSSWPDFForm takes form data and fills an existing PDF form template with said data
-func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values) (sswfile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
+func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values, appCtx appcontext.AppContext) (sswfile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
 
-	pdfTemplatePath, err := filepath.Abs("pkg/assets/paperwork/formtemplates/SSWPDFTemplate.pdf")
+	appCtx.Logger().Info("Generating SSW, opening template file")
+	templateReader, err := createAssetByteReader("paperwork/formtemplates/SSWPDFTemplate.pdf")
 	if err != nil {
-		panic(err)
-	}
-
-	// NOTE: The testing suite is based on a different filesystem, relative filepaths will not work.
-	// Additionally, the function runs at a different file location. Therefore, when ran from testing,
-	// the PDF template path needs to be reconfigured relative to where the test runs from.
-	if strings.HasSuffix(os.Args[0], ".test") {
-		pdfTemplatePath, err = filepath.Abs("../../../pkg/assets/paperwork/formtemplates/SSWPDFTemplate.pdf")
-		if err != nil {
-			panic(err)
-		}
-
-	}
-
-	templateReader, err := afero.NewOsFs().Open(pdfTemplatePath)
-	if err != nil {
-		panic(err)
+		appCtx.Logger().Error("Error opening SSW PDF Template, generation failing", zap.Error(err))
+		return nil, nil, err
 	}
 
 	// header represents the header section of the JSON.
@@ -893,4 +880,14 @@ func createTextFields(data interface{}, pages ...int) []textField {
 // MergeTextFields merges page 1 and page 2 data
 func mergeTextFields(fields1, fields2 []textField) []textField {
 	return append(fields1, fields2...)
+}
+
+// createAssetByteReader creates a new byte reader based on the TemplateImagePath of the formLayout
+func createAssetByteReader(path string) (*bytes.Reader, error) {
+	asset, err := assets.Asset(path)
+	if err != nil {
+		return nil, errors.Wrap(err, "error creating asset from path; check image path : "+path)
+	}
+
+	return bytes.NewReader(asset), nil
 }

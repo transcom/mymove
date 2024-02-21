@@ -156,5 +156,5 @@ type SSWPPMComputer interface {
 
 //go:generate mockery --name SSWPPMGenerator
 type SSWPPMGenerator interface {
-	FillSSWPDFForm(Page1Values, Page2Values) (afero.File, *pdfcpu.PDFInfo, error)
+	FillSSWPDFForm(Page1Values, Page2Values, appcontext.AppContext) (afero.File, *pdfcpu.PDFInfo, error)
 }
