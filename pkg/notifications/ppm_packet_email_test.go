@@ -388,7 +388,7 @@ You can now log into MilMove <` + MyMoveLink + `/> and download your payment pac
 
 Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.
 
-If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <` + OneSourceTransportationOfficeLink + `>
+If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: ` + OneSourceTransportationOfficeLink + `
 
 Thank you,
 
