@@ -1,28 +1,45 @@
 package paperwork
 
 import (
+	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"os"
+	"path/filepath"
 	"testing"
 
+	"github.com/pkg/errors"
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/suite"
 
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testingsuite"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 type PaperworkServiceSuite struct {
 	*testingsuite.PopTestSuite
+	userUploader *uploader.UserUploader
+	filesToClose []afero.File
 }
 
 func TestPaperworkServiceSuite(t *testing.T) {
 
-	ts := &PaperworkServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+	storer := storageTest.NewFakeS3Storage(true)
+
+	newUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
+	if err != nil {
+		log.Panic(err)
 	}
-	suite.Run(t, ts)
-	ts.PopTestSuite.TearDown()
+	hs := &PaperworkServiceSuite{
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		userUploader: newUploader,
+	}
+
+	suite.Run(t, hs)
+	hs.PopTestSuite.TearDown()
 }
 
 // setUpMockGotenbergServer sets up a mock Gotenberg server and sets the corresponding env vars to make it easier to
@@ -51,4 +68,35 @@ func (suite *PaperworkServiceSuite) setUpMockGotenbergServer(handlerFunc http.Ha
 	os.Setenv(GotenbergPort, url.Port())
 
 	return mockGotenbergServer
+}
+
+func (suite *PaperworkServiceSuite) AfterTest() {
+	for _, file := range suite.filesToClose {
+		file.Close()
+	}
+}
+
+func (suite *PaperworkServiceSuite) closeFile(file afero.File) {
+	suite.filesToClose = append(suite.filesToClose, file)
+}
+
+func (suite *PaperworkServiceSuite) openLocalFile(path string, fs *afero.Afero) (afero.File, error) {
+	file, err := os.Open(filepath.Clean(path))
+	if err != nil {
+		return nil, errors.Wrap(err, "could not open file")
+	}
+
+	outputFile, err := fs.Create(path)
+	if err != nil {
+		return nil, errors.Wrap(err, "error creating afero file")
+	}
+
+	_, err = io.Copy(outputFile, file)
+	if err != nil {
+		return nil, errors.Wrap(err, "error copying over file contents")
+	}
+
+	suite.closeFile(outputFile)
+
+	return outputFile, nil
 }

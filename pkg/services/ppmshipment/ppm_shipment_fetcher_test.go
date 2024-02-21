@@ -905,7 +905,6 @@ func (suite *PPMShipmentSuite) TestFetchPPMShipment() {
 				Equal(actualCertification.Date.UTC().Truncate(time.Millisecond)))
 			suite.Equal(signedCertification.MoveID, actualCertification.MoveID)
 			suite.Equal(signedCertification.PpmID, actualCertification.PpmID)
-			suite.Nil(actualCertification.PersonallyProcuredMoveID)
 			suite.Equal(signedCertification.Signature, actualCertification.Signature)
 			suite.Equal(signedCertification.SubmittingUserID, actualCertification.SubmittingUserID)
 		}

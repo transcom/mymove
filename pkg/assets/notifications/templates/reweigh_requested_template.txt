@@ -33,10 +33,10 @@ The only time a reweigh cannot be performed is when the shipment has already bee
 
 If you believe your shipment should be reweighed and has not been, do not accept delivery. Tell your HSA Customer Care Representative that they need to reweigh the shipment before they unload it.
 
-Remember, your HomeSafe Alliance (HSA) Customer Care Representative is your first point of contact; however, if you are unsatisfied at any time, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: https://www.militaryonesource.mil/benefits/militaryinstallations-local-transportation-office/.
+Remember, your HomeSafe Alliance (HSA) Customer Care Representative is your first point of contact; however, if you are unsatisfied at any time, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: {{.MilitaryOneSourceLink}}.
 
 Thank you,
 
-Defense Personal Property Program’s MilMove Team
+USTRANSCOM MilMove Team
 
 The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
