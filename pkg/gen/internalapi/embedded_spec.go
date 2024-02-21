@@ -4210,6 +4210,11 @@ func init() {
           "type": "string",
           "readOnly": true
         },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
@@ -12248,6 +12253,11 @@ func init() {
         },
         "status": {
           "type": "string",
+          "readOnly": true
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
           "readOnly": true
         },
         "updatedAt": {

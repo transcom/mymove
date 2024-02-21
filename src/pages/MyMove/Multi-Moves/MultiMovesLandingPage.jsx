@@ -20,17 +20,27 @@ import { withContext } from 'shared/AppContext';
 import withRouter from 'utils/routing';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { selectAllMoves, selectIsProfileComplete, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import { updateAllMoves as updateAllMovesAction } from 'store/entities/actions';
+import { profileStates } from 'constants/customerStates';
+import { getAllMoves } from 'services/internalApi';
 
-const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves }) => {
+const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMoves }) => {
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
   const navigate = useNavigate();
 
+  // this will run on page load
+  // loads user info and move and updates if the serviceMember object in state changes
   useEffect(() => {
     const fetchData = async () => {
       try {
         loadInternalSchema();
         loadUser();
         initOnboarding();
+        getAllMoves(serviceMember.id).then((response) => {
+          updateAllMoves(response);
+        });
+
         document.title = generatePageTitle('MilMove');
       } catch (error) {
         const { message } = error;
@@ -43,9 +53,8 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves }) => {
         retryPageLoading(error);
       }
     };
-
     fetchData();
-  }, [setErrorState]);
+  }, [setErrorState, serviceMember, updateAllMoves]);
 
   // handles logic when user clicks "Create a Move" button
   // if they have previous moves, they'll need to validate their profile
@@ -58,6 +67,17 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves }) => {
       navigate(customerRoutes.MOVE_HOME_PAGE);
     }
   };
+
+  // early return while api call loads object
+  if (Object.keys(serviceMemberMoves).length === 0) {
+    return (
+      <div className={styles.homeContainer}>
+        <div className={`usa-prose grid-container ${styles['grid-container']}`}>
+          <LoadingPlaceholder />
+        </div>
+      </div>
+    );
+  }
 
   // ! WILL ONLY SHOW IF MULTIMOVE FLAG IS TRUE
   return (
@@ -82,7 +102,7 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves }) => {
             </Helper>
           ) : (
             <Helper title="Welcome to MilMove!" className={styles['helper-paragraph-only']}>
-              <p data-testid="welcomeHeader">
+              <p data-testid="welcomeHeaderPrevMoves">
                 Select &quot;Create a Move&quot; to get started. <br />
                 <br />
                 Once you have validated your profile, pleasee click the &quot;Validate&quot; button and proceed to
@@ -157,6 +177,10 @@ const mapStateToProps = (state) => {
   };
 };
 
+const mapDispatchToProps = {
+  updateAllMoves: updateAllMovesAction,
+};
+
 // in order to avoid setting up proxy server only for storybook, pass in stub function so API requests don't fail
 const mergeProps = (stateProps, dispatchProps, ownProps) => ({
   ...stateProps,
@@ -165,5 +189,11 @@ const mergeProps = (stateProps, dispatchProps, ownProps) => ({
 });
 
 export default withContext(
-  withRouter(connect(mapStateToProps, mergeProps)(requireCustomerState(MultiMovesLandingPage))),
+  withRouter(
+    connect(
+      mapStateToProps,
+      mapDispatchToProps,
+      mergeProps,
+    )(requireCustomerState(MultiMovesLandingPage, profileStates.BACKUP_CONTACTS_COMPLETE)),
+  ),
 );
