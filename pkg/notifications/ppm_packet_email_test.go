@@ -98,8 +98,8 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpa
 		Status:                models.PPMShipmentStatusWaitingOnCustomer,
 		PickupAddressID:       &pickupAddress.ID,
 		DestinationAddressID:  &destinationAddress.ID,
-		PickupPostalCode:      "79329",
-		DestinationPostalCode: "90210",
+		PickupPostalCode:      "33169",
+		DestinationPostalCode: "33040",
 	}
 
 	ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, []factory.Customization{
@@ -114,8 +114,10 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpa
 	suite.EqualExportedValues(ppmEmailData, PpmPacketEmailData{
 		OriginCity:       &pickupAddress.City,
 		OriginState:      &pickupAddress.State,
+		OriginZIP:        &pickupAddress.PostalCode,
 		DestinationCity:  &destinationAddress.City,
 		DestinationState: &destinationAddress.State,
+		DestinationZIP:   &destinationAddress.PostalCode,
 		SubmitLocation:   allOtherSubmitLocation,
 		ServiceBranch:    affiliationDisplayValue[*serviceMember.Affiliation],
 		Locator:          move.Locator,
@@ -184,8 +186,8 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForArmy() {
 		Status:                models.PPMShipmentStatusWaitingOnCustomer,
 		PickupAddressID:       &pickupAddress.ID,
 		DestinationAddressID:  &destinationAddress.ID,
-		PickupPostalCode:      "79329",
-		DestinationPostalCode: "90210",
+		PickupPostalCode:      pickupAddress.PostalCode,
+		DestinationPostalCode: destinationAddress.PostalCode,
 	}
 
 	ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, []factory.Customization{
@@ -200,8 +202,10 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForArmy() {
 	suite.EqualExportedValues(ppmEmailData, PpmPacketEmailData{
 		OriginCity:       &pickupAddress.City,
 		OriginState:      &pickupAddress.State,
+		OriginZIP:        &pickupAddress.PostalCode,
 		DestinationCity:  &destinationAddress.City,
 		DestinationState: &destinationAddress.State,
+		DestinationZIP:   &destinationAddress.PostalCode,
 		SubmitLocation:   armySubmitLocation,
 		ServiceBranch:    affiliationDisplayValue[*serviceMember.Affiliation],
 		Locator:          move.Locator,
@@ -270,8 +274,8 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForNavalBran
 		Status:                models.PPMShipmentStatusWaitingOnCustomer,
 		PickupAddressID:       &pickupAddress.ID,
 		DestinationAddressID:  &destinationAddress.ID,
-		PickupPostalCode:      "79329",
-		DestinationPostalCode: "90210",
+		PickupPostalCode:      pickupAddress.PostalCode,
+		DestinationPostalCode: destinationAddress.PostalCode,
 	}
 
 	ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, []factory.Customization{
@@ -286,8 +290,10 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForNavalBran
 	suite.EqualExportedValues(ppmEmailData, PpmPacketEmailData{
 		OriginCity:       &pickupAddress.City,
 		OriginState:      &pickupAddress.State,
+		OriginZIP:        &pickupAddress.PostalCode,
 		DestinationCity:  &destinationAddress.City,
 		DestinationState: &destinationAddress.State,
+		DestinationZIP:   &destinationAddress.PostalCode,
 		SubmitLocation:   allOtherSubmitLocation,
 		ServiceBranch:    affiliationDisplayValue[*serviceMember.Affiliation],
 		Locator:          move.Locator,
@@ -437,15 +443,19 @@ func (suite *NotificationSuite) TestPpmPacketEmailZipcodeFallback() {
 	suite.NotNil(ppmEmailData)
 
 	suite.EqualExportedValues(ppmEmailData, PpmPacketEmailData{
-		OriginZIP:      &customPPM.PickupPostalCode,
-		DestinationZIP: &customPPM.DestinationPostalCode,
-		SubmitLocation: allOtherSubmitLocation,
-		ServiceBranch:  affiliationDisplayValue[*serviceMember.Affiliation],
-		Locator:        move.Locator,
+		OriginZIP:        &customPPM.PickupPostalCode,
+		OriginCity:       &ppmShipment.PickupAddress.City,
+		OriginState:      &ppmShipment.PickupAddress.State,
+		DestinationZIP:   &customPPM.DestinationPostalCode,
+		DestinationCity:  &ppmShipment.DestinationAddress.City,
+		DestinationState: &ppmShipment.DestinationAddress.State,
+		SubmitLocation:   allOtherSubmitLocation,
+		ServiceBranch:    affiliationDisplayValue[*serviceMember.Affiliation],
+		Locator:          move.Locator,
 	})
-
+	// <strong>Des Moines, IA</strong> to <strong>Fort Eisenhower, GA</strong>
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + *ppmEmailData.OriginZIP + `</strong> to <strong>` + *ppmEmailData.DestinationZIP + `</strong> has been processed in MilMove. </p>
+<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + *ppmEmailData.OriginCity + `, ` + *ppmEmailData.OriginState + `</strong> to <strong>` + *ppmEmailData.DestinationCity + `, ` + *ppmEmailData.DestinationState + `</strong> has been processed in MilMove. </p>
 <h4>Next steps:</h4>
 
 <p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):</p>

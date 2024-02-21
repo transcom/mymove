@@ -156,15 +156,15 @@ func GetEmailData(p PpmPacketEmail, appCtx appcontext.AppContext) (PpmPacketEmai
 		}
 
 		return PpmPacketEmailData{
-				OriginCity:  &pickupAddress.City,
-				OriginState: &pickupAddress.State,
-				//OriginZIP:      &ppmShipment.PickupPostalCode,
+				OriginCity:       &pickupAddress.City,
+				OriginState:      &pickupAddress.State,
+				OriginZIP:        &ppmShipment.PickupPostalCode,
 				DestinationCity:  &destinationAddress.City,
 				DestinationState: &destinationAddress.State,
-				//DestinationZIP: &ppmShipment.DestinationPostalCode,
-				SubmitLocation: submitLocation,
-				ServiceBranch:  affiliationDisplayValue[*serviceMember.Affiliation],
-				Locator:        move.Locator,
+				DestinationZIP:   &ppmShipment.DestinationPostalCode,
+				SubmitLocation:   submitLocation,
+				ServiceBranch:    affiliationDisplayValue[*serviceMember.Affiliation],
+				Locator:          move.Locator,
 			},
 			LoggerData{
 				ServiceMember: *serviceMember,
