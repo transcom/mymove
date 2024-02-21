@@ -139,7 +139,20 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-			originDutyLocation := serviceMember.DutyLocation
+
+			var originDutyLocation models.DutyLocation
+
+			if payload.OriginDutyLocationID != "" {
+				originDutyLocationID, errorOrigin := uuid.FromString(payload.OriginDutyLocationID.String())
+				if errorOrigin != nil {
+					return handlers.ResponseForError(appCtx.Logger(), errorOrigin), errorOrigin
+				}
+				originDutyLoc, errorOrigin := models.FetchDutyLocation(appCtx.DB(), originDutyLocationID)
+				if errorOrigin != nil {
+					return handlers.ResponseForError(appCtx.Logger(), errorOrigin), errorOrigin
+				}
+				originDutyLocation = originDutyLoc
+			}
 
 			originDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
 			if err != nil {
@@ -151,7 +164,8 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				}
 			}
 
-			grade := (*string)(serviceMember.Rank)
+			grade := (*string)(payload.Grade)
+			serviceMember.Rank = (*models.ServiceMemberRank)(payload.Grade)
 
 			weightAllotment := models.GetWeightAllotment(*serviceMember.Rank)
 

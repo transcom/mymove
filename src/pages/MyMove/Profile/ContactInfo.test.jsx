@@ -56,7 +56,7 @@ describe('ContactInfo page', () => {
     });
   });
 
-  it('next button submits the form and goes to the Name step', async () => {
+  it('next button submits the form and goes to the current address step', async () => {
     patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValues));
 
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
@@ -71,7 +71,7 @@ describe('ContactInfo page', () => {
     });
 
     expect(testProps.updateServiceMember).toHaveBeenCalledWith(testServiceMemberValues);
-    expect(mockNavigate).toHaveBeenCalledWith('/service-member/current-duty');
+    expect(mockNavigate).toHaveBeenCalledWith('/service-member/current-address');
   });
 
   it('shows an error if the API returns an error', async () => {
@@ -207,9 +207,6 @@ describe('requireCustomerState ContactInfo', () => {
             telephone: '1234567890',
             personal_email: 'test@example.com',
             email_is_preferred: true,
-            current_location: {
-              id: 'testDutyLocationId',
-            },
             residential_address: {
               street: '123 Main St',
             },
@@ -256,9 +253,6 @@ describe('requireCustomerState ContactInfo', () => {
             telephone: '1234567890',
             personal_email: 'test@example.com',
             email_is_preferred: true,
-            current_location: {
-              id: 'testDutyLocationId',
-            },
             residential_address: {
               street: '123 Main St',
             },

@@ -42,19 +42,17 @@ func (suite *ModelSuite) TestSignedCertificationValidations() {
 		},
 		"Validates Optional Fields": {
 			signedCertification: models.SignedCertification{
-				SubmittingUserID:         uuid.Must(uuid.NewV4()),
-				MoveID:                   uuid.Must(uuid.NewV4()),
-				PersonallyProcuredMoveID: &uuid.Nil,
-				PpmID:                    &uuid.Nil,
-				CertificationType:        &blankCertType,
-				CertificationText:        "Lorem ipsum dolor sit amet...",
-				Signature:                "Best Customer",
-				Date:                     testdatagen.NextValidMoveDate,
+				SubmittingUserID:  uuid.Must(uuid.NewV4()),
+				MoveID:            uuid.Must(uuid.NewV4()),
+				PpmID:             &uuid.Nil,
+				CertificationType: &blankCertType,
+				CertificationText: "Lorem ipsum dolor sit amet...",
+				Signature:         "Best Customer",
+				Date:              testdatagen.NextValidMoveDate,
 			},
 			expectedErrs: map[string][]string{
-				"personally_procured_move_id": {"PersonallyProcuredMoveID can not be blank."},
-				"ppm_id":                      {"PpmID can not be blank."},
-				"certification_type":          {fmt.Sprintf("CertificationType is not in the list [%s].", validCertTypes)},
+				"ppm_id":             {"PpmID can not be blank."},
+				"certification_type": {fmt.Sprintf("CertificationType is not in the list [%s].", validCertTypes)},
 			},
 		},
 	}
@@ -88,11 +86,10 @@ func (suite *ModelSuite) TestFetchSignedCertificationsPPMPayment() {
 		},
 		{
 			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &ppm.ID,
-				CertificationType:        &certificationType,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
+				CertificationType: &certificationType,
+				CertificationText: "LEGAL",
+				Signature:         "ACCEPT",
+				Date:              testdatagen.NextValidMoveDate,
 			},
 		},
 	}, nil)
@@ -121,11 +118,10 @@ func (suite *ModelSuite) TestFetchSignedCertificationsPPMPaymentAuth() {
 		},
 		{
 			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &ppm.ID,
-				CertificationType:        &certificationType,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
+				CertificationType: &certificationType,
+				CertificationText: "LEGAL",
+				Signature:         "ACCEPT",
+				Date:              testdatagen.NextValidMoveDate,
 			},
 		},
 	}, nil)
@@ -138,11 +134,10 @@ func (suite *ModelSuite) TestFetchSignedCertificationsPPMPaymentAuth() {
 		},
 		{
 			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &otherPpm.ID,
-				CertificationType:        &signedCertificationType,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
+				CertificationType: &signedCertificationType,
+				CertificationText: "LEGAL",
+				Signature:         "ACCEPT",
+				Date:              testdatagen.NextValidMoveDate,
 			},
 		},
 	}, nil)
@@ -170,11 +165,10 @@ func (suite *ModelSuite) TestFetchSignedCertifications() {
 		},
 		{
 			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &ppm.ID,
-				CertificationType:        &ppmPayment,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
+				CertificationType: &ppmPayment,
+				CertificationText: "LEGAL",
+				Signature:         "ACCEPT",
+				Date:              testdatagen.NextValidMoveDate,
 			},
 		},
 	}, nil)
@@ -186,11 +180,10 @@ func (suite *ModelSuite) TestFetchSignedCertifications() {
 		},
 		{
 			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &ppm.ID,
-				CertificationType:        &ppmCert,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
+				CertificationType: &ppmCert,
+				CertificationText: "LEGAL",
+				Signature:         "ACCEPT",
+				Date:              testdatagen.NextValidMoveDate,
 			},
 		},
 	}, nil)
@@ -202,11 +195,10 @@ func (suite *ModelSuite) TestFetchSignedCertifications() {
 		},
 		{
 			Model: models.SignedCertification{
-				PersonallyProcuredMoveID: &ppm.ID,
-				CertificationType:        &hhgCert,
-				CertificationText:        "LEGAL",
-				Signature:                "ACCEPT",
-				Date:                     testdatagen.NextValidMoveDate,
+				CertificationType: &hhgCert,
+				CertificationText: "LEGAL",
+				Signature:         "ACCEPT",
+				Date:              testdatagen.NextValidMoveDate,
 			},
 		},
 	}, nil)

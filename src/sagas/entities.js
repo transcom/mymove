@@ -7,10 +7,6 @@ import {
   UPDATE_MTO_SHIPMENT,
   UPDATE_MTO_SHIPMENTS,
   UPDATE_ORDERS,
-  UPDATE_PPMS,
-  UPDATE_PPM,
-  UPDATE_PPM_ESTIMATE,
-  UPDATE_PPM_SIT_ESTIMATE,
 } from 'store/entities/actions';
 import { normalizeResponse } from 'services/swaggerRequest';
 import { addEntities, updateMTOShipmentsEntity, setOktaUser } from 'shared/Entities/actions';
@@ -60,30 +56,6 @@ export function* updateMTOShipments(action) {
   yield put(updateMTOShipmentsEntity(payload));
 }
 
-export function* updatePPMs(action) {
-  const { payload } = action;
-  const normalizedData = yield call(normalizeResponse, payload, 'personallyProcuredMoves');
-  yield put(addEntities(normalizedData));
-}
-
-export function* updatePPM(action) {
-  const { payload } = action;
-  const normalizedData = yield call(normalizeResponse, payload, 'personallyProcuredMove');
-  yield put(addEntities(normalizedData));
-}
-
-export function* updatePPMEstimate(action) {
-  const { payload } = action;
-  const normalizedData = yield call(normalizeResponse, payload, 'ppmEstimateRange');
-  yield put(addEntities(normalizedData));
-}
-
-export function* updatePPMSitEstimate(action) {
-  const { payload } = action;
-  const normalizedData = yield call(normalizeResponse, payload, 'ppmSitEstimate');
-  yield put(addEntities(normalizedData));
-}
-
 export function* watchUpdateEntities() {
   yield all([
     takeLatest(UPDATE_SERVICE_MEMBER, updateServiceMember),
@@ -92,9 +64,5 @@ export function* watchUpdateEntities() {
     takeLatest(UPDATE_MOVE, updateMove),
     takeLatest(UPDATE_MTO_SHIPMENT, updateMTOShipment),
     takeLatest(UPDATE_MTO_SHIPMENTS, updateMTOShipments),
-    takeLatest(UPDATE_PPMS, updatePPMs),
-    takeLatest(UPDATE_PPM, updatePPM),
-    takeLatest(UPDATE_PPM_ESTIMATE, updatePPMEstimate),
-    takeLatest(UPDATE_PPM_SIT_ESTIMATE, updatePPMSitEstimate),
   ]);
 }

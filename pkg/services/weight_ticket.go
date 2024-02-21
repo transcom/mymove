@@ -32,5 +32,5 @@ type WeightTicketUpdater interface {
 //
 //go:generate mockery --name WeightTicketDeleter
 type WeightTicketDeleter interface {
-	DeleteWeightTicket(appCtx appcontext.AppContext, weightTicketID uuid.UUID) error
+	DeleteWeightTicket(appCtx appcontext.AppContext, ppmID uuid.UUID, weightTicketID uuid.UUID) error
 }
