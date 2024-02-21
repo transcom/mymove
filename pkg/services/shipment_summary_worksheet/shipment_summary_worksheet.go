@@ -1,11 +1,9 @@
 package shipmentsummaryworksheet
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
-	"os"
-	"path/filepath"
 	"reflect"
 	"strings"
 	"time"
@@ -14,11 +12,13 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+	"go.uber.org/zap"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -41,45 +41,11 @@ func NewSSWPPMComputer() services.SSWPPMComputer {
 
 // SSWPPMGenerator is the concrete struct implementing the services.shipmentsummaryworksheet interface
 type SSWPPMGenerator struct {
-	templateReader io.ReadSeeker
-	generator      paperwork.Generator
+	generator paperwork.Generator
 }
-
-// TextField represents a text field within a form.
-type textField struct {
-	Pages     []int  `json:"pages"`
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	Value     string `json:"value"`
-	Multiline bool   `json:"multiline"`
-	Locked    bool   `json:"locked"`
-}
-
-var newline = "\n\n"
 
 // NewSSWPPMGenerator creates a SSWPPMGenerator
 func NewSSWPPMGenerator() services.SSWPPMGenerator {
-	pdfTemplatePath, err := filepath.Abs("pkg/assets/paperwork/formtemplates/SSWPDFTemplate.pdf")
-	if err != nil {
-		panic(err)
-	}
-
-	// NOTE: The testing suite is based on a different filesystem, relative filepaths will not work.
-	// Additionally, the function runs at a different file location. Therefore, when ran from testing,
-	// the PDF template path needs to be reconfigured relative to where the test runs from.
-	if strings.HasSuffix(os.Args[0], ".test") {
-		pdfTemplatePath, err = filepath.Abs("../../../pkg/assets/paperwork/formtemplates/SSWPDFTemplate.pdf")
-		if err != nil {
-			panic(err)
-		}
-
-	}
-
-	templateReader, err := afero.NewOsFs().Open(pdfTemplatePath)
-	if err != nil {
-		panic(err)
-	}
-	// Generator and dependencies must be initiated to handle memory filesystem for AWS
 	storer := storage.NewMemory(storage.NewMemoryParams("", ""))
 	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
@@ -89,10 +55,8 @@ func NewSSWPPMGenerator() services.SSWPPMGenerator {
 	if err != nil {
 		panic(err)
 	}
-
 	return &SSWPPMGenerator{
-		templateReader: templateReader,
-		generator:      *generator,
+		generator: *generator,
 	}
 }
 
@@ -103,6 +67,18 @@ func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipm
 
 	return page1, page2
 }
+
+// textField represents a text field within a form.
+type textField struct {
+	Pages     []int  `json:"pages"`
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Value     string `json:"value"`
+	Multiline bool   `json:"multiline"`
+	Locked    bool   `json:"locked"`
+}
+
+var newline = "\n\n"
 
 // Page1Values is an object representing a Shipment Summary Worksheet
 type Page1Values struct {
@@ -766,9 +742,16 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 }
 
 // FillSSWPDFForm takes form data and fills an existing PDF form template with said data
-func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values) (sswfile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
+func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values, appCtx appcontext.AppContext) (sswfile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
 
-	// Header represents the header section of the JSON.
+	appCtx.Logger().Info("Generating SSW, opening template file")
+	templateReader, err := createAssetByteReader("paperwork/formtemplates/SSWPDFTemplate.pdf")
+	if err != nil {
+		appCtx.Logger().Error("Error opening SSW PDF Template, generation failing", zap.Error(err))
+		return nil, nil, err
+	}
+
+	// header represents the header section of the JSON.
 	type header struct {
 		Source   string `json:"source"`
 		Version  string `json:"version"`
@@ -776,7 +759,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		Producer string `json:"producer"`
 	}
 
-	// Checkbox represents a checkbox within a form.
+	// checkbox represents a checkbox within a form.
 	type checkbox struct {
 		Pages   []int  `json:"pages"`
 		ID      string `json:"id"`
@@ -786,14 +769,14 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		Locked  bool   `json:"locked"`
 	}
 
-	// Forms represents a form containing text fields.
+	// forms represents a form containing text fields.
 	type form struct {
 		TextField []textField `json:"textfield"`
 		Checkbox  []checkbox  `json:"checkbox"`
 	}
 
-	// PDFData represents the entire JSON structure.
-	type pDFData struct {
+	// pdFData represents the entire JSON structure.
+	type pdFData struct {
 		Header header `json:"header"`
 		Forms  []form `json:"forms"`
 	}
@@ -816,7 +799,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		},
 	}
 
-	formData := pDFData{ // This is unique to each PDF template, must be found for new templates using PDFCPU's export function used on the template (can be done through CLI)
+	formData := pdFData{ // This is unique to each PDF template, must be found for new templates using PDFCPU's export function used on the template (can be done through CLI)
 		Header: sswHeader,
 		Forms: []form{
 			{ // Dynamically loops, creates, and aggregates json for text fields, merges page 1 and 2
@@ -835,7 +818,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		fmt.Println("Error marshaling JSON:", err)
 		return
 	}
-	SSWWorksheet, err := SSWPPMGenerator.generator.FillPDFForm(jsonData, SSWPPMGenerator.templateReader)
+	SSWWorksheet, err := SSWPPMGenerator.generator.FillPDFForm(jsonData, templateReader)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -859,7 +842,7 @@ func createTextFields(data interface{}, pages ...int) []textField {
 		field := val.Type().Field(i)
 		value := val.Field(i).Interface()
 
-		var textFieldEntry = textField{
+		textFieldEntry := textField{
 			Pages:     pages,
 			ID:        fmt.Sprintf("%d", len(textFields)+1),
 			Name:      field.Name,
@@ -877,4 +860,14 @@ func createTextFields(data interface{}, pages ...int) []textField {
 // MergeTextFields merges page 1 and page 2 data
 func mergeTextFields(fields1, fields2 []textField) []textField {
 	return append(fields1, fields2...)
+}
+
+// createAssetByteReader creates a new byte reader based on the TemplateImagePath of the formLayout
+func createAssetByteReader(path string) (*bytes.Reader, error) {
+	asset, err := assets.Asset(path)
+	if err != nil {
+		return nil, errors.Wrap(err, "error creating asset from path; check image path : "+path)
+	}
+
+	return bytes.NewReader(asset), nil
 }
