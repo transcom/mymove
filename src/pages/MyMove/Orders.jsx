@@ -74,11 +74,6 @@ export class Orders extends Component {
       navigate(customerRoutes.ORDERS_UPLOAD_PATH);
     };
 
-    // const getAndUpdateAllMoves = (id) => {
-    //   const response = getAllMoves(id);
-    //   updateAllMoves(response);
-    // };
-
     const submitOrders = (values) => {
       const pendingValues = {
         ...values,
