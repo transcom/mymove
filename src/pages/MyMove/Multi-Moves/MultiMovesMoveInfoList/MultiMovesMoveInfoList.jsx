@@ -95,4 +95,3 @@ const MultiMovesMoveInfoList = ({ move }) => {
 };
 
 export default MultiMovesMoveInfoList;
-
