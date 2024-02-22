@@ -83,8 +83,8 @@ const TXOMoveInfo = () => {
           Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
           <br />
           If that doesn&apos;t fix it, contact the{' '}
-          <a href="https://move.mil/customer-service#technical-help-desk">Technical Help Desk</a> and give them this
-          code: <strong>{traceId}</strong>
+          <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@mail.mil">Technical Help Desk</a>{' '}
+          (usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@mail.mil) and give them this code: <strong>{traceId}</strong>
         </SystemError>
       )}
       {!hideNav && (
