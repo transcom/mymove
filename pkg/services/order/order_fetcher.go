@@ -49,7 +49,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	needsCounseling := false
 	if len(params.Status) > 0 {
 		for _, status := range params.Status {
-			if status == string(models.MoveStatusNeedsServiceCounseling) || status == string(models.MoveStatusServiceCounselingCompleted) {
+			if status == string(models.MoveStatusNeedsServiceCounseling) {
 				needsCounseling = true
 			}
 		}
