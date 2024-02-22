@@ -182,6 +182,19 @@ const PPMShipmentInfoList = ({
     </div>
   );
 
+  const aoaPacketElement = (
+    <div>
+      <dt>AOA Packet</dt>
+      <dd data-testid="aoaPacketDownload">
+        <p className={styles.downloadLink}>
+          <a href="">
+            <span>Download AOA Paperwork (PDF)</span>
+          </a>
+        </p>
+      </dd>
+    </div>
+  );
+
   const counselorRemarksElementFlags = getDisplayFlags('counselorRemarks');
   const counselorRemarksElement = (
     <div className={counselorRemarksElementFlags.classes}>
@@ -214,6 +227,7 @@ const PPMShipmentInfoList = ({
       {showElement(estimatedIncentiveElementFlags) && estimatedIncentiveElement}
       {hasRequestedAdvanceElement}
       {hasRequestedAdvance === true && advanceStatusElement}
+      {advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue && aoaPacketElement}
       {counselorRemarksElement}
     </dl>
   );
