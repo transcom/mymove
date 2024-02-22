@@ -17,6 +17,8 @@ import { ShipmentShape } from 'types/shipment';
 import { searchTransportationOffices } from 'services/internalApi';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
+import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
+import { requiredAddressSchema } from 'utils/validation';
 
 const validationShape = {
   useCurrentResidence: Yup.boolean(),
@@ -27,26 +29,54 @@ const validationShape = {
   expectedDepartureDate: Yup.date()
     .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
     .required('Required'),
+  pickupAddress: Yup.object().shape({
+    address: requiredAddressSchema,
+  }),
+  destinationAddress: Yup.object().shape({
+    address: requiredAddressSchema,
+  }),
+  secondaryPickupAddress: Yup.object().shape({
+    address: OptionalAddressSchema,
+  }),
+  secondaryDestinationAddress: Yup.object().shape({
+    address: OptionalAddressSchema,
+  }),
 };
 
 const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMember, move, onBack, onSubmit }) => {
   const initialValues = {
     pickupPostalCode: mtoShipment?.ppmShipment?.pickupPostalCode || '',
     useCurrentResidence: false,
-    pickupAddress: mtoShipment?.ppmShipment?.pickupAddress || {},
-    secondaryPickupAddress: mtoShipment?.ppmShipment?.secondaryPickupAddress || {},
-    hasSecondaryPickupAddress: mtoShipment?.ppmShipment?.hasSecondaryPickup ? 'true' : 'false',
+    pickupAddress: {},
+    secondaryPickupAddress: {},
+    hasSecondaryPickupAddress: mtoShipment?.ppmShipment?.secondaryPickupAddress ? 'true' : 'false',
     secondaryPickupPostalCode: mtoShipment?.ppmShipment?.secondaryPickupPostalCode || '',
     useCurrentDestinationAddress: false,
     destinationPostalCode: mtoShipment?.ppmShipment?.destinationPostalCode || '',
     hasSecondaryDestinationAddress: mtoShipment?.ppmShipment?.secondaryDestinationAddress ? 'true' : 'false',
-    destinationAddress: mtoShipment?.ppmShipment?.destinationAddress || {},
-    secondaryDestinationAddress: mtoShipment?.ppmShipment?.secondaryDestinationAddress || {},
+    destinationAddress: {},
+    secondaryDestinationAddress: {},
     secondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode || '',
     sitExpected: mtoShipment?.ppmShipment?.sitExpected ? 'true' : 'false',
     expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
     closeoutOffice: move?.closeout_office,
   };
+
+  if (mtoShipment?.ppmShipment?.pickupAddress) {
+    initialValues.pickupAddress = { address: { ...mtoShipment.ppmShipment.pickupAddress } };
+  }
+
+  if (mtoShipment?.ppmShipment?.secondaryPickupAddress) {
+    initialValues.secondaryPickupAddress = { address: { ...mtoShipment.ppmShipment.secondaryPickupAddress } };
+  }
+
+  if (mtoShipment?.ppmShipment?.destinationAddress) {
+    initialValues.destinationAddress = { address: { ...mtoShipment.ppmShipment.destinationAddress } };
+  }
+
+  if (mtoShipment?.ppmShipment?.secondaryDestinationAddress) {
+    initialValues.secondaryDestinationAddress = { address: { ...mtoShipment.ppmShipment.secondaryDestinationAddress } };
+  }
 
   const residentialAddress = serviceMember?.residential_address;
   const destinationDutyAddress = destinationDutyLocation?.address;

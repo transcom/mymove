@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { act } from 'react-dom/test-utils';
 
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
@@ -189,7 +190,7 @@ describe('DateAndLocationForm component', () => {
     expect(screen.getByText('Start typing a closeout office...')).toBeInTheDocument();
   });
 
-  it('does not display the closeout office select when the service member is not in the Army/Air-Force', async () => {
+  it('5', async () => {
     const navyServiceMember = {
       ...defaultProps.serviceMember,
       affiliation: SERVICE_MEMBER_AGENCIES.NAVY,
@@ -234,23 +235,27 @@ describe('validates form fields and displays error messages', () => {
     };
     render(<DateAndLocationForm {...invalidTypes} />);
 
-    await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '1 January 2022');
+    await act(async () => {
+      await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '1000');
+    });
 
-    const zipInputs = screen.getAllByLabelText('ZIP');
-    await userEvent.click(zipInputs[0]);
-    await userEvent.click(zipInputs[1]);
+    await act(async () => {
+      await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '1000');
+    });
+
+    await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '1 January 2022');
     await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
 
       const requiredAlerts = screen.getAllByRole('alert');
-      expect(requiredAlerts.length).toBe(1);
+      expect(requiredAlerts.length).toBe(3);
 
       // Departure date
-      expect(requiredAlerts[0]).toHaveTextContent('Enter a complete date in DD MMM YYYY format (day, month, year).');
+      expect(requiredAlerts[2]).toHaveTextContent('Enter a complete date in DD MMM YYYY format (day, month, year).');
       expect(
-        within(requiredAlerts[0].nextElementSibling).getByLabelText('When do you plan to start moving your PPM?'),
+        within(requiredAlerts[2].nextElementSibling).getByLabelText('When do you plan to start moving your PPM?'),
       ).toBeInTheDocument();
     });
   });
