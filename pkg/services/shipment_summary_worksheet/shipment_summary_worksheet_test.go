@@ -786,8 +786,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestCreateTextFields() {
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 	SSWPPMComputer := NewSSWPPMComputer()
-	ppmGenerator := NewSSWPPMGenerator()
-
+	ppmGenerator, err := NewSSWPPMGenerator()
+	suite.FatalNoError(err)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
@@ -833,7 +833,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 	ssd, err := SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, ppmShipmentID)
 	suite.NoError(err)
 	page1Data, page2Data := SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssd)
-	test, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data, suite.AppContextForTest())
+	test, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
 	suite.NoError(err)
 	println(test.Name())           // ensures was generated with temp filesystem
 	suite.Equal(info.PageCount, 2) // ensures PDF is not corrupted

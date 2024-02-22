@@ -12,7 +12,6 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
-	"go.uber.org/zap"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
@@ -41,24 +40,31 @@ func NewSSWPPMComputer() services.SSWPPMComputer {
 
 // SSWPPMGenerator is the concrete struct implementing the services.shipmentsummaryworksheet interface
 type SSWPPMGenerator struct {
-	generator paperwork.Generator
+	generator      paperwork.Generator
+	templateReader *bytes.Reader
 }
 
 // NewSSWPPMGenerator creates a SSWPPMGenerator
-func NewSSWPPMGenerator() services.SSWPPMGenerator {
+func NewSSWPPMGenerator() (services.SSWPPMGenerator, error) {
 	// Generator and dependencies must be initiated to handle memory filesystem for AWS
 	storer := storage.NewMemory(storage.NewMemoryParams("", ""))
 	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
-		panic(err)
+		return nil, errors.WithStack(err)
 	}
 	generator, err := paperwork.NewGenerator(userUploader.Uploader())
 	if err != nil {
-		panic(err)
+		return nil, errors.WithStack(err)
 	}
+	templateReader, err := createAssetByteReader("paperwork/formtemplates/SSWPDFTemplate.pdf")
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
 	return &SSWPPMGenerator{
-		generator: *generator,
-	}
+		generator:      *generator,
+		templateReader: templateReader,
+	}, nil
 }
 
 // FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
@@ -762,14 +768,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 }
 
 // FillSSWPDFForm takes form data and fills an existing PDF form template with said data
-func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values, appCtx appcontext.AppContext) (sswfile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
-
-	appCtx.Logger().Info("Generating SSW, opening template file")
-	templateReader, err := createAssetByteReader("paperwork/formtemplates/SSWPDFTemplate.pdf")
-	if err != nil {
-		appCtx.Logger().Error("Error opening SSW PDF Template, generation failing", zap.Error(err))
-		return nil, nil, err
-	}
+func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values) (sswfile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
 
 	// header represents the header section of the JSON.
 	type header struct {
@@ -838,7 +837,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		fmt.Println("Error marshaling JSON:", err)
 		return
 	}
-	SSWWorksheet, err := SSWPPMGenerator.generator.FillPDFForm(jsonData, templateReader)
+	SSWWorksheet, err := SSWPPMGenerator.generator.FillPDFForm(jsonData, SSWPPMGenerator.templateReader)
 	if err != nil {
 		return nil, nil, err
 	}

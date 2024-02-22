@@ -53,10 +53,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	fetcher := fetch.NewFetcher(builder)
 	moveRouter := move.NewMoveRouter()
 	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer()
-	if err != nil {
-		log.Fatalln(err)
-	}
-	SSWPPMGenerator := shipmentsummaryworksheet.NewSSWPPMGenerator()
+	SSWPPMGenerator, err := shipmentsummaryworksheet.NewSSWPPMGenerator()
 	if err != nil {
 		log.Fatalln(err)
 	}

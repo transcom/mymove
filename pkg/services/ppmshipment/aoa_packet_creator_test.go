@@ -149,7 +149,8 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacketNotFound() {
 
 func (suite *PPMShipmentSuite) TestCreateAOAPacketFull() {
 	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer()
-	ppmGenerator := shipmentsummaryworksheet.NewSSWPPMGenerator()
+	ppmGenerator, err := shipmentsummaryworksheet.NewSSWPPMGenerator()
+	suite.FatalNoError(err)
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, 25*uploader.MB)
 	suite.FatalNoError(uploaderErr)

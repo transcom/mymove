@@ -60,10 +60,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		moveRouter,
 	)
 	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer()
-	if err != nil {
-		log.Fatalln(err)
-	}
-	SSWPPMGenerator := shipmentsummaryworksheet.NewSSWPPMGenerator()
+	SSWPPMGenerator, err := shipmentsummaryworksheet.NewSSWPPMGenerator()
 	if err != nil {
 		log.Fatalln(err)
 	}
