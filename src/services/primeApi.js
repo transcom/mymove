@@ -1,6 +1,6 @@
 import Swagger from 'swagger-client';
 
-import { makeSwaggerRequest, requestInterceptor, responseInterceptor } from './swaggerRequest';
+import { makeSwaggerRequest, makeSwaggerRequestRaw, requestInterceptor, responseInterceptor } from './swaggerRequest';
 
 let primeSimulatorClient = null;
 let primeSimulatorClientV2 = null;
@@ -235,4 +235,9 @@ export function createSITExtensionRequest({ mtoShipmentID, normalize = false, sc
     },
     { schemaKey, normalize },
   );
+}
+
+export async function downloadMoveOrder({ locator, type }) {
+  const client = await getPrimeSimulatorClient();
+  return makeSwaggerRequestRaw(client, 'moveTaskOrder.downloadMoveOrder', { locator, type });
 }

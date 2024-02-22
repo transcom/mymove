@@ -69,9 +69,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OfficeApproveMoveHandler: office.ApproveMoveHandlerFunc(func(params office.ApproveMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ApproveMove has not yet been implemented")
 		}),
-		OfficeApprovePPMHandler: office.ApprovePPMHandlerFunc(func(params office.ApprovePPMParams) middleware.Responder {
-			return middleware.NotImplemented("operation office.ApprovePPM has not yet been implemented")
-		}),
 		OfficeApproveReimbursementHandler: office.ApproveReimbursementHandlerFunc(func(params office.ApproveReimbursementParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ApproveReimbursement has not yet been implemented")
 		}),
@@ -313,8 +310,6 @@ type MymoveAPI struct {
 
 	// OfficeApproveMoveHandler sets the operation handler for the approve move operation
 	OfficeApproveMoveHandler office.ApproveMoveHandler
-	// OfficeApprovePPMHandler sets the operation handler for the approve p p m operation
-	OfficeApprovePPMHandler office.ApprovePPMHandler
 	// OfficeApproveReimbursementHandler sets the operation handler for the approve reimbursement operation
 	OfficeApproveReimbursementHandler office.ApproveReimbursementHandler
 	// FeatureFlagsBooleanFeatureFlagForUserHandler sets the operation handler for the boolean feature flag for user operation
@@ -528,9 +523,6 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.OfficeApproveMoveHandler == nil {
 		unregistered = append(unregistered, "office.ApproveMoveHandler")
-	}
-	if o.OfficeApprovePPMHandler == nil {
-		unregistered = append(unregistered, "office.ApprovePPMHandler")
 	}
 	if o.OfficeApproveReimbursementHandler == nil {
 		unregistered = append(unregistered, "office.ApproveReimbursementHandler")
@@ -820,10 +812,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/moves/{moveId}/approve"] = office.NewApproveMove(o.context, o.OfficeApproveMoveHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/personally_procured_moves/{personallyProcuredMoveId}/approve"] = office.NewApprovePPM(o.context, o.OfficeApprovePPMHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

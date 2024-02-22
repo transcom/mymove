@@ -8,7 +8,7 @@ x-default-logging: &logging
 
 services:
   flipt:
-    image: flipt/flipt:v1.26.1
+    image: flipt/flipt:v1.36.0
     container_name: flipt
     restart: unless-stopped
     volumes:
