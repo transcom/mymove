@@ -629,18 +629,6 @@ func officeUserFindsMoveCompletesStoragePanel(appCtx appcontext.AppContext, user
 	if err != nil {
 		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
 	}
-	err = ppmStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
-	}
-	err = ppmStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
-	}
-	err = ppmStorage.Move.PersonallyProcuredMoves[0].RequestPayment()
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to request payment: %w", err))
-	}
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppmStorage.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -695,18 +683,6 @@ func officeUserFindsMoveCancelsStoragePanel(appCtx appcontext.AppContext, userUp
 	err = moveRouter.Approve(appCtx, &ppmNoStorage.Move)
 	if err != nil {
 		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
-	}
-	err = ppmNoStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
-	}
-	err = ppmNoStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
-	}
-	err = ppmNoStorage.Move.PersonallyProcuredMoves[0].RequestPayment()
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to request payment: %w", err))
 	}
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppmNoStorage.Move)
 	if err != nil || verrs.HasAny() {
@@ -883,18 +859,6 @@ func serviceMemberWithPPMMoveWithPaymentRequested01(appCtx appcontext.AppContext
 		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
 	}
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
-	err = ppm2.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
-	}
-	err = ppm2.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
-	}
-	err = ppm2.Move.PersonallyProcuredMoves[0].RequestPayment()
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to request payment: %w", err))
-	}
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppm2.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -964,18 +928,6 @@ func serviceMemberWithPPMMoveWithPaymentRequested02(appCtx appcontext.AppContext
 		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
 	}
 	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies
-	err = ppm3.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
-	}
-	err = ppm3.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
-	}
-	err = ppm3.Move.PersonallyProcuredMoves[0].RequestPayment()
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to request payment: %w", err))
-	}
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppm3.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -1075,7 +1027,7 @@ func serviceMemberWithOrdersAndAMoveNoMoveType(appCtx appcontext.AppContext) {
 
 }
 
-func serviceMemberWithOrdersAndAMovePPMandHHG(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+func serviceMemberWithOrdersAndAMovePPMandHHG(appCtx appcontext.AppContext, moveRouter services.MoveRouter) {
 	email := "combo@ppm.hhg"
 	uuidStr := "6016e423-f8d5-44ca-98a8-af03c8445c94"
 	oktaID := uuid.Must(uuid.NewV4())
@@ -1174,17 +1126,6 @@ func serviceMemberWithOrdersAndAMovePPMandHHG(appCtx appcontext.AppContext, user
 		},
 	}, nil)
 
-	ppm := testdatagen.MakePPM(appCtx.DB(), testdatagen.Assertions{
-		ServiceMember: move.Orders.ServiceMember,
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			OriginalMoveDate: &nextValidMoveDate,
-			Move:             move,
-			MoveID:           move.ID,
-		},
-		UserUploader: userUploader,
-	})
-
-	move.PersonallyProcuredMoves = models.PersonallyProcuredMoves{ppm}
 	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
 		{
 			Model:    move,
@@ -1534,14 +1475,6 @@ func serviceMemberWithPPMReadyToRequestPayment01(appCtx appcontext.AppContext, u
 	if err != nil {
 		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
 	}
-	err = ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
-	}
-	err = ppm6.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
-	}
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppm6.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -1604,14 +1537,6 @@ func serviceMemberWithPPMReadyToRequestPayment02(appCtx appcontext.AppContext, u
 		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
 	}
 	err = moveRouter.Approve(appCtx, &ppm7.Move)
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
-	}
-	err = ppm7.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
-	}
-	err = ppm7.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	if err != nil {
 		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
 	}
@@ -1681,14 +1606,6 @@ func serviceMemberWithPPMReadyToRequestPayment03(appCtx appcontext.AppContext, u
 		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
 	}
 	// This is the same PPM model as ppm5, but this is the one that will be saved by SaveMoveDependencies
-	err = ppm5.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
-	}
-	err = ppm5.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
-	}
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppm5.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -1755,14 +1672,6 @@ func serviceMemberWithPPMApprovedNotInProgress(appCtx appcontext.AppContext, use
 		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
 	}
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
-	err = ppmApproved.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to submit move: %w", err))
-	}
-	err = ppmApproved.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	if err != nil {
-		log.Panic(fmt.Errorf("Failed to approve move: %w", err))
-	}
 	verrs, err := models.SaveMoveDependencies(appCtx.DB(), &ppmApproved.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -5348,7 +5257,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	serviceMemberWithPPMMoveWithPaymentRequested02(appCtx, userUploader, moveRouter)
 	aCanceledPPMMove(appCtx, userUploader, moveRouter)
 	serviceMemberWithOrdersAndAMoveNoMoveType(appCtx)
-	serviceMemberWithOrdersAndAMovePPMandHHG(appCtx, userUploader, moveRouter)
+	serviceMemberWithOrdersAndAMovePPMandHHG(appCtx, moveRouter)
 	serviceMemberWithUnsubmittedHHG(appCtx)
 	serviceMemberWithNTSandNTSRandUnsubmittedMove01(appCtx)
 	serviceMemberWithNTSandNTSRandUnsubmittedMove02(appCtx)

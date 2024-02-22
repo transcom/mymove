@@ -202,6 +202,7 @@ describe('Orders page', () => {
       expect(screen.getByTestId('hhgSacInput')).toHaveValue('E2P3');
       expect(screen.getByTestId('ntsTacInput')).toHaveValue('1111');
       expect(screen.getByTestId('ntsSacInput')).toHaveValue('R6X1');
+      expect(screen.getByTestId('payGradeInput')).toHaveValue('E_1');
     });
   });
 
