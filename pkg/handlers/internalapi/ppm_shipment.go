@@ -285,7 +285,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params ppmops.ShowShipmentSu
 
 			page1Data, page2Data := h.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
 
-			SSWPPMWorksheet, SSWPDFInfo, err := h.SSWPPMGenerator.FillSSWPDFForm(page1Data, page2Data, appCtx)
+			SSWPPMWorksheet, SSWPDFInfo, err := h.SSWPPMGenerator.FillSSWPDFForm(page1Data, page2Data)
 			if err != nil {
 				return nil, err
 			}
