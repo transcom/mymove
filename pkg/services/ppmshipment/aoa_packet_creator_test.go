@@ -13,6 +13,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -23,6 +24,86 @@ import (
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/uploader"
 )
+
+func (suite *PPMShipmentSuite) TestVerifyAOAPacketSuccess() {
+
+	mockSSWPPMGenerator := &mocks.SSWPPMGenerator{}
+	mockSSWPPMComputer := &mocks.SSWPPMComputer{}
+	mockPrimeDownloadMoveUploadPDFGenerator := &mocks.PrimeDownloadMoveUploadPDFGenerator{}
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, 25*uploader.MB)
+	suite.FatalNoError(uploaderErr)
+
+	// Create an instance of aoaPacketCreator with mock dependencies
+	a := &aoaPacketCreator{
+		SSWPPMGenerator:                     mockSSWPPMGenerator,
+		SSWPPMComputer:                      mockSSWPPMComputer,
+		PrimeDownloadMoveUploadPDFGenerator: mockPrimeDownloadMoveUploadPDFGenerator,
+		UserUploader:                        *userUploader,
+	}
+	// Set up service member ID to verify
+	serviceMemberID, err := uuid.NewV4()
+	suite.FatalNoError(err)
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID: serviceMemberID,
+			},
+		},
+	}, nil)
+	// Copy ID to session for passing test
+	appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+		ServiceMemberID: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.ID,
+	})
+	ppmShipmentID := ppmShipment.ID
+	suite.MustSave(&ppmShipment)
+
+	err = a.VerifyAOAPacketInternal(appCtx, ppmShipmentID)
+	suite.Nil(err)
+
+}
+
+func (suite *PPMShipmentSuite) TestVerifyAOAPacketFail() {
+
+	mockSSWPPMGenerator := &mocks.SSWPPMGenerator{}
+	mockSSWPPMComputer := &mocks.SSWPPMComputer{}
+	mockPrimeDownloadMoveUploadPDFGenerator := &mocks.PrimeDownloadMoveUploadPDFGenerator{}
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, 25*uploader.MB)
+	suite.FatalNoError(uploaderErr)
+
+	// Create an instance of aoaPacketCreator with mock dependencies
+	a := &aoaPacketCreator{
+		SSWPPMGenerator:                     mockSSWPPMGenerator,
+		SSWPPMComputer:                      mockSSWPPMComputer,
+		PrimeDownloadMoveUploadPDFGenerator: mockPrimeDownloadMoveUploadPDFGenerator,
+		UserUploader:                        *userUploader,
+	}
+	// Set up service member ID to verify
+	serviceMemberID, err := uuid.NewV4()
+	suite.FatalNoError(err)
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID: serviceMemberID,
+			},
+		},
+	}, nil)
+
+	// Ensure appcontext id is different than service member id
+	differentID, err := uuid.NewV4()
+	suite.FatalNoError(err)
+
+	appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+		ServiceMemberID: differentID,
+	})
+	ppmShipmentID := ppmShipment.ID
+	suite.MustSave(&ppmShipment)
+
+	err = a.VerifyAOAPacketInternal(appCtx, ppmShipmentID)
+	suite.Error(err)
+
+}
 
 func (suite *PPMShipmentSuite) TestCreateAOAPacketNotFound() {
 	mockSSWPPMGenerator := &mocks.SSWPPMGenerator{}

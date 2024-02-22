@@ -266,9 +266,29 @@ func (h showAOAPacketHandler) Handle(params ppmops.ShowAOAPacketParams) middlewa
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			logger := appCtx.Logger()
 
+			// Ensures session
+			if appCtx.Session() == nil {
+				noSessionErr := apperror.NewSessionError("No user session")
+				return ppmops.NewShowAOAPacketForbidden(), noSessionErr
+			}
+			// Ensures service member ID is present
+			if !appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil {
+				noServiceMemberIDErr := apperror.NewSessionError("No service member ID")
+				return ppmops.NewShowAOAPacketForbidden(), noServiceMemberIDErr
+			}
+
 			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID)
 			if err != nil {
 				err := apperror.NewBadDataError("missing/empty required URI parameter: PPMShipmentID")
+				appCtx.Logger().Error(err.Error())
+				return ppmops.NewShowAOAPacketBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
+					err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+
+			// Ensures AOA is for the accessing member
+			err = h.VerifyAOAPacketInternal(appCtx, ppmShipmentID)
+			if err != nil {
+				err := apperror.NewBadDataError("PPMShipment cannot be verified")
 				appCtx.Logger().Error(err.Error())
 				return ppmops.NewShowAOAPacketBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
 					err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err

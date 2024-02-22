@@ -997,6 +997,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 			AOAPacketCreator: &mockAOAPacketCreator,
 		}
 
+		mockAOAPacketCreator.On("VerifyAOAPacketInternal", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil)
 		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, nil)
 
 		// make the request
@@ -1015,7 +1016,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 		suite.Assertions.IsType(&ppmops.ShowAOAPacketOK{}, showAOAPacketResponse)
 	})
 
-	suite.Run("Successful ShowAOAPacketHandler - error generating PDF - 500", func() {
+	suite.Run("Unsuccessful ShowAOAPacketHandler - error generating PDF - 500", func() {
 		mockSSWPPMComputer := mocks.SSWPPMComputer{}
 		mockSSWPPMGenerator := mocks.SSWPPMGenerator{}
 		mockAOAPacketCreator := mocks.AOAPacketCreator{}
@@ -1032,6 +1033,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 			AOAPacketCreator: &mockAOAPacketCreator,
 		}
 
+		mockAOAPacketCreator.On("VerifyAOAPacketInternal", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil)
 		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, errors.New("Mock error"))
 
 		// make the request
@@ -1049,7 +1051,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 		suite.Assertions.IsType(&ppmops.ShowAOAPacketInternalServerError{}, showAOAPacketResponse)
 	})
 
-	suite.Run("Successful ShowAOAPacketHandler - Missing/empty/incorrect PPMShipmentId - 400", func() {
+	suite.Run("Unsuccessful ShowAOAPacketHandler - PPMShipmentId Not Accessible by Service Member - 400", func() {
 		mockSSWPPMComputer := mocks.SSWPPMComputer{}
 		mockSSWPPMGenerator := mocks.SSWPPMGenerator{}
 		mockAOAPacketCreator := mocks.AOAPacketCreator{}
@@ -1062,6 +1064,37 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 			AOAPacketCreator: &mockAOAPacketCreator,
 		}
 
+		mockAOAPacketCreator.On("VerifyAOAPacketInternal", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(errors.New("Mock error"))
+
+		// make the request
+		requestUser := factory.BuildUser(nil, nil, nil)
+		ppmshipmentid := ""
+		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/order/download", ppmshipmentid), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := ppmops.ShowAOAPacketParams{
+			HTTPRequest:   request,
+			PpmShipmentID: ppmshipmentid,
+		}
+		response := handler.Handle(params)
+		showAOAPacketResponse := response.(*ppmops.ShowAOAPacketBadRequest)
+
+		suite.Assertions.IsType(&ppmops.ShowAOAPacketBadRequest{}, showAOAPacketResponse)
+	})
+
+	suite.Run("Unsuccessful ShowAOAPacketHandler - Missing/empty/incorrect PPMShipmentId - 400", func() {
+		mockSSWPPMComputer := mocks.SSWPPMComputer{}
+		mockSSWPPMGenerator := mocks.SSWPPMGenerator{}
+		mockAOAPacketCreator := mocks.AOAPacketCreator{}
+
+		handlerConfig := suite.HandlerConfig()
+		handler := showAOAPacketHandler{
+			HandlerConfig:    handlerConfig,
+			SSWPPMComputer:   &mockSSWPPMComputer,
+			SSWPPMGenerator:  &mockSSWPPMGenerator,
+			AOAPacketCreator: &mockAOAPacketCreator,
+		}
+
+		mockAOAPacketCreator.On("VerifyAOAPacketInternal", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil)
 		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, errors.New("Mock error"))
 
 		// make the request
@@ -1078,4 +1111,5 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 
 		suite.Assertions.IsType(&ppmops.ShowAOAPacketBadRequest{}, showAOAPacketResponse)
 	})
+
 }
