@@ -3928,6 +3928,11 @@ func init() {
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "sitDeliveryMiles": {
+          "description": "The delivery distance between two SIT addresses.",
+          "type": "integer",
+          "example": 75
+        },
         "sitOriginalAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -9030,6 +9035,12 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "sitDeliveryMiles": {
+          "description": "The delivery distance between two SIT addresses.",
+          "type": "integer",
+          "minimum": 0,
+          "example": 75
         },
         "sitOriginalAddress": {
           "$ref": "#/definitions/Address"

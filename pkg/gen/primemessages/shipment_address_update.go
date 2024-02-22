@@ -65,6 +65,11 @@ type ShipmentAddressUpdate struct {
 	// Format: uuid
 	ShipmentID strfmt.UUID `json:"shipmentID"`
 
+	// The delivery distance between two SIT addresses.
+	// Example: 75
+	// Minimum: 0
+	SitDeliveryMiles *int64 `json:"sitDeliveryMiles,omitempty"`
+
 	// sit original address
 	SitOriginalAddress *Address `json:"sitOriginalAddress,omitempty"`
 
@@ -102,6 +107,10 @@ func (m *ShipmentAddressUpdate) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateShipmentID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitDeliveryMiles(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -212,6 +221,18 @@ func (m *ShipmentAddressUpdate) validateShipmentID(formats strfmt.Registry) erro
 	}
 
 	if err := validate.FormatOf("shipmentID", "body", "uuid", m.ShipmentID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ShipmentAddressUpdate) validateSitDeliveryMiles(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitDeliveryMiles) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("sitDeliveryMiles", "body", *m.SitDeliveryMiles, 0, false); err != nil {
 		return err
 	}
 
