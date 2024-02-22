@@ -90,7 +90,7 @@ describe('when given an mto shipment update with mto shipment table history reco
       [FieldMappings.service_order_number, `${changedValues.service_order_number}`],
       [FieldMappings.uses_external_vendor, changedValues.uses_external_vendor],
       Object.values(retrieveTextToDisplay('distance', changedValues.distance)),
-      [FieldMappings.advance_amount_requested, toDollarString(changedValues.has_requested_advance)],
+      [FieldMappings.advance_amount_requested, toDollarString(formatCents(changedValues.advance_amount_requested))],
       [FieldMappings.destination_postal_code, changedValues.destination_postal_code],
       [FieldMappings.estimated_incentive, toDollarString(formatCents(changedValues.estimated_incentive))],
       [FieldMappings.estimated_weight, formatWeight(Number(changedValues.estimated_weight))],
@@ -104,14 +104,14 @@ describe('when given an mto shipment update with mto shipment table history reco
       [FieldMappings.spouse_pro_gear_weight, formatWeight(Number(changedValues.spouse_pro_gear_weight))],
     ])('displays the correct details value for %s', async (label, value) => {
       const targetItem = Object.fromEntries(
-        Object.entries(changedValues).filter(([key, value]) => FieldMappings[key] === label),
+        Object.entries(changedValues).filter(([key]) => FieldMappings[key] === label),
       );
       const history = { ...historyRecord, changedValues: { ...targetItem } };
       const result = getTemplate(history);
       // eslint-disable-next-line no-unused-vars
       const ren = render(result.getDetails(history));
       const displayingElements = screen.getAllByText(label);
-      const displayingElement = displayingElements.find((element) => element.parentElement.textContent.includes(value));
+      const displayingElement = displayingElements.find((element) => element.parentElement.textContent.includes(label));
       const parent = displayingElement.parentElement;
       expect(parent.textContent).toContain(label);
       expect(parent.textContent).toContain(value);
