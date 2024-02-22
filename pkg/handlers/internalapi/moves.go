@@ -154,15 +154,17 @@ func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*int
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		shipments := move.MTOShipments
 		var payloadShipments *internalmessages.MTOShipments = payloads.MTOShipments(storer, &shipments)
+		orders, _ := payloadForOrdersModel(storer, move.Orders)
+		moveID := *handlers.FmtUUID(move.ID)
 
 		currentMove := &internalmessages.InternalMove{
 			CreatedAt:    *handlers.FmtDateTime(move.CreatedAt),
 			ETag:         eTag,
-			ID:           *handlers.FmtUUID(move.ID),
+			ID:           moveID,
 			Status:       string(move.Status),
 			MtoShipments: *payloadShipments,
 			MoveCode:     move.Locator,
-			Orders:       move.Orders,
+			Orders:       orders,
 		}
 
 		convertedCurrentMovesList = append(convertedCurrentMovesList, currentMove)
