@@ -1,4 +1,5 @@
-import { getDefaultNormalizer, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import e from 'constants/MoveHistory/EventTemplates/UpdateMTOShipment/updateMTOShipment';
 import * as fieldDefault from 'constants/MoveHistory/Database/FieldMappings';
@@ -10,6 +11,7 @@ import {
   toDollarString,
 } from 'utils/formatters';
 import { retrieveTextToDisplay } from 'pages/Office/MoveHistory/LabeledDetails';
+
 const FieldMappings = fieldDefault.default;
 
 describe('when given an mto shipment update with mto shipment table history record', () => {
@@ -54,7 +56,7 @@ describe('when given an mto shipment update with mto shipment table history reco
     action: 'UPDATE',
     eventName: 'updateMTOShipment',
     tableName: 'mto_shipments',
-    changedValues: changedValues,
+    changedValues,
     context: [
       {
         shipment_type: 'PPM',
@@ -102,6 +104,7 @@ describe('when given an mto shipment update with mto shipment table history reco
       [FieldMappings.spouse_pro_gear_weight, formatWeight(Number(changedValues.spouse_pro_gear_weight))],
     ])('displays the correct details value for %s', async (label, value) => {
       const result = getTemplate(historyRecord);
+      // eslint-disable-next-line no-unused-vars
       const ren = render(result.getDetails(historyRecord));
       const displayingElements = screen.getAllByText(label);
       const displayingElement = displayingElements.find((element) => element.parentElement.textContent.includes(value));
