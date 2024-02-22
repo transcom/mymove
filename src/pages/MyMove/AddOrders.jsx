@@ -1,39 +1,33 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate } from 'react-router';
 
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import OrdersInfoForm from 'components/Customer/OrdersInfoForm/OrdersInfoForm';
-import { patchOrders, getResponseError, getOrders } from 'services/internalApi';
+import { getServiceMember, createOrders, getResponseError } from 'services/internalApi';
 import {
   updateOrders as updateOrdersAction,
   updateServiceMember as updateServiceMemberAction,
 } from 'store/entities/actions';
 import { withContext } from 'shared/AppContext';
 import { formatDateForSwagger } from 'shared/dates';
-import { formatYesNoInputValue, formatYesNoAPIValue, dropdownInputOptions } from 'utils/formatters';
+import { formatYesNoAPIValue, dropdownInputOptions } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
-import {
-  selectServiceMemberFromLoggedInUser,
-  selectCurrentOrders,
-  selectOrdersForLoggedInUser,
-} from 'store/entities/selectors';
-import { generalRoutes } from 'constants/routes';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { customerRoutes, generalRoutes } from 'constants/routes';
 import withRouter from 'utils/routing';
 
-const Orders = ({ context, serviceMemberId, updateOrders, orders }) => {
-  const [serverError, setServerError] = useState(null);
+const AddOrders = ({ context, serviceMemberId, updateServiceMember, updateOrders }) => {
+  const { serverError, setServerError } = useState(undefined);
   const navigate = useNavigate();
-  const { orderId } = useParams();
-  const currentOrders = orders.find((order) => order.id === orderId);
 
   const handleBack = () => {
     navigate(generalRoutes.HOME_PATH);
   };
 
   const handleNext = (id) => {
+    navigate(customerRoutes.ORDERS_UPLOAD_PATH);
     navigate(`/orders/upload/${id}`);
   };
 
@@ -51,14 +45,11 @@ const Orders = ({ context, serviceMemberId, updateOrders, orders }) => {
     };
 
     try {
-      if (currentOrders?.id) {
-        pendingValues.id = currentOrders.id;
-        await patchOrders(pendingValues);
-        await getOrders(currentOrders.id).then((response) => {
-          updateOrders(response);
-        });
-        handleNext(currentOrders.id);
-      }
+      const createdOrders = await createOrders(pendingValues);
+      updateOrders(createdOrders);
+      const updatedServiceMember = await getServiceMember(serviceMemberId);
+      updateServiceMember(updatedServiceMember);
+      handleNext(createdOrders.id);
     } catch (error) {
       const { response } = error;
       const errorMessage = getResponseError(response, 'failed to update/create orders due to server error');
@@ -67,14 +58,15 @@ const Orders = ({ context, serviceMemberId, updateOrders, orders }) => {
   };
 
   const initialValues = {
-    orders_type: currentOrders?.orders_type || '',
-    issue_date: currentOrders?.issue_date || '',
-    report_by_date: currentOrders?.report_by_date || '',
-    has_dependents: formatYesNoInputValue(currentOrders?.has_dependents),
-    new_duty_location: currentOrders?.new_duty_location || null,
-    grade: currentOrders?.grade || null,
-    origin_duty_location: currentOrders?.origin_duty_location || null,
+    orders_type: '',
+    issue_date: '',
+    report_by_date: '',
+    has_dependents: '',
+    new_duty_location: '',
+    grade: '',
+    origin_duty_location: '',
   };
+
   // Only allow PCS unless feature flag is on
   const showAllOrdersTypes = context.flags?.allOrdersTypes;
   const allowedOrdersTypes = showAllOrdersTypes
@@ -111,26 +103,11 @@ const Orders = ({ context, serviceMemberId, updateOrders, orders }) => {
   );
 };
 
-Orders.propTypes = {
-  context: PropTypes.shape({
-    flags: PropTypes.shape({
-      allOrdersTypes: PropTypes.bool,
-    }).isRequired,
-  }).isRequired,
-  serviceMemberId: PropTypes.string.isRequired,
-  updateOrders: PropTypes.func.isRequired,
-};
-
 const mapStateToProps = (state) => {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  const orders = selectOrdersForLoggedInUser(state);
-  const currentOrders = selectCurrentOrders(state);
 
   return {
     serviceMemberId: serviceMember?.id,
-    currentOrders,
-    orders,
-    currentDutyLocation: currentOrders?.origin_duty_location || {},
   };
 };
 
@@ -139,4 +116,4 @@ const mapDispatchToProps = {
   updateServiceMember: updateServiceMemberAction,
 };
 
-export default withContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(Orders)));
+export default withContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(AddOrders)));

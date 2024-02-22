@@ -148,6 +148,18 @@ export async function getOrdersForServiceMember(serviceMemberId) {
   );
 }
 
+export async function getOrders(ordersId) {
+  return makeInternalRequest(
+    'orders.showOrders',
+    {
+      ordersId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function createOrders(orders) {
   return makeInternalRequest(
     'orders.createOrders',
