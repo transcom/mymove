@@ -110,11 +110,9 @@ describe('when given an mto shipment update with mto shipment table history reco
       const result = getTemplate(history);
       // eslint-disable-next-line no-unused-vars
       const ren = render(result.getDetails(history));
-      ren.debug();
       const displayingElements = screen.getAllByText(label);
       const displayingElement = displayingElements.find((element) => element.parentElement.textContent.includes(value));
       const parent = displayingElement.parentElement;
-      ren.debug();
       expect(parent.textContent).toContain(label);
       expect(parent.textContent).toContain(value);
     });
