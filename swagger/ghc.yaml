@@ -6975,7 +6975,6 @@ definitions:
         example: '90210'
         pattern: ^(\d{5})$
       pickupAddress:
-        x-nullable: true
         $ref: '#/definitions/Address'
       secondaryPickupPostalCode:
         format: >-
@@ -6988,8 +6987,10 @@ definitions:
         x-nullable: true
         x-omitempty: false
       secondaryPickupAddress:
-        x-nullable: true
-        $ref: '#/definitions/Address'
+        allOf:
+          - $ref: '#/definitions/Address'
+          - x-nullable: true
+          - x-omitempty: false
       actualPickupPostalCode:
         description: >
           The actual postal code where the PPM shipment started. To be filled
@@ -7011,7 +7012,6 @@ definitions:
         example: '90210'
         pattern: ^(\d{5})$
       destinationAddress:
-        x-nullable: true
         $ref: '#/definitions/Address'
       secondaryDestinationPostalCode:
         description: >-
@@ -7025,8 +7025,10 @@ definitions:
         x-nullable: true
         x-omitempty: false
       secondaryDestinationAddress:
-        x-nullable: true
-        $ref: '#/definitions/Address'
+        allOf:
+          - $ref: '#/definitions/Address'
+          - x-nullable: true
+          - x-omitempty: false
       actualDestinationPostalCode:
         description: >
           The actual postal code where the PPM shipment ended. To be filled once

@@ -7761,7 +7761,6 @@ func init() {
           "readOnly": true
         },
         "destinationAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "destinationPostalCode": {
@@ -7837,7 +7836,6 @@ func init() {
           }
         },
         "pickupAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "pickupPostalCode": {
@@ -7869,8 +7867,17 @@ func init() {
           "x-omitempty": false
         },
         "secondaryDestinationAddress": {
-          "x-nullable": true,
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
         },
         "secondaryDestinationPostalCode": {
           "description": "An optional secondary location near the destination where goods will be dropped off.",
@@ -7883,8 +7890,17 @@ func init() {
           "example": "90210"
         },
         "secondaryPickupAddress": {
-          "x-nullable": true,
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
         },
         "secondaryPickupPostalCode": {
           "type": "string",
@@ -19347,7 +19363,6 @@ func init() {
           "readOnly": true
         },
         "destinationAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "destinationPostalCode": {
@@ -19423,7 +19438,6 @@ func init() {
           }
         },
         "pickupAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "pickupPostalCode": {
@@ -19455,8 +19469,17 @@ func init() {
           "x-omitempty": false
         },
         "secondaryDestinationAddress": {
-          "x-nullable": true,
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
         },
         "secondaryDestinationPostalCode": {
           "description": "An optional secondary location near the destination where goods will be dropped off.",
@@ -19469,8 +19492,17 @@ func init() {
           "example": "90210"
         },
         "secondaryPickupAddress": {
-          "x-nullable": true,
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
         },
         "secondaryPickupPostalCode": {
           "type": "string",

@@ -67,7 +67,6 @@ properties:
     example: '90210'
     pattern: ^(\d{5})$
   pickupAddress:
-    x-nullable: true
     $ref: 'Address.yaml'
   secondaryPickupPostalCode:
     format: An optional secondary pickup location near the origin where additional goods exist.
@@ -78,8 +77,10 @@ properties:
     x-nullable: true
     x-omitempty: false
   secondaryPickupAddress:
-    x-nullable: true
-    $ref: 'Address.yaml'
+    allOf:
+      - $ref: 'Address.yaml'
+      - x-nullable: true
+      - x-omitempty: false
   actualPickupPostalCode:
     description: >
       The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.
@@ -98,7 +99,6 @@ properties:
     example: '90210'
     pattern: ^(\d{5})$
   destinationAddress:
-    x-nullable: true
     $ref: 'Address.yaml'
   secondaryDestinationPostalCode:
     description: An optional secondary location near the destination where goods will be dropped off.
@@ -110,8 +110,10 @@ properties:
     x-nullable: true
     x-omitempty: false
   secondaryDestinationAddress:
-    x-nullable: true
-    $ref: 'Address.yaml'
+    allOf:
+      - $ref: 'Address.yaml'
+      - x-nullable: true
+      - x-omitempty: false
   actualDestinationPostalCode:
     description: >
       The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.
