@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { generatePath, useNavigate, Navigate, useParams } from 'react-router-dom';
 
 import styles from './ServicesCounselingQueue.module.scss';
@@ -16,12 +16,20 @@ import {
   SERVICE_COUNSELING_PPM_TYPE_LABELS,
 } from 'constants/queues';
 import { servicesCounselingRoutes } from 'constants/routes';
-import { useServicesCounselingQueueQueries, useServicesCounselingQueuePPMQueries, useUserQueries } from 'hooks/queries';
+import {
+  useServicesCounselingQueueQueries,
+  useServicesCounselingQueuePPMQueries,
+  useUserQueries,
+  useQAECSRMoveSearchQueries,
+} from 'hooks/queries';
 import { DATE_FORMAT_STRING } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import NotFound from 'components/NotFound/NotFound';
+import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
+import { roleTypes } from 'constants/userRoles';
+import SearchResultsTable from 'components/Table/SearchResultsTable';
 
 const counselingColumns = () => [
   createHeader('ID', 'id'),
@@ -187,6 +195,28 @@ const ServicesCounselingQueue = () => {
     navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
   };
 
+  const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
+  const [searchHappened, setSearchHappened] = useState(false);
+
+  const onSubmit = useCallback((values) => {
+    const payload = {
+      moveCode: null,
+      dodID: null,
+      customerName: null,
+    };
+
+    if (values.searchType === 'moveCode') {
+      payload.moveCode = values.searchText;
+    } else if (values.searchType === 'dodID') {
+      payload.dodID = values.searchText;
+    } else if (values.searchType === 'customerName') {
+      payload.customerName = values.searchText;
+    }
+
+    setSearch(payload);
+    setSearchHappened(true);
+  }, []);
+
   // If the office user is in a closeout GBLOC and on the closeout tab, then we will want to disable
   // the column filter for the closeout location column because it will have no effect.
   const officeUserGBLOC = data?.office_user?.transportation_office?.gbloc;
@@ -198,6 +228,46 @@ const ServicesCounselingQueue = () => {
       <Navigate to={servicesCounselingRoutes.BASE_QUEUE_CLOSEOUT_PATH} />
     ) : (
       <Navigate to={servicesCounselingRoutes.BASE_QUEUE_COUNSELING_PATH} />
+    );
+  }
+
+  if (queueType === 'Search') {
+    return (
+      <div data-testid="move-search" className={styles.ServicesCounselingQueue}>
+        <h1>Search for a move</h1>
+        <MoveSearchForm onSubmit={onSubmit} role={roleTypes.SERVICES_COUNSELOR} />
+        {searchHappened && (
+          // <TableQueue
+          //   className={styles.ServicesCounseling}
+          //   showTabs
+          //   showFilters
+          //   showPagination
+          //   manualSortBy
+          //   defaultCanSort
+          //   defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
+          //   disableMultiSort
+          //   disableSortBy={false}
+          //   columns={counselingColumns()}
+          //   title="Moves"
+          //   handleClick={handleClick}
+          //   useQueries={useQAECSRMoveSearchQueries}
+          // />
+          <SearchResultsTable
+            showTabs
+            showFilters
+            showPagination
+            defaultCanSort
+            disableMultiSort
+            disableSortBy={false}
+            title="Results"
+            handleClick={handleClick}
+            useQueries={useQAECSRMoveSearchQueries}
+            moveCode={search.moveCode}
+            dodID={search.dodID}
+            customerName={search.customerName}
+          />
+        )}
+      </div>
     );
   }
 

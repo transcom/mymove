@@ -53,6 +53,8 @@ export const servicesCounselingRoutes = {
   BASE_QUEUE_COUNSELING_PATH: '/counseling',
   QUEUE_CLOSEOUT_PATH: 'PPM-closeout',
   BASE_QUEUE_CLOSEOUT_PATH: '/PPM-closeout',
+  QUEUE_SEARCH_PATH: 'Search',
+  BASE_QUEUE_SEARCH_PATH: '/Search',
   BASE_COUNSELING_MOVE_PATH,
   BASE_ALLOWANCES_EDIT_PATH: `${BASE_COUNSELING_MOVE_PATH}/allowances`,
   ALLOWANCES_EDIT_PATH: 'allowances',
