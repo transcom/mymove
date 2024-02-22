@@ -204,6 +204,22 @@ describe('Shipment Container', () => {
       expect(screen.getByText('PPM')).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Review documents' })).toBeInTheDocument();
     });
+    it('renders aoa packet link when approved', () => {
+      render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <ShipmentDisplay
+            displayInfo={{ ...ppmInfo }}
+            ordersLOA={ordersLOA}
+            shipmentType={SHIPMENT_OPTIONS.PPM}
+            isSubmitted
+            allowApproval={false}
+            warnIfMissing={['counselorRemarks']}
+            reviewURL="/"
+          />
+        </MockProviders>,
+      );
+      expect(screen.getByTestId('aoaPacketDownload')).toBeInTheDocument();
+    });
     describe("renders the 'packet ready for download' tag when", () => {
       it('approved', () => {
         render(
