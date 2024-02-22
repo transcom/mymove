@@ -103,12 +103,18 @@ describe('when given an mto shipment update with mto shipment table history reco
       [FieldMappings.sit_estimated_weight, formatWeight(Number(changedValues.sit_estimated_weight))],
       [FieldMappings.spouse_pro_gear_weight, formatWeight(Number(changedValues.spouse_pro_gear_weight))],
     ])('displays the correct details value for %s', async (label, value) => {
-      const result = getTemplate(historyRecord);
+      const targetItem = Object.fromEntries(
+        Object.entries(changedValues).filter(([key, value]) => FieldMappings[key] === label),
+      );
+      const history = { ...historyRecord, changedValues: { ...targetItem } };
+      const result = getTemplate(history);
       // eslint-disable-next-line no-unused-vars
-      const ren = render(result.getDetails(historyRecord));
+      const ren = render(result.getDetails(history));
+      ren.debug();
       const displayingElements = screen.getAllByText(label);
       const displayingElement = displayingElements.find((element) => element.parentElement.textContent.includes(value));
       const parent = displayingElement.parentElement;
+      ren.debug();
       expect(parent.textContent).toContain(label);
       expect(parent.textContent).toContain(value);
     });
