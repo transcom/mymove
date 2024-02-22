@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useNavigate } from 'react-router';
+import { connect } from 'react-redux';
 
 import styles from './MultiMovesLandingPage.module.scss';
 import MultiMovesMoveHeader from './MultiMovesMoveHeader/MultiMovesMoveHeader';
@@ -94,7 +96,7 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves }) => {
             </Helper>
           )}
           <div className={styles.centeredContainer}>
-            <Button className={styles.createMoveBtn}>
+            <Button className={styles.createMoveBtn} onClick={handleCreateMoveBtnClick} data-testid="createMoveBtn">
               <span>Create a Move</span>
               <div>
                 <FontAwesomeIcon icon="plus" />
@@ -140,7 +142,7 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves }) => {
         </div>
       </div>
     </div>
-  );
+  ) : null;
 };
 
 MultiMovesLandingPage.defaultProps = {

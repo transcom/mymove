@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect'; // For expect assertions
+import '@testing-library/jest-dom/extend-expect';
 
 import MultiMovesMoveInfoList from './MultiMovesMoveInfoList';
 

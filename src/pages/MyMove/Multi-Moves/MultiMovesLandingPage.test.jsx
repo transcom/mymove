@@ -1,7 +1,9 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { v4 } from 'uuid';
 
-import '@testing-library/jest-dom/extend-expect'; // For additional matchers like toBeInTheDocument
+import '@testing-library/jest-dom/extend-expect';
+
 import MultiMovesLandingPage from './MultiMovesLandingPage';
 
 import { MockProviders } from 'testUtils';
@@ -177,8 +179,12 @@ const defaultProps = {
 };
 
 describe('MultiMovesLandingPage', () => {
-  it('renders the component with retirement moves', () => {
-    render(<MultiMovesLandingPage />);
+  it('renders the component with moves', () => {
+    render(
+      <MockProviders>
+        <MultiMovesLandingPage {...defaultProps} />
+      </MockProviders>,
+    );
 
     // Check for specific elements
     expect(screen.getByTestId('customerHeader')).toBeInTheDocument();
