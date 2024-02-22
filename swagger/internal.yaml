@@ -2374,6 +2374,9 @@ definitions:
         type: string
       orders:
         type: object
+      status:
+        type: string
+        readOnly: true
       updatedAt:
         format: date-time
         type: string

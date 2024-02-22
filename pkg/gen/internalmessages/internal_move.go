@@ -49,6 +49,10 @@ type InternalMove struct {
 	// orders
 	Orders interface{} `json:"orders,omitempty"`
 
+	// status
+	// Read Only: true
+	Status string `json:"status,omitempty"`
+
 	// updated at
 	// Read Only: true
 	// Format: date-time
@@ -170,6 +174,10 @@ func (m *InternalMove) ContextValidate(ctx context.Context, formats strfmt.Regis
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -215,6 +223,15 @@ func (m *InternalMove) contextValidateMtoShipments(ctx context.Context, formats 
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("mtoShipments")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *InternalMove) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "status", "body", string(m.Status)); err != nil {
 		return err
 	}
 
