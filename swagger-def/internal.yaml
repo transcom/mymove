@@ -2418,6 +2418,10 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+      submittedAt:
+        format: date-time
+        type: string
+        readOnly: true
       mtoShipments:
         $ref: '#/definitions/MTOShipments'
       eTag:
