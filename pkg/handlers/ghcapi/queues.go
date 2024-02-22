@@ -52,6 +52,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				PerPage:                 params.PerPage,
 				Sort:                    params.Sort,
 				Order:                   params.Order,
+				OrderType:               params.OrderType,
 			}
 
 			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
@@ -172,6 +173,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				Sort:                    params.Sort,
 				Order:                   params.Order,
 				OriginDutyLocation:      params.OriginDutyLocation,
+				OrderType:               params.OrderType,
 			}
 
 			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20

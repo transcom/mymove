@@ -3501,6 +3501,11 @@ func init() {
             "type": "string",
             "name": "moveCode",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "orderType",
+            "in": "query"
           }
         ],
         "responses": {
@@ -8509,6 +8514,10 @@ func init() {
         "moveID": {
           "type": "string",
           "format": "uuid"
+        },
+        "orderType": {
+          "type": "string",
+          "x-nullable": true
         },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
@@ -14763,6 +14772,11 @@ func init() {
             "type": "string",
             "name": "moveCode",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "orderType",
+            "in": "query"
           }
         ],
         "responses": {
@@ -20104,6 +20118,10 @@ func init() {
         "moveID": {
           "type": "string",
           "format": "uuid"
+        },
+        "orderType": {
+          "type": "string",
+          "x-nullable": true
         },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"

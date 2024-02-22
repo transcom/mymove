@@ -2852,6 +2852,9 @@ paths:
         - in: query
           name: moveCode
           type: string
+        - in: query
+          name: orderType
+          type: string
       responses:
         '200':
           description: Successfully retrieved moves. A successful fetch might still return zero moves.
@@ -4969,6 +4972,9 @@ definitions:
         $ref: '#/definitions/GBLOC'
       originDutyLocation:
         $ref: 'definitions/DutyLocation.yaml'
+      orderType:
+        type: string
+        x-nullable: true
   QueuePaymentRequests:
     type: array
     items:

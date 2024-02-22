@@ -2954,6 +2954,9 @@ paths:
         - in: query
           name: moveCode
           type: string
+        - in: query
+          name: orderType
+          type: string
       responses:
         '200':
           description: >-
@@ -5167,6 +5170,9 @@ definitions:
         $ref: '#/definitions/GBLOC'
       originDutyLocation:
         $ref: '#/definitions/DutyLocation'
+      orderType:
+        type: string
+        x-nullable: true
   QueuePaymentRequests:
     type: array
     items:

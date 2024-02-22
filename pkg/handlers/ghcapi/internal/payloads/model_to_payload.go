@@ -1775,6 +1775,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			Locator:            moveTaskOrder.Locator,
 			OriginGBLOC:        gbloc,
 			OriginDutyLocation: DutyLocation(orders.OriginDutyLocation),
+			OrderType:          (*string)(orders.OrdersType.Pointer()),
 		}
 
 		if orders.DepartmentIndicator != nil {
