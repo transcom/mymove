@@ -150,4 +150,3 @@ const MultiMovesMoveContainer = ({ moves }) => {
 };
 
 export default MultiMovesMoveContainer;
-
