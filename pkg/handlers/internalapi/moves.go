@@ -23,10 +23,78 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/paperwork"
-	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 )
+
+func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models.PersonallyProcuredMove) (*internalmessages.PersonallyProcuredMovePayload, error) {
+
+	documentPayload, err := payloads.PayloadForDocumentModel(storer, personallyProcuredMove.AdvanceWorksheet)
+	var hasProGear *string
+	if personallyProcuredMove.HasProGear != nil {
+		hpg := string(*personallyProcuredMove.HasProGear)
+		hasProGear = &hpg
+	}
+	var hasProGearOverThousand *string
+	if personallyProcuredMove.HasProGearOverThousand != nil {
+		hpgot := string(*personallyProcuredMove.HasProGearOverThousand)
+		hasProGearOverThousand = &hpgot
+	}
+	if err != nil {
+		return nil, err
+	}
+	ppmPayload := internalmessages.PersonallyProcuredMovePayload{
+		ID:                            handlers.FmtUUID(personallyProcuredMove.ID),
+		MoveID:                        *handlers.FmtUUID(personallyProcuredMove.MoveID),
+		CreatedAt:                     handlers.FmtDateTime(personallyProcuredMove.CreatedAt),
+		UpdatedAt:                     handlers.FmtDateTime(personallyProcuredMove.UpdatedAt),
+		WeightEstimate:                handlers.FmtPoundPtr(personallyProcuredMove.WeightEstimate),
+		OriginalMoveDate:              handlers.FmtDatePtr(personallyProcuredMove.OriginalMoveDate),
+		ActualMoveDate:                handlers.FmtDatePtr(personallyProcuredMove.ActualMoveDate),
+		SubmitDate:                    handlers.FmtDateTimePtr(personallyProcuredMove.SubmitDate),
+		ApproveDate:                   handlers.FmtDateTimePtr(personallyProcuredMove.ApproveDate),
+		PickupPostalCode:              personallyProcuredMove.PickupPostalCode,
+		HasAdditionalPostalCode:       personallyProcuredMove.HasAdditionalPostalCode,
+		AdditionalPickupPostalCode:    personallyProcuredMove.AdditionalPickupPostalCode,
+		DestinationPostalCode:         personallyProcuredMove.DestinationPostalCode,
+		HasSit:                        personallyProcuredMove.HasSit,
+		DaysInStorage:                 personallyProcuredMove.DaysInStorage,
+		EstimatedStorageReimbursement: personallyProcuredMove.EstimatedStorageReimbursement,
+		Status:                        internalmessages.PPMStatus(personallyProcuredMove.Status),
+		HasRequestedAdvance:           &personallyProcuredMove.HasRequestedAdvance,
+		Advance:                       payloadForReimbursementModel(personallyProcuredMove.Advance),
+		AdvanceWorksheet:              documentPayload,
+		Mileage:                       personallyProcuredMove.Mileage,
+		TotalSitCost:                  handlers.FmtCost(personallyProcuredMove.TotalSITCost),
+		HasProGear:                    hasProGear,
+		HasProGearOverThousand:        hasProGearOverThousand,
+	}
+	if personallyProcuredMove.IncentiveEstimateMin != nil {
+		min := (*personallyProcuredMove.IncentiveEstimateMin).Int64()
+		ppmPayload.IncentiveEstimateMin = &min
+	}
+	if personallyProcuredMove.IncentiveEstimateMax != nil {
+		max := (*personallyProcuredMove.IncentiveEstimateMax).Int64()
+		ppmPayload.IncentiveEstimateMax = &max
+	}
+	if personallyProcuredMove.PlannedSITMax != nil {
+		max := (*personallyProcuredMove.PlannedSITMax).Int64()
+		ppmPayload.PlannedSitMax = &max
+	}
+	if personallyProcuredMove.SITMax != nil {
+		max := (*personallyProcuredMove.SITMax).Int64()
+		ppmPayload.SitMax = &max
+	}
+	if personallyProcuredMove.HasProGear != nil {
+		hasProGear := string(*personallyProcuredMove.HasProGear)
+		ppmPayload.HasProGear = &hasProGear
+	}
+	if personallyProcuredMove.HasProGearOverThousand != nil {
+		hasProGearOverThousand := string(*personallyProcuredMove.HasProGearOverThousand)
+		ppmPayload.HasProGearOverThousand = &hasProGearOverThousand
+	}
+	return &ppmPayload, nil
+}
 
 func payloadForMoveModel(storer storage.FileStorer, order models.Order, move models.Move) (*internalmessages.MovePayload, error) {
 
@@ -211,33 +279,37 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSummaryWorksheetParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			logger := appCtx.Logger()
 
-			moveID, _ := uuid.FromString(params.MoveID.String())
-
-			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
 			if err != nil {
+				logger.Error("Error fetching PPMShipment", zap.Error(err))
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
 
-			ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(*move))
+			ppmShipment, err := models.FetchPPMShipmentByPPMShipmentID(appCtx.DB(), ppmShipmentID)
+			if err != nil {
+				logger.Error("Error fetching PPMShipment", zap.Error(err))
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
 
-			ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(appCtx.DB(), appCtx.Session(), moveID)
+			ssfd, err := h.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipment.ID)
 			if err != nil {
 				logger.Error("Error fetching data for SSW", zap.Error(err))
 				return handlers.ResponseForError(logger, err), err
 			}
 
 			ssfd.PreparationDate = time.Time(params.PreparationDate)
-			ssfd.Obligations, err = ppmComputer.ComputeObligations(appCtx, ssfd, h.DTODPlanner())
+			ssfd.Obligations, err = h.SSWPPMComputer.ComputeObligations(appCtx, *ssfd, h.DTODPlanner())
 			if err != nil {
 				logger.Error("Error calculating obligations ", zap.Error(err))
 				return handlers.ResponseForError(logger, err), err
 			}
 
-			page1Data, page2Data, page3Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)
+			page1Data, page2Data, page3Data := h.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
 
 			if err != nil {
+				logger.Error("Error formatting data for SSW", zap.Error(err))
 				return handlers.ResponseForError(logger, err), err
 			}
 
@@ -308,6 +380,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 // ShowShipmentSummaryWorksheetHandler returns a Shipment Summary Worksheet PDF
 type ShowShipmentSummaryWorksheetHandler struct {
 	handlers.HandlerConfig
+	services.SSWPPMComputer
 }
 
 // SubmitAmendedOrdersHandler approves a move via POST /moves/{moveId}/submit

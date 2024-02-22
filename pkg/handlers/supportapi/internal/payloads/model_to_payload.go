@@ -48,10 +48,6 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *supportmessages.MoveTaskOrder {
 		MoveCode:           moveTaskOrder.Locator,
 	}
 
-	if moveTaskOrder.PPMEstimatedWeight != nil {
-		payload.PpmEstimatedWeight = int64(*moveTaskOrder.PPMEstimatedWeight)
-	}
-
 	if moveTaskOrder.PPMType != nil {
 		payload.PpmType = *moveTaskOrder.PPMType
 	}

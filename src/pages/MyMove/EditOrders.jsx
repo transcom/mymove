@@ -13,7 +13,10 @@ import {
   createUploadForDocument,
   deleteUpload,
 } from 'services/internalApi';
-import { updateOrders as updateOrdersAction } from 'store/entities/actions';
+import {
+  updateServiceMember as updateServiceMemberAction,
+  updateOrders as updateOrdersAction,
+} from 'store/entities/actions';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import {
   selectServiceMemberFromLoggedInUser,
@@ -52,6 +55,8 @@ export const EditOrders = ({
     new_duty_location: currentOrders?.new_duty_location || null,
     uploaded_orders: existingUploads || [],
     move_status: currentMove.status,
+    grade: currentOrders?.grade || null,
+    origin_duty_location: currentOrders?.origin_duty_location || {},
   };
 
   // Only allow PCS unless feature flag is on
@@ -94,7 +99,9 @@ export const EditOrders = ({
     if (fieldValues.has_dependents === 'yes') {
       hasDependents = true;
     }
-    const entitlementCouldChange = hasDependents !== currentOrders.has_dependents;
+
+    const entitlementCouldChange =
+      hasDependents !== currentOrders.has_dependents || fieldValues.grade !== currentOrders.grade;
     const newDutyLocationId = fieldValues.new_duty_location.id;
     const newPayGrade = fieldValues.grade;
     const newOriginDutyLocationId = fieldValues.origin_duty_location.id;
@@ -129,7 +136,6 @@ export const EditOrders = ({
         navigate(-1);
       })
       .catch((e) => {
-        // TODO - error handling - below is rudimentary error handling to approximate existing UX
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
         const { response } = e;
         const errorMessage = getResponseError(response, 'failed to update orders due to server error');
@@ -217,6 +223,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
+  updateServiceMember: updateServiceMemberAction,
   updateOrders: updateOrdersAction,
   setFlashMessage: setFlashMessageAction,
 };

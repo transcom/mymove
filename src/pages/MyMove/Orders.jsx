@@ -10,6 +10,7 @@ import {
   getOrdersForServiceMember,
   createOrders,
   patchOrders,
+  patchServiceMember,
   getResponseError,
 } from 'services/internalApi';
 import {
@@ -81,8 +82,25 @@ export class Orders extends Component {
         has_dependents: formatYesNoAPIValue(values.has_dependents),
         report_by_date: formatDateForSwagger(values.report_by_date),
         issue_date: formatDateForSwagger(values.issue_date),
-        spouse_has_pro_gear: false, // TODO - this input seems to be deprecated?
+        grade: values.grade,
+        origin_duty_location_id: values.origin_duty_location.id,
+        spouse_has_pro_gear: false,
       };
+
+      const payload = {
+        id: serviceMemberId,
+        rank: values.grade,
+        current_location_id: values.origin_duty_location.id,
+      };
+
+      patchServiceMember(payload)
+        .then(updateServiceMember)
+        .catch((e) => {
+          // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
+          const { response } = e;
+          const errorMessage = getResponseError(response, 'failed to update service member due to server error');
+          this.setState({ serverError: errorMessage });
+        });
 
       if (currentOrders?.id) {
         pendingValues.id = currentOrders.id;
@@ -90,7 +108,6 @@ export class Orders extends Component {
           .then(updateOrders)
           .then(handleNext)
           .catch((e) => {
-            // TODO - error handling - below is rudimentary error handling to approximate existing UX
             // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
             const { response } = e;
             const errorMessage = getResponseError(response, 'failed to update orders due to server error');
@@ -104,7 +121,6 @@ export class Orders extends Component {
         .then(updateServiceMember)
         .then(handleNext)
         .catch((e) => {
-          // TODO - error handling - below is rudimentary error handling to approximate existing UX
           // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
           const { response } = e;
           const errorMessage = getResponseError(response, 'failed to create orders due to server error');
@@ -118,6 +134,8 @@ export class Orders extends Component {
       report_by_date: currentOrders?.report_by_date || '',
       has_dependents: formatYesNoInputValue(currentOrders?.has_dependents),
       new_duty_location: currentOrders?.new_duty_location || null,
+      grade: currentOrders?.grade || null,
+      origin_duty_location: currentOrders?.origin_duty_location || null,
     };
 
     // Only allow PCS unless feature flag is on
@@ -180,11 +198,12 @@ Orders.defaultProps = {
 
 const mapStateToProps = (state) => {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const orders = selectCurrentOrders(state);
 
   return {
     serviceMemberId: serviceMember?.id,
     currentOrders: selectCurrentOrders(state),
-    currentDutyLocation: serviceMember?.current_location || {},
+    currentDutyLocation: orders?.origin_duty_location || {},
   };
 };
 
