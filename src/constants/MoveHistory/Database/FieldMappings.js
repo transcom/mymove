@@ -130,7 +130,8 @@ export default {
   paid_with_gtcc: 'Paid with gtcc',
   missing_receipt: 'Missing receipt',
   ppm_type: 'PPM type',
+  // distance: 'Shipping distance',
+  // we signify miles as the unit, this may be reworded to avoid redundancy
   distance: 'Distance in miles',
   closeout_office_name: 'Closeout office',
-  distance: 'Shipping distance',
 };
