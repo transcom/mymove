@@ -7,7 +7,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -25,7 +24,7 @@ type MTOShipmentFetcher interface {
 //go:generate mockery --name MTOShipmentUpdater
 type MTOShipmentUpdater interface {
 	MTOShipmentsMTOAvailableToPrime(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (bool, error)
-	UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
+	UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string, api string) (*models.MTOShipment, error)
 }
 
 // BillableWeightInputs is a type for capturing what should be returned when a shipments billable weight is calculated
@@ -152,6 +151,4 @@ type ShipmentSITStatus interface {
 	CalculateShipmentsSITStatuses(appCtx appcontext.AppContext, shipments []models.MTOShipment) map[string]SITStatus
 	CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*SITStatus, error)
 	CalculateShipmentSITAllowance(appCtx appcontext.AppContext, shipment models.MTOShipment) (int, error)
-	CalculateSITAllowanceRequestedDates(appCtx appcontext.AppContext, shipment models.MTOShipment, planner route.Planner,
-		sitCustomerContacted *time.Time, sitRequestedDelivery *time.Time, eTag string) (*SITStatus, error)
 }

@@ -6,6 +6,7 @@ import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-us
 
 import styles from './EditOrdersForm.module.scss';
 
+import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { Form } from 'components/form/Form';
 import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
@@ -18,7 +19,7 @@ import { ExistingUploadsShape } from 'types/uploads';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
-import { formatLabelReportByDate } from 'utils/formatters';
+import { formatLabelReportByDate, dropdownInputOptions } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
 
 const EditOrdersForm = ({
@@ -54,12 +55,16 @@ const EditOrdersForm = ({
         }),
       )
       .min(1),
+    grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
+    origin_duty_location: Yup.object().nullable().required('Required'),
   });
 
   const enableDelete = () => {
     const isValuePresent = initialValues.move_status === 'DRAFT';
     return isValuePresent;
   };
+
+  const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
@@ -119,6 +124,14 @@ const EditOrdersForm = ({
                   />
                 </div>
               </FormGroup>
+
+              <DutyLocationInput
+                label="Current duty location"
+                name="origin_duty_location"
+                id="origin_duty_location"
+                required
+              />
+
               {isRetirementOrSeparation ? (
                 <>
                   <h3 className={styles.calloutLabel}>Where are you entitled to move?</h3>
@@ -153,6 +166,8 @@ const EditOrdersForm = ({
               ) : (
                 <DutyLocationInput name="new_duty_location" label="New duty location" displayAddress={false} />
               )}
+              <DropdownInput label="Pay grade" name="grade" id="grade" required options={payGradeOptions} />
+
               <p>Uploads:</p>
               <UploadsTable
                 uploads={initialValues.uploaded_orders}
@@ -200,6 +215,9 @@ EditOrdersForm.propTypes = {
     report_by_date: PropTypes.string,
     has_dependents: PropTypes.string,
     new_duty_location: PropTypes.shape({
+      name: PropTypes.string,
+    }),
+    origin_duty_location: PropTypes.shape({
       name: PropTypes.string,
     }),
     uploaded_orders: ExistingUploadsShape,

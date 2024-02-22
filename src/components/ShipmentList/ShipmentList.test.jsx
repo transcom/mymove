@@ -229,4 +229,32 @@ describe('Shipment List with PPM', () => {
     expect(screen.getByText('Estimated')).toBeInTheDocument();
     expect(screen.getByText('Actual')).toBeInTheDocument();
   });
+  it('should contain actual weight as full weight minus empty weight', () => {
+    const shipments = [
+      {
+        id: '0001',
+        shipmentType: SHIPMENT_OPTIONS.PPM,
+        ppmShipment: {
+          id: '1234',
+          hasRequestedAdvance: null,
+          primeEstimatedWeight: '1000',
+          weightTickets: [
+            {
+              id: '1',
+              fullWeight: '25000',
+              emptyWeight: '22500',
+            },
+          ],
+        },
+      },
+    ];
+    const defaultProps = {
+      shipments,
+      moveSubmitted: true,
+      showShipmentWeight: true,
+    };
+    render(<ShipmentList {...defaultProps} />);
+
+    expect(screen.getByText('2,500 lbs')).toBeInTheDocument();
+  });
 });
