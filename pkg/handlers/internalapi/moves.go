@@ -142,17 +142,19 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 	return movePayload, nil
 }
 
-func payloadMovesList(storer storage.FileStorer, previousMovesList models.Moves, currentMoveList models.Moves, movesList models.Moves) (*internalmessages.MovesList, error) {
+func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*internalmessages.InternalMove {
+	var convertedCurrentMovesList []*internalmessages.InternalMove = []*internalmessages.InternalMove{}
 
-	// Convert currentMoves moves to internalmessages.MoveTaskOrder
-	var convertedCurrentMovesList []*internalmessages.InternalMove
-	moves := movesList
-	for _, move := range moves {
+	if len(list) == 0 {
+		return convertedCurrentMovesList
+	}
+
+	// Convert moveList to internalmessages.InternalMove
+	for _, move := range list {
 
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		shipments := move.MTOShipments
 		var payloadShipments *internalmessages.MTOShipments = payloads.MTOShipments(storer, &shipments)
-		// var payloadOrders *internalmessages.Order = payloads
 
 		currentMove := &internalmessages.InternalMove{
 			CreatedAt:    *handlers.FmtDateTime(move.CreatedAt),
@@ -165,33 +167,22 @@ func payloadMovesList(storer storage.FileStorer, previousMovesList models.Moves,
 
 		convertedCurrentMovesList = append(convertedCurrentMovesList, currentMove)
 	}
+	return convertedCurrentMovesList
+}
 
-	// Convert previousMoves moves to internalmessages.MoveTaskOrder
-	var convertedPreviousMovesList []*internalmessages.InternalMove
-	for _, move := range previousMovesList {
+func payloadForMovesList(storer storage.FileStorer, previousMovesList models.Moves, currentMoveList models.Moves, movesList models.Moves) *internalmessages.MovesList {
 
-		if currentMoveList[0].ID != move.ID {
-			eTag := etag.GenerateEtag(move.UpdatedAt)
-			shipments := move.MTOShipments
-			var payloadShipments *internalmessages.MTOShipments = payloads.MTOShipments(storer, &shipments)
-
-			currentMove := &internalmessages.InternalMove{
-				CreatedAt:    *handlers.FmtDateTime(move.CreatedAt),
-				ETag:         eTag,
-				ID:           *handlers.FmtUUID(move.ID),
-				MtoShipments: *payloadShipments,
-			}
-
-			convertedPreviousMovesList = append(convertedPreviousMovesList, currentMove)
+	if len(movesList) == 0 {
+		return &internalmessages.MovesList{
+			CurrentMove:   []*internalmessages.InternalMove{},
+			PreviousMoves: []*internalmessages.InternalMove{},
 		}
 	}
 
-	movePayload := &internalmessages.MovesList{
-		CurrentMove:   convertedCurrentMovesList,
-		PreviousMoves: convertedPreviousMovesList,
+	return &internalmessages.MovesList{
+		CurrentMove:   payloadForInternalMove(storer, currentMoveList),
+		PreviousMoves: payloadForInternalMove(storer, previousMovesList),
 	}
-
-	return movePayload, nil
 }
 
 // ShowMoveHandler returns a move for a user and move ID
@@ -531,12 +522,6 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 				}
 			}
 
-			// Build MovesList Payload
-			payload, err := payloadMovesList(h.FileStorer(), previousMovesList, currentMovesList, movesList)
-			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
-			}
-
-			return moveop.NewGetAllMovesOK().WithPayload(payload), nil
+			return moveop.NewGetAllMovesOK().WithPayload(payloadForMovesList(h.FileStorer(), previousMovesList, currentMovesList, movesList)), nil
 		})
 }
