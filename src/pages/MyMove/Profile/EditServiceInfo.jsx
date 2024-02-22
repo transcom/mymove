@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { GridContainer, Alert } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import ServiceInfoForm from 'components/Customer/ServiceInfoForm/ServiceInfoForm';
 import { patchServiceMember, getResponseError } from 'services/internalApi';
@@ -19,6 +19,7 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 export const EditServiceInfo = ({ serviceMember, currentOrders, updateServiceMember, moveIsInDraft }) => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
+  const { state } = useLocation();
 
   useEffect(() => {
     if (!moveIsInDraft) {
@@ -52,7 +53,7 @@ export const EditServiceInfo = ({ serviceMember, currentOrders, updateServiceMem
     patchServiceMember(payload)
       .then((response) => {
         updateServiceMember(response);
-        navigate(customerRoutes.PROFILE_PATH);
+        navigate(customerRoutes.PROFILE_PATH, { state });
       })
       .catch((e) => {
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
@@ -63,7 +64,7 @@ export const EditServiceInfo = ({ serviceMember, currentOrders, updateServiceMem
   };
 
   const handleCancel = () => {
-    navigate(customerRoutes.PROFILE_PATH);
+    navigate(customerRoutes.PROFILE_PATH, { state });
   };
 
   return (
