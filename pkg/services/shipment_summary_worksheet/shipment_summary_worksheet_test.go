@@ -778,11 +778,12 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
-	rank := models.ServiceMemberRankE9
+	grade := models.ServiceMemberGradeE9
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
 				OrdersType: ordersType,
+				Grade:      &grade,
 			},
 		},
 		{
@@ -794,11 +795,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 			Model:    yuma,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
-		},
-		{
-			Model: models.ServiceMember{
-				Rank: &rank,
-			},
 		},
 		{
 			Model: models.SignedCertification{},

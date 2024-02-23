@@ -337,7 +337,6 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.MailingAddressW2 = FormatAddress(data.W2Address)
 	page1.RankGrade = FormatGrade(data.Order.Grade)
 
-
 	page1.IssuingBranchOrAgency = FormatServiceMemberAffiliation(sm.Affiliation)
 	page1.OrdersIssueDate = FormatDate(data.Order.IssueDate)
 	page1.OrdersTypeAndOrdersNumber = FormatOrdersTypeAndOrdersNumber(data.Order)
