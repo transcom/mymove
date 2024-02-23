@@ -35,11 +35,6 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 	suite.Run("current duty location missing", func() {
 		sm := factory.BuildExtendedServiceMember(suite.DB(), nil, nil)
 
-		// Remove transportation office info from current duty location
-		dutyLocation := sm.DutyLocation
-		dutyLocation.TransportationOfficeID = nil
-		suite.MustSave(&dutyLocation)
-
 		req := httptest.NewRequest("GET", "/users/logged_in", nil)
 		req = suite.AuthenticateRequest(req, sm)
 

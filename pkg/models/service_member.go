@@ -48,7 +48,6 @@ type ServiceMember struct {
 	User                   User                      `belongs_to:"user" fk_id:"user_id"`
 	Edipi                  *string                   `json:"edipi" db:"edipi"`
 	Affiliation            *ServiceMemberAffiliation `json:"affiliation" db:"affiliation"`
-	Rank                   *ServiceMemberRank        `json:"rank" db:"rank"`
 	FirstName              *string                   `json:"first_name" db:"first_name"`
 	MiddleName             *string                   `json:"middle_name" db:"middle_name"`
 	LastName               *string                   `json:"last_name" db:"last_name"`
@@ -64,8 +63,6 @@ type ServiceMember struct {
 	BackupMailingAddress   *Address                  `belongs_to:"address" fk_id:"backup_mailing_address_id"`
 	Orders                 Orders                    `has_many:"orders" fk_id:"service_member_id" order_by:"created_at desc" `
 	BackupContacts         BackupContacts            `has_many:"backup_contacts" fk_id:"service_member_id"`
-	DutyLocationID         *uuid.UUID                `json:"duty_location_id" db:"duty_location_id"`
-	DutyLocation           DutyLocation              `belongs_to:"duty_locations" fk_id:"duty_location_id"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -90,9 +87,6 @@ func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uui
 	err := db.Q().Eager("User",
 		"BackupMailingAddress",
 		"BackupContacts",
-		"DutyLocation.Address",
-		"DutyLocation.TransportationOffice",
-		"DutyLocation.TransportationOffice.PhoneLines",
 		"Orders.NewDutyLocation.TransportationOffice",
 		"Orders.OriginDutyLocation",
 		"Orders.UploadedOrders.UserUploads.Upload",
@@ -216,7 +210,7 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 	sac *string,
 	departmentIndicator *string,
 	originDutyLocation *DutyLocation,
-	grade *string,
+	grade *internalmessages.OrderPayGrade,
 	entitlement *Entitlement,
 	originDutyLocationGBLOC *string,
 	packingAndShippingInstructions string) (Order, *validate.Errors, error) {
@@ -292,9 +286,6 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	if s.Affiliation == nil {
 		return false
 	}
-	if s.Rank == nil {
-		return false
-	}
 	if s.FirstName == nil {
 		return false
 	}
@@ -314,9 +305,6 @@ func (s *ServiceMember) IsProfileComplete() bool {
 		return false
 	}
 	if s.BackupMailingAddressID == nil {
-		return false
-	}
-	if s.DutyLocationID == nil {
 		return false
 	}
 	if len(s.BackupContacts) == 0 {
