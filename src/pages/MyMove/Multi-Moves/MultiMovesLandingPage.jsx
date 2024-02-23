@@ -8,7 +8,6 @@ import styles from './MultiMovesLandingPage.module.scss';
 import MultiMovesMoveHeader from './MultiMovesMoveHeader/MultiMovesMoveHeader';
 import MultiMovesMoveContainer from './MultiMovesMoveContainer/MultiMovesMoveContainer';
 
-import { detectFlags } from 'utils/featureFlags';
 import { generatePageTitle } from 'hooks/custom';
 import { milmoveLogger } from 'utils/milmoveLog';
 import retryPageLoading from 'utils/retryPageLoading';
@@ -57,8 +56,6 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
     fetchData();
   }, [setErrorState, serviceMember, updateAllMoves]);
 
-  const flags = detectFlags(process.env.NODE_ENV, window.location.host, window.location.search);
-
   // handles logic when user clicks "Create a Move" button
   // if they have previous moves, they'll need to validate their profile
   // if they do not have previous moves, then they don't need to validate
@@ -82,8 +79,7 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
     );
   }
 
-  // ! WILL ONLY SHOW IF MULTIMOVE FLAG IS TRUE
-  return flags.multiMove ? (
+  return (
     <div>
       <div className={styles.homeContainer}>
         <header data-testid="customerHeader" className={styles.customerHeader}>
@@ -162,7 +158,7 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
         </div>
       </div>
     </div>
-  ) : null;
+  );
 };
 
 MultiMovesLandingPage.defaultProps = {
