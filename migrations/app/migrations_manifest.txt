@@ -899,3 +899,4 @@
 20240207173709_updateTransportationOffices.up.sql
 20240212150834_20240212_disable_homesafe_stg_cert.up.sql
 20240214213247_updateTransportationOfficesGbloc.up.sql
+20240223154843_us_post_region_city_trdm_table_creation.up.sql
