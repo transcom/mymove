@@ -8,6 +8,7 @@ import {
   updateMTOShipment,
   updateMTOShipments,
   updateOrders,
+  updateAllMoves,
 } from './entities';
 
 import {
@@ -17,6 +18,7 @@ import {
   UPDATE_MTO_SHIPMENT,
   UPDATE_ORDERS,
   UPDATE_MTO_SHIPMENTS,
+  UPDATE_ALL_MOVES,
 } from 'store/entities/actions';
 import { normalizeResponse } from 'services/swaggerRequest';
 import { addEntities } from 'shared/Entities/actions';
@@ -33,6 +35,7 @@ describe('watchUpdateEntities', () => {
         takeLatest(UPDATE_MOVE, updateMove),
         takeLatest(UPDATE_MTO_SHIPMENT, updateMTOShipment),
         takeLatest(UPDATE_MTO_SHIPMENTS, updateMTOShipments),
+        takeLatest(UPDATE_ALL_MOVES, updateAllMoves),
       ]),
     );
   });
