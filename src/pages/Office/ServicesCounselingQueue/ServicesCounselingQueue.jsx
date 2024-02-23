@@ -233,25 +233,10 @@ const ServicesCounselingQueue = () => {
 
   if (queueType === 'Search') {
     return (
-      <div data-testid="move-search" className={styles.ServicesCounselingQueue}>
+      <div data-testid="move-search" className={styles.ServicesCounselingSearchQueue}>
         <h1>Search for a move</h1>
         <MoveSearchForm onSubmit={onSubmit} role={roleTypes.SERVICES_COUNSELOR} />
         {searchHappened && (
-          // <TableQueue
-          //   className={styles.ServicesCounseling}
-          //   showTabs
-          //   showFilters
-          //   showPagination
-          //   manualSortBy
-          //   defaultCanSort
-          //   defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
-          //   disableMultiSort
-          //   disableSortBy={false}
-          //   columns={counselingColumns()}
-          //   title="Moves"
-          //   handleClick={handleClick}
-          //   useQueries={useQAECSRMoveSearchQueries}
-          // />
           <SearchResultsTable
             showTabs
             showFilters
