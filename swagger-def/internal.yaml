@@ -3275,6 +3275,11 @@ paths:
           format: uuid
           required: true
           description: UUID of the upload to be deleted
+        - in: query
+          name: orderId
+          type: string
+          format: uuid
+          description: ID of the order that the upload belongs to
       responses:
         '204':
           description: deleted

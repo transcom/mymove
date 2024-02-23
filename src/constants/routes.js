@@ -20,7 +20,7 @@ export const customerRoutes = {
   ORDERS_INFO_PATH: '/orders/info/:orderId',
   ORDERS_UPLOAD_PATH: '/orders/upload/:orderId',
   ORDERS_AMEND_PATH: '/orders/amend/:orderId',
-  ORDERS_EDIT_PATH: '/moves/:moveId/review/edit-orders',
+  ORDERS_EDIT_PATH: '/move/:moveId/review/edit-orders/:orderId',
   SHIPMENT_MOVING_INFO_PATH: '/moves/:moveId/moving-info',
   SHIPMENT_SELECT_TYPE_PATH: '/moves/:moveId/shipment-type',
   SHIPMENT_CREATE_PATH: '/moves/:moveId/new-shipment',
