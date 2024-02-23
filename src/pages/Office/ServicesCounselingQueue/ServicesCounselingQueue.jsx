@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { generatePath, useNavigate, Navigate, useParams } from 'react-router-dom';
+import { generatePath, useNavigate, Navigate, useParams, NavLink } from 'react-router-dom';
 
 import styles from './ServicesCounselingQueue.module.scss';
 
@@ -30,6 +30,7 @@ import NotFound from 'components/NotFound/NotFound';
 import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { roleTypes } from 'constants/userRoles';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
+import TabNav from 'components/TabNav';
 
 const counselingColumns = () => [
   createHeader('ID', 'id'),
@@ -231,14 +232,51 @@ const ServicesCounselingQueue = () => {
     );
   }
 
+  const renderNavBar = () => {
+    return (
+      <TabNav
+        className={styles.tableTabs}
+        items={[
+          <NavLink
+            end
+            className={({ isActive }) => (isActive ? 'usa-current' : '')}
+            to={servicesCounselingRoutes.BASE_QUEUE_COUNSELING_PATH}
+          >
+            <span data-testid="counseling-tab-link" className="tab-title">
+              Counseling
+            </span>
+          </NavLink>,
+          <NavLink
+            end
+            className={({ isActive }) => (isActive ? 'usa-current' : '')}
+            to={servicesCounselingRoutes.BASE_QUEUE_CLOSEOUT_PATH}
+          >
+            <span data-testid="closeout-tab-link" className="tab-title">
+              PPM Closeout
+            </span>
+          </NavLink>,
+          <NavLink
+            end
+            className={({ isActive }) => (isActive ? 'usa-current' : '')}
+            to={servicesCounselingRoutes.BASE_QUEUE_SEARCH_PATH}
+          >
+            <span data-testid="search-tab-link" className="tab-title">
+              Search
+            </span>
+          </NavLink>,
+        ]}
+      />
+    );
+  };
+
   if (queueType === 'Search') {
     return (
       <div data-testid="move-search" className={styles.ServicesCounselingSearchQueue}>
+        {renderNavBar()}
         <h1>Search for a move</h1>
         <MoveSearchForm onSubmit={onSubmit} role={roleTypes.SERVICES_COUNSELOR} />
         {searchHappened && (
           <SearchResultsTable
-            showTabs
             showFilters
             showPagination
             defaultCanSort
@@ -259,8 +297,8 @@ const ServicesCounselingQueue = () => {
   if (queueType === 'PPM-closeout') {
     return (
       <div className={styles.ServicesCounselingQueue}>
+        {renderNavBar()}
         <TableQueue
-          showTabs
           showFilters
           showPagination
           manualSortBy
@@ -279,9 +317,9 @@ const ServicesCounselingQueue = () => {
   if (queueType === 'counseling') {
     return (
       <div className={styles.ServicesCounselingQueue}>
+        {renderNavBar()}
         <TableQueue
           className={styles.ServicesCounseling}
-          showTabs
           showFilters
           showPagination
           manualSortBy
