@@ -2,6 +2,8 @@ package models
 
 import (
 	"fmt"
+
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // WeightAllotment represents the weights allotted for a rank
@@ -175,53 +177,53 @@ var civilianEmployee = WeightAllotment{
 	ProGearWeightSpouse:           500,
 }
 
-var entitlements = map[ServiceMemberRank]WeightAllotment{
-	ServiceMemberRankACADEMYCADET:            midshipman,
-	ServiceMemberRankAVIATIONCADET:           aviationCadet,
-	ServiceMemberRankE1:                      e1,
-	ServiceMemberRankE2:                      e2,
-	ServiceMemberRankE3:                      e3,
-	ServiceMemberRankE4:                      e4,
-	ServiceMemberRankE5:                      e5,
-	ServiceMemberRankE6:                      e6,
-	ServiceMemberRankE7:                      e7,
-	ServiceMemberRankE8:                      e8,
-	ServiceMemberRankE9:                      e9,
-	ServiceMemberRankE9SPECIALSENIORENLISTED: e9SpecialSeniorEnlisted,
-	ServiceMemberRankMIDSHIPMAN:              midshipman,
-	ServiceMemberRankO1ACADEMYGRADUATE:       o1W1AcademyGraduate,
-	ServiceMemberRankO2:                      o2W2,
-	ServiceMemberRankO3:                      o3W3,
-	ServiceMemberRankO4:                      o4W4,
-	ServiceMemberRankO5:                      o5W5,
-	ServiceMemberRankO6:                      o6,
-	ServiceMemberRankO7:                      o7,
-	ServiceMemberRankO8:                      o8,
-	ServiceMemberRankO9:                      o9,
-	ServiceMemberRankO10:                     o10,
-	ServiceMemberRankW1:                      o1W1AcademyGraduate,
-	ServiceMemberRankW2:                      o2W2,
-	ServiceMemberRankW3:                      o3W3,
-	ServiceMemberRankW4:                      o4W4,
-	ServiceMemberRankW5:                      o5W5,
-	ServiceMemberRankCIVILIANEMPLOYEE:        civilianEmployee,
+var entitlements = map[internalmessages.OrderPayGrade]WeightAllotment{
+	ServiceMemberGradeACADEMYCADET:            midshipman,
+	ServiceMemberGradeAVIATIONCADET:           aviationCadet,
+	ServiceMemberGradeE1:                      e1,
+	ServiceMemberGradeE2:                      e2,
+	ServiceMemberGradeE3:                      e3,
+	ServiceMemberGradeE4:                      e4,
+	ServiceMemberGradeE5:                      e5,
+	ServiceMemberGradeE6:                      e6,
+	ServiceMemberGradeE7:                      e7,
+	ServiceMemberGradeE8:                      e8,
+	ServiceMemberGradeE9:                      e9,
+	ServiceMemberGradeE9SPECIALSENIORENLISTED: e9SpecialSeniorEnlisted,
+	ServiceMemberGradeMIDSHIPMAN:              midshipman,
+	ServiceMemberGradeO1ACADEMYGRADUATE:       o1W1AcademyGraduate,
+	ServiceMemberGradeO2:                      o2W2,
+	ServiceMemberGradeO3:                      o3W3,
+	ServiceMemberGradeO4:                      o4W4,
+	ServiceMemberGradeO5:                      o5W5,
+	ServiceMemberGradeO6:                      o6,
+	ServiceMemberGradeO7:                      o7,
+	ServiceMemberGradeO8:                      o8,
+	ServiceMemberGradeO9:                      o9,
+	ServiceMemberGradeO10:                     o10,
+	ServiceMemberGradeW1:                      o1W1AcademyGraduate,
+	ServiceMemberGradeW2:                      o2W2,
+	ServiceMemberGradeW3:                      o3W3,
+	ServiceMemberGradeW4:                      o4W4,
+	ServiceMemberGradeW5:                      o5W5,
+	ServiceMemberGradeCIVILIANEMPLOYEE:        civilianEmployee,
 }
 
-func getEntitlement(rank ServiceMemberRank) (WeightAllotment, error) {
-	if entitlement, ok := entitlements[rank]; ok {
+func getEntitlement(grade internalmessages.OrderPayGrade) (WeightAllotment, error) {
+	if entitlement, ok := entitlements[grade]; ok {
 		return entitlement, nil
 	}
-	return WeightAllotment{}, fmt.Errorf("no entitlement found for rank %s", rank)
+	return WeightAllotment{}, fmt.Errorf("no entitlement found for pay grade %s", grade)
 }
 
 // AllWeightAllotments returns all the weight allotments for each rank.
-func AllWeightAllotments() map[ServiceMemberRank]WeightAllotment {
+func AllWeightAllotments() map[internalmessages.OrderPayGrade]WeightAllotment {
 	return entitlements
 }
 
-// GetWeightAllotment returns the weight allotments for a given rank.
-func GetWeightAllotment(rank ServiceMemberRank) WeightAllotment {
-	entitlement, err := getEntitlement(rank)
+// GetWeightAllotment returns the weight allotments for a given pay grade.
+func GetWeightAllotment(grade internalmessages.OrderPayGrade) WeightAllotment {
+	entitlement, err := getEntitlement(grade)
 	if err != nil {
 		return WeightAllotment{}
 	}
