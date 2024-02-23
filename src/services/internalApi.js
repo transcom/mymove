@@ -238,11 +238,12 @@ export async function createUploadForPPMDocument(ppmShipmentId, documentId, file
   );
 }
 
-export async function deleteUpload(uploadId) {
+export async function deleteUpload(uploadId, orderId) {
   return makeInternalRequest(
     'uploads.deleteUpload',
     {
       uploadId,
+      orderId,
     },
     {
       normalize: false,

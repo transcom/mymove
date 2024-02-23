@@ -46,7 +46,7 @@ export const EditOrders = ({
 }) => {
   const filePondEl = createRef();
   const navigate = useNavigate();
-  const { moveId } = useParams();
+  const { moveId, orderId } = useParams();
   const [serverError, setServerError] = useState(null);
 
   let move;
@@ -57,12 +57,11 @@ export const EditOrders = ({
   }
 
   const currentOrder = orders.find((order) => order.moves[0] === moveId);
-  const currentOrderId = currentOrder.id;
 
   const serviceMemberId = serviceMember.id;
   useEffect(() => {
     const fetchData = async () => {
-      getOrders(currentOrderId).then((response) => {
+      getOrders(orderId).then((response) => {
         updateOrders(response);
       });
       getAllMoves(serviceMemberId).then((response) => {
@@ -70,7 +69,7 @@ export const EditOrders = ({
       });
     };
     fetchData();
-  }, [updateOrders, serviceMemberId, updateAllMoves, currentOrderId]);
+  }, [updateOrders, serviceMemberId, updateAllMoves, orderId]);
 
   const initialValues = {
     orders_type: currentOrder?.orders_type || '',
@@ -96,16 +95,16 @@ export const EditOrders = ({
     return createUploadForDocument(file, documentId);
   };
 
-  const handleUploadComplete = () => {
+  const handleUploadComplete = async () => {
     filePondEl.current?.removeFiles();
-    return getOrders(currentOrderId).then((response) => {
+    return getOrders(orderId).then((response) => {
       updateOrders(response);
     });
   };
 
-  const handleDeleteFile = (uploadId) => {
-    return deleteUpload(uploadId).then(() => {
-      return getOrders(currentOrderId).then((response) => {
+  const handleDeleteFile = async (uploadId) => {
+    return deleteUpload(uploadId, orderId).then(() => {
+      return getOrders(orderId).then((response) => {
         updateOrders(response);
       });
     });
