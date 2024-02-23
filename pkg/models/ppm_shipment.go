@@ -39,6 +39,8 @@ type PPMShipmentStatus string
 
 const (
 	// PPMShipmentStatusDraft captures enum value "DRAFT"
+	PPMShipmentStatusCancelled PPMShipmentStatus = "CANCELLED"
+	// PPMShipmentStatusDraft captures enum value "DRAFT"
 	PPMShipmentStatusDraft PPMShipmentStatus = "DRAFT"
 	// PPMShipmentStatusSubmitted captures enum value "SUBMITTED"
 	PPMShipmentStatusSubmitted PPMShipmentStatus = "SUBMITTED"
@@ -189,6 +191,12 @@ func (p PPMShipment) TableName() string {
 	return "ppm_shipments"
 }
 
+// Cancel marks the PPM as Canceled
+func (p *PPMShipment) CancelShipment() error {
+	p.Status = PPMShipmentStatusCancelled
+	return nil
+}
+
 // PPMShipments is a list of PPMs
 type PPMShipments []PPMShipment
 
@@ -243,4 +251,15 @@ func FetchPPMShipmentByPPMShipmentID(db *pop.Connection, ppmShipmentID uuid.UUID
 		return nil, err
 	}
 	return &ppmShipment, nil
+}
+func GetPPMNetWeight(ppm PPMShipment) unit.Pound {
+	totalNetWeight := unit.Pound(0)
+	for _, weightTicket := range ppm.WeightTickets {
+		if weightTicket.AdjustedNetWeight != nil && *weightTicket.AdjustedNetWeight > 0 {
+			totalNetWeight += *weightTicket.AdjustedNetWeight
+		} else {
+			totalNetWeight += GetWeightTicketNetWeight(weightTicket)
+		}
+	}
+	return totalNetWeight
 }
