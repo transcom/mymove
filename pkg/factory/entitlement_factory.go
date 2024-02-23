@@ -3,6 +3,7 @@ package factory
 import (
 	"github.com/gobuffalo/pop/v6"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -27,7 +28,8 @@ func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trai
 	// At this point, Entitlement may exist or be blank. Depending on if customization was provided.
 
 	// Find an Orders customization if available - to extract the grade
-	var grade *string
+	var grade *internalmessages.OrderPayGrade
+	defaultGrade := models.ServiceMemberGradeE1
 	var order models.Order
 	result := findValidCustomization(customs, Order)
 	if result != nil {
@@ -35,7 +37,7 @@ func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trai
 		grade = order.Grade // extract grade
 	}
 	if grade == nil || *grade == "" {
-		grade = models.StringPointer("E_1")
+		grade = &defaultGrade
 	}
 
 	dependents := 0
@@ -58,7 +60,7 @@ func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trai
 		OrganizationalClothingAndIndividualEquipment: ocie,
 	}
 	// Set default calculated values
-	entitlement.SetWeightAllotment(*grade)
+	entitlement.SetWeightAllotment(string(*grade))
 	entitlement.DBAuthorizedWeight = entitlement.AuthorizedWeight()
 
 	// Overwrite default values with those from custom Entitlement
