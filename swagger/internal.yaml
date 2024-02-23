@@ -2194,30 +2194,40 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      pickupAddress:
+        $ref: '#/definitions/Address'
       secondaryPickupPostalCode:
         format: zip
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
         $ref: '#/definitions/NullableString'
+      secondaryPickupAddress:
+        $ref: '#/definitions/Address'
       destinationPostalCode:
         format: zip
         type: string
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      destinationAddress:
+        $ref: '#/definitions/Address'
       secondaryDestinationPostalCode:
         format: zip
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
         $ref: '#/definitions/NullableString'
+      secondaryDestinationAddress:
+        $ref: '#/definitions/Address'
       sitExpected:
         type: boolean
     required:
       - expectedDepartureDate
       - pickupPostalCode
+      - pickupAddress
       - destinationPostalCode
+      - destinationAddress
       - sitExpected
   UpdatePPMShipment:
     type: object
@@ -2240,12 +2250,16 @@ definitions:
         example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
+      pickupAddress:
+        $ref: '#/definitions/Address'
       secondaryPickupPostalCode:
         format: zip
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
         $ref: '#/definitions/NullableString'
+      secondaryPickupAddress:
+        $ref: '#/definitions/Address'
       actualPickupPostalCode:
         description: >
           The actual postal code where the PPM shipment started. To be filled
@@ -2263,12 +2277,16 @@ definitions:
         example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
+      destinationAddress:
+        $ref: '#/definitions/Address'
       secondaryDestinationPostalCode:
         format: zip
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
         $ref: '#/definitions/NullableString'
+      secondaryDestinationAddress:
+        $ref: '#/definitions/Address'
       actualDestinationPostalCode:
         description: >
           The actual postal code where the PPM shipment ended. To be filled once
@@ -3415,6 +3433,8 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      pickupAddress:
+        $ref: '#/definitions/Address'
       secondaryPickupPostalCode:
         format: >-
           An optional secondary pickup location near the origin where additional
@@ -3425,6 +3445,11 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
+      secondaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+          - x-nullable: true
+          - x-omitempty: false
       actualPickupPostalCode:
         description: >
           The actual postal code where the PPM shipment started. To be filled
@@ -3445,6 +3470,8 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      destinationAddress:
+        $ref: '#/definitions/Address'
       secondaryDestinationPostalCode:
         description: >-
           An optional secondary location near the destination where goods will
@@ -3456,6 +3483,11 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
+      secondaryDestinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+          - x-nullable: true
+          - x-omitempty: false
       actualDestinationPostalCode:
         description: >
           The actual postal code where the PPM shipment ended. To be filled once
