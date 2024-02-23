@@ -37,7 +37,7 @@ export const ShipmentListItem = ({
   const actual = 'Actual';
   let requestedWeightPPM = 0;
   if (shipment.shipmentType === SHIPMENT_OPTIONS.PPM) {
-    if (shipment.ppmShipment.weightTickets !== undefined) {
+    if (shipment.ppmShipment?.weightTickets !== undefined) {
       const wt = shipment.ppmShipment.weightTickets;
       for (let i = 0; i < wt.length; i += 1) {
         requestedWeightPPM += wt[i].fullWeight - wt[i].emptyWeight;
