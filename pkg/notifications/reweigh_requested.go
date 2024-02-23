@@ -53,7 +53,7 @@ func (m ReweighRequested) emails(appCtx appcontext.AppContext) ([]emailContent, 
 	}
 
 	htmlBody, textBody, err := m.renderTemplates(appCtx, reweighRequestedEmailData{
-		MilitaryOneSourceLink: "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL",
+		MilitaryOneSourceLink: OneSourceTransportationOfficeLink,
 	})
 
 	if err != nil {
