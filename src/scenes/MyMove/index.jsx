@@ -48,6 +48,7 @@ import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipme
 import Home from 'pages/MyMove/Home';
 import TitleAnnouncer from 'components/TitleAnnouncer/TitleAnnouncer';
 import MultiMovesLandingPage from 'pages/MyMove/Multi-Moves/MultiMovesLandingPage';
+import MoveHome from 'pages/MyMove/Home/MoveHome';
 // Pages should be lazy-loaded (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
@@ -200,6 +201,9 @@ export class CustomerApp extends Component {
                 )}
 
                 {getWorkflowRoutes(props)}
+
+                <Route end path={customerRoutes.MOVE_HOME_PAGE} element={<Home />} />
+                <Route end path={customerRoutes.MOVE_HOME_PATH} element={<MoveHome />} />
                 <Route end path={customerRoutes.SHIPMENT_MOVING_INFO_PATH} element={<MovingInfo />} />
                 <Route end path="/moves/:moveId/edit" element={<Edit />} />
                 <Route end path={customerRoutes.EDIT_PROFILE_PATH} element={<EditProfile />} />

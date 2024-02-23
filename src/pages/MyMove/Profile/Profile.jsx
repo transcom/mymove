@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { arrayOf, bool } from 'prop-types';
-import { Alert } from '@trussworks/react-uswds';
-import { Link } from 'react-router-dom';
+import { Alert, Button } from '@trussworks/react-uswds';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+
+import styles from './Profile.module.scss';
 
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import ContactInfoDisplay from 'components/Customer/Profile/ContactInfoDisplay/ContactInfoDisplay';
@@ -33,6 +35,27 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
     telephone: currentBackupContacts[0]?.telephone || '',
     email: currentBackupContacts[0]?.email || '',
   };
+  const [needsToVerifyProfile, setNeedsToVerifyProfile] = useState(false);
+  const [profileValidated, setProfileValidated] = useState(false);
+
+  const navigate = useNavigate();
+  const { state } = useLocation();
+
+  useEffect(() => {
+    if (state && state.needsToVerifyProfile) {
+      setNeedsToVerifyProfile(state.needsToVerifyProfile);
+    } else {
+      setNeedsToVerifyProfile(false);
+    }
+  }, [state]);
+
+  const handleCreateMoveClick = () => {
+    navigate(customerRoutes.MOVE_HOME_PAGE);
+  };
+
+  const handleValidateProfileClick = () => {
+    setProfileValidated(true);
+  };
 
   // displays the profile data for MilMove & Okta
   // Profile w/contact info for servicemember & backup contact
@@ -43,11 +66,26 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
       <ConnectedFlashMessage />
       <div className="grid-row">
         <div className="grid-col-12">
-          <Link to={generalRoutes.HOME_PATH}>Return to Move</Link>
-          <h1>Profile</h1>
+          {needsToVerifyProfile ? (
+            <Link to={generalRoutes.HOME_PATH}>Return to Dashboard</Link>
+          ) : (
+            <Link to={generalRoutes.HOME_PATH}>Return to Move</Link>
+          )}
+          <div className={styles.profileHeader}>
+            <h1>Profile</h1>
+          </div>
           {showMessages && (
             <Alert headingLevel="h4" type="info">
               You can change these details later by talking to a move counselor or customer care representative.
+            </Alert>
+          )}
+          {needsToVerifyProfile && (
+            <Alert type="info" className={styles.verifyProfileAlert} data-testid="profileConfirmAlert">
+              <strong>
+                Please confirm your profile information is accurate prior to starting a new move. When all information
+                is up to date, click the &quot;Validate Profile&quot; button at the bottom of the page and you may begin
+                your move.
+              </strong>
             </Alert>
           )}
           <SectionWrapper className={formStyles.formSection}>
@@ -88,6 +126,26 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               editURL={customerRoutes.EDIT_OKTA_PROFILE_PATH}
             />
           </SectionWrapper>
+          {needsToVerifyProfile && (
+            <SectionWrapper data-testid="validateProfileContainer" className={styles.validateProfileBtnContainer}>
+              <Button
+                onClick={handleValidateProfileClick}
+                className={styles.validateProfileBtn}
+                data-testid="validateProfileBtn"
+                disabled={profileValidated}
+              >
+                {profileValidated ? 'Profile Validated' : 'Validate Profile'}
+              </Button>
+              <Button
+                className={styles.createMoveBtn}
+                onClick={handleCreateMoveClick}
+                data-testid="createMoveBtn"
+                disabled={!profileValidated}
+              >
+                <span>Create a Move</span>
+              </Button>
+            </SectionWrapper>
+          )}
         </div>
       </div>
     </div>
