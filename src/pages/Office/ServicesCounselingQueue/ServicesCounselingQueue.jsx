@@ -271,7 +271,7 @@ const ServicesCounselingQueue = () => {
 
   if (queueType === 'Search') {
     return (
-      <div data-testid="move-search" className={styles.ServicesCounselingSearchQueue}>
+      <div data-testid="move-search" className={styles.ServicesCounselingQueue}>
         {renderNavBar()}
         <h1>Search for a move</h1>
         <MoveSearchForm onSubmit={onSubmit} role={roleTypes.SERVICES_COUNSELOR} />

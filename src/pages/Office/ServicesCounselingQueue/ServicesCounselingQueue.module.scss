@@ -11,9 +11,9 @@
   width: 100%;
 }
 
-.ServicesCounselingSearchQueue {
-  @include u-display(flex);
-  @include u-padding-x(4);
-  flex-direction: column;
-  flex: auto;
+.tableTabs {
+  @include u-margin-y(1);
+  @include u-margin-x(1);
+  @include u-margin-bottom(2);
+  border-bottom: (2px solid rgb(236, 234, 234));
 }
