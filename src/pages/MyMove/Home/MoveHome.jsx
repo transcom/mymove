@@ -386,7 +386,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
 
   const confirmationPath = move?.id && generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId: move.id });
   const profileEditPath = customerRoutes.PROFILE_PATH;
-  const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
+  const ordersEditPath = `/move/${move.id}/review/edit-orders/${orders.id}`;
   const ordersAmendPath = `/orders/amend/${orders.id}`;
   const allSortedShipments = sortAllShipments(mtoShipments);
   const ppmShipments = allSortedShipments.filter((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.PPM);
