@@ -2,6 +2,7 @@ import React from 'react';
 import { Create, SimpleForm, TextInput, ReferenceInput, AutocompleteInput, required } from 'react-admin';
 
 import { RolesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesCheckboxes';
+import { ElevatedPrivilegesCheckboxInput } from 'scenes/SystemAdmin/shared/ElevatedPrivilegeCheckboxes';
 import { phoneValidators } from 'scenes/SystemAdmin/shared/form_validators';
 
 const OfficeUserCreate = () => (
@@ -13,6 +14,7 @@ const OfficeUserCreate = () => (
       <TextInput source="email" validate={required()} />
       <TextInput source="telephone" validate={phoneValidators} />
       <RolesCheckboxInput source="roles" validate={required()} />
+      <ElevatedPrivilegesCheckboxInput source="elevatedPrivileges" />
       <ReferenceInput
         label="Transportation Office"
         reference="offices"
