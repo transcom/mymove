@@ -18,6 +18,7 @@ const cancelMoveLabel = 'Moves.CancelMove';
 export const loadMoveLabel = 'Moves.loadMove';
 export const getMoveDatesSummaryLabel = 'Moves.getMoveDatesSummary';
 export const getMoveByLocatorOperation = 'move.getMove';
+export const getAllMovesLabel = 'move.getAllMoves';
 
 export default function reducer(state = {}, action) {
   switch (action.type) {
@@ -30,6 +31,11 @@ export default function reducer(state = {}, action) {
     default:
       return state;
   }
+}
+
+export function getAllMoves(serviceMemberId, label = getAllMovesLabel) {
+  const swaggerTag = 'moves.getAllMoves';
+  return swaggerRequest(getClient, swaggerTag, { serviceMemberId }, { label });
 }
 
 export function getMoveByLocator(locator, label = getMoveByLocatorOperation) {
