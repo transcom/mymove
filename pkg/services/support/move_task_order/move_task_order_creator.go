@@ -275,7 +275,6 @@ func CustomerModel(customer *supportmessages.Customer) *models.ServiceMember {
 		ID:            uuid.FromStringOrNil(customer.ID.String()),
 		Affiliation:   (*models.ServiceMemberAffiliation)(customer.Agency),
 		Edipi:         customer.DodID,
-		Rank:          (*models.ServiceMemberRank)(customer.Rank),
 		FirstName:     customer.FirstName,
 		LastName:      customer.LastName,
 		PersonalEmail: customer.Email,
@@ -301,7 +300,8 @@ func OrderModel(orderPayload *supportmessages.Order) *models.Order {
 	}
 
 	if orderPayload.Rank != nil {
-		model.Grade = models.StringPointer((string)(*orderPayload.Rank))
+		grade := internalmessages.OrderPayGrade(*orderPayload.Rank) // Convert support API "Rank" into our internal tracking of "Grade"
+		model.Grade = &grade
 	}
 
 	if orderPayload.Status != nil {

@@ -900,3 +900,4 @@
 20240212150834_20240212_disable_homesafe_stg_cert.up.sql
 20240214213247_updateTransportationOfficesGbloc.up.sql
 20240222144140_redefine_order_audit_table_grade_col.up.sql
+20240223200739_updateDutyLocationsZip.up.sql

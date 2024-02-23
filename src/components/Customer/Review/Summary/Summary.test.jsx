@@ -24,14 +24,13 @@ const testProps = {
     personal_email: 'test@email.com',
     first_name: 'Tester',
     last_name: 'Testing',
-    rank: 'RANK',
     telephone: '123-555-7890',
   },
   currentOrders: {
     orders_type: 'PERMANENT_CHANGE_OF_STATION',
     has_dependents: false,
     issue_date: '2020-08-11',
-    grade: 'RANK',
+    grade: 'E_1',
     moves: ['123'],
     origin_duty_location: {
       name: 'Test Duty Location',
