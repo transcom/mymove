@@ -129,4 +129,6 @@ export default {
   filename: 'Filename',
   paid_with_gtcc: 'Paid with gtcc',
   missing_receipt: 'Missing receipt',
+  ppm_type: 'PPM type',
+  distance: 'Distance in miles',
 };
