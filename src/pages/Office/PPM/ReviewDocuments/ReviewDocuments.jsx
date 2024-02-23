@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Grid } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
@@ -33,11 +33,11 @@ const DOCUMENT_TYPES = {
 export const ReviewDocuments = () => {
   const { shipmentId, moveCode } = useParams();
   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
-
   const { mtoShipment, documents, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
   const order = Object.values(orders)?.[0];
   const [currentTotalWeight, setCurrentTotalWeight] = useState(0);
+  const [currentAllowableWeight, setCurrentAllowableWeight] = useState(0);
 
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
   const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
@@ -46,7 +46,6 @@ export const ReviewDocuments = () => {
   const weightTickets = documents?.WeightTickets ?? [];
   const proGearWeightTickets = documents?.ProGearWeightTickets ?? [];
   const movingExpenses = documents?.MovingExpenses ?? [];
-
   const updateTotalWeight = (newWeight) => {
     setCurrentTotalWeight(newWeight);
   };
@@ -192,8 +191,16 @@ export const ReviewDocuments = () => {
     }
   };
 
+  const updateAllowableWeight = useCallback((newWeight) => {
+    setCurrentAllowableWeight(newWeight);
+  }, []);
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
+
+  const ppmShipmentInfo = mtoShipment.ppmShipment;
+  ppmShipmentInfo.miles = mtoShipment.distance;
+  ppmShipmentInfo.actualWeight = currentTotalWeight;
 
   const currentDocumentSet = documentSets[documentSetIndex];
   const disableBackButton = documentSetIndex === 0 && !showOverview;
@@ -239,18 +246,21 @@ export const ReviewDocuments = () => {
             (showOverview ? (
               <ReviewDocumentsSidePanel
                 ppmShipment={mtoShipment.ppmShipment}
+                ppmShipmentInfo={ppmShipmentInfo}
                 weightTickets={weightTickets}
                 proGearTickets={proGearWeightTickets}
                 expenseTickets={movingExpenses}
                 onError={onError}
                 onSuccess={onConfirmSuccess}
                 formRef={formRef}
+                allowableWeight={currentAllowableWeight}
               />
             ) : (
               <>
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET && (
                   <ReviewWeightTicket
                     weightTicket={currentDocumentSet.documentSet}
+                    ppmShipmentInfo={ppmShipmentInfo}
                     ppmNumber={1}
                     tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
@@ -260,11 +270,13 @@ export const ReviewDocuments = () => {
                     onSuccess={onSuccess}
                     formRef={formRef}
                     updateTotalWeight={updateTotalWeight}
+                    updateAllowableWeight={updateAllowableWeight}
                   />
                 )}
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (
                   <ReviewProGear
                     proGear={currentDocumentSet.documentSet}
+                    ppmShipmentInfo={ppmShipmentInfo}
                     ppmNumber={1}
                     tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
@@ -276,6 +288,7 @@ export const ReviewDocuments = () => {
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && (
                   <ReviewExpense
                     expense={currentDocumentSet.documentSet}
+                    ppmShipmentInfo={ppmShipmentInfo}
                     categoryIndex={currentDocumentCategoryIndex}
                     ppmNumber={1}
                     tripNumber={currentTripNumber}
