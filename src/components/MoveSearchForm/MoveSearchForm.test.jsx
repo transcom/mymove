@@ -1,13 +1,29 @@
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import MoveSearchForm from './MoveSearchForm';
+
+import { MockProviders } from 'testUtils';
+import { roleTypes } from 'constants/userRoles';
 
 describe('MoveSearchForm', () => {
   it('renders', () => {
     const { getByText } = render(<MoveSearchForm onSubmit={() => {}} />);
     expect(getByText('What do you want to search for?')).toBeInTheDocument();
+  });
+
+  it('check tabs if tabs load when logged in as a services counselor', async () => {
+    const onSubmit = jest.fn();
+    render(
+      <MockProviders path="/Search" params={{ queueType: 'Search' }}>
+        <MoveSearchForm onSubmit={onSubmit} role={roleTypes.SERVICES_COUNSELOR} />
+      </MockProviders>,
+    );
+
+    expect(screen.getByTestId('counseling-tab-link')).toBeInTheDocument();
+    expect(screen.getByTestId('closeout-tab-link')).toBeInTheDocument();
+    expect(screen.getByTestId('search-tab-link')).toBeInTheDocument();
   });
 
   describe('check validation', () => {

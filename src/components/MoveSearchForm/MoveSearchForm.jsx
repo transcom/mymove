@@ -59,7 +59,7 @@ const MoveSearchForm = ({ onSubmit, role }) => {
               className={({ isActive }) => (isActive ? 'usa-current' : '')}
               to={servicesCounselingRoutes.BASE_QUEUE_SEARCH_PATH}
             >
-              <span data-testid="closeout-tab-link" className="tab-title">
+              <span data-testid="search-tab-link" className="tab-title">
                 Search
               </span>
             </NavLink>,
