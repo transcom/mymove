@@ -140,6 +140,15 @@ const TableQueue = ({
                 PPM Closeout
               </span>
             </NavLink>,
+            <NavLink
+              end
+              className={({ isActive }) => (isActive ? 'usa-current' : '')}
+              to={servicesCounselingRoutes.BASE_QUEUE_SEARCH_PATH}
+            >
+              <span data-testid="closeout-tab-link" className="tab-title">
+                Search
+              </span>
+            </NavLink>,
           ]}
         />
       )}
