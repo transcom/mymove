@@ -288,6 +288,7 @@ const ServicesCounselingQueue = () => {
             moveCode={search.moveCode}
             dodID={search.dodID}
             customerName={search.customerName}
+            roleType={roleTypes.SERVICES_COUNSELOR}
           />
         )}
       </div>

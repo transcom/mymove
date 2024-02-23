@@ -1,5 +1,7 @@
 import { shape, string, bool, arrayOf } from 'prop-types';
 
+import { roleTypes } from './userRoles';
+
 import MOVE_STATUSES from 'constants/moves';
 
 export const MOVE_STATUS_OPTIONS = [
@@ -12,8 +14,10 @@ export const MOVE_STATUS_OPTIONS = [
 // queue as well as those that completed services counseling should have the
 // status label of New move
 export const MOVE_STATUS_LABELS = {
+  [MOVE_STATUSES.DRAFT]: 'Draft',
   [MOVE_STATUSES.SUBMITTED]: 'New move',
   [MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED]: 'New move',
+  [MOVE_STATUSES.NEEDS_SERVICE_COUNSELING]: 'Needs Service Counseling',
   [MOVE_STATUSES.APPROVALS_REQUESTED]: 'Approvals requested',
   [MOVE_STATUSES.APPROVED]: 'Move approved',
 };
@@ -36,6 +40,12 @@ export const PAYMENT_REQUEST_STATUS_OPTIONS = [
   { value: 'Deprecated', label: 'Deprecated' },
   { value: 'Error', label: 'Error' },
 ];
+
+export const ROLE_TYPE_OPTIONS = {
+  [roleTypes.SERVICES_COUNSELOR]: SERVICE_COUNSELING_MOVE_STATUS_OPTIONS,
+  [roleTypes.QAE_CSR]: MOVE_STATUS_OPTIONS,
+  [roleTypes.TIO]: PAYMENT_REQUEST_STATUS_OPTIONS,
+};
 
 export const BRANCH_OPTIONS = [
   { value: '', label: 'All' },
