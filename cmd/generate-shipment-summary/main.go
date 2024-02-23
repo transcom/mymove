@@ -20,18 +20,17 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
-	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
+	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
 )
 
 // hereRequestTimeout is how long to wait on HERE request before timing out (15 seconds).
 const hereRequestTimeout = time.Duration(15) * time.Second
 
 const (
-	moveIDFlag string = "move"
-	debugFlag  string = "debug"
+	PPMShipmentIDFlag string = "ppmshipment"
+	debugFlag         string = "debug"
 )
 
 func noErr(err error) {
@@ -60,7 +59,7 @@ func checkConfig(v *viper.Viper, logger *zap.Logger) error {
 func initFlags(flag *pflag.FlagSet) {
 
 	// Scenario config
-	flag.String(moveIDFlag, "", "The move ID to generate a shipment summary worksheet for")
+	flag.String(PPMShipmentIDFlag, "", "The move ID to generate a shipment summary worksheet for")
 	flag.Bool(debugFlag, false, "show field debug output")
 
 	// DB Config
@@ -119,7 +118,7 @@ func main() {
 
 	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
 
-	moveID := v.GetString(moveIDFlag)
+	moveID := v.GetString(PPMShipmentIDFlag)
 	if moveID == "" {
 		log.Fatalf("Usage: %s --move <29cb984e-c70d-46f0-926d-cd89e07a6ec3>", os.Args[0])
 	}
@@ -137,9 +136,8 @@ func main() {
 		formFiller.Debug()
 	}
 
-	move, err := models.FetchMoveByMoveID(dbConnection, parsedID)
 	if err != nil {
-		log.Fatalf("error fetching move: %s", moveIDFlag)
+		log.Fatalf("error fetching ppmshipment: %s", PPMShipmentIDFlag)
 	}
 
 	geocodeEndpoint := os.Getenv("HERE_MAPS_GEOCODE_ENDPOINT")
@@ -150,18 +148,18 @@ func main() {
 
 	// TODO: Future cleanup will need to remap to a different planner, or this command should be removed if it is consider deprecated
 	planner := route.NewHEREPlanner(hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
-	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(move))
+	ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer()
 
-	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(dbConnection, &auth.Session{}, parsedID)
+	ssfd, err := ppmComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, &auth.Session{}, parsedID)
 	if err != nil {
 		log.Fatalf("%s", errors.Wrap(err, "Error fetching shipment summary worksheet data "))
 	}
-	ssfd.Obligations, err = ppmComputer.ComputeObligations(appCtx, ssfd, planner)
+	ssfd.Obligations, err = ppmComputer.ComputeObligations(appCtx, *ssfd, planner)
 	if err != nil {
 		log.Fatalf("%s", errors.Wrap(err, "Error calculating obligations "))
 	}
 
-	page1Data, page2Data, page3Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)
+	page1Data, page2Data, page3Data := ppmComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
 	noErr(err)
 
 	// page 1

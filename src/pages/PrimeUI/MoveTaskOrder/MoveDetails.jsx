@@ -95,22 +95,25 @@ const MoveDetails = ({ setFlashMessage }) => {
     },
     onError: (error) => {
       const { response: { body } = {} } = error;
-
       if (body) {
         setErrorMessage({
           title: `Prime API: ${body.title} `,
           detail: `${body.detail}`,
         });
-      } else if (error.response.status === 422) {
-        setErrorMessage({
-          title: 'Unprocessable Entity Error: ',
-          detail: `There are no ${documentTypeKey} for this move to download.`,
-        });
       } else {
-        setErrorMessage({
-          title: 'Unexpected error: ',
-          detail: 'Please check the move order document user uploads for this move.',
-        });
+        // Error message is coming in as byte array(PDF).
+        // Need to convert byte array into text/json.
+        (async () => {
+          let title = 'Unexpected Error: ';
+          if (error.response.status === 422) {
+            title = 'Unprocessable Entity Error: ';
+          }
+          const text = await error.response.data.text();
+          setErrorMessage({
+            title,
+            detail: JSON.parse(text).detail,
+          });
+        })();
       }
     },
   });
