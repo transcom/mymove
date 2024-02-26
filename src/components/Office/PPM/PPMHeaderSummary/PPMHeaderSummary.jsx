@@ -27,6 +27,8 @@ const GCCAndIncentiveInfo = ({ ppmShipmentInfo }) => {
     haulPrice: ppmCloseout.haulPrice,
     haulFSC: ppmCloseout.haulFSC,
     fullPackUnpackCharge: ppmCloseout.packPrice + ppmCloseout.unpackPrice,
+    dop: ppmCloseout.dop,
+    ddp: ppmCloseout.ddp,
   };
 
   return (

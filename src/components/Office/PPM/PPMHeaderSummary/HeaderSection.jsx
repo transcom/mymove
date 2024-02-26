@@ -119,6 +119,14 @@ const getSectionMarkup = (sectionInfo) => {
             <Label>Full Pack/Unpack Charge</Label>
             <span className={styles.light}>${formatCents(sectionInfo.fullPackUnpackCharge)}</span>
           </div>
+          <div>
+            <Label>Origin Price</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.dop)}</span>
+          </div>
+          <div>
+            <Label>Destination Price</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.ddp)}</span>
+          </div>
         </div>
       );
 
