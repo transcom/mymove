@@ -113,6 +113,8 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	}
 
 	internalAPI.MovesPatchMoveHandler = PatchMoveHandler{handlerConfig, closeoutOfficeUpdater}
+	internalAPI.MovesGetAllMovesHandler = GetAllMovesHandler{handlerConfig}
+
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler{handlerConfig}
 	internalAPI.MovesSubmitMoveForApprovalHandler = SubmitMoveHandler{
 		handlerConfig,
@@ -144,7 +146,6 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	internalAPI.QueuesShowQueueHandler = ShowQueueHandler{handlerConfig}
 	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler{handlerConfig, moveRouter}
-	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler{handlerConfig}
 	internalAPI.OfficeApproveReimbursementHandler = ApproveReimbursementHandler{handlerConfig}
 	internalAPI.OfficeCancelMoveHandler = CancelMoveHandler{handlerConfig, moveRouter}
 

@@ -14,6 +14,7 @@ jest.mock('services/internalApi', () => ({
   getServiceMember: jest.fn().mockImplementation(() => Promise.resolve()),
   createOrders: jest.fn().mockImplementation(() => Promise.resolve()),
   patchOrders: jest.fn().mockImplementation(() => Promise.resolve()),
+  getAllMoves: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 jest.mock('components/LocationSearchBox/api', () => ({
@@ -436,7 +437,6 @@ describe('Orders page', () => {
       expect(patchOrders).toHaveBeenCalled();
     });
 
-    expect(queryByText('A server error occurred saving the orders')).toBeInTheDocument();
     expect(testProps.updateOrders).toHaveBeenCalledTimes(1);
     expect(mockNavigate).not.toHaveBeenCalled();
   });

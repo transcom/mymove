@@ -232,7 +232,7 @@ func init() {
         }
       }
     },
-    "/moves/{locator}/order/download": {
+    "/moves/{locator}/documents": {
       "get": {
         "description": "### Functionality\nThis endpoint downloads all uploaded move order documentations into one download file by locator.\n\n### Errors\n* The move must be in need counseling state.\n* The move client's origin duty location must not currently have gov counseling.\n",
         "produces": [
@@ -243,6 +243,27 @@ func init() {
         ],
         "summary": "Downloads move order as a PDF",
         "operationId": "downloadMoveOrder",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "the locator code for move order to be downloaded",
+            "name": "locator",
+            "in": "path",
+            "required": true
+          },
+          {
+            "enum": [
+              "ALL",
+              "ORDERS",
+              "AMENDMENTS"
+            ],
+            "type": "string",
+            "default": "ALL",
+            "description": "upload type",
+            "name": "type",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Move Order PDF",
@@ -273,16 +294,7 @@ func init() {
             "$ref": "#/responses/ServerError"
           }
         }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "the locator code for move order to be downloaded",
-          "name": "locator",
-          "in": "path",
-          "required": true
-        }
-      ]
+      }
     },
     "/mto-service-items": {
       "post": {
@@ -343,7 +355,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: You can add a new SIT Destination final address using this endpoint (and must use this endpoint to do so), but you cannot update an existing one.\nPlease use [createSITAddressUpdateRequest](#operation/createSITAddressUpdateRequest) instead.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n",
+        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: To update a destination service item's SIT destination final address, update the shipment destination address.\nFor approved shipments, please use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).\nFor shipments not yet approved, please use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).\n\nTo create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.\n",
         "consumes": [
           "application/json"
         ],
@@ -630,7 +642,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates an existing shipment for a move.\n\nNote that there are some restrictions on nested objects:\n\n* Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.\n* Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.\n* Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.\n\nThese restrictions are due to our [optimistic locking/concurrency control](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/use-optimistic-locking) mechanism.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
+        "description": "_[Deprecated: sunset on August 5th, 2024]_ This endpoint is deprecated and will be removed in a future version.\nPlease use the new endpoint at ` + "`" + `/prime/v2/updateMTOShipment` + "`" + ` instead.\n\n**DEPRECATION ON AUGUST 5TH, 2024**\nFollowing deprecation, there is an edge case scenario where a PPM shipment with no addresses could be updated and it would also update the final destination SIT address\nfor SIT service items. This edge case has been removed as you should not be able to update items using this endpoint. Third-party APIs have confirmed they will require\ndeprecation for this change.\n\nUpdates an existing shipment for a move.\n\nNote that there are some restrictions on nested objects:\n\n* Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.\n* Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.\n* Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.\n\nThese restrictions are due to our [optimistic locking/concurrency control](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/use-optimistic-locking) mechanism.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
         "consumes": [
           "application/json"
         ],
@@ -4949,7 +4961,7 @@ func init() {
         }
       }
     },
-    "/moves/{locator}/order/download": {
+    "/moves/{locator}/documents": {
       "get": {
         "description": "### Functionality\nThis endpoint downloads all uploaded move order documentations into one download file by locator.\n\n### Errors\n* The move must be in need counseling state.\n* The move client's origin duty location must not currently have gov counseling.\n",
         "produces": [
@@ -4960,6 +4972,27 @@ func init() {
         ],
         "summary": "Downloads move order as a PDF",
         "operationId": "downloadMoveOrder",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "the locator code for move order to be downloaded",
+            "name": "locator",
+            "in": "path",
+            "required": true
+          },
+          {
+            "enum": [
+              "ALL",
+              "ORDERS",
+              "AMENDMENTS"
+            ],
+            "type": "string",
+            "default": "ALL",
+            "description": "upload type",
+            "name": "type",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Move Order PDF",
@@ -5005,16 +5038,7 @@ func init() {
             }
           }
         }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "the locator code for move order to be downloaded",
-          "name": "locator",
-          "in": "path",
-          "required": true
-        }
-      ]
+      }
     },
     "/mto-service-items": {
       "post": {
@@ -5096,7 +5120,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: You can add a new SIT Destination final address using this endpoint (and must use this endpoint to do so), but you cannot update an existing one.\nPlease use [createSITAddressUpdateRequest](#operation/createSITAddressUpdateRequest) instead.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n",
+        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: To update a destination service item's SIT destination final address, update the shipment destination address.\nFor approved shipments, please use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).\nFor shipments not yet approved, please use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).\n\nTo create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.\n",
         "consumes": [
           "application/json"
         ],
@@ -5459,7 +5483,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates an existing shipment for a move.\n\nNote that there are some restrictions on nested objects:\n\n* Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.\n* Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.\n* Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.\n\nThese restrictions are due to our [optimistic locking/concurrency control](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/use-optimistic-locking) mechanism.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
+        "description": "_[Deprecated: sunset on August 5th, 2024]_ This endpoint is deprecated and will be removed in a future version.\nPlease use the new endpoint at ` + "`" + `/prime/v2/updateMTOShipment` + "`" + ` instead.\n\n**DEPRECATION ON AUGUST 5TH, 2024**\nFollowing deprecation, there is an edge case scenario where a PPM shipment with no addresses could be updated and it would also update the final destination SIT address\nfor SIT service items. This edge case has been removed as you should not be able to update items using this endpoint. Third-party APIs have confirmed they will require\ndeprecation for this change.\n\nUpdates an existing shipment for a move.\n\nNote that there are some restrictions on nested objects:\n\n* Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.\n* Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.\n* Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.\n\nThese restrictions are due to our [optimistic locking/concurrency control](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/use-optimistic-locking) mechanism.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
         "consumes": [
           "application/json"
         ],

@@ -69,9 +69,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OfficeApproveMoveHandler: office.ApproveMoveHandlerFunc(func(params office.ApproveMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ApproveMove has not yet been implemented")
 		}),
-		OfficeApprovePPMHandler: office.ApprovePPMHandlerFunc(func(params office.ApprovePPMParams) middleware.Responder {
-			return middleware.NotImplemented("operation office.ApprovePPM has not yet been implemented")
-		}),
 		OfficeApproveReimbursementHandler: office.ApproveReimbursementHandlerFunc(func(params office.ApproveReimbursementParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ApproveReimbursement has not yet been implemented")
 		}),
@@ -140,6 +137,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		PpmDeleteWeightTicketHandler: ppm.DeleteWeightTicketHandlerFunc(func(params ppm.DeleteWeightTicketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.DeleteWeightTicket has not yet been implemented")
+		}),
+		MovesGetAllMovesHandler: moves.GetAllMovesHandlerFunc(func(params moves.GetAllMovesParams) middleware.Responder {
+			return middleware.NotImplemented("operation moves.GetAllMoves has not yet been implemented")
 		}),
 		TransportationOfficesGetTransportationOfficesHandler: transportation_offices.GetTransportationOfficesHandlerFunc(func(params transportation_offices.GetTransportationOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_offices.GetTransportationOffices has not yet been implemented")
@@ -316,8 +316,6 @@ type MymoveAPI struct {
 
 	// OfficeApproveMoveHandler sets the operation handler for the approve move operation
 	OfficeApproveMoveHandler office.ApproveMoveHandler
-	// OfficeApprovePPMHandler sets the operation handler for the approve p p m operation
-	OfficeApprovePPMHandler office.ApprovePPMHandler
 	// OfficeApproveReimbursementHandler sets the operation handler for the approve reimbursement operation
 	OfficeApproveReimbursementHandler office.ApproveReimbursementHandler
 	// FeatureFlagsBooleanFeatureFlagForUserHandler sets the operation handler for the boolean feature flag for user operation
@@ -364,6 +362,8 @@ type MymoveAPI struct {
 	UploadsDeleteUploadsHandler uploads.DeleteUploadsHandler
 	// PpmDeleteWeightTicketHandler sets the operation handler for the delete weight ticket operation
 	PpmDeleteWeightTicketHandler ppm.DeleteWeightTicketHandler
+	// MovesGetAllMovesHandler sets the operation handler for the get all moves operation
+	MovesGetAllMovesHandler moves.GetAllMovesHandler
 	// TransportationOfficesGetTransportationOfficesHandler sets the operation handler for the get transportation offices operation
 	TransportationOfficesGetTransportationOfficesHandler transportation_offices.GetTransportationOfficesHandler
 	// EntitlementsIndexEntitlementsHandler sets the operation handler for the index entitlements operation
@@ -534,9 +534,6 @@ func (o *MymoveAPI) Validate() error {
 	if o.OfficeApproveMoveHandler == nil {
 		unregistered = append(unregistered, "office.ApproveMoveHandler")
 	}
-	if o.OfficeApprovePPMHandler == nil {
-		unregistered = append(unregistered, "office.ApprovePPMHandler")
-	}
 	if o.OfficeApproveReimbursementHandler == nil {
 		unregistered = append(unregistered, "office.ApproveReimbursementHandler")
 	}
@@ -605,6 +602,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PpmDeleteWeightTicketHandler == nil {
 		unregistered = append(unregistered, "ppm.DeleteWeightTicketHandler")
+	}
+	if o.MovesGetAllMovesHandler == nil {
+		unregistered = append(unregistered, "moves.GetAllMovesHandler")
 	}
 	if o.TransportationOfficesGetTransportationOfficesHandler == nil {
 		unregistered = append(unregistered, "transportation_offices.GetTransportationOfficesHandler")
@@ -831,10 +831,6 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/personally_procured_moves/{personallyProcuredMoveId}/approve"] = office.NewApprovePPM(o.context, o.OfficeApprovePPMHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
 	o.handlers["POST"]["/reimbursement/{reimbursementId}/approve"] = office.NewApproveReimbursement(o.context, o.OfficeApproveReimbursementHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -924,6 +920,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}"] = ppm.NewDeleteWeightTicket(o.context, o.PpmDeleteWeightTicketHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/allmoves/{serviceMemberId}"] = moves.NewGetAllMoves(o.context, o.MovesGetAllMovesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
