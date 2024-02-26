@@ -10,7 +10,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { usePPMCloseoutQuery } from 'hooks/queries';
 
 const GCCAndIncentiveInfo = ({ ppmShipmentInfo }) => {
-  const { ppmCloseout, isLoading, isError } = usePPMCloseoutQuery(ppmShipmentInfo.id, ppmShipmentInfo.allowableWeight);
+  const { ppmCloseout, isLoading, isError } = usePPMCloseoutQuery(ppmShipmentInfo.id);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -27,6 +27,8 @@ const GCCAndIncentiveInfo = ({ ppmShipmentInfo }) => {
     haulPrice: ppmCloseout.haulPrice,
     haulFSC: ppmCloseout.haulFSC,
     fullPackUnpackCharge: ppmCloseout.packPrice + ppmCloseout.unpackPrice,
+    dop: ppmCloseout.dop,
+    ddp: ppmCloseout.ddp,
   };
 
   return (

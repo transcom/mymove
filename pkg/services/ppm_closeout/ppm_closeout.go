@@ -45,7 +45,7 @@ func NewPPMCloseoutFetcher(planner route.Planner, paymentRequestHelper paymentre
 	}
 }
 
-func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, allowableWeight *int64) (*models.PPMCloseout, error) {
+func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.PPMCloseout, error) {
 	var ppmCloseoutObj models.PPMCloseout
 	ppmShipment, err := p.GetPPMShipment(appCtx, ppmShipmentID)
 	if err != nil {
@@ -81,12 +81,15 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 	proGearCustomerMax := unit.Pound(2000)
 	proGearSpouseMax := unit.Pound(500)
 	var fullAllowableWeight unit.Pound
-	if allowableWeight != nil {
-		fullAllowableWeight = unit.Pound(int(*allowableWeight))
-	} else {
-		fullEntitlementWeight, _ := p.GetEntitlement(appCtx, ppmShipment.Shipment.MoveTaskOrderID)
-		fullAllowableWeight = unit.Pound(*fullEntitlementWeight.DBAuthorizedWeight)
+
+	if len(ppmShipment.WeightTickets) >= 1 {
+		for _, weightTicket := range ppmShipment.WeightTickets {
+			if weightTicket.Status != nil && *weightTicket.Status == models.PPMDocumentStatusApproved {
+				fullAllowableWeight += *weightTicket.AllowableWeight
+			}
+		}
 	}
+
 	fullWeightGCCShipment := ppmShipment
 	// fullWeightGCCShipment.ActualWeight = fullEntitlementWeight
 
@@ -451,9 +454,6 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 		case models.ReServiceCodeDSH, models.ReServiceCodeDLH:
 			haulPrice += centsValue
 		case models.ReServiceCodeFSC:
-			if centsValue < 0 {
-				centsValue = 0
-			} // Shouldn't have a negative fuel charge
 			haulFSC += centsValue
 		}
 	}

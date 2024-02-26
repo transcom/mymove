@@ -113,11 +113,22 @@ const getSectionMarkup = (sectionInfo) => {
           </div>
           <div>
             <Label>Haul Fuel Surcharge</Label>
-            <span className={styles.light}>${formatCents(sectionInfo.haulFSC)}</span>
+            <span className={styles.light}>
+              {sectionInfo.haulFSC < 0 ? '-$' : '$'}
+              {formatCents(Math.abs(sectionInfo.haulFSC))}
+            </span>
           </div>
           <div>
             <Label>Full Pack/Unpack Charge</Label>
             <span className={styles.light}>${formatCents(sectionInfo.fullPackUnpackCharge)}</span>
+          </div>
+          <div>
+            <Label>Origin Price</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.dop)}</span>
+          </div>
+          <div>
+            <Label>Destination Price</Label>
+            <span className={styles.light}>${formatCents(sectionInfo.ddp)}</span>
           </div>
         </div>
       );

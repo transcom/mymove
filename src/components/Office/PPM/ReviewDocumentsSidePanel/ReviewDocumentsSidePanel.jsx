@@ -197,10 +197,14 @@ export default function ReviewDocumentsSidePanel({
                                   )}
                                 </dl>
                               </span>
+                              <span>
+                                <dt>Authorized Price:</dt>
+                                <dl>${formatCents(exp.amount)}</dl>
+                              </span>
                             </dl>
                           ) : (
                             <span>
-                              <dt>Amount:</dt>
+                              <dt>Authorized Price:</dt>
                               <dl>${formatCents(exp.amount)}</dl>
                             </span>
                           )}
