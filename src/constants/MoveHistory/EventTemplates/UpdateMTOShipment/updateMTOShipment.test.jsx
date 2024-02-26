@@ -108,8 +108,7 @@ describe('when given an mto shipment update with mto shipment table history reco
       );
       const history = { ...historyRecord, changedValues: { ...targetItem } };
       const result = getTemplate(history);
-      // eslint-disable-next-line no-unused-vars
-      const ren = render(result.getDetails(history));
+      render(result.getDetails(history));
       const displayingElements = screen.getAllByText(label);
       const displayingElement = displayingElements.find((element) => element.parentElement.textContent.includes(label));
       const parent = displayingElement.parentElement;
