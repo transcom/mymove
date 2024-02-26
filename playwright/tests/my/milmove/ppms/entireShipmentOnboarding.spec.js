@@ -70,6 +70,10 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
     await this.page.locator('input[name="pickupAddress.address.postalCode"]').type('90210');
     await this.page.locator('input[name="pickupAddress.address.postalCode"]').blur();
 
+    await this.page.locator('input[name="secondaryPickupAddress.address.streetAddress1"]').type('1234 Street');
+    await this.page.locator('input[name="secondaryPickupAddress.address.city"]').type('SomeCity');
+    await this.page.locator('select[name="secondaryPickupAddress.address.state"]').selectOption({ label: 'CA' });
+
     await this.page.locator('input[name="secondaryPickupAddress.address.postalCode"]').clear();
     await this.page.locator('input[name="secondaryPickupAddress.address.postalCode"]').type('90212');
     await this.page.locator('input[name="secondaryPickupAddress.address.postalCode"]').blur();
@@ -93,16 +97,6 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
     await this.navigateFromDateAndLocationPageToEstimatedWeightsPage();
 
     await this.page.getByRole('button', { name: 'Back' }).click();
-
-    // TODO: can validate this once the values are saved as part of B-18434
-    // verify values
-    // await expect(this.page.locator('input[name="pickupAddress.address.postalCode"]')).toHaveValue('90210');
-    // await expect(this.page.locator('label[for="yes-secondary-pickup-address"]')).toBeChecked();
-    // await expect(this.page.locator('input[name="secondaryPickupAddress.address.postalCode"]')).toHaveValue('90212');
-    // await expect(this.page.locator('input[name="destinationAddress.address.postalCode"]')).toHaveValue('76127');
-    // await expect(this.page.locator('input[name="expectedDepartureDate"]')).toHaveValue('01 Feb 2022');
-    // await expect(this.page.locator('label[for="sitExpectedNo"]')).toBeChecked();
-    // await expect(this.page.locator('label[for="sitExpectedNo"]')).toHaveValue('false');
 
     await this.navigateFromDateAndLocationPageToEstimatedWeightsPage();
   }
