@@ -1,10 +1,9 @@
 package shipmentsummaryworksheet
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
 	"reflect"
 	"strings"
 	"time"
@@ -18,6 +17,7 @@ import (
 	"golang.org/x/text/message"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -40,24 +40,31 @@ func NewSSWPPMComputer() services.SSWPPMComputer {
 
 // SSWPPMGenerator is the concrete struct implementing the services.shipmentsummaryworksheet interface
 type SSWPPMGenerator struct {
-	generator paperwork.Generator
+	generator      paperwork.Generator
+	templateReader *bytes.Reader
 }
 
 // NewSSWPPMGenerator creates a SSWPPMGenerator
-func NewSSWPPMGenerator() services.SSWPPMGenerator {
+func NewSSWPPMGenerator() (services.SSWPPMGenerator, error) {
 	// Generator and dependencies must be initiated to handle memory filesystem for AWS
 	storer := storage.NewMemory(storage.NewMemoryParams("", ""))
 	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
-		panic(err)
+		return nil, errors.WithStack(err)
 	}
 	generator, err := paperwork.NewGenerator(userUploader.Uploader())
 	if err != nil {
-		panic(err)
+		return nil, errors.WithStack(err)
 	}
+	templateReader, err := createAssetByteReader("paperwork/formtemplates/SSWPDFTemplate.pdf")
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
 	return &SSWPPMGenerator{
-		generator: *generator,
-	}
+		generator:      *generator,
+		templateReader: templateReader,
+	}, nil
 }
 
 // FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
@@ -763,27 +770,6 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 // FillSSWPDFForm takes form data and fills an existing PDF form template with said data
 func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values) (sswfile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
 
-	pdfTemplatePath, err := filepath.Abs("pkg/assets/paperwork/formtemplates/SSWPDFTemplate.pdf")
-	if err != nil {
-		panic(err)
-	}
-
-	// NOTE: The testing suite is based on a different filesystem, relative filepaths will not work.
-	// Additionally, the function runs at a different file location. Therefore, when ran from testing,
-	// the PDF template path needs to be reconfigured relative to where the test runs from.
-	if strings.HasSuffix(os.Args[0], ".test") {
-		pdfTemplatePath, err = filepath.Abs("../../../pkg/assets/paperwork/formtemplates/SSWPDFTemplate.pdf")
-		if err != nil {
-			panic(err)
-		}
-
-	}
-
-	templateReader, err := afero.NewOsFs().Open(pdfTemplatePath)
-	if err != nil {
-		panic(err)
-	}
-
 	// header represents the header section of the JSON.
 	type header struct {
 		Source   string `json:"source"`
@@ -851,7 +837,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		fmt.Println("Error marshaling JSON:", err)
 		return
 	}
-	SSWWorksheet, err := SSWPPMGenerator.generator.FillPDFForm(jsonData, templateReader)
+	SSWWorksheet, err := SSWPPMGenerator.generator.FillPDFForm(jsonData, SSWPPMGenerator.templateReader)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -893,4 +879,14 @@ func createTextFields(data interface{}, pages ...int) []textField {
 // MergeTextFields merges page 1 and page 2 data
 func mergeTextFields(fields1, fields2 []textField) []textField {
 	return append(fields1, fields2...)
+}
+
+// createAssetByteReader creates a new byte reader based on the TemplateImagePath of the formLayout
+func createAssetByteReader(path string) (*bytes.Reader, error) {
+	asset, err := assets.Asset(path)
+	if err != nil {
+		return nil, errors.Wrap(err, "error creating asset from path; check image path : "+path)
+	}
+
+	return bytes.NewReader(asset), nil
 }

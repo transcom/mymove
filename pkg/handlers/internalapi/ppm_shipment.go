@@ -274,9 +274,29 @@ func (h showAOAPacketHandler) Handle(params ppmops.ShowAOAPacketParams) middlewa
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			logger := appCtx.Logger()
 
+			// Ensures session
+			if appCtx.Session() == nil {
+				noSessionErr := apperror.NewSessionError("No user session")
+				return ppmops.NewShowAOAPacketForbidden(), noSessionErr
+			}
+			// Ensures service member ID is present
+			if !appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil {
+				noServiceMemberIDErr := apperror.NewSessionError("No service member ID")
+				return ppmops.NewShowAOAPacketForbidden(), noServiceMemberIDErr
+			}
+
 			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID)
 			if err != nil {
 				err := apperror.NewBadDataError("missing/empty required URI parameter: PPMShipmentID")
+				appCtx.Logger().Error(err.Error())
+				return ppmops.NewShowAOAPacketBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
+					err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+
+			// Ensures AOA is for the accessing member
+			err = h.VerifyAOAPacketInternal(appCtx, ppmShipmentID)
+			if err != nil {
+				err := apperror.NewBadDataError("PPMShipment cannot be verified")
 				appCtx.Logger().Error(err.Error())
 				return ppmops.NewShowAOAPacketBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
 					err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
@@ -292,60 +312,8 @@ func (h showAOAPacketHandler) Handle(params ppmops.ShowAOAPacketParams) middlewa
 			}
 
 			payload := io.NopCloser(AOAPacket)
-			filename := fmt.Sprintf("inline; filename=\"AOA-%s.pdf\"", time.Now().Format("01-02-2006"))
+			filename := fmt.Sprintf("inline; filename=\"AOA-%s.pdf\"", time.Now().Format("01-02-2006_15-04-05"))
 
 			return ppmops.NewShowAOAPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
 		})
-}
-
-// Handle returns a generated PDF
-func (h ShowShipmentSummaryWorksheetHandler) Handle(params ppmops.ShowShipmentSummaryWorksheetParams) middleware.Responder {
-	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			logger := appCtx.Logger()
-
-			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
-			if err != nil {
-				logger.Error("Error fetching PPMShipment", zap.Error(err))
-				return handlers.ResponseForError(appCtx.Logger(), err), err
-			}
-			ssfd, err := h.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentID)
-			if err != nil {
-				logger.Error("Error fetching data for SSW", zap.Error(err))
-				return handlers.ResponseForError(logger, err), err
-			}
-
-			ssfd.Obligations, err = h.SSWPPMComputer.ComputeObligations(appCtx, *ssfd, h.DTODPlanner())
-			if err != nil {
-				logger.Error("Error calculating obligations ", zap.Error(err))
-				return handlers.ResponseForError(logger, err), err
-			}
-
-			page1Data, page2Data := h.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
-			if err != nil {
-				logger.Error("Error formatting data for SSW", zap.Error(err))
-				return handlers.ResponseForError(logger, err), err
-			}
-
-			SSWPPMWorksheet, SSWPDFInfo, err := h.SSWPPMGenerator.FillSSWPDFForm(page1Data, page2Data)
-			if err != nil {
-				logger.Error("Error filling SSW", zap.Error(err))
-				return handlers.ResponseForError(logger, err), err
-			}
-			if SSWPDFInfo.PageCount != 2 {
-				logger.Error("Error filling SSW: PDF is corrupt", zap.Error(err))
-				return handlers.ResponseForError(logger, err), err
-			}
-			payload := io.NopCloser(SSWPPMWorksheet)
-			filename := fmt.Sprintf("inline; filename=\"%s-%s-ssw-%s.pdf\"", *ssfd.ServiceMember.FirstName, *ssfd.ServiceMember.LastName, time.Now().Format("01-02-2006"))
-
-			return ppmops.NewShowShipmentSummaryWorksheetOK().WithContentDisposition(filename).WithPayload(payload), nil
-		})
-}
-
-// ShowShipmentSummaryWorksheetHandler returns a Shipment Summary Worksheet PDF
-type ShowShipmentSummaryWorksheetHandler struct {
-	handlers.HandlerConfig
-	services.SSWPPMComputer
-	services.SSWPPMGenerator
 }

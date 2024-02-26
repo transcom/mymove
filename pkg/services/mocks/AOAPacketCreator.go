@@ -41,6 +41,20 @@ func (_m *AOAPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShi
 	return r0, r1
 }
 
+// VerifyAOAPacketInternal provides a mock function with given fields: appCtx, ppmShipmentID
+func (_m *AOAPacketCreator) VerifyAOAPacketInternal(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) error {
+	ret := _m.Called(appCtx, ppmShipmentID)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r0 = rf(appCtx, ppmShipmentID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // NewAOAPacketCreator creates a new instance of AOAPacketCreator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewAOAPacketCreator(t interface {

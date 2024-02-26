@@ -786,8 +786,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestCreateTextFields() {
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 	SSWPPMComputer := NewSSWPPMComputer()
-	ppmGenerator := NewSSWPPMGenerator()
-
+	ppmGenerator, err := NewSSWPPMGenerator()
+	suite.FatalNoError(err)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())

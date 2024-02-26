@@ -40,7 +40,7 @@ type pdfBatchInfo struct {
 }
 
 // MoveUserUploadToPDFDownloader converts user uploads to PDFs to download
-func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx appcontext.AppContext, downloadMoveOrderUploadType services.MoveOrderUploadType, move models.Move) (afero.File, error) {
+func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx appcontext.AppContext, downloadMoveOrderUploadType services.MoveOrderUploadType, move models.Move, addBookmarks bool) (afero.File, error) {
 	var pdfBatchInfos []pdfBatchInfo
 	var pdfFileNames []string
 
@@ -79,6 +79,10 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 	mergedPdf, err := g.pdfGenerator.MergePDFFiles(appCtx, pdfFileNames)
 	if err != nil {
 		return nil, errors.Wrap(err, "error merging PDF files into one")
+	}
+
+	if !addBookmarks {
+		return mergedPdf, nil
 	}
 
 	// *** Build Bookmarks ****
@@ -114,60 +118,6 @@ func (g *moveUserUploadToPDFDownloader) GenerateDownloadMoveUserUploadPDF(appCtx
 
 	// Decorate master PDF file with bookmarks
 	return g.pdfGenerator.AddPdfBookmarks(mergedPdf, bookmarks)
-}
-
-// GenerateOrdersWithoutBookmarks converts user uploads to PDFs to download
-func (g *moveUserUploadToPDFDownloader) GenerateOrdersWithoutBookmarks(appCtx appcontext.AppContext, downloadMoveOrderUploadType services.MoveOrderUploadType, move models.Move) (afero.File, error) {
-	var pdfBatchInfos []pdfBatchInfo
-	var pdfFileNames []string
-
-	if downloadMoveOrderUploadType == services.MoveOrderUploadAll || downloadMoveOrderUploadType == services.MoveOrderUpload {
-		if move.Orders.UploadedOrdersID == uuid.Nil {
-			return nil, apperror.NewUnprocessableEntityError(fmt.Sprintf("order does not have any uploads associated to it, move.Orders.ID: %s", move.Orders.ID))
-		}
-		info, err := g.buildPdfBatchInfo(appCtx, services.MoveOrderUpload, move.Orders.UploadedOrdersID)
-		if err != nil {
-			return nil, errors.Wrap(err, "error building PDF batch information for bookmark generation for order docs")
-		}
-		pdfBatchInfos = append(pdfBatchInfos, *info)
-	}
-
-	if downloadMoveOrderUploadType == services.MoveOrderUploadAll || downloadMoveOrderUploadType == services.MoveOrderAmendmentUpload {
-		if downloadMoveOrderUploadType == services.MoveOrderAmendmentUpload && move.Orders.UploadedAmendedOrdersID == nil {
-			return nil, apperror.NewUnprocessableEntityError(fmt.Sprintf("order does not have any amendment uploads associated to it, move.Orders.ID: %s", move.Orders.ID))
-		}
-		if move.Orders.UploadedAmendedOrdersID != nil {
-			info, err := g.buildPdfBatchInfo(appCtx, services.MoveOrderAmendmentUpload, *move.Orders.UploadedAmendedOrdersID)
-			if err != nil {
-				return nil, errors.Wrap(err, "error building PDF batch information for bookmark generation for amendment docs")
-			}
-			pdfBatchInfos = append(pdfBatchInfos, *info)
-		}
-	}
-
-	// Merge all pdfFileNames from pdfBatchInfos into one array for PDF merge
-	for i := 0; i < len(pdfBatchInfos); i++ {
-		for j := 0; j < len(pdfBatchInfos[i].FileNames); j++ {
-			pdfFileNames = append(pdfFileNames, pdfBatchInfos[i].FileNames[j])
-		}
-	}
-
-	// Take all of generated PDFs and merge into a single PDF.
-	mergedPdf, err := g.pdfGenerator.MergePDFFiles(appCtx, pdfFileNames)
-	if err != nil {
-		return nil, errors.Wrap(err, "error merging PDF files into one")
-	}
-
-	// // Ensure Orders PDF is not corrupted
-	// ordersFileInfo, err := g.pdfGenerator.GetPdfFileInfo(mergedPdf.Name())
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// if !(ordersFileInfo.PageCount > 0) {
-	// 	return nil, err
-	// }
-
-	return mergedPdf, nil
 }
 
 // Build orderUploadDocType for document

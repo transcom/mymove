@@ -5,6 +5,7 @@ import (
 	"io"
 
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
 
@@ -39,6 +40,33 @@ func NewAOAPacketCreator(
 		*userUploader,
 		pdfGenerator,
 	}
+}
+
+func (a *aoaPacketCreator) VerifyAOAPacketInternal(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) error {
+	appCtx.Logger().Info("Retrieving ServiceMember to verify authorization")
+	ppmShipment := models.PPMShipment{}
+	dbQErr := appCtx.DB().Q().Eager(
+		"Shipment.MoveTaskOrder.Orders.ServiceMember",
+	).Find(&ppmShipment, ppmShipmentID)
+
+	if dbQErr != nil {
+		appCtx.Logger().Error("Could not retrieve query from PPMShipment to ServiceMember")
+		if errors.Cause(dbQErr).Error() == models.RecordNotFoundErrorString {
+			return models.ErrFetchNotFound
+		}
+		return dbQErr
+	}
+
+	if ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.ID == appCtx.Session().ServiceMemberID {
+		return nil
+	}
+
+	// This returns the same client-facing error to prevent fishing for UUIDs after logging unauthorized access.
+	appCtx.Logger().Error("Unauthorized AOA access attempted, Context Member: " +
+		appCtx.Session().ServiceMemberID.String() + " attempted to access AOA Packet records for " +
+		ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.ID.String())
+	return errors.New("Not the authorized service member")
+
 }
 
 // CreateAOAPacket creates an AOA packet for a PPM Shipment, containing the shipment summary worksheet (SSW) and
@@ -78,7 +106,7 @@ func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShip
 	// Find move attached to PPM Shipment
 	move := models.Move(ppmShipment.Shipment.MoveTaskOrder)
 	// This function retrieves all orders and amendments, converts and merges them into one PDF with bookmarks
-	ordersFile, err := a.PrimeDownloadMoveUploadPDFGenerator.GenerateOrdersWithoutBookmarks(appCtx, services.MoveOrderUploadAll, move)
+	ordersFile, err := a.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, services.MoveOrderUploadAll, move, false)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
