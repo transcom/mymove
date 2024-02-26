@@ -28,13 +28,13 @@ const defaultProps = {
   mtoShipment: {
     destinationAddress: undefined,
   },
-  serviceMember: {
-    weight_allotment: {
-      total_weight_self: 5000,
-    },
-  },
   orders: {
     orders_type: 'PERMANENT_CHANGE_OF_STATION',
+    authorizedWeight: 5000,
+    entitlement: {
+      proGear: 1000,
+      proGearSpouse: 100,
+    },
   },
   isCreatePage: true,
 };
@@ -92,7 +92,7 @@ function renderStory(props) {
 // create shipment stories (form should not prefill customer data)
 export const HHGShipment = () => renderStory({ shipmentType: SHIPMENT_OPTIONS.HHG });
 export const HHGShipmentRetiree = () =>
-  renderStory({ shipmentType: SHIPMENT_OPTIONS.HHG, orders: { orders_type: 'RETIREMENT' } });
+  renderStory({ shipmentType: SHIPMENT_OPTIONS.HHG, orders: { orders_type: 'RETIREMENT', authorizedWeight: 5000 } });
 export const NTSReleaseShipment = () => renderStory({ shipmentType: SHIPMENT_OPTIONS.NTSR });
 export const NTSShipment = () => renderStory({ shipmentType: SHIPMENT_OPTIONS.NTS });
 
@@ -121,7 +121,7 @@ export const EditShipmentAsSeparatee = () =>
     shipmentType: SHIPMENT_OPTIONS.HHG,
     isCreatePage: false,
     mtoShipment: mockMtoShipment,
-    orders: { orders_type: 'SEPARATION' },
+    orders: { orders_type: 'SEPARATION', authorizedWeight: 5000 },
   });
 
 export const EditHHGShipmentWithSecondaryAddresses = () => {
