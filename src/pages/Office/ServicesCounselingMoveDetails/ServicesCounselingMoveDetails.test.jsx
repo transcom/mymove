@@ -740,7 +740,7 @@ describe('MoveDetails page', () => {
         renderComponent();
 
         expect(await screen.findByRole('heading', { name: 'Allowances', level: 2 })).toBeInTheDocument();
-        expect(screen.getByText('Branch, pay grade')).toBeInTheDocument();
+        expect(screen.getByText('Branch')).toBeInTheDocument();
       });
 
       it('allows the service counselor to use the modal as expected', async () => {
