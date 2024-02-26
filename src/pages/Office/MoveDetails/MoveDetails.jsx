@@ -252,7 +252,7 @@ const MoveDetails = ({
   };
   const allowancesInfo = {
     branch: customer.agency,
-    weightAllowance: allowances.totalWeight,
+    grade: order.grade,
     authorizedWeight: allowances.authorizedWeight,
     progear: allowances.proGearWeight,
     spouseProgear: allowances.proGearWeightSpouse,

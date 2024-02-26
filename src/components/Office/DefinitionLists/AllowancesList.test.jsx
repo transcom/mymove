@@ -5,6 +5,7 @@ import AllowancesList from './AllowancesList';
 
 const info = {
   branch: 'NAVY',
+  grade: 'E_6',
   weightAllowance: 12000,
   authorizedWeight: 11000,
   progear: 2000,
@@ -23,7 +24,7 @@ describe('AllowancesList', () => {
 
   it('renders formatted weight allowance', () => {
     render(<AllowancesList info={info} />);
-    expect(screen.getByText('12,000 lbs')).toBeInTheDocument();
+    expect(screen.getByText('11,000 lbs')).toBeInTheDocument();
   });
 
   it('renders storage in transit', () => {

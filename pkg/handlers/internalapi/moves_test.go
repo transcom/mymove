@@ -24,6 +24,7 @@ import (
 	"github.com/transcom/mymove/pkg/notifications"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 )
 
 func (suite *HandlerSuite) TestPatchMoveHandler() {
@@ -514,8 +515,10 @@ func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 			ServiceMemberID: strfmt.UUID(newServiceMember.ID.String()),
 		}
 
-		// // And: a move is submitted
+		// And: a move is submitted
+		fakeS3 := storageTest.NewFakeS3Storage(true)
 		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFileStorer(fakeS3)
 
 		handler := GetAllMovesHandler{handlerConfig}
 		response := handler.Handle(params)
