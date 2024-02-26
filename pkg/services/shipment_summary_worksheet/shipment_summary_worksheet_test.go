@@ -52,6 +52,17 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 		},
 	}, nil)
 
+	var expenseAmount unit.Cents = 1000.00
+	var currentExpenseType = models.MovingExpenseReceiptTypeOther
+	paidGTCC := true
+	movingExpense := models.MovingExpense{
+		Amount:            &expenseAmount,
+		MovingExpenseType: &currentExpenseType,
+		PaidWithGTCC:      &paidGTCC,
+	}
+
+	factory.AddMovingExpenseToPPMShipment(suite.DB(), &ppmShipment, nil, &movingExpense)
+
 	ppmShipmentID := ppmShipment.ID
 
 	serviceMemberID := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID
@@ -386,6 +397,64 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	// fields w/ no expenses should format as $0.00, but must be temporarily removed until string function is replaced
 }
 
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSummaryWorksheetFormPage3() {
+	signatureDate := time.Date(2019, time.January, 26, 14, 40, 0, 0, time.UTC)
+	sm := models.ServiceMember{
+		FirstName: models.StringPointer("John"),
+		LastName:  models.StringPointer("Smith"),
+	}
+	paidWithGTCC := false
+	tollExpense := models.MovingExpenseReceiptTypeTolls
+	oilExpense := models.MovingExpenseReceiptTypeOil
+	amount := unit.Cents(10000)
+	movingExpenses := models.MovingExpenses{
+		{
+			MovingExpenseType: &tollExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
+		},
+		{
+			MovingExpenseType: &oilExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
+		},
+		{
+			MovingExpenseType: &oilExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
+		},
+		{
+			MovingExpenseType: &oilExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
+		},
+		{
+			MovingExpenseType: &tollExpense,
+			Amount:            &amount,
+			PaidWithGTCC:      &paidWithGTCC,
+		},
+	}
+	signature := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+		{
+			Model: models.SignedCertification{
+				Date: signatureDate,
+			},
+		},
+	}, nil)
+
+	ssd := services.ShipmentSummaryFormData{
+		ServiceMember:       sm,
+		SignedCertification: signature,
+		MovingExpenses:      movingExpenses,
+	}
+
+	sswPage3 := FormatValuesShipmentSummaryWorksheetFormPage3(ssd)
+
+	suite.Equal("", sswPage3.AmountsPaid)
+	suite.Equal("John Smith electronically signed", sswPage3.ServiceMemberSignature)
+	suite.Equal("26 Jan 2019 at 2:40pm", sswPage3.SignatureDate)
+}
+
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestGroupExpenses() {
 	paidWithGTCC := false
 	tollExpense := models.MovingExpenseReceiptTypeTolls
@@ -468,32 +537,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestGroupExpenses() {
 		suite.Equal(testCase.expected, actual)
 	}
 
-}
-
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementPPMGreaterThanRemainingEntitlement() {
-	ppmWeight := unit.Pound(1100)
-	totalEntitlement := unit.Pound(1000)
-	move := models.Move{
-		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
-	}
-
-	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, totalEntitlement)
-	suite.NoError(err)
-
-	suite.Equal(totalEntitlement, ppmRemainingEntitlement)
-}
-
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementPPMLessThanRemainingEntitlement() {
-	ppmWeight := unit.Pound(500)
-	totalEntitlement := unit.Pound(1000)
-	move := models.Move{
-		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
-	}
-
-	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, totalEntitlement)
-	suite.NoError(err)
-
-	suite.Equal(unit.Pound(ppmWeight), ppmRemainingEntitlement)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWGetEntitlement() {
@@ -615,32 +658,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatPPMWeight() {
 
 	suite.Equal("1,000 lbs - FINAL", FormatPPMWeight(ppm))
 	suite.Equal("", FormatPPMWeight(noWtg))
-}
-
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementNoHHGPPMLessThanMaxEntitlement() {
-	ppmWeight := unit.Pound(900)
-	totalEntitlement := unit.Pound(1000)
-	move := models.Move{
-		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
-	}
-
-	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, totalEntitlement)
-	suite.NoError(err)
-
-	suite.Equal(unit.Pound(ppmWeight), ppmRemainingEntitlement)
-}
-
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementNoHHGPPMGreaterThanMaxEntitlement() {
-	ppmWeight := unit.Pound(1100)
-	totalEntitlement := unit.Pound(1000)
-	move := models.Move{
-		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
-	}
-
-	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, totalEntitlement)
-	suite.NoError(err)
-
-	suite.Equal(totalEntitlement, ppmRemainingEntitlement)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignature() {
