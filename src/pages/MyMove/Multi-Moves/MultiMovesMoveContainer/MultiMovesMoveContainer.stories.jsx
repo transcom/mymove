@@ -4,18 +4,44 @@ import { mockMovesPCS, mockMovesRetirement, mockMovesSeparation } from '../Multi
 
 import MultiMovesMoveContainer from './MultiMovesMoveContainer';
 
+import { MockProviders } from 'testUtils';
+
 export default {
   title: 'Customer Components / MultiMovesContainer',
 };
 
-export const PCSCurrentMove = () => <MultiMovesMoveContainer moves={mockMovesPCS.currentMove} />;
+export const PCSCurrentMove = () => (
+  <MockProviders>
+    <MultiMovesMoveContainer moves={mockMovesPCS.currentMove} />
+  </MockProviders>
+);
 
-export const PCSPreviousMoves = () => <MultiMovesMoveContainer moves={mockMovesPCS.previousMoves} />;
+export const PCSPreviousMoves = () => (
+  <MockProviders>
+    <MultiMovesMoveContainer moves={mockMovesPCS.previousMoves} />
+  </MockProviders>
+);
 
-export const RetirementCurrentMove = () => <MultiMovesMoveContainer moves={mockMovesRetirement.currentMove} />;
+export const RetirementCurrentMove = () => (
+  <MockProviders>
+    <MultiMovesMoveContainer moves={mockMovesRetirement.currentMove} />
+  </MockProviders>
+);
 
-export const RetirementPreviousMoves = () => <MultiMovesMoveContainer moves={mockMovesRetirement.previousMoves} />;
+export const RetirementPreviousMoves = () => (
+  <MockProviders>
+    <MultiMovesMoveContainer moves={mockMovesRetirement.previousMoves} />
+  </MockProviders>
+);
 
-export const SeparationCurrentMove = () => <MultiMovesMoveContainer moves={mockMovesSeparation.currentMove} />;
+export const SeparationCurrentMove = () => (
+  <MockProviders>
+    <MultiMovesMoveContainer moves={mockMovesSeparation.currentMove} />
+  </MockProviders>
+);
 
-export const SeparationPreviousMoves = () => <MultiMovesMoveContainer moves={mockMovesSeparation.previousMoves} />;
+export const SeparationPreviousMoves = () => (
+  <MockProviders>
+    <MultiMovesMoveContainer moves={mockMovesSeparation.previousMoves} />
+  </MockProviders>
+);

@@ -138,6 +138,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmDeleteWeightTicketHandler: ppm.DeleteWeightTicketHandlerFunc(func(params ppm.DeleteWeightTicketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.DeleteWeightTicket has not yet been implemented")
 		}),
+		MovesGetAllMovesHandler: moves.GetAllMovesHandlerFunc(func(params moves.GetAllMovesParams) middleware.Responder {
+			return middleware.NotImplemented("operation moves.GetAllMoves has not yet been implemented")
+		}),
 		TransportationOfficesGetTransportationOfficesHandler: transportation_offices.GetTransportationOfficesHandlerFunc(func(params transportation_offices.GetTransportationOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_offices.GetTransportationOffices has not yet been implemented")
 		}),
@@ -216,8 +219,8 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ServiceMembersShowServiceMemberOrdersHandler: service_members.ShowServiceMemberOrdersHandlerFunc(func(params service_members.ShowServiceMemberOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation service_members.ShowServiceMemberOrders has not yet been implemented")
 		}),
-		MovesShowShipmentSummaryWorksheetHandler: moves.ShowShipmentSummaryWorksheetHandlerFunc(func(params moves.ShowShipmentSummaryWorksheetParams) middleware.Responder {
-			return middleware.NotImplemented("operation moves.ShowShipmentSummaryWorksheet has not yet been implemented")
+		PpmShowShipmentSummaryWorksheetHandler: ppm.ShowShipmentSummaryWorksheetHandlerFunc(func(params ppm.ShowShipmentSummaryWorksheetParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.ShowShipmentSummaryWorksheet has not yet been implemented")
 		}),
 		MovesSubmitAmendedOrdersHandler: moves.SubmitAmendedOrdersHandlerFunc(func(params moves.SubmitAmendedOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation moves.SubmitAmendedOrders has not yet been implemented")
@@ -356,6 +359,8 @@ type MymoveAPI struct {
 	UploadsDeleteUploadsHandler uploads.DeleteUploadsHandler
 	// PpmDeleteWeightTicketHandler sets the operation handler for the delete weight ticket operation
 	PpmDeleteWeightTicketHandler ppm.DeleteWeightTicketHandler
+	// MovesGetAllMovesHandler sets the operation handler for the get all moves operation
+	MovesGetAllMovesHandler moves.GetAllMovesHandler
 	// TransportationOfficesGetTransportationOfficesHandler sets the operation handler for the get transportation offices operation
 	TransportationOfficesGetTransportationOfficesHandler transportation_offices.GetTransportationOfficesHandler
 	// EntitlementsIndexEntitlementsHandler sets the operation handler for the index entitlements operation
@@ -408,8 +413,8 @@ type MymoveAPI struct {
 	BackupContactsShowServiceMemberBackupContactHandler backup_contacts.ShowServiceMemberBackupContactHandler
 	// ServiceMembersShowServiceMemberOrdersHandler sets the operation handler for the show service member orders operation
 	ServiceMembersShowServiceMemberOrdersHandler service_members.ShowServiceMemberOrdersHandler
-	// MovesShowShipmentSummaryWorksheetHandler sets the operation handler for the show shipment summary worksheet operation
-	MovesShowShipmentSummaryWorksheetHandler moves.ShowShipmentSummaryWorksheetHandler
+	// PpmShowShipmentSummaryWorksheetHandler sets the operation handler for the show shipment summary worksheet operation
+	PpmShowShipmentSummaryWorksheetHandler ppm.ShowShipmentSummaryWorksheetHandler
 	// MovesSubmitAmendedOrdersHandler sets the operation handler for the submit amended orders operation
 	MovesSubmitAmendedOrdersHandler moves.SubmitAmendedOrdersHandler
 	// MovesSubmitMoveForApprovalHandler sets the operation handler for the submit move for approval operation
@@ -593,6 +598,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.PpmDeleteWeightTicketHandler == nil {
 		unregistered = append(unregistered, "ppm.DeleteWeightTicketHandler")
 	}
+	if o.MovesGetAllMovesHandler == nil {
+		unregistered = append(unregistered, "moves.GetAllMovesHandler")
+	}
 	if o.TransportationOfficesGetTransportationOfficesHandler == nil {
 		unregistered = append(unregistered, "transportation_offices.GetTransportationOfficesHandler")
 	}
@@ -671,8 +679,8 @@ func (o *MymoveAPI) Validate() error {
 	if o.ServiceMembersShowServiceMemberOrdersHandler == nil {
 		unregistered = append(unregistered, "service_members.ShowServiceMemberOrdersHandler")
 	}
-	if o.MovesShowShipmentSummaryWorksheetHandler == nil {
-		unregistered = append(unregistered, "moves.ShowShipmentSummaryWorksheetHandler")
+	if o.PpmShowShipmentSummaryWorksheetHandler == nil {
+		unregistered = append(unregistered, "ppm.ShowShipmentSummaryWorksheetHandler")
 	}
 	if o.MovesSubmitAmendedOrdersHandler == nil {
 		unregistered = append(unregistered, "moves.SubmitAmendedOrdersHandler")
@@ -907,6 +915,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/allmoves/{serviceMemberId}"] = moves.NewGetAllMoves(o.context, o.MovesGetAllMovesHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/transportation-offices"] = transportation_offices.NewGetTransportationOffices(o.context, o.TransportationOfficesGetTransportationOfficesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1011,7 +1023,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/moves/{ppmShipmentId}/shipment_summary_worksheet"] = moves.NewShowShipmentSummaryWorksheet(o.context, o.MovesShowShipmentSummaryWorksheetHandler)
+	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/shipment_summary_worksheet"] = ppm.NewShowShipmentSummaryWorksheet(o.context, o.PpmShowShipmentSummaryWorksheetHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
