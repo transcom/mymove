@@ -58,7 +58,6 @@ function ReviewWeightTicket({
   onSuccess,
   formRef,
   updateTotalWeight,
-  updateAllowableWeight,
 }) {
   const {
     vehicleDescription,
@@ -171,10 +170,6 @@ function ReviewWeightTicket({
       formRef.current.validateForm();
     }
   }, [formRef, weightTicket, currentMtoShipments]);
-
-  useEffect(() => {
-    updateAllowableWeight(currentAllowableWeight.current);
-  }, [currentAllowableWeight, updateAllowableWeight]);
 
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
