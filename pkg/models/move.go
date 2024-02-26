@@ -348,6 +348,16 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
+	if verrs, err := db.ValidateAndSave(&move.Orders); verrs.HasAny() || err != nil {
+		responseVErrors.Append(verrs)
+		responseError = errors.Wrap(err, "Error Saving Orders")
+	}
+
+	if verrs, err := db.ValidateAndSave(move); verrs.HasAny() || err != nil {
+		responseVErrors.Append(verrs)
+		responseError = errors.Wrap(err, "Error Saving Move")
+	}
+
 	return responseVErrors, responseError
 }
 
