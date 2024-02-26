@@ -98,16 +98,6 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
 
     await this.page.getByRole('button', { name: 'Back' }).click();
 
-    // TODO: can validate this once the values are saved as part of B-18434
-    // verify values
-    // await expect(this.page.locator('input[name="pickupAddress.address.postalCode"]')).toHaveValue('90210');
-    // await expect(this.page.locator('label[for="yes-secondary-pickup-address"]')).toBeChecked();
-    // await expect(this.page.locator('input[name="secondaryPickupAddress.address.postalCode"]')).toHaveValue('90212');
-    // await expect(this.page.locator('input[name="destinationAddress.address.postalCode"]')).toHaveValue('76127');
-    // await expect(this.page.locator('input[name="expectedDepartureDate"]')).toHaveValue('01 Feb 2022');
-    // await expect(this.page.locator('label[for="sitExpectedNo"]')).toBeChecked();
-    // await expect(this.page.locator('label[for="sitExpectedNo"]')).toHaveValue('false');
-
     await this.navigateFromDateAndLocationPageToEstimatedWeightsPage();
   }
 }
