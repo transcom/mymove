@@ -76,6 +76,7 @@ function ReviewWeightTicket({
   let currentFullWeight = weightTicket.fullWeight ? weightTicket.fullWeight : getWeightTicketNetWeight(weightTicket);
   const [canEditRejection, setCanEditRejection] = useState(true);
   const [currentWeightTicket, setCurrentWeightTicket] = useState(weightTicket);
+  if (weightTicket !== currentWeightTicket) setCurrentWeightTicket(weightTicket);
   const [currentMtoShipments, setCurrentMtoShipments] = useState(mtoShipments);
   const { mutate: patchWeightTicketMutation } = useMutation({
     mutationFn: patchWeightTicket,
