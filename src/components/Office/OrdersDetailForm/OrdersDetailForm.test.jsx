@@ -7,7 +7,7 @@ import OrdersDetailForm from './OrdersDetailForm';
 
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { dropdownInputOptions } from 'utils/formatters';
-import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
+import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 
 const dutyLocation = {
   address: {
@@ -42,6 +42,8 @@ const initialValues = {
 const deptOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
+const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
+
 const defaultProps = {
   deptIndicatorOptions: deptOptions,
   ordersTypeOptions,
@@ -50,6 +52,7 @@ const defaultProps = {
   validateTac: jest.fn,
   ordersType: 'PERMANENT_CHANGE_OF_STATION',
   setFieldValue: jest.fn,
+  payGradeOptions,
 };
 
 function renderOrdersDetailForm(props) {
