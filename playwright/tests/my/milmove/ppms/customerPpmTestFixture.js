@@ -338,12 +338,18 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromDateAndLocationPageToEstimatedWeightsPage() {
+    await this.page.locator('input[name="pickupAddress.address.streetAddress1"]').type('123 Street');
+    await this.page.locator('input[name="pickupAddress.address.city"]').type('SomeCity - Secondary');
+    await this.page.locator('select[name="pickupAddress.address.state"]').selectOption({ label: 'CA' });
     await this.page.locator('input[name="pickupAddress.address.postalCode"]').clear();
     await this.page.locator('input[name="pickupAddress.address.postalCode"]').type('90210');
     await this.page.locator('input[name="pickupAddress.address.postalCode"]').blur();
 
     await this.page.locator('input[name="destinationAddress.address.postalCode"]').clear();
     await this.page.locator('input[name="destinationAddress.address.postalCode"]').type('76127');
+    await this.page.locator('input[name="destinationAddress.address.streetAddress1"]').type('123 Street');
+    await this.page.locator('input[name="destinationAddress.address.city"]').type('SomeCity');
+    await this.page.locator('select[name="destinationAddress.address.state"]').selectOption({ label: 'TX' });
 
     await this.page.locator('input[name="expectedDepartureDate"]').clear();
     await this.page.locator('input[name="expectedDepartureDate"]').type('01 Feb 2022');

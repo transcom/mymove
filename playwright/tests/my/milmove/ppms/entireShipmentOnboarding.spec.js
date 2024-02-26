@@ -70,6 +70,10 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
     await this.page.locator('input[name="pickupAddress.address.postalCode"]').type('90210');
     await this.page.locator('input[name="pickupAddress.address.postalCode"]').blur();
 
+    await this.page.locator('input[name="secondaryPickupAddress.address.streetAddress1"]').type('1234 Street');
+    await this.page.locator('input[name="secondaryPickupAddress.address.city"]').type('SomeCity');
+    await this.page.locator('select[name="secondaryPickupAddress.address.state"]').selectOption({ label: 'CA' });
+
     await this.page.locator('input[name="secondaryPickupAddress.address.postalCode"]').clear();
     await this.page.locator('input[name="secondaryPickupAddress.address.postalCode"]').type('90212');
     await this.page.locator('input[name="secondaryPickupAddress.address.postalCode"]').blur();
