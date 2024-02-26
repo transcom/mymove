@@ -236,12 +236,12 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		ordersTypedetail := supportmessages.OrdersTypeDetailHHGPERMITTED
 		deptIndicator := supportmessages.DeptIndicatorAIRANDSPACEFORCE
 
-		rank := (supportmessages.Rank)("E_6")
+		grade := (supportmessages.Rank)("E_6")
 		mtoPayload := &supportmessages.MoveTaskOrder{
 			PpmType:      "FULL",
 			ContractorID: handlers.FmtUUID(contractor.ID),
 			Order: &supportmessages.Order{
-				Rank:                      &rank,
+				Rank:                      &grade, // Convert support API "Rank" into our internal tracking of "Grade"
 				OrderNumber:               models.StringPointer("4554"),
 				DestinationDutyLocationID: handlers.FmtUUID(destinationDutyLocation.ID),
 				OriginDutyLocationID:      handlers.FmtUUID(originDutyLocation.ID),

@@ -6,7 +6,7 @@ import styles from './OfficeDefinitionLists.module.scss';
 
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { formatWeight } from 'utils/formatters';
-import friendlyBranchRank from 'utils/branchRankFormatters';
+import friendlyBranchGrade from 'utils/branchGradeFormatters';
 
 const AllowancesList = ({ info, showVisualCues }) => {
   const visualCuesStyle = classNames(descriptionListStyles.row, {
@@ -18,11 +18,11 @@ const AllowancesList = ({ info, showVisualCues }) => {
       <dl className={descriptionListStyles.descriptionList}>
         <div className={descriptionListStyles.row}>
           <dt>Branch, pay grade</dt>
-          <dd data-testid="branchRank">{friendlyBranchRank(info.branch, info.rank)}</dd>
+          <dd data-testid="branchGrade">{friendlyBranchGrade(info.branch, info.grade)}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Weight allowance</dt>
-          <dd data-testid="weightAllowance">{formatWeight(info.weightAllowance)}</dd>
+          <dd data-testid="weightAllowance">{formatWeight(info.authorizedWeight)}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Storage in transit (SIT)</dt>
@@ -58,7 +58,7 @@ const AllowancesList = ({ info, showVisualCues }) => {
 AllowancesList.propTypes = {
   info: PropTypes.shape({
     branch: PropTypes.string,
-    rank: PropTypes.string,
+    grade: PropTypes.string,
     weightAllowance: PropTypes.number,
     authorizedWeight: PropTypes.number,
     progear: PropTypes.number,
