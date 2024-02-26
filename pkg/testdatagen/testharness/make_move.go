@@ -2285,9 +2285,11 @@ func MakeHHGMoveWithRetireeForTOO(appCtx appcontext.AppContext) models.Move {
 	retirement := internalmessages.OrdersTypeRETIREMENT
 	hhg := models.MTOShipmentTypeHHG
 	hor := models.DestinationTypeHomeOfRecord
+	originDutyLocation := factory.FetchOrBuildCurrentDutyLocation(appCtx.DB())
 	move := scenario.CreateMoveWithOptions(appCtx, testdatagen.Assertions{
 		Order: models.Order{
-			OrdersType: retirement,
+			OrdersType:         retirement,
+			OriginDutyLocation: &originDutyLocation,
 		},
 		MTOShipment: models.MTOShipment{
 			ShipmentType:    hhg,
@@ -5108,10 +5110,10 @@ func MakeHHGMoveWithAddressChangeRequestAndUnknownDeliveryAddress(appCtx appcont
 	destinationAddress := factory.BuildMinimalAddress(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Address{
-				City:       customer.DutyLocation.Address.City,
-				State:      customer.DutyLocation.Address.State,
-				PostalCode: customer.DutyLocation.Address.PostalCode,
-				Country:    customer.DutyLocation.Address.Country,
+				City:       orders.OriginDutyLocation.Address.City,
+				State:      orders.OriginDutyLocation.Address.State,
+				PostalCode: orders.OriginDutyLocation.Address.PostalCode,
+				Country:    orders.OriginDutyLocation.Address.Country,
 			},
 		},
 	}, nil)
