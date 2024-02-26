@@ -120,6 +120,14 @@ export default function ReviewDocumentsSidePanel({
                             <dl>{weight.fullWeight} lbs</dl>
                           </span>
                           <span>
+                            <dt>Net Weight:</dt>
+                            <dl>{weight.fullWeight - weight.emptyWeight} lbs</dl>
+                          </span>
+                          <span>
+                            <dt>Allowable Weight:</dt>
+                            <dl>{weight.allowableWeight} lbs</dl>
+                          </span>
+                          <span>
                             <dt>Trailer Used:</dt>
                             <dl>{weight.ownsTrailer ? `Yes` : `No`}</dl>
                           </span>
