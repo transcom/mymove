@@ -16,4 +16,5 @@ export default {
   empty_weight: 'empty_weight',
   full_weight: 'full_weight',
   shipment_weight: 'shipment_weight',
+  weight: 'weight',
 };
