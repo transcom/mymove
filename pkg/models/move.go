@@ -386,16 +386,59 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 	query := db.Where("orders_id = ?", orderID)
 	err := query.Eager(
 		"MTOShipments",
+		"MTOShipments.PPMShipment",
+		"MTOShipments.PPMShipment.WeightTickets",
+		"MTOShipments.DestinationAddress",
+		"MTOShipments.SecondaryDeliveryAddress",
+		"MTOShipments.PickupAddress",
+		"MTOShipments.SecondaryPickupAddress",
+		"MTOShipments.PPMShipment.MovingExpenses",
+		"MTOShipments.PPMShipment.ProgearWeightTickets",
 		"Orders",
 		"Orders.UploadedOrders",
+		"Orders.UploadedOrders.UserUploads",
+		"Orders.UploadedAmendedOrders",
+		"Orders.Entitlement",
 		"Orders.ServiceMember",
 		"Orders.ServiceMember.User",
+		"Orders.OriginDutyLocation.Address",
 		"Orders.OriginDutyLocation.TransportationOffice",
 		"Orders.OriginDutyLocation.TransportationOffice.Address",
 		"Orders.NewDutyLocation.Address",
 		"Orders.NewDutyLocation.TransportationOffice",
 		"Orders.NewDutyLocation.TransportationOffice.Address",
 	).All(&moves)
+	if err != nil {
+		return moves, err
+	}
+
+	order := moves[0].Orders
+
+	// Eager loading of nested has_many associations is broken
+	var userUploads UserUploads
+	err = db.Q().
+		Scope(utilities.ExcludeDeletedScope()).EagerPreload("Upload").
+		Where("document_id = ?", order.UploadedOrders.ID).
+		All(&userUploads)
+	if err != nil {
+		return moves, err
+	}
+
+	moves[0].Orders.UploadedOrders.UserUploads = userUploads
+
+	// Eager loading of nested has_many associations is broken
+	if order.UploadedAmendedOrders != nil {
+		var amendedUserUploads UserUploads
+		err = db.Q().
+			Scope(utilities.ExcludeDeletedScope()).EagerPreload("Upload").
+			Where("document_id = ?", order.UploadedAmendedOrdersID).
+			All(&amendedUserUploads)
+		if err != nil {
+			return moves, err
+		}
+		moves[0].Orders.UploadedAmendedOrders.UserUploads = amendedUserUploads
+	}
+
 	return moves, err
 }
 

@@ -19,6 +19,7 @@ import {
   getLoggedInUser,
   createServiceMember as createServiceMemberApi,
   getMTOShipmentsForMove,
+  getAllMoves,
 } from 'services/internalApi';
 import { addEntities } from 'shared/Entities/actions';
 
@@ -53,6 +54,15 @@ describe('fetchCustomerData', () => {
           email: 'testuser@example.com',
         },
       },
+      serviceMembers: {
+        serviceMemberId: {
+          id: 'serviceMemberId',
+        },
+      },
+    };
+    const mockMultipleMoveResponseData = {
+      currentMove: [],
+      previousMoves: [],
     };
 
     it('makes an API call to request the logged in user', () => {
@@ -61,6 +71,20 @@ describe('fetchCustomerData', () => {
 
     it('stores the user data in entities', () => {
       expect(generator.next(mockResponseData).value).toEqual(put(addEntities(mockResponseData)));
+    });
+
+    it('makes an API call to request multiple moves', () => {
+      expect(generator.next().value).toEqual(call(getAllMoves, 'serviceMemberId'));
+    });
+
+    it('stores the multiple move data in entities', () => {
+      expect(generator.next(mockMultipleMoveResponseData).value).toEqual(
+        put(
+          addEntities({
+            serviceMemberMoves: mockMultipleMoveResponseData,
+          }),
+        ),
+      );
     });
 
     it('yields the user data to the caller', () => {
@@ -82,10 +106,19 @@ describe('fetchCustomerData', () => {
           email: 'testuser@example.com',
         },
       },
+      serviceMembers: {
+        serviceMemberId: {
+          id: 'serviceMemberId',
+        },
+      },
       moves: {
         testMoveId: {
           id: 'testMoveId',
         },
+      },
+      serviceMemberMoves: {
+        currentMove: [],
+        previousMoves: [],
       },
     };
 
@@ -95,6 +128,11 @@ describe('fetchCustomerData', () => {
           id: 'testMTOShipmentId',
         },
       },
+    };
+
+    const mockMultipleMoveResponseData = {
+      currentMove: [],
+      previousMoves: [],
     };
 
     it('makes an API call to request the logged in user', () => {
@@ -111,6 +149,20 @@ describe('fetchCustomerData', () => {
 
     it('stores the MTO shipment data in entities', () => {
       expect(generator.next(mockMTOResponseData).value).toEqual(put(addEntities(mockMTOResponseData)));
+    });
+
+    it('makes an API call to request multiple moves', () => {
+      expect(generator.next().value).toEqual(call(getAllMoves, 'serviceMemberId'));
+    });
+
+    it('stores the multiple move data in entities', () => {
+      expect(generator.next(mockMultipleMoveResponseData).value).toEqual(
+        put(
+          addEntities({
+            serviceMemberMoves: mockMultipleMoveResponseData,
+          }),
+        ),
+      );
     });
 
     it('yields the user data to the caller', () => {

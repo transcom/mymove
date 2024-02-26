@@ -49,6 +49,15 @@ type InternalMove struct {
 	// orders
 	Orders interface{} `json:"orders,omitempty"`
 
+	// status
+	// Read Only: true
+	Status string `json:"status,omitempty"`
+
+	// submitted at
+	// Read Only: true
+	// Format: date-time
+	SubmittedAt strfmt.DateTime `json:"submittedAt,omitempty"`
+
 	// updated at
 	// Read Only: true
 	// Format: date-time
@@ -72,6 +81,10 @@ func (m *InternalMove) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateOrderID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSubmittedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -138,6 +151,18 @@ func (m *InternalMove) validateOrderID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *InternalMove) validateSubmittedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.SubmittedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("submittedAt", "body", "date-time", m.SubmittedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *InternalMove) validateUpdatedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
@@ -167,6 +192,14 @@ func (m *InternalMove) ContextValidate(ctx context.Context, formats strfmt.Regis
 	}
 
 	if err := m.contextValidateMtoShipments(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSubmittedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -215,6 +248,24 @@ func (m *InternalMove) contextValidateMtoShipments(ctx context.Context, formats 
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("mtoShipments")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *InternalMove) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "status", "body", string(m.Status)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *InternalMove) contextValidateSubmittedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "submittedAt", "body", strfmt.DateTime(m.SubmittedAt)); err != nil {
 		return err
 	}
 
