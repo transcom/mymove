@@ -1020,14 +1020,6 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 			},
 		}
 
-		// suite.Nil(originalPPM.PickupAddress)
-		// suite.Nil(originalPPM.PickupAddressID)
-		// suite.Nil(originalPPM.DestinationAddress)
-		// suite.Nil(originalPPM.DestinationAddressID)
-		// suite.Nil(originalPPM.SecondaryPickupAddress)
-		// suite.Nil(originalPPM.SecondaryPickupAddressID)
-		// suite.Nil(originalPPM.SecondaryDestinationAddress)
-		// suite.Nil(originalPPM.SecondaryDestinationAddressID)
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
 
 		suite.NilOrNoVerrs(err)
