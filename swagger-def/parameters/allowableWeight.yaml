@@ -1,5 +1,0 @@
-name: allowableWeight
-in: query
-type: integer
-required: false
-description: Max allowable weight for the shipment (used to calculate GCC)

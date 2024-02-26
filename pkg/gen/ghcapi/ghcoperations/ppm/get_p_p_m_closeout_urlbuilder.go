@@ -12,14 +12,11 @@ import (
 	"strings"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 )
 
 // GetPPMCloseoutURL generates an URL for the get p p m closeout operation
 type GetPPMCloseoutURL struct {
 	PpmShipmentID strfmt.UUID
-
-	AllowableWeight *int64
 
 	_basePath string
 	// avoid unkeyed usage
@@ -59,18 +56,6 @@ func (o *GetPPMCloseoutURL) Build() (*url.URL, error) {
 		_basePath = "/ghc/v1"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
-
-	qs := make(url.Values)
-
-	var allowableWeightQ string
-	if o.AllowableWeight != nil {
-		allowableWeightQ = swag.FormatInt64(*o.AllowableWeight)
-	}
-	if allowableWeightQ != "" {
-		qs.Set("allowableWeight", allowableWeightQ)
-	}
-
-	_result.RawQuery = qs.Encode()
 
 	return &_result, nil
 }

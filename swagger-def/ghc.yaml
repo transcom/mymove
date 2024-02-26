@@ -1539,7 +1539,6 @@ paths:
   /ppm-shipments/{ppmShipmentId}/closeout:
     parameters:
       - $ref: 'parameters/ppmShipmentId.yaml'
-      - $ref: 'parameters/allowableWeight.yaml'
     get:
       summary: Get the closeout calcuations for the specified PPM shipment
       description: |

@@ -52,7 +52,7 @@ func (h GetPPMCloseoutHandler) Handle(params ppmcloseoutops.GetPPMCloseoutParams
 			}
 			ppmShipmentID := uuid.FromStringOrNil(params.PpmShipmentID.String())
 
-			ppmCloseout, err := h.PPMCloseoutFetcher.GetPPMCloseout(appCtx, ppmShipmentID, params.AllowableWeight)
+			ppmCloseout, err := h.PPMCloseoutFetcher.GetPPMCloseout(appCtx, ppmShipmentID)
 			if err != nil {
 				return handleError(err)
 			}

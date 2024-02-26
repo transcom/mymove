@@ -1590,7 +1590,6 @@ paths:
   /ppm-shipments/{ppmShipmentId}/closeout:
     parameters:
       - $ref: '#/parameters/ppmShipmentId'
-      - $ref: '#/parameters/allowableWeight'
     get:
       summary: Get the closeout calcuations for the specified PPM shipment
       description: |
@@ -7934,9 +7933,3 @@ parameters:
     format: uuid
     required: true
     description: UUID of the pro-gear weight ticket
-  allowableWeight:
-    name: allowableWeight
-    in: query
-    type: integer
-    required: false
-    description: Max allowable weight for the shipment (used to calculate GCC)

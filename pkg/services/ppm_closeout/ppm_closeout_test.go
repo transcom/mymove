@@ -244,7 +244,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 
 		ppmShipment := suite.mockPPMShipmentForCloseoutTest(ppmBuildReadyForCloseout)
 
-		ppmCloseoutObj, err := ppmCloseoutFetcher.GetPPMCloseout(appCtx, ppmShipment.ID, nil)
+		ppmCloseoutObj, err := ppmCloseoutFetcher.GetPPMCloseout(appCtx, ppmShipment.ID)
 		if err != nil {
 			appCtx.Logger().Error("Error getting PPM closeout object: ", zap.Error(err))
 		}
@@ -257,7 +257,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 	suite.Run("Returns a \"NotFoundError\" if the PPM Shipment was not found using the given ID", func() {
 		appCtx := suite.AppContextForTest()
 		missingPpmID := uuid.Must(uuid.NewV4())
-		ppmCloseoutObj, err := ppmCloseoutFetcher.GetPPMCloseout(appCtx, missingPpmID, nil)
+		ppmCloseoutObj, err := ppmCloseoutFetcher.GetPPMCloseout(appCtx, missingPpmID)
 
 		suite.NotNil(err)
 		suite.Nil(ppmCloseoutObj)
@@ -269,7 +269,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 		ppmShipment := suite.mockPPMShipmentForCloseoutTest(ppmBuildWaitingOnCustomer)
 		ppmShipment.Status = models.PPMShipmentStatusSubmitted
 
-		ppmCloseoutObj, err := ppmCloseoutFetcher.GetPPMCloseout(appCtx, ppmShipment.ID, nil)
+		ppmCloseoutObj, err := ppmCloseoutFetcher.GetPPMCloseout(appCtx, ppmShipment.ID)
 
 		suite.NotNil(err)
 		suite.Nil(ppmCloseoutObj)
