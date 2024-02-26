@@ -287,8 +287,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
 
   const allowancesInfo = {
     branch: customer.agency,
-    rank: order.grade,
-    weightAllowance: allowances.totalWeight,
+    grade: order.grade,
     authorizedWeight: allowances.authorizedWeight,
     progear: allowances.proGearWeight,
     spouseProgear: allowances.proGearWeightSpouse,
@@ -311,6 +310,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     sacSDN: order.sac,
     NTStac: order.ntsTac,
     NTSsac: order.ntsSac,
+    payGrade: order.grade,
   };
   const ordersLOA = {
     tac: order.tac,

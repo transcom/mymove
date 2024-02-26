@@ -4019,6 +4019,8 @@ definitions:
         title: NTS SAC
         example: N002214CSW32Y9
         $ref: '#/definitions/NullableString'
+      grade:
+        $ref: '#/definitions/Grade'
     required:
       - issueDate
       - reportByDate
@@ -4087,6 +4089,8 @@ definitions:
           previously approving the original orders
         type: boolean
         x-nullable: true
+      grade:
+        $ref: '#/definitions/Grade'
     required:
       - issueDate
       - reportByDate
