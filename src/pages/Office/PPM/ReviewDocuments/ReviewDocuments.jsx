@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Grid } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
@@ -50,13 +50,19 @@ export const ReviewDocuments = () => {
     setCurrentTotalWeight(newWeight);
   };
 
+  const updateAllowableWeight = (newWeight) => {
+    setCurrentAllowableWeight(newWeight);
+  };
+
   useEffect(() => {
     updateTotalWeight(calculateWeightRequested(mtoShipments));
   }, [mtoShipments]);
   useEffect(() => {
     setMoveHasExcessWeight(currentTotalWeight > order.entitlement.totalWeight);
   }, [currentTotalWeight, order.entitlement.totalWeight]);
-
+  useEffect(() => {
+    updateAllowableWeight(currentAllowableWeight);
+  }, [currentAllowableWeight]);
   const chronologicalComparatorProperty = (input) => input.createdAt;
   const compareChronologically = (itemA, itemB) =>
     chronologicalComparatorProperty(itemA) < chronologicalComparatorProperty(itemB) ? -1 : 1;
@@ -191,10 +197,6 @@ export const ReviewDocuments = () => {
     }
   };
 
-  const updateAllowableWeight = useCallback((newWeight) => {
-    setCurrentAllowableWeight(newWeight);
-  }, []);
-
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -203,6 +205,9 @@ export const ReviewDocuments = () => {
   ppmShipmentInfo.actualWeight = currentTotalWeight;
 
   const currentDocumentSet = documentSets[documentSetIndex];
+  const updateDocumentSetAllowableWeight = (newWeight) => {
+    currentDocumentSet.documentSet.allowableWeight = newWeight;
+  };
   const disableBackButton = documentSetIndex === 0 && !showOverview;
 
   const reviewShipmentWeightsURL = generatePath(servicesCounselingRoutes.BASE_REVIEW_SHIPMENT_WEIGHTS_PATH, {
@@ -269,8 +274,10 @@ export const ReviewDocuments = () => {
                     onError={onError}
                     onSuccess={onSuccess}
                     formRef={formRef}
+                    allowableWeight={currentAllowableWeight}
                     updateTotalWeight={updateTotalWeight}
                     updateAllowableWeight={updateAllowableWeight}
+                    updateDocumentSetAllowableWeight={updateDocumentSetAllowableWeight}
                   />
                 )}
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (

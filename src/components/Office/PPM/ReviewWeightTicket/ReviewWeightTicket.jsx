@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { func, number, object, PropTypes } from 'prop-types';
 import { Field, Formik } from 'formik';
@@ -58,25 +58,36 @@ function ReviewWeightTicket({
   onSuccess,
   formRef,
   updateTotalWeight,
+  updateAllowableWeight,
+  updateDocumentSetAllowableWeight,
 }) {
   const {
     vehicleDescription,
     missingEmptyWeightTicket,
     missingFullWeightTicket,
+    emptyWeight,
+    fullWeight,
+    allowableWeight,
     ownsTrailer,
     proofOfTrailerOwnershipDocument,
     trailerMeetsCriteria,
     status,
     reason,
   } = weightTicket || {};
-  let currentAllowableWeight = weightTicket.allowableWeight
-    ? weightTicket.allowableWeight
-    : getWeightTicketNetWeight(weightTicket);
-  let currentEmptyWeight = weightTicket.emptyWeight ? weightTicket.emptyWeight : getWeightTicketNetWeight(weightTicket);
-  let currentFullWeight = weightTicket.fullWeight ? weightTicket.fullWeight : getWeightTicketNetWeight(weightTicket);
+  const currentAllowableWeight = useRef(
+    allowableWeight ? `${allowableWeight}` : `${getWeightTicketNetWeight(weightTicket)}`,
+  );
+  if (!allowableWeight || (allowableWeight && currentAllowableWeight.current !== allowableWeight)) {
+    const newWeight = weightTicket.allowableWeight
+      ? weightTicket.allowableWeight
+      : weightTicket.fullWeight - weightTicket.emptyWeight;
+    currentAllowableWeight.current = newWeight;
+    updateAllowableWeight(newWeight);
+  }
+  const currentEmptyWeight = useRef(emptyWeight ? `${emptyWeight}` : `${getWeightTicketNetWeight(weightTicket)}`);
+  const currentFullWeight = useRef(fullWeight ? `${fullWeight}` : `${getWeightTicketNetWeight(fullWeight)}`);
   const [canEditRejection, setCanEditRejection] = useState(true);
   const [currentWeightTicket, setCurrentWeightTicket] = useState(weightTicket);
-  if (weightTicket !== currentWeightTicket) setCurrentWeightTicket(weightTicket);
   const [currentMtoShipments, setCurrentMtoShipments] = useState(mtoShipments);
   const { mutate: patchWeightTicketMutation } = useMutation({
     mutationFn: patchWeightTicket,
@@ -153,9 +164,9 @@ function ReviewWeightTicket({
   };
   // Allowable weight should default to the net weight if there isn't already an allowable weight defined.
   const initialValues = {
-    emptyWeight: `${currentEmptyWeight}`,
-    fullWeight: `${currentFullWeight}`,
-    allowableWeight: `${currentAllowableWeight}`,
+    emptyWeight: `${currentEmptyWeight.current}`,
+    fullWeight: `${currentFullWeight.current}`,
+    allowableWeight: `${currentAllowableWeight.current}`,
     ownsTrailer: ownsTrailer ? 'true' : 'false',
     trailerMeetsCriteria: isTrailerClaimable,
     status: status || '',
@@ -197,13 +208,15 @@ function ReviewWeightTicket({
           };
           const handleWeightFieldsChange = (event) => {
             if (event.target.name === 'emptyWeight') {
-              currentEmptyWeight = `${removeCommas(event.target.value)}`;
+              currentEmptyWeight.current = `${removeCommas(event.target.value)}`;
             }
             if (event.target.name === 'fullWeight') {
-              currentFullWeight = `${removeCommas(event.target.value)}`;
+              currentFullWeight.current = `${removeCommas(event.target.value)}`;
             }
             if (event.target.name === 'allowableWeight') {
-              currentAllowableWeight = `${removeCommas(event.target.value)}`;
+              currentAllowableWeight.current = `${removeCommas(event.target.value)}`;
+              updateAllowableWeight(currentAllowableWeight);
+              updateDocumentSetAllowableWeight(currentAllowableWeight);
             }
             if (mtoShipments !== undefined && mtoShipments.length > 0) {
               getNewNetWeightCalculation(mtoShipments, values);
