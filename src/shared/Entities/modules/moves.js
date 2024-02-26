@@ -8,7 +8,6 @@ import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient, getGHCClient } from 'shared/Swagger/api';
 import { selectEntitlements } from 'shared/entitlements.js';
 import { selectOrdersForMove } from 'shared/Entities/modules/orders';
-import { selectServiceMemberForMove } from 'shared/Entities/modules/serviceMembers';
 
 /** REMAINING EXPORTS ARE USED BY PPM OFFICE */
 
@@ -62,12 +61,10 @@ export function calculateEntitlementsForMove(state, moveId) {
   const orders = selectOrdersForMove(state, moveId);
   const hasDependents = orders.has_dependents;
   const spouseHasProGear = orders.spouse_has_pro_gear;
-  const serviceMember = selectServiceMemberForMove(state, moveId);
-  const weightAllotment = serviceMember.weight_allotment;
-  if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(weightAllotment)) {
+  if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(orders.authorizedWeight)) {
     return null;
   }
-  return selectEntitlements(weightAllotment, hasDependents, spouseHasProGear);
+  return selectEntitlements(orders, hasDependents, spouseHasProGear);
 }
 
 // Selectors

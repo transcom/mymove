@@ -40,7 +40,7 @@ const defaultProps = {
     orders_type: 'PERMANENT_CHANGE_OF_STATION',
     has_dependents: false,
     issue_date: '2020-08-11',
-    grade: 'E-1',
+    grade: 'E_1',
     moves: [mtoUuid],
     origin_duty_location: {
       name: 'Fort Drum',
@@ -90,7 +90,6 @@ const defaultProps = {
     personal_email: 'test@example.com',
     first_name: 'Jason',
     last_name: 'Ash',
-    rank: 'E_1',
     telephone: '323-555-7890',
   },
 };
