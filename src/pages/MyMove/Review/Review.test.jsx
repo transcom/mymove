@@ -422,7 +422,7 @@ describe('Review page', () => {
 
     await userEvent.click(backButton);
 
-    expect(mockNavigate).toHaveBeenCalledWith('/move/testPreviousMove');
+    expect(mockNavigate).toHaveBeenCalledWith('/');
   });
 
   it('next button goes to the Agreement page when move is in DRAFT status', async () => {
