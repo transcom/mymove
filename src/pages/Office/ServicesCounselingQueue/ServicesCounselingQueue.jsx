@@ -20,7 +20,7 @@ import {
   useServicesCounselingQueueQueries,
   useServicesCounselingQueuePPMQueries,
   useUserQueries,
-  useQAECSRMoveSearchQueries,
+  useMoveSearchQueries,
 } from 'hooks/queries';
 import { DATE_FORMAT_STRING } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
@@ -284,7 +284,7 @@ const ServicesCounselingQueue = () => {
             disableSortBy={false}
             title="Results"
             handleClick={handleClick}
-            useQueries={useQAECSRMoveSearchQueries}
+            useQueries={useMoveSearchQueries}
             moveCode={search.moveCode}
             dodID={search.dodID}
             customerName={search.customerName}
