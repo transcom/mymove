@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
-import { useNavigate } from 'react-router';
+import { generatePath, useNavigate } from 'react-router';
 
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import OrdersInfoForm from 'components/Customer/OrdersInfoForm/OrdersInfoForm';
@@ -27,8 +27,7 @@ const AddOrders = ({ context, serviceMemberId, updateServiceMember, updateOrders
   };
 
   const handleNext = (id) => {
-    navigate(customerRoutes.ORDERS_UPLOAD_PATH);
-    navigate(`/orders/upload/${id}`);
+    navigate(generatePath(customerRoutes.ORDERS_UPLOAD_PATH, { id }));
   };
 
   const submitOrders = async (values) => {
@@ -76,7 +75,7 @@ const AddOrders = ({ context, serviceMemberId, updateServiceMember, updateOrders
   const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
 
   return (
-    <GridContainer>
+    <GridContainer data-testid="main-container">
       <NotificationScrollToTop dependency={serverError} />
 
       {serverError && (
@@ -89,7 +88,7 @@ const AddOrders = ({ context, serviceMemberId, updateServiceMember, updateOrders
         </Grid>
       )}
 
-      <Grid row>
+      <Grid row data-testid="orders-form-container">
         <Grid col desktop={{ col: 8, offset: 2 }}>
           <OrdersInfoForm
             ordersTypeOptions={ordersTypeOptions}

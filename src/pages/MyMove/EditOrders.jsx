@@ -14,31 +14,23 @@ import {
   getAllMoves,
   getOrders,
 } from 'services/internalApi';
-import {
-  updateServiceMember as updateServiceMemberAction,
-  updateOrders as updateOrdersAction,
-  updateAllMoves as updateAllMovesAction,
-} from 'store/entities/actions';
+import { updateOrders as updateOrdersAction, updateAllMoves as updateAllMovesAction } from 'store/entities/actions';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import {
   selectServiceMemberFromLoggedInUser,
-  selectMoveIsApproved,
-  selectHasCurrentPPM,
   selectOrdersForLoggedInUser,
   selectAllMoves,
 } from 'store/entities/selectors';
 import EditOrdersForm from 'components/Customer/EditOrdersForm/EditOrdersForm';
-import { ServiceMemberShape } from 'types/customerShapes';
 import { formatWeight, formatYesNoInputValue, dropdownInputOptions } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { formatDateForSwagger } from 'shared/dates';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
-export const EditOrders = ({
-  serviceMember,
+const EditOrders = ({
+  serviceMemberId,
   serviceMemberMoves,
   updateOrders,
-  moveIsApproved,
   setFlashMessage,
   context,
   orders,
@@ -49,16 +41,21 @@ export const EditOrders = ({
   const { moveId, orderId } = useParams();
   const [serverError, setServerError] = useState(null);
 
-  let move;
-  if (Object.keys(serviceMemberMoves).length !== 0) {
-    const currentMoves = serviceMemberMoves.currentMove.find((m) => m.id === moveId);
-    const previousMoves = serviceMemberMoves.previousMoves.find((m) => m.id === moveId);
-    move = currentMoves || previousMoves;
-  }
-
   const currentOrder = orders.find((order) => order.moves[0] === moveId);
 
-  const serviceMemberId = serviceMember.id;
+  const checkIfMoveStatusIsApproved = (status) => {
+    return status === 'APPROVED';
+  };
+
+  let move;
+  let isMoveApproved;
+  if (serviceMemberMoves && Object.keys(serviceMemberMoves).length !== 0) {
+    const currentMove = serviceMemberMoves.currentMove.find((m) => m.id === moveId);
+    const previousMoves = serviceMemberMoves.previousMoves.find((m) => m.id === moveId);
+    move = currentMove || previousMoves;
+    isMoveApproved = checkIfMoveStatusIsApproved(move.status);
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       getOrders(orderId).then((response) => {
@@ -78,7 +75,7 @@ export const EditOrders = ({
     has_dependents: formatYesNoInputValue(currentOrder?.has_dependents),
     new_duty_location: currentOrder?.new_duty_location || null,
     uploaded_orders: currentOrder?.uploaded_orders?.uploads || [],
-    move_status: move?.status || '',
+    move_status: move?.status,
     grade: currentOrder?.grade || null,
     origin_duty_location: currentOrder?.origin_duty_location || {},
   };
@@ -110,7 +107,7 @@ export const EditOrders = ({
     });
   };
 
-  const submitOrders = (fieldValues) => {
+  const submitOrders = async (fieldValues) => {
     let hasDependents = false;
     if (fieldValues.has_dependents === 'yes') {
       hasDependents = true;
@@ -125,7 +122,7 @@ export const EditOrders = ({
     return patchOrders({
       ...fieldValues,
       id: currentOrder.id,
-      service_member_id: serviceMember.id,
+      service_member_id: serviceMemberId,
       has_dependents: hasDependents,
       new_duty_location_id: newDutyLocationId,
       issue_date: formatDateForSwagger(fieldValues.issue_date),
@@ -165,7 +162,7 @@ export const EditOrders = ({
   };
 
   // early return while api call loads object
-  if (Object.keys(serviceMemberMoves).length === 0) {
+  if (!currentOrder) {
     return <LoadingPlaceholder />;
   }
 
@@ -180,15 +177,15 @@ export const EditOrders = ({
               </Alert>
             </div>
           )}
-          {moveIsApproved && (
+          {isMoveApproved && (
             <div className="usa-width-one-whole error-message">
               <Alert type="warning" heading="Your move is approved">
                 To make a change to your orders, you will need to contact your local PPPO office.
               </Alert>
             </div>
           )}
-          {!moveIsApproved && (
-            <div className="usa-width-one-whole">
+          {!isMoveApproved && (
+            <div className="usa-width-one-whole" data-testid="edit-orders-form-container">
               <EditOrdersForm
                 initialValues={initialValues}
                 onSubmit={submitOrders}
@@ -197,7 +194,7 @@ export const EditOrders = ({
                 onUploadComplete={handleUploadComplete}
                 onDelete={handleDeleteFile}
                 ordersTypeOptions={ordersTypeOptions}
-                currentDutyLocation={serviceMember.current_location}
+                currentDutyLocation={currentOrder?.origin_duty_location}
                 onCancel={handleCancel}
               />
             </div>
@@ -209,8 +206,6 @@ export const EditOrders = ({
 };
 
 EditOrders.propTypes = {
-  moveIsApproved: PropTypes.bool.isRequired,
-  serviceMember: ServiceMemberShape.isRequired,
   setFlashMessage: PropTypes.func.isRequired,
   updateOrders: PropTypes.func.isRequired,
   context: PropTypes.shape({
@@ -222,20 +217,18 @@ EditOrders.propTypes = {
 
 function mapStateToProps(state) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const serviceMemberId = serviceMember.id;
   const orders = selectOrdersForLoggedInUser(state);
   const serviceMemberMoves = selectAllMoves(state);
 
   return {
-    serviceMember,
+    serviceMemberId,
     serviceMemberMoves,
     orders,
-    moveIsApproved: selectMoveIsApproved(state),
-    isPpm: selectHasCurrentPPM(state),
   };
 }
 
 const mapDispatchToProps = {
-  updateServiceMember: updateServiceMemberAction,
   updateOrders: updateOrdersAction,
   updateAllMoves: updateAllMovesAction,
   setFlashMessage: setFlashMessageAction,
