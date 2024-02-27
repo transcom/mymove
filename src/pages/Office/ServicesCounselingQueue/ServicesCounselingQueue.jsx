@@ -243,7 +243,7 @@ const ServicesCounselingQueue = () => {
             to={servicesCounselingRoutes.BASE_QUEUE_COUNSELING_PATH}
           >
             <span data-testid="counseling-tab-link" className="tab-title">
-              Counseling
+              Counseling Queue
             </span>
           </NavLink>,
           <NavLink
@@ -252,7 +252,7 @@ const ServicesCounselingQueue = () => {
             to={servicesCounselingRoutes.BASE_QUEUE_CLOSEOUT_PATH}
           >
             <span data-testid="closeout-tab-link" className="tab-title">
-              PPM Closeout
+              PPM Closeout Queue
             </span>
           </NavLink>,
           <NavLink
