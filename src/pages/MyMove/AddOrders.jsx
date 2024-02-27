@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
-import { generatePath, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import OrdersInfoForm from 'components/Customer/OrdersInfoForm/OrdersInfoForm';
@@ -15,21 +15,15 @@ import { formatDateForSwagger } from 'shared/dates';
 import { formatYesNoAPIValue, dropdownInputOptions } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { generalRoutes } from 'constants/routes';
 import withRouter from 'utils/routing';
 
 const AddOrders = ({ context, serviceMemberId, updateServiceMember, updateOrders }) => {
-  const { serverError, setServerError } = useState(undefined);
+  const [serverError, setServerError] = useState('');
   const navigate = useNavigate();
 
   const handleBack = () => {
     navigate(generalRoutes.HOME_PATH);
-  };
-
-  // once the form is submitted, an order will be created and we will have an id
-  // this will redirect the user to the appropriate upload path
-  const handleNext = (id) => {
-    navigate(generatePath(customerRoutes.ORDERS_UPLOAD_PATH, { id }));
   };
 
   const submitOrders = async (values) => {
@@ -47,10 +41,11 @@ const AddOrders = ({ context, serviceMemberId, updateServiceMember, updateOrders
 
     try {
       const createdOrders = await createOrders(pendingValues);
+      const newOrderId = createdOrders.id;
       updateOrders(createdOrders);
       const updatedServiceMember = await getServiceMember(serviceMemberId);
       updateServiceMember(updatedServiceMember);
-      handleNext(createdOrders.id);
+      navigate(`/orders/upload/${newOrderId}`);
     } catch (error) {
       const { response } = error;
       const errorMessage = getResponseError(response, 'failed to update/create orders due to server error');

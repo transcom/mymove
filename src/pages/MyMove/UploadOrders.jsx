@@ -13,7 +13,7 @@ import { updateOrders as updateOrdersAction, updateAllMoves as updateAllMovesAct
 import { selectOrdersForLoggedInUser, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import formStyles from 'styles/form.module.scss';
 import { withContext } from 'shared/AppContext';
 
@@ -70,7 +70,8 @@ const UploadOrders = ({ orders, updateOrders, updateAllMoves, serviceMemberId })
     navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
   };
   const handleNext = () => {
-    navigate(generalRoutes.HOME_PATH);
+    const moveId = currentOrders.moves[0];
+    navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
   };
 
   return (
