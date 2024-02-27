@@ -778,10 +778,12 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
+	grade := models.ServiceMemberGradeE9
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
 				OrdersType: ordersType,
+				Grade:      &grade,
 			},
 		},
 		{
