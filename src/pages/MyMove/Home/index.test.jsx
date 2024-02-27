@@ -57,10 +57,6 @@ const defaultProps = {
         phone_lines: ['555-555-5555'],
       },
     },
-    weight_allotment: {
-      total_weight_self: 8000,
-      total_weight_self_plus_dependents: 11000,
-    },
   },
   showLoggedInUser: jest.fn(),
   createServiceMember: jest.fn(),
@@ -90,6 +86,7 @@ const orders = {
   has_dependents: false,
   moves: [defaultProps.move.id],
   orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+  authorizedWeight: 8000,
 };
 
 const ordersUpload = createUpload({ fileName: 'testOrders1.pdf' });
@@ -495,7 +492,7 @@ describe('Home component', () => {
 
   describe('if the user has orders with dependents', () => {
     const wrapper = mountHomeWithProviders({
-      orders: { ...orders, has_dependents: true },
+      orders: { ...orders, has_dependents: true, authorizedWeight: 11000 },
       uploadedOrderDocuments,
     });
 

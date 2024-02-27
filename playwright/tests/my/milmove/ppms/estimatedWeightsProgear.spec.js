@@ -19,7 +19,7 @@ test.describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', () => {
     await expect(page.getByRole('heading', { name: 'Estimated weight' })).toBeVisible();
     await expect(page).toHaveURL(/\/estimated-weight/);
     await expect(page.locator('p[class="usa-alert__text"]')).toContainText(
-      'Total weight allowance for your move: 5,000 lbs',
+      'Total weight allowance for your move: 8,000 lbs',
     );
 
     // missing required weight
