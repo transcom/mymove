@@ -58,7 +58,6 @@ function ReviewWeightTicket({
   onSuccess,
   formRef,
   updateTotalWeight,
-  updateAllowableWeight,
   updateDocumentSetAllowableWeight,
 }) {
   const {
@@ -82,7 +81,7 @@ function ReviewWeightTicket({
       ? weightTicket.allowableWeight
       : weightTicket.fullWeight - weightTicket.emptyWeight;
     currentAllowableWeight.current = newWeight;
-    updateAllowableWeight(newWeight);
+    // updateAllowableWeight(newWeight);
   }
   const currentEmptyWeight = useRef(emptyWeight ? `${emptyWeight}` : `${getWeightTicketNetWeight(weightTicket)}`);
   const currentFullWeight = useRef(fullWeight ? `${fullWeight}` : `${getWeightTicketNetWeight(fullWeight)}`);
@@ -214,9 +213,11 @@ function ReviewWeightTicket({
               currentFullWeight.current = `${removeCommas(event.target.value)}`;
             }
             if (event.target.name === 'allowableWeight') {
-              currentAllowableWeight.current = `${removeCommas(event.target.value)}`;
-              updateAllowableWeight(currentAllowableWeight);
-              updateDocumentSetAllowableWeight(currentAllowableWeight);
+              const trimmedValue = removeCommas(event.target.value);
+              if (parseInt(trimmedValue, 10) !== currentAllowableWeight.current) {
+                currentAllowableWeight.current = trimmedValue;
+                updateDocumentSetAllowableWeight(currentAllowableWeight.current);
+              }
             }
             if (mtoShipments !== undefined && mtoShipments.length > 0) {
               getNewNetWeightCalculation(mtoShipments, values);
