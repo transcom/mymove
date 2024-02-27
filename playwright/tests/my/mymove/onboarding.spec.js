@@ -14,6 +14,12 @@ test.describe('Onboarding', () => {
     await customerPage.waitForPage.onboardingConus();
     await page.getByText('Starts and ends in the continental US').click();
     await customerPage.navigateForward();
+    // Branch/DOD ID section
+    await customerPage.waitForPage.onboardingDodId();
+    await page.getByRole('combobox', { name: 'Branch of service' }).selectOption({ label: 'Space Force' });
+    await page.getByRole('combobox', { name: 'Branch of service' }).selectOption({ label: 'Army' });
+    await page.getByTestId('textInput').fill('1231231234');
+    await customerPage.navigateForward();
 
     // Branch/DOD ID/Rank section
     await customerPage.waitForPage.onboardingDodId();

@@ -101,7 +101,7 @@ describe('EditOktaInfo page', () => {
 
     await userEvent.click(cancelButton);
 
-    expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.PROFILE_PATH);
+    expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.PROFILE_PATH, { state: null });
   });
 
   afterEach(jest.resetAllMocks);
