@@ -9,12 +9,13 @@ import Table from 'components/Table/Table';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
-import { BRANCH_OPTIONS, MOVE_STATUS_LABELS, MOVE_STATUS_OPTIONS, SortShape } from 'constants/queues';
+import { BRANCH_OPTIONS, MOVE_STATUS_LABELS, ROLE_TYPE_OPTIONS, SortShape } from 'constants/queues';
 import { serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
+import { roleTypes } from 'constants/userRoles';
 
-const columns = [
+const columns = (roleType) => [
   createHeader('Move code', 'locator', {
     id: 'locator',
     isFilterable: false,
@@ -41,8 +42,15 @@ const columns = [
     {
       id: 'status',
       isFilterable: true,
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      Filter: (props) => <MultiSelectCheckBoxFilter options={MOVE_STATUS_OPTIONS} {...props} />,
+      Filter: (props) => {
+        return (
+          <MultiSelectCheckBoxFilter
+            options={ROLE_TYPE_OPTIONS[`${roleType}`]}
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            {...props}
+          />
+        );
+      },
     },
   ),
   createHeader(
@@ -104,6 +112,7 @@ const SearchResultsTable = (props) => {
     dodID,
     moveCode,
     customerName,
+    roleType,
   } = props;
   const [paramSort, setParamSort] = useState(defaultSortedColumns);
   const [paramFilters, setParamFilters] = useState([]);
@@ -139,7 +148,7 @@ const SearchResultsTable = (props) => {
     [],
   );
   const tableData = useMemo(() => data, [data]);
-  const tableColumns = useMemo(() => columns, []);
+  const tableColumns = useMemo(() => columns(roleType), [roleType]);
   const {
     getTableProps,
     getTableBodyProps,
@@ -270,6 +279,7 @@ SearchResultsTable.propTypes = {
   moveCode: PropTypes.string,
   // customerName is the customer name search text
   customerName: PropTypes.string,
+  roleType: PropTypes.string,
 };
 
 SearchResultsTable.defaultProps = {
@@ -283,6 +293,7 @@ SearchResultsTable.defaultProps = {
   dodID: null,
   moveCode: null,
   customerName: null,
+  roleType: roleTypes.QAE_CSR,
 };
 
 export default SearchResultsTable;

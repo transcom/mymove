@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -62,6 +63,16 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 		LeftJoin("mto_shipments", "mto_shipments.move_id = moves.id AND mto_shipments.status <> 'DRAFT'").
 		GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id").
 		Where("show = TRUE")
+
+	// Services Counselor Statuses
+	if appCtx.Session().Roles.HasRole(roles.RoleType("services_counselor")) {
+		query.Where("moves.status = 'NEEDS SERVICE COUNSELING' OR moves.status = 'SERVICE COUNSELING COMPLETED'")
+	}
+
+	// TIO Statuses
+	// if appCtx.Session().Roles.HasRole(roles.RoleType("transportation_invoicing_officer")) {
+	// 	query.Where("moves.status = 'PAYMENT REQUESTED' or moves.status = 'REVIEWED' or moves.status = 'REJECTED' or moves.status = 'PAID' or moves.status = 'DEPRECATED' or moves.status = 'ERROR'")
+	// }
 
 	customerNameQuery := customerNameSearch(params.CustomerName)
 	locatorQuery := locatorFilter(params.Locator)

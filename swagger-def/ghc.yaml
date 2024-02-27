@@ -3070,6 +3070,8 @@ paths:
                     - SUBMITTED
                     - APPROVALS REQUESTED
                     - APPROVED
+                    - NEEDS SERVICE COUNSELING
+                    - SERVICE COUNSELING COMPLETED
               originPostalCode:
                 type: string
                 x-nullable: true

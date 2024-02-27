@@ -354,12 +354,11 @@ describe('ServicesCounselingQueue', () => {
         expect(screen.getByText(/Full or partial PPM/)).toBeInTheDocument();
         expect(screen.getByText(/Destination duty location/)).toBeInTheDocument();
       } else {
+        // Check for the "Search" tab
         const searchActive = screen.getByText('Search', { selector: '.usa-current .tab-title' });
         expect(searchActive).toBeInTheDocument();
         expect(MoveSearchForm).toBeInTheDocument();
       }
     });
   });
-
-  it('service counseling search tab', () => {});
 });
