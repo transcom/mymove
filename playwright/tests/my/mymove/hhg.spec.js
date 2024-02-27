@@ -106,7 +106,6 @@ test.describe('HHG', () => {
 
 test.describe('(MultiMove) HHG', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-  test.fail(multiMoveEnabled === 'true');
 
   test('A customer can create, edit, and delete an HHG shipment', async ({ page, customerPage }) => {
     // Generate a new onboarded user with orders and log in

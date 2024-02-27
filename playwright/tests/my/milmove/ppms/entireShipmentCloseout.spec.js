@@ -126,7 +126,6 @@ test.describe('Entire PPM closeout flow', () => {
 
 test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-  test.fail(multiMoveEnabled === 'true');
 
   forEachViewport(async () => {
     test(`flows through happy path for existing shipment`, async ({ customerPpmPage }) => {

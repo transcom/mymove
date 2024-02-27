@@ -64,7 +64,6 @@ test.describe('NTSR', () => {
 
 test.describe('(MultiMove) NTSR', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-  test.fail(multiMoveEnabled === 'true');
 
   test('A customer can create, edit, and delete an NTS-release shipment', async ({ page, customerPage }) => {
     const move = await customerPage.testHarness.buildMoveWithOrders();

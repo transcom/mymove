@@ -18,7 +18,6 @@ test.describe('Uploads', () => {
 
 test.describe('(MultiMove) Uploads', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-  test.fail(multiMoveEnabled === 'true');
 
   test('Users can upload but cannot delete orders once move has been submitted', async ({ page, customerPage }) => {
     // Generate a move that has the status of SUBMITTED
