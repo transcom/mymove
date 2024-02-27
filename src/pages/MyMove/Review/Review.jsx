@@ -9,7 +9,7 @@ import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import ConnectedSummary from 'components/Customer/Review/Summary/Summary';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import MOVE_STATUSES from 'constants/moves';
-import { customerRoutes } from 'constants/routes';
+import { customerRoutes, generalRoutes } from 'constants/routes';
 import 'scenes/Review/Review.css';
 import { selectAllMoves } from 'store/entities/selectors';
 import formStyles from 'styles/form.module.scss';
@@ -23,7 +23,7 @@ const Review = ({ serviceMemberMoves }) => {
   const navigate = useNavigate();
   const { moveId } = useParams();
   const handleCancel = () => {
-    navigate(`/move/${moveId}`);
+    navigate(generalRoutes.HOME_PATH);
   };
 
   // loading placeholder while data loads - this handles any async issues
