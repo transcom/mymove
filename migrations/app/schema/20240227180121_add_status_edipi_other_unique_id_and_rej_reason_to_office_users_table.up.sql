@@ -7,10 +7,10 @@ CREATE TYPE office_user_status AS enum (
 -- Adds new columns to office_users table
 -- making status default of APPROVED to ensure past users using MM are already approved
 ALTER TABLE office_users
-ADD COLUMN status office_user_status DEFAULT 'APPROVED' NULL,
-ADD COLUMN edipi TEXT UNIQUE DEFAULT NULL,
-ADD COLUMN other_unique_id TEXT UNIQUE DEFAULT NULL,
-ADD COLUMN rejection_reason TEXT DEFAULT NULL;
+ADD COLUMN IF NOT EXISTS status office_user_status DEFAULT 'APPROVED' NULL,
+ADD COLUMN IF NOT EXISTS edipi TEXT UNIQUE DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS other_unique_id TEXT UNIQUE DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS rejection_reason TEXT DEFAULT NULL;
 
 -- Comments on new columns
 COMMENT on COLUMN office_users.status IS 'Status of an office user account';
