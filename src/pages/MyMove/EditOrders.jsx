@@ -39,7 +39,7 @@ const EditOrders = ({
   const filePondEl = createRef();
   const navigate = useNavigate();
   const { moveId, orderId } = useParams();
-  const [serverError, setServerError] = useState(null);
+  const [serverError, setServerError] = useState('');
 
   const currentOrder = orders.find((order) => order.moves[0] === moveId);
 
