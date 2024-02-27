@@ -26,7 +26,7 @@ const parseCheckboxInput = (input) => {
 
 const ElevatedPrivilegesCheckboxInput = (props) => (
   <CheckboxGroupInput
-    source="elevatedPrivileges"
+    source="privileges"
     format={makeElevatedPrivilegesArray}
     parse={parseCheckboxInput}
     choices={elevatedPrivileges}
