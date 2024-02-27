@@ -84,7 +84,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 			Join("addresses as new_addresses", "new_addresses.id = new_duty_locations.address_id").
 			LeftJoin("mto_shipments", "mto_shipments.move_id = moves.id AND mto_shipments.status <> 'DRAFT'").
 			GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id").
-			Where("show = TRUE and (moves.status = 'SUBMITTED' OR moves.status = 'NEEDS SERVICE COUNSELING' OR moves.status = 'SERVICE COUNSELING COMPLETED' OR moves.status = 'APPROVED')")
+			Where("show = TRUE and (moves.status = 'NEEDS SERVICE COUNSELING' OR moves.status = 'SERVICE COUNSELING COMPLETED' OR moves.status = 'APPROVED')")
 	}
 
 	customerNameQuery := customerNameSearch(params.CustomerName)
