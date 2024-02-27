@@ -903,3 +903,5 @@
 20240223154843_us_post_region_city_trdm_table_creation.up.sql
 20240223200739_updateDutyLocationsZip.up.sql
 20240226183440_add_county_column_to_address_table.up.sql
+20240227163814_update_usprc_id.up.sql
+20240227171439_usprc_data_dump_batch.up.sql
