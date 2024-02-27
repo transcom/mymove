@@ -35,6 +35,7 @@ const defaultProps = {
   showAllFields: false,
   ppmNumber: 1,
   updateAllowableWeight: mockCallback,
+  updateDocumentSetAllowableWeight: mockCallback,
 };
 
 const baseWeightTicketProps = {
@@ -507,7 +508,12 @@ describe('ReviewWeightTicket component', () => {
     it('populates edit form with existing weight ticket values and modifies them to alter the net weight calculation', async () => {
       render(
         <MockProviders>
-          <ReviewWeightTicket updateTotalWeight={mockCallback} {...defaultProps} {...fullShipmentProps} />
+          <ReviewWeightTicket
+            updateTotalWeight={mockCallback}
+            updateDocumentSetAllowableWeight={mockCallback}
+            {...defaultProps}
+            {...fullShipmentProps}
+          />
         </MockProviders>,
       );
 
