@@ -126,6 +126,7 @@ const ShipmentDetailsMain = ({
   let displayedPickupAddress;
   let displayedDeliveryAddress;
   let weightResult;
+  let actualMoveDate;
 
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
@@ -147,6 +148,7 @@ const ShipmentDetailsMain = ({
       weightResult = ppmShipment.estimatedWeight;
       displayedPickupAddress = pickupAddress;
       displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
+      actualMoveDate = ppmShipment.actualMoveDate;
       break;
     default:
       weightResult = primeEstimatedWeight;
@@ -192,6 +194,12 @@ const ShipmentDetailsMain = ({
           className={styles.shipmentSITSummary}
           openModalButton={openModalButton}
           openConvertModalButton={openConvertModalButton}
+        />
+      )}
+      {shipmentType === SHIPMENT_OPTIONS.PPM && (
+        <ImportantShipmentDates
+          actualMoveDate={actualMoveDate ? formatDateWithUTC(actualMoveDate) : null}
+          actualDeliveryDate={actualMoveDate ? formatDateWithUTC(actualMoveDate) : null}
         />
       )}
       <ImportantShipmentDates

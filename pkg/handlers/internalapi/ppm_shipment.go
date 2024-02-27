@@ -1,8 +1,13 @@
 package internalapi
 
 import (
+	"fmt"
+	"io"
+	"time"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -10,6 +15,7 @@ import (
 	ppmops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -118,6 +124,13 @@ func (h SubmitPPMShipmentDocumentationHandler) Handle(params ppmops.SubmitPPMShi
 			}
 
 			returnPayload := payloads.PPMShipment(h.FileStorer(), ppmShipment)
+
+			err = h.NotificationSender().SendNotification(appCtx,
+				notifications.NewPpmPacketEmail(ppmShipment.ID),
+			)
+			if err != nil {
+				appCtx.Logger().Error("problem sending email to user", zap.Error(err))
+			}
 
 			return ppmops.NewSubmitPPMShipmentDocumentationOK().WithPayload(returnPayload), nil
 		})
@@ -246,4 +259,49 @@ func (h ResubmitPPMShipmentDocumentationHandler) Handle(params ppmops.ResubmitPP
 
 			return ppmops.NewResubmitPPMShipmentDocumentationOK().WithPayload(returnPayload), nil
 		})
+}
+
+// Handle returns a generated PDF
+func (h ShowShipmentSummaryWorksheetHandler) Handle(params ppmops.ShowShipmentSummaryWorksheetParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			logger := appCtx.Logger()
+
+			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+			ssfd, err := h.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentID)
+			if err != nil {
+				logger.Error("Error fetching data for SSW", zap.Error(err))
+				return handlers.ResponseForError(logger, err), err
+			}
+
+			ssfd.Obligations, err = h.SSWPPMComputer.ComputeObligations(appCtx, *ssfd, h.DTODPlanner())
+			if err != nil {
+				logger.Error("Error calculating obligations ", zap.Error(err))
+				return handlers.ResponseForError(logger, err), err
+			}
+
+			page1Data, page2Data := h.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
+
+			SSWPPMWorksheet, SSWPDFInfo, err := h.SSWPPMGenerator.FillSSWPDFForm(page1Data, page2Data)
+			if err != nil {
+				return nil, err
+			}
+			if SSWPDFInfo.PageCount != 2 {
+				return nil, errors.Wrap(errors.New("SSWPDFInfo.PageCount is not 2, PDF is corrupted"), "SSWGenerator output a corrupted or incorretly altered PDF")
+			}
+			payload := io.NopCloser(SSWPPMWorksheet)
+			filename := fmt.Sprintf("inline; filename=\"%s-%s-ssw-%s.pdf\"", *ssfd.ServiceMember.FirstName, *ssfd.ServiceMember.LastName, time.Now().Format("01-02-2006"))
+
+			return ppmops.NewShowShipmentSummaryWorksheetOK().WithContentDisposition(filename).WithPayload(payload), nil
+		})
+}
+
+// ShowShipmentSummaryWorksheetHandler returns a Shipment Summary Worksheet PDF
+type ShowShipmentSummaryWorksheetHandler struct {
+	handlers.HandlerConfig
+	services.SSWPPMComputer
+	services.SSWPPMGenerator
 }

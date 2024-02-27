@@ -67,7 +67,7 @@ const isCurrentMoveSubmitted = ({ move }) => {
 const pages = {
   [customerRoutes.CONUS_OCONUS_PATH]: {
     isInFlow: inGhcFlow,
-    isComplete: ({ sm }) => sm.is_profile_complete || every([sm.rank, sm.edipi, sm.affiliation]),
+    isComplete: ({ sm }) => sm.is_profile_complete || every([sm.edipi, sm.affiliation]),
     render: (key, pages, description, props) => {
       return (
         <WizardPage
@@ -83,7 +83,7 @@ const pages = {
   },
   [customerRoutes.DOD_INFO_PATH]: {
     isInFlow: myFirstRodeo,
-    isComplete: ({ sm }) => sm.is_profile_complete || every([sm.rank, sm.edipi, sm.affiliation]),
+    isComplete: ({ sm }) => sm.is_profile_complete || every([sm.edipi, sm.affiliation]),
     render: () => <DodInfo />,
   },
   [customerRoutes.NAME_PATH]: {
@@ -138,6 +138,8 @@ const pages = {
         orders.issue_date,
         orders.report_by_date,
         get(orders, 'new_duty_location.id', NULL_UUID) !== NULL_UUID,
+        get(orders, 'origin_duty_location.id', NULL_UUID) !== NULL_UUID,
+        orders.grade,
       ]),
     render: (key, pages) => <Orders />,
   },
