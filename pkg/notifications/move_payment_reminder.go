@@ -140,6 +140,7 @@ func (m PaymentReminder) formatEmails(appCtx appcontext.AppContext, PaymentRemin
 			TOName:                  toName,
 			TOPhone:                 toPhone,
 			Locator:                 PaymentReminderEmailInfo.Locator,
+			MyMoveLink:              MyMoveLink,
 		})
 		if err != nil {
 			appCtx.Logger().Error("error rendering template", zap.Error(err))
@@ -207,6 +208,7 @@ type PaymentReminderEmailData struct {
 	TOName                  *string
 	TOPhone                 *string
 	Locator                 string
+	MyMoveLink              string
 }
 
 // RenderHTML renders the html for the email

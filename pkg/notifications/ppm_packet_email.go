@@ -31,15 +31,17 @@ type PpmPacketEmail struct {
 // ppmPacketEmailData is used to render an email template
 // Uses ZIPs only if no city/state data is provided
 type PpmPacketEmailData struct {
-	OriginZIP        *string
-	OriginCity       *string
-	OriginState      *string
-	DestinationZIP   *string
-	DestinationCity  *string
-	DestinationState *string
-	SubmitLocation   string
-	ServiceBranch    string
-	Locator          string
+	OriginZIP                         *string
+	OriginCity                        *string
+	OriginState                       *string
+	DestinationZIP                    *string
+	DestinationCity                   *string
+	DestinationState                  *string
+	SubmitLocation                    string
+	ServiceBranch                     string
+	Locator                           string
+	OneSourceTransportationOfficeLink string
+	MyMoveLink                        string
 }
 
 // Used to get logging data from GetEmailData
@@ -61,14 +63,14 @@ func NewPpmPacketEmail(ppmShipmentID uuid.UUID) *PpmPacketEmail {
 
 // NotificationSendingContext expects a `notification` with an `emails` method,
 // so we implement `email` to satisfy that interface
-func (m PpmPacketEmail) emails(appCtx appcontext.AppContext) ([]emailContent, error) {
+func (p PpmPacketEmail) emails(appCtx appcontext.AppContext) ([]emailContent, error) {
 	var emails []emailContent
 
 	appCtx.Logger().Info("ppm SHIPMENT UUID",
-		zap.String("uuid", m.ppmShipmentID.String()),
+		zap.String("uuid", p.ppmShipmentID.String()),
 	)
 
-	emailData, loggerData, err := GetEmailData(m, appCtx)
+	emailData, loggerData, err := p.GetEmailData(appCtx)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +82,7 @@ func (m PpmPacketEmail) emails(appCtx appcontext.AppContext) ([]emailContent, er
 	)
 
 	var htmlBody, textBody string
-	htmlBody, textBody, err = m.renderTemplates(appCtx, emailData)
+	htmlBody, textBody, err = p.renderTemplates(appCtx, emailData)
 
 	if err != nil {
 		appCtx.Logger().Error("error rendering template", zap.Error(err))
@@ -96,7 +98,7 @@ func (m PpmPacketEmail) emails(appCtx appcontext.AppContext) ([]emailContent, er
 	return append(emails, ppmEmail), nil
 }
 
-func GetEmailData(p PpmPacketEmail, appCtx appcontext.AppContext) (PpmPacketEmailData, LoggerData, error) {
+func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEmailData, LoggerData, error) {
 	var ppmShipment models.PPMShipment
 	err := appCtx.DB().Find(&ppmShipment, p.ppmShipmentID)
 	if err != nil {
@@ -156,13 +158,15 @@ func GetEmailData(p PpmPacketEmail, appCtx appcontext.AppContext) (PpmPacketEmai
 		}
 
 		return PpmPacketEmailData{
-				OriginCity:       &pickupAddress.City,
-				OriginState:      &pickupAddress.State,
-				DestinationCity:  &destinationAddress.City,
-				DestinationState: &destinationAddress.State,
-				SubmitLocation:   submitLocation,
-				ServiceBranch:    affiliationDisplayValue[*serviceMember.Affiliation],
-				Locator:          move.Locator,
+				OriginCity:                        &pickupAddress.City,
+				OriginState:                       &pickupAddress.State,
+				DestinationCity:                   &destinationAddress.City,
+				DestinationState:                  &destinationAddress.State,
+				SubmitLocation:                    submitLocation,
+				ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
+				Locator:                           move.Locator,
+				OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
+				MyMoveLink:                        MyMoveLink,
 			},
 			LoggerData{
 				ServiceMember: *serviceMember,
@@ -173,11 +177,13 @@ func GetEmailData(p PpmPacketEmail, appCtx appcontext.AppContext) (PpmPacketEmai
 
 	// Fallback to using ZIPs if the above if-block for city,state doesn't happen
 	return PpmPacketEmailData{
-			OriginZIP:      &ppmShipment.PickupPostalCode,
-			DestinationZIP: &ppmShipment.DestinationPostalCode,
-			SubmitLocation: submitLocation,
-			ServiceBranch:  affiliationDisplayValue[*serviceMember.Affiliation],
-			Locator:        move.Locator,
+			OriginZIP:                         &ppmShipment.PickupPostalCode,
+			DestinationZIP:                    &ppmShipment.DestinationPostalCode,
+			SubmitLocation:                    submitLocation,
+			ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
+			Locator:                           move.Locator,
+			OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
+			MyMoveLink:                        MyMoveLink,
 		},
 		LoggerData{
 			ServiceMember: *serviceMember,
@@ -187,12 +193,12 @@ func GetEmailData(p PpmPacketEmail, appCtx appcontext.AppContext) (PpmPacketEmai
 
 }
 
-func (m PpmPacketEmail) renderTemplates(appCtx appcontext.AppContext, data PpmPacketEmailData) (string, string, error) {
-	htmlBody, err := m.RenderHTML(appCtx, data)
+func (p PpmPacketEmail) renderTemplates(appCtx appcontext.AppContext, data PpmPacketEmailData) (string, string, error) {
+	htmlBody, err := p.RenderHTML(appCtx, data)
 	if err != nil {
 		return "", "", fmt.Errorf("error rendering html template using %#v", data)
 	}
-	textBody, err := m.RenderText(appCtx, data)
+	textBody, err := p.RenderText(appCtx, data)
 	if err != nil {
 		return "", "", fmt.Errorf("error rendering text template using %#v", data)
 	}
@@ -200,18 +206,18 @@ func (m PpmPacketEmail) renderTemplates(appCtx appcontext.AppContext, data PpmPa
 }
 
 // RenderHTML renders the html for the email
-func (m PpmPacketEmail) RenderHTML(appCtx appcontext.AppContext, data PpmPacketEmailData) (string, error) {
+func (p PpmPacketEmail) RenderHTML(appCtx appcontext.AppContext, data PpmPacketEmailData) (string, error) {
 	var htmlBuffer bytes.Buffer
-	if err := m.htmlTemplate.Execute(&htmlBuffer, data); err != nil {
+	if err := p.htmlTemplate.Execute(&htmlBuffer, data); err != nil {
 		appCtx.Logger().Error("cant render html template ", zap.Error(err))
 	}
 	return htmlBuffer.String(), nil
 }
 
 // RenderText renders the text for the email
-func (m PpmPacketEmail) RenderText(appCtx appcontext.AppContext, data PpmPacketEmailData) (string, error) {
+func (p PpmPacketEmail) RenderText(appCtx appcontext.AppContext, data PpmPacketEmailData) (string, error) {
 	var textBuffer bytes.Buffer
-	if err := m.textTemplate.Execute(&textBuffer, data); err != nil {
+	if err := p.textTemplate.Execute(&textBuffer, data); err != nil {
 		appCtx.Logger().Error("cant render text template ", zap.Error(err))
 		return "", err
 	}
