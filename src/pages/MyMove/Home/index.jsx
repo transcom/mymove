@@ -394,7 +394,7 @@ export class Home extends Component {
 
     // eslint-disable-next-line camelcase
     const { current_location } = serviceMember;
-    const ordersPath = this.hasOrdersNoUpload ? `/orders/upload/${orders.id}` : `/orders/info/${orders.id}`;
+    const ordersPath = this.hasOrdersNoUpload ? `/orders/upload/${orders.id}` : `/orders/add/`;
 
     const shipmentSelectionPath =
       move?.id &&
