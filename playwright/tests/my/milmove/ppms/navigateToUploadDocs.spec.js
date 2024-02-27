@@ -34,7 +34,6 @@ test.describe('PPM Request Payment - Begin providing documents flow', () => {
 
 test.describe('(MultiMove) PPM Request Payment - Begin providing documents flow', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-  test.fail(true, 'This test is failing in integration for some reason.');
 
   forEachViewport(async () => {
     test.beforeEach(async ({ customerPpmPage }) => {
