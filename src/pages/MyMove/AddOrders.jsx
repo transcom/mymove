@@ -26,6 +26,8 @@ const AddOrders = ({ context, serviceMemberId, updateServiceMember, updateOrders
     navigate(generalRoutes.HOME_PATH);
   };
 
+  // once the form is submitted, an order will be created and we will have an id
+  // this will redirect the user to the appropriate upload path
   const handleNext = (id) => {
     navigate(generatePath(customerRoutes.ORDERS_UPLOAD_PATH, { id }));
   };
