@@ -4178,6 +4178,11 @@ func createHHGWithOriginSITServiceItems(
 		logger.Fatal(fmt.Sprintf("Failed to save move and dependencies: %s", err))
 	}
 	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
 
 	queryBuilder := query.NewQueryBuilder()
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
@@ -4431,6 +4436,11 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 
 	queryBuilder := query.NewQueryBuilder()
 	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
 
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
 
@@ -4828,24 +4838,6 @@ func createHHGWithPaymentServiceItems(
 
 	queryBuilder := query.NewQueryBuilder()
 	planner := &routemocks.Planner{}
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
-
-	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
-	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
-
-	// AvailableToPrimeAt is set to the current time when a move is approved, we need to update it to fall within the
-	// same contract as the rest of the timestamps on our move for pricing to work.
-	err = appCtx.DB().Find(&move, move.ID)
-	if err != nil {
-		logger.Fatal(fmt.Sprintf("Failed to fetch move: %s", err))
-	}
-	move.AvailableToPrimeAt = &May14GHCTestYear
-	testdatagen.MustSave(appCtx.DB(), &move)
-
-	if approveErr != nil {
-		logger.Fatal("Error approving move")
-	}
-
 	// called using the addresses with origin zip of 90210 and destination zip of 94535
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(348, nil).Times(2)
 
@@ -4871,6 +4863,23 @@ func createHHGWithPaymentServiceItems(
 
 	// called for domestic destination SIT delivery service item
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "94535", "90210").Return(348, nil).Times(2)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
+
+	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
+	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
+
+	// AvailableToPrimeAt is set to the current time when a move is approved, we need to update it to fall within the
+	// same contract as the rest of the timestamps on our move for pricing to work.
+	err = appCtx.DB().Find(&move, move.ID)
+	if err != nil {
+		logger.Fatal(fmt.Sprintf("Failed to fetch move: %s", err))
+	}
+	move.AvailableToPrimeAt = &May14GHCTestYear
+	testdatagen.MustSave(appCtx.DB(), &move)
+
+	if approveErr != nil {
+		logger.Fatal("Error approving move")
+	}
 
 	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment, shipmentWithOriginalWeight, shipmentWithOriginalAndReweighWeight, shipmentWithOriginalAndReweighWeightReweihBolded, shipmentWithOriginalReweighAndAdjustedWeight, shipmentWithOriginalAndAdjustedWeight} {
 		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)

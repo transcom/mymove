@@ -49,6 +49,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 	shipmentRouter := mtoshipment.NewShipmentRouter()
 	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
 		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter),
@@ -2280,6 +2285,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetHHGPlanner(planner)
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		handler := UpdateMTOShipmentStatusHandler{
 			handlerConfig,
 			mtoshipment.NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator),
@@ -2466,6 +2476,11 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 		builder := query.NewQueryBuilder()
 		moveRouter := moveservices.NewMoveRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter),

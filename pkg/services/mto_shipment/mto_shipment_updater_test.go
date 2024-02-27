@@ -1614,7 +1614,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	builder := query.NewQueryBuilder()
 	moveRouter := moveservices.NewMoveRouter()
 	planner := &mocks.Planner{}
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
 	var TransitDistancePickupArg string
 	var TransitDistanceDestinationArg string
 	planner.On("ZipTransitDistance",
@@ -1625,6 +1624,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		TransitDistancePickupArg = args.Get(1).(string)
 		TransitDistanceDestinationArg = args.Get(2).(string)
 	})
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
 
 	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
 
@@ -2701,6 +2701,11 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 	builder := query.NewQueryBuilder()
 	moveRouter := moveservices.NewMoveRouter()
 	planner := &mocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
 	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
 

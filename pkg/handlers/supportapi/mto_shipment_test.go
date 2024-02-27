@@ -92,6 +92,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	fetcher := fetch.NewFetcher(queryBuilder)
 	moveRouter := moverouter.NewMoveRouter()
 	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.AnythingOfType("*appcontext.appContext"),

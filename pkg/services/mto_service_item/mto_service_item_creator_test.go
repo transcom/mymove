@@ -16,6 +16,7 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -186,6 +187,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemWithInvalidMove
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	planner := &mocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
 	creator := NewMTOServiceItemCreator(planner, builder, moveRouter)
 	serviceItemForUnapprovedMove := suite.buildValidServiceItemWithInvalidMove()
 
@@ -209,6 +215,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	planner := &mocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
 	creator := NewMTOServiceItemCreator(planner, builder, moveRouter)
 
 	// Happy path: If the service item is created successfully it should be returned
@@ -678,6 +689,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		builder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter)
 
 		createdServiceItems, verr, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
@@ -719,6 +735,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		builder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter)
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
@@ -781,6 +802,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		builder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter)
 
 		// Successful creation of DOFSIT
@@ -902,6 +928,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		builder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter)
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOPSIT)
@@ -931,6 +962,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		builder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter)
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOPSIT)
@@ -959,6 +995,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		builder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter)
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOASIT)
@@ -1029,6 +1070,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 		builder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter)
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
@@ -1058,6 +1104,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		builder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter)
 
 		reServiceDDFSIT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
@@ -1320,6 +1371,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		builder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter)
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDASIT)
 

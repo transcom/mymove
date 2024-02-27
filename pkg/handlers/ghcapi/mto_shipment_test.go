@@ -607,6 +607,11 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		builder := query.NewQueryBuilder()
 		moveRouter := moveservices.NewMoveRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		approver := mtoshipment.NewShipmentApprover(
 			mtoshipment.NewShipmentRouter(),
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter),
@@ -2987,6 +2992,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter),
@@ -3064,6 +3074,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter),
@@ -3113,6 +3128,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter),
@@ -3158,6 +3178,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter),
@@ -3198,6 +3223,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter),
@@ -3248,6 +3278,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveservices.NewMoveRouter()),
@@ -3374,6 +3409,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		ppmEstimator := mocks.PPMEstimator{}
 		shipmentRouter := mtoshipment.NewShipmentRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveservices.NewMoveRouter()),

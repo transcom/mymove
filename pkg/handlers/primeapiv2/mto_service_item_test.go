@@ -83,6 +83,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		subtestData := makeSubtestData()
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
@@ -136,6 +141,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
@@ -269,6 +279,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		mtoNotAvailable := factory.BuildMove(suite.DB(), nil, nil)
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
@@ -308,6 +323,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		}, nil)
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
@@ -454,6 +474,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		subtestData := makeSubtestData()
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
@@ -486,6 +511,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		subtestData := makeSubtestData()
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
@@ -604,6 +634,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOPSIT
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
@@ -645,6 +680,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
@@ -709,6 +749,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOASIT
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
@@ -788,6 +833,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoA
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
@@ -1053,6 +1103,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		subtestData := makeSubtestData()
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
@@ -1122,6 +1177,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		}
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
@@ -1150,6 +1210,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		subtestData := makeSubtestData()
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
@@ -1201,6 +1266,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		}
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
@@ -1260,6 +1330,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		}
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
 		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),

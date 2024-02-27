@@ -82,6 +82,11 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	planner := &mocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
 	subtestData.planner = &mocks.Planner{}
 

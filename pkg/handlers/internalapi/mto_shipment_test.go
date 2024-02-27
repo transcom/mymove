@@ -70,6 +70,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 
 	shipmentRouter := mtoshipment.NewShipmentRouter()
 	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		testMTOShipmentObjects.builder,
 		mtoserviceitem.NewMTOServiceItemCreator(planner, testMTOShipmentObjects.builder, testMTOShipmentObjects.moveRouter),

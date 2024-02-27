@@ -239,6 +239,11 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		queryBuilder,
 		mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter),

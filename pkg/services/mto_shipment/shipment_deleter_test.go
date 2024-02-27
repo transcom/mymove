@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
@@ -21,6 +22,11 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 	builder := query.NewQueryBuilder()
 	moveRouter := moveservices.NewMoveRouter()
 	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
 		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter),
@@ -152,6 +158,11 @@ func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 	builder := query.NewQueryBuilder()
 	moveRouter := moveservices.NewMoveRouter()
 	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
 		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter),

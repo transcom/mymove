@@ -40,6 +40,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 	shipmentRouter := mtoshipment.NewShipmentRouter()
 	planner := &routemocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
 		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter),
