@@ -49,11 +49,6 @@ export const ReviewDocuments = () => {
   const updateTotalWeight = (newWeight) => {
     setCurrentTotalWeight(newWeight);
   };
-
-  const updateAllowableWeight = (newWeight) => {
-    setCurrentAllowableWeight(newWeight);
-  };
-
   useEffect(() => {
     updateTotalWeight(calculateWeightRequested(mtoShipments));
   }, [mtoShipments]);
@@ -61,7 +56,7 @@ export const ReviewDocuments = () => {
     setMoveHasExcessWeight(currentTotalWeight > order.entitlement.totalWeight);
   }, [currentTotalWeight, order.entitlement.totalWeight]);
   useEffect(() => {
-    updateAllowableWeight(currentAllowableWeight);
+    setCurrentAllowableWeight(currentAllowableWeight);
   }, [currentAllowableWeight]);
   const chronologicalComparatorProperty = (input) => input.createdAt;
   const compareChronologically = (itemA, itemB) =>
@@ -276,7 +271,6 @@ export const ReviewDocuments = () => {
                     formRef={formRef}
                     allowableWeight={currentAllowableWeight}
                     updateTotalWeight={updateTotalWeight}
-                    updateAllowableWeight={updateAllowableWeight}
                     updateDocumentSetAllowableWeight={updateDocumentSetAllowableWeight}
                   />
                 )}
