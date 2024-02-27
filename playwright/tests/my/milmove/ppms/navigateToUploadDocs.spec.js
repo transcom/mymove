@@ -18,7 +18,6 @@ test.describe('PPM Request Payment - Begin providing documents flow', () => {
     });
 
     test('has upload documents button enabled', async ({ page }) => {
-      test.fail(true, '');
       await expect(page.getByRole('heading', { name: 'Your move is in progress.' })).toBeVisible();
       let stepContainer = page.getByTestId('stepContainer6');
 
