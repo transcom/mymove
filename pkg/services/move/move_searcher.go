@@ -66,13 +66,22 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 
 	// Services Counselor Statuses
 	if appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		query.Where("moves.status = 'NEEDS SERVICE COUNSELING' OR moves.status = 'SERVICE COUNSELING COMPLETED'")
+		query = appCtx.DB().EagerPreload(
+			"MTOShipments",
+			"Orders.ServiceMember",
+			"Orders.NewDutyLocation.Address",
+			"Orders.OriginDutyLocation.Address",
+		).
+			Join("orders", "orders.id = moves.orders_id").
+			Join("service_members", "service_members.id = orders.service_member_id").
+			LeftJoin("duty_locations as origin_duty_locations", "origin_duty_locations.id = orders.origin_duty_location_id").
+			Join("addresses as origin_addresses", "origin_addresses.id = origin_duty_locations.address_id").
+			Join("duty_locations as new_duty_locations", "new_duty_locations.id = orders.new_duty_location_id").
+			Join("addresses as new_addresses", "new_addresses.id = new_duty_locations.address_id").
+			LeftJoin("mto_shipments", "mto_shipments.move_id = moves.id AND mto_shipments.status <> 'DRAFT'").
+			GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id").
+			Where("show = TRUE and (moves.status = 'NEEDS SERVICE COUNSELING' OR moves.status = 'SERVICE COUNSELING COMPLETED')")
 	}
-
-	// TIO Statuses
-	// if appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
-	// 	query.Where("moves.status = 'PAYMENT REQUESTED' or moves.status = 'REVIEWED' or moves.status = 'REJECTED' or moves.status = 'PAID' or moves.status = 'DEPRECATED' or moves.status = 'ERROR'")
-	// }
 
 	customerNameQuery := customerNameSearch(params.CustomerName)
 	locatorQuery := locatorFilter(params.Locator)
