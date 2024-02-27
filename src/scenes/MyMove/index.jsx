@@ -275,7 +275,6 @@ CustomerApp.propTypes = {
     flags: PropTypes.shape({
       hhgFlow: PropTypes.bool,
       ghcFlow: PropTypes.bool,
-      multiMove: PropTypes.bool,
     }),
   }).isRequired,
 };
@@ -291,7 +290,6 @@ CustomerApp.defaultProps = {
     flags: {
       hhgFlow: false,
       ghcFlow: false,
-      multiMove: false,
     },
   },
 };
