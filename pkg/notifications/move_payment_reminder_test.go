@@ -283,7 +283,7 @@ func (suite *NotificationSuite) TestPaymentReminderOnSuccess() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
-	milMove := "https://my.move.mil"
+	milMove := "https://my.move.mil/"
 	pr, err := NewPaymentReminder()
 	suite.NoError(err)
 
