@@ -1,27 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
-import { useNavigate, useParams } from 'react-router';
+import { generatePath, useNavigate, useParams } from 'react-router';
 
 import './UploadOrders.css';
 
 import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import { documentSizeLimitMsg } from 'shared/constants';
-import { createUploadForDocument, deleteUpload, getOrders } from 'services/internalApi';
-import {
-  updateOrders as updateOrdersAction,
-  updateServiceMember as updateServiceMemberAction,
-} from 'store/entities/actions';
-import { selectServiceMemberFromLoggedInUser, selectOrdersForLoggedInUser } from 'store/entities/selectors';
+import { createUploadForDocument, deleteUpload, getAllMoves, getOrders } from 'services/internalApi';
+import { updateOrders as updateOrdersAction, updateAllMoves as updateAllMovesAction } from 'store/entities/actions';
+import { selectOrdersForLoggedInUser, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import { generalRoutes } from 'constants/routes';
+import { customerRoutes, generalRoutes } from 'constants/routes';
 import formStyles from 'styles/form.module.scss';
-import withRouter from 'utils/routing';
+import { withContext } from 'shared/AppContext';
 
-const UploadOrders = ({ orders, updateOrders }) => {
-  const [isLoading, setIsLoading] = useState(true);
+const UploadOrders = ({ orders, updateOrders, updateAllMoves, serviceMemberId }) => {
   const filePondEl = useRef();
   const navigate = useNavigate();
   const { orderId } = useParams();
@@ -54,19 +50,24 @@ const UploadOrders = ({ orders, updateOrders }) => {
   };
 
   useEffect(() => {
-    setIsLoading(true);
-    getOrders(orderId).then((response) => {
-      updateOrders(response);
-    });
-    setIsLoading(false);
-  }, [updateOrders, orderId]);
+    const fetchData = async () => {
+      await getOrders(orderId).then((response) => {
+        updateOrders(response);
+      });
+      await getAllMoves(serviceMemberId).then((response) => {
+        updateAllMoves(response);
+      });
+    };
+    fetchData();
+  }, [updateOrders, orderId, serviceMemberId, updateAllMoves]);
 
-  if (isLoading || !currentOrders || !uploads) return <LoadingPlaceholder />;
+  if (!currentOrders || !uploads) return <LoadingPlaceholder />;
 
   const isValid = !!uploads.length;
 
   const handleBack = () => {
-    navigate(`/move/${currentOrders.moves[0]}`);
+    const moveId = currentOrders.moves[0];
+    navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
   };
   const handleNext = () => {
     navigate(generalRoutes.HOME_PATH);
@@ -75,7 +76,7 @@ const UploadOrders = ({ orders, updateOrders }) => {
   return (
     <GridContainer>
       <Grid row>
-        <Grid col desktop={{ col: 8, offset: 2 }}>
+        <Grid col desktop={{ col: 8, offset: 2 }} data-testid="upload-orders-container">
           <h1>Upload your orders</h1>
           <p>In order to schedule your move, we need to have a complete copy of your orders.</p>
           <p>You can upload a PDF, or you can take a picture of each page and upload the images.</p>
@@ -99,13 +100,7 @@ const UploadOrders = ({ orders, updateOrders }) => {
           </div>
 
           <div className={formStyles.formActions}>
-            <WizardNavigation
-              onBackClick={() => {
-                handleBack(orderId);
-              }}
-              disableNext={!isValid}
-              onNextClick={handleNext}
-            />
+            <WizardNavigation onBackClick={handleBack} disableNext={!isValid} onNextClick={handleNext} />
           </div>
         </Grid>
       </Grid>
@@ -115,7 +110,7 @@ const UploadOrders = ({ orders, updateOrders }) => {
 
 const mapStateToProps = (state) => {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  const serviceMemberId = serviceMember?.id;
+  const serviceMemberId = serviceMember.id;
   const orders = selectOrdersForLoggedInUser(state);
 
   return {
@@ -125,8 +120,8 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = {
-  updateServiceMember: updateServiceMemberAction,
   updateOrders: updateOrdersAction,
+  updateAllMoves: updateAllMovesAction,
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(UploadOrders));
+export default withContext(connect(mapStateToProps, mapDispatchToProps)(UploadOrders));

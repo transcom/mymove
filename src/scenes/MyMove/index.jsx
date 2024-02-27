@@ -50,6 +50,7 @@ import TitleAnnouncer from 'components/TitleAnnouncer/TitleAnnouncer';
 import MultiMovesLandingPage from 'pages/MyMove/Multi-Moves/MultiMovesLandingPage';
 import MoveHome from 'pages/MyMove/Home/MoveHome';
 import AddOrders from 'pages/MyMove/AddOrders';
+import UploadOrders from 'pages/MyMove/UploadOrders';
 // Pages should be lazy-loaded (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
@@ -230,6 +231,7 @@ export class CustomerApp extends Component {
                 <Route end path={customerRoutes.SHIPMENT_PPM_COMPLETE_PATH} element={<PPMFinalCloseout />} />
                 <Route path={customerRoutes.ORDERS_ADD_PATH} element={<AddOrders />} />
                 <Route path={customerRoutes.ORDERS_EDIT_PATH} element={<EditOrders />} />
+                <Route path={customerRoutes.ORDERS_UPLOAD_PATH} element={<UploadOrders />} />
                 <Route path={customerRoutes.ORDERS_AMEND_PATH} element={<AmendOrders />} />
                 <Route end path="/infected-upload" element={<InfectedUpload />} />
                 <Route end path="/processing-upload" element={<ProcessingUpload />} />

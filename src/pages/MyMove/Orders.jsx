@@ -7,19 +7,12 @@ import { useNavigate, useParams } from 'react-router';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import OrdersInfoForm from 'components/Customer/OrdersInfoForm/OrdersInfoForm';
 import { patchOrders, getResponseError, getOrders } from 'services/internalApi';
-import {
-  updateOrders as updateOrdersAction,
-  updateServiceMember as updateServiceMemberAction,
-} from 'store/entities/actions';
+import { updateOrders as updateOrdersAction } from 'store/entities/actions';
 import { withContext } from 'shared/AppContext';
 import { formatDateForSwagger } from 'shared/dates';
 import { formatYesNoInputValue, formatYesNoAPIValue, dropdownInputOptions } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
-import {
-  selectServiceMemberFromLoggedInUser,
-  selectCurrentOrders,
-  selectOrdersForLoggedInUser,
-} from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectOrdersForLoggedInUser } from 'store/entities/selectors';
 import { generalRoutes } from 'constants/routes';
 import withRouter from 'utils/routing';
 
@@ -50,19 +43,19 @@ const Orders = ({ context, serviceMemberId, updateOrders, orders }) => {
       spouse_has_pro_gear: false,
     };
 
-    try {
-      if (currentOrders?.id) {
+    if (currentOrders?.id) {
+      try {
         pendingValues.id = currentOrders.id;
         await patchOrders(pendingValues);
         await getOrders(currentOrders.id).then((response) => {
           updateOrders(response);
         });
         handleNext(currentOrders.id);
+      } catch (error) {
+        const { response } = error;
+        const errorMessage = getResponseError(response, 'failed to update/create orders due to server error');
+        setServerError(errorMessage);
       }
-    } catch (error) {
-      const { response } = error;
-      const errorMessage = getResponseError(response, 'failed to update/create orders due to server error');
-      setServerError(errorMessage);
     }
   };
 
@@ -84,7 +77,7 @@ const Orders = ({ context, serviceMemberId, updateOrders, orders }) => {
   const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
 
   return (
-    <GridContainer>
+    <GridContainer data-testid="main-container">
       <NotificationScrollToTop dependency={serverError} />
 
       {serverError && (
@@ -97,7 +90,7 @@ const Orders = ({ context, serviceMemberId, updateOrders, orders }) => {
         </Grid>
       )}
 
-      <Grid row>
+      <Grid row data-testid="orders-form-container">
         <Grid col desktop={{ col: 8, offset: 2 }}>
           <OrdersInfoForm
             ordersTypeOptions={ordersTypeOptions}
@@ -124,19 +117,15 @@ Orders.propTypes = {
 const mapStateToProps = (state) => {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const orders = selectOrdersForLoggedInUser(state);
-  const currentOrders = selectCurrentOrders(state);
 
   return {
     serviceMemberId: serviceMember?.id,
-    currentOrders,
     orders,
-    currentDutyLocation: currentOrders?.origin_duty_location || {},
   };
 };
 
 const mapDispatchToProps = {
   updateOrders: updateOrdersAction,
-  updateServiceMember: updateServiceMemberAction,
 };
 
 export default withContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(Orders)));

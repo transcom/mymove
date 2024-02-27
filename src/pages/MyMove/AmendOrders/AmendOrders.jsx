@@ -2,7 +2,7 @@ import { React, createRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
+import { generatePath, useNavigate, useParams } from 'react-router-dom';
 
 import styles from './AmendOrders.module.scss';
 
@@ -27,7 +27,7 @@ import {
   selectUploadsForCurrentAmendedOrders,
 } from 'store/entities/selectors';
 import { updateOrders as updateOrdersAction } from 'store/entities/actions';
-import { generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 
 export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
   const [isLoading, setLoading] = useState(true);
@@ -64,7 +64,8 @@ export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
   const handleSave = async () => {
     return submitAmendedOrders(currentOrders?.moves[0])
       .then(() => {
-        navigate(generalRoutes.HOME_PATH);
+        const moveId = currentOrders?.moves[0];
+        navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
       })
       .catch((e) => {
         const { response } = e;
@@ -103,7 +104,7 @@ export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
         </Grid>
       )}
 
-      <Grid row>
+      <Grid row data-testid="info-container">
         <Grid col desktop={{ col: 8, offset: 2 }}>
           <h1>Orders</h1>
           <p>
@@ -112,7 +113,7 @@ export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
           </p>
         </Grid>
       </Grid>
-      <Grid row>
+      <Grid row data-testid="upload-info-container">
         <Grid col desktop={{ col: 8, offset: 2 }}>
           <SectionWrapper>
             <h5 className={styles.uploadOrdersHeader}>Upload orders</h5>
@@ -160,7 +161,6 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-  // TODO we might need a new action to handle updating amended orders
   updateOrders: updateOrdersAction,
 };
 
