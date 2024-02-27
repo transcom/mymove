@@ -958,6 +958,7 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 		ProofOfTrailerOwnershipDocumentID: *handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID),
 		ProofOfTrailerOwnershipDocument:   proofOfTrailerOwnershipDocument,
 		AdjustedNetWeight:                 handlers.FmtPoundPtr(weightTicket.AdjustedNetWeight),
+		AllowableWeight:                   handlers.FmtPoundPtr(weightTicket.AllowableWeight),
 		NetWeightRemarks:                  weightTicket.NetWeightRemarks,
 		ETag:                              etag.GenerateEtag(weightTicket.UpdatedAt),
 	}
