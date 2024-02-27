@@ -2655,7 +2655,7 @@ const order = {
   orders_type: 'PERMANENT_CHANGE_OF_STATION',
   has_dependents: false,
   issue_date: '2020-08-11',
-  grade: 'RANK',
+  grade: 'GRADE',
   moves: ['123'],
   origin_duty_location: {
     name: 'Test Duty Location',
