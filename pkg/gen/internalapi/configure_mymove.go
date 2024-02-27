@@ -187,6 +187,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.DeleteWeightTicket has not yet been implemented")
 		})
 	}
+	if api.MovesGetAllMovesHandler == nil {
+		api.MovesGetAllMovesHandler = moves.GetAllMovesHandlerFunc(func(params moves.GetAllMovesParams) middleware.Responder {
+			return middleware.NotImplemented("operation moves.GetAllMoves has not yet been implemented")
+		})
+	}
 	if api.TransportationOfficesGetTransportationOfficesHandler == nil {
 		api.TransportationOfficesGetTransportationOfficesHandler = transportation_offices.GetTransportationOfficesHandlerFunc(func(params transportation_offices.GetTransportationOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_offices.GetTransportationOffices has not yet been implemented")
@@ -317,9 +322,9 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation service_members.ShowServiceMemberOrders has not yet been implemented")
 		})
 	}
-	if api.MovesShowShipmentSummaryWorksheetHandler == nil {
-		api.MovesShowShipmentSummaryWorksheetHandler = moves.ShowShipmentSummaryWorksheetHandlerFunc(func(params moves.ShowShipmentSummaryWorksheetParams) middleware.Responder {
-			return middleware.NotImplemented("operation moves.ShowShipmentSummaryWorksheet has not yet been implemented")
+	if api.PpmShowShipmentSummaryWorksheetHandler == nil {
+		api.PpmShowShipmentSummaryWorksheetHandler = ppm.ShowShipmentSummaryWorksheetHandlerFunc(func(params ppm.ShowShipmentSummaryWorksheetParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.ShowShipmentSummaryWorksheet has not yet been implemented")
 		})
 	}
 	if api.MovesSubmitAmendedOrdersHandler == nil {

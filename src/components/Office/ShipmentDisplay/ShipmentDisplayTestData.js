@@ -159,6 +159,7 @@ export const ppmInfo = {
     shipmentId: 'b5c2d9a1-d1e6-485d-9678-8b62deb0d801',
     spouseProGearWeight: 498,
     status: 'SUBMITTED',
+    advanceStatus: 'APPROVED',
     submittedAt: '2022-04-29T21:48:21.573Z',
     updatedAt: '2022-04-29T21:48:21.581Z',
   },
