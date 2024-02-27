@@ -335,7 +335,7 @@ describe('ServicesCounselingQueue', () => {
 
       if (showsCounselingTab === 'counseling') {
         // Make sure "Counseling" is the active tab.
-        const counselingActive = screen.getByText('Counseling', { selector: '.usa-current .tab-title' });
+        const counselingActive = screen.getByText('Counseling Queue', { selector: '.usa-current .tab-title' });
         expect(counselingActive).toBeInTheDocument();
 
         // Check for the "Counseling" columns.
@@ -345,7 +345,7 @@ describe('ServicesCounselingQueue', () => {
         expect(screen.getByText(/Origin GBLOC/)).toBeInTheDocument();
       } else if (showsCounselingTab === 'closeout') {
         // Make sure "PPM Closeout" is the active tab.
-        const ppmCloseoutActive = screen.getByText('PPM Closeout', { selector: '.usa-current .tab-title' });
+        const ppmCloseoutActive = screen.getByText('PPM Closeout Queue', { selector: '.usa-current .tab-title' });
         expect(ppmCloseoutActive).toBeInTheDocument();
 
         // Check for the "PPM Closeout" columns.
