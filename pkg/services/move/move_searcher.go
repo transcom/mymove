@@ -65,12 +65,12 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 		Where("show = TRUE")
 
 	// Services Counselor Statuses
-	if appCtx.Session().Roles.HasRole(roles.RoleType("services_counselor")) {
+	if appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
 		query.Where("moves.status = 'NEEDS SERVICE COUNSELING' OR moves.status = 'SERVICE COUNSELING COMPLETED'")
 	}
 
 	// TIO Statuses
-	// if appCtx.Session().Roles.HasRole(roles.RoleType("transportation_invoicing_officer")) {
+	// if appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
 	// 	query.Where("moves.status = 'PAYMENT REQUESTED' or moves.status = 'REVIEWED' or moves.status = 'REJECTED' or moves.status = 'PAID' or moves.status = 'DEPRECATED' or moves.status = 'ERROR'")
 	// }
 
