@@ -432,6 +432,8 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 			model.SITOriginHHGActualAddressID = &model.SITOriginHHGActualAddress.ID
 		}
 
+		// model.SITDeliveryMiles = originsit.PickupAddress;
+
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDestSIT:
 		destsit := mtoServiceItem.(*primemessages.MTOServiceItemDestSIT)
 

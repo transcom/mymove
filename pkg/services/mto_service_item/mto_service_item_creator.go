@@ -12,8 +12,10 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 type createMTOServiceItemQueryBuilder interface {
@@ -23,9 +25,38 @@ type createMTOServiceItemQueryBuilder interface {
 }
 
 type mtoServiceItemCreator struct {
+	planner          route.Planner
 	builder          createMTOServiceItemQueryBuilder
 	createNewBuilder func() createMTOServiceItemQueryBuilder
 	moveRouter       services.MoveRouter
+}
+
+func (o *mtoServiceItemCreator) calculateSITDeliveryMiles(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (int, error) {
+	var distance int
+	var err error
+
+	if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT || serviceItem.ReService.Code == models.ReServiceCodeDOASIT || serviceItem.ReService.Code == models.ReServiceCodeDOSFSC || serviceItem.ReService.Code == models.ReServiceCodeDOPSIT {
+		// Creation: Origin SIT: distance between shipment pickup address & service item pickup address
+		// SITDestinationOriginalAddress not saved until TOO approves, so on creation the distnace will always be 1 mile since the shipment destination/pickup address is the same as the service item’s
+		var originalSITAddressZip string
+		if serviceItem.SITDestinationOriginalAddress != nil {
+			originalSITAddressZip = serviceItem.SITDestinationOriginalAddress.PostalCode
+		} else {
+			originalSITAddressZip = mtoShipment.PickupAddress.PostalCode
+		}
+		distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, originalSITAddressZip)
+	}
+
+	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT || serviceItem.ReService.Code == models.ReServiceCodeDDASIT || serviceItem.ReService.Code == models.ReServiceCodeDDSFSC || serviceItem.ReService.Code == models.ReServiceCodeDDDSIT {
+		// Creation: Destination SIT: distance between shipment destination address & service item destination address
+		// TODO verify these two fields are what we mean for the shipment dest and service item dest
+		distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationFinalAddress.PostalCode)
+	}
+	if err != nil {
+		return 0, err
+	}
+
+	return distance, err
 }
 
 // CreateMTOServiceItem creates a MTO Service Item
@@ -161,6 +192,12 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		verrs.Add("reServiceCode", fmt.Sprintf("%s cannot be created", serviceItem.ReService.Code))
 		return nil, nil, apperror.NewInvalidInputError(serviceItem.ID, nil, verrs,
 			fmt.Sprintf("A service item with reServiceCode %s cannot be manually created.", serviceItem.ReService.Code))
+	}
+
+	milesCalculated, err := o.calculateSITDeliveryMiles(appCtx, serviceItem, mtoShipment)
+	if milesCalculated > 0 {
+		deliveryMiles := unit.Miles(milesCalculated)
+		serviceItem.SITDeliveryMiles = &deliveryMiles
 	}
 
 	updateShipmentPickupAddress := false
@@ -396,13 +433,13 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(appCtx appcontext.AppCon
 }
 
 // NewMTOServiceItemCreator returns a new MTO service item creator
-func NewMTOServiceItemCreator(builder createMTOServiceItemQueryBuilder, moveRouter services.MoveRouter) services.MTOServiceItemCreator {
+func NewMTOServiceItemCreator(planner route.Planner, builder createMTOServiceItemQueryBuilder, moveRouter services.MoveRouter) services.MTOServiceItemCreator {
 	// used inside a transaction and mocking
 	createNewBuilder := func() createMTOServiceItemQueryBuilder {
 		return query.NewQueryBuilder()
 	}
 
-	return &mtoServiceItemCreator{builder: builder, createNewBuilder: createNewBuilder, moveRouter: moveRouter}
+	return &mtoServiceItemCreator{planner: planner, builder: builder, createNewBuilder: createNewBuilder, moveRouter: moveRouter}
 }
 
 func validateTimeMilitaryField(_ appcontext.AppContext, timeMilitary string) error {

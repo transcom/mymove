@@ -81,7 +81,8 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
+	planner := &mocks.Planner{}
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter)
 	subtestData.planner = &mocks.Planner{}
 
 	subtestData.shipmentApprover = NewShipmentApprover(router, siCreator, subtestData.planner)

@@ -22,6 +22,7 @@ type MTOServiceItemFetcher interface {
 //go:generate mockery --name MTOServiceItemCreator
 type MTOServiceItemCreator interface {
 	CreateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error)
+	// 	CreateMTOServiceItem(planner route.Planner, appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error)
 }
 
 // MTOServiceItemUpdater is the exported interface for updating an mto service item

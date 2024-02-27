@@ -4177,9 +4177,10 @@ func createHHGWithOriginSITServiceItems(
 	if err != nil || verrs.HasAny() {
 		logger.Fatal(fmt.Sprintf("Failed to save move and dependencies: %s", err))
 	}
+	planner := &routemocks.Planner{}
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
 
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
@@ -4196,8 +4197,6 @@ func createHHGWithOriginSITServiceItems(
 	}
 	move.AvailableToPrimeAt = &May14GHCTestYear
 	testdatagen.MustSave(appCtx.DB(), &move)
-
-	planner := &routemocks.Planner{}
 
 	// called for zip 3 domestic linehaul service item
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
@@ -4431,7 +4430,9 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	}
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+	planner := &routemocks.Planner{}
+
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
 
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
@@ -4448,8 +4449,6 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	if approveErr != nil {
 		logger.Fatal("Error approving move")
 	}
-
-	planner := &routemocks.Planner{}
 
 	// called for zip 3 domestic linehaul service item
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
@@ -4828,7 +4827,8 @@ func createHHGWithPaymentServiceItems(
 	}
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+	planner := &routemocks.Planner{}
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
 
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
@@ -4845,8 +4845,6 @@ func createHHGWithPaymentServiceItems(
 	if approveErr != nil {
 		logger.Fatal("Error approving move")
 	}
-
-	planner := &routemocks.Planner{}
 
 	// called using the addresses with origin zip of 90210 and destination zip of 94535
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(348, nil).Times(2)

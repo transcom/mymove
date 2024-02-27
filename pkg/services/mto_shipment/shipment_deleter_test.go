@@ -10,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -19,9 +20,10 @@ import (
 func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 	builder := query.NewQueryBuilder()
 	moveRouter := moveservices.NewMoveRouter()
+	planner := &routemocks.Planner{}
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
-		mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
+		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter),
 		moveRouter,
 	)
 	suite.Run("Returns an error when shipment is not found", func() {
@@ -149,9 +151,10 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 	builder := query.NewQueryBuilder()
 	moveRouter := moveservices.NewMoveRouter()
+	planner := &routemocks.Planner{}
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
-		mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
+		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter),
 		moveRouter,
 	)
 	suite.Run("Doesn't return an error when allowed to delete a shipment", func() {
