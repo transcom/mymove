@@ -466,7 +466,7 @@ func (suite *MoveServiceSuite) TestShowServicesCounselorsResults() {
 					suite.Equal(secondMove.Locator, moves[0].Locator, message)
 				}
 
-				suite.NotEqual(firstMove.Locator, moves[0])
+				suite.NotEqual(firstMove.Locator, moves[0].Locator)
 			}
 		}
 	})
