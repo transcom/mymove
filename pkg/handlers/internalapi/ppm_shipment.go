@@ -7,7 +7,6 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -261,47 +260,60 @@ func (h ResubmitPPMShipmentDocumentationHandler) Handle(params ppmops.ResubmitPP
 		})
 }
 
+// ShowAOAPacketHandler returns a Shipment Summary Worksheet PDF
+type showAOAPacketHandler struct {
+	handlers.HandlerConfig
+	services.SSWPPMComputer
+	services.SSWPPMGenerator
+	services.AOAPacketCreator
+}
+
 // Handle returns a generated PDF
-func (h ShowShipmentSummaryWorksheetHandler) Handle(params ppmops.ShowShipmentSummaryWorksheetParams) middleware.Responder {
+func (h showAOAPacketHandler) Handle(params ppmops.ShowAOAPacketParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			logger := appCtx.Logger()
 
-			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
-			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
+			// Ensures session
+			if appCtx.Session() == nil {
+				noSessionErr := apperror.NewSessionError("No user session")
+				return ppmops.NewShowAOAPacketForbidden(), noSessionErr
 			}
-			ssfd, err := h.SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, appCtx.Session(), ppmShipmentID)
-			if err != nil {
-				logger.Error("Error fetching data for SSW", zap.Error(err))
-				return handlers.ResponseForError(logger, err), err
-			}
-
-			ssfd.Obligations, err = h.SSWPPMComputer.ComputeObligations(appCtx, *ssfd, h.DTODPlanner())
-			if err != nil {
-				logger.Error("Error calculating obligations ", zap.Error(err))
-				return handlers.ResponseForError(logger, err), err
+			// Ensures service member ID is present
+			if !appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil {
+				noServiceMemberIDErr := apperror.NewSessionError("No service member ID")
+				return ppmops.NewShowAOAPacketForbidden(), noServiceMemberIDErr
 			}
 
-			page1Data, page2Data := h.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
-
-			SSWPPMWorksheet, SSWPDFInfo, err := h.SSWPPMGenerator.FillSSWPDFForm(page1Data, page2Data)
+			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID)
 			if err != nil {
-				return nil, err
+				err := apperror.NewBadDataError("missing/empty required URI parameter: PPMShipmentID")
+				appCtx.Logger().Error(err.Error())
+				return ppmops.NewShowAOAPacketBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
+					err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
-			if SSWPDFInfo.PageCount != 2 {
-				return nil, errors.Wrap(errors.New("SSWPDFInfo.PageCount is not 2, PDF is corrupted"), "SSWGenerator output a corrupted or incorretly altered PDF")
-			}
-			payload := io.NopCloser(SSWPPMWorksheet)
-			filename := fmt.Sprintf("inline; filename=\"%s-%s-ssw-%s.pdf\"", *ssfd.ServiceMember.FirstName, *ssfd.ServiceMember.LastName, time.Now().Format("01-02-2006"))
 
-			return ppmops.NewShowShipmentSummaryWorksheetOK().WithContentDisposition(filename).WithPayload(payload), nil
+			// Ensures AOA is for the accessing member
+			err = h.VerifyAOAPacketInternal(appCtx, ppmShipmentID)
+			if err != nil {
+				err := apperror.NewBadDataError("PPMShipment cannot be verified")
+				appCtx.Logger().Error(err.Error())
+				return ppmops.NewShowAOAPacketBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
+					err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+
+			AOAPacket, err := h.AOAPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID)
+			if err != nil {
+				logger.Error("Error creating AOA", zap.Error(err))
+				aoaError := err.Error()
+				payload := payloads.InternalServerError(&aoaError, h.GetTraceIDFromRequest(params.HTTPRequest))
+				return ppmops.NewShowAOAPacketInternalServerError().
+					WithPayload(payload), err
+			}
+
+			payload := io.NopCloser(AOAPacket)
+			filename := fmt.Sprintf("inline; filename=\"AOA-%s.pdf\"", time.Now().Format("01-02-2006_15-04-05"))
+
+			return ppmops.NewShowAOAPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
 		})
-}
-
-// ShowShipmentSummaryWorksheetHandler returns a Shipment Summary Worksheet PDF
-type ShowShipmentSummaryWorksheetHandler struct {
-	handlers.HandlerConfig
-	services.SSWPPMComputer
-	services.SSWPPMGenerator
 }
