@@ -3,4 +3,4 @@ export const elevatedPrivilegeTypes = {
   SUPERVISOR: 'supervisor',
 };
 
-export const elevatedPrivileges = [{ privilegeType: 'supervisor', name: 'Supervisor' }];
+export const officeUserPrivileges = [{ privilegeType: 'supervisor', name: 'Supervisor' }];

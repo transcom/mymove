@@ -2366,6 +2366,12 @@ func init() {
         "middleInitials": {
           "type": "string"
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -2414,6 +2420,12 @@ func init() {
           "x-nullable": true,
           "example": "L."
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserPrivilege"
+          }
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -2442,7 +2454,7 @@ func init() {
           "x-nullable": true,
           "example": "Supervisor"
         },
-        "roleType": {
+        "privilegeType": {
           "type": "string",
           "title": "privilegeType",
           "x-nullable": true,
@@ -2570,6 +2582,34 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/Organization"
+      }
+    },
+    "Privilege": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd87dec0538"
+        },
+        "privilegeName": {
+          "type": "string",
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "example": "customer"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
       }
     },
     "Role": {
@@ -5390,6 +5430,12 @@ func init() {
         "middleInitials": {
           "type": "string"
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
+          }
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -5438,6 +5484,12 @@ func init() {
           "x-nullable": true,
           "example": "L."
         },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserPrivilege"
+          }
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -5466,7 +5518,7 @@ func init() {
           "x-nullable": true,
           "example": "Supervisor"
         },
-        "roleType": {
+        "privilegeType": {
           "type": "string",
           "title": "privilegeType",
           "x-nullable": true,
@@ -5594,6 +5646,34 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/Organization"
+      }
+    },
+    "Privilege": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd87dec0538"
+        },
+        "privilegeName": {
+          "type": "string",
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "example": "customer"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
       }
     },
     "Role": {

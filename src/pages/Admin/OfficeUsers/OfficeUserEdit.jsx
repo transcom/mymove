@@ -12,7 +12,7 @@ import {
 } from 'react-admin';
 
 import { RolesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesCheckboxes';
-import { ElevatedPrivilegesCheckboxInput } from 'scenes/SystemAdmin/shared/ElevatedPrivilegeCheckboxes';
+import { PrivilegesCheckboxInput } from 'scenes/SystemAdmin/shared/ElevatedPrivilegeCheckboxes';
 import { phoneValidators } from 'scenes/SystemAdmin/shared/form_validators';
 
 const OfficeUserEditToolbar = (props) => (
@@ -45,7 +45,7 @@ const OfficeUserEdit = () => (
         sx={{ width: 256 }}
       />
       <RolesCheckboxInput source="roles" validate={required()} />
-      <ElevatedPrivilegesCheckboxInput source="privileges" />
+      <PrivilegesCheckboxInput source="privileges" />
       <ReferenceInput
         label="Transportation Office"
         reference="offices"

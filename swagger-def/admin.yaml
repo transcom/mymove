@@ -646,6 +646,10 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Role'
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/Privilege'
       createdAt:
         type: string
         format: date-time
@@ -697,6 +701,10 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/OfficeUserRole'
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/OfficeUserPrivilege'
   OfficeUserUpdate:
     type: object
     properties:
@@ -755,7 +763,7 @@ definitions:
         example: 'Supervisor'
         x-nullable: true
         title: name
-      roleType:
+      privilegeType:
         type: string
         example: 'supervisor'
         x-nullable: true
@@ -830,6 +838,27 @@ definitions:
       - roleName
       - createdAt
       - updatedAt
+  Privilege:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd87dec0538
+      privilegeType:
+        type: string
+        example: customer
+      privilegeName:
+        type: string
+        example: Supervisor
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
   ServiceMember:
     type: object
     properties:

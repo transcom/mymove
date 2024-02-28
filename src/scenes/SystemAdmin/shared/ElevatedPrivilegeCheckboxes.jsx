@@ -1,37 +1,37 @@
 import React from 'react';
 import { CheckboxGroupInput } from 'react-admin';
 
-import { elevatedPrivileges } from 'constants/elevatedPrivileges';
+import { officeUserPrivileges } from 'constants/elevatedPrivileges';
 
-const makeElevatedPrivilegesArray = (elevatedPrivileges) => {
-  if (!elevatedPrivileges || elevatedPrivileges.length === 0) {
+const makePrivilegesArray = (privileges) => {
+  if (!privileges || privileges.length === 0) {
     return undefined;
   }
-  return elevatedPrivileges.reduce((elevatedPrivilegesArray, elevatedPrivilege) => {
-    if (elevatedPrivilege.privilegeType) {
-      elevatedPrivilegesArray.push(elevatedPrivilege.privilegeType);
+  return privileges.reduce((privilegesArray, privilege) => {
+    if (privilege.privilegeType) {
+      privilegesArray.push(privilege.privilegeType);
     }
-    return elevatedPrivilegesArray;
+    return privilegesArray;
   }, []);
 };
 
 const parseCheckboxInput = (input) => {
-  return input.reduce((elevatedPrivilegesArray, elevatedPrivilege) => {
-    elevatedPrivilegesArray.push(
-      elevatedPrivileges.find((elevatedPrivilegeType) => elevatedPrivilegeType.privilegeType === elevatedPrivilege),
+  return input.reduce((privilegesArray, privilege) => {
+    privilegesArray.push(
+      officeUserPrivileges.find((officeUserPrivilege) => officeUserPrivilege.privilegeType === privilege),
     );
-    return elevatedPrivilegesArray;
+    return privilegesArray;
   }, []);
 };
 
-const ElevatedPrivilegesCheckboxInput = (props) => (
+const PrivilegesCheckboxInput = (props) => (
   <CheckboxGroupInput
     source="privileges"
-    format={makeElevatedPrivilegesArray}
+    format={makePrivilegesArray}
     parse={parseCheckboxInput}
-    choices={elevatedPrivileges}
+    choices={officeUserPrivileges}
     optionValue="privilegeType"
   />
 );
 
-export { ElevatedPrivilegesCheckboxInput };
+export { PrivilegesCheckboxInput };

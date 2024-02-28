@@ -23,7 +23,7 @@ type OfficeUserPrivilege struct {
 
 	// privilegeType
 	// Example: supervisor
-	RoleType *string `json:"roleType,omitempty"`
+	PrivilegeType *string `json:"privilegeType,omitempty"`
 }
 
 // Validate validates this office user privilege
