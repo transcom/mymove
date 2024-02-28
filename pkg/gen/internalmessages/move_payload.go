@@ -55,7 +55,6 @@ type MovePayload struct {
 	// Format: uuid
 	OrdersID *strfmt.UUID `json:"orders_id"`
 
-
 	// service member id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Read Only: true

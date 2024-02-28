@@ -309,10 +309,6 @@ definitions:
         type: integer
       GTCC:
         type: integer
-  IndexPersonallyProcuredMovePayload:
-    type: array
-    items:
-      $ref: '#/definitions/PersonallyProcuredMovePayload'
   MovePayload:
     type: object
     properties:
@@ -344,8 +340,6 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
-      personally_procured_moves:
-        $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
       mto_shipments:
         $ref: '#/definitions/MTOShipments'
       closeout_office:

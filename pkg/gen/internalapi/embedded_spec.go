@@ -4158,12 +4158,6 @@ func init() {
         "$ref": "#/definitions/MovePayload"
       }
     },
-    "IndexPersonallyProcuredMovePayload": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/PersonallyProcuredMovePayload"
-      }
-    },
     "IndexServiceMemberBackupContactsPayload": {
       "type": "array",
       "items": {
@@ -4763,9 +4757,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "personally_procured_moves": {
-          "$ref": "#/definitions/IndexPersonallyProcuredMovePayload"
         },
         "service_member_id": {
           "type": "string",
@@ -12197,12 +12188,6 @@ func init() {
         "$ref": "#/definitions/MovePayload"
       }
     },
-    "IndexPersonallyProcuredMovePayload": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/PersonallyProcuredMovePayload"
-      }
-    },
     "IndexServiceMemberBackupContactsPayload": {
       "type": "array",
       "items": {
@@ -12804,9 +12789,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "personally_procured_moves": {
-          "$ref": "#/definitions/IndexPersonallyProcuredMovePayload"
         },
         "service_member_id": {
           "type": "string",
