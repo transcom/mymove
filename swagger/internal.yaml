@@ -2299,6 +2299,14 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      actualProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
       agents:
         $ref: '#/definitions/MTOAgents'
   ClientError:
