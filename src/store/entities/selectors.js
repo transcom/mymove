@@ -163,6 +163,9 @@ export const selectCurrentShipmentFromMove = (state, moveId, shipmentId) => {
   const currentMove = allMoves.currentMove.find((m) => m.id === moveId);
   const previousMove = allMoves.previousMoves.find((m) => m.id === moveId);
   const move = currentMove || previousMove;
+  if (!move.mtoShipments) {
+    return {};
+  }
   const currentShipment = move.mtoShipments.find((s) => s.id === shipmentId);
   return currentShipment;
 };
