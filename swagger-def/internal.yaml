@@ -2354,6 +2354,8 @@ definitions:
         readOnly: true
       mtoShipments:
         $ref: '#/definitions/MTOShipments'
+      closeoutOffice:
+        $ref: 'definitions/TransportationOffice.yaml'
       eTag:
         type: string
         readOnly: true

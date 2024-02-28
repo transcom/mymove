@@ -2387,6 +2387,8 @@ definitions:
         readOnly: true
       mtoShipments:
         $ref: '#/definitions/MTOShipments'
+      closeoutOffice:
+        $ref: '#/definitions/TransportationOffice'
       eTag:
         type: string
         readOnly: true
