@@ -41,7 +41,7 @@ export async function makePrimeSimulatorRequestV2(operationPath, params = {}, op
 
 export async function getPrimeSimulatorAvailableMoves() {
   const operationPath = 'moveTaskOrder.listMoves';
-  return makePrimeSimulatorRequest(operationPath, {}, { schemaKey: 'listMoves', normalize: false });
+  return makePrimeSimulatorRequestV2(operationPath, {}, { schemaKey: 'listMoves', normalize: false });
 }
 
 export async function getPrimeSimulatorMove(key, locator) {
