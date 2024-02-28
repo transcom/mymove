@@ -20,23 +20,24 @@ import PPMShipmentCard from 'components/Customer/Review/ShipmentCard/PPMShipment
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { customerRoutes } from 'constants/routes';
-import { deleteMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
+import { deleteMTOShipment, getAllMoves, getMTOShipmentsForMove } from 'services/internalApi';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { updateMTOShipments } from 'store/entities/actions';
+import { updateMTOShipments, updateAllMoves as updateAllMovesAction } from 'store/entities/actions';
 import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
-  selectCurrentMove,
   selectMoveIsApproved,
   selectHasCanceledMove,
-  selectMTOShipmentsForCurrentMove,
+  selectAllMoves,
+  selectCurrentMoveFromAllMoves,
 } from 'store/entities/selectors';
 import { setFlashMessage } from 'store/flash/actions';
 import { OrdersShape, MoveShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 export class Summary extends Component {
   constructor(props) {
@@ -54,11 +55,15 @@ export class Summary extends Component {
   }
 
   componentDidMount() {
-    const { onDidMount, serviceMember } = this.props;
+    const { onDidMount, serviceMember, updateAllMoves } = this.props;
 
     if (onDidMount) {
       onDidMount(serviceMember.id);
     }
+
+    getAllMoves(serviceMember.id).then((response) => {
+      updateAllMoves(response);
+    });
   }
 
   get getSortedShipments() {
@@ -87,9 +92,12 @@ export class Summary extends Component {
   };
 
   handleDeleteShipmentConfirmation = (shipmentId) => {
-    const { currentMove, updateShipmentList, setMsg } = this.props;
+    const { serviceMember, updateAllMoves, currentMove, updateShipmentList, setMsg } = this.props;
     deleteMTOShipment(shipmentId)
       .then(() => {
+        getAllMoves(serviceMember.id).then((response) => {
+          updateAllMoves(response);
+        });
         getMTOShipmentsForMove(currentMove.id).then((response) => {
           updateShipmentList(response);
           setMsg('MTO_SHIPMENT_DELETE_SUCCESS', 'success', 'The shipment was deleted.', '', true);
@@ -110,8 +118,20 @@ export class Summary extends Component {
   };
 
   renderShipments = () => {
-    const { currentMove, currentOrders, router, serviceMember } = this.props;
+    const { currentMove, currentOrders, router, serviceMember, mtoShipments } = this.props;
     const { moveId } = router.params;
+
+    // loading placeholder while data loads - this handles any async issues
+    if (!currentMove || !mtoShipments) {
+      return (
+        <div className={styles.homeContainer}>
+          <div className={`usa-prose grid-container ${styles['grid-container']}`}>
+            <LoadingPlaceholder />
+          </div>
+        </div>
+      );
+    }
+
     const showEditAndDeleteBtn = currentMove.status === MOVE_STATUSES.DRAFT;
     let hhgShipmentNumber = 0;
     let ppmShipmentNumber = 0;
@@ -234,6 +254,17 @@ export class Summary extends Component {
       targetShipmentMoveCode,
       targetShipmentType,
     } = this.state;
+
+    // loading placeholder while data loads - this handles any async issues
+    if (!currentMove || !mtoShipments) {
+      return (
+        <div className={styles.homeContainer}>
+          <div className={`usa-prose grid-container ${styles['grid-container']}`}>
+            <LoadingPlaceholder />
+          </div>
+        </div>
+      );
+    }
 
     const { pathname } = router.location;
     const { moveId } = router.params;
@@ -367,11 +398,21 @@ Summary.defaultProps = {
   router: {},
 };
 
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
+  const serviceMemberMoves = selectAllMoves(state);
+  const {
+    router: {
+      params: { moveId },
+    },
+  } = ownProps;
+  const currentMove = selectCurrentMoveFromAllMoves(state, moveId);
+  const mtoShipments = currentMove?.mtoShipments ?? [];
+
   return {
-    mtoShipments: selectMTOShipmentsForCurrentMove(state),
+    serviceMemberMoves,
+    mtoShipments,
     serviceMember: selectServiceMemberFromLoggedInUser(state),
-    currentMove: selectCurrentMove(state) || {},
+    currentMove,
     currentOrders: selectCurrentOrders(state) || {},
     moveIsApproved: selectMoveIsApproved(state),
     lastMoveIsCanceled: selectHasCanceledMove(state),
@@ -381,6 +422,7 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = {
   updateShipmentList: updateMTOShipments,
+  updateAllMoves: updateAllMovesAction,
   setMsg: setFlashMessage,
 };
 
