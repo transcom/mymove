@@ -37,7 +37,7 @@ func (o *mtoServiceItemCreator) calculateSITDeliveryMiles(appCtx appcontext.AppC
 
 	if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT || serviceItem.ReService.Code == models.ReServiceCodeDOASIT || serviceItem.ReService.Code == models.ReServiceCodeDOSFSC || serviceItem.ReService.Code == models.ReServiceCodeDOPSIT {
 		// Creation: Origin SIT: distance between shipment pickup address & service item pickup address
-		// SITDestinationOriginalAddress not saved until TOO approves, so on creation the distnace will always be 1 mile since the shipment destination/pickup address is the same as the service item’s
+		// SITDestinationOriginalAddress not saved until TOO approves, so on creation the distance will always be 1 mile since the shipment destination/pickup address is the same as the service item’s
 		var originalSITAddressZip string
 		if serviceItem.SITDestinationOriginalAddress != nil {
 			originalSITAddressZip = serviceItem.SITDestinationOriginalAddress.PostalCode
@@ -49,7 +49,6 @@ func (o *mtoServiceItemCreator) calculateSITDeliveryMiles(appCtx appcontext.AppC
 
 	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT || serviceItem.ReService.Code == models.ReServiceCodeDDASIT || serviceItem.ReService.Code == models.ReServiceCodeDDSFSC || serviceItem.ReService.Code == models.ReServiceCodeDDDSIT {
 		// Creation: Destination SIT: distance between shipment destination address & service item destination address
-		// TODO verify these two fields are what we mean for the shipment dest and service item dest
 		distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationFinalAddress.PostalCode)
 	}
 	if err != nil {
@@ -254,6 +253,29 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 					extraServiceItem.ReService.Code == models.ReServiceCodeDDSFSC {
 					extraServiceItem.SITDestinationFinalAddress = serviceItem.SITDestinationFinalAddress
 					extraServiceItem.SITDestinationFinalAddressID = serviceItem.SITDestinationFinalAddressID
+				}
+			}
+		}
+
+		// make sure SITDeliveryMiles is the same for all origin SIT related service items
+		if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT && serviceItem.SITDeliveryMiles != nil {
+			for itemIndex := range *extraServiceItems {
+				extraServiceItem := &(*extraServiceItems)[itemIndex]
+				if extraServiceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
+					extraServiceItem.ReService.Code == models.ReServiceCodeDOASIT ||
+					extraServiceItem.ReService.Code == models.ReServiceCodeDOSFSC {
+					extraServiceItem.SITDeliveryMiles = serviceItem.SITDeliveryMiles
+				}
+			}
+		}
+		// make sure SITDeliveryMiles is the same for all destination SIT related service items
+		if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT && serviceItem.SITDeliveryMiles != nil {
+			for itemIndex := range *extraServiceItems {
+				extraServiceItem := &(*extraServiceItems)[itemIndex]
+				if extraServiceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
+					extraServiceItem.ReService.Code == models.ReServiceCodeDDASIT ||
+					extraServiceItem.ReService.Code == models.ReServiceCodeDDSFSC {
+					extraServiceItem.SITDeliveryMiles = serviceItem.SITDeliveryMiles
 				}
 			}
 		}
