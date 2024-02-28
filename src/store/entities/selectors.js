@@ -158,6 +158,15 @@ export const selectCurrentMoveFromAllMoves = (state, moveId) => {
   return move;
 };
 
+export const selectCurrentShipmentFromMove = (state, moveId, shipmentId) => {
+  const allMoves = state.entities.serviceMemberMoves || [];
+  const currentMove = allMoves.currentMove.find((m) => m.id === moveId);
+  const previousMove = allMoves.previousMoves.find((m) => m.id === moveId);
+  const move = currentMove || previousMove;
+  const currentShipment = move.mtoShipments.find((s) => s.id === shipmentId);
+  return currentShipment;
+};
+
 export const selectMoveIsApproved = createSelector(selectCurrentMove, (move) => move?.status === 'APPROVED');
 
 export const selectMoveIsInDraft = createSelector(selectCurrentMove, (move) => move?.status === MOVE_STATUSES.DRAFT);

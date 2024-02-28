@@ -11,7 +11,7 @@ import { updateMTOShipment as updateMTOShipmentAction } from 'store/entities/act
 import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
-  selectMTOShipmentById,
+  selectCurrentShipmentFromMove,
 } from 'store/entities/selectors';
 import { fetchCustomerData as fetchCustomerDataAction } from 'store/onboarding/actions';
 import { AddressShape, SimpleAddressShape } from 'types/address';
@@ -113,10 +113,12 @@ function mapStateToProps(state, ownProps) {
       params: { mtoShipmentId, moveId },
     },
   } = ownProps;
+  const mtoShipment = selectCurrentShipmentFromMove(state, moveId, mtoShipmentId) || {};
+
   const props = {
     serviceMember,
     orders: selectCurrentOrders(state) || {},
-    mtoShipment: selectMTOShipmentById(state, mtoShipmentId) || {},
+    mtoShipment,
     currentResidence: serviceMember?.residential_address || {},
     newDutyLocationAddress: selectCurrentOrders(state)?.new_duty_location?.address || {},
     move: selectMove(state, moveId),
