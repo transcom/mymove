@@ -1634,6 +1634,7 @@ func init() {
                   "items": {
                     "type": "string",
                     "enum": [
+                      "DRAFT",
                       "SUBMITTED",
                       "APPROVALS REQUESTED",
                       "APPROVED",
@@ -12410,6 +12411,7 @@ func init() {
                   "items": {
                     "type": "string",
                     "enum": [
+                      "DRAFT",
                       "SUBMITTED",
                       "APPROVALS REQUESTED",
                       "APPROVED",

@@ -50,7 +50,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 
 	var query *pop.Query
 
-	if appCtx.Session().Roles.HasRole(roles.RoleTypeQaeCsr) {
+	if appCtx.Session().Roles.HasRole(roles.RoleTypeQaeCsr) || appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
 		query = appCtx.DB().EagerPreload(
 			"MTOShipments",
 			"Orders.ServiceMember",
@@ -66,25 +66,6 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 			LeftJoin("mto_shipments", "mto_shipments.move_id = moves.id AND mto_shipments.status <> 'DRAFT'").
 			GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id").
 			Where("show = TRUE")
-	}
-
-	// Services Counselor Statuses
-	if appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		query = appCtx.DB().EagerPreload(
-			"MTOShipments",
-			"Orders.ServiceMember",
-			"Orders.NewDutyLocation.Address",
-			"Orders.OriginDutyLocation.Address",
-		).
-			Join("orders", "orders.id = moves.orders_id").
-			Join("service_members", "service_members.id = orders.service_member_id").
-			LeftJoin("duty_locations as origin_duty_locations", "origin_duty_locations.id = orders.origin_duty_location_id").
-			Join("addresses as origin_addresses", "origin_addresses.id = origin_duty_locations.address_id").
-			Join("duty_locations as new_duty_locations", "new_duty_locations.id = orders.new_duty_location_id").
-			Join("addresses as new_addresses", "new_addresses.id = new_duty_locations.address_id").
-			LeftJoin("mto_shipments", "mto_shipments.move_id = moves.id AND mto_shipments.status <> 'DRAFT'").
-			GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id").
-			Where("show = TRUE and (moves.status = 'NEEDS SERVICE COUNSELING' OR moves.status = 'SERVICE COUNSELING COMPLETED' OR moves.status = 'APPROVED')")
 	}
 
 	customerNameQuery := customerNameSearch(params.CustomerName)

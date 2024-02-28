@@ -16,15 +16,18 @@ export const MOVE_STATUS_OPTIONS = [
 export const MOVE_STATUS_LABELS = {
   [MOVE_STATUSES.DRAFT]: 'Draft',
   [MOVE_STATUSES.SUBMITTED]: 'New move',
-  [MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED]: 'New move',
+  [MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED]: 'Service Counseling Completed',
   [MOVE_STATUSES.NEEDS_SERVICE_COUNSELING]: 'Needs Service Counseling',
   [MOVE_STATUSES.APPROVALS_REQUESTED]: 'Approvals requested',
   [MOVE_STATUSES.APPROVED]: 'Move approved',
 };
 
 export const SERVICE_COUNSELING_MOVE_STATUS_OPTIONS = [
+  { value: MOVE_STATUSES.DRAFT, label: 'Draft' },
+  { value: MOVE_STATUSES.SUBMITTED, label: 'New Move' },
   { value: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING, label: 'Needs counseling' },
   { value: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED, label: 'Service counseling completed' },
+  { value: MOVE_STATUSES.APPROVED, label: 'Move Approved' },
 ];
 
 export const SERVICE_COUNSELING_MOVE_STATUS_LABELS = {
