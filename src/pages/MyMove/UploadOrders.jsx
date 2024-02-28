@@ -37,7 +37,7 @@ const UploadOrders = ({ orders, updateOrders, updateAllMoves, serviceMemberId })
   };
 
   const handleDeleteFile = async (uploadId) => {
-    return deleteUpload(uploadId).then(() => {
+    return deleteUpload(uploadId, orderId).then(() => {
       getOrders(orderId).then((response) => {
         updateOrders(response);
       });
