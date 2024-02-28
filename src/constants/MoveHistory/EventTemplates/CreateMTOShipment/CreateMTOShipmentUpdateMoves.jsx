@@ -1,15 +1,15 @@
 import React from 'react';
 
-import o from 'constants/MoveHistory/UIDisplay/Operations';
 import a from 'constants/MoveHistory/Database/Actions';
+import o from 'constants/MoveHistory/UIDisplay/Operations';
 import t from 'constants/MoveHistory/Database/Tables';
-import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
+import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
 
 const formatChangedValues = (historyRecord) => {
+  const { changedValues } = historyRecord;
   const newChangedValues = {
-    belongs_to_self: historyRecord.oldValues.belongs_to_self,
-    ...historyRecord.changedValues,
+    ...changedValues,
     ...getMtoShipmentLabel(historyRecord),
   };
 
@@ -18,8 +18,8 @@ const formatChangedValues = (historyRecord) => {
 
 export default {
   action: a.UPDATE,
-  eventName: o.updateProGearWeightTicket,
-  tableName: t.progear_weight_tickets,
-  getEventNameDisplay: () => 'Updated pro-gear',
+  eventName: o.createMTOShipment,
+  tableName: t.moves,
+  getEventNameDisplay: () => 'Updated move',
   getDetails: (historyRecord) => <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />,
 };
