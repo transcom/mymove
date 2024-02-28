@@ -2433,6 +2433,23 @@ func init() {
         }
       }
     },
+    "OfficeUserPrivilege": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name",
+          "x-nullable": true,
+          "example": "Supervisor"
+        },
+        "roleType": {
+          "type": "string",
+          "title": "privilegeType",
+          "x-nullable": true,
+          "example": "supervisor"
+        }
+      }
+    },
     "OfficeUserRole": {
       "type": "object",
       "properties": {
@@ -2472,6 +2489,12 @@ func init() {
           "title": "Middle Initials",
           "x-nullable": true,
           "example": "Q."
+        },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserPrivilege"
+          }
         },
         "roles": {
           "type": "array",
@@ -5434,6 +5457,23 @@ func init() {
         }
       }
     },
+    "OfficeUserPrivilege": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name",
+          "x-nullable": true,
+          "example": "Supervisor"
+        },
+        "roleType": {
+          "type": "string",
+          "title": "privilegeType",
+          "x-nullable": true,
+          "example": "supervisor"
+        }
+      }
+    },
     "OfficeUserRole": {
       "type": "object",
       "properties": {
@@ -5473,6 +5513,12 @@ func init() {
           "title": "Middle Initials",
           "x-nullable": true,
           "example": "Q."
+        },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserPrivilege"
+          }
         },
         "roles": {
           "type": "array",

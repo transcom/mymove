@@ -730,6 +730,10 @@ definitions:
         type: string
         format: uuid
         example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/OfficeUserPrivilege'
   OfficeUserRole:
     type: object
     properties:
@@ -743,6 +747,19 @@ definitions:
         example: 'transportation_ordering_officer'
         x-nullable: true
         title: roleType
+  OfficeUserPrivilege:
+    type: object
+    properties:
+      name:
+        type: string
+        example: 'Supervisor'
+        x-nullable: true
+        title: name
+      roleType:
+        type: string
+        example: 'supervisor'
+        x-nullable: true
+        title: privilegeType
   OfficeUsers:
     type: array
     items:
