@@ -150,23 +150,15 @@ export const selectAllMoves = (state) => {
   return { currentMove: [], previousMoves: [] };
 };
 
-export const selectCurrentMoveFromAllMoves = (state, moveId) => {
-  const allMoves = state.entities.serviceMemberMoves || [];
-  const currentMove = allMoves.currentMove.find((m) => m.id === moveId);
-  const previousMove = allMoves.previousMoves.find((m) => m.id === moveId);
+export const selectCurrentMoveFromAllMoves = (serviceMemberMoves, moveId) => {
+  const currentMove = serviceMemberMoves.currentMove?.find((m) => m.id === moveId);
+  const previousMove = serviceMemberMoves.previousMoves?.find((m) => m.id === moveId);
   const move = currentMove || previousMove;
   return move;
 };
 
-export const selectCurrentShipmentFromMove = (state, moveId, shipmentId) => {
-  const allMoves = state.entities.serviceMemberMoves || [];
-  const currentMove = allMoves.currentMove.find((m) => m.id === moveId);
-  const previousMove = allMoves.previousMoves.find((m) => m.id === moveId);
-  const move = currentMove || previousMove;
-  if (!move.mtoShipments) {
-    return {};
-  }
-  const currentShipment = move.mtoShipments.find((s) => s.id === shipmentId);
+export const selectCurrentShipmentFromMove = (move, shipmentId) => {
+  const currentShipment = move?.mtoShipments.find((s) => s.id === shipmentId);
   return currentShipment;
 };
 
