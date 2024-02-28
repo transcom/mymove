@@ -470,32 +470,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestGroupExpenses() {
 
 }
 
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementPPMGreaterThanRemainingEntitlement() {
-	ppmWeight := unit.Pound(1100)
-	totalEntitlement := unit.Pound(1000)
-	move := models.Move{
-		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
-	}
-
-	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, totalEntitlement)
-	suite.NoError(err)
-
-	suite.Equal(totalEntitlement, ppmRemainingEntitlement)
-}
-
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementPPMLessThanRemainingEntitlement() {
-	ppmWeight := unit.Pound(500)
-	totalEntitlement := unit.Pound(1000)
-	move := models.Move{
-		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
-	}
-
-	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, totalEntitlement)
-	suite.NoError(err)
-
-	suite.Equal(unit.Pound(ppmWeight), ppmRemainingEntitlement)
-}
-
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWGetEntitlement() {
 	spouseHasProGear := true
 	hasDependants := true
@@ -615,32 +589,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatPPMWeight() {
 
 	suite.Equal("1,000 lbs - FINAL", FormatPPMWeight(ppm))
 	suite.Equal("", FormatPPMWeight(noWtg))
-}
-
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementNoHHGPPMLessThanMaxEntitlement() {
-	ppmWeight := unit.Pound(900)
-	totalEntitlement := unit.Pound(1000)
-	move := models.Move{
-		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
-	}
-
-	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, totalEntitlement)
-	suite.NoError(err)
-
-	suite.Equal(unit.Pound(ppmWeight), ppmRemainingEntitlement)
-}
-
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementNoHHGPPMGreaterThanMaxEntitlement() {
-	ppmWeight := unit.Pound(1100)
-	totalEntitlement := unit.Pound(1000)
-	move := models.Move{
-		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
-	}
-
-	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, totalEntitlement)
-	suite.NoError(err)
-
-	suite.Equal(totalEntitlement, ppmRemainingEntitlement)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignature() {

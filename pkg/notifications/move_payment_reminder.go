@@ -70,7 +70,7 @@ func (m PaymentReminder) GetEmailInfo(appCtx appcontext.AppContext) (PaymentRemi
 	tos.name AS transportation_office_name,
 	opl.number AS transportation_office_phone,
 	m.locator
-FROM personally_procured_moves ppm
+FROM ppm_shipment ppm
 	JOIN moves m ON ppm.move_id = m.id
 	JOIN orders o ON m.orders_id = o.id
 	JOIN service_members sm ON o.service_member_id = sm.id
