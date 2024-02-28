@@ -158,7 +158,7 @@ export const selectCurrentMoveFromAllMoves = (serviceMemberMoves, moveId) => {
 };
 
 export const selectCurrentShipmentFromMove = (move, shipmentId) => {
-  const currentShipment = move?.mtoShipments.find((s) => s.id === shipmentId);
+  const currentShipment = move?.mtoShipments?.find((s) => s.id === shipmentId) || {};
   return currentShipment;
 };
 
