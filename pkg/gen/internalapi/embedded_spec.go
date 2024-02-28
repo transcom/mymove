@@ -4183,6 +4183,9 @@ func init() {
     "InternalMove": {
       "type": "object",
       "properties": {
+        "closeoutOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -12235,6 +12238,9 @@ func init() {
     "InternalMove": {
       "type": "object",
       "properties": {
+        "closeoutOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",

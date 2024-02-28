@@ -160,14 +160,20 @@ func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*int
 		orders, _ := payloadForOrdersModel(storer, move.Orders)
 		moveID := *handlers.FmtUUID(move.ID)
 
+		var closeOutOffice internalmessages.TransportationOffice
+		if move.CloseoutOffice != nil {
+			closeOutOffice = *payloads.TransportationOffice(*move.CloseoutOffice)
+		}
+
 		currentMove := &internalmessages.InternalMove{
-			CreatedAt:    *handlers.FmtDateTime(move.CreatedAt),
-			ETag:         eTag,
-			ID:           moveID,
-			Status:       string(move.Status),
-			MtoShipments: *payloadShipments,
-			MoveCode:     move.Locator,
-			Orders:       orders,
+			CreatedAt:      *handlers.FmtDateTime(move.CreatedAt),
+			ETag:           eTag,
+			ID:             moveID,
+			Status:         string(move.Status),
+			MtoShipments:   *payloadShipments,
+			MoveCode:       move.Locator,
+			Orders:         orders,
+			CloseoutOffice: &closeOutOffice,
 		}
 
 		convertedCurrentMovesList = append(convertedCurrentMovesList, currentMove)
