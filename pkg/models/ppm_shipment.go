@@ -38,7 +38,7 @@ type PPMCloseout struct {
 type PPMShipmentStatus string
 
 const (
-	// PPMShipmentStatusDraft captures enum value "DRAFT"
+	// PPMShipmentStatusCancelled captures enum value "DRAFT"
 	PPMShipmentStatusCancelled PPMShipmentStatus = "CANCELLED"
 	// PPMShipmentStatusDraft captures enum value "DRAFT"
 	PPMShipmentStatusDraft PPMShipmentStatus = "DRAFT"
@@ -59,6 +59,7 @@ const (
 // AllowedPPMShipmentStatuses is a list of all the allowed values for the Status of a PPMShipment as strings. Needed for
 // validation.
 var AllowedPPMShipmentStatuses = []string{
+	string(PPMShipmentStatusCancelled),
 	string(PPMShipmentStatusDraft),
 	string(PPMShipmentStatusSubmitted),
 	string(PPMShipmentStatusWaitingOnCustomer),
