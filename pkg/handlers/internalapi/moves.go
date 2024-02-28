@@ -148,7 +148,15 @@ func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*int
 
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		shipments := move.MTOShipments
-		var payloadShipments *internalmessages.MTOShipments = payloads.MTOShipments(storer, &shipments)
+		var filteredShipments models.MTOShipments
+		for _, shipment := range shipments {
+			// Check if the DeletedAt field is nil
+			if shipment.DeletedAt == nil {
+				// If not nil, add the shipment to the filtered array
+				filteredShipments = append(filteredShipments, shipment)
+			}
+		}
+		var payloadShipments *internalmessages.MTOShipments = payloads.MTOShipments(storer, &filteredShipments)
 		orders, _ := payloadForOrdersModel(storer, move.Orders)
 		moveID := *handlers.FmtUUID(move.ID)
 
