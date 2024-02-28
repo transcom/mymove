@@ -244,6 +244,7 @@ const SearchResultsTable = (props) => {
           pageCount={pageCount}
           pageOptions={pageOptions}
         />
+        {totalCount > 0 ? <p>No results found.</p> : null}
       </div>
     </div>
   );
