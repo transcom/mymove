@@ -8,13 +8,11 @@ import (
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/runtime"
 	"github.com/pkg/errors"
-	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
 	"github.com/transcom/mymove/pkg/handlers"
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
-	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -136,15 +134,15 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter)
 	shipmentRouter := mtoshipment.NewShipmentRouter()
-	planner := &routemocks.Planner{}
-	planner.On("ZipTransitDistance",
-		mock.AnythingOfType("*appcontext.appContext"),
-		mock.Anything,
-		mock.Anything,
-	).Return(400, nil)
+	// planner := &routemocks.Planner{}
+	// planner.On("ZipTransitDistance",
+	// 	mock.AnythingOfType("*appcontext.appContext"),
+	// 	mock.Anything,
+	// 	mock.Anything,
+	// ).Return(400, nil)
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
-		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter),
+		mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), builder, moveRouter),
 		moveRouter,
 	)
 	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmshipment.NewPPMShipmentCreator(ppmEstimator), shipmentRouter, moveTaskOrderUpdater)
