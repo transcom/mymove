@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
@@ -11,20 +11,30 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import MOVE_STATUSES from 'constants/moves';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import 'scenes/Review/Review.css';
-import { selectAllMoves } from 'store/entities/selectors';
+import { selectAllMoves, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import formStyles from 'styles/form.module.scss';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { isPPMShipmentComplete } from 'utils/shipments';
 import { useTitle } from 'hooks/custom';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import { getAllMoves } from 'services/internalApi';
+import { updateAllMoves as updateAllMovesAction } from 'store/entities/actions';
 
-const Review = ({ serviceMemberMoves }) => {
+const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
   useTitle('Move review');
   const navigate = useNavigate();
   const { moveId } = useParams();
   const handleCancel = () => {
     navigate(generalRoutes.HOME_PATH);
   };
+
+  // fetching all move data on load since this component is dependent on that data
+  // this will run each time the component is loaded/accessed
+  useEffect(() => {
+    getAllMoves(serviceMemberId).then((response) => {
+      updateAllMoves(response);
+    });
+  }, [updateAllMoves, serviceMemberId]);
 
   // loading placeholder while data loads - this handles any async issues
   if (!serviceMemberMoves || !serviceMemberMoves.currentMove || !serviceMemberMoves.previousMoves) {
@@ -93,11 +103,24 @@ const Review = ({ serviceMemberMoves }) => {
 };
 
 const mapStateToProps = (state, ownProps) => {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const serviceMemberMoves = selectAllMoves(state);
   return {
     ...ownProps,
+    serviceMemberId: serviceMember.id,
     serviceMemberMoves,
   };
 };
 
-export default connect(mapStateToProps)(Review);
+const mapDispatchToProps = {
+  updateAllMoves: updateAllMovesAction,
+};
+
+// in order to avoid setting up proxy server only for storybook, pass in stub function so API requests don't fail
+const mergeProps = (stateProps, dispatchProps, ownProps) => ({
+  ...stateProps,
+  ...dispatchProps,
+  ...ownProps,
+});
+
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Review);

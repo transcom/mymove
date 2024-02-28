@@ -4,8 +4,9 @@ import userEvent from '@testing-library/user-event';
 
 import ConnectedReview from 'pages/MyMove/Review/Review';
 import { renderWithProviders } from 'testUtils';
-import { selectAllMoves } from 'store/entities/selectors';
+import { selectAllMoves, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { customerRoutes } from 'constants/routes';
+import { getAllMoves } from 'services/internalApi';
 
 // Mock the summary part of the review page since we're just testing the
 // navigation portion.
@@ -21,6 +22,12 @@ jest.mock('react-router-dom', () => ({
 jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),
   selectAllMoves: jest.fn(),
+  selectServiceMemberFromLoggedInUser: jest.fn(),
+}));
+
+jest.mock('services/internalApi', () => ({
+  ...jest.requireActual('services/internalApi'),
+  getAllMoves: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 afterEach(jest.resetAllMocks);
@@ -383,6 +390,8 @@ describe('Review page', () => {
     ],
   };
 
+  const testServiceMember = { id: 'id123' };
+
   const mockParams = { moveId: 'testPreviousMove' };
   const mockParamsNoShipments = { moveId: 'testCurrentMove' };
   const mockParamsSubmitted = { moveId: 'testSubmittedMove' };
@@ -406,6 +415,7 @@ describe('Review page', () => {
 
   it('renders the Review Page', async () => {
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
     renderWithProviders(<ConnectedReview />, mockRoutingOptions);
 
     await screen.findByRole('heading', { level: 1, name: 'Review your details' });
@@ -413,6 +423,8 @@ describe('Review page', () => {
 
   it('Finish Later button goes back to the home page', async () => {
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
+    getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
 
     renderWithProviders(<ConnectedReview />, mockRoutingOptions);
 
@@ -427,6 +439,8 @@ describe('Review page', () => {
 
   it('next button goes to the Agreement page when move is in DRAFT status', async () => {
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
+    getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
 
     renderWithProviders(<ConnectedReview />, mockRoutingOptions);
 
@@ -441,6 +455,8 @@ describe('Review page', () => {
 
   it('next button goes to the Agreement page when move is in DRAFT status with only HHG shipment', async () => {
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
+    getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
 
     renderWithProviders(<ConnectedReview />, mockRoutingOptions);
 
@@ -455,6 +471,8 @@ describe('Review page', () => {
 
   it('next button is disabled when a PPM shipment is in an incomplete state', async () => {
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
+    getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
 
     renderWithProviders(<ConnectedReview />, mockRoutingOptionsNoShipments);
 
@@ -465,6 +483,8 @@ describe('Review page', () => {
 
   it('next button is disabled when a there are no shipments', async () => {
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
+    getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
 
     renderWithProviders(<ConnectedReview />, mockRoutingOptionsNoShipments);
 
@@ -475,6 +495,8 @@ describe('Review page', () => {
 
   it('return home button is displayed when move has been submitted', async () => {
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
+    getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
 
     renderWithProviders(<ConnectedReview />, mockRoutingOptionsSubmitted);
 
@@ -485,6 +507,8 @@ describe('Review page', () => {
 
   it('renders the success alert flash message', async () => {
     selectAllMoves.mockImplementation(() => testServiceMemberMoves);
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => testServiceMember);
+    getAllMoves.mockResolvedValue(() => testServiceMemberMoves);
 
     renderWithProviders(<ConnectedReview />, { ...mockRoutingOptions, initialState: testFlashState });
 
