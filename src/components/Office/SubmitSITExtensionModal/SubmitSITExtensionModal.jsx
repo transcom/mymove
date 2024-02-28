@@ -15,7 +15,7 @@ import { Form } from 'components/form';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import { DropdownInput, DatePickerInput } from 'components/form/fields';
-import { dropdownInputOptions } from 'utils/formatters';
+import { dropdownInputOptions, formatDate } from 'utils/formatters';
 import { sitExtensionReasons } from 'constants/sitExtensions';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
 import { formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
@@ -44,7 +44,8 @@ const SitEndDateForm = ({ onChange }) => (
 const SitStatusTables = ({ sitStatus, shipment }) => {
   const { totalSITDaysUsed, calculatedTotalDaysInSIT } = sitStatus;
   const { daysInSIT } = sitStatus.currentSIT;
-  const sitDepartureDate = sitStatus.currentSIT?.sitDepartureDate || DEFAULT_EMPTY_VALUE;
+  const sitDepartureDate =
+    formatDate(sitStatus.currentSIT?.sitDepartureDate, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE;
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
   const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
 
@@ -145,7 +146,7 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
         {/* Total days at current location */}
         <DataTable
           testID="currentSITDateData"
-          columnHeaders={[`Total days in ${currentLocation}`, `SIT Departure Date`]}
+          columnHeaders={[`Total days in ${currentLocation}`, `SIT departure date`]}
           dataRow={[currentDaysInSit, sitDepartureDate]}
         />
       </div>
