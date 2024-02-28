@@ -26,7 +26,6 @@ import { loadEntitlementsFromState } from 'shared/entitlements';
 import { updateMTOShipments, updateAllMoves as updateAllMovesAction } from 'store/entities/actions';
 import {
   selectServiceMemberFromLoggedInUser,
-  selectCurrentOrders,
   selectMoveIsApproved,
   selectHasCanceledMove,
   selectAllMoves,
@@ -407,13 +406,14 @@ function mapStateToProps(state, ownProps) {
   } = ownProps;
   const currentMove = selectCurrentMoveFromAllMoves(state, moveId);
   const mtoShipments = currentMove?.mtoShipments ?? [];
+  const currentOrders = currentMove?.orders ?? {};
 
   return {
     serviceMemberMoves,
     mtoShipments,
     serviceMember: selectServiceMemberFromLoggedInUser(state),
     currentMove,
-    currentOrders: selectCurrentOrders(state) || {},
+    currentOrders,
     moveIsApproved: selectMoveIsApproved(state),
     lastMoveIsCanceled: selectHasCanceledMove(state),
     entitlement: loadEntitlementsFromState(state),
