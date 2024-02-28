@@ -308,6 +308,7 @@ export class Summary extends Component {
             uploads={currentOrders.uploaded_orders.uploads}
             payGrade={ORDERS_PAY_GRADE_OPTIONS[currentOrders?.grade] || ''}
             originDutyLocationName={currentOrders.origin_duty_location.name}
+            orderId={currentOrders.id}
           />
         </SectionWrapper>
         {thirdSectionHasContent && (
