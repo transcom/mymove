@@ -127,10 +127,10 @@ func mustCreate(db *pop.Connection, model interface{}, stub bool) {
 func Save(db *pop.Connection, model interface{}) error {
 	verrs, err := db.ValidateAndSave(model)
 	if err != nil {
-		return errors.Wrap(err, "Errors encountered saving model")
+		return errors.Wrap(err, "errors encountered saving model")
 	}
 	if verrs.HasAny() {
-		return errors.Errorf("Validation errors encountered saving model: %v", verrs)
+		return errors.Errorf("validation errors encountered saving model: %v", verrs)
 	}
 	return nil
 }

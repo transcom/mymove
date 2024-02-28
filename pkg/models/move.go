@@ -474,3 +474,13 @@ func (m Move) HasPPM() bool {
 	}
 	return hasPpmMove
 }
+func GetTotalNetWeightForMove(m Move) unit.Pound {
+	totalNetWeight := unit.Pound(0)
+	for _, shipment := range m.MTOShipments {
+		if shipment.ShipmentType == MTOShipmentTypePPM && shipment.PPMShipment != nil {
+			totalNetWeight += GetPPMNetWeight(*shipment.PPMShipment)
+		}
+	}
+	return totalNetWeight
+
+}
