@@ -16,7 +16,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
 import { formatSwaggerDate, dropdownInputOptions } from 'utils/formatters';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
-import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { TAC_VALIDATION_ACTIONS, reducer, initialState } from 'reducers/tacValidation';
@@ -27,6 +27,7 @@ import { permissionTypes } from 'constants/permissions';
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
+const payGradeDropdownOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
 const Orders = () => {
   const navigate = useNavigate();
@@ -146,7 +147,9 @@ const Orders = () => {
       proGearWeightSpouse,
       requiredMedicalEquipmentWeight,
       organizationalClothingAndIndividualEquipment,
+      grade: values.payGrade,
     };
+
     mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
   };
 
@@ -170,6 +173,7 @@ const Orders = () => {
     ntsTac: order?.ntsTac,
     ntsSac: order?.ntsSac,
     ordersAcknowledgement: !!amendedOrdersAcknowledgedAt,
+    payGrade: order?.grade,
   };
 
   return (
@@ -225,6 +229,7 @@ const Orders = () => {
                         showOrdersAcknowledgement={hasAmendedOrders}
                         ordersType={order.order_type}
                         setFieldValue={formik.setFieldValue}
+                        payGradeOptions={payGradeDropdownOptions}
                         formIsDisabled
                       />
                     }
@@ -240,6 +245,7 @@ const Orders = () => {
                       showOrdersAcknowledgement={hasAmendedOrders}
                       ordersType={order.order_type}
                       setFieldValue={formik.setFieldValue}
+                      payGradeOptions={payGradeDropdownOptions}
                     />
                   </Restricted>
                 </div>
