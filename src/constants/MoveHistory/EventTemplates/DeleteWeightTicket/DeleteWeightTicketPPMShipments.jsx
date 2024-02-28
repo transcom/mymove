@@ -8,7 +8,6 @@ import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
 
 const formatChangedValues = (historyRecord) => {
   const newChangedValues = {
-    belongs_to_self: historyRecord.oldValues.belongs_to_self,
     ...historyRecord.changedValues,
     ...getMtoShipmentLabel(historyRecord),
   };
@@ -18,8 +17,12 @@ const formatChangedValues = (historyRecord) => {
 
 export default {
   action: a.UPDATE,
-  eventName: o.updateProGearWeightTicket,
-  tableName: t.progear_weight_tickets,
-  getEventNameDisplay: () => 'Updated pro-gear',
-  getDetails: (historyRecord) => <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />,
+  eventName: o.deleteWeightTicket,
+  tableName: t.ppm_shipments,
+  getEventNameDisplay: () => {
+    return <div>Updated shipment</div>;
+  },
+  getDetails: (historyRecord) => {
+    return <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />;
+  },
 };
