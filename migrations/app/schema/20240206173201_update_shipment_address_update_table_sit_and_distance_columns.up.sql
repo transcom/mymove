@@ -1,8 +1,10 @@
 -- Adds new columns to shipment address update table
 ALTER TABLE shipment_address_updates
-ADD COLUMN sit_original_address_id uuid DEFAULT NULL,
-ADD COLUMN old_sit_distance_between INTEGER DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS sit_original_address_id uuid DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS old_sit_distance_between INTEGER DEFAULT NULL,
 ADD COLUMN IF NOT EXISTS new_sit_distance_between INTEGER DEFAULT NULL;
+-- ADD COLUMN sit_original_address_id uuid DEFAULT NULL,
+-- ADD COLUMN old_sit_distance_between INTEGER DEFAULT NULL,
 -- ADD COLUMN new_sit_distance_between INTEGER DEFAULT NULL;
 
 -- Add foreign key constraint
