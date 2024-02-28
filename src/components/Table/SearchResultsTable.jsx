@@ -222,7 +222,9 @@ const SearchResultsTable = (props) => {
 
   return (
     <div data-testid="table-queue" className={styles.SearchResultsTable}>
-      <h2>{`${title} (${totalCount})`}</h2>
+      <h2>
+        {`${title} (${totalCount})`} {totalCount > 0 ? null : <p>No results found.</p>}
+      </h2>
       <div className={styles.tableContainer}>
         <Table
           showFilters={showFilters}
@@ -244,7 +246,6 @@ const SearchResultsTable = (props) => {
           pageCount={pageCount}
           pageOptions={pageOptions}
         />
-        {totalCount > 0 ? <p>No results found.</p> : null}
       </div>
     </div>
   );
