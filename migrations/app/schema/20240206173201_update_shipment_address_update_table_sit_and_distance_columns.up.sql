@@ -16,3 +16,5 @@ ADD COLUMN IF NOT EXISTS new_sit_distance_between INTEGER DEFAULT NULL;
 -- COMMENT on COLUMN shipment_address_updates.sit_original_address_id IS 'SIT address at the original time of SIT approval';
 -- COMMENT on COLUMN shipment_address_updates.old_sit_distance_between IS 'Distance between original SIT address and previous shipment destination address';
 -- COMMENT on COLUMN shipment_address_updates.new_sit_distance_between IS 'Distance between original SIT address and new shipment destination address';
+
+--SOME COMMENT
