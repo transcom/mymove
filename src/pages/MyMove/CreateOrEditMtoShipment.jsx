@@ -13,9 +13,9 @@ import {
 } from 'store/entities/actions';
 import {
   selectServiceMemberFromLoggedInUser,
-  selectCurrentOrders,
   selectCurrentShipmentFromMove,
   selectAllMoves,
+  selectCurrentMoveFromAllMoves,
 } from 'store/entities/selectors';
 import { fetchCustomerData as fetchCustomerDataAction } from 'store/onboarding/actions';
 import { AddressShape, SimpleAddressShape } from 'types/address';
@@ -129,15 +129,17 @@ function mapStateToProps(state, ownProps) {
       params: { mtoShipmentId, moveId },
     },
   } = ownProps;
+  const move = selectCurrentMoveFromAllMoves(state, moveId);
+  const { orders } = move ?? {};
   const mtoShipment = selectCurrentShipmentFromMove(state, moveId, mtoShipmentId) || {};
 
   const props = {
     serviceMember,
     serviceMemberMoves,
-    orders: selectCurrentOrders(state) || {},
+    orders,
     mtoShipment,
     currentResidence: serviceMember?.residential_address || {},
-    newDutyLocationAddress: selectCurrentOrders(state)?.new_duty_location?.address || {},
+    newDutyLocationAddress: orders.new_duty_location?.address || {},
     move: selectMove(state, moveId),
   };
 
