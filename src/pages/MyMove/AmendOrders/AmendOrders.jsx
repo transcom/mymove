@@ -39,7 +39,7 @@ export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
   const uploads = currentOrders?.uploaded_amended_orders?.uploads;
 
   const handleDelete = async (uploadId) => {
-    return deleteUpload(uploadId).then(() => {
+    return deleteUpload(uploadId, orderId).then(() => {
       getOrders(orderId).then((response) => {
         updateOrders(response);
       });
