@@ -460,7 +460,7 @@ describe('UploadOrders component', () => {
       await userEvent.click(deleteBtn);
     });
 
-    expect(deleteUpload).toHaveBeenCalledWith(testPropsWithUploads.uploaded_orders.uploads[0].id);
+    expect(deleteUpload).toHaveBeenCalledWith(testPropsWithUploads.uploaded_orders.uploads[0].id, 'testOrdersId');
 
     await waitFor(() => {
       expect(getOrders).toHaveBeenCalled();

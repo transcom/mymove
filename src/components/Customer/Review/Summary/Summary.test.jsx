@@ -7,6 +7,11 @@ import { MOVE_STATUSES } from 'shared/constants';
 import { renderWithRouterProp } from 'testUtils';
 import { customerRoutes } from 'constants/routes';
 
+jest.mock('services/internalApi', () => ({
+  ...jest.requireActual('services/internalApi'),
+  getAllMoves: jest.fn().mockImplementation(() => Promise.resolve()),
+}));
+
 const testProps = {
   serviceMember: {
     id: '666',
@@ -95,6 +100,7 @@ const testProps = {
   showLoggedInUser: jest.fn(),
   updateShipmentList: jest.fn(),
   setMsg: jest.fn(),
+  updateAllMoves: jest.fn(),
 };
 
 describe('Summary page', () => {
