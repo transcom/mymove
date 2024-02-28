@@ -152,6 +152,7 @@ describe('Orders page', () => {
       expect(await screen.findByLabelText('Current duty location')).toBeInTheDocument();
       expect(screen.getByTestId('ntsTacInput')).toHaveValue('1111');
       expect(screen.getByTestId('ntsSacInput')).toHaveValue('2222');
+      expect(screen.getByTestId('payGradeInput')).toHaveDisplayValue('E-1');
     });
   });
 
