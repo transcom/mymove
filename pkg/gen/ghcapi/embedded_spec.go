@@ -5053,6 +5053,9 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
         },
+        "grade": {
+          "$ref": "#/definitions/Grade"
+        },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
           "type": "string",
@@ -9605,6 +9608,9 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -16689,6 +16695,9 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
         },
+        "grade": {
+          "$ref": "#/definitions/Grade"
+        },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
           "type": "string",
@@ -21299,6 +21308,9 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",

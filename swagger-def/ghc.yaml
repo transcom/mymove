@@ -3918,6 +3918,8 @@ definitions:
         title: NTS SAC
         example: 'N002214CSW32Y9'
         $ref: definitions/NullableString.yaml
+      grade:
+        $ref: '#/definitions/Grade'
     required:
       - issueDate
       - reportByDate
@@ -3984,6 +3986,8 @@ definitions:
         description: Confirmation that the new amended orders were reviewed after previously approving the original orders
         type: boolean
         x-nullable: true
+      grade:
+        $ref: '#/definitions/Grade'
     required:
       - issueDate
       - reportByDate
