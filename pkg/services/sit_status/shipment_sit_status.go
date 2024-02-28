@@ -45,10 +45,10 @@ func newSortedShipmentSITs() SortedShipmentSITs {
 func SortShipmentSITs(shipment models.MTOShipment, today time.Time) SortedShipmentSITs {
 	shipmentSITs := newSortedShipmentSITs()
 
-	// TODO change service codes here to DOFSIT & DDFSIT and see what breaks
 	for _, serviceItem := range shipment.MTOServiceItems {
 		// only departure SIT service items have a departure date
-		if code := serviceItem.ReService.Code; (code == models.ReServiceCodeDOFSIT || code == models.ReServiceCodeDDFSIT) &&
+		if code := serviceItem.ReService.Code; ((code == models.ReServiceCodeDOFSIT || code == models.ReServiceCodeDDFSIT) ||
+			(code == models.ReServiceCodeDOASIT || code == models.ReServiceCodeDDASIT)) &&
 			serviceItem.Status == models.MTOServiceItemStatusApproved {
 			if serviceItem.SITEntryDate.After(today) {
 				shipmentSITs.futureSITs = append(shipmentSITs.futureSITs, serviceItem)
@@ -112,7 +112,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 
 	if currentSIT != nil {
 		location := DestinationSITLocation
-		if currentSIT.ReService.Code == models.ReServiceCodeDOFSIT {
+		if currentSIT.ReService.Code == models.ReServiceCodeDOFSIT || currentSIT.ReService.Code == models.ReServiceCodeDOASIT {
 			location = OriginSITLocation
 		}
 		daysInSIT := daysInSIT(*currentSIT, today)
@@ -135,6 +135,14 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		}
 
 		sitAuthorizedEndDate := currentServiceItem.SITAuthorizedEndDate
+		doaSIT := getAdditionalSIT(shipmentSITs)
+
+		if doaSIT != nil {
+			sitAuthorizedEndDate = doaSIT.SITAuthorizedEndDate
+			sitCustomerContacted = doaSIT.SITCustomerContacted
+			sitRequestedDelivery = doaSIT.SITRequestedDelivery
+			sitDepartureDate = doaSIT.SITDepartureDate
+		}
 
 		shipmentSITStatus.CurrentSIT = &services.CurrentSIT{
 			ServiceItemID:        currentSIT.ID,
@@ -180,6 +188,22 @@ func getCurrentSIT(shipmentSITs SortedShipmentSITs) *models.MTOServiceItem {
 	} else if len(shipmentSITs.futureSITs) > 0 {
 		return getEarliestSIT(shipmentSITs.futureSITs)
 	}
+	return nil
+}
+
+// Private function getAdditionalSIT is used to return the current SIT
+// service item with the reServiceCode of DOASIT or DDASIT
+func getAdditionalSIT(shipmentSITs SortedShipmentSITs) *models.MTOServiceItem {
+	if len(shipmentSITs.currentSITs) == 0 {
+		return nil
+	}
+
+	for _, serviceItem := range shipmentSITs.currentSITs {
+		if code := serviceItem.ReService.Code; code == models.ReServiceCodeDOASIT || code == models.ReServiceCodeDDASIT {
+			return &serviceItem
+		}
+	}
+
 	return nil
 }
 
