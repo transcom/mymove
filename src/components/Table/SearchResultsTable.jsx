@@ -203,6 +203,7 @@ const SearchResultsTable = (props) => {
 
   // Update filters when we get a new search or a column filter is edited
   useEffect(() => {
+    setParamFilters([]);
     const filtersToAdd = [];
     if (moveCode) {
       filtersToAdd.push({ id: 'locator', value: moveCode });
@@ -222,32 +223,28 @@ const SearchResultsTable = (props) => {
   return (
     <div data-testid="table-queue" className={styles.SearchResultsTable}>
       <h2>{`${title} (${totalCount})`}</h2>
-      {totalCount > 0 ? (
-        <div className={styles.tableContainer}>
-          <Table
-            showFilters={showFilters}
-            showPagination={showPagination}
-            handleClick={handleClick}
-            gotoPage={gotoPage}
-            setPageSize={setPageSize}
-            nextPage={nextPage}
-            previousPage={previousPage}
-            getTableProps={getTableProps}
-            getTableBodyProps={getTableBodyProps}
-            headerGroups={headerGroups}
-            rows={rows}
-            prepareRow={prepareRow}
-            canPreviousPage={canPreviousPage}
-            canNextPage={canNextPage}
-            pageIndex={pageIndex}
-            pageSize={pageSize}
-            pageCount={pageCount}
-            pageOptions={pageOptions}
-          />
-        </div>
-      ) : (
-        <p>No results found.</p>
-      )}
+      <div className={styles.tableContainer}>
+        <Table
+          showFilters={showFilters}
+          showPagination={showPagination}
+          handleClick={handleClick}
+          gotoPage={gotoPage}
+          setPageSize={setPageSize}
+          nextPage={nextPage}
+          previousPage={previousPage}
+          getTableProps={getTableProps}
+          getTableBodyProps={getTableBodyProps}
+          headerGroups={headerGroups}
+          rows={rows}
+          prepareRow={prepareRow}
+          canPreviousPage={canPreviousPage}
+          canNextPage={canNextPage}
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          pageCount={pageCount}
+          pageOptions={pageOptions}
+        />
+      </div>
     </div>
   );
 };
