@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { generatePath, Link, matchPath } from 'react-router-dom';
-import { arrayOf, func, shape, bool, string } from 'prop-types';
+import { func, shape, bool, string } from 'prop-types';
 import moment from 'moment';
 import { Button, Grid } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -32,8 +32,7 @@ import {
   selectCurrentMoveFromAllMoves,
 } from 'store/entities/selectors';
 import { setFlashMessage } from 'store/flash/actions';
-import { OrdersShape, MoveShape } from 'types/customerShapes';
-import { ShipmentShape } from 'types/shipment';
+import { MoveShape } from 'types/customerShapes';
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -63,13 +62,6 @@ export class Summary extends Component {
     getAllMoves(serviceMember.id).then((response) => {
       updateAllMoves(response);
     });
-  }
-
-  get getSortedShipments() {
-    const { mtoShipments } = this.props;
-    const sortedShipments = [...mtoShipments];
-
-    return sortedShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
   }
 
   handleEditClick = (path) => {
@@ -117,8 +109,15 @@ export class Summary extends Component {
   };
 
   renderShipments = () => {
-    const { currentMove, currentOrders, router, serviceMember, mtoShipments } = this.props;
+    const { router, serviceMember, serviceMemberMoves } = this.props;
     const { moveId } = router.params;
+
+    const currentMove = selectCurrentMoveFromAllMoves(serviceMemberMoves, moveId);
+    const { mtoShipments } = currentMove ?? {};
+    const { orders } = currentMove ?? {};
+    const currentOrders = orders;
+
+    const sortedShipments = mtoShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
 
     // loading placeholder while data loads - this handles any async issues
     if (!currentMove || !mtoShipments) {
@@ -134,7 +133,7 @@ export class Summary extends Component {
     const showEditAndDeleteBtn = currentMove.status === MOVE_STATUSES.DRAFT;
     let hhgShipmentNumber = 0;
     let ppmShipmentNumber = 0;
-    return this.getSortedShipments.map((shipment) => {
+    return sortedShipments.map((shipment) => {
       let receivingAgent;
       let releasingAgent;
 
@@ -243,7 +242,7 @@ export class Summary extends Component {
   };
 
   render() {
-    const { currentMove, currentOrders, router, moveIsApproved, mtoShipments, serviceMember } = this.props;
+    const { serviceMemberMoves, router, moveIsApproved, serviceMember } = this.props;
     const {
       showModal,
       showDeleteModal,
@@ -253,6 +252,14 @@ export class Summary extends Component {
       targetShipmentMoveCode,
       targetShipmentType,
     } = this.state;
+
+    const { pathname } = router.location;
+    const { moveId } = router.params;
+
+    const currentMove = selectCurrentMoveFromAllMoves(serviceMemberMoves, moveId);
+    const { mtoShipments } = currentMove ?? {};
+    const { orders } = currentMove ?? {};
+    const currentOrders = orders;
 
     // loading placeholder while data loads - this handles any async issues
     if (!currentMove || !mtoShipments) {
@@ -265,8 +272,6 @@ export class Summary extends Component {
       );
     }
 
-    const { pathname } = router.location;
-    const { moveId } = router.params;
     const currentDutyLocation = serviceMember?.current_location;
     const officePhone = currentDutyLocation?.transportation_office?.phone_lines?.[0];
 
@@ -383,10 +388,8 @@ export class Summary extends Component {
 
 Summary.propTypes = {
   currentMove: MoveShape.isRequired,
-  currentOrders: OrdersShape.isRequired,
   router: RouterShape,
   moveIsApproved: bool.isRequired,
-  mtoShipments: arrayOf(ShipmentShape).isRequired,
   onDidMount: func.isRequired,
   serviceMember: shape({ id: string.isRequired }).isRequired,
   updateShipmentList: func.isRequired,
@@ -414,6 +417,7 @@ function mapStateToProps(state, ownProps) {
     serviceMember: selectServiceMemberFromLoggedInUser(state),
     currentMove,
     currentOrders,
+    moveId,
     moveIsApproved: selectMoveIsApproved(state),
     lastMoveIsCanceled: selectHasCanceledMove(state),
     entitlement: loadEntitlementsFromState(state),

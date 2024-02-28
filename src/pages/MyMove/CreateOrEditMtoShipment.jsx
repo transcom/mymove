@@ -18,11 +18,9 @@ import {
   selectCurrentMoveFromAllMoves,
 } from 'store/entities/selectors';
 import { fetchCustomerData as fetchCustomerDataAction } from 'store/onboarding/actions';
-import { AddressShape, SimpleAddressShape } from 'types/address';
-import { MoveShape, OrdersShape, ServiceMemberShape } from 'types/customerShapes';
+import { AddressShape } from 'types/address';
+import { ServiceMemberShape } from 'types/customerShapes';
 import { RouterShape } from 'types/index';
-import { ShipmentShape } from 'types/shipment';
-import { selectMove } from 'shared/Entities/modules/moves';
 import withRouter from 'utils/routing';
 import { getAllMoves } from 'services/internalApi';
 
@@ -38,20 +36,23 @@ export class CreateOrEditMtoShipment extends Component {
   render() {
     const {
       router: { location },
-      mtoShipment,
       currentResidence,
-      newDutyLocationAddress,
       updateMTOShipment,
       serviceMember,
       serviceMemberMoves,
-      orders,
-      move,
+      moveId,
+      mtoShipmentId,
     } = this.props;
 
     const { type } = qs.parse(location.search);
 
+    const move = selectCurrentMoveFromAllMoves(serviceMemberMoves, moveId);
+    const mtoShipment = selectCurrentShipmentFromMove(move, mtoShipmentId);
+    const { orders } = move ?? {};
+
     // loading placeholder while data loads - this handles any async issues
-    if (!serviceMemberMoves) {
+    // loading placeholder while data loads - this handles any async issues
+    if (!serviceMemberMoves || !serviceMemberMoves.currentMove || !serviceMemberMoves.previousMoves) {
       return <LoadingPlaceholder />;
     }
 
@@ -74,7 +75,7 @@ export class CreateOrEditMtoShipment extends Component {
           shipmentType={type || mtoShipment.shipmentType}
           isCreatePage={!!type}
           currentResidence={currentResidence}
-          newDutyLocationAddress={newDutyLocationAddress}
+          newDutyLocationAddress={orders.new_duty_location?.address}
           updateMTOShipment={updateMTOShipment}
           serviceMember={serviceMember}
           orders={orders}
@@ -89,36 +90,14 @@ export class CreateOrEditMtoShipment extends Component {
 CreateOrEditMtoShipment.propTypes = {
   router: RouterShape,
   fetchCustomerData: func.isRequired,
-  mtoShipment: ShipmentShape,
   currentResidence: AddressShape.isRequired,
-  newDutyLocationAddress: SimpleAddressShape,
   updateMTOShipment: func.isRequired,
   serviceMember: ServiceMemberShape,
-  orders: OrdersShape,
-  move: MoveShape,
 };
 
 CreateOrEditMtoShipment.defaultProps = {
   router: {},
-  mtoShipment: {
-    customerRemarks: '',
-    requestedPickupDate: '',
-    requestedDeliveryDate: '',
-    destinationAddress: {
-      city: '',
-      postalCode: '',
-      state: '',
-      streetAddress1: '',
-    },
-  },
-  newDutyLocationAddress: {
-    city: '',
-    state: '',
-    postalCode: '',
-  },
   serviceMember: {},
-  orders: {},
-  move: {},
 };
 
 function mapStateToProps(state, ownProps) {
@@ -129,18 +108,12 @@ function mapStateToProps(state, ownProps) {
       params: { mtoShipmentId, moveId },
     },
   } = ownProps;
-  const move = selectCurrentMoveFromAllMoves(state, moveId);
-  const { orders } = move ?? {};
-  const mtoShipment = selectCurrentShipmentFromMove(state, moveId, mtoShipmentId) || {};
-
   const props = {
     serviceMember,
     serviceMemberMoves,
-    orders,
-    mtoShipment,
+    moveId,
+    mtoShipmentId,
     currentResidence: serviceMember?.residential_address || {},
-    newDutyLocationAddress: orders.new_duty_location?.address || {},
-    move: selectMove(state, moveId),
   };
 
   return props;
