@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 
 import styles from './OfficeDefinitionLists.module.scss';
 
+import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { OrdersInfoShape } from 'types/order';
 import { formatDate } from 'shared/dates';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
@@ -40,6 +41,17 @@ const OrdersList = ({ ordersInfo, showMissingWarnings }) => {
         <div className={descriptionListStyles.row}>
           <dt data-testid="reportByDateLabel">{reportDateRowLabel}</dt>
           <dd data-testid="reportByDate">{formatDate(ordersInfo.reportByDate, 'DD MMM YYYY')}</dd>
+        </div>
+
+        <div
+          className={classnames(descriptionListStyles.row, {
+            [styles.missingInfoError]: showMissingWarnings && !ordersInfo.payGrade,
+          })}
+        >
+          <dt>Pay grade</dt>
+          <dd data-testid="payGrade">
+            {!ordersInfo.payGrade ? missingText : ORDERS_PAY_GRADE_OPTIONS[ordersInfo.payGrade]}
+          </dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Current duty location</dt>
