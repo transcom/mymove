@@ -762,6 +762,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			suite.Equal(serviceItemDOFSIT.SITPostalCode, item.SITPostalCode)
 			suite.Equal(actualPickupAddress.StreetAddress1, item.SITOriginHHGActualAddress.StreetAddress1)
 			suite.Equal(actualPickupAddress.ID, *item.SITOriginHHGActualAddressID)
+			suite.Equal(unit.Miles(400), *item.SITDeliveryMiles)
 
 			switch item.ReService.Code {
 			case models.ReServiceCodeDOFSIT:
@@ -1242,6 +1243,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			suite.Equal(item.MTOShipmentID, serviceItemDDFSIT.MTOShipmentID)
 			suite.Equal(item.SITEntryDate, serviceItemDDFSIT.SITEntryDate)
 			suite.Equal(item.SITDepartureDate, serviceItemDDFSIT.SITDepartureDate)
+			suite.Equal(*item.SITDeliveryMiles, unit.Miles(400))
 
 			if item.ReService.Code == models.ReServiceCodeDDASIT {
 				numDDASITFound++
