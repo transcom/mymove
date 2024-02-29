@@ -20,7 +20,7 @@ export default {
   eventName: o.updateWeightTicket,
   tableName: t.weight_tickets,
   getEventNameDisplay: () => {
-    return <div>Updated weight</div>;
+    return <div>Updated trip</div>;
   },
   getDetails: (historyRecord) => {
     return <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />;
