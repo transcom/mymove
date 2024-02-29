@@ -1120,7 +1120,7 @@ paths:
         as it is meant to be used with the Admin UI exclusively.
       operationId: indexRequestedOfficeUsers
       tags:
-        - Requested Office users
+        - Requested office users
       parameters:
         - in: query
           name: filter
@@ -1146,6 +1146,34 @@ paths:
               description: Used for pagination
           schema:
             $ref: '#/definitions/OfficeUsers'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: Office User not found
+        '500':
+          description: server error
+  /requested-office-users/{officeUserId}:
+    get:
+      produces:
+        - application/json
+      summary: Get a Requested Office User
+      description: Retrieving a single office user that is in a REQUESTED status
+      operationId: getRequestedOfficeUser
+      tags:
+        - Requested office users
+      parameters:
+        - in: path
+          name: officeUserId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        '200':
+          description: success
+          schema:
+            $ref: '#/definitions/OfficeUser'
         '400':
           description: invalid request
         '401':
