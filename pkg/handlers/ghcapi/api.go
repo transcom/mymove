@@ -50,12 +50,6 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	moveRouter := move.NewMoveRouter()
 	addressCreator := address.NewAddressCreator()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
-	// planner := &routemocks.Planner{}
-	// planner.On("ZipTransitDistance",
-	// 	mock.AnythingOfType("*appcontext.appContext"),
-	// 	mock.Anything,
-	// 	mock.Anything,
-	// ).Return(400, nil)
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		queryBuilder,
 		mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter),
