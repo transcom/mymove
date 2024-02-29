@@ -47,8 +47,7 @@ func SortShipmentSITs(shipment models.MTOShipment, today time.Time) SortedShipme
 
 	for _, serviceItem := range shipment.MTOServiceItems {
 		// only departure SIT service items have a departure date
-		if code := serviceItem.ReService.Code; ((code == models.ReServiceCodeDOFSIT || code == models.ReServiceCodeDDFSIT) ||
-			(code == models.ReServiceCodeDOASIT || code == models.ReServiceCodeDDASIT)) &&
+		if code := serviceItem.ReService.Code; (code == models.ReServiceCodeDOFSIT || code == models.ReServiceCodeDDFSIT) &&
 			serviceItem.Status == models.MTOServiceItemStatusApproved {
 			if serviceItem.SITEntryDate.After(today) {
 				shipmentSITs.futureSITs = append(shipmentSITs.futureSITs, serviceItem)
@@ -135,7 +134,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		}
 
 		sitAuthorizedEndDate := currentServiceItem.SITAuthorizedEndDate
-		doaSIT := getAdditionalSIT(shipmentSITs)
+		doaSIT := getAdditionalSIT(shipmentSITs, shipment, today)
 
 		if doaSIT != nil {
 			sitAuthorizedEndDate = doaSIT.SITAuthorizedEndDate
@@ -193,7 +192,21 @@ func getCurrentSIT(shipmentSITs SortedShipmentSITs) *models.MTOServiceItem {
 
 // Private function getAdditionalSIT is used to return the current SIT
 // service item with the reServiceCode of DOASIT or DDASIT
-func getAdditionalSIT(shipmentSITs SortedShipmentSITs) *models.MTOServiceItem {
+func getAdditionalSIT(shipmentSITs SortedShipmentSITs, shipment models.MTOShipment, today time.Time) *models.MTOServiceItem {
+	for _, serviceItem := range shipment.MTOServiceItems {
+		// only departure SIT service items have a departure date
+		if code := serviceItem.ReService.Code; (code == models.ReServiceCodeDOASIT || code == models.ReServiceCodeDDASIT) &&
+			serviceItem.Status == models.MTOServiceItemStatusApproved {
+			if serviceItem.SITEntryDate.After(today) {
+				shipmentSITs.futureSITs = append(shipmentSITs.futureSITs, serviceItem)
+			} else if serviceItem.SITDepartureDate != nil && serviceItem.SITDepartureDate.Before(today) {
+				shipmentSITs.pastSITs = append(shipmentSITs.pastSITs, serviceItem)
+			} else {
+				shipmentSITs.currentSITs = append(shipmentSITs.currentSITs, serviceItem)
+			}
+		}
+	}
+
 	if len(shipmentSITs.currentSITs) == 0 {
 		return nil
 	}
