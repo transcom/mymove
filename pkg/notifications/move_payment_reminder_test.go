@@ -101,10 +101,6 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 				suite.Equal(ppms[i].Shipment.MoveTaskOrder.Orders.NewDutyLocation.Name, emailInfo[j].NewDutyLocationName)
 				suite.NotNil(emailInfo[j].Email)
 				suite.Equal(*ppms[i].Shipment.MoveTaskOrder.Orders.ServiceMember.PersonalEmail, *emailInfo[j].Email)
-				suite.Equal(ppms[i].EstimatedWeight, emailInfo[j].WeightEstimate)
-				suite.Equal(ppms[i].EstimatedIncentive, emailInfo[j].IncentiveEstimate)
-				suite.Equal(ppms[i].Shipment.MoveTaskOrder.Orders.OriginDutyLocation.TransportationOffice.Name, *emailInfo[j].TOName)
-				suite.Equal(ppms[i].Shipment.MoveTaskOrder.Orders.OriginDutyLocation.TransportationOffice.PhoneLines[0].Number, *emailInfo[j].TOPhone)
 				suite.Equal(ppms[i].Shipment.MoveTaskOrder.Locator, emailInfo[j].Locator)
 			}
 		}
@@ -283,21 +279,14 @@ func (suite *NotificationSuite) TestPaymentReminderOnSuccess() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
-	milMove := "https://my.move.mil/"
+	oneSourceLink := "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL"
 	pr, err := NewPaymentReminder()
 	suite.NoError(err)
 
-	name := "TEST PPPO"
-	phone := "555-555-5555"
 	s := PaymentReminderEmailData{
 		DestinationDutyLocation: "DestDutyLocation",
-		WeightEstimate:          "1500",
-		IncentiveEstimate:       "500",
-		IncentiveTxt:            "You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.",
-		TOName:                  &name,
-		TOPhone:                 &phone,
 		Locator:                 "abc123",
-		MyMoveLink:              MyMoveLink,
+		OneSourceLink:           oneSourceLink,
 	}
 	expectedHTMLContent := `<p>We hope your move to DestDutyLocation went well.</p>
 
@@ -312,7 +301,7 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 <p>To do that</p>
 
 <ul>
-  <li><a href="` + milMove + `">Log in to MilMove</a></li>
+  <li><a href="` + oneSourceLink + `">Log in to MilMove</a></li>
   <li>Click Request Payment</li>
   <li>Follow the instructions.</li>
 </ul>
@@ -351,15 +340,12 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRenderNoOriginDut
 	pr, err := NewPaymentReminder()
 	suite.NoError(err)
 
+	oneSourceLink := "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL"
+
 	s := PaymentReminderEmailData{
 		DestinationDutyLocation: "DestDutyLocation",
-		WeightEstimate:          "1500",
-		IncentiveEstimate:       "500",
-		IncentiveTxt:            "You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.",
-		TOName:                  nil,
-		TOPhone:                 nil,
 		Locator:                 "abc123",
-		MyMoveLink:              MyMoveLink,
+		OneSourceLink:           oneSourceLink,
 	}
 	expectedHTMLContent := `<p>We hope your move to DestDutyLocation went well.</p>
 
@@ -374,7 +360,7 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRenderNoOriginDut
 <p>To do that</p>
 
 <ul>
-  <li><a href="` + MyMoveLink + `">Log in to MilMove</a></li>
+  <li><a href="` + oneSourceLink + `">Log in to MilMove</a></li>
   <li>Click Request Payment</li>
   <li>Follow the instructions.</li>
 </ul>
@@ -412,18 +398,11 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRenderNoOriginDut
 func (suite *NotificationSuite) TestPaymentReminderTextTemplateRender() {
 	pr, err := NewPaymentReminder()
 	suite.NoError(err)
-
-	name := "TEST PPPO"
-	phone := "555-555-5555"
+	oneSourceLink := "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL"
 	s := PaymentReminderEmailData{
 		DestinationDutyLocation: "DestDutyLocation",
-		WeightEstimate:          "1500",
-		IncentiveEstimate:       "500",
-		IncentiveTxt:            "You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.",
-		TOName:                  &name,
-		TOPhone:                 &phone,
 		Locator:                 "abc123",
-		MyMoveLink:              MyMoveLink,
+		OneSourceLink:           oneSourceLink,
 	}
 	expectedTextContent := `We hope your move to DestDutyLocation went well.
 
@@ -472,70 +451,36 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 	pr, err := NewPaymentReminder()
 	suite.NoError(err)
 	email1 := "email1"
-	weightEst1 := unit.Pound(100)
-	estimate1 := unit.Cents(1000)
-	phone1 := "111-111-1111"
 
 	email2 := "email2"
-	weightEst2 := unit.Pound(200)
-	estimate2 := unit.Cents(2000)
-	phone2 := ""
 
 	email3 := "email3"
-	weightEst3 := unit.Pound(0)
-	estimate3 := unit.Cents(0)
-
-	phone := "000-000-0000"
-
-	name1 := "to1"
-	name2 := "to2"
-	name3 := "to3"
-	name4 := "to4"
 
 	emailInfos := PaymentReminderEmailInfos{
 		{
 			Email:               &email1,
 			NewDutyLocationName: "nd1",
-			WeightEstimate:      &weightEst1,
-			IncentiveEstimate:   &estimate1,
-			IncentiveTxt:        fmt.Sprintf("You expected to move about %d lbs, which gives you an estimated incentive of %s.", weightEst1.Int(), estimate1.ToDollarString()),
-			TOName:              &name1,
-			TOPhone:             &phone1,
 			Locator:             "abc123",
 		},
 		{
 			Email:               &email2,
 			NewDutyLocationName: "nd2",
-			WeightEstimate:      &weightEst2,
-			IncentiveEstimate:   &estimate2,
-			IncentiveTxt:        fmt.Sprintf("You expected to move about %d lbs, which gives you an estimated incentive of %s.", weightEst2.Int(), estimate2.ToDollarString()),
-			TOName:              &name2,
-			TOPhone:             &phone2,
 			Locator:             "abc456",
 		},
 		{
 			Email:               &email3,
 			NewDutyLocationName: "nd3",
-			WeightEstimate:      &weightEst3,
-			IncentiveEstimate:   &estimate3,
-			IncentiveTxt:        "",
-			TOName:              &name3,
-			TOPhone:             &phone,
 			Locator:             "def123",
 		},
 		{
 			// nil emails should be skipped
 			Email:               nil,
 			NewDutyLocationName: "nd0",
-			WeightEstimate:      &weightEst3,
-			IncentiveEstimate:   &estimate3,
-			IncentiveTxt:        "",
-			TOName:              &name4,
-			TOPhone:             &phone,
 			Locator:             "def456",
 		},
 	}
 	formattedEmails, err := pr.formatEmails(suite.AppContextForTest(), emailInfos)
+	oneSourceLink := "https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL"
 
 	suite.NoError(err)
 	for i, actualEmailContent := range formattedEmails {
@@ -543,13 +488,8 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 
 		data := PaymentReminderEmailData{
 			DestinationDutyLocation: emailInfo.NewDutyLocationName,
-			WeightEstimate:          fmt.Sprintf("%d", emailInfo.WeightEstimate.Int()),
-			IncentiveEstimate:       emailInfo.IncentiveEstimate.ToDollarString(),
-			IncentiveTxt:            emailInfo.IncentiveTxt,
-			TOName:                  emailInfo.TOName,
-			TOPhone:                 emailInfo.TOPhone,
 			Locator:                 emailInfo.Locator,
-			MyMoveLink:              MyMoveLink,
+			OneSourceLink:           oneSourceLink,
 		}
 		htmlBody, err := pr.RenderHTML(suite.AppContextForTest(), data)
 		suite.NoError(err)
@@ -564,7 +504,6 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 		if emailInfo.Email != nil {
 			suite.Equal(expectedEmailContent.recipientEmail, actualEmailContent.recipientEmail)
 			suite.Equal(expectedEmailContent.subject, actualEmailContent.subject)
-			suite.Equal(expectedEmailContent.htmlBody, actualEmailContent.htmlBody, "htmlBody diffferent: %s", emailInfo.TOName)
 			suite.Equal(expectedEmailContent.textBody, actualEmailContent.textBody)
 		}
 	}

@@ -52,10 +52,8 @@ type PaymentReminderEmailInfo struct {
 	WeightEstimate      *unit.Pound `db:"weight_estimate"`
 	IncentiveEstimate   *unit.Cents `db:"incentive_estimate"`
 	IncentiveTxt        string
-	TOName              *string `db:"transportation_office_name"`
-	TOPhone             *string `db:"transportation_office_phone"`
-	MoveDate            string  `db:"move_date"`
-	Locator             string  `db:"locator"`
+	MoveDate            string `db:"move_date"`
+	Locator             string `db:"locator"`
 }
 
 // GetEmailInfo fetches payment email information
@@ -118,29 +116,10 @@ func (m PaymentReminder) emails(appCtx appcontext.AppContext) ([]emailContent, e
 func (m PaymentReminder) formatEmails(appCtx appcontext.AppContext, PaymentReminderEmailInfos PaymentReminderEmailInfos) ([]emailContent, error) {
 	var emails []emailContent
 	for _, PaymentReminderEmailInfo := range PaymentReminderEmailInfos {
-		incentiveTxt := ""
-		if PaymentReminderEmailInfo.WeightEstimate.Int() > 0 && PaymentReminderEmailInfo.IncentiveEstimate.Int() > 0 {
-			incentiveTxt = fmt.Sprintf("You expected to move about %d lbs, which gives you an estimated incentive of %s.", PaymentReminderEmailInfo.WeightEstimate.Int(), PaymentReminderEmailInfo.IncentiveEstimate.ToDollarString())
-		}
-		var toPhone *string
-		if PaymentReminderEmailInfo.TOPhone != nil {
-			toPhone = PaymentReminderEmailInfo.TOPhone
-		}
-
-		var toName *string
-		if PaymentReminderEmailInfo.TOPhone != nil {
-			toName = PaymentReminderEmailInfo.TOName
-		}
-
 		htmlBody, textBody, err := m.renderTemplates(appCtx, PaymentReminderEmailData{
 			DestinationDutyLocation: PaymentReminderEmailInfo.NewDutyLocationName,
-			WeightEstimate:          fmt.Sprintf("%d", PaymentReminderEmailInfo.WeightEstimate.Int()),
-			IncentiveEstimate:       PaymentReminderEmailInfo.IncentiveEstimate.ToDollarString(),
-			IncentiveTxt:            incentiveTxt,
-			TOName:                  toName,
-			TOPhone:                 toPhone,
 			Locator:                 PaymentReminderEmailInfo.Locator,
-			MyMoveLink:              MyMoveLink,
+			OneSourceLink:           OneSourceTransportationOfficeLink,
 		})
 		if err != nil {
 			appCtx.Logger().Error("error rendering template", zap.Error(err))
@@ -202,13 +181,8 @@ func (m PaymentReminder) OnSuccess(appCtx appcontext.AppContext, PaymentReminder
 // PaymentReminderEmailData is used to render an email template
 type PaymentReminderEmailData struct {
 	DestinationDutyLocation string
-	WeightEstimate          string
-	IncentiveEstimate       string
-	IncentiveTxt            string
-	TOName                  *string
-	TOPhone                 *string
 	Locator                 string
-	MyMoveLink              string
+	OneSourceLink           string
 }
 
 // RenderHTML renders the html for the email
