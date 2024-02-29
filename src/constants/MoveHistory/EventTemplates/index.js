@@ -67,6 +67,7 @@ export { default as updateMovingExpense } from './UpdateMovingExpense/UpdateMovi
 export { default as updateWeightTicketProGear } from './UpdateWeightTicket/updateWeightTicketProGear';
 export { default as createMTOShipmentPPMDetails } from './CreateMTOShipment/createMTOShipmentPPMDetails';
 export { default as deleteShipmentPPM } from './DeleteShipment/DeleteShipmentPPM';
+export { default as createMTOShipmentUpdateMoves } from './CreateMTOShipment/CreateMTOShipmentUpdateMoves';
 export { default as createWeightTicket } from './CreateWeightTicket/CreateWeightTicket';
 export { default as updateWeightTicketPPMShipments } from './UpdateWeightTicket/UpdateWeightTicketPPMShipments';
 export { default as deleteWeightTicket } from './DeleteWeightTicket/DeleteWeightTicket';
@@ -79,4 +80,3 @@ export { default as deleteProGearWeightTicketUserUploads } from './DeleteProGear
 export { default as createMovingExpense } from './CreateMovingExpense/CreateMovingExpense';
 export { default as deleteMovingExpense } from './DeleteMovingExpense/DeleteMovingExpense';
 export { default as deleteMovingExpenseUserUploads } from './DeleteMovingExpense/DeleteMovingExpenseUserUploads';
-export { default as createMTOShipmentUpdateMoves } from './CreateMTOShipment/CreateMTOShipmentUpdateMoves';
