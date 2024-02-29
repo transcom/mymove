@@ -158,9 +158,6 @@ const ShipmentDetailsMain = ({
       displayedDeliveryAddress = destinationAddress;
       break;
     case SHIPMENT_OPTIONS.PPM:
-      weightResult = ppmShipment.estimatedWeight;
-      displayedPickupAddress = pickupAddress;
-      displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
       plannedMoveDate = ppmShipment.expectedDepartureDate;
       actualMoveDate = ppmShipment.actualMoveDate;
       weightResult = ppmShipment.estimatedWeight;
