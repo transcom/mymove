@@ -12,10 +12,3 @@ type RequestedOfficeUserListFetcher interface {
 	FetchRequestedOfficeUsersList(appCtx appcontext.AppContext, filters []QueryFilter, associations QueryAssociations, pagination Pagination, ordering QueryOrder) (models.OfficeUsers, error)
 	FetchRequestedOfficeUsersCount(appCtx appcontext.AppContext, filters []QueryFilter) (int, error)
 }
-
-// RequestedOfficeUserFetcher is the exported interface for fetching a single admin user
-//
-//go:generate mockery --name RequestedOfficeUserFetcher
-type RequestedOfficeUserFetcher interface {
-	FetchRequestedOfficeUser(appCtx appcontext.AppContext, filters []QueryFilter) (models.OfficeUser, error)
-}

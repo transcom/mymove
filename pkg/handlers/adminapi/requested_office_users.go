@@ -6,7 +6,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/requested_office_users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -62,12 +61,15 @@ type IndexRequestedOfficeUsersHandler struct {
 func (h IndexRequestedOfficeUsersHandler) Handle(params requested_office_users.IndexRequestedOfficeUsersParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			// Default behavior for this handler is going to be returning counts for each of the component services as categories
+
+			// We only want users that are in a REQUESTED status
 			queryFilters := []services.QueryFilter{query.NewQueryFilter("status", "=", "REQUESTED")}
 
+			// adding in pagination for the UI
 			pagination := h.NewPagination(params.Page, params.PerPage)
 			ordering := query.NewQueryOrder(params.Sort, params.Order)
 
+			// need to also get the user's roles
 			queryAssociations := query.NewQueryAssociationsPreload([]services.QueryAssociation{
 				query.NewQueryAssociation("User.Roles"),
 			})
@@ -90,6 +92,6 @@ func (h IndexRequestedOfficeUsersHandler) Handle(params requested_office_users.I
 				payload[i] = payloadForRequestedOfficeUserModel(s)
 			}
 
-			return officeuserop.NewIndexOfficeUsersOK().WithContentRange(fmt.Sprintf("office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, totalOfficeUsersCount)).WithPayload(payload), nil
+			return requested_office_users.NewIndexRequestedOfficeUsersOK().WithContentRange(fmt.Sprintf("requested office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, totalOfficeUsersCount)).WithPayload(payload), nil
 		})
 }
