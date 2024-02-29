@@ -29,6 +29,7 @@ import {
   getMTOShipmentByID,
   getServicesCounselingPPMQueue,
   getPrimeSimulatorAvailableMoves,
+  getPPMCloseout,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorMove } from 'services/primeApi';
@@ -59,6 +60,7 @@ import {
   MTO_SHIPMENT,
   DOCUMENTS,
   PRIME_SIMULATOR_AVAILABLE_MOVES,
+  PPMCLOSEOUT,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -260,6 +262,21 @@ export const usePPMShipmentDocsQueries = (shipmentId) => {
   return {
     mtoShipment,
     documents,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const usePPMCloseoutQuery = (ppmShipmentId) => {
+  const { data: ppmCloseout = {}, ...ppmCloseoutQuery } = useQuery([PPMCLOSEOUT, ppmShipmentId], ({ queryKey }) =>
+    getPPMCloseout(...queryKey),
+  );
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([ppmCloseoutQuery]);
+
+  return {
+    ppmCloseout,
     isLoading,
     isError,
     isSuccess,
@@ -821,7 +838,7 @@ export const useGHCGetMoveHistory = ({
   };
 };
 
-export const useQAECSRMoveSearchQueries = ({
+export const useMoveSearchQueries = ({
   sort,
   order,
   filters = [],
