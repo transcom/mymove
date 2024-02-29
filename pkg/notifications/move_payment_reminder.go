@@ -12,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 var (
@@ -46,14 +45,11 @@ type PaymentReminderEmailInfos []PaymentReminderEmailInfo
 
 // PaymentReminderEmailInfo contains payment reminder data for rendering a template
 type PaymentReminderEmailInfo struct {
-	ServiceMemberID     uuid.UUID   `db:"id"`
-	Email               *string     `db:"personal_email"`
-	NewDutyLocationName string      `db:"new_duty_location_name"`
-	WeightEstimate      *unit.Pound `db:"weight_estimate"`
-	IncentiveEstimate   *unit.Cents `db:"incentive_estimate"`
-	IncentiveTxt        string
-	MoveDate            string `db:"move_date"`
-	Locator             string `db:"locator"`
+	ServiceMemberID     uuid.UUID `db:"id"`
+	Email               *string   `db:"personal_email"`
+	NewDutyLocationName string    `db:"new_duty_location_name"`
+	MoveDate            string    `db:"move_date"`
+	Locator             string    `db:"locator"`
 }
 
 // GetEmailInfo fetches payment email information
@@ -132,7 +128,7 @@ func (m PaymentReminder) formatEmails(appCtx appcontext.AppContext, PaymentRemin
 		}
 		smEmail := emailContent{
 			recipientEmail: *PaymentReminderEmailInfo.Email,
-			subject:        fmt.Sprintf("[MilMove] Reminder: request payment for your move to %s (move %s)", PaymentReminderEmailInfo.NewDutyLocationName, PaymentReminderEmailInfo.Locator),
+			subject:        "Complete your Personally Procured Move (PPM)",
 			htmlBody:       htmlBody,
 			textBody:       textBody,
 			onSuccess:      m.OnSuccess(appCtx, PaymentReminderEmailInfo),
