@@ -3577,8 +3577,8 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.NoError(updatedShipment.Validate(strfmt.Default))
 
 		suite.Equal(oldShipment.ID.String(), updatedShipment.ID.String())
-		suite.Equal(oldShipment.ActualProGearWeight, models.PoundPointer(unit.Pound(*updatedShipment.ActualProGearWeight)))
-		suite.Equal(oldShipment.ActualSpouseProGearWeight, models.PoundPointer(unit.Pound(*updatedShipment.ActualSpouseProGearWeight)))
+		suite.Equal(oldShipment.ActualProGearWeight, handlers.PoundPtrFromInt64Ptr(updatedShipment.ActualProGearWeight))
+		suite.Equal(oldShipment.ActualSpouseProGearWeight, handlers.PoundPtrFromInt64Ptr(updatedShipment.ActualSpouseProGearWeight))
 		suite.Equal(params.Body.BillableWeightCap, updatedShipment.BillableWeightCap)
 		suite.Equal(params.Body.BillableWeightJustification, updatedShipment.BillableWeightJustification)
 		suite.Equal(params.Body.CounselorRemarks, updatedShipment.CounselorRemarks)
