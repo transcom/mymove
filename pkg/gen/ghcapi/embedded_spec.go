@@ -6497,6 +6497,16 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "actualProGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualSpouseProGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "approvedDate": {
           "type": "string",
           "format": "date-time",
@@ -9797,6 +9807,16 @@ func init() {
     "UpdateShipment": {
       "type": "object",
       "properties": {
+        "actualProGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualSpouseProGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "agents": {
           "x-nullable": true,
           "$ref": "#/definitions/MTOAgents"
@@ -18066,6 +18086,16 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "actualProGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualSpouseProGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "approvedDate": {
           "type": "string",
           "format": "date-time",
@@ -21425,6 +21455,16 @@ func init() {
     "UpdateShipment": {
       "type": "object",
       "properties": {
+        "actualProGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualSpouseProGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "agents": {
           "x-nullable": true,
           "$ref": "#/definitions/MTOAgents"
