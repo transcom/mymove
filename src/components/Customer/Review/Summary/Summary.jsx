@@ -30,9 +30,9 @@ import {
   selectHasCanceledMove,
   selectAllMoves,
   selectCurrentMoveFromAllMoves,
+  selectShipmentsFromMove,
 } from 'store/entities/selectors';
 import { setFlashMessage } from 'store/flash/actions';
-import { MoveShape } from 'types/customerShapes';
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -83,13 +83,13 @@ export class Summary extends Component {
   };
 
   handleDeleteShipmentConfirmation = (shipmentId) => {
-    const { serviceMember, updateAllMoves, currentMove, updateShipmentList, setMsg } = this.props;
+    const { serviceMember, updateAllMoves, moveId, updateShipmentList, setMsg } = this.props;
     deleteMTOShipment(shipmentId)
       .then(() => {
-        getAllMoves(serviceMember.id).then((response) => {
-          updateAllMoves(response);
+        getAllMoves(serviceMember.id).then((res) => {
+          updateAllMoves(res);
         });
-        getMTOShipmentsForMove(currentMove.id).then((response) => {
+        getMTOShipmentsForMove(moveId).then((response) => {
           updateShipmentList(response);
           setMsg('MTO_SHIPMENT_DELETE_SUCCESS', 'success', 'The shipment was deleted.', '', true);
         });
@@ -257,7 +257,7 @@ export class Summary extends Component {
     const { moveId } = router.params;
 
     const currentMove = selectCurrentMoveFromAllMoves(serviceMemberMoves, moveId);
-    const { mtoShipments } = currentMove ?? {};
+    const mtoShipments = selectShipmentsFromMove(currentMove);
     const { orders } = currentMove ?? {};
     const currentOrders = orders;
 
@@ -387,7 +387,6 @@ export class Summary extends Component {
 }
 
 Summary.propTypes = {
-  currentMove: MoveShape.isRequired,
   router: RouterShape,
   moveIsApproved: bool.isRequired,
   onDidMount: func.isRequired,

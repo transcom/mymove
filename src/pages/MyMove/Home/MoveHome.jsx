@@ -190,6 +190,9 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const handleDeleteShipmentConfirmation = (shipmentId) => {
     deleteMTOShipment(shipmentId)
       .then(() => {
+        getAllMoves(serviceMember.id).then((response) => {
+          updateAllMoves(response);
+        });
         getMTOShipmentsForMove(move.id).then((response) => {
           updateMTOShipments(response);
           setShowDeleteErrorAlert(false);
