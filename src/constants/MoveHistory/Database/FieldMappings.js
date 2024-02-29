@@ -118,6 +118,8 @@ export default {
   sit_location: 'SIT location',
   sit_estimated_cost: 'SIT estimated cost',
   estimated_incentive: 'PPM estimated incentive',
+  ppm_type: 'PPM type',
+  distance: 'Distance in miles',
   actual_move_date: 'Departure date',
   actual_pickup_postal_code: 'Starting ZIP',
   actual_destination_postal_code: 'Ending ZIP',
@@ -129,6 +131,4 @@ export default {
   filename: 'Filename',
   paid_with_gtcc: 'Paid with gtcc',
   missing_receipt: 'Missing receipt',
-  ppm_type: 'PPM type',
-  distance: 'Distance in miles',
 };
