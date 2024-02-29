@@ -44,12 +44,16 @@ func (o *mtoServiceItemCreator) calculateSITDeliveryMiles(appCtx appcontext.AppC
 		} else {
 			originalSITAddressZip = mtoShipment.PickupAddress.PostalCode
 		}
-		distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, originalSITAddressZip)
+		if mtoShipment.PickupAddress != nil && originalSITAddressZip != "" {
+			distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, originalSITAddressZip)
+		}
 	}
 
 	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT || serviceItem.ReService.Code == models.ReServiceCodeDDASIT || serviceItem.ReService.Code == models.ReServiceCodeDDSFSC || serviceItem.ReService.Code == models.ReServiceCodeDDDSIT {
 		// Creation: Destination SIT: distance between shipment destination address & service item destination address
-		distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationFinalAddress.PostalCode)
+		if mtoShipment.DestinationAddress != nil && serviceItem.SITDestinationFinalAddress != nil {
+			distance, err = o.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationFinalAddress.PostalCode)
+		}
 	}
 	if err != nil {
 		return 0, err
