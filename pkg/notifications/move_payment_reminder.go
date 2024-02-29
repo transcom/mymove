@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 var (
@@ -45,11 +46,15 @@ type PaymentReminderEmailInfos []PaymentReminderEmailInfo
 
 // PaymentReminderEmailInfo contains payment reminder data for rendering a template
 type PaymentReminderEmailInfo struct {
-	ServiceMemberID     uuid.UUID `db:"id"`
-	Email               *string   `db:"personal_email"`
-	NewDutyLocationName string    `db:"new_duty_location_name"`
-	MoveDate            string    `db:"move_date"`
-	Locator             string    `db:"locator"`
+	ServiceMemberID     uuid.UUID   `db:"id"`
+	Email               *string     `db:"personal_email"`
+	NewDutyLocationName string      `db:"new_duty_location_name"`
+	MoveDate            string      `db:"move_date"`
+	Locator             string      `db:"locator"`
+	WeightEstimate      *unit.Pound `db:"weight_estimate"`
+	IncentiveEstimate   *unit.Cents `db:"incentive_estimate"`
+	TOName              *string     `db:"transportation_office_name"`
+	TOPhone             *string     `db:"transportation_office_phone"`
 }
 
 // GetEmailInfo fetches payment email information
