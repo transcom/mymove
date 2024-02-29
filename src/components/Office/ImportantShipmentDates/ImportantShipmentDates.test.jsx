@@ -26,7 +26,6 @@ describe('ImportantShipmentDates', () => {
         requestedDeliveryDate={requestedDeliveryDate}
         scheduledDeliveryDate={scheduledDeliveryDate}
         actualDeliveryDate={actualDeliveryDate}
-        requiredDeliveryDate={requiredDeliveryDate}
         isPPM={false}
       />,
     );
