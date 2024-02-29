@@ -14,11 +14,11 @@ type requestedOfficeUserFetcher struct {
 	builder requestedOfficeUserQueryBuilder
 }
 
-// FetchAdminUser fetches an admin user given a slice of filters
+// FetchRequestedOfficeUser fetches an office user given a slice of filters
 func (o *requestedOfficeUserFetcher) FetchRequestedOfficeUser(appCtx appcontext.AppContext, filters []services.QueryFilter) (models.OfficeUser, error) {
-	var adminUser models.OfficeUser
-	err := o.builder.FetchOne(appCtx, &adminUser, filters)
-	return adminUser, err
+	var requestedOfficeUser models.OfficeUser
+	err := o.builder.FetchOne(appCtx, &requestedOfficeUser, filters)
+	return requestedOfficeUser, err
 }
 
 // NewAdminUserFetcher return an implementation of the AdminUserFetcher interface
