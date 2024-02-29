@@ -29,6 +29,7 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
+
 	progear "github.com/transcom/mymove/pkg/services/progear_weight_ticket"
 	"github.com/transcom/mymove/pkg/services/query"
 	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
@@ -237,6 +238,19 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		handlerConfig,
 		transportationOfficeFetcher,
 	}
+
+	// NewPaymentPacketCreator(
+	// 	ppmShipmentFetcher services.PPMShipmentFetcher,
+	// 	userUploadToPDFConverter services.UserUploadToPDFConverter,
+	// 	pdfMerger services.PDFMerger,
+	// 	ppmShipmentUpdater services.PPMShipmentUpdater,
+	// 	userUploader *uploader.UserUploader
+	// uploadToPDFConverter := paperwork.NewUserUploadToPDFConverter(userUploader)
+	// pdfMerger := paperwork.NewPDFMerger()
+
+	//userUploader, _  := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
+	paymentPacketCreator := ppmshipment.NewPaymentPacketCreator(ppmShipmentFetcher, userUploader, AOAPacketCreator)
+	internalAPI.PpmShowPaymentPacketHandler = ShowPaymentPacketHandler{handlerConfig, paymentPacketCreator}
 
 	return internalAPI
 }

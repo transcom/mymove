@@ -4,6 +4,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/spf13/afero"
 
+	"io"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -91,4 +93,5 @@ type AOAPacketCreator interface {
 //go:generate mockery --name PaymentPacketCreator
 type PaymentPacketCreator interface {
 	CreatePaymentPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) error
+	Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (io.ReadCloser, error)
 }
