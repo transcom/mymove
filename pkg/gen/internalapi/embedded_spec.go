@@ -1393,64 +1393,6 @@ func init() {
         }
       }
     },
-    "/moves/{ppmShipmentId}/shipment_summary_worksheet": {
-      "get": {
-        "description": "Generates pre-filled PDF using data already collected",
-        "produces": [
-          "application/pdf"
-        ],
-        "tags": [
-          "moves"
-        ],
-        "summary": "Returns Shipment Summary Worksheet",
-        "operationId": "showShipmentSummaryWorksheet",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the ppmShipment",
-            "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "date",
-            "description": "The preparationDate of PDF",
-            "name": "preparationDate",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Pre-filled worksheet PDF",
-            "schema": {
-              "type": "file",
-              "format": "binary"
-            },
-            "headers": {
-              "Content-Disposition": {
-                "type": "string",
-                "description": "File name to download"
-              }
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      }
-    },
     "/mto-shipments/{mtoShipmentId}": {
       "delete": {
         "description": "Soft deletes a shipment by ID",
@@ -1888,6 +1830,58 @@ func init() {
           }
         }
       }
+    },
+    "/ppm-shipments/{ppmShipmentId}/aoa-packet": {
+      "get": {
+        "description": "### Functionality\nThis endpoint downloads all uploaded move order documentation combined with the Shipment Summary Worksheet into a single PDF.\n### Errors\n* The PPMShipment must have requested an AOA.\n* The PPMShipment AOA Request must have been approved.\n",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Downloads AOA Packet form PPMShipment as a PDF",
+        "operationId": "showAOAPacket",
+        "responses": {
+          "200": {
+            "description": "AOA PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "the id for the ppmshipment with aoa to be downloaded",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses": {
       "post": {
@@ -3654,6 +3648,9 @@ func init() {
           "x-nullable": true,
           "example": "John"
         },
+        "grade": {
+          "$ref": "#/definitions/OrderPayGrade"
+        },
         "last_name": {
           "type": "string",
           "title": "Last name",
@@ -3678,9 +3675,6 @@ func init() {
           "type": "boolean",
           "title": "Phone",
           "x-nullable": true
-        },
-        "rank": {
-          "$ref": "#/definitions/ServiceMemberRank"
         },
         "residential_address": {
           "$ref": "#/definitions/Address"
@@ -4053,13 +4047,13 @@ func init() {
       "type": "object",
       "properties": {
         "proGear": {
-          "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank\n",
+          "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade\n",
           "type": "integer",
           "x-nullable": true,
           "example": 2000
         },
         "proGearSpouse": {
-          "description": "Spouse's pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank\n",
+          "description": "Spouse's pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade\n",
           "type": "integer",
           "x-nullable": true,
           "example": 500
@@ -4795,7 +4789,7 @@ func init() {
         "locator",
         "customer_name",
         "edipi",
-        "rank",
+        "grade",
         "orders_type",
         "branch_of_service",
         "last_modified_date",
@@ -4852,6 +4846,9 @@ func init() {
           "title": "GBL Number",
           "x-nullable": true,
           "example": "LNK12345"
+        },
+        "grade": {
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "hhg_status": {
           "type": "string",
@@ -4922,9 +4919,6 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "PAYMENT_REQUESTED"
-        },
-        "rank": {
-          "$ref": "#/definitions/ServiceMemberRank"
         },
         "status": {
           "type": "string",
@@ -5274,7 +5268,7 @@ func init() {
     },
     "OrderPayGrade": {
       "type": "string",
-      "title": "Pay grade",
+      "title": "Grade",
       "enum": [
         "E_1",
         "E_2",
@@ -5371,9 +5365,7 @@ func init() {
           "$ref": "#/definitions/Entitlement"
         },
         "grade": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "O-6"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "has_dependents": {
           "type": "boolean",
@@ -5951,9 +5943,6 @@ func init() {
           "title": "Phone",
           "x-nullable": true
         },
-        "rank": {
-          "$ref": "#/definitions/ServiceMemberRank"
-        },
         "residential_address": {
           "$ref": "#/definitions/Address"
         },
@@ -6513,9 +6502,6 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
-        "current_location": {
-          "$ref": "#/definitions/DutyLocationPayload"
-        },
         "edipi": {
           "type": "string",
           "format": "edipi",
@@ -6536,6 +6522,10 @@ func init() {
           "title": "First name",
           "x-nullable": true,
           "example": "John"
+        },
+        "grade": {
+          "title": "Grade",
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "id": {
           "type": "string",
@@ -6576,10 +6566,6 @@ func init() {
           "title": "Telephone",
           "x-nullable": true
         },
-        "rank": {
-          "title": "Rank",
-          "$ref": "#/definitions/ServiceMemberRank"
-        },
         "residential_address": {
           "title": "Residential Address",
           "$ref": "#/definitions/Address"
@@ -6619,73 +6605,6 @@ func init() {
           "$ref": "#/definitions/WeightAllotment"
         }
       }
-    },
-    "ServiceMemberRank": {
-      "type": "string",
-      "title": "Rank",
-      "enum": [
-        "E_1",
-        "E_2",
-        "E_3",
-        "E_4",
-        "E_5",
-        "E_6",
-        "E_7",
-        "E_8",
-        "E_9",
-        "E_9_SPECIAL_SENIOR_ENLISTED",
-        "O_1_ACADEMY_GRADUATE",
-        "O_2",
-        "O_3",
-        "O_4",
-        "O_5",
-        "O_6",
-        "O_7",
-        "O_8",
-        "O_9",
-        "O_10",
-        "W_1",
-        "W_2",
-        "W_3",
-        "W_4",
-        "W_5",
-        "AVIATION_CADET",
-        "CIVILIAN_EMPLOYEE",
-        "ACADEMY_CADET",
-        "MIDSHIPMAN"
-      ],
-      "x-display-value": {
-        "ACADEMY_CADET": "Service Academy Cadet",
-        "AVIATION_CADET": "Aviation Cadet",
-        "CIVILIAN_EMPLOYEE": "Civilian Employee",
-        "E_1": "E-1",
-        "E_2": "E-2",
-        "E_3": "E-3",
-        "E_4": "E-4",
-        "E_5": "E-5",
-        "E_6": "E-6",
-        "E_7": "E-7",
-        "E_8": "E-8",
-        "E_9": "E-9",
-        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
-        "MIDSHIPMAN": "Midshipman",
-        "O_10": "O-10",
-        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
-        "O_2": "O-2",
-        "O_3": "O-3",
-        "O_4": "O-4",
-        "O_5": "O-5",
-        "O_6": "O-6",
-        "O_7": "O-7",
-        "O_8": "O-8",
-        "O_9": "O-9",
-        "W_1": "W-1",
-        "W_2": "W-2",
-        "W_3": "W-3",
-        "W_4": "W-4",
-        "W_5": "W-5"
-      },
-      "x-nullable": true
     },
     "SignedCertification": {
       "description": "Signed certification",
@@ -9104,64 +9023,6 @@ func init() {
         }
       }
     },
-    "/moves/{ppmShipmentId}/shipment_summary_worksheet": {
-      "get": {
-        "description": "Generates pre-filled PDF using data already collected",
-        "produces": [
-          "application/pdf"
-        ],
-        "tags": [
-          "moves"
-        ],
-        "summary": "Returns Shipment Summary Worksheet",
-        "operationId": "showShipmentSummaryWorksheet",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the ppmShipment",
-            "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "date",
-            "description": "The preparationDate of PDF",
-            "name": "preparationDate",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Pre-filled worksheet PDF",
-            "schema": {
-              "type": "file",
-              "format": "binary"
-            },
-            "headers": {
-              "Content-Disposition": {
-                "type": "string",
-                "description": "File name to download"
-              }
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      }
-    },
     "/mto-shipments/{mtoShipmentId}": {
       "delete": {
         "description": "Soft deletes a shipment by ID",
@@ -9659,6 +9520,73 @@ func init() {
           }
         }
       }
+    },
+    "/ppm-shipments/{ppmShipmentId}/aoa-packet": {
+      "get": {
+        "description": "### Functionality\nThis endpoint downloads all uploaded move order documentation combined with the Shipment Summary Worksheet into a single PDF.\n### Errors\n* The PPMShipment must have requested an AOA.\n* The PPMShipment AOA Request must have been approved.\n",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Downloads AOA Packet form PPMShipment as a PDF",
+        "operationId": "showAOAPacket",
+        "responses": {
+          "200": {
+            "description": "AOA PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "the id for the ppmshipment with aoa to be downloaded",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses": {
       "post": {
@@ -11766,6 +11694,9 @@ func init() {
           "x-nullable": true,
           "example": "John"
         },
+        "grade": {
+          "$ref": "#/definitions/OrderPayGrade"
+        },
         "last_name": {
           "type": "string",
           "title": "Last name",
@@ -11790,9 +11721,6 @@ func init() {
           "type": "boolean",
           "title": "Phone",
           "x-nullable": true
-        },
-        "rank": {
-          "$ref": "#/definitions/ServiceMemberRank"
         },
         "residential_address": {
           "$ref": "#/definitions/Address"
@@ -12167,13 +12095,13 @@ func init() {
       "type": "object",
       "properties": {
         "proGear": {
-          "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank\n",
+          "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade\n",
           "type": "integer",
           "x-nullable": true,
           "example": 2000
         },
         "proGearSpouse": {
-          "description": "Spouse's pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by rank\n",
+          "description": "Spouse's pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade\n",
           "type": "integer",
           "x-nullable": true,
           "example": 500
@@ -12911,7 +12839,7 @@ func init() {
         "locator",
         "customer_name",
         "edipi",
-        "rank",
+        "grade",
         "orders_type",
         "branch_of_service",
         "last_modified_date",
@@ -12968,6 +12896,9 @@ func init() {
           "title": "GBL Number",
           "x-nullable": true,
           "example": "LNK12345"
+        },
+        "grade": {
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "hhg_status": {
           "type": "string",
@@ -13038,9 +12969,6 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "PAYMENT_REQUESTED"
-        },
-        "rank": {
-          "$ref": "#/definitions/ServiceMemberRank"
         },
         "status": {
           "type": "string",
@@ -13390,7 +13318,7 @@ func init() {
     },
     "OrderPayGrade": {
       "type": "string",
-      "title": "Pay grade",
+      "title": "Grade",
       "enum": [
         "E_1",
         "E_2",
@@ -13487,9 +13415,7 @@ func init() {
           "$ref": "#/definitions/Entitlement"
         },
         "grade": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "O-6"
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "has_dependents": {
           "type": "boolean",
@@ -14067,9 +13993,6 @@ func init() {
           "title": "Phone",
           "x-nullable": true
         },
-        "rank": {
-          "$ref": "#/definitions/ServiceMemberRank"
-        },
         "residential_address": {
           "$ref": "#/definitions/Address"
         },
@@ -14632,9 +14555,6 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
-        "current_location": {
-          "$ref": "#/definitions/DutyLocationPayload"
-        },
         "edipi": {
           "type": "string",
           "format": "edipi",
@@ -14655,6 +14575,10 @@ func init() {
           "title": "First name",
           "x-nullable": true,
           "example": "John"
+        },
+        "grade": {
+          "title": "Grade",
+          "$ref": "#/definitions/OrderPayGrade"
         },
         "id": {
           "type": "string",
@@ -14695,10 +14619,6 @@ func init() {
           "title": "Telephone",
           "x-nullable": true
         },
-        "rank": {
-          "title": "Rank",
-          "$ref": "#/definitions/ServiceMemberRank"
-        },
         "residential_address": {
           "title": "Residential Address",
           "$ref": "#/definitions/Address"
@@ -14738,73 +14658,6 @@ func init() {
           "$ref": "#/definitions/WeightAllotment"
         }
       }
-    },
-    "ServiceMemberRank": {
-      "type": "string",
-      "title": "Rank",
-      "enum": [
-        "E_1",
-        "E_2",
-        "E_3",
-        "E_4",
-        "E_5",
-        "E_6",
-        "E_7",
-        "E_8",
-        "E_9",
-        "E_9_SPECIAL_SENIOR_ENLISTED",
-        "O_1_ACADEMY_GRADUATE",
-        "O_2",
-        "O_3",
-        "O_4",
-        "O_5",
-        "O_6",
-        "O_7",
-        "O_8",
-        "O_9",
-        "O_10",
-        "W_1",
-        "W_2",
-        "W_3",
-        "W_4",
-        "W_5",
-        "AVIATION_CADET",
-        "CIVILIAN_EMPLOYEE",
-        "ACADEMY_CADET",
-        "MIDSHIPMAN"
-      ],
-      "x-display-value": {
-        "ACADEMY_CADET": "Service Academy Cadet",
-        "AVIATION_CADET": "Aviation Cadet",
-        "CIVILIAN_EMPLOYEE": "Civilian Employee",
-        "E_1": "E-1",
-        "E_2": "E-2",
-        "E_3": "E-3",
-        "E_4": "E-4",
-        "E_5": "E-5",
-        "E_6": "E-6",
-        "E_7": "E-7",
-        "E_8": "E-8",
-        "E_9": "E-9",
-        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
-        "MIDSHIPMAN": "Midshipman",
-        "O_10": "O-10",
-        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
-        "O_2": "O-2",
-        "O_3": "O-3",
-        "O_4": "O-4",
-        "O_5": "O-5",
-        "O_6": "O-6",
-        "O_7": "O-7",
-        "O_8": "O-8",
-        "O_9": "O-9",
-        "W_1": "W-1",
-        "W_2": "W-2",
-        "W_3": "W-3",
-        "W_4": "W-4",
-        "W_5": "W-5"
-      },
-      "x-nullable": true
     },
     "SignedCertification": {
       "description": "Signed certification",

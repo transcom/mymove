@@ -648,7 +648,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(orders.ID.String(), ordersPayload.ID.String())
 		suite.Equal(orders.ServiceMemberID.String(), ordersPayload.CustomerID.String())
 		suite.Equal(*orders.OriginDutyLocationGBLOC, ordersPayload.OriginDutyLocationGBLOC)
-		suite.Equal(*orders.Grade, *ordersPayload.Rank)
+		suite.Equal(string(*orders.Grade), string(*ordersPayload.Rank))
 		suite.Equal(orders.ReportByDate.Format(time.RFC3339), time.Time(ordersPayload.ReportByDate).Format(time.RFC3339))
 		suite.Equal(string(orders.OrdersType), string(ordersPayload.OrdersType))
 		suite.Equal(*orders.OrdersNumber, *ordersPayload.OrderNumber)
@@ -1872,11 +1872,12 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
-		// mock to return nil Errro
+		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
-			services.MoveOrderUploadAll,
-			mock.AnythingOfType("models.Move")).Return(nil, nil)
+			mock.AnythingOfType("services.MoveOrderUploadType"),
+			mock.AnythingOfType("models.Move"),
+			mock.AnythingOfType("bool")).Return(nil, nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -1921,11 +1922,12 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 			}),
 		).Return(moves, 1, nil)
 
-		// mock to return nil Errro
+		// mock to return nil Error
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
-			mock.AnythingOfType("models.Move")).Return(nil, errors.New("error"))
+			mock.AnythingOfType("models.Move"),
+			mock.AnythingOfType("bool")).Return(nil, errors.New("error"))
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2109,7 +2111,8 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
-			mock.AnythingOfType("models.Move")).Return(nil, apperror.NewUnprocessableEntityError("test"))
+			mock.AnythingOfType("models.Move"),
+			mock.AnythingOfType("bool")).Return(nil, apperror.NewUnprocessableEntityError("test"))
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2154,7 +2157,8 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("services.MoveOrderUploadType"),
-			mock.AnythingOfType("models.Move")).Return(nil, errors.New("test"))
+			mock.AnythingOfType("models.Move"),
+			mock.AnythingOfType("bool")).Return(nil, errors.New("test"))
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2200,7 +2204,8 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			services.MoveOrderUploadAll, //Verify ALL enum is used
-			mock.AnythingOfType("models.Move")).Return(nil, errors.New("test"))
+			mock.AnythingOfType("models.Move"),
+			mock.AnythingOfType("bool")).Return(nil, errors.New("test"))
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2246,7 +2251,8 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			services.MoveOrderUpload, //Verify Order only enum is used
-			mock.AnythingOfType("models.Move")).Return(nil, errors.New("test"))
+			mock.AnythingOfType("models.Move"),
+			mock.AnythingOfType("bool")).Return(nil, errors.New("test"))
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -2293,7 +2299,8 @@ func (suite *HandlerSuite) TestDownloadMoveOrderHandler() {
 		mockPrimeDownloadMoveUploadPDFGenerator.On("GenerateDownloadMoveUserUploadPDF",
 			mock.AnythingOfType("*appcontext.appContext"),
 			services.MoveOrderAmendmentUpload, //Verify Amendment only enum is used
-			mock.AnythingOfType("models.Move")).Return(nil, errors.New("test"))
+			mock.AnythingOfType("models.Move"),
+			mock.AnythingOfType("bool")).Return(nil, errors.New("test"))
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
