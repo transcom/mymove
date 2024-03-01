@@ -2095,30 +2095,40 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      pickupAddress:
+        $ref: 'definitions/Address.yaml'
       secondaryPickupPostalCode:
         format: zip
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
         $ref: definitions/NullableString.yaml
+      secondaryPickupAddress:
+        $ref: 'definitions/Address.yaml'
       destinationPostalCode:
         format: zip
         type: string
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      destinationAddress:
+        $ref: 'definitions/Address.yaml'
       secondaryDestinationPostalCode:
         format: zip
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
         $ref: definitions/NullableString.yaml
+      secondaryDestinationAddress:
+        $ref: 'definitions/Address.yaml'
       sitExpected:
         type: boolean
     required:
       - expectedDepartureDate
       - pickupPostalCode
+      - pickupAddress
       - destinationPostalCode
+      - destinationAddress
       - sitExpected
   UpdatePPMShipment:
     type: object
@@ -2141,12 +2151,16 @@ definitions:
         example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
+      pickupAddress:
+        $ref: 'definitions/Address.yaml'
       secondaryPickupPostalCode:
         format: zip
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
         $ref: definitions/NullableString.yaml
+      secondaryPickupAddress:
+        $ref: 'definitions/Address.yaml'
       actualPickupPostalCode:
         description: >
           The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.
@@ -2163,12 +2177,16 @@ definitions:
         example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
+      destinationAddress:
+        $ref: 'definitions/Address.yaml'
       secondaryDestinationPostalCode:
         format: zip
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
         $ref: definitions/NullableString.yaml
+      secondaryDestinationAddress:
+        $ref: 'definitions/Address.yaml'
       actualDestinationPostalCode:
         description: >
           The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.
@@ -2354,6 +2372,8 @@ definitions:
         readOnly: true
       mtoShipments:
         $ref: '#/definitions/MTOShipments'
+      closeoutOffice:
+        $ref: 'definitions/TransportationOffice.yaml'
       eTag:
         type: string
         readOnly: true
@@ -3272,6 +3292,11 @@ paths:
           format: uuid
           required: true
           description: UUID of the upload to be deleted
+        - in: query
+          name: orderId
+          type: string
+          format: uuid
+          description: ID of the order that the upload belongs to
       responses:
         '204':
           description: deleted
