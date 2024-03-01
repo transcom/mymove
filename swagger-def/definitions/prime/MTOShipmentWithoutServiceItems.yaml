@@ -142,7 +142,6 @@ properties:
     type: integer
     x-nullable: true
     x-omitempty: false
-
   agents:
     $ref: 'MTOAgents.yaml'
   sitExtensions:
