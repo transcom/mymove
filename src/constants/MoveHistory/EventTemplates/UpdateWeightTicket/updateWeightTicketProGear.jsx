@@ -20,6 +20,6 @@ export default {
   action: a.UPDATE,
   eventName: o.updateProGearWeightTicket,
   tableName: t.progear_weight_tickets,
-  getEventNameDisplay: () => 'Update Pro-gear',
+  getEventNameDisplay: () => 'Updated pro-gear',
   getDetails: (historyRecord) => <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />,
 };
