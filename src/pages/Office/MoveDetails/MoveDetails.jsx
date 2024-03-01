@@ -248,11 +248,11 @@ const MoveDetails = ({
     sacSDN: order.sac,
     NTStac: order.ntsTac,
     NTSsac: order.ntsSac,
+    payGrade: order.grade,
   };
   const allowancesInfo = {
     branch: customer.agency,
-    rank: order.grade,
-    weightAllowance: allowances.totalWeight,
+    grade: order.grade,
     authorizedWeight: allowances.authorizedWeight,
     progear: allowances.proGearWeight,
     spouseProgear: allowances.proGearWeightSpouse,
