@@ -23,6 +23,7 @@ type User struct {
 	OktaEmail              string      `json:"okta_email" db:"okta_email"`
 	Active                 bool        `json:"active" db:"active"`
 	Roles                  roles.Roles `many_to_many:"users_roles"`
+	Privileges             Privileges  `many_to_many:"users_privileges"`
 	CurrentAdminSessionID  string      `json:"current_admin_session_id" db:"current_admin_session_id"`
 	CurrentOfficeSessionID string      `json:"current_office_session_id" db:"current_office_session_id"`
 	CurrentMilSessionID    string      `json:"current_mil_session_id" db:"current_mil_session_id"`
