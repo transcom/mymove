@@ -9,10 +9,10 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { shipmentTypes } from 'constants/shipments';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
-import { createMTOShipment, patchMove, patchMTOShipment } from 'services/internalApi';
+import { createMTOShipment, getAllMoves, patchMove, patchMTOShipment } from 'services/internalApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatDateForSwagger } from 'shared/dates';
-import { updateMTOShipment, updateMove } from 'store/entities/actions';
+import { updateMTOShipment, updateMove, updateAllMoves } from 'store/entities/actions';
 import { DutyLocationShape } from 'types';
 import { MoveShape, ServiceMemberShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
@@ -135,6 +135,10 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
               .then((moveResponse) => {
                 dispatch(updateMove(moveResponse));
                 onShipmentSaveSuccess(shipmentResponse, setSubmitting);
+              })
+              .then(async () => {
+                const allMoves = await getAllMoves(serviceMember.id);
+                dispatch(updateAllMoves(allMoves));
               })
               .catch(() => {
                 setSubmitting(false);
