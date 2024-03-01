@@ -47,21 +47,21 @@ func (suite *ModelSuite) TestCanSaveAndFetchUsPostRegionCity() {
 func (suite *ModelSuite) TestFindCountyByZipCode() {
 	// Create a dummy USPRC
 	usPostRegionCity := models.UsPostRegionCity{
-		UsprZipID:               "12345",
-		USPostRegionCityNm:      "12345 City Name",
-		UsprcPrfdLstLineCtystNm: "12345 Preferred City Name",
-		UsprcCountyNm:           "12345's County",
+		UsprZipID:               "00000",
+		USPostRegionCityNm:      "00000 City Name",
+		UsprcPrfdLstLineCtystNm: "00000 Preferred City Name",
+		UsprcCountyNm:           "00000's County",
 		CtryGencDgphCd:          "US",
 	}
 
 	suite.MustCreate(&usPostRegionCity)
 
-	// Attempt to gather 12345's County from the 12345 zip code
-	county, err := models.FindCountyByZipCode(suite.DB(), "12345")
+	// Attempt to gather 00000's County from the 00000 zip code
+	county, err := models.FindCountyByZipCode(suite.DB(), "00000")
 	suite.NoError(err)
-	suite.Equal("12345's County", county)
+	suite.Equal("00000's County", county)
 
 	// Attempt to gather a non-existant county
-	_, err = models.FindCountyByZipCode(suite.DB(), "00000")
+	_, err = models.FindCountyByZipCode(suite.DB(), "99999")
 	suite.Error(err)
 }
