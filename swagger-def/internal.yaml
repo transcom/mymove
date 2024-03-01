@@ -2095,30 +2095,40 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      pickupAddress:
+        $ref: 'definitions/Address.yaml'
       secondaryPickupPostalCode:
         format: zip
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
         $ref: definitions/NullableString.yaml
+      secondaryPickupAddress:
+        $ref: 'definitions/Address.yaml'
       destinationPostalCode:
         format: zip
         type: string
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      destinationAddress:
+        $ref: 'definitions/Address.yaml'
       secondaryDestinationPostalCode:
         format: zip
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
         $ref: definitions/NullableString.yaml
+      secondaryDestinationAddress:
+        $ref: 'definitions/Address.yaml'
       sitExpected:
         type: boolean
     required:
       - expectedDepartureDate
       - pickupPostalCode
+      - pickupAddress
       - destinationPostalCode
+      - destinationAddress
       - sitExpected
   UpdatePPMShipment:
     type: object
@@ -2141,12 +2151,16 @@ definitions:
         example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
+      pickupAddress:
+        $ref: 'definitions/Address.yaml'
       secondaryPickupPostalCode:
         format: zip
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
         $ref: definitions/NullableString.yaml
+      secondaryPickupAddress:
+        $ref: 'definitions/Address.yaml'
       actualPickupPostalCode:
         description: >
           The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.
@@ -2163,12 +2177,16 @@ definitions:
         example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
+      destinationAddress:
+        $ref: 'definitions/Address.yaml'
       secondaryDestinationPostalCode:
         format: zip
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
         $ref: definitions/NullableString.yaml
+      secondaryDestinationAddress:
+        $ref: 'definitions/Address.yaml'
       actualDestinationPostalCode:
         description: >
           The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.
@@ -2354,6 +2372,8 @@ definitions:
         readOnly: true
       mtoShipments:
         $ref: '#/definitions/MTOShipments'
+      closeoutOffice:
+        $ref: 'definitions/TransportationOffice.yaml'
       eTag:
         type: string
         readOnly: true
@@ -3167,26 +3187,24 @@ paths:
             $ref: '#/definitions/MovePayload'
         '500':
           description: server error
-  /moves/{ppmShipmentId}/shipment_summary_worksheet:
+  /ppm-shipments/{ppmShipmentId}/aoa-packet:
+    parameters:
+      - description: the id for the ppmshipment with aoa to be downloaded
+        in: path
+        name: ppmShipmentId
+        required: true
+        type: string
     get:
-      summary: Returns Shipment Summary Worksheet
-      description: Generates pre-filled PDF using data already collected
-      operationId: showShipmentSummaryWorksheet
+      summary: Downloads AOA Packet form PPMShipment as a PDF
+      description: |
+        ### Functionality
+        This endpoint downloads all uploaded move order documentation combined with the Shipment Summary Worksheet into a single PDF.
+        ### Errors
+        * The PPMShipment must have requested an AOA.
+        * The PPMShipment AOA Request must have been approved.
+      operationId: showAOAPacket
       tags:
-        - moves
-      parameters:
-        - in: path
-          name: ppmShipmentId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the ppmShipment
-        - in: query
-          name: preparationDate
-          type: string
-          format: date
-          required: true
-          description: The preparationDate of PDF
+        - ppm
       produces:
         - application/pdf
       responses:
@@ -3195,19 +3213,20 @@ paths:
             Content-Disposition:
               type: string
               description: File name to download
-          description: Pre-filled worksheet PDF
+          description: AOA PDF
           schema:
             format: binary
             type: file
         '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
+          $ref: '#/responses/InvalidRequest'
         '403':
-          description: user is not authorized
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: internal server error
-
+          $ref: '#/responses/ServerError'
   /documents:
     post:
       summary: Create a new document
@@ -3273,6 +3292,11 @@ paths:
           format: uuid
           required: true
           description: UUID of the upload to be deleted
+        - in: query
+          name: orderId
+          type: string
+          format: uuid
+          description: ID of the order that the upload belongs to
       responses:
         '204':
           description: deleted

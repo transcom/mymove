@@ -2,6 +2,8 @@ package ghcapi
 
 import (
 	"fmt"
+	"io"
+	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -13,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -130,6 +133,53 @@ func (h FinishDocumentReviewHandler) Handle(params ppmdocumentops.FinishDocument
 
 			returnPayload := payloads.PPMShipment(h.FileStorer(), ppmShipment)
 
+			err = h.NotificationSender().SendNotification(appCtx,
+				notifications.NewPpmPacketEmail(ppmShipment.ID),
+			)
+			if err != nil {
+				appCtx.Logger().Error("problem sending email to user", zap.Error(err))
+			}
+
 			return ppmdocumentops.NewFinishDocumentReviewOK().WithPayload(returnPayload), nil
+		})
+}
+
+// ShowAOAPacketHandler returns a Shipment Summary Worksheet PDF
+type showAOAPacketHandler struct {
+	handlers.HandlerConfig
+	services.SSWPPMComputer
+	services.SSWPPMGenerator
+	services.AOAPacketCreator
+}
+
+// Handle returns a generated PDF
+func (h showAOAPacketHandler) Handle(params ppmdocumentops.ShowAOAPacketParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			logger := appCtx.Logger()
+
+			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID)
+			if err != nil {
+				errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
+
+				errPayload := &ghcmessages.Error{Message: &errInstance}
+
+				appCtx.Logger().Error(err.Error())
+				return ppmdocumentops.NewShowAOAPacketBadRequest().WithPayload(errPayload), err
+			}
+
+			AOAPacket, err := h.AOAPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID)
+			if err != nil {
+				logger.Error("Error creating AOA", zap.Error(err))
+				errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
+				errPayload := &ghcmessages.Error{Message: &errInstance}
+				return ppmdocumentops.NewShowAOAPacketInternalServerError().
+					WithPayload(errPayload), err
+			}
+
+			payload := io.NopCloser(AOAPacket)
+			filename := fmt.Sprintf("inline; filename=\"AOA-%s.pdf\"", time.Now().Format("01-02-2006_15-04-05"))
+
+			return ppmdocumentops.NewShowAOAPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
 		})
 }
