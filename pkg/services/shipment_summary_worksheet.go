@@ -63,10 +63,34 @@ type Page1Values struct {
 
 // Page2Values is an object representing a Shipment Summary Worksheet
 type Page2Values struct {
-	CUIBanner       string
-	PreparationDate string
-	TAC             string
-	SAC             string
+	CUIBanner                   string
+	PreparationDate             string
+	TAC                         string
+	SAC                         string
+	ContractedExpenseMemberPaid string
+	ContractedExpenseGTCCPaid   string
+	RentalEquipmentMemberPaid   string
+	RentalEquipmentGTCCPaid     string
+	PackingMaterialsMemberPaid  string
+	PackingMaterialsGTCCPaid    string
+	WeighingFeesMemberPaid      string
+	WeighingFeesGTCCPaid        string
+	GasMemberPaid               string
+	GasGTCCPaid                 string
+	TollsMemberPaid             string
+	TollsGTCCPaid               string
+	OilMemberPaid               string
+	OilGTCCPaid                 string
+	OtherMemberPaid             string
+	OtherGTCCPaid               string
+	TotalMemberPaid             string
+	TotalGTCCPaid               string
+	TotalMemberPaidRepeated     string
+	TotalGTCCPaidRepeated       string
+	TotalPaidNonSIT             string
+	TotalMemberPaidSIT          string
+	TotalGTCCPaidSIT            string
+	TotalPaidSIT                string
 	FormattedMovingExpenses
 	ServiceMemberSignature string
 	SignatureDate          string
@@ -81,30 +105,30 @@ type FormattedOtherExpenses struct {
 
 // FormattedMovingExpenses is an object representing the service member's moving expenses formatted for the SSW
 type FormattedMovingExpenses struct {
-	ContractedExpenseMemberPaid Dollar
-	ContractedExpenseGTCCPaid   Dollar
-	RentalEquipmentMemberPaid   Dollar
-	RentalEquipmentGTCCPaid     Dollar
-	PackingMaterialsMemberPaid  Dollar
-	PackingMaterialsGTCCPaid    Dollar
-	WeighingFeesMemberPaid      Dollar
-	WeighingFeesGTCCPaid        Dollar
-	GasMemberPaid               Dollar
-	GasGTCCPaid                 Dollar
-	TollsMemberPaid             Dollar
-	TollsGTCCPaid               Dollar
-	OilMemberPaid               Dollar
-	OilGTCCPaid                 Dollar
-	OtherMemberPaid             Dollar
-	OtherGTCCPaid               Dollar
-	TotalMemberPaid             Dollar
-	TotalGTCCPaid               Dollar
-	TotalMemberPaidRepeated     Dollar
-	TotalGTCCPaidRepeated       Dollar
-	TotalPaidNonSIT             Dollar
-	TotalMemberPaidSIT          Dollar
-	TotalGTCCPaidSIT            Dollar
-	TotalPaidSIT                Dollar
+	ContractedExpenseMemberPaid string
+	ContractedExpenseGTCCPaid   string
+	RentalEquipmentMemberPaid   string
+	RentalEquipmentGTCCPaid     string
+	PackingMaterialsMemberPaid  string
+	PackingMaterialsGTCCPaid    string
+	WeighingFeesMemberPaid      string
+	WeighingFeesGTCCPaid        string
+	GasMemberPaid               string
+	GasGTCCPaid                 string
+	TollsMemberPaid             string
+	TollsGTCCPaid               string
+	OilMemberPaid               string
+	OilGTCCPaid                 string
+	OtherMemberPaid             string
+	OtherGTCCPaid               string
+	TotalMemberPaid             string
+	TotalGTCCPaid               string
+	TotalMemberPaidRepeated     string
+	TotalGTCCPaidRepeated       string
+	TotalPaidNonSIT             string
+	TotalMemberPaidSIT          string
+	TotalGTCCPaidSIT            string
+	TotalPaidSIT                string
 }
 
 // ShipmentSummaryFormData is a container for the various objects required for the a Shipment Summary Worksheet

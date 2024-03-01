@@ -10,6 +10,7 @@
 package shipmentsummaryworksheet
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -332,7 +333,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		HasDependents:     true,
 		SpouseHasProGear:  true,
 	}
-	paidWithGTCC := false
+	paidWithGTCCFalse := false
+	paidWithGTCCTrue := true
 	tollExpense := models.MovingExpenseReceiptTypeTolls
 	oilExpense := models.MovingExpenseReceiptTypeOil
 	amount := unit.Cents(10000)
@@ -340,37 +342,37 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		{
 			MovingExpenseType: &tollExpense,
 			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
+			PaidWithGTCC:      &paidWithGTCCFalse,
 		},
 		{
 			MovingExpenseType: &oilExpense,
 			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
+			PaidWithGTCC:      &paidWithGTCCFalse,
 		},
 		{
 			MovingExpenseType: &oilExpense,
 			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
+			PaidWithGTCC:      &paidWithGTCCTrue,
 		},
 		{
 			MovingExpenseType: &oilExpense,
 			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
+			PaidWithGTCC:      &paidWithGTCCFalse,
 		},
 		{
 			MovingExpenseType: &tollExpense,
 			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
+			PaidWithGTCC:      &paidWithGTCCTrue,
 		},
 		{
 			MovingExpenseType: &tollExpense,
 			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
+			PaidWithGTCC:      &paidWithGTCCTrue,
 		},
 		{
 			MovingExpenseType: &tollExpense,
 			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
+			PaidWithGTCC:      &paidWithGTCCFalse,
 		},
 	}
 
@@ -378,8 +380,26 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		Order:          order,
 		MovingExpenses: movingExpenses,
 	}
-	sswPage2 := FormatValuesShipmentSummaryWorksheetFormPage2(ssd)
+	fmt.Println("Moving Expenses:")
+	for i, expense := range ssd.MovingExpenses {
+		fmt.Printf("  Expense %d:\n", i+1)
+		fmt.Println("    Moving Expense Type:", *expense.MovingExpenseType)
+		fmt.Println("    Amount:", *expense.Amount)
+		fmt.Println("    Paid With GTCC:", *expense.PaidWithGTCC)
+	}
 
+	maptest := SubTotalExpenses(ssd.MovingExpenses)
+
+	// Print each key-value pair
+	fmt.Println("Subtotal Expenses:")
+	for expenseType, total := range maptest {
+		fmt.Printf("%s: %.2f\n", expenseType, total)
+	}
+	sswPage2 := FormatValuesShipmentSummaryWorksheetFormPage2(ssd)
+	fmt.Println(sswPage2.TollsGTCCPaid)
+	fmt.Println(sswPage2.TollsMemberPaid)
+	fmt.Println(sswPage2.OilMemberPaid)
+	fmt.Println(sswPage2.OilGTCCPaid)
 	suite.Equal("NTA4", sswPage2.TAC)
 	suite.Equal("SAC", sswPage2.SAC)
 

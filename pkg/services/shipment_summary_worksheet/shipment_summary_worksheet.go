@@ -148,10 +148,34 @@ type WorkSheetSIT struct {
 
 // Page2Values is an object representing a Shipment Summary Worksheet
 type Page2Values struct {
-	CUIBanner       string
-	PreparationDate string
-	TAC             string
-	SAC             string
+	CUIBanner                   string
+	PreparationDate             string
+	TAC                         string
+	SAC                         string
+	ContractedExpenseMemberPaid string
+	ContractedExpenseGTCCPaid   string
+	RentalEquipmentMemberPaid   string
+	RentalEquipmentGTCCPaid     string
+	PackingMaterialsMemberPaid  string
+	PackingMaterialsGTCCPaid    string
+	WeighingFeesMemberPaid      string
+	WeighingFeesGTCCPaid        string
+	GasMemberPaid               string
+	GasGTCCPaid                 string
+	TollsMemberPaid             string
+	TollsGTCCPaid               string
+	OilMemberPaid               string
+	OilGTCCPaid                 string
+	OtherMemberPaid             string
+	OtherGTCCPaid               string
+	TotalMemberPaid             string
+	TotalGTCCPaid               string
+	TotalMemberPaidRepeated     string
+	TotalGTCCPaidRepeated       string
+	TotalPaidNonSIT             string
+	TotalMemberPaidSIT          string
+	TotalGTCCPaidSIT            string
+	TotalPaidSIT                string
 	FormattedMovingExpenses
 }
 
@@ -166,30 +190,30 @@ func (d Dollar) String() string {
 
 // FormattedMovingExpenses is an object representing the service member's moving expenses formatted for the SSW
 type FormattedMovingExpenses struct {
-	ContractedExpenseMemberPaid Dollar
-	ContractedExpenseGTCCPaid   Dollar
-	RentalEquipmentMemberPaid   Dollar
-	RentalEquipmentGTCCPaid     Dollar
-	PackingMaterialsMemberPaid  Dollar
-	PackingMaterialsGTCCPaid    Dollar
-	WeighingFeesMemberPaid      Dollar
-	WeighingFeesGTCCPaid        Dollar
-	GasMemberPaid               Dollar
-	GasGTCCPaid                 Dollar
-	TollsMemberPaid             Dollar
-	TollsGTCCPaid               Dollar
-	OilMemberPaid               Dollar
-	OilGTCCPaid                 Dollar
-	OtherMemberPaid             Dollar
-	OtherGTCCPaid               Dollar
-	TotalMemberPaid             Dollar
-	TotalGTCCPaid               Dollar
-	TotalMemberPaidRepeated     Dollar
-	TotalGTCCPaidRepeated       Dollar
-	TotalPaidNonSIT             Dollar
-	TotalMemberPaidSIT          Dollar
-	TotalGTCCPaidSIT            Dollar
-	TotalPaidSIT                Dollar
+	ContractedExpenseMemberPaid string
+	ContractedExpenseGTCCPaid   string
+	RentalEquipmentMemberPaid   string
+	RentalEquipmentGTCCPaid     string
+	PackingMaterialsMemberPaid  string
+	PackingMaterialsGTCCPaid    string
+	WeighingFeesMemberPaid      string
+	WeighingFeesGTCCPaid        string
+	GasMemberPaid               string
+	GasGTCCPaid                 string
+	TollsMemberPaid             string
+	TollsGTCCPaid               string
+	OilMemberPaid               string
+	OilGTCCPaid                 string
+	OtherMemberPaid             string
+	OtherGTCCPaid               string
+	TotalMemberPaid             string
+	TotalGTCCPaid               string
+	TotalMemberPaidRepeated     string
+	TotalGTCCPaidRepeated       string
+	TotalPaidNonSIT             string
+	TotalMemberPaidSIT          string
+	TotalGTCCPaidSIT            string
+	TotalPaidSIT                string
 }
 
 // FormattedOtherExpenses is an object representing the other moving expenses formatted for the SSW
@@ -411,11 +435,28 @@ func FormatGrade(grade *internalmessages.OrderPayGrade) string {
 
 // FormatValuesShipmentSummaryWorksheetFormPage2 formats the data for page 2 of the Shipment Summary Worksheet
 func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummaryFormData) services.Page2Values {
+
+	expensesMap := SubTotalExpenses(data.MovingExpenses)
+
 	page2 := services.Page2Values{}
 	page2.CUIBanner = controlledUnclassifiedInformationText
 	page2.TAC = derefStringTypes(data.Order.TAC)
 	page2.SAC = derefStringTypes(data.Order.SAC)
 	page2.PreparationDate = FormatDate(data.PreparationDate)
+	page2.ContractedExpenseMemberPaid = FormatDollars(expensesMap["ContractedExpenseMemberPaid"])
+	page2.ContractedExpenseGTCCPaid = FormatDollars(expensesMap["ContractedExpenseGTCCPaid"])
+	page2.PackingMaterialsMemberPaid = FormatDollars(expensesMap["PackingMaterialsMemberPaid"])
+	page2.PackingMaterialsGTCCPaid = FormatDollars(expensesMap["PackingMaterialsGTCCPaid"])
+	page2.WeighingFeesMemberPaid = FormatDollars(expensesMap["WeighingFeeMemberPaid"])
+	page2.WeighingFeesGTCCPaid = FormatDollars(expensesMap["WeighingFeeGTCCPaid"])
+	page2.GasMemberPaid = FormatDollars(expensesMap["GasMemberPaid"])
+	page2.GasGTCCPaid = FormatDollars(expensesMap["GasGTCCPaid"])
+	page2.TollsMemberPaid = FormatDollars(expensesMap["TollsMemberPaid"])
+	page2.TollsGTCCPaid = FormatDollars(expensesMap["TollsGTCCPaid"])
+	page2.OilMemberPaid = FormatDollars(expensesMap["OilMemberPaid"])
+	page2.OilGTCCPaid = FormatDollars(expensesMap["OilGTCCPaid"])
+	page2.OtherMemberPaid = FormatDollars(expensesMap["OtherMemberPaid"])
+	page2.OtherGTCCPaid = FormatDollars(expensesMap["OtherGTCCPaid"])
 	page2.TotalMemberPaidRepeated = page2.TotalMemberPaid
 	page2.TotalGTCCPaidRepeated = page2.TotalGTCCPaid
 	page2.ServiceMemberSignature = FormatSignature(data.ServiceMember)
@@ -551,6 +592,8 @@ func SubTotalExpenses(expenseDocuments models.MovingExpenses) map[string]float64
 		expenseType = getExpenseType(expense)
 		expenseDollarAmt := expense.Amount.ToDollarFloatNoRound()
 		totals[expenseType] += expenseDollarAmt
+		println(expenseType)
+		println(expenseDollarAmt)
 		// addToGrandTotal(totals, expenseType, expenseDollarAmt)
 	}
 	return totals
@@ -717,6 +760,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		"Shipment.MoveTaskOrder.Orders.NewDutyLocation.Address",
 		"Shipment.MoveTaskOrder.Orders.OriginDutyLocation.Address",
 		"W2Address",
+		"MovingExpenses",
 	).Find(&ppmShipment, ppmShipmentID)
 
 	if dbQErr != nil {
@@ -765,6 +809,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		WeightAllotment:         weightAllotment,
 		PPMShipments:            ppmShipments,
 		W2Address:               ppmShipment.W2Address,
+		MovingExpenses:          ppmShipment.MovingExpenses,
 		SignedCertification:     *signedCertification,
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
 	}
