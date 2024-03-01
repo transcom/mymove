@@ -46,6 +46,7 @@ type SSWPPMGenerator struct {
 
 // NewSSWPPMGenerator creates a SSWPPMGenerator
 func NewSSWPPMGenerator() (services.SSWPPMGenerator, error) {
+	// Generator and dependencies must be initiated to handle memory filesystem for AWS
 	storer := storage.NewMemory(storage.NewMemoryParams("", ""))
 	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
