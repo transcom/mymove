@@ -1,4 +1,4 @@
-CREATE TABLE privileges (
+CREATE TABLE IF NOT EXISTS privileges (
     id uuid NOT NULL,
 	privilege_type text NULL,
 	created_at timestamp NOT NULL,
@@ -16,7 +16,7 @@ COMMENT ON COLUMN privileges.privilege_name IS 'The reader-friendly capitalized 
 
 INSERT INTO privileges VALUES ('463c2034-d197-4d9a-897e-8bbe64893a31', 'supervisor', now(), now(), 'Supervisor');
 
-CREATE TABLE users_privileges (
+CREATE TABLE IF NOT EXISTS users_privileges (
 	user_id uuid NOT NULL,
 	privilege_id uuid NOT NULL,
 	id uuid NOT NULL,
