@@ -3759,7 +3759,7 @@ func MakeHHGMoveInSIT(appCtx appcontext.AppContext) models.Move {
 		},
 	}, nil)
 
-	twoMonthsAgo := now.AddDate(0, -2, -60)
+	twoMonthsAgo := now.AddDate(0, 0, -60)
 	oneMonthAgo := now.AddDate(0, 0, -30)
 	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
 	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
