@@ -84,7 +84,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 		suite.Equal("CA", address.State)
 		suite.Equal("94535", address.PostalCode)
 		suite.Equal("US", *address.Country)
-		suite.Equal("St. Clair", *address.County)
+		suite.Equal("SOLANO", *address.County)
 	})
 
 	suite.Run("Successful creation of address with both", func() {
@@ -110,7 +110,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 		suite.Equal("IA", address.State)
 		suite.Equal("50309", address.PostalCode)
 		suite.Equal("US", *address.Country)
-		suite.Equal("St. Clair", *address.County)
+		suite.Equal("POLK", *address.County)
 	})
 
 	suite.Run("Successful creation of stubbed address", func() {
@@ -139,7 +139,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 		suite.Equal("TX", address.State)
 		suite.Equal("77083", address.PostalCode)
 		suite.Equal("US", *address.Country)
-		suite.Equal("St. Clair", *address.County)
+		suite.Equal("db nil when created", *address.County)
 
 		// Count how many addresses are in the DB, no new addresses should have been created
 		count, err := suite.DB().Count(&models.Address{})
