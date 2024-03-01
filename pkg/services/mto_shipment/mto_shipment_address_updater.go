@@ -45,7 +45,7 @@ func isAddressOnShipment(address *models.Address, mtoShipment *models.MTOShipmen
 	return false
 }
 
-func UpdateSITServiceItemSITDeliveryMiles(planner route.Planner, mtoServiceItems *models.MTOServiceItems, newAddress *models.Address, oldAddress *models.Address, appCtx appcontext.AppContext) (*models.MTOServiceItems, error) {
+func UpdateOriginSITServiceItemSITDeliveryMiles(planner route.Planner, mtoServiceItems *models.MTOServiceItems, newAddress *models.Address, oldAddress *models.Address, appCtx appcontext.AppContext) (*models.MTOServiceItems, error) {
 	// Change the SITDeliveryMiles of origin SIT service items
 	var updatedMtoServiceItems models.MTOServiceItems
 
@@ -64,10 +64,10 @@ func UpdateSITServiceItemSITDeliveryMiles(planner route.Planner, mtoServiceItems
 
 			updatedMtoServiceItems = append(updatedMtoServiceItems, serviceItem)
 			transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
-				// update service item final destination address ID to match shipment address ID
+				// update service item SITDeliveryMiles
 				verrs, err := txnCtx.DB().ValidateAndUpdate(&serviceItem)
 				if verrs != nil && verrs.HasAny() {
-					return apperror.NewInvalidInputError(newAddress.ID, err, verrs, "invalid input found while updating final destination address of service item")
+					return apperror.NewInvalidInputError(newAddress.ID, err, verrs, "invalid input found while updating SIT delivery miles for service item")
 				} else if err != nil {
 					return apperror.NewQueryError("Service item", err, "")
 				}
@@ -194,7 +194,7 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 		return nil, apperror.NewQueryError("No updated service items on shipment address change", err, "")
 	}
 
-	_, err = UpdateSITServiceItemSITDeliveryMiles(f.planner, &mtoShipment.MTOServiceItems, newAddress, &oldAddress, appCtx)
+	_, err = UpdateOriginSITServiceItemSITDeliveryMiles(f.planner, &mtoShipment.MTOServiceItems, newAddress, &oldAddress, appCtx)
 	if err != nil {
 		return nil, apperror.NewQueryError("No updated service items on shipment address change", err, "")
 	}

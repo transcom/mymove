@@ -117,4 +117,60 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			suite.Equal(externalShipment.DestinationAddressID, mtoServiceItem.SITDestinationFinalAddressID)
 		}
 	})
+
+	suite.Run("Test updating origin SITDeliveryMiles on shipment pickup address change", func() {
+		availableToPrimeMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		address := factory.BuildAddress(suite.DB(), nil, nil)
+
+		externalShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    availableToPrimeMove,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
+					UsesExternalVendor: true,
+					Status:             models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    address,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		threeMonthsAgo := time.Now().AddDate(0, -3, 0)
+		twoMonthsAgo := threeMonthsAgo.AddDate(0, 1, 0)
+		sitServiceItems := factory.BuildOriginSITServiceItems(suite.DB(), availableToPrimeMove, externalShipment, &threeMonthsAgo, &twoMonthsAgo)
+		sitServiceItems = append(sitServiceItems, factory.BuildDestSITServiceItems(suite.DB(), availableToPrimeMove, externalShipment, &twoMonthsAgo, nil)...)
+		suite.Equal(8, len(sitServiceItems))
+
+		eTag := etag.GenerateEtag(address.UpdatedAt)
+
+		oldAddress := address
+		oldAddress.PostalCode = "75116"
+		newAddress := address
+		newAddress.PostalCode = "67492"
+
+		//  With mustBeAvailableToPrime = true, we should receive an error
+		_, err := mtoShipmentAddressUpdater.UpdateMTOShipmentAddress(suite.AppContextForTest(), &newAddress, externalShipment.ID, eTag, true)
+		if suite.Error(err) {
+			suite.IsType(apperror.NotFoundError{}, err)
+			suite.Contains(err.Error(), "looking for mtoShipment")
+		}
+
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(465, nil)
+		mtoServiceItems, _ := UpdateOriginSITServiceItemSITDeliveryMiles(planner, &sitServiceItems, &newAddress, &oldAddress, suite.AppContextForTest())
+		suite.Equal(4, len(*mtoServiceItems))
+		for _, mtoServiceItem := range *mtoServiceItems {
+			suite.Equal(*mtoServiceItem.SITDeliveryMiles, 465)
+		}
+	})
 }
