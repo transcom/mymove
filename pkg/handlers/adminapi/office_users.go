@@ -105,6 +105,7 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 
 			queryAssociations := query.NewQueryAssociationsPreload([]services.QueryAssociation{
 				query.NewQueryAssociation("User.Roles"),
+				query.NewQueryAssociation("User.Privileges"),
 			})
 
 			var officeUsers models.OfficeUsers
@@ -160,6 +161,12 @@ func (h GetOfficeUserHandler) Handle(params officeuserop.GetOfficeUserParams) mi
 				All(&officeUser.User.Roles)
 			if roleError != nil {
 				return handlers.ResponseForError(appCtx.Logger(), roleError), roleError
+			}
+			privilegeError := appCtx.DB().Q().Join("users_privileges", "users_privileges.privilege_id = privileges.id").
+				Where("users_privileges.deleted_at IS NULL AND users_privileges.user_id = ?", (officeUser.User.ID)).
+				All(&officeUser.User.Privileges)
+			if privilegeError != nil {
+				return handlers.ResponseForError(appCtx.Logger(), privilegeError), privilegeError
 			}
 			payload := payloadForOfficeUserModel(officeUser)
 
