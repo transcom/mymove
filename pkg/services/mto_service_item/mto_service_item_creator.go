@@ -15,7 +15,6 @@ import (
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 type createMTOServiceItemQueryBuilder interface {
@@ -199,8 +198,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 
 	milesCalculated, err := o.calculateSITDeliveryMiles(appCtx, serviceItem, mtoShipment)
 	if milesCalculated > 0 {
-		deliveryMiles := unit.Miles(milesCalculated)
-		serviceItem.SITDeliveryMiles = &deliveryMiles
+		serviceItem.SITDeliveryMiles = &milesCalculated
 	}
 
 	updateShipmentPickupAddress := false

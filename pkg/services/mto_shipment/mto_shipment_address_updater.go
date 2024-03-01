@@ -11,17 +11,19 @@ import (
 	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 )
 
 // mtoShipmentAddressUpdater handles the db connection
 type mtoShipmentAddressUpdater struct {
+	planner route.Planner
 }
 
 // NewMTOShipmentAddressUpdater updates the address for an MTO Shipment
-func NewMTOShipmentAddressUpdater() services.MTOShipmentAddressUpdater {
-	return mtoShipmentAddressUpdater{}
+func NewMTOShipmentAddressUpdater(planner route.Planner) services.MTOShipmentAddressUpdater {
+	return mtoShipmentAddressUpdater{planner: planner}
 }
 
 // isAddressOnShipment returns true if address is associated with the shipment, false if not
@@ -41,6 +43,46 @@ func isAddressOnShipment(address *models.Address, mtoShipment *models.MTOShipmen
 		}
 	}
 	return false
+}
+
+func UpdateSITServiceItemSITDeliveryMiles(planner route.Planner, mtoServiceItems *models.MTOServiceItems, newAddress *models.Address, oldAddress *models.Address, appCtx appcontext.AppContext) (*models.MTOServiceItems, error) {
+	// Change the SITDeliveryMiles of origin SIT service items
+	var updatedMtoServiceItems models.MTOServiceItems
+
+	for _, s := range *mtoServiceItems {
+		serviceItem := s
+		reServiceCode := serviceItem.ReService.Code
+		if reServiceCode == models.ReServiceCodeDOPSIT ||
+			reServiceCode == models.ReServiceCodeDOFSIT ||
+			reServiceCode == models.ReServiceCodeDOASIT ||
+			reServiceCode == models.ReServiceCodeDOSFSC {
+
+			milesCalculated, err := planner.ZipTransitDistance(appCtx, oldAddress.PostalCode, newAddress.PostalCode)
+			if err == nil {
+				serviceItem.SITDeliveryMiles = &milesCalculated
+			}
+
+			updatedMtoServiceItems = append(updatedMtoServiceItems, serviceItem)
+			transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
+				// update service item final destination address ID to match shipment address ID
+				verrs, err := txnCtx.DB().ValidateAndUpdate(&serviceItem)
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(newAddress.ID, err, verrs, "invalid input found while updating final destination address of service item")
+				} else if err != nil {
+					return apperror.NewQueryError("Service item", err, "")
+				}
+
+				return nil
+			})
+
+			// if there was a transaction error, we'll return nothing but the error
+			if transactionError != nil {
+				return nil, transactionError
+			}
+		}
+	}
+
+	return &updatedMtoServiceItems, nil
 }
 
 func UpdateSITServiceItemDestinationAddressToMTOShipmentAddress(mtoServiceItems *models.MTOServiceItems, newAddress *models.Address, appCtx appcontext.AppContext) (*models.MTOServiceItems, error) {
@@ -148,6 +190,11 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.Ap
 	}
 
 	_, err = UpdateSITServiceItemDestinationAddressToMTOShipmentAddress(&mtoShipment.MTOServiceItems, newAddress, appCtx)
+	if err != nil {
+		return nil, apperror.NewQueryError("No updated service items on shipment address change", err, "")
+	}
+
+	_, err = UpdateSITServiceItemSITDeliveryMiles(f.planner, &mtoShipment.MTOServiceItems, newAddress, &oldAddress, appCtx)
 	if err != nil {
 		return nil, apperror.NewQueryError("No updated service items on shipment address change", err, "")
 	}

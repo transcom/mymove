@@ -3,14 +3,23 @@ package mtoshipment
 import (
 	"time"
 
+	"github.com/stretchr/testify/mock"
+
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route/mocks"
 )
 
 func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
-	mtoShipmentAddressUpdater := NewMTOShipmentAddressUpdater()
+	planner := &mocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	mtoShipmentAddressUpdater := NewMTOShipmentAddressUpdater(planner)
 
 	// TESTCASE SCENARIO
 	// Under test: UpdateMTOShipmentAddress
