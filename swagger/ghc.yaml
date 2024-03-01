@@ -803,6 +803,8 @@ paths:
         * Customer Remarks
         * Counselor Remarks
         * Releasing / Receiving agents
+        * Actual Pro Gear Weight
+        * Actual Spouse Pro Gear Weight
       consumes:
         - application/json
       produces:
@@ -4535,6 +4537,14 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      actualProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
       destinationType:
         $ref: '#/definitions/DestinationType'
       agents:
@@ -7414,6 +7424,14 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
+      actualProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
       customerRemarks:
         type: string
         example: handle with care
