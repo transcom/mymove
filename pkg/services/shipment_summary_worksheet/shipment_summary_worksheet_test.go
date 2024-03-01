@@ -660,11 +660,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignatureDate() {
 	signature := models.SignedCertification{
 		Date: signatureDate,
 	}
-	sswfd := ShipmentSummaryFormData{
-		SignedCertification: signature,
-	}
 
-	formattedDate := FormatSignatureDate(sswfd.SignedCertification)
+	formattedDate := FormatSignatureDate(signature.Date)
 
 	suite.Equal("26 Jan 2019 at 2:40pm", formattedDate)
 }

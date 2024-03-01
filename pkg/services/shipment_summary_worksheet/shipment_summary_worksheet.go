@@ -419,7 +419,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 	page2.TotalMemberPaidRepeated = page2.TotalMemberPaid
 	page2.TotalGTCCPaidRepeated = page2.TotalGTCCPaid
 	page2.ServiceMemberSignature = FormatSignature(data.ServiceMember)
-	page2.SignatureDate = FormatSignatureDate(data.SignedCertification)
+	page2.SignatureDate = FormatSignatureDate(data.SignedCertification.UpdatedAt)
 	return page2
 }
 
@@ -432,9 +432,9 @@ func FormatSignature(sm models.ServiceMember) string {
 }
 
 // FormatSignatureDate formats the date the service member electronically signed for the Shipment Summary Worksheet
-func FormatSignatureDate(signature models.SignedCertification) string {
+func FormatSignatureDate(signature time.Time) string {
 	dateLayout := "02 Jan 2006 at 3:04pm"
-	dt := signature.Date.Format(dateLayout)
+	dt := signature.Format(dateLayout)
 	return dt
 }
 
@@ -738,15 +738,17 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		return nil, err
 	}
 
-	// Signed Certification needs to be updated
-	// signedCertification, err := models.FetchSignedCertificationsPPMPayment(appCtx.DB(), session, ppmShipment.Shipment.MoveTaskOrderID)
-	// if err != nil {
-	// 	return ShipmentSummaryFormData{}, err
-	// }
-	// if signedCertification == nil {
-	// 	return ShipmentSummaryFormData{},
-	// 		errors.New("shipment summary worksheet: signed certification is nil")
-	// }
+	// DOES NOT INCLUDE PPPO/PPSO SIGNATURE
+	signedCertifications, err := models.FetchSignedCertifications(appCtx.DB(), auth.SessionFromContext(appCtx.DB().Context()), ppmShipment.Shipment.MoveTaskOrderID)
+	if err != nil {
+		return nil, err
+	}
+	if signedCertifications == nil {
+		return nil,
+			errors.New("shipment summary worksheet: signed certification is nil")
+	}
+
+	signedCertification := signedCertifications[0]
 
 	var ppmShipments []models.PPMShipment
 
@@ -755,15 +757,15 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		return nil, errors.New("order for PPM shipment does not have a origin duty location attached")
 	}
 	ssd := services.ShipmentSummaryFormData{
-		ServiceMember:       serviceMember,
-		Order:               ppmShipment.Shipment.MoveTaskOrder.Orders,
-		Move:                ppmShipment.Shipment.MoveTaskOrder,
-		CurrentDutyLocation: *ppmShipment.Shipment.MoveTaskOrder.Orders.OriginDutyLocation,
-		NewDutyLocation:     ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation,
-		WeightAllotment:     weightAllotment,
-		PPMShipments:        ppmShipments,
-		W2Address:           ppmShipment.W2Address,
-		// SignedCertification:     *signedCertification,
+		ServiceMember:           serviceMember,
+		Order:                   ppmShipment.Shipment.MoveTaskOrder.Orders,
+		Move:                    ppmShipment.Shipment.MoveTaskOrder,
+		CurrentDutyLocation:     *ppmShipment.Shipment.MoveTaskOrder.Orders.OriginDutyLocation,
+		NewDutyLocation:         ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation,
+		WeightAllotment:         weightAllotment,
+		PPMShipments:            ppmShipments,
+		W2Address:               ppmShipment.W2Address,
+		SignedCertification:     *signedCertification,
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
 	}
 	return &ssd, nil
