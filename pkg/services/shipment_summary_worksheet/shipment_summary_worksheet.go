@@ -457,6 +457,10 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 	page2.OilGTCCPaid = FormatDollars(expensesMap["OilGTCCPaid"])
 	page2.OtherMemberPaid = FormatDollars(expensesMap["OtherMemberPaid"])
 	page2.OtherGTCCPaid = FormatDollars(expensesMap["OtherGTCCPaid"])
+	page2.TotalMemberPaid = FormatDollars(expensesMap["TotalMemberPaid"])
+	page2.TotalGTCCPaid = FormatDollars(expensesMap["TotalGTCCPaid"])
+	page2.TotalMemberPaidRepeated = FormatDollars(expensesMap["TotalMemberPaid"])
+	page2.TotalGTCCPaidRepeated = FormatDollars(expensesMap["TotalGTCCPaid"])
 	page2.TotalMemberPaidRepeated = page2.TotalMemberPaid
 	page2.TotalGTCCPaidRepeated = page2.TotalGTCCPaid
 	page2.ServiceMemberSignature = FormatSignature(data.ServiceMember)
@@ -590,11 +594,22 @@ func SubTotalExpenses(expenseDocuments models.MovingExpenses) map[string]float64
 	totals := make(map[string]float64)
 	for _, expense := range expenseDocuments {
 		expenseType = getExpenseType(expense)
+		paidWithGTCC := expense.PaidWithGTCC
 		expenseDollarAmt := expense.Amount.ToDollarFloatNoRound()
 		totals[expenseType] += expenseDollarAmt
+		// This is a working system of checks for gathering totals.
+		//It could be improved upon so it's not making the same checks twice with getExpenseType.
+		if paidWithGTCC != nil {
+			if *paidWithGTCC {
+				totals["TotalGTCCPaid"] += expenseDollarAmt
+			} else {
+				totals["TotalMemberPaid"] += expenseDollarAmt
+			}
+		} else {
+			totals["TotalMemberPaid"] += expenseDollarAmt
+		}
 		println(expenseType)
 		println(expenseDollarAmt)
-		// addToGrandTotal(totals, expenseType, expenseDollarAmt)
 	}
 	return totals
 }
