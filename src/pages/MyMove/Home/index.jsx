@@ -3,7 +3,7 @@ import { arrayOf, bool, func, node, shape, string } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { Alert, Button } from '@trussworks/react-uswds';
-import { generatePath } from 'react-router-dom';
+import { generatePath, Link } from 'react-router-dom';
 
 import styles from './Home.module.scss';
 import {
@@ -30,7 +30,7 @@ import MOVE_STATUSES from 'constants/moves';
 import { customerRoutes } from 'constants/routes';
 import { ppmShipmentStatuses, shipmentTypes } from 'constants/shipments';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { deleteMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
+import { deleteMTOShipment, getMTOShipmentsForMove, downloadPPMAOAPacket } from 'services/internalApi';
 import { withContext } from 'shared/AppContext';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import {
@@ -52,9 +52,11 @@ import { MoveShape, OrdersShape, UploadShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import { formatCustomerDate, formatWeight } from 'utils/formatters';
 import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete } from 'utils/shipments';
+import { downloadPPMAOAPacketOnSuccessHandler } from 'utils/download';
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types/router';
 import { ADVANCE_STATUSES } from 'constants/ppms';
+import DownloadAOAErrorModal from 'shared/DownloadAOAErrorModal/DownloadAOAErrorModal';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -81,6 +83,7 @@ export class Home extends Component {
       targetShipmentId: null,
       showDeleteSuccessAlert: false,
       showDeleteErrorAlert: false,
+      showDownloadPPMAOAPaperworkErrorAlert: false,
     };
   }
 
@@ -354,6 +357,23 @@ export class Home extends Component {
     navigate(path);
   };
 
+  toggleDownloadAOAErrorModal = () => {
+    this.setState((prevState) => ({
+      showDownloadPPMAOAPaperworkErrorAlert: !prevState.showDownloadPPMAOAPaperworkErrorAlert,
+    }));
+  };
+
+  // eslint-disable-next-line class-methods-use-this
+  handlePPMAOAPacketDownloadClick = (shipmentId) => {
+    downloadPPMAOAPacket(shipmentId)
+      .then((response) => {
+        downloadPPMAOAPacketOnSuccessHandler(response);
+      })
+      .catch(() => {
+        this.toggleDownloadAOAErrorModal();
+      });
+  };
+
   // eslint-disable-next-line class-methods-use-this
   sortAllShipments = (mtoShipments) => {
     const allShipments = JSON.parse(JSON.stringify(mtoShipments));
@@ -369,10 +389,23 @@ export class Home extends Component {
   };
 
   render() {
-    const { isProfileComplete, move, mtoShipments, serviceMember, signedCertification, uploadedOrderDocuments } =
-      this.props;
+    const {
+      isProfileComplete,
+      move,
+      mtoShipments,
+      serviceMember,
+      signedCertification,
+      uploadedOrderDocuments,
+      orders,
+    } = this.props;
 
-    const { showDeleteModal, targetShipmentId, showDeleteSuccessAlert, showDeleteErrorAlert } = this.state;
+    const {
+      showDeleteModal,
+      targetShipmentId,
+      showDeleteSuccessAlert,
+      showDeleteErrorAlert,
+      showDownloadPPMAOAPaperworkErrorAlert,
+    } = this.state;
 
     // early return if loading user/service member
     if (!serviceMember) {
@@ -387,7 +420,7 @@ export class Home extends Component {
 
     // eslint-disable-next-line camelcase
     const { current_location } = serviceMember;
-    const ordersPath = this.hasOrdersNoUpload ? customerRoutes.ORDERS_UPLOAD_PATH : customerRoutes.ORDERS_INFO_PATH;
+    const ordersPath = this.hasOrdersNoUpload ? `/orders/upload/${orders.id}` : `/orders/add/`;
 
     const shipmentSelectionPath =
       move?.id &&
@@ -397,8 +430,8 @@ export class Home extends Component {
 
     const confirmationPath = move?.id && generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId: move.id });
     const profileEditPath = customerRoutes.PROFILE_PATH;
-    const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
-    const ordersAmendPath = customerRoutes.ORDERS_AMEND_PATH;
+    const ordersEditPath = `/move/${move.id}/review/edit-orders/${orders.id}`;
+    const ordersAmendPath = `/orders/amend/${orders.id}`;
     const allSortedShipments = this.sortAllShipments(mtoShipments);
     const ppmShipments = allSortedShipments.filter((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.PPM);
 
@@ -417,6 +450,10 @@ export class Home extends Component {
           content="Your information will be gone. You’ll need to start over if you want it back."
           submitText="Yes, Delete"
           closeText="No, Keep It"
+        />
+        <DownloadAOAErrorModal
+          isOpen={showDownloadPPMAOAPaperworkErrorAlert}
+          closeModal={this.toggleDownloadAOAErrorModal}
         />
         <div className={styles.homeContainer}>
           <header data-testid="customer-header" className={styles['customer-header']}>
@@ -593,11 +630,12 @@ export class Home extends Component {
                                     {` ${shipmentNumber} `}
                                   </strong>
                                   {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue && (
-                                    // TODO: B-18060 will add link to method that will create the AOA packet and return for download
                                     <p className={styles.downloadLink}>
-                                      <a href="">
-                                        <span>Download AOA Paperwork (PDF)</span>
-                                      </a>
+                                      <Link
+                                        onClick={() => this.handlePPMAOAPacketDownloadClick(shipment?.ppmShipment.id)}
+                                      >
+                                        Download AOA Paperwork (PDF)
+                                      </Link>
                                     </p>
                                   )}
                                   {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.REJECTED.apiValue && (
