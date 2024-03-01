@@ -389,8 +389,15 @@ export class Home extends Component {
   };
 
   render() {
-    const { isProfileComplete, move, mtoShipments, serviceMember, signedCertification, uploadedOrderDocuments } =
-      this.props;
+    const {
+      isProfileComplete,
+      move,
+      mtoShipments,
+      serviceMember,
+      signedCertification,
+      uploadedOrderDocuments,
+      orders,
+    } = this.props;
 
     const {
       showDeleteModal,
@@ -413,7 +420,7 @@ export class Home extends Component {
 
     // eslint-disable-next-line camelcase
     const { current_location } = serviceMember;
-    const ordersPath = this.hasOrdersNoUpload ? customerRoutes.ORDERS_UPLOAD_PATH : customerRoutes.ORDERS_INFO_PATH;
+    const ordersPath = this.hasOrdersNoUpload ? `/orders/upload/${orders.id}` : `/orders/add/`;
 
     const shipmentSelectionPath =
       move?.id &&
@@ -423,8 +430,8 @@ export class Home extends Component {
 
     const confirmationPath = move?.id && generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId: move.id });
     const profileEditPath = customerRoutes.PROFILE_PATH;
-    const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
-    const ordersAmendPath = customerRoutes.ORDERS_AMEND_PATH;
+    const ordersEditPath = `/move/${move.id}/review/edit-orders/${orders.id}`;
+    const ordersAmendPath = `/orders/amend/${orders.id}`;
     const allSortedShipments = this.sortAllShipments(mtoShipments);
     const ppmShipments = allSortedShipments.filter((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.PPM);
 

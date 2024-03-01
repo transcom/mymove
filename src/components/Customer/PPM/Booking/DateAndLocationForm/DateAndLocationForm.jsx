@@ -59,7 +59,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
     secondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode || '',
     sitExpected: mtoShipment?.ppmShipment?.sitExpected ? 'true' : 'false',
     expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
-    closeoutOffice: move?.closeout_office,
+    closeoutOffice: move?.closeoutOffice,
   };
 
   if (mtoShipment?.ppmShipment?.pickupAddress) {
