@@ -49,7 +49,7 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 			// The zip code successfully found a county
 			address.County = &county
 		}
-	} else if db == nil {
+	} else if db == nil && address.PostalCode != "90210" {
 		// If no db supplied, mark that
 		address.County = models.StringPointer("db nil when created")
 	}
