@@ -142,6 +142,11 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 				appCtx.Logger().Error("ghcapi.UpdateMoveTaskOrderStatusHandlerFunc could not generate the event")
 			}
 
+			err = h.NotificationSender().SendNotification(appCtx, notifications.NewMoveCounseled(moveTaskOrderID))
+			if err != nil {
+				appCtx.Logger().Error("problem sending email to user", zap.Error(err))
+			}
+
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusOK().WithPayload(moveTaskOrderPayload), nil
 		})
 }
