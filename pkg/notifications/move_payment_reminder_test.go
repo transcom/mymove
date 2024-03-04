@@ -310,7 +310,8 @@ To request payment, you should have copies of:</p>
 <ul>
 <li>       Weight tickets from certified scales, documenting empty and full weights for all vehicles and
 trailers you used for your move.</li>
-<li>       Receipts for reimbursable expenses (see our moving tips PDF for more info ` + paymentReminderData.OneSourceLink + `)</li>
+<li>       Receipts for reimbursable expenses (see our moving tips PDF for more info <a href="` +
+		paymentReminderData.OneSourceLink + `">` + paymentReminderData.OneSourceLink + `)</a></li>
 </ul>
 
 <p>MilMove will ask you to upload copies of your documents as you complete your payment request.
