@@ -821,7 +821,7 @@ export const useGHCGetMoveHistory = ({
   };
 };
 
-export const useQAECSRMoveSearchQueries = ({
+export const useMoveSearchQueries = ({
   sort,
   order,
   filters = [],
