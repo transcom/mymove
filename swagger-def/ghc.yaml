@@ -5023,6 +5023,18 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      requestedPickupDate:
+        type: string
+        format: date
+        x-nullable: true
+      requestedDeliveryDate:
+        type: string
+        format: date
+        x-nullable: true
+      originGBLOC:
+        $ref: '#/definitions/GBLOC'
+      destinationGBLOC:
+        $ref: '#/definitions/GBLOC'
   SearchMovesResult:
     type: object
     properties:

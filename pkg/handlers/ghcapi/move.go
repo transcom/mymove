@@ -79,7 +79,7 @@ func (h SearchMovesHandler) Handle(params moveop.SearchMovesParams) middleware.R
 				return moveop.NewSearchMovesInternalServerError(), err
 			}
 
-			searchMoves := payloads.SearchMoves(moves)
+			searchMoves := payloads.SearchMoves(appCtx, moves)
 			payload := &ghcmessages.SearchMovesResult{
 				Page:        searchMovesParams.Page,
 				PerPage:     searchMovesParams.PerPage,
