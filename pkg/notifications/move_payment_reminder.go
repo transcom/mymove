@@ -109,6 +109,7 @@ func (m PaymentReminder) formatEmails(appCtx appcontext.AppContext, PaymentRemin
 	var emails []emailContent
 	for _, PaymentReminderEmailInfo := range PaymentReminderEmailInfos {
 		htmlBody, textBody, err := m.renderTemplates(appCtx, PaymentReminderEmailData{
+			OriginDutyLocation:      PaymentReminderEmailInfo.OriginDutyLocationName,
 			DestinationDutyLocation: PaymentReminderEmailInfo.NewDutyLocationName,
 			Locator:                 PaymentReminderEmailInfo.Locator,
 			OneSourceLink:           OneSourceTransportationOfficeLink,
@@ -172,6 +173,7 @@ func (m PaymentReminder) OnSuccess(appCtx appcontext.AppContext, PaymentReminder
 
 // PaymentReminderEmailData is used to render an email template
 type PaymentReminderEmailData struct {
+	OriginDutyLocation      string
 	DestinationDutyLocation string
 	Locator                 string
 	OneSourceLink           string
