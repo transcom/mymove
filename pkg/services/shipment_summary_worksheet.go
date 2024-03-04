@@ -34,7 +34,7 @@ type Page1Values struct {
 	AuthorizedDestination           string
 	NewDutyAssignment               string
 	WeightAllotment                 string
-	WeightAllotmentProgear          string
+	WeightAllotmentProGear          string
 	WeightAllotmentProgearSpouse    string
 	TotalWeightAllotment            string
 	POVAuthorized                   string

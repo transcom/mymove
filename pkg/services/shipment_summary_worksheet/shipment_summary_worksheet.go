@@ -383,7 +383,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.NewDutyAssignment = data.NewDutyLocation.Name
 
 	page1.WeightAllotment = FormatWeights(data.WeightAllotment.Entitlement)
-	page1.WeightAllotmentProgear = FormatWeights(data.WeightAllotment.ProGear)
+	page1.WeightAllotmentProGear = FormatWeights(data.WeightAllotment.ProGear)
 	page1.WeightAllotmentProgearSpouse = FormatWeights(data.WeightAllotment.SpouseProGear)
 	page1.TotalWeightAllotment = FormatWeights(data.WeightAllotment.TotalWeight)
 
@@ -486,12 +486,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 }
 
 func FormatAgentInfo(agentArray []models.MTOAgent) Agent {
-	agentObject := Agent{
-		Name:  "",
-		Email: "",
-		Date:  "",
-		Phone: "",
-	}
+	agentObject := Agent{}
 	if len(agentArray) > 0 {
 		agent := agentArray[0]
 		// Check if both first name and last name are provided
@@ -862,7 +857,10 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 	}
 
 	weightAllotment := SSWGetEntitlement(*ppmShipment.Shipment.MoveTaskOrder.Orders.Grade, ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear)
-
+	println(weightAllotment.Entitlement)
+	println(weightAllotment.ProGear)
+	println(weightAllotment.SpouseProGear)
+	println(weightAllotment.TotalWeight)
 	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(ppmShipment.Shipment.MoveTaskOrder, weightAllotment.TotalWeight)
 	if err != nil {
 		return nil, err

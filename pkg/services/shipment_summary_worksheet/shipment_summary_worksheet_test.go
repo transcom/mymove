@@ -294,7 +294,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	suite.Equal("Fort Eisenhower, GA 30813", sswPage1.NewDutyAssignment)
 
 	suite.Equal("15,000", sswPage1.WeightAllotment)
-	suite.Equal("2,000", sswPage1.WeightAllotmentProgear)
+	suite.Equal("2,000", sswPage1.WeightAllotmentProGear)
 	suite.Equal("500", sswPage1.WeightAllotmentProgearSpouse)
 	suite.Equal("17,500", sswPage1.TotalWeightAllotment)
 
@@ -380,13 +380,13 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		Order:          order,
 		MovingExpenses: movingExpenses,
 	}
-	fmt.Println("Moving Expenses:")
-	for i, expense := range ssd.MovingExpenses {
-		fmt.Printf("  Expense %d:\n", i+1)
-		fmt.Println("    Moving Expense Type:", *expense.MovingExpenseType)
-		fmt.Println("    Amount:", *expense.Amount)
-		fmt.Println("    Paid With GTCC:", *expense.PaidWithGTCC)
-	}
+	// fmt.Println("Moving Expenses:")
+	// for i, expense := range ssd.MovingExpenses {
+	// 	fmt.Printf("  Expense %d:\n", i+1)
+	// 	fmt.Println("    Moving Expense Type:", *expense.MovingExpenseType)
+	// 	fmt.Println("    Amount:", *expense.Amount)
+	// 	fmt.Println("    Paid With GTCC:", *expense.PaidWithGTCC)
+	// }
 
 	maptest := SubTotalExpenses(ssd.MovingExpenses)
 
