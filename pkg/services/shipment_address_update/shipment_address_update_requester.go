@@ -374,7 +374,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 				return err
 			}
 
-			err = mtoshipment.UpdateDestinationSITServiceItemsSITDeliveryMiles(f.planner, appCtx, &shipment, &shipment.MTOServiceItems, &addressUpdate.NewAddress)
+			err = mtoshipment.UpdateDestinationSITServiceItemsSITDeliveryMiles(f.planner, appCtx, &shipment, &addressUpdate.NewAddress, updateNeedsTOOReview)
 			if err != nil {
 				return err
 			}
@@ -403,7 +403,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 	var shipment models.MTOShipment
 	var addressUpdate models.ShipmentAddressUpdate
 
-	err := appCtx.DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "Shipment.MTOServiceItems", "Shipment.PickupAddress", "OriginalAddress", "NewAddress").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
+	err := appCtx.DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "Shipment.MTOServiceItems", "Shipment.PickupAddress", "OriginalAddress", "NewAddress", "SitOriginalAddress", "Shipment.DestinationAddress").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, apperror.NewNotFoundError(shipmentID, "looking for shipment address update")
@@ -486,6 +486,13 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 
 		if len(shipment.MTOServiceItems) > 0 {
 			err = mtoshipment.UpdateDestinationSITServiceItemsAddress(appCtx, &shipment)
+		}
+		if err != nil {
+			return err
+		}
+
+		if len(shipment.MTOServiceItems) > 0 {
+			err = mtoshipment.UpdateDestinationSITServiceItemsSITDeliveryMiles(f.planner, appCtx, &shipment, &addressUpdate.NewAddress, true)
 		}
 		if err != nil {
 			return err
