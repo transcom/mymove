@@ -176,6 +176,10 @@ type Page2Values struct {
 	TotalMemberPaidSIT          string
 	TotalGTCCPaidSIT            string
 	TotalPaidSIT                string
+	TrustedAgentName            string
+	TrustedAgentDate            string
+	TrustedAgentEmail           string
+	TrustedAgentPhone           string
 	FormattedMovingExpenses
 }
 
@@ -243,6 +247,7 @@ type ShipmentSummaryFormData struct {
 	PreparationDate         time.Time
 	Obligations             Obligations
 	MovingExpenses          models.MovingExpenses
+	MTOAgents               models.MTOAgents
 	PPMRemainingEntitlement unit.Pound
 	SignedCertification     models.SignedCertification
 }
@@ -288,6 +293,13 @@ type SSWMaxWeightEntitlement struct {
 	ProGear       unit.Pound
 	SpouseProGear unit.Pound
 	TotalWeight   unit.Pound
+}
+
+type Agent struct {
+	Name  string
+	Email string
+	Date  string
+	Phone string
 }
 
 // adds a line item to shipment summary worksheet SSWMaxWeightEntitlement and increments total allotment
@@ -437,6 +449,7 @@ func FormatGrade(grade *internalmessages.OrderPayGrade) string {
 func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummaryFormData) services.Page2Values {
 
 	expensesMap := SubTotalExpenses(data.MovingExpenses)
+	agentInfo := FormatAgentInfo(data.MTOAgents)
 
 	page2 := services.Page2Values{}
 	page2.CUIBanner = controlledUnclassifiedInformationText
@@ -463,9 +476,66 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 	page2.TotalGTCCPaidRepeated = FormatDollars(expensesMap["TotalGTCCPaid"])
 	page2.TotalMemberPaidRepeated = page2.TotalMemberPaid
 	page2.TotalGTCCPaidRepeated = page2.TotalGTCCPaid
+	page2.TrustedAgentName = agentInfo.Name
+	page2.TrustedAgentDate = agentInfo.Date
+	page2.TrustedAgentEmail = agentInfo.Email
+	page2.TrustedAgentPhone = agentInfo.Phone
 	page2.ServiceMemberSignature = FormatSignature(data.ServiceMember)
 	page2.SignatureDate = FormatSignatureDate(data.SignedCertification.UpdatedAt)
 	return page2
+}
+
+func FormatAgentInfo(agentArray []models.MTOAgent) Agent {
+	agentObject := Agent{
+		Name:  "",
+		Email: "",
+		Date:  "",
+		Phone: "",
+	}
+	if len(agentArray) > 0 {
+		agent := agentArray[0]
+		// Check if both first name and last name are provided
+		if agent.FirstName != nil && agent.LastName != nil {
+			agentObject.Name = fmt.Sprintf("%s, %s", *agent.LastName, *agent.FirstName)
+		}
+
+		// Check if neither first name nor last name are provided
+		if agent.FirstName == nil && agent.LastName == nil {
+			agentObject.Name = "No name specified"
+		}
+
+		// Check if only first name is missing
+		if agent.FirstName == nil {
+			agentObject.Name = fmt.Sprintf("No first name provided, Last Name: %s", *agent.LastName)
+		}
+
+		// Check if only last name is missing
+		if agent.LastName == nil {
+			agentObject.Name = fmt.Sprintf("First Name: %s, No last name provided", *agent.FirstName)
+		}
+
+		if agent.Email != nil {
+			agentObject.Email = *agent.Email
+		} else {
+			agentObject.Email = "No Email Specified"
+		}
+
+		if agent.Phone != nil {
+			agentObject.Phone = *agent.Phone
+		} else {
+			agentObject.Phone = "No Phone Specified"
+		}
+
+		agentObject.Date = agent.UpdatedAt.Format("20060102")
+
+	} else {
+		agentObject.Name = "No agent specified"
+		agentObject.Email = "No agent specified"
+		agentObject.Date = "No agent specified"
+		agentObject.Phone = "No agent specified"
+	}
+
+	return agentObject
 }
 
 // FormatSignature formats a service member's signature for the Shipment Summary Worksheet
@@ -774,6 +844,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		"Shipment.MoveTaskOrder.Orders",
 		"Shipment.MoveTaskOrder.Orders.NewDutyLocation.Address",
 		"Shipment.MoveTaskOrder.Orders.OriginDutyLocation.Address",
+		"Shipment.MTOAgents",
 		"W2Address",
 		"MovingExpenses",
 	).Find(&ppmShipment, ppmShipmentID)
@@ -825,6 +896,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		PPMShipments:            ppmShipments,
 		W2Address:               ppmShipment.W2Address,
 		MovingExpenses:          ppmShipment.MovingExpenses,
+		MTOAgents:               ppmShipment.Shipment.MTOAgents,
 		SignedCertification:     *signedCertification,
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
 	}
