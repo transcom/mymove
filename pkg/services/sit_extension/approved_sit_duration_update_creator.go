@@ -39,6 +39,8 @@ func (f *approvedSITDurationUpdateCreator) CreateApprovedSITDurationUpdate(appCt
 		return nil, err
 	}
 
+	resetSITAuthorizedEndDate(appCtx, shipmentID)
+
 	err = validateSITExtension(appCtx, *sitDurationUpdate, shipment, f.checks...)
 	if err != nil {
 		return nil, err
@@ -79,8 +81,6 @@ func (f *approvedSITDurationUpdateCreator) updateSitDaysAllowance(appCtx appcont
 	} else {
 		shipment.SITDaysAllowance = &approvedDays
 	}
-
-	resetSITAuthorizedEndDate(appCtx, shipment.ID)
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&shipment)
 	if e := f.handleError(shipment.ID, verrs, err); e != nil {

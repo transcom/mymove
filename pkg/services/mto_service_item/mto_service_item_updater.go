@@ -423,13 +423,9 @@ func calculateSITAuthorizedAndRequirededDates(appCtx appcontext.AppContext, serv
 		}
 	}
 
-	sitStatus, err := sitstatus.NewShipmentSITStatus().CalculateShipmentSITStatus(appCtx, shipment)
+	sitEndDate := oldServiceItem.SITEntryDate.AddDate(0, 0, *shipment.SITDaysAllowance)
 
-	if err != nil {
-		return apperror.NewNotFoundError(serviceItem.ID, "while looking for shipment sit status")
-	}
-
-	if (oldServiceItem.SITAuthorizedEndDate == nil && sitAuthorizedEndDate.After(sitStatus.CurrentSIT.SITAllowanceEndDate)) ||
+	if (oldServiceItem.SITAuthorizedEndDate == nil && sitAuthorizedEndDate.After(sitEndDate)) ||
 		(oldServiceItem.SITAuthorizedEndDate != nil && sitAuthorizedEndDate.After(*oldServiceItem.SITAuthorizedEndDate)) {
 		return apperror.NewUnprocessableEntityError("dates entered cannot extend authorized end date beyond its current date")
 	}
