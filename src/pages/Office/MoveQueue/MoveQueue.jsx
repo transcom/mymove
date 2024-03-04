@@ -1,10 +1,10 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useParams, useCallback, useState } from 'react';
+import { useNavigate, NavLink } from 'react-router-dom';
 
 import styles from './MoveQueue.module.scss';
 
 import { createHeader } from 'components/Table/utils';
-import { useMovesQueueQueries, useUserQueries } from 'hooks/queries';
+import { useMovesQueueQueries, useUserQueries, useMoveSearchQueries } from 'hooks/queries';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
@@ -14,6 +14,11 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import { DATE_FORMAT_STRING } from 'shared/constants';
+import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
+import { roleTypes } from 'constants/userRoles';
+import SearchResultsTable from 'components/Table/SearchResultsTable';
+import TabNav from 'components/TabNav';
+import { generalRoutes, tooRoutes } from 'constants/routes';
 
 const columns = (showBranchFilter = true) => [
   createHeader('ID', 'id'),
@@ -95,6 +100,28 @@ const columns = (showBranchFilter = true) => [
 
 const MoveQueue = () => {
   const navigate = useNavigate();
+  const queueType = useParams();
+  const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
+  const [searchHappened, setSearchHappened] = useState(false);
+
+  const onSubmit = useCallback((values) => {
+    const payload = {
+      moveCode: null,
+      dodID: null,
+      customerName: null,
+    };
+
+    if (values.searchType === 'moveCode') {
+      payload.moveCode = values.searchText;
+    } else if (values.searchType === 'dodID') {
+      payload.dodID = values.searchText;
+    } else if (values.searchType === 'customerName') {
+      payload.customerName = values.searchText;
+    }
+
+    setSearch(payload);
+    setSearchHappened(true);
+  }, []);
   const {
     // eslint-disable-next-line camelcase
     data: { office_user },
@@ -111,6 +138,60 @@ const MoveQueue = () => {
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
+
+  const renderNavBar = () => {
+    return (
+      <TabNav
+        className={styles.tableTabs}
+        items={[
+          <NavLink
+            end
+            className={({ isActive }) => (isActive ? 'usa-current' : '')}
+            to={tooRoutes.BASE_QUEUE_COUNSELING_PATH}
+          >
+            <span data-testid="closeout-tab-link" className="tab-title">
+              Move Queue
+            </span>
+          </NavLink>,
+          <NavLink
+            end
+            className={({ isActive }) => (isActive ? 'usa-current' : '')}
+            to={generalRoutes.BASE_QUEUE_SEARCH_PATH}
+          >
+            <span data-testid="search-tab-link" className="tab-title">
+              Search
+            </span>
+          </NavLink>,
+        ]}
+      />
+    );
+  };
+
+  if (queueType === 'Search') {
+    return (
+      <div data-testid="move-search" className={styles.ServicesCounselingQueue}>
+        {renderNavBar()}
+        <h1>Search for a move</h1>
+        <MoveSearchForm onSubmit={onSubmit} role={roleTypes.SERVICES_COUNSELOR} />
+        {searchHappened && (
+          <SearchResultsTable
+            showFilters
+            showPagination
+            defaultCanSort
+            disableMultiSort
+            disableSortBy={false}
+            title="Results"
+            handleClick={handleClick}
+            useQueries={useMoveSearchQueries}
+            moveCode={search.moveCode}
+            dodID={search.dodID}
+            customerName={search.customerName}
+            roleType={roleTypes.SERVICES_COUNSELOR}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className={styles.MoveQueue}>
