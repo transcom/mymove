@@ -1818,26 +1818,17 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 		}
 
 		var pickupDate, deliveryDate *strfmt.Date
-		if numShipments > 0 {
-			if move.MTOShipments[0].ActualPickupDate != nil {
-				pickupDate = handlers.FmtDatePtr(move.MTOShipments[0].ActualPickupDate)
-			} else if move.MTOShipments[0].ScheduledPickupDate != nil {
-				pickupDate = handlers.FmtDatePtr(move.MTOShipments[0].ScheduledPickupDate)
-			} else {
-				pickupDate = handlers.FmtDatePtr(move.MTOShipments[0].RequestedPickupDate)
-			}
 
-			if move.MTOShipments[0].ActualDeliveryDate != nil {
-				deliveryDate = handlers.FmtDatePtr(move.MTOShipments[0].ActualDeliveryDate)
-			} else if move.MTOShipments[0].ScheduledDeliveryDate != nil {
-				deliveryDate = handlers.FmtDatePtr(move.MTOShipments[0].ScheduledDeliveryDate)
-			} else {
-				deliveryDate = handlers.FmtDatePtr(move.MTOShipments[0].RequestedDeliveryDate)
-			}
+		if numShipments > 0 && move.MTOShipments[0].ScheduledPickupDate != nil {
+			pickupDate = handlers.FmtDatePtr(move.MTOShipments[0].ScheduledPickupDate)
 		} else {
-			// If there are no shipments there are no pickup and delivery dates
-			// Empty strfmt.Date results in 01 Jan 0001
-			pickupDate, deliveryDate = nil, nil
+			pickupDate = nil
+		}
+
+		if numShipments > 0 && move.MTOShipments[0].ScheduledDeliveryDate != nil {
+			deliveryDate = handlers.FmtDatePtr(move.MTOShipments[0].ScheduledDeliveryDate)
+		} else {
+			deliveryDate = nil
 		}
 
 		var originGBLOC ghcmessages.GBLOC
