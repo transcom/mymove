@@ -284,29 +284,33 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 	suite.NoError(err)
 
 	paymentReminderData := PaymentReminderEmailData{
+		OriginDutyLocation:      "OriginDutyLocation",
 		DestinationDutyLocation: "DestDutyLocation",
 		Locator:                 "abc123",
 		OneSourceLink:           OneSourceTransportationOfficeLink,
 	}
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
 
-<p>This is a reminder that your PPM with the assigned move code ` + paymentReminderData.Locator + ` from INSERTADDRESSHERE
-to ` + paymentReminderData.DestinationDutyLocation + ` is awaiting action in MilMove.</p>
+<p>This is a reminder that your PPM with the <strong>assigned move code ` + paymentReminderData.Locator + `</strong> from <strong>` + paymentReminderData.OriginDutyLocation +
+		`</strong>
+to <strong>` + paymentReminderData.DestinationDutyLocation + `</strong> is awaiting action in MilMove.</p>
 
 <p>To get your payment, you need to login to MilMove, document expenses, and request payment.</p>
 
 <p>To do that:</p>
 
-  * Log into MilMove
-  * Click on "Upload PPM Documents"
-  * Follow the instructions
+<ul>
+  <li> Log into MilMove</li>
+  <li> Click on "Upload PPM Documents"</li>
+  <li> Follow the instructions</li>
+</ul>
 
 To request payment, you should have copies of:</p>
 
 <ul>
-<li>*       Weight tickets from certified scales, documenting empty and full weights for all vehicles and
+<li>       Weight tickets from certified scales, documenting empty and full weights for all vehicles and
 trailers you used for your move.</li>
-<li>*       Receipts for reimbursable expenses (see our moving tips PDF for more info ` + paymentReminderData.OneSourceLink + `)</li>
+<li>       Receipts for reimbursable expenses (see our moving tips PDF for more info ` + paymentReminderData.OneSourceLink + `)</li>
 </ul>
 
 <p>MilMove will ask you to upload copies of your documents as you complete your payment request.
@@ -337,13 +341,15 @@ func (suite *NotificationSuite) TestPaymentReminderTextTemplateRender() {
 	pr, err := NewPaymentReminder()
 	suite.NoError(err)
 	paymentReminderData := PaymentReminderEmailData{
+		OriginDutyLocation:      "OriginDutyLocation",
 		DestinationDutyLocation: "DestDutyLocation",
 		Locator:                 "abc123",
 		OneSourceLink:           OneSourceTransportationOfficeLink,
 	}
 	expectedTextContent := `*** DO NOT REPLY directly to this email ***
 
-This is a reminder that your PPM with the assigned move code ` + paymentReminderData.Locator + ` from INSERTADDRESSHERE
+This is a reminder that your PPM with the assigned move code ` + paymentReminderData.Locator + ` from ` + paymentReminderData.OriginDutyLocation +
+		`
 to ` + paymentReminderData.DestinationDutyLocation + ` is awaiting action in MilMove.
 
 To get your payment, you need to login to MilMove, document expenses, and request payment.
