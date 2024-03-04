@@ -46,15 +46,14 @@ type PaymentReminderEmailInfos []PaymentReminderEmailInfo
 
 // PaymentReminderEmailInfo contains payment reminder data for rendering a template
 type PaymentReminderEmailInfo struct {
-	ServiceMemberID     uuid.UUID   `db:"id"`
-	Email               *string     `db:"personal_email"`
-	NewDutyLocationName string      `db:"new_duty_location_name"`
-	MoveDate            string      `db:"move_date"`
-	Locator             string      `db:"locator"`
-	WeightEstimate      *unit.Pound `db:"weight_estimate"`
-	IncentiveEstimate   *unit.Cents `db:"incentive_estimate"`
-	TOName              *string     `db:"transportation_office_name"`
-	TOPhone             *string     `db:"transportation_office_phone"`
+	ServiceMemberID        uuid.UUID   `db:"id"`
+	Email                  *string     `db:"personal_email"`
+	NewDutyLocationName    string      `db:"new_duty_location_name"`
+	OriginDutyLocationName string      `db:"origin_duty_location_name"`
+	MoveDate               string      `db:"move_date"`
+	Locator                string      `db:"locator"`
+	WeightEstimate         *unit.Pound `db:"weight_estimate"`
+	IncentiveEstimate      *unit.Cents `db:"incentive_estimate"`
 }
 
 // GetEmailInfo fetches payment email information
@@ -65,23 +64,13 @@ func (m PaymentReminder) GetEmailInfo(appCtx appcontext.AppContext) (PaymentRemi
 	COALESCE(ps.estimated_incentive, 0) AS incentive_estimate,
 	ps.expected_departure_date  as move_date,
 	dln.name AS new_duty_location_name,
-	tos.name AS transportation_office_name,
-	opl.number AS transportation_office_phone,
 	m.locator
 FROM ppm_shipments ps
 	JOIN mto_shipments ms on ms.id = ps.shipment_id
 	JOIN moves m ON ms.move_id  = m.id
 	JOIN orders o ON m.orders_id = o.id
 	JOIN service_members sm ON o.service_member_id = sm.id
-	LEFT JOIN duty_locations dln ON o.new_duty_location_id = dln.id
-	LEFT JOIN transportation_offices tos ON tos.id = dln.transportation_office_id
-		LEFT JOIN office_phone_lines opl on opl.transportation_office_id = tos.id and opl.id =
-	(
-		SELECT opl2.id FROM office_phone_lines opl2
-		WHERE opl2.is_dsn_number IS false
-		AND tos.id = opl2.transportation_office_id
-		LIMIT 1
-	)
+	JOIN duty_locations dln ON o.new_duty_location_id = dln.id
 	WHERE ps.status = 'WAITING_ON_CUSTOMER'::public."ppm_shipment_status"
 	AND ms.status = 'APPROVED'::public."mto_shipment_status"
 	AND ps.expected_departure_date <= now() - ($1)::interval

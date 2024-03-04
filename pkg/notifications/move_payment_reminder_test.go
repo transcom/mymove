@@ -25,7 +25,6 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 	date9DaysAgo := offsetDate(-9)
 
 	weightEstimate := unit.Pound(300)
-	incentiveEstimate := unit.Cents(200)
 
 	ppms := []models.PPMShipment{
 		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
@@ -34,7 +33,6 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 					ExpectedDepartureDate: date14DaysAgo,
 					Status:                models.PPMShipmentStatusWaitingOnCustomer,
 					EstimatedWeight:       &weightEstimate,
-					EstimatedIncentive:    &incentiveEstimate,
 				},
 			},
 			{
@@ -54,7 +52,6 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 					ExpectedDepartureDate: offsetDate(-15),
 					Status:                models.PPMShipmentStatusWaitingOnCustomer,
 					EstimatedWeight:       &weightEstimate,
-					EstimatedIncentive:    &incentiveEstimate,
 				},
 			},
 			{
@@ -74,7 +71,6 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 					ExpectedDepartureDate: date9DaysAgo,
 					Status:                models.PPMShipmentStatusWaitingOnCustomer,
 					EstimatedWeight:       &weightEstimate,
-					EstimatedIncentive:    &incentiveEstimate,
 				},
 			},
 			{
@@ -104,6 +100,8 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 				suite.Equal(ppms[i].Shipment.MoveTaskOrder.Orders.NewDutyLocation.Name, emailInfo[j].NewDutyLocationName)
 				suite.NotNil(emailInfo[j].Email)
 				suite.Equal(*ppms[i].Shipment.MoveTaskOrder.Orders.ServiceMember.PersonalEmail, *emailInfo[j].Email)
+				suite.Equal(ppms[i].EstimatedWeight, emailInfo[j].WeightEstimate)
+				suite.Equal(ppms[i].EstimatedIncentive, emailInfo[j].IncentiveEstimate)
 				suite.Equal(ppms[i].Shipment.MoveTaskOrder.Locator, emailInfo[j].Locator)
 			}
 		}
