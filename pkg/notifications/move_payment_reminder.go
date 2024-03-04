@@ -64,6 +64,7 @@ func (m PaymentReminder) GetEmailInfo(appCtx appcontext.AppContext) (PaymentRemi
 	COALESCE(ps.estimated_incentive, 0) AS incentive_estimate,
 	ps.expected_departure_date  as move_date,
 	dln.name AS new_duty_location_name,
+	dln2.name AS origin_duty_location_name,
 	m.locator
 FROM ppm_shipments ps
 	JOIN mto_shipments ms on ms.id = ps.shipment_id
@@ -71,6 +72,7 @@ FROM ppm_shipments ps
 	JOIN orders o ON m.orders_id = o.id
 	JOIN service_members sm ON o.service_member_id = sm.id
 	JOIN duty_locations dln ON o.new_duty_location_id = dln.id
+	JOIN duty_locations dln2 ON o.new_duty_location_id = dln2.id
 	WHERE ps.status = 'WAITING_ON_CUSTOMER'::public."ppm_shipment_status"
 	AND ms.status = 'APPROVED'::public."mto_shipment_status"
 	AND ps.expected_departure_date <= now() - ($1)::interval
