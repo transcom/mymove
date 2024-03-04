@@ -1049,3 +1049,42 @@ func UpdateDestinationSITServiceItemsAddress(appCtx appcontext.AppContext, shipm
 
 	return nil
 }
+
+func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, appCtx appcontext.AppContext, shipment *models.MTOShipment, mtoServiceItems *models.MTOServiceItems, newAddress *models.Address) error {
+
+	for _, s := range *mtoServiceItems {
+		serviceItem := s
+		reServiceCode := serviceItem.ReService.Code
+		if reServiceCode == models.ReServiceCodeDDASIT ||
+			reServiceCode == models.ReServiceCodeDDDSIT ||
+			reServiceCode == models.ReServiceCodeDDFSIT ||
+			reServiceCode == models.ReServiceCodeDDSFSC {
+
+			newServiceItem := serviceItem
+			newServiceItem.SITDestinationFinalAddressID = shipment.DestinationAddressID
+
+			milesCalculated, err := planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
+			if err == nil {
+				newServiceItem.SITDeliveryMiles = &milesCalculated
+			}
+
+			transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
+				// update service item final destination address ID to match shipment address ID
+				verrs, err := txnCtx.DB().ValidateAndUpdate(&newServiceItem)
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(shipment.ID, err, verrs, "invalid input found while updating final destination address of service item")
+				} else if err != nil {
+					return apperror.NewQueryError("Service item", err, "")
+				}
+
+				return nil
+			})
+
+			if transactionError != nil {
+				return transactionError
+			}
+		}
+	}
+
+	return nil
+}
