@@ -218,7 +218,7 @@ const ShipmentDetailsMain = ({
           plannedMoveDate={plannedMoveDate ? formatDateWithUTC(plannedMoveDate) : null}
           requestedDeliveryDate={requestedDeliveryDate ? formatDateWithUTC(requestedDeliveryDate) : null}
           scheduledDeliveryDate={scheduledDeliveryDate ? formatDateWithUTC(scheduledDeliveryDate) : null}
-          actualDeliveryDate={actualMoveDate ? formatDateWithUTC(actualDeliveryDate) : null}
+          actualMoveDate={actualMoveDate ? formatDateWithUTC(actualMoveDate) : null}
           isPPM={shipmentType === SHIPMENT_OPTIONS.PPM}
         />
       )}
