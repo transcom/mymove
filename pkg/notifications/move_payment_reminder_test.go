@@ -321,7 +321,7 @@ for those expenses.</p>
 <p>Payment request must be submitted within 45 days of your move date.</p>
 
 <p>If you have any questions, contact a government transportation office. You can see a listing of</p>
-transportation offices on Military OneSource here: <a href="https://installations.militaryonesource.mil/search?program-services=2/view-by=ALL"></a>
+transportation offices on Military OneSource here: <a href="` + paymentReminderData.OneSourceLink + `"></a>
 
 <p>Thank you,</p>
 
@@ -374,8 +374,7 @@ for those expenses.
 Payment request must be submitted within 45 days of your move date.
 
 If you have any questions, contact a government transportation office. You can see a listing of
-transportation offices on Military OneSource here: <https://installations.militaryonesource.mil/search?
-program-services=2/view-by=ALL>
+transportation offices on Military OneSource here: <` + paymentReminderData.OneSourceLink + `>
 
 Thank you,
 
