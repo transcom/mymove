@@ -56,7 +56,7 @@ func (m MoveIssuedToPrime) emails(appCtx appcontext.AppContext) ([]emailContent,
 		return emails, err
 	}
 
-	originDSTransportInfo, err := models.FetchDLContactInfo(appCtx.DB(), serviceMember.DutyLocationID)
+	originDSTransportInfo, err := models.FetchDLContactInfo(appCtx.DB(), orders.OriginDutyLocationID)
 	if err != nil {
 		return emails, err
 	}

@@ -103,6 +103,6 @@ test.describe('QAE/CSR Move Search', () => {
 
     // Verify no results
     await expect(page.locator('[data-testid=table-queue] > h2')).toContainText('Results (0)');
-    await expect(page.locator('[data-testid=table-queue] > p')).toContainText('No results found.');
+    await expect(page.locator('[data-testid=table-queue] > h2')).toContainText('No results found.');
   });
 });

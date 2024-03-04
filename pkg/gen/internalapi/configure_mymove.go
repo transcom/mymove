@@ -187,6 +187,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.DeleteWeightTicket has not yet been implemented")
 		})
 	}
+	if api.MovesGetAllMovesHandler == nil {
+		api.MovesGetAllMovesHandler = moves.GetAllMovesHandlerFunc(func(params moves.GetAllMovesParams) middleware.Responder {
+			return middleware.NotImplemented("operation moves.GetAllMoves has not yet been implemented")
+		})
+	}
 	if api.TransportationOfficesGetTransportationOfficesHandler == nil {
 		api.TransportationOfficesGetTransportationOfficesHandler = transportation_offices.GetTransportationOfficesHandlerFunc(func(params transportation_offices.GetTransportationOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_offices.GetTransportationOffices has not yet been implemented")
@@ -240,6 +245,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.DutyLocationsSearchDutyLocationsHandler == nil {
 		api.DutyLocationsSearchDutyLocationsHandler = duty_locations.SearchDutyLocationsHandlerFunc(func(params duty_locations.SearchDutyLocationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation duty_locations.SearchDutyLocations has not yet been implemented")
+		})
+	}
+	if api.PpmShowAOAPacketHandler == nil {
+		api.PpmShowAOAPacketHandler = ppm.ShowAOAPacketHandlerFunc(func(params ppm.ShowAOAPacketParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.ShowAOAPacket has not yet been implemented")
 		})
 	}
 	if api.AddressesShowAddressHandler == nil {
@@ -315,11 +325,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.ServiceMembersShowServiceMemberOrdersHandler == nil {
 		api.ServiceMembersShowServiceMemberOrdersHandler = service_members.ShowServiceMemberOrdersHandlerFunc(func(params service_members.ShowServiceMemberOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation service_members.ShowServiceMemberOrders has not yet been implemented")
-		})
-	}
-	if api.MovesShowShipmentSummaryWorksheetHandler == nil {
-		api.MovesShowShipmentSummaryWorksheetHandler = moves.ShowShipmentSummaryWorksheetHandlerFunc(func(params moves.ShowShipmentSummaryWorksheetParams) middleware.Responder {
-			return middleware.NotImplemented("operation moves.ShowShipmentSummaryWorksheet has not yet been implemented")
 		})
 	}
 	if api.MovesSubmitAmendedOrdersHandler == nil {

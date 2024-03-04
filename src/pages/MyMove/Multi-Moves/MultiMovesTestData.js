@@ -7,7 +7,7 @@ export const mockMovesPCS = {
       status: 'DRAFT',
       orders: {
         id: 'testOrder1',
-        destinationDutyLocation: {
+        new_duty_location: {
           id: 'testDDL1',
           name: 'Fort Bragg North Station',
           address: {
@@ -20,7 +20,7 @@ export const mockMovesPCS = {
             country: 'USA',
           },
         },
-        originDutyLocation: {
+        origin_duty_location: {
           id: 'testODL1',
           name: 'Fort Bragg North Station',
           address: {
@@ -93,7 +93,7 @@ export const mockMovesPCS = {
       status: 'APPROVED',
       orders: {
         id: 'testOrder2',
-        destinationDutyLocation: {
+        new_duty_location: {
           id: 'testDDL2',
           name: 'Fort Bragg South Station',
           address: {
@@ -106,7 +106,7 @@ export const mockMovesPCS = {
             country: 'USA',
           },
         },
-        originDutyLocation: {
+        origin_duty_location: {
           id: 'testODL2',
           name: 'Fort Bragg South Station',
           address: {
@@ -177,7 +177,7 @@ export const mockMovesPCS = {
       status: 'APPROVED',
       orders: {
         id: 'testOrder3',
-        destinationDutyLocation: {
+        new_duty_location: {
           id: 'testDDL3',
           name: 'Fort Bragg East Station',
           address: {
@@ -190,7 +190,7 @@ export const mockMovesPCS = {
             country: 'USA',
           },
         },
-        originDutyLocation: {
+        origin_duty_location: {
           id: 'testODL3',
           name: 'Fort Bragg East Station',
           address: {
@@ -266,7 +266,7 @@ export const mockMovesRetirement = {
       status: 'SUBMITTED',
       orders: {
         id: 'testOrder1',
-        destinationDutyLocation: {
+        new_duty_location: {
           id: 'testDDL1',
           name: 'Fort Bragg North Station',
           address: {
@@ -279,7 +279,7 @@ export const mockMovesRetirement = {
             country: 'USA',
           },
         },
-        originDutyLocation: {
+        origin_duty_location: {
           id: 'testODL1',
           name: 'Fort Bragg North Station',
           address: {
@@ -352,7 +352,7 @@ export const mockMovesRetirement = {
       status: 'APPROVED',
       orders: {
         id: 'testOrder2',
-        destinationDutyLocation: {
+        new_duty_location: {
           id: 'testDDL2',
           name: 'Fort Bragg South Station',
           address: {
@@ -365,7 +365,7 @@ export const mockMovesRetirement = {
             country: 'USA',
           },
         },
-        originDutyLocation: {
+        origin_duty_location: {
           id: 'testODL2',
           name: 'Fort Bragg South Station',
           address: {
@@ -436,7 +436,7 @@ export const mockMovesRetirement = {
       status: 'APPROVED',
       orders: {
         id: 'testOrder3',
-        destinationDutyLocation: {
+        new_duty_location: {
           id: 'testDDL3',
           name: 'Fort Bragg East Station',
           address: {
@@ -449,7 +449,7 @@ export const mockMovesRetirement = {
             country: 'USA',
           },
         },
-        originDutyLocation: {
+        origin_duty_location: {
           id: 'testODL3',
           name: 'Fort Bragg East Station',
           address: {
@@ -525,7 +525,7 @@ export const mockMovesSeparation = {
       status: 'DRAFT',
       orders: {
         id: 'testOrder1',
-        destinationDutyLocation: {
+        new_duty_location: {
           id: 'testDDL1',
           name: 'Fort Bragg North Station',
           address: {
@@ -538,7 +538,7 @@ export const mockMovesSeparation = {
             country: 'USA',
           },
         },
-        originDutyLocation: {
+        origin_duty_location: {
           id: 'testODL1',
           name: 'Fort Bragg North Station',
           address: {
@@ -611,7 +611,7 @@ export const mockMovesSeparation = {
       status: 'APPROVED',
       orders: {
         id: 'testOrder2',
-        destinationDutyLocation: {
+        new_duty_location: {
           id: 'testDDL2',
           name: 'Fort Bragg South Station',
           address: {
@@ -624,7 +624,7 @@ export const mockMovesSeparation = {
             country: 'USA',
           },
         },
-        originDutyLocation: {
+        origin_duty_location: {
           id: 'testODL2',
           name: 'Fort Bragg South Station',
           address: {
@@ -695,7 +695,7 @@ export const mockMovesSeparation = {
       status: 'APPROVED',
       orders: {
         id: 'testOrder3',
-        destinationDutyLocation: {
+        new_duty_location: {
           id: 'testDDL3',
           name: 'Fort Bragg East Station',
           address: {
@@ -708,7 +708,7 @@ export const mockMovesSeparation = {
             country: 'USA',
           },
         },
-        originDutyLocation: {
+        origin_duty_location: {
           id: 'testODL3',
           name: 'Fort Bragg East Station',
           address: {
@@ -784,7 +784,7 @@ export const mockMovesNoPreviousMoves = {
       status: 'DRAFT',
       orders: {
         id: 'testOrder1',
-        destinationDutyLocation: {
+        new_duty_location: {
           id: 'testDDL1',
           name: 'Fort Bragg North Station',
           address: {
@@ -797,7 +797,7 @@ export const mockMovesNoPreviousMoves = {
             country: 'USA',
           },
         },
-        originDutyLocation: {
+        origin_duty_location: {
           id: 'testODL1',
           name: 'Fort Bragg North Station',
           address: {
@@ -875,7 +875,7 @@ export const mockMovesNoCurrentMoveWithPreviousMoves = {
       status: 'APPROVED',
       orders: {
         id: 'testOrder2',
-        destinationDutyLocation: {
+        new_duty_location: {
           id: 'testDDL2',
           name: 'Fort Bragg South Station',
           address: {
@@ -888,7 +888,7 @@ export const mockMovesNoCurrentMoveWithPreviousMoves = {
             country: 'USA',
           },
         },
-        originDutyLocation: {
+        origin_duty_location: {
           id: 'testODL2',
           name: 'Fort Bragg South Station',
           address: {
@@ -959,7 +959,7 @@ export const mockMovesNoCurrentMoveWithPreviousMoves = {
       status: 'APPROVED',
       orders: {
         id: 'testOrder3',
-        destinationDutyLocation: {
+        new_duty_location: {
           id: 'testDDL3',
           name: 'Fort Bragg East Station',
           address: {
@@ -972,7 +972,7 @@ export const mockMovesNoCurrentMoveWithPreviousMoves = {
             country: 'USA',
           },
         },
-        originDutyLocation: {
+        origin_duty_location: {
           id: 'testODL3',
           name: 'Fort Bragg East Station',
           address: {

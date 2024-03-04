@@ -79,7 +79,8 @@
     "uswds": "2.13.3",
     "uuid": "^9.0.0",
     "webpack": "5",
-    "yup": "^1.2.0"
+    "yup": "^1.2.0",
+    "dotenv": "^16.3.1"
   },
   "resolutions": {
     "dns-packet": "^5.4.0",
@@ -129,7 +130,7 @@
     "@babel/core": "~7.22.8",
     "@babel/helper-builder-react-jsx": "^7.22.5",
     "@babel/helper-builder-react-jsx-experimental": "^7.12.11",
-    "@faker-js/faker": "^8.0.2",
+    "@faker-js/faker": "^8.4.1",
     "@jackfranklin/test-data-bot": "^2.1.0",
     "@playwright/test": "^1.36.0",
     "@stoplight/spectral-cli": "^6.10.0",
@@ -153,7 +154,6 @@
     "@wojtekmaj/enzyme-adapter-react-17": "^0.8.0",
     "danger": "^11.3.1",
     "danger-plugin-jira-issue": "^1.4.1",
-    "dotenv": "^16.3.1",
     "enzyme": "^3.11.0",
     "eslint-config-airbnb": "19.0.4",
     "eslint-config-prettier": "^9.1.0",

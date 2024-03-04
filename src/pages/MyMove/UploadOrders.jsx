@@ -9,8 +9,8 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import { documentSizeLimitMsg } from 'shared/constants';
-import { getOrdersForServiceMember, createUploadForDocument, deleteUpload } from 'services/internalApi';
-import { updateOrders as updateOrdersAction } from 'store/entities/actions';
+import { getOrdersForServiceMember, createUploadForDocument, deleteUpload, getAllMoves } from 'services/internalApi';
+import { updateAllMoves, updateOrders as updateOrdersAction } from 'store/entities/actions';
 import {
   selectServiceMemberFromLoggedInUser,
   selectCurrentOrders,
@@ -53,9 +53,11 @@ export class UploadOrders extends Component {
 
   handleUploadComplete() {
     const { serviceMemberId, updateOrders } = this.props;
-
     getOrdersForServiceMember(serviceMemberId).then((response) => {
       updateOrders(response);
+    });
+    getAllMoves(serviceMemberId).then((response) => {
+      updateAllMoves(response);
     });
   }
 
