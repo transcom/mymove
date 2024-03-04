@@ -291,9 +291,9 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 	}
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
 
-<p>This is a reminder that your PPM with the assigned move code ` + paymentReminderData.Locator + ` from ` + paymentReminderData.OriginDutyLocation +
-		`
-to ` + paymentReminderData.DestinationDutyLocation + ` is awaiting action in MilMove.</p>
+<p>This is a reminder that your PPM with the <strong>assigned move code ` + paymentReminderData.Locator + `</strong> from <strong>` + paymentReminderData.OriginDutyLocation +
+		`</strong>
+to <strong>` + paymentReminderData.DestinationDutyLocation + `</strong> is awaiting action in MilMove.</p>
 
 <p>To get your payment, you need to login to MilMove, document expenses, and request payment.</p>
 
