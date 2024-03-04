@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -976,4 +977,139 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 			)
 		}
 	})
+}
+
+func (suite *HandlerSuite) TestShowAOAPacketHandler() {
+	suite.Run("Successful ShowAOAPacketHandler - 200", func() {
+		mockSSWPPMComputer := mocks.SSWPPMComputer{}
+		mockSSWPPMGenerator := mocks.SSWPPMGenerator{}
+		mockAOAPacketCreator := mocks.AOAPacketCreator{}
+		userUploader, err := uploader.NewUserUploader(suite.createS3HandlerConfig().FileStorer(), 25*uploader.MB)
+		suite.NoError(err)
+
+		ppmshipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(suite.DB(), userUploader)
+
+		handlerConfig := suite.HandlerConfig()
+		handler := showAOAPacketHandler{
+			HandlerConfig:    handlerConfig,
+			SSWPPMComputer:   &mockSSWPPMComputer,
+			SSWPPMGenerator:  &mockSSWPPMGenerator,
+			AOAPacketCreator: &mockAOAPacketCreator,
+		}
+
+		mockAOAPacketCreator.On("VerifyAOAPacketInternal", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil)
+		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, nil)
+
+		// make the request
+		requestUser := factory.BuildUser(nil, nil, nil)
+		ppmshipmentid := ppmshipment.ID
+		// ppmshipmentid := "test"
+		request := httptest.NewRequest("GET", fmt.Sprintf("/ppm-shipments/%s/aoa-packet/", ppmshipmentid), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := ppmops.ShowAOAPacketParams{
+			HTTPRequest:   request,
+			PpmShipmentID: ppmshipmentid.String(),
+		}
+		response := handler.Handle(params)
+		showAOAPacketResponse := response.(*ppmops.ShowAOAPacketOK)
+
+		suite.Assertions.IsType(&ppmops.ShowAOAPacketOK{}, showAOAPacketResponse)
+	})
+
+	suite.Run("Unsuccessful ShowAOAPacketHandler - error generating PDF - 500", func() {
+		mockSSWPPMComputer := mocks.SSWPPMComputer{}
+		mockSSWPPMGenerator := mocks.SSWPPMGenerator{}
+		mockAOAPacketCreator := mocks.AOAPacketCreator{}
+		userUploader, err := uploader.NewUserUploader(suite.createS3HandlerConfig().FileStorer(), 25*uploader.MB)
+		suite.NoError(err)
+
+		ppmshipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOutWithAllDocTypes(suite.DB(), userUploader)
+
+		handlerConfig := suite.HandlerConfig()
+		handler := showAOAPacketHandler{
+			HandlerConfig:    handlerConfig,
+			SSWPPMComputer:   &mockSSWPPMComputer,
+			SSWPPMGenerator:  &mockSSWPPMGenerator,
+			AOAPacketCreator: &mockAOAPacketCreator,
+		}
+
+		mockAOAPacketCreator.On("VerifyAOAPacketInternal", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil)
+		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, errors.New("Mock error"))
+
+		// make the request
+		requestUser := factory.BuildUser(nil, nil, nil)
+		ppmshipmentid := ppmshipment.ID
+		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/order/download", ppmshipmentid), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := ppmops.ShowAOAPacketParams{
+			HTTPRequest:   request,
+			PpmShipmentID: ppmshipmentid.String(),
+		}
+		response := handler.Handle(params)
+		showAOAPacketResponse := response.(*ppmops.ShowAOAPacketInternalServerError)
+
+		suite.Assertions.IsType(&ppmops.ShowAOAPacketInternalServerError{}, showAOAPacketResponse)
+	})
+
+	suite.Run("Unsuccessful ShowAOAPacketHandler - PPMShipmentId Not Accessible by Service Member - 400", func() {
+		mockSSWPPMComputer := mocks.SSWPPMComputer{}
+		mockSSWPPMGenerator := mocks.SSWPPMGenerator{}
+		mockAOAPacketCreator := mocks.AOAPacketCreator{}
+
+		handlerConfig := suite.HandlerConfig()
+		handler := showAOAPacketHandler{
+			HandlerConfig:    handlerConfig,
+			SSWPPMComputer:   &mockSSWPPMComputer,
+			SSWPPMGenerator:  &mockSSWPPMGenerator,
+			AOAPacketCreator: &mockAOAPacketCreator,
+		}
+
+		mockAOAPacketCreator.On("VerifyAOAPacketInternal", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(errors.New("Mock error"))
+
+		// make the request
+		requestUser := factory.BuildUser(nil, nil, nil)
+		ppmshipmentid := ""
+		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/order/download", ppmshipmentid), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := ppmops.ShowAOAPacketParams{
+			HTTPRequest:   request,
+			PpmShipmentID: ppmshipmentid,
+		}
+		response := handler.Handle(params)
+		showAOAPacketResponse := response.(*ppmops.ShowAOAPacketBadRequest)
+
+		suite.Assertions.IsType(&ppmops.ShowAOAPacketBadRequest{}, showAOAPacketResponse)
+	})
+
+	suite.Run("Unsuccessful ShowAOAPacketHandler - Missing/empty/incorrect PPMShipmentId - 400", func() {
+		mockSSWPPMComputer := mocks.SSWPPMComputer{}
+		mockSSWPPMGenerator := mocks.SSWPPMGenerator{}
+		mockAOAPacketCreator := mocks.AOAPacketCreator{}
+
+		handlerConfig := suite.HandlerConfig()
+		handler := showAOAPacketHandler{
+			HandlerConfig:    handlerConfig,
+			SSWPPMComputer:   &mockSSWPPMComputer,
+			SSWPPMGenerator:  &mockSSWPPMGenerator,
+			AOAPacketCreator: &mockAOAPacketCreator,
+		}
+
+		mockAOAPacketCreator.On("VerifyAOAPacketInternal", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil)
+		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, errors.New("Mock error"))
+
+		// make the request
+		requestUser := factory.BuildUser(nil, nil, nil)
+		ppmshipmentid := ""
+		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/order/download", ppmshipmentid), nil)
+		request = suite.AuthenticateUserRequest(request, requestUser)
+		params := ppmops.ShowAOAPacketParams{
+			HTTPRequest:   request,
+			PpmShipmentID: ppmshipmentid,
+		}
+		response := handler.Handle(params)
+		showAOAPacketResponse := response.(*ppmops.ShowAOAPacketBadRequest)
+
+		suite.Assertions.IsType(&ppmops.ShowAOAPacketBadRequest{}, showAOAPacketResponse)
+	})
+
 }
