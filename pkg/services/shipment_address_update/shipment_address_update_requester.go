@@ -197,7 +197,7 @@ func (f *shipmentAddressUpdateRequester) mapServiceItemWithUpdatedPriceRequireme
 	return newServiceItem
 }
 
-// RequestShipmentDeliveryAddressUpdate is used to update the destination address of an HHG shipment without SIT after it has been approved by the TOO. If this update could result in excess cost for the customer, this service requires the change to go through TOO approval.
+// RequestShipmentDeliveryAddressUpdate is used to update the destination address of an HHG shipment after it has been approved by the TOO. If this update could result in excess cost for the customer, this service requires the change to go through TOO approval.
 func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, newAddress models.Address, contractorRemarks string, eTag string) (*models.ShipmentAddressUpdate, error) {
 	var addressUpdate models.ShipmentAddressUpdate
 	var shipment models.MTOShipment
@@ -280,8 +280,6 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		if err != nil {
 			return nil, err
 		}
-
-		// look at calculation below for ideas on sit_delivery_miles
 
 		// calculating distance between the new address update & the SIT
 		distanceBetweenNew, err = f.planner.ZipTransitDistance(appCtx, addressUpdate.SitOriginalAddress.PostalCode, addressUpdate.NewAddress.PostalCode)
@@ -372,6 +370,11 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 
 			// Update MTO Shipment Destination Service Items
 			err = mtoshipment.UpdateDestinationSITServiceItemsAddress(appCtx, &shipment)
+			if err != nil {
+				return err
+			}
+
+			err = mtoshipment.UpdateDestinationSITServiceItemsSITDeliveryMiles(f.planner, appCtx, &shipment, &shipment.MTOServiceItems, &addressUpdate.NewAddress)
 			if err != nil {
 				return err
 			}
