@@ -7,7 +7,10 @@
 // @ts-check
 import { test, forEachViewport } from './customerPpmTestFixture';
 
+const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
+
 test.describe('About Your PPM', () => {
+  test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
   forEachViewport(async () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPMWithAboutFormComplete();
@@ -28,6 +31,35 @@ test.describe('About Your PPM', () => {
     });
 
     test('proceed with constructed weight ticket documents', async ({ customerPpmPage }) => {
+      await customerPpmPage.submitWeightTicketPage({ useConstructedWeight: true });
+    });
+  });
+});
+
+test.describe('(MultiMove) About Your PPM', () => {
+  test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
+  test.fail(multiMoveEnabled === 'true');
+
+  forEachViewport(async () => {
+    test.beforeEach(async ({ customerPpmPage }) => {
+      const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPMWithAboutFormComplete();
+      await customerPpmPage.signInForPPMWithMove(move);
+      // await customerPpmPage.navigateToWeightTicketPage();
+    });
+
+    test.skip('proceed with weight ticket documents', async ({ customerPpmPage }) => {
+      await customerPpmPage.submitWeightTicketPage();
+    });
+
+    test.skip('proceed with claiming trailer', async ({ customerPpmPage }) => {
+      await customerPpmPage.submitWeightTicketPage({ hasTrailer: true, ownTrailer: true });
+    });
+
+    test.skip('proceed without claiming trailer', async ({ customerPpmPage }) => {
+      await customerPpmPage.submitWeightTicketPage({ hasTrailer: true, ownTrailer: false });
+    });
+
+    test.skip('proceed with constructed weight ticket documents', async ({ customerPpmPage }) => {
       await customerPpmPage.submitWeightTicketPage({ useConstructedWeight: true });
     });
   });

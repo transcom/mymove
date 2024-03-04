@@ -2656,8 +2656,8 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
-			PickupPostalAddressID:       &pickupAddress.ID,
-			DestinationPostalAddressID:  &destinationAddress.ID,
+			PickupAddressID:             &pickupAddress.ID,
+			DestinationAddressID:        &destinationAddress.ID,
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
@@ -3887,8 +3887,8 @@ func MakeHHGMoveInSIT(appCtx appcontext.AppContext) models.Move {
 		},
 	}, nil)
 
-	twoMonthsAgo := now.AddDate(0, -2, 0)
-	oneMonthAgo := now.AddDate(0, -1, 0)
+	twoMonthsAgo := now.AddDate(0, 0, -60)
+	oneMonthAgo := now.AddDate(0, 0, -30)
 	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
 	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
 	for i := range destSITItems {
