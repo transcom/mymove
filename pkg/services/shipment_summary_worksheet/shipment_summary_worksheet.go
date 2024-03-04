@@ -474,6 +474,8 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 	page2.TotalGTCCPaid = FormatDollars(expensesMap["TotalGTCCPaid"])
 	page2.TotalMemberPaidRepeated = FormatDollars(expensesMap["TotalMemberPaid"])
 	page2.TotalGTCCPaidRepeated = FormatDollars(expensesMap["TotalGTCCPaid"])
+	page2.TotalMemberPaidSIT = FormatDollars(expensesMap["StorageMemberPaid"])
+	page2.TotalGTCCPaidSIT = FormatDollars(expensesMap["StorageGTCCPaid"])
 	page2.TotalMemberPaidRepeated = page2.TotalMemberPaid
 	page2.TotalGTCCPaidRepeated = page2.TotalGTCCPaid
 	page2.TrustedAgentName = agentInfo.Name
@@ -656,22 +658,27 @@ func FetchMovingExpensesShipmentSummaryWorksheet(PPMShipment models.PPMShipment,
 // SubTotalExpenses groups moving expenses by type and payment method
 func SubTotalExpenses(expenseDocuments models.MovingExpenses) map[string]float64 {
 	var expenseType string
+	var addToTotal bool
 	totals := make(map[string]float64)
 	for _, expense := range expenseDocuments {
-		expenseType = getExpenseType(expense)
+		expenseType, addToTotal = getExpenseType(expense)
 		paidWithGTCC := expense.PaidWithGTCC
 		expenseDollarAmt := expense.Amount.ToDollarFloatNoRound()
 		totals[expenseType] += expenseDollarAmt
-		// This is a working system of checks for gathering totals.
-		//It could be improved upon so it's not making the same checks twice with getExpenseType.
-		if paidWithGTCC != nil {
-			if *paidWithGTCC {
-				totals["TotalGTCCPaid"] += expenseDollarAmt
+		if paidWithGTCC != nil && expenseType != "Storage" {
+			if *paidWithGTCC && expenseType != "Storage" {
+				if addToTotal {
+					totals["TotalGTCCPaid"] += expenseDollarAmt
+				}
 			} else {
-				totals["TotalMemberPaid"] += expenseDollarAmt
+				if addToTotal {
+					totals["TotalMemberPaid"] += expenseDollarAmt
+				}
 			}
 		} else {
-			totals["TotalMemberPaid"] += expenseDollarAmt
+			if addToTotal {
+				totals["TotalMemberPaid"] += expenseDollarAmt
+			}
 		}
 		println(expenseType)
 		println(expenseDollarAmt)
@@ -679,16 +686,20 @@ func SubTotalExpenses(expenseDocuments models.MovingExpenses) map[string]float64
 	return totals
 }
 
-func getExpenseType(expense models.MovingExpense) string {
+func getExpenseType(expense models.MovingExpense) (string, bool) {
+	addToTotal := false
 	expenseType := FormatEnum(string(*expense.MovingExpenseType), "")
+	if expenseType != "Storage" {
+		addToTotal = true
+	}
 	paidWithGTCC := expense.PaidWithGTCC
 	if paidWithGTCC != nil {
 		if *paidWithGTCC {
-			return fmt.Sprintf("%s%s", expenseType, "GTCCPaid")
+			return fmt.Sprintf("%s%s", expenseType, "GTCCPaid"), addToTotal
 		}
 	}
 
-	return fmt.Sprintf("%s%s", expenseType, "MemberPaid")
+	return fmt.Sprintf("%s%s", expenseType, "MemberPaid"), addToTotal
 }
 
 // FormatCurrentPPMStatus formats FormatCurrentPPMStatus for the Shipment Summary Worksheet
