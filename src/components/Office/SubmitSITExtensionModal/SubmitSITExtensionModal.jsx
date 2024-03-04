@@ -168,7 +168,14 @@ const SubmitSITExtensionModal = ({ shipment, sitStatus, onClose, onSubmit }) => 
     requestReason: '',
     officeRemarks: '',
     daysApproved: String(shipment.sitDaysAllowance),
-    sitEndDate: formatDateForDatePicker(moment(sitStatus.currentSIT.sitAllowanceEndDate, swaggerDateFormat)),
+    sitEndDate: formatDateForDatePicker(
+      moment(
+        sitStatus?.currentSIT?.sitAuthorizedEndDate == null
+          ? sitStatus.currentSIT.sitAllowanceEndDate
+          : sitStatus?.currentSIT?.sitAuthorizedEndDate,
+        swaggerDateFormat,
+      ),
+    ),
   };
   const minimumDaysAllowed = sitStatus.calculatedTotalDaysInSIT - sitStatus.currentSIT.daysInSIT + 1;
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);

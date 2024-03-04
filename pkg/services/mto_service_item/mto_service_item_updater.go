@@ -400,14 +400,14 @@ func calculateSITAuthorizedAndRequirededDates(appCtx appcontext.AppContext, serv
 		// Origin SIT: sitAuthorizedEndDate should be GracePeriodDays days after sitCustomerContacted or the sitDepartureDate whichever is earlier.
 		calculatedAuthorizedEndDate := serviceItem.SITCustomerContacted.AddDate(0, 0, GracePeriodDays)
 
-		if sitDepartureDate == nil || calculatedAuthorizedEndDate.Before(*sitDepartureDate) {
+		if calculatedAuthorizedEndDate.Before(*sitDepartureDate) {
 			sitAuthorizedEndDate = &calculatedAuthorizedEndDate
 		}
 	} else if location == DestinationSITLocation {
 		// Destination SIT: sitAuthorizedEndDate should be GracePeriodDays days after sitRequestedDelivery or the sitDepartureDate whichever is earlier.
 		calculatedAuthorizedEndDate := serviceItem.SITRequestedDelivery.AddDate(0, 0, GracePeriodDays)
 
-		if sitDepartureDate == nil || calculatedAuthorizedEndDate.Before(*sitDepartureDate) {
+		if calculatedAuthorizedEndDate.Before(*sitDepartureDate) {
 			sitAuthorizedEndDate = &calculatedAuthorizedEndDate
 		}
 	}

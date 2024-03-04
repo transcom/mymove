@@ -93,6 +93,8 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
   const sitStartDateElement = <p>{formatDate(sitEntryDate, swaggerDateFormat, 'DD MMM YYYY')}</p>;
   const sitEndDate =
     formatDate(sitStatus.currentSIT?.sitAllowanceEndDate, swaggerDateFormat, 'DD MMM YYYY') || '\u2014';
+  const sitAuthorizedEndDate = 
+    formatDate(sitStatus.currentSIT?.sitAuthorizedEndDate, swaggerDateFormat, 'DD MMM YYYY') || '\u2014';
 
   // Previous SIT calculations and date ranges
   const previousDaysUsed = sitStatus.pastSITServiceItems?.map((pastSITItem) => {
@@ -165,9 +167,9 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
               columnHeaders={[`SIT start date`, 'SIT authorized end date', 'Calculated total SIT days']}
               dataRow={[
                 sitStartDateElement,
-                sitStatus?.currentSIT?.sitAuthorizedEndDate == null
+                sitAuthorizedEndDate == null
                   ? sitEndDate
-                  : sitStatus?.currentSIT?.sitAuthorizedEndDate,
+                  : sitAuthorizedEndDate,
                 sitStatus.calculatedTotalDaysInSIT,
               ]}
               custClass={styles.currentLocation}
