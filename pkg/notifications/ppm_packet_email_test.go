@@ -122,6 +122,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpa
 		ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
 		Locator:                           move.Locator,
 		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
+		WashingtonHQServicesLink:          WashingtonHQServicesLink,
 		MyMoveLink:                        MyMoveLink,
 	})
 
@@ -130,10 +131,11 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpa
 <h4>Next steps:</h4>
 
 <p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):</p>
-<p>You can now log into MilMove <a href="` + MyMoveLink + `/">` + MyMoveLink + `/</a> and download your payment packet to submit to ` + allOtherSubmitLocation + `. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
+<p>You can now log into MilMove <a href="` + MyMoveLink + `">` + MyMoveLink + `</a> and download your payment packet to submit to ` + allOtherSubmitLocation + `. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
 <p>Note: The Transportation Office does not determine claimable expenses. Claimable expenses will be determined by finance.</p>
 
-<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a></p>
+<p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href="` + WashingtonHQServicesLink + `">` + WashingtonHQServicesLink + `</a>.</p>
+<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a></p>
 
 <p>Thank you,</p>
 
@@ -212,6 +214,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForArmy() {
 		ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
 		Locator:                           move.Locator,
 		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
+		WashingtonHQServicesLink:          WashingtonHQServicesLink,
 		MyMoveLink:                        MyMoveLink,
 	})
 
@@ -220,10 +223,11 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForArmy() {
 <h4>Next steps:</h4>
 
 <p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):</p>
-<p>You can now log into MilMove <a href="` + MyMoveLink + `/">` + MyMoveLink + `/</a> and download your payment packet to submit to ` + armySubmitLocation + `. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
+<p>You can now log into MilMove <a href="` + MyMoveLink + `">` + MyMoveLink + `</a> and download your payment packet to submit to ` + armySubmitLocation + `. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
 <p>Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.</p>
 
-<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a></p>
+<p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href="` + WashingtonHQServicesLink + `">` + WashingtonHQServicesLink + `</a>.</p>
+<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a></p>
 
 <p>Thank you,</p>
 
@@ -302,6 +306,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForNavalBran
 		ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
 		Locator:                           move.Locator,
 		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
+		WashingtonHQServicesLink:          WashingtonHQServicesLink,
 		MyMoveLink:                        MyMoveLink,
 	})
 
@@ -310,10 +315,11 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForNavalBran
 <h4>Next steps:</h4>
 
 <p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel:</p>
-<p>You can now log into MilMove <a href="` + MyMoveLink + `/">` + MyMoveLink + `/</a> and view your payment packet; however, you do not need to forward your packet to finance as your closeout location is associated with your finance office and they will handle this step for you.</p>
+<p>You can now log into MilMove <a href="` + MyMoveLink + `">` + MyMoveLink + `</a> and view your payment packet; however, you do not need to forward your payment packet to finance as your closeout location is associated with your finance office and they will handle this step for you.</p>
 <p>Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.</p>
 
-<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a></p>
+<p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href="` + WashingtonHQServicesLink + `">` + WashingtonHQServicesLink + `</a>.</p>
+<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a></p>
 
 <p>Thank you,</p>
 
@@ -390,9 +396,11 @@ Next steps:
 
 For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):
 
-You can now log into MilMove <` + MyMoveLink + `/> and download your payment packet to submit to ` + armySubmitLocation + `. You must complete this step to receive final settlement of your PPM.
+You can now log into MilMove <` + MyMoveLink + `> and download your payment packet to submit to ` + armySubmitLocation + `. You must complete this step to receive final settlement of your PPM.
 
 Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.
+
+Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at ` + WashingtonHQServicesLink + `.
 
 If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: ` + OneSourceTransportationOfficeLink + `
 
@@ -459,6 +467,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailZipcodeFallback() {
 		ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
 		Locator:                           move.Locator,
 		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
+		WashingtonHQServicesLink:          WashingtonHQServicesLink,
 		MyMoveLink:                        MyMoveLink,
 	})
 	// <strong>Des Moines, IA</strong> to <strong>Fort Eisenhower, GA</strong>
@@ -467,10 +476,11 @@ func (suite *NotificationSuite) TestPpmPacketEmailZipcodeFallback() {
 <h4>Next steps:</h4>
 
 <p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):</p>
-<p>You can now log into MilMove <a href="` + MyMoveLink + `/">` + MyMoveLink + `/</a> and download your payment packet to submit to ` + allOtherSubmitLocation + `. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
+<p>You can now log into MilMove <a href="` + MyMoveLink + `">` + MyMoveLink + `</a> and download your payment packet to submit to ` + allOtherSubmitLocation + `. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
 <p>Note: The Transportation Office does not determine claimable expenses. Claimable expenses will be determined by finance.</p>
 
-<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a></p>
+<p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href="` + WashingtonHQServicesLink + `">` + WashingtonHQServicesLink + `</a>.</p>
+<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a></p>
 
 <p>Thank you,</p>
 
