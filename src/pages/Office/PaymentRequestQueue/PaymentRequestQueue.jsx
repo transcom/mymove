@@ -1,9 +1,11 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useCallback, useState } from 'react';
+import { useNavigate, NavLink, useParams } from 'react-router-dom';
 
 import styles from './PaymentRequestQueue.module.scss';
 
-import { usePaymentRequestQueueQueries, useUserQueries } from 'hooks/queries';
+import SearchResultsTable from 'components/Table/SearchResultsTable';
+import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
+import { usePaymentRequestQueueQueries, useUserQueries, useMoveSearchQueries } from 'hooks/queries';
 import { createHeader } from 'components/Table/utils';
 import {
   formatDateFromIso,
@@ -18,6 +20,9 @@ import { BRANCH_OPTIONS, GBLOC, PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants
 import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import TabNav from 'components/TabNav';
+import { tioRoutes, generalRoutes } from 'constants/routes';
+import { roleTypes } from 'constants/userRoles';
 
 const columns = (showBranchFilter = true) => [
   createHeader('ID', 'id'),
@@ -102,13 +107,34 @@ const columns = (showBranchFilter = true) => [
 ];
 
 const PaymentRequestQueue = () => {
+  const { queueType } = useParams();
   const navigate = useNavigate();
+  const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
+  const [searchHappened, setSearchHappened] = useState(false);
   const {
     // eslint-disable-next-line camelcase
     data: { office_user },
     isLoading,
     isError,
   } = useUserQueries();
+  const onSubmit = useCallback((values) => {
+    const payload = {
+      moveCode: null,
+      dodID: null,
+      customerName: null,
+    };
+
+    if (values.searchType === 'moveCode') {
+      payload.moveCode = values.searchText;
+    } else if (values.searchType === 'dodID') {
+      payload.dodID = values.searchText;
+    } else if (values.searchType === 'customerName') {
+      payload.customerName = values.searchText;
+    }
+
+    setSearch(payload);
+    setSearchHappened(true);
+  }, []);
 
   // eslint-disable-next-line camelcase
   const showBranchFilter = office_user?.transportation_office?.gbloc !== GBLOC.USMC;
@@ -119,6 +145,81 @@ const PaymentRequestQueue = () => {
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
+
+  const renderNavBar = () => {
+    return (
+      <TabNav
+        className={styles.tableTabs}
+        items={[
+          <NavLink
+            end
+            className={({ isActive }) => (isActive ? 'usa-current' : '')}
+            to={tioRoutes.BASE_QUEUE_COUNSELING_PATH}
+          >
+            <span data-testid="counseling-tab-link" className="tab-title">
+              Payment Request Queue
+            </span>
+          </NavLink>,
+          <NavLink
+            end
+            className={({ isActive }) => (isActive ? 'usa-current' : '')}
+            to={generalRoutes.BASE_QUEUE_SEARCH_PATH}
+          >
+            <span data-testid="search-tab-link" className="tab-title">
+              Search
+            </span>
+          </NavLink>,
+        ]}
+      />
+    );
+  };
+
+  if (queueType === 'Search') {
+    return (
+      <div data-testid="move-search" className={styles.ServicesCounselingQueue}>
+        {renderNavBar()}
+        <h1>Search for a move</h1>
+        <MoveSearchForm onSubmit={onSubmit} role={roleTypes.SERVICES_COUNSELOR} />
+        {searchHappened && (
+          <SearchResultsTable
+            showFilters
+            showPagination
+            defaultCanSort
+            disableMultiSort
+            disableSortBy={false}
+            title="Results"
+            handleClick={handleClick}
+            useQueries={useMoveSearchQueries}
+            moveCode={search.moveCode}
+            dodID={search.dodID}
+            customerName={search.customerName}
+            roleType={roleTypes.SERVICES_COUNSELOR}
+          />
+        )}
+      </div>
+    );
+  }
+
+  if (queueType === 'PaymentRequest') {
+    return (
+      <div className={styles.ServicesCounselingQueue}>
+        {renderNavBar()}
+        <TableQueue
+          showFilters
+          showPagination
+          manualSortBy
+          defaultCanSort
+          defaultSortedColumns={[{ id: 'age', desc: true }]}
+          disableMultiSort
+          disableSortBy={false}
+          columns={columns(showBranchFilter)}
+          title="Payment requests"
+          handleClick={handleClick}
+          useQueries={usePaymentRequestQueueQueries}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.PaymentRequestQueue}>

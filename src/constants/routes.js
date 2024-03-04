@@ -3,6 +3,8 @@ export const generalRoutes = {
   SIGN_IN_PATH: '/sign-in',
   PRIVACY_SECURITY_POLICY_PATH: '/privacy-and-security-policy',
   ACCESSIBILITY_PATH: '/accessibility',
+  QUEUE_SEARCH_PATH: 'Search',
+  BASE_QUEUE_SEARCH_PATH: '/Search',
 };
 
 export const customerRoutes = {
