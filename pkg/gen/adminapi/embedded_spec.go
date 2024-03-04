@@ -2595,7 +2595,7 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd87dec0538"
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
         },
         "privilegeName": {
           "type": "string",
@@ -2603,7 +2603,7 @@ func init() {
         },
         "privilegeType": {
           "type": "string",
-          "example": "customer"
+          "example": "supervisor"
         },
         "updatedAt": {
           "type": "string",
@@ -5659,7 +5659,7 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd87dec0538"
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
         },
         "privilegeName": {
           "type": "string",
@@ -5667,7 +5667,7 @@ func init() {
         },
         "privilegeType": {
           "type": "string",
-          "example": "customer"
+          "example": "supervisor"
         },
         "updatedAt": {
           "type": "string",

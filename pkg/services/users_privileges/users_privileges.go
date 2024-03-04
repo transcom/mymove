@@ -79,7 +79,7 @@ func (u usersPrivilegesCreator) removeUserPrivileges(appCtx appcontext.AppContex
 	//FROM privileges r
 	//		LEFT JOIN users_privileges ur ON r.id = ur.privilege_id
 	//	AND ur.user_id = '3b9360a3-3304-4c60-90f4-83d687884079'
-	//WHERE privilege_type NOT IN ('transportation_ordering_officer', 'contracting_officer')
+	//WHERE privilege_type NOT IN ('supervisor')
 	//	AND ur.user_id IS NOT NULL;
 	var userPrivilegesToDelete []models.UsersPrivileges
 	if len(rs) > 0 {

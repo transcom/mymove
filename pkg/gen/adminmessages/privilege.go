@@ -25,7 +25,7 @@ type Privilege struct {
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// id
-	// Example: c56a4180-65aa-42ec-a945-5fd87dec0538
+	// Example: c56a4780-65aa-42ec-a945-5fd87dec0538
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
@@ -34,7 +34,7 @@ type Privilege struct {
 	PrivilegeName string `json:"privilegeName,omitempty"`
 
 	// privilege type
-	// Example: customer
+	// Example: supervisor
 	PrivilegeType string `json:"privilegeType,omitempty"`
 
 	// updated at
