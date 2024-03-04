@@ -27,13 +27,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
-	rank := models.ServiceMemberRankE9
+	grade := models.ServiceMemberGradeE9
 	SSWPPMComputer := NewSSWPPMComputer()
 
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
 				OrdersType: ordersType,
+				Grade:      &grade,
 			},
 		},
 		{
@@ -45,11 +46,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 			Model:    yuma,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
-		},
-		{
-			Model: models.ServiceMember{
-				Rank: &rank,
-			},
 		},
 		{
 			Model: models.SignedCertification{},
@@ -79,12 +75,12 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	suite.Equal(yuma.Address.ID, ssd.CurrentDutyLocation.Address.ID)
 	suite.Equal(fortGordon.ID, ssd.NewDutyLocation.ID)
 	suite.Equal(fortGordon.Address.ID, ssd.NewDutyLocation.Address.ID)
-	rankWtgAllotment := models.GetWeightAllotment(rank)
-	suite.Equal(unit.Pound(rankWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
-	suite.Equal(unit.Pound(rankWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
+	gradeWtgAllotment := models.GetWeightAllotment(grade)
+	suite.Equal(unit.Pound(gradeWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
+	suite.Equal(unit.Pound(gradeWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
 	suite.Equal(unit.Pound(0), ssd.WeightAllotment.SpouseProGear)
-	suite.Require().NotNil(ssd.ServiceMember.Rank)
-	weightAllotment := models.GetWeightAllotment(*ssd.ServiceMember.Rank)
+	suite.Require().NotNil(ssd.Order.Grade)
+	weightAllotment := models.GetWeightAllotment(*ssd.Order.Grade)
 	// E_9 rank, no dependents, no spouse pro-gear
 	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
 	suite.Require().Nil(err)
@@ -100,13 +96,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
-	rank := models.ServiceMemberRankE9
+	grade := models.ServiceMemberGradeE9
 	SSWPPMComputer := NewSSWPPMComputer()
 
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
 				OrdersType: ordersType,
+				Grade:      &grade,
 			},
 		},
 		{
@@ -118,11 +115,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 			Model:    yuma,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
-		},
-		{
-			Model: models.ServiceMember{
-				Rank: &rank,
-			},
 		},
 	}, nil)
 
@@ -161,13 +153,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
-	rank := models.ServiceMemberRankE9
+	grade := models.ServiceMemberGradeE9
 	SSWPPMComputer := NewSSWPPMComputer()
 
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
 				OrdersType: ordersType,
+				Grade:      &grade,
 			},
 		},
 		{
@@ -179,11 +172,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 			Model:    yuma,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
-		},
-		{
-			Model: models.ServiceMember{
-				Rank: &rank,
-			},
 		},
 		{
 			Model: models.SignedCertification{},
@@ -209,12 +197,12 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	suite.Equal(yuma.Address.ID, ssd.CurrentDutyLocation.Address.ID)
 	suite.Equal(fortGordon.ID, ssd.NewDutyLocation.ID)
 	suite.Equal(fortGordon.Address.ID, ssd.NewDutyLocation.Address.ID)
-	rankWtgAllotment := models.GetWeightAllotment(rank)
-	suite.Equal(unit.Pound(rankWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
-	suite.Equal(unit.Pound(rankWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
+	gradeWtgAllotment := models.GetWeightAllotment(grade)
+	suite.Equal(unit.Pound(gradeWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
+	suite.Equal(unit.Pound(gradeWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
 	suite.Equal(unit.Pound(0), ssd.WeightAllotment.SpouseProGear)
-	suite.Require().NotNil(ssd.ServiceMember.Rank)
-	weightAllotment := models.GetWeightAllotment(*ssd.ServiceMember.Rank)
+	suite.Require().NotNil(ssd.Order.Grade)
+	weightAllotment := models.GetWeightAllotment(*ssd.Order.Grade)
 	// E_9 rank, no dependents, no spouse pro-gear
 	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
@@ -237,19 +225,17 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 
 	serviceMemberID, _ := uuid.NewV4()
 	serviceBranch := models.AffiliationAIRFORCE
-	rank := models.ServiceMemberRankE9
+	grade := models.ServiceMemberGradeE9
 	serviceMember := models.ServiceMember{
-		ID:             serviceMemberID,
-		FirstName:      models.StringPointer("Marcus"),
-		MiddleName:     models.StringPointer("Joseph"),
-		LastName:       models.StringPointer("Jenkins"),
-		Suffix:         models.StringPointer("Jr."),
-		Telephone:      models.StringPointer("444-555-8888"),
-		PersonalEmail:  models.StringPointer("michael+ppm-expansion_1@truss.works"),
-		Edipi:          models.StringPointer("1234567890"),
-		Affiliation:    &serviceBranch,
-		Rank:           &rank,
-		DutyLocationID: &yuma.ID,
+		ID:            serviceMemberID,
+		FirstName:     models.StringPointer("Marcus"),
+		MiddleName:    models.StringPointer("Joseph"),
+		LastName:      models.StringPointer("Jenkins"),
+		Suffix:        models.StringPointer("Jr."),
+		Telephone:     models.StringPointer("444-555-8888"),
+		PersonalEmail: models.StringPointer("michael+ppm-expansion_1@truss.works"),
+		Edipi:         models.StringPointer("1234567890"),
+		Affiliation:   &serviceBranch,
 	}
 
 	orderIssueDate := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)
@@ -262,6 +248,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		SAC:               models.StringPointer("SAC"),
 		HasDependents:     true,
 		SpouseHasProGear:  true,
+		Grade:             &grade,
 	}
 	pickupDate := time.Date(2019, time.January, 11, 0, 0, 0, 0, time.UTC)
 	netWeight := unit.Pound(4000)
@@ -399,60 +386,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	// fields w/ no expenses should format as $0.00, but must be temporarily removed until string function is replaced
 }
 
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSummaryWorksheetFormPage3() {
-	signatureDate := time.Date(2019, time.January, 26, 14, 40, 0, 0, time.UTC)
-	sm := models.ServiceMember{
-		FirstName: models.StringPointer("John"),
-		LastName:  models.StringPointer("Smith"),
-	}
-	paidWithGTCC := false
-	tollExpense := models.MovingExpenseReceiptTypeTolls
-	oilExpense := models.MovingExpenseReceiptTypeOil
-	amount := unit.Cents(10000)
-	movingExpenses := models.MovingExpenses{
-		{
-			MovingExpenseType: &tollExpense,
-			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
-		},
-		{
-			MovingExpenseType: &oilExpense,
-			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
-		},
-		{
-			MovingExpenseType: &oilExpense,
-			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
-		},
-		{
-			MovingExpenseType: &oilExpense,
-			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
-		},
-		{
-			MovingExpenseType: &tollExpense,
-			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
-		},
-	}
-	signature := models.SignedCertification{
-		Date: signatureDate,
-	}
-
-	ssd := services.ShipmentSummaryFormData{
-		ServiceMember:       sm,
-		SignedCertification: signature,
-		MovingExpenses:      movingExpenses,
-	}
-
-	sswPage3 := FormatValuesShipmentSummaryWorksheetFormPage3(ssd)
-
-	suite.Equal("", sswPage3.AmountsPaid)
-	suite.Equal("John Smith electronically signed", sswPage3.ServiceMemberSignature)
-	suite.Equal("26 Jan 2019 at 2:40pm", sswPage3.SignatureDate)
-}
-
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestGroupExpenses() {
 	paidWithGTCC := false
 	tollExpense := models.MovingExpenseReceiptTypeTolls
@@ -566,9 +499,9 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestCalculatePPMEntitlementPP
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWGetEntitlement() {
 	spouseHasProGear := true
 	hasDependants := true
-	allotment := models.GetWeightAllotment(models.ServiceMemberRankE1)
+	allotment := models.GetWeightAllotment(models.ServiceMemberGradeE1)
 	expectedTotalWeight := allotment.TotalWeightSelfPlusDependents + allotment.ProGearWeight + allotment.ProGearWeightSpouse
-	sswEntitlement := SSWGetEntitlement(models.ServiceMemberRankE1, hasDependants, spouseHasProGear)
+	sswEntitlement := SSWGetEntitlement(models.ServiceMemberGradeE1, hasDependants, spouseHasProGear)
 
 	suite.Equal(unit.Pound(expectedTotalWeight), sswEntitlement.TotalWeight)
 	suite.Equal(unit.Pound(allotment.TotalWeightSelfPlusDependents), sswEntitlement.Entitlement)
@@ -579,9 +512,9 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWGetEntitlement()
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWGetEntitlementNoDependants() {
 	spouseHasProGear := false
 	hasDependants := false
-	allotment := models.GetWeightAllotment(models.ServiceMemberRankE1)
+	allotment := models.GetWeightAllotment(models.ServiceMemberGradeE1)
 	expectedTotalWeight := allotment.TotalWeightSelf + allotment.ProGearWeight
-	sswEntitlement := SSWGetEntitlement(models.ServiceMemberRankE1, hasDependants, spouseHasProGear)
+	sswEntitlement := SSWGetEntitlement(models.ServiceMemberGradeE1, hasDependants, spouseHasProGear)
 
 	suite.Equal(unit.Pound(expectedTotalWeight), sswEntitlement.TotalWeight)
 	suite.Equal(unit.Pound(allotment.TotalWeightSelf), sswEntitlement.Entitlement)
@@ -622,11 +555,11 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatCurrentPPMStatus() 
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatRank() {
-	e9 := models.ServiceMemberRankE9
-	multipleRanks := models.ServiceMemberRankO1ACADEMYGRADUATE
+	e9 := models.ServiceMemberGradeE9
+	multipleGrades := models.ServiceMemberGradeO1ACADEMYGRADUATE
 
-	suite.Equal("E-9", FormatRank(&e9))
-	suite.Equal("O-1 or Service Academy Graduate", FormatRank(&multipleRanks))
+	suite.Equal("E-9", FormatGrade(&e9))
+	suite.Equal("O-1 or Service Academy Graduate", FormatGrade(&multipleGrades))
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipmentNumberAndType() {
@@ -734,4 +667,157 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignatureDate() {
 	formattedDate := FormatSignatureDate(sswfd.SignedCertification)
 
 	suite.Equal("26 Jan 2019 at 2:40pm", formattedDate)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAddress() {
+	// Test case 1: Valid W2 address
+	validAddress := &models.Address{
+		StreetAddress1: "123 Main St",
+		City:           "Cityville",
+		State:          "ST",
+		PostalCode:     "12345",
+	}
+
+	expectedValidResult := "123 Main St,  Cityville ST 12345"
+
+	resultValid := FormatAddress(validAddress)
+
+	suite.Equal(expectedValidResult, resultValid)
+
+	// Test case 2: Nil W2 address
+	nilAddress := (*models.Address)(nil)
+
+	expectedNilResult := ""
+
+	resultNil := FormatAddress(nilAddress)
+
+	suite.Equal(expectedNilResult, resultNil)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestNilOrValue() {
+	// Test case 1: Non-nil pointer
+	validPointer := "ValidValue"
+	validResult := nilOrValue(&validPointer)
+	expectedValidResult := "ValidValue"
+
+	if validResult != expectedValidResult {
+		suite.Equal(expectedValidResult, validResult)
+	}
+
+	// Test case 2: Nil pointer
+	nilPointer := (*string)(nil)
+	nilResult := nilOrValue(nilPointer)
+	expectedNilResult := ""
+
+	if nilResult != expectedNilResult {
+		suite.Equal(expectedNilResult, nilResult)
+	}
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestMergeTextFields() {
+	// Test case 1: Non-empty input slices
+	fields1 := []textField{
+		{Pages: []int{1, 2}, ID: "1", Name: "Field1", Value: "Value1", Multiline: false, Locked: true},
+		{Pages: []int{3, 4}, ID: "2", Name: "Field2", Value: "Value2", Multiline: true, Locked: false},
+	}
+
+	fields2 := []textField{
+		{Pages: []int{5, 6}, ID: "3", Name: "Field3", Value: "Value3", Multiline: true, Locked: false},
+		{Pages: []int{7, 8}, ID: "4", Name: "Field4", Value: "Value4", Multiline: false, Locked: true},
+	}
+
+	mergedResult := mergeTextFields(fields1, fields2)
+
+	expectedMergedResult := []textField{
+		{Pages: []int{1, 2}, ID: "1", Name: "Field1", Value: "Value1", Multiline: false, Locked: true},
+		{Pages: []int{3, 4}, ID: "2", Name: "Field2", Value: "Value2", Multiline: true, Locked: false},
+		{Pages: []int{5, 6}, ID: "3", Name: "Field3", Value: "Value3", Multiline: true, Locked: false},
+		{Pages: []int{7, 8}, ID: "4", Name: "Field4", Value: "Value4", Multiline: false, Locked: true},
+	}
+
+	suite.Equal(mergedResult, expectedMergedResult)
+
+	// Test case 2: Empty input slices
+	emptyResult := mergeTextFields([]textField{}, []textField{})
+	expectedEmptyResult := []textField{}
+
+	suite.Equal(emptyResult, expectedEmptyResult)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestCreateTextFields() {
+	// Test case 1: Non-empty input
+	type TestData struct {
+		Field1 string
+		Field2 int
+		Field3 bool
+	}
+
+	testData := TestData{"Value1", 42, true}
+	pages := []int{1, 2}
+
+	result := createTextFields(testData, pages...)
+
+	expectedResult := []textField{
+		{Pages: pages, ID: "1", Name: "Field1", Value: "Value1", Multiline: false, Locked: false},
+		{Pages: pages, ID: "2", Name: "Field2", Value: "42", Multiline: false, Locked: false},
+		{Pages: pages, ID: "3", Name: "Field3", Value: "true", Multiline: false, Locked: false},
+	}
+
+	suite.Equal(result, expectedResult)
+
+	// Test case 2: Empty input
+	emptyResult := createTextFields(struct{}{})
+
+	suite.Nil(emptyResult)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
+	SSWPPMComputer := NewSSWPPMComputer()
+	ppmGenerator, err := NewSSWPPMGenerator()
+	suite.FatalNoError(err)
+	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
+	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
+	grade := models.ServiceMemberGradeE9
+	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				OrdersType: ordersType,
+				Grade:      &grade,
+			},
+		},
+		{
+			Model:    fortGordon,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
+		},
+		{
+			Model:    yuma,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.SignedCertification{},
+		},
+	}, nil)
+
+	ppmShipmentID := ppmShipment.ID
+
+	serviceMemberID := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID
+
+	session := auth.Session{
+		UserID:          ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID,
+		ServiceMemberID: serviceMemberID,
+		ApplicationName: auth.MilApp,
+	}
+
+	models.SaveMoveDependencies(suite.DB(), &ppmShipment.Shipment.MoveTaskOrder)
+
+	ssd, err := SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, ppmShipmentID)
+	suite.NoError(err)
+	page1Data, page2Data := SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssd)
+	test, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
+	suite.NoError(err)
+	println(test.Name())           // ensures was generated with temp filesystem
+	suite.Equal(info.PageCount, 2) // ensures PDF is not corrupted
 }
