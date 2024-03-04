@@ -814,7 +814,9 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
 		{
-			Model: models.SignedCertification{},
+			Model: models.SignedCertification{
+				UpdatedAt: time.Now(),
+			},
 		},
 	}, nil)
 

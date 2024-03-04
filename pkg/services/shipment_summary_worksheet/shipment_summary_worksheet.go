@@ -462,8 +462,8 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 	page2.PackingMaterialsGTCCPaid = FormatDollars(expensesMap["PackingMaterialsGTCCPaid"])
 	page2.WeighingFeesMemberPaid = FormatDollars(expensesMap["WeighingFeeMemberPaid"])
 	page2.WeighingFeesGTCCPaid = FormatDollars(expensesMap["WeighingFeeGTCCPaid"])
-	page2.GasMemberPaid = FormatDollars(expensesMap["GasMemberPaid"])
-	page2.GasGTCCPaid = FormatDollars(expensesMap["GasGTCCPaid"])
+	page2.RentalEquipmentMemberPaid = FormatDollars(expensesMap["RentalEquipmentMemberPaid"])
+	page2.RentalEquipmentGTCCPaid = FormatDollars(expensesMap["RentalEquipmentGTCCPaid"])
 	page2.TollsMemberPaid = FormatDollars(expensesMap["TollsMemberPaid"])
 	page2.TollsGTCCPaid = FormatDollars(expensesMap["TollsGTCCPaid"])
 	page2.OilMemberPaid = FormatDollars(expensesMap["OilMemberPaid"])
@@ -841,6 +841,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		"Shipment.MoveTaskOrder.Orders.OriginDutyLocation.Address",
 		"Shipment.MTOAgents",
 		"W2Address",
+		"SignedCertification",
 		"MovingExpenses",
 	).Find(&ppmShipment, ppmShipmentID)
 
@@ -867,16 +868,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 	}
 
 	// DOES NOT INCLUDE PPPO/PPSO SIGNATURE
-	signedCertifications, err := models.FetchSignedCertifications(appCtx.DB(), auth.SessionFromContext(appCtx.DB().Context()), ppmShipment.Shipment.MoveTaskOrderID)
-	if err != nil {
-		return nil, err
-	}
-	if signedCertifications == nil {
-		return nil,
-			errors.New("shipment summary worksheet: signed certification is nil")
-	}
-
-	signedCertification := signedCertifications[0]
+	signedCertification := ppmShipment.SignedCertification
 
 	var ppmShipments []models.PPMShipment
 
@@ -937,7 +929,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 	var sswHeader = header{
 		Source:   "SSWPDFTemplate.pdf",
 		Version:  "pdfcpu v0.6.0 dev",
-		Creation: "2024-01-22 21:49:12 UTC",
+		Creation: "2024-03-04 19:20:05 UTC",
 		Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
 	}
 
