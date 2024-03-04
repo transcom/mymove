@@ -48,6 +48,11 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 		return nil, err
 	}
 
+	isPrimeCounseled, err := IsPrimeCounseledPPM(appCtx, mtoShipmentID)
+	if err != nil {
+		return nil, err
+	}
+
 	updatedPPMShipment := mergePPMShipment(*ppmShipment, oldPPMShipment)
 
 	err = validatePPMShipment(appCtx, *updatedPPMShipment, oldPPMShipment, &oldPPMShipment.Shipment, checks...)
@@ -78,6 +83,21 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 				if oldPPMShipment.AdvanceAmountRequested != nil && updatedPPMShipment.AdvanceAmountRequested != nil {
 					if *oldPPMShipment.AdvanceAmountRequested != *updatedPPMShipment.AdvanceAmountRequested {
 						updatedPPMShipment.AdvanceStatus = &edited
+					}
+				}
+			}
+			if appCtx.Session().IsMilApp() {
+				if isPrimeCounseled && updatedPPMShipment.HasRequestedAdvance != nil {
+					received := models.PPMAdvanceStatusReceived
+					notReceived := models.PPMAdvanceStatusNotReceived
+
+					if updatedPPMShipment.HasReceivedAdvance != nil && *updatedPPMShipment.HasRequestedAdvance {
+						if *updatedPPMShipment.HasReceivedAdvance {
+							updatedPPMShipment.AdvanceStatus = &received
+						}
+						if !*updatedPPMShipment.HasReceivedAdvance {
+							updatedPPMShipment.AdvanceStatus = &notReceived
+						}
 					}
 				}
 			}
