@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { arrayOf, bool } from 'prop-types';
 import { Alert, Button } from '@trussworks/react-uswds';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams, generatePath } from 'react-router-dom';
+
+import { isMultiMoveEnabled } from '../../../utils/featureFlags';
 
 import styles from './Profile.module.scss';
 
@@ -37,9 +39,11 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
   };
   const [needsToVerifyProfile, setNeedsToVerifyProfile] = useState(false);
   const [profileValidated, setProfileValidated] = useState(false);
+  const [multiMove, setMultiMove] = useState(false);
 
   const navigate = useNavigate();
   const { state } = useLocation();
+  const { moveId } = useParams();
 
   useEffect(() => {
     if (state && state.needsToVerifyProfile) {
@@ -47,6 +51,9 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
     } else {
       setNeedsToVerifyProfile(false);
     }
+    isMultiMoveEnabled().then((enabled) => {
+      setMultiMove(enabled);
+    });
   }, [state]);
 
   const handleCreateMoveClick = () => {
@@ -56,6 +63,10 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
   const handleValidateProfileClick = () => {
     setProfileValidated(true);
   };
+
+  const returnToMovePath = multiMove
+    ? generatePath(customerRoutes.MOVE_HOME_PATH, { moveId })
+    : generalRoutes.HOME_PATH;
 
   // displays the profile data for MilMove & Okta
   // Profile w/contact info for servicemember & backup contact
@@ -69,7 +80,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
           {needsToVerifyProfile ? (
             <Link to={generalRoutes.HOME_PATH}>Return to Dashboard</Link>
           ) : (
-            <Link to={generalRoutes.HOME_PATH}>Return to Move</Link>
+            <Link to={returnToMovePath}>Return to Move</Link>
           )}
           <div className={styles.profileHeader}>
             <h1>Profile</h1>

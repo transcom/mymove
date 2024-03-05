@@ -40,7 +40,7 @@ export const customerRoutes = {
   MOVE_AGREEMENT_PATH: '/moves/:moveId/agreement',
   EDIT_PROFILE_PATH: '/moves/review/edit-profile',
   EDIT_OKTA_PROFILE_PATH: '/moves/review/edit-okta-profile',
-  PROFILE_PATH: '/service-member/profile',
+  PROFILE_PATH: '/service-member/profile/:moveId',
   SERVICE_INFO_EDIT_PATH: '/moves/review/edit-service-info',
   CONTACT_INFO_EDIT_PATH: '/moves/review/edit-contact-info',
 };
