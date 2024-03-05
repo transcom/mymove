@@ -199,11 +199,7 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 		if (serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
 			serviceItem.ReService.Code == models.ReServiceCodeDDSFSC ||
 			serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
-			serviceItem.ReService.Code == models.ReServiceCodeDDFSIT ||
-			serviceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
-			serviceItem.ReService.Code == models.ReServiceCodeDOFSIT ||
-			serviceItem.ReService.Code == models.ReServiceCodeDOASIT ||
-			serviceItem.ReService.Code == models.ReServiceCodeDOSFSC) &&
+			serviceItem.ReService.Code == models.ReServiceCodeDDFSIT) &&
 			serviceItem.SITDestinationOriginalAddressID == nil {
 
 			// Set the original address on a service item to the shipment's
@@ -226,14 +222,14 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 			serviceItem.SITDestinationOriginalAddressID = &shipmentDestinationAddress.ID
 			serviceItem.SITDestinationOriginalAddress = shipmentDestinationAddress
 
-			if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
-				serviceItem.ReService.Code == models.ReServiceCodeDDSFSC ||
-				serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
-				serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
-				if serviceItem.SITDestinationFinalAddressID == nil {
-					serviceItem.SITDestinationFinalAddressID = &shipmentDestinationAddress.ID
-					serviceItem.SITDestinationFinalAddress = shipmentDestinationAddress
-				}
+			if serviceItem.SITDestinationFinalAddressID == nil {
+				serviceItem.SITDestinationFinalAddressID = &shipmentDestinationAddress.ID
+				serviceItem.SITDestinationFinalAddress = shipmentDestinationAddress
+			}
+
+			milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
+			if err == nil {
+				serviceItem.SITDeliveryMiles = &milesCalculated
 			}
 		}
 		// Calculate SITDeliveryMiles for origin SIT service items

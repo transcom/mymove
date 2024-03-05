@@ -1066,7 +1066,6 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 			reServiceCode == models.ReServiceCodeDDSFSC {
 
 			var milesCalculated int
-			var err error
 
 			if TOOApprovalRequired {
 				// if TOO approval was required, shipment destination address has been updated at this point
