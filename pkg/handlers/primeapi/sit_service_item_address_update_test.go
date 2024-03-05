@@ -29,9 +29,14 @@ func (suite *HandlerSuite) TestCreateSITAddressUpdateRequest() {
 		mock.AnythingOfType("string"),
 	).Return(mockedDistance, nil)
 
+	mockPlanner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("string"),
+	).Return(mockedDistance, nil)
 	moveRouter := moverouter.NewMoveRouter()
 	addressCreator := address.NewAddressCreator()
-	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(query.NewQueryBuilder(), moveRouter, mtoshipment.NewMTOShipmentFetcher(), addressCreator)
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(mockPlanner, query.NewQueryBuilder(), moveRouter, mtoshipment.NewMTOShipmentFetcher(), addressCreator)
 	sitAddressUpdateCreator := sitaddressupdate.NewSITAddressUpdateRequestCreator(mockPlanner, addressCreator, serviceItemUpdater, moveRouter)
 
 	suite.Run("Success 201 - Create SIT address update request", func() {
