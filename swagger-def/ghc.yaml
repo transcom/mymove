@@ -3123,6 +3123,14 @@ paths:
               shipmentsCount:
                 type: integer
                 x-nullable: true
+              pickupDate:
+                type: string
+                format: date-time
+                x-nullable: true
+              deliveryDate:
+                type: string
+                format: date-time
+                x-nullable: true
               sort:
                 type: string
                 x-nullable: true
@@ -5064,6 +5072,18 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      requestedPickupDate:
+        type: string
+        format: date
+        x-nullable: true
+      requestedDeliveryDate:
+        type: string
+        format: date
+        x-nullable: true
+      originGBLOC:
+        $ref: '#/definitions/GBLOC'
+      destinationGBLOC:
+        $ref: '#/definitions/GBLOC'
   SearchMovesResult:
     type: object
     properties:
