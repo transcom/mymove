@@ -23,7 +23,7 @@ type OfficeUserCreate struct {
 	// EDIPI
 	// Example: 1234567890
 	// Max Length: 10
-	Edipi string `json:"edipi,omitempty"`
+	Edipi *string `json:"edipi,omitempty"`
 
 	// Email
 	// Example: user@userdomain.com
@@ -43,7 +43,7 @@ type OfficeUserCreate struct {
 	MiddleInitials *string `json:"middleInitials,omitempty"`
 
 	// Office user identifier when EDIPI is not available
-	OtherUniqueID string `json:"other_unique_id,omitempty"`
+	OtherUniqueID *string `json:"otherUniqueId,omitempty"`
 
 	// roles
 	// Required: true
@@ -105,7 +105,7 @@ func (m *OfficeUserCreate) validateEdipi(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MaxLength("edipi", "body", m.Edipi, 10); err != nil {
+	if err := validate.MaxLength("edipi", "body", *m.Edipi, 10); err != nil {
 		return err
 	}
 

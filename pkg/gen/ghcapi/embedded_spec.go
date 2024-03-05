@@ -3650,7 +3650,7 @@ func init() {
     },
     "/requested-office-users": {
       "post": {
-        "description": "Request the creation of office user(s). An administrator will need to approve them after creation. Note on requirements: An identification method must be present. The following 2 fields have an \"OR\" requirement. - edipi - other_unique_id One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.\n",
+        "description": "Request the creation of and office user. An administrator will need to approve them after creation. Note on requirements: An identification method must be present. The following 2 fields have an \"OR\" requirement. - edipi - other_unique_id One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.\n",
         "consumes": [
           "application/json"
         ],
@@ -3674,7 +3674,7 @@ func init() {
         ],
         "responses": {
           "201": {
-            "description": "successfully requested the creation of provided office user(s)",
+            "description": "successfully requested the creation of provided office user",
             "schema": {
               "$ref": "#/definitions/OfficeUser"
             }
@@ -7482,6 +7482,7 @@ func init() {
           "type": "string",
           "title": "EDIPI",
           "maxLength": 10,
+          "x-nullable": true,
           "example": "1234567890"
         },
         "email": {
@@ -7506,9 +7507,10 @@ func init() {
           "x-nullable": true,
           "example": "L."
         },
-        "other_unique_id": {
+        "otherUniqueId": {
           "type": "string",
-          "title": "Office user identifier when EDIPI is not available"
+          "title": "Office user identifier when EDIPI is not available",
+          "x-nullable": true
         },
         "roles": {
           "type": "array",
@@ -15250,7 +15252,7 @@ func init() {
     },
     "/requested-office-users": {
       "post": {
-        "description": "Request the creation of office user(s). An administrator will need to approve them after creation. Note on requirements: An identification method must be present. The following 2 fields have an \"OR\" requirement. - edipi - other_unique_id One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.\n",
+        "description": "Request the creation of and office user. An administrator will need to approve them after creation. Note on requirements: An identification method must be present. The following 2 fields have an \"OR\" requirement. - edipi - other_unique_id One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.\n",
         "consumes": [
           "application/json"
         ],
@@ -15274,7 +15276,7 @@ func init() {
         ],
         "responses": {
           "201": {
-            "description": "successfully requested the creation of provided office user(s)",
+            "description": "successfully requested the creation of provided office user",
             "schema": {
               "$ref": "#/definitions/OfficeUser"
             }
@@ -19377,6 +19379,7 @@ func init() {
           "type": "string",
           "title": "EDIPI",
           "maxLength": 10,
+          "x-nullable": true,
           "example": "1234567890"
         },
         "email": {
@@ -19401,9 +19404,10 @@ func init() {
           "x-nullable": true,
           "example": "L."
         },
-        "other_unique_id": {
+        "otherUniqueId": {
           "type": "string",
-          "title": "Office user identifier when EDIPI is not available"
+          "title": "Office user identifier when EDIPI is not available",
+          "x-nullable": true
         },
         "roles": {
           "type": "array",

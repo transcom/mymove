@@ -47,7 +47,7 @@ paths:
         - application/json
       summary: Create an Office User
       description: >
-        Request the creation of office user(s). An administrator will need to
+        Request the creation of and office user. An administrator will need to
         approve them after creation. Note on requirements: An identification
         method must be present. The following 2 fields have an "OR" requirement.
         - edipi - other_unique_id One of these two fields MUST be present to
@@ -64,7 +64,7 @@ paths:
             $ref: '#/definitions/OfficeUserCreate'
       responses:
         '201':
-          description: successfully requested the creation of provided office user(s)
+          description: successfully requested the creation of provided office user
           schema:
             $ref: '#/definitions/OfficeUser'
         '422':
@@ -3538,9 +3538,11 @@ definitions:
         example: '1234567890'
         maxLength: 10
         title: EDIPI
-      other_unique_id:
+        x-nullable: true
+      otherUniqueId:
         type: string
         title: Office user identifier when EDIPI is not available
+        x-nullable: true
       firstName:
         type: string
         title: First Name

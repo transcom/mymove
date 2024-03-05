@@ -17,7 +17,7 @@ import (
 const CreateRequestedOfficeUserCreatedCode int = 201
 
 /*
-CreateRequestedOfficeUserCreated successfully requested the creation of provided office user(s)
+CreateRequestedOfficeUserCreated successfully requested the creation of provided office user
 
 swagger:response createRequestedOfficeUserCreated
 */
