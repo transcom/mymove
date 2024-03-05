@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -181,5 +182,47 @@ func (h showAOAPacketHandler) Handle(params ppmdocumentops.ShowAOAPacketParams) 
 			filename := fmt.Sprintf("inline; filename=\"AOA-%s.pdf\"", time.Now().Format("01-02-2006_15-04-05"))
 
 			return ppmdocumentops.NewShowAOAPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
+		})
+}
+
+// ShowPaymentPacketHandler returns a PPM Payment Packet PDF
+type ShowPaymentPacketHandler struct {
+	handlers.HandlerConfig
+	services.PaymentPacketCreator
+}
+
+// Handle returns a generated PDF
+func (h ShowPaymentPacketHandler) Handle(params ppmdocumentops.ShowPaymentPacketParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			pdf, err := h.PaymentPacketCreator.GenerateDefault(appCtx, ppmShipmentID)
+			if err != nil {
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					if e.Unwrap() != nil {
+						// If you can unwrap, log the error (usually a pq error) for better debugging
+						appCtx.Logger().Error(
+							"internalapi.DownPaymentPacket error",
+							zap.Error(e.Unwrap()),
+						)
+					}
+					badDataError := apperror.NewBadDataError("ppm shipment id not found")
+					payload := payloadForValidationError("Unable to generate payment packet", badDataError.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
+					return ppmdocumentops.NewShowPaymentPacketUnprocessableEntity().WithPayload(payload), err
+				default:
+					appCtx.Logger().Error("internalapi.DownPaymentPacket error", zap.Error(err))
+					return ppmdocumentops.NewShowPaymentPacketInternalServerError(), err
+				}
+			}
+
+			payload := io.NopCloser(pdf)
+			filename := fmt.Sprintf("inline; filename=\"ppm_payment_packet-%s.pdf\"", time.Now().UTC().Format("2006-01-02T15:04:05.000Z"))
+
+			return ppmdocumentops.NewShowPaymentPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
 		})
 }

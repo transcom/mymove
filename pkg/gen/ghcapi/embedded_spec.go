@@ -2909,6 +2909,59 @@ func init() {
         }
       ]
     },
+    "/ppm-shipments/{ppmShipmentId}/payment_packet": {
+      "get": {
+        "description": "Generates a PDF containing all user uploaded documentations for PPM",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Returns PPM payment packet",
+        "operationId": "showPaymentPacket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppmShipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PPM Payment Packet PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
       "patch": {
         "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
@@ -14157,6 +14210,62 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/payment_packet": {
+      "get": {
+        "description": "Generates a PDF containing all user uploaded documentations for PPM",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Returns PPM payment packet",
+        "operationId": "showPaymentPacket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppmShipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PPM Payment Packet PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
     },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
       "patch": {
