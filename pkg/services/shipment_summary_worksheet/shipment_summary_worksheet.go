@@ -427,6 +427,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.SITNumberAndTypes = formattedShipments.ShipmentNumberAndTypes
 	page1.ShipmentWeights = formattedShipments.ShipmentWeights
 	// Obligations cannot be used at this time, require new computer setup.
+	page1.MaxObligationGCCMaxAdvance = formatMaxAdvance(data.PPMShipments[0].EstimatedIncentive)
 	page1.ActualObligationAdvance = data.PPMShipments[0].AdvanceAmountReceived.ToDollarString()
 	// page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
 	// actualObligations := data.Obligations.ActualObligation
@@ -516,6 +517,17 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 	page2.ServiceMemberSignature = FormatSignature(data.ServiceMember)
 	page2.SignatureDate = FormatSignatureDate(data.SignedCertification.UpdatedAt)
 	return page2
+}
+
+func formatMaxAdvance(estimatedIncentive *unit.Cents) string {
+	if estimatedIncentive != nil {
+		maxAdvance := float64(*estimatedIncentive) * 0.6
+		maxAdvanceString := FormatDollars(maxAdvance / 100)
+		return maxAdvanceString
+	}
+	maxAdvanceString := "No Incentive Found"
+	return maxAdvanceString
+
 }
 
 func FormatAgentInfo(agentArray []models.MTOAgent) Agent {
