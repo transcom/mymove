@@ -186,7 +186,7 @@ func (g *Generator) GetPdfFileInfo(fileName string) (*pdfcpu.PDFInfo, error) {
 	return api.PDFInfo(file, fileName, nil, g.pdfConfig)
 }
 
-func (g *Generator) GetPdfFileInfoByReadSeeker(rs io.ReadSeeker) (*pdfcpu.PDFInfo, error) {
+func (g *Generator) GetPdfFileInfoForReadSeeker(rs io.ReadSeeker) (*pdfcpu.PDFInfo, error) {
 	return api.PDFInfo(rs, "", nil, g.pdfConfig)
 }
 

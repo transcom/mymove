@@ -85,8 +85,8 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 	sortedPaymentPacketItemsMap := buildPaymentPacketItemsMap(ppmShipment)
 
 	for i := 0; i < len(sortedPaymentPacketItemsMap); i++ {
-		pdfFileName, err := p.pdfGenerator.ConvertUploadToPDF(appCtx, sortedPaymentPacketItemsMap[i].Upload)
-		if err != nil {
+		pdfFileName, perr := p.pdfGenerator.ConvertUploadToPDF(appCtx, sortedPaymentPacketItemsMap[i].Upload)
+		if perr != nil {
 			errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to generate pdf for upload")
 			appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
 			return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
@@ -129,7 +129,7 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 	}
 
 	if !addWatermarks {
-		p.pdfGenerator.AddPdfBookmarks(finalMergePdf, bookmarks)
+		return p.pdfGenerator.AddPdfBookmarks(finalMergePdf, bookmarks)
 	}
 
 	watermarks, err := buildWaterMarks(bookmarks, p.pdfGenerator)
@@ -167,7 +167,7 @@ func buildBookMarks(fileNamesToMerge []string, sortedPaymentPacketItems map[int]
 	var bookmarks []pdfcpu.Bookmark
 
 	// retrieve file info for AOA packet file
-	aoaPacketFileInfo, err := pdfGenerator.GetPdfFileInfoByReadSeeker(aoaPacketFile)
+	aoaPacketFileInfo, err := pdfGenerator.GetPdfFileInfoForReadSeeker(aoaPacketFile)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "failed to retrieve PDF file info for AOA packet file", err)
 	}
@@ -276,22 +276,22 @@ func buildPaymentPacketItemsMap(ppmShipment *models.PPMShipment) map[int]payment
 	}
 
 	// process expenses, group by type as array list
-	expenseType_Map := make(map[string][]models.MovingExpense)
+	expenseTypeMap := make(map[string][]models.MovingExpense)
 	for _, movingExpense := range ppmShipment.MovingExpenses {
-		if value, exists := expenseType_Map[string(*movingExpense.MovingExpenseType)]; exists {
+		if value, exists := expenseTypeMap[string(*movingExpense.MovingExpenseType)]; exists {
 			// add to existing array
 			value = append(value, movingExpense)
-			expenseType_Map[string(*movingExpense.MovingExpenseType)] = value
+			expenseTypeMap[string(*movingExpense.MovingExpenseType)] = value
 		} else {
 			// create new array and add first item
-			expenseType_Map[string(*movingExpense.MovingExpenseType)] = make([]models.MovingExpense, 0)
-			expenseType_Map[string(*movingExpense.MovingExpenseType)] = append(expenseType_Map[string(*movingExpense.MovingExpenseType)], movingExpense)
+			expenseTypeMap[string(*movingExpense.MovingExpenseType)] = make([]models.MovingExpense, 0)
+			expenseTypeMap[string(*movingExpense.MovingExpenseType)] = append(expenseTypeMap[string(*movingExpense.MovingExpenseType)], movingExpense)
 		}
 	}
 
 	expensesCnt := 1
 	for _, expenseType := range sortedExpenseType {
-		for _, item := range expenseType_Map[expenseType] {
+		for _, item := range expenseTypeMap[expenseType] {
 			expensesDocCnt := 1
 			for _, uu := range item.Document.UserUploads {
 				sectionLabel := fmt.Sprintf("Expenses: Receipt #%s:", fmt.Sprint(expensesCnt))

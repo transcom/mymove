@@ -446,12 +446,13 @@ func (suite *PPMShipmentSuite) TestCreatePaymentPacket() {
 		_, err = io.Copy(outFile, buf)
 		suite.FatalNil(err)
 
-		info, err := generator.GetPdfFileInfoByReadSeeker(outFile)
+		info, err := generator.GetPdfFileInfoForReadSeeker(outFile)
 		suite.FatalNil(err)
 		suite.True(info.PageCount > 0)
 
 		buf = new(bytes.Buffer)
-		api.ExportBookmarksJSON(outFile, buf, "", nil)
+		err = api.ExportBookmarksJSON(outFile, buf, "", nil)
+		suite.FatalNil(err)
 
 		pdfBookmarks := pdfBookmarks{}
 
