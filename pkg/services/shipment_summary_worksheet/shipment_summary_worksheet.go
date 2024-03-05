@@ -427,6 +427,10 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.SITNumberAndTypes = formattedShipments.ShipmentNumberAndTypes
 	page1.ShipmentWeights = formattedShipments.ShipmentWeights
 	// Obligations cannot be used at this time, require new computer setup.
+	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.TotalWeight) + " lbs; " + data.PPMShipments[0].EstimatedIncentive.ToDollarString()
+	page1.ActualObligationGCC100 = data.PPMShipments[0].FinalIncentive.ToDollarString()
+	page1.MaxObligationSIT = data.PPMShipments[0].SITEstimatedCost.ToDollarString()
+	// page1.ActualObligationSIT =
 	page1.MaxObligationGCCMaxAdvance = formatMaxAdvance(data.PPMShipments[0].EstimatedIncentive)
 	page1.ActualObligationAdvance = data.PPMShipments[0].AdvanceAmountReceived.ToDollarString()
 	// page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
