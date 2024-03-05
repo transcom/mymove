@@ -151,11 +151,7 @@ const PaymentRequestQueue = () => {
       <TabNav
         className={styles.tableTabs}
         items={[
-          <NavLink
-            end
-            className={({ isActive }) => (isActive ? 'usa-current' : '')}
-            to={tioRoutes.BASE_QUEUE_COUNSELING_PATH}
-          >
+          <NavLink end className={({ isActive }) => (isActive ? 'usa-current' : '')} to={generalRoutes.HOME_PATH}>
             <span data-testid="counseling-tab-link" className="tab-title">
               Payment Request Queue
             </span>
@@ -163,7 +159,7 @@ const PaymentRequestQueue = () => {
           <NavLink
             end
             className={({ isActive }) => (isActive ? 'usa-current' : '')}
-            to={generalRoutes.BASE_QUEUE_SEARCH_PATH}
+            to={generalRoutes.QUEUE_SEARCH_PATH}
           >
             <span data-testid="search-tab-link" className="tab-title">
               Search
@@ -176,7 +172,7 @@ const PaymentRequestQueue = () => {
 
   if (queueType === 'Search') {
     return (
-      <div data-testid="move-search" className={styles.ServicesCounselingQueue}>
+      <div data-testid="move-search" className={styles.PaymentRequestQueue}>
         {renderNavBar()}
         <h1>Search for a move</h1>
         <MoveSearchForm onSubmit={onSubmit} role={roleTypes.SERVICES_COUNSELOR} />
@@ -202,7 +198,7 @@ const PaymentRequestQueue = () => {
 
   if (queueType === 'PaymentRequest') {
     return (
-      <div className={styles.ServicesCounselingQueue}>
+      <div className={styles.PaymentRequestQueue}>
         {renderNavBar()}
         <TableQueue
           showFilters
@@ -223,6 +219,7 @@ const PaymentRequestQueue = () => {
 
   return (
     <div className={styles.PaymentRequestQueue}>
+      {renderNavBar()}
       <TableQueue
         showFilters
         showPagination
