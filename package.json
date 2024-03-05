@@ -139,7 +139,7 @@
     "@storybook/addon-essentials": "^7.2.0",
     "@storybook/addon-knobs": "^7.0.2",
     "@storybook/addon-links": "^7.2.0",
-    "@storybook/jest": "^0.1.0",
+    "@storybook/jest": "^0.2.3",
     "@storybook/preset-create-react-app": "^7.6.7",
     "@storybook/preview-api": "^7.6.8",
     "@storybook/react": "^7.2.0",
