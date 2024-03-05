@@ -271,7 +271,7 @@ func (h DownloadMoveOrderHandler) Handle(params movetaskorderops.DownloadMoveOrd
 				moveOrderUploadType = services.MoveOrderAmendmentUpload
 			}
 
-			outputFile, err := h.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, moveOrderUploadType, move)
+			outputFile, err := h.PrimeDownloadMoveUploadPDFGenerator.GenerateDownloadMoveUserUploadPDF(appCtx, moveOrderUploadType, move, true)
 
 			if err != nil {
 				switch e := err.(type) {

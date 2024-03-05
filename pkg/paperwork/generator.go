@@ -135,6 +135,11 @@ func (g *Generator) Cleanup(_ appcontext.AppContext) error {
 	return g.fs.RemoveAll(g.workDir)
 }
 
+// Get PDF Configuration (For Testing)
+func (g *Generator) FileSystem() *afero.Afero {
+	return g.fs
+}
+
 // Add bookmarks into a single PDF
 func (g *Generator) AddPdfBookmarks(inputFile afero.File, bookmarks []pdfcpu.Bookmark) (afero.File, error) {
 
@@ -178,6 +183,11 @@ func (g *Generator) GetPdfFileInfo(fileName string) (*pdfcpu.PDFInfo, error) {
 	}
 	defer file.Close()
 	return api.PDFInfo(file, fileName, nil, g.pdfConfig)
+}
+
+// Get file information of a single PDF
+func (g *Generator) GetPdfFileInfoByContents(file afero.File) (*pdfcpu.PDFInfo, error) {
+	return api.PDFInfo(file, file.Name(), nil, g.pdfConfig)
 }
 
 // CreateMergedPDFUpload converts Uploads to PDF and merges them into a single PDF
@@ -495,4 +505,59 @@ func (g *Generator) MergeImagesToPDF(appCtx appcontext.AppContext, paths []strin
 	}
 
 	return g.PDFFromImages(appCtx, images)
+}
+
+func (g *Generator) FillPDFForm(jsonData []byte, templateReader io.ReadSeeker) (SSWWorksheet afero.File, err error) {
+	var conf = g.pdfConfig
+	// Change type to reader
+	readJSON := strings.NewReader(string(jsonData))
+	buf := new(bytes.Buffer)
+	// Fills form using the template reader with json reader, outputs to byte, to be saved to afero file.
+	formerr := api.FillForm(templateReader, readJSON, buf, conf)
+	if formerr != nil {
+		return nil, err
+	}
+
+	tempFile, err := g.newTempFile() // Will use g.newTempFile for proper memory usage
+	if err != nil {
+		return nil, err
+	}
+
+	// copy byte[] to temp file
+	_, err = io.Copy(tempFile, buf)
+	if err != nil {
+		return nil, errors.Wrap(err, "error io.Copy on byte[] to temp")
+	}
+
+	// Reload the file from memstore
+	outputFile, err := g.FileSystem().Open(tempFile.Name())
+	if err != nil {
+		return nil, errors.Wrap(err, "error g.fs.Open on reload from memstore")
+	}
+	return outputFile, nil
+}
+
+// MergePDFFiles Merges a slice of paths to PDF files into a single PDF
+func (g *Generator) MergePDFFilesByContents(_ appcontext.AppContext, fileReaders []io.ReadSeeker) (afero.File, error) {
+	var err error
+
+	// Create a merged file
+	mergedFile, err := g.newTempFile()
+	if err != nil {
+		return nil, err
+	}
+	defer mergedFile.Close() // Close merged file after finishing
+
+	// Merge files
+	if err = g.pdfLib.Merge(fileReaders, mergedFile); err != nil {
+		return nil, err
+	}
+
+	// Reload the merged file
+	mergedFile, err = g.fs.Open(mergedFile.Name())
+	if err != nil {
+		return nil, err
+	}
+
+	return mergedFile, nil
 }
