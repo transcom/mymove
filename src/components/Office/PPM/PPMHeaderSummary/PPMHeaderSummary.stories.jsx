@@ -1,20 +1,39 @@
 import React from 'react';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import PPMHeaderSummary from './PPMHeaderSummary';
+
+const officeQueryConfig = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false, // default to no retries for now
+      // do not re-query on window refocus
+      refetchOnWindowFocus: false,
+      // onError: noop, // TODO - log errors?
+      networkMode: 'offlineFirst', // restoring previous-behavior. Without this, it will be paused without a network
+    },
+    mutations: {
+      // onError: noop, // TODO - log errors?
+      networkMode: 'offlineFirst', // restoring previous-behavior. Without this, it will be paused without a network
+    },
+  },
+});
 
 export default {
   title: 'Office Components / PPM / PPM Header Summary',
   component: PPMHeaderSummary,
   decorators: [
     (Story) => (
-      <GridContainer>
-        <Grid row>
-          <Grid col desktop={{ col: 4, offset: 4 }}>
-            <Story />
+      <QueryClientProvider client={officeQueryConfig}>
+        <GridContainer>
+          <Grid row>
+            <Grid col desktop={{ col: 4, offset: 4 }}>
+              <Story />
+            </Grid>
           </Grid>
-        </Grid>
-      </GridContainer>
+        </GridContainer>
+      </QueryClientProvider>
     ),
   ],
 };
