@@ -30,11 +30,11 @@ func NewShowPaymentPacket(ctx *middleware.Context, handler ShowPaymentPacketHand
 }
 
 /*
-	ShowPaymentPacket swagger:route GET /ppm-shipments/{ppmShipmentId}/payment_packet ppm showPaymentPacket
+	ShowPaymentPacket swagger:route GET /ppm-shipments/{ppmShipmentId}/payment-packet ppm showPaymentPacket
 
 # Returns PPM payment packet
 
-Generates a PDF containing all user uploaded documentations for PPM
+Generates a PDF containing all user uploaded documentations for PPM. Contains SSW form, orders, weight and expense documentations.
 */
 type ShowPaymentPacket struct {
 	Context *middleware.Context

@@ -1132,7 +1132,7 @@ func (suite *HandlerSuite) TestShowPaymentPacketHandler() {
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
 		ppmshipmentid := ppmShipment.ID
-		request := httptest.NewRequest("GET", fmt.Sprintf("/ppm-shipments/%s/payment_packet/", ppmshipmentid), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/ppm-shipments/%s/payment-packet/", ppmshipmentid), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
 		params := ppmops.ShowPaymentPacketParams{
 			HTTPRequest:   request,
@@ -1158,7 +1158,7 @@ func (suite *HandlerSuite) TestShowPaymentPacketHandler() {
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
 		ppmshipmentid := ppmShipment.ID
-		request := httptest.NewRequest("GET", fmt.Sprintf("/ppm-shipments/%s/payment_packet/", ppmshipmentid), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/ppm-shipments/%s/payment-packet/", ppmshipmentid), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
 		params := ppmops.ShowPaymentPacketParams{
 			HTTPRequest:   request,
@@ -1184,7 +1184,7 @@ func (suite *HandlerSuite) TestShowPaymentPacketHandler() {
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
 		ppmshipmentid := ppmShipment.ID
-		request := httptest.NewRequest("GET", fmt.Sprintf("/ppm-shipments/%s/payment_packet/", ppmshipmentid), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/ppm-shipments/%s/payment-packet/", ppmshipmentid), nil)
 		request = suite.AuthenticateUserRequest(request, requestUser)
 		params := ppmops.ShowPaymentPacketParams{
 			HTTPRequest:   request,
