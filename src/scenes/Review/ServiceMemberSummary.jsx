@@ -16,7 +16,7 @@ function ServiceMemberSummary(props) {
   const {
     orders,
     serviceMember,
-    schemaRank,
+    schemaGrade,
     schemaAffiliation,
     schemaOrdersType,
     moveIsApproved,
@@ -33,9 +33,7 @@ function ServiceMemberSummary(props) {
   const serviceMemberData = [
     { label: 'Name', value: getFullSMName(serviceMember) },
     { label: 'Branch', value: get(schemaAffiliation['x-display-value'], get(serviceMember, 'affiliation')) },
-    { label: 'Rank', value: get(schemaRank['x-display-value'], get(serviceMember, 'rank')) },
     { label: 'DoD ID#', value: get(serviceMember, 'edipi') },
-    { label: 'Current duty location', value: get(serviceMember, 'current_location.name') },
     { label: 'Contact info' },
     { label: 'Best contact phone', value: get(serviceMember, 'telephone') },
     { label: 'Personal email', value: get(serviceMember, 'personal_email') },
@@ -49,6 +47,8 @@ function ServiceMemberSummary(props) {
     { label: 'New duty location', value: get(orders, 'new_duty_location.name') },
     { label: 'Dependents', value: orders && yesNoMap[get(orders, 'has_dependents', '').toString()] },
     { label: 'Orders', value: uploads && uploads.length },
+    { label: 'Grade', value: get(schemaGrade['x-display-value'], get(orders, 'grade')) },
+    { label: 'Current duty location', value: get(orders, 'origin_duty_location.name') },
   ];
 
   return (
@@ -70,7 +70,7 @@ function ServiceMemberSummary(props) {
 
 ServiceMemberSummary.propTypes = {
   serviceMember: PropTypes.object,
-  schemaRank: PropTypes.object.isRequired,
+  schemaGrade: PropTypes.object.isRequired,
   schemaAffiliation: PropTypes.object.isRequired,
   schemaOrdersType: PropTypes.object.isRequired,
   orders: PropTypes.object,

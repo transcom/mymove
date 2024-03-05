@@ -1,5 +1,5 @@
-import React from 'react';
-import { generatePath, useNavigate, Navigate, useParams } from 'react-router-dom';
+import React, { useCallback, useState } from 'react';
+import { generatePath, useNavigate, Navigate, useParams, NavLink } from 'react-router-dom';
 
 import styles from './ServicesCounselingQueue.module.scss';
 
@@ -16,12 +16,21 @@ import {
   SERVICE_COUNSELING_PPM_TYPE_LABELS,
 } from 'constants/queues';
 import { servicesCounselingRoutes } from 'constants/routes';
-import { useServicesCounselingQueueQueries, useServicesCounselingQueuePPMQueries, useUserQueries } from 'hooks/queries';
+import {
+  useServicesCounselingQueueQueries,
+  useServicesCounselingQueuePPMQueries,
+  useUserQueries,
+  useMoveSearchQueries,
+} from 'hooks/queries';
 import { DATE_FORMAT_STRING } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import NotFound from 'components/NotFound/NotFound';
+import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
+import { roleTypes } from 'constants/userRoles';
+import SearchResultsTable from 'components/Table/SearchResultsTable';
+import TabNav from 'components/TabNav';
 
 const counselingColumns = () => [
   createHeader('ID', 'id'),
@@ -197,6 +206,28 @@ const ServicesCounselingQueue = () => {
     navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
   };
 
+  const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
+  const [searchHappened, setSearchHappened] = useState(false);
+
+  const onSubmit = useCallback((values) => {
+    const payload = {
+      moveCode: null,
+      dodID: null,
+      customerName: null,
+    };
+
+    if (values.searchType === 'moveCode') {
+      payload.moveCode = values.searchText;
+    } else if (values.searchType === 'dodID') {
+      payload.dodID = values.searchText;
+    } else if (values.searchType === 'customerName') {
+      payload.customerName = values.searchText;
+    }
+
+    setSearch(payload);
+    setSearchHappened(true);
+  }, []);
+
   // If the office user is in a closeout GBLOC and on the closeout tab, then we will want to disable
   // the column filter for the closeout location column because it will have no effect.
   const officeUserGBLOC = data?.office_user?.transportation_office?.gbloc;
@@ -211,11 +242,74 @@ const ServicesCounselingQueue = () => {
     );
   }
 
+  const renderNavBar = () => {
+    return (
+      <TabNav
+        className={styles.tableTabs}
+        items={[
+          <NavLink
+            end
+            className={({ isActive }) => (isActive ? 'usa-current' : '')}
+            to={servicesCounselingRoutes.BASE_QUEUE_COUNSELING_PATH}
+          >
+            <span data-testid="counseling-tab-link" className="tab-title">
+              Counseling Queue
+            </span>
+          </NavLink>,
+          <NavLink
+            end
+            className={({ isActive }) => (isActive ? 'usa-current' : '')}
+            to={servicesCounselingRoutes.BASE_QUEUE_CLOSEOUT_PATH}
+          >
+            <span data-testid="closeout-tab-link" className="tab-title">
+              PPM Closeout Queue
+            </span>
+          </NavLink>,
+          <NavLink
+            end
+            className={({ isActive }) => (isActive ? 'usa-current' : '')}
+            to={servicesCounselingRoutes.BASE_QUEUE_SEARCH_PATH}
+          >
+            <span data-testid="search-tab-link" className="tab-title">
+              Search
+            </span>
+          </NavLink>,
+        ]}
+      />
+    );
+  };
+
+  if (queueType === 'Search') {
+    return (
+      <div data-testid="move-search" className={styles.ServicesCounselingQueue}>
+        {renderNavBar()}
+        <h1>Search for a move</h1>
+        <MoveSearchForm onSubmit={onSubmit} role={roleTypes.SERVICES_COUNSELOR} />
+        {searchHappened && (
+          <SearchResultsTable
+            showFilters
+            showPagination
+            defaultCanSort
+            disableMultiSort
+            disableSortBy={false}
+            title="Results"
+            handleClick={handleClick}
+            useQueries={useMoveSearchQueries}
+            moveCode={search.moveCode}
+            dodID={search.dodID}
+            customerName={search.customerName}
+            roleType={roleTypes.SERVICES_COUNSELOR}
+          />
+        )}
+      </div>
+    );
+  }
+
   if (queueType === 'PPM-closeout') {
     return (
       <div className={styles.ServicesCounselingQueue}>
+        {renderNavBar()}
         <TableQueue
-          showTabs
           showFilters
           showPagination
           manualSortBy
@@ -234,9 +328,9 @@ const ServicesCounselingQueue = () => {
   if (queueType === 'counseling') {
     return (
       <div className={styles.ServicesCounselingQueue}>
+        {renderNavBar()}
         <TableQueue
           className={styles.ServicesCounseling}
-          showTabs
           showFilters
           showPagination
           manualSortBy

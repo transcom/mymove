@@ -3,10 +3,19 @@
 
 .ServicesCounselingQueue {
   @include u-display(flex);
+  @include u-padding-x(4);
   flex-direction: column;
   flex: auto;
   border: (1px, solid, green);
   background-color: $bg-gray;
+  width: 100%;
+}
+
+.tableTabs {
+  @include u-margin-y(1);
+  @include u-margin-x(1);
+  @include u-margin-bottom(2);
+  border-bottom: (2px solid rgb(236, 234, 234));
 }
 
 .specialMoves {
