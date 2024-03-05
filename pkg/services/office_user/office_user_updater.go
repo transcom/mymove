@@ -1,6 +1,8 @@
 package officeuser
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -17,6 +19,7 @@ type officeUserUpdater struct {
 
 // UpdateOfficeUser updates an office user
 func (o *officeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.OfficeUserUpdate) (*models.OfficeUser, *validate.Errors, error) {
+	fmt.Print("\n**PB HERE in UpdateOfficeUser service")
 	var foundUser models.OfficeUser
 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 	err := o.builder.FetchOne(appCtx, &foundUser, filters)

@@ -1,6 +1,8 @@
 package usersprivileges
 
 import (
+	"fmt"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -19,6 +21,7 @@ func NewUsersPrivilegesCreator() services.UserPrivilegeAssociator {
 
 // UpdateUserPrivileges associates a given user with a set of privileges
 func (u usersPrivilegesCreator) UpdateUserPrivileges(appCtx appcontext.AppContext, userID uuid.UUID, rs []models.PrivilegeType) ([]models.UsersPrivileges, error) {
+	fmt.Print("\n**PB HERE IN UpdateUserPrivileges")
 	_, err := u.addUserPrivileges(appCtx, userID, rs)
 	if err != nil {
 		return []models.UsersPrivileges{}, err
@@ -47,9 +50,10 @@ func (u usersPrivilegesCreator) addUserPrivileges(appCtx appcontext.AppContext, 
 	//FROM privileges r
 	//		LEFT JOIN users_privileges ur ON r.id = ur.privilege_id
 	//	AND ur.user_id = '3b9360a3-3304-4c60-90f4-83d687884079'
-	//WHERE privilege_type IN ('transportation_ordering_officer', 'contracting_officer', 'customer')
+	//WHERE privilege_type IN ('supervisor')
 	//	AND ur.user_id ISNULL;
 	var userPrivilegesToAdd []models.UsersPrivileges
+	fmt.Print("\n**PB HERE WE ARE ADDING")
 	if len(rs) > 0 {
 		err := appCtx.DB().Select("r.id as privilege_id, ? as user_id").
 			RightJoin("privileges r", "r.id=users_privileges.privilege_id AND users_privileges.user_id = ? AND users_privileges.deleted_at IS NULL", userID, userID).
@@ -82,6 +86,7 @@ func (u usersPrivilegesCreator) removeUserPrivileges(appCtx appcontext.AppContex
 	//WHERE privilege_type NOT IN ('supervisor')
 	//	AND ur.user_id IS NOT NULL;
 	var userPrivilegesToDelete []models.UsersPrivileges
+	fmt.Print("\n**PB HERE we REMOVE length", len(rs))
 	if len(rs) > 0 {
 		err := appCtx.DB().Select("users_privileges.id, r.id as privilege_id, ? as user_id, users_privileges.deleted_at").
 			RightJoin("privileges r", "r.id=users_privileges.privilege_id AND users_privileges.user_id = ? AND users_privileges.deleted_at IS NULL", userID, userID).

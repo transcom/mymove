@@ -1,6 +1,8 @@
 package usersroles
 
 import (
+	"fmt"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -52,6 +54,7 @@ func (u usersRolesCreator) addUserRoles(appCtx appcontext.AppContext, userID uui
 	//	AND ur.user_id ISNULL;
 	var userRolesToAdd []models.UsersRoles
 	if len(rs) > 0 {
+		fmt.Print("**PB HERE ADD length ", len(rs))
 		err := appCtx.DB().Select("r.id as role_id, ? as user_id").
 			RightJoin("roles r", "r.id=users_roles.role_id AND users_roles.user_id = ? AND users_roles.deleted_at IS NULL", userID, userID).
 			Where("role_type IN (?) AND (users_roles.user_id IS NULL)", rs).
@@ -84,6 +87,7 @@ func (u usersRolesCreator) removeUserRoles(appCtx appcontext.AppContext, userID 
 	//	AND ur.user_id IS NOT NULL;
 	var userRolesToDelete []models.UsersRoles
 	if len(rs) > 0 {
+		fmt.Print("**PB HERE REMOVE length ", len(rs))
 		err := appCtx.DB().Select("users_roles.id, r.id as role_id, ? as user_id, users_roles.deleted_at").
 			RightJoin("roles r", "r.id=users_roles.role_id AND users_roles.user_id = ? AND users_roles.deleted_at IS NULL", userID, userID).
 			Where("role_type NOT IN (?) AND users_roles.id IS NOT NULL", rs).
