@@ -36,11 +36,9 @@ func (o *mtoServiceItemCreator) calculateSITDeliveryMiles(appCtx appcontext.AppC
 
 	if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT || serviceItem.ReService.Code == models.ReServiceCodeDOASIT || serviceItem.ReService.Code == models.ReServiceCodeDOSFSC || serviceItem.ReService.Code == models.ReServiceCodeDOPSIT {
 		// Creation: Origin SIT: distance between shipment pickup address & service item pickup address
-		// SITDestinationOriginalAddress not saved until TOO approves, so on creation the distance will always be 1 mile since the shipment destination/pickup address is the same as the service item’s
+		// On creation, shipment pickup and service item pickup are the same
 		var originalSITAddressZip string
-		if serviceItem.SITDestinationOriginalAddress != nil {
-			originalSITAddressZip = serviceItem.SITDestinationOriginalAddress.PostalCode
-		} else if mtoShipment.PickupAddress != nil {
+		if mtoShipment.PickupAddress != nil {
 			originalSITAddressZip = mtoShipment.PickupAddress.PostalCode
 		}
 		if mtoShipment.PickupAddress != nil && originalSITAddressZip != "" {

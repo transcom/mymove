@@ -1007,6 +1007,7 @@ func (f mtoShipmentUpdater) MTOShipmentsMTOAvailableToPrime(appCtx appcontext.Ap
 }
 
 // UpdateDestinationSITServiceItemsAddress updates destination SIT service items attached to a shipment
+// this updates the final_destination_address to be the same as the shipment's destination_address
 func UpdateDestinationSITServiceItemsAddress(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
 	// getting the shipment and service items with code in case they weren't passed in
 	eagerAssociations := []string{"MTOServiceItems.ReService.Code"}

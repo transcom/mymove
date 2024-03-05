@@ -227,6 +227,8 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 				serviceItem.SITDestinationFinalAddress = shipmentDestinationAddress
 			}
 
+			// Calculate SITDeliveryMiles for destination SIT service items
+			// Destination SIT: distance between shipment destination address & service item ORIGINAL destination address
 			milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
 			if err == nil {
 				serviceItem.SITDeliveryMiles = &milesCalculated
