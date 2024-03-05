@@ -427,10 +427,11 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.SITNumberAndTypes = formattedShipments.ShipmentNumberAndTypes
 	page1.ShipmentWeights = formattedShipments.ShipmentWeights
 	// Obligations cannot be used at this time, require new computer setup.
-	page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
-	actualObligations := data.Obligations.ActualObligation
+	page1.ActualObligationAdvance = data.PPMShipments[0].AdvanceAmountReceived.ToDollarString()
+	// page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
+	// actualObligations := data.Obligations.ActualObligation
 	page1.PPMRemainingEntitlement = FormatWeights(data.PPMRemainingEntitlement)
-	page1.MileageTotal = actualObligations.Miles.String()
+	// page1.MileageTotal = actualObligations.Miles.String()
 	return page1
 }
 
