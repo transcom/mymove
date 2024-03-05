@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
+
+import { isMultiMoveEnabled } from '../../../../../utils/featureFlags';
 
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
@@ -21,6 +23,7 @@ import { validatePostalCode } from 'utils/validation';
 
 const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, move }) => {
   const [errorMessage, setErrorMessage] = useState(null);
+  const [multiMove, setMultiMove] = useState(false);
   const navigate = useNavigate();
   const { moveId, shipmentNumber } = useParams();
   const dispatch = useDispatch();
@@ -29,9 +32,18 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.ARMY ||
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.AIR_FORCE;
   const isNewShipment = !mtoShipment?.id;
+
+  useEffect(() => {
+    isMultiMoveEnabled().then((enabled) => {
+      setMultiMove(enabled);
+    });
+  }, []);
+
   const handleBack = () => {
     if (isNewShipment) {
       navigate(generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId }));
+    } else if (multiMove) {
+      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
     } else {
       navigate(generalRoutes.HOME_PATH);
     }

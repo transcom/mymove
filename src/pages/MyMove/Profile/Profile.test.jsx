@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom';
 
 import ConnectedProfile from './Profile';
 
+import { customerRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 
 jest.mock('react-router-dom', () => ({
@@ -14,6 +15,7 @@ jest.mock('react-router-dom', () => ({
 
 describe('Profile component', () => {
   const testProps = {};
+  const multiMove = process.env.FEATURE_FLAG_MULTI_MOVE;
 
   it('renders the Profile Page', async () => {
     const mockState = {
@@ -89,11 +91,19 @@ describe('Profile component', () => {
     };
     useLocation.mockReturnValue({});
 
-    render(
-      <MockProviders initialState={mockState}>
-        <ConnectedProfile {...testProps} />
-      </MockProviders>,
-    );
+    if (multiMove) {
+      render(
+        <MockProviders initialState={mockState} path={customerRoutes.MOVE_HOME_PATH} params={{ moveId: 'testMoveId' }}>
+          <ConnectedProfile {...testProps} />
+        </MockProviders>,
+      );
+    } else {
+      render(
+        <MockProviders initialState={mockState}>
+          <ConnectedProfile {...testProps} />
+        </MockProviders>,
+      );
+    }
 
     const mainHeader = await screen.findByRole('heading', { name: 'Profile', level: 1 });
 
@@ -179,11 +189,19 @@ describe('Profile component', () => {
     };
     useLocation.mockReturnValue({});
 
-    render(
-      <MockProviders initialState={mockState}>
-        <ConnectedProfile {...testProps} />
-      </MockProviders>,
-    );
+    if (multiMove) {
+      render(
+        <MockProviders initialState={mockState} path={customerRoutes.MOVE_HOME_PATH} params={{ moveId: 'testMoveId' }}>
+          <ConnectedProfile {...testProps} />
+        </MockProviders>,
+      );
+    } else {
+      render(
+        <MockProviders initialState={mockState}>
+          <ConnectedProfile {...testProps} />
+        </MockProviders>,
+      );
+    }
 
     const mainHeader = await screen.findByRole('heading', { name: 'Profile', level: 1 });
 
@@ -285,11 +303,19 @@ describe('Profile component', () => {
     };
     useLocation.mockReturnValue({});
 
-    render(
-      <MockProviders initialState={mockState}>
-        <ConnectedProfile {...testProps} />
-      </MockProviders>,
-    );
+    if (multiMove) {
+      render(
+        <MockProviders initialState={mockState} path={customerRoutes.MOVE_HOME_PATH} params={{ moveId: 'testMoveId' }}>
+          <ConnectedProfile {...testProps} />
+        </MockProviders>,
+      );
+    } else {
+      render(
+        <MockProviders initialState={mockState}>
+          <ConnectedProfile {...testProps} />
+        </MockProviders>,
+      );
+    }
 
     const alert = screen.getByText(
       'You can change these details later by talking to a move counselor or customer care representative.',
@@ -386,11 +412,19 @@ describe('Profile component', () => {
 
     useLocation.mockReturnValue({ state: { needsToVerifyProfile: true } });
 
-    render(
-      <MockProviders initialState={mockState}>
-        <ConnectedProfile {...testProps} />
-      </MockProviders>,
-    );
+    if (multiMove) {
+      render(
+        <MockProviders initialState={mockState} path={customerRoutes.MOVE_HOME_PATH} params={{ moveId: 'testMoveId' }}>
+          <ConnectedProfile {...testProps} />
+        </MockProviders>,
+      );
+    } else {
+      render(
+        <MockProviders initialState={mockState}>
+          <ConnectedProfile {...testProps} />
+        </MockProviders>,
+      );
+    }
 
     const returnToDashboardLink = screen.getByText('Return to Dashboard');
     expect(returnToDashboardLink).toBeInTheDocument();
