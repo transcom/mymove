@@ -6,6 +6,7 @@ import styles from './SearchResultsTable.module.scss';
 import { createHeader } from './utils';
 
 import Table from 'components/Table/Table';
+import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
@@ -100,7 +101,12 @@ const columns = [
         (row) => {
           return formatDateFromIso(row.requestedPickupDate, DATE_FORMAT_STRING);
         },
-        { id: 'pickupDate' },
+        {
+          id: 'pickupDate',
+          isFilterable: true,
+          // eslint-disable-next-line react/jsx-props-no-spreading
+          Filter: (props) => <DateSelectFilter dateTime {...props} />,
+        },
       ),
     ],
     isFilterable: false,
@@ -131,7 +137,12 @@ const columns = [
         (row) => {
           return formatDateFromIso(row.requestedDeliveryDate, DATE_FORMAT_STRING);
         },
-        { id: 'deliveryDate' },
+        {
+          id: 'deliveryDate',
+          isFilterable: true,
+          // eslint-disable-next-line react/jsx-props-no-spreading
+          Filter: (props) => <DateSelectFilter dateTime {...props} />,
+        },
       ),
     ],
   },

@@ -3082,6 +3082,14 @@ paths:
               shipmentsCount:
                 type: integer
                 x-nullable: true
+              pickupDate:
+                type: string
+                format: date-time
+                x-nullable: true
+              deliveryDate:
+                type: string
+                format: date-time
+                x-nullable: true
               sort:
                 type: string
                 x-nullable: true
