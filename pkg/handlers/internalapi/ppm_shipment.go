@@ -328,19 +328,26 @@ type ShowPaymentPacketHandler struct {
 func (h ShowPaymentPacketHandler) Handle(params ppmops.ShowPaymentPacketParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			logger := appCtx.Logger()
-
 			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			logger.Info(ppmShipmentID.String())
-
-			pdf, err := h.PaymentPacketCreator.Generate(appCtx, ppmShipmentID)
+			pdf, err := h.PaymentPacketCreator.GenerateDefault(appCtx, ppmShipmentID)
+			if err != nil {
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					appCtx.Logger().Warn("internalapi.DownPaymentPacket warn", zap.Error(err))
+					payload := payloads.ValidationError(e.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
+					return ppmops.NewShowPaymentPacketUnprocessableEntity().WithPayload(payload), err
+				default:
+					appCtx.Logger().Error("internalapi.DownPaymentPacket error", zap.Error(err))
+					return ppmops.NewShowPaymentPacketInternalServerError(), err
+				}
+			}
 
 			payload := io.NopCloser(pdf)
-			filename := fmt.Sprintf("inline; filename=\"%s-%s-packet_download-%s.pdf\"", "a", "b", time.Now().Format("01-02-2006"))
+			filename := fmt.Sprintf("inline; filename=\"ppm_payment_packet-%s.pdf\"", time.Now().UTC().Format("2006-01-02T15:04:05.000Z"))
 
 			return ppmops.NewShowPaymentPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
 		})

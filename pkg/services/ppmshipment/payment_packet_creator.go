@@ -3,21 +3,40 @@ package ppmshipment
 import (
 	"fmt"
 	"io"
+	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/uploader"
 )
+
+var sortedExpenseType = [8]string{"WEIGHING_FEE", "RENTAL_EQUIPMENT", "CONTRACTED_EXPENSE", "OIL", "PACKING_MATERIALS", "TOLLS", "STORAGE", "OTHER"}
+
+type paymentPacketItem struct {
+	Label    string
+	Upload   models.Upload
+	PageSize int
+}
+
+// NewFileInfo creates a new FileInfo struct.
+func newPaymentPacketItem(label string, userUpload models.Upload) paymentPacketItem {
+	return paymentPacketItem{
+		Label:    label,
+		Upload:   userUpload,
+		PageSize: 0,
+	}
+}
 
 // paymentPacketCreator is the concrete struct implementing the PaymentPacketCreator interface
 type paymentPacketCreator struct {
 	services.PPMShipmentFetcher
-	*uploader.UserUploader
 	pdfGenerator     paperwork.Generator
 	aoaPacketCreator services.AOAPacketCreator
 }
@@ -25,174 +44,287 @@ type paymentPacketCreator struct {
 // NewPaymentPacketCreator creates a new PaymentPacketCreator with all of its dependencies
 func NewPaymentPacketCreator(
 	ppmShipmentFetcher services.PPMShipmentFetcher,
-	// userUploadToPDFConverter services.UserUploadToPDFConverter,
-	// pdfMerger services.PDFMerger,
-	// ppmShipmentUpdater services.PPMShipmentUpdater,
-	userUploader *uploader.UserUploader,
+	pdfGenerator *paperwork.Generator,
 	aoaPacketCreator services.AOAPacketCreator,
 ) services.PaymentPacketCreator {
-	pdfGenerator, _ := paperwork.NewGenerator(userUploader.Uploader())
 	return &paymentPacketCreator{
 		ppmShipmentFetcher,
-		userUploader,
 		*pdfGenerator,
 		aoaPacketCreator,
 	}
 }
 
-// CreatePaymentPacket creates a payment packet for a PPM Shipment containing the shipment summary worksheet (SSW),
-// uploaded orders, and any accepted uploaded PPM documents (i.e. weight tickets, pro-gear weight tickets, and moving
-// expenses).
-func (p *paymentPacketCreator) CreatePaymentPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) error {
+func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addBookmarks bool, addWatermarks bool) (io.ReadCloser, error) {
 	errMsgPrefix := "error creating payment packet"
 
 	ppmShipment, err := p.PPMShipmentFetcher.GetPPMShipment(
 		appCtx,
 		ppmShipmentID,
-		// TODO: We'll need to update this with any associations we need to build the SSW and to get the correct orders,
-		//  taking amended orders into account if needed.
+		// Note: Orders will be generate via SSW creator service
 		[]string{
 			EagerPreloadAssociationServiceMember,
 			EagerPreloadAssociationWeightTickets,
 			EagerPreloadAssociationProgearWeightTickets,
 			EagerPreloadAssociationMovingExpenses,
-			EagerPreloadAssociationPaymentPacket,
 		},
 		[]string{
 			PostLoadAssociationWeightTicketUploads,
 			PostLoadAssociationProgearWeightTicketUploads,
 			PostLoadAssociationMovingExpenseUploads,
-			PostLoadAssociationUploadedOrders,
 		},
 	)
 
 	if err != nil {
 		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to load PPMShipment")
-
 		appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
-
-		return fmt.Errorf("%s: %w", errMsgPrefix, err)
+		return nil, err
 	}
 
-	//pdfsToMerge := []io.ReadCloser{}
+	var pdfFileNamesToMerge []string
 
-	uploads := gatherPPMShipmentUserUploads(appCtx, ppmShipment) //models.UserUploads
+	sortedPaymentPacketItemsMap := buildPaymentPacketItemsMap(ppmShipment)
 
-	//p.pdfGenerator.ConvertUploadsToPDF(appCtx, uploads)
-	p.pdfGenerator.CreateMergedPDFUpload(appCtx, uploads)
-	// filesToMerge, filesToMergeErr := p.UserUploadToPDFConverter.ConvertUserUploadsToPDF(
-	// 	appCtx,
-	// 	gatherPPMShipmentUserUploads(appCtx, ppmShipment),
-	// )
+	for i := 0; i < len(sortedPaymentPacketItemsMap); i++ {
+		pdfFileName, err := p.pdfGenerator.ConvertUploadToPDF(appCtx, sortedPaymentPacketItemsMap[i].Upload)
+		if err != nil {
+			errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to generate pdf for upload")
+			appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
+			return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+		}
+		pdfFileNamesToMerge = append(pdfFileNamesToMerge, pdfFileName)
+	}
 
-	// if filesToMergeErr != nil {
-	// 	errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to convert uploads to PDF")
+	pdfFileNamesToMergePdf, _ := p.pdfGenerator.MergePDFFiles(appCtx, pdfFileNamesToMerge)
 
-	// 	appCtx.Logger().Error(errMsgPrefix, zap.Error(filesToMergeErr))
+	var pdfFilesToMerge []io.ReadSeeker
 
-	// 	return fmt.Errorf("%s: %w", errMsgPrefix, filesToMergeErr)
-	// }
-
-	// for _, fileToMerge := range filesToMerge {
-	// 	fileToMerge := fileToMerge
-
-	// 	pdfsToMerge = append(pdfsToMerge, fileToMerge.PDFStream)
-	// }
-
-	// paymentPacket, mergeErr := p.PDFMerger.MergePDFs(appCtx, pdfsToMerge)
-
-	// if mergeErr != nil {
-	// 	errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to merge PDFs")
-
-	// 	appCtx.Logger().Error(errMsgPrefix, zap.Error(mergeErr))
-
-	// 	return fmt.Errorf("%s: %w", errMsgPrefix, mergeErr)
-	// }
-
-	// if paymentPacket != nil {
-	// 	appCtx.Logger().Debug("hello")
-	// }
-
-	return nil
-}
-
-func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (io.ReadCloser, error) {
-	errMsgPrefix := "error creating payment packet"
-
-	ppmShipment, err := p.PPMShipmentFetcher.GetPPMShipment(
-		appCtx,
-		ppmShipmentID,
-		// TODO: We'll need to update this with any associations we need to build the SSW and to get the correct orders,
-		//  taking amended orders into account if needed.
-		[]string{
-			EagerPreloadAssociationServiceMember,
-			EagerPreloadAssociationWeightTickets,
-			EagerPreloadAssociationProgearWeightTickets,
-			EagerPreloadAssociationMovingExpenses,
-			EagerPreloadAssociationPaymentPacket,
-		},
-		[]string{
-			PostLoadAssociationWeightTicketUploads,
-			PostLoadAssociationProgearWeightTicketUploads,
-			PostLoadAssociationMovingExpenseUploads,
-			PostLoadAssociationUploadedOrders,
-		},
-	)
-
+	// use aoa creator to generated SSW and Orders PDF
+	aoaPacketFile, err := p.aoaPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID)
 	if err != nil {
-		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to load PPMShipment")
-
+		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, fmt.Sprintf("failed to generate AOA packet for ppmShipmentID: %s", ppmShipmentID.String()))
 		appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
-
 		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
-	//pdfsToMerge := []io.ReadCloser{}
+	// add all targeted PDF files to array for final PDF generation
+	// AOA packet will be appended at the beginning of the file
+	pdfFilesToMerge = append(pdfFilesToMerge, aoaPacketFile)
+	pdfFilesToMerge = append(pdfFilesToMerge, pdfFileNamesToMergePdf)
+	finalMergePdf, err := p.pdfGenerator.MergePDFFilesByContents(appCtx, pdfFilesToMerge)
+	if err != nil {
+		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to generated file merged pdf")
+		appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+	}
 
-	uploads := gatherPPMShipmentUserUploads(appCtx, ppmShipment)
+	if !(addBookmarks && addWatermarks) {
+		return finalMergePdf, nil
+	}
 
-	var pdfFileNames []string
+	bookmarks, err := buildBookMarks(pdfFileNamesToMerge, sortedPaymentPacketItemsMap, aoaPacketFile, p.pdfGenerator)
+	if err != nil {
+		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to generate bookmarks for PDF")
+		appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+	}
 
-	//aoaPacketFile, _ := p.aoaPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID)
-	//pdfFileNames = append(pdfFileNames, aoaPacketFile.Name())
+	if !addWatermarks {
+		p.pdfGenerator.AddPdfBookmarks(finalMergePdf, bookmarks)
+	}
 
-	fileNames, _ := p.pdfGenerator.ConvertUploadsToPDF(appCtx, uploads) //return fileNames
-
-	pdfFileNames = append(pdfFileNames, fileNames...)
-
-	return p.pdfGenerator.MergePDFFiles(appCtx, pdfFileNames)
-
-	//return p.pdfGenerator.CreateMergedPDFUpload(appCtx, uploads)
+	watermarks, err := buildWaterMarks(bookmarks, p.pdfGenerator)
+	if err != nil {
+		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to generate watermarks for PDF")
+		appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+	}
+	pdfWithWatermarks, err := p.pdfGenerator.AddWatermarks(finalMergePdf, watermarks)
+	if err != nil {
+		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, "failed to add watermarks to PDF")
+		appCtx.Logger().Error(errMsgPrefix, zap.Error(err))
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+	}
+	return p.pdfGenerator.AddPdfBookmarks(pdfWithWatermarks, bookmarks)
 }
 
-func gatherPPMShipmentUserUploads(_ appcontext.AppContext, ppmShipment *models.PPMShipment) models.Uploads {
-	uploads := models.Uploads{
-		ppmShipment.Shipment.MoveTaskOrder.Orders.UploadedOrders.UserUploads[0].Upload,
+func (p *paymentPacketCreator) GenerateDefault(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (io.ReadCloser, error) {
+	return p.Generate(appCtx, ppmShipmentID, true, true)
+}
+
+func buildBookMarks(fileNamesToMerge []string, sortedPaymentPacketItems map[int]paymentPacketItem, aoaPacketFile io.ReadSeeker, pdfGenerator paperwork.Generator) ([]pdfcpu.Bookmark, error) {
+	// go out and retrieve PDF file info for each file name
+	for i := 0; i < len(fileNamesToMerge); i++ {
+		pdfFileInfo, err := pdfGenerator.GetPdfFileInfo(fileNamesToMerge[i])
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", fmt.Sprintf("failed to retrieve PDF file info for: %s", fileNamesToMerge[i]), err)
+		}
+		item := sortedPaymentPacketItems[i]
+		// we just want the pagesize. update sortedPaymentPacketItems
+		item.PageSize = pdfFileInfo.PageCount
+		sortedPaymentPacketItems[i] = item
 	}
 
+	var bookmarks []pdfcpu.Bookmark
+
+	// retrieve file info for AOA packet file
+	aoaPacketFileInfo, err := pdfGenerator.GetPdfFileInfoByReadSeeker(aoaPacketFile)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", "failed to retrieve PDF file info for AOA packet file", err)
+	}
+	// add first bookmark for AOA content
+	bookmarks = append(bookmarks, pdfcpu.Bookmark{PageFrom: 1, PageThru: aoaPacketFileInfo.PageCount, Title: "Shipment Summary Worksheet and Orders"})
+
+	// build bookmarks for all file names
+	var pageFrom int
+	var pageThru int
+	for i := 0; i < len(fileNamesToMerge); i++ {
+		item := sortedPaymentPacketItems[i]
+		pageFrom = bookmarks[i].PageThru + 1
+		pageThru = bookmarks[i].PageThru + item.PageSize
+		bookmarks = append(bookmarks, pdfcpu.Bookmark{PageFrom: pageFrom, PageThru: pageThru, Title: item.Label})
+	}
+	return bookmarks, nil
+}
+
+// generate watermarks which will serve as page footer labels
+func buildWaterMarks(bookMarks []pdfcpu.Bookmark, pdfGenerator paperwork.Generator) (map[int][]*model.Watermark, error) {
+	m := make(map[int][]*model.Watermark)
+
+	opacity := 1.0
+	onTop := true
+	update := false
+	unit := types.POINTS
+
+	creationTimeStamp := time.Now().UTC().Format("2006-01-02T15:04:05.000Z")
+	totalPages := bookMarks[len(bookMarks)-1].PageThru
+	currentPage := 1
+	for _, bm := range bookMarks {
+		cnt := bm.PageThru - bm.PageFrom
+		for j := 0; j <= cnt; j++ {
+			wms := make([]*model.Watermark, 0)
+			pagingInfo := fmt.Sprintf("Page %d of %d", currentPage, totalPages)
+			text := fmt.Sprintf("%s - Payment Packet[%s] (Creation date: %v)", pagingInfo, bm.Title, creationTimeStamp)
+
+			desc := fmt.Sprintf("font:Times-Italic, points:10, sc:1 abs, pos:bc, off:0 10, rot:0, op:%f", opacity)
+			wm, _ := pdfGenerator.CreateTextWatermark(text, desc, onTop, update, unit)
+			wms = append(wms, wm)
+			// note: use current page because map is 1 based
+			m[currentPage] = wms
+			currentPage++
+		}
+	}
+
+	return m, nil
+}
+
+func buildPaymentPacketItemsMap(ppmShipment *models.PPMShipment) map[int]paymentPacketItem {
+	// items are sorted based on key(int), key represents order index
+	sortedPaymentPacketItems := make(map[int]paymentPacketItem)
+	sortedPaymentPacketItemsIndex := 0
+
+	var povRegistrationPaymentPacketItems []paymentPacketItem
+
+	// process weight tickets
+	weightTicketCnt := 1
 	for _, weightTicket := range ppmShipment.WeightTickets {
+		sectionLabel := fmt.Sprintf("Weight Moved: Trip #%s:", fmt.Sprint(weightTicketCnt))
+		emptyWeightCnt := 1
 		for _, uu := range weightTicket.EmptyDocument.UserUploads {
-			uploads = append(uploads, uu.Upload)
+			sortedPaymentPacketItems[sortedPaymentPacketItemsIndex] = newPaymentPacketItem(fmt.Sprintf("%s Empty Weight Document #%s", sectionLabel, fmt.Sprint(emptyWeightCnt)), uu.Upload)
+			sortedPaymentPacketItemsIndex++
+			emptyWeightCnt++
 		}
+		fullWeightCnt := 1
 		for _, uu := range weightTicket.FullDocument.UserUploads {
-			uploads = append(uploads, uu.Upload)
+			sortedPaymentPacketItems[sortedPaymentPacketItemsIndex] = newPaymentPacketItem(fmt.Sprintf("%s Full Weight Document #%s", sectionLabel, fmt.Sprint(fullWeightCnt)), uu.Upload)
+			sortedPaymentPacketItemsIndex++
+			fullWeightCnt++
 		}
+
+		// povRegistrations will be order after the other weight tickets
+		povCnt := 1
 		for _, uu := range weightTicket.ProofOfTrailerOwnershipDocument.UserUploads {
-			uploads = append(uploads, uu.Upload)
+			// stuff into array so we may render it later in the correct order
+			povRegistrationPaymentPacketItems = append(povRegistrationPaymentPacketItems, newPaymentPacketItem(fmt.Sprintf("%s POV/Registration Document #%s", sectionLabel, fmt.Sprint(povCnt)), uu.Upload))
+			povCnt++
 		}
+
+		weightTicketCnt++
 	}
 
+	// process pro-gear
+	proGearWeightTicketCnt := 1
 	for _, progearWeightTicket := range ppmShipment.ProgearWeightTickets {
+		sectionLabel := fmt.Sprintf("Pro-gear: Set #%s:", fmt.Sprint(proGearWeightTicketCnt))
+		proGearWeightTicketSetCnt := 1
 		for _, uu := range progearWeightTicket.Document.UserUploads {
-			uploads = append(uploads, uu.Upload)
+			var belongsToLabel = "Me"
+			if !*progearWeightTicket.BelongsToSelf {
+				belongsToLabel = "Spouse"
+			}
+			sortedPaymentPacketItems[sortedPaymentPacketItemsIndex] = newPaymentPacketItem(fmt.Sprintf("%s(%s) Weight Ticket Document #%s", sectionLabel, belongsToLabel, fmt.Sprint(proGearWeightTicketSetCnt)), uu.Upload)
+			sortedPaymentPacketItemsIndex++
+			proGearWeightTicketSetCnt++
 		}
+		proGearWeightTicketCnt++
 	}
 
+	// place povRegistration after the weight items
+	for _, item := range povRegistrationPaymentPacketItems {
+		sortedPaymentPacketItems[sortedPaymentPacketItemsIndex] = item
+		sortedPaymentPacketItemsIndex++
+	}
+
+	// process expenses, group by type as array list
+	expenseType_Map := make(map[string][]models.MovingExpense)
 	for _, movingExpense := range ppmShipment.MovingExpenses {
-		for _, uu := range movingExpense.Document.UserUploads {
-			uploads = append(uploads, uu.Upload)
+		if value, exists := expenseType_Map[string(*movingExpense.MovingExpenseType)]; exists {
+			// add to existing array
+			value = append(value, movingExpense)
+			expenseType_Map[string(*movingExpense.MovingExpenseType)] = value
+		} else {
+			// create new array and add first item
+			expenseType_Map[string(*movingExpense.MovingExpenseType)] = make([]models.MovingExpense, 0)
+			expenseType_Map[string(*movingExpense.MovingExpenseType)] = append(expenseType_Map[string(*movingExpense.MovingExpenseType)], movingExpense)
 		}
 	}
 
-	return uploads
+	expensesCnt := 1
+	for _, expenseType := range sortedExpenseType {
+		for _, item := range expenseType_Map[expenseType] {
+			expensesDocCnt := 1
+			for _, uu := range item.Document.UserUploads {
+				sectionLabel := fmt.Sprintf("Expenses: Receipt #%s:", fmt.Sprint(expensesCnt))
+				sortedPaymentPacketItems[sortedPaymentPacketItemsIndex] = newPaymentPacketItem(fmt.Sprintf("%s %s Document #%s", sectionLabel, getExpenseTypeLabel(expenseType), fmt.Sprint(expensesDocCnt)), uu.Upload)
+				sortedPaymentPacketItemsIndex++
+				expensesDocCnt++
+			}
+			expensesCnt++
+		}
+	}
+
+	return sortedPaymentPacketItems
+}
+
+func getExpenseTypeLabel(value string) string {
+	switch value {
+	case "CONTRACTED_EXPENSE":
+		return "Contracted Expense"
+	case "OIL":
+		return "Oil"
+	case "PACKING_MATERIALS":
+		return "Packing Materials"
+	case "RENTAL_EQUIPMENT":
+		return "Rental Equipment"
+	case "STORAGE":
+		return "Storage"
+	case "TOLLS":
+		return "Tolls"
+	case "WEIGHING_FEE":
+		return "Weighing Fee"
+	case "OTHER":
+		return "Other"
+	default:
+		return "Unknown"
+	}
 }

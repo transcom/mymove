@@ -29,7 +29,6 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
-
 	progear "github.com/transcom/mymove/pkg/services/progear_weight_ticket"
 	"github.com/transcom/mymove/pkg/services/query"
 	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
@@ -54,7 +53,18 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	fetcher := fetch.NewFetcher(builder)
 	moveRouter := move.NewMoveRouter()
 	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer()
-	SSWPPMGenerator, err := shipmentsummaryworksheet.NewSSWPPMGenerator()
+
+	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	pdfGenerator, err := paperworkgenerator.NewGenerator(userUploader.Uploader())
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	SSWPPMGenerator, err := shipmentsummaryworksheet.NewSSWPPMGenerator(pdfGenerator)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -69,22 +79,14 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	addressUpdater := address.NewAddressUpdater()
 
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator, addressCreator, addressUpdater)
-	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
-	if err != nil {
-		log.Fatalln(err)
-	}
 
-	primeDownloadMoveUploadPDFGenerator, err := paperwork.NewMoveUserUploadToPDFDownloader(userUploader)
+	primeDownloadMoveUploadPDFGenerator, err := paperwork.NewMoveUserUploadToPDFDownloader(pdfGenerator)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
-	Generator, err := paperworkgenerator.NewGenerator(userUploader.Uploader())
-	if err != nil {
-		log.Fatalln(err)
-	}
 
-	AOAPacketCreator := ppmshipment.NewAOAPacketCreator(SSWPPMGenerator, SSWPPMComputer, primeDownloadMoveUploadPDFGenerator, userUploader, Generator)
+	AOAPacketCreator := ppmshipment.NewAOAPacketCreator(SSWPPMGenerator, SSWPPMComputer, primeDownloadMoveUploadPDFGenerator, userUploader, pdfGenerator)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -239,17 +241,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		transportationOfficeFetcher,
 	}
 
-	// NewPaymentPacketCreator(
-	// 	ppmShipmentFetcher services.PPMShipmentFetcher,
-	// 	userUploadToPDFConverter services.UserUploadToPDFConverter,
-	// 	pdfMerger services.PDFMerger,
-	// 	ppmShipmentUpdater services.PPMShipmentUpdater,
-	// 	userUploader *uploader.UserUploader
-	// uploadToPDFConverter := paperwork.NewUserUploadToPDFConverter(userUploader)
-	// pdfMerger := paperwork.NewPDFMerger()
-
-	//userUploader, _  := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
-	paymentPacketCreator := ppmshipment.NewPaymentPacketCreator(ppmShipmentFetcher, userUploader, AOAPacketCreator)
+	paymentPacketCreator := ppmshipment.NewPaymentPacketCreator(ppmShipmentFetcher, pdfGenerator, AOAPacketCreator)
 	internalAPI.PpmShowPaymentPacketHandler = ShowPaymentPacketHandler{handlerConfig, paymentPacketCreator}
 
 	return internalAPI

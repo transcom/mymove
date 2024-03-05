@@ -24,9 +24,7 @@ import (
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/unit"
-	"github.com/transcom/mymove/pkg/uploader"
 )
 
 // SSWPPMComputer is the concrete struct implementing the services.shipmentsummaryworksheet interface
@@ -45,24 +43,14 @@ type SSWPPMGenerator struct {
 }
 
 // NewSSWPPMGenerator creates a SSWPPMGenerator
-func NewSSWPPMGenerator() (services.SSWPPMGenerator, error) {
-	// Generator and dependencies must be initiated to handle memory filesystem for AWS
-	storer := storage.NewMemory(storage.NewMemoryParams("", ""))
-	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	generator, err := paperwork.NewGenerator(userUploader.Uploader())
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
+func NewSSWPPMGenerator(pdfGenerator *paperwork.Generator) (services.SSWPPMGenerator, error) {
 	templateReader, err := createAssetByteReader("paperwork/formtemplates/SSWPDFTemplate.pdf")
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	return &SSWPPMGenerator{
-		generator:      *generator,
+		generator:      *pdfGenerator,
 		templateReader: templateReader,
 	}, nil
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primeapi"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations"
 	"github.com/transcom/mymove/pkg/handlers"
+	paperwork "github.com/transcom/mymove/pkg/paperwork"
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/fetch"
@@ -19,7 +20,7 @@ import (
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/orchestrators/shipment"
 	order "github.com/transcom/mymove/pkg/services/order"
-	"github.com/transcom/mymove/pkg/services/paperwork"
+	paperwork_service "github.com/transcom/mymove/pkg/services/paperwork"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -54,7 +55,11 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 		log.Fatalln(err)
 	}
 
-	primeDownloadMoveUploadPDFGenerator, err := paperwork.NewMoveUserUploadToPDFDownloader(userUploader)
+	pdfGenerator, err := paperwork.NewGenerator(userUploader.Uploader())
+	if err != nil {
+		log.Fatalln(err)
+	}
+	primeDownloadMoveUploadPDFGenerator, err := paperwork_service.NewMoveUserUploadToPDFDownloader(pdfGenerator)
 	if err != nil {
 		log.Fatalln(err)
 	}
