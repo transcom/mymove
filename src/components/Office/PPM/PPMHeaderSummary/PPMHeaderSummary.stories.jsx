@@ -23,7 +23,7 @@ const Template = (args) => <PPMHeaderSummary {...args} />;
 
 export const WithAdvanceSingleDocument = Template.bind({});
 WithAdvanceSingleDocument.args = {
-  ppmShipment: {
+  ppmShipmentInfo: {
     expectedDepartureDate: '2022-04-05',
     actualMoveDate: '2022-04-30',
     actualPickupPostalCode: '90210',
@@ -40,7 +40,7 @@ WithAdvanceSingleDocument.args = {
 
 export const WithNoAdvanceSingleDocument = Template.bind({});
 WithNoAdvanceSingleDocument.args = {
-  ppmShipment: {
+  ppmShipmentInfo: {
     expectedDepartureDate: '2022-04-05',
     actualMoveDate: '2022-04-30',
     actualPickupPostalCode: '90210',
@@ -56,7 +56,7 @@ WithNoAdvanceSingleDocument.args = {
 
 export const WithAdvanceReviewAllDocuments = Template.bind({});
 WithAdvanceReviewAllDocuments.args = {
-  ppmShipment: {
+  ppmShipmentInfo: {
     expectedDepartureDate: '2022-04-05',
     actualMoveDate: '2022-04-30',
     actualPickupPostalCode: '90210',
@@ -85,7 +85,7 @@ WithAdvanceReviewAllDocuments.args = {
 
 export const WithNoAdvanceReviewAllDocuments = Template.bind({});
 WithNoAdvanceReviewAllDocuments.args = {
-  ppmShipment: {
+  ppmShipmentInfo: {
     expectedDepartureDate: '2022-04-05',
     actualMoveDate: '2022-04-30',
     actualPickupPostalCode: '90210',
