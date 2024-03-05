@@ -333,21 +333,49 @@ func SSWGetEntitlement(grade internalmessages.OrderPayGrade, hasDependents bool,
 // a PPMs remaining entitlement weight is equal to total entitlement - hhg weight
 func CalculateRemainingPPMEntitlement(move models.Move, totalEntitlement unit.Pound) (unit.Pound, error) {
 	var hhgActualWeight unit.Pound
-
 	var ppmActualWeight unit.Pound
-	if len(move.PersonallyProcuredMoves) > 0 {
-		if move.PersonallyProcuredMoves[0].NetWeight == nil {
-			return ppmActualWeight, errors.Errorf("PPM %s does not have NetWeight", move.PersonallyProcuredMoves[0].ID)
+	println("Entitlement Calc")
+	println(totalEntitlement)
+
+	// Loop through the MTOShipments array
+	for _, shipment := range move.MTOShipments {
+		// Check the ShipmentType of each MTOShipment
+		switch shipment.ShipmentType {
+		case "HHG": // "HHG" is the ShipmentType for household goods
+			if shipment.PrimeActualWeight != nil {
+				hhgActualWeight += unit.Pound(*shipment.PrimeActualWeight)
+			}
+		case "HHG_INTO_NTS_DOMESTIC": // "HHG" is the ShipmentType for household goods
+			if shipment.PrimeActualWeight != nil {
+				hhgActualWeight += unit.Pound(*shipment.PrimeActualWeight)
+			}
+		case "HHG_OUTOF_NTS_DOMESTIC": // "HHG" is the ShipmentType for household goods
+			if shipment.PrimeActualWeight != nil {
+				hhgActualWeight += unit.Pound(*shipment.PrimeActualWeight)
+			}
+
+		case "PPM": // "PPM" is the ShipmentType for personally procured moves
+			if shipment.PrimeActualWeight != nil {
+				ppmActualWeight += unit.Pound(*shipment.PrimeActualWeight)
+			}
 		}
-		ppmActualWeight = unit.Pound(*move.PersonallyProcuredMoves[0].NetWeight)
 	}
+
+	println(hhgActualWeight)
+	println(ppmActualWeight)
 
 	switch ppmRemainingEntitlement := totalEntitlement - hhgActualWeight; {
 	case ppmActualWeight < ppmRemainingEntitlement:
+		println(ppmRemainingEntitlement)
+
 		return ppmActualWeight, nil
 	case ppmRemainingEntitlement < 0:
+		println(ppmRemainingEntitlement)
+
 		return 0, nil
 	default:
+		println(ppmRemainingEntitlement)
+
 		return ppmRemainingEntitlement, nil
 	}
 }
@@ -396,7 +424,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.SITDaysInStorage = formattedSIT.DaysInStorage
 	page1.SITEntryDates = formattedSIT.EntryDates
 	page1.SITEndDates = formattedSIT.EndDates
-	// page1.SITNumberAndTypes
+	page1.SITNumberAndTypes = formattedShipments.ShipmentNumberAndTypes
 	page1.ShipmentWeights = formattedShipments.ShipmentWeights
 	// Obligations cannot be used at this time, require new computer setup.
 	page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
@@ -450,6 +478,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 
 	expensesMap := SubTotalExpenses(data.MovingExpenses)
 	agentInfo := FormatAgentInfo(data.MTOAgents)
+	formattedShipments := FormatAllShipments(data.PPMShipments)
 
 	page2 := services.Page2Values{}
 	page2.CUIBanner = controlledUnclassifiedInformationText
@@ -478,6 +507,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 	page2.TotalGTCCPaidSIT = FormatDollars(expensesMap["StorageGTCCPaid"])
 	page2.TotalMemberPaidRepeated = page2.TotalMemberPaid
 	page2.TotalGTCCPaidRepeated = page2.TotalGTCCPaid
+	page2.ShipmentPickupDates = formattedShipments.PickUpDates
 	page2.TrustedAgentName = agentInfo.Name
 	page2.TrustedAgentDate = agentInfo.Date
 	page2.TrustedAgentEmail = agentInfo.Email
@@ -940,7 +970,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 	var sswHeader = header{
 		Source:   "SSWPDFTemplate.pdf",
 		Version:  "pdfcpu v0.6.0 dev",
-		Creation: "2024-03-04 20:30:49 UTC",
+		Creation: "2024-03-05 18:32:27 UTC",
 		Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
 	}
 
