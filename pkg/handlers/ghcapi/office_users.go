@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -112,7 +113,12 @@ func (h RequestOfficeUserHandler) Handle(params officeuserop.CreateRequestedOffi
 			if payload.Edipi == nil && payload.OtherUniqueID == nil {
 				err = apperror.NewBadDataError("Either an EDIPI or Other Unique ID must be provided")
 				appCtx.Logger().Error(err.Error())
-				return officeuserop.NewCreateRequestedOfficeUserUnprocessableEntity(), err
+				payload := payloadForValidationError(
+					"Identification parameter error",
+					err.Error(),
+					h.GetTraceIDFromRequest(params.HTTPRequest),
+					validate.NewErrors())
+				return officeuserop.NewCreateRequestedOfficeUserUnprocessableEntity().WithPayload(payload), err
 			}
 
 			// By default set status to "REQUESTED", as is the purpose of this endpoint
@@ -134,15 +140,12 @@ func (h RequestOfficeUserHandler) Handle(params officeuserop.CreateRequestedOffi
 
 			createdOfficeUser, verrs, err := h.OfficeUserCreator.CreateOfficeUser(appCtx, &officeUser, transportationIDFilter)
 			if verrs != nil {
-				validationError := &ghcmessages.ValidationError{
-					InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors,
-				}
-
-				validationError.Title = handlers.FmtString(handlers.ValidationErrMessage)
-				validationError.Detail = handlers.FmtString("The information you provided is invalid. This email or edipi may already be assigned to an office user.")
-				validationError.Instance = handlers.FmtUUID(h.GetTraceIDFromRequest(params.HTTPRequest))
-
-				return officeuserop.NewCreateRequestedOfficeUserUnprocessableEntity().WithPayload(validationError), verrs
+				payload := payloadForValidationError(
+					"Office user creation",
+					"Validation error",
+					h.GetTraceIDFromRequest(params.HTTPRequest),
+					verrs)
+				return officeuserop.NewCreateRequestedOfficeUserUnprocessableEntity().WithPayload(payload), verrs
 			}
 
 			if err != nil {
