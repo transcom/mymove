@@ -80,3 +80,5 @@ export { default as deleteProGearWeightTicketUserUploads } from './DeleteProGear
 export { default as createMovingExpense } from './CreateMovingExpense/CreateMovingExpense';
 export { default as deleteMovingExpense } from './DeleteMovingExpense/DeleteMovingExpense';
 export { default as deleteMovingExpenseUserUploads } from './DeleteMovingExpense/DeleteMovingExpenseUserUploads';
+export { default as submitMoveForApprovalMTOShipments } from './SubmitMoveForApproval/SubmitMoveForApprovalMTOShipments';
+export { default as submitMoveForApprovalPPMShipments } from './SubmitMoveForApproval/SubmitMoveForApprovalPPMShipments';
