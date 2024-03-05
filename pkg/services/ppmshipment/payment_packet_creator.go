@@ -12,6 +12,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services"
@@ -83,6 +84,16 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 	var pdfFileNamesToMerge []string
 
 	sortedPaymentPacketItemsMap := buildPaymentPacketItemsMap(ppmShipment)
+
+	// return not found error if there are no documentations to process, abort
+	if len(sortedPaymentPacketItemsMap) == 0 {
+		id, _ := uuid.FromString(ppmShipmentID.String())
+		notFoundErr := apperror.NewNotFoundError(
+			id,
+			"Could not find any documentations for ppmShipmentID",
+		)
+		return nil, notFoundErr
+	}
 
 	for i := 0; i < len(sortedPaymentPacketItemsMap); i++ {
 		pdfFileName, perr := p.pdfGenerator.ConvertUploadToPDF(appCtx, sortedPaymentPacketItemsMap[i].Upload)
