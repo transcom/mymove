@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -194,20 +193,12 @@ func (h ShowPaymentPacketHandler) Handle(params ppmdocumentops.ShowPaymentPacket
 
 			pdf, err := h.PaymentPacketCreator.GenerateDefault(appCtx, ppmShipmentID)
 			if err != nil {
-				switch e := err.(type) {
+				switch err.(type) {
 				case apperror.NotFoundError:
-					if e.Unwrap() != nil {
-						// If you can unwrap, log the error (usually a pq error) for better debugging
-						appCtx.Logger().Error(
-							"internalapi.DownPaymentPacket error",
-							zap.Error(e.Unwrap()),
-						)
-					}
-					badDataError := apperror.NewBadDataError("ppm shipment id not found")
-					payload := payloadForValidationError("Unable to generate payment packet", badDataError.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-					return ppmdocumentops.NewShowPaymentPacketUnprocessableEntity().WithPayload(payload), err
+					appCtx.Logger().Warn("ghcapi.DownPaymentPacket warn", zap.Error(err))
+					return ppmdocumentops.NewShowPaymentPacketUnprocessableEntity(), err
 				default:
-					appCtx.Logger().Error("internalapi.DownPaymentPacket error", zap.Error(err))
+					appCtx.Logger().Error("ghcapi.DownPaymentPacket error", zap.Error(err))
 					return ppmdocumentops.NewShowPaymentPacketInternalServerError(), err
 				}
 			}

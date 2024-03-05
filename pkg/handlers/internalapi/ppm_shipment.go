@@ -335,11 +335,10 @@ func (h ShowPaymentPacketHandler) Handle(params ppmops.ShowPaymentPacketParams) 
 
 			pdf, err := h.PaymentPacketCreator.GenerateDefault(appCtx, ppmShipmentID)
 			if err != nil {
-				switch e := err.(type) {
+				switch err.(type) {
 				case apperror.NotFoundError:
 					appCtx.Logger().Warn("internalapi.DownPaymentPacket warn", zap.Error(err))
-					payload := payloads.ValidationError(e.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)
-					return ppmops.NewShowPaymentPacketUnprocessableEntity().WithPayload(payload), err
+					return ppmops.NewShowPaymentPacketUnprocessableEntity(), err
 				default:
 					appCtx.Logger().Error("internalapi.DownPaymentPacket error", zap.Error(err))
 					return ppmops.NewShowPaymentPacketInternalServerError(), err
