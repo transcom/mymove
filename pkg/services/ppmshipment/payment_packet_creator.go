@@ -198,12 +198,24 @@ func buildWaterMarks(bookMarks []pdfcpu.Bookmark, pdfGenerator paperwork.Generat
 	creationTimeStamp := time.Now().UTC().Format("2006-01-02T15:04:05.000Z")
 	totalPages := bookMarks[len(bookMarks)-1].PageThru
 	currentPage := 1
+	bookMarkIndex := 0
 	for _, bm := range bookMarks {
 		cnt := bm.PageThru - bm.PageFrom
 		for j := 0; j <= cnt; j++ {
+			// do not add watermark on SSW pages
+			if currentPage < 3 {
+				currentPage++
+				continue
+			}
+			wmText := bm.Title
+			// we really can't use the bookmark title for the SSW+Orders.
+			// we will just label it as only Orders
+			if currentPage > 2 && bookMarkIndex == 0 {
+				wmText = "Orders"
+			}
 			wms := make([]*model.Watermark, 0)
 			pagingInfo := fmt.Sprintf("Page %d of %d", currentPage, totalPages)
-			text := fmt.Sprintf("%s - Payment Packet[%s] (Creation date: %v)", pagingInfo, bm.Title, creationTimeStamp)
+			text := fmt.Sprintf("%s - Payment Packet[%s] (Creation date: %v)", pagingInfo, wmText, creationTimeStamp)
 
 			desc := fmt.Sprintf("font:Times-Italic, points:10, sc:1 abs, pos:bc, off:0 10, rot:0, op:%f", opacity)
 			wm, _ := pdfGenerator.CreateTextWatermark(text, desc, onTop, update, unit)
@@ -212,6 +224,7 @@ func buildWaterMarks(bookMarks []pdfcpu.Bookmark, pdfGenerator paperwork.Generat
 			m[currentPage] = wms
 			currentPage++
 		}
+		bookMarkIndex++
 	}
 
 	return m, nil
