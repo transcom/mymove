@@ -52,6 +52,16 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 		suite.Equal("1755", valueStr)
 	})
 
+	suite.Run("has only estimated weight", func() {
+		// Set the estimated weight only; no original, reweigh, or adjusted weight.
+		estimatedWeight := unit.Pound(1755)
+		_, _, paramLookup := suite.setupTestMTOServiceItemWithEstimatedWeightForPPM(&estimatedWeight, nil, models.ReServiceCodeDDSHUT)
+
+		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		suite.FatalNoError(err)
+		suite.Equal("1755", valueStr)
+	})
+
 	suite.Run("has reweigh weight where reweigh is lower", func() {
 		// Set the original weight to greater than the reweigh weight. Lower weight (reweigh) should win.
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithReweigh(unit.Pound(1450), unit.Pound(1481), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)

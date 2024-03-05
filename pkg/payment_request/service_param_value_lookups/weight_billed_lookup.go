@@ -30,20 +30,22 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 
 		originalWeight = keyData.MTOServiceItem.ActualWeight
 
-		if originalWeight == nil {
-			// TODO: Do we need a different error -- is this a "normal" scenario?
-			return "", fmt.Errorf("could not find actual weight for MTOServiceItemID [%s]", keyData.MTOServiceItem.ID)
-		}
-
-		if estimatedWeight != nil {
-			estimatedWeightCap := math.Round(float64(*estimatedWeight) * 1.10)
-			if float64(*originalWeight) > estimatedWeightCap {
-				value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(estimatedWeightCap))
+		if originalWeight != nil {
+			weightCap := math.Round(float64(*originalWeight) * 1.10)
+			if float64(*originalWeight) > weightCap {
+				value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(weightCap))
 			} else {
 				value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*originalWeight))
 			}
+		} else if estimatedWeight != nil {
+			weightCap := math.Round(float64(*estimatedWeight) * 1.10)
+			if float64(*estimatedWeight) > weightCap {
+				value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(weightCap))
+			} else {
+				value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*estimatedWeight))
+			}
 		} else {
-			value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*originalWeight))
+			return "", fmt.Errorf("could not find actual or estimated weights for MTOServiceItemID [%s]", keyData.MTOServiceItem.ID)
 		}
 		return value, nil
 	default:
