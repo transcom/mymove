@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -25,6 +26,7 @@ type mtoServiceItemQueryBuilder interface {
 }
 
 type mtoServiceItemUpdater struct {
+	planner          route.Planner
 	builder          mtoServiceItemQueryBuilder
 	createNewBuilder func() mtoServiceItemQueryBuilder
 	moveRouter       services.MoveRouter
@@ -33,13 +35,13 @@ type mtoServiceItemUpdater struct {
 }
 
 // NewMTOServiceItemUpdater returns a new mto service item updater
-func NewMTOServiceItemUpdater(builder mtoServiceItemQueryBuilder, moveRouter services.MoveRouter, shipmentFetcher services.MTOShipmentFetcher, addressCreator services.AddressCreator) services.MTOServiceItemUpdater {
+func NewMTOServiceItemUpdater(planner route.Planner, builder mtoServiceItemQueryBuilder, moveRouter services.MoveRouter, shipmentFetcher services.MTOShipmentFetcher, addressCreator services.AddressCreator) services.MTOServiceItemUpdater {
 	// used inside a transaction and mocking		return &mtoServiceItemUpdater{builder: builder}
 	createNewBuilder := func() mtoServiceItemQueryBuilder {
 		return query.NewQueryBuilder()
 	}
 
-	return &mtoServiceItemUpdater{builder, createNewBuilder, moveRouter, shipmentFetcher, addressCreator}
+	return &mtoServiceItemUpdater{planner, builder, createNewBuilder, moveRouter, shipmentFetcher, addressCreator}
 }
 
 func (p *mtoServiceItemUpdater) ApproveOrRejectServiceItem(
@@ -111,6 +113,7 @@ func (p *mtoServiceItemUpdater) findServiceItem(appCtx appcontext.AppContext, se
 		"MoveTaskOrder",
 		"SITDestinationFinalAddress",
 		"ReService",
+		"SITOriginHHGOriginalAddress",
 	).Find(&serviceItem, serviceItemID)
 	if err != nil {
 		switch err {
@@ -183,6 +186,12 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 		serviceItem.RejectedAt = nil
 		serviceItem.ApprovedAt = &now
 
+		// Get the shipment destination address
+		mtoShipment, err := p.shipmentFetcher.GetShipment(appCtx, *serviceItem.MTOShipmentID, "DestinationAddress", "PickupAddress", "MTOServiceItems.SITOriginHHGOriginalAddress")
+		if err != nil {
+			return nil, err
+		}
+
 		// Check to see if there is already a SIT Destination Original Address
 		// by checking for the ID before trying to set one on the service item.
 		// If there isn't one, then we set it. We will update all four destination
@@ -190,14 +199,12 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 		if (serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
 			serviceItem.ReService.Code == models.ReServiceCodeDDSFSC ||
 			serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
-			serviceItem.ReService.Code == models.ReServiceCodeDDFSIT) &&
+			serviceItem.ReService.Code == models.ReServiceCodeDDFSIT ||
+			serviceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
+			serviceItem.ReService.Code == models.ReServiceCodeDOFSIT ||
+			serviceItem.ReService.Code == models.ReServiceCodeDOASIT ||
+			serviceItem.ReService.Code == models.ReServiceCodeDOSFSC) &&
 			serviceItem.SITDestinationOriginalAddressID == nil {
-
-			// Get the shipment destination address
-			mtoShipment, err := p.shipmentFetcher.GetShipment(appCtx, *serviceItem.MTOShipmentID, "DestinationAddress")
-			if err != nil {
-				return nil, err
-			}
 
 			// Set the original address on a service item to the shipment's
 			// destination address when approving destination SIT service items
@@ -219,9 +226,25 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 			serviceItem.SITDestinationOriginalAddressID = &shipmentDestinationAddress.ID
 			serviceItem.SITDestinationOriginalAddress = shipmentDestinationAddress
 
-			if serviceItem.SITDestinationFinalAddressID == nil {
-				serviceItem.SITDestinationFinalAddressID = &shipmentDestinationAddress.ID
-				serviceItem.SITDestinationFinalAddress = shipmentDestinationAddress
+			if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
+				serviceItem.ReService.Code == models.ReServiceCodeDDSFSC ||
+				serviceItem.ReService.Code == models.ReServiceCodeDDASIT ||
+				serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
+				if serviceItem.SITDestinationFinalAddressID == nil {
+					serviceItem.SITDestinationFinalAddressID = &shipmentDestinationAddress.ID
+					serviceItem.SITDestinationFinalAddress = shipmentDestinationAddress
+				}
+			}
+		}
+		// Calculate SITDeliveryMiles for origin SIT service items
+		if serviceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
+			serviceItem.ReService.Code == models.ReServiceCodeDOFSIT ||
+			serviceItem.ReService.Code == models.ReServiceCodeDOASIT ||
+			serviceItem.ReService.Code == models.ReServiceCodeDOSFSC {
+			// Origin SIT: distance between shipment pickup address & service item ORIGINAL pickup address
+			milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode)
+			if err == nil {
+				serviceItem.SITDeliveryMiles = &milesCalculated
 			}
 		}
 	}

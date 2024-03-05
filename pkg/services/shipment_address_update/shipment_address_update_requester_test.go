@@ -679,6 +679,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			},
 		}, nil)
 		officeRemarks := "This is a TOO remark"
+
 		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "APPROVED", officeRemarks)
 
 		suite.NoError(err)

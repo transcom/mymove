@@ -160,12 +160,6 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter)
 	shipmentRouter := mtoshipment.NewShipmentRouter()
-	// planner := &routemocks.Planner{}
-	// planner.On("ZipTransitDistance",
-	// 	mock.AnythingOfType("*appcontext.appContext"),
-	// 	mock.Anything,
-	// 	mock.Anything,
-	// ).Return(400, nil)
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
 		mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), builder, moveRouter),

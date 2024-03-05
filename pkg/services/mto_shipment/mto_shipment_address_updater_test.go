@@ -167,7 +167,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			mock.Anything,
 			mock.Anything,
 		).Return(465, nil)
-		mtoServiceItems, _ := UpdateOriginSITServiceItemSITDeliveryMiles(planner, &sitServiceItems, &newAddress, &oldAddress, suite.AppContextForTest())
+		mtoServiceItems, _ := UpdateOriginSITServiceItemSITDeliveryMiles(planner, &externalShipment, &newAddress, &oldAddress, suite.AppContextForTest())
 		suite.Equal(4, len(*mtoServiceItems))
 		for _, mtoServiceItem := range *mtoServiceItems {
 			suite.Equal(*mtoServiceItem.SITDeliveryMiles, 465)

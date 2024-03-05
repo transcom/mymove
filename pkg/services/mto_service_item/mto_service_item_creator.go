@@ -40,7 +40,7 @@ func (o *mtoServiceItemCreator) calculateSITDeliveryMiles(appCtx appcontext.AppC
 		var originalSITAddressZip string
 		if serviceItem.SITDestinationOriginalAddress != nil {
 			originalSITAddressZip = serviceItem.SITDestinationOriginalAddress.PostalCode
-		} else {
+		} else if mtoShipment.PickupAddress != nil {
 			originalSITAddressZip = mtoShipment.PickupAddress.PostalCode
 		}
 		if mtoShipment.PickupAddress != nil && originalSITAddressZip != "" {
