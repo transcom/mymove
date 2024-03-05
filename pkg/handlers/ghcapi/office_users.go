@@ -63,7 +63,8 @@ func payloadForOfficeUserModel(o models.OfficeUser) *ghcmessages.OfficeUser {
 		LastName:               handlers.FmtString(o.LastName),
 		Telephone:              handlers.FmtString(o.Telephone),
 		Email:                  handlers.FmtString(o.Email),
-		Edipi:                  handlers.FmtString(*o.EDIPI),
+		Edipi:                  handlers.FmtStringPtr(o.EDIPI),
+		OtherUniqueID:          handlers.FmtStringPtr(o.OtherUniqueID),
 		TransportationOfficeID: handlers.FmtUUID(o.TransportationOfficeID),
 		Active:                 handlers.FmtBool(o.Active),
 		Status:                 handlers.FmtStringPtr(o.Status),
@@ -107,12 +108,21 @@ func (h RequestOfficeUserHandler) Handle(params officeuserop.CreateRequestedOffi
 				return officeuserop.NewCreateRequestedOfficeUserUnprocessableEntity(), err
 			}
 
+			// Enforce identification rule for this payload
+			if payload.Edipi == nil && payload.OtherUniqueID == nil {
+				err = apperror.NewBadDataError("Either an EDIPI or Other Unique ID must be provided")
+				appCtx.Logger().Error(err.Error())
+				return officeuserop.NewCreateRequestedOfficeUserUnprocessableEntity(), err
+			}
+
 			// By default set status to "REQUESTED", as is the purpose of this endpoint
 			officeUser := models.OfficeUser{
 				LastName:               payload.LastName,
 				FirstName:              payload.FirstName,
 				Telephone:              payload.Telephone,
 				Email:                  payload.Email,
+				EDIPI:                  payload.Edipi,
+				OtherUniqueID:          payload.OtherUniqueID,
 				TransportationOfficeID: transportationOfficeID,
 				Active:                 false,
 				Status:                 models.StringPointer("REQUESTED"),
@@ -129,7 +139,7 @@ func (h RequestOfficeUserHandler) Handle(params officeuserop.CreateRequestedOffi
 				}
 
 				validationError.Title = handlers.FmtString(handlers.ValidationErrMessage)
-				validationError.Detail = handlers.FmtString("The information you provided is invalid.")
+				validationError.Detail = handlers.FmtString("The information you provided is invalid. This email or edipi may already be assigned to an office user.")
 				validationError.Instance = handlers.FmtUUID(h.GetTraceIDFromRequest(params.HTTPRequest))
 
 				return officeuserop.NewCreateRequestedOfficeUserUnprocessableEntity().WithPayload(validationError), verrs
