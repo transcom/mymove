@@ -2909,9 +2909,9 @@ func init() {
         }
       ]
     },
-    "/ppm-shipments/{ppmShipmentId}/payment_packet": {
+    "/ppm-shipments/{ppmShipmentId}/payment-packet": {
       "get": {
-        "description": "Generates a PDF containing all user uploaded documentations for PPM",
+        "description": "Generates a PDF containing all user uploaded documentations for PPM. Contains SSW form, orders, weight and expense documentations.",
         "produces": [
           "application/pdf"
         ],
@@ -14211,9 +14211,9 @@ func init() {
         }
       ]
     },
-    "/ppm-shipments/{ppmShipmentId}/payment_packet": {
+    "/ppm-shipments/{ppmShipmentId}/payment-packet": {
       "get": {
-        "description": "Generates a PDF containing all user uploaded documentations for PPM",
+        "description": "Generates a PDF containing all user uploaded documentations for PPM. Contains SSW form, orders, weight and expense documentations.",
         "produces": [
           "application/pdf"
         ],

@@ -1111,7 +1111,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/payment_packet"] = ppm.NewShowPaymentPacket(o.context, o.PpmShowPaymentPacketHandler)
+	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/payment-packet"] = ppm.NewShowPaymentPacket(o.context, o.PpmShowPaymentPacketHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

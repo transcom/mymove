@@ -42,7 +42,7 @@ func (o *ShowPaymentPacketURL) SetBasePath(bp string) {
 func (o *ShowPaymentPacketURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/ppm-shipments/{ppmShipmentId}/payment_packet"
+	var _path = "/ppm-shipments/{ppmShipmentId}/payment-packet"
 
 	ppmShipmentID := o.PpmShipmentID.String()
 	if ppmShipmentID != "" {
