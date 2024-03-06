@@ -56,4 +56,36 @@ describe('MultiMovesMoveContainer', () => {
     // The move details should be hidden again
     expect(screen.queryByText('Shipments')).not.toBeInTheDocument();
   });
+
+  it('renders Go to Move & Download buttons for current move', () => {
+    render(
+      <MockProviders>
+        <MultiMovesMoveContainer moves={mockCurrentMoves} />
+      </MockProviders>,
+    );
+
+    expect(screen.getByTestId('headerBtns')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Download' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Go to Move' })).toBeInTheDocument();
+  });
+
+  it('renders Go to Move & Download buttons for previous moves exceeding one', () => {
+    render(
+      <MockProviders>
+        <MultiMovesMoveContainer moves={mockPreviousMoves} />
+      </MockProviders>,
+    );
+
+    // Check for the container that holds the buttons - there should be 2
+    const headerBtnsElements = screen.getAllByTestId('headerBtns');
+    expect(headerBtnsElements).toHaveLength(2);
+
+    // Check for Download buttons - there should be 2
+    const downloadButtons = screen.getAllByRole('button', { name: 'Download' });
+    expect(downloadButtons).toHaveLength(2);
+
+    // Check for Go to Move buttons - there should be 2
+    const goToMoveButtons = screen.getAllByRole('button', { name: 'Go to Move' });
+    expect(goToMoveButtons).toHaveLength(2);
+  });
 });
