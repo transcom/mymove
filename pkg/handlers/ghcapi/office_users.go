@@ -25,6 +25,7 @@ type RequestOfficeUserHandler struct {
 	services.OfficeUserCreator
 	services.NewQueryFilter
 	services.UserRoleAssociator
+	services.RoleAssociater
 }
 
 // Convert internal role model to ghc role model
@@ -158,6 +159,14 @@ func (h RequestOfficeUserHandler) Handle(params officeuserop.CreateRequestedOffi
 				appCtx.Logger().Error("Error updating user roles", zap.Error(err))
 				return officeuserop.NewCreateRequestedOfficeUserInternalServerError(), err
 			}
+
+			roles, err := h.RoleAssociater.FetchRoles(appCtx, *createdOfficeUser.UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error fetching user roles", zap.Error(err))
+				return officeuserop.NewCreateRequestedOfficeUserInternalServerError(), err
+			}
+
+			createdOfficeUser.User.Roles = roles
 
 			_, err = audit.Capture(appCtx, createdOfficeUser, nil, params.HTTPRequest)
 			if err != nil {

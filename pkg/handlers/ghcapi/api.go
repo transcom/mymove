@@ -34,6 +34,7 @@ import (
 	pwsviolation "github.com/transcom/mymove/pkg/services/pws_violation"
 	"github.com/transcom/mymove/pkg/services/query"
 	reportviolation "github.com/transcom/mymove/pkg/services/report_violation"
+	"github.com/transcom/mymove/pkg/services/roles"
 	shipmentaddressupdate "github.com/transcom/mymove/pkg/services/shipment_address_update"
 	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
 	sitentrydateupdate "github.com/transcom/mymove/pkg/services/sit_entry_date_update"
@@ -62,6 +63,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	)
 	newQueryFilter := query.NewQueryFilter
 	newUserRolesCreator := usersroles.NewUsersRolesCreator()
+	newRolesFetcher := roles.NewRolesFetcher()
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		queryBuilder,
 		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
@@ -542,6 +544,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		officerUserCreator,
 		newQueryFilter,
 		newUserRolesCreator,
+		newRolesFetcher,
 	}
 
 	return ghcAPI
