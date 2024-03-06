@@ -83,9 +83,7 @@ describe('AsyncPacketDownloadLink success', () => {
     };
 
     function makeAnchor(target) {
-      /* eslint-disable no-param-reassign, no-return-assign */
       const setAttributeMock = jest.fn((key, value) => (target[key] = value));
-      /* eslint-enable no-param-reassign, no-return-assign */
       return {
         target,
         setAttribute: setAttributeMock,
