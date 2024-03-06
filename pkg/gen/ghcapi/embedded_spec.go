@@ -1634,9 +1634,12 @@ func init() {
                   "items": {
                     "type": "string",
                     "enum": [
+                      "DRAFT",
                       "SUBMITTED",
                       "APPROVALS REQUESTED",
-                      "APPROVED"
+                      "APPROVED",
+                      "NEEDS SERVICE COUNSELING",
+                      "SERVICE COUNSELING COMPLETED"
                     ]
                   }
                 }
@@ -5052,6 +5055,9 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -9606,6 +9612,9 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
         },
+        "grade": {
+          "$ref": "#/definitions/Grade"
+        },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
           "type": "string",
@@ -12460,9 +12469,12 @@ func init() {
                   "items": {
                     "type": "string",
                     "enum": [
+                      "DRAFT",
                       "SUBMITTED",
                       "APPROVALS REQUESTED",
-                      "APPROVED"
+                      "APPROVED",
+                      "NEEDS SERVICE COUNSELING",
+                      "SERVICE COUNSELING COMPLETED"
                     ]
                   }
                 }
@@ -16688,6 +16700,9 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -21299,6 +21314,9 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
