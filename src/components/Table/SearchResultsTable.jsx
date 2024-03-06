@@ -81,8 +81,6 @@ const columns = (roleType) => [
       ),
     ],
     id: 'maininfo',
-    isFilterable: false,
-    showFilters: false,
   },
   {
     Header: 'Origin',
@@ -102,7 +100,10 @@ const columns = (roleType) => [
         (row) => {
           return row.originGBLOC;
         },
-        { id: 'originGBLOC', isFilterable: false },
+        {
+          id: 'originGBLOC',
+          disableSortBy: true,
+        },
       ),
       createHeader(
         'Pickup Date',
@@ -111,14 +112,13 @@ const columns = (roleType) => [
         },
         {
           id: 'pickupDate',
+          disableSortBy: true,
           isFilterable: true,
           // eslint-disable-next-line react/jsx-props-no-spreading
           Filter: (props) => <DateSelectFilter dateTime {...props} />,
         },
       ),
     ],
-    isFilterable: false,
-    showFilters: false,
   },
   {
     Header: 'Destination',
@@ -138,7 +138,10 @@ const columns = (roleType) => [
         (row) => {
           return row.destinationGBLOC;
         },
-        { id: 'destinationGBLOC' },
+        {
+          id: 'destinationGBLOC',
+          disableSortBy: true,
+        },
       ),
       createHeader(
         'Delivery Date',
@@ -147,6 +150,7 @@ const columns = (roleType) => [
         },
         {
           id: 'deliveryDate',
+          disableSortBy: true,
           isFilterable: true,
           // eslint-disable-next-line react/jsx-props-no-spreading
           Filter: (props) => <DateSelectFilter dateTime {...props} />,
