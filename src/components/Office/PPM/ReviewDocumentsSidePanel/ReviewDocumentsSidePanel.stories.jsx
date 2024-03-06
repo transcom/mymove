@@ -1,6 +1,8 @@
 import React from 'react';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 
+import PPMShipmentInfo from '../ppmTestData';
+
 import ReviewDocumentsSidePanel from './ReviewDocumentsSidePanel';
 
 import PPMDocumentsStatus from 'constants/ppms';
@@ -33,13 +35,7 @@ const Template = (args) => <ReviewDocumentsSidePanel {...args} />;
 
 export const FilledIn = Template.bind({});
 FilledIn.args = {
-  ppmShipment: {
-    actualMoveDate: '02-Dec-22',
-    actualPickupPostalCode: '90210',
-    actualDestinationPostalCode: '94611',
-    hasReceivedAdvance: true,
-    advanceAmountReceived: 60000,
-  },
+  ppmShipmentInfo: PPMShipmentInfo,
   expenseTickets: [
     createCompleteMovingExpense(
       {},

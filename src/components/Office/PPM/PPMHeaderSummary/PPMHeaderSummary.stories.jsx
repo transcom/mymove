@@ -1,6 +1,6 @@
 import React from 'react';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 import PPMHeaderSummary from './PPMHeaderSummary';
 
