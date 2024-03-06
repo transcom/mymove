@@ -41,6 +41,7 @@ import PrimeBanner from 'pages/PrimeUI/PrimeBanner/PrimeBanner';
 import PermissionProvider from 'components/Restricted/PermissionProvider';
 import withRouter from 'utils/routing';
 import { OktaLoggedOutBanner, OktaNeedsLoggedOutBanner } from 'components/OktaLogoutBanner';
+import SMName from 'pages/MyMove/Profile/Name';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -273,6 +274,14 @@ export class OfficeApp extends Component {
                         }
                       />
                     )}
+                    <Route
+                      path={servicesCounselingRoutes.NAME_PATH}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                          <SMName />,
+                        </PrivateRoute>
+                      }
+                    />
 
                     <Route
                       key="servicesCounselingMoveInfoRoute"
