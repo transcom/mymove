@@ -1575,6 +1575,9 @@ definitions:
         x-nullable: true
       entitlement:
         $ref: '#/definitions/Entitlement'
+      provides_services_counseling:
+        type: boolean
+        x-omitempty: false
     required:
       - id
       - service_member_id
