@@ -93,13 +93,13 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpa
 	}, nil)
 
 	customPPM := models.PPMShipment{
-		ID:                         uuid.Must(uuid.NewV4()),
-		ShipmentID:                 shipment.ID,
-		Status:                     models.PPMShipmentStatusWaitingOnCustomer,
-		PickupPostalAddressID:      &pickupAddress.ID,
-		DestinationPostalAddressID: &destinationAddress.ID,
-		PickupPostalCode:           "79329",
-		DestinationPostalCode:      "90210",
+		ID:                    uuid.Must(uuid.NewV4()),
+		ShipmentID:            shipment.ID,
+		Status:                models.PPMShipmentStatusWaitingOnCustomer,
+		PickupAddressID:       &pickupAddress.ID,
+		DestinationAddressID:  &destinationAddress.ID,
+		PickupPostalCode:      "33169",
+		DestinationPostalCode: "33040",
 	}
 
 	ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, []factory.Customization{
@@ -114,12 +114,15 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpa
 	suite.EqualExportedValues(ppmEmailData, PpmPacketEmailData{
 		OriginCity:                        &pickupAddress.City,
 		OriginState:                       &pickupAddress.State,
+		OriginZIP:                         &pickupAddress.PostalCode,
 		DestinationCity:                   &destinationAddress.City,
 		DestinationState:                  &destinationAddress.State,
+		DestinationZIP:                    &destinationAddress.PostalCode,
 		SubmitLocation:                    allOtherSubmitLocation,
 		ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
 		Locator:                           move.Locator,
 		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
+		WashingtonHQServicesLink:          WashingtonHQServicesLink,
 		MyMoveLink:                        MyMoveLink,
 	})
 
@@ -128,10 +131,11 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpa
 <h4>Next steps:</h4>
 
 <p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):</p>
-<p>You can now log into MilMove <a href="` + MyMoveLink + `/">` + MyMoveLink + `/</a> and download your payment packet to submit to ` + allOtherSubmitLocation + `. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
+<p>You can now log into MilMove <a href="` + MyMoveLink + `">` + MyMoveLink + `</a> and download your payment packet to submit to ` + allOtherSubmitLocation + `. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
 <p>Note: The Transportation Office does not determine claimable expenses. Claimable expenses will be determined by finance.</p>
 
-<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a></p>
+<p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href="` + WashingtonHQServicesLink + `">` + WashingtonHQServicesLink + `</a>.</p>
+<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a></p>
 
 <p>Thank you,</p>
 
@@ -181,13 +185,13 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForArmy() {
 	}, nil)
 
 	customPPM := models.PPMShipment{
-		ID:                         uuid.Must(uuid.NewV4()),
-		ShipmentID:                 shipment.ID,
-		Status:                     models.PPMShipmentStatusWaitingOnCustomer,
-		PickupPostalAddressID:      &pickupAddress.ID,
-		DestinationPostalAddressID: &destinationAddress.ID,
-		PickupPostalCode:           "79329",
-		DestinationPostalCode:      "90210",
+		ID:                    uuid.Must(uuid.NewV4()),
+		ShipmentID:            shipment.ID,
+		Status:                models.PPMShipmentStatusWaitingOnCustomer,
+		PickupAddressID:       &pickupAddress.ID,
+		DestinationAddressID:  &destinationAddress.ID,
+		PickupPostalCode:      pickupAddress.PostalCode,
+		DestinationPostalCode: destinationAddress.PostalCode,
 	}
 
 	ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, []factory.Customization{
@@ -202,12 +206,15 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForArmy() {
 	suite.EqualExportedValues(ppmEmailData, PpmPacketEmailData{
 		OriginCity:                        &pickupAddress.City,
 		OriginState:                       &pickupAddress.State,
+		OriginZIP:                         &pickupAddress.PostalCode,
 		DestinationCity:                   &destinationAddress.City,
 		DestinationState:                  &destinationAddress.State,
+		DestinationZIP:                    &destinationAddress.PostalCode,
 		SubmitLocation:                    armySubmitLocation,
 		ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
 		Locator:                           move.Locator,
 		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
+		WashingtonHQServicesLink:          WashingtonHQServicesLink,
 		MyMoveLink:                        MyMoveLink,
 	})
 
@@ -216,10 +223,11 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForArmy() {
 <h4>Next steps:</h4>
 
 <p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):</p>
-<p>You can now log into MilMove <a href="` + MyMoveLink + `/">` + MyMoveLink + `/</a> and download your payment packet to submit to ` + armySubmitLocation + `. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
+<p>You can now log into MilMove <a href="` + MyMoveLink + `">` + MyMoveLink + `</a> and download your payment packet to submit to ` + armySubmitLocation + `. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
 <p>Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.</p>
 
-<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a></p>
+<p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href="` + WashingtonHQServicesLink + `">` + WashingtonHQServicesLink + `</a>.</p>
+<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a></p>
 
 <p>Thank you,</p>
 
@@ -269,13 +277,13 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForNavalBran
 	}, nil)
 
 	customPPM := models.PPMShipment{
-		ID:                         uuid.Must(uuid.NewV4()),
-		ShipmentID:                 shipment.ID,
-		Status:                     models.PPMShipmentStatusWaitingOnCustomer,
-		PickupPostalAddressID:      &pickupAddress.ID,
-		DestinationPostalAddressID: &destinationAddress.ID,
-		PickupPostalCode:           "79329",
-		DestinationPostalCode:      "90210",
+		ID:                    uuid.Must(uuid.NewV4()),
+		ShipmentID:            shipment.ID,
+		Status:                models.PPMShipmentStatusWaitingOnCustomer,
+		PickupAddressID:       &pickupAddress.ID,
+		DestinationAddressID:  &destinationAddress.ID,
+		PickupPostalCode:      pickupAddress.PostalCode,
+		DestinationPostalCode: destinationAddress.PostalCode,
 	}
 
 	ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, []factory.Customization{
@@ -290,12 +298,15 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForNavalBran
 	suite.EqualExportedValues(ppmEmailData, PpmPacketEmailData{
 		OriginCity:                        &pickupAddress.City,
 		OriginState:                       &pickupAddress.State,
+		OriginZIP:                         &pickupAddress.PostalCode,
 		DestinationCity:                   &destinationAddress.City,
 		DestinationState:                  &destinationAddress.State,
+		DestinationZIP:                    &destinationAddress.PostalCode,
 		SubmitLocation:                    allOtherSubmitLocation,
 		ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
 		Locator:                           move.Locator,
 		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
+		WashingtonHQServicesLink:          WashingtonHQServicesLink,
 		MyMoveLink:                        MyMoveLink,
 	})
 
@@ -304,10 +315,11 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForNavalBran
 <h4>Next steps:</h4>
 
 <p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel:</p>
-<p>You can now log into MilMove <a href="` + MyMoveLink + `/">` + MyMoveLink + `/</a> and view your payment packet; however, you do not need to forward your packet to finance as your closeout location is associated with your finance office and they will handle this step for you.</p>
+<p>You can now log into MilMove <a href="` + MyMoveLink + `">` + MyMoveLink + `</a> and view your payment packet; however, you do not need to forward your payment packet to finance as your closeout location is associated with your finance office and they will handle this step for you.</p>
 <p>Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.</p>
 
-<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a></p>
+<p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href="` + WashingtonHQServicesLink + `">` + WashingtonHQServicesLink + `</a>.</p>
+<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a></p>
 
 <p>Thank you,</p>
 
@@ -358,13 +370,13 @@ func (suite *NotificationSuite) TestPpmPacketEmailTextTemplateRender() {
 	}, nil)
 
 	customPPM := models.PPMShipment{
-		ID:                         uuid.Must(uuid.NewV4()),
-		ShipmentID:                 shipment.ID,
-		Status:                     models.PPMShipmentStatusWaitingOnCustomer,
-		PickupPostalAddressID:      &pickupAddress.ID,
-		DestinationPostalAddressID: &destinationAddress.ID,
-		PickupPostalCode:           "79329",
-		DestinationPostalCode:      "90210",
+		ID:                    uuid.Must(uuid.NewV4()),
+		ShipmentID:            shipment.ID,
+		Status:                models.PPMShipmentStatusWaitingOnCustomer,
+		PickupAddressID:       &pickupAddress.ID,
+		DestinationAddressID:  &destinationAddress.ID,
+		PickupPostalCode:      "79329",
+		DestinationPostalCode: "90210",
 	}
 
 	ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, []factory.Customization{
@@ -384,9 +396,11 @@ Next steps:
 
 For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):
 
-You can now log into MilMove <` + MyMoveLink + `/> and download your payment packet to submit to ` + armySubmitLocation + `. You must complete this step to receive final settlement of your PPM.
+You can now log into MilMove <` + MyMoveLink + `> and download your payment packet to submit to ` + armySubmitLocation + `. You must complete this step to receive final settlement of your PPM.
 
 Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.
+
+Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at ` + WashingtonHQServicesLink + `.
 
 If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: ` + OneSourceTransportationOfficeLink + `
 
@@ -443,24 +457,30 @@ func (suite *NotificationSuite) TestPpmPacketEmailZipcodeFallback() {
 	suite.NotNil(ppmEmailData)
 
 	suite.EqualExportedValues(ppmEmailData, PpmPacketEmailData{
-		OriginZIP:                         &customPPM.PickupPostalCode,
-		DestinationZIP:                    &customPPM.DestinationPostalCode,
+		OriginZIP:                         &ppmShipment.PickupAddress.PostalCode,
+		OriginCity:                        &ppmShipment.PickupAddress.City,
+		OriginState:                       &ppmShipment.PickupAddress.State,
+		DestinationZIP:                    &ppmShipment.DestinationAddress.PostalCode,
+		DestinationCity:                   &ppmShipment.DestinationAddress.City,
+		DestinationState:                  &ppmShipment.DestinationAddress.State,
 		SubmitLocation:                    allOtherSubmitLocation,
 		ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
 		Locator:                           move.Locator,
 		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
+		WashingtonHQServicesLink:          WashingtonHQServicesLink,
 		MyMoveLink:                        MyMoveLink,
 	})
-
+	// <strong>Des Moines, IA</strong> to <strong>Fort Eisenhower, GA</strong>
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + *ppmEmailData.OriginZIP + `</strong> to <strong>` + *ppmEmailData.DestinationZIP + `</strong> has been processed in MilMove. </p>
+<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + *ppmEmailData.OriginCity + `, ` + *ppmEmailData.OriginState + `</strong> to <strong>` + *ppmEmailData.DestinationCity + `, ` + *ppmEmailData.DestinationState + `</strong> has been processed in MilMove. </p>
 <h4>Next steps:</h4>
 
 <p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):</p>
-<p>You can now log into MilMove <a href="` + MyMoveLink + `/">` + MyMoveLink + `/</a> and download your payment packet to submit to ` + allOtherSubmitLocation + `. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
+<p>You can now log into MilMove <a href="` + MyMoveLink + `">` + MyMoveLink + `</a> and download your payment packet to submit to ` + allOtherSubmitLocation + `. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
 <p>Note: The Transportation Office does not determine claimable expenses. Claimable expenses will be determined by finance.</p>
 
-<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a></p>
+<p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href="` + WashingtonHQServicesLink + `">` + WashingtonHQServicesLink + `</a>.</p>
+<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a></p>
 
 <p>Thank you,</p>
 

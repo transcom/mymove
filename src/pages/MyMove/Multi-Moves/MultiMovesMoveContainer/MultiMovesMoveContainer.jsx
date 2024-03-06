@@ -77,15 +77,7 @@ const MultiMovesMoveContainer = ({ moves }) => {
       <div className={styles.moveContainer}>
         <div className={styles.heading} key={index}>
           <h3>#{m.moveCode}</h3>
-          <div className={styles.moveContainerButtons} data-testid="headerBtns">
-            <ButtonDropdownMenu
-              data-testid="downloadBtn"
-              title="Download"
-              items={dropdownMenuItems}
-              divClassName={styles.dropdownBtn}
-              onItemClick={handleDropdownItemClick}
-              outline
-            />
+          {m.status !== 'APPROVED' ? (
             <Button
               data-testid="goToMoveBtn"
               className={styles.goToMoveBtn}
@@ -97,7 +89,15 @@ const MultiMovesMoveContainer = ({ moves }) => {
             >
               Go to Move
             </Button>
-          </div>
+          ) : (
+            <ButtonDropdownMenu
+              title="Download"
+              items={dropdownMenuItems}
+              divClassName={styles.dropdownBtn}
+              onItemClick={handleDropdownItemClick}
+              outline
+            />
+          )}
           <FontAwesomeIcon
             className={styles.icon}
             icon={classnames({
