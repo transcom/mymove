@@ -204,6 +204,7 @@ const ServicesCounselingQueue = () => {
 
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
   const [searchHappened, setSearchHappened] = useState(false);
+
   const counselorMoveCreateFeatureFlag = isBooleanFlagEnabled('counselor_move_create');
 
   const onSubmit = useCallback((values) => {
@@ -298,18 +299,11 @@ const ServicesCounselingQueue = () => {
             roleType={roleTypes.SERVICES_COUNSELOR}
           />
         )}
-        {searchHappened &&
-          counselorMoveCreateFeatureFlag(
-            <Button
-              secondary={false}
-              type="Add Customer"
-              style={{ maxWidth: '225px' }}
-              hidden={false}
-              onClick={handleAddCustomerClick}
-            >
-              Add Customer
-            </Button>,
-          )}
+        {searchHappened && counselorMoveCreateFeatureFlag && (
+          <Button secondary={false} type="Add Customer" style={{ maxWidth: '225px' }} onClick={handleAddCustomerClick}>
+            Add Customer
+          </Button>
+        )}
       </div>
     );
   }

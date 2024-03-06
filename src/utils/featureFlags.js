@@ -133,7 +133,7 @@ export const createModifiedSchemaForOrdersTypesFlag = (schema) => {
   };
 };
 
-// isMultiMoveEnabled returns the Flipt feature flag value of multi move
+// isBooleanFlagEnabled returns the Flipt feature flag value of flagkey passed in
 export function isBooleanFlagEnabled(flagKey) {
   return getBooleanFeatureFlagForUser(flagKey, {})
     .then((result) => {
