@@ -1,6 +1,8 @@
 import React from 'react';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 
+import PPMShipmentInfo from '../ppmTestData';
+
 import ReviewExpense from './ReviewExpense';
 
 import { expenseTypes } from 'constants/ppmExpenseTypes';
@@ -14,7 +16,7 @@ export default {
       <MockProviders>
         <GridContainer>
           <Grid row>
-            <Grid col desktop={{ col: 2, offset: 8 }}>
+            <Grid col desktop={{ col: 6, offset: 4 }}>
               <Story />
             </Grid>
           </Grid>
@@ -29,30 +31,14 @@ const Template = (args) => <ReviewExpense {...args} />;
 
 export const Blank = Template.bind({});
 Blank.args = {
-  mtoShipment: {
-    ppmShipment: {
-      actualMoveDate: '2022-04-30',
-      actualPickupPostalCode: '90210',
-      actualDestinationPostalCode: '94611',
-      hasReceivedAdvance: true,
-      advanceAmountReceived: 60000,
-    },
-  },
+  ppmShipmentInfo: PPMShipmentInfo,
   tripNumber: 1,
   ppmNumber: 1,
 };
 
 export const NonStorage = Template.bind({});
 NonStorage.args = {
-  mtoShipment: {
-    ppmShipment: {
-      actualMoveDate: '2022-04-30',
-      actualPickupPostalCode: '90210',
-      actualDestinationPostalCode: '94611',
-      hasReceivedAdvance: true,
-      advanceAmountReceived: 60000,
-    },
-  },
+  ppmShipmentInfo: PPMShipmentInfo,
   tripNumber: 1,
   ppmNumber: 1,
   expense: {
@@ -64,15 +50,7 @@ NonStorage.args = {
 
 export const Storage = Template.bind({});
 Storage.args = {
-  mtoShipment: {
-    ppmShipment: {
-      actualMoveDate: '2022-04-30',
-      actualPickupPostalCode: '90210',
-      actualDestinationPostalCode: '94611',
-      hasReceivedAdvance: true,
-      advanceAmountReceived: 60000,
-    },
-  },
+  ppmShipmentInfo: PPMShipmentInfo,
   tripNumber: 1,
   ppmNumber: 1,
   expense: {
