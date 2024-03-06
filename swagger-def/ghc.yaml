@@ -5087,6 +5087,8 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      orderType:
+        type: string
   SearchMovesResult:
     type: object
     properties:

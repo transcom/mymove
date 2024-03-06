@@ -8969,6 +8969,9 @@ func init() {
         "locator": {
           "type": "string"
         },
+        "orderType": {
+          "type": "string"
+        },
         "originDutyLocationPostalCode": {
           "type": "string",
           "format": "zip",
@@ -20697,6 +20700,9 @@ func init() {
           "example": "Doe"
         },
         "locator": {
+          "type": "string"
+        },
+        "orderType": {
           "type": "string"
         },
         "originDutyLocationPostalCode": {

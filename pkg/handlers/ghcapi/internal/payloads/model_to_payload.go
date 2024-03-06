@@ -1829,6 +1829,7 @@ func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
 			ShipmentsCount:                    int64(numShipments),
 			OriginDutyLocationPostalCode:      move.Orders.OriginDutyLocation.Address.PostalCode,
 			DestinationDutyLocationPostalCode: move.Orders.NewDutyLocation.Address.PostalCode,
+			OrderType:                         string(move.Orders.OrdersType),
 		}
 	}
 	return &searchMoves
