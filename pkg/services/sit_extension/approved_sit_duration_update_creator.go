@@ -39,7 +39,11 @@ func (f *approvedSITDurationUpdateCreator) CreateApprovedSITDurationUpdate(appCt
 		return nil, err
 	}
 
-	resetSITAuthorizedEndDate(appCtx, shipmentID)
+	err = resetSITAuthorizedEndDate(appCtx, shipmentID)
+
+	if err != nil {
+		return nil, err
+	}
 
 	err = validateSITExtension(appCtx, *sitDurationUpdate, shipment, f.checks...)
 	if err != nil {

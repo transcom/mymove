@@ -580,7 +580,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOFSIT,
+					Code: models.ReServiceCodeDOASIT,
 				},
 			},
 			{
@@ -648,7 +648,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOFSIT,
+					Code: models.ReServiceCodeDOASIT,
 				},
 			},
 			{
@@ -718,7 +718,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOFSIT,
+					Code: models.ReServiceCodeDOASIT,
 				},
 			},
 			{
@@ -789,7 +789,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			},
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDOFSIT,
+					Code: models.ReServiceCodeDOASIT,
 				},
 			},
 			{
