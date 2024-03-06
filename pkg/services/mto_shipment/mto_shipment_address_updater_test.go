@@ -168,9 +168,11 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 			mock.Anything,
 		).Return(465, nil)
 		mtoServiceItems, _ := UpdateOriginSITServiceItemSITDeliveryMiles(planner, &externalShipment, &newAddress, &oldAddress, suite.AppContextForTest())
-		suite.Equal(4, len(*mtoServiceItems))
+		suite.Equal(2, len(*mtoServiceItems))
 		for _, mtoServiceItem := range *mtoServiceItems {
-			suite.Equal(*mtoServiceItem.SITDeliveryMiles, 465)
+			if mtoServiceItem.ReService.Code == "DOSFSC" || mtoServiceItem.ReService.Code == "DOPSIT" {
+				suite.Equal(*mtoServiceItem.SITDeliveryMiles, 465)
+			}
 		}
 	})
 }

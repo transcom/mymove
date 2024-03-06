@@ -1061,9 +1061,7 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 	for _, s := range mtoServiceItems {
 		serviceItem := s
 		reServiceCode := serviceItem.ReService.Code
-		if reServiceCode == models.ReServiceCodeDDASIT ||
-			reServiceCode == models.ReServiceCodeDDDSIT ||
-			reServiceCode == models.ReServiceCodeDDFSIT ||
+		if reServiceCode == models.ReServiceCodeDDDSIT ||
 			reServiceCode == models.ReServiceCodeDDSFSC {
 
 			var milesCalculated int
