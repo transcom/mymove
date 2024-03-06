@@ -218,7 +218,7 @@ func (suite *ServiceParamValueLookupsSuite) TestShuttleWeightBilledLookup() {
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal("1357", valueStr)
+		suite.Equal("1481", valueStr)
 	})
 
 	suite.Run("rounds to the nearest whole pound", func() {
@@ -227,7 +227,7 @@ func (suite *ServiceParamValueLookupsSuite) TestShuttleWeightBilledLookup() {
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal("1359", valueStr)
+		suite.Equal("1482", valueStr)
 	})
 
 	// Setup data for testing all minimums
