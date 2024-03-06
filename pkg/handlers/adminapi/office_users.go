@@ -164,6 +164,7 @@ type CreateOfficeUserHandler struct {
 	services.OfficeUserCreator
 	services.NewQueryFilter
 	services.UserRoleAssociator
+	services.RoleAssociater
 }
 
 // Handle creates an office user
@@ -231,6 +232,14 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 				appCtx.Logger().Error("Error updating user roles", zap.Error(err))
 				return officeuserop.NewUpdateOfficeUserInternalServerError(), err
 			}
+
+			roles, err := h.RoleAssociater.FetchRoles(appCtx, *createdOfficeUser.UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error fetching user roles", zap.Error(err))
+				return officeuserop.NewUpdateOfficeUserInternalServerError(), err
+			}
+
+			createdOfficeUser.User.Roles = roles
 
 			_, err = audit.Capture(appCtx, createdOfficeUser, nil, params.HTTPRequest)
 			if err != nil {
