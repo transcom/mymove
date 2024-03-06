@@ -91,6 +91,7 @@ var User CustomType = "User"
 var UsersRoles CustomType = "UsersRoles"
 var WebhookNotification CustomType = "WebhookNotification"
 var WeightTicket CustomType = "WeightTicket"
+var UsPostRegionCity CustomType = "UsPostRegionCity"
 
 // defaultTypesMap allows us to assign CustomTypes for most default types
 var defaultTypesMap = map[string]CustomType{
@@ -138,6 +139,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.SITDurationUpdate":                        SITDurationUpdate,
 	"models.StorageFacility":                          StorageFacility,
 	"models.TransportationAccountingCode":             TransportationAccountingCode,
+	"models.UsPostRegionCity":                         UsPostRegionCity,
 	"models.TransportationOffice":                     TransportationOffice,
 	"models.Upload":                                   Upload,
 	"models.UserUpload":                               UserUpload,
