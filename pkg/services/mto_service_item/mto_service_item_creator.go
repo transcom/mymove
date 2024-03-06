@@ -255,12 +255,12 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		milesCalculated, errCalcSITDelivery := o.calculateSITDeliveryMiles(appCtx, serviceItem, mtoShipment)
 
 		// only calculate SITDeliveryMiles for DOPSIT and DOSFSC origin service items
-		if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT && milesCalculated != 0 && errCalcSITDelivery == nil {
+		if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT && milesCalculated != 0 {
 			for itemIndex := range *extraServiceItems {
 				extraServiceItem := &(*extraServiceItems)[itemIndex]
 				if extraServiceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
 					extraServiceItem.ReService.Code == models.ReServiceCodeDOSFSC {
-					if milesCalculated > 0 && err == nil {
+					if milesCalculated > 0 && errCalcSITDelivery == nil {
 						extraServiceItem.SITDeliveryMiles = &milesCalculated
 					}
 				}
@@ -268,12 +268,12 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		}
 
 		// only calculate SITDeliveryMiles for DDDSIT and DDSFSC destination service items
-		if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT && milesCalculated != 0 && errCalcSITDelivery == nil {
+		if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT && milesCalculated != 0 {
 			for itemIndex := range *extraServiceItems {
 				extraServiceItem := &(*extraServiceItems)[itemIndex]
 				if extraServiceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
 					extraServiceItem.ReService.Code == models.ReServiceCodeDDSFSC {
-					if milesCalculated > 0 && err == nil {
+					if milesCalculated > 0 && errCalcSITDelivery == nil {
 						extraServiceItem.SITDeliveryMiles = &milesCalculated
 					}
 				}
