@@ -41,6 +41,7 @@ NonStorage.args = {
   ppmShipmentInfo: PPMShipmentInfo,
   tripNumber: 1,
   ppmNumber: 1,
+  categoryIndex: 1,
   expense: {
     movingExpenseType: expenseTypes.PACKING_MATERIALS,
     description: 'boxes, tape, bubble wrap',
@@ -53,6 +54,7 @@ Storage.args = {
   ppmShipmentInfo: PPMShipmentInfo,
   tripNumber: 1,
   ppmNumber: 1,
+  categoryIndex: 1,
   expense: {
     movingExpenseType: expenseTypes.STORAGE,
     description: 'Pack n store',

@@ -39,11 +39,23 @@ FilledIn.args = {
   expenseTickets: [
     createCompleteMovingExpense(
       {},
-      { movingExpenseType: expenseTypes.STORAGE, status: PPMDocumentsStatus.REJECTED, reason: 'Too large' },
+      {
+        movingExpenseType: expenseTypes.STORAGE,
+        status: PPMDocumentsStatus.REJECTED,
+        sitStartDate: '2023-02-01',
+        sitEndDate: '2023-03-01',
+        amount: 30000,
+        reason: 'Too large',
+      },
     ),
     createCompleteMovingExpense(
       {},
-      { movingExpenseType: expenseTypes.PACKING_MATERIALS, status: PPMDocumentsStatus.APPROVED, reason: null },
+      {
+        movingExpenseType: expenseTypes.PACKING_MATERIALS,
+        status: PPMDocumentsStatus.APPROVED,
+        amount: 20000,
+        reason: null,
+      },
     ),
   ],
   proGearTickets: [
