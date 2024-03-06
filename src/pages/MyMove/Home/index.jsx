@@ -3,7 +3,7 @@ import { arrayOf, bool, func, node, shape, string } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { Alert, Button } from '@trussworks/react-uswds';
-import { generatePath, Link } from 'react-router-dom';
+import { generatePath } from 'react-router-dom';
 
 import styles from './Home.module.scss';
 import {
@@ -16,6 +16,7 @@ import {
   HelperPPMCloseoutSubmitted,
 } from './HomeHelpers';
 
+import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import Contact from 'components/Customer/Home/Contact';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
@@ -52,7 +53,6 @@ import { MoveShape, OrdersShape, UploadShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import { formatCustomerDate, formatWeight } from 'utils/formatters';
 import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete } from 'utils/shipments';
-import { downloadPPMAOAPacketOnSuccessHandler } from 'utils/download';
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types/router';
 import { ADVANCE_STATUSES } from 'constants/ppms';
@@ -364,17 +364,6 @@ export class Home extends Component {
   };
 
   // eslint-disable-next-line class-methods-use-this
-  handlePPMAOAPacketDownloadClick = (shipmentId) => {
-    downloadPPMAOAPacket(shipmentId)
-      .then((response) => {
-        downloadPPMAOAPacketOnSuccessHandler(response);
-      })
-      .catch(() => {
-        this.toggleDownloadAOAErrorModal();
-      });
-  };
-
-  // eslint-disable-next-line class-methods-use-this
   sortAllShipments = (mtoShipments) => {
     const allShipments = JSON.parse(JSON.stringify(mtoShipments));
     allShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
@@ -624,11 +613,12 @@ export class Home extends Component {
                                   </strong>
                                   {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue && (
                                     <p className={styles.downloadLink}>
-                                      <Link
-                                        onClick={() => this.handlePPMAOAPacketDownloadClick(shipment?.ppmShipment.id)}
-                                      >
-                                        Download AOA Paperwork (PDF)
-                                      </Link>
+                                      <AsyncPacketDownloadLink
+                                        id={shipment?.ppmShipment?.id}
+                                        label="Download AOA Paperwork (PDF)"
+                                        asyncRetrieval={downloadPPMAOAPacket}
+                                        onFailure={this.toggleDownloadAOAErrorModal}
+                                      />
                                     </p>
                                   )}
                                   {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.REJECTED.apiValue && (
