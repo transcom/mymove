@@ -194,11 +194,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			fmt.Sprintf("A service item with reServiceCode %s cannot be manually created.", serviceItem.ReService.Code))
 	}
 
-	milesCalculated, err := o.calculateSITDeliveryMiles(appCtx, serviceItem, mtoShipment)
-	if milesCalculated > 0 {
-		serviceItem.SITDeliveryMiles = &milesCalculated
-	}
-
 	updateShipmentPickupAddress := false
 	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT || serviceItem.ReService.Code == models.ReServiceCodeDOFSIT {
 		extraServiceItems, errSIT := o.validateFirstDaySITServiceItem(appCtx, serviceItem)
@@ -257,25 +252,30 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			}
 		}
 
-		// make sure SITDeliveryMiles is the same for all origin SIT related service items
-		if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT && serviceItem.SITDeliveryMiles != nil {
+		milesCalculated, errCalcSITDelivery := o.calculateSITDeliveryMiles(appCtx, serviceItem, mtoShipment)
+
+		// only calculate SITDeliveryMiles for DOPSIT and DOSFSC origin service items
+		if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT && milesCalculated != 0 && errCalcSITDelivery == nil {
 			for itemIndex := range *extraServiceItems {
 				extraServiceItem := &(*extraServiceItems)[itemIndex]
 				if extraServiceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
-					extraServiceItem.ReService.Code == models.ReServiceCodeDOASIT ||
 					extraServiceItem.ReService.Code == models.ReServiceCodeDOSFSC {
-					extraServiceItem.SITDeliveryMiles = serviceItem.SITDeliveryMiles
+					if milesCalculated > 0 && err == nil {
+						extraServiceItem.SITDeliveryMiles = &milesCalculated
+					}
 				}
 			}
 		}
-		// make sure SITDeliveryMiles is the same for all destination SIT related service items
-		if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT && serviceItem.SITDeliveryMiles != nil {
+
+		// only calculate SITDeliveryMiles for DDDSIT and DDSFSC destination service items
+		if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT && milesCalculated != 0 && errCalcSITDelivery == nil {
 			for itemIndex := range *extraServiceItems {
 				extraServiceItem := &(*extraServiceItems)[itemIndex]
 				if extraServiceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
-					extraServiceItem.ReService.Code == models.ReServiceCodeDDASIT ||
 					extraServiceItem.ReService.Code == models.ReServiceCodeDDSFSC {
-					extraServiceItem.SITDeliveryMiles = serviceItem.SITDeliveryMiles
+					if milesCalculated > 0 && err == nil {
+						extraServiceItem.SITDeliveryMiles = &milesCalculated
+					}
 				}
 			}
 		}

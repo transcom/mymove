@@ -60,8 +60,6 @@ func UpdateOriginSITServiceItemSITDeliveryMiles(planner route.Planner, shipment 
 		serviceItem := s
 		reServiceCode := serviceItem.ReService.Code
 		if reServiceCode == models.ReServiceCodeDOPSIT ||
-			reServiceCode == models.ReServiceCodeDOFSIT ||
-			reServiceCode == models.ReServiceCodeDOASIT ||
 			reServiceCode == models.ReServiceCodeDOSFSC {
 
 			var milesCalculated int
