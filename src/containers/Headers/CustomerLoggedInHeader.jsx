@@ -7,10 +7,12 @@ import MilMoveHeader from 'components/MilMoveHeader/index';
 import CustomerUserInfo from 'components/MilMoveHeader/CustomerUserInfo';
 import { LogoutUser } from 'utils/api';
 import { logOut as logOutAction } from 'store/auth/actions';
-import { selectIsProfileComplete } from 'store/entities/selectors';
+import { selectCurrentOrders, selectIsProfileComplete } from 'store/entities/selectors';
 
-const CustomerLoggedInHeader = ({ isProfileComplete, logOut }) => {
+const CustomerLoggedInHeader = ({ orderType, isProfileComplete, logOut }) => {
   const navigate = useNavigate();
+  const isSpecialMove = ['BLUEBARK'].includes(orderType);
+
   const handleLogout = () => {
     logOut();
     LogoutUser().then((r) => {
@@ -26,22 +28,25 @@ const CustomerLoggedInHeader = ({ isProfileComplete, logOut }) => {
   };
 
   return (
-    <MilMoveHeader>
+    <MilMoveHeader isSpecialMove={isSpecialMove}>
       <CustomerUserInfo showProfileLink={isProfileComplete} handleLogout={handleLogout} />
     </MilMoveHeader>
   );
 };
 
 CustomerLoggedInHeader.propTypes = {
+  orderType: PropTypes.string,
   isProfileComplete: PropTypes.bool,
   logOut: PropTypes.func.isRequired,
 };
 
 CustomerLoggedInHeader.defaultProps = {
+  orderType: '',
   isProfileComplete: false,
 };
 
 const mapStateToProps = (state) => ({
+  orderType: selectCurrentOrders(state).orders_type,
   isProfileComplete: selectIsProfileComplete(state),
 });
 
