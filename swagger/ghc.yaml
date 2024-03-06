@@ -3233,9 +3233,12 @@ paths:
                 items:
                   type: string
                   enum:
+                    - DRAFT
                     - SUBMITTED
                     - APPROVALS REQUESTED
                     - APPROVED
+                    - NEEDS SERVICE COUNSELING
+                    - SERVICE COUNSELING COMPLETED
               originPostalCode:
                 type: string
                 x-nullable: true
@@ -6427,6 +6430,10 @@ definitions:
             type: string
             format: date
             x-nullable: true
+          sitAuthorizedEndDate:
+            type: string
+            format: date
+            x-nullable: true
           sitCustomerContacted:
             type: string
             format: date
@@ -7021,6 +7028,8 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      pickupAddress:
+        $ref: '#/definitions/Address'
       secondaryPickupPostalCode:
         format: >-
           An optional secondary pickup location near the origin where additional
@@ -7031,6 +7040,11 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
+      secondaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+          - x-nullable: true
+          - x-omitempty: false
       actualPickupPostalCode:
         description: >
           The actual postal code where the PPM shipment started. To be filled
@@ -7051,6 +7065,8 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      destinationAddress:
+        $ref: '#/definitions/Address'
       secondaryDestinationPostalCode:
         description: >-
           An optional secondary location near the destination where goods will
@@ -7062,6 +7078,11 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
+      secondaryDestinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+          - x-nullable: true
+          - x-omitempty: false
       actualDestinationPostalCode:
         description: >
           The actual postal code where the PPM shipment ended. To be filled once
