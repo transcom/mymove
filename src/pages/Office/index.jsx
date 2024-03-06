@@ -241,6 +241,7 @@ export class OfficeApp extends Component {
                         </PrivateRoute>
                       }
                     />
+                    {/*
                     <Route
                       path="/invoicing/queue"
                       element={
@@ -248,7 +249,7 @@ export class OfficeApp extends Component {
                           <PaymentRequestQueue />
                         </PrivateRoute>
                       }
-                    />
+                    /> */}
 
                     {/* SERVICES_COUNSELOR */}
                     <Route
@@ -269,6 +270,28 @@ export class OfficeApp extends Component {
                         element={
                           <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
                             <ServicesCounselingQueue />
+                          </PrivateRoute>
+                        }
+                      />
+                    )}
+                    {activeRole === roleTypes.TIO && (
+                      <Route
+                        path="/:queueType/*"
+                        end
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.TIO]}>
+                            <PaymentRequestQueue />
+                          </PrivateRoute>
+                        }
+                      />
+                    )}
+                    {activeRole === roleTypes.TOO && (
+                      <Route
+                        path="/:queueType/*"
+                        end
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                            <PaymentRequestQueue />
                           </PrivateRoute>
                         }
                       />

@@ -151,7 +151,11 @@ const PaymentRequestQueue = () => {
       <TabNav
         className={styles.tableTabs}
         items={[
-          <NavLink end className={({ isActive }) => (isActive ? 'usa-current' : '')} to={generalRoutes.HOME_PATH}>
+          <NavLink
+            end
+            className={({ isActive }) => (isActive ? 'usa-current' : '')}
+            to={tioRoutes.BASE_PAYMENT_REQUEST_QUEUE}
+          >
             <span data-testid="counseling-tab-link" className="tab-title">
               Payment Request Queue
             </span>
@@ -159,7 +163,7 @@ const PaymentRequestQueue = () => {
           <NavLink
             end
             className={({ isActive }) => (isActive ? 'usa-current' : '')}
-            to={generalRoutes.QUEUE_SEARCH_PATH}
+            to={generalRoutes.BASE_QUEUE_SEARCH_PATH}
           >
             <span data-testid="search-tab-link" className="tab-title">
               Search
@@ -175,7 +179,7 @@ const PaymentRequestQueue = () => {
       <div data-testid="move-search" className={styles.PaymentRequestQueue}>
         {renderNavBar()}
         <h1>Search for a move</h1>
-        <MoveSearchForm onSubmit={onSubmit} role={roleTypes.SERVICES_COUNSELOR} />
+        <MoveSearchForm onSubmit={onSubmit} role={roleTypes.TIO} />
         {searchHappened && (
           <SearchResultsTable
             showFilters
@@ -189,34 +193,12 @@ const PaymentRequestQueue = () => {
             moveCode={search.moveCode}
             dodID={search.dodID}
             customerName={search.customerName}
-            roleType={roleTypes.SERVICES_COUNSELOR}
+            roleType={roleTypes.TIO}
           />
         )}
       </div>
     );
   }
-
-  if (queueType === 'PaymentRequest') {
-    return (
-      <div className={styles.PaymentRequestQueue}>
-        {renderNavBar()}
-        <TableQueue
-          showFilters
-          showPagination
-          manualSortBy
-          defaultCanSort
-          defaultSortedColumns={[{ id: 'age', desc: true }]}
-          disableMultiSort
-          disableSortBy={false}
-          columns={columns(showBranchFilter)}
-          title="Payment requests"
-          handleClick={handleClick}
-          useQueries={usePaymentRequestQueueQueries}
-        />
-      </div>
-    );
-  }
-
   return (
     <div className={styles.PaymentRequestQueue}>
       {renderNavBar()}

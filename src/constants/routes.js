@@ -56,8 +56,6 @@ export const servicesCounselingRoutes = {
   BASE_QUEUE_COUNSELING_PATH: '/counseling',
   QUEUE_CLOSEOUT_PATH: 'PPM-closeout',
   BASE_QUEUE_CLOSEOUT_PATH: '/PPM-closeout',
-  QUEUE_SEARCH_PATH: 'Search',
-  BASE_QUEUE_SEARCH_PATH: '/Search',
   BASE_COUNSELING_MOVE_PATH,
   BASE_ALLOWANCES_EDIT_PATH: `${BASE_COUNSELING_MOVE_PATH}/allowances`,
   ALLOWANCES_EDIT_PATH: 'allowances',
@@ -91,6 +89,8 @@ export const moveRoutes = {
 
 export const tioRoutes = {
   BASE_PAYMENT_REQUESTS_PATH: `${BASE_MOVES_PATH}/payment-requests`,
+  PAYMENT_REQUEST_QUEUE: 'PaymentRequests',
+  BASE_PAYMENT_REQUEST_QUEUE: '/PaymentRequests',
   PAYMENT_REQUESTS_PATH: 'payment-requests',
   BILLABLE_WEIGHT_PATH: 'billable-weight',
 };

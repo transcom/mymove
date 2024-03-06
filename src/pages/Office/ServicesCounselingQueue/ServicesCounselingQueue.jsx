@@ -15,7 +15,7 @@ import {
   SERVICE_COUNSELING_PPM_TYPE_OPTIONS,
   SERVICE_COUNSELING_PPM_TYPE_LABELS,
 } from 'constants/queues';
-import { servicesCounselingRoutes } from 'constants/routes';
+import { generalRoutes, servicesCounselingRoutes } from 'constants/routes';
 import {
   useServicesCounselingQueueQueries,
   useServicesCounselingQueuePPMQueries,
@@ -258,7 +258,7 @@ const ServicesCounselingQueue = () => {
           <NavLink
             end
             className={({ isActive }) => (isActive ? 'usa-current' : '')}
-            to={servicesCounselingRoutes.BASE_QUEUE_SEARCH_PATH}
+            to={generalRoutes.BASE_QUEUE_SEARCH_PATH}
           >
             <span data-testid="search-tab-link" className="tab-title">
               Search
