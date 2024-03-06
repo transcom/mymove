@@ -138,20 +138,21 @@ type FormattedMovingExpenses struct {
 
 // ShipmentSummaryFormData is a container for the various objects required for the a Shipment Summary Worksheet
 type ShipmentSummaryFormData struct {
-	ServiceMember           models.ServiceMember
-	Order                   models.Order
-	Move                    models.Move
-	CurrentDutyLocation     models.DutyLocation
-	NewDutyLocation         models.DutyLocation
-	WeightAllotment         SSWMaxWeightEntitlement
-	PPMShipments            models.PPMShipments
-	W2Address               *models.Address
-	PreparationDate         time.Time
-	Obligations             Obligations
-	MovingExpenses          models.MovingExpenses
-	MTOAgents               models.MTOAgents
-	PPMRemainingEntitlement unit.Pound
-	SignedCertification     models.SignedCertification
+	ServiceMember            models.ServiceMember
+	Order                    models.Order
+	Move                     models.Move
+	CurrentDutyLocation      models.DutyLocation
+	NewDutyLocation          models.DutyLocation
+	WeightAllotment          SSWMaxWeightEntitlement
+	PPMShipments             models.PPMShipments
+	W2Address                *models.Address
+	PreparationDate          time.Time
+	Obligations              Obligations
+	MovingExpenses           models.MovingExpenses
+	MTOAgents                models.MTOAgents
+	PPMRemainingEntitlement  unit.Pound
+	SignedCertification      models.SignedCertification
+	MaxSITStorageEntitlement int
 }
 
 // Obligations is an object representing the winning and non-winning Max Obligation and Actual Obligation sections of the shipment summary worksheet

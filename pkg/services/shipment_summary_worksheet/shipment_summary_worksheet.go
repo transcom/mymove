@@ -132,10 +132,11 @@ type Page1Values struct {
 
 // WorkSheetShipments is an object representing shipment line items on Shipment Summary Worksheet
 type WorkSheetShipments struct {
-	ShipmentNumberAndTypes  string
-	PickUpDates             string
-	ShipmentWeights         string
-	CurrentShipmentStatuses string
+	ShipmentNumberAndTypes      string
+	PickUpDates                 string
+	ShipmentWeights             string
+	ShipmentWeightForObligation string
+	CurrentShipmentStatuses     string
 }
 
 // WorkSheetSIT is an object representing SIT on the Shipment Summary Worksheet
@@ -388,7 +389,7 @@ const (
 func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummaryFormData) services.Page1Values {
 	page1 := services.Page1Values{}
 	page1.CUIBanner = controlledUnclassifiedInformationText
-	page1.MaxSITStorageEntitlement = "90 days per each shipment"
+	page1.MaxSITStorageEntitlement = fmt.Sprintf("%02d Days in SIT", data.MaxSITStorageEntitlement)
 	// We don't currently know what allows POV to be authorized, so we are hardcoding it to "No" to start
 	page1.POVAuthorized = "No"
 	page1.PreparationDate = FormatDate(data.PreparationDate)
@@ -428,9 +429,10 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.ShipmentWeights = formattedShipments.ShipmentWeights
 	// Obligations cannot be used at this time, require new computer setup.
 	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.TotalWeight) + " lbs; " + data.PPMShipments[0].EstimatedIncentive.ToDollarString()
-	page1.ActualObligationGCC100 = data.PPMShipments[0].FinalIncentive.ToDollarString()
-	page1.MaxObligationSIT = data.PPMShipments[0].SITEstimatedCost.ToDollarString()
-	// page1.ActualObligationSIT =
+	page1.ActualObligationGCC100 = formattedShipments.ShipmentWeightForObligation + " lbs; " + data.PPMShipments[0].FinalIncentive.ToDollarString()
+	page1.MaxObligationSIT = fmt.Sprintf("%02d Days in SIT", data.MaxSITStorageEntitlement)
+	page1.ActualObligationSIT = formattedSIT.DaysInStorage
+	// data.PPMShipments[0].SITEstimatedCost.ToDollarString()
 	page1.MaxObligationGCCMaxAdvance = formatMaxAdvance(data.PPMShipments[0].EstimatedIncentive)
 	page1.ActualObligationAdvance = data.PPMShipments[0].AdvanceAmountReceived.ToDollarString()
 	// page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
@@ -651,6 +653,7 @@ func FormatAllShipments(ppms models.PPMShipments) WorkSheetShipments {
 	formattedPickUpDates := make([]string, totalShipments)
 	formattedShipmentWeights := make([]string, totalShipments)
 	formattedShipmentStatuses := make([]string, totalShipments)
+	formattedShipmentTotalWeights := unit.Pound(0)
 	var shipmentNumber int
 
 	for _, ppm := range ppms {
@@ -658,12 +661,14 @@ func FormatAllShipments(ppms models.PPMShipments) WorkSheetShipments {
 		formattedPickUpDates[shipmentNumber] = FormatPPMPickupDate(ppm)
 		formattedShipmentWeights[shipmentNumber] = FormatPPMWeight(ppm)
 		formattedShipmentStatuses[shipmentNumber] = FormatCurrentPPMStatus(ppm)
+		formattedShipmentTotalWeights += *ppm.EstimatedWeight
 		shipmentNumber++
 	}
 
 	formattedShipments.ShipmentNumberAndTypes = strings.Join(formattedNumberAndTypes, newline)
 	formattedShipments.PickUpDates = strings.Join(formattedPickUpDates, newline)
 	formattedShipments.ShipmentWeights = strings.Join(formattedShipmentWeights, newline)
+	formattedShipments.ShipmentWeightForObligation = FormatWeights(formattedShipmentTotalWeights)
 	formattedShipments.CurrentShipmentStatuses = strings.Join(formattedShipmentStatuses, newline)
 	return formattedShipments
 }
@@ -925,6 +930,11 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		return nil, err
 	}
 
+	maxSit, err := CalculateShipmentSITAllowance(appCtx, ppmShipment.Shipment)
+	if err != nil {
+		return nil, err
+	}
+
 	// DOES NOT INCLUDE PPPO/PPSO SIGNATURE
 	signedCertification := ppmShipment.SignedCertification
 
@@ -935,20 +945,51 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		return nil, errors.New("order for PPM shipment does not have a origin duty location attached")
 	}
 	ssd := services.ShipmentSummaryFormData{
-		ServiceMember:           serviceMember,
-		Order:                   ppmShipment.Shipment.MoveTaskOrder.Orders,
-		Move:                    ppmShipment.Shipment.MoveTaskOrder,
-		CurrentDutyLocation:     *ppmShipment.Shipment.MoveTaskOrder.Orders.OriginDutyLocation,
-		NewDutyLocation:         ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation,
-		WeightAllotment:         weightAllotment,
-		PPMShipments:            ppmShipments,
-		W2Address:               ppmShipment.W2Address,
-		MovingExpenses:          ppmShipment.MovingExpenses,
-		MTOAgents:               ppmShipment.Shipment.MTOAgents,
-		SignedCertification:     *signedCertification,
-		PPMRemainingEntitlement: ppmRemainingEntitlement,
+		ServiceMember:            serviceMember,
+		Order:                    ppmShipment.Shipment.MoveTaskOrder.Orders,
+		Move:                     ppmShipment.Shipment.MoveTaskOrder,
+		CurrentDutyLocation:      *ppmShipment.Shipment.MoveTaskOrder.Orders.OriginDutyLocation,
+		NewDutyLocation:          ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation,
+		WeightAllotment:          weightAllotment,
+		PPMShipments:             ppmShipments,
+		W2Address:                ppmShipment.W2Address,
+		MovingExpenses:           ppmShipment.MovingExpenses,
+		MTOAgents:                ppmShipment.Shipment.MTOAgents,
+		SignedCertification:      *signedCertification,
+		PPMRemainingEntitlement:  ppmRemainingEntitlement,
+		MaxSITStorageEntitlement: maxSit,
 	}
 	return &ssd, nil
+}
+
+// CalculateShipmentSITAllowance finds the number of days allowed in SIT for a shipment based on its entitlement and any approved SIT extensions
+func CalculateShipmentSITAllowance(appCtx appcontext.AppContext, shipment models.MTOShipment) (int, error) {
+	entitlement, err := fetchEntitlement(appCtx, shipment)
+	if err != nil {
+		return 0, err
+	}
+
+	totalSITAllowance := 0
+	if entitlement.StorageInTransit != nil {
+		totalSITAllowance = *entitlement.StorageInTransit
+	}
+	for _, ext := range shipment.SITDurationUpdates {
+		if ext.ApprovedDays != nil {
+			totalSITAllowance += *ext.ApprovedDays
+		}
+	}
+	return totalSITAllowance, nil
+}
+
+func fetchEntitlement(appCtx appcontext.AppContext, mtoShipment models.MTOShipment) (*models.Entitlement, error) {
+	var move models.Move
+	err := appCtx.DB().Q().EagerPreload("Orders.Entitlement").Find(&move, mtoShipment.MoveTaskOrderID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return move.Orders.Entitlement, nil
 }
 
 // FillSSWPDFForm takes form data and fills an existing PDF form template with said data
