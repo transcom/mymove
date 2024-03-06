@@ -259,25 +259,10 @@ func (suite *ServiceParamValueLookupsSuite) TestShuttleWeightBilledLookup() {
 		})
 	}
 
-	suite.Run("nil ActualWeight", func() {
+	suite.Run("nil ActualWeight and nil EstimatedWeight", func() {
 		// Set the actual weight to nil
 		mtoServiceItem, paymentRequest, _ := suite.setupTestMTOServiceItemWithShuttleWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDDSHUT, models.MTOShipmentTypeHHG)
 		mtoServiceItem.ActualWeight = nil
-		suite.MustSave(&mtoServiceItem)
-
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
-		suite.FatalNoError(err)
-
-		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
-		suite.Error(err)
-		expected := fmt.Sprintf("could not find actual weight for MTOServiceItemID [%s]", mtoServiceItem.ID)
-		suite.Contains(err.Error(), expected)
-		suite.Equal("", valueStr)
-	})
-
-	suite.Run("nil EstimatedWeight", func() {
-		// Set the estimated weight to nil
-		mtoServiceItem, paymentRequest, _ := suite.setupTestMTOServiceItemWithShuttleWeight(unit.Pound(1234), unit.Pound(1000), models.ReServiceCodeDOSHUT, models.MTOShipmentTypeHHG)
 		mtoServiceItem.EstimatedWeight = nil
 		suite.MustSave(&mtoServiceItem)
 
@@ -285,9 +270,10 @@ func (suite *ServiceParamValueLookupsSuite) TestShuttleWeightBilledLookup() {
 		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
-		suite.NoError(err)
-
-		suite.Equal("1000", valueStr)
+		suite.Error(err)
+		expected := fmt.Sprintf("could not find actual or estimated weights for MTOServiceItemID [%s]", mtoServiceItem.ID)
+		suite.Contains(err.Error(), expected)
+		suite.Equal("", valueStr)
 	})
 }
 
