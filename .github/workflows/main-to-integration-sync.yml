@@ -16,10 +16,10 @@ jobs:
       run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "Github Actions"    
-    - name: Merge main to integrationTesting
+    - name: Merge main to integrationTesting-Dummy
       run: |
           git fetch --unshallow
-          git checkout dev
+          git checkout integrationTesting-Dummy
           git pull
-          git merge --no-ff master -m "Auto-merge main to integrationTesting"
+          git merge --no-ff master -m "Auto-merge main to integrationTesting-Dummy"
           git push
