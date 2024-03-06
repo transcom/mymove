@@ -53,7 +53,7 @@ const (
 	// PPMShipmentStatusPaymentApproved captures enum value "PAYMENT_APPROVED"
 	PPMShipmentStatusPaymentApproved PPMShipmentStatus = "PAYMENT_APPROVED"
 	// PPMStatusCOMPLETED captures enum value "COMPLETED"
-	PPMShipmentStatusComplete PPMStatus = "COMPLETED"
+	PPMShipmentStatusComplete PPMShipmentStatus = "COMPLETED"
 )
 
 // AllowedPPMShipmentStatuses is a list of all the allowed values for the Status of a PPMShipment as strings. Needed for
@@ -250,7 +250,7 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 
 }
 
-// FetchMoveByMoveID returns a Move for a given id
+// FetchPPMShipmentByPPMShipmentID returns a PPM Shipment for a given id
 func FetchPPMShipmentByPPMShipmentID(db *pop.Connection, ppmShipmentID uuid.UUID) (*PPMShipment, error) {
 	var ppmShipment PPMShipment
 	err := db.Q().Find(&ppmShipment, ppmShipmentID)
