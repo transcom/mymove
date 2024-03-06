@@ -1,7 +1,7 @@
 import React from 'react';
 import { CheckboxGroupInput } from 'react-admin';
 
-import { officeUserPrivileges } from 'constants/elevatedPrivileges';
+import { officeUserPrivileges } from 'constants/userPrivileges';
 
 const makePrivilegesArray = (privileges) => {
   if (!privileges || privileges.length === 0) {
