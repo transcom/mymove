@@ -143,9 +143,6 @@ var actionDispatcher = map[string]actionFunc{
 	"MoveWithPPMShipmentReadyForFinalCloseout": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx)
 	},
-	"MoveWithPPMShipmentReadyForFinalCloseoutWithSIT": func(appCtx appcontext.AppContext) testHarnessResponse {
-		return MakeMoveWithPPMShipmentReadyForFinalCloseoutWithSIT(appCtx)
-	},
 	"PPMMoveWithCloseout": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakePPMMoveWithCloseout(appCtx)
 	},

@@ -298,7 +298,13 @@ func SSWGetEntitlement(grade internalmessages.OrderPayGrade, hasDependents bool,
 func CalculateRemainingPPMEntitlement(move models.Move, totalEntitlement unit.Pound) (unit.Pound, error) {
 	var hhgActualWeight unit.Pound
 
-	ppmActualWeight := models.GetTotalNetWeightForMove(move)
+	var ppmActualWeight unit.Pound
+	if len(move.PersonallyProcuredMoves) > 0 {
+		if move.PersonallyProcuredMoves[0].NetWeight == nil {
+			return ppmActualWeight, errors.Errorf("PPM %s does not have NetWeight", move.PersonallyProcuredMoves[0].ID)
+		}
+		ppmActualWeight = unit.Pound(*move.PersonallyProcuredMoves[0].NetWeight)
+	}
 
 	switch ppmRemainingEntitlement := totalEntitlement - hhgActualWeight; {
 	case ppmActualWeight < ppmRemainingEntitlement:
