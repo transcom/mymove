@@ -255,6 +255,13 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 						suite.Equal(expected.W2Address.ID, actual.W2Address.ID)
 					}
 
+					if suite.NotNil(actual.PickupAddress) {
+						suite.Equal(expected.PickupAddress.ID, actual.PickupAddress.ID)
+					}
+					if suite.NotNil(actual.DestinationAddress) {
+						suite.Equal(expected.DestinationAddress.ID, actual.DestinationAddress.ID)
+					}
+
 					if suite.NotNil(actual.AOAPacket) {
 						suite.Equal(expected.AOAPacket.ID, actual.AOAPacket.ID)
 					}

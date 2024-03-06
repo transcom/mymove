@@ -67,7 +67,7 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
       const profileEditPath = customerRoutes.PROFILE_PATH;
       navigate(profileEditPath, { state: { needsToVerifyProfile: true } });
     } else {
-      navigate(customerRoutes.MOVE_HOME_PAGE);
+      navigate(customerRoutes.ORDERS_ADD_PATH);
     }
   };
 
