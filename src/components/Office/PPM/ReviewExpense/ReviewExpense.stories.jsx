@@ -16,7 +16,7 @@ export default {
       <MockProviders>
         <GridContainer>
           <Grid row>
-            <Grid col desktop={{ col: 6, offset: 4 }}>
+            <Grid col desktop={{ col: 2, offset: 8 }}>
               <Story />
             </Grid>
           </Grid>
