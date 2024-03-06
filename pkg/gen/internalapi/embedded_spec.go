@@ -5434,6 +5434,10 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/DutyLocationPayload"
         },
+        "provides_services_counseling": {
+          "type": "boolean",
+          "x-omitempty": false
+        },
         "report_by_date": {
           "description": "Report By Date",
           "type": "string",
@@ -13551,6 +13555,10 @@ func init() {
         "origin_duty_location": {
           "x-nullable": true,
           "$ref": "#/definitions/DutyLocationPayload"
+        },
+        "provides_services_counseling": {
+          "type": "boolean",
+          "x-omitempty": false
         },
         "report_by_date": {
           "description": "Report By Date",
