@@ -49,5 +49,5 @@ func (p domesticOriginAdditionalDaysSITPricer) PriceUsingParams(appCtx appcontex
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaOrigin, numberOfDaysInSIT, false)
+	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaOrigin, numberOfDaysInSIT, true)
 }

@@ -68,6 +68,13 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 		suite.Contains(err.Error(), "weight of 250 less than the minimum")
 	})
 
+	suite.Run("invalid weight with minimum weight disabled", func() {
+		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDOASIT, doasitTestServiceArea, doasitTestIsPeakPeriod, doasitTestBasePriceCents, doasitTestContractYearName, doasitTestEscalationCompounded)
+		badWeight := unit.Pound(-250)
+		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, doasitTestRequestedPickupDate, badWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT, true)
+		suite.Error(err)
+	})
+
 	suite.Run("no error if the weight minimum is overridden", func() {
 		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDOASIT, doasitTestServiceArea, doasitTestIsPeakPeriod, doasitTestBasePriceCents, doasitTestContractYearName, doasitTestEscalationCompounded)
 		weight := unit.Pound(250)
