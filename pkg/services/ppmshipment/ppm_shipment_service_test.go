@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/gofrs/uuid"
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -15,6 +16,7 @@ import (
 
 type PPMShipmentSuite struct {
 	*testingsuite.PopTestSuite
+	filesToClose []afero.File
 }
 
 func TestPPMShipmentServiceSuite(t *testing.T) {

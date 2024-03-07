@@ -1634,9 +1634,12 @@ func init() {
                   "items": {
                     "type": "string",
                     "enum": [
+                      "DRAFT",
                       "SUBMITTED",
                       "APPROVALS REQUESTED",
-                      "APPROVED"
+                      "APPROVED",
+                      "NEEDS SERVICE COUNSELING",
+                      "SERVICE COUNSELING COMPLETED"
                     ]
                   }
                 }
@@ -2682,6 +2685,58 @@ func init() {
           "update.paymentRequest"
         ]
       }
+    },
+    "/ppm-shipments/{ppmShipmentId}/aoa-packet": {
+      "get": {
+        "description": "### Functionality\nThis endpoint downloads all uploaded move order documentation combined with the Shipment Summary Worksheet into a single PDF.\n### Errors\n* The PPMShipment must have requested an AOA.\n* The PPMShipment AOA Request must have been approved.\n",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Downloads AOA Packet form PPMShipment as a PDF",
+        "operationId": "showAOAPacket",
+        "responses": {
+          "200": {
+            "description": "AOA PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "the id for the ppmshipment with aoa to be downloaded",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/ppm-shipments/{ppmShipmentId}/closeout": {
       "get": {
@@ -5000,6 +5055,9 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -9586,6 +9644,9 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
         },
+        "grade": {
+          "$ref": "#/definitions/Grade"
+        },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
           "type": "string",
@@ -12440,9 +12501,12 @@ func init() {
                   "items": {
                     "type": "string",
                     "enum": [
+                      "DRAFT",
                       "SUBMITTED",
                       "APPROVALS REQUESTED",
-                      "APPROVED"
+                      "APPROVED",
+                      "NEEDS SERVICE COUNSELING",
+                      "SERVICE COUNSELING COMPLETED"
                     ]
                   }
                 }
@@ -13768,6 +13832,73 @@ func init() {
           "update.paymentRequest"
         ]
       }
+    },
+    "/ppm-shipments/{ppmShipmentId}/aoa-packet": {
+      "get": {
+        "description": "### Functionality\nThis endpoint downloads all uploaded move order documentation combined with the Shipment Summary Worksheet into a single PDF.\n### Errors\n* The PPMShipment must have requested an AOA.\n* The PPMShipment AOA Request must have been approved.\n",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Downloads AOA Packet form PPMShipment as a PDF",
+        "operationId": "showAOAPacket",
+        "responses": {
+          "200": {
+            "description": "AOA PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "the id for the ppmshipment with aoa to be downloaded",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/ppm-shipments/{ppmShipmentId}/closeout": {
       "get": {
@@ -16601,6 +16732,9 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -21244,6 +21378,9 @@ func init() {
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
