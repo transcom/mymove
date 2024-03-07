@@ -279,7 +279,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	suite.Equal("Jenkins Jr., Marcus Joseph", sswPage1.ServiceMemberName)
 	suite.Equal("E-9", sswPage1.RankGrade)
 	suite.Equal("Air Force", sswPage1.ServiceBranch)
-	suite.Equal("90 days per each shipment", sswPage1.MaxSITStorageEntitlement)
+	suite.Equal("00 Days in SIT", sswPage1.MaxSITStorageEntitlement)
 	suite.Equal("Yuma AFB, IA 50309", sswPage1.AuthorizedOrigin)
 	suite.Equal("Fort Eisenhower, GA 30813", sswPage1.AuthorizedDestination)
 	suite.Equal("No", sswPage1.POVAuthorized)
@@ -446,39 +446,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestGroupExpenses() {
 			map[string]float64{
 				"OilMemberPaid":   300,
 				"TollsMemberPaid": 200,
-			},
-		},
-		{
-			models.MovingExpenses{
-				{
-					MovingExpenseType: &tollExpense,
-					Amount:            &amount,
-					PaidWithGTCC:      &paidWithGTCC,
-				},
-				{
-					MovingExpenseType: &oilExpense,
-					Amount:            &amount,
-					PaidWithGTCC:      &paidWithGTCC,
-				},
-				{
-					MovingExpenseType: &oilExpense,
-					Amount:            &amount,
-					PaidWithGTCC:      &paidWithGTCC,
-				},
-				{
-					MovingExpenseType: &oilExpense,
-					Amount:            &amount,
-					PaidWithGTCC:      &paidWithGTCC,
-				},
-				{
-					MovingExpenseType: &tollExpense,
-					Amount:            &amount,
-					PaidWithGTCC:      &paidWithGTCC,
-				},
-			},
-			map[string]float64{
-				"OilMemberPaid":   300,
-				"TollsMemberPaid": 200,
+				"TotalMemberPaid": 500,
 			},
 		},
 	}

@@ -334,49 +334,21 @@ func SSWGetEntitlement(grade internalmessages.OrderPayGrade, hasDependents bool,
 // a PPMs remaining entitlement weight is equal to total entitlement - hhg weight
 func CalculateRemainingPPMEntitlement(move models.Move, totalEntitlement unit.Pound) (unit.Pound, error) {
 	var hhgActualWeight unit.Pound
+
 	var ppmActualWeight unit.Pound
-	println("Entitlement Calc")
-	println(totalEntitlement)
-
-	// Loop through the MTOShipments array
-	for _, shipment := range move.MTOShipments {
-		// Check the ShipmentType of each MTOShipment
-		switch shipment.ShipmentType {
-		case "HHG": // "HHG" is the ShipmentType for household goods
-			if shipment.PrimeActualWeight != nil {
-				hhgActualWeight += unit.Pound(*shipment.PrimeActualWeight)
-			}
-		case "HHG_INTO_NTS_DOMESTIC": // "HHG" is the ShipmentType for household goods
-			if shipment.PrimeActualWeight != nil {
-				hhgActualWeight += unit.Pound(*shipment.PrimeActualWeight)
-			}
-		case "HHG_OUTOF_NTS_DOMESTIC": // "HHG" is the ShipmentType for household goods
-			if shipment.PrimeActualWeight != nil {
-				hhgActualWeight += unit.Pound(*shipment.PrimeActualWeight)
-			}
-
-		case "PPM": // "PPM" is the ShipmentType for personally procured moves
-			if shipment.PrimeActualWeight != nil {
-				ppmActualWeight += unit.Pound(*shipment.PrimeActualWeight)
-			}
+	if len(move.PersonallyProcuredMoves) > 0 {
+		if move.PersonallyProcuredMoves[0].NetWeight == nil {
+			return ppmActualWeight, errors.Errorf("PPM %s does not have NetWeight", move.PersonallyProcuredMoves[0].ID)
 		}
+		ppmActualWeight = unit.Pound(*move.PersonallyProcuredMoves[0].NetWeight)
 	}
-
-	println(hhgActualWeight)
-	println(ppmActualWeight)
 
 	switch ppmRemainingEntitlement := totalEntitlement - hhgActualWeight; {
 	case ppmActualWeight < ppmRemainingEntitlement:
-		println(ppmRemainingEntitlement)
-
 		return ppmActualWeight, nil
 	case ppmRemainingEntitlement < 0:
-		println(ppmRemainingEntitlement)
-
 		return 0, nil
 	default:
-		println(ppmRemainingEntitlement)
-
 		return ppmRemainingEntitlement, nil
 	}
 }
@@ -427,18 +399,31 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.SITEndDates = formattedSIT.EndDates
 	page1.SITNumberAndTypes = formattedShipments.ShipmentNumberAndTypes
 	page1.ShipmentWeights = formattedShipments.ShipmentWeights
-	// Obligations cannot be used at this time, require new computer setup.
-	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.TotalWeight) + " lbs; " + data.PPMShipments[0].EstimatedIncentive.ToDollarString()
-	page1.ActualObligationGCC100 = formattedShipments.ShipmentWeightForObligation + " lbs; " + data.PPMShipments[0].FinalIncentive.ToDollarString()
+	// All of these data.ppmshipment values need to have nil checks to prevent panic errors and return data absence
+	if data.PPMShipment.EstimatedIncentive != nil {
+		page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.TotalWeight) + " lbs; " + data.PPMShipment.EstimatedIncentive.ToDollarString()
+	} else {
+		page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.TotalWeight) + " lbs; No estimated incentive."
+	}
+	if data.PPMShipment.FinalIncentive != nil {
+		page1.ActualObligationGCC100 = formattedShipments.ShipmentWeightForObligation + " lbs; " + data.PPMShipment.FinalIncentive.ToDollarString()
+	} else {
+		page1.ActualObligationGCC100 = formattedShipments.ShipmentWeightForObligation + " lbs; No final incentive."
+	}
 	page1.MaxObligationSIT = fmt.Sprintf("%02d Days in SIT", data.MaxSITStorageEntitlement)
 	page1.ActualObligationSIT = formattedSIT.DaysInStorage
-	// data.PPMShipments[0].SITEstimatedCost.ToDollarString()
-	page1.MaxObligationGCCMaxAdvance = formatMaxAdvance(data.PPMShipments[0].EstimatedIncentive)
-	page1.ActualObligationAdvance = data.PPMShipments[0].AdvanceAmountReceived.ToDollarString()
-	// page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
-	// actualObligations := data.Obligations.ActualObligation
+	if data.PPMShipment.EstimatedIncentive != nil {
+		page1.MaxObligationGCCMaxAdvance = formatMaxAdvance(data.PPMShipment.EstimatedIncentive)
+	} else {
+		page1.MaxObligationGCCMaxAdvance = "No estimated incentive for calculation"
+	}
+	if data.PPMShipment.AdvanceAmountReceived != nil {
+		page1.ActualObligationAdvance = data.PPMShipment.AdvanceAmountReceived.ToDollarString()
+	} else {
+		page1.ActualObligationAdvance = "No advance received"
+	}
+	page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
 	page1.PPMRemainingEntitlement = FormatWeights(data.PPMRemainingEntitlement)
-	// page1.MileageTotal = actualObligations.Miles.String()
 	return page1
 }
 
@@ -538,50 +523,39 @@ func formatMaxAdvance(estimatedIncentive *unit.Cents) string {
 
 func FormatAgentInfo(agentArray []models.MTOAgent) Agent {
 	agentObject := Agent{}
-	if len(agentArray) > 0 {
-		agent := agentArray[0]
-		// Check if both first name and last name are provided
-		if agent.FirstName != nil && agent.LastName != nil {
-			agentObject.Name = fmt.Sprintf("%s, %s", *agent.LastName, *agent.FirstName)
-		}
-
-		// Check if neither first name nor last name are provided
-		if agent.FirstName == nil && agent.LastName == nil {
-			agentObject.Name = "No name specified"
-		}
-
-		// Check if only first name is missing
-		if agent.FirstName == nil {
-			agentObject.Name = fmt.Sprintf("No first name provided, Last Name: %s", *agent.LastName)
-		}
-
-		// Check if only last name is missing
-		if agent.LastName == nil {
-			agentObject.Name = fmt.Sprintf("First Name: %s, No last name provided", *agent.FirstName)
-		}
-
-		if agent.Email != nil {
-			agentObject.Email = *agent.Email
-		} else {
-			agentObject.Email = "No Email Specified"
-		}
-
-		if agent.Phone != nil {
-			agentObject.Phone = *agent.Phone
-		} else {
-			agentObject.Phone = "No Phone Specified"
-		}
-
-		agentObject.Date = agent.UpdatedAt.Format("20060102")
-
-	} else {
+	if len(agentArray) == 0 {
 		agentObject.Name = "No agent specified"
 		agentObject.Email = "No agent specified"
 		agentObject.Date = "No agent specified"
 		agentObject.Phone = "No agent specified"
+		return agentObject
 	}
 
+	agent := agentArray[0]
+
+	switch {
+	case agent.FirstName != nil && agent.LastName != nil:
+		agentObject.Name = fmt.Sprintf("%s, %s", *agent.LastName, *agent.FirstName)
+	case agent.FirstName == nil && agent.LastName == nil:
+		agentObject.Name = "No name specified"
+	case agent.FirstName == nil:
+		agentObject.Name = fmt.Sprintf("No first name provided, Last Name: %s", *agent.LastName)
+	case agent.LastName == nil:
+		agentObject.Name = fmt.Sprintf("First Name: %s, No last name provided", *agent.FirstName)
+	}
+
+	agentObject.Email = getOrDefault(agent.Email, "No Email Specified")
+	agentObject.Phone = getOrDefault(agent.Phone, "No Phone Specified")
+	agentObject.Date = agent.UpdatedAt.Format("20060102")
+
 	return agentObject
+}
+
+func getOrDefault(value *string, defaultValue string) string {
+	if value != nil {
+		return *value
+	}
+	return defaultValue
 }
 
 // FormatSignature formats a service member's signature for the Shipment Summary Worksheet
@@ -661,7 +635,9 @@ func FormatAllShipments(ppms models.PPMShipments) WorkSheetShipments {
 		formattedPickUpDates[shipmentNumber] = FormatPPMPickupDate(ppm)
 		formattedShipmentWeights[shipmentNumber] = FormatPPMWeight(ppm)
 		formattedShipmentStatuses[shipmentNumber] = FormatCurrentPPMStatus(ppm)
-		formattedShipmentTotalWeights += *ppm.EstimatedWeight
+		if ppm.EstimatedWeight != nil {
+			formattedShipmentTotalWeights += *ppm.EstimatedWeight
+		}
 		shipmentNumber++
 	}
 
@@ -707,48 +683,33 @@ func FetchMovingExpensesShipmentSummaryWorksheet(PPMShipment models.PPMShipment,
 	return movingExpenseDocuments, nil
 }
 
-// SubTotalExpenses groups moving expenses by type and payment method
 func SubTotalExpenses(expenseDocuments models.MovingExpenses) map[string]float64 {
-	var expenseType string
-	var addToTotal bool
 	totals := make(map[string]float64)
+
 	for _, expense := range expenseDocuments {
-		expenseType, addToTotal = getExpenseType(expense)
-		paidWithGTCC := expense.PaidWithGTCC
+		expenseType, addToTotal := getExpenseType(expense)
 		expenseDollarAmt := expense.Amount.ToDollarFloatNoRound()
+
 		totals[expenseType] += expenseDollarAmt
-		if paidWithGTCC != nil && expenseType != "Storage" {
-			if *paidWithGTCC && expenseType != "Storage" {
-				if addToTotal {
-					totals["TotalGTCCPaid"] += expenseDollarAmt
-				}
+
+		if addToTotal && expenseType != "Storage" {
+			if paidWithGTCC := expense.PaidWithGTCC; paidWithGTCC != nil && *paidWithGTCC {
+				totals["TotalGTCCPaid"] += expenseDollarAmt
 			} else {
-				if addToTotal {
-					totals["TotalMemberPaid"] += expenseDollarAmt
-				}
-			}
-		} else {
-			if addToTotal {
 				totals["TotalMemberPaid"] += expenseDollarAmt
 			}
 		}
-		println(expenseType)
-		println(expenseDollarAmt)
 	}
+
 	return totals
 }
 
 func getExpenseType(expense models.MovingExpense) (string, bool) {
-	addToTotal := false
 	expenseType := FormatEnum(string(*expense.MovingExpenseType), "")
-	if expenseType != "Storage" {
-		addToTotal = true
-	}
-	paidWithGTCC := expense.PaidWithGTCC
-	if paidWithGTCC != nil {
-		if *paidWithGTCC {
-			return fmt.Sprintf("%s%s", expenseType, "GTCCPaid"), addToTotal
-		}
+	addToTotal := expenseType != "Storage"
+
+	if paidWithGTCC := expense.PaidWithGTCC; paidWithGTCC != nil && *paidWithGTCC {
+		return fmt.Sprintf("%s%s", expenseType, "GTCCPaid"), addToTotal
 	}
 
 	return fmt.Sprintf("%s%s", expenseType, "MemberPaid"), addToTotal
@@ -921,10 +882,6 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 	}
 
 	weightAllotment := SSWGetEntitlement(*ppmShipment.Shipment.MoveTaskOrder.Orders.Grade, ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear)
-	println(weightAllotment.Entitlement)
-	println(weightAllotment.ProGear)
-	println(weightAllotment.SpouseProGear)
-	println(weightAllotment.TotalWeight)
 	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(ppmShipment.Shipment.MoveTaskOrder, weightAllotment.TotalWeight)
 	if err != nil {
 		return nil, err
@@ -951,6 +908,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		CurrentDutyLocation:      *ppmShipment.Shipment.MoveTaskOrder.Orders.OriginDutyLocation,
 		NewDutyLocation:          ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation,
 		WeightAllotment:          weightAllotment,
+		PPMShipment:              ppmShipment,
 		PPMShipments:             ppmShipments,
 		W2Address:                ppmShipment.W2Address,
 		MovingExpenses:           ppmShipment.MovingExpenses,

@@ -144,6 +144,7 @@ type ShipmentSummaryFormData struct {
 	CurrentDutyLocation      models.DutyLocation
 	NewDutyLocation          models.DutyLocation
 	WeightAllotment          SSWMaxWeightEntitlement
+	PPMShipment              models.PPMShipment
 	PPMShipments             models.PPMShipments
 	W2Address                *models.Address
 	PreparationDate          time.Time
