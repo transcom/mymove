@@ -1642,8 +1642,6 @@ paths:
       operationId: getPPMCloseout
       tags:
         - ppm
-      consumes:
-        - application/json
       produces:
         - application/json
       responses:
@@ -7380,6 +7378,10 @@ definitions:
       diversion:
         type: boolean
         example: true
+      distance:
+        type: integer
+        x-nullable: true
+        example: 500
       pickupAddress:
         x-nullable: true
         $ref: '#/definitions/Address'
@@ -7562,9 +7564,10 @@ definitions:
         x-nullable: true
         x-omitempty: false
       actualWeight:
-        x-nullable: true
         example: 2000
         type: integer
+        x-nullable: true
+        x-omitempty: false
       proGearWeightCustomer:
         description: >-
           The estimated weight of the pro-gear being moved belonging to the
@@ -7601,7 +7604,7 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
-      remainingReimbursementOwed:
+      remainingIncentive:
         description: The remaining reimbursement amount that is still owed to the customer.
         type: integer
         format: cents
