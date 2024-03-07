@@ -18,8 +18,8 @@ func NewDomesticOriginSITPickupPricer() services.DomesticOriginSITPickupPricer {
 }
 
 // Price determines the price for domestic origin SIT pickup
-func (p domesticOriginSITPickupPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipSITOriginOriginal string, zipSITOriginActual string, distance unit.Miles) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticPickupDeliverySIT(appCtx, models.ReServiceCodeDOPSIT, contractCode, referenceDate, weight, serviceArea, sitSchedule, zipSITOriginOriginal, zipSITOriginActual, distance)
+func (p domesticOriginSITPickupPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipSITOriginOriginal string, zipSITOriginActual string, distance unit.Miles, disableWeightMinimum bool) (unit.Cents, services.PricingDisplayParams, error) {
+	return priceDomesticPickupDeliverySIT(appCtx, models.ReServiceCodeDOPSIT, contractCode, referenceDate, weight, serviceArea, sitSchedule, zipSITOriginOriginal, zipSITOriginActual, distance, disableWeightMinimum)
 }
 
 // PriceUsingParams determines the price for domestic origin SIT pickup given PaymentServiceItemParams
@@ -65,5 +65,5 @@ func (p domesticOriginSITPickupPricer) PriceUsingParams(appCtx appcontext.AppCon
 	}
 
 	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaOrigin,
-		sitScheduleOrigin, zipSITOriginOriginalAddress, zipSITOriginActualAddress, unit.Miles(distanceZipSITOrigin))
+		sitScheduleOrigin, zipSITOriginOriginalAddress, zipSITOriginActualAddress, unit.Miles(distanceZipSITOrigin), true)
 }
