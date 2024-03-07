@@ -65,6 +65,7 @@ export const EditServiceInfo = ({ serviceMember, currentOrders, updateServiceMem
 
   const handleCancel = () => {
     navigate(customerRoutes.PROFILE_PATH, { state });
+    navigate(customerRoutes.PROFILE_PATH, { state });
   };
 
   return (

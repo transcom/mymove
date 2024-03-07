@@ -39,11 +39,21 @@ describe('EditServiceInfo page', () => {
         <EditServiceInfo {...testProps} />
       </MockProviders>,
     );
+    render(
+      <MockProviders>
+        <EditServiceInfo {...testProps} />
+      </MockProviders>,
+    );
 
     expect(await screen.findByRole('heading', { name: 'Edit service info', level: 1 })).toBeInTheDocument();
   });
 
   it('the cancel button goes back to the profile page', async () => {
+    render(
+      <MockProviders>
+        <EditServiceInfo {...testProps} />
+      </MockProviders>,
+    );
     render(
       <MockProviders>
         <EditServiceInfo {...testProps} />

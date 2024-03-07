@@ -83,6 +83,15 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               </strong>
             </Alert>
           )}
+          {needsToVerifyProfile && (
+            <Alert type="info" className={styles.verifyProfileAlert} data-testid="profileConfirmAlert">
+              <strong>
+                Please confirm your profile information is accurate prior to starting a new move. When all information
+                is up to date, click the &quot;Validate Profile&quot; button at the bottom of the page and you may begin
+                your move.
+              </strong>
+            </Alert>
+          )}
           <SectionWrapper className={formStyles.formSection}>
             <ContactInfoDisplay
               telephone={serviceMember?.telephone || ''}
@@ -126,6 +135,26 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               editURL={customerRoutes.EDIT_OKTA_PROFILE_PATH}
             />
           </SectionWrapper>
+          {needsToVerifyProfile && (
+            <SectionWrapper data-testid="validateProfileContainer" className={styles.validateProfileBtnContainer}>
+              <Button
+                onClick={handleValidateProfileClick}
+                className={styles.validateProfileBtn}
+                data-testid="validateProfileBtn"
+                disabled={profileValidated}
+              >
+                {profileValidated ? 'Profile Validated' : 'Validate Profile'}
+              </Button>
+              <Button
+                className={styles.createMoveBtn}
+                onClick={handleCreateMoveClick}
+                data-testid="createMoveBtn"
+                disabled={!profileValidated}
+              >
+                <span>Create a Move</span>
+              </Button>
+            </SectionWrapper>
+          )}
           {needsToVerifyProfile && (
             <SectionWrapper data-testid="validateProfileContainer" className={styles.validateProfileBtnContainer}>
               <Button

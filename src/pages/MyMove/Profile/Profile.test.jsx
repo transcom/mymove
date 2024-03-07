@@ -12,6 +12,11 @@ jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
 }));
 
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useLocation: jest.fn(),
+}));
+
 describe('Profile component', () => {
   const testProps = {};
 
@@ -87,6 +92,8 @@ describe('Profile component', () => {
         },
       },
     };
+    useLocation.mockReturnValue({});
+
     useLocation.mockReturnValue({});
 
     render(
@@ -177,6 +184,8 @@ describe('Profile component', () => {
         },
       },
     };
+    useLocation.mockReturnValue({});
+
     useLocation.mockReturnValue({});
 
     render(
@@ -285,6 +294,8 @@ describe('Profile component', () => {
     };
     useLocation.mockReturnValue({});
 
+    useLocation.mockReturnValue({});
+
     render(
       <MockProviders initialState={mockState}>
         <ConnectedProfile {...testProps} />
@@ -308,6 +319,112 @@ describe('Profile component', () => {
     const homeLink = screen.getByText('Return to Move');
 
     expect(homeLink).toBeInTheDocument();
+  });
+
+  it('renders the Profile Page with needsToVerifyProfile set to true', async () => {
+    const mockState = {
+      entities: {
+        user: {
+          testUserId: {
+            id: 'testUserId',
+            email: 'testuser@example.com',
+            service_member: 'testServiceMemberId',
+          },
+        },
+        orders: {
+          test: {
+            new_duty_location: {
+              name: 'Test Duty Location',
+            },
+            status: 'DRAFT',
+            moves: ['testMove'],
+          },
+        },
+        moves: {
+          testMove: {
+            created_at: '2020-12-17T15:54:48.873Z',
+            id: 'testMove',
+            locator: 'test',
+            orders_id: 'test',
+            selected_move_type: '',
+            service_member_id: 'testServiceMemberId',
+            status: 'DRAFT',
+          },
+        },
+        serviceMembers: {
+          testServiceMemberId: {
+            id: 'testServiceMemberId',
+            rank: 'test rank',
+            edipi: '1234567890',
+            affiliation: 'ARMY',
+            first_name: 'Tester',
+            last_name: 'Testperson',
+            telephone: '1234567890',
+            personal_email: 'test@example.com',
+            email_is_preferred: true,
+            residential_address: {
+              city: 'San Diego',
+              state: 'CA',
+              postalCode: '92131',
+              streetAddress1: 'Some Street',
+              country: 'USA',
+            },
+            backup_mailing_address: {
+              city: 'San Diego',
+              state: 'CA',
+              postalCode: '92131',
+              streetAddress1: 'Some Backup Street',
+              country: 'USA',
+            },
+            current_location: {
+              origin_duty_location: {
+                name: 'Current Station',
+              },
+              grade: 'E-5',
+            },
+            backup_contacts: [
+              {
+                name: 'Backup Contact',
+                telephone: '555-555-5555',
+                email: 'backup@test.com',
+              },
+            ],
+            orders: ['test'],
+          },
+        },
+      },
+    };
+
+    useLocation.mockReturnValue({ state: { needsToVerifyProfile: true } });
+
+    render(
+      <MockProviders initialState={mockState}>
+        <ConnectedProfile {...testProps} />
+      </MockProviders>,
+    );
+
+    const returnToDashboardLink = screen.getByText('Return to Dashboard');
+    expect(returnToDashboardLink).toBeInTheDocument();
+
+    const validateProfileContainer = screen.getByTestId('validateProfileContainer');
+    expect(validateProfileContainer).toBeInTheDocument();
+
+    const createMoveBtn = screen.getByTestId('createMoveBtn');
+    expect(createMoveBtn).toBeInTheDocument();
+    expect(createMoveBtn).toBeDisabled();
+
+    const validateProfileBtn = screen.getByTestId('validateProfileBtn');
+    expect(validateProfileBtn).toBeInTheDocument();
+    expect(validateProfileBtn).toBeEnabled();
+
+    const profileConfirmAlert = screen.getByTestId('profileConfirmAlert');
+    expect(profileConfirmAlert).toBeInTheDocument();
+
+    // user validates their profile, which enables create move btn
+    fireEvent.click(validateProfileBtn);
+    expect(createMoveBtn).toBeEnabled();
+    expect(validateProfileBtn).toBeDisabled();
+    expect(screen.getByText('Profile Validated')).toBeInTheDocument();
   });
 
   it('renders the Profile Page with needsToVerifyProfile set to true', async () => {
