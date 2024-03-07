@@ -58,7 +58,7 @@ export class CustomerPage extends BaseTestPage {
    */
   async navigateFromMMDashboardToMove(move) {
     const url = new URL(this.page.url());
-    url.pathname = `/move/${move.id}`;
+    url.pathname = `/`;
     await Promise.all([this.page.waitForURL(url.toString()), this.page.getByTestId('goToMoveBtn').click()]);
     await expect(this.page.getByText(`${move.locator}`)).toBeVisible();
   }
