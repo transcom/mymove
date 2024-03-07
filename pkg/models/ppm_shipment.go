@@ -38,6 +38,8 @@ type PPMCloseout struct {
 type PPMShipmentStatus string
 
 const (
+	// PPMShipmentStatusCancelled captures enum value "DRAFT"
+	PPMShipmentStatusCancelled PPMShipmentStatus = "CANCELLED"
 	// PPMShipmentStatusDraft captures enum value "DRAFT"
 	PPMShipmentStatusDraft PPMShipmentStatus = "DRAFT"
 	// PPMShipmentStatusSubmitted captures enum value "SUBMITTED"
@@ -50,11 +52,14 @@ const (
 	PPMShipmentStatusNeedsPaymentApproval PPMShipmentStatus = "NEEDS_PAYMENT_APPROVAL"
 	// PPMShipmentStatusPaymentApproved captures enum value "PAYMENT_APPROVED"
 	PPMShipmentStatusPaymentApproved PPMShipmentStatus = "PAYMENT_APPROVED"
+	// PPMStatusCOMPLETED captures enum value "COMPLETED"
+	PPMShipmentStatusComplete PPMShipmentStatus = "COMPLETED"
 )
 
 // AllowedPPMShipmentStatuses is a list of all the allowed values for the Status of a PPMShipment as strings. Needed for
 // validation.
 var AllowedPPMShipmentStatuses = []string{
+	string(PPMShipmentStatusCancelled),
 	string(PPMShipmentStatusDraft),
 	string(PPMShipmentStatusSubmitted),
 	string(PPMShipmentStatusWaitingOnCustomer),
@@ -105,6 +110,8 @@ var AllowedSITLocationTypes = []string{
 type PPMDocumentStatus string
 
 const (
+	// PPMDocumentStatusApproved captures enum value "DRAFT"
+	PPMDocumentStatusDRAFT PPMDocumentStatus = "DRAFT"
 	// PPMDocumentStatusApproved captures enum value "APPROVED"
 	PPMDocumentStatusApproved PPMDocumentStatus = "APPROVED"
 	// PPMDocumentStatusExcluded captures enum value "EXCLUDED"
@@ -146,13 +153,19 @@ type PPMShipment struct {
 	W2Address                      *Address             `belongs_to:"addresses" fk_id:"w2_address_id"`
 	W2AddressID                    *uuid.UUID           `db:"w2_address_id"`
 	PickupPostalCode               string               `json:"pickup_postal_code" db:"pickup_postal_code"`
+	PickupAddress                  *Address             `belongs_to:"addresses" fk_id:"pickup_postal_address_id"`
+	PickupAddressID                *uuid.UUID           `db:"pickup_postal_address_id"`
 	SecondaryPickupPostalCode      *string              `json:"secondary_pickup_postal_code" db:"secondary_pickup_postal_code"`
+	SecondaryPickupAddress         *Address             `belongs_to:"addresses" fk_id:"secondary_pickup_postal_address_id"`
+	SecondaryPickupAddressID       *uuid.UUID           `db:"secondary_pickup_postal_address_id"`
 	ActualPickupPostalCode         *string              `json:"actual_pickup_postal_code" db:"actual_pickup_postal_code"`
 	DestinationPostalCode          string               `json:"destination_postal_code" db:"destination_postal_code"`
+	DestinationAddress             *Address             `belongs_to:"addresses" fk_id:"destination_postal_address_id"`
+	DestinationAddressID           *uuid.UUID           `db:"destination_postal_address_id"`
 	SecondaryDestinationPostalCode *string              `json:"secondary_destination_postal_code" db:"secondary_destination_postal_code"`
+	SecondaryDestinationAddress    *Address             `belongs_to:"addresses" fk_id:"secondary_destination_postal_address_id"`
+	SecondaryDestinationAddressID  *uuid.UUID           `db:"secondary_destination_postal_address_id"`
 	ActualDestinationPostalCode    *string              `json:"actual_destination_postal_code" db:"actual_destination_postal_code"`
-	PickupPostalAddressID          *uuid.UUID           `json:"pickup_postal_address_id" db:"pickup_postal_address_id"`
-	DestinationPostalAddressID     *uuid.UUID           `json:"destination_postal_address_id" db:"destination_postal_address_id"`
 	EstimatedWeight                *unit.Pound          `json:"estimated_weight" db:"estimated_weight"`
 	HasProGear                     *bool                `json:"has_pro_gear" db:"has_pro_gear"`
 	ProGearWeight                  *unit.Pound          `json:"pro_gear_weight" db:"pro_gear_weight"`
@@ -185,6 +198,12 @@ func (p PPMShipment) TableName() string {
 	return "ppm_shipments"
 }
 
+// Cancel marks the PPM as Canceled
+func (p *PPMShipment) CancelShipment() error {
+	p.Status = PPMShipmentStatusCancelled
+	return nil
+}
+
 // PPMShipments is a list of PPMs
 type PPMShipments []PPMShipment
 
@@ -203,10 +222,14 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&OptionalTimeIsPresent{Name: "ApprovedAt", Field: p.ApprovedAt},
 		&OptionalUUIDIsPresent{Name: "W2AddressID", Field: p.W2AddressID},
 		&validators.StringIsPresent{Name: "PickupPostalCode", Field: p.PickupPostalCode},
+		&OptionalUUIDIsPresent{Name: "PickupAddressID", Field: p.PickupAddressID},
 		&StringIsNilOrNotBlank{Name: "SecondaryPickupPostalCode", Field: p.SecondaryPickupPostalCode},
+		&OptionalUUIDIsPresent{Name: "SecondaryPickupAddressID", Field: p.SecondaryPickupAddressID},
 		&StringIsNilOrNotBlank{Name: "ActualPickupPostalCode", Field: p.ActualPickupPostalCode},
 		&validators.StringIsPresent{Name: "DestinationPostalCode", Field: p.DestinationPostalCode},
+		&OptionalUUIDIsPresent{Name: "DestinationAddressID", Field: p.DestinationAddressID},
 		&StringIsNilOrNotBlank{Name: "SecondaryDestinationPostalCode", Field: p.SecondaryDestinationPostalCode},
+		&OptionalUUIDIsPresent{Name: "SecondaryDestinationAddressID", Field: p.SecondaryDestinationAddressID},
 		&StringIsNilOrNotBlank{Name: "ActualDestinationPostalCode", Field: p.ActualDestinationPostalCode},
 		&OptionalPoundIsNonNegative{Name: "EstimatedWeight", Field: p.EstimatedWeight},
 		&OptionalPoundIsNonNegative{Name: "ProGearWeight", Field: p.ProGearWeight},
@@ -227,7 +250,7 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 
 }
 
-// FetchMoveByMoveID returns a Move for a given id
+// FetchPPMShipmentByPPMShipmentID returns a PPM Shipment for a given id
 func FetchPPMShipmentByPPMShipmentID(db *pop.Connection, ppmShipmentID uuid.UUID) (*PPMShipment, error) {
 	var ppmShipment PPMShipment
 	err := db.Q().Find(&ppmShipment, ppmShipmentID)
@@ -239,4 +262,15 @@ func FetchPPMShipmentByPPMShipmentID(db *pop.Connection, ppmShipmentID uuid.UUID
 		return nil, err
 	}
 	return &ppmShipment, nil
+}
+func GetPPMNetWeight(ppm PPMShipment) unit.Pound {
+	totalNetWeight := unit.Pound(0)
+	for _, weightTicket := range ppm.WeightTickets {
+		if weightTicket.AdjustedNetWeight != nil && *weightTicket.AdjustedNetWeight > 0 {
+			totalNetWeight += *weightTicket.AdjustedNetWeight
+		} else {
+			totalNetWeight += GetWeightTicketNetWeight(weightTicket)
+		}
+	}
+	return totalNetWeight
 }
