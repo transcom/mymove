@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { mount } from 'enzyme';
 
 import ConnectedCustomerLoggedInHeader from './CustomerLoggedInHeader';
 
@@ -100,13 +99,12 @@ describe('CustomerLoggedInHeader', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={state}>
         <ConnectedCustomerLoggedInHeader />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
     expect(screen.getByText('BLUEBARK')).toBeInTheDocument();
   });
 });

@@ -16,7 +16,7 @@ const CustomerLoggedInHeader = ({ state, isProfileComplete, logOut }) => {
   let isSpecialMove = false;
   if (Object.keys(state.entities.orders).length > 0) {
     const currentOrderType = selectCurrentOrders(state);
-    isSpecialMove = ['BLUEBARK'].includes(currentOrderType.orders_type);
+    isSpecialMove = ['BLUEBARK'].includes(currentOrderType?.orders_type);
   }
 
   const handleLogout = () => {
