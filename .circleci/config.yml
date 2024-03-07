@@ -876,6 +876,7 @@ commands:
             PLAYWRIGHT_ADMIN_URL: http://adminlocal:4000
             PLAYWRIGHT_OFFICE_URL: http://officelocal:4000
           # partially taken from https://playwright.dev/docs/ci#sharding-in-circleci
+            FEATURE_FLAG_MULTI_MOVE: true
           command: |
             SHARD=$((${CIRCLE_NODE_INDEX}+1))
             PLAYWRIGHT_JUNIT_OUTPUT_NAME=playwright-results.xml \
