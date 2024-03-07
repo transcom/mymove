@@ -66,15 +66,6 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
-   * @param {string} moveId
-   * returns {Promise<void>}
-   */
-  async navigateFromMMDashboardToMove(moveId) {
-    await this.page.getByText('Go to Move').click();
-    await expect(this.page.getByText(`${moveId}`)).toBeVisible();
-  }
-
-  /**
    * @param {Object} options
    * @param {boolean} [options.selectAdvance=false]
    * returns {Promise<void>}
