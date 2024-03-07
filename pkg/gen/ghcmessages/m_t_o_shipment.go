@@ -27,6 +27,12 @@ type MTOShipment struct {
 	// Format: date
 	ActualPickupDate *strfmt.Date `json:"actualPickupDate,omitempty"`
 
+	// actual pro gear weight
+	ActualProGearWeight *int64 `json:"actualProGearWeight"`
+
+	// actual spouse pro gear weight
+	ActualSpouseProGearWeight *int64 `json:"actualSpouseProGearWeight"`
+
 	// approved date
 	// Format: date-time
 	ApprovedDate *strfmt.DateTime `json:"approvedDate,omitempty"`
@@ -74,6 +80,10 @@ type MTOShipment struct {
 
 	// destination type
 	DestinationType *DestinationType `json:"destinationType,omitempty"`
+
+	// distance
+	// Example: 500
+	Distance *int64 `json:"distance,omitempty"`
 
 	// diversion
 	// Example: true

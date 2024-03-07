@@ -803,6 +803,8 @@ paths:
         * Customer Remarks
         * Counselor Remarks
         * Releasing / Receiving agents
+        * Actual Pro Gear Weight
+        * Actual Spouse Pro Gear Weight
       consumes:
         - application/json
       produces:
@@ -1642,8 +1644,6 @@ paths:
       operationId: getPPMCloseout
       tags:
         - ppm
-      consumes:
-        - application/json
       produces:
         - application/json
       responses:
@@ -4537,6 +4537,14 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      actualProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
       destinationType:
         $ref: '#/definitions/DestinationType'
       agents:
@@ -6432,6 +6440,10 @@ definitions:
             type: string
             format: date
             x-nullable: true
+          sitAuthorizedEndDate:
+            type: string
+            format: date
+            x-nullable: true
           sitCustomerContacted:
             type: string
             format: date
@@ -7026,6 +7038,8 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      pickupAddress:
+        $ref: '#/definitions/Address'
       secondaryPickupPostalCode:
         format: >-
           An optional secondary pickup location near the origin where additional
@@ -7036,6 +7050,11 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
+      secondaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+          - x-nullable: true
+          - x-omitempty: false
       actualPickupPostalCode:
         description: >
           The actual postal code where the PPM shipment started. To be filled
@@ -7056,6 +7075,8 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      destinationAddress:
+        $ref: '#/definitions/Address'
       secondaryDestinationPostalCode:
         description: >-
           An optional secondary location near the destination where goods will
@@ -7067,6 +7088,11 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
+      secondaryDestinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+          - x-nullable: true
+          - x-omitempty: false
       actualDestinationPostalCode:
         description: >
           The actual postal code where the PPM shipment ended. To be filled once
@@ -7376,6 +7402,10 @@ definitions:
       diversion:
         type: boolean
         example: true
+      distance:
+        type: integer
+        x-nullable: true
+        example: 500
       pickupAddress:
         x-nullable: true
         $ref: '#/definitions/Address'
@@ -7398,6 +7428,14 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
+      actualProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
       customerRemarks:
         type: string
         example: handle with care
@@ -7558,9 +7596,10 @@ definitions:
         x-nullable: true
         x-omitempty: false
       actualWeight:
-        x-nullable: true
         example: 2000
         type: integer
+        x-nullable: true
+        x-omitempty: false
       proGearWeightCustomer:
         description: >-
           The estimated weight of the pro-gear being moved belonging to the
@@ -7597,7 +7636,7 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
-      remainingReimbursementOwed:
+      remainingIncentive:
         description: The remaining reimbursement amount that is still owed to the customer.
         type: integer
         format: cents
