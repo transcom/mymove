@@ -289,27 +289,29 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 		Locator:                 "abc123",
 		OneSourceLink:           OneSourceTransportationOfficeLink,
 	}
-	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
+	expectedHTMLContent := `<p><strong>***</strong> DO NOT REPLY directly to this email <strong>***</strong></p>
 
-<p>This is a reminder that your PPM with the <strong>assigned move code ` + paymentReminderData.Locator + `</strong> from <strong>` + paymentReminderData.OriginDutyLocation +
-		`</strong>
-to <strong>` + paymentReminderData.DestinationDutyLocation + `</strong> is awaiting action in MilMove.</p>
+<p>This is a reminder that your PPM with the <strong>assigned move code ` + paymentReminderData.Locator + `</strong> from
+<strong>` + paymentReminderData.OriginDutyLocation + `</strong> to <strong>` + paymentReminderData.DestinationDutyLocation + `</strong> is awaiting action in MilMove.
+<br>Next steps:</p>
 
 <p>To get your payment, you need to login to MilMove, document expenses, and request payment.</p>
 
 <p>To do that:</p>
 
+<p>
 <ul>
-  <li> Log into MilMove</li>
-  <li> Click on "Upload PPM Documents"</li>
-  <li> Follow the instructions</li>
+  <li>Log into MilMove</li>
+  <li>Click on "Upload PPM Documents"</li>
+  <li>Follow the instructions</li>
 </ul>
+</p>
 
-To request payment, you should have copies of:</p>
+<p>To request payment, you should have copies of:</p>
 
 <ul>
 <li>       Weight tickets from certified scales, documenting empty and full weights for all vehicles and
-trailers you used for your move.</li>
+<br>trailers you used for your move.</li>
 <li>       Receipts for reimbursable expenses (see our moving tips PDF for more info <a href="` +
 		paymentReminderData.OneSourceLink + `">` + paymentReminderData.OneSourceLink + `)</a></li>
 </ul>
@@ -317,19 +319,16 @@ trailers you used for your move.</li>
 <p>MilMove will ask you to upload copies of your documents as you complete your payment request.
 
 <p>If you are missing reciepts, you can still request payment but may not get reimbursement or a tax credit
-for those expenses.</p>
+<br>for those expenses.</p>
 
-<p>Payment request must be submitted within 45 days of your move date.</p>
+<p>Payment request must be submitted within 45 days of your move date.
 
-<p>If you have any questions, contact a government transportation office. You can see a listing of</p>
-transportation offices on Military OneSource here: &lt;<a href="` + paymentReminderData.OneSourceLink + `">` + paymentReminderData.OneSourceLink + `</a>&gt;
-
-<p>Thank you,</p>
-
-<p>USTRANSCOM MilMove Team</p>
-
-<p>The information contained in this email may contain Privacy Act information and is therefore protected
-under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.</p>`
+<br>If you have any questions, contact a government transportation office. You can see a listing of
+<br>transportation offices on Military OneSource here: &lt;<a href="` + paymentReminderData.OneSourceLink + `">` + paymentReminderData.OneSourceLink + `</a>&gt;
+<br>Thank you,
+<br>USTRANSCOM MilMove Team
+<br>The information contained in this email may contain Privacy Act information and is therefore protected
+<br>under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.</p>`
 
 	htmlContent, err := pr.RenderHTML(suite.AppContextForTest(), paymentReminderData)
 
@@ -352,6 +351,7 @@ func (suite *NotificationSuite) TestPaymentReminderTextTemplateRender() {
 This is a reminder that your PPM with the assigned move code ` + paymentReminderData.Locator + ` from ` + paymentReminderData.OriginDutyLocation +
 		`
 to ` + paymentReminderData.DestinationDutyLocation + ` is awaiting action in MilMove.
+Next steps:
 
 To get your payment, you need to login to MilMove, document expenses, and request payment.
 
@@ -373,14 +373,11 @@ If you are missing reciepts, you can still request payment but may not get reimb
 for those expenses.
 
 Payment request must be submitted within 45 days of your move date.
-
 If you have any questions, contact a government transportation office. You can see a listing of
 transportation offices on Military OneSource here: <` + paymentReminderData.OneSourceLink + `>
 
 Thank you,
-
 USTRANSCOM MilMove Team
-
 The information contained in this email may contain Privacy Act information and is therefore protected
 under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.`
 
