@@ -16,6 +16,29 @@ export const ShipmentStatusesOneOf = oneOf(Object.values(shipmentStatuses));
 
 export const PPMShipmentStatusOneOf = oneOf(Object.values(ppmShipmentStatuses));
 
+export const GCCFactorsShape = shape({
+  baseLinehaul: number,
+  originLinehaulFactor: number,
+  destinationLinehaulFactor: number,
+  linehaulAdjustment: number,
+  shorthaulCharge: number,
+  transportationCost: number,
+  linehaulFuelSurcharge: number,
+  fuelSurchargePercent: number,
+  originServiceAreaFee: number,
+  originFactor: number,
+  destinationServiceAreaFee: number,
+  destinationFactor: number,
+  fullPackUnpackCharge: number,
+  ppmFactor: number,
+});
+
+export const incentivesShape = shape({
+  grossIncentive: number,
+  gcc: number,
+  remi: number,
+});
+
 export const PPMShipmentShape = shape({
   id: string,
   shipmentId: string,
@@ -34,6 +57,7 @@ export const PPMShipmentShape = shape({
   actualDestinationPostalCode: string,
   sitExpected: bool,
   estimatedWeight: number,
+  actualWeight: number,
   hasProGear: bool,
   proGearWeight: number,
   spouseProGearWeight: number,
@@ -49,6 +73,31 @@ export const PPMShipmentShape = shape({
   sitEstimatedDepartureDate: string,
   sitEstimatedCost: number,
   eTag: string,
+  incentives: incentivesShape,
+  gcc: GCCFactorsShape,
+  miles: number,
+});
+
+export const PPMCloseoutShape = shape({
+  id: string,
+  plannedMoveDate: string,
+  actualMoveDate: string,
+  miles: number,
+  estimatedWeight: number,
+  actualWeight: number,
+  proGearWeightCustomer: number,
+  proGearWeightSpouse: number,
+  grossIncentive: number,
+  gcc: number,
+  aoa: number,
+  RemainingIncentive: number,
+  haulPrice: number,
+  haulFSC: number,
+  dop: number,
+  ddp: number,
+  packPrice: number,
+  unpackPrice: number,
+  sitReimbursement: number,
 });
 
 // This type is badly defined because we have code that overloads the destinationType field on the shipment object as
