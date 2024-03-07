@@ -1,0 +1,86 @@
+import PropTypes from 'prop-types';
+import React, { useState } from 'react';
+import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
+import { connect } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
+import NameForm from 'components/Customer/NameForm/NameForm';
+import { patchServiceMember, getResponseError } from 'services/internalApi';
+import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
+import { ServiceMemberShape } from 'types/customerShapes';
+import { servicesCounselingRoutes } from 'constants/routes';
+
+export const CustomerName = ({ serviceMember, updateServiceMember }) => {
+  // const navigate = useNavigate();
+  const [serverError, setServerError] = useState(null);
+  const navigate = useNavigate();
+  const initialValues = {
+    first_name: serviceMember?.first_name || '',
+    middle_name: serviceMember?.middle_name || '',
+    last_name: serviceMember?.last_name || '',
+    suffix: serviceMember?.suffix || '',
+  };
+
+  const handleNext = () => {
+    // add next route
+  };
+
+  const handleBack = () => {
+    navigate(servicesCounselingRoutes.QUEUE_SEARCH_PATH);
+  };
+
+  const handleSubmit = (values) => {
+    const payload = {
+      id: serviceMember.id,
+      first_name: values.first_name,
+      middle_name: values.middle_name,
+      last_name: values.last_name,
+      suffix: values.suffix,
+    };
+
+    return patchServiceMember(payload)
+      .then(updateServiceMember)
+      .then(handleNext)
+      .catch((e) => {
+        // TODO - error handling - below is rudimentary error handling to approximate existing UX
+        // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
+        const { response } = e;
+        const errorMessage = getResponseError(response, 'failed to update service member due to server error');
+        setServerError(errorMessage);
+      });
+  };
+
+  return (
+    <GridContainer>
+      <NotificationScrollToTop dependency={serverError} />
+
+      {serverError && (
+        <Grid row>
+          <Grid col desktop={{ col: 8, offset: 2 }}>
+            <Alert type="error" headingLevel="h4" heading="An error occurred">
+              {serverError}
+            </Alert>
+          </Grid>
+        </Grid>
+      )}
+
+      <Grid row>
+        <Grid col desktop={{ col: 8, offset: 2 }}>
+          <NameForm onSubmit={handleSubmit} onBack={handleBack} initialValues={initialValues} />
+        </Grid>
+      </Grid>
+    </GridContainer>
+  );
+};
+
+CustomerName.propTypes = {
+  updateServiceMember: PropTypes.func.isRequired,
+  serviceMember: ServiceMemberShape.isRequired,
+};
+
+const mapDispatchToProps = {
+  updateServiceMember: updateServiceMemberAction,
+};
+
+export default connect(mapDispatchToProps)(CustomerName);

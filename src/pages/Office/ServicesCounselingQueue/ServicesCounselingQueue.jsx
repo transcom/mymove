@@ -199,12 +199,11 @@ const ServicesCounselingQueue = () => {
   };
 
   const handleAddCustomerClick = () => {
-    navigate(generatePath(servicesCounselingRoutes.NAME_PATH));
+    navigate(generatePath(servicesCounselingRoutes.CUSTOMER_NAME_PATH));
   };
 
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
   const [searchHappened, setSearchHappened] = useState(false);
-
   const counselorMoveCreateFeatureFlag = isBooleanFlagEnabled('counselor_move_create');
 
   const onSubmit = useCallback((values) => {
@@ -221,7 +220,6 @@ const ServicesCounselingQueue = () => {
     } else if (values.searchType === 'customerName') {
       payload.customerName = values.searchText;
     }
-
     setSearch(payload);
     setSearchHappened(true);
   }, []);
