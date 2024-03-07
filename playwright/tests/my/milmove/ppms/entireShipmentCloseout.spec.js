@@ -132,7 +132,7 @@ test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () =>
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
 
       await customerPpmPage.signInForPPMWithMove(move);
-      await customerPpmPage.navigateFromMMDashboardToMove(move.locator);
+      await customerPpmPage.navigateFromMMDashboardToMove(move);
       await customerPpmPage.navigateToAboutPage();
       await customerPpmPage.submitWeightTicketPage();
       await customerPpmPage.navigateFromCloseoutReviewPageToProGearPage();
@@ -152,7 +152,7 @@ test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () =>
       const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
 
       await customerPpmPage.signInForPPMWithMove(move);
-      await customerPpmPage.navigateFromMMDashboardToMove(move.locator);
+      await customerPpmPage.navigateFromMMDashboardToMove(move);
       await customerPpmPage.navigateToPPMReviewPage();
       await customerPpmPage.navigateFromCloseoutReviewPageToAboutPage();
       await customerPpmPage.fillOutAboutPage();
@@ -176,7 +176,7 @@ test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () =>
 
       await customerPpmPage.signInForPPMWithMove(move);
 
-      await customerPpmPage.navigateFromMMDashboardToMove(move.locator);
+      await customerPpmPage.navigateFromMMDashboardToMove(move);
       await customerPpmPage.navigateToPPMReviewPage();
       await customerPpmPage.verifySaveAndContinueEnabled();
 
@@ -217,7 +217,7 @@ test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () =>
 
       await customerPpmPage.signInForPPMWithMove(move);
 
-      await customerPpmPage.navigateFromMMDashboardToMove(move.locator);
+      await customerPpmPage.navigateFromMMDashboardToMove(move);
       await customerPpmPage.navigateToPPMReviewPage();
       await customerPpmPage.navigateFromCloseoutReviewPageToAddWeightTicketPage();
       await customerPpmPage.submitWeightTicketPage();

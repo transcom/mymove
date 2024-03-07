@@ -70,7 +70,7 @@ test.describe('(MultiMove) NTS', () => {
     await customerPage.signInAsExistingCustomer(userId);
 
     // Navigate from MM Dashboard to Move
-    await customerPage.navigateFromMMDashboardToMove(move.locator);
+    await customerPage.navigateFromMMDashboardToMove(move);
 
     // Navigate to create a new shipment
     await customerPage.waitForPage.home();
