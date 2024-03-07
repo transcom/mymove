@@ -201,7 +201,7 @@ type DomesticOriginSITPickupPricer interface {
 //
 //go:generate mockery --name DomesticDestinationSITDeliveryPricer
 type DomesticDestinationSITDeliveryPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipDest string, zipSITDest string, distance unit.Miles) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipDest string, zipSITDest string, distance unit.Miles, disableMinimumWeight bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
