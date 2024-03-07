@@ -49,7 +49,7 @@ export default {
   updateProGearWeightTicket: 'updateProGearWeightTicket', // ghc.yaml, internal.yaml
   updateMovingExpense: 'updateMovingExpense', // ghc.yaml, internal.yaml
   deleteMTOShipment: 'deleteMTOShipment', // prime.yaml
-  updateCloseoutOffice: 'updateCloseoutOffice',
+  updateCloseoutOffice: 'updateCloseoutOffice', // ghc.yaml, internal.yaml
   createWeightTicket: 'createWeightTicket', // internal.yaml
   deleteWeightTicket: 'deleteWeightTicket', // internal.yaml
   createPPMUpload: 'createPPMUpload', // internal.yaml
