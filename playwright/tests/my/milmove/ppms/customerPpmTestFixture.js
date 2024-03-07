@@ -66,8 +66,7 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
-   * @param {Object} options
-   * @param {boolean} [options.selectAdvance=false]
+   * @param {string} moveId
    * returns {Promise<void>}
    */
   async navigateFromMMDashboardToMove(moveId) {
@@ -97,6 +96,8 @@ export class CustomerPpmPage extends CustomerPage {
     await this.clickOnUploadPPMDocumentsButton();
 
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]/);
+
+    await this.page.getByText('Save & Continue').click();
 
     await expect(this.page.getByRole('heading', { name: 'Review' })).toBeVisible();
   }
@@ -715,11 +716,13 @@ export class CustomerPpmPage extends CustomerPage {
   }
 
   /**
+   * @param {string} moveId
+   * returns {Promise<void>}
    */
-  async cancelAddLineItemAndReturnToCloseoutReviewPage() {
+  async cancelAddLineItemAndReturnToCloseoutReviewPage(moveId) {
     // calculate the home url to wait for it after click
     const url = new URL(this.page.url());
-    url.pathname = '/';
+    url.pathname = `/move/${moveId}`;
     await this.page.getByRole('button', { name: 'Return to Homepage' }).click();
     await this.page.waitForURL(url.href);
     await this.navigateToPPMReviewPage();

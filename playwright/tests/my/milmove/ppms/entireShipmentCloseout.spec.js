@@ -63,15 +63,15 @@ test.describe('Entire PPM closeout flow', () => {
 
       // Add incomplete weight ticket
       await customerPpmPage.navigateFromCloseoutReviewPageToAddWeightTicketPage();
-      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage();
+      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage(move.id);
 
       // Add incomplete moving expense
       await customerPpmPage.navigateFromCloseoutReviewPageToAddExpensePage();
-      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage();
+      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage(move.id);
 
       // Add incomplete pro-gear weight ticket
       await customerPpmPage.navigateFromCloseoutReviewPageToAddProGearPage();
-      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage();
+      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage(move.id);
 
       // Now that we have incomplete line items, we cannot submit the PPM
       await customerPpmPage.verifySaveAndContinueDisabled();
@@ -176,20 +176,21 @@ test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () =>
 
       await customerPpmPage.signInForPPMWithMove(move);
 
+      await customerPpmPage.navigateFromMMDashboardToMove(move.locator);
       await customerPpmPage.navigateToPPMReviewPage();
       await customerPpmPage.verifySaveAndContinueEnabled();
 
       // Add incomplete weight ticket
       await customerPpmPage.navigateFromCloseoutReviewPageToAddWeightTicketPage();
-      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage();
+      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage(move.id);
 
       // Add incomplete moving expense
       await customerPpmPage.navigateFromCloseoutReviewPageToAddExpensePage();
-      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage();
+      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage(move.id);
 
       // Add incomplete pro-gear weight ticket
       await customerPpmPage.navigateFromCloseoutReviewPageToAddProGearPage();
-      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage();
+      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage(move.id);
 
       // Now that we have incomplete line items, we cannot submit the PPM
       await customerPpmPage.verifySaveAndContinueDisabled();
@@ -216,6 +217,7 @@ test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () =>
 
       await customerPpmPage.signInForPPMWithMove(move);
 
+      await customerPpmPage.navigateFromMMDashboardToMove(move.locator);
       await customerPpmPage.navigateToPPMReviewPage();
       await customerPpmPage.navigateFromCloseoutReviewPageToAddWeightTicketPage();
       await customerPpmPage.submitWeightTicketPage();
