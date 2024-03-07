@@ -17,7 +17,6 @@ test.describe('PPM Onboarding - Add dates and location flow', () => {
     // await customerPpmPage.customerStartsAddingAPPMShipment();
   });
 
-
   test.skip('doesn’t allow SM to progress if form is in an invalid state', async ({ page }) => {
     await expect(page.getByText('PPM date & location')).toBeVisible();
     expect(page.url()).toContain('/new-shipment');
