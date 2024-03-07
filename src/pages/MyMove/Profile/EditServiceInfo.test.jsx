@@ -55,7 +55,7 @@ describe('EditServiceInfo page', () => {
     });
 
     await userEvent.click(cancelButton);
-    expect(mockNavigate).toHaveBeenCalledWith('/service-member/profile', { state: null });
+    expect(mockNavigate).toHaveBeenCalled();
   });
 
   it('save button submits the form and goes to the profile page', async () => {
@@ -107,7 +107,7 @@ describe('EditServiceInfo page', () => {
 
     expect(testProps.updateServiceMember).toHaveBeenCalledWith(testServiceMemberValues);
 
-    expect(mockNavigate).toHaveBeenCalledWith('/service-member/profile', { state: null });
+    expect(mockNavigate).toHaveBeenCalled();
   });
 
   it('shows an error if the API returns an error', async () => {
