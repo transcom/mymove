@@ -70,6 +70,13 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationFirstDaySITPricer
 		suite.NoError(err)
 	})
 
+	suite.Run("invalid weight when minimum is disabled", func() {
+		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDDFSIT, ddfsitTestServiceArea, ddfsitTestIsPeakPeriod, ddfsitTestBasePriceCents, ddfsitTestContractYearName, ddfsitTestEscalationCompounded)
+		weight := unit.Pound(-250)
+		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, ddfsitTestRequestedPickupDate, weight, ddfsitTestServiceArea, true)
+		suite.Error(err)
+	})
+
 	suite.Run("not finding a rate record", func() {
 		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDDFSIT, ddfsitTestServiceArea, ddfsitTestIsPeakPeriod, ddfsitTestBasePriceCents, ddfsitTestContractYearName, ddfsitTestEscalationCompounded)
 		_, _, err := pricer.Price(suite.AppContextForTest(), "BOGUS", ddfsitTestRequestedPickupDate, ddfsitTestWeight, ddfsitTestServiceArea, false)
