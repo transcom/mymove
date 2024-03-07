@@ -225,6 +225,7 @@ type DomesticOriginSITFuelSurchargePricer interface {
 		fscWeightBasedDistanceMultiplier float64,
 		eiaFuelPrice unit.Millicents,
 		isPPM bool,
+		disableWeightMinimum bool,
 	) (
 		unit.Cents,
 		PricingDisplayParams,

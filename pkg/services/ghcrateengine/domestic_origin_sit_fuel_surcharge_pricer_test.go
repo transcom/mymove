@@ -29,21 +29,33 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginSITFuelSurcharge(
 
 	suite.Run("success without PaymentServiceItemParams", func() {
 		isPPM := false
-		priceCents, _, err := pricer.Price(suite.AppContextForTest(), dosfscActualPickupDate, dosfscTestDistance, dosfscTestWeight, dosfscWeightDistanceMultiplier, dosfscFuelPrice, isPPM)
+		priceCents, _, err := pricer.Price(suite.AppContextForTest(), dosfscActualPickupDate, dosfscTestDistance, dosfscTestWeight, dosfscWeightDistanceMultiplier, dosfscFuelPrice, isPPM, false)
 		suite.NoError(err)
 		suite.Equal(dosfscPriceCents, priceCents)
 	})
 
 	suite.Run("success without PaymentServiceItemParams when shipment is PPM with < 500 lb weight", func() {
 		isPPM := true
-		priceCents, _, err := pricer.Price(suite.AppContextForTest(), dosfscActualPickupDate, dosfscTestDistance, unit.Pound(250), dosfscWeightDistanceMultiplier, dosfscFuelPrice, isPPM)
+		priceCents, _, err := pricer.Price(suite.AppContextForTest(), dosfscActualPickupDate, dosfscTestDistance, unit.Pound(250), dosfscWeightDistanceMultiplier, dosfscFuelPrice, isPPM, false)
 		suite.NoError(err)
 		suite.Equal(dosfscPriceCents, priceCents)
 	})
 
+	suite.Run("failure if min weight is disabled and a negative weight in inserted", func() {
+		isPPM := true
+		_, _, err := pricer.Price(suite.AppContextForTest(), dosfscActualPickupDate, dosfscTestDistance, unit.Pound(-250), dosfscWeightDistanceMultiplier, dosfscFuelPrice, isPPM, true)
+		suite.Error(err)
+	})
+
+	suite.Run("failure if min weight is enabled and a lesser weight in inserted while not a PPM", func() {
+		isPPM := false
+		_, _, err := pricer.Price(suite.AppContextForTest(), dosfscActualPickupDate, dosfscTestDistance, unit.Pound(250), dosfscWeightDistanceMultiplier, dosfscFuelPrice, isPPM, false)
+		suite.Error(err)
+	})
+
 	suite.Run("DOSFSC is negative if fuel price from EIA is below $2.50", func() {
 		isPPM := false
-		priceCents, _, err := pricer.Price(suite.AppContextForTest(), dosfscActualPickupDate, dosfscTestDistance, dosfscTestWeight, dosfscWeightDistanceMultiplier, 242400, isPPM)
+		priceCents, _, err := pricer.Price(suite.AppContextForTest(), dosfscActualPickupDate, dosfscTestDistance, dosfscTestWeight, dosfscWeightDistanceMultiplier, 242400, isPPM, false)
 		suite.NoError(err)
 		suite.Equal(unit.Cents(-721), priceCents)
 	})
@@ -121,7 +133,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginSITFuelSurcharge(
 
 		for name, testcase := range testCases {
 			suite.Run(name, func() {
-				_, _, err := pricer.Price(suite.AppContextForTest(), testcase.priceArgs.actualPickupDate, testcase.priceArgs.distance, testcase.priceArgs.weight, testcase.priceArgs.fscWeightBasedDistanceMultiplier, testcase.priceArgs.eiaFuelPrice, testcase.priceArgs.isPPM)
+				_, _, err := pricer.Price(suite.AppContextForTest(), testcase.priceArgs.actualPickupDate, testcase.priceArgs.distance, testcase.priceArgs.weight, testcase.priceArgs.fscWeightBasedDistanceMultiplier, testcase.priceArgs.eiaFuelPrice, testcase.priceArgs.isPPM, false)
 				suite.Error(err)
 				suite.Equal(testcase.errorMessage, err.Error())
 			})
@@ -285,6 +297,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDOSFSCBelowMinimumWe
 	})
 
 	suite.Run("fails using PaymentServiceItemParams with below minimum weight for WeightBilled", func() {
+		suite.T().Skip("Skipping due to priver now alloing below minimum weight")
 		paymentServiceItem := setupTestData()
 		paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
 
@@ -293,6 +306,14 @@ func (suite *GHCRateEngineServiceSuite) TestPriceUsingParamsDOSFSCBelowMinimumWe
 			suite.Equal("Weight must be a minimum of 500", err.Error())
 			suite.Equal(unit.Cents(0), priceCents)
 		}
+	})
+
+	suite.Run("succeeds using PaymentServiceItemParams with below minimum weight for WeightBilled", func() {
+		paymentServiceItem := setupTestData()
+		paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
+
+		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paramsWithBelowMinimumWeight)
+		suite.NoError(err)
 	})
 
 }

@@ -24,7 +24,7 @@ func NewDomesticOriginSITFuelSurchargePricer() services.DomesticOriginSITFuelSur
 }
 
 // Price determines the price for Domestic Origin SIT Fuel Surcharges
-func (p domesticOriginFuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticOriginFuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool, disableWeightMinimum bool) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if actualPickupDate.IsZero() {
 		return 0, nil, errors.New("ActualPickupDate is required")
@@ -32,8 +32,11 @@ func (p domesticOriginFuelSurchargePricer) Price(_ appcontext.AppContext, actual
 	if distance <= 0 {
 		return 0, nil, errors.New("Distance must be greater than 0")
 	}
-	if !isPPM && weight < minDomesticWeight {
+	if !isPPM && weight < minDomesticWeight && !disableWeightMinimum {
 		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
+	}
+	if disableWeightMinimum && weight < 0 {
+		return 0, nil, fmt.Errorf("weight of %d is not a real weight", weight)
 	}
 	if fscWeightBasedDistanceMultiplier == 0 {
 		return 0, nil, errors.New("WeightBasedDistanceMultiplier is required")
@@ -105,5 +108,5 @@ func (p domesticOriginFuelSurchargePricer) PriceUsingParams(appCtx appcontext.Ap
 		isPPM = true
 	}
 
-	return p.Price(appCtx, actualPickupDate, unit.Miles(distance), unit.Pound(weightBilled), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice), isPPM)
+	return p.Price(appCtx, actualPickupDate, unit.Miles(distance), unit.Pound(weightBilled), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice), isPPM, true)
 }
