@@ -34,6 +34,9 @@ WITH move AS (
 			audit_history
 			JOIN move_shipments ON move_shipments.id = audit_history.object_id
 		WHERE audit_history.table_name = 'mto_shipments'
+			AND (audit_history.event_name <> 'updateMTOStatusServiceCounselingCompleted')
+				-- Not including status update to 'Approval' on mto_shipment layer above ppm_shipment when PPM is counseled.
+				-- That is not needed for move history UI.
 		GROUP BY audit_history.id
 	),
 	move_logs AS (
