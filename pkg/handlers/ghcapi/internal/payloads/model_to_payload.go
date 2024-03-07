@@ -1063,6 +1063,8 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		DestinationAddress:          Address(mtoShipment.DestinationAddress),
 		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
 		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
+		ActualProGearWeight:         handlers.FmtPoundPtr(mtoShipment.ActualProGearWeight),
+		ActualSpouseProGearWeight:   handlers.FmtPoundPtr(mtoShipment.ActualSpouseProGearWeight),
 		PrimeEstimatedWeight:        handlers.FmtPoundPtr(mtoShipment.PrimeEstimatedWeight),
 		PrimeActualWeight:           handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight),
 		NtsRecordedWeight:           handlers.FmtPoundPtr(mtoShipment.NTSRecordedWeight),
