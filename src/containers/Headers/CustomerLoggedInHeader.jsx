@@ -9,9 +9,15 @@ import { LogoutUser } from 'utils/api';
 import { logOut as logOutAction } from 'store/auth/actions';
 import { selectCurrentOrders, selectIsProfileComplete } from 'store/entities/selectors';
 
-const CustomerLoggedInHeader = ({ orderType, isProfileComplete, logOut }) => {
+const CustomerLoggedInHeader = ({ state, isProfileComplete, logOut }) => {
   const navigate = useNavigate();
-  const isSpecialMove = ['BLUEBARK'].includes(orderType);
+
+  // This is required because fresh moves without order types cause application to crash
+  let isSpecialMove = false;
+  if (Object.keys(state.entities.orders).length > 0) {
+    const currentOrderType = selectCurrentOrders(state);
+    isSpecialMove = ['BLUEBARK'].includes(currentOrderType.orders_type);
+  }
 
   const handleLogout = () => {
     logOut();
@@ -35,18 +41,16 @@ const CustomerLoggedInHeader = ({ orderType, isProfileComplete, logOut }) => {
 };
 
 CustomerLoggedInHeader.propTypes = {
-  orderType: PropTypes.string,
   isProfileComplete: PropTypes.bool,
   logOut: PropTypes.func.isRequired,
 };
 
 CustomerLoggedInHeader.defaultProps = {
-  orderType: '',
   isProfileComplete: false,
 };
 
 const mapStateToProps = (state) => ({
-  orderType: selectCurrentOrders(state).orders_type,
+  state,
   isProfileComplete: selectIsProfileComplete(state),
 });
 
