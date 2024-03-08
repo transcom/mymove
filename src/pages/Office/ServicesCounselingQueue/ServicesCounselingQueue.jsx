@@ -31,13 +31,21 @@ import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { roleTypes } from 'constants/userRoles';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import TabNav from 'components/TabNav';
+import { SPECIAL_ORDERS_TYPES } from 'constants/orders';
 
 const counselingColumns = () => [
   createHeader('ID', 'id'),
   createHeader(
     'Customer name',
     (row) => {
-      return `${row.customer.last_name}, ${row.customer.first_name}`;
+      return (
+        <div>
+          {['WOUNDED_WARRIOR'].includes(row.orderType) ? (
+            <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
+          ) : null}
+          {`${row.customer.last_name}, ${row.customer.first_name}`}
+        </div>
+      );
     },
     {
       id: 'lastName',
@@ -115,7 +123,14 @@ const closeoutColumns = (ppmCloseoutGBLOC) => [
   createHeader(
     'Customer name',
     (row) => {
-      return `${row.customer.last_name}, ${row.customer.first_name}`;
+      return (
+        <div>
+          {['WOUNDED_WARRIOR'].includes(row.orderType) ? (
+            <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
+          ) : null}
+          {`${row.customer.last_name}, ${row.customer.first_name}`}
+        </div>
+      );
     },
     {
       id: 'lastName',
