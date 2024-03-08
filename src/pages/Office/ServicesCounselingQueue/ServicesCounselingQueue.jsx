@@ -31,6 +31,7 @@ import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { roleTypes } from 'constants/userRoles';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import TabNav from 'components/TabNav';
+import { isNullUndefinedOrWhitespace } from 'shared/utils';
 
 const counselingColumns = () => [
   createHeader('ID', 'id'),
@@ -205,13 +206,14 @@ const ServicesCounselingQueue = () => {
       dodID: null,
       customerName: null,
     };
-
-    if (values.searchType === 'moveCode') {
-      payload.moveCode = values.searchText;
-    } else if (values.searchType === 'dodID') {
-      payload.dodID = values.searchText;
-    } else if (values.searchType === 'customerName') {
-      payload.customerName = values.searchText;
+    if (!isNullUndefinedOrWhitespace(values.searchText)) {
+      if (values.searchType === 'moveCode') {
+        payload.moveCode = values.searchText;
+      } else if (values.searchType === 'dodID') {
+        payload.dodID = values.searchText;
+      } else if (values.searchType === 'customerName') {
+        payload.customerName = values.searchText;
+      }
     }
 
     setSearch(payload);

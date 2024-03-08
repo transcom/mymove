@@ -291,12 +291,11 @@ export class OfficeApp extends Component {
                         end
                         element={
                           <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                            <PaymentRequestQueue />
+                            <MoveQueue />
                           </PrivateRoute>
                         }
                       />
                     )}
-
                     <Route
                       key="servicesCounselingMoveInfoRoute"
                       path={`${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`}

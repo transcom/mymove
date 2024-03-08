@@ -97,6 +97,8 @@ export const tioRoutes = {
 
 export const tooRoutes = {
   BASE_SHIPMENT_EDIT_PATH: `${BASE_MOVES_PATH}/shipments/:shipmentId`,
+  MOVE_QUEUE: `MoveQueue`,
+  BASE_MOVE_QUEUE: `/MoveQueue`,
   SHIPMENT_EDIT_PATH: 'shipments/:shipmentId',
   BASE_MOVE_VIEW_PATH: `${BASE_MOVES_PATH}/details`,
   MOVE_VIEW_PATH: 'details',

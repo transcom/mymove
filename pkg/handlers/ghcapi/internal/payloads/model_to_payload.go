@@ -1810,12 +1810,12 @@ func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
 		customer := move.Orders.ServiceMember
 
 		numShipments := 0
+
 		for _, shipment := range move.MTOShipments {
 			if shipment.Status != models.MTOShipmentStatusDraft {
 				numShipments++
 			}
 		}
-
 		searchMoves[i] = &ghcmessages.SearchMove{
 			FirstName:                         customer.FirstName,
 			LastName:                          customer.LastName,
@@ -1830,6 +1830,46 @@ func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
 		}
 	}
 	return &searchMoves
+}
+func SearchMovesWithPaymentRequestAttributes(moves models.Moves) *ghcmessages.SearchMoves {
+	paymentRequestIndex := 0
+	countPaymentRequests := GetNumberOfPaymentRequests(moves)
+	searchMoves := make(ghcmessages.SearchMoves, countPaymentRequests)
+	for _, move := range moves {
+		customer := move.Orders.ServiceMember
+
+		numShipments := 0
+
+		for _, shipment := range move.MTOShipments {
+			if shipment.Status != models.MTOShipmentStatusDraft {
+				numShipments++
+			}
+		}
+		for _, PaymentAttribute := range move.PaymentRequests {
+			searchMoves[paymentRequestIndex] = &ghcmessages.SearchMove{
+				FirstName:                         customer.FirstName,
+				LastName:                          customer.LastName,
+				DodID:                             customer.Edipi,
+				Branch:                            customer.Affiliation.String(),
+				Status:                            ghcmessages.MoveStatus(PaymentAttribute.Status),
+				ID:                                *handlers.FmtUUID(move.ID),
+				Locator:                           move.Locator,
+				ShipmentsCount:                    int64(numShipments),
+				OriginDutyLocationPostalCode:      move.Orders.OriginDutyLocation.Address.PostalCode,
+				DestinationDutyLocationPostalCode: move.Orders.NewDutyLocation.Address.PostalCode,
+			}
+			paymentRequestIndex++
+		}
+
+	}
+	return &searchMoves
+}
+func GetNumberOfPaymentRequests(moves models.Moves) int {
+	paymentRequests := 0
+	for _, move := range moves {
+		paymentRequests += len(move.PaymentRequests)
+	}
+	return paymentRequests
 }
 
 // ShipmentPaymentSITBalance payload

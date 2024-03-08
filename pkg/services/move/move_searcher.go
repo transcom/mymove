@@ -50,7 +50,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 
 	var query *pop.Query
 
-	if appCtx.Session().Roles.HasRole(roles.RoleTypeQaeCsr) || appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) || appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) || appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+	if appCtx.Session().Roles.HasRole(roles.RoleTypeQaeCsr) || appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
 		query = appCtx.DB().EagerPreload(
 			"MTOShipments",
 			"Orders.ServiceMember",
@@ -66,6 +66,42 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 			LeftJoin("mto_shipments", "mto_shipments.move_id = moves.id AND mto_shipments.status <> 'DRAFT'").
 			GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id").
 			Where("show = TRUE")
+	}
+	if appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+		query = appCtx.DB().EagerPreload(
+			"MTOShipments",
+			"Orders.ServiceMember",
+			"Orders.NewDutyLocation.Address",
+			"Orders.OriginDutyLocation.Address",
+		).
+			Join("orders", "orders.id = moves.orders_id").
+			Join("service_members", "service_members.id = orders.service_member_id").
+			LeftJoin("duty_locations as origin_duty_locations", "origin_duty_locations.id = orders.origin_duty_location_id").
+			Join("addresses as origin_addresses", "origin_addresses.id = origin_duty_locations.address_id").
+			Join("duty_locations as new_duty_locations", "new_duty_locations.id = orders.new_duty_location_id").
+			Join("addresses as new_addresses", "new_addresses.id = new_duty_locations.address_id").
+			LeftJoin("mto_shipments", "mto_shipments.move_id = moves.id AND mto_shipments.status <> 'DRAFT'").
+			GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id").
+			Where("show = TRUE AND (moves.status = 'SUBMITTED' or moves.status = 'APPROVALS REQUESTED' or moves.status = 'APPROVED')")
+	}
+	if appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
+		query = appCtx.DB().EagerPreload(
+			"MTOShipments",
+			"Orders.ServiceMember",
+			"Orders.NewDutyLocation.Address",
+			"Orders.OriginDutyLocation.Address",
+			"PaymentRequests",
+		).
+			Join("orders", "orders.id = moves.orders_id").
+			Join("service_members", "service_members.id = orders.service_member_id").
+			LeftJoin("duty_locations as origin_duty_locations", "origin_duty_locations.id = orders.origin_duty_location_id").
+			Join("addresses as origin_addresses", "origin_addresses.id = origin_duty_locations.address_id").
+			Join("duty_locations as new_duty_locations", "new_duty_locations.id = orders.new_duty_location_id").
+			Join("addresses as new_addresses", "new_addresses.id = new_duty_locations.address_id").
+			LeftJoin("mto_shipments", "mto_shipments.move_id = moves.id AND mto_shipments.status <> 'DRAFT'").
+			Join("payment_requests as prq", "prq.move_id = moves.id").
+			GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id, prq.move_id").
+			Where("show = TRUE AND (prq.status = 'PAYMENT REQUESTED' or prq.status = 'REVIEWED' or prq.status = 'REJECTED' or prq.status = 'PAID' or prq.status = 'DEPRECATED' or prq.status = 'ERROR')")
 	}
 
 	customerNameQuery := customerNameSearch(params.CustomerName)

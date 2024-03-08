@@ -23,6 +23,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import TabNav from 'components/TabNav';
 import { tioRoutes, generalRoutes } from 'constants/routes';
 import { roleTypes } from 'constants/userRoles';
+import { isNullUndefinedOrWhitespace } from 'shared/utils';
 
 const columns = (showBranchFilter = true) => [
   createHeader('ID', 'id'),
@@ -123,13 +124,14 @@ const PaymentRequestQueue = () => {
       dodID: null,
       customerName: null,
     };
-
-    if (values.searchType === 'moveCode') {
-      payload.moveCode = values.searchText;
-    } else if (values.searchType === 'dodID') {
-      payload.dodID = values.searchText;
-    } else if (values.searchType === 'customerName') {
-      payload.customerName = values.searchText;
+    if (!isNullUndefinedOrWhitespace(values.searchText)) {
+      if (values.searchType === 'moveCode') {
+        payload.moveCode = values.searchText;
+      } else if (values.searchType === 'dodID') {
+        payload.dodID = values.searchText;
+      } else if (values.searchType === 'customerName') {
+        payload.customerName = values.searchText;
+      }
     }
 
     setSearch(payload);

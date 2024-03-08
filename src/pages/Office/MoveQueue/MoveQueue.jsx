@@ -19,6 +19,7 @@ import { roleTypes } from 'constants/userRoles';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import TabNav from 'components/TabNav';
 import { generalRoutes, tooRoutes } from 'constants/routes';
+import { isNullUndefinedOrWhitespace } from 'shared/utils';
 
 const columns = (showBranchFilter = true) => [
   createHeader('ID', 'id'),
@@ -110,13 +111,14 @@ const MoveQueue = () => {
       dodID: null,
       customerName: null,
     };
-
-    if (values.searchType === 'moveCode') {
-      payload.moveCode = values.searchText;
-    } else if (values.searchType === 'dodID') {
-      payload.dodID = values.searchText;
-    } else if (values.searchType === 'customerName') {
-      payload.customerName = values.searchText;
+    if (!isNullUndefinedOrWhitespace(values.searchText)) {
+      if (values.searchType === 'moveCode') {
+        payload.moveCode = values.searchText;
+      } else if (values.searchType === 'dodID') {
+        payload.dodID = values.searchText;
+      } else if (values.searchType === 'customerName') {
+        payload.customerName = values.searchText;
+      }
     }
 
     setSearch(payload);
@@ -144,11 +146,7 @@ const MoveQueue = () => {
       <TabNav
         className={styles.tableTabs}
         items={[
-          <NavLink
-            end
-            className={({ isActive }) => (isActive ? 'usa-current' : '')}
-            to={tooRoutes.BASE_QUEUE_COUNSELING_PATH}
-          >
+          <NavLink end className={({ isActive }) => (isActive ? 'usa-current' : '')} to={tooRoutes.BASE_MOVE_QUEUE}>
             <span data-testid="closeout-tab-link" className="tab-title">
               Move Queue
             </span>
@@ -166,13 +164,12 @@ const MoveQueue = () => {
       />
     );
   };
-
-  if (queueType === 'Search') {
+  if (queueType.queueType === 'Search') {
     return (
       <div data-testid="move-search" className={styles.ServicesCounselingQueue}>
         {renderNavBar()}
         <h1>Search for a move</h1>
-        <MoveSearchForm onSubmit={onSubmit} role={roleTypes.SERVICES_COUNSELOR} />
+        <MoveSearchForm onSubmit={onSubmit} role={roleTypes.TOO} />
         {searchHappened && (
           <SearchResultsTable
             showFilters
@@ -186,7 +183,7 @@ const MoveQueue = () => {
             moveCode={search.moveCode}
             dodID={search.dodID}
             customerName={search.customerName}
-            roleType={roleTypes.SERVICES_COUNSELOR}
+            roleType={roleTypes.TOO}
           />
         )}
       </div>
@@ -195,6 +192,7 @@ const MoveQueue = () => {
 
   return (
     <div className={styles.MoveQueue}>
+      {renderNavBar()}
       <TableQueue
         showFilters
         showPagination

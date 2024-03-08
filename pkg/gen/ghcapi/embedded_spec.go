@@ -1639,7 +1639,13 @@ func init() {
                       "APPROVALS REQUESTED",
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED"
+                      "SERVICE COUNSELING COMPLETED",
+                      "PAYMENT_REQUESTED",
+                      "REVIEWED",
+                      "REJECTED",
+                      "PAID",
+                      "DEPRECATED",
+                      "ERROR"
                     ]
                   }
                 }
@@ -7124,7 +7130,18 @@ func init() {
         "SUBMITTED",
         "APPROVALS REQUESTED",
         "APPROVED",
-        "CANCELED"
+        "CANCELED",
+        "PENDING",
+        "REVIEWED",
+        "SENT_TO_GEX",
+        "RECEIVED_BY_GEX",
+        "PAID",
+        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+        "EDI_ERROR",
+        "DEPRECATED",
+        "ERROR",
+        "REJECTED",
+        "PAYMENT REQUESTED"
       ]
     },
     "MoveTaskOrder": {
@@ -12474,7 +12491,13 @@ func init() {
                       "APPROVALS REQUESTED",
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED"
+                      "SERVICE COUNSELING COMPLETED",
+                      "PAYMENT_REQUESTED",
+                      "REVIEWED",
+                      "REJECTED",
+                      "PAID",
+                      "DEPRECATED",
+                      "ERROR"
                     ]
                   }
                 }
@@ -18769,7 +18792,18 @@ func init() {
         "SUBMITTED",
         "APPROVALS REQUESTED",
         "APPROVED",
-        "CANCELED"
+        "CANCELED",
+        "PENDING",
+        "REVIEWED",
+        "SENT_TO_GEX",
+        "RECEIVED_BY_GEX",
+        "PAID",
+        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+        "EDI_ERROR",
+        "DEPRECATED",
+        "ERROR",
+        "REJECTED",
+        "PAYMENT REQUESTED"
       ]
     },
     "MoveTaskOrder": {

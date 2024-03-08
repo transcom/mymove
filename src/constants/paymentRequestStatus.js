@@ -18,4 +18,5 @@ export const PAYMENT_REQUEST_STATUS_LABELS = {
   PAID: 'Paid',
   EDI_ERROR: 'EDI error',
   DEPRECATED: 'Deprecated',
+  PAYMENT_REQUESTED: 'PAYMENT_REQUESTED',
 };
