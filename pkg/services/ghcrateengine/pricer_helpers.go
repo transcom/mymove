@@ -237,6 +237,8 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 		return 0, nil, fmt.Errorf("weight of %d is not a real weight", weight)
 	}
 
+	convertUnderMinWeightToMinWeight(disableWeightMinimum, &weight)
+
 	if len(zipOriginal) < 5 {
 		return unit.Cents(0), nil, fmt.Errorf("invalid %s postal code of %s", zipOriginalName, zipOriginal)
 	}
