@@ -81,7 +81,7 @@ type DomesticDestinationPricer interface {
 //
 //go:generate mockery --name DomesticOriginShuttlingPricer
 type DomesticOriginShuttlingPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int, disableMinimumWeight bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
