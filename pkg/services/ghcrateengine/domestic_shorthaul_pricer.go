@@ -28,7 +28,8 @@ func (p domesticShorthaulPricer) Price(appCtx appcontext.AppContext, contractCod
 	referenceDate time.Time,
 	distance unit.Miles,
 	weight unit.Pound,
-	serviceArea string) (totalCost unit.Cents, params services.PricingDisplayParams, err error) {
+	serviceArea string,
+	disableMinimumWeight bool) (totalCost unit.Cents, params services.PricingDisplayParams, err error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -36,8 +37,11 @@ func (p domesticShorthaulPricer) Price(appCtx appcontext.AppContext, contractCod
 	if referenceDate.IsZero() {
 		return 0, nil, errors.New("ReferenceDate is required")
 	}
-	if weight < minDomesticWeight {
+	if weight < minDomesticWeight && !disableMinimumWeight {
 		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
+	}
+	if weight < 0 {
+		return 0, nil, fmt.Errorf("weight %d is not a valid number", weight)
 	}
 	if distance <= 0 {
 		return 0, nil, errors.New("Distance must be greater than 0")
@@ -110,5 +114,5 @@ func (p domesticShorthaulPricer) PriceUsingParams(appCtx appcontext.AppContext, 
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Miles(distanceZip), unit.Pound(weightBilled), serviceAreaOrigin)
+	return p.Price(appCtx, contractCode, referenceDate, unit.Miles(distanceZip), unit.Pound(weightBilled), serviceAreaOrigin, true)
 }
