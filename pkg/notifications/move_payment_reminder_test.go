@@ -5,7 +5,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 func offsetDate(dayOffset int) time.Time {
@@ -13,78 +12,53 @@ func offsetDate(dayOffset int) time.Time {
 	return currentDatetime.AddDate(0, 0, dayOffset)
 }
 
-// cutoff date for sending payment reminders (don't send if older than this...)
-func cutoffDate() time.Time {
+func (suite *NotificationSuite) CreatePPMShipmentDateTooOld() models.PPMShipment {
 	cutoffDate, _ := time.Parse("2006-01-02", "2019-05-31")
+	ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.PPMShipment{
+				ExpectedDepartureDate: cutoffDate,
+			},
+		},
+	}, []factory.Trait{
+		factory.GetTraitPPMShipmentReadyForPaymentRequest,
+	})
+	return ppm
+}
 
-	return cutoffDate
+func (suite *NotificationSuite) GetPPMShipment(offset int) models.PPMShipment {
+	expectedDate := offsetDate(offset)
+
+	ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.PPMShipment{
+				ExpectedDepartureDate: expectedDate,
+			},
+		},
+	}, []factory.Trait{
+		factory.GetTraitPPMShipmentReadyForPaymentRequest,
+	})
+
+	return ppm
+}
+
+func (suite *NotificationSuite) CreatePPMShipment(offset int) {
+	expectedDate := offsetDate(offset)
+
+	factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.PPMShipment{
+				ExpectedDepartureDate: expectedDate,
+			},
+		},
+	}, []factory.Trait{
+		factory.GetTraitPPMShipmentReadyForPaymentRequest,
+	})
 }
 
 func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
-	date14DaysAgo := offsetDate(-14)
-	date9DaysAgo := offsetDate(-9)
 
-	weightEstimate := unit.Pound(300)
-
-	ppms := []models.PPMShipment{
-		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					ExpectedDepartureDate: date14DaysAgo,
-					Status:                models.PPMShipmentStatusWaitingOnCustomer,
-					EstimatedWeight:       &weightEstimate,
-				},
-			},
-			{
-				Model: models.Move{
-					Status: models.MoveStatusAPPROVED,
-				},
-			},
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
-				},
-			},
-		}, nil),
-		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					ExpectedDepartureDate: offsetDate(-15),
-					Status:                models.PPMShipmentStatusWaitingOnCustomer,
-					EstimatedWeight:       &weightEstimate,
-				},
-			},
-			{
-				Model: models.Move{
-					Status: models.MoveStatusAPPROVED,
-				},
-			},
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
-				},
-			},
-		}, nil),
-		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					ExpectedDepartureDate: date9DaysAgo,
-					Status:                models.PPMShipmentStatusWaitingOnCustomer,
-					EstimatedWeight:       &weightEstimate,
-				},
-			},
-			{
-				Model: models.Move{
-					Status: models.MoveStatusAPPROVED,
-				},
-			},
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
-				},
-			},
-		}, nil),
-	}
+	ppms := []models.PPMShipment{suite.GetPPMShipment(-9), suite.GetPPMShipment(-14), suite.GetPPMShipment(-15)}
 
 	PaymentReminder, err := NewPaymentReminder()
 	suite.NoError(err)
@@ -109,90 +83,9 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
-	date10DaysAgo := offsetDate(-10)
-	date9DaysAgo := offsetDate(-9)
-	dateTooOld := cutoffDate()
-	weightEstimate := unit.Pound(100)
-
-	factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-		{
-			Model: models.PPMShipment{
-				ExpectedDepartureDate: date9DaysAgo,
-				Status:                models.PPMShipmentStatusWaitingOnCustomer,
-				EstimatedWeight:       &weightEstimate,
-			},
-		},
-		{
-			Model: models.Move{
-				Status: models.MoveStatusAPPROVED,
-			},
-		},
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
-			},
-		},
-	}, nil)
-
-	factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-		{
-			Model: models.PPMShipment{
-				ExpectedDepartureDate: dateTooOld,
-				Status:                models.PPMShipmentStatusWaitingOnCustomer,
-				EstimatedWeight:       &weightEstimate,
-			},
-		},
-		{
-			Model: models.Move{
-				Status: models.MoveStatusAPPROVED,
-			},
-		},
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
-			},
-		},
-	}, nil)
-
-	factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-		{
-			Model: models.PPMShipment{
-				ExpectedDepartureDate: date10DaysAgo,
-				Status:                models.PPMShipmentStatusWaitingOnCustomer,
-				EstimatedWeight:       &weightEstimate,
-			},
-		},
-		{
-			Model: models.Move{
-				Status: models.MoveStatusAPPROVED,
-			},
-		},
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
-			},
-		},
-	}, nil)
-
-	factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-		{
-			Model: models.PPMShipment{
-				ExpectedDepartureDate: date9DaysAgo,
-				Status:                models.PPMShipmentStatusWaitingOnCustomer,
-				EstimatedWeight:       &weightEstimate,
-			},
-		},
-		{
-			Model: models.Move{
-				Show: models.BoolPointer(false),
-			},
-		},
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
-			},
-		},
-	}, nil)
+	suite.CreatePPMShipment(-10)
+	suite.CreatePPMShipment(-9)
+	suite.CreatePPMShipmentDateTooOld()
 
 	PaymentReminder, err := NewPaymentReminder()
 	suite.NoError(err)
@@ -203,49 +96,8 @@ func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
-	date14DaysAgo := offsetDate(-14)
-	dateTooOld := cutoffDate()
-	weightEstimate := unit.Pound(200)
-
-	factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-		{
-			Model: models.PPMShipment{
-				ExpectedDepartureDate: date14DaysAgo,
-				Status:                models.PPMShipmentStatusWaitingOnCustomer,
-				EstimatedWeight:       &weightEstimate,
-			},
-		},
-		{
-			Model: models.Move{
-				Status: models.MoveStatusAPPROVED,
-			},
-		},
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
-			},
-		},
-	}, nil)
-
-	factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-		{
-			Model: models.PPMShipment{
-				ExpectedDepartureDate: dateTooOld,
-				Status:                models.PPMShipmentStatusWaitingOnCustomer,
-				EstimatedWeight:       &weightEstimate,
-			},
-		},
-		{
-			Model: models.Move{
-				Status: models.MoveStatusAPPROVED,
-			},
-		},
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
-			},
-		},
-	}, nil)
+	suite.CreatePPMShipmentDateTooOld()
+	suite.CreatePPMShipment(-14)
 
 	PaymentReminder, err := NewPaymentReminder()
 	suite.NoError(err)
@@ -261,22 +113,22 @@ func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderOnSuccess() {
-	sm := factory.BuildServiceMember(suite.DB(), nil, nil)
-	ei := PaymentReminderEmailInfo{
-		ServiceMemberID: sm.ID,
+	serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+	serviceMenmberID := PaymentReminderEmailInfo{
+		ServiceMemberID: serviceMember.ID,
 	}
 
 	PaymentReminder, err := NewPaymentReminder()
 	suite.NoError(err)
-	err = PaymentReminder.OnSuccess(suite.AppContextForTest(), ei)("SESID")
+	err = PaymentReminder.OnSuccess(suite.AppContextForTest(), serviceMenmberID)("SESID")
 	suite.NoError(err)
 
-	n := models.Notification{}
-	err = suite.DB().First(&n)
+	notification := models.Notification{}
+	err = suite.DB().First(&notification)
 	suite.NoError(err)
-	suite.Equal(sm.ID, n.ServiceMemberID)
-	suite.Equal(models.MovePaymentReminderEmail, n.NotificationType)
-	suite.Equal("SESID", n.SESMessageID)
+	suite.Equal(serviceMember.ID, notification.ServiceMemberID)
+	suite.Equal(models.MovePaymentReminderEmail, notification.NotificationType)
+	suite.Equal("SESID", notification.SESMessageID)
 }
 
 func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
