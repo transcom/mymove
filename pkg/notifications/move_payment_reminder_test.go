@@ -163,25 +163,24 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 <p>To request payment, you should have copies of:</p>
 
 <ul>
-<li>       Weight tickets from certified scales, documenting empty and full weights for all vehicles and
-<br>trailers you used for your move.</li>
+<li>       Weight tickets from certified scales, documenting empty and full weights for all vehicles and trailers you used for your move.</li>
 <li>       Receipts for reimbursable expenses (see our moving tips PDF for more info <a href="` +
 		paymentReminderData.OneSourceLink + `">` + paymentReminderData.OneSourceLink + `)</a></li>
 </ul>
 
 <p>MilMove will ask you to upload copies of your documents as you complete your payment request.
 
-<p>If you are missing reciepts, you can still request payment but may not get reimbursement or a tax credit
-<br>for those expenses.</p>
+<p>If you are missing reciepts, you can still request payment but may not get reimbursement or a tax credit for those expenses.</p>
 
-<p>Payment request must be submitted within 45 days of your move date.
+<p>Payment request must be submitted within 45 days of your move date.</p>
 
-<br>If you have any questions, contact a government transportation office. You can see a listing of
-transportation offices on Military OneSource here: &lt;<a href="` + paymentReminderData.OneSourceLink + `">` + paymentReminderData.OneSourceLink + `</a>&gt;
-<br>Thank you,
-<br>USTRANSCOM MilMove Team
-<br>The information contained in this email may contain Privacy Act information and is therefore protected
-<br>under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.</p>`
+<p>If you have any questions, contact a government transportation office. You can see a listing of
+transportation offices on Military OneSource here: &lt;<a href="` + paymentReminderData.OneSourceLink + `">` + paymentReminderData.OneSourceLink + `</a>&gt;</p>
+
+<p>Thank you,</p>
+<p>USTRANSCOM MilMove Team</p>
+<p>The information contained in this email may contain Privacy Act information and is therefore protected
+under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.</p>`
 
 	htmlContent, err := pr.RenderHTML(suite.AppContextForTest(), paymentReminderData)
 
@@ -217,20 +216,21 @@ To do that:
 
 To request payment, you should have copies of:
 
-*       Weight tickets from certified scales, documenting empty and full weights for all vehicles and
-trailers you used for your move.
+*       Weight tickets from certified scales, documenting empty and full weights for all vehicles and trailers you used for your move.
 *       Receipts for reimbursable expenses (see our moving tips PDF for more info ` + paymentReminderData.OneSourceLink + `)
 
 MilMove will ask you to upload copies of your documents as you complete your payment request.
 
-If you are missing reciepts, you can still request payment but may not get reimbursement or a tax credit
-for those expenses.
+If you are missing reciepts, you can still request payment but may not get reimbursement or a tax credit for those expenses.
 
 Payment request must be submitted within 45 days of your move date.
+
 If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military OneSource here: <` + paymentReminderData.OneSourceLink + `>
 
 Thank you,
+
 USTRANSCOM MilMove Team
+
 The information contained in this email may contain Privacy Act information and is therefore protected
 under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.`
 
