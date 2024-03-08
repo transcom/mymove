@@ -38,6 +38,7 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 	if weight < 0 {
 		return 0, nil, fmt.Errorf("weight %d is not a valid number", weight)
 	}
+	convertUnderMinWeightToMinWeight(disableMinimumWeight, &weight)
 	if servicesSchedule == 0 {
 		return 0, nil, errors.New("Services schedule is required")
 	}
