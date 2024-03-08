@@ -2939,6 +2939,10 @@ paths:
           name: closeoutLocation
           type: string
           description: closeout location
+        - in: query
+          name: orderType
+          type: string
+          description: order type
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -2994,6 +2998,9 @@ paths:
           type: string
         - in: query
           name: moveCode
+          type: string
+        - in: query
+          name: orderType
           type: string
       responses:
         '200':
@@ -3087,6 +3094,10 @@ paths:
               - SUBMITTED
               - APPROVALS REQUESTED
               - APPROVED
+        - in: query
+          name: orderType
+          type: string
+          description: order type
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3179,6 +3190,10 @@ paths:
               - Paid
               - Deprecated
               - Error
+        - in: query
+          name: orderType
+          type: string
+          description: order type
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3252,6 +3267,14 @@ paths:
                 x-nullable: true
               shipmentsCount:
                 type: integer
+                x-nullable: true
+              pickupDate:
+                type: string
+                format: date-time
+                x-nullable: true
+              deliveryDate:
+                type: string
+                format: date-time
                 x-nullable: true
               sort:
                 type: string
@@ -5113,6 +5136,9 @@ definitions:
       closeoutLocation:
         type: string
         x-nullable: true
+      orderType:
+        type: string
+        x-nullable: true
   QueueMovesResult:
     type: object
     properties:
@@ -5212,6 +5238,9 @@ definitions:
         $ref: '#/definitions/GBLOC'
       originDutyLocation:
         $ref: '#/definitions/DutyLocation'
+      orderType:
+        type: string
+        x-nullable: true
   QueuePaymentRequests:
     type: array
     items:
@@ -5277,6 +5306,20 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      orderType:
+        type: string
+      requestedPickupDate:
+        type: string
+        format: date
+        x-nullable: true
+      requestedDeliveryDate:
+        type: string
+        format: date
+        x-nullable: true
+      originGBLOC:
+        $ref: '#/definitions/GBLOC'
+      destinationGBLOC:
+        $ref: '#/definitions/GBLOC'
   SearchMovesResult:
     type: object
     properties:
@@ -5786,11 +5829,13 @@ definitions:
       - LOCAL_MOVE
       - RETIREMENT
       - SEPARATION
+      - BLUEBARK
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
       RETIREMENT: Retirement
       SEPARATION: Separation
+      BLUEBARK: BLUEBARK
   TransportationOffice:
     type: object
     properties:
