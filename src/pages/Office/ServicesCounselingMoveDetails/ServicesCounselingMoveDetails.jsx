@@ -40,7 +40,7 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 import { ReviewButton } from 'components/form/IconButtons';
 import { calculateWeightRequested } from 'hooks/custom';
-import { isSCCreateMoveEnabled } from 'utils/featureFlags';
+import { isCounselorMoveCreateEnabled } from 'utils/featureFlags';
 import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
 
@@ -53,7 +53,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   const [shipmentConcernCount, setShipmentConcernCount] = useState(0);
-  const [isSCCreateMoveFFEnabled, setIsSCCreateMoveFFEnabled] = useState(false);
+  const [isCounselorMoveCreateFFEnabled, setisCounselorMoveCreateFFEnabled] = useState(false);
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
 
   const { order, customerData, move, closeoutOffice, mtoShipments, isLoading, isError } =
@@ -112,8 +112,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const isEnabled = await isSCCreateMoveEnabled();
-        setIsSCCreateMoveFFEnabled(isEnabled);
+        const isEnabled = await isCounselorMoveCreateEnabled();
+        setisCounselorMoveCreateFFEnabled(isEnabled);
       } catch (error) {
         const { message } = error;
         milmoveLogger.error({ message, info: null });
@@ -493,7 +493,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
               <h1>Move details</h1>
             </Grid>
             <Grid col={6} className={scMoveDetailsStyles.testdiv}>
-              {!isSCCreateMoveFFEnabled ? null : (
+              {!isCounselorMoveCreateFFEnabled ? null : (
                 <Grid col={6} className={scMoveDetailsStyles.createNewMove}>
                   <Button type="button" onClick={null}>
                     Create New Move

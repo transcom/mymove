@@ -151,19 +151,3 @@ export function isMultiMoveEnabled() {
       return false;
     });
 }
-
-// isSCCreateMoveEnabled returns the Flipt feature flag value
-export function isSCCreateMoveEnabled() {
-  const flagKey = 'sc_create_move';
-  return getBooleanFeatureFlagForUser(flagKey, {})
-    .then((result) => {
-      if (result && typeof result.match !== 'undefined') {
-        return result.match;
-      }
-      throw new Error('sc create move feature flag is undefined');
-    })
-    .catch((error) => {
-      milmoveLogger.error(error);
-      return false;
-    });
-}
