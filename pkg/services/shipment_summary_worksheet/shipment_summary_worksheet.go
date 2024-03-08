@@ -139,6 +139,14 @@ type WorkSheetShipments struct {
 	CurrentShipmentStatuses     string
 }
 
+// WorkSheetShipment is an object representing specific shipment items on Shipment Summary Worksheet
+type WorkSheetShipment struct {
+	EstimatedIncentive    string
+	MaxAdvance            string
+	FinalIncentive        string
+	AdvanceAmountReceived string
+}
+
 // WorkSheetSIT is an object representing SIT on the Shipment Summary Worksheet
 type WorkSheetSIT struct {
 	NumberAndTypes string
@@ -393,35 +401,18 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.ShipmentPickUpDates = formattedShipments.PickUpDates
 	page1.ShipmentCurrentShipmentStatuses = formattedShipments.CurrentShipmentStatuses
 	formattedSIT := FormatAllSITS(data.PPMShipments)
-
+	formattedShipment := FormatCurrentShipment(data.PPMShipment)
 	page1.SITDaysInStorage = formattedSIT.DaysInStorage
 	page1.SITEntryDates = formattedSIT.EntryDates
 	page1.SITEndDates = formattedSIT.EndDates
 	page1.SITNumberAndTypes = formattedShipments.ShipmentNumberAndTypes
 	page1.ShipmentWeights = formattedShipments.ShipmentWeights
-	// All of these data.ppmshipment values need to have nil checks to prevent panic errors and return data absence
-	if data.PPMShipment.EstimatedIncentive != nil {
-		page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.TotalWeight) + " lbs; " + data.PPMShipment.EstimatedIncentive.ToDollarString()
-	} else {
-		page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.TotalWeight) + " lbs; No estimated incentive."
-	}
-	if data.PPMShipment.FinalIncentive != nil {
-		page1.ActualObligationGCC100 = formattedShipments.ShipmentWeightForObligation + " lbs; " + data.PPMShipment.FinalIncentive.ToDollarString()
-	} else {
-		page1.ActualObligationGCC100 = formattedShipments.ShipmentWeightForObligation + " lbs; No final incentive."
-	}
+	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.TotalWeight) + " lbs; " + formattedShipment.EstimatedIncentive
+	page1.ActualObligationGCC100 = formattedShipments.ShipmentWeightForObligation + " lbs; " + formattedShipment.FinalIncentive
+	page1.MaxObligationGCCMaxAdvance = formattedShipment.MaxAdvance
+	page1.ActualObligationAdvance = formattedShipment.AdvanceAmountReceived
 	page1.MaxObligationSIT = fmt.Sprintf("%02d Days in SIT", data.MaxSITStorageEntitlement)
 	page1.ActualObligationSIT = formattedSIT.DaysInStorage
-	if data.PPMShipment.EstimatedIncentive != nil {
-		page1.MaxObligationGCCMaxAdvance = formatMaxAdvance(data.PPMShipment.EstimatedIncentive)
-	} else {
-		page1.MaxObligationGCCMaxAdvance = "No estimated incentive for calculation"
-	}
-	if data.PPMShipment.AdvanceAmountReceived != nil {
-		page1.ActualObligationAdvance = data.PPMShipment.AdvanceAmountReceived.ToDollarString()
-	} else {
-		page1.ActualObligationAdvance = "No advance received"
-	}
 	page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
 	page1.PPMRemainingEntitlement = FormatWeights(data.PPMRemainingEntitlement)
 	return page1
@@ -617,6 +608,30 @@ func FormatServiceMemberFullName(serviceMember models.ServiceMember) string {
 		return fmt.Sprintf("%s %s, %s %s", lastName, suffix, firstName, middleName)
 	}
 	return strings.TrimSpace(fmt.Sprintf("%s, %s %s", lastName, firstName, middleName))
+}
+
+func FormatCurrentShipment(ppm models.PPMShipment) WorkSheetShipment {
+	formattedShipment := WorkSheetShipment{}
+
+	if ppm.FinalIncentive != nil {
+		formattedShipment.FinalIncentive = ppm.FinalIncentive.ToDollarString()
+	} else {
+		formattedShipment.FinalIncentive = "No final incentive."
+	}
+	if ppm.EstimatedIncentive != nil {
+		formattedShipment.MaxAdvance = formatMaxAdvance(ppm.EstimatedIncentive)
+		formattedShipment.EstimatedIncentive = ppm.EstimatedIncentive.ToDollarString()
+	} else {
+		formattedShipment.MaxAdvance = "Advance not available."
+		formattedShipment.EstimatedIncentive = "No estimated incentive."
+	}
+	if ppm.AdvanceAmountReceived != nil {
+		formattedShipment.AdvanceAmountReceived = ppm.AdvanceAmountReceived.ToDollarString()
+	} else {
+		formattedShipment.AdvanceAmountReceived = "No advance received."
+	}
+
+	return formattedShipment
 }
 
 // FormatAllShipments formats Shipment line items for the Shipment Summary Worksheet
