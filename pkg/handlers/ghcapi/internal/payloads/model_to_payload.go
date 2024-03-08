@@ -439,19 +439,23 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 	}
 
 	payload := ghcmessages.Customer{
-		Agency:         swag.StringValue((*string)(customer.Affiliation)),
-		CurrentAddress: Address(customer.ResidentialAddress),
-		DodID:          swag.StringValue(customer.Edipi),
-		Email:          customer.PersonalEmail,
-		FirstName:      swag.StringValue(customer.FirstName),
-		ID:             strfmt.UUID(customer.ID.String()),
-		LastName:       swag.StringValue(customer.LastName),
-		Phone:          customer.Telephone,
-		Suffix:         customer.Suffix,
-		MiddleName:     customer.MiddleName,
-		UserID:         strfmt.UUID(customer.UserID.String()),
-		ETag:           etag.GenerateEtag(customer.UpdatedAt),
-		BackupContact:  BackupContact(customer.BackupContacts),
+		Agency:             swag.StringValue((*string)(customer.Affiliation)),
+		CurrentAddress:     Address(customer.ResidentialAddress),
+		DodID:              swag.StringValue(customer.Edipi),
+		Email:              customer.PersonalEmail,
+		FirstName:          swag.StringValue(customer.FirstName),
+		ID:                 strfmt.UUID(customer.ID.String()),
+		LastName:           swag.StringValue(customer.LastName),
+		Phone:              customer.Telephone,
+		Suffix:             customer.Suffix,
+		MiddleName:         customer.MiddleName,
+		UserID:             strfmt.UUID(customer.UserID.String()),
+		ETag:               etag.GenerateEtag(customer.UpdatedAt),
+		BackupContact:      BackupContact(customer.BackupContacts),
+		BackupAddress:      Address(customer.BackupMailingAddress),
+		SecondaryTelephone: customer.SecondaryTelephone,
+		PhoneIsPreferred:   swag.BoolValue(customer.PhoneIsPreferred),
+		EmailIsPreferred:   swag.BoolValue(customer.EmailIsPreferred),
 	}
 	return &payload
 }

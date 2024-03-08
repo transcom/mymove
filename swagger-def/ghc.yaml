@@ -3311,6 +3311,17 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       eTag:
         type: string
+      phone_is_preferred:
+        type: boolean
+      email_is_preferred:
+        type: boolean
+      secondary_telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      backup_address:
+        $ref: 'definitions/Address.yaml'
   UpdateCustomerPayload:
     type: object
     properties:
@@ -3343,6 +3354,18 @@ definitions:
           - $ref: 'definitions/Address.yaml'
       backup_contact:
         $ref: '#/definitions/BackupContact'
+      phone_is_preferred:
+        type: boolean
+      email_is_preferred:
+        type: boolean
+      secondary_telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      backup_address:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
   Entitlements:
     properties:
       id:

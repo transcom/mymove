@@ -23,6 +23,13 @@ const mockCustomer = {
     name: 'Jane Backup',
     phone: '555-555-1234',
   },
+  backup_address: {
+    city: 'Great Falls',
+    country: 'US',
+    postalCode: '59402',
+    state: 'MT',
+    streetAddress1: '446 South Ave',
+  },
   current_address: {
     city: 'Beverly Hills',
     country: 'US',
@@ -112,11 +119,11 @@ describe('CustomerInfo', () => {
       expect(screen.getByDisplayValue(mockCustomer.backup_contact.email).value).toEqual(
         mockCustomer.backup_contact.email,
       );
-      expect(screen.getByLabelText('Address 1').value).toEqual(mockCustomer.current_address.streetAddress1);
-      expect(screen.getByLabelText('City').value).toEqual(mockCustomer.current_address.city);
-      expect(screen.getByLabelText('State').value).toEqual(mockCustomer.current_address.state);
-      expect(screen.getByLabelText('ZIP').value).toEqual(mockCustomer.current_address.postalCode);
-      expect(screen.getByLabelText('Name').value).toEqual(mockCustomer.backup_contact.name);
+      expect(screen.getByDisplayValue('123 Any Street').value).toEqual(mockCustomer.current_address.streetAddress1);
+      expect(screen.getByDisplayValue('Beverly Hills').value).toEqual(mockCustomer.current_address.city);
+      expect(screen.getByDisplayValue('CA').value).toEqual(mockCustomer.current_address.state);
+      expect(screen.getByDisplayValue('90210').value).toEqual(mockCustomer.current_address.postalCode);
+      expect(screen.getByDisplayValue('Jane Backup').value).toEqual(mockCustomer.backup_contact.name);
     });
   });
 
