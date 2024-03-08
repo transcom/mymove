@@ -1586,8 +1586,6 @@ paths:
       operationId: getPPMCloseout
       tags:
         - ppm
-      consumes:
-        - application/json
       produces:
         - application/json
       responses:
