@@ -1572,6 +1572,11 @@ func init() {
                   "minLength": 1,
                   "x-nullable": true
                 },
+                "deliveryDate": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-nullable": true
+                },
                 "destinationPostalCode": {
                   "type": "string",
                   "x-nullable": true
@@ -1608,6 +1613,11 @@ func init() {
                 },
                 "perPage": {
                   "type": "integer"
+                },
+                "pickupDate": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-nullable": true
                 },
                 "shipmentsCount": {
                   "type": "integer",
@@ -3226,6 +3236,12 @@ func init() {
             "description": "closeout location",
             "name": "closeoutLocation",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
           }
         ],
         "responses": {
@@ -3350,6 +3366,12 @@ func init() {
             },
             "description": "Filtering for the status.",
             "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
             "in": "query"
           }
         ],
@@ -3477,6 +3499,12 @@ func init() {
             "description": "Filtering for the status.",
             "name": "status",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
           }
         ],
         "responses": {
@@ -3534,6 +3562,11 @@ func init() {
           {
             "type": "string",
             "name": "moveCode",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "orderType",
             "in": "query"
           }
         ],
@@ -7540,9 +7573,11 @@ func init() {
         "PERMANENT_CHANGE_OF_STATION",
         "LOCAL_MOVE",
         "RETIREMENT",
-        "SEPARATION"
+        "SEPARATION",
+        "BLUEBARK"
       ],
       "x-display-value": {
+        "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
@@ -8509,6 +8544,10 @@ func init() {
         "locator": {
           "type": "string"
         },
+        "orderType": {
+          "type": "string",
+          "x-nullable": true
+        },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
@@ -8588,6 +8627,10 @@ func init() {
         "moveID": {
           "type": "string",
           "format": "uuid"
+        },
+        "orderType": {
+          "type": "string",
+          "x-nullable": true
         },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
@@ -8964,6 +9007,9 @@ func init() {
           "pattern": "^(\\d{5})$",
           "example": "90210"
         },
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "dodID": {
           "type": "string",
           "x-nullable": true,
@@ -8986,12 +9032,28 @@ func init() {
         "locator": {
           "type": "string"
         },
+        "orderType": {
+          "type": "string"
+        },
         "originDutyLocationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
+        },
+        "originGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         },
         "shipmentsCount": {
           "type": "integer"
@@ -12467,6 +12529,11 @@ func init() {
                   "minLength": 1,
                   "x-nullable": true
                 },
+                "deliveryDate": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-nullable": true
+                },
                 "destinationPostalCode": {
                   "type": "string",
                   "x-nullable": true
@@ -12503,6 +12570,11 @@ func init() {
                 },
                 "perPage": {
                   "type": "integer"
+                },
+                "pickupDate": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-nullable": true
                 },
                 "shipmentsCount": {
                   "type": "integer",
@@ -14582,6 +14654,12 @@ func init() {
             "description": "closeout location",
             "name": "closeoutLocation",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
           }
         ],
         "responses": {
@@ -14712,6 +14790,12 @@ func init() {
             },
             "description": "Filtering for the status.",
             "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
             "in": "query"
           }
         ],
@@ -14845,6 +14929,12 @@ func init() {
             "description": "Filtering for the status.",
             "name": "status",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
           }
         ],
         "responses": {
@@ -14908,6 +14998,11 @@ func init() {
           {
             "type": "string",
             "name": "moveCode",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "orderType",
             "in": "query"
           }
         ],
@@ -19245,9 +19340,11 @@ func init() {
         "PERMANENT_CHANGE_OF_STATION",
         "LOCAL_MOVE",
         "RETIREMENT",
-        "SEPARATION"
+        "SEPARATION",
+        "BLUEBARK"
       ],
       "x-display-value": {
+        "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
@@ -20216,6 +20313,10 @@ func init() {
         "locator": {
           "type": "string"
         },
+        "orderType": {
+          "type": "string",
+          "x-nullable": true
+        },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
@@ -20295,6 +20396,10 @@ func init() {
         "moveID": {
           "type": "string",
           "format": "uuid"
+        },
+        "orderType": {
+          "type": "string",
+          "x-nullable": true
         },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
@@ -20726,6 +20831,9 @@ func init() {
           "pattern": "^(\\d{5})$",
           "example": "90210"
         },
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "dodID": {
           "type": "string",
           "x-nullable": true,
@@ -20748,12 +20856,28 @@ func init() {
         "locator": {
           "type": "string"
         },
+        "orderType": {
+          "type": "string"
+        },
         "originDutyLocationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
+        },
+        "originGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         },
         "shipmentsCount": {
           "type": "integer"
