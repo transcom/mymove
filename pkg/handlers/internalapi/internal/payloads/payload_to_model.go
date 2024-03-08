@@ -227,6 +227,8 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 		Status:                      models.MTOShipmentStatus(mtoShipment.Status),
 		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
 		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
+		ActualProGearWeight:         handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualProGearWeight),
+		ActualSpouseProGearWeight:   handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualSpouseProGearWeight),
 	}
 
 	model.PickupAddress = AddressModel(mtoShipment.PickupAddress)

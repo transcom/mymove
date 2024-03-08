@@ -109,163 +109,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/DutyLocationPayload'
-  PersonallyProcuredMovePayload:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      move_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      size:
-        $ref: '#/definitions/TShirtSize'
-      original_move_date:
-        type: string
-        format: date
-        title: When do you plan to move?
-        example: '2018-04-26'
-        x-nullable: true
-      actual_move_date:
-        type: string
-        example: '2018-04-26'
-        format: date
-        title: When did you actually move?
-        x-nullable: true
-      submit_date:
-        type: string
-        format: date-time
-        title: When was the ppm move submitted?
-        example: '2019-03-26T13:19:56-04:00'
-        x-nullable: true
-      approve_date:
-        type: string
-        format: date-time
-        title: When was the ppm move approved?
-        example: '2019-03-26T13:19:56-04:00'
-        x-nullable: true
-      pickup_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: ^(\d{5}([\-]\d{4})?)$
-        x-nullable: true
-      has_additional_postal_code:
-        type: boolean
-        x-nullable: true
-        title: Will you move anything from another pickup location?
-      additional_pickup_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: ^(\d{5}([\-]\d{4})?)$
-        x-nullable: true
-      destination_postal_code:
-        type: string
-        format: zip
-        title: ZIP code
-        example: '90210'
-        pattern: ^(\d{5}([\-]\d{4})?)$
-        x-nullable: true
-      has_sit:
-        type: boolean
-        x-nullable: true
-        title: Will you put anything in storage?
-      days_in_storage:
-        type: integer
-        title: How many days of storage do you think you'll need?
-        minimum: 0
-        maximum: 90
-        x-nullable: true
-      estimated_storage_reimbursement:
-        type: string
-        title: Estimated Storage Reimbursement
-        x-nullable: true
-      weight_estimate:
-        type: integer
-        minimum: 0
-        title: Weight Estimate
-        x-nullable: true
-        x-formatting: weight
-      net_weight:
-        type: integer
-        minimum: 1
-        title: Net Weight
-        x-nullable: true
-        x-formatting: weight
-      mileage:
-        type: integer
-        title: Distance between origin and destination in miles
-        x-nullable: true
-      planned_sit_max:
-        type: integer
-        title: Maximum SIT reimbursement for the planned SIT duration
-        x-nullable: true
-      total_sit_cost:
-        type: integer
-        format: cents
-        title: Total cost for the planned SIT duration
-        x-nullable: true
-      sit_max:
-        type: integer
-        title: Maximum SIT reimbursement for maximum SIT duration
-        x-nullable: true
-      incentive_estimate_min:
-        type: integer
-        title: Estimated incentive minimum in cents
-        x-nullable: true
-      incentive_estimate_max:
-        type: integer
-        title: Estimated incentive maximum in cents
-        x-nullable: true
-      status:
-        $ref: '#/definitions/PPMStatus'
-      has_requested_advance:
-        type: boolean
-        default: false
-        title: Would you like an advance of up to 60% of your PPM incentive?
-      advance:
-        $ref: '#/definitions/Reimbursement'
-      advance_worksheet:
-        $ref: '#/definitions/Document'
-      has_pro_gear:
-        type: string
-        title: Has Pro-Gear
-        enum:
-          - NOT SURE
-          - 'YES'
-          - 'NO'
-        x-nullable: true
-        x-display-value:
-          NOT SURE: Not Sure
-          'YES': 'Yes'
-          'NO': 'No'
-      has_pro_gear_over_thousand:
-        type: string
-        title: Has Pro-Gear Over Thousand Pounds
-        enum:
-          - NOT SURE
-          - 'YES'
-          - 'NO'
-        x-nullable: true
-        x-display-value:
-          NOT SURE: Not Sure
-          'YES': 'Yes'
-          'NO': 'No'
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-    required:
-      - id
-      - created_at
-      - updated_at
   SubmitMoveForApprovalPayload:
     type: object
     properties:
@@ -291,28 +134,6 @@ definitions:
     required:
       - range_min
       - range_max
-  CategoryExpenseSummary:
-    type: object
-    properties:
-      category:
-        $ref: '#/definitions/MovingExpenseType'
-      payment_methods:
-        $ref: '#/definitions/PaymentMethodsTotals'
-      total:
-        type: integer
-  PaymentMethodsTotals:
-    type: object
-    properties:
-      MIL_PAY:
-        type: integer
-      OTHER:
-        type: integer
-      GTCC:
-        type: integer
-  IndexPersonallyProcuredMovePayload:
-    type: array
-    items:
-      $ref: '#/definitions/PersonallyProcuredMovePayload'
   MovePayload:
     type: object
     properties:
@@ -344,8 +165,6 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
-      personally_procured_moves:
-        $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
       mto_shipments:
         $ref: '#/definitions/MTOShipments'
       closeout_office:
@@ -1269,14 +1088,6 @@ definitions:
         type: string
         format: uuid
         title: The service member this document belongs to
-  TShirtSize:
-    type: string
-    x-nullable: true
-    title: Size
-    enum:
-      - S
-      - M
-      - L
   OrderPayGrade:
     type: string
     x-nullable: true
@@ -1359,21 +1170,6 @@ definitions:
       AIR_AND_SPACE_FORCE: 57 Air Force and Space Force
       COAST_GUARD: 70 Coast Guard
       OFFICE_OF_SECRETARY_OF_DEFENSE: 97 Office of the Secretary of Defense
-  CreateReimbursement:
-    type: object
-    x-nullable: true
-    properties:
-      requested_amount:
-        type: integer
-        format: cents
-        minimum: 1
-        title: Requested Amount
-        description: unit is cents
-      method_of_receipt:
-        $ref: '#/definitions/MethodOfReceipt'
-    required:
-      - requested_amount
-      - method_of_receipt
   Reimbursement:
     type: object
     x-nullable: true
@@ -1438,23 +1234,6 @@ definitions:
       SUBMITTED: Submitted
       APPROVED: Approved
       CANCELED: Canceled
-  PPMStatus:
-    type: string
-    title: PPM status
-    enum:
-      - DRAFT
-      - SUBMITTED
-      - APPROVED
-      - COMPLETED
-      - CANCELED
-      - PAYMENT_REQUESTED
-    x-display-value:
-      DRAFT: Draft
-      SUBMITTED: Submitted
-      APPROVED: Approved
-      COMPLETED: Completed
-      CANCELED: Canceled
-      PAYMENT_REQUESTED: Payment Requested
   OrdersStatus:
     type: string
     title: Move status
@@ -1802,59 +1581,6 @@ definitions:
       - branch_of_service
       - last_modified_date
       - created_at
-  MoveDatesSummary:
-    type: object
-    properties:
-      id:
-        type: string
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538:2018-09-25
-      move_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      move_date:
-        type: string
-        format: date
-        example: '2018-09-25'
-      pack:
-        type: array
-        items:
-          type: string
-          format: date
-          example: '2018-09-25'
-      pickup:
-        type: array
-        items:
-          type: string
-          format: date
-          example: '2018-09-25'
-      transit:
-        type: array
-        items:
-          type: string
-          format: date
-          example: '2018-09-25'
-      delivery:
-        type: array
-        items:
-          type: string
-          format: date
-          example: '2018-09-25'
-      report:
-        type: array
-        items:
-          type: string
-          format: date
-          example: '2018-09-25'
-    required:
-      - id
-      - move_id
-      - move_date
-      - pack
-      - pickup
-      - transit
-      - delivery
-      - report
   AvailableMoveDates:
     type: object
     properties:
@@ -2059,6 +1785,14 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
+      actualProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
       eTag:
         type: string
   MTOShipments:
@@ -2317,6 +2051,14 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      actualProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
       agents:
         $ref: '#/definitions/MTOAgents'
   ClientError:
@@ -2464,11 +2206,13 @@ definitions:
       - LOCAL_MOVE
       - RETIREMENT
       - SEPARATION
+      - BLUEBARK
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
       RETIREMENT: Retirement
       SEPARATION: Separation
+      BLUEBARK: BLUEBARK
   Address:
     description: A postal address
     type: object
@@ -5668,6 +5412,8 @@ paths:
         * Delivery Address
         * Customer Remarks
         * Releasing / Receiving agents
+        * Actual Pro Gear Weight
+        * Actual Spouse Pro Gear Weight
       consumes:
         - application/json
       produces:
