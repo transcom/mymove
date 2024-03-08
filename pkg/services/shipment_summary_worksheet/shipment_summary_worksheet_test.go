@@ -10,6 +10,7 @@
 package shipmentsummaryworksheet
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -289,7 +290,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	suite.Equal("Jenkins Jr., Marcus Joseph", sswPage1.ServiceMemberName)
 	suite.Equal("E-9", sswPage1.RankGrade)
 	suite.Equal("Air Force", sswPage1.ServiceBranch)
-	suite.Equal("90 days per each shipment", sswPage1.MaxSITStorageEntitlement)
+	suite.Equal("00 Days in SIT", sswPage1.MaxSITStorageEntitlement)
 	suite.Equal("Yuma AFB, IA 50309", sswPage1.AuthorizedOrigin)
 	suite.Equal("Fort Eisenhower, GA 30813", sswPage1.AuthorizedDestination)
 	suite.Equal("No", sswPage1.POVAuthorized)
@@ -304,7 +305,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	suite.Equal("Fort Eisenhower, GA 30813", sswPage1.NewDutyAssignment)
 
 	suite.Equal("15,000", sswPage1.WeightAllotment)
-	suite.Equal("2,000", sswPage1.WeightAllotmentProgear)
+	suite.Equal("2,000", sswPage1.WeightAllotmentProGear)
 	suite.Equal("500", sswPage1.WeightAllotmentProgearSpouse)
 	suite.Equal("17,500", sswPage1.TotalWeightAllotment)
 
@@ -343,7 +344,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		HasDependents:     true,
 		SpouseHasProGear:  true,
 	}
-	paidWithGTCC := false
+	paidWithGTCCFalse := false
+	paidWithGTCCTrue := true
 	tollExpense := models.MovingExpenseReceiptTypeTolls
 	oilExpense := models.MovingExpenseReceiptTypeOil
 	amount := unit.Cents(10000)
@@ -351,37 +353,37 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		{
 			MovingExpenseType: &tollExpense,
 			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
+			PaidWithGTCC:      &paidWithGTCCFalse,
 		},
 		{
 			MovingExpenseType: &oilExpense,
 			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
+			PaidWithGTCC:      &paidWithGTCCFalse,
 		},
 		{
 			MovingExpenseType: &oilExpense,
 			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
+			PaidWithGTCC:      &paidWithGTCCTrue,
 		},
 		{
 			MovingExpenseType: &oilExpense,
 			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
+			PaidWithGTCC:      &paidWithGTCCFalse,
 		},
 		{
 			MovingExpenseType: &tollExpense,
 			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
+			PaidWithGTCC:      &paidWithGTCCTrue,
 		},
 		{
 			MovingExpenseType: &tollExpense,
 			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
+			PaidWithGTCC:      &paidWithGTCCTrue,
 		},
 		{
 			MovingExpenseType: &tollExpense,
 			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCC,
+			PaidWithGTCC:      &paidWithGTCCFalse,
 		},
 	}
 
@@ -389,8 +391,26 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		Order:          order,
 		MovingExpenses: movingExpenses,
 	}
-	sswPage2 := FormatValuesShipmentSummaryWorksheetFormPage2(ssd)
+	// fmt.Println("Moving Expenses:")
+	// for i, expense := range ssd.MovingExpenses {
+	// 	fmt.Printf("  Expense %d:\n", i+1)
+	// 	fmt.Println("    Moving Expense Type:", *expense.MovingExpenseType)
+	// 	fmt.Println("    Amount:", *expense.Amount)
+	// 	fmt.Println("    Paid With GTCC:", *expense.PaidWithGTCC)
+	// }
 
+	maptest := SubTotalExpenses(ssd.MovingExpenses)
+
+	// Print each key-value pair
+	fmt.Println("Subtotal Expenses:")
+	for expenseType, total := range maptest {
+		fmt.Printf("%s: %.2f\n", expenseType, total)
+	}
+	sswPage2 := FormatValuesShipmentSummaryWorksheetFormPage2(ssd)
+	fmt.Println(sswPage2.TollsGTCCPaid)
+	fmt.Println(sswPage2.TollsMemberPaid)
+	fmt.Println(sswPage2.OilMemberPaid)
+	fmt.Println(sswPage2.OilGTCCPaid)
 	suite.Equal("NTA4", sswPage2.TAC)
 	suite.Equal("SAC", sswPage2.SAC)
 
@@ -437,39 +457,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestGroupExpenses() {
 			map[string]float64{
 				"OilMemberPaid":   300,
 				"TollsMemberPaid": 200,
-			},
-		},
-		{
-			models.MovingExpenses{
-				{
-					MovingExpenseType: &tollExpense,
-					Amount:            &amount,
-					PaidWithGTCC:      &paidWithGTCC,
-				},
-				{
-					MovingExpenseType: &oilExpense,
-					Amount:            &amount,
-					PaidWithGTCC:      &paidWithGTCC,
-				},
-				{
-					MovingExpenseType: &oilExpense,
-					Amount:            &amount,
-					PaidWithGTCC:      &paidWithGTCC,
-				},
-				{
-					MovingExpenseType: &oilExpense,
-					Amount:            &amount,
-					PaidWithGTCC:      &paidWithGTCC,
-				},
-				{
-					MovingExpenseType: &tollExpense,
-					Amount:            &amount,
-					PaidWithGTCC:      &paidWithGTCC,
-				},
-			},
-			map[string]float64{
-				"OilMemberPaid":   300,
-				"TollsMemberPaid": 200,
+				"TotalMemberPaid": 500,
 			},
 		},
 	}
@@ -619,11 +607,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignatureDate() {
 	signature := models.SignedCertification{
 		Date: signatureDate,
 	}
-	sswfd := ShipmentSummaryFormData{
-		SignedCertification: signature,
-	}
 
-	formattedDate := FormatSignatureDate(sswfd.SignedCertification)
+	formattedDate := FormatSignatureDate(signature.Date)
 
 	suite.Equal("26 Jan 2019 at 2:40pm", formattedDate)
 }
@@ -756,7 +741,9 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
 		{
-			Model: models.SignedCertification{},
+			Model: models.SignedCertification{
+				UpdatedAt: time.Now(),
+			},
 		},
 	}, nil)
 
