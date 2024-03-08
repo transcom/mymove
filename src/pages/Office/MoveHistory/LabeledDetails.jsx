@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import React from 'react';
 
 import styles from './LabeledDetails.module.scss';
@@ -5,6 +6,8 @@ import styles from './LabeledDetails.module.scss';
 import booleanFields from 'constants/MoveHistory/Database/BooleanFields';
 import dateFields from 'constants/MoveHistory/Database/DateFields';
 import fieldMappings from 'constants/MoveHistory/Database/FieldMappings';
+import distanceFields from 'constants/MoveHistory/Database/DistanceFields';
+import timeUnitFields from 'constants/MoveHistory/Database/TimeUnitFields';
 import weightFields from 'constants/MoveHistory/Database/WeightFields';
 import monetaryFields from 'constants/MoveHistory/Database/MonetaryFields';
 import { shipmentTypes } from 'constants/shipments';
@@ -18,29 +21,42 @@ import {
   toDollarString,
 } from 'utils/formatters';
 
-const retrieveTextToDisplay = (fieldName, value) => {
-  const emptyValue = '—';
+export const withMappings = () => {
+  const self = {
+    displayMappings: [],
+  };
+
+  const getResult = ([mapping, fn] = []) => ({
+    mapping,
+    fn,
+  });
+
+  const defaultField = [optionFields, ({ value }) => optionFields[value] || `${value}` || '—'];
+
+  self.addNameMappings = (mappings) => {
+    self.displayMappings = self.displayMappings.concat(mappings);
+    return self;
+  };
+  self.getMappedDisplayName = (field) =>
+    getResult(self.displayMappings.find(([mapping]) => field in mapping) || defaultField);
+  return self;
+};
+
+export const { displayMappings, getMappedDisplayName } = withMappings().addNameMappings([
+  [weightFields, ({ value }) => formatWeight(Number(value))],
+  [dateFields, ({ value }) => formatCustomerDate(value)],
+  [booleanFields, ({ value }) => formatYesNoMoveHistoryValue(value)],
+  [monetaryFields, ({ value }) => toDollarString(formatCents(value))],
+  [timeUnitFields, ({ value }) => `${value} days`],
+  [distanceFields, ({ value }) => `${value} mi`],
+  [optionFields, ({ value }) => optionFields[value]],
+]);
+
+export const retrieveTextToDisplay = (fieldName, value) => {
   const displayName = fieldMappings[fieldName];
-  let displayValue = value;
 
-  if (displayName === fieldMappings.storage_in_transit) {
-    displayValue = `${displayValue} days`;
-  } else if (weightFields[fieldName]) {
-    // turn string value into number so it can be formatted correctly
-    displayValue = formatWeight(Number(displayValue));
-  } else if (optionFields[displayValue]) {
-    displayValue = optionFields[displayValue];
-  } else if (dateFields[fieldName]) {
-    displayValue = formatCustomerDate(displayValue);
-  } else if (booleanFields[fieldName]) {
-    displayValue = formatYesNoMoveHistoryValue(displayValue);
-  } else if (monetaryFields[fieldName]) {
-    displayValue = toDollarString(formatCents(displayValue));
-  }
-
-  if (!displayValue) {
-    displayValue = emptyValue;
-  }
+  const { fn: valueFormatFn } = getMappedDisplayName(fieldName);
+  const displayValue = valueFormatFn({ value });
 
   return {
     displayName,
@@ -48,48 +64,58 @@ const retrieveTextToDisplay = (fieldName, value) => {
   };
 };
 
+// testable for code coverage //
+export const createLineItemLabel = (shipmentType, shipmentIdDisplay, serviceItemName, movingExpenseType) =>
+  [shipmentType && `${shipmentTypes[shipmentType]} shipment #${shipmentIdDisplay}`, serviceItemName, movingExpenseType]
+    .filter((e) => e)
+    .join(', ');
+
+// testable for code coverage //
+
+// Filter out empty values unless they used to be non-empty
+// These values may be non-nullish in oldValues and nullish in changedValues
+// Use the existing keys in changed or old values to check against keys listed in fieldMappings
+export const filterInLineItemValues = (changed, old) =>
+  Object.entries({ ...old, ...changed }).filter(
+    ([theField, theValue]) =>
+      !!(
+        fieldMappings[theField] &&
+        // if changeValues has theField while theValue is either blank or theField exists the old values
+        ((theField in changed && (`${theValue}` || theField in old)) ||
+          // or theField exists in changeValues
+          // and oldValues is empty or not empty
+          (theField in changed && (!`${old[theField]}` || `${theValue}`)))
+      ),
+  );
+
 const LabeledDetails = ({ historyRecord }) => {
-  const changedValuesToUse = historyRecord.changedValues;
-  let shipmentDisplay = '';
+  const { changedValues, oldValues = {} } = historyRecord;
+
+  const { shipment_type, shipment_id_display, service_item_name, moving_expense_type, ...changedValuesToUse } =
+    changedValues;
 
   // Check for shipment_type to use it as a header for the row
-  if ('shipment_type' in changedValuesToUse) {
-    shipmentDisplay = shipmentTypes[changedValuesToUse.shipment_type];
-    shipmentDisplay += ` shipment #${changedValuesToUse.shipment_id_display}`;
-    delete changedValuesToUse.shipment_type;
-  }
+  const shipmentDisplay = createLineItemLabel(
+    shipment_type,
+    shipment_id_display,
+    service_item_name,
+    moving_expense_type,
+  );
 
-  if ('service_item_name' in changedValuesToUse) {
-    shipmentDisplay += `, ${changedValuesToUse.service_item_name}`;
-    delete changedValuesToUse.service_item_name;
-  }
+  const lineItems = filterInLineItemValues(changedValuesToUse, oldValues).map(([label, value]) => {
+    const { displayName, displayValue } = retrieveTextToDisplay(label, value);
 
-  if ('moving_expense_type' in changedValuesToUse) {
-    shipmentDisplay += `, ${changedValuesToUse.moving_expense_type}`;
-    delete changedValuesToUse.moving_expense_type;
-  }
-
-  /* Filter out empty values unless they used to be non-empty
-     These values may be non-nullish in oldValues and nullish in changedValues */
-  const dbFieldsToDisplay = Object.keys(fieldMappings).filter((dbField) => {
     return (
-      changedValuesToUse[dbField] ||
-      (dbField in changedValuesToUse && historyRecord.oldValues && historyRecord.oldValues[dbField])
+      <div key={label}>
+        <b>{displayName}</b>: {displayValue}
+      </div>
     );
   });
 
   return (
     <>
       <span className={styles.shipmentType}>{shipmentDisplay}</span>
-      {dbFieldsToDisplay.map((modelField) => {
-        const { displayName, displayValue } = retrieveTextToDisplay(modelField, changedValuesToUse[modelField]);
-
-        return (
-          <div key={modelField}>
-            <b>{displayName}</b>: {displayValue}
-          </div>
-        );
-      })}
+      {lineItems}
     </>
   );
 };

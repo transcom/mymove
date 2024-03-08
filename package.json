@@ -1,5 +1,7 @@
 {
   "dependencies": {
+
+    "@faker-js/faker": "^8.4.1",
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
     "@fortawesome/free-regular-svg-icons": "^6.4.0",
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
@@ -19,12 +21,13 @@
     "core-js": "^3.31.1",
     "customize-cra": "^1.0.0",
     "deep-object-diff": "^1.1.9",
+    "dotenv": "^16.3.1",
     "eslint-plugin-react": "^7.32",
     "filepond": "^4.30.4",
     "filepond-plugin-file-validate-size": "^2.2.8",
     "filepond-plugin-file-validate-type": "^1.2.9",
     "filepond-plugin-image-exif-orientation": "^1.0.11",
-    "filepond-plugin-image-preview": "^4.6.11",
+    "filepond-plugin-image-preview": "^4.6.12",
     "filepond-polyfill": "^1.0.2",
     "formik": "^2.4.2",
     "http-proxy-middleware": "^2.0.6",
@@ -79,8 +82,7 @@
     "uswds": "2.13.3",
     "uuid": "^9.0.0",
     "webpack": "5",
-    "yup": "^1.2.0",
-    "dotenv": "^16.3.1"
+    "yup": "^1.2.0"
   },
   "resolutions": {
     "dns-packet": "^5.4.0",
@@ -130,7 +132,6 @@
     "@babel/core": "~7.22.8",
     "@babel/helper-builder-react-jsx": "^7.22.5",
     "@babel/helper-builder-react-jsx-experimental": "^7.12.11",
-    "@faker-js/faker": "^8.4.1",
     "@jackfranklin/test-data-bot": "^2.1.0",
     "@playwright/test": "^1.36.0",
     "@stoplight/spectral-cli": "^6.10.0",
