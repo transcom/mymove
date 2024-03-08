@@ -176,6 +176,8 @@ func priceDomesticAdditionalDaysSIT(appCtx appcontext.AppContext, additionalDayS
 		return 0, nil, fmt.Errorf("weight of %d is not a real weight", weight)
 	}
 
+	convertUnderMinWeightToMinWeight(disableWeightMinimum, &weight)
+
 	isPeakPeriod := IsPeakPeriod(referenceDate)
 	serviceAreaPrice, err := fetchDomServiceAreaPrice(appCtx, contractCode, additionalDaySITCode, serviceArea, isPeakPeriod)
 	if err != nil {
