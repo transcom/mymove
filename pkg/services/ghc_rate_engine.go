@@ -129,7 +129,7 @@ type DomesticNTSPackPricer interface {
 //
 //go:generate mockery --name DomesticUnpackPricer
 type DomesticUnpackPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int, isPPM bool) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int, isPPM bool, disableMinimumWeight bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
