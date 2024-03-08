@@ -38,7 +38,7 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 	if weight < 0 {
 		return 0, nil, fmt.Errorf("weight %d is not a valid number", weight)
 	}
-	convertUnderMinWeightToMinWeight(disableMinimumWeight, &weight)
+	convertUnderMinWeightToMinWeight(disableMinimumWeight, isPPM, &weight)
 	if servicesSchedule == 0 {
 		return 0, nil, errors.New("Services schedule is required")
 	}
@@ -108,8 +108,9 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 // This func is to convert lower than minimum domestic weight pounds to the minimum domestic weight pounds that can be billed.
 // Weight is below 500, but we price at a minimum of 500. Per B-18762 the PO has stated that we should allow
 // under 500 but price at the minimum
-func convertUnderMinWeightToMinWeight(disableWeightMinimum bool, weight *unit.Pound) {
-	if disableWeightMinimum && *weight < minDomesticWeight {
+// It should not convert if it is a PPM
+func convertUnderMinWeightToMinWeight(disableWeightMinimum bool, isPPM bool, weight *unit.Pound) {
+	if disableWeightMinimum && *weight < minDomesticWeight && !isPPM {
 		*weight = minDomesticWeight
 	}
 }
@@ -132,7 +133,8 @@ func priceDomesticFirstDaySIT(appCtx appcontext.AppContext, firstDaySITCode mode
 		return 0, nil, fmt.Errorf("weight of %d is not a real weight", weight)
 	}
 
-	convertUnderMinWeightToMinWeight(disableWeightMinimum, &weight)
+	// TODO: PPM logic (Requires enhancement ticket)
+	convertUnderMinWeightToMinWeight(disableWeightMinimum, false, &weight)
 
 	isPeakPeriod := IsPeakPeriod(referenceDate)
 	serviceAreaPrice, err := fetchDomServiceAreaPrice(appCtx, contractCode, firstDaySITCode, serviceArea, isPeakPeriod)
@@ -177,7 +179,8 @@ func priceDomesticAdditionalDaysSIT(appCtx appcontext.AppContext, additionalDayS
 		return 0, nil, fmt.Errorf("weight of %d is not a real weight", weight)
 	}
 
-	convertUnderMinWeightToMinWeight(disableWeightMinimum, &weight)
+	// TODO: PPM logic (Requires enhancement ticket)
+	convertUnderMinWeightToMinWeight(disableWeightMinimum, false, &weight)
 
 	isPeakPeriod := IsPeakPeriod(referenceDate)
 	serviceAreaPrice, err := fetchDomServiceAreaPrice(appCtx, contractCode, additionalDaySITCode, serviceArea, isPeakPeriod)
@@ -240,7 +243,8 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 		return 0, nil, fmt.Errorf("weight of %d is not a real weight", weight)
 	}
 
-	convertUnderMinWeightToMinWeight(disableWeightMinimum, &weight)
+	// TODO: PPM logic (Requires enhancement ticket)
+	convertUnderMinWeightToMinWeight(disableWeightMinimum, false, &weight)
 
 	if len(zipOriginal) < 5 {
 		return unit.Cents(0), nil, fmt.Errorf("invalid %s postal code of %s", zipOriginalName, zipOriginal)

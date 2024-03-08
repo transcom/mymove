@@ -43,7 +43,8 @@ func (p domesticShorthaulPricer) Price(appCtx appcontext.AppContext, contractCod
 	if weight < 0 {
 		return 0, nil, fmt.Errorf("weight %d is not a valid number", weight)
 	}
-	convertUnderMinWeightToMinWeight(disableMinimumWeight, &weight)
+	// TODO: PPM logic (Requires enhancement ticket)ß
+	convertUnderMinWeightToMinWeight(disableMinimumWeight, false, &weight)
 	if distance <= 0 {
 		return 0, nil, errors.New("Distance must be greater than 0")
 	}

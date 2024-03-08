@@ -42,7 +42,7 @@ func (p fuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate tim
 	if weight < 0 {
 		return 0, nil, fmt.Errorf("weight %d is not a valid number", weight)
 	}
-	convertUnderMinWeightToMinWeight(disableMinimimWeight, &weight)
+	convertUnderMinWeightToMinWeight(disableMinimimWeight, isPPM, &weight)
 	if fscWeightBasedDistanceMultiplier == 0 {
 		return 0, nil, errors.New("WeightBasedDistanceMultiplier is required")
 	}

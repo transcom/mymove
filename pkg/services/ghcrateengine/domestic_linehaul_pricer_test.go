@@ -97,10 +97,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		paramsWithBelowMinimumWeight[weightBilledIndex].Value = "200"
 
 		_, _, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paramsWithBelowMinimumWeight)
-		suite.Error(err)
-		suite.Equal("could not fetch domestic linehaul rate: sql: no rows in result set", err.Error(), `we expected this suite not to fail on pricing for weight, which it does. This error here
-		comes after the fact of pricing, meaning that since this error is reached, pricing was successful.
-		If in the future this test fails because the test DB is setup properly, then simply remove this error check for an err nil check`)
+		suite.NoError(err)
 	})
 
 	suite.Run("successfully finds linehaul price for ppm with distance < 50 miles with Price method", func() {

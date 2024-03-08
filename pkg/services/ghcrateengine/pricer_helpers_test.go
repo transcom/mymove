@@ -493,11 +493,16 @@ func (suite *GHCRateEngineServiceSuite) makePricerParamsSubtestData() (subtestDa
 func (suite *GHCRateEngineServiceSuite) Test_convertUnderMinWeightToMinWeight() {
 	weight := unit.Pound(250)
 	disableWeightMinimum := true
-	convertUnderMinWeightToMinWeight(disableWeightMinimum, &weight)
+	isPPM := false
+	convertUnderMinWeightToMinWeight(disableWeightMinimum, isPPM, &weight)
 	suite.Equal(minDomesticWeight, weight)
 	weight = unit.Pound(250)
 	disableWeightMinimum = false
-	convertUnderMinWeightToMinWeight(disableWeightMinimum, &weight)
+	convertUnderMinWeightToMinWeight(disableWeightMinimum, isPPM, &weight)
+	suite.NotEqual(minDomesticWeight, weight)
+	disableWeightMinimum = true
+	isPPM = true
+	convertUnderMinWeightToMinWeight(disableWeightMinimum, isPPM, &weight)
 	suite.NotEqual(minDomesticWeight, weight)
 }
 
