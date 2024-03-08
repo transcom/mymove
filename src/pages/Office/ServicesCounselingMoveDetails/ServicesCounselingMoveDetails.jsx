@@ -40,6 +40,9 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 import { ReviewButton } from 'components/form/IconButtons';
 import { calculateWeightRequested } from 'hooks/custom';
+import { isSCCreateMoveEnabled } from 'utils/featureFlags';
+import retryPageLoading from 'utils/retryPageLoading';
+import { milmoveLogger } from 'utils/milmoveLog';
 
 const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCount }) => {
   const { moveCode } = useParams();
@@ -50,6 +53,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   const [shipmentConcernCount, setShipmentConcernCount] = useState(0);
+  const [isSCCreateMoveFFEnabled, setIsSCCreateMoveFFEnabled] = useState(false);
+  const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
 
   const { order, customerData, move, closeoutOffice, mtoShipments, isLoading, isError } =
     useMoveDetailsQueries(moveCode);
@@ -102,6 +107,26 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   let disableSubmitDueToMissingOrderInfo = false;
   let numberOfErrorIfMissingForAllShipments = 0;
   let numberOfWarnIfMissingForAllShipments = 0;
+
+  // Feature Flag
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const isEnabled = await isSCCreateMoveEnabled();
+        setIsSCCreateMoveFFEnabled(isEnabled);
+      } catch (error) {
+        const { message } = error;
+        milmoveLogger.error({ message, info: null });
+        setErrorState({
+          hasError: true,
+          error,
+          info: null,
+        });
+        retryPageLoading(error);
+      }
+    };
+    fetchData();
+  }, [setErrorState]);
 
   const [hasInvalidProGearAllowances, setHasInvalidProGearAllowances] = useState(false);
 
@@ -467,25 +492,34 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <Grid col={6} className={scMoveDetailsStyles.pageTitle}>
               <h1>Move details</h1>
             </Grid>
-            {ppmShipmentsInfoNeedsApproval.length > 0 ? null : (
-              <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
-                {(counselorCanEdit || counselorCanEditNonPPM) && (
-                  <Button
-                    disabled={
-                      !mtoShipments.length ||
-                      allShipmentsDeleted ||
-                      disableSubmit ||
-                      disableSubmitDueToMissingOrderInfo ||
-                      hasInvalidProGearAllowances
-                    }
-                    type="button"
-                    onClick={handleShowCancellationModal}
-                  >
-                    Submit move details
+            <Grid col={6} className={scMoveDetailsStyles.testdiv}>
+              {!isSCCreateMoveFFEnabled ? null : (
+                <Grid col={6} className={scMoveDetailsStyles.createNewMove}>
+                  <Button type="button" onClick={null}>
+                    Create New Move
                   </Button>
-                )}
-              </Grid>
-            )}
+                </Grid>
+              )}
+              {ppmShipmentsInfoNeedsApproval.length > 0 ? null : (
+                <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
+                  {(counselorCanEdit || counselorCanEditNonPPM) && (
+                    <Button
+                      disabled={
+                        !mtoShipments.length ||
+                        allShipmentsDeleted ||
+                        disableSubmit ||
+                        disableSubmitDueToMissingOrderInfo ||
+                        hasInvalidProGearAllowances
+                      }
+                      type="button"
+                      onClick={handleShowCancellationModal}
+                    >
+                      Submit move details
+                    </Button>
+                  )}
+                </Grid>
+              )}
+            </Grid>
           </Grid>
 
           {hasInvalidProGearAllowances ? (
