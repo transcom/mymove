@@ -1,5 +1,6 @@
 -- Adds new columns to mto shipments table
 ALTER TABLE mto_shipments
+
 ADD COLUMN IF NOT EXISTS actual_pro_gear_weight INTEGER NULL,
 ADD COLUMN IF NOT EXISTS actual_spouse_pro_gear_weight INTEGER NULL;
 
