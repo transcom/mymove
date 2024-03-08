@@ -19,7 +19,7 @@ func NewDomesticUnpackPricer() services.DomesticUnpackPricer {
 
 // Price determines the price for a domestic unpack service
 func (p domesticUnpackPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, servicesScheduleDest int, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticPackUnpack(appCtx, models.ReServiceCodeDUPK, contractCode, referenceDate, weight, servicesScheduleDest, isPPM)
+	return priceDomesticPackUnpack(appCtx, models.ReServiceCodeDUPK, contractCode, referenceDate, weight, servicesScheduleDest, isPPM, false)
 }
 
 // PriceUsingParams determines the price for a domestic unpack service given PaymentServiceItemParams
