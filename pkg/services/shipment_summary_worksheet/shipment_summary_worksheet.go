@@ -436,7 +436,7 @@ func FormatAddress(w2Address *models.Address) string {
 			w2Address.PostalCode,
 		)
 	} else {
-		return "" // Return an empty string if no W2 address
+		return "W2 Address not found"
 	}
 
 	return addressString
