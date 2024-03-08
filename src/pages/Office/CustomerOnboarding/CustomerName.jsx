@@ -1,13 +1,11 @@
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
-import { connect } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import NameForm from 'components/Customer/NameForm/NameForm';
 import { patchServiceMember, getResponseError } from 'services/internalApi';
-import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
 import { ServiceMemberShape } from 'types/customerShapes';
 import { servicesCounselingRoutes } from 'constants/routes';
 
@@ -27,7 +25,7 @@ export const CustomerName = ({ serviceMember, updateServiceMember }) => {
   };
 
   const handleBack = () => {
-    navigate(servicesCounselingRoutes.QUEUE_SEARCH_PATH);
+    navigate(servicesCounselingRoutes.BASE_QUEUE_SEARCH_PATH);
   };
 
   const handleSubmit = (values) => {
@@ -56,8 +54,8 @@ export const CustomerName = ({ serviceMember, updateServiceMember }) => {
       <NotificationScrollToTop dependency={serverError} />
 
       {serverError && (
-        <Grid row>
-          <Grid col desktop={{ col: 8, offset: 2 }}>
+        <Grid>
+          <Grid col desktop={{ col: 8, offset: 2 }} style={{ width: '750px' }}>
             <Alert type="error" headingLevel="h4" heading="An error occurred">
               {serverError}
             </Alert>
@@ -65,7 +63,7 @@ export const CustomerName = ({ serviceMember, updateServiceMember }) => {
         </Grid>
       )}
 
-      <Grid row>
+      <Grid>
         <Grid col desktop={{ col: 8, offset: 2 }}>
           <NameForm onSubmit={handleSubmit} onBack={handleBack} initialValues={initialValues} />
         </Grid>
@@ -79,8 +77,4 @@ CustomerName.propTypes = {
   serviceMember: ServiceMemberShape.isRequired,
 };
 
-const mapDispatchToProps = {
-  updateServiceMember: updateServiceMemberAction,
-};
-
-export default connect(mapDispatchToProps)(CustomerName);
+export default CustomerName;
