@@ -616,7 +616,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAddress() {
 	// Test case 2: Nil W2 address
 	nilAddress := (*models.Address)(nil)
 
-	expectedNilResult := ""
+	expectedNilResult := "W2 Address not found"
 
 	resultNil := FormatAddress(nilAddress)
 
