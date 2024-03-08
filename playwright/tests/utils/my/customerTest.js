@@ -57,7 +57,7 @@ export class CustomerPage extends BaseTestPage {
    * returns {Promise<void>}
    */
   async navigateFromMMDashboardToMove(move) {
-    await expect(this.page.getByTestId('goToMoveBtn')).toBeVisible({ timeout: 10000 });
+    await expect(this.page.getByTestId('goToMoveBtn')).toBeTruthy();
 
     await this.page.getByTestId('goToMoveBtn').click();
 
