@@ -70,5 +70,5 @@ it('does display PPM shipment', () => {
     </MockProviders>,
   );
 
-  expect(screen.queryByText(formatDateWithUTC('2-22-2024'))).toBeInTheDocument();
+  expect(screen.queryByText(formatDateWithUTC('2024-01-01'))).toBeInTheDocument();
 });
