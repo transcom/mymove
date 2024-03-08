@@ -1544,6 +1544,51 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/aoa-packet:
+    parameters:
+      - description: the id for the ppmshipment with aoa to be downloaded
+        in: path
+        name: ppmShipmentId
+        required: true
+        type: string
+    get:
+      summary: Downloads AOA Packet form PPMShipment as a PDF
+      description: >
+        ### Functionality
+
+        This endpoint downloads all uploaded move order documentation combined
+        with the Shipment Summary Worksheet into a single PDF.
+
+        ### Errors
+
+        * The PPMShipment must have requested an AOA.
+
+        * The PPMShipment AOA Request must have been approved.
+      operationId: showAOAPacket
+      tags:
+        - ppm
+      produces:
+        - application/pdf
+      responses:
+        '200':
+          headers:
+            Content-Disposition:
+              type: string
+              description: File name to download
+          description: AOA PDF
+          schema:
+            format: binary
+            type: file
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/finish-document-review:
     parameters:
       - $ref: '#/parameters/ppmShipmentId'
@@ -1597,8 +1642,6 @@ paths:
       operationId: getPPMCloseout
       tags:
         - ppm
-      consumes:
-        - application/json
       produces:
         - application/json
       responses:
@@ -3190,9 +3233,12 @@ paths:
                 items:
                   type: string
                   enum:
+                    - DRAFT
                     - SUBMITTED
                     - APPROVALS REQUESTED
                     - APPROVED
+                    - NEEDS SERVICE COUNSELING
+                    - SERVICE COUNSELING COMPLETED
               originPostalCode:
                 type: string
                 x-nullable: true
@@ -4021,6 +4067,8 @@ definitions:
         title: NTS SAC
         example: N002214CSW32Y9
         $ref: '#/definitions/NullableString'
+      grade:
+        $ref: '#/definitions/Grade'
     required:
       - issueDate
       - reportByDate
@@ -4089,6 +4137,8 @@ definitions:
           previously approving the original orders
         type: boolean
         x-nullable: true
+      grade:
+        $ref: '#/definitions/Grade'
     required:
       - issueDate
       - reportByDate
@@ -7324,6 +7374,10 @@ definitions:
       diversion:
         type: boolean
         example: true
+      distance:
+        type: integer
+        x-nullable: true
+        example: 500
       pickupAddress:
         x-nullable: true
         $ref: '#/definitions/Address'
@@ -7506,9 +7560,10 @@ definitions:
         x-nullable: true
         x-omitempty: false
       actualWeight:
-        x-nullable: true
         example: 2000
         type: integer
+        x-nullable: true
+        x-omitempty: false
       proGearWeightCustomer:
         description: >-
           The estimated weight of the pro-gear being moved belonging to the
@@ -7545,7 +7600,7 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
-      remainingReimbursementOwed:
+      remainingIncentive:
         description: The remaining reimbursement amount that is still owed to the customer.
         type: integer
         format: cents
