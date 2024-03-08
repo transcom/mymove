@@ -13,25 +13,25 @@ import (
 )
 
 type PPMCloseout struct {
-	ID                         *uuid.UUID
-	PlannedMoveDate            *time.Time
-	ActualMoveDate             *time.Time
-	Miles                      *int
-	EstimatedWeight            *unit.Pound
-	ActualWeight               *unit.Pound
-	ProGearWeightCustomer      *unit.Pound
-	ProGearWeightSpouse        *unit.Pound
-	GrossIncentive             *unit.Cents
-	GCC                        *unit.Cents
-	AOA                        *unit.Cents
-	RemainingReimbursementOwed *unit.Cents
-	HaulPrice                  *unit.Cents
-	HaulFSC                    *unit.Cents
-	DOP                        *unit.Cents
-	DDP                        *unit.Cents
-	PackPrice                  *unit.Cents
-	UnpackPrice                *unit.Cents
-	SITReimbursement           *unit.Cents
+	ID                    *uuid.UUID
+	PlannedMoveDate       *time.Time
+	ActualMoveDate        *time.Time
+	Miles                 *int
+	EstimatedWeight       *unit.Pound
+	ActualWeight          *unit.Pound
+	ProGearWeightCustomer *unit.Pound
+	ProGearWeightSpouse   *unit.Pound
+	GrossIncentive        *unit.Cents
+	GCC                   *unit.Cents
+	AOA                   *unit.Cents
+	RemainingIncentive    *unit.Cents
+	HaulPrice             *unit.Cents
+	HaulFSC               *unit.Cents
+	DOP                   *unit.Cents
+	DDP                   *unit.Cents
+	PackPrice             *unit.Cents
+	UnpackPrice           *unit.Cents
+	SITReimbursement      *unit.Cents
 }
 
 // PPMShipmentStatus represents the status of an order record's lifecycle
