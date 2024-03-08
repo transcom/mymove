@@ -24,7 +24,7 @@ func NewDomesticLinehaulPricer() services.DomesticLinehaulPricer {
 }
 
 // Price determines the price for a domestic linehaul
-func (p domesticLinehaulPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticLinehaulPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string, isPPM bool, disableMinimimWeight bool) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -32,8 +32,11 @@ func (p domesticLinehaulPricer) Price(appCtx appcontext.AppContext, contractCode
 	if referenceDate.IsZero() {
 		return 0, nil, errors.New("ReferenceDate is required")
 	}
-	if !isPPM && weight < dlhPricerMinimumWeight {
+	if !isPPM && weight < dlhPricerMinimumWeight && !disableMinimimWeight {
 		return 0, nil, fmt.Errorf("Weight must be at least %d", dlhPricerMinimumWeight)
+	}
+	if weight < 0 {
+		return 0, nil, fmt.Errorf("weight %d is not a valid number", weight)
 	}
 	if len(serviceArea) == 0 {
 		return 0, nil, errors.New("ServiceArea is required")
@@ -116,7 +119,7 @@ func (p domesticLinehaulPricer) PriceUsingParams(appCtx appcontext.AppContext, p
 		isPPM = true
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Miles(distance), unit.Pound(weightBilled), serviceAreaOrigin, isPPM)
+	return p.Price(appCtx, contractCode, referenceDate, unit.Miles(distance), unit.Pound(weightBilled), serviceAreaOrigin, isPPM, true)
 }
 
 func fetchDomesticLinehaulPrice(appCtx appcontext.AppContext, contractCode string, isPeakPeriod bool, distance unit.Miles, weight unit.Pound, serviceArea string) (models.ReDomesticLinehaulPrice, error) {
