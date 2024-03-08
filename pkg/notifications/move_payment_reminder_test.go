@@ -144,8 +144,9 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 	expectedHTMLContent := `<p><strong>***</strong> DO NOT REPLY directly to this email <strong>***</strong></p>
 
 <p>This is a reminder that your PPM with the <strong>assigned move code ` + paymentReminderData.Locator + `</strong> from
-<strong>` + paymentReminderData.OriginDutyLocation + `</strong> to <strong>` + paymentReminderData.DestinationDutyLocation + `</strong> is awaiting action in MilMove.
-<br>Next steps:</p>
+<strong>` + paymentReminderData.OriginDutyLocation + `</strong> to <strong>` + paymentReminderData.DestinationDutyLocation + `</strong> is awaiting action in MilMove.</p>
+
+<p>Next steps:</p>
 
 <p>To get your payment, you need to login to MilMove, document expenses, and request payment.</p>
 
@@ -176,7 +177,7 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 <p>Payment request must be submitted within 45 days of your move date.
 
 <br>If you have any questions, contact a government transportation office. You can see a listing of
-<br>transportation offices on Military OneSource here: &lt;<a href="` + paymentReminderData.OneSourceLink + `">` + paymentReminderData.OneSourceLink + `</a>&gt;
+transportation offices on Military OneSource here: &lt;<a href="` + paymentReminderData.OneSourceLink + `">` + paymentReminderData.OneSourceLink + `</a>&gt;
 <br>Thank you,
 <br>USTRANSCOM MilMove Team
 <br>The information contained in this email may contain Privacy Act information and is therefore protected
@@ -203,6 +204,7 @@ func (suite *NotificationSuite) TestPaymentReminderTextTemplateRender() {
 This is a reminder that your PPM with the assigned move code ` + paymentReminderData.Locator + ` from ` + paymentReminderData.OriginDutyLocation +
 		`
 to ` + paymentReminderData.DestinationDutyLocation + ` is awaiting action in MilMove.
+
 Next steps:
 
 To get your payment, you need to login to MilMove, document expenses, and request payment.
@@ -225,8 +227,7 @@ If you are missing reciepts, you can still request payment but may not get reimb
 for those expenses.
 
 Payment request must be submitted within 45 days of your move date.
-If you have any questions, contact a government transportation office. You can see a listing of
-transportation offices on Military OneSource here: <` + paymentReminderData.OneSourceLink + `>
+If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military OneSource here: <` + paymentReminderData.OneSourceLink + `>
 
 Thank you,
 USTRANSCOM MilMove Team
