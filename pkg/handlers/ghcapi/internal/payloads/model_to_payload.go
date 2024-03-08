@@ -11,6 +11,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -1822,7 +1823,7 @@ func Reweigh(reweigh *models.Reweigh, _ *ghcmessages.SITStatus) *ghcmessages.Rew
 }
 
 // SearchMoves payload
-func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
+func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.SearchMoves {
 	searchMoves := make(ghcmessages.SearchMoves, len(moves))
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
@@ -1832,6 +1833,53 @@ func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
 			if shipment.Status != models.MTOShipmentStatusDraft {
 				numShipments++
 			}
+		}
+
+		var pickupDate, deliveryDate *strfmt.Date
+
+		if numShipments > 0 && move.MTOShipments[0].ScheduledPickupDate != nil {
+			pickupDate = handlers.FmtDatePtr(move.MTOShipments[0].ScheduledPickupDate)
+		} else {
+			pickupDate = nil
+		}
+
+		if numShipments > 0 && move.MTOShipments[0].ScheduledDeliveryDate != nil {
+			deliveryDate = handlers.FmtDatePtr(move.MTOShipments[0].ScheduledDeliveryDate)
+		} else {
+			deliveryDate = nil
+		}
+
+		var originGBLOC ghcmessages.GBLOC
+		if move.Status == models.MoveStatusNeedsServiceCounseling {
+			originGBLOC = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
+		} else if len(move.ShipmentGBLOC) > 0 {
+			// There is a Pop bug that prevents us from using a has_one association for
+			// Move.ShipmentGBLOC, so we have to treat move.ShipmentGBLOC as an array, even
+			// though there can never be more than one GBLOC for a move.
+			if move.ShipmentGBLOC[0].GBLOC != nil {
+				originGBLOC = ghcmessages.GBLOC(*move.ShipmentGBLOC[0].GBLOC)
+			}
+		} else {
+			// If the move's first shipment doesn't have a pickup address (like with an NTS-Release),
+			// we need to fall back to the origin duty location GBLOC.  If that's not available for
+			// some reason, then we should get the empty string (no GBLOC).
+			originGBLOC = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
+		}
+
+		var destinationGBLOC ghcmessages.GBLOC
+		var PostalCodeToGBLOC models.PostalCodeToGBLOC
+		var err error
+		if numShipments > 0 && move.MTOShipments[0].DestinationAddress != nil {
+			PostalCodeToGBLOC, err = models.FetchGBLOCForPostalCode(appCtx.DB(), move.MTOShipments[0].DestinationAddress.PostalCode)
+		} else {
+			// If the move has no shipments or the shipment has no destination address fall back to the origin duty location GBLOC
+			PostalCodeToGBLOC, err = models.FetchGBLOCForPostalCode(appCtx.DB(), move.Orders.NewDutyLocation.Address.PostalCode)
+		}
+
+		if err != nil {
+			destinationGBLOC = *ghcmessages.NewGBLOC("")
+		} else {
+			destinationGBLOC = ghcmessages.GBLOC(PostalCodeToGBLOC.GBLOC)
 		}
 
 		searchMoves[i] = &ghcmessages.SearchMove{
@@ -1845,6 +1893,10 @@ func SearchMoves(moves models.Moves) *ghcmessages.SearchMoves {
 			ShipmentsCount:                    int64(numShipments),
 			OriginDutyLocationPostalCode:      move.Orders.OriginDutyLocation.Address.PostalCode,
 			DestinationDutyLocationPostalCode: move.Orders.NewDutyLocation.Address.PostalCode,
+			RequestedPickupDate:               pickupDate,
+			RequestedDeliveryDate:             deliveryDate,
+			OriginGBLOC:                       originGBLOC,
+			DestinationGBLOC:                  destinationGBLOC,
 		}
 	}
 	return &searchMoves
