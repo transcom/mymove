@@ -16,6 +16,8 @@ import optionFields from 'constants/MoveHistory/Database/OptionFields';
 import {
   formatCents,
   formatCustomerDate,
+  formatDistanceUnitMiles,
+  formatTimeUnitDays,
   formatWeight,
   formatYesNoMoveHistoryValue,
   toDollarString,
@@ -47,8 +49,8 @@ export const { displayMappings, getMappedDisplayName } = withMappings().addNameM
   [dateFields, ({ value }) => formatCustomerDate(value)],
   [booleanFields, ({ value }) => formatYesNoMoveHistoryValue(value)],
   [monetaryFields, ({ value }) => toDollarString(formatCents(value))],
-  [timeUnitFields, ({ value }) => `${value} days`],
-  [distanceFields, ({ value }) => `${value} mi`],
+  [timeUnitFields, ({ value }) => formatTimeUnitDays(value)],
+  [distanceFields, ({ value }) => formatDistanceUnitMiles(value)],
   [optionFields, ({ value }) => optionFields[value]],
 ]);
 
