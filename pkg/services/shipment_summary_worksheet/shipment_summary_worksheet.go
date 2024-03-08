@@ -874,8 +874,6 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 	ppmShipment := models.PPMShipment{}
 	dbQErr := appCtx.DB().Q().Eager(
 		"Shipment.MoveTaskOrder.Orders.ServiceMember",
-		"Shipment.MoveTaskOrder",
-		"Shipment.MoveTaskOrder.Orders",
 		"Shipment.MoveTaskOrder.Orders.NewDutyLocation.Address",
 		"Shipment.MoveTaskOrder.Orders.OriginDutyLocation.Address",
 		"Shipment.MTOAgents",
