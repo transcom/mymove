@@ -390,11 +390,12 @@ WITH move AS (
 		GROUP BY
 			move_addresses.shipment_id, move_addresses.service_member_id, audit_history.id
 	),
-	ppms (ppm_id, shipment_type, shipment_id) AS (
+	ppms (ppm_id, shipment_type, shipment_id, w2_address_id) AS (
 		SELECT
 			audit_history.object_id,
 			move_shipments.shipment_type,
-			move_shipments.id
+			move_shipments.id,
+			ppm_shipments.w2_address_id
 		FROM
 			audit_history
 		JOIN ppm_shipments ON audit_history.object_id = ppm_shipments.id
@@ -407,7 +408,8 @@ WITH move AS (
 				jsonb_strip_nulls(
 					jsonb_build_object(
 						'shipment_type', ppms.shipment_type,
-						'shipment_id_abbr', (CASE WHEN ppms.shipment_id IS NOT NULL THEN LEFT(ppms.shipment_id::TEXT, 5) ELSE NULL END)
+						'shipment_id_abbr', (CASE WHEN ppms.shipment_id IS NOT NULL THEN LEFT(ppms.shipment_id::TEXT, 5) ELSE NULL END),
+						'w2_address', (SELECT row_to_json(x) FROM (SELECT * FROM addresses WHERE addresses.id = CAST(ppms.w2_address_id AS UUID)) x)::TEXT
 					)
 				)
 			)::TEXT AS context,
@@ -459,12 +461,15 @@ WITH move AS (
 		GROUP BY
 			move_sits.shipment_id, audit_history.id
 	),
-	file_uploads (user_upload_id, filename, upload_type) AS (
+	file_uploads (user_upload_id, filename, upload_type, shipment_type, shipment_id_abbr, expense_type) AS (
 		-- orders uploads have the document id the uploaded orders id column
 		SELECT
 			user_uploads.id,
 			uploads.filename,
-			'orders'
+			'orders',
+			NULL,
+			NULL,
+			NULL
 		FROM user_uploads
 			JOIN documents ON user_uploads.document_id = documents.id
 			JOIN move_orders ON move_orders.uploaded_orders_id = documents.id
@@ -476,12 +481,39 @@ WITH move AS (
 		SELECT
 			user_uploads.id,
 			uploads.filename,
-			'amendedOrders'
+			'amendedOrders',
+			NULL,
+			NULL,
+			NULL
 		FROM user_uploads
 			JOIN documents ON user_uploads.document_id = documents.id
 			JOIN move_orders ON move_orders.uploaded_amended_orders_id = documents.id
 			LEFT JOIN uploads ON user_uploads.upload_id = uploads.id
 		WHERE documents.service_member_id = move_orders.service_member_id
+
+		UNION
+		SELECT
+			user_uploads.id,
+			uploads.filename,
+			CASE WHEN weight_tickets.empty_document_id = documents.id THEN 'emptyWeightTicket'
+				 WHEN weight_tickets.full_document_id = documents.id THEN 'fullWeightTicket'
+				 WHEN weight_tickets.proof_of_trailer_ownership_document_id = documents.id THEN 'trailerWeightTicket'
+				 WHEN progear_weight_tickets.document_id = documents.id AND progear_weight_tickets.belongs_to_self = true THEN 'proGearWeightTicket'
+				 WHEN progear_weight_tickets.document_id = documents.id AND (progear_weight_tickets.belongs_to_self IS NULL OR progear_weight_tickets.belongs_to_self = false) THEN 'spouseProGearWeightTicket'
+				 WHEN moving_expenses.document_id = documents.id THEN 'expenseReceipt'
+				 ELSE '' END,
+			move_shipments.shipment_type::TEXT,
+			move_shipments.shipment_id_abbr,
+			CASE WHEN moving_expenses.document_id = documents.id THEN moving_expenses.moving_expense_type::text
+				 ELSE NULL END
+		FROM user_uploads
+			JOIN documents ON user_uploads.document_id = documents.id
+			LEFT JOIN weight_tickets ON weight_tickets.empty_document_id = documents.id OR weight_tickets.full_document_id = documents.id OR weight_tickets.proof_of_trailer_ownership_document_id = documents.id
+			LEFT JOIN progear_weight_tickets ON progear_weight_tickets.document_id = documents.id
+			LEFT JOIN moving_expenses ON moving_expenses.document_id = documents.id
+			JOIN ppm_shipments ON ppm_shipments.id = COALESCE(weight_tickets.ppm_shipment_id, progear_weight_tickets.ppm_shipment_id, moving_expenses.ppm_shipment_id)
+			JOIN move_shipments ON ppm_shipments.shipment_id = move_shipments.id
+			JOIN uploads ON user_uploads.upload_id = uploads.id
 	),
 	file_uploads_logs as (
 		SELECT
@@ -489,7 +521,10 @@ WITH move AS (
 			json_agg(
 				json_build_object(
 					'filename', filename,
-					'upload_type', upload_type
+					'upload_type', upload_type,
+					'shipment_type', shipment_type,
+					'shipment_id_abbr', shipment_id_abbr,
+					'moving_expense_type', expense_type
 				)
 			)::TEXT AS context,
 		NULL AS context_id
