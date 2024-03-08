@@ -38,6 +38,7 @@ func (p domesticLinehaulPricer) Price(appCtx appcontext.AppContext, contractCode
 	if weight < 0 {
 		return 0, nil, fmt.Errorf("weight %d is not a valid number", weight)
 	}
+	convertUnderMinWeightToMinWeight(disableMinimimWeight, &weight)
 	if len(serviceArea) == 0 {
 		return 0, nil, errors.New("ServiceArea is required")
 	}
