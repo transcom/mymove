@@ -38,14 +38,13 @@ pre_checks:
 pre_deps_golang:
   stage: pre_checks
   # Ensure you use the correct Docker image that has all the necessary tools installed.
-  #image: mymove_compiler_image # Uncomment this and replace with the actual Docker image of the `mymove_compiler`.
+  image: mymove_compiler_image # Uncomment this and replace with the actual Docker image of the `mymove_compiler`.
   script:
-    # - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin
-    # - for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
-    # - scripts/check-generated-code go.sum
-    # - make bin/swagger
-    - echo "Skipping job due to configuration issues."
-
+     - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin
+     - for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
+     - scripts/check-generated-code go.sum
+     - make bin/swagger
+   
   cache:
     key: "$CI_COMMIT_REF_SLUG-go"
     paths:
@@ -55,7 +54,7 @@ pre_deps_golang:
 
 anti_virus:
   stage: pre_checks
-  #image: av_medium_image # This can regitlab-pipelinetest as is, or use any lightweight image since we're skipping the actual work.
+  #image: av_medium_image # This can reB-18585-gitlab-pipeline-work as is, or use any lightweight image since we're skipping the actual work.
   script:
     # - clamscan --version
     # - cp -v ~/transcom/mymove/anti-virus/whitelist-*.{fp,ign2} /var/lib/clamav/
@@ -90,7 +89,7 @@ pre_deps_yarn:
       prefix: v3-cache-yarn
     paths:
       - ~/.cache/yarn
-    policy: pull-push # This can regitlab-pipelinetest as is, since it doesn't affect job execution
+    policy: pull-push # This can reB-18585-gitlab-pipeline-work as is, since it doesn't affect job execution
   # No need to uncomment after_script if it's just for passing the job
 
 check_tls_certificate_dp3:
@@ -122,14 +121,14 @@ check_tls_certificate_dp3:
 
   after_script:
     - |
-      if [ "$CI_COMMIT_BRANCH" = "gitlab-pipelinetest" ]; then
+      if [ "$CI_COMMIT_BRANCH" = "B-18585-gitlab-pipeline-work" ]; then
         scripts/circleci-announce-broken-branch || true
       fi
       echo "announce_failure"
 
 check_tls_certificate_stg:
   stage: pre_checks
-  #image: tls_small_image # This can regitlab-pipelinetest unchanged, or you can use a lightweight image since no real work is done.
+  #image: tls_small_image # This can reB-18585-gitlab-pipeline-work unchanged, or you can use a lightweight image since no real work is done.
   before_script:
     # - export TLS_KEY=<path_to_tls_key> # Comment out if not performing real TLS checks
     # - export TLS_CERT=<path_to_tls_cert>
@@ -138,7 +137,7 @@ check_tls_certificate_stg:
   
 check_tls_certificate_prd:
   stage: pre_checks
-  #image: tls_small_image # This can regitlab-pipelinetest unchanged, or you can use a lightweight image since no real work is done.
+  #image: tls_small_image # This can reB-18585-gitlab-pipeline-work unchanged, or you can use a lightweight image since no real work is done.
   before_script:
     # - export TLS_KEY=<path_to_tls_key> # Comment out if not performing real TLS checks
     # - export TLS_CERT=<path_to_tls_cert>
@@ -148,7 +147,7 @@ check_tls_certificate_prd:
 #pre_test    
 build_job:
   stage: build
-  #image: mymove_compiler # This can regitlab-pipelinetest as is, since it doesn't affect the job's functionality.
+  #image: mymove_compiler # This can reB-18585-gitlab-pipeline-work as is, since it doesn't affect the job's functionality.
   script:
     # - '[ -d ~/transcom/mymove/spectral ] && cp -r ~/transcom/mymove/spectral /tmp/spectral_baseline || echo "Skipping saving baseline"'
     # - 'rm -rf ~/transcom/mymove/spectral'
@@ -164,8 +163,9 @@ build_job:
     # - 'yarn danger ci --failOnErrors'
     # - './scripts/ensure-spectral-lint /tmp/spectral_baseline spectral'
     - echo "Temporarily bypassing pre_test steps."
-  only:
-    - gitlab-pipelinetest
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-pipeline-work" || $CI_COMMIT_BRANCH == "main"'
+  
   cache:
     - key: "$CI_COMMIT_REF_SLUG-go"
       paths:
@@ -195,8 +195,8 @@ compile_app_client:
     #   make client_build
     - echo "Skipping actual build steps."
     # - sleep 600
-  only:
-    - gitlab-pipelinetest
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-pipeline-work" || $CI_COMMIT_BRANCH == "main"'
   cache:
     - key: "v3-cache-yarn-v3-$(echo yarn.lock | md5sum)"
       paths:
@@ -233,9 +233,9 @@ build_storybook:
     paths:
       - storybook-static/
     expire_in: 1 week
-  only:
-    - gitlab-pipelinetest
-
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-pipeline-work" || $CI_COMMIT_BRANCH == "main"'
+  
 server_test:
   stage: build
   #image: mymove_tester 
@@ -277,9 +277,9 @@ compile_app_server:
       - swagger
       - pkg/testdatagen/testdata
     expire_in: 1 week
-  only:
-    - gitlab-pipelinetest
-
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-pipeline-work" || $CI_COMMIT_BRANCH == "main"'
+  
 check_generated_code:
   stage: build
   #image: mymove_compiler # Replace with the actual Docker image name
@@ -288,8 +288,8 @@ check_generated_code:
     # - make server_generate mocks_generate
     # - scripts/check-generated-code pkg/gen/ $(find . -type d -name "*mocks" -exec echo -n '{} ' \;)
     - echo "Skipping check_generated_code steps."
-  only:
-    - gitlab-pipelinetest
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-pipeline-work" || $CI_COMMIT_BRANCH == "main"'
 
 client_test:
   stage: build
@@ -311,8 +311,8 @@ client_test:
     reports:
       junit: jest-junit-reports/*.xml
     expire_in: 1 week
-  only:
-    - gitlab-pipelinetest
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-pipeline-work" || $CI_COMMIT_BRANCH == "main"'
 
 intergration_test_devseed:
   stage: build
@@ -326,8 +326,7 @@ intergration_test_devseed:
     # DB_PASSWORD_LOW_PRIV: mysecretpassword
     DB_USER: postgres
     DB_HOST: postgres
-    DB_PORT: 5432
-    DB_NAME: dev_db
+    DB_PORT: 5432  
     # DB_NAME_DEV: dev_db
     # MIGRATION_MANIFEST: '/builds/your-group/your-project/migrations/app/migrations_manifest.txt'
     # MIGRATION_PATH: 'file:///builds/your-group/your-project/migrations/app/schema;file:///builds/your-group/your-project/migrations/app/secure'
@@ -341,7 +340,7 @@ intergration_test_devseed:
     # - 'export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)'
     # - 'export MOVE_MIL_DOD_TLS_KEY=$(cat config/tls/devlocal-https.key)'
   script:
-    - echo "Run your gitlab-pipelinetest script or command here"
+    - echo "Run your B-18585-gitlab-pipeline-work script or command here"
     # - make db_dev_fresh
   cache:
     paths:
@@ -365,8 +364,8 @@ client_test_coverage:
     key: v5-client-tests-coverage-${CI_PIPELINE_ID}
     paths:
       - tmp/baseline-jest-coverage/
-  only:
-    - gitlab-pipelinetest
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-pipeline-work" || $CI_COMMIT_BRANCH == "main"'
   artifacts:
     when: always
     paths:
@@ -500,8 +499,8 @@ server_test_coverage:
     #     "server" \
     #     "success"
     #   fi
-  only:
-    - gitlab-pipelinetest
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-pipeline-work" || $CI_COMMIT_BRANCH == "main"'
   # artifacts:
   #   when: always
   #   paths:
@@ -513,7 +512,7 @@ server_test_coverage:
   #   - cp ~/transcom/mymove/tmp/test-results/gotest/app/go-coverage.txt ~/transcom/mymove/tmp/baseline-go-coverage/go-coverage.txt
   # after_script:
   #   - |
-  #     if [ "$CI_COMMIT_BRANCH" = "gitlab-pipelinetest" ]; then
+  #     if [ "$CI_COMMIT_BRANCH" = "B-18585-gitlab-pipeline-work" ]; then
   #       timestamp=$(date +"%Y-%m-%dT%H:%M:%SZ")
   #       coverage=$(grep statements tmp/test-results/gotest/app/go-coverage.txt | grep -o '[0-9.]*')
   #       echo "Record server coverage stats: ${coverage} at ${timestamp}"
@@ -545,7 +544,7 @@ build_tasks:
   #     - path/to/your/artifacts
   
   only:
-    - gitlab-pipelinetest # Specifies that this job should only run for the gitlab-pipelinetest branch
+    - B-18585-gitlab-pipeline-work # Specifies that this job should only run for the B-18585-gitlab-pipeline-work branch
 
 integration_tests:
   stage: tests
@@ -629,8 +628,8 @@ deploy_stg:
   #   - announce_failure 
 
   allow_failure: false
-  only:
-    - -# Specify the branch conditions if necessary.
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-pipeline-work" || $CI_COMMIT_BRANCH == "main"'
 
 deploy_stg_app:
   stage: deploy_stg
@@ -679,8 +678,8 @@ push_app_stg:
   # The announce_failure step is usually for notifications; omit it if not critical for deployment success.
   # after_script:
   #   - announce_failure
-  only:
-    - gitlab-pipelinetest 
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-pipeline-work" || $CI_COMMIT_BRANCH == "main"'
 
 push_migrations_stg:
   stage: deploy_stg 
@@ -696,8 +695,8 @@ push_migrations_stg:
 
   # after_script:
   #   - announce_failure
-  only:
-    - gitlab-pipelinetest
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-pipeline-work" || $CI_COMMIT_BRANCH == "main"'
 
 push_tasks_stg:
   stage: deploy_stg
@@ -713,8 +712,8 @@ push_tasks_stg:
 
   # after_script:
   #   - announce_failure
-  only:
-    - gitlab-pipelinetest
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-pipeline-work" || $CI_COMMIT_BRANCH == "main"'
 
 deploy_stg_tasks:
   stage: deploy_stg 
@@ -724,8 +723,8 @@ deploy_stg_tasks:
     # - aws_vars_stg
     - |
       echo "Deploying tasks to staging environment..."
-  only:
-    - gitlab-pipelinetest 
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-pipeline-work" || $CI_COMMIT_BRANCH == "main"'
 
 #push_otel_collector_image_prd
 deploy_prd:
@@ -743,8 +742,8 @@ deploy_prd:
   # after_script:
   #   - announce_failure
   allow_failure: false
-  only:
-    - gitlab-pipelinetest
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-pipeline-work" || $CI_COMMIT_BRANCH == "main"'
 
 deploy_prd_app:
   stage: deploy_prd
@@ -760,8 +759,8 @@ deploy_prd_app:
       # docker push my.move.mil:latest
 
   allow_failure: false
-  only:
-    - gitlab_pipelinetest
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-pipeline-work" || $CI_COMMIT_BRANCH == "main"'
 
 deploy_prd_app_client_tls:
   stage: deploy_prd
@@ -788,8 +787,8 @@ push_app_prd:
     #- docker build -t $ECR_REGISTRY/app:$CI_COMMIT_REF_NAME .
     #- docker tag $ECR_REGISTRY/app:$CI_COMMIT_REF_NAME $ECR_REGISTRY/app:web-dev
     #- docker push $ECR_REGISTRY/app:web-dev
-  only:
-    - gitlab-pipelinetest
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-pipeline-work" || $CI_COMMIT_BRANCH == "main"'
   
 push_migrations_prd:
   stage: deploy_prd
@@ -800,8 +799,8 @@ push_migrations_prd:
     #- docker build -t $ECR_REGISTRY/app-migrations:$CI_COMMIT_REF_NAME .
     #- docker tag $ECR_REGISTRY/app-migrations:$CI_COMMIT_REF_NAME $ECR_REGISTRY/app-migrations:dev
     #- docker push $ECR_REGISTRY/app-migrations:dev
-  only:
-    - gitlab-pipelinetest
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-pipeline-work" || $CI_COMMIT_BRANCH == "main"'
 
 push_tasks_prd:
   stage: deploy_prd
@@ -812,8 +811,8 @@ push_tasks_prd:
     #- docker build -t $ECR_REGISTRY/tasks:$CI_COMMIT_REF_NAME .
     #- docker tag $ECR_REGISTRY/tasks:$CI_COMMIT_REF_NAME $ECR_REGISTRY/tasks:dev
    # - docker push $ECR_REGISTRY/tasks:dev
-  only:
-    - gitlab-pipelinetest
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-pipeline-work" || $CI_COMMIT_BRANCH == "main"'
   
 deploy_prd_tasks:
   stage: deploy_prd
@@ -822,5 +821,5 @@ deploy_prd_tasks:
     - echo "Checking out code..."
     - echo "Configuring AWS production environment variables."
     - echo "Deploying tasks to production environment."
-  only:
-    - gitlab-pipelinetest
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-pipeline-work" || $CI_COMMIT_BRANCH == "main"'
