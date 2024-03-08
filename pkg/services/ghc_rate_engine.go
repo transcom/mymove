@@ -137,7 +137,7 @@ type DomesticUnpackPricer interface {
 //
 //go:generate mockery --name FuelSurchargePricer
 type FuelSurchargePricer interface {
-	Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool, disableMinimumWeight bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 

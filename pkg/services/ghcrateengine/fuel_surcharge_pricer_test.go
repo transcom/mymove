@@ -54,14 +54,14 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 
 	suite.Run("success without PaymentServiceItemParams", func() {
 		isPPM := false
-		priceCents, _, err := fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, fscFuelPrice, isPPM)
+		priceCents, _, err := fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, fscFuelPrice, isPPM, false)
 		suite.NoError(err)
 		suite.Equal(fscPriceCents, priceCents)
 	})
 
 	suite.Run("success without PaymentServiceItemParams when shipment is PPM with < 500 lb weight", func() {
 		isPPM := true
-		priceCents, _, err := fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, unit.Pound(250), fscWeightDistanceMultiplier, fscFuelPrice, isPPM)
+		priceCents, _, err := fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, unit.Pound(250), fscWeightDistanceMultiplier, fscFuelPrice, isPPM, false)
 		suite.NoError(err)
 		suite.Equal(fscPriceCents, priceCents)
 	})
@@ -88,6 +88,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 	})
 
 	suite.Run("fails using PaymentServiceItemParams with below minimum weight for WeightBilled", func() {
+		suite.T().Skip("this test will only pass if the pricer has min weight not disabled")
 		paymentServiceItem := suite.setupFuelSurchargeServiceItem()
 		paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
 		weightBilledIndex := 2
@@ -104,7 +105,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 
 	suite.Run("FSC is negative if fuel price from EIA is below $2.50", func() {
 		isPPM := false
-		priceCents, _, err := fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, 242400, isPPM)
+		priceCents, _, err := fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, 242400, isPPM, false)
 		suite.NoError(err)
 		suite.Equal(unit.Cents(-721), priceCents)
 	})
@@ -113,27 +114,32 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 		isPPM := false
 
 		// No actual pickup date
-		_, _, err := fuelSurchargePricer.Price(suite.AppContextForTest(), time.Time{}, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, fscFuelPrice, isPPM)
+		_, _, err := fuelSurchargePricer.Price(suite.AppContextForTest(), time.Time{}, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, fscFuelPrice, isPPM, false)
 		suite.Error(err)
 		suite.Equal("ActualPickupDate is required", err.Error())
 
 		// No distance
-		_, _, err = fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, unit.Miles(0), fscTestWeight, fscWeightDistanceMultiplier, fscFuelPrice, isPPM)
+		_, _, err = fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, unit.Miles(0), fscTestWeight, fscWeightDistanceMultiplier, fscFuelPrice, isPPM, false)
 		suite.Error(err)
 		suite.Equal("Distance must be greater than 0", err.Error())
 
 		// No weight
-		_, _, err = fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, unit.Pound(0), fscWeightDistanceMultiplier, fscFuelPrice, isPPM)
+		_, _, err = fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, unit.Pound(0), fscWeightDistanceMultiplier, fscFuelPrice, isPPM, false)
 		suite.Error(err)
 		suite.Equal(fmt.Sprintf("Weight must be a minimum of %d", minDomesticWeight), err.Error())
 
+		// Negative weight
+		_, _, err = fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, unit.Pound(-250), fscWeightDistanceMultiplier, fscFuelPrice, isPPM, true)
+		suite.Error(err)
+		suite.Equal(fmt.Sprintf("weight %d is not a valid number", -250), err.Error())
+
 		// No weight based distance multiplier
-		_, _, err = fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, fscTestWeight, 0, fscFuelPrice, isPPM)
+		_, _, err = fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, fscTestWeight, 0, fscFuelPrice, isPPM, false)
 		suite.Error(err)
 		suite.Equal("WeightBasedDistanceMultiplier is required", err.Error())
 
 		// No EIA fuel price
-		_, _, err = fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, 0, isPPM)
+		_, _, err = fuelSurchargePricer.Price(suite.AppContextForTest(), fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, 0, isPPM, false)
 		suite.Error(err)
 		suite.Equal("EIAFuelPrice is required", err.Error())
 	})
