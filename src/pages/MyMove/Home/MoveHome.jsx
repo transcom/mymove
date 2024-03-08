@@ -388,7 +388,9 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
       : generatePath(customerRoutes.SHIPMENT_MOVING_INFO_PATH, { moveId: move.id }));
 
   const confirmationPath = move?.id && generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId: move.id });
-  const profileEditPath = customerRoutes.PROFILE_PATH;
+  const profileEditPath = generatePath(customerRoutes.PROFILE_PATH, {
+    moveId: move.id,
+  });
   const ordersEditPath = `/move/${move.id}/review/edit-orders/${orders.id}`;
   const ordersAmendPath = `/orders/amend/${orders.id}`;
   const allSortedShipments = sortAllShipments(mtoShipments);
