@@ -65,5 +65,5 @@ func (p domesticDestinationSITDeliveryPricer) PriceUsingParams(appCtx appcontext
 	}
 
 	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaDest,
-		sitScheduleDest, zipDestAddress, zipSITDestHHGFinalAddress, unit.Miles(distanceZipSITDest), false)
+		sitScheduleDest, zipDestAddress, zipSITDestHHGFinalAddress, unit.Miles(distanceZipSITDest), true)
 }
