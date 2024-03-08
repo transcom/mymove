@@ -793,3 +793,57 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 	println(test.Name())           // ensures was generated with temp filesystem
 	suite.Equal(info.PageCount, 2) // ensures PDF is not corrupted
 }
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatMaxAdvance() {
+	cents := unit.Cents(1000)
+	tests := []struct {
+		name               string
+		estimatedIncentive *unit.Cents
+		expectedResult     string
+	}{
+		{
+			name:               "Valid estimated incentive",
+			estimatedIncentive: &cents,
+			expectedResult:     "$6.00",
+		},
+		{
+			name:               "Nil estimated incentive",
+			estimatedIncentive: nil,
+			expectedResult:     "No Incentive Found",
+		},
+	}
+
+	for _, tt := range tests {
+		result := formatMaxAdvance(tt.estimatedIncentive)
+		suite.Equal(tt.expectedResult, result)
+	}
+
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestGetOrDefault() {
+	testValue := "hello"
+	tests := []struct {
+		name           string
+		value          *string
+		defaultValue   string
+		expectedResult string
+	}{
+		{
+			name:           "Non-nil value provided",
+			value:          &testValue, // Example non-nil value
+			defaultValue:   "world",    // Example default value
+			expectedResult: "hello",
+		},
+		{
+			name:           "Nil value provided",
+			value:          nil,
+			defaultValue:   "world", // Example default value
+			expectedResult: "world",
+		},
+	}
+
+	for _, tt := range tests {
+		result := getOrDefault(tt.value, tt.defaultValue)
+		suite.Equal(tt.expectedResult, result)
+	}
+}
