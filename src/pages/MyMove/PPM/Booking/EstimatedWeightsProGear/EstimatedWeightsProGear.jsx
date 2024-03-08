@@ -39,14 +39,14 @@ const EstimatedWeightsProGear = () => {
 
     const payload = {
       shipmentType: mtoShipment.shipmentType,
-      ppmShipment: {
-        id: mtoShipment.ppmShipment.id,
-        estimatedWeight: Number(values.estimatedWeight),
-        hasProGear,
-        proGearWeight: hasProGear ? Number(values.proGearWeight) : null,
-        spouseProGearWeight: hasProGear ? Number(values.spouseProGearWeight) : null,
-      },
+      ppmShipment: mtoShipment.ppmShipment,
     };
+
+    payload.ppmShipment.id = mtoShipment.ppmShipment.id;
+    payload.ppmShipment.estimatedWeight = Number(values.estimatedWeight);
+    payload.ppmShipment.hasProGear = hasProGear;
+    payload.ppmShipment.proGearWeight = hasProGear ? Number(values.proGearWeight) : null;
+    payload.ppmShipment.spouseProGearWeight = hasProGear ? Number(values.spouseProGearWeight) : null;
 
     patchMTOShipment(mtoShipment.id, payload, mtoShipment.eTag)
       .then((response) => {
