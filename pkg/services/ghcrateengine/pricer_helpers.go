@@ -104,6 +104,15 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 	return totalCost, displayParams, nil
 }
 
+// This func is to convert lower than minimum domestic weight pounds to the minimum domestic weight pounds that can be billed.
+// Weight is below 500, but we price at a minimum of 500. Per B-18762 the PO has stated that we should allow
+// under 500 but price at the minimum
+func convertUnderMinWeightToMinWeight(disableWeightMinimum bool, weight *unit.Pound) {
+	if disableWeightMinimum && *weight < minDomesticWeight {
+		*weight = minDomesticWeight
+	}
+}
+
 func priceDomesticFirstDaySIT(appCtx appcontext.AppContext, firstDaySITCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, disableWeightMinimum bool) (unit.Cents, services.PricingDisplayParams, error) {
 	var sitType string
 	if firstDaySITCode == models.ReServiceCodeDDFSIT {
@@ -121,6 +130,8 @@ func priceDomesticFirstDaySIT(appCtx appcontext.AppContext, firstDaySITCode mode
 	if disableWeightMinimum && weight < 0 {
 		return 0, nil, fmt.Errorf("weight of %d is not a real weight", weight)
 	}
+
+	convertUnderMinWeightToMinWeight(disableWeightMinimum, &weight)
 
 	isPeakPeriod := IsPeakPeriod(referenceDate)
 	serviceAreaPrice, err := fetchDomServiceAreaPrice(appCtx, contractCode, firstDaySITCode, serviceArea, isPeakPeriod)

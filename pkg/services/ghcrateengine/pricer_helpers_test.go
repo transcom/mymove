@@ -490,6 +490,17 @@ func (suite *GHCRateEngineServiceSuite) makePricerParamsSubtestData() (subtestDa
 	return subtestData
 }
 
+func (suite *GHCRateEngineServiceSuite) Test_convertUnderMinWeightToMinWeight() {
+	weight := unit.Pound(250)
+	disableWeightMinimum := true
+	convertUnderMinWeightToMinWeight(disableWeightMinimum, &weight)
+	suite.Equal(minDomesticWeight, weight)
+	weight = unit.Pound(250)
+	disableWeightMinimum = false
+	convertUnderMinWeightToMinWeight(disableWeightMinimum, &weight)
+	suite.NotEqual(minDomesticWeight, weight)
+}
+
 func (suite *GHCRateEngineServiceSuite) Test_createPricerGeneratedParams() {
 	suite.Run("payment service item params created for the pricer", func() {
 		subtestData := suite.makePricerParamsSubtestData()
