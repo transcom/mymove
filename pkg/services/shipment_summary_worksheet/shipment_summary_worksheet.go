@@ -87,49 +87,6 @@ type textField struct {
 
 var newline = "\n\n"
 
-// Page1Values is an object representing a Shipment Summary Worksheet
-type Page1Values struct {
-	CUIBanner                       string
-	ServiceMemberName               string
-	MaxSITStorageEntitlement        string
-	PreferredPhoneNumber            string
-	PreferredEmail                  string
-	DODId                           string
-	ServiceBranch                   string
-	RankGrade                       string
-	IssuingBranchOrAgency           string
-	OrdersIssueDate                 string
-	OrdersTypeAndOrdersNumber       string
-	AuthorizedOrigin                string
-	AuthorizedDestination           string
-	NewDutyAssignment               string
-	WeightAllotment                 string
-	WeightAllotmentProgear          string
-	WeightAllotmentProgearSpouse    string
-	TotalWeightAllotment            string
-	POVAuthorized                   string
-	ShipmentNumberAndTypes          string
-	ShipmentPickUpDates             string
-	ShipmentWeights                 string
-	ShipmentCurrentShipmentStatuses string
-	SITNumberAndTypes               string
-	SITEntryDates                   string
-	SITEndDates                     string
-	SITDaysInStorage                string
-	PreparationDate                 string
-	MaxObligationGCC100             string
-	TotalWeightAllotmentRepeat      string
-	MaxObligationGCC95              string
-	MaxObligationSIT                string
-	MaxObligationGCCMaxAdvance      string
-	PPMRemainingEntitlement         string
-	ActualObligationGCC100          string
-	ActualObligationGCC95           string
-	ActualObligationAdvance         string
-	ActualObligationSIT             string
-	MileageTotal                    string
-}
-
 // WorkSheetShipments is an object representing shipment line items on Shipment Summary Worksheet
 type WorkSheetShipments struct {
 	ShipmentNumberAndTypes      string
@@ -155,43 +112,6 @@ type WorkSheetSIT struct {
 	DaysInStorage  string
 }
 
-// Page2Values is an object representing a Shipment Summary Worksheet
-type Page2Values struct {
-	CUIBanner                   string
-	PreparationDate             string
-	TAC                         string
-	SAC                         string
-	ContractedExpenseMemberPaid string
-	ContractedExpenseGTCCPaid   string
-	RentalEquipmentMemberPaid   string
-	RentalEquipmentGTCCPaid     string
-	PackingMaterialsMemberPaid  string
-	PackingMaterialsGTCCPaid    string
-	WeighingFeesMemberPaid      string
-	WeighingFeesGTCCPaid        string
-	GasMemberPaid               string
-	GasGTCCPaid                 string
-	TollsMemberPaid             string
-	TollsGTCCPaid               string
-	OilMemberPaid               string
-	OilGTCCPaid                 string
-	OtherMemberPaid             string
-	OtherGTCCPaid               string
-	TotalMemberPaid             string
-	TotalGTCCPaid               string
-	TotalMemberPaidRepeated     string
-	TotalGTCCPaidRepeated       string
-	TotalPaidNonSIT             string
-	TotalMemberPaidSIT          string
-	TotalGTCCPaidSIT            string
-	TotalPaidSIT                string
-	TrustedAgentName            string
-	TrustedAgentDate            string
-	TrustedAgentEmail           string
-	TrustedAgentPhone           string
-	FormattedMovingExpenses
-}
-
 // Dollar represents a type for dollar monetary unit
 type Dollar float64
 
@@ -199,74 +119,6 @@ type Dollar float64
 func (d Dollar) String() string {
 	p := message.NewPrinter(language.English)
 	return p.Sprintf("$%.2f", d)
-}
-
-// FormattedMovingExpenses is an object representing the service member's moving expenses formatted for the SSW
-type FormattedMovingExpenses struct {
-	ContractedExpenseMemberPaid string
-	ContractedExpenseGTCCPaid   string
-	RentalEquipmentMemberPaid   string
-	RentalEquipmentGTCCPaid     string
-	PackingMaterialsMemberPaid  string
-	PackingMaterialsGTCCPaid    string
-	WeighingFeesMemberPaid      string
-	WeighingFeesGTCCPaid        string
-	GasMemberPaid               string
-	GasGTCCPaid                 string
-	TollsMemberPaid             string
-	TollsGTCCPaid               string
-	OilMemberPaid               string
-	OilGTCCPaid                 string
-	OtherMemberPaid             string
-	OtherGTCCPaid               string
-	TotalMemberPaid             string
-	TotalGTCCPaid               string
-	TotalMemberPaidRepeated     string
-	TotalGTCCPaidRepeated       string
-	TotalPaidNonSIT             string
-	TotalMemberPaidSIT          string
-	TotalGTCCPaidSIT            string
-	TotalPaidSIT                string
-}
-
-// FormattedOtherExpenses is an object representing the other moving expenses formatted for the SSW
-type FormattedOtherExpenses struct {
-	Descriptions string
-	AmountsPaid  string
-}
-
-// Page3Values is an object representing a Shipment Summary Worksheet
-type Page3Values struct {
-	CUIBanner              string
-	PreparationDate        string
-	ServiceMemberSignature string
-	SignatureDate          string
-	FormattedOtherExpenses
-}
-
-// ShipmentSummaryFormData is a container for the various objects required for the a Shipment Summary Worksheet
-type ShipmentSummaryFormData struct {
-	ServiceMember           models.ServiceMember
-	Order                   models.Order
-	Move                    models.Move
-	CurrentDutyLocation     models.DutyLocation
-	NewDutyLocation         models.DutyLocation
-	WeightAllotment         SSWMaxWeightEntitlement
-	PPMShipments            models.PPMShipments
-	PreparationDate         time.Time
-	Obligations             Obligations
-	MovingExpenses          models.MovingExpenses
-	MTOAgents               models.MTOAgents
-	PPMRemainingEntitlement unit.Pound
-	SignedCertification     models.SignedCertification
-}
-
-// Obligations is an object representing the winning and non-winning Max Obligation and Actual Obligation sections of the shipment summary worksheet
-type Obligations struct {
-	MaxObligation              Obligation
-	ActualObligation           Obligation
-	NonWinningMaxObligation    Obligation
-	NonWinningActualObligation Obligation
 }
 
 // Obligation an object representing the obligations section on the shipment summary worksheet
