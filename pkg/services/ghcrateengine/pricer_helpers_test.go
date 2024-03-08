@@ -558,7 +558,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticShuttling() {
 	suite.Run("destination golden path", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents, testdatagen.DefaultContractCode, doshutTestEscalationCompounded)
 
-		priceCents, displayParams, err := priceDomesticShuttling(suite.AppContextForTest(), models.ReServiceCodeDOSHUT, testdatagen.DefaultContractCode, doshutTestRequestedPickupDate, doshutTestWeight, doshutTestServiceSchedule)
+		priceCents, displayParams, err := priceDomesticShuttling(suite.AppContextForTest(), models.ReServiceCodeDOSHUT, testdatagen.DefaultContractCode, doshutTestRequestedPickupDate, doshutTestWeight, doshutTestServiceSchedule, false)
 		suite.NoError(err)
 		suite.Equal(doshutTestPriceCents, priceCents)
 
@@ -572,7 +572,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticShuttling() {
 
 	suite.Run("invalid service code", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents, testdatagen.DefaultContractCode, doshutTestEscalationCompounded)
-		_, _, err := priceDomesticShuttling(suite.AppContextForTest(), models.ReServiceCodeCS, testdatagen.DefaultContractCode, doshutTestRequestedPickupDate, doshutTestWeight, doshutTestServiceSchedule)
+		_, _, err := priceDomesticShuttling(suite.AppContextForTest(), models.ReServiceCodeCS, testdatagen.DefaultContractCode, doshutTestRequestedPickupDate, doshutTestWeight, doshutTestServiceSchedule, false)
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "unsupported domestic shuttling code")
@@ -582,16 +582,26 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticShuttling() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents, testdatagen.DefaultContractCode, doshutTestEscalationCompounded)
 
 		badWeight := unit.Pound(250)
-		_, _, err := priceDomesticShuttling(suite.AppContextForTest(), models.ReServiceCodeDOSHUT, testdatagen.DefaultContractCode, doshutTestRequestedPickupDate, badWeight, doshutTestServiceSchedule)
+		_, _, err := priceDomesticShuttling(suite.AppContextForTest(), models.ReServiceCodeDOSHUT, testdatagen.DefaultContractCode, doshutTestRequestedPickupDate, badWeight, doshutTestServiceSchedule, false)
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "Weight must be a minimum of 500")
 	})
 
+	suite.Run("negative weight", func() {
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents, testdatagen.DefaultContractCode, doshutTestEscalationCompounded)
+
+		badWeight := unit.Pound(-250)
+		_, _, err := priceDomesticShuttling(suite.AppContextForTest(), models.ReServiceCodeDOSHUT, testdatagen.DefaultContractCode, doshutTestRequestedPickupDate, badWeight, doshutTestServiceSchedule, true)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "weight -250 is not a valid number")
+	})
+
 	suite.Run("not finding a rate record", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents, testdatagen.DefaultContractCode, doshutTestEscalationCompounded)
 
-		_, _, err := priceDomesticShuttling(suite.AppContextForTest(), models.ReServiceCodeDOSHUT, "BOGUS", doshutTestRequestedPickupDate, doshutTestWeight, doshutTestServiceSchedule)
+		_, _, err := priceDomesticShuttling(suite.AppContextForTest(), models.ReServiceCodeDOSHUT, "BOGUS", doshutTestRequestedPickupDate, doshutTestWeight, doshutTestServiceSchedule, false)
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "Could not lookup Domestic Accessorial Area Price")
@@ -601,7 +611,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticShuttling() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents, testdatagen.DefaultContractCode, ddshutTestEscalationCompounded)
 
 		twoYearsLaterPickupDate := doshutTestRequestedPickupDate.AddDate(2, 0, 0)
-		_, _, err := priceDomesticShuttling(suite.AppContextForTest(), models.ReServiceCodeDDSHUT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ddshutTestWeight, ddshutTestServiceSchedule)
+		_, _, err := priceDomesticShuttling(suite.AppContextForTest(), models.ReServiceCodeDDSHUT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ddshutTestWeight, ddshutTestServiceSchedule, false)
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not calculate escalated price: could not lookup contract year")

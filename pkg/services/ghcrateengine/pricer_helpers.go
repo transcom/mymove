@@ -346,7 +346,7 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 	return totalPriceCents, displayParams, nil
 }
 
-func priceDomesticShuttling(appCtx appcontext.AppContext, shuttlingCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticShuttling(appCtx appcontext.AppContext, shuttlingCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, serviceSchedule int, disableMinimumWeight bool) (unit.Cents, services.PricingDisplayParams, error) {
 	if shuttlingCode != models.ReServiceCodeDOSHUT && shuttlingCode != models.ReServiceCodeDDSHUT {
 		return 0, nil, fmt.Errorf("unsupported domestic shuttling code of %s", shuttlingCode)
 	}
@@ -357,8 +357,11 @@ func priceDomesticShuttling(appCtx appcontext.AppContext, shuttlingCode models.R
 	if referenceDate.IsZero() {
 		return 0, nil, errors.New("ReferenceDate is required")
 	}
-	if weight < minDomesticWeight {
+	if weight < minDomesticWeight && !disableMinimumWeight {
 		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
+	}
+	if weight < 0 {
+		return 0, nil, fmt.Errorf("weight %d is not a valid number", weight)
 	}
 	if serviceSchedule == 0 {
 		return 0, nil, errors.New("Service schedule is required")
