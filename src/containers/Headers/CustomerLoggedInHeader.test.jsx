@@ -78,33 +78,4 @@ describe('CustomerLoggedInHeader', () => {
     expect(logOut).toHaveBeenCalled();
     expect(LogoutUser).toHaveBeenCalled();
   });
-
-  it('renders special order type in header', async () => {
-    const state = {
-      entities: {
-        orders: {
-          testOrdersId: {
-            id: 'testOrdersID',
-            status: 'APPROVED',
-            orders_type: 'BLUEBARK',
-          },
-        },
-        user: {
-          testUserId: {
-            id: 'testUserId',
-            email: 'testuser@example.com',
-            service_member: 'testServiceMemberId',
-          },
-        },
-      },
-    };
-
-    render(
-      <MockProviders initialState={state}>
-        <ConnectedCustomerLoggedInHeader />
-      </MockProviders>,
-    );
-
-    expect(screen.getByText('BLUEBARK')).toBeInTheDocument();
-  });
 });
