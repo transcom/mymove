@@ -49,6 +49,9 @@ type SearchMove struct {
 	// locator
 	Locator string `json:"locator,omitempty"`
 
+	// order type
+	OrderType string `json:"orderType,omitempty"`
+
 	// ZIP
 	// Example: 90210
 	// Pattern: ^(\d{5})$
