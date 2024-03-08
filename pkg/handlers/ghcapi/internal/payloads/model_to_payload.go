@@ -757,6 +757,15 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		return nil
 	}
 
+	pickupAddress := ghcmessages.Address{
+		City:           &ppmShipment.PickupAddress.City,
+		State:          &ppmShipment.PickupAddress.State,
+		StreetAddress1: &ppmShipment.PickupAddress.StreetAddress1,
+		StreetAddress2: ppmShipment.PickupAddress.StreetAddress2,
+		StreetAddress3: ppmShipment.PickupAddress.StreetAddress3,
+		PostalCode:     &ppmShipment.PickupAddress.PostalCode,
+	}
+
 	payloadPPMShipment := &ghcmessages.PPMShipment{
 		ID:                             *handlers.FmtUUID(ppmShipment.ID),
 		ShipmentID:                     *handlers.FmtUUID(ppmShipment.ShipmentID),
@@ -769,6 +778,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		ReviewedAt:                     handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
 		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
 		PickupPostalCode:               &ppmShipment.PickupPostalCode,
+		PickupAddress:                  &pickupAddress,
 		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
 		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
 		DestinationPostalCode:          &ppmShipment.DestinationPostalCode,
