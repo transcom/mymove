@@ -38,6 +38,7 @@ func (p domesticOriginFuelSurchargePricer) Price(_ appcontext.AppContext, actual
 	if disableWeightMinimum && weight < 0 {
 		return 0, nil, fmt.Errorf("weight of %d is not a real weight", weight)
 	}
+	convertUnderMinWeightToMinWeight(disableWeightMinimum, &weight)
 	if fscWeightBasedDistanceMultiplier == 0 {
 		return 0, nil, errors.New("WeightBasedDistanceMultiplier is required")
 	}
