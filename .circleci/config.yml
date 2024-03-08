@@ -855,6 +855,7 @@ commands:
             export HTTP_PRIME_SERVER_NAME=primelocal
             export ENVIRONMENT=test
             export FEATURE_FLAG_MULTI_MOVE=true
+
             # disable for speed, playwright tests can fail otherwise
             export DB_DEBUG=false
 
