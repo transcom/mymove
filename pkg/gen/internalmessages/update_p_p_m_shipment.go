@@ -82,6 +82,12 @@ type UpdatePPMShipment struct {
 	//
 	HasRequestedAdvance *bool `json:"hasRequestedAdvance,omitempty"`
 
+	// has secondary destination address
+	HasSecondaryDestinationAddress *bool `json:"hasSecondaryDestinationAddress"`
+
+	// has secondary pickup address
+	HasSecondaryPickupAddress *bool `json:"hasSecondaryPickupAddress"`
+
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
