@@ -5693,6 +5693,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "Primary auto-generated unique identifier of the PPM shipment object",
           "type": "string",
@@ -7021,6 +7031,16 @@ func init() {
           "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
           "type": "boolean",
           "x-nullable": true
+        },
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
@@ -13801,6 +13821,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "Primary auto-generated unique identifier of the PPM shipment object",
           "type": "string",
@@ -15132,6 +15162,16 @@ func init() {
           "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
           "type": "boolean",
           "x-nullable": true
+        },
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"

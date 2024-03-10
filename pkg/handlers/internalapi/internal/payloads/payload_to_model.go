@@ -128,6 +128,7 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 		model.PickupAddress = AddressModel(ppmShipment.PickupAddress)
 	}
 
+	model.HasSecondaryPickupAddress = handlers.FmtBool(ppmShipment.SecondaryPickupAddress != nil)
 	if ppmShipment.SecondaryPickupAddress != nil {
 		model.SecondaryPickupAddress = AddressModel(ppmShipment.SecondaryPickupAddress)
 	}
@@ -136,6 +137,7 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 		model.DestinationAddress = AddressModel(ppmShipment.DestinationAddress)
 	}
 
+	model.HasSecondaryDestinationAddress = handlers.FmtBool(ppmShipment.SecondaryDestinationAddress != nil)
 	if ppmShipment.SecondaryDestinationAddress != nil {
 		model.SecondaryDestinationAddress = AddressModel(ppmShipment.SecondaryDestinationAddress)
 	}
@@ -164,6 +166,8 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 		AdvanceAmountReceived:          handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountReceived),
 		FinalIncentive:                 handlers.FmtInt64PtrToPopPtr(ppmShipment.FinalIncentive),
+		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
+		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
 	}
 
 	ppmModel.W2Address = AddressModel(ppmShipment.W2Address)
