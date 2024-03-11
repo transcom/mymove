@@ -78,6 +78,42 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginWithServiceItemPa
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
+	suite.Run("successful pricing for hhg with weight < 500 lbs", func() {
+		suite.setUpDomesticOriginData()
+		paymentServiceItem := suite.setupDomesticOriginServiceItems()
+		params := paymentServiceItem.PaymentServiceItemParams
+		params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypeHHG
+		weightBilledIndex := 3
+
+		params[weightBilledIndex].Value = "500"
+		pricedAtFiveHundred, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+
+		params[weightBilledIndex].Value = "501"
+		pricedAtFiveHundredAndOne, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+		suite.NotEqual(pricedAtFiveHundredAndOne, pricedAtFiveHundred)
+
+		params[weightBilledIndex].Value = "250"
+		pricedAtTwoFifty, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+		suite.Equal(pricedAtFiveHundred, pricedAtTwoFifty)
+
+		params[weightBilledIndex].Value = "100"
+		pricedAtOneHundred, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+		suite.Equal(pricedAtFiveHundred, pricedAtOneHundred)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: "Test Contract Year"},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.04070"},
+			{Key: models.ServiceItemParamNameIsPeak, Value: "true"},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: "1.46"},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
+
+	})
+
 	suite.Run("validation errors", func() {
 		suite.setUpDomesticOriginData()
 		paymentServiceItem := suite.setupDomesticOriginServiceItems()
