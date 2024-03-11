@@ -41,6 +41,7 @@ type PpmPacketEmailData struct {
 	ServiceBranch                     string
 	Locator                           string
 	OneSourceTransportationOfficeLink string
+	WashingtonHQServicesLink          string
 	MyMoveLink                        string
 }
 
@@ -166,6 +167,7 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 				ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
 				Locator:                           move.Locator,
 				OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
+				WashingtonHQServicesLink:          WashingtonHQServicesLink,
 				MyMoveLink:                        MyMoveLink,
 			},
 			LoggerData{
@@ -183,6 +185,7 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 			ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
 			Locator:                           move.Locator,
 			OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
+			WashingtonHQServicesLink:          WashingtonHQServicesLink,
 			MyMoveLink:                        MyMoveLink,
 		},
 		LoggerData{

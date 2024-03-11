@@ -2741,9 +2741,6 @@ func init() {
     "/ppm-shipments/{ppmShipmentId}/closeout": {
       "get": {
         "description": "Retrieves the closeout calculations for the specified PPM shipment.\n",
-        "consumes": [
-          "application/json"
-        ],
         "produces": [
           "application/json"
         ],
@@ -6608,6 +6605,11 @@ func init() {
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
+        "distance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
+        },
         "diversion": {
           "type": "boolean",
           "example": true
@@ -7594,6 +7596,7 @@ func init() {
         "actualWeight": {
           "type": "integer",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         },
         "aoa": {
@@ -7694,7 +7697,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "remainingReimbursementOwed": {
+        "remainingIncentive": {
           "description": "The remaining reimbursement amount that is still owed to the customer.",
           "type": "integer",
           "format": "cents",
@@ -8864,6 +8867,11 @@ func init() {
               "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
             },
             "sitAllowanceEndDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitAuthorizedEndDate": {
               "type": "string",
               "format": "date",
               "x-nullable": true
@@ -13871,9 +13879,6 @@ func init() {
     "/ppm-shipments/{ppmShipmentId}/closeout": {
       "get": {
         "description": "Retrieves the closeout calculations for the specified PPM shipment.\n",
-        "consumes": [
-          "application/json"
-        ],
         "produces": [
           "application/json"
         ],
@@ -18253,6 +18258,11 @@ func init() {
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
+        "distance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
+        },
         "diversion": {
           "type": "boolean",
           "example": true
@@ -19239,6 +19249,7 @@ func init() {
         "actualWeight": {
           "type": "integer",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         },
         "aoa": {
@@ -19340,7 +19351,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "remainingReimbursementOwed": {
+        "remainingIncentive": {
           "description": "The remaining reimbursement amount that is still owed to the customer.",
           "type": "integer",
           "format": "cents",
@@ -20518,6 +20529,11 @@ func init() {
               "format": "date",
               "x-nullable": true
             },
+            "sitAuthorizedEndDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "sitCustomerContacted": {
               "type": "string",
               "format": "date",
@@ -20572,6 +20588,11 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "sitAllowanceEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitAuthorizedEndDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
