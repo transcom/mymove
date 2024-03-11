@@ -44,6 +44,41 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticPackPricer() {
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
+	suite.Run("successfully finds dom unpack price for hhg with weight < 500 lbs with PriceUsingParams method", func() {
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
+		paymentServiceItem := suite.setupDomesticPackServiceItem()
+		params := paymentServiceItem.PaymentServiceItemParams
+		params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypeHHG
+		weightBilledIndex := 3
+
+		params[weightBilledIndex].Value = "500"
+		pricedAtFiveHundred, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+
+		params[weightBilledIndex].Value = "501"
+		pricedAtFiveHundredAndOne, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+		suite.NotEqual(pricedAtFiveHundredAndOne, pricedAtFiveHundred)
+
+		params[weightBilledIndex].Value = "250"
+		pricedAtTwoFifty, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+		suite.Equal(pricedAtFiveHundred, pricedAtTwoFifty)
+
+		params[weightBilledIndex].Value = "100"
+		pricedAtOneHundred, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+		suite.Equal(pricedAtFiveHundred, pricedAtOneHundred)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: dpkTestContractYearName},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dpkTestEscalationCompounded)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(dpkTestIsPeakPeriod)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dpkTestBasePriceCents)},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
+	})
+
 	suite.Run("invalid parameters to PriceUsingParams", func() {
 		paymentServiceItem := suite.setupDomesticPackServiceItem()
 
