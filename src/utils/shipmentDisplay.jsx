@@ -2,17 +2,16 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 
-import { SHIPMENT_OPTIONS, LOA_TYPE, shipmentOptionLabels } from 'shared/constants';
+import { LOA_TYPE, shipmentOptionLabels } from 'shared/constants';
 import { shipmentStatuses, shipmentModificationTypes } from 'constants/shipments';
 import affiliations from 'content/serviceMemberAgencies';
 
-export function formatAddress(pickupAddress, shipmentType) {
+export function formatAddress(pickupAddress) {
   const { streetAddress1, streetAddress2, city, state, postalCode } = pickupAddress;
 
-  if (shipmentType === SHIPMENT_OPTIONS.PPM) {
+  if (streetAddress1 === 'n/a') {
     return city ? `${city}, ${state} ${postalCode}` : postalCode;
   }
-
   return (
     <>
       {streetAddress1 && <>{streetAddress1},&nbsp;</>}
