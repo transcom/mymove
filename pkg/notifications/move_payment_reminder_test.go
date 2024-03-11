@@ -140,6 +140,7 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 		DestinationDutyLocation: "DestDutyLocation",
 		Locator:                 "abc123",
 		OneSourceLink:           OneSourceTransportationOfficeLink,
+		MyMoveLink:              MyMoveLink,
 	}
 	expectedHTMLContent := `<p><strong>***</strong> DO NOT REPLY directly to this email <strong>***</strong></p>
 
@@ -154,7 +155,7 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 
 <p>
 <ul>
-  <li>Log into MilMove</li>
+  <li>Log into <a href=` + MyMoveLink + `>MilMove</a></li>
   <li>Click on "Upload PPM Documents"</li>
   <li>Follow the instructions</li>
 </ul>
@@ -164,13 +165,12 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 
 <ul>
 <li>       Weight tickets from certified scales, documenting empty and full weights for all vehicles and trailers you used for your move.</li>
-<li>       Receipts for reimbursable expenses (see our moving tips PDF for more info <a href="` +
-		paymentReminderData.OneSourceLink + `">` + paymentReminderData.OneSourceLink + `)</a></li>
+<li>       Receipts for reimbursable expenses.</li>
 </ul>
 
 <p>MilMove will ask you to upload copies of your documents as you complete your payment request.
 
-<p>If you are missing reciepts, you can still request payment but may not get reimbursement or a tax credit for those expenses.</p>
+<p>If you are missing reciepts, you may still be able to request payment, but you will need assistance from your transportation office.</p>
 
 <p>Payment request must be submitted within 45 days of your move date.</p>
 
@@ -197,6 +197,7 @@ func (suite *NotificationSuite) TestPaymentReminderTextTemplateRender() {
 		DestinationDutyLocation: "DestDutyLocation",
 		Locator:                 "abc123",
 		OneSourceLink:           OneSourceTransportationOfficeLink,
+		MyMoveLink:              MyMoveLink,
 	}
 	expectedTextContent := `*** DO NOT REPLY directly to this email ***
 
@@ -210,18 +211,18 @@ To get your payment, you need to login to MilMove, document expenses, and reques
 
 To do that:
 
-  * Log into MilMove
+  * Log into MilMove<` + MyMoveLink + `>
   * Click on "Upload PPM Documents"
   * Follow the instructions
 
 To request payment, you should have copies of:
 
 *       Weight tickets from certified scales, documenting empty and full weights for all vehicles and trailers you used for your move.
-*       Receipts for reimbursable expenses (see our moving tips PDF for more info ` + paymentReminderData.OneSourceLink + `)
+*       Receipts for reimbursable expenses.
 
 MilMove will ask you to upload copies of your documents as you complete your payment request.
 
-If you are missing reciepts, you can still request payment but may not get reimbursement or a tax credit for those expenses.
+If you are missing reciepts, you may still be able to request payment, but you will need assistance from your transportation office.
 
 Payment request must be submitted within 45 days of your move date.
 
@@ -282,6 +283,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			DestinationDutyLocation: emailInfo.NewDutyLocationName,
 			Locator:                 emailInfo.Locator,
 			OneSourceLink:           OneSourceTransportationOfficeLink,
+			MyMoveLink:              MyMoveLink,
 		}
 		htmlBody, err := pr.RenderHTML(suite.AppContextForTest(), data)
 		suite.NoError(err)
