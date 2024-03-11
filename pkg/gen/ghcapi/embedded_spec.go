@@ -5393,7 +5393,7 @@ func init() {
           "type": "string",
           "title": "Agency customer is affilated with"
         },
-        "backup_address": {
+        "backupAddress": {
           "$ref": "#/definitions/Address"
         },
         "backup_contact": {
@@ -5414,7 +5414,7 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
-        "email_is_preferred": {
+        "emailIsPreferred": {
           "type": "boolean"
         },
         "first_name": {
@@ -5441,10 +5441,10 @@ func init() {
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
         },
-        "phone_is_preferred": {
+        "phoneIsPreferred": {
           "type": "boolean"
         },
-        "secondary_telephone": {
+        "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
@@ -9511,7 +9511,7 @@ func init() {
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
-        "backup_address": {
+        "backupAddress": {
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -9534,7 +9534,7 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
-        "email_is_preferred": {
+        "emailIsPreferred": {
           "type": "boolean"
         },
         "first_name": {
@@ -9556,10 +9556,10 @@ func init() {
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
         },
-        "phone_is_preferred": {
+        "phoneIsPreferred": {
           "type": "boolean"
         },
-        "secondary_telephone": {
+        "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
@@ -17075,7 +17075,7 @@ func init() {
           "type": "string",
           "title": "Agency customer is affilated with"
         },
-        "backup_address": {
+        "backupAddress": {
           "$ref": "#/definitions/Address"
         },
         "backup_contact": {
@@ -17096,7 +17096,7 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
-        "email_is_preferred": {
+        "emailIsPreferred": {
           "type": "boolean"
         },
         "first_name": {
@@ -17123,10 +17123,10 @@ func init() {
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
         },
-        "phone_is_preferred": {
+        "phoneIsPreferred": {
           "type": "boolean"
         },
-        "secondary_telephone": {
+        "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
@@ -21251,7 +21251,7 @@ func init() {
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
-        "backup_address": {
+        "backupAddress": {
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -21274,7 +21274,7 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
-        "email_is_preferred": {
+        "emailIsPreferred": {
           "type": "boolean"
         },
         "first_name": {
@@ -21296,10 +21296,10 @@ func init() {
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
         },
-        "phone_is_preferred": {
+        "phoneIsPreferred": {
           "type": "boolean"
         },
-        "secondary_telephone": {
+        "secondaryTelephone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",

@@ -22,7 +22,7 @@ type UpdateCustomerPayload struct {
 	// backup address
 	BackupAddress struct {
 		Address
-	} `json:"backup_address,omitempty"`
+	} `json:"backupAddress,omitempty"`
 
 	// backup contact
 	BackupContact *BackupContact `json:"backup_contact,omitempty"`
@@ -37,7 +37,7 @@ type UpdateCustomerPayload struct {
 	Email *string `json:"email,omitempty"`
 
 	// email is preferred
-	EmailIsPreferred bool `json:"email_is_preferred,omitempty"`
+	EmailIsPreferred bool `json:"emailIsPreferred,omitempty"`
 
 	// first name
 	// Example: John
@@ -56,11 +56,11 @@ type UpdateCustomerPayload struct {
 	Phone *string `json:"phone,omitempty"`
 
 	// phone is preferred
-	PhoneIsPreferred bool `json:"phone_is_preferred,omitempty"`
+	PhoneIsPreferred bool `json:"phoneIsPreferred,omitempty"`
 
 	// secondary telephone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
-	SecondaryTelephone *string `json:"secondary_telephone,omitempty"`
+	SecondaryTelephone *string `json:"secondaryTelephone,omitempty"`
 
 	// suffix
 	// Example: Jr.
@@ -165,7 +165,7 @@ func (m *UpdateCustomerPayload) validateSecondaryTelephone(formats strfmt.Regist
 		return nil
 	}
 
-	if err := validate.Pattern("secondary_telephone", "body", *m.SecondaryTelephone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("secondaryTelephone", "body", *m.SecondaryTelephone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
 		return err
 	}
 

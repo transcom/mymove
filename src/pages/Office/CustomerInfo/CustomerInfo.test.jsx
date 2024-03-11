@@ -23,7 +23,7 @@ const mockCustomer = {
     name: 'Jane Backup',
     phone: '555-555-1234',
   },
-  backup_address: {
+  backupAddress: {
     city: 'Great Falls',
     country: 'US',
     postalCode: '59402',

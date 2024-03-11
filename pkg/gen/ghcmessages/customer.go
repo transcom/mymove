@@ -23,7 +23,7 @@ type Customer struct {
 	Agency string `json:"agency,omitempty"`
 
 	// backup address
-	BackupAddress *Address `json:"backup_address,omitempty"`
+	BackupAddress *Address `json:"backupAddress,omitempty"`
 
 	// backup contact
 	BackupContact *BackupContact `json:"backup_contact,omitempty"`
@@ -42,7 +42,7 @@ type Customer struct {
 	Email *string `json:"email,omitempty"`
 
 	// email is preferred
-	EmailIsPreferred bool `json:"email_is_preferred,omitempty"`
+	EmailIsPreferred bool `json:"emailIsPreferred,omitempty"`
 
 	// first name
 	// Example: John
@@ -66,11 +66,11 @@ type Customer struct {
 	Phone *string `json:"phone,omitempty"`
 
 	// phone is preferred
-	PhoneIsPreferred bool `json:"phone_is_preferred,omitempty"`
+	PhoneIsPreferred bool `json:"phoneIsPreferred,omitempty"`
 
 	// secondary telephone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
-	SecondaryTelephone *string `json:"secondary_telephone,omitempty"`
+	SecondaryTelephone *string `json:"secondaryTelephone,omitempty"`
 
 	// suffix
 	// Example: Jr.
@@ -132,9 +132,9 @@ func (m *Customer) validateBackupAddress(formats strfmt.Registry) error {
 	if m.BackupAddress != nil {
 		if err := m.BackupAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("backup_address")
+				return ve.ValidateName("backupAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("backup_address")
+				return ce.ValidateName("backupAddress")
 			}
 			return err
 		}
@@ -222,7 +222,7 @@ func (m *Customer) validateSecondaryTelephone(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.Pattern("secondary_telephone", "body", *m.SecondaryTelephone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("secondaryTelephone", "body", *m.SecondaryTelephone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
 		return err
 	}
 
@@ -273,9 +273,9 @@ func (m *Customer) contextValidateBackupAddress(ctx context.Context, formats str
 
 		if err := m.BackupAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("backup_address")
+				return ve.ValidateName("backupAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("backup_address")
+				return ce.ValidateName("backupAddress")
 			}
 			return err
 		}
