@@ -106,7 +106,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticUnpackPricer() {
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
-	suite.Run("successfully finds dom unpack price for hhg with weight < 500 lbs with PriceUsingParams method", func() {
+	suite.Run("successfully finds price for hhg with weight < 500 lbs with PriceUsingParams method", func() {
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDUPK, dupkTestServicesScheduleDest, dupkTestIsPeakPeriod, dupkTestBasePriceCents, dupkTestContractYearName, dupkTestEscalationCompounded)
 		paymentServiceItem := suite.setupDomesticUnpackServiceItem()
 		params := paymentServiceItem.PaymentServiceItemParams

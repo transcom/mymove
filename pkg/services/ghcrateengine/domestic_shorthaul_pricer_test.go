@@ -80,7 +80,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 		suite.validatePricerCreatedParams(expectedPricingCreatedParams, rateEngineParams)
 	})
 
-	suite.Run("successfully finds dom unpack price for hhg with weight < 500 lbs with PriceUsingParams method", func() {
+	suite.Run("successfully finds price for hhg with weight < 500 lbs with PriceUsingParams method", func() {
 		suite.setUpDomesticShorthaulData()
 		paymentServiceItem := suite.setupDomesticShorthaulServiceItems(requestedPickup)
 		expectedPricingCreatedParams := suite.getExpectedDSHPricerCreatedParamsFromDBGivenParams(dshTestServiceArea, requestedPickup)
