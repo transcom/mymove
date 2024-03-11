@@ -48,6 +48,41 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
+	suite.Run("successfully finds DLH price for hhg with weight < 500 lbs with PriceUsingParams method", func() {
+		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
+		paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
+		params := paymentServiceItem.PaymentServiceItemParams
+		params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypeHHG
+		weightBilledIndex := 4
+
+		params[weightBilledIndex].Value = "500"
+		pricedAtFiveHundred, displayParams, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+
+		params[weightBilledIndex].Value = "501"
+		pricedAtFiveHundredAndOne, _, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+		suite.NotEqual(pricedAtFiveHundredAndOne, pricedAtFiveHundred)
+
+		params[weightBilledIndex].Value = "250"
+		pricedAtTwoFifty, _, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+		suite.Equal(pricedAtFiveHundred, pricedAtTwoFifty)
+
+		params[weightBilledIndex].Value = "100"
+		pricedAtOneHundred, _, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+		suite.Equal(pricedAtFiveHundred, pricedAtOneHundred)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: dlhTestContractYearName},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dlhTestEscalationCompounded)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(dlhTestIsPeakPeriod)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatFloat(dlhTestBasePriceMillicents.ToDollarFloatNoRound(), 3)},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
+	})
+
 	suite.Run("success without PaymentServiceItemParams", func() {
 		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
 		isPPM := false
