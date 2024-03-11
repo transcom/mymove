@@ -107,6 +107,12 @@ type PPMShipment struct {
 	//
 	HasRequestedAdvance *bool `json:"hasRequestedAdvance"`
 
+	// has secondary destination address
+	HasSecondaryDestinationAddress *bool `json:"hasSecondaryDestinationAddress"`
+
+	// has secondary pickup address
+	HasSecondaryPickupAddress *bool `json:"hasSecondaryPickupAddress"`
+
 	// Primary auto-generated unique identifier of the PPM shipment object
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Required: true

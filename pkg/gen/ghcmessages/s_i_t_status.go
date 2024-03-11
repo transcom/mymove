@@ -233,6 +233,10 @@ type SITStatusCurrentSIT struct {
 	// Format: date
 	SitAllowanceEndDate *strfmt.Date `json:"sitAllowanceEndDate,omitempty"`
 
+	// sit authorized end date
+	// Format: date
+	SitAuthorizedEndDate *strfmt.Date `json:"sitAuthorizedEndDate,omitempty"`
+
 	// sit customer contacted
 	// Format: date
 	SitCustomerContacted *strfmt.Date `json:"sitCustomerContacted,omitempty"`
@@ -263,6 +267,10 @@ func (m *SITStatusCurrentSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSitAllowanceEndDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitAuthorizedEndDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -318,6 +326,18 @@ func (m *SITStatusCurrentSIT) validateSitAllowanceEndDate(formats strfmt.Registr
 	}
 
 	if err := validate.FormatOf("currentSIT"+"."+"sitAllowanceEndDate", "body", "date", m.SitAllowanceEndDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *SITStatusCurrentSIT) validateSitAuthorizedEndDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitAuthorizedEndDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("currentSIT"+"."+"sitAuthorizedEndDate", "body", "date", m.SitAuthorizedEndDate.String(), formats); err != nil {
 		return err
 	}
 

@@ -5,7 +5,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 func offsetDate(dayOffset int) time.Time {
@@ -13,78 +12,53 @@ func offsetDate(dayOffset int) time.Time {
 	return currentDatetime.AddDate(0, 0, dayOffset)
 }
 
-// cutoff date for sending payment reminders (don't send if older than this...)
-func cutoffDate() time.Time {
+func (suite *NotificationSuite) CreatePPMShipmentDateTooOld() models.PPMShipment {
 	cutoffDate, _ := time.Parse("2006-01-02", "2019-05-31")
+	ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.PPMShipment{
+				ExpectedDepartureDate: cutoffDate,
+			},
+		},
+	}, []factory.Trait{
+		factory.GetTraitPPMShipmentReadyForPaymentRequest,
+	})
+	return ppm
+}
 
-	return cutoffDate
+func (suite *NotificationSuite) GetPPMShipment(offset int) models.PPMShipment {
+	expectedDate := offsetDate(offset)
+
+	ppm := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.PPMShipment{
+				ExpectedDepartureDate: expectedDate,
+			},
+		},
+	}, []factory.Trait{
+		factory.GetTraitPPMShipmentReadyForPaymentRequest,
+	})
+
+	return ppm
+}
+
+func (suite *NotificationSuite) CreatePPMShipment(offset int) {
+	expectedDate := offsetDate(offset)
+
+	factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.PPMShipment{
+				ExpectedDepartureDate: expectedDate,
+			},
+		},
+	}, []factory.Trait{
+		factory.GetTraitPPMShipmentReadyForPaymentRequest,
+	})
 }
 
 func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
-	date14DaysAgo := offsetDate(-14)
-	date9DaysAgo := offsetDate(-9)
 
-	weightEstimate := unit.Pound(300)
-
-	ppms := []models.PPMShipment{
-		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					ExpectedDepartureDate: date14DaysAgo,
-					Status:                models.PPMShipmentStatusWaitingOnCustomer,
-					EstimatedWeight:       &weightEstimate,
-				},
-			},
-			{
-				Model: models.Move{
-					Status: models.MoveStatusAPPROVED,
-				},
-			},
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
-				},
-			},
-		}, nil),
-		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					ExpectedDepartureDate: offsetDate(-15),
-					Status:                models.PPMShipmentStatusWaitingOnCustomer,
-					EstimatedWeight:       &weightEstimate,
-				},
-			},
-			{
-				Model: models.Move{
-					Status: models.MoveStatusAPPROVED,
-				},
-			},
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
-				},
-			},
-		}, nil),
-		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					ExpectedDepartureDate: date9DaysAgo,
-					Status:                models.PPMShipmentStatusWaitingOnCustomer,
-					EstimatedWeight:       &weightEstimate,
-				},
-			},
-			{
-				Model: models.Move{
-					Status: models.MoveStatusAPPROVED,
-				},
-			},
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusApproved,
-				},
-			},
-		}, nil),
-	}
+	ppms := []models.PPMShipment{suite.GetPPMShipment(-9), suite.GetPPMShipment(-14), suite.GetPPMShipment(-15)}
 
 	PaymentReminder, err := NewPaymentReminder()
 	suite.NoError(err)
@@ -109,90 +83,9 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
-	date10DaysAgo := offsetDate(-10)
-	date9DaysAgo := offsetDate(-9)
-	dateTooOld := cutoffDate()
-	weightEstimate := unit.Pound(100)
-
-	factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-		{
-			Model: models.PPMShipment{
-				ExpectedDepartureDate: date9DaysAgo,
-				Status:                models.PPMShipmentStatusWaitingOnCustomer,
-				EstimatedWeight:       &weightEstimate,
-			},
-		},
-		{
-			Model: models.Move{
-				Status: models.MoveStatusAPPROVED,
-			},
-		},
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
-			},
-		},
-	}, nil)
-
-	factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-		{
-			Model: models.PPMShipment{
-				ExpectedDepartureDate: dateTooOld,
-				Status:                models.PPMShipmentStatusWaitingOnCustomer,
-				EstimatedWeight:       &weightEstimate,
-			},
-		},
-		{
-			Model: models.Move{
-				Status: models.MoveStatusAPPROVED,
-			},
-		},
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
-			},
-		},
-	}, nil)
-
-	factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-		{
-			Model: models.PPMShipment{
-				ExpectedDepartureDate: date10DaysAgo,
-				Status:                models.PPMShipmentStatusWaitingOnCustomer,
-				EstimatedWeight:       &weightEstimate,
-			},
-		},
-		{
-			Model: models.Move{
-				Status: models.MoveStatusAPPROVED,
-			},
-		},
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
-			},
-		},
-	}, nil)
-
-	factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-		{
-			Model: models.PPMShipment{
-				ExpectedDepartureDate: date9DaysAgo,
-				Status:                models.PPMShipmentStatusWaitingOnCustomer,
-				EstimatedWeight:       &weightEstimate,
-			},
-		},
-		{
-			Model: models.Move{
-				Show: models.BoolPointer(false),
-			},
-		},
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
-			},
-		},
-	}, nil)
+	suite.CreatePPMShipment(-10)
+	suite.CreatePPMShipment(-9)
+	suite.CreatePPMShipmentDateTooOld()
 
 	PaymentReminder, err := NewPaymentReminder()
 	suite.NoError(err)
@@ -203,49 +96,8 @@ func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
-	date14DaysAgo := offsetDate(-14)
-	dateTooOld := cutoffDate()
-	weightEstimate := unit.Pound(200)
-
-	factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-		{
-			Model: models.PPMShipment{
-				ExpectedDepartureDate: date14DaysAgo,
-				Status:                models.PPMShipmentStatusWaitingOnCustomer,
-				EstimatedWeight:       &weightEstimate,
-			},
-		},
-		{
-			Model: models.Move{
-				Status: models.MoveStatusAPPROVED,
-			},
-		},
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
-			},
-		},
-	}, nil)
-
-	factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-		{
-			Model: models.PPMShipment{
-				ExpectedDepartureDate: dateTooOld,
-				Status:                models.PPMShipmentStatusWaitingOnCustomer,
-				EstimatedWeight:       &weightEstimate,
-			},
-		},
-		{
-			Model: models.Move{
-				Status: models.MoveStatusAPPROVED,
-			},
-		},
-		{
-			Model: models.MTOShipment{
-				Status: models.MTOShipmentStatusApproved,
-			},
-		},
-	}, nil)
+	suite.CreatePPMShipmentDateTooOld()
+	suite.CreatePPMShipment(-14)
 
 	PaymentReminder, err := NewPaymentReminder()
 	suite.NoError(err)
@@ -261,22 +113,22 @@ func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderOnSuccess() {
-	sm := factory.BuildServiceMember(suite.DB(), nil, nil)
-	ei := PaymentReminderEmailInfo{
-		ServiceMemberID: sm.ID,
+	serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+	serviceMenmberID := PaymentReminderEmailInfo{
+		ServiceMemberID: serviceMember.ID,
 	}
 
 	PaymentReminder, err := NewPaymentReminder()
 	suite.NoError(err)
-	err = PaymentReminder.OnSuccess(suite.AppContextForTest(), ei)("SESID")
+	err = PaymentReminder.OnSuccess(suite.AppContextForTest(), serviceMenmberID)("SESID")
 	suite.NoError(err)
 
-	n := models.Notification{}
-	err = suite.DB().First(&n)
+	notification := models.Notification{}
+	err = suite.DB().First(&notification)
 	suite.NoError(err)
-	suite.Equal(sm.ID, n.ServiceMemberID)
-	suite.Equal(models.MovePaymentReminderEmail, n.NotificationType)
-	suite.Equal("SESID", n.SESMessageID)
+	suite.Equal(serviceMember.ID, notification.ServiceMemberID)
+	suite.Equal(models.MovePaymentReminderEmail, notification.NotificationType)
+	suite.Equal("SESID", notification.SESMessageID)
 }
 
 func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
@@ -288,46 +140,45 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 		DestinationDutyLocation: "DestDutyLocation",
 		Locator:                 "abc123",
 		OneSourceLink:           OneSourceTransportationOfficeLink,
+		MyMoveLink:              MyMoveLink,
 	}
-	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
+	expectedHTMLContent := `<p><strong>***</strong> DO NOT REPLY directly to this email <strong>***</strong></p>
 
-<p>This is a reminder that your PPM with the <strong>assigned move code ` + paymentReminderData.Locator + `</strong> from <strong>` + paymentReminderData.OriginDutyLocation +
-		`</strong>
-to <strong>` + paymentReminderData.DestinationDutyLocation + `</strong> is awaiting action in MilMove.</p>
+<p>This is a reminder that your PPM with the <strong>assigned move code ` + paymentReminderData.Locator + `</strong> from
+<strong>` + paymentReminderData.OriginDutyLocation + `</strong> to <strong>` + paymentReminderData.DestinationDutyLocation + `</strong> is awaiting action in MilMove.</p>
+
+<p>Next steps:</p>
 
 <p>To get your payment, you need to login to MilMove, document expenses, and request payment.</p>
 
 <p>To do that:</p>
 
+<p>
 <ul>
-  <li> Log into MilMove</li>
-  <li> Click on "Upload PPM Documents"</li>
-  <li> Follow the instructions</li>
+  <li>Log into <a href=` + MyMoveLink + `>MilMove</a></li>
+  <li>Click on "Upload PPM Documents"</li>
+  <li>Follow the instructions</li>
 </ul>
+</p>
 
-To request payment, you should have copies of:</p>
+<p>To request payment, you should have copies of:</p>
 
 <ul>
-<li>       Weight tickets from certified scales, documenting empty and full weights for all vehicles and
-trailers you used for your move.</li>
-<li>       Receipts for reimbursable expenses (see our moving tips PDF for more info <a href="` + paymentReminderData.OneSourceLink + `">` +
-		paymentReminderData.OneSourceLink + `)</a></li>
+<li>       Weight tickets from certified scales, documenting empty and full weights for all vehicles and trailers you used for your move.</li>
+<li>       Receipts for reimbursable expenses.</li>
 </ul>
 
 <p>MilMove will ask you to upload copies of your documents as you complete your payment request.
 
-<p>If you are missing reciepts, you can still request payment but may not get reimbursement or a tax credit
-for those expenses.</p>
+<p>If you are missing reciepts, you may still be able to request payment, but you will need assistance from your transportation office.</p>
 
 <p>Payment request must be submitted within 45 days of your move date.</p>
 
-<p>If you have any questions, contact a government transportation office. You can see a listing of</p>
-transportation offices on Military OneSource here: &lt;<a href="` + paymentReminderData.OneSourceLink + `">` + paymentReminderData.OneSourceLink + `</a>&gt;
+<p>If you have any questions, contact a government transportation office. You can see a listing of
+transportation offices on Military OneSource here: &lt;<a href="` + paymentReminderData.OneSourceLink + `">` + paymentReminderData.OneSourceLink + `</a>&gt;</p>
 
 <p>Thank you,</p>
-
 <p>USTRANSCOM MilMove Team</p>
-
 <p>The information contained in this email may contain Privacy Act information and is therefore protected
 under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.</p>`
 
@@ -346,6 +197,7 @@ func (suite *NotificationSuite) TestPaymentReminderTextTemplateRender() {
 		DestinationDutyLocation: "DestDutyLocation",
 		Locator:                 "abc123",
 		OneSourceLink:           OneSourceTransportationOfficeLink,
+		MyMoveLink:              MyMoveLink,
 	}
 	expectedTextContent := `*** DO NOT REPLY directly to this email ***
 
@@ -353,29 +205,28 @@ This is a reminder that your PPM with the assigned move code ` + paymentReminder
 		`
 to ` + paymentReminderData.DestinationDutyLocation + ` is awaiting action in MilMove.
 
+Next steps:
+
 To get your payment, you need to login to MilMove, document expenses, and request payment.
 
 To do that:
 
-  * Log into MilMove
+  * Log into MilMove<` + MyMoveLink + `>
   * Click on "Upload PPM Documents"
   * Follow the instructions
 
 To request payment, you should have copies of:
 
-*       Weight tickets from certified scales, documenting empty and full weights for all vehicles and
-trailers you used for your move.
-*       Receipts for reimbursable expenses (see our moving tips PDF for more info ` + paymentReminderData.OneSourceLink + `)
+*       Weight tickets from certified scales, documenting empty and full weights for all vehicles and trailers you used for your move.
+*       Receipts for reimbursable expenses.
 
 MilMove will ask you to upload copies of your documents as you complete your payment request.
 
-If you are missing reciepts, you can still request payment but may not get reimbursement or a tax credit
-for those expenses.
+If you are missing reciepts, you may still be able to request payment, but you will need assistance from your transportation office.
 
 Payment request must be submitted within 45 days of your move date.
 
-If you have any questions, contact a government transportation office. You can see a listing of
-transportation offices on Military OneSource here: <` + paymentReminderData.OneSourceLink + `>
+If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military OneSource here: <` + paymentReminderData.OneSourceLink + `>
 
 Thank you,
 
@@ -432,6 +283,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			DestinationDutyLocation: emailInfo.NewDutyLocationName,
 			Locator:                 emailInfo.Locator,
 			OneSourceLink:           OneSourceTransportationOfficeLink,
+			MyMoveLink:              MyMoveLink,
 		}
 		htmlBody, err := pr.RenderHTML(suite.AppContextForTest(), data)
 		suite.NoError(err)

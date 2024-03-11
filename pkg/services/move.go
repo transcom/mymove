@@ -2,6 +2,7 @@ package services
 
 import (
 	"io"
+	"time"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -90,6 +91,8 @@ type SearchMovesParams struct {
 	PerPage               int64
 	Sort                  *string
 	Order                 *string
+	PickupDate            *time.Time
+	DeliveryDate          *time.Time
 }
 
 type MoveCloseoutOfficeUpdater interface {

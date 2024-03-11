@@ -3,29 +3,28 @@
 This is a reminder that your PPM with the assigned move code {{.Locator}} from {{.OriginDutyLocation}}
 to {{.DestinationDutyLocation}} is awaiting action in MilMove.
 
+Next steps:
+
 To get your payment, you need to login to MilMove, document expenses, and request payment.
 
 To do that:
 
-  * Log into MilMove
+  * Log into MilMove<{{.MyMoveLink}}>
   * Click on "Upload PPM Documents"
   * Follow the instructions
 
 To request payment, you should have copies of:
 
-*       Weight tickets from certified scales, documenting empty and full weights for all vehicles and
-trailers you used for your move.
-*       Receipts for reimbursable expenses (see our moving tips PDF for more info {{.OneSourceLink}})
+*       Weight tickets from certified scales, documenting empty and full weights for all vehicles and trailers you used for your move.
+*       Receipts for reimbursable expenses.
 
 MilMove will ask you to upload copies of your documents as you complete your payment request.
 
-If you are missing reciepts, you can still request payment but may not get reimbursement or a tax credit
-for those expenses.
+If you are missing reciepts, you may still be able to request payment, but you will need assistance from your transportation office.
 
 Payment request must be submitted within 45 days of your move date.
 
-If you have any questions, contact a government transportation office. You can see a listing of
-transportation offices on Military OneSource here: <{{.OneSourceLink}}>
+If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military OneSource here: <{{.OneSourceLink}}>
 
 Thank you,
 
