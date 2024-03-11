@@ -70,6 +70,8 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 				return fmt.Errorf("failed to create secondary pickup address %e", err)
 			}
 			ppmShipment.SecondaryPickupAddressID = &address.ID
+			// ensure HasSecondaryPickupAddress property is set true on create
+			ppmShipment.HasSecondaryPickupAddress = models.BoolPointer(true)
 		}
 
 		if ppmShipment.DestinationAddress != nil {
@@ -86,6 +88,8 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 				return fmt.Errorf("failed to create secondary delivery address %e", err)
 			}
 			ppmShipment.SecondaryDestinationAddressID = &address.ID
+			// ensure HasSecondaryDestinationAddress property is set true on create
+			ppmShipment.HasSecondaryDestinationAddress = models.BoolPointer(true)
 		}
 
 		// Validate the ppmShipment, and return an error
