@@ -72,28 +72,8 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationWithServiceI
 		suite.setUpDomesticDestinationData()
 		paymentServiceItem := suite.setupDomesticDestinationServiceItems()
 		params := paymentServiceItem.PaymentServiceItemParams
-		params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypeHHG
 		weightBilledIndex := 3
-
-		params[weightBilledIndex].Value = "500"
-		pricedAtFiveHundred, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
-		suite.NoError(err)
-
-		params[weightBilledIndex].Value = "501"
-		pricedAtFiveHundredAndOne, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
-		suite.NoError(err)
-		suite.NotEqual(pricedAtFiveHundredAndOne, pricedAtFiveHundred)
-
-		params[weightBilledIndex].Value = "250"
-		pricedAtTwoFifty, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
-		suite.NoError(err)
-		suite.Equal(pricedAtFiveHundred, pricedAtTwoFifty)
-
-		params[weightBilledIndex].Value = "100"
-		pricedAtOneHundred, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
-		suite.NoError(err)
-		suite.Equal(pricedAtFiveHundred, pricedAtOneHundred)
-		suite.NoError(err)
+		suite.conductHHGMinWeightTests(models.ReServiceCodeDDP, weightBilledIndex, params, paymentServiceItem)
 	})
 
 	suite.Run("validation errors", func() {
