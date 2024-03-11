@@ -37,6 +37,16 @@ func main() {
 	initSaveGHCFuelPriceFlags(saveGHCFuelPriceDataCommand.Flags())
 	root.AddCommand(saveGHCFuelPriceDataCommand)
 
+	sendPaymentReminderCommand := &cobra.Command{
+		Use:          "send-payment-reminder",
+		Short:        "sends payment reminder email",
+		Long:         "sends payment reminder email",
+		RunE:         sendPaymentReminder,
+		SilenceUsage: true,
+	}
+	initPaymentReminderFlags(sendPaymentReminderCommand.Flags())
+	root.AddCommand(sendPaymentReminderCommand)
+
 	postFileToGEXCommand := &cobra.Command{
 		Use:          "post-file-to-gex",
 		Short:        "posts a file to GEX",
