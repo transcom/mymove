@@ -763,6 +763,30 @@ func GetTraitPPMShipment() []Customization {
 	}
 }
 
+func GetTraitPPMShipmentReadyForPaymentRequest() []Customization {
+	estimatedWeight := unit.Pound(200)
+	estimateIncentive := unit.Cents(1000)
+	return []Customization{
+		{
+			Model: models.PPMShipment{
+				Status:             models.PPMShipmentStatusWaitingOnCustomer,
+				EstimatedWeight:    &estimatedWeight,
+				EstimatedIncentive: &estimateIncentive,
+			},
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
+		},
+		{
+			Model: models.Move{
+				Status: models.MoveStatusAPPROVED,
+			},
+		},
+	}
+}
+
 func GetTraitApprovedPPMShipment() []Customization {
 	submittedTime := time.Now()
 	approvedTime := submittedTime.AddDate(0, 0, 3)
