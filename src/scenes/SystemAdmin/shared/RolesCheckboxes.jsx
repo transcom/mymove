@@ -30,6 +30,7 @@ const RolesCheckboxInput = (props) => (
     choices={adminOfficeRoles}
     optionValue="roleType"
     validate={props.validate}
+    onChange={props.onChange}
   />
 );
 

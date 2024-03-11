@@ -31,6 +31,7 @@ const PrivilegesCheckboxInput = (props) => (
     parse={parseCheckboxInput}
     choices={officeUserPrivileges}
     optionValue="privilegeType"
+    disabled={props.disabled}
   />
 );
 

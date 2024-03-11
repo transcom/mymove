@@ -283,7 +283,6 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 	payload := params.OfficeUser
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			fmt.Print("\n**PB here in the begining")
 			officeUserID, err := uuid.FromString(params.OfficeUserID.String())
 			if err != nil {
 				appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", params.OfficeUserID.String()), zap.Error(err))
@@ -329,7 +328,6 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 			}
 
 			if updatedOfficeUser.UserID != nil && payload.Privileges != nil {
-				fmt.Print("\n**PB HERE before udpateUserPrivileges")
 				updatedPrivileges := privilegesPayloadToModel(payload.Privileges)
 				_, err = h.UserPrivilegeAssociator.UpdateUserPrivileges(appCtx, *updatedOfficeUser.UserID, updatedPrivileges)
 				if err != nil {
