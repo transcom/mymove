@@ -170,6 +170,7 @@ const MoveDetails = ({ setFlashMessage }) => {
         <div className="grid-row">
           <div className="grid-col-12">
             <FlashGridContainer className={styles.flashContainer} data-testid="move-details-flash-grid-container">
+              {moveTaskOrder?.order?.ordersType !== 'BLUEBARK' ? null : <h2>BLUEBARK</h2>}
               <SectionWrapper className={formStyles.formSection}>
                 <dl className={descriptionListStyles.descriptionList}>
                   <div className={styles.moveHeader}>

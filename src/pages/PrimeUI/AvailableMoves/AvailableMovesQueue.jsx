@@ -19,10 +19,21 @@ const columnHeaders = () => [
     id: 'id',
     isFilterable: true,
   }),
-  createHeader('Move code', 'moveCode', {
-    id: 'moveCode',
-    isFilterable: true,
-  }),
+  createHeader(
+    'Move code',
+    (row) => {
+      return (
+        <div>
+          {row.orderType === 'BLUEBARK' ? <span className="">BLUEBARK</span> : null}
+          {`${row.moveCode}`}
+        </div>
+      );
+    },
+    {
+      id: 'moveCode',
+      isFilterable: true,
+    },
+  ),
   createHeader(
     'Created at',
     (row) => {
