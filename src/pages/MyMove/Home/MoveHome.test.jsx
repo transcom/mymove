@@ -31,6 +31,11 @@ jest.mock('services/internalApi', () => ({
   getAllMoves: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
+jest.mock('services/internalApi', () => ({
+  ...jest.requireActual('services/internalApi'),
+  downloadPPMAOAPacket: jest.fn(),
+}));
+
 const props = {
   serviceMember: {
     id: v4(),
@@ -1247,6 +1252,10 @@ describe('Home component', () => {
       const confirmMoveRequest = wrapper.find('Step[step="4"]');
       expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();
       expect(confirmMoveRequest.prop('actionBtnLabel')).toBe('Review your request');
+    });
+
+    it('renders download AOA paperwork', () => {
+      expect(wrapper.text().toContain('Download AOA Paperwork (PDF)'));
     });
   });
 });
