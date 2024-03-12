@@ -1831,6 +1831,58 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/aoa-packet": {
+      "get": {
+        "description": "### Functionality\nThis endpoint downloads all uploaded move order documentation combined with the Shipment Summary Worksheet into a single PDF.\n### Errors\n* The PPMShipment must have requested an AOA.\n* The PPMShipment AOA Request must have been approved.\n",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Downloads AOA Packet form PPMShipment as a PDF",
+        "operationId": "showAOAPacket",
+        "responses": {
+          "200": {
+            "description": "AOA PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "the id for the ppmshipment with aoa to be downloaded",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses": {
       "post": {
         "description": "Creates a moving expense document for the PPM shipment",
@@ -2217,67 +2269,6 @@ func init() {
           "$ref": "#/parameters/ppmShipmentId"
         }
       ]
-    },
-    "/ppm-shipments/{ppmShipmentId}/shipment_summary_worksheet": {
-      "get": {
-        "description": "Generates pre-filled PDF using data already collected",
-        "produces": [
-          "application/pdf"
-        ],
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Returns Shipment Summary Worksheet",
-        "operationId": "showShipmentSummaryWorksheet",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the ppmShipment",
-            "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "date",
-            "description": "The preparationDate of PDF",
-            "name": "preparationDate",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Pre-filled worksheet PDF",
-            "schema": {
-              "type": "file",
-              "format": "binary"
-            },
-            "headers": {
-              "Content-Disposition": {
-                "type": "string",
-                "description": "File name to download"
-              }
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      }
     },
     "/ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation": {
       "post": {
@@ -3122,6 +3113,13 @@ func init() {
             "name": "uploadId",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the order that the upload belongs to",
+            "name": "orderId",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4176,6 +4174,9 @@ func init() {
     "InternalMove": {
       "type": "object",
       "properties": {
+        "closeoutOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -9530,6 +9531,73 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/aoa-packet": {
+      "get": {
+        "description": "### Functionality\nThis endpoint downloads all uploaded move order documentation combined with the Shipment Summary Worksheet into a single PDF.\n### Errors\n* The PPMShipment must have requested an AOA.\n* The PPMShipment AOA Request must have been approved.\n",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Downloads AOA Packet form PPMShipment as a PDF",
+        "operationId": "showAOAPacket",
+        "responses": {
+          "200": {
+            "description": "AOA PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "the id for the ppmshipment with aoa to be downloaded",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/ppm-shipments/{ppmShipmentId}/moving-expenses": {
       "post": {
         "description": "Creates a moving expense document for the PPM shipment",
@@ -10120,70 +10188,6 @@ func init() {
           "required": true
         }
       ]
-    },
-    "/ppm-shipments/{ppmShipmentId}/shipment_summary_worksheet": {
-      "get": {
-        "description": "Generates pre-filled PDF using data already collected",
-        "produces": [
-          "application/pdf"
-        ],
-        "tags": [
-          "ppm"
-        ],
-        "summary": "Returns Shipment Summary Worksheet",
-        "operationId": "showShipmentSummaryWorksheet",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the ppmShipment",
-            "name": "ppmShipmentId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "date",
-            "description": "The preparationDate of PDF",
-            "name": "preparationDate",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Pre-filled worksheet PDF",
-            "schema": {
-              "type": "file",
-              "format": "binary"
-            },
-            "headers": {
-              "Content-Disposition": {
-                "type": "string",
-                "description": "File name to download"
-              }
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "internal server error"
-          }
-        }
-      }
     },
     "/ppm-shipments/{ppmShipmentId}/submit-ppm-shipment-documentation": {
       "post": {
@@ -11165,6 +11169,13 @@ func init() {
             "name": "uploadId",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the order that the upload belongs to",
+            "name": "orderId",
+            "in": "query"
           }
         ],
         "responses": {
@@ -12221,6 +12232,9 @@ func init() {
     "InternalMove": {
       "type": "object",
       "properties": {
+        "closeoutOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",

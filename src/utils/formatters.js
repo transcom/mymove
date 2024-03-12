@@ -212,6 +212,10 @@ export const formatMoveHistoryFullAddress = (address) => {
   return formattedAddress;
 };
 
+export const formatMoveHistoryFullAddressFromJSON = (address) => {
+  return formatMoveHistoryFullAddress(JSON.parse(address));
+};
+
 export const formatMoveHistoryAgent = (agent) => {
   let agentLabel = '';
   if (agent.agent_type === 'RECEIVING_AGENT') {

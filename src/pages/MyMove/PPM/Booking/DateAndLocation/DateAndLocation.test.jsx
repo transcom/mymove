@@ -68,6 +68,7 @@ jest.mock('services/internalApi', () => ({
   patchMTOShipment: jest.fn(),
   patchMove: jest.fn(),
   searchTransportationOffices: jest.fn(),
+  getAllMoves: jest.fn(),
 }));
 
 jest.mock('utils/validation', () => ({
@@ -567,7 +568,7 @@ describe('DateAndLocation component', () => {
         serviceMember: armyServiceMember,
         move: {
           ...mockMove,
-          closeout_office: mockCloseoutOffice,
+          closeoutOffice: mockCloseoutOffice,
         },
       });
 
@@ -583,7 +584,7 @@ describe('DateAndLocation component', () => {
         expect(patchMove).toHaveBeenCalledWith(mockMove.id, { closeoutOfficeId: mockCloseoutId }, mockMove.eTag);
 
         // Redux updated with new shipment and updated move
-        expect(mockDispatch).toHaveBeenCalledTimes(2);
+        expect(mockDispatch).toHaveBeenCalledTimes(3);
 
         // Finally, should get redirected to the estimated weight page
         expect(mockNavigate).toHaveBeenCalledWith(
@@ -632,7 +633,7 @@ describe('DateAndLocation component', () => {
         serviceMember: armyServiceMember,
         move: {
           ...mockMove,
-          closeout_office: mockCloseoutOffice,
+          closeoutOffice: mockCloseoutOffice,
         },
       });
 
@@ -667,7 +668,7 @@ describe('DateAndLocation component', () => {
         serviceMember: armyServiceMember,
         move: {
           ...mockMove,
-          closeout_office: mockCloseoutOffice,
+          closeoutOffice: mockCloseoutOffice,
         },
       });
 

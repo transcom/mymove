@@ -10,13 +10,14 @@ import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
-import { BRANCH_OPTIONS, MOVE_STATUS_LABELS, MOVE_STATUS_OPTIONS, SortShape } from 'constants/queues';
+import { BRANCH_OPTIONS, MOVE_STATUS_LABELS, ROLE_TYPE_OPTIONS, SortShape } from 'constants/queues';
 import { DATE_FORMAT_STRING } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
+import { roleTypes } from 'constants/userRoles';
 
-const columns = [
+const columns = (roleType) => [
   createHeader('Move code', 'locator', {
     id: 'locator',
     isFilterable: false,
@@ -43,8 +44,15 @@ const columns = [
     {
       id: 'status',
       isFilterable: true,
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      Filter: (props) => <MultiSelectCheckBoxFilter options={MOVE_STATUS_OPTIONS} {...props} />,
+      Filter: (props) => {
+        return (
+          <MultiSelectCheckBoxFilter
+            options={ROLE_TYPE_OPTIONS[`${roleType}`]}
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            {...props}
+          />
+        );
+      },
     },
   ),
   createHeader(
@@ -144,6 +152,7 @@ const SearchResultsTable = (props) => {
     dodID,
     moveCode,
     customerName,
+    roleType,
   } = props;
   const [paramSort, setParamSort] = useState(defaultSortedColumns);
   const [paramFilters, setParamFilters] = useState([]);
@@ -179,7 +188,7 @@ const SearchResultsTable = (props) => {
     [],
   );
   const tableData = useMemo(() => data, [data]);
-  const tableColumns = useMemo(() => columns, []);
+  const tableColumns = useMemo(() => columns(roleType), [roleType]);
   const {
     getTableProps,
     getTableBodyProps,
@@ -234,6 +243,7 @@ const SearchResultsTable = (props) => {
 
   // Update filters when we get a new search or a column filter is edited
   useEffect(() => {
+    setParamFilters([]);
     const filtersToAdd = [];
     if (moveCode) {
       filtersToAdd.push({ id: 'locator', value: moveCode });
@@ -252,33 +262,31 @@ const SearchResultsTable = (props) => {
 
   return (
     <div data-testid="table-queue" className={styles.SearchResultsTable}>
-      <h2>{`${title} (${totalCount})`}</h2>
-      {totalCount > 0 ? (
-        <div className={styles.tableContainer}>
-          <Table
-            showFilters={showFilters}
-            showPagination={showPagination}
-            handleClick={handleClick}
-            gotoPage={gotoPage}
-            setPageSize={setPageSize}
-            nextPage={nextPage}
-            previousPage={previousPage}
-            getTableProps={getTableProps}
-            getTableBodyProps={getTableBodyProps}
-            headerGroups={headerGroups}
-            rows={rows}
-            prepareRow={prepareRow}
-            canPreviousPage={canPreviousPage}
-            canNextPage={canNextPage}
-            pageIndex={pageIndex}
-            pageSize={pageSize}
-            pageCount={pageCount}
-            pageOptions={pageOptions}
-          />
-        </div>
-      ) : (
-        <p>No results found.</p>
-      )}
+      <h2>
+        {`${title} (${totalCount})`} {totalCount > 0 ? null : <p>No results found.</p>}
+      </h2>
+      <div className={styles.tableContainer}>
+        <Table
+          showFilters={showFilters}
+          showPagination={showPagination}
+          handleClick={handleClick}
+          gotoPage={gotoPage}
+          setPageSize={setPageSize}
+          nextPage={nextPage}
+          previousPage={previousPage}
+          getTableProps={getTableProps}
+          getTableBodyProps={getTableBodyProps}
+          headerGroups={headerGroups}
+          rows={rows}
+          prepareRow={prepareRow}
+          canPreviousPage={canPreviousPage}
+          canNextPage={canNextPage}
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          pageCount={pageCount}
+          pageOptions={pageOptions}
+        />
+      </div>
     </div>
   );
 };
@@ -310,6 +318,7 @@ SearchResultsTable.propTypes = {
   moveCode: PropTypes.string,
   // customerName is the customer name search text
   customerName: PropTypes.string,
+  roleType: PropTypes.string,
 };
 
 SearchResultsTable.defaultProps = {
@@ -323,6 +332,7 @@ SearchResultsTable.defaultProps = {
   dodID: null,
   moveCode: null,
   customerName: null,
+  roleType: roleTypes.QAE_CSR,
 };
 
 export default SearchResultsTable;
