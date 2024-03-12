@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { useNavigate, useParams, generatePath } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
 import EditContactInfoForm, {
@@ -28,9 +28,8 @@ export const EditContactInfo = ({
   updateServiceMember,
 }) => {
   const navigate = useNavigate();
+  const { state } = useLocation();
   const [serverError, setServerError] = useState(null);
-
-  const { moveId } = useParams();
 
   const initialValues = {
     telephone: serviceMember?.telephone || '',
@@ -60,7 +59,7 @@ export const EditContactInfo = ({
   };
 
   const handleCancel = () => {
-    navigate(generatePath(customerRoutes.PROFILE_PATH, { moveId }));
+    navigate(customerRoutes.PROFILE_PATH, { state });
   };
 
   const handleSubmit = async (values) => {
@@ -119,7 +118,7 @@ export const EditContactInfo = ({
       .then(updateServiceMember)
       .then(() => {
         setFlashMessage('EDIT_CONTACT_INFO_SUCCESS', 'success', "You've updated your information.");
-        navigate(generatePath(customerRoutes.PROFILE_PATH, { moveId }));
+        navigate(customerRoutes.PROFILE_PATH, { state });
       })
       .catch((e) => {
         const { response } = e;

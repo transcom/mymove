@@ -3,7 +3,7 @@ import { node, string } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { Alert, Button } from '@trussworks/react-uswds';
-import { generatePath, useNavigate, useParams } from 'react-router-dom';
+import { generatePath, useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import styles from './Home.module.scss';
 import {
@@ -76,7 +76,8 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   // loading the moveId in params to select move details from serviceMemberMoves in state
   const { moveId } = useParams();
   const navigate = useNavigate();
-
+  let { state } = useLocation();
+  state = { ...state, moveId };
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [targetShipmentId, setTargetShipmentId] = useState(null);
   const [showDeleteSuccessAlert, setShowDeleteSuccessAlert] = useState(false);
@@ -317,7 +318,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   };
 
   const handleNewPathClick = (path) => {
-    navigate(path);
+    navigate(path, { state });
   };
 
   // if the move has amended orders that aren't approved, it will display an info box at the top of the page
@@ -400,9 +401,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
       : generatePath(customerRoutes.SHIPMENT_MOVING_INFO_PATH, { moveId: move.id }));
 
   const confirmationPath = move?.id && generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId: move.id });
-  const profileEditPath = generatePath(customerRoutes.PROFILE_PATH, {
-    moveId: move.id,
-  });
+  const profileEditPath = generatePath(customerRoutes.PROFILE_PATH);
   const ordersEditPath = `/move/${move.id}/review/edit-orders/${orders.id}`;
   const ordersAmendPath = `/orders/amend/${orders.id}`;
   const allSortedShipments = sortAllShipments(mtoShipments);
