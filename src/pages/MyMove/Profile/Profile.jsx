@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { arrayOf, bool } from 'prop-types';
 import { Alert, Button } from '@trussworks/react-uswds';
-import { Link, useLocation, useNavigate, useParams, generatePath } from 'react-router-dom';
+import { Link, useLocation, useNavigate, generatePath } from 'react-router-dom';
 
 import { isMultiMoveEnabled } from '../../../utils/featureFlags';
 
@@ -43,7 +43,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
 
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { moveId } = useParams();
+  const { moveId } = state;
 
   useEffect(() => {
     if (state && state.needsToVerifyProfile) {
@@ -67,9 +67,6 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
   const returnToMovePath = multiMove
     ? generatePath(customerRoutes.MOVE_HOME_PATH, { moveId })
     : generalRoutes.HOME_PATH;
-
-  const editContactPath = generatePath(customerRoutes.CONTACT_INFO_EDIT_PATH, { moveId });
-  const editOktaPath = generatePath(customerRoutes.EDIT_OKTA_PROFILE_PATH, { moveId });
 
   // displays the profile data for MilMove & Okta
   // Profile w/contact info for servicemember & backup contact
@@ -107,7 +104,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               residentialAddress={serviceMember?.residential_address || ''}
               backupMailingAddress={serviceMember?.backup_mailing_address || ''}
               backupContact={backupContact}
-              editURL={editContactPath}
+              editURL={customerRoutes.CONTACT_INFO_EDIT_PATH}
             />
           </SectionWrapper>
           {showMessages && (
@@ -137,7 +134,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               oktaFirstName={oktaUser?.firstName || 'Not Provided'}
               oktaLastName={oktaUser?.lastName || 'Not Provided'}
               oktaEdipi={oktaUser?.cac_edipi || 'Not Provided'}
-              editURL={editOktaPath}
+              editURL={customerRoutes.CONTACT_INFO_EDIT_PATH}
             />
           </SectionWrapper>
           {needsToVerifyProfile && (
