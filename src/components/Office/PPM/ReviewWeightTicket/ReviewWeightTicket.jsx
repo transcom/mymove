@@ -48,6 +48,7 @@ const validationSchema = Yup.object().shape({
 
 function ReviewWeightTicket({
   mtoShipment,
+  ppmShipmentInfo,
   mtoShipments,
   order,
   weightTicket,
@@ -57,6 +58,7 @@ function ReviewWeightTicket({
   onSuccess,
   formRef,
   updateTotalWeight,
+  updateDocumentSetAllowableWeight,
 }) {
   const {
     vehicleDescription,
@@ -74,6 +76,13 @@ function ReviewWeightTicket({
   const currentAllowableWeight = useRef(
     allowableWeight ? `${allowableWeight}` : `${getWeightTicketNetWeight(weightTicket)}`,
   );
+  if (!allowableWeight || (allowableWeight && currentAllowableWeight.current !== allowableWeight)) {
+    const newWeight = weightTicket.allowableWeight
+      ? weightTicket.allowableWeight
+      : weightTicket.fullWeight - weightTicket.emptyWeight;
+    currentAllowableWeight.current = newWeight;
+    // updateAllowableWeight(newWeight);
+  }
   const currentEmptyWeight = useRef(emptyWeight ? `${emptyWeight}` : `${getWeightTicketNetWeight(weightTicket)}`);
   const currentFullWeight = useRef(fullWeight ? `${fullWeight}` : `${getWeightTicketNetWeight(fullWeight)}`);
   const [canEditRejection, setCanEditRejection] = useState(true);
@@ -84,7 +93,6 @@ function ReviewWeightTicket({
     onSuccess,
     onError,
   });
-  const ppmShipment = mtoShipment?.ppmShipment;
 
   const weightAllowance = order.entitlement?.totalWeight;
 
@@ -189,6 +197,8 @@ function ReviewWeightTicket({
             if (newApprovalState === false) {
               setCanEditRejection(true);
               setFieldValue('rejectionReason', '');
+            } else if (newApprovalState === true) {
+              setFieldValue('rejectionReason', '');
             }
             handleChange(event);
           };
@@ -203,7 +213,11 @@ function ReviewWeightTicket({
               currentFullWeight.current = `${removeCommas(event.target.value)}`;
             }
             if (event.target.name === 'allowableWeight') {
-              currentAllowableWeight.current = `${removeCommas(event.target.value)}`;
+              const trimmedValue = removeCommas(event.target.value);
+              if (parseInt(trimmedValue, 10) !== currentAllowableWeight.current) {
+                currentAllowableWeight.current = trimmedValue;
+                updateDocumentSetAllowableWeight(currentAllowableWeight.current);
+              }
             }
             if (mtoShipments !== undefined && mtoShipments.length > 0) {
               getNewNetWeightCalculation(mtoShipments, values);
@@ -226,7 +240,7 @@ function ReviewWeightTicket({
 
           return (
             <Form className={classnames(formStyles.form, styles.ReviewWeightTicket)}>
-              <PPMHeaderSummary ppmShipment={ppmShipment} ppmNumber={ppmNumber} />
+              <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
               <hr />
               <h3 className={styles.tripNumber}>Trip {tripNumber}</h3>
               <legend className={classnames('usa-label', styles.label)}>Vehicle description</legend>
