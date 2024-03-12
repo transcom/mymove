@@ -2380,6 +2380,8 @@ definitions:
         readOnly: true
       mtoShipments:
         $ref: '#/definitions/MTOShipments'
+      closeoutOffice:
+        $ref: 'definitions/TransportationOffice.yaml'
       eTag:
         type: string
         readOnly: true
@@ -3298,6 +3300,11 @@ paths:
           format: uuid
           required: true
           description: UUID of the upload to be deleted
+        - in: query
+          name: orderId
+          type: string
+          format: uuid
+          description: ID of the order that the upload belongs to
       responses:
         '204':
           description: deleted
