@@ -265,12 +265,12 @@ func createNewMove(db *pop.Connection,
 	var contractor Contractor
 	err := db.Where("type='Prime'").First(&contractor)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Could not find contractor: %w", err)
+		return nil, nil, fmt.Errorf("could not find contractor: %w", err)
 	}
 
 	referenceID, err := GenerateReferenceID(db)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Could not generate a unique ReferenceID: %w", err)
+		return nil, nil, fmt.Errorf("could not generate a unique ReferenceID: %w", err)
 	}
 
 	for i := 0; i < maxLocatorAttempts; i++ {
@@ -412,14 +412,19 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 	query := db.Where("orders_id = ?", orderID)
 	err := query.Eager(
 		"MTOShipments",
+		"MTOShipments.MTOAgents",
 		"MTOShipments.PPMShipment",
 		"MTOShipments.PPMShipment.WeightTickets",
+		"MTOShipments.PPMShipment.MovingExpenses",
+		"MTOShipments.PPMShipment.ProgearWeightTickets",
 		"MTOShipments.DestinationAddress",
 		"MTOShipments.SecondaryDeliveryAddress",
 		"MTOShipments.PickupAddress",
 		"MTOShipments.SecondaryPickupAddress",
-		"MTOShipments.PPMShipment.MovingExpenses",
-		"MTOShipments.PPMShipment.ProgearWeightTickets",
+		"MTOShipments.PPMShipment.PickupAddress",
+		"MTOShipments.PPMShipment.DestinationAddress",
+		"MTOShipments.PPMShipment.SecondaryPickupAddress",
+		"MTOShipments.PPMShipment.SecondaryDestinationAddress",
 		"Orders",
 		"Orders.UploadedOrders",
 		"Orders.UploadedOrders.UserUploads",
@@ -433,6 +438,8 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"Orders.NewDutyLocation.Address",
 		"Orders.NewDutyLocation.TransportationOffice",
 		"Orders.NewDutyLocation.TransportationOffice.Address",
+		"CloseoutOffice",
+		"CloseoutOffice.Address",
 	).All(&moves)
 	if err != nil {
 		return moves, err

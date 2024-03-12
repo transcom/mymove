@@ -111,6 +111,35 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
+			if params.OrderID != nil {
+				orderID, _ := uuid.FromString(params.OrderID.String())
+				move, e := models.FetchMoveByOrderID(appCtx.DB(), orderID)
+				if e != nil {
+					return handlers.ResponseForError(appCtx.Logger(), e), e
+				}
+				uploadInformation, e := h.FetchUploadInformationForDeletion(appCtx, uploadID, move.Locator)
+				if e != nil {
+					appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(e))
+				}
+
+				//If move status is not DRAFT, upload cannot be deleted
+				if *uploadInformation.MoveStatus != models.MoveStatusDRAFT {
+					return uploadop.NewDeleteUploadForbidden(), fmt.Errorf("deletion not permitted Move is not in 'DRAFT' status")
+				}
+
+				userUploader, e := uploaderpkg.NewUserUploader(
+					h.FileStorer(),
+					uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
+				)
+				if e != nil {
+					appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(e))
+				}
+				if e = userUploader.DeleteUserUpload(appCtx, &userUpload); e != nil {
+					return handlers.ResponseForError(appCtx.Logger(), e), e
+				}
+
+				return uploadop.NewDeleteUploadNoContent(), nil
+			}
 			//Fetch upload information so we can retrieve the move status
 			uploadInformation, err := h.FetchUploadInformation(appCtx, uploadID)
 			if err != nil {
@@ -134,6 +163,7 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 			}
 
 			return uploadop.NewDeleteUploadNoContent(), nil
+
 		})
 }
 

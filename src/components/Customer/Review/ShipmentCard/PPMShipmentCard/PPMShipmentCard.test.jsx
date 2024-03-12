@@ -166,7 +166,7 @@ describe('PPMShipmentCard component', () => {
   });
 
   it('renders component with closeout office and army affiliation', () => {
-    const move = { closeout_office: transportationOfficeFactory() };
+    const move = { closeoutOffice: transportationOfficeFactory() };
 
     render(<PPMShipmentCard {...completeProps} affiliation={affiliations.ARMY} move={move} />);
 
@@ -180,7 +180,7 @@ describe('PPMShipmentCard component', () => {
       ['Second origin ZIP', '10002'],
       ['Destination ZIP', '11111'],
       ['Second destination ZIP', '22222'],
-      ['Closeout office', move.closeout_office.name],
+      ['Closeout office', move.closeoutOffice.name],
       ['Storage expected? (SIT)', 'Yes'],
       ['Estimated weight', '5,999 lbs'],
       ['Pro-gear', 'Yes, 1,250 lbs'],
@@ -200,7 +200,7 @@ describe('PPMShipmentCard component', () => {
   });
 
   it('renders component with closeout office and air force affiliation', () => {
-    const move = { closeout_office: transportationOfficeFactory() };
+    const move = { closeoutOffice: transportationOfficeFactory() };
 
     render(<PPMShipmentCard {...completeProps} affiliation={affiliations.AIR_FORCE} move={move} />);
 
@@ -214,7 +214,7 @@ describe('PPMShipmentCard component', () => {
       ['Second origin ZIP', '10002'],
       ['Destination ZIP', '11111'],
       ['Second destination ZIP', '22222'],
-      ['Closeout office', move.closeout_office.name],
+      ['Closeout office', move.closeoutOffice.name],
       ['Storage expected? (SIT)', 'Yes'],
       ['Estimated weight', '5,999 lbs'],
       ['Pro-gear', 'Yes, 1,250 lbs'],

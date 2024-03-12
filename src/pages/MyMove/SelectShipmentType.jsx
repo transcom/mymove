@@ -15,13 +15,14 @@ import styles from 'pages/MyMove/SelectShipmentType.module.scss';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { loadMTOShipments as loadMTOShipmentsAction } from 'shared/Entities/modules/mtoShipments';
 import { updateMove as updateMoveAction } from 'store/entities/actions';
-import { selectCurrentMove, selectMTOShipmentsForCurrentMove } from 'store/entities/selectors';
+import { selectMTOShipmentsForCurrentMove } from 'store/entities/selectors';
 import formStyles from 'styles/form.module.scss';
 import { MoveTaskOrderShape } from 'types/order';
 import { ShipmentShape } from 'types/shipment';
 import determineShipmentInfo from 'utils/shipmentInfo';
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types';
+import { selectMove } from 'shared/Entities/modules/moves';
 
 export class SelectShipmentType extends Component {
   constructor(props) {
@@ -223,8 +224,13 @@ SelectShipmentType.propTypes = {
   router: RouterShape.isRequired,
 };
 
-const mapStateToProps = (state) => {
-  const move = selectCurrentMove(state) || {};
+const mapStateToProps = (state, ownProps) => {
+  const {
+    router: {
+      params: { moveId },
+    },
+  } = ownProps;
+  const move = selectMove(state, moveId);
   const mtoShipments = selectMTOShipmentsForCurrentMove(state);
 
   return {

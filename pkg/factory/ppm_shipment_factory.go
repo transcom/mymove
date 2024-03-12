@@ -89,6 +89,34 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		ppmShipment.W2Address = &w2AddressResult
 	}
 
+	oldDutyLocationAddress := ppmShipment.Shipment.MoveTaskOrder.Orders.OriginDutyLocation.Address
+	pickupAddress := BuildAddress(db, []Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "987 New Street",
+				City:           oldDutyLocationAddress.City,
+				State:          oldDutyLocationAddress.State,
+				PostalCode:     oldDutyLocationAddress.PostalCode,
+			},
+		},
+	}, nil)
+	ppmShipment.PickupAddressID = &pickupAddress.ID
+	ppmShipment.PickupAddress = &pickupAddress
+
+	newDutyLocationAddress := ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation.Address
+	destinationAddress := BuildAddress(db, []Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "123 New Street",
+				City:           newDutyLocationAddress.City,
+				State:          newDutyLocationAddress.State,
+				PostalCode:     newDutyLocationAddress.PostalCode,
+			},
+		},
+	}, nil)
+	ppmShipment.DestinationAddressID = &destinationAddress.ID
+	ppmShipment.DestinationAddress = &destinationAddress
+
 	// Overwrite values with those from customizations
 	testdatagen.MergeModels(&ppmShipment, cPPMShipment)
 

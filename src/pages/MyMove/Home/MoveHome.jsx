@@ -190,6 +190,9 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const handleDeleteShipmentConfirmation = (shipmentId) => {
     deleteMTOShipment(shipmentId)
       .then(() => {
+        getAllMoves(serviceMember.id).then((response) => {
+          updateAllMoves(response);
+        });
         getMTOShipmentsForMove(move.id).then((response) => {
           updateMTOShipments(response);
           setShowDeleteErrorAlert(false);
@@ -376,7 +379,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
 
   // eslint-disable-next-line camelcase
   const { current_location } = serviceMember;
-  const ordersPath = hasOrdersNoUpload() ? customerRoutes.ORDERS_UPLOAD_PATH : customerRoutes.ORDERS_INFO_PATH;
+  const ordersPath = hasOrdersNoUpload() ? `/orders/upload/${orders.id}` : `/orders/upload/${orders.id}`;
 
   const shipmentSelectionPath =
     move?.id &&
@@ -386,8 +389,8 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
 
   const confirmationPath = move?.id && generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId: move.id });
   const profileEditPath = customerRoutes.PROFILE_PATH;
-  const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
-  const ordersAmendPath = customerRoutes.ORDERS_AMEND_PATH;
+  const ordersEditPath = `/move/${move.id}/review/edit-orders/${orders.id}`;
+  const ordersAmendPath = `/orders/amend/${orders.id}`;
   const allSortedShipments = sortAllShipments(mtoShipments);
   const ppmShipments = allSortedShipments.filter((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.PPM);
 

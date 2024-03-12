@@ -148,6 +148,18 @@ export async function getOrdersForServiceMember(serviceMemberId) {
   );
 }
 
+export async function getOrders(ordersId) {
+  return makeInternalRequest(
+    'orders.showOrders',
+    {
+      ordersId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function createOrders(orders) {
   return makeInternalRequest(
     'orders.createOrders',
@@ -226,11 +238,12 @@ export async function createUploadForPPMDocument(ppmShipmentId, documentId, file
   );
 }
 
-export async function deleteUpload(uploadId) {
+export async function deleteUpload(uploadId, orderId) {
   return makeInternalRequest(
     'uploads.deleteUpload',
     {
       uploadId,
+      orderId,
     },
     {
       normalize: false,

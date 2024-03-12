@@ -2909,6 +2909,59 @@ func init() {
         }
       ]
     },
+    "/ppm-shipments/{ppmShipmentId}/payment-packet": {
+      "get": {
+        "description": "Generates a PDF containing all user uploaded documentations for PPM. Contains SSW form, orders, weight and expense documentations.",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Returns PPM payment packet",
+        "operationId": "showPaymentPacket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppmShipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PPM Payment Packet PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
       "patch": {
         "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
@@ -7821,6 +7874,9 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "destinationPostalCode": {
           "description": "The postal code of the destination location where goods are being delivered to.",
           "type": "string",
@@ -7879,6 +7935,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "Primary auto-generated unique identifier of the PPM shipment object",
           "type": "string",
@@ -7892,6 +7958,9 @@ func init() {
           "items": {
             "$ref": "#/definitions/MovingExpense"
           }
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",
@@ -7921,6 +7990,19 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "secondaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
         "secondaryDestinationPostalCode": {
           "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
@@ -7930,6 +8012,19 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": "90210"
+        },
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
         },
         "secondaryPickupPostalCode": {
           "type": "string",
@@ -8867,6 +8962,11 @@ func init() {
               "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
             },
             "sitAllowanceEndDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitAuthorizedEndDate": {
               "type": "string",
               "format": "date",
               "x-nullable": true
@@ -14125,6 +14225,62 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/payment-packet": {
+      "get": {
+        "description": "Generates a PDF containing all user uploaded documentations for PPM. Contains SSW form, orders, weight and expense documentations.",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Returns PPM payment packet",
+        "operationId": "showPaymentPacket",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the ppmShipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PPM Payment Packet PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
     },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
       "patch": {
@@ -19470,6 +19626,9 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "destinationPostalCode": {
           "description": "The postal code of the destination location where goods are being delivered to.",
           "type": "string",
@@ -19528,6 +19687,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "Primary auto-generated unique identifier of the PPM shipment object",
           "type": "string",
@@ -19541,6 +19710,9 @@ func init() {
           "items": {
             "$ref": "#/definitions/MovingExpense"
           }
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",
@@ -19570,6 +19742,19 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "secondaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
         "secondaryDestinationPostalCode": {
           "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
@@ -19579,6 +19764,19 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": "90210"
+        },
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
         },
         "secondaryPickupPostalCode": {
           "type": "string",
@@ -20524,6 +20722,11 @@ func init() {
               "format": "date",
               "x-nullable": true
             },
+            "sitAuthorizedEndDate": {
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
             "sitCustomerContacted": {
               "type": "string",
               "format": "date",
@@ -20578,6 +20781,11 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "sitAllowanceEndDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "sitAuthorizedEndDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true

@@ -40,6 +40,30 @@ func (_m *UploadInformationFetcher) FetchUploadInformation(appCtx appcontext.App
 	return r0, r1
 }
 
+// FetchUploadInformationForDeletion provides a mock function with given fields: appCtx, _a1, moveLocator
+func (_m *UploadInformationFetcher) FetchUploadInformationForDeletion(appCtx appcontext.AppContext, _a1 uuid.UUID, moveLocator string) (services.UploadInformation, error) {
+	ret := _m.Called(appCtx, _a1, moveLocator)
+
+	var r0 services.UploadInformation
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) (services.UploadInformation, error)); ok {
+		return rf(appCtx, _a1, moveLocator)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) services.UploadInformation); ok {
+		r0 = rf(appCtx, _a1, moveLocator)
+	} else {
+		r0 = ret.Get(0).(services.UploadInformation)
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string) error); ok {
+		r1 = rf(appCtx, _a1, moveLocator)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // NewUploadInformationFetcher creates a new instance of UploadInformationFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewUploadInformationFetcher(t interface {

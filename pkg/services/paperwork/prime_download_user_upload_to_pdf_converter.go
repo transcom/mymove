@@ -14,7 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/uploader"
 )
 
 // moveUserUploadToPDFDownloader is the concrete struct implementing the services.PrimeDownloadMoveUploadPDFGenerator interface
@@ -23,11 +22,7 @@ type moveUserUploadToPDFDownloader struct {
 }
 
 // NewMoveUserUploadToPDFDownloader creates a new userUploadToPDFDownloader struct with the service dependencies
-func NewMoveUserUploadToPDFDownloader(userUploader *uploader.UserUploader) (services.PrimeDownloadMoveUploadPDFGenerator, error) {
-	pdfGenerator, err := paperwork.NewGenerator(userUploader.Uploader())
-	if err != nil {
-		return nil, errors.Wrap(err, "error getting instance of PDF generator")
-	}
+func NewMoveUserUploadToPDFDownloader(pdfGenerator *paperwork.Generator) (services.PrimeDownloadMoveUploadPDFGenerator, error) {
 	return &moveUserUploadToPDFDownloader{
 		*pdfGenerator,
 	}, nil
