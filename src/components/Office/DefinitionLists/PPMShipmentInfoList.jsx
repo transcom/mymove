@@ -1,12 +1,12 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { Link } from 'react-router-dom';
 
 import shipmentDefinitionListsStyles from './ShipmentDefinitionLists.module.scss';
 
 import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
+import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole, formatWeight } from 'utils/formatters';
 import { setFlagStyles, setDisplayFlags, getDisplayFlags, fieldValidationShape } from 'utils/displayFlags';
@@ -15,7 +15,6 @@ import affiliation from 'content/serviceMemberAgencies';
 import { permissionTypes } from 'constants/permissions';
 import Restricted from 'components/Restricted/Restricted';
 import { downloadPPMAOAPacket } from 'services/ghcApi';
-import { downloadPPMAOAPacketOnSuccessHandler } from 'utils/download';
 
 const PPMShipmentInfoList = ({
   className,
@@ -70,16 +69,6 @@ const PPMShipmentInfoList = ({
 
   const showElement = (elementFlags) => {
     return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
-  };
-
-  const handlePPMAOAPacketDownloadClick = (shipmentId) => {
-    downloadPPMAOAPacket(shipmentId)
-      .then((response) => {
-        downloadPPMAOAPacketOnSuccessHandler(response);
-      })
-      .catch(() => {
-        onErrorModalToggle();
-      });
   };
 
   const expectedDepartureDateElementFlags = getDisplayFlags('expectedDepartureDate');
@@ -201,9 +190,12 @@ const PPMShipmentInfoList = ({
       <dt>AOA Packet</dt>
       <dd data-testid="aoaPacketDownload">
         <p className={styles.downloadLink}>
-          <Link onClick={() => handlePPMAOAPacketDownloadClick(shipment?.ppmShipment.id)}>
-            Download AOA Paperwork (PDF)
-          </Link>
+          <AsyncPacketDownloadLink
+            id={shipment?.ppmShipment?.id}
+            label="Download AOA Paperwork (PDF)"
+            asyncRetrieval={downloadPPMAOAPacket}
+            onFailure={onErrorModalToggle}
+          />
         </p>
       </dd>
     </div>
