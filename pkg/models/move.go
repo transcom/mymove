@@ -421,6 +421,10 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"MTOShipments.SecondaryDeliveryAddress",
 		"MTOShipments.PickupAddress",
 		"MTOShipments.SecondaryPickupAddress",
+		"MTOShipments.PPMShipment.PickupAddress",
+		"MTOShipments.PPMShipment.DestinationAddress",
+		"MTOShipments.PPMShipment.SecondaryPickupAddress",
+		"MTOShipments.PPMShipment.SecondaryDestinationAddress",
 		"Orders",
 		"Orders.UploadedOrders",
 		"Orders.UploadedOrders.UserUploads",
@@ -435,6 +439,7 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"Orders.NewDutyLocation.TransportationOffice",
 		"Orders.NewDutyLocation.TransportationOffice.Address",
 		"CloseoutOffice",
+		"CloseoutOffice.Address",
 	).All(&moves)
 	if err != nil {
 		return moves, err
