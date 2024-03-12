@@ -225,6 +225,8 @@ func init() {
                   "summary": "HHG",
                   "value": {
                     "actualPickupDate": "2022-12-29",
+                    "actualProGearWeight": 1053,
+                    "actualSpouseProGearWeight": 253,
                     "destinationAddress": {
                       "city": "Great Bend",
                       "postalCode": "13643",
@@ -243,6 +245,8 @@ func init() {
                   "summary": "NTS",
                   "value": {
                     "actualPickupDate": "2022-12-29",
+                    "actualProGearWeight": 1053,
+                    "actualSpouseProGearWeight": 253,
                     "actualWeight": 4500,
                     "counselorRemarks": "Beware of dogs on property",
                     "estimatedWeight": 4250,
@@ -253,6 +257,8 @@ func init() {
                 "nts-r": {
                   "summary": "NTS Release",
                   "value": {
+                    "actualProGearWeight": 1053,
+                    "actualSpouseProGearWeight": 253,
                     "destinationAddress": {
                       "city": "San Antonio",
                       "postalCode": "78245",
@@ -1454,6 +1460,18 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "actualProGearWeight": {
+          "description": "The actual weight of any pro gear being shipped.\n",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualSpouseProGearWeight": {
+          "description": "The actual weight of any spouse pro gear being shipped.\n",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
@@ -1857,9 +1875,11 @@ func init() {
         "PERMANENT_CHANGE_OF_STATION",
         "LOCAL_MOVE",
         "RETIREMENT",
-        "SEPARATION"
+        "SEPARATION",
+        "BLUEBARK"
       ],
       "x-display-value": {
+        "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
@@ -3009,6 +3029,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "actualProGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualSpouseProGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "counselorRemarks": {
           "type": "string",
           "x-nullable": true,
@@ -3644,6 +3674,8 @@ func init() {
                   "summary": "HHG",
                   "value": {
                     "actualPickupDate": "2022-12-29",
+                    "actualProGearWeight": 1053,
+                    "actualSpouseProGearWeight": 253,
                     "destinationAddress": {
                       "city": "Great Bend",
                       "postalCode": "13643",
@@ -3662,6 +3694,8 @@ func init() {
                   "summary": "NTS",
                   "value": {
                     "actualPickupDate": "2022-12-29",
+                    "actualProGearWeight": 1053,
+                    "actualSpouseProGearWeight": 253,
                     "actualWeight": 4500,
                     "counselorRemarks": "Beware of dogs on property",
                     "estimatedWeight": 4250,
@@ -3672,6 +3706,8 @@ func init() {
                 "nts-r": {
                   "summary": "NTS Release",
                   "value": {
+                    "actualProGearWeight": 1053,
+                    "actualSpouseProGearWeight": 253,
                     "destinationAddress": {
                       "city": "San Antonio",
                       "postalCode": "78245",
@@ -4898,6 +4934,18 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "actualProGearWeight": {
+          "description": "The actual weight of any pro gear being shipped.\n",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualSpouseProGearWeight": {
+          "description": "The actual weight of any spouse pro gear being shipped.\n",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
@@ -5301,9 +5349,11 @@ func init() {
         "PERMANENT_CHANGE_OF_STATION",
         "LOCAL_MOVE",
         "RETIREMENT",
-        "SEPARATION"
+        "SEPARATION",
+        "BLUEBARK"
       ],
       "x-display-value": {
+        "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
@@ -6452,6 +6502,16 @@ func init() {
           "description": "The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.",
           "type": "string",
           "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualProGearWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualSpouseProGearWeight": {
+          "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
         },

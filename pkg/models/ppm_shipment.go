@@ -53,7 +53,7 @@ const (
 	// PPMShipmentStatusPaymentApproved captures enum value "PAYMENT_APPROVED"
 	PPMShipmentStatusPaymentApproved PPMShipmentStatus = "PAYMENT_APPROVED"
 	// PPMStatusCOMPLETED captures enum value "COMPLETED"
-	PPMShipmentStatusComplete PPMStatus = "COMPLETED"
+	PPMShipmentStatusComplete PPMShipmentStatus = "COMPLETED"
 )
 
 // AllowedPPMShipmentStatuses is a list of all the allowed values for the Status of a PPMShipment as strings. Needed for
@@ -158,6 +158,7 @@ type PPMShipment struct {
 	SecondaryPickupPostalCode      *string              `json:"secondary_pickup_postal_code" db:"secondary_pickup_postal_code"`
 	SecondaryPickupAddress         *Address             `belongs_to:"addresses" fk_id:"secondary_pickup_postal_address_id"`
 	SecondaryPickupAddressID       *uuid.UUID           `db:"secondary_pickup_postal_address_id"`
+	HasSecondaryPickupAddress      *bool                `db:"has_secondary_pickup_address"`
 	ActualPickupPostalCode         *string              `json:"actual_pickup_postal_code" db:"actual_pickup_postal_code"`
 	DestinationPostalCode          string               `json:"destination_postal_code" db:"destination_postal_code"`
 	DestinationAddress             *Address             `belongs_to:"addresses" fk_id:"destination_postal_address_id"`
@@ -165,6 +166,7 @@ type PPMShipment struct {
 	SecondaryDestinationPostalCode *string              `json:"secondary_destination_postal_code" db:"secondary_destination_postal_code"`
 	SecondaryDestinationAddress    *Address             `belongs_to:"addresses" fk_id:"secondary_destination_postal_address_id"`
 	SecondaryDestinationAddressID  *uuid.UUID           `db:"secondary_destination_postal_address_id"`
+	HasSecondaryDestinationAddress *bool                `db:"has_secondary_destination_address"`
 	ActualDestinationPostalCode    *string              `json:"actual_destination_postal_code" db:"actual_destination_postal_code"`
 	EstimatedWeight                *unit.Pound          `json:"estimated_weight" db:"estimated_weight"`
 	HasProGear                     *bool                `json:"has_pro_gear" db:"has_pro_gear"`
@@ -250,7 +252,7 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 
 }
 
-// FetchMoveByMoveID returns a Move for a given id
+// FetchPPMShipmentByPPMShipmentID returns a PPM Shipment for a given id
 func FetchPPMShipmentByPPMShipmentID(db *pop.Connection, ppmShipmentID uuid.UUID) (*PPMShipment, error) {
 	var ppmShipment PPMShipment
 	err := db.Q().Find(&ppmShipment, ppmShipmentID)
