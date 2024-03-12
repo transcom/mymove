@@ -74,6 +74,8 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticUnpackPricer() {
 		suite.Contains(err.Error(), fmt.Sprintf("trying to convert %s to a string", models.ServiceItemParamNameContractCode))
 	})
 
+	// This suite test will only pass while the parser has a disableDomesticMinimumWeight of true. If the pricer is blocking under min dom weight prices, then this test will fail.
+	// This is expected behavior.
 	suite.Run("successfully finds dom unpack price for ppm with weight < 500 lbs with PriceUsingParams method", func() {
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDUPK, dupkTestServicesScheduleDest, dupkTestIsPeakPeriod, dupkTestBasePriceCents, dupkTestContractYearName, dupkTestEscalationCompounded)
 		paymentServiceItem := suite.setupDomesticUnpackServiceItem()
@@ -94,6 +96,24 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticUnpackPricer() {
 		fifthPriceCents, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(basePriceCents/5, fifthPriceCents)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: dupkTestContractYearName},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dupkTestEscalationCompounded)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(dupkTestIsPeakPeriod)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dupkTestBasePriceCents)},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
+	})
+
+	suite.Run("successfully finds price for hhg with weight < 500 lbs with PriceUsingParams method", func() {
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDUPK, dupkTestServicesScheduleDest, dupkTestIsPeakPeriod, dupkTestBasePriceCents, dupkTestContractYearName, dupkTestEscalationCompounded)
+		paymentServiceItem := suite.setupDomesticUnpackServiceItem()
+		params := paymentServiceItem.PaymentServiceItemParams
+		params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypeHHG
+		weightBilledIndex := 3
+
+		displayParams := suite.conductHHGMinWeightTests(models.ReServiceCodeDUPK, weightBilledIndex, params, paymentServiceItem)
 
 		expectedParams := services.PricingDisplayParams{
 			{Key: models.ServiceItemParamNameContractYearName, Value: dupkTestContractYearName},

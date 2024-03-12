@@ -49,7 +49,7 @@ type CounselingServicesPricer interface {
 //
 //go:generate mockery --name DomesticLinehaulPricer
 type DomesticLinehaulPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string, isPPM bool) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string, isPPM bool, disableMinimimWeight bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -57,7 +57,7 @@ type DomesticLinehaulPricer interface {
 //
 //go:generate mockery --name DomesticShorthaulPricer
 type DomesticShorthaulPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string, disableMinimumWeight bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -65,7 +65,7 @@ type DomesticShorthaulPricer interface {
 //
 //go:generate mockery --name DomesticOriginPricer
 type DomesticOriginPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, isPPM bool) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, isPPM bool, disableMinimumWeight bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -73,7 +73,7 @@ type DomesticOriginPricer interface {
 //
 //go:generate mockery --name DomesticDestinationPricer
 type DomesticDestinationPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, isPPM bool) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, isPPM bool, disableMinimumWeight bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -81,7 +81,7 @@ type DomesticDestinationPricer interface {
 //
 //go:generate mockery --name DomesticOriginShuttlingPricer
 type DomesticOriginShuttlingPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int, disableMinimumWeight bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -89,7 +89,7 @@ type DomesticOriginShuttlingPricer interface {
 //
 //go:generate mockery --name DomesticDestinationShuttlingPricer
 type DomesticDestinationShuttlingPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int, disableMinimumWeight bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -113,7 +113,7 @@ type DomesticUncratingPricer interface {
 //
 //go:generate mockery --name DomesticPackPricer
 type DomesticPackPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int, isPPM bool) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int, isPPM bool, disableMinimumWeight bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -129,7 +129,7 @@ type DomesticNTSPackPricer interface {
 //
 //go:generate mockery --name DomesticUnpackPricer
 type DomesticUnpackPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int, isPPM bool) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int, isPPM bool, disableMinimumWeight bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -137,7 +137,7 @@ type DomesticUnpackPricer interface {
 //
 //go:generate mockery --name FuelSurchargePricer
 type FuelSurchargePricer interface {
-	Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool, disableMinimumWeight bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -193,7 +193,7 @@ type DomesticAdditionalDaysSITPricer interface {
 //
 //go:generate mockery --name DomesticOriginSITPickupPricer
 type DomesticOriginSITPickupPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipSITOriginOriginal string, zipSITOriginActual string, distance unit.Miles) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipSITOriginOriginal string, zipSITOriginActual string, distance unit.Miles, disableMinimimWeight bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -201,7 +201,7 @@ type DomesticOriginSITPickupPricer interface {
 //
 //go:generate mockery --name DomesticDestinationSITDeliveryPricer
 type DomesticDestinationSITDeliveryPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipDest string, zipSITDest string, distance unit.Miles) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipDest string, zipSITDest string, distance unit.Miles, disableMinimumWeight bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -209,7 +209,7 @@ type DomesticDestinationSITDeliveryPricer interface {
 //
 //go:generate mockery --name DomesticDestinationSITFuelSurchargePricer
 type DomesticDestinationSITFuelSurchargePricer interface {
-	Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool, disableWeightMinimum bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -225,6 +225,7 @@ type DomesticOriginSITFuelSurchargePricer interface {
 		fscWeightBasedDistanceMultiplier float64,
 		eiaFuelPrice unit.Millicents,
 		isPPM bool,
+		disableWeightMinimum bool,
 	) (
 		unit.Cents,
 		PricingDisplayParams,

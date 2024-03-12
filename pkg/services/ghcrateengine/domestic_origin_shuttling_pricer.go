@@ -18,8 +18,8 @@ func NewDomesticOriginShuttlingPricer() services.DomesticOriginShuttlingPricer {
 }
 
 // Price determines the price for domestic origin first day SIT
-func (p domesticOriginShuttlingPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticShuttling(appCtx, models.ReServiceCodeDOSHUT, contractCode, referenceDate, weight, serviceSchedule)
+func (p domesticOriginShuttlingPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceSchedule int, disableMinimumWeight bool) (unit.Cents, services.PricingDisplayParams, error) {
+	return priceDomesticShuttling(appCtx, models.ReServiceCodeDOSHUT, contractCode, referenceDate, weight, serviceSchedule, disableMinimumWeight)
 }
 
 // PriceUsingParams determines the price for domestic origin first day SIT given PaymentServiceItemParams
@@ -44,5 +44,5 @@ func (p domesticOriginShuttlingPricer) PriceUsingParams(appCtx appcontext.AppCon
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceScheduleOrigin)
+	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceScheduleOrigin, false)
 }

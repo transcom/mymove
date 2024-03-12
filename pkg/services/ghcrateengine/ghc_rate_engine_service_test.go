@@ -59,6 +59,38 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOtherPrice(code models.ReSe
 	suite.MustSave(&otherPrice)
 }
 
+// This allows us to pass in the service code for a pricer and conduct tests for HHG payment requests
+// with a weight billed parameter value of less than 500, rather than repeating code
+func (suite *GHCRateEngineServiceSuite) conductHHGMinWeightTests(serviceCode models.ReServiceCode, weightBilledIndex int, params models.PaymentServiceItemParams, paymentServiceItem models.PaymentServiceItem) services.PricingDisplayParams {
+	serviceItemPricerInterface := NewServiceItemPricer()
+	serviceItemPricer := serviceItemPricerInterface.(*serviceItemPricer)
+	params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypeHHG
+
+	pricer, err := serviceItemPricer.getPricer(serviceCode)
+	suite.NoError(err)
+
+	params[weightBilledIndex].Value = "500"
+	pricedAtFiveHundred, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+	suite.NoError(err)
+
+	params[weightBilledIndex].Value = "501"
+	pricedAtFiveHundredAndOne, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+	suite.NoError(err)
+	suite.NotEqual(pricedAtFiveHundredAndOne, pricedAtFiveHundred)
+
+	params[weightBilledIndex].Value = "250"
+	pricedAtTwoFifty, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+	suite.NoError(err)
+	suite.Equal(pricedAtFiveHundred, pricedAtTwoFifty)
+
+	params[weightBilledIndex].Value = "100"
+	pricedAtOneHundred, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+	suite.NoError(err)
+	suite.Equal(pricedAtFiveHundred, pricedAtOneHundred)
+
+	return displayParams
+}
+
 func (suite *GHCRateEngineServiceSuite) setupDomesticAccessorialPrice(code models.ReServiceCode, schedule int, perUnitCents unit.Cents, contractYearName string, escalationCompounded float64) {
 	contractYear := testdatagen.MakeReContractYear(suite.DB(),
 		testdatagen.Assertions{

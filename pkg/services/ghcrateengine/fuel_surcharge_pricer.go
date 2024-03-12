@@ -28,7 +28,7 @@ func NewFuelSurchargePricer() services.FuelSurchargePricer {
 }
 
 // Price determines the price for a counseling service
-func (p fuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
+func (p fuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool, disableMinimimWeight bool) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if actualPickupDate.IsZero() {
 		return 0, nil, errors.New("ActualPickupDate is required")
@@ -36,9 +36,13 @@ func (p fuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate tim
 	if distance <= 0 {
 		return 0, nil, errors.New("Distance must be greater than 0")
 	}
-	if !isPPM && weight < minDomesticWeight {
+	if !isPPM && weight < minDomesticWeight && !disableMinimimWeight {
 		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
 	}
+	if weight < 0 {
+		return 0, nil, fmt.Errorf("weight %d is not a valid number", weight)
+	}
+	convertUnderMinWeightToMinWeight(disableMinimimWeight, isPPM, &weight)
 	if fscWeightBasedDistanceMultiplier == 0 {
 		return 0, nil, errors.New("WeightBasedDistanceMultiplier is required")
 	}
@@ -109,5 +113,5 @@ func (p fuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, para
 		isPPM = true
 	}
 
-	return p.Price(appCtx, actualPickupDate, unit.Miles(distance), unit.Pound(weightBilled), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice), isPPM)
+	return p.Price(appCtx, actualPickupDate, unit.Miles(distance), unit.Pound(weightBilled), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice), isPPM, true)
 }

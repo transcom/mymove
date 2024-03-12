@@ -22,7 +22,7 @@ func NewDomesticOriginPricer() services.DomesticOriginPricer {
 }
 
 // Price determines the price for a domestic origin
-func (p domesticOriginPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticOriginPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, isPPM bool, disableMinimumWeight bool) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -30,9 +30,13 @@ func (p domesticOriginPricer) Price(appCtx appcontext.AppContext, contractCode s
 	if referenceDate.IsZero() {
 		return 0, nil, errors.New("ReferenceDate is required")
 	}
-	if !isPPM && weight < minDomesticWeight {
+	if !isPPM && weight < minDomesticWeight && !disableMinimumWeight {
 		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
 	}
+	if weight < 0 {
+		return 0, nil, fmt.Errorf("weight %d is not a valid number", weight)
+	}
+	convertUnderMinWeightToMinWeight(disableMinimumWeight, isPPM, &weight)
 	if len(serviceArea) == 0 {
 		return 0, nil, errors.New("ServiceArea is required")
 	}
@@ -125,5 +129,5 @@ func (p domesticOriginPricer) PriceUsingParams(appCtx appcontext.AppContext, par
 		isPPM = true
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaOrigin, isPPM)
+	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaOrigin, isPPM, true)
 }

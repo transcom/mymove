@@ -15,7 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, servicesSchedule int, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, servicesSchedule int, isPPM bool, disableMinimumWeight bool) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	var domOtherPriceCode models.ReServiceCode
 	switch packUnpackCode {
@@ -32,9 +32,13 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 	if referenceDate.IsZero() {
 		return 0, nil, errors.New("ReferenceDate is required")
 	}
-	if !isPPM && weight < minDomesticWeight {
+	if !isPPM && weight < minDomesticWeight && !disableMinimumWeight {
 		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
 	}
+	if weight < 0 {
+		return 0, nil, fmt.Errorf("weight %d is not a valid number", weight)
+	}
+	convertUnderMinWeightToMinWeight(disableMinimumWeight, isPPM, &weight)
 	if servicesSchedule == 0 {
 		return 0, nil, errors.New("Services schedule is required")
 	}
@@ -101,6 +105,16 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 	return totalCost, displayParams, nil
 }
 
+// This func is to convert lower than minimum domestic weight pounds to the minimum domestic weight pounds that can be billed.
+// Weight is below 500, but we price at a minimum of 500. Per B-18762 the PO has stated that we should allow
+// under 500 but price at the minimum
+// It should not convert if it is a PPM
+func convertUnderMinWeightToMinWeight(disableWeightMinimum bool, isPPM bool, weight *unit.Pound) {
+	if disableWeightMinimum && *weight < minDomesticWeight && !isPPM {
+		*weight = minDomesticWeight
+	}
+}
+
 func priceDomesticFirstDaySIT(appCtx appcontext.AppContext, firstDaySITCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, disableWeightMinimum bool) (unit.Cents, services.PricingDisplayParams, error) {
 	var sitType string
 	if firstDaySITCode == models.ReServiceCodeDDFSIT {
@@ -114,6 +128,13 @@ func priceDomesticFirstDaySIT(appCtx appcontext.AppContext, firstDaySITCode mode
 	if !disableWeightMinimum && weight < minDomesticWeight {
 		return 0, nil, fmt.Errorf("weight of %d less than the minimum of %d", weight, minDomesticWeight)
 	}
+
+	if disableWeightMinimum && weight < 0 {
+		return 0, nil, fmt.Errorf("weight of %d is not a real weight", weight)
+	}
+
+	// TODO: PPM logic (Requires enhancement ticket)
+	convertUnderMinWeightToMinWeight(disableWeightMinimum, false, &weight)
 
 	isPeakPeriod := IsPeakPeriod(referenceDate)
 	serviceAreaPrice, err := fetchDomServiceAreaPrice(appCtx, contractCode, firstDaySITCode, serviceArea, isPeakPeriod)
@@ -154,6 +175,13 @@ func priceDomesticAdditionalDaysSIT(appCtx appcontext.AppContext, additionalDayS
 		return 0, nil, fmt.Errorf("weight of %d less than the minimum of %d", weight, minDomesticWeight)
 	}
 
+	if disableWeightMinimum && weight < 0 {
+		return 0, nil, fmt.Errorf("weight of %d is not a real weight", weight)
+	}
+
+	// TODO: PPM logic (Requires enhancement ticket)
+	convertUnderMinWeightToMinWeight(disableWeightMinimum, false, &weight)
+
 	isPeakPeriod := IsPeakPeriod(referenceDate)
 	serviceAreaPrice, err := fetchDomServiceAreaPrice(appCtx, contractCode, additionalDaySITCode, serviceArea, isPeakPeriod)
 	if err != nil {
@@ -191,7 +219,7 @@ func priceDomesticAdditionalDaysSIT(appCtx appcontext.AppContext, additionalDayS
 	return totalPriceCents, displayParams, nil
 }
 
-func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDeliverySITCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipOriginal string, zipActual string, distance unit.Miles) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDeliverySITCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipOriginal string, zipActual string, distance unit.Miles, disableWeightMinimum bool) (unit.Cents, services.PricingDisplayParams, error) {
 	var sitType, sitModifier, zipOriginalName, zipActualName string
 	if pickupDeliverySITCode == models.ReServiceCodeDDDSIT {
 		sitType = "destination"
@@ -207,9 +235,16 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 		return 0, nil, fmt.Errorf("unsupported pickup/delivery SIT code of %s", pickupDeliverySITCode)
 	}
 
-	if weight < minDomesticWeight {
+	if !disableWeightMinimum && weight < minDomesticWeight {
 		return 0, nil, fmt.Errorf("weight of %d less than the minimum of %d", weight, minDomesticWeight)
 	}
+
+	if disableWeightMinimum && weight < 0 {
+		return 0, nil, fmt.Errorf("weight of %d is not a real weight", weight)
+	}
+
+	// TODO: PPM logic (Requires enhancement ticket)
+	convertUnderMinWeightToMinWeight(disableWeightMinimum, false, &weight)
 
 	if len(zipOriginal) < 5 {
 		return unit.Cents(0), nil, fmt.Errorf("invalid %s postal code of %s", zipOriginalName, zipOriginal)
@@ -265,7 +300,7 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 	if zip3Original == zip3Actual {
 		// Do a normal shorthaul calculation
 		shorthaulPricer := NewDomesticShorthaulPricer()
-		totalPriceCents, displayParams, err := shorthaulPricer.Price(appCtx, contractCode, referenceDate, distance, weight, serviceArea)
+		totalPriceCents, displayParams, err := shorthaulPricer.Price(appCtx, contractCode, referenceDate, distance, weight, serviceArea, true)
 		if err != nil {
 			return unit.Cents(0), nil, fmt.Errorf("could not price shorthaul: %w", err)
 		}
@@ -281,7 +316,7 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 		linehaulPricer := NewDomesticLinehaulPricer()
 		// TODO: This will need adjusting once SIT is implemented for PPMs
 		isPPM := false
-		totalPriceCents, displayParams, err := linehaulPricer.Price(appCtx, contractCode, referenceDate, distance, weight, serviceArea, isPPM)
+		totalPriceCents, displayParams, err := linehaulPricer.Price(appCtx, contractCode, referenceDate, distance, weight, serviceArea, isPPM, true)
 		if err != nil {
 			return unit.Cents(0), nil, fmt.Errorf("could not price linehaul: %w", err)
 		}
@@ -331,7 +366,7 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 	return totalPriceCents, displayParams, nil
 }
 
-func priceDomesticShuttling(appCtx appcontext.AppContext, shuttlingCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticShuttling(appCtx appcontext.AppContext, shuttlingCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, serviceSchedule int, disableMinimumWeight bool) (unit.Cents, services.PricingDisplayParams, error) {
 	if shuttlingCode != models.ReServiceCodeDOSHUT && shuttlingCode != models.ReServiceCodeDDSHUT {
 		return 0, nil, fmt.Errorf("unsupported domestic shuttling code of %s", shuttlingCode)
 	}
@@ -342,8 +377,11 @@ func priceDomesticShuttling(appCtx appcontext.AppContext, shuttlingCode models.R
 	if referenceDate.IsZero() {
 		return 0, nil, errors.New("ReferenceDate is required")
 	}
-	if weight < minDomesticWeight {
+	if weight < minDomesticWeight && !disableMinimumWeight {
 		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
+	}
+	if weight < 0 {
+		return 0, nil, fmt.Errorf("weight %d is not a valid number", weight)
 	}
 	if serviceSchedule == 0 {
 		return 0, nil, errors.New("Service schedule is required")
