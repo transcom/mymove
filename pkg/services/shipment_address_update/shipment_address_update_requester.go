@@ -197,7 +197,57 @@ func (f *shipmentAddressUpdateRequester) mapServiceItemWithUpdatedPriceRequireme
 	return newServiceItem
 }
 
-// RequestShipmentDeliveryAddressUpdate is used to update the destination address of an HHG shipment without SIT after it has been approved by the TOO. If this update could result in excess cost for the customer, this service requires the change to go through TOO approval.
+func checkForApprovedPaymentRequestOnServiceItem(appCtx appcontext.AppContext, mtoShipment models.MTOShipment) (bool, error) {
+	//func checkForApprovedPaymentRequestOnServiceItem(appCtx appcontext.AppContext, mtoShipment models.MTOShipment, mtoServiceItem models.MTOServiceItem) (bool, error) {
+	mtoShipmentSITPaymentServiceItems := models.PaymentServiceItems{}
+
+	err := appCtx.DB().Q().
+		Join("mto_service_items", "mto_service_items.id = payment_service_items.mto_service_item_id").
+		Join("re_services", "re_services.id = mto_service_items.re_service_id").
+		Join("payment_requests", "payment_requests.id = payment_service_items.payment_request_id").
+		Eager("MTOServiceItem.ReService", "PaymentServiceItemParams.ServiceItemParamKey").
+		Where("mto_service_items.mto_shipment_id = ($1)", mtoShipment.ID).
+		Where("payment_requests.status != $2", models.PaymentRequestStatusDeprecated).
+		Where("payment_service_items.status IN ($3, $4, $5)", models.PaymentServiceItemStatusApproved, models.PaymentServiceItemStatusSentToGex, models.PaymentServiceItemStatusPaid).
+		Where("re_services.code IN ($6, $7)", models.ReServiceCodeDSH, models.ReServiceCodeDLH).
+		All(&mtoShipmentSITPaymentServiceItems)
+	if err != nil {
+		return false, err
+	}
+
+	if len(mtoShipmentSITPaymentServiceItems) != 0 {
+		return true, err
+	}
+
+	return false, err
+}
+
+func checkForApprovedPaymentRequestOnServiceItem(appCtx appcontext.AppContext, mtoShipment models.MTOShipment) (bool, error) {
+	//func checkForApprovedPaymentRequestOnServiceItem(appCtx appcontext.AppContext, mtoShipment models.MTOShipment, mtoServiceItem models.MTOServiceItem) (bool, error) {
+	mtoShipmentSITPaymentServiceItems := models.PaymentServiceItems{}
+
+	err := appCtx.DB().Q().
+		Join("mto_service_items", "mto_service_items.id = payment_service_items.mto_service_item_id").
+		Join("re_services", "re_services.id = mto_service_items.re_service_id").
+		Join("payment_requests", "payment_requests.id = payment_service_items.payment_request_id").
+		Eager("MTOServiceItem.ReService", "PaymentServiceItemParams.ServiceItemParamKey").
+		Where("mto_service_items.mto_shipment_id = ($1)", mtoShipment.ID).
+		Where("payment_requests.status != $2", models.PaymentRequestStatusDeprecated).
+		Where("payment_service_items.status IN ($3, $4, $5)", models.PaymentServiceItemStatusApproved, models.PaymentServiceItemStatusSentToGex, models.PaymentServiceItemStatusPaid).
+		Where("re_services.code IN ($6, $7)", models.ReServiceCodeDSH, models.ReServiceCodeDLH).
+		All(&mtoShipmentSITPaymentServiceItems)
+	if err != nil {
+		return false, err
+	}
+
+	if len(mtoShipmentSITPaymentServiceItems) != 0 {
+		return true, err
+	}
+
+	return false, err
+}
+
+// RequestShipmentDeliveryAddressUpdate is used to update the destination address of an HHG shipment after it has been approved by the TOO. If this update could result in excess cost for the customer, this service requires the change to go through TOO approval.
 func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, newAddress models.Address, contractorRemarks string, eTag string) (*models.ShipmentAddressUpdate, error) {
 	var addressUpdate models.ShipmentAddressUpdate
 	var shipment models.MTOShipment
@@ -423,6 +473,8 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 			return nil, err
 		}
 
+		var currServiceItem models.MTOServiceItem
+		var approvedPaymentRequestsExistsForServiceItem bool
 		//If the pricing type has changed then we automatically reject the service items on the shipment since they are now inaccurate
 		if haulPricingTypeHasChanged && len(shipment.MTOServiceItems) > 0 {
 			serviceItems := shipment.MTOServiceItems
@@ -430,21 +482,41 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 			var regeneratedServiceItems models.MTOServiceItems
 
 			for i, serviceItem := range serviceItems {
-				if serviceItem.Status != models.MTOServiceItemStatusRejected {
-					rejectedServiceItem, updateErr := serviceItemUpdater.ApproveOrRejectServiceItem(appCtx, serviceItem.ID, models.MTOServiceItemStatusRejected, &autoRejectionRemark, etag.GenerateEtag(serviceItem.UpdatedAt))
-					if updateErr != nil {
-						return nil, updateErr
-					}
-					copyOfServiceItem := f.mapServiceItemWithUpdatedPriceRequirements(*rejectedServiceItem)
-					serviceItems[i] = *rejectedServiceItem
+				currServiceItem, err = models.FetchServiceItem(appCtx.DB(), serviceItem.ID)
+				if err == nil {
+					if (currServiceItem.ReService.Code == models.ReServiceCodeDSH || currServiceItem.ReService.Code == models.ReServiceCodeDLH) && currServiceItem.Status != models.MTOServiceItemStatusRejected {
+						// check if a payment request for the DSH or DLH service item exists and is in approved, paid, or sent to gex
+						approvedPaymentRequestsExistsForServiceItem, err = checkForApprovedPaymentRequestOnServiceItem(appCtx, shipment)
+						if err != nil {
+							return nil, apperror.NewQueryError("ServiceItemPaymentRequests", err, "")
+						}
+						// only regenerate DSH or DLH if payment has not already been approved
+						if !approvedPaymentRequestsExistsForServiceItem {
+							rejectedServiceItem, updateErr := serviceItemUpdater.ApproveOrRejectServiceItem(appCtx, serviceItem.ID, models.MTOServiceItemStatusRejected, &autoRejectionRemark, etag.GenerateEtag(serviceItem.UpdatedAt))
+							if updateErr != nil {
+								return nil, updateErr
+							}
+							copyOfServiceItem := f.mapServiceItemWithUpdatedPriceRequirements(*rejectedServiceItem)
+							serviceItems[i] = *rejectedServiceItem
 
-					// Regenerate approved service items to replace the rejected ones.
-					// Ensure that the updated pricing is applied (e.g. DLH -> DSH, DSH -> DLH etc.)
-					regeneratedServiceItem, _, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &copyOfServiceItem)
-					if createErr != nil {
-						return nil, createErr
+							// Regenerate approved service items to replace the rejected ones.
+							// Ensure that the updated pricing is applied (e.g. DLH -> DSH, DSH -> DLH etc.)
+							regeneratedServiceItem, _, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &copyOfServiceItem)
+							if createErr != nil {
+								return nil, createErr
+							}
+							regeneratedServiceItems = append(regeneratedServiceItems, *regeneratedServiceItem...)
+							break
+						}
+
 					}
-					regeneratedServiceItems = append(regeneratedServiceItems, *regeneratedServiceItem...)
+				} else if err != nil {
+					switch err {
+					case models.ErrFetchNotFound:
+						return nil, apperror.NewNotFoundError(serviceItem.ID, "while looking for MTOServiceItem")
+					default:
+						return nil, apperror.NewQueryError("MTOServiceItem", err, "")
+					}
 				}
 			}
 
