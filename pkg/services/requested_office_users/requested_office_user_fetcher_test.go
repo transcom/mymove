@@ -4,6 +4,7 @@ import (
 	"errors"
 	"reflect"
 
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -13,12 +14,17 @@ import (
 )
 
 type testRequestedOfficeUsersQueryBuilder struct {
-	fakeFetchOne func(appConfig appcontext.AppContext, model interface{}) error
+	fakeFetchOne  func(appConfig appcontext.AppContext, model interface{}) error
+	fakeUpdateOne func(appConfig appcontext.AppContext, models interface{}, eTag *string) (*validate.Errors, error)
 }
 
 func (t *testRequestedOfficeUsersQueryBuilder) FetchOne(appConfig appcontext.AppContext, model interface{}, _ []services.QueryFilter) error {
 	m := t.fakeFetchOne(appConfig, model)
 	return m
+}
+
+func (t *testRequestedOfficeUsersQueryBuilder) UpdateOne(_ appcontext.AppContext, _ interface{}, _ *string) (*validate.Errors, error) {
+	return nil, nil
 }
 
 func (suite *RequestedOfficeUsersServiceSuite) TestFetchRequestedOfficeUser() {

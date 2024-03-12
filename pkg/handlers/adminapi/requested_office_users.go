@@ -4,8 +4,11 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/requested_office_users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -118,6 +121,40 @@ func (h GetRequestedOfficeUserHandler) Handle(params requested_office_users.GetR
 			}
 
 			payload := payloadForRequestedOfficeUserModel(requestedOfficeUser)
+
+			return requested_office_users.NewGetRequestedOfficeUserOK().WithPayload(payload), nil
+		})
+}
+
+// GetRequestedOfficeUserHandler returns a list of office users via GET /requested_office_users/{officeUserId}
+type UpdateRequestedOfficeUserHandler struct {
+	handlers.HandlerConfig
+	services.RequestedOfficeUserUpdater
+	services.NewQueryFilter
+}
+
+// Handle retrieves a single requested office user
+func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.UpdateRequestedOfficeUserParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			requestedOfficeUserID, err := uuid.FromString(params.OfficeUserID.String())
+			if err != nil {
+				appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", params.OfficeUserID.String()), zap.Error(err))
+			}
+
+			if len(params.Body.Roles) == 0 {
+				err = apperror.NewBadDataError("At least one office user role is required")
+				appCtx.Logger().Error(err.Error())
+				return requested_office_users.NewUpdateRequestedOfficeUserUnprocessableEntity(), err
+			}
+
+			requestedOfficeUser, _, err := h.RequestedOfficeUserUpdater.UpdateRequestedOfficeUser(appCtx, requestedOfficeUserID, params.Body)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			payload := payloadForRequestedOfficeUserModel(*requestedOfficeUser)
 
 			return requested_office_users.NewGetRequestedOfficeUserOK().WithPayload(payload), nil
 		})
