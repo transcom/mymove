@@ -1085,22 +1085,23 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 				serviceItem.SITDeliveryMiles = &milesCalculated
 			}
 
-			transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
-				// update service item final SITDeliveryMiles
-				verrs, err := txnCtx.DB().ValidateAndUpdate(&serviceItem)
-				if verrs != nil && verrs.HasAny() {
-					return apperror.NewInvalidInputError(shipment.ID, err, verrs, "invalid input found while updating final destination address of service item")
-				} else if err != nil {
-					return apperror.NewQueryError("Service item", err, "")
-				}
-
-				return nil
-			})
-
-			if transactionError != nil {
-				return transactionError
-			}
+			mtoServiceItems = append(mtoServiceItems, serviceItem)
 		}
+	}
+	transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
+		// update service item final SITDeliveryMiles
+		verrs, err := txnCtx.DB().ValidateAndUpdate(&mtoServiceItems)
+		if verrs != nil && verrs.HasAny() {
+			return apperror.NewInvalidInputError(shipment.ID, err, verrs, "invalid input found while updating final destination address of service item")
+		} else if err != nil {
+			return apperror.NewQueryError("Service item", err, "")
+		}
+
+		return nil
+	})
+
+	if transactionError != nil {
+		return transactionError
 	}
 
 	return nil

@@ -52,7 +52,7 @@ func UpdateOriginSITServiceItemSITDeliveryMiles(planner route.Planner, shipment 
 	eagerAssociations := []string{"MTOServiceItems.ReService.Code", "MTOServiceItems.SITOriginHHGOriginalAddress", "MTOServiceItems"}
 	mtoShipment, err := FindShipment(appCtx, shipment.ID, eagerAssociations...)
 	if err != nil {
-		return &updatedMtoServiceItems, nil
+		return &updatedMtoServiceItems, err
 	}
 
 	mtoServiceItems := mtoShipment.MTOServiceItems
@@ -76,23 +76,23 @@ func UpdateOriginSITServiceItemSITDeliveryMiles(planner route.Planner, shipment 
 			}
 
 			updatedMtoServiceItems = append(updatedMtoServiceItems, serviceItem)
-			transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
-				// update service item SITDeliveryMiles
-				verrs, err := txnCtx.DB().ValidateAndUpdate(&serviceItem)
-				if verrs != nil && verrs.HasAny() {
-					return apperror.NewInvalidInputError(newAddress.ID, err, verrs, "invalid input found while updating SIT delivery miles for service item")
-				} else if err != nil {
-					return apperror.NewQueryError("Service item", err, "")
-				}
-
-				return nil
-			})
-
-			// if there was a transaction error, we'll return nothing but the error
-			if transactionError != nil {
-				return nil, transactionError
-			}
 		}
+	}
+	transactionError := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
+		// update service item SITDeliveryMiles
+		verrs, err := txnCtx.DB().ValidateAndUpdate(&updatedMtoServiceItems)
+		if verrs != nil && verrs.HasAny() {
+			return apperror.NewInvalidInputError(newAddress.ID, err, verrs, "invalid input found while updating SIT delivery miles for service items")
+		} else if err != nil {
+			return apperror.NewQueryError("Service items", err, "")
+		}
+
+		return nil
+	})
+
+	// if there was a transaction error, we'll return nothing but the error
+	if transactionError != nil {
+		return nil, transactionError
 	}
 
 	return &updatedMtoServiceItems, nil
