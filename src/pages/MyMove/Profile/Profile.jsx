@@ -68,6 +68,9 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
     ? generatePath(customerRoutes.MOVE_HOME_PATH, { moveId })
     : generalRoutes.HOME_PATH;
 
+  const editContactPath = generatePath(customerRoutes.CONTACT_INFO_EDIT_PATH, { moveId });
+  const editOktaPath = generatePath(customerRoutes.EDIT_OKTA_PROFILE_PATH, { moveId });
+
   // displays the profile data for MilMove & Okta
   // Profile w/contact info for servicemember & backup contact
   // Service info that displays name, branch, pay grade, DoDID/EDIPI, and current duty location
@@ -104,7 +107,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               residentialAddress={serviceMember?.residential_address || ''}
               backupMailingAddress={serviceMember?.backup_mailing_address || ''}
               backupContact={backupContact}
-              editURL={customerRoutes.CONTACT_INFO_EDIT_PATH}
+              editURL={editContactPath}
             />
           </SectionWrapper>
           {showMessages && (
@@ -134,7 +137,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
               oktaFirstName={oktaUser?.firstName || 'Not Provided'}
               oktaLastName={oktaUser?.lastName || 'Not Provided'}
               oktaEdipi={oktaUser?.cac_edipi || 'Not Provided'}
-              editURL={customerRoutes.EDIT_OKTA_PROFILE_PATH}
+              editURL={editOktaPath}
             />
           </SectionWrapper>
           {needsToVerifyProfile && (
