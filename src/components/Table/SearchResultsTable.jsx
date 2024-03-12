@@ -17,135 +17,115 @@ import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheck
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 
 const columns = [
-  {
-    Header: '',
-    columns: [
-      createHeader('Move code', 'locator', {
-        id: 'locator',
-        isFilterable: false,
-      }),
-      createHeader('DOD ID', 'dodID', {
-        id: 'dodID',
-        isFilterable: false,
-      }),
-      createHeader(
-        'Customer name',
-        (row) => {
-          return `${row.lastName}, ${row.firstName}`;
-        },
-        {
-          id: 'customerName',
-          isFilterable: false,
-        },
-      ),
-      createHeader(
-        'Status',
-        (row) => {
-          return MOVE_STATUS_LABELS[`${row.status}`];
-        },
-        {
-          id: 'status',
-          isFilterable: true,
-          // eslint-disable-next-line react/jsx-props-no-spreading
-          Filter: (props) => <MultiSelectCheckBoxFilter options={MOVE_STATUS_OPTIONS} {...props} />,
-        },
-      ),
-      createHeader(
-        'Branch',
-        (row) => {
-          return serviceMemberAgencyLabel(row.branch);
-        },
-        {
-          id: 'branch',
-          isFilterable: true,
-          Filter: (props) => (
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            <SelectFilter options={BRANCH_OPTIONS} {...props} />
-          ),
-        },
-      ),
-      createHeader(
-        'Number of Shipments',
-        (row) => {
-          return Number(row.shipmentsCount || 0);
-        },
-        { id: 'shipmentsCount', isFilterable: true },
-      ),
-    ],
-    id: 'maininfo',
+  createHeader('Move code', 'locator', {
+    id: 'locator',
     isFilterable: false,
-    showFilters: false,
-  },
-  {
-    Header: 'Origin',
-    columns: [
-      createHeader(
-        'ZIP',
-        (row) => {
-          return row.originDutyLocationPostalCode;
-        },
-        {
-          id: 'originPostalCode',
-          isFilterable: true,
-        },
-      ),
-      createHeader(
-        'GBLOC',
-        (row) => {
-          return row.originGBLOC;
-        },
-        { id: 'originGBLOC', isFilterable: false },
-      ),
-      createHeader(
-        'Pickup Date',
-        (row) => {
-          return formatDateFromIso(row.requestedPickupDate, DATE_FORMAT_STRING);
-        },
-        {
-          id: 'pickupDate',
-          isFilterable: true,
-          // eslint-disable-next-line react/jsx-props-no-spreading
-          Filter: (props) => <DateSelectFilter dateTime {...props} />,
-        },
-      ),
-    ],
+  }),
+  createHeader('DOD ID', 'dodID', {
+    id: 'dodID',
     isFilterable: false,
-    showFilters: false,
-  },
-  {
-    Header: 'Destination',
-    columns: [
-      createHeader(
-        'ZIP',
-        (row) => {
-          return row.destinationDutyLocationPostalCode;
-        },
-        {
-          id: 'destinationPostalCode',
-          isFilterable: true,
-        },
+  }),
+  createHeader(
+    'Customer name',
+    (row) => {
+      return `${row.lastName}, ${row.firstName}`;
+    },
+    {
+      id: 'customerName',
+      isFilterable: false,
+    },
+  ),
+  createHeader(
+    'Status',
+    (row) => {
+      return MOVE_STATUS_LABELS[`${row.status}`];
+    },
+    {
+      id: 'status',
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <MultiSelectCheckBoxFilter options={MOVE_STATUS_OPTIONS} {...props} />,
+    },
+  ),
+  createHeader(
+    'Branch',
+    (row) => {
+      return serviceMemberAgencyLabel(row.branch);
+    },
+    {
+      id: 'branch',
+      isFilterable: true,
+      Filter: (props) => (
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        <SelectFilter options={BRANCH_OPTIONS} {...props} />
       ),
-      createHeader(
-        'GBLOC',
-        (row) => {
-          return row.destinationGBLOC;
-        },
-        { id: 'destinationGBLOC' },
-      ),
-      createHeader(
-        'Delivery Date',
-        (row) => {
-          return formatDateFromIso(row.requestedDeliveryDate, DATE_FORMAT_STRING);
-        },
-        {
-          id: 'deliveryDate',
-          isFilterable: true,
-          // eslint-disable-next-line react/jsx-props-no-spreading
-          Filter: (props) => <DateSelectFilter dateTime {...props} />,
-        },
-      ),
-    ],
-  },
+    },
+  ),
+  createHeader(
+    'Number of Shipments',
+    (row) => {
+      return Number(row.shipmentsCount || 0);
+    },
+    { id: 'shipmentsCount', isFilterable: true },
+  ),
+  createHeader(
+    'Origin ZIP',
+    (row) => {
+      return row.originDutyLocationPostalCode;
+    },
+    {
+      id: 'originPostalCode',
+      isFilterable: true,
+    },
+  ),
+  createHeader(
+    'Origin GBLOC',
+    (row) => {
+      return row.originGBLOC;
+    },
+    { id: 'originGBLOC', isFilterable: false },
+  ),
+  createHeader(
+    'Pickup Date',
+    (row) => {
+      return formatDateFromIso(row.requestedPickupDate, DATE_FORMAT_STRING);
+    },
+    {
+      id: 'pickupDate',
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <DateSelectFilter dateTime {...props} />,
+    },
+  ),
+  createHeader(
+    'Destination ZIP',
+    (row) => {
+      return row.destinationDutyLocationPostalCode;
+    },
+    {
+      id: 'destinationPostalCode',
+      isFilterable: true,
+    },
+  ),
+  createHeader(
+    'Destination GBLOC',
+    (row) => {
+      return row.destinationGBLOC;
+    },
+    { id: 'destinationGBLOC' },
+  ),
+  createHeader(
+    'Delivery Date',
+    (row) => {
+      return formatDateFromIso(row.requestedDeliveryDate, DATE_FORMAT_STRING);
+    },
+    {
+      id: 'deliveryDate',
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <DateSelectFilter dateTime {...props} />,
+    },
+  ),
 ];
 
 // SearchResultsTable is a react-table that uses react-hooks to fetch, filter, sort and page data
