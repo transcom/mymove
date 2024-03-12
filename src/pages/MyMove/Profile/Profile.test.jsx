@@ -89,7 +89,7 @@ describe('Profile component', () => {
         },
       },
     };
-    useLocation.mockReturnValue({});
+    useLocation.mockReturnValue({ state: { moveId: 'test' } });
 
     if (multiMove) {
       render(
@@ -187,7 +187,7 @@ describe('Profile component', () => {
         },
       },
     };
-    useLocation.mockReturnValue({});
+    useLocation.mockReturnValue({ state: { moveId: 'test' } });
 
     if (multiMove) {
       render(
@@ -301,7 +301,7 @@ describe('Profile component', () => {
         },
       },
     };
-    useLocation.mockReturnValue({});
+    useLocation.mockReturnValue({ state: { moveId: 'test' } });
 
     if (multiMove) {
       render(
@@ -410,7 +410,7 @@ describe('Profile component', () => {
       },
     };
 
-    useLocation.mockReturnValue({ state: { needsToVerifyProfile: true } });
+    useLocation.mockReturnValue({ state: { needsToVerifyProfile: true, moveId: 'test' } });
 
     if (multiMove) {
       render(
