@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams, generatePath } from 'react-router-dom';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
 import { OktaUserInfoShape } from 'types/user';
@@ -15,7 +15,7 @@ import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
 export const EditOktaInfo = ({ serviceMember, setFlashMessage, oktaUser, updateOktaUserState }) => {
   const navigate = useNavigate();
-  const { state } = useLocation();
+  const { moveId } = useParams();
   const [serverError, setServerError] = useState(null);
   const [noChangeError, setNoChangeError] = useState(null);
 
@@ -29,7 +29,7 @@ export const EditOktaInfo = ({ serviceMember, setFlashMessage, oktaUser, updateO
   };
 
   const handleCancel = () => {
-    navigate(customerRoutes.PROFILE_PATH, { state });
+    navigate(generatePath(customerRoutes.PROFILE_PATH, { moveId }));
   };
 
   // sends POST request to Okta API with form values
@@ -61,7 +61,7 @@ export const EditOktaInfo = ({ serviceMember, setFlashMessage, oktaUser, updateO
         .then((response) => {
           updateOktaUserState(response);
           setFlashMessage('EDIT_OKTA_PROFILE_SUCCESS', 'success', "You've updated your Okta profile.");
-          navigate(customerRoutes.PROFILE_PATH, { state });
+          navigate(generatePath(customerRoutes.PROFILE_PATH, { moveId }));
         })
         .catch((e) => {
           const { response } = e;
