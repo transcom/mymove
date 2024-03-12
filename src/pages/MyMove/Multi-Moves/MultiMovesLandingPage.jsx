@@ -93,7 +93,11 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
           </div>
         </header>
         <div className={`usa-prose grid-container ${styles['grid-container']}`}>
-          {serviceMemberMoves && serviceMemberMoves.previousMoves && serviceMemberMoves.previousMoves.length === 0 ? (
+          {serviceMemberMoves &&
+          serviceMemberMoves.previousMoves &&
+          serviceMemberMoves.previousMoves.length === 0 &&
+          serviceMemberMoves.currentMove &&
+          serviceMemberMoves.currentMove.length === 0 ? (
             <Helper title="Welcome to MilMove!" className={styles['helper-paragraph-only']}>
               <p data-testid="welcomeHeader">
                 Select &quot;Create a Move&quot; to get started. <br />
