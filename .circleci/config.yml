@@ -657,7 +657,6 @@ commands:
             mkdir -p images/sha
             echo $(aws ecr describe-images --repository-name << parameters.repo >> --image-ids imageTag=git-${CIRCLE_SHA1} | jq ".imageDetails[0] .imageDigest" -r) > images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
             cat images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
-            sleep 60
       - run:
           name: 'Describe image scan findings'
           command: scripts/ecr-describe-image-scan-findings << parameters.repo >> $(cat images/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>)

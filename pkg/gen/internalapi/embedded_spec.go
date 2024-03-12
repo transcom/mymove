@@ -1439,7 +1439,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* Shipment type is required in body\n\nOptional fields include:\n* New shipment status type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n* Actual Pro Gear Weight\n* Actual Spouse Pro Gear Weight\n",
+        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* Shipment type is required in body\n\nOptional fields include:\n* New shipment status type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
           "application/json"
         ],
@@ -3113,13 +3113,6 @@ func init() {
             "name": "uploadId",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "ID of the order that the upload belongs to",
-            "name": "orderId",
-            "in": "query"
           }
         ],
         "responses": {
@@ -3445,6 +3438,20 @@ func init() {
         }
       }
     },
+    "CategoryExpenseSummary": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "$ref": "#/definitions/MovingExpenseType"
+        },
+        "payment_methods": {
+          "$ref": "#/definitions/PaymentMethodsTotals"
+        },
+        "total": {
+          "type": "integer"
+        }
+      }
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -3507,15 +3514,10 @@ func init() {
       "required": [
         "expectedDepartureDate",
         "pickupPostalCode",
-        "pickupAddress",
         "destinationPostalCode",
-        "destinationAddress",
         "sitExpected"
       ],
       "properties": {
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
         "destinationPostalCode": {
           "type": "string",
           "format": "zip",
@@ -3528,9 +3530,6 @@ func init() {
           "type": "string",
           "format": "date"
         },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
-        },
         "pickupPostalCode": {
           "description": "zip code",
           "type": "string",
@@ -3539,18 +3538,12 @@ func init() {
           "pattern": "^(\\d{5})$",
           "example": "90210"
         },
-        "secondaryDestinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
         "secondaryDestinationPostalCode": {
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "$ref": "#/definitions/NullableString",
           "example": "90210"
-        },
-        "secondaryPickupAddress": {
-          "$ref": "#/definitions/Address"
         },
         "secondaryPickupPostalCode": {
           "format": "zip",
@@ -3563,6 +3556,26 @@ func init() {
           "type": "boolean"
         }
       }
+    },
+    "CreateReimbursement": {
+      "type": "object",
+      "required": [
+        "requested_amount",
+        "method_of_receipt"
+      ],
+      "properties": {
+        "method_of_receipt": {
+          "$ref": "#/definitions/MethodOfReceipt"
+        },
+        "requested_amount": {
+          "description": "unit is cents",
+          "type": "integer",
+          "format": "cents",
+          "title": "Requested Amount",
+          "minimum": 1
+        }
+      },
+      "x-nullable": true
     },
     "CreateServiceMemberBackupContactPayload": {
       "type": "object",
@@ -4139,6 +4152,12 @@ func init() {
         "$ref": "#/definitions/MovePayload"
       }
     },
+    "IndexPersonallyProcuredMovePayload": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PersonallyProcuredMovePayload"
+      }
+    },
     "IndexServiceMemberBackupContactsPayload": {
       "type": "array",
       "items": {
@@ -4148,9 +4167,6 @@ func init() {
     "InternalMove": {
       "type": "object",
       "properties": {
-        "closeoutOffice": {
-          "$ref": "#/definitions/TransportationOffice"
-        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -4318,16 +4334,6 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
-        "actualProGearWeight": {
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "actualSpouseProGearWeight": {
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
@@ -4454,6 +4460,75 @@ func init() {
         "OTHER_DD": "Other account"
       },
       "x-nullable": true
+    },
+    "MoveDatesSummary": {
+      "type": "object",
+      "required": [
+        "id",
+        "move_id",
+        "move_date",
+        "pack",
+        "pickup",
+        "transit",
+        "delivery",
+        "report"
+      ],
+      "properties": {
+        "delivery": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "date",
+            "example": "2018-09-25"
+          }
+        },
+        "id": {
+          "type": "string",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538:2018-09-25"
+        },
+        "move_date": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-09-25"
+        },
+        "move_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "pack": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "date",
+            "example": "2018-09-25"
+          }
+        },
+        "pickup": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "date",
+            "example": "2018-09-25"
+          }
+        },
+        "report": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "date",
+            "example": "2018-09-25"
+          }
+        },
+        "transit": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "date",
+            "example": "2018-09-25"
+          }
+        }
+      }
     },
     "MoveDocumentPayload": {
       "type": "object",
@@ -4682,6 +4757,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "personally_procured_moves": {
+          "$ref": "#/definitions/IndexPersonallyProcuredMovePayload"
         },
         "service_member_id": {
           "type": "string",
@@ -5403,11 +5481,9 @@ func init() {
         "PERMANENT_CHANGE_OF_STATION",
         "LOCAL_MOVE",
         "RETIREMENT",
-        "SEPARATION",
-        "BLUEBARK"
+        "SEPARATION"
       ],
       "x-display-value": {
-        "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
@@ -5542,9 +5618,6 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
         "destinationPostalCode": {
           "description": "The postal code of the destination location where goods are being delivered to.",
           "type": "string",
@@ -5617,9 +5690,6 @@ func init() {
             "$ref": "#/definitions/MovingExpense"
           }
         },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
-        },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",
           "type": "string",
@@ -5648,19 +5718,6 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "secondaryDestinationAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            },
-            {
-              "x-nullable": true
-            },
-            {
-              "x-omitempty": false
-            }
-          ]
-        },
         "secondaryDestinationPostalCode": {
           "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
@@ -5670,19 +5727,6 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": "90210"
-        },
-        "secondaryPickupAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            },
-            {
-              "x-nullable": true
-            },
-            {
-              "x-omitempty": false
-            }
-          ]
         },
         "secondaryPickupPostalCode": {
           "type": "string",
@@ -5805,6 +5849,26 @@ func init() {
         }
       }
     },
+    "PPMStatus": {
+      "type": "string",
+      "title": "PPM status",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVED",
+        "COMPLETED",
+        "CANCELED",
+        "PAYMENT_REQUESTED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "CANCELED": "Canceled",
+        "COMPLETED": "Completed",
+        "DRAFT": "Draft",
+        "PAYMENT_REQUESTED": "Payment Requested",
+        "SUBMITTED": "Submitted"
+      }
+    },
     "PatchMovePayload": {
       "type": "object",
       "required": [
@@ -5908,6 +5972,212 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "PaymentMethodsTotals": {
+      "type": "object",
+      "properties": {
+        "GTCC": {
+          "type": "integer"
+        },
+        "MIL_PAY": {
+          "type": "integer"
+        },
+        "OTHER": {
+          "type": "integer"
+        }
+      }
+    },
+    "PersonallyProcuredMovePayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "actual_move_date": {
+          "type": "string",
+          "format": "date",
+          "title": "When did you actually move?",
+          "x-nullable": true,
+          "example": "2018-04-26"
+        },
+        "additional_pickup_postal_code": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP code",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "advance": {
+          "$ref": "#/definitions/Reimbursement"
+        },
+        "advance_worksheet": {
+          "$ref": "#/definitions/Document"
+        },
+        "approve_date": {
+          "type": "string",
+          "format": "date-time",
+          "title": "When was the ppm move approved?",
+          "x-nullable": true,
+          "example": "2019-03-26T13:19:56-04:00"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "days_in_storage": {
+          "type": "integer",
+          "title": "How many days of storage do you think you'll need?",
+          "maximum": 90,
+          "x-nullable": true
+        },
+        "destination_postal_code": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP code",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "estimated_storage_reimbursement": {
+          "type": "string",
+          "title": "Estimated Storage Reimbursement",
+          "x-nullable": true
+        },
+        "has_additional_postal_code": {
+          "type": "boolean",
+          "title": "Will you move anything from another pickup location?",
+          "x-nullable": true
+        },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-display-value": {
+            "NO": "No",
+            "NOT SURE": "Not Sure",
+            "YES": "Yes"
+          },
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-display-value": {
+            "NO": "No",
+            "NOT SURE": "Not Sure",
+            "YES": "Yes"
+          },
+          "x-nullable": true
+        },
+        "has_requested_advance": {
+          "type": "boolean",
+          "title": "Would you like an advance of up to 60% of your PPM incentive?",
+          "default": false
+        },
+        "has_sit": {
+          "type": "boolean",
+          "title": "Will you put anything in storage?",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "incentive_estimate_max": {
+          "type": "integer",
+          "title": "Estimated incentive maximum in cents",
+          "x-nullable": true
+        },
+        "incentive_estimate_min": {
+          "type": "integer",
+          "title": "Estimated incentive minimum in cents",
+          "x-nullable": true
+        },
+        "mileage": {
+          "type": "integer",
+          "title": "Distance between origin and destination in miles",
+          "x-nullable": true
+        },
+        "move_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "net_weight": {
+          "type": "integer",
+          "title": "Net Weight",
+          "minimum": 1,
+          "x-formatting": "weight",
+          "x-nullable": true
+        },
+        "original_move_date": {
+          "type": "string",
+          "format": "date",
+          "title": "When do you plan to move?",
+          "x-nullable": true,
+          "example": "2018-04-26"
+        },
+        "pickup_postal_code": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP code",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "planned_sit_max": {
+          "type": "integer",
+          "title": "Maximum SIT reimbursement for the planned SIT duration",
+          "x-nullable": true
+        },
+        "sit_max": {
+          "type": "integer",
+          "title": "Maximum SIT reimbursement for maximum SIT duration",
+          "x-nullable": true
+        },
+        "size": {
+          "$ref": "#/definitions/TShirtSize"
+        },
+        "status": {
+          "$ref": "#/definitions/PPMStatus"
+        },
+        "submit_date": {
+          "type": "string",
+          "format": "date-time",
+          "title": "When was the ppm move submitted?",
+          "x-nullable": true,
+          "example": "2019-03-26T13:19:56-04:00"
+        },
+        "total_sit_cost": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Total cost for the planned SIT duration",
+          "x-nullable": true
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "weight_estimate": {
+          "type": "integer",
+          "title": "Weight Estimate",
+          "x-formatting": "weight",
+          "x-nullable": true
         }
       }
     },
@@ -6500,6 +6770,16 @@ func init() {
         }
       }
     },
+    "TShirtSize": {
+      "type": "string",
+      "title": "Size",
+      "enum": [
+        "S",
+        "M",
+        "L"
+      ],
+      "x-nullable": true
+    },
     "TransportationOffice": {
       "type": "object",
       "required": [
@@ -6651,9 +6931,6 @@ func init() {
           "format": "cents",
           "x-nullable": true
         },
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
         "destinationPostalCode": {
           "type": "string",
           "format": "zip",
@@ -6696,9 +6973,6 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
-        },
         "pickupPostalCode": {
           "description": "zip code",
           "type": "string",
@@ -6712,18 +6986,12 @@ func init() {
           "type": "integer",
           "x-nullable": true
         },
-        "secondaryDestinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
         "secondaryDestinationPostalCode": {
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "$ref": "#/definitions/NullableString",
           "example": "90210"
-        },
-        "secondaryPickupAddress": {
-          "$ref": "#/definitions/Address"
         },
         "secondaryPickupPostalCode": {
           "format": "zip",
@@ -6803,16 +7071,6 @@ func init() {
     "UpdateShipment": {
       "type": "object",
       "properties": {
-        "actualProGearWeight": {
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "actualSpouseProGearWeight": {
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
@@ -8829,7 +9087,7 @@ func init() {
         }
       },
       "patch": {
-        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* Shipment type is required in body\n\nOptional fields include:\n* New shipment status type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n* Actual Pro Gear Weight\n* Actual Spouse Pro Gear Weight\n",
+        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* Shipment type is required in body\n\nOptional fields include:\n* New shipment status type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
           "application/json"
         ],
@@ -10901,13 +11159,6 @@ func init() {
             "name": "uploadId",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "ID of the order that the upload belongs to",
-            "name": "orderId",
-            "in": "query"
           }
         ],
         "responses": {
@@ -11233,6 +11484,20 @@ func init() {
         }
       }
     },
+    "CategoryExpenseSummary": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "$ref": "#/definitions/MovingExpenseType"
+        },
+        "payment_methods": {
+          "$ref": "#/definitions/PaymentMethodsTotals"
+        },
+        "total": {
+          "type": "integer"
+        }
+      }
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -11295,15 +11560,10 @@ func init() {
       "required": [
         "expectedDepartureDate",
         "pickupPostalCode",
-        "pickupAddress",
         "destinationPostalCode",
-        "destinationAddress",
         "sitExpected"
       ],
       "properties": {
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
         "destinationPostalCode": {
           "type": "string",
           "format": "zip",
@@ -11316,9 +11576,6 @@ func init() {
           "type": "string",
           "format": "date"
         },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
-        },
         "pickupPostalCode": {
           "description": "zip code",
           "type": "string",
@@ -11327,18 +11584,12 @@ func init() {
           "pattern": "^(\\d{5})$",
           "example": "90210"
         },
-        "secondaryDestinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
         "secondaryDestinationPostalCode": {
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "$ref": "#/definitions/NullableString",
           "example": "90210"
-        },
-        "secondaryPickupAddress": {
-          "$ref": "#/definitions/Address"
         },
         "secondaryPickupPostalCode": {
           "format": "zip",
@@ -11351,6 +11602,26 @@ func init() {
           "type": "boolean"
         }
       }
+    },
+    "CreateReimbursement": {
+      "type": "object",
+      "required": [
+        "requested_amount",
+        "method_of_receipt"
+      ],
+      "properties": {
+        "method_of_receipt": {
+          "$ref": "#/definitions/MethodOfReceipt"
+        },
+        "requested_amount": {
+          "description": "unit is cents",
+          "type": "integer",
+          "format": "cents",
+          "title": "Requested Amount",
+          "minimum": 1
+        }
+      },
+      "x-nullable": true
     },
     "CreateServiceMemberBackupContactPayload": {
       "type": "object",
@@ -11929,6 +12200,12 @@ func init() {
         "$ref": "#/definitions/MovePayload"
       }
     },
+    "IndexPersonallyProcuredMovePayload": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PersonallyProcuredMovePayload"
+      }
+    },
     "IndexServiceMemberBackupContactsPayload": {
       "type": "array",
       "items": {
@@ -11938,9 +12215,6 @@ func init() {
     "InternalMove": {
       "type": "object",
       "properties": {
-        "closeoutOffice": {
-          "$ref": "#/definitions/TransportationOffice"
-        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -12108,16 +12382,6 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
-        "actualProGearWeight": {
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "actualSpouseProGearWeight": {
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
@@ -12244,6 +12508,75 @@ func init() {
         "OTHER_DD": "Other account"
       },
       "x-nullable": true
+    },
+    "MoveDatesSummary": {
+      "type": "object",
+      "required": [
+        "id",
+        "move_id",
+        "move_date",
+        "pack",
+        "pickup",
+        "transit",
+        "delivery",
+        "report"
+      ],
+      "properties": {
+        "delivery": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "date",
+            "example": "2018-09-25"
+          }
+        },
+        "id": {
+          "type": "string",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538:2018-09-25"
+        },
+        "move_date": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-09-25"
+        },
+        "move_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "pack": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "date",
+            "example": "2018-09-25"
+          }
+        },
+        "pickup": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "date",
+            "example": "2018-09-25"
+          }
+        },
+        "report": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "date",
+            "example": "2018-09-25"
+          }
+        },
+        "transit": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "date",
+            "example": "2018-09-25"
+          }
+        }
+      }
     },
     "MoveDocumentPayload": {
       "type": "object",
@@ -12474,6 +12807,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "personally_procured_moves": {
+          "$ref": "#/definitions/IndexPersonallyProcuredMovePayload"
         },
         "service_member_id": {
           "type": "string",
@@ -13195,11 +13531,9 @@ func init() {
         "PERMANENT_CHANGE_OF_STATION",
         "LOCAL_MOVE",
         "RETIREMENT",
-        "SEPARATION",
-        "BLUEBARK"
+        "SEPARATION"
       ],
       "x-display-value": {
-        "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
@@ -13334,9 +13668,6 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
         "destinationPostalCode": {
           "description": "The postal code of the destination location where goods are being delivered to.",
           "type": "string",
@@ -13409,9 +13740,6 @@ func init() {
             "$ref": "#/definitions/MovingExpense"
           }
         },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
-        },
         "pickupPostalCode": {
           "description": "The postal code of the origin location where goods are being moved from.",
           "type": "string",
@@ -13440,19 +13768,6 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "secondaryDestinationAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            },
-            {
-              "x-nullable": true
-            },
-            {
-              "x-omitempty": false
-            }
-          ]
-        },
         "secondaryDestinationPostalCode": {
           "description": "An optional secondary location near the destination where goods will be dropped off.",
           "type": "string",
@@ -13462,19 +13777,6 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": "90210"
-        },
-        "secondaryPickupAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            },
-            {
-              "x-nullable": true
-            },
-            {
-              "x-omitempty": false
-            }
-          ]
         },
         "secondaryPickupPostalCode": {
           "type": "string",
@@ -13597,6 +13899,26 @@ func init() {
         }
       }
     },
+    "PPMStatus": {
+      "type": "string",
+      "title": "PPM status",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVED",
+        "COMPLETED",
+        "CANCELED",
+        "PAYMENT_REQUESTED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "CANCELED": "Canceled",
+        "COMPLETED": "Completed",
+        "DRAFT": "Draft",
+        "PAYMENT_REQUESTED": "Payment Requested",
+        "SUBMITTED": "Submitted"
+      }
+    },
     "PatchMovePayload": {
       "type": "object",
       "required": [
@@ -13700,6 +14022,214 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "PaymentMethodsTotals": {
+      "type": "object",
+      "properties": {
+        "GTCC": {
+          "type": "integer"
+        },
+        "MIL_PAY": {
+          "type": "integer"
+        },
+        "OTHER": {
+          "type": "integer"
+        }
+      }
+    },
+    "PersonallyProcuredMovePayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "actual_move_date": {
+          "type": "string",
+          "format": "date",
+          "title": "When did you actually move?",
+          "x-nullable": true,
+          "example": "2018-04-26"
+        },
+        "additional_pickup_postal_code": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP code",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "advance": {
+          "$ref": "#/definitions/Reimbursement"
+        },
+        "advance_worksheet": {
+          "$ref": "#/definitions/Document"
+        },
+        "approve_date": {
+          "type": "string",
+          "format": "date-time",
+          "title": "When was the ppm move approved?",
+          "x-nullable": true,
+          "example": "2019-03-26T13:19:56-04:00"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "days_in_storage": {
+          "type": "integer",
+          "title": "How many days of storage do you think you'll need?",
+          "maximum": 90,
+          "minimum": 0,
+          "x-nullable": true
+        },
+        "destination_postal_code": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP code",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "estimated_storage_reimbursement": {
+          "type": "string",
+          "title": "Estimated Storage Reimbursement",
+          "x-nullable": true
+        },
+        "has_additional_postal_code": {
+          "type": "boolean",
+          "title": "Will you move anything from another pickup location?",
+          "x-nullable": true
+        },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-display-value": {
+            "NO": "No",
+            "NOT SURE": "Not Sure",
+            "YES": "Yes"
+          },
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-display-value": {
+            "NO": "No",
+            "NOT SURE": "Not Sure",
+            "YES": "Yes"
+          },
+          "x-nullable": true
+        },
+        "has_requested_advance": {
+          "type": "boolean",
+          "title": "Would you like an advance of up to 60% of your PPM incentive?",
+          "default": false
+        },
+        "has_sit": {
+          "type": "boolean",
+          "title": "Will you put anything in storage?",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "incentive_estimate_max": {
+          "type": "integer",
+          "title": "Estimated incentive maximum in cents",
+          "x-nullable": true
+        },
+        "incentive_estimate_min": {
+          "type": "integer",
+          "title": "Estimated incentive minimum in cents",
+          "x-nullable": true
+        },
+        "mileage": {
+          "type": "integer",
+          "title": "Distance between origin and destination in miles",
+          "x-nullable": true
+        },
+        "move_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "net_weight": {
+          "type": "integer",
+          "title": "Net Weight",
+          "minimum": 1,
+          "x-formatting": "weight",
+          "x-nullable": true
+        },
+        "original_move_date": {
+          "type": "string",
+          "format": "date",
+          "title": "When do you plan to move?",
+          "x-nullable": true,
+          "example": "2018-04-26"
+        },
+        "pickup_postal_code": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP code",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "x-nullable": true,
+          "example": "90210"
+        },
+        "planned_sit_max": {
+          "type": "integer",
+          "title": "Maximum SIT reimbursement for the planned SIT duration",
+          "x-nullable": true
+        },
+        "sit_max": {
+          "type": "integer",
+          "title": "Maximum SIT reimbursement for maximum SIT duration",
+          "x-nullable": true
+        },
+        "size": {
+          "$ref": "#/definitions/TShirtSize"
+        },
+        "status": {
+          "$ref": "#/definitions/PPMStatus"
+        },
+        "submit_date": {
+          "type": "string",
+          "format": "date-time",
+          "title": "When was the ppm move submitted?",
+          "x-nullable": true,
+          "example": "2019-03-26T13:19:56-04:00"
+        },
+        "total_sit_cost": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Total cost for the planned SIT duration",
+          "x-nullable": true
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "weight_estimate": {
+          "type": "integer",
+          "title": "Weight Estimate",
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true
         }
       }
     },
@@ -14293,6 +14823,16 @@ func init() {
         }
       }
     },
+    "TShirtSize": {
+      "type": "string",
+      "title": "Size",
+      "enum": [
+        "S",
+        "M",
+        "L"
+      ],
+      "x-nullable": true
+    },
     "TransportationOffice": {
       "type": "object",
       "required": [
@@ -14444,9 +14984,6 @@ func init() {
           "format": "cents",
           "x-nullable": true
         },
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
         "destinationPostalCode": {
           "type": "string",
           "format": "zip",
@@ -14489,9 +15026,6 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
-        },
         "pickupPostalCode": {
           "description": "zip code",
           "type": "string",
@@ -14505,18 +15039,12 @@ func init() {
           "type": "integer",
           "x-nullable": true
         },
-        "secondaryDestinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
         "secondaryDestinationPostalCode": {
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "$ref": "#/definitions/NullableString",
           "example": "90210"
-        },
-        "secondaryPickupAddress": {
-          "$ref": "#/definitions/Address"
         },
         "secondaryPickupPostalCode": {
           "format": "zip",
@@ -14597,16 +15125,6 @@ func init() {
     "UpdateShipment": {
       "type": "object",
       "properties": {
-        "actualProGearWeight": {
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "actualSpouseProGearWeight": {
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },

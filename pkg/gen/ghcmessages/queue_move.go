@@ -47,9 +47,6 @@ type QueueMove struct {
 	// locator
 	Locator string `json:"locator,omitempty"`
 
-	// order type
-	OrderType *string `json:"orderType,omitempty"`
-
 	// origin duty location
 	OriginDutyLocation *DutyLocation `json:"originDutyLocation,omitempty"`
 

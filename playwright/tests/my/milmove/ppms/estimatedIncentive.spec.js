@@ -18,7 +18,7 @@ test.describe('PPM Onboarding - Estimated Incentive', () => {
       await customerPpmPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
       await customerPpmPage.navigateFromDateAndLocationPageToEstimatedWeightsPage();
       await customerPpmPage.navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
-      await expect(customerPpmPage.page.locator('.container h2')).toContainText('is your estimated incentive');
+      await expect(customerPpmPage.page.locator('.container h2')).toContainText('$10,000');
     });
 
     test('go to estimated incentives page', async ({ customerPpmPage }) => {

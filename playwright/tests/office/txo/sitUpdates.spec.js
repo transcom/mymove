@@ -253,7 +253,7 @@ test.describe('TOO user', () => {
       await tooFlowPage.waitForPage.moveTaskOrder();
 
       await expect(
-        page.locator('table[class="DataTable_dataTable__TGt9M table--data-point"]').getByText('SIT departure date'),
+        page.locator('table[class="DataTable_dataTable__TGt9M table--data-point"]').getByText('SIT Departure Date'),
       ).toBeVisible();
     });
   });

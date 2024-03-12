@@ -12,7 +12,6 @@ const CustomerHeader = ({ customer, order, moveCode }) => {
   const { order_type } = order;
 
   const isRetireeOrSeparatee = ['RETIREMENT', 'SEPARATION'].includes(order_type);
-  const isSpecialMove = ['BLUEBARK'].includes(order_type);
 
   /**
    * Depending on the order type, this row dt label can be either:
@@ -43,11 +42,6 @@ const CustomerHeader = ({ customer, order, moveCode }) => {
           </p>
         </div>
       </div>
-      {isSpecialMove ? (
-        <div data-testid="specialMovesLabel" className={styles.specialMovesLabel}>
-          <p>BLUEBARK</p>
-        </div>
-      ) : null}
       <div data-testid="infoBlock" className={styles.infoBlock}>
         <div>
           <p>Authorized origin</p>

@@ -25,7 +25,6 @@ type Address struct {
 	State          string    `json:"state" db:"state"`
 	PostalCode     string    `json:"postal_code" db:"postal_code"`
 	Country        *string   `json:"country" db:"country"`
-	County         *string   `json:"county" db:"county"`
 }
 
 // TableName overrides the table name used by Pop.

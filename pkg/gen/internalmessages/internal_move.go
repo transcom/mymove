@@ -19,9 +19,6 @@ import (
 // swagger:model InternalMove
 type InternalMove struct {
 
-	// closeout office
-	CloseoutOffice *TransportationOffice `json:"closeoutOffice,omitempty"`
-
 	// created at
 	// Read Only: true
 	// Format: date-time
@@ -71,10 +68,6 @@ type InternalMove struct {
 func (m *InternalMove) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateCloseoutOffice(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -102,25 +95,6 @@ func (m *InternalMove) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *InternalMove) validateCloseoutOffice(formats strfmt.Registry) error {
-	if swag.IsZero(m.CloseoutOffice) { // not required
-		return nil
-	}
-
-	if m.CloseoutOffice != nil {
-		if err := m.CloseoutOffice.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("closeoutOffice")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("closeoutOffice")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -205,10 +179,6 @@ func (m *InternalMove) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *InternalMove) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.contextValidateCloseoutOffice(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -240,27 +210,6 @@ func (m *InternalMove) ContextValidate(ctx context.Context, formats strfmt.Regis
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *InternalMove) contextValidateCloseoutOffice(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.CloseoutOffice != nil {
-
-		if swag.IsZero(m.CloseoutOffice) { // not required
-			return nil
-		}
-
-		if err := m.CloseoutOffice.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("closeoutOffice")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("closeoutOffice")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 

@@ -1,8 +1,6 @@
 import React from 'react';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 
-import PPMShipmentInfo from '../ppmTestData';
-
 import ReviewProGear from './ReviewProGear';
 
 import ppmDocumentStatus from 'constants/ppms';
@@ -31,14 +29,30 @@ const Template = (args) => <ReviewProGear {...args} />;
 
 export const Blank = Template.bind({});
 Blank.args = {
-  ppmShipmentInfo: PPMShipmentInfo,
+  mtoShipment: {
+    ppmShipment: {
+      actualMoveDate: '2022-04-30',
+      actualPickupPostalCode: '90210',
+      actualDestinationPostalCode: '94611',
+      hasReceivedAdvance: true,
+      advanceAmountReceived: 60000,
+    },
+  },
   tripNumber: 1,
   ppmNumber: 1,
 };
 
 export const FilledIn = Template.bind({});
 FilledIn.args = {
-  ppmShipmentInfo: PPMShipmentInfo,
+  mtoShipment: {
+    ppmShipment: {
+      actualMoveDate: '2023-05-13',
+      actualPickupPostalCode: '90210',
+      actualDestinationPostalCode: '94611',
+      hasReceivedAdvance: true,
+      advanceAmountReceived: 60000,
+    },
+  },
   tripNumber: 1,
   ppmNumber: 1,
   proGear: {

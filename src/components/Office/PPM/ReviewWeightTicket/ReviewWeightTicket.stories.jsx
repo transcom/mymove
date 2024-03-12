@@ -1,8 +1,6 @@
 import React from 'react';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 
-import PPMShipmentInfo from '../ppmTestData';
-
 import ReviewWeightTicket from './ReviewWeightTicket';
 
 import { MockProviders } from 'testUtils';
@@ -31,7 +29,15 @@ const Template = (args) => <ReviewWeightTicket {...args} />;
 
 export const Blank = Template.bind({});
 Blank.args = {
-  ppmShipmentInfo: PPMShipmentInfo,
+  mtoShipment: {
+    ppmShipment: {
+      actualMoveDate: '2022-04-30',
+      actualPickupPostalCode: '90210',
+      actualDestinationPostalCode: '94611',
+      hasReceivedAdvance: true,
+      advanceAmountReceived: 60000,
+    },
+  },
   tripNumber: 1,
   ppmNumber: 1,
   weightTicket: {
@@ -63,7 +69,15 @@ Blank.args = {
 
 export const FilledIn = Template.bind({});
 FilledIn.args = {
-  ppmShipmentInfo: PPMShipmentInfo,
+  mtoShipment: {
+    ppmShipment: {
+      actualMoveDate: '2022-04-30',
+      actualPickupPostalCode: '90210',
+      actualDestinationPostalCode: '94611',
+      hasReceivedAdvance: true,
+      advanceAmountReceived: 60000,
+    },
+  },
   tripNumber: 1,
   ppmNumber: 1,
   weightTicket: {
@@ -95,7 +109,15 @@ FilledIn.args = {
 
 export const MissingWeightTickets = Template.bind({});
 MissingWeightTickets.args = {
-  ppmShipmentInfo: PPMShipmentInfo,
+  mtoShipment: {
+    ppmShipment: {
+      actualMoveDate: '2022-04-30',
+      actualPickupPostalCode: '90210',
+      actualDestinationPostalCode: '94611',
+      hasReceivedAdvance: true,
+      advanceAmountReceived: 60000,
+    },
+  },
   tripNumber: 1,
   ppmNumber: 1,
   weightTicket: {

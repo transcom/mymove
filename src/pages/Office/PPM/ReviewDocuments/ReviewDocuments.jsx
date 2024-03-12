@@ -33,11 +33,11 @@ const DOCUMENT_TYPES = {
 export const ReviewDocuments = () => {
   const { shipmentId, moveCode } = useParams();
   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
+
   const { mtoShipment, documents, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
 
   const order = Object.values(orders)?.[0];
   const [currentTotalWeight, setCurrentTotalWeight] = useState(0);
-  const [currentAllowableWeight, setCurrentAllowableWeight] = useState(0);
 
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
   const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
@@ -46,18 +46,18 @@ export const ReviewDocuments = () => {
   const weightTickets = documents?.WeightTickets ?? [];
   const proGearWeightTickets = documents?.ProGearWeightTickets ?? [];
   const movingExpenses = documents?.MovingExpenses ?? [];
+
   const updateTotalWeight = (newWeight) => {
     setCurrentTotalWeight(newWeight);
   };
+
   useEffect(() => {
     updateTotalWeight(calculateWeightRequested(mtoShipments));
   }, [mtoShipments]);
   useEffect(() => {
     setMoveHasExcessWeight(currentTotalWeight > order.entitlement.totalWeight);
   }, [currentTotalWeight, order.entitlement.totalWeight]);
-  useEffect(() => {
-    setCurrentAllowableWeight(currentAllowableWeight);
-  }, [currentAllowableWeight]);
+
   const chronologicalComparatorProperty = (input) => input.createdAt;
   const compareChronologically = (itemA, itemB) =>
     chronologicalComparatorProperty(itemA) < chronologicalComparatorProperty(itemB) ? -1 : 1;
@@ -195,14 +195,7 @@ export const ReviewDocuments = () => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const ppmShipmentInfo = mtoShipment.ppmShipment;
-  ppmShipmentInfo.miles = mtoShipment.distance;
-  ppmShipmentInfo.actualWeight = currentTotalWeight;
-
   const currentDocumentSet = documentSets[documentSetIndex];
-  const updateDocumentSetAllowableWeight = (newWeight) => {
-    currentDocumentSet.documentSet.allowableWeight = newWeight;
-  };
   const disableBackButton = documentSetIndex === 0 && !showOverview;
 
   const reviewShipmentWeightsURL = generatePath(servicesCounselingRoutes.BASE_REVIEW_SHIPMENT_WEIGHTS_PATH, {
@@ -246,21 +239,18 @@ export const ReviewDocuments = () => {
             (showOverview ? (
               <ReviewDocumentsSidePanel
                 ppmShipment={mtoShipment.ppmShipment}
-                ppmShipmentInfo={ppmShipmentInfo}
                 weightTickets={weightTickets}
                 proGearTickets={proGearWeightTickets}
                 expenseTickets={movingExpenses}
                 onError={onError}
                 onSuccess={onConfirmSuccess}
                 formRef={formRef}
-                allowableWeight={currentAllowableWeight}
               />
             ) : (
               <>
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET && (
                   <ReviewWeightTicket
                     weightTicket={currentDocumentSet.documentSet}
-                    ppmShipmentInfo={ppmShipmentInfo}
                     ppmNumber={1}
                     tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
@@ -269,15 +259,12 @@ export const ReviewDocuments = () => {
                     onError={onError}
                     onSuccess={onSuccess}
                     formRef={formRef}
-                    allowableWeight={currentAllowableWeight}
                     updateTotalWeight={updateTotalWeight}
-                    updateDocumentSetAllowableWeight={updateDocumentSetAllowableWeight}
                   />
                 )}
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (
                   <ReviewProGear
                     proGear={currentDocumentSet.documentSet}
-                    ppmShipmentInfo={ppmShipmentInfo}
                     ppmNumber={1}
                     tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
@@ -289,7 +276,6 @@ export const ReviewDocuments = () => {
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && (
                   <ReviewExpense
                     expense={currentDocumentSet.documentSet}
-                    ppmShipmentInfo={ppmShipmentInfo}
                     categoryIndex={currentDocumentCategoryIndex}
                     ppmNumber={1}
                     tripNumber={currentTripNumber}

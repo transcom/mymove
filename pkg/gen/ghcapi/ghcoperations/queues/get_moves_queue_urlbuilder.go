@@ -23,7 +23,6 @@ type GetMovesQueueURL struct {
 	LastName                *string
 	Locator                 *string
 	Order                   *string
-	OrderType               *string
 	OriginDutyLocation      *string
 	Page                    *int64
 	PerPage                 *int64
@@ -119,14 +118,6 @@ func (o *GetMovesQueueURL) Build() (*url.URL, error) {
 	}
 	if orderQ != "" {
 		qs.Set("order", orderQ)
-	}
-
-	var orderTypeQ string
-	if o.OrderType != nil {
-		orderTypeQ = *o.OrderType
-	}
-	if orderTypeQ != "" {
-		qs.Set("orderType", orderTypeQ)
 	}
 
 	var originDutyLocationQ string

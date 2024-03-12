@@ -12,7 +12,7 @@ import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 import styles from './ReviewExpense.module.scss';
 
 import { formatCents, formatDate } from 'utils/formatters';
-import { ExpenseShape } from 'types/shipment';
+import { ShipmentShape, ExpenseShape } from 'types/shipment';
 import Fieldset from 'shared/Fieldset';
 import { DatePickerInput } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
@@ -51,7 +51,7 @@ const validationSchema = Yup.object().shape({
 });
 
 export default function ReviewExpense({
-  ppmShipmentInfo,
+  mtoShipment,
   expense,
   categoryIndex,
   tripNumber,
@@ -67,6 +67,8 @@ export default function ReviewExpense({
     onSuccess,
     onError,
   });
+
+  const ppmShipment = mtoShipment?.ppmShipment;
 
   const initialValues = {
     movingExpenseType: movingExpenseType || '',
@@ -126,7 +128,7 @@ export default function ReviewExpense({
               : '##';
           return (
             <Form className={classnames(formStyles.form, styles.ReviewExpense)}>
-              <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
+              <PPMHeaderSummary ppmShipment={ppmShipment} ppmNumber={ppmNumber} />
               <hr />
               <h3 className={styles.tripNumber}>{`Receipt ${tripNumber}`}</h3>
               <legend className={classnames('usa-label', styles.label)}>Expense Type</legend>
@@ -252,6 +254,7 @@ export default function ReviewExpense({
 
 ReviewExpense.propTypes = {
   expense: ExpenseShape,
+  mtoShipment: ShipmentShape,
   tripNumber: number.isRequired,
   ppmNumber: number.isRequired,
   onSuccess: func,
@@ -260,6 +263,7 @@ ReviewExpense.propTypes = {
 
 ReviewExpense.defaultProps = {
   expense: undefined,
+  mtoShipment: undefined,
   onSuccess: null,
   formRef: null,
 };

@@ -7,55 +7,39 @@ import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm
 import DateAndLocation from 'pages/MyMove/PPM/Booking/DateAndLocation/DateAndLocation';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import {
-  updateMTOShipment as updateMTOShipmentAction,
-  updateAllMoves as updateAllMovesAction,
-} from 'store/entities/actions';
+import { updateMTOShipment as updateMTOShipmentAction } from 'store/entities/actions';
 import {
   selectServiceMemberFromLoggedInUser,
-  selectCurrentShipmentFromMove,
-  selectAllMoves,
-  selectCurrentMoveFromAllMoves,
+  selectCurrentOrders,
+  selectMTOShipmentById,
 } from 'store/entities/selectors';
 import { fetchCustomerData as fetchCustomerDataAction } from 'store/onboarding/actions';
-import { AddressShape } from 'types/address';
-import { ServiceMemberShape } from 'types/customerShapes';
+import { AddressShape, SimpleAddressShape } from 'types/address';
+import { MoveShape, OrdersShape, ServiceMemberShape } from 'types/customerShapes';
 import { RouterShape } from 'types/index';
+import { ShipmentShape } from 'types/shipment';
+import { selectMove } from 'shared/Entities/modules/moves';
 import withRouter from 'utils/routing';
-import { getAllMoves } from 'services/internalApi';
 
 export class CreateOrEditMtoShipment extends Component {
   componentDidMount() {
-    const { fetchCustomerData, serviceMember, updateAllMoves } = this.props;
+    const { fetchCustomerData } = this.props;
     fetchCustomerData();
-    getAllMoves(serviceMember.id).then((response) => {
-      updateAllMoves(response);
-    });
   }
 
   render() {
     const {
       router: { location },
+      mtoShipment,
       currentResidence,
+      newDutyLocationAddress,
       updateMTOShipment,
       serviceMember,
-      serviceMemberMoves,
-      moveId,
-      mtoShipmentId,
+      orders,
+      move,
     } = this.props;
 
     const { type } = qs.parse(location.search);
-
-    const move = selectCurrentMoveFromAllMoves(serviceMemberMoves, moveId);
-    const mtoShipment = selectCurrentShipmentFromMove(move, mtoShipmentId);
-    const { orders } = move ?? {};
-
-    // loading placeholder while data loads - this handles any async issues
-    // loading placeholder while data loads - this handles any async issues
-    if (!serviceMemberMoves || !serviceMemberMoves.currentMove || !serviceMemberMoves.previousMoves) {
-      return <LoadingPlaceholder />;
-    }
-
     // wait until MTO shipment has loaded to render form
     if (type || mtoShipment?.id) {
       if (type === SHIPMENT_OPTIONS.PPM || mtoShipment?.shipmentType === SHIPMENT_OPTIONS.PPM) {
@@ -75,7 +59,7 @@ export class CreateOrEditMtoShipment extends Component {
           shipmentType={type || mtoShipment.shipmentType}
           isCreatePage={!!type}
           currentResidence={currentResidence}
-          newDutyLocationAddress={orders.new_duty_location?.address}
+          newDutyLocationAddress={newDutyLocationAddress}
           updateMTOShipment={updateMTOShipment}
           serviceMember={serviceMember}
           orders={orders}
@@ -90,19 +74,40 @@ export class CreateOrEditMtoShipment extends Component {
 CreateOrEditMtoShipment.propTypes = {
   router: RouterShape,
   fetchCustomerData: func.isRequired,
+  mtoShipment: ShipmentShape,
   currentResidence: AddressShape.isRequired,
+  newDutyLocationAddress: SimpleAddressShape,
   updateMTOShipment: func.isRequired,
   serviceMember: ServiceMemberShape,
+  orders: OrdersShape,
+  move: MoveShape,
 };
 
 CreateOrEditMtoShipment.defaultProps = {
   router: {},
+  mtoShipment: {
+    customerRemarks: '',
+    requestedPickupDate: '',
+    requestedDeliveryDate: '',
+    destinationAddress: {
+      city: '',
+      postalCode: '',
+      state: '',
+      streetAddress1: '',
+    },
+  },
+  newDutyLocationAddress: {
+    city: '',
+    state: '',
+    postalCode: '',
+  },
   serviceMember: {},
+  orders: {},
+  move: {},
 };
 
 function mapStateToProps(state, ownProps) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  const serviceMemberMoves = selectAllMoves(state);
   const {
     router: {
       params: { mtoShipmentId, moveId },
@@ -110,10 +115,11 @@ function mapStateToProps(state, ownProps) {
   } = ownProps;
   const props = {
     serviceMember,
-    serviceMemberMoves,
-    moveId,
-    mtoShipmentId,
+    orders: selectCurrentOrders(state) || {},
+    mtoShipment: selectMTOShipmentById(state, mtoShipmentId) || {},
     currentResidence: serviceMember?.residential_address || {},
+    newDutyLocationAddress: selectCurrentOrders(state)?.new_duty_location?.address || {},
+    move: selectMove(state, moveId),
   };
 
   return props;
@@ -122,7 +128,6 @@ function mapStateToProps(state, ownProps) {
 const mapDispatchToProps = {
   fetchCustomerData: fetchCustomerDataAction,
   updateMTOShipment: updateMTOShipmentAction,
-  updateAllMoves: updateAllMovesAction,
 };
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(CreateOrEditMtoShipment));

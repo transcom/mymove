@@ -91,7 +91,6 @@ var User CustomType = "User"
 var UsersRoles CustomType = "UsersRoles"
 var WebhookNotification CustomType = "WebhookNotification"
 var WeightTicket CustomType = "WeightTicket"
-var UsPostRegionCity CustomType = "UsPostRegionCity"
 
 // defaultTypesMap allows us to assign CustomTypes for most default types
 var defaultTypesMap = map[string]CustomType{
@@ -139,7 +138,6 @@ var defaultTypesMap = map[string]CustomType{
 	"models.SITDurationUpdate":                        SITDurationUpdate,
 	"models.StorageFacility":                          StorageFacility,
 	"models.TransportationAccountingCode":             TransportationAccountingCode,
-	"models.UsPostRegionCity":                         UsPostRegionCity,
 	"models.TransportationOffice":                     TransportationOffice,
 	"models.Upload":                                   Upload,
 	"models.UserUpload":                               UserUpload,
@@ -348,7 +346,7 @@ func isUnique(customs []Customization) error {
 		// if custom type already exists
 		idx, exists := m[*custom.Type]
 		if exists {
-			return fmt.Errorf("found more than one instance of %s Customization at index %d and %d",
+			return fmt.Errorf("Found more than one instance of %s Customization at index %d and %d",
 				*custom.Type, idx, i)
 		}
 		// Add to hashmap
@@ -461,7 +459,7 @@ func mergeCustomization(customs []Customization, traits []Trait) []Customization
 // TBD should we validate again here?
 func convertCustomizationInList(customs []Customization, from CustomType, to CustomType) []Customization {
 	if _, custom := findCustomWithIdx(customs, to); custom != nil {
-		log.Panic(fmt.Errorf("a customization of type %s already exists", to))
+		log.Panic(fmt.Errorf("A customization of type %s already exists", to))
 	}
 	if idx, custom := findCustomWithIdx(customs, from); custom != nil {
 		// Create a slice in new memory
@@ -472,7 +470,7 @@ func convertCustomizationInList(customs []Customization, from CustomType, to Cus
 		newCustoms[idx].Type = &to
 		return newCustoms
 	}
-	log.Panic(fmt.Errorf("no customization of type %s found", from))
+	log.Panic(fmt.Errorf("No customization of type %s found", from))
 	return nil
 }
 
@@ -486,10 +484,10 @@ func findValidCustomization(customs []Customization, customType CustomType) *Cus
 	if err := checkNestedModels(*custom); err != nil {
 		if errors.Is(err, ErrNestedModel) {
 			if !custom.LinkOnly {
-				log.Panic(fmt.Errorf("errors encountered in customization for %s: %w", *custom.Type, err))
+				log.Panic(fmt.Errorf("Errors encountered in customization for %s: %w", *custom.Type, err))
 			}
 		} else {
-			log.Panic(fmt.Errorf("errors encountered in customization for %s: %w", *custom.Type, err))
+			log.Panic(fmt.Errorf("Errors encountered in customization for %s: %w", *custom.Type, err))
 		}
 	}
 	return custom
@@ -590,20 +588,20 @@ func checkNestedModels(c interface{}) error {
 func mustCreate(db *pop.Connection, model interface{}) {
 	verrs, err := db.ValidateAndCreate(model)
 	if err != nil {
-		log.Panic(fmt.Errorf("errors encountered saving %#v: %v", model, err))
+		log.Panic(fmt.Errorf("Errors encountered saving %#v: %v", model, err))
 	}
 	if verrs.HasAny() {
-		log.Panic(fmt.Errorf("validation errors encountered saving %#v: %v", model, verrs))
+		log.Panic(fmt.Errorf("Validation errors encountered saving %#v: %v", model, verrs))
 	}
 }
 
 func mustSave(db *pop.Connection, model interface{}) {
 	verrs, err := db.ValidateAndSave(model)
 	if err != nil {
-		log.Panic(fmt.Errorf("errors encountered saving %#v: %v", model, err))
+		log.Panic(fmt.Errorf("Errors encountered saving %#v: %v", model, err))
 	}
 	if verrs.HasAny() {
-		log.Panic(fmt.Errorf("validation errors encountered saving %#v: %v", model, verrs))
+		log.Panic(fmt.Errorf("Validation errors encountered saving %#v: %v", model, verrs))
 	}
 }
 
@@ -613,7 +611,7 @@ func RandomEdipi() string {
 	high := 9999999999
 	randInt, err := random.GetRandomIntAddend(low, high)
 	if err != nil {
-		log.Panicf("failure to generate random Edipi %v", err)
+		log.Panicf("Failure to generate random Edipi %v", err)
 	}
 	return strconv.Itoa(low + int(randInt))
 }
@@ -660,7 +658,7 @@ func FixtureOpen(name string) afero.File {
 	fixturePath := path.Join(cwd, "pkg/testdatagen", fixtureDir, name)
 	file, err := os.Open(filepath.Clean(fixturePath))
 	if err != nil {
-		log.Panic(fmt.Errorf("error opening local file: %v", err))
+		log.Panic(fmt.Errorf("Error opening local file: %v", err))
 	}
 
 	return file

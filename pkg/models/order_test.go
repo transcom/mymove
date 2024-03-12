@@ -399,10 +399,15 @@ func (suite *ModelSuite) TestSaveOrder() {
 	}
 	suite.MustSave(&location)
 
+	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
+	_, verrs, err := move.CreatePPM(suite.DB(), nil, nil, nil, nil, nil, StringPointer("55555"), nil, nil, nil, true, &advance)
+	suite.NoError(err)
+	suite.False(verrs.HasAny())
+
 	suite.Equal(postalCode, order.NewDutyLocation.Address.PostalCode, "Wrong orig postal code")
 	order.NewDutyLocationID = location.ID
 	order.NewDutyLocation = location
-	verrs, err := SaveOrder(suite.DB(), &order)
+	verrs, err = SaveOrder(suite.DB(), &order)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
@@ -411,6 +416,9 @@ func (suite *ModelSuite) TestSaveOrder() {
 	suite.Equal(location.ID, orderUpdated.NewDutyLocationID, "Wrong order new_duty_location_id")
 	suite.Equal(newPostalCode, order.NewDutyLocation.Address.PostalCode, "Wrong orig postal code")
 
+	ppm, err := FetchPersonallyProcuredMoveByOrderID(suite.DB(), orderUpdated.ID)
+	suite.NoError(err)
+	suite.Equal(newPostalCode, *ppm.DestinationPostalCode, "Wrong ppm postal code")
 }
 
 func (suite *ModelSuite) TestSaveOrderWithoutPPM() {

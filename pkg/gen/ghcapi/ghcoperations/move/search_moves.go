@@ -76,10 +76,6 @@ type SearchMovesBody struct {
 	// Min Length: 1
 	CustomerName *string `json:"customerName,omitempty"`
 
-	// delivery date
-	// Format: date-time
-	DeliveryDate *strfmt.DateTime `json:"deliveryDate,omitempty"`
-
 	// destination postal code
 	DestinationPostalCode *string `json:"destinationPostalCode,omitempty"`
 
@@ -106,10 +102,6 @@ type SearchMovesBody struct {
 	// per page
 	PerPage int64 `json:"perPage,omitempty"`
 
-	// pickup date
-	// Format: date-time
-	PickupDate *strfmt.DateTime `json:"pickupDate,omitempty"`
-
 	// shipments count
 	ShipmentsCount *int64 `json:"shipmentsCount,omitempty"`
 
@@ -130,10 +122,6 @@ func (o *SearchMovesBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateDeliveryDate(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := o.validateDodID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -143,10 +131,6 @@ func (o *SearchMovesBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateOrder(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validatePickupDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -170,18 +154,6 @@ func (o *SearchMovesBody) validateCustomerName(formats strfmt.Registry) error {
 	}
 
 	if err := validate.MinLength("body"+"."+"customerName", "body", *o.CustomerName, 1); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *SearchMovesBody) validateDeliveryDate(formats strfmt.Registry) error {
-	if swag.IsZero(o.DeliveryDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("body"+"."+"deliveryDate", "body", "date-time", o.DeliveryDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -256,18 +228,6 @@ func (o *SearchMovesBody) validateOrder(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateOrderEnum("body"+"."+"order", "body", *o.Order); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *SearchMovesBody) validatePickupDate(formats strfmt.Registry) error {
-	if swag.IsZero(o.PickupDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("body"+"."+"pickupDate", "body", "date-time", o.PickupDate.String(), formats); err != nil {
 		return err
 	}
 

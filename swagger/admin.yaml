@@ -653,18 +653,6 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Role'
-      edipi:
-        type: string
-      otherUniqueId:
-        type: string
-      rejectionReason:
-        type: string
-      status:
-        type: string
-        enum:
-          - APPROVED
-          - REQUESTED
-          - REJECTED
       createdAt:
         type: string
         format: date-time
@@ -683,10 +671,6 @@ definitions:
       - transportationOfficeId
       - active
       - roles
-      - edipi
-      - otherUniqueId
-      - rejectionReason
-      - status
       - createdAt
       - updatedAt
   OfficeUserCreate:
@@ -1108,52 +1092,6 @@ definitions:
       FAILING: Failing
       DISABLED: Disabled
 paths:
-  /requested-office-users:
-    get:
-      produces:
-        - application/json
-      summary: List of Office Users Requesting Accounts
-      description: >
-        This endpoint returns a list of Office Users. Do not use this endpoint
-        directly
-
-        as it is meant to be used with the Admin UI exclusively.
-      operationId: indexRequestedOfficeUsers
-      tags:
-        - Requested Office users
-      parameters:
-        - in: query
-          name: filter
-          type: string
-        - in: query
-          name: page
-          type: integer
-        - in: query
-          name: perPage
-          type: integer
-        - in: query
-          name: sort
-          type: string
-        - in: query
-          name: order
-          type: boolean
-      responses:
-        '200':
-          description: success
-          headers:
-            Content-Range:
-              type: string
-              description: Used for pagination
-          schema:
-            $ref: '#/definitions/OfficeUsers'
-        '400':
-          description: invalid request
-        '401':
-          description: request requires user authentication
-        '404':
-          description: Office User not found
-        '500':
-          description: server error
   /office-users:
     get:
       produces:

@@ -2,7 +2,7 @@ import { React, createRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
-import { generatePath, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import styles from './AmendOrders.module.scss';
 
@@ -12,46 +12,44 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import FileUpload from 'components/FileUpload/FileUpload';
+import { UploadsShape, OrdersShape } from 'types/customerShapes';
 import {
+  getOrdersForServiceMember,
   createUploadForAmendedOrdersDocument,
   deleteUpload,
   getResponseError,
   submitAmendedOrders,
-  getOrders,
 } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
 import {
-  selectOrdersForLoggedInUser,
+  selectCurrentOrders,
   selectServiceMemberFromLoggedInUser,
   selectUploadsForCurrentAmendedOrders,
 } from 'store/entities/selectors';
 import { updateOrders as updateOrdersAction } from 'store/entities/actions';
-import { customerRoutes } from 'constants/routes';
+import { generalRoutes } from 'constants/routes';
 
-export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
+export const AmendOrders = ({ uploads, updateOrders, serviceMemberId, currentOrders }) => {
   const [isLoading, setLoading] = useState(true);
   const filePondEl = createRef();
   const navigate = useNavigate();
-  const { orderId } = useParams();
   const [serverError, setServerError] = useState(null);
-  const currentOrders = orders.find((order) => order.id === orderId);
-  const uploads = currentOrders?.uploaded_amended_orders?.uploads;
 
-  const handleDelete = async (uploadId) => {
-    return deleteUpload(uploadId, orderId).then(() => {
-      getOrders(orderId).then((response) => {
+  const handleDelete = (uploadId) => {
+    return deleteUpload(uploadId).then(() => {
+      getOrdersForServiceMember(serviceMemberId).then((response) => {
         updateOrders(response);
       });
     });
   };
-
   const handleUpload = (file) => {
-    return createUploadForAmendedOrdersDocument(file, orderId);
+    const ordersId = currentOrders?.id;
+    return createUploadForAmendedOrdersDocument(file, ordersId);
   };
-
   const handleUploadComplete = () => {
-    getOrders(orderId).then((response) => {
+    // TODO Temporarily using the original uploaded orders, will change to use amended orders once that is available
+    getOrdersForServiceMember(serviceMemberId).then((response) => {
       updateOrders(response);
     });
   };
@@ -61,13 +59,14 @@ export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
     handleUploadComplete();
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     return submitAmendedOrders(currentOrders?.moves[0])
       .then(() => {
-        const moveId = currentOrders?.moves[0];
-        navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
+        navigate(generalRoutes.HOME_PATH);
       })
       .catch((e) => {
+        // TODO - error handling - below is rudimentary error handling to approximate existing UX
+        // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
         const { response } = e;
         const errorMessage = getResponseError(response, 'failed to save amended orders due to server error');
         setServerError(errorMessage);
@@ -76,15 +75,16 @@ export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
       });
   };
   const handleCancel = () => {
-    navigate(-1);
+    // TODO (After MB-8336 is complete) Delete amended orders files before navigating away
+    navigate(generalRoutes.HOME_PATH);
   };
 
   useEffect(() => {
-    getOrders(orderId).then((response) => {
+    getOrdersForServiceMember(serviceMemberId).then((response) => {
       updateOrders(response);
       setLoading(false);
     });
-  }, [updateOrders, serviceMemberId, orderId]);
+  }, [updateOrders, serviceMemberId]);
 
   if (isLoading) return <LoadingPlaceholder />;
 
@@ -104,7 +104,7 @@ export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
         </Grid>
       )}
 
-      <Grid row data-testid="info-container">
+      <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
           <h1>Orders</h1>
           <p>
@@ -113,7 +113,7 @@ export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
           </p>
         </Grid>
       </Grid>
-      <Grid row data-testid="upload-info-container">
+      <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
           <SectionWrapper>
             <h5 className={styles.uploadOrdersHeader}>Upload orders</h5>
@@ -144,16 +144,23 @@ export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
 AmendOrders.propTypes = {
   serviceMemberId: PropTypes.string.isRequired,
   updateOrders: PropTypes.func.isRequired,
+  currentOrders: OrdersShape,
+  uploads: UploadsShape,
+};
+
+AmendOrders.defaultProps = {
+  uploads: [],
+  currentOrders: {},
 };
 
 function mapStateToProps(state) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const serviceMemberId = serviceMember?.id;
-  const orders = selectOrdersForLoggedInUser(state);
+  const currentOrders = selectCurrentOrders(state);
 
   const props = {
     serviceMemberId,
-    orders,
+    currentOrders,
     uploads: selectUploadsForCurrentAmendedOrders(state),
   };
 
@@ -161,6 +168,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
+  // TODO we might need a new action to handle updating amended orders
   updateOrders: updateOrdersAction,
 };
 

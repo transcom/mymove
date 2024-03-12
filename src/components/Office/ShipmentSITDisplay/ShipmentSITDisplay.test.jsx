@@ -8,7 +8,6 @@ import {
   futureSITStatus,
   SITExtensions,
   SITStatusOrigin,
-  SITStatusOriginAuthorized,
   SITStatusDestination,
   SITStatusDestinationWithoutCustomerDeliveryInfo,
   SITStatusOriginWithoutCustomerDeliveryInfo,
@@ -94,7 +93,7 @@ describe('ShipmentSITDisplay', () => {
     expect(screen.getByText('26 Aug 2021')).toBeInTheDocument();
     expect(screen.getByText('Requested delivery date')).toBeInTheDocument();
     expect(screen.getByText('30 Aug 2021')).toBeInTheDocument();
-    expect(screen.getByText('SIT departure date')).toBeInTheDocument();
+    expect(screen.getByText('SIT Departure Date')).toBeInTheDocument();
   });
 
   it('renders the Shipment SIT at Destination, without customer delivery info', async () => {
@@ -376,17 +375,5 @@ describe('ShipmentSITDisplay', () => {
       </MockProviders>,
     );
     expect(screen.getByText('Expired')).toBeInTheDocument();
-  });
-  it('renders the Shipment SIT at Origin, with current SIT authorized end date', async () => {
-    render(
-      <MockProviders>
-        <ShipmentSITDisplay sitStatus={SITStatusOriginAuthorized} shipment={SITShipment} />
-      </MockProviders>,
-    );
-
-    const sitStartAndEndTable = await screen.findByTestId('sitStartAndEndTable');
-    expect(sitStartAndEndTable).toBeInTheDocument();
-    expect(within(sitStartAndEndTable).getByText('SIT authorized end date')).toBeInTheDocument();
-    expect(screen.getByText('13 Aug 2021')).toBeInTheDocument();
   });
 });

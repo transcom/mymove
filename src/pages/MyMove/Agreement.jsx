@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { generatePath, useNavigate, useParams } from 'react-router-dom';
+import { generatePath, useNavigate } from 'react-router-dom';
 
 import { customerRoutes } from 'constants/routes';
 import SubmitMoveForm from 'components/Customer/SubmitMoveForm/SubmitMoveForm';
@@ -16,10 +16,9 @@ import { updateMove as updateMoveAction } from 'store/entities/actions';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import { formatSwaggerDate } from 'utils/formatters';
 
-export const Agreement = ({ updateMove, setFlashMessage }) => {
+export const Agreement = ({ moveId, updateMove, setFlashMessage }) => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
-  const { moveId } = useParams();
 
   const initialValues = {
     signature: '',
@@ -71,17 +70,14 @@ export const Agreement = ({ updateMove, setFlashMessage }) => {
 };
 
 Agreement.propTypes = {
+  moveId: PropTypes.string.isRequired,
   setFlashMessage: PropTypes.func.isRequired,
   updateMove: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = (state) => {
-  const move = selectCurrentMove(state);
-
-  return {
-    move,
-  };
-};
+const mapStateToProps = (state) => ({
+  moveId: selectCurrentMove(state)?.id,
+});
 
 const mapDispatchToProps = {
   updateMove: updateMoveAction,

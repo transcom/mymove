@@ -47,10 +47,10 @@ const PPMShipmentCard = ({
   })}?shipmentNumber=${shipmentNumber}`;
 
   let closeoutOffice;
-  if (move?.closeoutOffice == null) {
+  if (move?.closeout_office == null) {
     closeoutOffice = '';
   } else {
-    closeoutOffice = move.closeoutOffice.name;
+    closeoutOffice = move.closeout_office.name;
   }
 
   const shipmentLabel = `${getShipmentTypeLabel(shipmentType)} ${shipmentNumber}`;

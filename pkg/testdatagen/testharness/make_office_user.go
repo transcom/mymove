@@ -37,14 +37,13 @@ func MakeOfficeUserWithTOOAndTIO(appCtx appcontext.AppContext) models.User {
 			},
 		},
 	}, nil)
-	approvedStatus := "APPROVED"
+
 	factory.BuildOfficeUserWithRoles(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.OfficeUser{
 				Email:  email,
 				Active: true,
 				UserID: &user.ID,
-				Status: &approvedStatus,
 			},
 		},
 		{

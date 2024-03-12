@@ -835,8 +835,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 			},
 		}, nil)
 		factory.BuildDOFSITReService(suite.DB())
-		sitEntryDate := time.Date(2024, time.February, 28, 0, 0, 0, 0, time.UTC)
-		sitDepartureDate := time.Date(2024, time.February, 27, 0, 0, 0, 0, time.UTC)
+		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
 
 		// Original customer pickup address
@@ -856,7 +855,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 			ReService:                 models.ReService{},
 			Reason:                    models.StringPointer("lorem ipsum"),
 			SITEntryDate:              &sitEntryDate,
-			SITDepartureDate:          &sitDepartureDate,
 			SITPostalCode:             &sitPostalCode,
 			SITOriginHHGActualAddress: &subtestData.actualPickupAddress,
 		}
@@ -978,12 +976,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 				suite.Equal(updatedMTOShipment.PickupAddress.City, mtosi.SITOriginHHGActualAddress.City, "shipment actual city is the same")
 				suite.Equal(updatedMTOShipment.PickupAddress.State, mtosi.SITOriginHHGActualAddress.State, "shipment actual state is the same")
 				suite.Equal(updatedMTOShipment.PickupAddress.PostalCode, mtosi.SITOriginHHGActualAddress.PostalCode, "shipment actual zip is the same")
-
-				// Verify SIT entry date and SIT departure date are updated on the service item
-				sitEntryDate := mtosi.SITEntryDate.UTC()
-				sitDepartureDate := mtosi.SITDepartureDate.UTC()
-				suite.Equal(subtestData.mtoServiceItem.SITEntryDate, &sitEntryDate, "sit entry date is the same")
-				suite.Equal(subtestData.mtoServiceItem.SITDepartureDate, &sitDepartureDate, "sit departure date is the same")
 			}
 		}
 		suite.Equal(true, foundDOFSIT, "Found expected ReServiceCodeDOFSIT")

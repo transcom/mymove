@@ -1575,7 +1575,6 @@ definitions:
       - SEPARATION
       - GHC
       - NTS
-      - BLUEBARK
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station (PCS)
       LOCAL_MOVE: Local Move
@@ -1583,7 +1582,6 @@ definitions:
       SEPARATION: Separation
       GHC: GHC
       NTS: NTS
-      BLUEBARK: BLUEBARK
   OrdersTypeDetail:
     type: string
     title: Orders type detail

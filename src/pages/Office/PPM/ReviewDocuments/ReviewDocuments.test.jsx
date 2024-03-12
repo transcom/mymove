@@ -6,7 +6,7 @@ import { ReviewDocuments } from './ReviewDocuments';
 
 import PPMDocumentsStatus from 'constants/ppms';
 import { ppmShipmentStatuses } from 'constants/shipments';
-import { usePPMShipmentDocsQueries, useReviewShipmentWeightsQuery, usePPMCloseoutQuery } from 'hooks/queries';
+import { usePPMShipmentDocsQueries, useReviewShipmentWeightsQuery } from 'hooks/queries';
 import { renderWithProviders } from 'testUtils';
 import {
   createPPMShipmentWithFinalIncentive,
@@ -49,7 +49,6 @@ jest.mock('components/DocumentViewer/Content/Content', () => {
 
 jest.mock('hooks/queries', () => ({
   usePPMShipmentDocsQueries: jest.fn(),
-  usePPMCloseoutQuery: jest.fn(),
   useReviewShipmentWeightsQuery: jest.fn(),
 }));
 
@@ -102,25 +101,6 @@ const usePPMShipmentDocsQueriesReturnValueAllDocs = {
   isSuccess: true,
 };
 
-const mtoShipmentWithOneWeightTicket = {
-  ...mtoShipment,
-  ppmShipment: {
-    ...mtoShipment.ppmShipment,
-    proGearWeightTickets: [],
-    movingExpenses: [],
-  },
-};
-
-const usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket = {
-  ...usePPMShipmentDocsQueriesReturnValueAllDocs,
-  mtoShipment: mtoShipmentWithOneWeightTicket,
-  documents: {
-    MovingExpenses: [],
-    ProGearWeightTickets: [],
-    WeightTickets: [...mtoShipment.ppmShipment.weightTickets],
-  },
-};
-
 /**
  * @constant {Object} useReviewShipmentWeightsQueryReturnValueAll
  * @description The mocked return values from the useReviewShipmentWeightsQuery
@@ -136,33 +116,6 @@ const useReviewShipmentWeightsQueryReturnValueAll = {
     },
   },
   mtoShipments: [],
-};
-
-const usePPMCloseoutQueryReturnValue = {
-  ppmCloseout: {
-    SITReimbursement: 0,
-    actualMoveDate: '2020-03-16',
-    actualWeight: 4002,
-    aoa: 340000,
-    ddp: 33297,
-    dop: 15048,
-    estimatedWeight: 4000,
-    gcc: 17102245,
-    grossIncentive: 4855170,
-    haulFSC: 403,
-    haulPrice: 4529083,
-    id: '1a719536-02ba-44cd-b97d-5a0548237dc5',
-    miles: 415,
-    packPrice: 253447,
-    plannedMoveDate: '2020-03-15',
-    proGearWeightCustomer: 500,
-    proGearWeightSpouse: 0,
-    remainingIncentive: 4515170,
-    unpackPrice: 23892,
-  },
-  isError: false,
-  isLoading: false,
-  isSuccess: true,
 };
 
 const mockRoutingOptions = {
@@ -189,50 +142,15 @@ describe('ReviewDocuments', () => {
       isSuccess: false,
     };
 
-    it('renders the Loading Placeholder when the PPMCloseout query is still loading', async () => {
-      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
-      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
-      usePPMCloseoutQuery.mockReturnValue(loadingReturnValue);
-      renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
-
-      const acceptOption = screen.getByTestId('approveRadio');
-      expect(acceptOption).toBeInTheDocument();
-
-      const rejectOption = screen.getByTestId('rejectRadio');
-      expect(rejectOption).toBeInTheDocument();
-      await userEvent.click(acceptOption);
-
-      const continueButton = screen.getByTestId('reviewDocumentsContinueButton');
-      expect(continueButton).toBeInTheDocument();
-      await userEvent.click(continueButton);
-
-      expect(screen.queryByText('Reviewing this weight ticket is required')).not.toBeInTheDocument();
-
-      await waitFor(() => {
-        expect(mockPatchWeightTicket).toHaveBeenCalled();
-      });
-      expect(await screen.findByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
-
-      await userEvent.click(screen.getByTestId('showRequestDetailsButton'));
-      await waitFor(() => {
-        expect(screen.getByText('Hide Details', { exact: false })).toBeInTheDocument();
-      });
-
-      const h2 = await screen.findByRole('heading', { name: 'Loading, please wait...', level: 2 });
-      expect(h2).toBeInTheDocument();
-    });
-
-    it('renders the Loading Placeholder when the PPMShipmentDocs query is still loading', async () => {
+    it('renders the Loading Placeholder when the query is still loading', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(loadingReturnValue);
-      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
       const h2 = await screen.findByRole('heading', { name: 'Loading, please wait...', level: 2 });
       expect(h2).toBeInTheDocument();
     });
-    it('renders the Something Went Wrong component when the PPMShipmentDocs query errors', async () => {
+    it('renders the Something Went Wrong component when the query errors', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(errorReturnValue);
-      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
 
@@ -241,9 +159,26 @@ describe('ReviewDocuments', () => {
     });
   });
   describe('with a single weight ticket loaded', () => {
+    const mtoShipmentWithOneWeightTicket = {
+      ...mtoShipment,
+      ppmShipment: {
+        ...mtoShipment.ppmShipment,
+        proGearWeightTickets: [],
+        movingExpenses: [],
+      },
+    };
+    const usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket = {
+      ...usePPMShipmentDocsQueriesReturnValueAllDocs,
+      mtoShipment: mtoShipmentWithOneWeightTicket,
+      documents: {
+        MovingExpenses: [],
+        ProGearWeightTickets: [],
+        WeightTickets: [...mtoShipment.ppmShipment.weightTickets],
+      },
+    };
+
     it('renders the DocumentViewer', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
-      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
 
@@ -278,7 +213,6 @@ describe('ReviewDocuments', () => {
 
     it('renders and handles the Continue button with the appropriate payload', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
-      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
 
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
@@ -356,7 +290,6 @@ describe('ReviewDocuments', () => {
 
     it('renders and handles the Close button', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
-      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
 
@@ -373,7 +306,6 @@ describe('ReviewDocuments', () => {
 
       mockPatchWeightTicket.mockRejectedValueOnce('fatal error');
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
-      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
 
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
 
@@ -387,7 +319,6 @@ describe('ReviewDocuments', () => {
 
     it('handles navigation properly using the continue/back buttons', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
-      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
 
@@ -416,7 +347,6 @@ describe('ReviewDocuments', () => {
 
     it('handles navigation properly using the continue/back buttons', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
-      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
       renderWithProviders(<ReviewDocuments />, mockTooRountingOptions);
 
@@ -457,7 +387,6 @@ describe('ReviewDocuments', () => {
 
     it('renders and handles the Accept button', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueMultipleWeightTickets);
-      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
 
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
@@ -474,7 +403,6 @@ describe('ReviewDocuments', () => {
 
     it('renders and handles the Back button', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueMultipleWeightTickets);
-      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
 
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
@@ -497,7 +425,6 @@ describe('ReviewDocuments', () => {
 
     it('only shows uploads for the document set being reviewed', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
-      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
 
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
 
@@ -525,7 +452,6 @@ describe('ReviewDocuments', () => {
 
     it('shows uploads for all documents on the summary page', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
-      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
 
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
@@ -591,7 +517,6 @@ describe('ReviewDocuments', () => {
 
     it('handles moving from weight tickets the summary page when there are multiple types of documents', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
-      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
 
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
@@ -626,7 +551,6 @@ describe('ReviewDocuments', () => {
 
     it('shows an error when submitting without a status selected', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueProGearOnly);
-      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
 
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
@@ -636,7 +560,6 @@ describe('ReviewDocuments', () => {
 
     it('shows an error when pro-gear is rejected and submitted without a written reason', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueProGearOnly);
-      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
 
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
@@ -658,7 +581,6 @@ describe('ReviewDocuments', () => {
         },
       };
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueExpensesOnly);
-      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
 
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
@@ -679,7 +601,6 @@ describe('ReviewDocuments', () => {
         },
       };
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueExpensesOnly);
-      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
 
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
@@ -691,7 +612,6 @@ describe('ReviewDocuments', () => {
   describe('check over weight alerts', () => {
     it('does not display an alert when move is not over weight', async () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
-      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
 
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
@@ -708,7 +628,6 @@ describe('ReviewDocuments', () => {
         mtoShipments: [excessWeightPPMShipment],
       };
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
-      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueExcessWeight);
 
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);

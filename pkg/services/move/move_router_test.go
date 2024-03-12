@@ -424,14 +424,27 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 	})
 
 	suite.Run("cancels PPM and Order when move is canceled", func() {
+		move := factory.BuildMove(nil, nil, nil)
+
 		// Create PPM on this move
-		move := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
+		advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
+		ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{
+				Move:      move,
+				MoveID:    move.ID,
+				Status:    models.PPMStatusDRAFT,
+				Advance:   &advance,
+				AdvanceID: &advance.ID,
+			},
+			Stub: true,
+		})
+		move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
 
 		err := moveRouter.Cancel(suite.AppContextForTest(), "", &move)
 
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusCANCELED, move.Status, "expected Canceled")
-		suite.Equal(models.PPMShipmentStatusCancelled, move.MTOShipments[0].PPMShipment.Status, "expected Canceled")
+		suite.Equal(models.PPMStatusCANCELED, move.PersonallyProcuredMoves[0].Status, "expected Canceled")
 		suite.Equal(models.OrderStatusCANCELED, move.Orders.Status, "expected Canceled")
 	})
 

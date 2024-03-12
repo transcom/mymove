@@ -331,25 +331,12 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async submitsDateAndLocation() {
-    await this.navigateFromDateAndLocationPageToEstimatedWeightsPage();
-  }
+    await this.page.locator('input[name="pickupPostalCode"]').clear();
+    await this.page.locator('input[name="pickupPostalCode"]').type('90210');
+    await this.page.locator('input[name="pickupPostalCode"]').blur();
 
-  /**
-   * returns {Promise<void>}
-   */
-  async navigateFromDateAndLocationPageToEstimatedWeightsPage() {
-    await this.page.locator('input[name="pickupAddress.address.streetAddress1"]').type('123 Street');
-    await this.page.locator('input[name="pickupAddress.address.city"]').type('SomeCity - Secondary');
-    await this.page.locator('select[name="pickupAddress.address.state"]').selectOption({ label: 'CA' });
-    await this.page.locator('input[name="pickupAddress.address.postalCode"]').clear();
-    await this.page.locator('input[name="pickupAddress.address.postalCode"]').type('90210');
-    await this.page.locator('input[name="pickupAddress.address.postalCode"]').blur();
-
-    await this.page.locator('input[name="destinationAddress.address.postalCode"]').clear();
-    await this.page.locator('input[name="destinationAddress.address.postalCode"]').type('76127');
-    await this.page.locator('input[name="destinationAddress.address.streetAddress1"]').type('123 Street');
-    await this.page.locator('input[name="destinationAddress.address.city"]').type('SomeCity');
-    await this.page.locator('select[name="destinationAddress.address.state"]').selectOption({ label: 'TX' });
+    await this.page.locator('input[name="destinationPostalCode"]').clear();
+    await this.page.locator('input[name="destinationPostalCode"]').type('76127');
 
     await this.page.locator('input[name="expectedDepartureDate"]').clear();
     await this.page.locator('input[name="expectedDepartureDate"]').type('01 Feb 2022');
@@ -357,6 +344,14 @@ export class CustomerPpmPage extends CustomerPage {
 
     // Select closeout office
     await this.selectDutyLocation('Fort Bragg', 'closeoutOffice');
+
+    await this.navigateFromDateAndLocationPageToEstimatedWeightsPage();
+  }
+
+  /**
+   * returns {Promise<void>}
+   */
+  async navigateFromDateAndLocationPageToEstimatedWeightsPage() {
     await this.page.getByRole('button', { name: 'Save & Continue' }).click();
 
     await expect(this.page.getByRole('heading', { name: 'Estimated weight', exact: true })).toBeVisible();
@@ -653,14 +648,13 @@ export class CustomerPpmPage extends CustomerPage {
       await expect(ppm1.locator('[data-testid="ShipmentContainer"]').locator('button')).not.toBeVisible();
     }
 
-    // TODO: This will fail until address information along with zip is saved for the PPM page B-18434
-    // await expect(ppm1.locator('dt')).toHaveCount(shipmentCardFields.length);
-    // await expect(ppm1.locator('dd')).toHaveCount(shipmentCardFields.length);
+    await expect(ppm1.locator('dt')).toHaveCount(shipmentCardFields.length);
+    await expect(ppm1.locator('dd')).toHaveCount(shipmentCardFields.length);
 
-    // shipmentCardFields.forEach(async (shipmentField, index) => {
-    //   await expect(ppm1.locator('dt').nth(index)).toContainText(shipmentField[0]);
-    //   await expect(ppm1.locator('dd').nth(index)).toContainText(shipmentField[1]);
-    // });
+    shipmentCardFields.forEach(async (shipmentField, index) => {
+      await expect(ppm1.locator('dt').nth(index)).toContainText(shipmentField[0]);
+      await expect(ppm1.locator('dd').nth(index)).toContainText(shipmentField[1]);
+    });
   }
 
   /**

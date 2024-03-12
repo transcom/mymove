@@ -20,7 +20,6 @@ jest.mock('utils/api', () => ({
 
 jest.mock('store/entities/selectors', () => ({
   selectIsProfileComplete: jest.fn(),
-  selectCurrentOrders: jest.fn(),
 }));
 
 describe('CustomerLoggedInHeader', () => {

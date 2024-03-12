@@ -137,11 +137,11 @@ var actionDispatcher = map[string]actionFunc{
 	"NeedsOrdersUser": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeNeedsOrdersUser(appCtx.DB())
 	},
+	"PPMInProgressMove": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakePPMInProgressMove(appCtx)
+	},
 	"MoveWithPPMShipmentReadyForFinalCloseout": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx)
-	},
-	"MoveWithPPMShipmentReadyForFinalCloseoutWithSIT": func(appCtx appcontext.AppContext) testHarnessResponse {
-		return MakeMoveWithPPMShipmentReadyForFinalCloseoutWithSIT(appCtx)
 	},
 	"PPMMoveWithCloseout": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakePPMMoveWithCloseout(appCtx)

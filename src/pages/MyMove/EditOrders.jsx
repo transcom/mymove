@@ -1,83 +1,62 @@
 import React, { createRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import Alert from 'shared/Alert';
 import { withContext } from 'shared/AppContext';
 import scrollToTop from 'shared/scrollToTop';
 import {
   getResponseError,
+  getOrdersForServiceMember,
   patchOrders,
   createUploadForDocument,
   deleteUpload,
-  getAllMoves,
-  getOrders,
 } from 'services/internalApi';
-import { updateOrders as updateOrdersAction, updateAllMoves as updateAllMovesAction } from 'store/entities/actions';
+import {
+  updateServiceMember as updateServiceMemberAction,
+  updateOrders as updateOrdersAction,
+} from 'store/entities/actions';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import {
   selectServiceMemberFromLoggedInUser,
-  selectOrdersForLoggedInUser,
-  selectAllMoves,
+  selectCurrentOrders,
+  selectCurrentMove,
+  selectMoveIsApproved,
+  selectUploadsForCurrentOrders,
+  selectHasCurrentPPM,
 } from 'store/entities/selectors';
 import EditOrdersForm from 'components/Customer/EditOrdersForm/EditOrdersForm';
+import { OrdersShape, ServiceMemberShape, MoveShape } from 'types/customerShapes';
 import { formatWeight, formatYesNoInputValue, dropdownInputOptions } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { ExistingUploadsShape } from 'types/uploads';
 import { formatDateForSwagger } from 'shared/dates';
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
-const EditOrders = ({
-  serviceMemberId,
-  serviceMemberMoves,
+export const EditOrders = ({
+  serviceMember,
+  currentOrders,
+  currentMove,
   updateOrders,
+  existingUploads,
+  moveIsApproved,
   setFlashMessage,
   context,
-  orders,
-  updateAllMoves,
 }) => {
   const filePondEl = createRef();
   const navigate = useNavigate();
-  const { moveId, orderId } = useParams();
-  const [serverError, setServerError] = useState('');
-
-  const currentOrder = orders.find((order) => order.moves[0] === moveId);
-
-  const checkIfMoveStatusIsApproved = (status) => {
-    return status === 'APPROVED';
-  };
-
-  let move;
-  let isMoveApproved;
-  if (serviceMemberMoves && Object.keys(serviceMemberMoves).length !== 0) {
-    const currentMove = serviceMemberMoves.currentMove.find((m) => m.id === moveId);
-    const previousMoves = serviceMemberMoves.previousMoves.find((m) => m.id === moveId);
-    move = currentMove || previousMoves;
-    isMoveApproved = checkIfMoveStatusIsApproved(move.status);
-  }
-
-  useEffect(() => {
-    const fetchData = async () => {
-      getOrders(orderId).then((response) => {
-        updateOrders(response);
-      });
-      getAllMoves(serviceMemberId).then((response) => {
-        updateAllMoves(response);
-      });
-    };
-    fetchData();
-  }, [updateOrders, serviceMemberId, updateAllMoves, orderId]);
+  const [serverError, setServerError] = useState(null);
 
   const initialValues = {
-    orders_type: currentOrder?.orders_type || '',
-    issue_date: currentOrder?.issue_date || '',
-    report_by_date: currentOrder?.report_by_date || '',
-    has_dependents: formatYesNoInputValue(currentOrder?.has_dependents),
-    new_duty_location: currentOrder?.new_duty_location || null,
-    uploaded_orders: currentOrder?.uploaded_orders?.uploads || [],
-    move_status: move?.status,
-    grade: currentOrder?.grade || null,
-    origin_duty_location: currentOrder?.origin_duty_location || {},
+    orders_type: currentOrders?.orders_type || '',
+    issue_date: currentOrders?.issue_date || '',
+    report_by_date: currentOrders?.report_by_date || '',
+    has_dependents: formatYesNoInputValue(currentOrders?.has_dependents),
+    new_duty_location: currentOrders?.new_duty_location || null,
+    uploaded_orders: existingUploads || [],
+    move_status: currentMove.status,
+    grade: currentOrders?.grade || null,
+    origin_duty_location: currentOrders?.origin_duty_location || {},
   };
 
   // Only allow PCS unless feature flag is on
@@ -87,42 +66,50 @@ const EditOrders = ({
     : { PERMANENT_CHANGE_OF_STATION: ORDERS_TYPE_OPTIONS.PERMANENT_CHANGE_OF_STATION };
   const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
 
+  const serviceMemberId = serviceMember.id;
+
+  useEffect(() => {
+    getOrdersForServiceMember(serviceMemberId).then((response) => {
+      updateOrders(response);
+    });
+  }, [updateOrders, serviceMemberId]);
+
   const handleUploadFile = (file) => {
-    const documentId = currentOrder?.uploaded_orders?.id;
+    const documentId = currentOrders?.uploaded_orders?.id;
     return createUploadForDocument(file, documentId);
   };
 
-  const handleUploadComplete = async () => {
+  const handleUploadComplete = () => {
     filePondEl.current?.removeFiles();
-    return getOrders(orderId).then((response) => {
+    return getOrdersForServiceMember(serviceMemberId).then((response) => {
       updateOrders(response);
     });
   };
 
-  const handleDeleteFile = async (uploadId) => {
-    return deleteUpload(uploadId, orderId).then(() => {
-      return getOrders(orderId).then((response) => {
+  const handleDeleteFile = (uploadId) => {
+    return deleteUpload(uploadId).then(() => {
+      getOrdersForServiceMember(serviceMemberId).then((response) => {
         updateOrders(response);
       });
     });
   };
 
-  const submitOrders = async (fieldValues) => {
+  const submitOrders = (fieldValues) => {
     let hasDependents = false;
     if (fieldValues.has_dependents === 'yes') {
       hasDependents = true;
     }
 
     const entitlementCouldChange =
-      hasDependents !== currentOrder.has_dependents || fieldValues.grade !== currentOrder.grade;
+      hasDependents !== currentOrders.has_dependents || fieldValues.grade !== currentOrders.grade;
     const newDutyLocationId = fieldValues.new_duty_location.id;
     const newPayGrade = fieldValues.grade;
     const newOriginDutyLocationId = fieldValues.origin_duty_location.id;
 
     return patchOrders({
       ...fieldValues,
-      id: currentOrder.id,
-      service_member_id: serviceMemberId,
+      id: currentOrders.id,
+      service_member_id: serviceMember.id,
       has_dependents: hasDependents,
       new_duty_location_id: newDutyLocationId,
       issue_date: formatDateForSwagger(fieldValues.issue_date),
@@ -131,7 +118,7 @@ const EditOrders = ({
       origin_duty_location_id: newOriginDutyLocationId,
       // spouse_has_pro_gear is not updated by this form but is a required value because the endpoint is shared with the
       // ppm office edit orders
-      spouse_has_pro_gear: currentOrder.spouse_has_pro_gear,
+      spouse_has_pro_gear: currentOrders.spouse_has_pro_gear,
     })
       .then((response) => {
         updateOrders(response);
@@ -161,11 +148,6 @@ const EditOrders = ({
     navigate(-1);
   };
 
-  // early return while api call loads object
-  if (!currentOrder) {
-    return <LoadingPlaceholder />;
-  }
-
   return (
     <div className="grid-container usa-prose">
       <div className="grid-row">
@@ -177,15 +159,15 @@ const EditOrders = ({
               </Alert>
             </div>
           )}
-          {isMoveApproved && (
+          {moveIsApproved && (
             <div className="usa-width-one-whole error-message">
               <Alert type="warning" heading="Your move is approved">
                 To make a change to your orders, you will need to contact your local PPPO office.
               </Alert>
             </div>
           )}
-          {!isMoveApproved && (
-            <div className="usa-width-one-whole" data-testid="edit-orders-form-container">
+          {!moveIsApproved && (
+            <div className="usa-width-one-whole">
               <EditOrdersForm
                 initialValues={initialValues}
                 onSubmit={submitOrders}
@@ -194,7 +176,7 @@ const EditOrders = ({
                 onUploadComplete={handleUploadComplete}
                 onDelete={handleDeleteFile}
                 ordersTypeOptions={ordersTypeOptions}
-                currentDutyLocation={currentOrder?.origin_duty_location}
+                currentDutyLocation={serviceMember.current_location}
                 onCancel={handleCancel}
               />
             </div>
@@ -206,8 +188,13 @@ const EditOrders = ({
 };
 
 EditOrders.propTypes = {
+  moveIsApproved: PropTypes.bool.isRequired,
+  serviceMember: ServiceMemberShape.isRequired,
   setFlashMessage: PropTypes.func.isRequired,
   updateOrders: PropTypes.func.isRequired,
+  currentOrders: OrdersShape.isRequired,
+  currentMove: MoveShape.isRequired,
+  existingUploads: ExistingUploadsShape,
   context: PropTypes.shape({
     flags: PropTypes.shape({
       allOrdersTypes: PropTypes.bool,
@@ -215,22 +202,29 @@ EditOrders.propTypes = {
   }).isRequired,
 };
 
+EditOrders.defaultProps = {
+  existingUploads: [],
+};
+
 function mapStateToProps(state) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  const serviceMemberId = serviceMember.id;
-  const orders = selectOrdersForLoggedInUser(state);
-  const serviceMemberMoves = selectAllMoves(state);
+  const currentOrders = selectCurrentOrders(state) || {};
+  const currentMove = selectCurrentMove(state) || {};
+  const uploads = selectUploadsForCurrentOrders(state);
 
   return {
-    serviceMemberId,
-    serviceMemberMoves,
-    orders,
+    serviceMember,
+    currentOrders,
+    currentMove,
+    existingUploads: uploads,
+    moveIsApproved: selectMoveIsApproved(state),
+    isPpm: selectHasCurrentPPM(state),
   };
 }
 
 const mapDispatchToProps = {
+  updateServiceMember: updateServiceMemberAction,
   updateOrders: updateOrdersAction,
-  updateAllMoves: updateAllMovesAction,
   setFlashMessage: setFlashMessageAction,
 };
 
