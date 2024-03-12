@@ -1254,7 +1254,7 @@ func init() {
     },
     "/requested-office-users/{officeUserId}": {
       "get": {
-        "description": "Retrieving a single office user that is in a REQUESTED status",
+        "description": "Retrieving a single office user in any status",
         "produces": [
           "application/json"
         ],
@@ -4383,7 +4383,7 @@ func init() {
     },
     "/requested-office-users/{officeUserId}": {
       "get": {
-        "description": "Retrieving a single office user that is in a REQUESTED status",
+        "description": "Retrieving a single office user in any status",
         "produces": [
           "application/json"
         ],
