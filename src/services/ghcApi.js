@@ -79,6 +79,10 @@ export async function patchProGearWeightTicket({ ppmShipmentId, proGearWeightTic
   );
 }
 
+export async function getPPMCloseout(key, ppmShipmentId) {
+  return makeGHCRequest('ppm.getPPMCloseout', { ppmShipmentId }, { normalize: false });
+}
+
 export async function patchPPMDocumentsSetStatus({ ppmShipmentId, eTag }) {
   return makeGHCRequest(
     'ppm.finishDocumentReview',
