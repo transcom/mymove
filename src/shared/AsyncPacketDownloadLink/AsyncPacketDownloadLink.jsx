@@ -44,8 +44,10 @@ export const onPacketDownloadSuccessHandler = (response) => {
  * @param {func} onFailure on failure response handler
  */
 const AsyncPacketDownloadLink = ({ id, label, asyncRetrieval, onSucccess, onFailure }) => {
+  const dataTestId = `asyncPacketDownloadLink${id}`;
   return (
     <Button
+      data-testid={dataTestId}
       className={styles.downloadButtonToLink}
       onClick={() =>
         asyncRetrieval(id)
