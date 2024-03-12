@@ -4992,6 +4992,8 @@ definitions:
       eTag:
         type: string
         readOnly: true
+      orderType:
+        type: string
   ListPrimeMoves:
     type: array
     items:
