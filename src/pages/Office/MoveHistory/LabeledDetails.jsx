@@ -13,6 +13,7 @@ import monetaryFields from 'constants/MoveHistory/Database/MonetaryFields';
 import { shipmentTypes } from 'constants/shipments';
 import { HistoryLogRecordShape } from 'constants/MoveHistory/UIDisplay/HistoryLogShape';
 import optionFields from 'constants/MoveHistory/Database/OptionFields';
+import statusFields from 'constants/MoveHistory/Database/StatusFields';
 import {
   formatCents,
   formatCustomerDate,
@@ -33,7 +34,14 @@ export const withMappings = () => {
     fn,
   });
 
-  const defaultField = [optionFields, ({ value }) => optionFields[value] || `${value}` || '—'];
+  const defaultField = [
+    {},
+    ({ value }) =>
+      (value in optionFields && optionFields[value]) ||
+      (value in statusFields && statusFields[value]) ||
+      `${value}` ||
+      '—',
+  ];
 
   self.addNameMappings = (mappings) => {
     self.displayMappings = self.displayMappings.concat(mappings);
@@ -51,6 +59,7 @@ export const { displayMappings, getMappedDisplayName } = withMappings().addNameM
   [monetaryFields, ({ value }) => toDollarString(formatCents(value))],
   [timeUnitFields, ({ value }) => formatTimeUnitDays(value)],
   [distanceFields, ({ value }) => formatDistanceUnitMiles(value)],
+  [statusFields, ({ value }) => statusFields[value]],
   [optionFields, ({ value }) => optionFields[value]],
 ]);
 
