@@ -142,6 +142,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OfficeUsersUpdateOfficeUserHandler: office_users.UpdateOfficeUserHandlerFunc(func(params office_users.UpdateOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.UpdateOfficeUser has not yet been implemented")
 		}),
+		RequestedOfficeUsersUpdateRequestedOfficeUserHandler: requested_office_users.UpdateRequestedOfficeUserHandlerFunc(func(params requested_office_users.UpdateRequestedOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation requested_office_users.UpdateRequestedOfficeUser has not yet been implemented")
+		}),
 		UsersUpdateUserHandler: users.UpdateUserHandlerFunc(func(params users.UpdateUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation users.UpdateUser has not yet been implemented")
 		}),
@@ -246,6 +249,8 @@ type MymoveAPI struct {
 	MovesUpdateMoveHandler moves.UpdateMoveHandler
 	// OfficeUsersUpdateOfficeUserHandler sets the operation handler for the update office user operation
 	OfficeUsersUpdateOfficeUserHandler office_users.UpdateOfficeUserHandler
+	// RequestedOfficeUsersUpdateRequestedOfficeUserHandler sets the operation handler for the update requested office user operation
+	RequestedOfficeUsersUpdateRequestedOfficeUserHandler requested_office_users.UpdateRequestedOfficeUserHandler
 	// UsersUpdateUserHandler sets the operation handler for the update user operation
 	UsersUpdateUserHandler users.UpdateUserHandler
 	// WebhookSubscriptionsUpdateWebhookSubscriptionHandler sets the operation handler for the update webhook subscription operation
@@ -413,6 +418,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.OfficeUsersUpdateOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.UpdateOfficeUserHandler")
+	}
+	if o.RequestedOfficeUsersUpdateRequestedOfficeUserHandler == nil {
+		unregistered = append(unregistered, "requested_office_users.UpdateRequestedOfficeUserHandler")
 	}
 	if o.UsersUpdateUserHandler == nil {
 		unregistered = append(unregistered, "users.UpdateUserHandler")
@@ -624,6 +632,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/office-users/{officeUserId}"] = office_users.NewUpdateOfficeUser(o.context, o.OfficeUsersUpdateOfficeUserHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/requested-office-users/{officeUserId}"] = requested_office_users.NewUpdateRequestedOfficeUser(o.context, o.RequestedOfficeUsersUpdateRequestedOfficeUserHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
