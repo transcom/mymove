@@ -1354,6 +1354,9 @@ definitions:
         x-nullable: true
       entitlement:
         $ref: '#/definitions/Entitlement'
+      provides_services_counseling:
+        type: boolean
+        x-omitempty: false
     required:
       - id
       - service_member_id
@@ -1924,6 +1927,10 @@ definitions:
         $ref: '#/definitions/NullableString'
       secondaryPickupAddress:
         $ref: '#/definitions/Address'
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       actualPickupPostalCode:
         description: >
           The actual postal code where the PPM shipment started. To be filled
@@ -1951,6 +1958,10 @@ definitions:
         $ref: '#/definitions/NullableString'
       secondaryDestinationAddress:
         $ref: '#/definitions/Address'
+      hasSecondaryDestinationAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       actualDestinationPostalCode:
         description: >
           The actual postal code where the PPM shipment ended. To be filled once
@@ -2206,11 +2217,13 @@ definitions:
       - LOCAL_MOVE
       - RETIREMENT
       - SEPARATION
+      - BLUEBARK
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
       RETIREMENT: Retirement
       SEPARATION: Separation
+      BLUEBARK: BLUEBARK
   Address:
     description: A postal address
     type: object
@@ -2559,12 +2572,14 @@ definitions:
     title: PPM Advance Status
     description: >-
       Indicates whether an advance status has been accepted, rejected, or
-      edited.
+      edited, or a prime counseled PPM has been received or not received
     x-nullable: true
     enum:
       - APPROVED
       - REJECTED
       - EDITED
+      - RECEIVED
+      - NOT_RECEIVED
   SITLocationType:
     description: The list of SIT location types.
     type: string
@@ -3119,6 +3134,10 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       secondaryPickupAddress:
         allOf:
           - $ref: '#/definitions/Address'
@@ -3157,6 +3176,10 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
+      hasSecondaryDestinationAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       secondaryDestinationAddress:
         allOf:
           - $ref: '#/definitions/Address'

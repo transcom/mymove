@@ -3236,6 +3236,12 @@ func init() {
             "description": "closeout location",
             "name": "closeoutLocation",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
           }
         ],
         "responses": {
@@ -3360,6 +3366,12 @@ func init() {
             },
             "description": "Filtering for the status.",
             "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
             "in": "query"
           }
         ],
@@ -3487,6 +3499,12 @@ func init() {
             "description": "Filtering for the status.",
             "name": "status",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
           }
         ],
         "responses": {
@@ -3544,6 +3562,11 @@ func init() {
           {
             "type": "string",
             "name": "moveCode",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "orderType",
             "in": "query"
           }
         ],
@@ -7765,9 +7788,11 @@ func init() {
         "PERMANENT_CHANGE_OF_STATION",
         "LOCAL_MOVE",
         "RETIREMENT",
-        "SEPARATION"
+        "SEPARATION",
+        "BLUEBARK"
       ],
       "x-display-value": {
+        "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
@@ -7798,13 +7823,15 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
-      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited, or a prime counseled PPM has been received or not received",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED"
+        "EDITED",
+        "RECEIVED",
+        "NOT_RECEIVED"
       ],
       "x-nullable": true
     },
@@ -8113,6 +8140,16 @@ func init() {
         },
         "hasRequestedAdvance": {
           "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -8734,6 +8771,10 @@ func init() {
         "locator": {
           "type": "string"
         },
+        "orderType": {
+          "type": "string",
+          "x-nullable": true
+        },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
@@ -8813,6 +8854,10 @@ func init() {
         "moveID": {
           "type": "string",
           "format": "uuid"
+        },
+        "orderType": {
+          "type": "string",
+          "x-nullable": true
         },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
@@ -9247,6 +9292,9 @@ func init() {
           "example": "Doe"
         },
         "locator": {
+          "type": "string"
+        },
+        "orderType": {
           "type": "string"
         },
         "originDutyLocationPostalCode": {
@@ -14868,6 +14916,12 @@ func init() {
             "description": "closeout location",
             "name": "closeoutLocation",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
           }
         ],
         "responses": {
@@ -14998,6 +15052,12 @@ func init() {
             },
             "description": "Filtering for the status.",
             "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
             "in": "query"
           }
         ],
@@ -15131,6 +15191,12 @@ func init() {
             "description": "Filtering for the status.",
             "name": "status",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
           }
         ],
         "responses": {
@@ -15194,6 +15260,11 @@ func init() {
           {
             "type": "string",
             "name": "moveCode",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "orderType",
             "in": "query"
           }
         ],
@@ -19746,9 +19817,11 @@ func init() {
         "PERMANENT_CHANGE_OF_STATION",
         "LOCAL_MOVE",
         "RETIREMENT",
-        "SEPARATION"
+        "SEPARATION",
+        "BLUEBARK"
       ],
       "x-display-value": {
+        "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
@@ -19779,13 +19852,15 @@ func init() {
       "x-nullable": true
     },
     "PPMAdvanceStatus": {
-      "description": "Indicates whether an advance status has been accepted, rejected, or edited.",
+      "description": "Indicates whether an advance status has been accepted, rejected, or edited, or a prime counseled PPM has been received or not received",
       "type": "string",
       "title": "PPM Advance Status",
       "enum": [
         "APPROVED",
         "REJECTED",
-        "EDITED"
+        "EDITED",
+        "RECEIVED",
+        "NOT_RECEIVED"
       ],
       "x-nullable": true
     },
@@ -20095,6 +20170,16 @@ func init() {
         },
         "hasRequestedAdvance": {
           "description": "Indicates whether an advance has been requested for the PPM shipment.\n",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -20717,6 +20802,10 @@ func init() {
         "locator": {
           "type": "string"
         },
+        "orderType": {
+          "type": "string",
+          "x-nullable": true
+        },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
@@ -20796,6 +20885,10 @@ func init() {
         "moveID": {
           "type": "string",
           "format": "uuid"
+        },
+        "orderType": {
+          "type": "string",
+          "x-nullable": true
         },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
@@ -21285,6 +21378,9 @@ func init() {
           "example": "Doe"
         },
         "locator": {
+          "type": "string"
+        },
+        "orderType": {
           "type": "string"
         },
         "originDutyLocationPostalCode": {
