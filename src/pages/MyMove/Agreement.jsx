@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
+
+import { isMultiMoveEnabled } from '../../utils/featureFlags';
 
 import { customerRoutes } from 'constants/routes';
 import SubmitMoveForm from 'components/Customer/SubmitMoveForm/SubmitMoveForm';
@@ -19,6 +21,7 @@ import { formatSwaggerDate } from 'utils/formatters';
 export const Agreement = ({ updateMove, setFlashMessage }) => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
+  const [multiMove, setMultiMove] = useState(false);
   const { moveId } = useParams();
 
   const initialValues = {
@@ -27,6 +30,12 @@ export const Agreement = ({ updateMove, setFlashMessage }) => {
   };
 
   const reviewPath = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });
+
+  useEffect(() => {
+    isMultiMoveEnabled().then((enabled) => {
+      setMultiMove(enabled);
+    });
+  }, []);
 
   const handleBack = () => navigate(reviewPath);
 
@@ -44,7 +53,11 @@ export const Agreement = ({ updateMove, setFlashMessage }) => {
       .then((response) => {
         updateMove(response);
         setFlashMessage('MOVE_SUBMIT_SUCCESS', 'success', 'You’ve submitted your move request.');
-        navigate('/');
+        if (multiMove) {
+          navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
+        } else {
+          navigate('/');
+        }
       })
       .catch((error) => {
         // TODO - log error internally?
