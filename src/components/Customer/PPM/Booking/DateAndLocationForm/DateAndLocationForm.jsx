@@ -66,7 +66,7 @@ const DateAndLocationForm = ({
     secondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode || '',
     sitExpected: mtoShipment?.ppmShipment?.sitExpected ? 'true' : 'false',
     expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
-    closeoutOffice: move?.closeout_office,
+    closeoutOffice: move?.closeoutOffice,
   };
 
   const residentialAddressPostalCode = serviceMember?.residential_address?.postalCode;
