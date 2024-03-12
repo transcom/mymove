@@ -1,0 +1,18 @@
+@import 'shared/styles/colors.scss';
+@import 'shared/styles/basics';
+
+
+:global(.usa-button).downloadButtonToLink {
+  background-color: transparent;
+  color: $primary;
+  font-weight: normal;
+  margin: 0;
+  @include u-padding(0);
+  border-width: 0px;
+  outline: none !important;
+  height: 30px !important;
+}
+
+:global(.usa-button).downloadButtonToLink:hover {
+  text-decoration: underline !important;
+}

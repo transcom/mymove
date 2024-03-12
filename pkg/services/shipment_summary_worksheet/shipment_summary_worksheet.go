@@ -284,6 +284,7 @@ func SSWGetEntitlement(grade internalmessages.OrderPayGrade, hasDependents bool,
 // CalculateRemainingPPMEntitlement calculates the remaining PPM entitlement for PPM moves
 // a PPMs remaining entitlement weight is equal to total entitlement - hhg weight
 func CalculateRemainingPPMEntitlement(move models.Move, totalEntitlement unit.Pound) (unit.Pound, error) {
+
 	var hhgActualWeight unit.Pound
 
 	ppmActualWeight := models.GetTotalNetWeightForMove(move)
