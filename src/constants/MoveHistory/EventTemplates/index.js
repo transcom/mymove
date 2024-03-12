@@ -45,6 +45,7 @@ export { default as updateMTOShipmentStatus } from './UpdateMTOShipmentStatus/up
 export { default as updateMTOServiceItemMoveStatus } from './CreateMTOServiceItem/createMTOServiceItemUpdateMoveStatus';
 export { default as updateMoveEstimatedExcessWeight } from './UpdateMTOShipment/updateMTOShipmentPrimeEstimatedExcessWeight';
 export { default as updateMTOStatusServiceCounselingCompleted } from './UpdateMTOStatusServiceCounselingCompleted/updateMTOStatusServiceCounselingCompleted';
+export { default as updateMTOStatusServiceCounselingCompletedPPM } from './UpdateMTOStatusServiceCounselingCompleted/updateMTOStatusServiceCounselingCompletedPPM';
 export { default as updateAllowanceByCounselor } from './UpdateAllowances/updateAllowanceByCounselor';
 export { default as updateServiceMemberByCounselor } from './UpdateServiceMember/updateServiceMemberByCounselor';
 export { default as updateServiceMemberByTOO } from './UpdateServiceMember/updateServiceMemberByTOO';
@@ -81,3 +82,4 @@ export { default as deleteProGearWeightTicketUserUploads } from './DeleteProGear
 export { default as createMovingExpense } from './CreateMovingExpense/CreateMovingExpense';
 export { default as deleteMovingExpense } from './DeleteMovingExpense/DeleteMovingExpense';
 export { default as deleteMovingExpenseUserUploads } from './DeleteMovingExpense/DeleteMovingExpenseUserUploads';
+export { default as finishDocumentReview } from './FinishDocumentReview/finishDocumentReview';

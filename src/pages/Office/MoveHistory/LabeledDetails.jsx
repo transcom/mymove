@@ -13,6 +13,7 @@ import monetaryFields from 'constants/MoveHistory/Database/MonetaryFields';
 import { shipmentTypes } from 'constants/shipments';
 import { HistoryLogRecordShape } from 'constants/MoveHistory/UIDisplay/HistoryLogShape';
 import optionFields from 'constants/MoveHistory/Database/OptionFields';
+import statusFields from 'constants/MoveHistory/Database/StatusFields';
 import {
   formatCents,
   formatCustomerDate,
@@ -52,6 +53,7 @@ export const { displayMappings, getMappedDisplayName } = withMappings().addNameM
   [timeUnitFields, ({ value }) => formatTimeUnitDays(value)],
   [distanceFields, ({ value }) => formatDistanceUnitMiles(value)],
   [optionFields, ({ value }) => optionFields[value]],
+  [statusFields, ({ value }) => statusFields[value]],
 ]);
 
 export const retrieveTextToDisplay = (fieldName, value) => {
