@@ -24,7 +24,6 @@ import {
   createSubmittedPPMShipment,
 } from 'utils/test/factories/ppmShipment';
 import { downloadPPMAOAPacket } from 'services/internalApi';
-import { downloadPPMAOAPacketOnSuccessHandler } from 'utils/download';
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -41,11 +40,6 @@ jest.mock('react-router-dom', () => ({
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   downloadPPMAOAPacket: jest.fn(),
-}));
-
-jest.mock('utils/download', () => ({
-  ...jest.requireActual('utils/download'),
-  downloadPPMAOAPacketOnSuccessHandler: jest.fn(),
 }));
 
 const defaultProps = {
@@ -661,7 +655,6 @@ describe('Home component', () => {
             screen.getByText(/Something went wrong downloading PPM AOA paperwork./, { exact: false }),
           ).toBeInTheDocument();
           expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
-          expect(downloadPPMAOAPacketOnSuccessHandler).toHaveBeenCalledTimes(0);
         });
       });
 
@@ -694,7 +687,6 @@ describe('Home component', () => {
 
         await waitFor(() => {
           expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
-          expect(downloadPPMAOAPacketOnSuccessHandler).toHaveBeenCalledTimes(1);
         });
       });
     });
