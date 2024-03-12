@@ -1,6 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import styles from './AvailableMovesQueue.module.scss';
+
 import TableQueue from 'components/Table/TableQueue';
 import { createHeader } from 'components/Table/utils';
 // TODO: This is very clunky. There are shared/formatters and util/formatters
@@ -15,25 +17,23 @@ import { formatDateFromIso } from 'utils/formatters';
 import { usePrimeSimulatorAvailableMovesQueries, useUserQueries } from 'hooks/queries';
 
 const columnHeaders = () => [
-  createHeader('Move ID', 'id', {
-    id: 'id',
-    isFilterable: true,
-  }),
   createHeader(
-    'Move code',
-    (row) => {
-      return (
-        <div>
-          {row.orderType === 'BLUEBARK' ? <span className="">BLUEBARK</span> : null}
-          {`${row.moveCode}`}
-        </div>
-      );
-    },
+    'Move ID',
+    (row) => (
+      <div>
+        {row.orderType === 'BLUEBARK' ? <span className={styles.specialMoves}>BLUEBARK</span> : null}
+        {`${row.id}`}
+      </div>
+    ),
     {
-      id: 'moveCode',
+      id: 'id',
       isFilterable: true,
     },
   ),
+  createHeader('Move code', 'moveCode', {
+    id: 'moveCode',
+    isFilterable: true,
+  }),
   createHeader(
     'Created at',
     (row) => {
@@ -69,7 +69,7 @@ const PrimeSimulatorAvailableMoves = () => {
   if (isError) return <SomethingWentWrong />;
 
   const handleClick = (values) => {
-    navigate(`/simulator/moves/${values.id}/details`);
+    navigate(`/simulator/moves/${values.id.props.children[1]}/details`);
   };
 
   return (
