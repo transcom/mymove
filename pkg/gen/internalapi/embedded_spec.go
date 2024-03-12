@@ -3113,6 +3113,13 @@ func init() {
             "name": "uploadId",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the order that the upload belongs to",
+            "name": "orderId",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4127,6 +4134,9 @@ func init() {
     "InternalMove": {
       "type": "object",
       "properties": {
+        "closeoutOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -10825,6 +10835,13 @@ func init() {
             "name": "uploadId",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the order that the upload belongs to",
+            "name": "orderId",
+            "in": "query"
           }
         ],
         "responses": {
@@ -11841,6 +11858,9 @@ func init() {
     "InternalMove": {
       "type": "object",
       "properties": {
+        "closeoutOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
