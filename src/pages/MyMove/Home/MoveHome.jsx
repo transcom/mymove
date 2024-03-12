@@ -409,6 +409,8 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   // eslint-disable-next-line camelcase
   const currentLocation = current_location;
   const shipmentNumbersByType = {};
+
+  const isSpecialMove = ['BLUEBARK'].includes(orders?.orders_type);
   return (
     <>
       <ConnectedDestructiveShipmentConfirmationModal
@@ -424,6 +426,11 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
       <DownloadAOAErrorModal isOpen={showDownloadPPMAOAPaperworkErrorAlert} closeModal={toggleDownloadAOAErrorModal} />
       <div className={styles.homeContainer}>
         <header data-testid="customer-header" className={styles['customer-header']}>
+          {isSpecialMove ? (
+            <div data-testid="specialMovesLabel" className={styles.specialMovesLabel}>
+              <p>BLUEBARK</p>
+            </div>
+          ) : null}
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
             <h2>
               {serviceMember.first_name} {serviceMember.last_name}
