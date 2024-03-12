@@ -71,10 +71,7 @@ func (h SearchMovesHandler) Handle(params moveop.SearchMovesParams) middleware.R
 				PerPage:               params.Body.PerPage,
 				Sort:                  params.Body.Sort,
 				Order:                 params.Body.Order,
-				PickupDate:            handlers.FmtDateTimePtrToPopPtr(params.Body.PickupDate),
-				DeliveryDate:          handlers.FmtDateTimePtrToPopPtr(params.Body.DeliveryDate),
 			}
-
 			moves, totalCount, err := h.MoveSearcher.SearchMoves(appCtx, &searchMovesParams)
 
 			if err != nil {
@@ -82,7 +79,7 @@ func (h SearchMovesHandler) Handle(params moveop.SearchMovesParams) middleware.R
 				return moveop.NewSearchMovesInternalServerError(), err
 			}
 
-			searchMoves := payloads.SearchMoves(appCtx, moves)
+			searchMoves := payloads.SearchMoves(moves)
 			payload := &ghcmessages.SearchMovesResult{
 				Page:        searchMovesParams.Page,
 				PerPage:     searchMovesParams.PerPage,

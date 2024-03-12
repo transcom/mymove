@@ -56,21 +56,6 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	DCRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
 	DCRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
-	originReason := "storage at origin"
-	originServiceCode := models.ReServiceCodeDOFSIT.String()
-	originSITEntryDate := strfmt.Date(time.Now())
-	originSITDepartureDate := strfmt.Date(time.Now())
-	originState := "TN"
-	originCity := "Beverly Hills"
-	originPostalCode := "90210"
-	originStreet1 := "123 Rodeo Dr."
-	sitHHGActualOriginAddress := primemessages.Address{
-		State:          &originState,
-		City:           &originCity,
-		PostalCode:     &originPostalCode,
-		StreetAddress1: &originStreet1,
-	}
-
 	destReason := "service member will pick up from storage at destination"
 	destServiceCode := models.ReServiceCodeDDFSIT.String()
 	destDate := strfmt.Date(time.Now())
@@ -154,31 +139,6 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.True(verrs.HasAny(), fmt.Sprintf("invalid crate dimensions for %s service item", models.ReServiceCodeDCRT))
 		suite.Nil(returnedModel, "returned a model when erroring")
 
-	})
-
-	suite.Run("Success - Returns SIT origin service item model", func() {
-		originSITServiceItem := &primemessages.MTOServiceItemOriginSIT{
-			ReServiceCode:      &originServiceCode,
-			SitEntryDate:       &originSITEntryDate,
-			SitDepartureDate:   &originSITDepartureDate,
-			SitHHGActualOrigin: &sitHHGActualOriginAddress,
-			Reason:             &originReason,
-		}
-
-		originSITServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
-		originSITServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
-		returnedModel, verrs := MTOServiceItemModel(originSITServiceItem)
-
-		suite.NoVerrs(verrs)
-		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
-		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
-		suite.Equal(models.ReServiceCodeDOFSIT, returnedModel.ReService.Code)
-		suite.Equal(originStreet1, returnedModel.SITOriginHHGActualAddress.StreetAddress1)
-		suite.Equal(originCity, returnedModel.SITOriginHHGActualAddress.City)
-		suite.Equal(originState, returnedModel.SITOriginHHGActualAddress.State)
-		suite.Equal(originPostalCode, returnedModel.SITOriginHHGActualAddress.PostalCode)
-		suite.Equal(originSITEntryDate, *handlers.FmtDatePtr(returnedModel.SITEntryDate))
-		suite.Equal(originSITDepartureDate, *handlers.FmtDatePtr(returnedModel.SITDepartureDate))
 	})
 
 	suite.Run("Success - Returns SIT destination service item model", func() {

@@ -2972,7 +2972,6 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 
 func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	moveRouter := moveservices.NewMoveRouter()
-	addressCreator := address.NewAddressCreator()
 
 	suite.Run("Successful POST - Integration Test", func() {
 		handlerConfig := suite.HandlerConfig()
@@ -2984,7 +2983,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter)
 		ppmEstimator := mocks.PPMEstimator{}
-		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
@@ -3060,7 +3059,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter)
 		ppmEstimator := mocks.PPMEstimator{}
-		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
@@ -3108,7 +3107,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter)
 		ppmEstimator := mocks.PPMEstimator{}
-		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
@@ -3152,7 +3151,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter)
 		ppmEstimator := mocks.PPMEstimator{}
-		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
@@ -3191,7 +3190,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter)
 		ppmEstimator := mocks.PPMEstimator{}
-		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
@@ -3225,7 +3224,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 }
 
 func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
-	addressCreator := address.NewAddressCreator()
 	suite.Run("Successful POST - Integration Test (PPM, all fields)", func() {
 		// Make a move along with an attached minimal shipment. Shouldn't matter what's in them.
 		move := factory.BuildMove(suite.DB(), nil, nil)
@@ -3241,7 +3239,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveservices.NewMoveRouter())
 		ppmEstimator := mocks.PPMEstimator{}
-		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
+		ppmCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 		shipmentRouter := mtoshipment.NewShipmentRouter()
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
@@ -3373,7 +3371,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			mtoserviceitem.NewMTOServiceItemCreator(builder, moveservices.NewMoveRouter()),
 			moveservices.NewMoveRouter(),
 		)
-		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator), shipmentRouter, moveTaskOrderUpdater)
+		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmshipment.NewPPMShipmentCreator(&ppmEstimator), shipmentRouter, moveTaskOrderUpdater)
 		handler := CreateMTOShipmentHandler{
 			handlerConfig,
 			shipmentCreator,
@@ -3557,12 +3555,10 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					Status:                    models.MTOShipmentStatusSubmitted,
-					UsesExternalVendor:        true,
-					TACType:                   &hhgLOAType,
-					Diversion:                 true,
-					ActualProGearWeight:       models.PoundPointer(1000),
-					ActualSpouseProGearWeight: models.PoundPointer(253),
+					Status:             models.MTOShipmentStatusSubmitted,
+					UsesExternalVendor: true,
+					TACType:            &hhgLOAType,
+					Diversion:          true,
 				},
 			},
 		}, nil)
@@ -3579,8 +3575,6 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.NoError(updatedShipment.Validate(strfmt.Default))
 
 		suite.Equal(oldShipment.ID.String(), updatedShipment.ID.String())
-		suite.Equal(oldShipment.ActualProGearWeight, handlers.PoundPtrFromInt64Ptr(updatedShipment.ActualProGearWeight))
-		suite.Equal(oldShipment.ActualSpouseProGearWeight, handlers.PoundPtrFromInt64Ptr(updatedShipment.ActualSpouseProGearWeight))
 		suite.Equal(params.Body.BillableWeightCap, updatedShipment.BillableWeightCap)
 		suite.Equal(params.Body.BillableWeightJustification, updatedShipment.BillableWeightJustification)
 		suite.Equal(params.Body.CounselorRemarks, updatedShipment.CounselorRemarks)

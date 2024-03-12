@@ -18,7 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notifications"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organizations"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/requested_office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
@@ -147,11 +146,6 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 	if api.OrganizationsIndexOrganizationsHandler == nil {
 		api.OrganizationsIndexOrganizationsHandler = organizations.IndexOrganizationsHandlerFunc(func(params organizations.IndexOrganizationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation organizations.IndexOrganizations has not yet been implemented")
-		})
-	}
-	if api.RequestedOfficeUsersIndexRequestedOfficeUsersHandler == nil {
-		api.RequestedOfficeUsersIndexRequestedOfficeUsersHandler = requested_office_users.IndexRequestedOfficeUsersHandlerFunc(func(params requested_office_users.IndexRequestedOfficeUsersParams) middleware.Responder {
-			return middleware.NotImplemented("operation requested_office_users.IndexRequestedOfficeUsers has not yet been implemented")
 		})
 	}
 	if api.UsersIndexUsersHandler == nil {

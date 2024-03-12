@@ -1186,72 +1186,6 @@ func init() {
         }
       }
     },
-    "/requested-office-users": {
-      "get": {
-        "description": "This endpoint returns a list of Office Users. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Requested Office users"
-        ],
-        "summary": "List of Office Users Requesting Accounts",
-        "operationId": "indexRequestedOfficeUsers",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "filter",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "name": "page",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "name": "perPage",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "sort",
-            "in": "query"
-          },
-          {
-            "type": "boolean",
-            "name": "order",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "success",
-            "schema": {
-              "$ref": "#/definitions/OfficeUsers"
-            },
-            "headers": {
-              "Content-Range": {
-                "type": "string",
-                "description": "Used for pagination"
-              }
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "404": {
-            "description": "Office User not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/uploads/{uploadId}": {
       "get": {
         "description": "This endpoint returns a single Upload by ID containing the given Upload and\ninformation about the Uploader and Move. Do not use this endpoint directly as it\nis meant to be used with the Admin UI exclusively.\n",
@@ -2401,10 +2335,6 @@ func init() {
         "transportationOfficeId",
         "active",
         "roles",
-        "edipi",
-        "otherUniqueId",
-        "rejectionReason",
-        "status",
         "createdAt",
         "updatedAt"
       ],
@@ -2416,9 +2346,6 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
-        },
-        "edipi": {
-          "type": "string"
         },
         "email": {
           "type": "string",
@@ -2439,25 +2366,11 @@ func init() {
         "middleInitials": {
           "type": "string"
         },
-        "otherUniqueId": {
-          "type": "string"
-        },
-        "rejectionReason": {
-          "type": "string"
-        },
         "roles": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Role"
           }
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "REQUESTED",
-            "REJECTED"
-          ]
         },
         "telephone": {
           "type": "string",
@@ -4273,72 +4186,6 @@ func init() {
         }
       }
     },
-    "/requested-office-users": {
-      "get": {
-        "description": "This endpoint returns a list of Office Users. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "Requested Office users"
-        ],
-        "summary": "List of Office Users Requesting Accounts",
-        "operationId": "indexRequestedOfficeUsers",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "filter",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "name": "page",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "name": "perPage",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "sort",
-            "in": "query"
-          },
-          {
-            "type": "boolean",
-            "name": "order",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "success",
-            "schema": {
-              "$ref": "#/definitions/OfficeUsers"
-            },
-            "headers": {
-              "Content-Range": {
-                "type": "string",
-                "description": "Used for pagination"
-              }
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "404": {
-            "description": "Office User not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/uploads/{uploadId}": {
       "get": {
         "description": "This endpoint returns a single Upload by ID containing the given Upload and\ninformation about the Uploader and Move. Do not use this endpoint directly as it\nis meant to be used with the Admin UI exclusively.\n",
@@ -5489,10 +5336,6 @@ func init() {
         "transportationOfficeId",
         "active",
         "roles",
-        "edipi",
-        "otherUniqueId",
-        "rejectionReason",
-        "status",
         "createdAt",
         "updatedAt"
       ],
@@ -5504,9 +5347,6 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
-        },
-        "edipi": {
-          "type": "string"
         },
         "email": {
           "type": "string",
@@ -5527,25 +5367,11 @@ func init() {
         "middleInitials": {
           "type": "string"
         },
-        "otherUniqueId": {
-          "type": "string"
-        },
-        "rejectionReason": {
-          "type": "string"
-        },
         "roles": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Role"
           }
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "REQUESTED",
-            "REJECTED"
-          ]
         },
         "telephone": {
           "type": "string",

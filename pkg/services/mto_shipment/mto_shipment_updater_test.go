@@ -346,8 +346,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		primeEstimatedWeightRecordedDate := now.Add(time.Hour * 24 * 3)
 		customerRemarks := "I have a grandfather clock"
 		counselorRemarks := "Counselor approved"
-		actualProGearWeight := unit.Pound(400)
-		actualSpouseProGearWeight := unit.Pound(125)
 		updatedShipment := models.MTOShipment{
 			ID:                               oldShipment.ID,
 			DestinationAddress:               &newDestinationAddress,
@@ -371,8 +369,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			Status:                           models.MTOShipmentStatusSubmitted,
 			CustomerRemarks:                  &customerRemarks,
 			CounselorRemarks:                 &counselorRemarks,
-			ActualProGearWeight:              &actualProGearWeight,
-			ActualSpouseProGearWeight:        &actualSpouseProGearWeight,
 		}
 
 		session := auth.Session{}
@@ -396,8 +392,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(newPickupAddress.ID, *newShipment.PickupAddressID)
 		suite.Equal(secondaryPickupAddress.ID, *newShipment.SecondaryPickupAddressID)
 		suite.Equal(secondaryDeliveryAddress.ID, *newShipment.SecondaryDeliveryAddressID)
-		suite.Equal(actualProGearWeight, *newShipment.ActualProGearWeight)
-		suite.Equal(actualSpouseProGearWeight, *newShipment.ActualSpouseProGearWeight)
 
 		// Verify that shipment recalculate was handled correctly
 		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)

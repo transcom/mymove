@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { generatePath, Link, matchPath } from 'react-router-dom';
-import { func, shape, bool, string } from 'prop-types';
+import { arrayOf, func, shape, bool, string } from 'prop-types';
 import moment from 'moment';
 import { Button, Grid } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -20,22 +20,23 @@ import PPMShipmentCard from 'components/Customer/Review/ShipmentCard/PPMShipment
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { customerRoutes } from 'constants/routes';
-import { deleteMTOShipment, getAllMoves, getMTOShipmentsForMove } from 'services/internalApi';
+import { deleteMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { updateMTOShipments, updateAllMoves as updateAllMovesAction } from 'store/entities/actions';
+import { updateMTOShipments } from 'store/entities/actions';
 import {
   selectServiceMemberFromLoggedInUser,
+  selectCurrentOrders,
+  selectCurrentMove,
   selectMoveIsApproved,
   selectHasCanceledMove,
-  selectAllMoves,
-  selectCurrentMoveFromAllMoves,
-  selectShipmentsFromMove,
+  selectMTOShipmentsForCurrentMove,
 } from 'store/entities/selectors';
 import { setFlashMessage } from 'store/flash/actions';
+import { OrdersShape, MoveShape } from 'types/customerShapes';
+import { ShipmentShape } from 'types/shipment';
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types';
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 export class Summary extends Component {
   constructor(props) {
@@ -53,15 +54,18 @@ export class Summary extends Component {
   }
 
   componentDidMount() {
-    const { onDidMount, serviceMember, updateAllMoves } = this.props;
+    const { onDidMount, serviceMember } = this.props;
 
     if (onDidMount) {
       onDidMount(serviceMember.id);
     }
+  }
 
-    getAllMoves(serviceMember.id).then((response) => {
-      updateAllMoves(response);
-    });
+  get getSortedShipments() {
+    const { mtoShipments } = this.props;
+    const sortedShipments = [...mtoShipments];
+
+    return sortedShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
   }
 
   handleEditClick = (path) => {
@@ -83,13 +87,10 @@ export class Summary extends Component {
   };
 
   handleDeleteShipmentConfirmation = (shipmentId) => {
-    const { serviceMember, updateAllMoves, moveId, updateShipmentList, setMsg } = this.props;
+    const { currentMove, updateShipmentList, setMsg } = this.props;
     deleteMTOShipment(shipmentId)
       .then(() => {
-        getAllMoves(serviceMember.id).then((res) => {
-          updateAllMoves(res);
-        });
-        getMTOShipmentsForMove(moveId).then((response) => {
+        getMTOShipmentsForMove(currentMove.id).then((response) => {
           updateShipmentList(response);
           setMsg('MTO_SHIPMENT_DELETE_SUCCESS', 'success', 'The shipment was deleted.', '', true);
         });
@@ -109,31 +110,12 @@ export class Summary extends Component {
   };
 
   renderShipments = () => {
-    const { router, serviceMember, serviceMemberMoves } = this.props;
+    const { currentMove, currentOrders, router, serviceMember } = this.props;
     const { moveId } = router.params;
-
-    const currentMove = selectCurrentMoveFromAllMoves(serviceMemberMoves, moveId);
-    const { mtoShipments } = currentMove ?? {};
-    const { orders } = currentMove ?? {};
-    const currentOrders = orders;
-
-    const sortedShipments = mtoShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
-
-    // loading placeholder while data loads - this handles any async issues
-    if (!currentMove || !mtoShipments) {
-      return (
-        <div className={styles.homeContainer}>
-          <div className={`usa-prose grid-container ${styles['grid-container']}`}>
-            <LoadingPlaceholder />
-          </div>
-        </div>
-      );
-    }
-
     const showEditAndDeleteBtn = currentMove.status === MOVE_STATUSES.DRAFT;
     let hhgShipmentNumber = 0;
     let ppmShipmentNumber = 0;
-    return sortedShipments.map((shipment) => {
+    return this.getSortedShipments.map((shipment) => {
       let receivingAgent;
       let releasingAgent;
 
@@ -242,7 +224,7 @@ export class Summary extends Component {
   };
 
   render() {
-    const { serviceMemberMoves, router, moveIsApproved, serviceMember } = this.props;
+    const { currentMove, currentOrders, router, moveIsApproved, mtoShipments, serviceMember } = this.props;
     const {
       showModal,
       showDeleteModal,
@@ -255,23 +237,6 @@ export class Summary extends Component {
 
     const { pathname } = router.location;
     const { moveId } = router.params;
-
-    const currentMove = selectCurrentMoveFromAllMoves(serviceMemberMoves, moveId);
-    const mtoShipments = selectShipmentsFromMove(currentMove);
-    const { orders } = currentMove ?? {};
-    const currentOrders = orders;
-
-    // loading placeholder while data loads - this handles any async issues
-    if (!currentMove || !mtoShipments) {
-      return (
-        <div className={styles.homeContainer}>
-          <div className={`usa-prose grid-container ${styles['grid-container']}`}>
-            <LoadingPlaceholder />
-          </div>
-        </div>
-      );
-    }
-
     const currentDutyLocation = serviceMember?.current_location;
     const officePhone = currentDutyLocation?.transportation_office?.phone_lines?.[0];
 
@@ -343,7 +308,6 @@ export class Summary extends Component {
             uploads={currentOrders.uploaded_orders.uploads}
             payGrade={ORDERS_PAY_GRADE_OPTIONS[currentOrders?.grade] || ''}
             originDutyLocationName={currentOrders.origin_duty_location.name}
-            orderId={currentOrders.id}
           />
         </SectionWrapper>
         {thirdSectionHasContent && (
@@ -387,8 +351,11 @@ export class Summary extends Component {
 }
 
 Summary.propTypes = {
+  currentMove: MoveShape.isRequired,
+  currentOrders: OrdersShape.isRequired,
   router: RouterShape,
   moveIsApproved: bool.isRequired,
+  mtoShipments: arrayOf(ShipmentShape).isRequired,
   onDidMount: func.isRequired,
   serviceMember: shape({ id: string.isRequired }).isRequired,
   updateShipmentList: func.isRequired,
@@ -399,24 +366,12 @@ Summary.defaultProps = {
   router: {},
 };
 
-function mapStateToProps(state, ownProps) {
-  const serviceMemberMoves = selectAllMoves(state);
-  const {
-    router: {
-      params: { moveId },
-    },
-  } = ownProps;
-  const currentMove = selectCurrentMoveFromAllMoves(state, moveId);
-  const mtoShipments = currentMove?.mtoShipments ?? [];
-  const currentOrders = currentMove?.orders ?? {};
-
+function mapStateToProps(state) {
   return {
-    serviceMemberMoves,
-    mtoShipments,
+    mtoShipments: selectMTOShipmentsForCurrentMove(state),
     serviceMember: selectServiceMemberFromLoggedInUser(state),
-    currentMove,
-    currentOrders,
-    moveId,
+    currentMove: selectCurrentMove(state) || {},
+    currentOrders: selectCurrentOrders(state) || {},
     moveIsApproved: selectMoveIsApproved(state),
     lastMoveIsCanceled: selectHasCanceledMove(state),
     entitlement: loadEntitlementsFromState(state),
@@ -425,7 +380,6 @@ function mapStateToProps(state, ownProps) {
 
 const mapDispatchToProps = {
   updateShipmentList: updateMTOShipments,
-  updateAllMoves: updateAllMovesAction,
   setMsg: setFlashMessage,
 };
 

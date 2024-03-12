@@ -229,14 +229,6 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.StorageFacility = requestedUpdatedShipment.StorageFacility
 	}
 
-	if requestedUpdatedShipment.ActualProGearWeight != nil {
-		dbShipment.ActualProGearWeight = requestedUpdatedShipment.ActualProGearWeight
-	}
-
-	if requestedUpdatedShipment.ActualSpouseProGearWeight != nil {
-		dbShipment.ActualSpouseProGearWeight = requestedUpdatedShipment.ActualSpouseProGearWeight
-	}
-
 	//// TODO: move mtoagent creation into service: Should not update MTOAgents here because we don't have an eTag
 	if len(requestedUpdatedShipment.MTOAgents) > 0 {
 		var agentsToCreateOrUpdate []models.MTOAgent

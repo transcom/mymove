@@ -27,25 +27,12 @@ const mockWeightTickets = [
     },
   ),
 ];
-const yesterday = new Date();
-yesterday.setDate(yesterday.getDate() - 1);
-const mockPPMShipment = {
-  id: '2ecb311-edbe-4fd4-96ee-bd693113f3f3',
-  expectedDepartureDate: new Date(yesterday.getDate() - 1),
-  actualMoveDate: yesterday,
-  actualPickupPostalCode: '90210',
-  actualDestinationPostalCode: '94611',
-  miles: 300,
-  estimatedWeight: 3000,
-  actualWeight: 3500,
-  showAllFields: false,
-};
 
 describe('ReviewDocumentsSidePanel', () => {
   it('renders the component', async () => {
     render(
       <MockProviders>
-        <ReviewDocumentsSidePanel ppmShipmentInfo={mockPPMShipment} />
+        <ReviewDocumentsSidePanel />
       </MockProviders>,
     );
     const h3 = await screen.getByRole('heading', { name: 'Send to customer?', level: 3 });
@@ -80,7 +67,6 @@ describe('ReviewDocumentsSidePanel', () => {
     render(
       <MockProviders>
         <ReviewDocumentsSidePanel
-          ppmShipmentInfo={mockPPMShipment}
           weightTickets={mockWeightTickets}
           proGearTickets={progearWeightTickets}
           expenseTickets={movingExpenses}

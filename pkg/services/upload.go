@@ -36,7 +36,6 @@ type UploadInformation struct {
 //go:generate mockery --name UploadInformationFetcher
 type UploadInformationFetcher interface {
 	FetchUploadInformation(appCtx appcontext.AppContext, uuid uuid.UUID) (UploadInformation, error)
-	FetchUploadInformationForDeletion(appCtx appcontext.AppContext, uuid uuid.UUID, moveLocator string) (UploadInformation, error)
 }
 
 // UploadCreator is the service object interface for CreateUpload

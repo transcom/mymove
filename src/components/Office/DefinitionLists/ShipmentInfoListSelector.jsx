@@ -20,7 +20,6 @@ const ShipmentInfoListSelector = ({
   shipmentType,
   isForEvaluationReport,
   destinationDutyLocationPostalCode,
-  onErrorModalToggle,
 }) => {
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.PPM:
@@ -34,7 +33,6 @@ const ShipmentInfoListSelector = ({
           showWhenCollapsed={showWhenCollapsed}
           isExpanded={isExpanded}
           isForEvaluationReport={isForEvaluationReport}
-          onErrorModalToggle={onErrorModalToggle}
         />
       );
     case SHIPMENT_OPTIONS.HHG:
@@ -107,7 +105,6 @@ ShipmentInfoListSelector.propTypes = {
   ]),
   isForEvaluationReport: PropTypes.bool,
   destinationDutyLocationPostalCode: PropTypes.string,
-  onErrorModalToggle: PropTypes.func,
 };
 
 ShipmentInfoListSelector.defaultProps = {
@@ -120,7 +117,6 @@ ShipmentInfoListSelector.defaultProps = {
   neverShow: [],
   isForEvaluationReport: false,
   destinationDutyLocationPostalCode: '',
-  onErrorModalToggle: undefined,
 };
 
 export default ShipmentInfoListSelector;

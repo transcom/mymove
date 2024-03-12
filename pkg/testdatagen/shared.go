@@ -64,6 +64,7 @@ type Assertions struct {
 	PaymentServiceItem                       models.PaymentServiceItem
 	PaymentServiceItemParam                  models.PaymentServiceItemParam
 	PaymentServiceItemParams                 models.PaymentServiceItemParams
+	PersonallyProcuredMove                   models.PersonallyProcuredMove
 	PickupAddress                            models.Address
 	PPMShipment                              models.PPMShipment
 	PrimeUpload                              models.PrimeUpload
@@ -117,20 +118,20 @@ func mustCreate(db *pop.Connection, model interface{}, stub bool) {
 
 	verrs, err := db.ValidateAndCreate(model)
 	if err != nil {
-		log.Panic(fmt.Errorf("errors encountered saving %#v: %v", model, err))
+		log.Panic(fmt.Errorf("Errors encountered saving %#v: %v", model, err))
 	}
 	if verrs.HasAny() {
-		log.Panic(fmt.Errorf("validation errors encountered saving %#v: %v", model, verrs))
+		log.Panic(fmt.Errorf("Validation errors encountered saving %#v: %v", model, verrs))
 	}
 }
 
 func Save(db *pop.Connection, model interface{}) error {
 	verrs, err := db.ValidateAndSave(model)
 	if err != nil {
-		return errors.Wrap(err, "errors encountered saving model")
+		return errors.Wrap(err, "Errors encountered saving model")
 	}
 	if verrs.HasAny() {
-		return errors.Errorf("validation errors encountered saving model: %v", verrs)
+		return errors.Errorf("Validation errors encountered saving model: %v", verrs)
 	}
 	return nil
 }
@@ -138,16 +139,16 @@ func Save(db *pop.Connection, model interface{}) error {
 func MustSave(db *pop.Connection, model interface{}) {
 	verrs, err := db.ValidateAndSave(model)
 	if err != nil {
-		log.Panic(fmt.Errorf("errors encountered saving %#v: %v", model, err))
+		log.Panic(fmt.Errorf("Errors encountered saving %#v: %v", model, err))
 	}
 	if verrs.HasAny() {
-		log.Panic(fmt.Errorf("validation errors encountered saving %#v: %v", model, verrs))
+		log.Panic(fmt.Errorf("Validation errors encountered saving %#v: %v", model, verrs))
 	}
 }
 
 func noErr(err error) {
 	if err != nil {
-		log.Panic(fmt.Errorf("error encountered: %v", err))
+		log.Panic(fmt.Errorf("Error encountered: %v", err))
 	}
 }
 
@@ -223,7 +224,7 @@ func Fixture(name string) afero.File {
 	fixturePath := path.Join(cwd, "pkg/testdatagen", fixtureDir, name)
 	file, err := os.Open(filepath.Clean(fixturePath))
 	if err != nil {
-		log.Panic(fmt.Errorf("error opening local file: %v", err))
+		log.Panic(fmt.Errorf("Error opening local file: %v", err))
 	}
 
 	return file

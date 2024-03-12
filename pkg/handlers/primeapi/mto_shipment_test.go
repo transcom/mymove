@@ -45,9 +45,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	moveRouter := moveservices.NewMoveRouter()
 	fetcher := fetch.NewFetcher(builder)
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter)
-	addressCreator := address.NewAddressCreator()
 	ppmEstimator := mocks.PPMEstimator{}
-	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
+	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator)
 	shipmentRouter := mtoshipment.NewShipmentRouter()
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,

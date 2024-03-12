@@ -8,6 +8,6 @@ export default {
   action: a.UPDATE,
   eventName: o.updateMTOStatusServiceCounselingCompleted,
   tableName: t.moves,
-  getEventNameDisplay: () => 'Updated move',
+  getEventNameDisplay: () => 'Updated shipment',
   getDetails: () => <> Counseling Completed </>,
 };

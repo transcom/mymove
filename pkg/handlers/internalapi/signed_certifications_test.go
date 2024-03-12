@@ -139,23 +139,13 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 }
 
 func (suite *HandlerSuite) TestIndexSignedCertificationHandlerBadMoveID() {
-	ppm := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
-	mtoShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
-		{
-			Model: ppm,
-		},
-	}, nil)
-	move := factory.BuildMove(suite.DB(), []factory.Customization{
-		{
-			Model: ppm,
-		},
-	}, nil)
-	move.MTOShipments = append(move.MTOShipments, mtoShipment)
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	move := ppm.Move
 
 	ppmPayment := models.SignedCertificationTypePPMPAYMENT
 	factory.BuildSignedCertification(suite.DB(), []factory.Customization{
 		{
-			Model:    move,
+			Model:    ppm.Move,
 			LinkOnly: true,
 		},
 		{
@@ -184,22 +174,12 @@ func (suite *HandlerSuite) TestIndexSignedCertificationHandlerBadMoveID() {
 }
 
 func (suite *HandlerSuite) TestIndexSignedCertificationHandlerMismatchedUser() {
-	ppm := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
-	mtoShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
-		{
-			Model: ppm,
-		},
-	}, nil)
-	move := factory.BuildMove(suite.DB(), []factory.Customization{
-		{
-			Model: ppm,
-		},
-	}, nil)
-	move.MTOShipments = append(move.MTOShipments, mtoShipment)
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	move := ppm.Move
 	ppmPayment := models.SignedCertificationTypePPMPAYMENT
 	factory.BuildSignedCertification(suite.DB(), []factory.Customization{
 		{
-			Model:    move,
+			Model:    ppm.Move,
 			LinkOnly: true,
 		},
 		{
@@ -233,23 +213,13 @@ func (suite *HandlerSuite) TestIndexSignedCertificationHandlerMismatchedUser() {
 }
 
 func (suite *HandlerSuite) TestIndexSignedCertificationHandler() {
-	ppm := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
-	mtoShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
-		{
-			Model: ppm,
-		},
-	}, nil)
-	move := factory.BuildMove(suite.DB(), []factory.Customization{
-		{
-			Model: ppm,
-		},
-	}, nil)
-	move.MTOShipments = append(move.MTOShipments, mtoShipment)
-	sm := move.Orders.ServiceMember
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	move := ppm.Move
+	sm := ppm.Move.Orders.ServiceMember
 	ppmPayment := models.SignedCertificationTypePPMPAYMENT
 	factory.BuildSignedCertification(suite.DB(), []factory.Customization{
 		{
-			Model:    move,
+			Model:    ppm.Move,
 			LinkOnly: true,
 		},
 		{

@@ -39,9 +39,6 @@ type QueuePaymentRequest struct {
 	// Format: uuid
 	MoveID strfmt.UUID `json:"moveID,omitempty"`
 
-	// order type
-	OrderType *string `json:"orderType,omitempty"`
-
 	// origin duty location
 	OriginDutyLocation *DutyLocation `json:"originDutyLocation,omitempty"`
 

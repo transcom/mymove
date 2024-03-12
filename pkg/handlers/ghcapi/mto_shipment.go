@@ -97,8 +97,7 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 				"SecondaryDeliveryAddress",
 				"MTOServiceItems.CustomerContacts",
 				"StorageFacility.Address",
-				"PPMShipment",
-				"Distance"}
+				"PPMShipment"}
 
 			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
 

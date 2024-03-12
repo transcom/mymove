@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import moment from 'moment';
 import { generatePath } from 'react-router-dom';
@@ -11,7 +11,6 @@ import { completeCertificationText } from 'scenes/Legalese/legaleseText';
 import { SIGNED_CERT_OPTIONS } from 'shared/constants';
 import MOVE_STATUSES from 'constants/moves';
 import { customerRoutes } from 'constants/routes';
-import { renderWithRouterProp } from 'testUtils';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -42,11 +41,7 @@ describe('Agreement page', () => {
   it('submits the move and sets the flash message before redirecting home', async () => {
     submitMoveForApproval.mockResolvedValueOnce(submittedMoveSuccessResponse);
 
-    renderWithRouterProp(<Agreement {...testProps} />, {
-      path: customerRoutes.MOVE_REVIEW_PATH,
-      params: { moveId: 'testMove123' },
-    });
-
+    render(<Agreement {...testProps} />);
     await userEvent.type(screen.getByLabelText('SIGNATURE'), 'Sofia Clark-Nuñez');
     await userEvent.click(screen.getByRole('button', { name: 'Complete' }));
 
@@ -71,10 +66,7 @@ describe('Agreement page', () => {
   it('renders an error if submitting the move responds with a server error', async () => {
     submitMoveForApproval.mockRejectedValueOnce({ errors: { signature: 'Signature can not be blank.' } });
 
-    renderWithRouterProp(<Agreement {...testProps} />, {
-      path: customerRoutes.MOVE_REVIEW_PATH,
-      params: { moveId: 'testMove123' },
-    });
+    render(<Agreement {...testProps} />);
     await userEvent.type(screen.getByLabelText('SIGNATURE'), 'Sofia Clark-Nuñez');
     await userEvent.click(screen.getByRole('button', { name: 'Complete' }));
 
@@ -84,10 +76,7 @@ describe('Agreement page', () => {
   });
 
   it('routes back to the review page when the back button is clicked', async () => {
-    renderWithRouterProp(<Agreement {...testProps} />, {
-      path: customerRoutes.MOVE_REVIEW_PATH,
-      params: { moveId: 'testMove123' },
-    });
+    render(<Agreement {...testProps} />);
     await userEvent.click(screen.getByRole('button', { name: 'Back' }));
 
     await waitFor(() => {

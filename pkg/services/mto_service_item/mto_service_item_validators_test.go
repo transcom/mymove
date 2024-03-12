@@ -293,7 +293,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkPaymentRequests(suite.AppContextForTest(), &serviceItemData)
+		err := serviceItemData.checkPaymentRequests(suite.AppContextForTest())
 
 		suite.NoError(err)
 		suite.NoVerrs(serviceItemData.verrs)
@@ -324,7 +324,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkPaymentRequests(suite.AppContextForTest(), &serviceItemData)
+		err := serviceItemData.checkPaymentRequests(suite.AppContextForTest())
 
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)

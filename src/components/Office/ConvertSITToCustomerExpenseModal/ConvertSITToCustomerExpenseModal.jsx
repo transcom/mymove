@@ -15,14 +15,10 @@ import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal'
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
 import { formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
-import { formatDate } from 'utils/formatters';
-import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
 
 const SitStatusTables = ({ sitStatus, shipment }) => {
   const { daysInSIT } = sitStatus.currentSIT;
   const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
-  const sitDepartureDate =
-    formatDate(sitStatus.currentSIT?.sitDepartureDate, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE;
   // Currently active SIT
   const currentLocation = sitStatus.currentSIT.location === LOCATION_TYPES.ORIGIN ? 'origin SIT' : 'destination SIT';
 
@@ -63,10 +59,7 @@ const SitStatusTables = ({ sitStatus, shipment }) => {
       </div>
       <div className={styles.tableContainer}>
         {/* Total days at current location */}
-        <DataTable
-          columnHeaders={[`Total days in ${currentLocation}`, `SIT departure date`]}
-          dataRow={[currentDaysInSit, sitDepartureDate]}
-        />
+        <DataTable columnHeaders={[`Total days in ${currentLocation}`]} dataRow={[currentDaysInSit]} />
       </div>
     </>
   );

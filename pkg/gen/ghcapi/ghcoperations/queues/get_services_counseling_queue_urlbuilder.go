@@ -25,7 +25,6 @@ type GetServicesCounselingQueueURL struct {
 	Locator                 *string
 	NeedsPPMCloseout        *bool
 	Order                   *string
-	OrderType               *string
 	OriginDutyLocation      *string
 	OriginGBLOC             *string
 	Page                    *int64
@@ -140,14 +139,6 @@ func (o *GetServicesCounselingQueueURL) Build() (*url.URL, error) {
 	}
 	if orderQ != "" {
 		qs.Set("order", orderQ)
-	}
-
-	var orderTypeQ string
-	if o.OrderType != nil {
-		orderTypeQ = *o.OrderType
-	}
-	if orderTypeQ != "" {
-		qs.Set("orderType", orderTypeQ)
 	}
 
 	var originDutyLocationQ string
