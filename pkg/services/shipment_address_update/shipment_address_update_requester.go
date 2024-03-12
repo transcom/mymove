@@ -152,6 +152,22 @@ func (f *shipmentAddressUpdateRequester) doesShipmentContainDestinationSIT(shipm
 	return false
 }
 
+func (f *shipmentAddressUpdateRequester) doesShipmentContainApprovedDestinationSIT(shipment models.MTOShipment) bool {
+	if len(shipment.MTOServiceItems) > 0 {
+		serviceItems := shipment.MTOServiceItems
+
+		for _, serviceItem := range serviceItems {
+			serviceCode := serviceItem.ReService.Code
+			status := serviceItem.Status
+			if (serviceCode == models.ReServiceCodeDDASIT || serviceCode == models.ReServiceCodeDDDSIT || serviceCode == models.ReServiceCodeDDFSIT || serviceCode == models.ReServiceCodeDDSFSC) &&
+				status == models.MTOServiceItemStatusApproved {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func (f *shipmentAddressUpdateRequester) mapServiceItemWithUpdatedPriceRequirements(originalServiceItem models.MTOServiceItem) models.MTOServiceItem {
 	var reService models.ReService
 
@@ -467,57 +483,61 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		shipment.DestinationAddress = &addressUpdate.NewAddress
 		shipment.DestinationAddressID = &addressUpdate.NewAddressID
 
-		//We want to make sure the newly approved address update does not affect line haul/short haul pricing
+		// We want to make sure the newly approved address update does not affect line haul/short haul pricing
 		haulPricingTypeHasChanged, err := f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, addressUpdate.NewAddress)
 		if err != nil {
 			return nil, err
 		}
 
-		var currServiceItem models.MTOServiceItem
+		var shipmentDetails models.MTOShipment
+		err = appCtx.DB().EagerPreload("MoveTaskOrder", "MTOServiceItems.ReService").Find(&shipmentDetails, shipmentID)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return nil, apperror.NewNotFoundError(shipmentID, "looking for shipment")
+			}
+			return nil, apperror.NewQueryError("MTOShipment", err, "")
+		}
+
+		// If the pricing type has changed then we automatically reject the DLH or DSH service item on the shipment since it is now inaccurate
 		var approvedPaymentRequestsExistsForServiceItem bool
-		//If the pricing type has changed then we automatically reject the service items on the shipment since they are now inaccurate
 		if haulPricingTypeHasChanged && len(shipment.MTOServiceItems) > 0 {
 			serviceItems := shipment.MTOServiceItems
 			autoRejectionRemark := "Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul."
 			var regeneratedServiceItems models.MTOServiceItems
 
-			for i, serviceItem := range serviceItems {
-				currServiceItem, err = models.FetchServiceItem(appCtx.DB(), serviceItem.ID)
-				if err == nil {
-					if (currServiceItem.ReService.Code == models.ReServiceCodeDSH || currServiceItem.ReService.Code == models.ReServiceCodeDLH) && currServiceItem.Status != models.MTOServiceItemStatusRejected {
-						// check if a payment request for the DSH or DLH service item exists and is in approved, paid, or sent to gex
-						approvedPaymentRequestsExistsForServiceItem, err = checkForApprovedPaymentRequestOnServiceItem(appCtx, shipment)
-						if err != nil {
-							return nil, apperror.NewQueryError("ServiceItemPaymentRequests", err, "")
-						}
-						// only regenerate DSH or DLH if payment has not already been approved
-						if !approvedPaymentRequestsExistsForServiceItem {
-							rejectedServiceItem, updateErr := serviceItemUpdater.ApproveOrRejectServiceItem(appCtx, serviceItem.ID, models.MTOServiceItemStatusRejected, &autoRejectionRemark, etag.GenerateEtag(serviceItem.UpdatedAt))
-							if updateErr != nil {
-								return nil, updateErr
-							}
-							copyOfServiceItem := f.mapServiceItemWithUpdatedPriceRequirements(*rejectedServiceItem)
-							serviceItems[i] = *rejectedServiceItem
-
-							// Regenerate approved service items to replace the rejected ones.
-							// Ensure that the updated pricing is applied (e.g. DLH -> DSH, DSH -> DLH etc.)
-							regeneratedServiceItem, _, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &copyOfServiceItem)
-							if createErr != nil {
-								return nil, createErr
-							}
-							regeneratedServiceItems = append(regeneratedServiceItems, *regeneratedServiceItem...)
-							break
-						}
-
+			for i, serviceItem := range shipmentDetails.MTOServiceItems {
+				if (serviceItem.ReService.Code == models.ReServiceCodeDSH || serviceItem.ReService.Code == models.ReServiceCodeDLH) && serviceItem.Status != models.MTOServiceItemStatusRejected {
+					// check if a payment request for the DSH or DLH service item exists and status is approved, paid, or sent to GEX
+					approvedPaymentRequestsExistsForServiceItem, err = checkForApprovedPaymentRequestOnServiceItem(appCtx, shipment)
+					if err != nil {
+						return nil, apperror.NewQueryError("ServiceItemPaymentRequests", err, "")
 					}
-				} else if err != nil {
-					switch err {
-					case models.ErrFetchNotFound:
-						return nil, apperror.NewNotFoundError(serviceItem.ID, "while looking for MTOServiceItem")
-					default:
-						return nil, apperror.NewQueryError("MTOServiceItem", err, "")
+
+					shipmentHasApprovedDestSIT := f.doesShipmentContainApprovedDestinationSIT(shipmentDetails)
+
+					// do NOT regenerate any service items if the following conditions exist:
+					// payment has already been approved for DLH or DSH service item
+					// destination SIT is on shipment and any of the service items have an appproved status
+					if !approvedPaymentRequestsExistsForServiceItem && !shipmentHasApprovedDestSIT {
+						rejectedServiceItem, updateErr := serviceItemUpdater.ApproveOrRejectServiceItem(appCtx, serviceItem.ID, models.MTOServiceItemStatusRejected, &autoRejectionRemark, etag.GenerateEtag(serviceItem.UpdatedAt))
+						if updateErr != nil {
+							return nil, updateErr
+						}
+						copyOfServiceItem := f.mapServiceItemWithUpdatedPriceRequirements(*rejectedServiceItem)
+						serviceItems[i] = *rejectedServiceItem
+
+						// Regenerate approved service items to replace the rejected ones.
+						// Ensure that the updated pricing is applied (e.g. DLH -> DSH, DSH -> DLH etc.)
+						regeneratedServiceItem, _, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &copyOfServiceItem)
+						if createErr != nil {
+							return nil, createErr
+						}
+						regeneratedServiceItems = append(regeneratedServiceItems, *regeneratedServiceItem...)
+						break
 					}
+
 				}
+
 			}
 
 			// Append the auto-generated service items to the shipment service items slice
