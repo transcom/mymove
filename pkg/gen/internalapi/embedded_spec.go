@@ -5505,9 +5505,11 @@ func init() {
         "PERMANENT_CHANGE_OF_STATION",
         "LOCAL_MOVE",
         "RETIREMENT",
-        "SEPARATION"
+        "SEPARATION",
+        "BLUEBARK"
       ],
       "x-display-value": {
+        "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
@@ -13645,9 +13647,11 @@ func init() {
         "PERMANENT_CHANGE_OF_STATION",
         "LOCAL_MOVE",
         "RETIREMENT",
-        "SEPARATION"
+        "SEPARATION",
+        "BLUEBARK"
       ],
       "x-display-value": {
+        "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
