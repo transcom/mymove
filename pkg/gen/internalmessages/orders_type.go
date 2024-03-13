@@ -44,6 +44,9 @@ const (
 
 	// OrdersTypeWOUNDEDWARRIOR captures enum value "WOUNDED_WARRIOR"
 	OrdersTypeWOUNDEDWARRIOR OrdersType = "WOUNDED_WARRIOR"
+
+	// OrdersTypeBLUEBARK captures enum value "BLUEBARK"
+	OrdersTypeBLUEBARK OrdersType = "BLUEBARK"
 )
 
 // for schema
@@ -51,7 +54,7 @@ var ordersTypeEnum []interface{}
 
 func init() {
 	var res []OrdersType
-	if err := json.Unmarshal([]byte(`["PERMANENT_CHANGE_OF_STATION","LOCAL_MOVE","RETIREMENT","SEPARATION","WOUNDED_WARRIOR"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PERMANENT_CHANGE_OF_STATION","LOCAL_MOVE","RETIREMENT","SEPARATION","WOUNDED_WARRIOR","BLUEBARK"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

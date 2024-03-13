@@ -3073,9 +3073,11 @@ func init() {
         "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION",
-        "WOUNDED_WARRIOR"
+        "WOUNDED_WARRIOR",
+        "BLUEBARK"
       ],
       "x-display-value": {
+        "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
@@ -8173,9 +8175,11 @@ func init() {
         "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION",
-        "WOUNDED_WARRIOR"
+        "WOUNDED_WARRIOR",
+        "BLUEBARK"
       ],
       "x-display-value": {
+        "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",

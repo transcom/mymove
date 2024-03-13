@@ -1698,6 +1698,7 @@ definitions:
       - GHC
       - NTS
       - WOUNDED_WARRIOR
+      - BLUEBARK
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station (PCS)
       LOCAL_MOVE: Local Move
@@ -1706,6 +1707,7 @@ definitions:
       GHC: GHC
       NTS: NTS
       WOUNDED_WARRIOR: Wounded Warrior
+      BLUEBARK: BLUEBARK
   OrdersTypeDetail:
     type: string
     title: Orders type detail

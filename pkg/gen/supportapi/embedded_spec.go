@@ -2012,9 +2012,11 @@ func init() {
         "SEPARATION",
         "GHC",
         "NTS",
-        "WOUNDED_WARRIOR"
+        "WOUNDED_WARRIOR",
+        "BLUEBARK"
       ],
       "x-display-value": {
+        "BLUEBARK": "BLUEBARK",
         "GHC": "GHC",
         "LOCAL_MOVE": "Local Move",
         "NTS": "NTS",
@@ -4809,9 +4811,11 @@ func init() {
         "SEPARATION",
         "GHC",
         "NTS",
-        "WOUNDED_WARRIOR"
+        "WOUNDED_WARRIOR",
+        "BLUEBARK"
       ],
       "x-display-value": {
+        "BLUEBARK": "BLUEBARK",
         "GHC": "GHC",
         "LOCAL_MOVE": "Local Move",
         "NTS": "NTS",
