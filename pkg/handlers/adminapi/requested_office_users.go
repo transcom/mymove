@@ -132,7 +132,6 @@ type UpdateRequestedOfficeUserHandler struct {
 	services.RequestedOfficeUserUpdater
 	services.UserRoleAssociator
 	services.RoleAssociater
-	services.NewQueryFilter
 }
 
 // Handle updates a single requested office user
@@ -183,6 +182,6 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 
 			payload := payloadForRequestedOfficeUserModel(*requestedOfficeUser)
 
-			return requested_office_users.NewGetRequestedOfficeUserOK().WithPayload(payload), nil
+			return requested_office_users.NewUpdateRequestedOfficeUserOK().WithPayload(payload), nil
 		})
 }
