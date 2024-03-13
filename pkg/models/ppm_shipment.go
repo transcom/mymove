@@ -53,7 +53,7 @@ const (
 	// PPMShipmentStatusPaymentApproved captures enum value "PAYMENT_APPROVED"
 	PPMShipmentStatusPaymentApproved PPMShipmentStatus = "PAYMENT_APPROVED"
 	// PPMStatusCOMPLETED captures enum value "COMPLETED"
-	PPMShipmentStatusComplete PPMStatus = "COMPLETED"
+	PPMShipmentStatusComplete PPMShipmentStatus = "COMPLETED"
 )
 
 // AllowedPPMShipmentStatuses is a list of all the allowed values for the Status of a PPMShipment as strings. Needed for
@@ -275,15 +275,4 @@ func FetchPPMShipmentByPPMShipmentID(db *pop.Connection, ppmShipmentID uuid.UUID
 		return nil, err
 	}
 	return &ppmShipment, nil
-}
-func GetPPMNetWeight(ppm PPMShipment) unit.Pound {
-	totalNetWeight := unit.Pound(0)
-	for _, weightTicket := range ppm.WeightTickets {
-		if weightTicket.AdjustedNetWeight != nil && *weightTicket.AdjustedNetWeight > 0 {
-			totalNetWeight += *weightTicket.AdjustedNetWeight
-		} else {
-			totalNetWeight += GetWeightTicketNetWeight(weightTicket)
-		}
-	}
-	return totalNetWeight
 }
