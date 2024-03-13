@@ -240,6 +240,11 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			suite.NotNil(createdPPMShipment.DestinationAddressID)
 			suite.NotNil(createdPPMShipment.SecondaryPickupAddressID)
 			suite.NotNil(createdPPMShipment.SecondaryDestinationAddressID)
+			//ensure HasSecondaryPickupAddress/HasSecondaryDestinationAddress are set even if not initially provided
+			suite.True(createdPPMShipment.HasSecondaryPickupAddress != nil)
+			suite.Equal(models.BoolPointer(true), createdPPMShipment.HasSecondaryPickupAddress)
+			suite.True(createdPPMShipment.HasSecondaryDestinationAddress != nil)
+			suite.Equal(models.BoolPointer(true), createdPPMShipment.HasSecondaryDestinationAddress)
 		}
 	})
 }

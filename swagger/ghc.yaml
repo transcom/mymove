@@ -803,6 +803,8 @@ paths:
         * Customer Remarks
         * Counselor Remarks
         * Releasing / Receiving agents
+        * Actual Pro Gear Weight
+        * Actual Spouse Pro Gear Weight
       consumes:
         - application/json
       produces:
@@ -2975,6 +2977,10 @@ paths:
           name: closeoutLocation
           type: string
           description: closeout location
+        - in: query
+          name: orderType
+          type: string
+          description: order type
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3030,6 +3036,9 @@ paths:
           type: string
         - in: query
           name: moveCode
+          type: string
+        - in: query
+          name: orderType
           type: string
       responses:
         '200':
@@ -3123,6 +3132,10 @@ paths:
               - SUBMITTED
               - APPROVALS REQUESTED
               - APPROVED
+        - in: query
+          name: orderType
+          type: string
+          description: order type
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3215,6 +3228,10 @@ paths:
               - Paid
               - Deprecated
               - Error
+        - in: query
+          name: orderType
+          type: string
+          description: order type
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3288,6 +3305,14 @@ paths:
                 x-nullable: true
               shipmentsCount:
                 type: integer
+                x-nullable: true
+              pickupDate:
+                type: string
+                format: date-time
+                x-nullable: true
+              deliveryDate:
+                type: string
+                format: date-time
                 x-nullable: true
               sort:
                 type: string
@@ -3477,6 +3502,17 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       eTag:
         type: string
+      phoneIsPreferred:
+        type: boolean
+      emailIsPreferred:
+        type: boolean
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        x-nullable: true
+      backupAddress:
+        $ref: '#/definitions/Address'
   UpdateCustomerPayload:
     type: object
     properties:
@@ -3509,6 +3545,18 @@ definitions:
           - $ref: '#/definitions/Address'
       backup_contact:
         $ref: '#/definitions/BackupContact'
+      phoneIsPreferred:
+        type: boolean
+      emailIsPreferred:
+        type: boolean
+      secondaryTelephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        x-nullable: true
+      backupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
   Entitlements:
     properties:
       id:
@@ -4573,6 +4621,14 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      actualProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
       destinationType:
         $ref: '#/definitions/DestinationType'
       agents:
@@ -5141,6 +5197,9 @@ definitions:
       closeoutLocation:
         type: string
         x-nullable: true
+      orderType:
+        type: string
+        x-nullable: true
   QueueMovesResult:
     type: object
     properties:
@@ -5195,6 +5254,8 @@ definitions:
       eTag:
         type: string
         readOnly: true
+      orderType:
+        type: string
   ListPrimeMoves:
     type: array
     items:
@@ -5240,6 +5301,9 @@ definitions:
         $ref: '#/definitions/GBLOC'
       originDutyLocation:
         $ref: '#/definitions/DutyLocation'
+      orderType:
+        type: string
+        x-nullable: true
   QueuePaymentRequests:
     type: array
     items:
@@ -5305,6 +5369,20 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      orderType:
+        type: string
+      requestedPickupDate:
+        type: string
+        format: date
+        x-nullable: true
+      requestedDeliveryDate:
+        type: string
+        format: date
+        x-nullable: true
+      originGBLOC:
+        $ref: '#/definitions/GBLOC'
+      destinationGBLOC:
+        $ref: '#/definitions/GBLOC'
   SearchMovesResult:
     type: object
     properties:
@@ -5814,11 +5892,13 @@ definitions:
       - LOCAL_MOVE
       - RETIREMENT
       - SEPARATION
+      - BLUEBARK
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
       RETIREMENT: Retirement
       SEPARATION: Separation
+      BLUEBARK: BLUEBARK
   TransportationOffice:
     type: object
     properties:
@@ -6468,6 +6548,10 @@ definitions:
             type: string
             format: date
             x-nullable: true
+          sitAuthorizedEndDate:
+            type: string
+            format: date
+            x-nullable: true
           sitCustomerContacted:
             type: string
             format: date
@@ -6501,12 +6585,14 @@ definitions:
     title: PPM Advance Status
     description: >-
       Indicates whether an advance status has been accepted, rejected, or
-      edited.
+      edited, or a prime counseled PPM has been received or not received
     x-nullable: true
     enum:
       - APPROVED
       - REJECTED
       - EDITED
+      - RECEIVED
+      - NOT_RECEIVED
   Document:
     type: object
     properties:
@@ -7074,6 +7160,10 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       secondaryPickupAddress:
         allOf:
           - $ref: '#/definitions/Address'
@@ -7112,6 +7202,10 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
+      hasSecondaryDestinationAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       secondaryDestinationAddress:
         allOf:
           - $ref: '#/definitions/Address'
@@ -7452,6 +7546,14 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
+      actualProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        type: integer
+        x-nullable: true
+        x-omitempty: false
       customerRemarks:
         type: string
         example: handle with care
