@@ -155,7 +155,7 @@ export default function ReviewDocumentsSidePanel({
                         <dl className={classnames(styles.ItemDetails)}>
                           <span>
                             <dt>Belongs To: </dt>
-                            <dd>{gear.selfProGear ? `Customer` : `Spouse`}</dd>
+                            <dd>{gear.belongsToSelf ? `Customer` : `Spouse`}</dd>
                           </span>
                           <span>
                             <dt>Missing Weight Ticket (Constructed)?</dt>
