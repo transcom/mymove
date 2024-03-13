@@ -39,3 +39,6 @@ var ErrInvalidTransition = errors.New("INVALID_TRANSITION")
 // RecordNotFoundErrorString is the error string returned when no matching rows exist in the database
 // This is ugly, but the best we can do with go's Postgresql adapter
 const RecordNotFoundErrorString = "sql: no rows in result set"
+
+// ErrInvalidMoveID is used if a argument is provided in cases where a move ID is provided, but may be malformed, empty, or nonexistent
+var ErrInvalidMoveID = errors.New("INVALID_MOVE_ID")
