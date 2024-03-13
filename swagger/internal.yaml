@@ -2825,12 +2825,14 @@ definitions:
     title: PPM Advance Status
     description: >-
       Indicates whether an advance status has been accepted, rejected, or
-      edited.
+      edited, or a prime counseled PPM has been received or not received
     x-nullable: true
     enum:
       - APPROVED
       - REJECTED
       - EDITED
+      - RECEIVED
+      - NOT_RECEIVED
   SITLocationType:
     description: The list of SIT location types.
     type: string
