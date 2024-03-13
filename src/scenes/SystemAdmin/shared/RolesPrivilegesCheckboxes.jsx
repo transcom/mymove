@@ -23,7 +23,7 @@ const RolesPrivilegesCheckboxInput = (props) => {
     }, []);
   };
 
-  const parseCheckboxInput = (input) => {
+  const parseRolesCheckboxInput = (input) => {
     if (privilegesSelected.includes('supervisor')) {
       var index;
       if (input.includes('customer')) {
@@ -62,7 +62,10 @@ const RolesPrivilegesCheckboxInput = (props) => {
   };
 
   const parsePrivilegesCheckboxInput = (input) => {
-    if (rolesSelected.includes('customer', 'contracting officer')) {
+    if (rolesSelected.includes('customer')) {
+      return input;
+    }
+    if (rolesSelected.includes('contracting_officer')) {
       return input;
     }
 
@@ -79,7 +82,7 @@ const RolesPrivilegesCheckboxInput = (props) => {
       <CheckboxGroupInput
         source="roles"
         format={makeRoleTypeArray}
-        parse={parseCheckboxInput}
+        parse={parseRolesCheckboxInput}
         choices={adminOfficeRoles}
         optionValue="roleType"
         validate={props.validate}
@@ -93,7 +96,7 @@ const RolesPrivilegesCheckboxInput = (props) => {
         optionValue="privilegeType"
       />
       <span style={{ marginTop: '-20px', marginBottom: '20px', fontWeight: 'bold' }}>
-        Supervisor Privileges cannot be selected with customer or contracting officer roles
+        Supervisor privileges cannot be selected with Customer or Contracting Officer roles.
       </span>
     </>
   );
