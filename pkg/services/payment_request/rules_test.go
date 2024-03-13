@@ -157,4 +157,130 @@ func (suite *PaymentRequestServiceSuite) TestValidationRules() {
 		})
 
 	})
+
+	suite.Run("checkValidSitAddlDates", func() {
+
+		suite.Run("success", func() {
+
+			move := factory.BuildMove(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
+			testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EndDate: time.Now().Add(time.Hour * 24),
+				},
+			})
+			estimatedWeight := unit.Pound(2048)
+			serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model: models.ReService{
+						Code: models.ReServiceCodeDLH,
+					},
+				},
+				{
+					Model: models.MTOShipment{
+						PrimeEstimatedWeight: &estimatedWeight,
+					},
+				},
+				{
+					Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
+				},
+			}, nil)
+
+			paymentRequest := models.PaymentRequest{
+				MoveTaskOrderID: move.ID,
+				IsFinal:         false,
+				PaymentServiceItems: models.PaymentServiceItems{
+					{
+						MTOServiceItemID: serviceItem.ID,
+						MTOServiceItem:   serviceItem,
+						PaymentServiceItemParams: models.PaymentServiceItemParams{
+							{
+								IncomingKey: models.ServiceItemParamNameSITPaymentRequestStart.String(),
+								Value:       "2024-02-22",
+							},
+							{
+								IncomingKey: models.ServiceItemParamNameSITPaymentRequestEnd.String(),
+								Value:       "2024-02-23",
+							},
+						},
+					},
+				},
+			}
+
+			err := checkValidSitAddlDates().Validate(suite.AppContextForTest(), paymentRequest, nil)
+			suite.NoError(err)
+		})
+
+		suite.Run("failure", func() {
+			testCases := []struct {
+				sitStartDate string
+				sitEndDate   string
+				errorString  string
+			}{
+				{"01-01-2024", "2024-02-21", "Invalid Create Input Error: SITPaymentRequestStart must be a valid date value of YYYY-MM-DD"},
+				{"2024-02-21", "01-01-2024", "Invalid Create Input Error: SITPaymentRequestEnd must be a valid date value of YYYY-MM-DD"},
+				{"2024-02-22", "2024-02-21", "Invalid Create Input Error: SITPaymentRequestStart must be a date that comes before SITPaymentRequestEnd"},
+			}
+
+			move := factory.BuildMove(suite.DB(), nil, []factory.Trait{factory.GetTraitAvailableToPrimeMove})
+			testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EndDate: time.Now().Add(time.Hour * 24),
+				},
+			})
+			estimatedWeight := unit.Pound(2048)
+			serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model: models.ReService{
+						Code: models.ReServiceCodeDLH,
+					},
+				},
+				{
+					Model: models.MTOShipment{
+						PrimeEstimatedWeight: &estimatedWeight,
+					},
+				},
+				{
+					Model: models.MTOServiceItem{Status: models.MTOServiceItemStatusApproved},
+				},
+			}, nil)
+			for _, testCase := range testCases {
+
+				paymentRequest := models.PaymentRequest{
+					MoveTaskOrderID: move.ID,
+					IsFinal:         false,
+					PaymentServiceItems: models.PaymentServiceItems{
+						{
+							MTOServiceItemID: serviceItem.ID,
+							MTOServiceItem:   serviceItem,
+							PaymentServiceItemParams: models.PaymentServiceItemParams{
+								{
+									IncomingKey: models.ServiceItemParamNameSITPaymentRequestStart.String(),
+									Value:       testCase.sitStartDate,
+								},
+								{
+									IncomingKey: models.ServiceItemParamNameSITPaymentRequestEnd.String(),
+									Value:       testCase.sitEndDate,
+								},
+							},
+						},
+					},
+				}
+
+				err := checkValidSitAddlDates().Validate(suite.AppContextForTest(), paymentRequest, nil)
+				suite.Error(err)
+				suite.Contains(err.Error(), testCase.errorString)
+			}
+
+		})
+
+	})
+
 }
