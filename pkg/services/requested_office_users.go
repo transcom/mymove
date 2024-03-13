@@ -24,7 +24,7 @@ type RequestedOfficeUserFetcher interface {
 	FetchRequestedOfficeUser(appCtx appcontext.AppContext, filters []QueryFilter) (models.OfficeUser, error)
 }
 
-// RequestedOfficeUserFetcher is the exported interface for updating the status of a requested office user
+// RequestedOfficeUserFetcher is the exported interface for updating a requested office user
 //
 //go:generate mockery --name RequestedOfficeUserUpdater
 type RequestedOfficeUserUpdater interface {

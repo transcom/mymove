@@ -78,7 +78,7 @@ func (o *requestedOfficeUserUpdater) UpdateRequestedOfficeUser(appCtx appcontext
 	return &officeUser, nil, nil
 }
 
-// NewAdminUserUpdater returns a new admin user updater builder
+// NewRequestedOfficeUserUpdater returns a new requested office user updater builder
 func NewRequestedOfficeUserUpdater(builder requestedOfficeUserQueryBuilder) services.RequestedOfficeUserUpdater {
 	return &requestedOfficeUserUpdater{builder}
 }
