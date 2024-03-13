@@ -366,6 +366,10 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"MTOShipments.SecondaryDeliveryAddress",
 		"MTOShipments.PickupAddress",
 		"MTOShipments.SecondaryPickupAddress",
+		"MTOShipments.PPMShipment.PickupAddress",
+		"MTOShipments.PPMShipment.DestinationAddress",
+		"MTOShipments.PPMShipment.SecondaryPickupAddress",
+		"MTOShipments.PPMShipment.SecondaryDestinationAddress",
 		"Orders",
 		"Orders.UploadedOrders",
 		"Orders.UploadedOrders.UserUploads",
@@ -380,6 +384,7 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"Orders.NewDutyLocation.TransportationOffice",
 		"Orders.NewDutyLocation.TransportationOffice.Address",
 		"CloseoutOffice",
+		"CloseoutOffice.Address",
 	).All(&moves)
 	if err != nil {
 		return moves, err
@@ -475,4 +480,14 @@ func (m Move) HasPPM() bool {
 		}
 	}
 	return hasPpmMove
+}
+func GetTotalNetWeightForMove(m Move) unit.Pound {
+	totalNetWeight := unit.Pound(0)
+	for _, shipment := range m.MTOShipments {
+		if shipment.ShipmentType == MTOShipmentTypePPM && shipment.PPMShipment != nil {
+			totalNetWeight += GetPPMNetWeight(*shipment.PPMShipment)
+		}
+	}
+	return totalNetWeight
+
 }
